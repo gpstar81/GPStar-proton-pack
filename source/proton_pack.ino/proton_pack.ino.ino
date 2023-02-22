@@ -648,7 +648,7 @@ void checkSwitches() {
     b_clockwise = false;
   }
 
-  if(switch_smoke.getState() == LOW) {
+  if(switch_smoke.getState() == HIGH) {
     if(b_smoke_enabled == true) {
       smokeControl(false);
     }
@@ -1956,8 +1956,7 @@ void readEncoder() {
 }
 
 void checkRotaryEncoder() {
-  if(i_val_rotary>i_last_val_rotary) {
-    //Serial.println("clockwise");
+  if(i_val_rotary > i_last_val_rotary) {
     increaseVolume();
       
     // Tell wand to increase volume.
@@ -1965,7 +1964,6 @@ void checkRotaryEncoder() {
   }
   
   if(i_val_rotary < i_last_val_rotary) {
-    //Serial.println("counter clockwise");
     decreaseVolume();
       
     // Tell wand to decrease the volume.
@@ -1995,10 +1993,10 @@ void smokeBooster(boolean b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       Serial.println("booster smoke");
-      //digitalWrite(smoke_booster_pin, HIGH);
+      digitalWrite(smoke_booster_pin, HIGH);
     }
     else {
-      //digitalWrite(smoke_booster_pin, LOW);
+      digitalWrite(smoke_booster_pin, LOW);
     }
   }
 }
