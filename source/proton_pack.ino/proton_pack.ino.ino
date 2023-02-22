@@ -2061,8 +2061,6 @@ void checkWand() {
     prev_byte = rx_byte;  
     rx_byte = Serial2.read();
     
-    //(rx_byte);
-
     if(b_wand_connected == true) {
       switch(rx_byte) {
         case 1:
