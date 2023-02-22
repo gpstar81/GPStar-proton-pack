@@ -840,6 +840,12 @@ void checkSwitches() {
 void wandOff() {
   // Tell the pack the wand is turned off.
   Serial.write(2);
+
+  if(FIRING_MODE == SETTINGS) {
+    // If the wand is shut down while we are in settings mode (can happen if the pack is manually turned off), switch the wand and pack to proton mode.
+    Serial.write(5);
+    FIRING_MODE = PROTON;
+  }
   
   WAND_STATUS = MODE_OFF;
   WAND_ACTION_STATUS = ACTION_IDLE;
