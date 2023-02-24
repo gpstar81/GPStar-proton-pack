@@ -67,7 +67,7 @@ PN2222  - NPN Bipolar Transistor
 
 ## Circuit Schematic
 
-Half size Bread Board (1609 Adafruit) or any other brand.
+Half size Bread Board ([1609 Adafruit](https://www.adafruit.com/product/1609)) or any other brand.
 
 | **-** | **+** | **-** | **A** | **B** | **C** | **D** | **E** |  | **F** | **G** | **H** | **I** | **J** | **+** | **-** |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -106,7 +106,7 @@ Half size Bread Board (1609 Adafruit) or any other brand.
 |---|---|
 | BAT (+) | 5V from your power source |
 | BAT (-) | Ground from your 5V power source. |
-| WAND (+) | Runs to your wand (5V) + power rail on the ¼ board (see wand section) |
+| WAND (+) | Runs to your wand (5V) + power rail [on the ¼ board](https://www.adafruit.com/product/1608) (see wand section) |
 | WAND (-) | Runs to your wand ground rail on the ¼ board (see wand section) |
 
 Bread board diagram reference. 
