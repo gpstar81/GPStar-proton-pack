@@ -1,6 +1,6 @@
 # Operating Manual
 					
-[Haslab Proton Pack Arduino Powered Demo & Features](https://www.youtube.com/watch?v=nhGX1oJBNHk)
+Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.youtube.com/watch?v=nhGX1oJBNHk) (YouTube)
 
 ## Proton Pack		
 
@@ -8,7 +8,8 @@
 
 - The switch underneath the ion arm can turn the pack on or off.
 - You can run the pack without the cyclotron lid on.
-- Alarm ribbon cable will activate the alarm.
+	- Automatically switches to internal "cake" cyclotron, if implemented (optional).
+- Alarm ribbon cable will activate the alarm mode and degraded cyclotron spin.
 - The pack can run without a wand.
 - Vibration switch in the cyclotron switch plate enables or disables the vibration motors for both the pack and wand.
 - 1984/2021 year switch in the cyclotron switch plate changes the pack and wand from 1984 (OG) to 2021 (Afterlife) modes.
@@ -17,17 +18,18 @@
 
 ### Features
 
-- Activate switch on the gun box turns on both the pack and wand.
+- Activate toggle on the gun box turns on both the pack and wand.
 - Right-hand toggles affect the vent light and additional sound effects (see below).
-	- Note that for both 2021 and 1984 modes, the wand will not fire unless these switches are turned on (plus the lever switch near the gunbox has been pulled to extend the barrel).
-- The orange switch at the end of the wand switches between the available firing modes:
+	- Note that for both 2021 and 1984 modes, the wand will not fire unless these switches are turned on.
+	- Additionally, the lever switch near the gunbox must be pulled to extend the barrel before firing.
+- The orange button at the end of the wand switches between the available firing modes:
 	1. Proton Stream (Default)
 	1. Slime Gun
-	1. Statis
+	1. Statis Beam
 	1. Meson Collider
 	1. Special: Setting 5 is a settings menu system (see below).
-	
-**Toggles**
+
+**Toggle Behavior**
 
 - While in 1984 mode:
 	- Bottom right switch turns on the vent light and plays the wand power up sound.
@@ -49,7 +51,7 @@ When you are in the settings menu system, the bargraph leds begin flashing. All 
 
 To exit the menu system, goto Menu 5 and press the Orange mode switch button, the wand will now go to the Proton stream mode. The music will play even when the pack and wand are turned off. When music is playing while the pack and wand are turned off, you can use the Rotary knob on the top of the wand to easily access independent music volume control.
 
-To add more music, copy stereo wav tracks (44khz stereo wav files) onto the SD card of the pack and wand. File naming of the music tracks start at 100. So for example, 100_somesong.wav, 101_somesong.wav, 102_somesong.wav, etc. **Do not leave any gaps in the number sequencing!** (For example of what NOT to do, 100_somesong.wav, 102_somesong.wav leaving off 101_somesong.wav on the SD card.) The only important part in the naming is the XXX_ for all tracks.
+See the [WavTrigger section](WAVTRIGGER.md) for more information on loading additional music tracks.
 
 ## Wand Power Modes
 
