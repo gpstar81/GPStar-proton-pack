@@ -19,16 +19,21 @@
 **Features:**
 
 - Activate switch turns on the pack and wand.
-- The orange switch on the wand switches between the 4 different firing modes. Setting 5 is a settings menu system.	
+- The orange switch on the wand switches between the 4 different firing modes:
+	- Proton Stream (Default)
+	- Slime Gun
+	- Statis
+	- Meson Collider
+	- NEW: Setting 5 is a settings menu system (see below).	
 
 ### Wand Settings Menu System							
 When you are in the settings menu system, the bargraph leds begin flashing. All other functions of the wand are disabled while in the menu system.
 
-There are 5 different menu settings, which are indicated by the bargraph leds. 1 through 5. (1 led flashing means you are on menu 1). Use the rotary knob on the top of the wand to navigate the menu system.
+There are 5 different menu settings, which are indicated by the bargraph leds. 1 through 5. (For example, when 1 LED is flashing that means you are on menu 1). Use the rotary knob on the top of the wand to navigate the menu system!
 
 | Menu Level | Purpose | Description |
 | ----------- | ----------- | ----------- |
-| 5 | Music track loop settings | Press Intensify to set the current track to loop forever. Press again to turn off the loop feature. (note that the LED #5 will stay solid when loop is enabled, it will blink on/off when looping is disabled). |
+| 5 | Music track loop settings | Press Intensify to set the current track to loop forever. Press again to turn off the loop feature. (Note that the LED #5 will stay solid when loop is enabled, it will blink on/off when looping is disabled). |
 | 4 | Overall system volume | Press Intensify to increase volume, press the orange mode switch to decrease volume. |
 | 3 | Adjust independent music volume | Press Intensify to increase volume, press the orange mode switch to decrease volume. |
 | 2 | Switches music track | Press Intensify to cycle forward. Press the orange mode switch to cycle backwards. |
