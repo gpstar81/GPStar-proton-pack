@@ -1,6 +1,6 @@
 # Operating Manual
 					
-(content still subject to change)
+[Haslab Proton Pack Arduino Powered Demo & Features](https://www.youtube.com/watch?v=nhGX1oJBNHk)
 
 ## Proton Pack		
 
@@ -28,11 +28,11 @@ There are 5 different menu settings, which are indicated by the bargraph leds. 1
 
 | Menu Level | Purpose | Description |
 | ----------- | ----------- | ----------- |
-| Menu 5 | Music track loop settings | Press Intensify to set the current track to loop forever. Press again to turn off the loop feature. (note that the LED #5 will stay solid when loop is enabled, it will blink on/off when looping is disabled). |
-| Menu 4 | Overall system volume | Press Intensify to increase volume, press the orange mode switch to decrease volume. |
-| Menu 3 | Adjust independent music volume | Press Intensify to increase volume, press the orange mode switch to decrease volume. |
-| Menu 2 | Switches music track | Press Intensify to cycle forward. Press the orange mode switch to cycle backwards. |
-| Menu 1 | Plays or stops the current music track | Press Intensify to play music. Press it again to stop the music. |
+| 5 | Music track loop settings | Press Intensify to set the current track to loop forever. Press again to turn off the loop feature. (note that the LED #5 will stay solid when loop is enabled, it will blink on/off when looping is disabled). |
+| 4 | Overall system volume | Press Intensify to increase volume, press the orange mode switch to decrease volume. |
+| 3 | Adjust independent music volume | Press Intensify to increase volume, press the orange mode switch to decrease volume. |
+| 2 | Switches music track | Press Intensify to cycle forward. Press the orange mode switch to cycle backwards. |
+| 1 | Plays or stops the current music track | Press Intensify to play music. Press it again to stop the music. |
 
 To exit the menu system, goto Menu 5 and press the Orange mode switch button, the wand will now go to the Proton stream mode.	
 
