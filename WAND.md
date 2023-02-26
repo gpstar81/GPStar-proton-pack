@@ -101,7 +101,7 @@ OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin
 
 ![](images/SloBloAlt.jpg)
 
-## Wav Trigger Connections
+## WavTrigger Connections
 
 > 5V IN goes to the + rail on the PCB
 > 
