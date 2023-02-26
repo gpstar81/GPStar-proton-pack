@@ -448,7 +448,6 @@ void loop() {
       
       if(b_pack_on == true) {
         // Tell the wand the pack is off, so shut down the wand as well if it is still on.
-        Serial.println("shut off wand");
         Serial2.write(2);
       }
 
@@ -486,26 +485,29 @@ void loop() {
         }
       }   
 
-      // Play a little bit of smoke while firing. Just a tiny bit....
+      // Play a little bit of smoke and n-filter vent lights while firing. Just a tiny bit....
       if(b_wand_firing == true) {
         if(ms_smoke_timer.remaining() < 3000 && ms_smoke_timer.remaining() > 0) {
-          Serial.println("smoke on");
-          smokeControl(true);
-
-          // Play some sounds with the smoke and vent lighting.
-          if(b_vent_sounds == true) {
-            w_trig.trackGain(S_VENT_SMOKE, -5);
-            w_trig.trackPlayPoly(S_VENT_SMOKE);
-            w_trig.trackGain(S_SPARKS_LOOP, -5);
-            w_trig.trackPlayPoly(S_SPARKS_LOOP);
-
-            b_vent_sounds = false;
+          // Turn on some smoke and play some vent sounds if smoke is enabled.
+          if(b_smoke_enabled == true) {
+            // Turn on some smoke.
+            smokeControl(true);
+  
+            // Play some sounds with the smoke and vent lighting.
+            if(b_vent_sounds == true) {
+              w_trig.trackGain(S_VENT_SMOKE, -5);
+              w_trig.trackPlayPoly(S_VENT_SMOKE);
+              w_trig.trackGain(S_SPARKS_LOOP, -5);
+              w_trig.trackPlayPoly(S_SPARKS_LOOP);
+  
+              b_vent_sounds = false;
+            }
+          
+            fanControl(true);
           }
-
+          
           if(ms_vent_light_off.justFinished()) {
             ms_vent_light_off.stop();
-
-            
             ms_vent_light_on.start(i_vent_light_delay);
         
             ventLight(true);
@@ -516,15 +518,13 @@ void loop() {
         
             ventLight(false);
           }
-
-          //fanControl(true);
         }
         else {
           smokeControl(false);
 
           ventLight(false);
 
-          //fanControl(false);
+          fanControl(false);
         }
 
         if(ms_smoke_timer.justFinished()) {
@@ -663,7 +663,6 @@ void checkSwitches() {
     if(b_vibration == false) {
       // Tell the wand to turn vibration on.
       Serial2.write(5);
-      Serial.println("Vibration on");
       
       w_trig.trackStop(S_BEEPS_ALT);    
       w_trig.trackGain(S_BEEPS_ALT, 0);
@@ -675,7 +674,6 @@ void checkSwitches() {
     if(b_vibration == true) {
       // Tell the wand to turn vibration off.
       Serial2.write(6);
-      Serial.println("Vibration off");
 
       w_trig.trackStop(S_BEEPS_ALT);    
       w_trig.trackGain(S_BEEPS_ALT, 0);
@@ -1713,15 +1711,15 @@ void wandStoppedFiring() {
       case PROTON:
         // Play different firing end stream sound depending on how long we have been firing for.
         if(ms_firing_length_timer.remaining() < 5000) {
-          Serial.println("long end");
+          // Long tail end.
           w_trig.trackPlayPoly(S_FIRING_END, true);
         }
         else if(ms_firing_length_timer.remaining() < 10000) {
-          Serial.println("mid end");
+          // Mid tail end.
           w_trig.trackPlayPoly(S_FIRING_END_MID, true);
         }
         else {
-          Serial.println("short end");
+          // Short tail end.
           w_trig.trackPlayPoly(S_FIRING_END_GUN, true);
         }
       break;
@@ -1838,8 +1836,8 @@ void cyclotronSwitchPlateLEDs() {
 
   if(switch_cyclotron_lid.getState() == LOW) {
     if(b_cyclotron_lid_on != true) {
+      // The cyclotron lid is now on.
       b_cyclotron_lid_on = true;
-      Serial.println("lid is on");
       
       // Turn off inner cyclotron LEDs.
       innerCyclotronOff();
@@ -1847,7 +1845,7 @@ void cyclotronSwitchPlateLEDs() {
   }
   else {
     if(b_cyclotron_lid_on == true) {
-      Serial.println("lid is off");
+      // The cyclotron lid is now off.
       b_cyclotron_lid_on = false;
     }
   }
@@ -1977,6 +1975,7 @@ void smokeControl(boolean b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       digitalWrite(smoke_pin, HIGH);
+      smokeBooster(b_smoke_on);
     }
     else {
       digitalWrite(smoke_pin, LOW);
@@ -1989,10 +1988,12 @@ void smokeControl(boolean b_smoke_on) {
   }
 }
 
+/* 
+ *  Alternate 5V high pin. This one turns on while firing occasionally for smoke. I put this one in my booster tube.
+ */
 void smokeBooster(boolean b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
-      Serial.println("booster smoke");
       digitalWrite(smoke_booster_pin, HIGH);
     }
     else {
@@ -2010,9 +2011,13 @@ void fanControl(boolean b_fan_on) {
   }
 }
 
+/* 
+ *  Another optional 5V pin that goes high during overheat sequences. 
+ *  Perhaps this one would be good for a fan or dc motor to push some smoke into the n-filter with more force.
+ */
 void checkFan() {
   if(ms_fan_stop_timer.justFinished()) {
-    Serial.println("fan timer finished. Fan off");
+    // Turn off fan.
     fanControl(false);
     ms_fan_stop_timer.stop();
   }
@@ -2062,8 +2067,7 @@ void checkWand() {
     if(b_wand_connected == true) {
       switch(rx_byte) {
         case 1:
-          // Wand turned on.
-          Serial.println("wand on");
+          // The wand has been turned on.
           // Turn the pack on.
           if(PACK_STATUS != MODE_ON) {
             PACK_ACTION_STATUS = ACTION_ACTIVATE;
@@ -2071,8 +2075,7 @@ void checkWand() {
         break;
     
         case 2:
-          // Wand turned off.
-          Serial.println("wand off");
+          // The wand has been turned off.
           // Turn the pack off.
           if(PACK_STATUS != MODE_OFF) {
             PACK_ACTION_STATUS = ACTION_OFF;
@@ -2081,20 +2084,17 @@ void checkWand() {
     
         case 3:
           // Wand is firing.
-          Serial.println("wand firing");
           wandFiring();
         break;
     
         case 4:
           // Wand just stopped firing.
-          Serial.println("wand stopped firing");
           wandStoppedFiring();
           cyclotronSpeedRevert();
         break;
     
         case 5:
           // Proton mode
-          Serial.println("proton mode");
           FIRING_MODE = PROTON;
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
@@ -2104,7 +2104,6 @@ void checkWand() {
     
         case 6:
           // Slime mode
-          Serial.println("slime mode");
           FIRING_MODE = SLIME;
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
@@ -2114,7 +2113,6 @@ void checkWand() {
     
         case 7:
           // Stasis mode
-          Serial.println("stasis mode");
           FIRING_MODE = STASIS;
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
@@ -2124,7 +2122,6 @@ void checkWand() {
     
         case 8:
           // Meson mode
-          Serial.println("meson mode");
           FIRING_MODE = MESON;
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
@@ -2134,7 +2131,6 @@ void checkWand() {
     
         case 9:
           // Settings mode
-          Serial.println("settings mode");
           FIRING_MODE = SETTINGS;
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
@@ -2142,7 +2138,6 @@ void checkWand() {
     
         case 10:
           // Overheating
-          Serial.println("overheating");
           w_trig.trackStop(S_BEEP_8);
           
           w_trig.trackGain(S_VENT_SLOW, i_volume);
@@ -2165,7 +2160,6 @@ void checkWand() {
     
         case 11:
           // Overheating finished
-          Serial.println("overheating finished");
           w_trig.trackGain(S_VENT_DRY, i_volume);
           b_overheating = false;
           
@@ -2189,56 +2183,48 @@ void checkWand() {
     
         case 12:
           // Reset cyclotron speed.
-          Serial.println("cyclotron speed reset");
           cyclotronSpeedRevert();
         break;
     
         case 13:
           // Speed up cyclotron.
-          Serial.println("cyclotron speed increase");
           cyclotronSpeedIncrease();  
         break;
 
         case 14:
-          // Wand is still here.
+          // The wand is still here.
           ms_wand_handshake.start(i_wand_handshake_delay);
           b_wand_connected = true;
         break;
         
         case 15:
           // Play 8 overheat beeps before we overheat.
-          Serial.println("Play overheat beeps");
           w_trig.trackGain(S_BEEP_8, i_volume);
           w_trig.trackPlayPoly(S_BEEP_8);
         break;
     
         case 16:
           // Wand power level 1
-          Serial.println("Wand power level 1");
           i_wand_power_level = 1;
         break;
     
         case 17:
           // Wand power level 2
-          Serial.println("Wand power level 2");
           i_wand_power_level = 2;
         break;
     
         case 18:
           // Wand power level 3
-          Serial.println("Wand power level 3");
           i_wand_power_level = 3;
         break;
     
         case 19:
           // Wand power level 4
-          Serial.println("Wand power level 4");
           i_wand_power_level = 4;
         break;
     
         case 20:
           // Wand power level 5
-          Serial.println("Wand power level 5");
           i_wand_power_level = 5;
         break;        
         
