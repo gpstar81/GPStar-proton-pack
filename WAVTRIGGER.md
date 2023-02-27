@@ -6,26 +6,33 @@ The WavTrigger firmware and software updater and instructions can be found on th
 
 ![](images/FTDI.png)
 
-**Firmware Summary Steps**
-
-1. There is a small switch near the power connect (barrel) to on the WavTrigger, set it to the “load” position
-1. Connect the RX on the FTDI basic to the TX of the WavTrigger, and TX from the FTDI basic to the RX of the Wav Trigger board.
-1. Connect the 5V and GND from both together.
-1. Plug in USB cable from computer to the FTDI basic.
-
-**IMPORTANT: You will need to solder the 5V pad on the Wav Trigger to enable 5V power from the device. When you do this, NEVER USE the BARREL CONNECTOR for power. We will be using 5V to power the Wav Triggers for both in the Pack and the Wand.**
-
-NOTE: See photos below for more information. I also wired some connectors to the TX/RX and PWR/GND on the WavTrigger, this will be a good time to do the same to enable easier connections for in the pack and wand. I used standard breadboard friendly header jumper cables to make the connections from the FTDI basic to the connectors I added to the WavTrigger. Also note that the WavTriggers have both a AUX output and/or 2 pins for audio output. You can use either or to connect to your speakers or amps.
-
-**IMPORTANT: Make sure after flashing the firmware to set the small switch on the Wav Trigger back to the RUN position.**
-
 ![](images/WavTriggerFTDI.jpg)
 
 ![](images/WavTrigger5V.jpg)
 
+**Firmware Summary Steps**
+
+1. There is a small switch near the power connect (barrel) to on the WavTrigger, set it to the “load” position
+1. Use dupont connectors to connect the following wires from the FTDI to WavTrigger:
+	- RX on the FTDI basic to the TX of the WavTrigger.
+	- TX from the FTDI basic to the RX of the WavTrigger.
+	- 5V and GND from each side to the other, respectively.
+1. Plug in USB cable from computer to the FTDI basic.
+
+**IMPORTANT: Make sure after flashing the firmware to set the small switch on the Wav Trigger back to the RUN position.**
+
+## Arduino Connections
+
+Once the firmware is updated to 1.34 and you have confirmed this, there will be connections made to the respective Arduino boards. Similar to the previous step the RX and TX will go to the respective TX and RX ports on the Arduino boards. See the setup instructions for the Pack and Wand as necessary. The 5Vin and GND will be connected to the power to each of the pack and wand, respectively.
+
+NOTE: See below for more information. I used standard breadboard friendly header jumper cables to make the connections from the FTDI basic to the connectors I added to the WavTrigger. Also note that the WavTriggers have both a AUX output and/or 2 pins for audio output. You can use either or to connect to your speakers or amps.
+
+**IMPORTANT: You will need to solder the 5Vpad on the Wav Trigger to enable 5V power from the device. When you do this, NEVER USE the BARREL CONNECTOR for power. We will be using 5V to power the Wav Triggers for both in the Pack and the Wand.**
+
+Note the "5V" pad just below the SPKR connection holes.
 ![](images/WavTrigger.jpg)
 
-## File Loading
+## Loading Files to the SD Cards
 
 Your SD cards **must** be formatted as FAT32 using 32KB block size per the WavTrigger manual. Use a full formatting option for the SD cards not a quick formatting for best results.
 
