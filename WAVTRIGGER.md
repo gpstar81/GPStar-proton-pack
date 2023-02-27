@@ -2,7 +2,7 @@
 
 The first thing to take care of is updating the firmware on the WavTrigger boards. Sometimes they ship with firmware version 1.28 and 1.34 is required for one feature used during music playback. It is possible to use the WavTriggers without updating the firmware, the only issue you will have is during music playback: when a track ends, the next track will not automatically load and play itself.
 
-The WavTrigger firmware and software updater and instructions can be found on the Robertsonics website. [https://www.robertsonics.com/wav-trigger](https://www.robertsonics.com/wav-trigger) To update the firmware, an [FTDI Basic (5V)](https://www.sparkfun.com/products/9716) version from Sparkfun can be used.
+The WavTrigger firmware and software updater and instructions [can be found on the Robertsonics website](https://www.robertsonics.com/wav-trigger). To update the firmware, an [FTDI Basic (5V version)](https://www.sparkfun.com/products/9716) from Sparkfun can be used.
 
 ![](images/FTDI.png)
 
@@ -36,7 +36,7 @@ Note the "5V" pad just below the SPKR connection holes.
 
 Your SD cards **must** be formatted as FAT32 using 32KB block size per the WavTrigger manual. Use a full formatting option for the SD cards not a quick formatting for best results.
 
-Load all sound effects files (and music, optionally) onto both SD cards. The file names must be identical and match between the SD cards so that any synchronized effects are both played by both WavTrigger devices at the same time. Although only some of the same tracks are played on the wand and pack while firing, some tracks play the same like the firing tail end, video game firing sounds, etc. For the proton stream, the wand plays a different sound vs the pack, so they overlap and mix in person for a nice effect.
+Load [all sound effects files from the "sounds" folder](sounds) (and music, optionally) onto both SD cards. The file names must be identical and match between the SD cards so that any synchronized effects are both played by both WavTrigger devices at the same time. Although only some of the same tracks are played on the wand and pack while firing, some tracks play the same like the firing tail end, video game firing sounds, etc. For the proton stream, the wand plays a different sound vs the pack, so they overlap and mix in person for a nice effect.
 
 Sound effects are prefixed with numbers 001-099 while music files will be prefixed as 100 and above. **DO NOT LEAVE GAPS IN PREFIXES WHEN NUMBERING FILES!** The only exception is between the last sound effect and first music track; when the pack and wand boot up, they ask the WavTrigger to count all the sound files on the SD cards, then I do some simple math by subtracting a known number of sound effects from the total number of loaded sound files, then it knows how many music tracks have been added and plays them accordingly.
 

@@ -76,6 +76,12 @@ Connections from stock JST-XH connectors may be split to maximize use of the sma
 | SMOKE1 | This is a standard 5V Air/Vacuum pump motor I use. (see below for more info) |
 | SMOKE2 | This is a standard 5V Air/Vacuum pump motor I use. (see below for more info) |
 
+Regarding the smoke effects, I am using [eroll mac joytech vape pen](https://www.joytech.fr/accueil/168-eroll-mac-joytech.html). I hook up with tubing the mini pump which is [linked in the parts lists](BOM.md). One end of the pump creates suction and sucks the smoke in, and the other end of the pump pushes the smoke out. The vape pen itself is activating when suction is applied by the motor. The vape pens are battery powered but come with a usb cable for charging, so I can feed it 5V with a usb cable directly to the pen and not have to rely on the battery it has in it.
+
+When the pump is controlled with the transistor/diode setup as in the diagrams, it is the only device which draws power from the 5V rail. **CAUTION: If you implement your own smoke solution using a different design, test your setup independent of the described circuit and with adequate measurement tools to ensure you will not draw power through the Arduino!** Most designs which use a vape pen (cartomizer) and mini air pump require ~3.6V to run correctly, and while less than the 5V supplied to the circuit below some solutions can require nearly 1 Amp of current to run these devices together. This can also overwhelm the 2N2222 transistor used in this schematic.
+
+By comparison, the current required for a small fan or the vibration motor are perfectly fine for the transistors as described, while the diodes prevent any backflow of current when those devices power down (but may still spin briefly).
+
 | Power Connections | Description |
 |---|---|
 | BAT (+) | Positive 5V from your power source. |
@@ -118,29 +124,29 @@ Connections from stock JST-XH connectors may be split to maximize use of the sma
 | **29** |  |  |  |  | 330 Ω |  | PIN&nbsp;35 |  |  |  | 330 Ω |  | PIN&nbsp;39 |  |  |
 | **30** |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
+![](images/Breadboard.jpg)
+
 **Bread Board Diagram Reference and Interpretations:**
 
 When you see a letter or code in a cells above, it references where component needs to be inserted or what needs to be connected there. Reference the photos below for more information.
 
-**Letters should be connected together by a length of wire.**
+- **Letters should be connected together by a length of wire.**
 
-Example #1: You see "A+" in space "+2" (Column "+", Row 2) on the breadboard and again on "A1" (Column "A", Row 1). You need to connect a wire to these 2 points. In this case, the result is positive power on the "+" rail being delivered into all of row 1 for any connections in columns A through E.
+	- Example #1: You see "A+" in space "+2" (Column "+", Row 2) on the breadboard and again on "A1" (Column "A", Row 1). You need to connect a wire to these 2 points. In this case, the result is positive power on the "+" rail being delivered into all of row 1 for any connections in columns A through E.
 
-Example #2: In space "J1" you have a connection "B-" and you need to run a wire from "J1" to "-1" on the right side of the breadboard. This will deliver ground from the "-" rail to columns F through J on row 1.
+	- Example #2: In space "J1" you have a connection "B-" and you need to run a wire from "J1" to "-1" on the right side of the breadboard. This will deliver ground from the "-" rail to columns F through J on row 1.
 
-**Components will be connected in multiple adjacent spaces.**
+- **Components will be connected in multiple adjacent spaces.**
 
-Example #1: In E8 you have one end of 470ohm resistor. You need to put the other end of this resistor onto F8 on the board. Resistors do not have polarity and so either end can be placed into either of the marked spaces.
+	- Example #1: In E8 you have one end of 470ohm resistor. You need to put the other end of this resistor onto F8 on the board. Resistors do not have polarity and so either end can be placed into either of the marked spaces.
 
-Example #2: In H16 you have one end of a 1n4001 diode. You need to then put the STRIPED end of the diode to H13 on the board as indicated with the (s). Diodes have a polarity which affects the flow of current, so pay close attention to these markings.
+	- Example #2: In H16 you have one end of a 1n4001 diode. You need to then put the STRIPED end of the diode to H13 on the board as indicated with the (s). Diodes have a polarity which affects the flow of current, so pay close attention to these markings.
 
-Example #3: In C29 is one end of a 330 resistor, and the other end runs to vertically C26. This is indicated by the ↕ which shows the direction of the component. The symbol ↔ is also used to show when an item is connected horizontally.
+	- Example #3: In C29 is one end of a 330 resistor, and the other end runs to vertically C26. This is indicated by the ↕ which shows the direction of the component. The symbol ↔ is also used to show when an item is connected horizontally.
 
-**Spaces leading with "PIN" indicates an Arduino connection.**
+- **Spaces leading with "PIN" indicates an Arduino connection.**
 
-Example #1: G10 says PIN 53. You need to run a wire from this point to PIN 53 to the Arduino Mega. (See chart below protoboard photo.)
-
-![](images/Breadboard.jpg)
+	- Example #1: G10 says PIN 53. You need to run a wire from this point to PIN 53 to the Arduino Mega. (See chart below protoboard photo.)
 
 ## Wires to the Arduino MEGA
 
@@ -148,10 +154,10 @@ These are connections which are not covered in the diagram above, but connect di
 
 | Connection → Pin | Optional? |
 |---|---|---|
-| MEGA TX3 → WavTrigger RX | NO, Req. for sound |
-| MEGA RX3 → WavTrigger TX | NO, Req. for sound |
-| MEGA TX2 → Wand Nano RX | YES |
-| MEGA RX2 → Wand Nano TX | YES |
+| MEGA TX3 → WavTrigger RX | No, is required for sound |
+| MEGA RX3 → WavTrigger TX | No, is required for sound |
+| MEGA TX2 → Wand Nano RX | YES, if not replacing wand controller |
+| MEGA RX2 → Wand Nano TX | YES, if not replacing wand controller |
 | SW-CYC (Red) → Pin 29 | YES |
 | SW-SMOKE (Red) → Pin 37 | YES | 
 | LED-R1 (+) soldered to R 140 Ω → Pin 4 | YES |
