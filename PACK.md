@@ -4,7 +4,7 @@
 
 **A Note on Transistors**
 
-Transistors will be used to allow switching high-current elements on or off. This is because the Arduino hardware recommends less than 20mA draw per pin (40mA maximum), so for items which may require more power the transistor acts as a switch to allow more current to flow through the transistor instead of the Arduino hardware. The most-used component for this build will be the PN2222 or NPN Bipolar Transistor (BJT). The NPN type allows the flow of power from the Collector to Emitter pin, dictated by applying power (VCC) to the Base pin.
+Transistors will be used to allow switching high-current elements on or off. This is because the Arduino hardware recommends less than 20mA draw per pin (40mA maximum), so for items which may require more power the transistor acts as a switch to allow more current to flow through the transistor instead of the Arduino hardware. The most-used component for this build will be the 2N2222/PN2222 or NPN Bipolar Transistor (BJT). The NPN type allows the flow of power from the Collector to Emitter pin, dictated by applying power (VCC) to the Base pin.
 
 | Pin | Description |
 |---|---|
@@ -14,7 +14,13 @@ Transistors will be used to allow switching high-current elements on or off. Thi
 
 ![](images/NPNTransistor.png)
 
-**Component Naming Convention**
+**A Note on the Rotary Encoder**
+
+Rotary encoder pin layout reference to be used for volume control. Contains pins 1-2-3 (viewed facing you, see below).
+
+![](images/RotaryEncoder.jpg)
+
+**Special Component Naming Conventions**
 
 | Name | Description |
 |---|---|
@@ -132,7 +138,7 @@ Example #3: In C29 is one end of a 330 resistor, and the other end runs to verti
 
 **Spaces leading with "PIN" indicates an Arduino connection.**
 
-Example #1: G10 says PIN 53. You need to run a wire from this point to PIN 53 to the Arduino Mega.
+Example #1: G10 says PIN 53. You need to run a wire from this point to PIN 53 to the Arduino Mega. (See chart below protoboard photo.)
 
 ![](images/Breadboard.jpg)
 
@@ -156,17 +162,7 @@ Example #1: G10 says PIN 53. You need to run a wire from this point to PIN 53 to
 | (Optional) | Pin 35 → Goes 5V high, is timed to go off occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and push it out of the booster tube. It is referenced as the smoke_booster in the pack code. ‘See matching colour section in chart above. What you hook up here depends on what device you intend to run. DO NOT DRAW MORE THAN 40MA from a pin. Use a transistor setup if you need more power. |  |  |
 | (Optional) | Pin 39 → Goes 5V high, is timed to go off during over heat sequence and occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and run it to the n-filter. This is referenced as smoke_pin in the pack code. See matching colour section in chart above. What you hook up here depends on what device you intend to run. DO NOT DRAW MORE THAN 40MA from a pin. Use a transistor setup if you need more power. |  |  |
 
-## Rotary Encoder
-
-Rotary encoder pin layout reference to be used for volume control.
-
-ROT: 1-2-3
-
-(viewed from 3 pins facing you) (See rotary encoder photo below for more detail)
-
-![](images/RotaryEncoder.jpg)
-
-## Pack Options
+## Optional Pack Upgrades
 
 The following are *OPTIONAL* builds for use within the Proton Pack.
 
