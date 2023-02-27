@@ -80,20 +80,20 @@ Connections from stock JST-XH connectors may be split to maximize use of the sma
 
 | | **+** | **-** | **A** | **B** | **C** | **D** | **E** |  | **F** | **G** | **H** | **I** | **J** | **+** | **-** |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **1** | BAT&nbsp;(+) |  | A+ | Mega&nbsp;(+) | WavTrig&nbsp;(+) | WAND&nbsp;(+) |  |  |  | WAND&nbsp;(-) | WavTrig&nbsp;(-) | Mega&nbsp;(-) | B- |  | BAT&nbsp;(-) |
-| **2** | A+ |  |  |  |  |  |  |  |  |  |  |  |  |  | B- |
-| **3** |  |  | <font color="red">SW1&nbsp;(Red)</font> | PIN&nbsp;31 |  |  |  |  | SW1&nbsp;(Black) | SW3&nbsp;(Green) | SW4&nbsp;(Red) | SW6&nbsp;(Black) | C- |  | C- |
+| **1** | <font color="red">BAT&nbsp;(+)</font> |  | <font color="red">A+</font> | Mega&nbsp;(+) | WavTrig&nbsp;(+) | WAND&nbsp;(+) |  |  |  | WAND&nbsp;(-) | WavTrig&nbsp;(-) | Mega&nbsp;(-) | B- |  | BAT&nbsp;(-) |
+| **2** | <font color="red">A+</font> |  |  |  |  |  |  |  |  |  |  |  |  |  | B- |
+| **3** |  |  | <font color="red">SW1&nbsp;(Red)</font> | PIN&nbsp;31 |  |  |  |  | SW1&nbsp;(Black) | <font color="green">SW3&nbsp;(Green)</font> | <font color="red">SW4&nbsp;(Red)</font> | SW6&nbsp;(Black) | C- |  | C- |
 | **4** |  |  | <font color="blue">SW3&nbsp;(Blue)</font> | PIN&nbsp;25 |  |  |  |  | SW-CYC<br/>(Black) | SW-SMOKE<br/>(Black) | ROT&nbsp;(2) |  | D- |  | D- |
 | **5** |  |  | <font color="green">SW4&nbsp;(Green)</font> | PIN&nbsp;27 |  |  |  |  | LED-R1 (-) | LED-R2 (-) | LED-Y1 (-) | LED-Y2 (-) | E- |  | E- |
-| **6** |  |  | <font color="red">SW6&nbsp;(Red)</font> | PIN&nbsp;23 |  |  |  |  | LED-G1 (-) | LED-G2 (-) | LED-MSW (-) | LED-VSW (-) | F- |  | F- |
+| **6** |  |  | <font color="red">SW6&nbsp;(Red)</font> | PIN&nbsp;23 |  |  |  |  | LED-G1 (-) | LED-G2 (-) | LED-MSW<br/>(-) | LED-VSW <br/>(-) | F- |  | F- |
 | **7** |  |  | ROT (1) | PIN 3 |  |  |  |  | ROT (3) | PIN 2 |  |  |  |  |
 | **8** | <font color="red">JP3&nbsp;(Red)</font> |  | <font color="orange">JP3&nbsp;(Yellow)</font> |  |  |  | 470 Ω | ↔ | 470 Ω | PIN 53 |  |  |  |  | JP3&nbsp;(Black) |
 | **9** |  |  | <font color="green">JP3&nbsp;(Green)</font> | <font color="orange">JP4&nbsp;(Yellow)</font> |  |  |  |  |  |  |  |  |  |  |  |
 | **10** | <font color="red">JP4&nbsp;(Red)</font> |  | <font color="brown">JP4&nbsp;(Brown)</font> | PIN&nbsp;51 |  |  |  |  |  |  |  |  |  |  | JP4 (Black) |
-| **11** | NEO-CYC&nbsp;(+) |  | NEO-CYC&nbsp;(Data) |  |  |  | 470 Ω | ↔ | 470 Ω | PIN&nbsp;13 |  |  |  |  | NEO-CYC&nbsp;(-) |
+| **11** | <font color="red">NEO-CYC<br/>(+)</font> |  | <font color="blue">NEO-CYC<br/>(Data)</font> |  |  |  | 470 Ω | ↔ | 470 Ω | PIN&nbsp;13 |  |  |  |  | NEO-CYC<br/>(-) |
 | **12** |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| **13** | G+ |  | G+ |  | 1N4001&nbsp;(s) | FAN-1&nbsp;(+) |  |  | H+ |  | 1N4001&nbsp;(s) | <font color="red">M1&nbsp;(Red)</font> |  |  |  |
-| **14** | H+ |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
+| **13** | <font color="red">G+</font> |  | <font color="red">G+</font> |  | 1N4001&nbsp;(s) | <font color="red">FAN-1&nbsp;(+)</font> |  |  | <font color="red">H+</font> |  | 1N4001&nbsp;(s) | <font color="red">M1&nbsp;(Red)</font> |  |  |  |
+| **14** | <font color="red">H+</font> |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
 | **15** |  |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
 | **16** |  |  | NPN C |  | 1N4001 | FAN-1&nbsp;(-) |  |  | NPN C |  | 1N4001 | M1&nbsp;(Black) |  |  |  |
 | **17** |  |  | NPN B |  | 330 Ω |  |  |  | NPN B |  | 330 Ω |  |  |  |  |
@@ -101,8 +101,8 @@ Connections from stock JST-XH connectors may be split to maximize use of the sma
 | **19** |  |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  | I- |
 | **20** |  |  |  |  | 330 Ω |  | PIN&nbsp;33 |  |  |  | 330 Ω |  | PIN&nbsp;45 |  |  |
 | **21** |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| **22** | K+ |  | K+ |  | 1N4001&nbsp;(s) | SMOKE2&nbsp;(+) |  |  | L+ |  | 1N4001&nbsp;(s) | SMOKE1&nbsp;(+) |  |  |  |
-| **23** | L+ |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
+| **22** | <font color="red">K+</font> |  | <font color="red">K+</font> |  | 1N4001&nbsp;(s) | <font color="red">SMOKE2&nbsp;(+)</font> |  |  | <font color="red">L+</font> |  | 1N4001&nbsp;(s) | <font color="red">SMOKE1&nbsp;(+)</font> |  |  |  |
+| **23** | <font color="red">L+</font> |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
 | **24** |  |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
 | **25** |  |  | NPN C |  | 1N4001 | SMOKE2&nbsp;(-) |  |  | NPN C |  | 1N4001 | SMOKE1&nbsp;(-) |  |  |  |
 | **26** |  |  | NPN B |  | 330 Ω |  |  |  | NPN B |  | 330 Ω |  |  |  |  |
@@ -148,13 +148,13 @@ These are connections which are not covered in the diagram above, but connect di
 | SW-CYC (Red) → Pin 29 | YES |
 | SW-SMOKE (Red) → Pin 37 | YES | 
 | LED-R1 (+) soldered to R 140 Ω → Pin 4 | YES |
-| LED-R2 (+) soldered to 140 Ω → Pin 5 | YES |
-| LED-Y1 (+) soldered to 140 Ω → Pin 6 | YES |
-| LED-Y2 (+) soldered to 140 Ω → Pin 7 | YES |
-| LED-G1 (+) soldered to 90 Ω → Pin 8 | YES  |
-| LED-G2 (+) soldered to 90 Ω → Pin 9 | YES |
-| LED-MSW (+) soldered to 90 Ω → Pin 10 (Resistor set for Green LED) | YES |
-| LED-VSW (+) soldered to140 Ω → Pin 11 (Resistor set for Yellow LED) | YES |
+| LED-R2 (+) soldered to R 140 Ω → Pin 5 | YES |
+| LED-Y1 (+) soldered to R 140 Ω → Pin 6 | YES |
+| LED-Y2 (+) soldered to R 140 Ω → Pin 7 | YES |
+| LED-G1 (+) soldered to R 90 Ω → Pin 8 | YES  |
+| LED-G2 (+) soldered to R 90 Ω → Pin 9 | YES |
+| LED-MSW (+) soldered to R 90 Ω → Pin 10 (Resistor set for Green LED) | YES |
+| LED-VSW (+) soldered to R 140 Ω → Pin 11 (Resistor set for Yellow LED) | YES |
 | FAN-1 → Pin 33 → Goes 5V high, is timed to go off during over heat sequence. You can hook up any device to this. I used a fan for testing purposes. Future plan is run a DC motor off this that is connected to the n-filter cone. See YELLOW SECTION on the chart above for reference. What you put in this section depends on what device you hook up to the Mega if anything at all. DO NOT DRAW MORE THAN 40MA from a pin. Use a transistor setup if you need more power. | (Optional) | NOTE: If you change LED colours, use the appropriate resistor. The resistors I reference here are the minimum required for these particular 5mm LED diodes. You can go up to the nearest resistor value if you do not have a 140. For example I used 150 since I do not have any 140’s in my resistor kit, and 100 instead of 90 for my green LEDs. |
 | SMOKE-2 →Pin 35 → Goes 5V high, is timed to go off occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and push it out of the booster tube. It is referenced as the smoke_booster in the pack code. ‘See matching colour section in chart above. What you hook up here depends on what device you intend to run.<br/>**DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.** | (Optional) |
 | SMOKE-1 → Pin 39 → Goes 5V high, is timed to go off during over heat sequence and occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and run it to the n-filter. This is referenced as smoke_pin in the pack code. See matching colour section in chart above. What you hook up here depends on what device you intend to run.<br/>**DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.** | (Optional) |
