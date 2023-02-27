@@ -47,6 +47,13 @@ Rotary encoder pin layout reference to be used for volume control. Contains pins
 
 ## Circuit Schematic
 
+You may choose one of two routes for implementing the new Proton Pack controller:
+
+1. A minimal approach which only focuses on reusing the stock connections and hardware.
+	- For this approach, see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf)
+1. The above, but with room for additional features, each of which is considered optional.
+	- Keep reading to continue with this approach.
+
 Use a half size protoboard like ([1609 Adafruit](https://www.adafruit.com/product/1609)) or by any other brand. These work similar to a breadboard, where LETTERED columns run horizontal and are connected as a group, and each side contains 2 rails for (+) and (-) connections and run vertically along the board, also connected together.
 
 Connections from stock JST-XH connectors may be split to maximize use of the smallest protoboard possible. This is a non-reversible change and removes the ability to swap components without de-soldering wires. *This is your last caution before proceeding!*
@@ -76,7 +83,7 @@ Connections from stock JST-XH connectors may be split to maximize use of the sma
 | WAND (+) | Runs to your wand (5V) + power rail [on the ¼ board](https://www.adafruit.com/product/1608) (see [wand section](WAND.md)) |
 | WAND (-) | Runs to your wand ground rail on the ¼ board (see [Wand Setup](WAND.md)) |
 
-**Protoboard Layout**
+### Protoboard Layout
 
 | | **+** | **-** | **A** | **B** | **C** | **D** | **E** |  | **F** | **G** | **H** | **I** | **J** | **+** | **-** |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
