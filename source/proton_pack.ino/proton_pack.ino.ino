@@ -1592,9 +1592,9 @@ void checkMusic() {
   if(ms_check_music.justFinished()) {
     // Loop through all the tracks if the music is not set to repeat a track.
     if(b_playing_music == true && b_repeat_track == false) {
-      if(w_trig.isTrackPlaying(i_current_music_track) != true) {
+      if(w_trig.isTrackPlaying(i_current_music_track) != true) {        
         stopMusic();
-        
+
         // Tell the wand to stop playing music.
         Serial2.write(99);
 
@@ -1935,7 +1935,7 @@ void increaseVolume() {
 
 void decreaseVolume() {
   if(i_volume - 1 < -70) {
-    i_volume = 70;
+    i_volume = -70;
   }
   else {
     i_volume = i_volume - 1;
