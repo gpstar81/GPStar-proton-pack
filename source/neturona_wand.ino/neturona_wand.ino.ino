@@ -526,6 +526,7 @@ void mainLoop() {
               }
             }
 
+          // Tell the pack which music track to change to.
           Serial.write(i_current_music_track);
          }
 
@@ -552,8 +553,10 @@ void mainLoop() {
               i_current_music_track--;
             }
           }
-          
+
+          // Tell the pack which music track to change to.
           Serial.write(i_current_music_track);
+          
           ms_switch_mode_debounce.start(a_switch_debounce_time);
         }          
         break;
@@ -573,7 +576,7 @@ void mainLoop() {
                 // Start music.
                 b_playing_music = true;
 
-                // Tell the pack tp play music.
+                // Tell the pack to play music.
                 Serial.write(99);
                 
                 playMusic();

@@ -211,7 +211,7 @@ const int i_music_track_start = 100; // Music tracks start on file named 100_ an
 boolean b_playing_music = false;
 boolean b_repeat_track = false;
 millisDelay ms_check_music;
-const int i_music_check_delay = 1000;
+const int i_music_check_delay = 2000;
 
 /* 
  *  Volume (4 = loudest, -70 = quietest)
@@ -372,11 +372,12 @@ void setup() {
 void loop() { 
   cyclotronCommunication();
   cyclotronSwitchPlateLEDs();
+
+  checkMusic();
   
   w_trig.update();
 
   wandHandShake();
-  checkMusic();
   checkWand();
   checkFan();
   
@@ -1591,12 +1592,13 @@ void checkMusic() {
   if(ms_check_music.justFinished()) {
     // Loop through all the tracks if the music is not set to repeat a track.
     if(b_playing_music == true && b_repeat_track == false) {
-      if(w_trig.isTrackPlaying(i_current_music_track) == false) {
+      if(w_trig.isTrackPlaying(i_current_music_track) != true) {
         stopMusic();
+        
         // Tell the wand to stop playing music.
         Serial2.write(99);
 
-       if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
           i_current_music_track = i_music_track_start;
         }
         else {
@@ -1619,7 +1621,7 @@ void stopMusic() {
 }
 
 void playMusic() {
-  w_trig.trackGain(i_current_music_track, i_volume);
+  w_trig.trackGain(i_current_music_track, i_volume_music);
   w_trig.trackPlayPoly(i_current_music_track, true);
 
   if(b_repeat_track == true) {
