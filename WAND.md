@@ -1,51 +1,116 @@
 # Wand Setup
 
-## Arduino Nano - Pin Reference vs. Hasbro Controller
+The space within the Neutron Wand is extremely limited, though multiple components must be fit into this space. To maximize what is available, some wires from the original controller (PCB) will be directly soldered onto the Arduino Nano. Where resistors or inline components are required, these may be soldered between the wire and Arduino Nano to reduce need for an additional protoboard. If needed, a [a ¼ protoboard from Adafruit](https://www.adafruit.com/product/1608) or any similar size from another manufacturer will be used.
 
-| Nano Pin | D12 | D11       | D10    | D9    | D8    | D7           | D6        | D5      | D4  | D3  | D2   | GND | RST | RX0       | TX1       |
-|------------|-----|-----------|--------|-------|-------|--------------|-----------|---------|-----|-----|------|-----|-----|-----------|-----------|
-| Hasbro Ref | D7  | MOTOR-NPN | J1 (R) | WT-RX | WT-TX | ROT (Yellow) | ROT (Red) | D9 & D1 | SW1 | SW4 | SW45 |     |     | TX (pack) | RX (pack) |
-
-| Nano Pin | D13 | 3v3 | REF | A0  | A1 | A2 | A3 | A4 | A5 | A6  | A7  | 5V       | RST | GND          | VIN |
-|------------|-----|-----|-----|-----|----|----|----|----|----|-----|-----|----------|-----|--------------|-----|
-| Hasbro Ref | D8  |     |     | SW2 | D2 | D3 | D4 | D5 | D6 | SW6 | SW7 | 5V (PCB) |     | Ground (PCB) |
-
-## Connection References
+## Original Connection References
 
 ![](images/WandPCBs.png)
 
 *[Wand Reference Diagrams](https://github.com/Tomdf/Ghostbusters/tree/main/Haslab%20Pack%20Illustrations/Neutrona_Wand_Illustration) by Tomdf*
 
-| WAND-TUBE → J1 |    |              |    | Nano Pin | Hasbro Ref |
-|----------------|----|--------------|----|----------|------------|
-| Brown          | -> | Ground (PCB) |    |          | J1         |
-| Red            | -> | 470Ω         | -> | Pin D10  | J1         |
-| Yellow         | -> | 5V (PCB)     |    |          | J1         |
+| Name | Socket? | Color | Haslab Pin | Notes |
+|------|---------|-------|------------|--------------------------------------------------------------------------------------|
+| J3   |        | <font color="brown">Brown</font> | D2 | Bar Graph LED's (5) |
+|      |        | <font color="red">Red</font> | D3 |  |
+|      |        | <font color="orange">Orange</font> | D4 |  |
+|      |        | <font color="yellow">Yellow</font> | D5 |  |
+|      |        | <font color="green">Green</font> | D6 |  |
+|      |        | <font color="blue">Blue</font> | VDD |  |
+| M1   |        | <font color="red">Red</font> | VCC | Wand vibration motor |
+|      |        | Black | GND |  |
+| SW1  |        | <font color="brown">Brown</font> | SPDT Toggle | Lower Right Toggle (Main Power) |
+|      |        | <font color="brown">Brown</font> |  |  |
+| SW2  |        | <font color="red">Red</font> | SPDT Toggle | Upper Right Toggle (Bargraph Power)  |
+|      |        | <font color="red">Red</font> |  |  |
+| SW3  |        | <font color="brown">Brown</font> | V+ | Rotary encoder (intensity) on top of wand |
+|      |        | <font color="red">Red</font> | A  |  |
+|      |        | <font color="yellow">Yellow</font> | B |  |
+| SW7  |        | <font color="orange">Orange</font> | SPST Switch | Wand tip retraction/extension sensor |
+|      |        | <font color="orange">Orange</font> |  |  |
+| SW4  | JST-PH | <font color="red">Red</font> | SPDT Toggle | Activate toggle on left control box |
+|      |        | <font color="red">Red</font> |  |  |
+| SW5  | JST-PH | <font color="gray">White</font> | SPST Button | Intensify button on left control box |
+|      |        | <font color="gray">White</font> |  |  |
+| SW6  | JST-PH | <font color="gray">White</font> | SPST Button | Orange button at end of wand, changes modes |
+|      |        | <font color="gray">White</font> |  |  |
+| D1   |        | <font color="red">Red</font> | VCC | SLO-BLO LED |
+|      |        | Black | GND | |
+| NA   |        | <font color="red">Red</font> | VDD | Power |
+| D7   |        | <font color="gray">White</font> | GND | Top Right LED |
+| D8   |        | Black | GND | Top Vent LED |
+| D9   |        | <font color="red">Red</font> | VCC | Clippard LED (Top Left) |
+|      |        | <font color="yellow">Yellow</font> | GND |  |
+| Q2   | JST-PH | <font color="blue">Blue</font> | VCC | Neopixels for wand tip effects (5 total) |
+|      |        | <font color="yellow">Yellow</font> | Data |  |
+|      |        | <font color="red">Red</font> | Gnd |  |
 
+## WavTrigger Connections
+
+| WavTrigger | Connection |
+|------------|------------|
+| 5Vin       | +5V        |
+| GND        | Ground     |
+| RX         | PIN D9     |
+| TX         | PIN D8     |
+| SPKR+      | Speaker +  |
+| SPKR-      | Speaker -  |
+
+## Arduino Nano - Pin Reference vs. Hasbro Controller
+
+The following is a diagram of the Arduino Nano pins from left and right, when oriented with the USB connection facing up (north).
+
+| Connection    | Nano (L) |   | Nano (R) | Connection |
+|---------------|----------|---|----------|------------|
+| D8            | D13  |   | D12  | D7            |
+|               | 3V3  |   | D11  | Motor-NPN.    |
+|               | REF  |   | D10  | J1 (Red)      |
+| SW2           | A0   |   | D9   | WavTrigger RX |
+| D2            | A1   |   | D8   | WavTrigger TX |
+| D3            | A2   |   | D7   | ROT (Yellow)  |
+| D4            | A3   |   | D6   | ROT (Red)     |
+| D5            | A4   |   | D5   | D1 & D9       |
+| D6            | A5   |   | D4   | SW1           |
+| SW6           | A6   |   | D3   | SW4           |
+| SW7           | A7   |   | D2   | SW45          |
+|               | 5V   |   | GND  |               |
+|               | RST  |   | RST  |               |
+| Ground (Pack) | GND  |   | RX0  | TX (Pack)     |
+| +5V (Pack)    | VIN  |   | TX1  | RX (Pack      |
+
+### Connections by Component
+
+| WAND-TUBE → J1 |   |              |   | Nano Pin | Hasbro Ref |
+|----------------|---|--------------|---|----------|------------|
+| <font color="brown">Brown</font>   | → | Ground   |   |          | J1 |
+| <font color="red">Red</font>       | → | 470Ω     | → | Pin D10  | J1 |
+| <font color="yellow">Yellow</font> | → | +5V      |   |          | J1 |
 
 Note: If you want to replace LEDs, the bargraph uses 3mm LED diodes.
 
-| BARGRAPH → J3 |  |          |     | Nano Pin | Hasbro Ref |
-|----------------------|------------------------------------------------------------------|----------|-----|--------|-----|
-| Blue                 | ->                                                               | 5V (PCB) |     |        | VDD |
-| Green                | ->                                                               | 140 Ω    | ->  | Pin A5 | D6  |
-| Yellow               | ->                                                               | 140 Ω    | ->  | Pin A4 | D5  |
-| Light Yellow (beige) | ->                                                               | 140 Ω    | ->  | Pin A3 | D4  |
-| Red                  | ->                                                               | 140 Ω    | ->  | Pin A2 | D3  |
-| Dark Green (olive)   | ->                                                               | 140 Ω    | ->  | Pin A1 | D2  |
+| BARGRAPH → J3                      |   |       |    | Nano Pin | Hasbro Ref |
+|------------------------------------|---|-------|----|----------|------------|
+| <font color="blue">Blue</font>     | → | +5V   |    |          | VDD  |
+| <font color="green">Green</font>   | → | 140 Ω | →  | Pin A5   | D6   |
+| <font color="yellow">Yellow</font> | → | 140 Ω | →  | Pin A4   | D5   |
+| <font color="orange">Orange</font> | → | 140 Ω | →  | Pin A3   | D4   |
+| <font color="red">Red</font>       | → | 140 Ω | →  | Pin A2   | D3   |
+| <font color="brown">Brown</font>   | → | 140 Ω | →  | Pin A1   | D2   |
 
-| VENT / OTHER SWITCH → SW2 / SW1 |    |              |     | Nano Pin | Hasbro Ref |                                                     |
-|---------------------------------|----|--------------|-----|--------|-----|-----------------------------------------------------|
-| ?                               | -> | Ground (PCB) |     |        | SW2 | Shouldn’t matter which wire goes where. (GND or A0) |
-| ?                               | -> | ->           | ->  | Pin A0 | SW2 | Shouldn’t matter which wire goes where. (GND or A0) |
-| Olive green?                    | -> | Ground (PCB) |     |        | SW1 | Shouldn’t matter which wire goes where. (GND or D4) |
-| Olive green?                    | -> | ->           | ->  | Pin D4 | SW1 | Shouldn’t matter which wire goes where. (GND or D4) |
+| LOWER RIGHT TOGGLE → SW1         |   |        |     | Nano Pin | Hasbro Ref |      |
+|----------------------------------|---|--------|-----|----------|-----|-----------------------------------------------------|
+| <font color="brown">Brown</font> | → | Ground |     |          | SW1 | Shouldn’t matter which wire goes where. (GND or D4) |
+| <font color="brown">Brown</font> | → | →     | →  | Pin D4   | SW1 | Shouldn’t matter which wire goes where. (GND or D4) |
 
-| ROTARY → SW3 | (Referenced as ROT on the chart at the top) |              |    | Nano Pin | Hasbro Ref |
-|--------------|---------------------------------------------|--------------|----|----------|------------|
-| Olive green  | ->                                          | Ground (PCB) |    |          | SW3 (V+) ? |
-| Red          | ->                                          | ->           | -> | Pin D6   | SW3        |
-| Yellow       | ->                                          | ->           | -> | Pin D7   | SW3        |
+| UPPER RIGHT TOGGLE → SW1         |   |        |     | Nano Pin | Hasbro Ref |      |
+|----------------------------------|---|--------|-----|----------|-----|-----------------------------------------------------|
+| <font color="red">Red</font>     | → | Ground |     |          | SW2 | Shouldn’t matter which wire goes where. (GND or A0) |
+| <font color="red">Red</font>     | → | →     | →  | Pin A0   | SW2 | Shouldn’t matter which wire goes where. (GND or A0) |
+
+| ROTARY ENCODER (ROT) → SW3 |   |              |    | Nano Pin | Hasbro Ref |
+|----------------------------|---|--------------|----|----------|------------|
+| <font color="green">Green</font>   | → | Ground |    |        | SW3 (V+) ? |
+| <font color="red">Red</font>       | → | →     | → | Pin D6 | SW3        |
+| <font color="yellow">Yellow</font> | → | →     | → | Pin D7 | SW3        |
 
 SW45 / SW4 Connector: SW45 = Intensify / SW4 = Activate
 
@@ -55,62 +120,48 @@ SW45 / SW4 Connector: SW45 = Intensify / SW4 = Activate
 
 | MODE SWITCH → SW6 |    |              |    | Nano Pin | Hasbro Ref |                                        |
 |-------------------|----|--------------|----|----------|------------|----------------------------------------|
-| White             | -> | 5V (PCB)     |    |          | SW6        | Shouldn’t matter which wire goes where |
-| White             | -> | 10k Ω        | -> | Pin A6   | SW6        | Shouldn’t matter which wire goes where |
-|                   |    | Ground (PCB) |    |          |            |                                        |
+| <font color="gray">White</font> | → | +5V          |    |        | SW6 | Shouldn’t matter which wire goes where |
+| <font color="gray">White</font> | → | 10k Ω        | → | Pin A6 | SW6 | Shouldn’t matter which wire goes where |
+|                                 |   | Ground (PCB) |    |        |     |                                        |
 
-| BARREL EXTENSION SWITCH → SW7 |    |              |    | Nano Pin | Hasbro Ref |                                        |
-|-------------------------------|----|--------------|----|----------|------------|----------------------------------------|
-| ?                             | -> | 5V (PCB)     |    |          | SW6        | Shouldn’t matter which wire goes where |
-| ?                             | -> | 10k Ω        | -> | Pin A7   | SW6        | Shouldn’t matter which wire goes where |
-|                               |    | Ground (PCB) |    |          |            |                                        |
+| BARREL EXTENSION SWITCH → SW7 |   |              |    | Nano Pin | Hasbro Ref |                                        |
+|-------------------------------|---|--------------|----|----------|------------|----------------------------------------|
+| ?                             | → | +5V          |    |          | SW6        | Shouldn’t matter which wire goes where |
+| ?                             | → | 10k Ω        | → | Pin A7   | SW6        | Shouldn’t matter which wire goes where |
+|                               |   | Ground (PCB) |    |          |            |                                        |
 
 | VIBRATION MOTOR |    |            | Motor Wires             | Nano Pin     | Notes                                                                   |
 |-----------------|----|------------|-------------------------|--------------|-------------------------------------------------------------------------|
-|                 |    | 1N4001 (s) | Red (wire from motor)   | 5V (PCB)     |                                                                         |
-| NPN C           | -> | 1N4001     | Black (wire from motor) |              | NPN = PN2222 NPN Bipolar Transistor. Reference Pack page for more info. |
-| NPN B           | -> | 330 Ω      | ->                      | Pin D11      | 1N4001 diode (s = the striped end of the diode)                         |
-| NPN E           | -> | ->         | ->                      | Ground (PCB) |                                                                         |
+|                 |    | 1N4001 (s) | Red (wire from motor)   | +5V          |                                                                         |
+| NPN C           | → | 1N4001     | Black (wire from motor) |              | NPN = PN2222 NPN Bipolar Transistor. Reference Pack page for more info. |
+| NPN B           | → | 330 Ω      | →                      | Pin D11      | 1N4001 diode (s = the striped end of the diode)                         |
+| NPN E           | → | →         | →                      | Ground (PCB) |                                                                         |
 
 | VENT LIGHT LED BOARD → D7 & D8 |    |          |    | Nano Pin | Hasbro Ref |                                        |
 |--------------------------------|----|----------|----|----------|------------|----------------------------------------|
-| Red                            | -> | 5V (PCB) |    |          | VDD        |                                        |
-| White                          | -> | 90 Ω     | -> | Pin D12  | D7         | Blinking white led on top of the wand  |
-| Black                          | -> | 90 Ω     | -> | Pin D13  | D8         | White led inside the wand (vent light) |
+| <font color="red">Red</font>    | → | 5V (PCB) |    |          | VDD        |                                        |
+| <font color="gray">White</font> | → | 90 Ω     | → | Pin D12  | D7         | Blinking white led on top of the wand  |
+| Black                           | → | 90 Ω     | → | Pin D13  | D8         | White led inside the wand (vent light) |
 
-For Below: Regarding sharing 2 LED’s on 1 pin from the Nano. The spec sheet for the nano says a max 40mA draw on a pin. With 2 LEDs it is at that threshold. I have been running this setup for a month now and have not blown out the pin. I prefer this solution as it requires less space than using a transistor method. 
+For Below: Regarding sharing 2 LED’s on 1 pin from the Nano. The spec sheet for the nano says a max 40mA draw on a pin. With 2 LEDs it is at that threshold. I have been running this setup for a month now and have not blown out the pin. I prefer this solution as it requires less space than using a transistor method.
 
-| SLO-BLO             |    |       |    | Nano Pin.    | Hasbro Ref | Notes |
+| SLO-BLO → D1        |    |       |    | Nano Pin     | Hasbro Ref | Notes |
 |---------------------|----|-------|----|--------------|----|-------------------------------------|
-| Red                 | -> | ->    | -> | Pin D5       | D1 | Nano pin shared with FRONT LEFT LED |
-| Black               | -> | 140 Ω | -> | Ground (PCB) | D1 |                                     |
+| <font color="red">Red</font> | → | →    | → | Pin D5       | D1 | Nano pin shared with FRONT LEFT LED |
+| Black                        | → | 140 Ω | → | Ground (PCB) | D1 |                                     |
 
 | FRONT LEFT LED → D9 |    |       |    | Nano Pin     | Hasbro Ref | Notes |
 |---------------------|----|-------|----|--------------|----|-------------------------------------|
-| Red                 | -> | 140 Ω | -> | Pin D5       | D9 | Nano pin shared with SLO-BLO        |
-| Yellow              | -> | ->    | -> | Ground (PCB) | D9 |
+| <font color="red">Red</font>       | → | 140 Ω | → | Pin D5       | D9 | Nano pin shared with SLO-BLO |
+| <font color="yellow">Yellow</font> | → | →    | → | Ground (PCB) | D9 |                              |
 
-OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin if you wish to use that method instead. See example breadboard setup photo below that you can replicate onto [a ¼ pcb board](https://www.adafruit.com/product/1608).
+OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin if you wish to use that method instead. See example breadboard setup photo below that you can replicate onto [a ¼ protoboard](https://www.adafruit.com/product/1608).
 
 | Slo-Blo (B) | Front Left LED (Y) |              |
 |-------------|--------------------|--------------|
 |             |                    | 140 Ω        |
-| NPN C       | ->                 | Ground       |
-| NPN B       | ->                 | 1k Ω         |
-| NPN E       | ->                 | Ground (PCB) |
+| NPN C       | →                 | Ground       |
+| NPN B       | →                 | 1k Ω         |
+| NPN E       | →                 | Ground (PCB) |
 
 ![](images/SloBloAlt.jpg)
-
-## WavTrigger Connections
-
-> 5V IN goes to the + rail on the PCB
-> 
-> GND goes to the ground rail on the PCB
-> 
-> WT-RX (RX Pin) goes to pin D9 on the Nano
-> 
-> WT-TX (TX Pin) goes to pin D8 on the Nano
-> 
-> SPKR+ goes to the + speaker wire
-> 
-> SPKR- goes to the – speaker wire

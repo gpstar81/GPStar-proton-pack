@@ -7,8 +7,8 @@
 Transistors will be used to allow switching high-current elements on or off. This is because the Arduino hardware recommends less than 20mA draw per pin (40mA maximum), so for items which may require more power the transistor acts as a switch to allow more current to flow through the transistor instead of the Arduino hardware. The most-used component for this build will be the 2N2222/PN2222 or NPN Bipolar Transistor (BJT). The NPN type allows the flow of power from the Collector to Emitter pin, dictated by applying power (VCC) to the Base pin.
 
 | Pin | Description |
-|---|---|
-| NPN E  | Emitter |
+|-----|-------------|
+| NPN E | Emitter |
 | NPN B | Base |
 | NPN C | Collector |
 
@@ -24,24 +24,24 @@ Rotary encoder pin layout reference to be used for volume control. Contains pins
 
 | **Connector Label** | **Header Color** | **Wire Color**  | **Purpose** | **Notes** |
 |---|---|---|---|---|
-| M1 | Green | Red | VCC | Pack vibration motor; cannot be turned on or off when pack is "active", only when in "powered down" state. |
+| M1 | <font color="green">Green</font> | <font color="red">Red</font> | VCC | Pack vibration motor; cannot be turned on or off when pack is "active", only when in "powered down" state. |
 |  |  | Black | GND |  |
-| JP3 | White | Green | B0 | Power, ground, and data (DI) for Powercell LED's; Contains LED's D1-D13 and returns data signal back to board via the B0 pin. |
+| JP3 | <font color="gray">White</font> | <font color="green">Green</font> | B0 | Power, ground, and data (DI) for Powercell LED's; Contains LED's D1-D13 and returns data signal back to board via the B0 pin. |
 |  |  | Black | GND |  |
-|  |  | Yellow | DI |  |
-|  |  | Red | VCC | Cyclotron LED's continue from B0 as data on RI (unplugging JP3 will stop cycling of cyclotron LED's). |
-| JP4 | Red | Red | VCC | Power, ground, and data (RI) for Cyclotron; Additional ground connection triggers the malfunction sequence when cyclotron lid is opened. Each "lens" contains 3 LED's for a total of 12. |
-|  |  | Yellow | RI |  |
+|  |  | <font color="orange">Yellow</font> | DI | Data input; cyclotron LED's continue from B0 as data on RI (unplugging JP3 will stop cycling of cyclotron LED's). |
+|  |  | <font color="red">Red</font> | VCC |  |
+| JP4 | <font color="red">Red</font> | <font color="red">Red | VCC | Power, ground, and data (RI) for Cyclotron; Each "lens" contains 3 LED's for a total of 12. |
+|  |  | <font color="orange">Yellow</font> | RI | Data input; starts on JP3-DI pin and continues from JP3-B0 |
 |  |  | Black | GND |  |
-|  |  | Brown | GND | Used for detection of the cyclotron lid |
-| SW1 | White | Black | GND | Main "power" switch under the ion arm, enables all pack operations. |
-|  |  | Red | VCC |  |
-| SW3-SW4 | Blue | Green | SPDT Toggle | Toggle switches inside the cyclotron. Left: Turns rumble motor on (up) or off (down); Right: Change cyclotron spin and sound theme between Afterlife/2021 (up) or OG/1984 (down) |
-|  |  | Blue |  |  |
-|  |  | Green | SPDT Toggle |  |
-|  |  | Red |  |  |
-| SW6 | Red | Black | GND | Sensor on the cyclotron cable, triggers alarm beeps when disconnected |
-|  |  | Red | VCC |  |
+|  |  | <font color="brown">Brown</font> | GND | Used for detection of the cyclotron lid |
+| SW1 | <font color="gray">White</font> | <font color="red">Red</font> | VCC | Main "power" switch under the ion arm, enables all pack operations. |
+|  |  | Black | GND |  |
+| SW3 | <font color="blue">Blue</font> | <font color="green">Green</font> | SPDT Toggle | Left toggle switch inside the cyclotron: Turns rumble motor on (up) or off (down)  |
+|  |  | <font color="blue">Blue</font> |  |  |
+| SW4 |  | <font color="green">Green</font> | SPDT Toggle | Right toggle switch inside the cyclotron: Change cyclotron spin and sound theme between Afterlife/2021 (up) or OG/1984 (down) |
+|  |  | <font color="red">Red</font> |  |  |
+| SW6 | <font color="red">Red</font> | <font color="red">Red</font> | VCC | Sensor on the cyclotron cable, triggers alarm beeps when disconnected |
+|  |  | Black | GND |  |
 
 ![](images/PackController.jpg)
 
@@ -91,17 +91,17 @@ By comparison, the current required for a small fan or the vibration motor are p
 
 ### Protoboard Layout
 
-| | **+** | **-** | **A** | **B** | **C** | **D** | **E** |  | **F** | **G** | **H** | **I** | **J** | **+** | **-** |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **1** | <font color="red">BAT&nbsp;(+)</font> |  | <font color="red">A+</font> | Mega&nbsp;(+) | WavTrig&nbsp;(+) | WAND&nbsp;(+) |  |  |  | WAND&nbsp;(-) | WavTrig&nbsp;(-) | Mega&nbsp;(-) | B- |  | BAT&nbsp;(-) |
-| **2** | <font color="red">A+</font> |  |  |  |  |  |  |  |  |  |  |  |  |  | B- |
-| **3** |  |  | <font color="red">SW1&nbsp;(Red)</font> | PIN&nbsp;31 |  |  |  |  | SW1&nbsp;(Black) | <font color="green">SW3&nbsp;(Green)</font> | <font color="red">SW4&nbsp;(Red)</font> | SW6&nbsp;(Black) | C- |  | C- |
-| **4** |  |  | <font color="blue">SW3&nbsp;(Blue)</font> | PIN&nbsp;25 |  |  |  |  | SW-CYC<br/>(Black) | SW-SMOKE<br/>(Black) | ROT&nbsp;(2) |  | D- |  | D- |
-| **5** |  |  | <font color="green">SW4&nbsp;(Green)</font> | PIN&nbsp;27 |  |  |  |  | LED-R1 (-) | LED-R2 (-) | LED-Y1 (-) | LED-Y2 (-) | E- |  | E- |
-| **6** |  |  | <font color="red">SW6&nbsp;(Red)</font> | PIN&nbsp;23 |  |  |  |  | LED-G1 (-) | LED-G2 (-) | LED-MSW<br/>(-) | LED-VSW <br/>(-) | F- |  | F- |
-| **7** |  |  | ROT (1) | PIN 3 |  |  |  |  | ROT (3) | PIN 2 |  |  |  |  |
-| **8** | <font color="red">JP3&nbsp;(Red)</font> |  | <font color="orange">JP3&nbsp;(Yellow)</font> |  |  |  | 470 Ω | ↔ | 470 Ω | PIN 53 |  |  |  |  | JP3&nbsp;(Black) |
-| **9** |  |  | <font color="green">JP3&nbsp;(Green)</font> | <font color="orange">JP4&nbsp;(Yellow)</font> |  |  |  |  |  |  |  |  |  |  |  |
+|        | **+** | **-** | **A** | **B** | **C** | **D** | **E** |   | **F** | **G** | **H** | **I** | **J** | **+** | **-** |
+|--------|-------|-------|-------|-------|-------|-------|-------|---|-------|-------|-------|-------|-------|-------|-------|
+| **1**  | <font color="red">BAT&nbsp;(+)</font> |  | <font color="red">A+</font> | Mega&nbsp;(+) | WavTrig&nbsp;(+) | WAND&nbsp;(+) |  |  |       | WAND&nbsp;(-) | WavTrig&nbsp;(-) | Mega&nbsp;(-) | B- |  | BAT&nbsp;(-) |
+| **2**  | <font color="red">A+</font> |  |  |  |  |  |  |  |  |  |  |  |  |  | B- |
+| **3**  |  |  | <font color="red">SW1&nbsp;(Red)</font> | PIN&nbsp;31 |  |  |  |  | SW1&nbsp;(Black) | <font color="green">SW3&nbsp;(Green)</font> | <font color="red">SW4&nbsp;(Red)</font> | SW6&nbsp;(Black) | C- |  | C- |
+| **4**  |  |  | <font color="blue">SW3&nbsp;(Blue)</font> | PIN&nbsp;25 |  |  |  |  | SW-CYC<br/>(Black) | SW-SMOKE<br/>(Black) | ROT&nbsp;(2) |  | D- |  | D- |
+| **5**  |  |  | <font color="green">SW4&nbsp;(Green)</font> | PIN&nbsp;27 |  |  |  |  | LED-R1 (-) | LED-R2 (-) | LED-Y1 (-) | LED-Y2 (-) | E- |  | E- |
+| **6**  |  |  | <font color="red">SW6&nbsp;(Red)</font> | PIN&nbsp;23 |  |  |  |  | LED-G1 (-) | LED-G2 (-) | LED-MSW<br/>(-) | LED-VSW <br/>(-) | F- |  | F- |
+| **7**  |  |  | ROT (1) | PIN 3 |  |  |  |  | ROT (3) | PIN 2 |  |  |  |  |
+| **8**  | <font color="red">JP3&nbsp;(Red)</font> |  | <font color="orange">JP3&nbsp;(Yellow)</font> |  |  |  | 470 Ω | ↔ | 470 Ω | PIN 53 |  |  |  |  | JP3&nbsp;(Black) |
+| **9**  |  |  | <font color="green">JP3&nbsp;(Green)</font> | <font color="orange">JP4&nbsp;(Yellow)</font> |  |  |  |  |  |  |  |  |  |  |  |
 | **10** | <font color="red">JP4&nbsp;(Red)</font> |  | <font color="brown">JP4&nbsp;(Brown)</font> | PIN&nbsp;51 |  |  |  |  |  |  |  |  |  |  | JP4 (Black) |
 | **11** | <font color="red">NEO-CYC<br/>(+)</font> |  | <font color="blue">NEO-CYC<br/>(Data)</font> |  |  |  | 470 Ω | ↔ | 470 Ω | PIN&nbsp;13 |  |  |  |  | NEO-CYC<br/>(-) |
 | **12** |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
@@ -150,7 +150,7 @@ When you see a letter or code in a cells above, it references where component ne
 
 ## Wires to the Arduino MEGA
 
-These are connections which are not covered in the diagram above, but connect directly to the Arduino board.
+These are connections which are not covered in the diagram above and can connect directly to the Arduino board.
 
 | Connection → Pin | Optional? |
 |---|---|---|
