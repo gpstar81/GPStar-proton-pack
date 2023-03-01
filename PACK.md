@@ -98,8 +98,8 @@ Some connections to components will be made directly to the Arduino Mega. Please
 | **1**  | <font color="red">BAT&nbsp;(+)</font> |  | <font color="red">A+</font> | Mega&nbsp;(+) | WavTrig&nbsp;(+) | WAND&nbsp;(+) |  |  |       | WAND&nbsp;(-) | WavTrig&nbsp;(-) | Mega&nbsp;(-) | B- |  | BAT&nbsp;(-) |
 | **2**  | <font color="red">A+</font> |  |  |  |  |  |  |  |  |  |  |  |  |  | B- |
 | **3**  |  |  | <font color="red">SW1&nbsp;(Red)</font> | PIN&nbsp;31 |  |  |  |  | SW1&nbsp;(Black) | <font color="green">SW3&nbsp;(Green)</font> | <font color="red">SW4&nbsp;(Red)</font> | SW6&nbsp;(Black) | C- |  | C- |
-| **4**  |  |  | <font color="blue">SW3&nbsp;(Blue)</font> | PIN&nbsp;25 |  |  |  |  | SW-CYC<br/>(Black) | SW-SMOKE<br/>(Black) | ROT&nbsp;(2) |  | D- |  | D- |
-| **5**  |  |  | <font color="green">SW4&nbsp;(Green)</font> | PIN&nbsp;27 |  |  |  |  | LED-R1 (-) | LED-R2 (-) | LED-Y1 (-) | LED-Y2 (-) | E- |  | E- |
+| **4**  |  |  | <font color="blue">SW3&nbsp;(Blue)</font> | PIN&nbsp;27 |  |  |  |  | SW-CYC<br/>(Black) | SW-SMOKE<br/>(Black) | ROT&nbsp;(2) |  | D- |  | D- |
+| **5**  |  |  | <font color="green">SW4&nbsp;(Green)</font> | PIN&nbsp;25 |  |  |  |  | LED-R1 (-) | LED-R2 (-) | LED-Y1 (-) | LED-Y2 (-) | E- |  | E- |
 | **6**  |  |  | <font color="red">SW6&nbsp;(Red)</font> | PIN&nbsp;23 |  |  |  |  | LED-G1 (-) | LED-G2 (-) | LED-MSW<br/>(-) | LED-VSW <br/>(-) | F- |  | F- |
 | **7**  |  |  | ROT (1) | PIN 3 |  |  |  |  | ROT (3) | PIN 2 |  |  |  |  |
 | **8**  | <font color="red">JP3&nbsp;(Red)</font> |  | <font color="orange">JP3&nbsp;(Yellow)</font> |  |  |  | 470 Ω | ↔ | 470 Ω | PIN 53 |  |  |  |  | JP3&nbsp;(Black) |
