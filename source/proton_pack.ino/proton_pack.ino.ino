@@ -105,14 +105,19 @@ enum sound_fx {
 #define PACK_LED_PIN 53
 #define PACK_NUM_LEDS 32
 CRGB pack_leds[PACK_NUM_LEDS];
-#define CYCLOTRON_LED_PIN 13
 #define VENT_LIGHT_START 26
 
 /*
  * Inner Cyclotron LEDs. (optional).
- * Uses pin 56, for 8 chainable NeoPixel Jewels (56 LEDs in total).
+ * Uses pin 13.
+ * 56 LEDs if using 8 chainable NeoPixel Jewels. (7 per jewel).
+ * 35 LEDs for a 35 LED NeoPixel Ring.
  */
-#define CYCLOTRON_NUM_LEDS 56
+#define CYCLOTRON_LED_PIN 13
+// For 8 chainable NeoPixel Jewels, use this.
+//#define CYCLOTRON_NUM_LEDS 56
+// For a 35 LED NeoPixel Ring, use this.
+#define CYCLOTRON_NUM_LEDS 35
 CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
 
 /*
@@ -296,6 +301,7 @@ int i_last_val_rotary;
  */
 int i_cyclotron_data = 0;
 int i_prev_cyclotron_data = 0;
+int i_cyclotron_inner_ring_led = 0; // Used for a 35 LED NeoPixel ring.
 
 /*
  * Misc.
@@ -1275,7 +1281,7 @@ int cyclotron2021(int cDelay) {
 
 int cyclotron1984(int cDelay) {
   int i_pack_vibration = 100;
-  
+
   if(ms_cyclotron.justFinished()) {
     cDelay = cDelay / i_cyclotron_multiplier;
     
@@ -1365,7 +1371,7 @@ void cyclotron84LightOn(int cLed) {
   pack_leds[cLed+1] = CRGB(255,0,0);
 
   FastLED.show();
-  
+
   // Preparing to tell the inner cyclotron which led's to turn on.
   switch(cLed) {
     case 13:
@@ -1468,51 +1474,79 @@ void innerCyclotronShowLED(int i_led) {
     break;
   }
 
-  // middle led
-  // Jewel 1: 6
-  // Jewel 2: 13
-  // Jewel 3: 20
-  // Jewel 4: 27
-  // Jewel 5: 34
-  // Jewel 6: 41
-  // Jewel 7: 48
-  // Jewel 8: 55
-
-  // Jewel 1 & 2: 0-13
-  // Jewel 3 & 4: 14-27
-  // Jewel 5 & 6: 28-41
-  // Jewel 7 & 8: 42-55
-  // TODO: Add odd blue electric colours mixed in.
-  switch(i_led) {
-    case 0:
-      for(int i = 0; i < CYCLOTRON_NUM_LEDS; i++) {
-        cyclotron_leds[i] = CRGB(0,0,0);
+  if(CYCLOTRON_NUM_LEDS == 35) {
+    cyclotron_leds[i_cyclotron_inner_ring_led] = CRGB(0,0,0);
+    
+    if(b_clockwise == true) {
+      if(i_cyclotron_inner_ring_led + 1 < CYCLOTRON_NUM_LEDS) {
+        i_cyclotron_inner_ring_led++;
       }
-    break;
-
-    case 1:
-      for(int i = 0; i <= 13; i++) {
-        cyclotron_leds[i] = CRGB(r,g,b);
+      else {
+        i_cyclotron_inner_ring_led = 0;
       }
-    break;
-
-    case 2:
-      for(int i = 14; i <= 27; i++) {
-        cyclotron_leds[i] = CRGB(r,g,b);
+    }
+    else {
+      if(i_cyclotron_inner_ring_led - 1 < 0) {
+        i_cyclotron_inner_ring_led = CYCLOTRON_NUM_LEDS - 1;
       }
-    break;
-
-    case 3:
-      for(int i = 28; i <= 41; i++) {
-        cyclotron_leds[i] = CRGB(r,g,b);
+      else {
+        i_cyclotron_inner_ring_led--;
       }
-    break;
-
-    case 4:
-      for(int i = 42; i <= 55; i++) {
-        cyclotron_leds[i] = CRGB(r,g,b);
-      }
-    break;
+    }
+  
+    // For a 35 LED NeoPixel Ring.
+    cyclotron_leds[i_cyclotron_inner_ring_led] = CRGB(r,g,b);
+  }
+  else if(CYCLOTRON_NUM_LEDS == 56) {
+    // middle led for each jewel.
+    // Jewel 1: 6
+    // Jewel 2: 13
+    // Jewel 3: 20
+    // Jewel 4: 27
+    // Jewel 5: 34
+    // Jewel 6: 41
+    // Jewel 7: 48
+    // Jewel 8: 55
+  
+    // Jewel 1 & 2: 0-13
+    // Jewel 3 & 4: 14-27
+    // Jewel 5 & 6: 28-41
+    // Jewel 7 & 8: 42-55
+    
+    // TODO: Add odd blue electric colours mixed in.
+    
+    // If using 8 NeoPixel Jewels.
+    switch(i_led) {
+      case 0:
+        for(int i = 0; i < CYCLOTRON_NUM_LEDS; i++) {
+          cyclotron_leds[i] = CRGB(0,0,0);
+        }
+      break;
+  
+      case 1:
+        for(int i = 0; i <= 13; i++) {
+          cyclotron_leds[i] = CRGB(r,g,b);
+        }
+      break;
+  
+      case 2:
+        for(int i = 14; i <= 27; i++) {
+          cyclotron_leds[i] = CRGB(r,g,b);
+        }
+      break;
+  
+      case 3:
+        for(int i = 28; i <= 41; i++) {
+          cyclotron_leds[i] = CRGB(r,g,b);
+        }
+      break;
+  
+      case 4:
+        for(int i = 42; i <= 55; i++) {
+          cyclotron_leds[i] = CRGB(r,g,b);
+        }
+      break;
+    }
   }
 
   FastLED.show();
@@ -1529,61 +1563,80 @@ void innerCyclotronShowAll() {
 void cyclotronCommunication() {
   if(i_cyclotron_data != i_prev_cyclotron_data) {
     if(b_cyclotron_lid_on != true) {
-     switch(i_cyclotron_data) {
-        case 0:
-          // Reset LEDs (turn off);
-          innerCyclotronOff();
-        break;
-      
-        case 1:
-          // LED 1
-          innerCyclotronOff();
-          innerCyclotronShowLED(1);
-        break;
-  
-        case 2:
-          // LED 2
-          innerCyclotronOff();
-          innerCyclotronShowLED(2);
-        break;
-  
-        case 3:
-          // LED 3
-          innerCyclotronOff();
-          innerCyclotronShowLED(3);
-        break;
-  
-        case 4:
-          // LED 4
-          innerCyclotronOff();
-          innerCyclotronShowLED(4);
-        break;
-  
-        case 5:
-          // LED All
-          innerCyclotronShowAll();
-        break;
-  
-        case 6:
-          innerCyclotronOff();
-          innerCyclotronShowLED(1);
-        break;
-  
-        case 7:
-          innerCyclotronOff();
-          innerCyclotronShowLED(2);
-        break;
-  
-        case 8:
-          innerCyclotronOff();
-          innerCyclotronShowLED(3);
-        break;
-  
-        case 9:
-          innerCyclotronOff();
-          innerCyclotronShowLED(4);
-        break;
-     }
+      if(CYCLOTRON_NUM_LEDS == 35) {
+        switch(i_cyclotron_data) {
+          case 0:
+            // Reset LEDs (turn off);
+            innerCyclotronOff();
+          break;
+
+          case 5:
+            // LED All
+            innerCyclotronShowAll();
+          break;
+
+          default:
+            innerCyclotronShowLED(1);
+          break;
+        }
+      }
+      else {
+       switch(i_cyclotron_data) {
+          case 0:
+            // Reset LEDs (turn off);
+            innerCyclotronOff();
+          break;
+        
+          case 1:
+            // LED 1
+            innerCyclotronOff();
+            innerCyclotronShowLED(1);
+          break;
+    
+          case 2:
+            // LED 2
+            innerCyclotronOff();
+            innerCyclotronShowLED(2);
+          break;
+    
+          case 3:
+            // LED 3
+            innerCyclotronOff();
+            innerCyclotronShowLED(3);
+          break;
+    
+          case 4:
+            // LED 4
+            innerCyclotronOff();
+            innerCyclotronShowLED(4);
+          break;
+    
+          case 5:
+            // LED All
+            innerCyclotronShowAll();
+          break;
+    
+          case 6:
+            innerCyclotronOff();
+            innerCyclotronShowLED(1);
+          break;
+    
+          case 7:
+            innerCyclotronOff();
+            innerCyclotronShowLED(2);
+          break;
+    
+          case 8:
+            innerCyclotronOff();
+            innerCyclotronShowLED(3);
+          break;
+    
+          case 9:
+            innerCyclotronOff();
+            innerCyclotronShowLED(4);
+          break;
+       }
+      }
     }
     
     i_prev_cyclotron_data = i_cyclotron_data;
