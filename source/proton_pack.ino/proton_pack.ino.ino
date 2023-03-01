@@ -210,8 +210,6 @@ int i_current_music_track = 0;
 const int i_music_track_start = 100; // Music tracks start on file named 100_ and higher.
 boolean b_playing_music = false;
 boolean b_repeat_track = false;
-millisDelay ms_check_music;
-const int i_music_check_delay = 2000;
 
 /* 
  *  Volume (4 = loudest, -70 = quietest)
@@ -273,6 +271,7 @@ boolean b_wand_firing = false;
 boolean b_wand_connected = false;
 millisDelay ms_wand_handshake;
 const int i_wand_handshake_delay = 2000;
+millisDelay ms_wand_handshake_checking;
 int i_wand_power_level = 1; // Power level of the wand.
 int rx_byte = 0;
 int prev_byte = 0;
@@ -303,6 +302,7 @@ int i_prev_cyclotron_data = 0;
  */
 int i_mode_year = 2021; // 1984 or 2021
 bool b_pack_on = false;
+bool b_pack_shutting_down = false;
 
 void setup() {
   Serial.begin(9600);
@@ -361,7 +361,6 @@ void setup() {
 
   // Start some timers
   ms_cyclotron.start(i_2021_delay);
-  ms_check_music.start(i_music_check_delay);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
   ms_wand_handshake.start(1);
  
@@ -369,13 +368,11 @@ void setup() {
   Serial2.write(0);
 }
 
-void loop() { 
+void loop() {
+  w_trig.update();
+  
   cyclotronCommunication();
   cyclotronSwitchPlateLEDs();
-
-  checkMusic();
-  
-  w_trig.update();
 
   wandHandShake();
   checkWand();
@@ -391,7 +388,7 @@ void loop() {
 
   checkSwitches();
   checkRotaryEncoder();
-    
+  
   switch (PACK_STATUS) {
     case MODE_OFF:
       if(b_pack_on == true) {
@@ -399,6 +396,8 @@ void loop() {
         b_2021_ramp_up_start = false;
 
         reset2021RampDown();
+
+        b_pack_shutting_down = true;
       }
       
       if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
@@ -406,8 +405,8 @@ void loop() {
         powercellLoop();
         cyclotron_control();
       }
-      else {        
-        powercellOff();
+      else {   
+        powercellOff();     
         cyclotronSwitchLEDOff();
 
         // Reset the power cell timer.
@@ -428,7 +427,7 @@ void loop() {
         
         resetCyclotronLeds();
         reset2021RampUp();
-
+        
         // Update Cyclotron LED timer delay and optional cyclotron led switch plate LED timers delays.
         switch(i_mode_year) {
           case 2021:
@@ -445,6 +444,10 @@ void loop() {
         // Vibration motor off.
         vibrationPack(0);
         i_vibration_level = 0;
+
+        if(b_pack_shutting_down == true) {
+          b_pack_shutting_down = false;
+        }
       }
       
       if(b_pack_on == true) {
@@ -537,7 +540,6 @@ void loop() {
       cyclotronSwitchLEDLoop();
       powercellLoop();
       cyclotron_control();
-
     break;
    }
 
@@ -1588,41 +1590,15 @@ void cyclotronCommunication() {
   }
 }
 
-void checkMusic() {
-  if(ms_check_music.justFinished()) {
-    // Loop through all the tracks if the music is not set to repeat a track.
-    if(b_playing_music == true && b_repeat_track == false) {
-      if(w_trig.isTrackPlaying(i_current_music_track) != true) {        
-        stopMusic();
-
-        // Tell the wand to stop playing music.
-        Serial2.write(99);
-
-        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-          i_current_music_track = i_music_track_start;
-        }
-        else {
-          i_current_music_track++;          
-        }
-        
-        playMusic();
-
-        // Tell the wand to play music.
-        Serial2.write(i_current_music_track);
-      }  
-    }
-
-    ms_check_music.start(i_music_check_delay);
-  }
-} 
-
 void stopMusic() {
   w_trig.trackStop(i_current_music_track);
+
+  w_trig.update();
 }
 
 void playMusic() {
   w_trig.trackGain(i_current_music_track, i_volume_music);
-  w_trig.trackPlayPoly(i_current_music_track, true);
+  w_trig.trackPlayPoly(i_current_music_track);
 
   if(b_repeat_track == true) {
     w_trig.trackLoop(i_current_music_track, 1);
@@ -1630,6 +1606,8 @@ void playMusic() {
   else {
     w_trig.trackLoop(i_current_music_track, 0);
   }
+
+  w_trig.update();
 }
 
 void wandFiring() {
@@ -2043,7 +2021,9 @@ void wandHandShake() {
       
       b_wand_connected = false;
     }
-    else if(ms_wand_handshake.remaining() < i_wand_handshake_delay / 2) {        
+    else if(ms_wand_handshake_checking.justFinished()) {  
+      ms_wand_handshake_checking.stop();
+      
       // Ask the wand if it is still connected.
       Serial2.write(11);
     }
@@ -2196,6 +2176,7 @@ void checkWand() {
         case 14:
           // The wand is still here.
           ms_wand_handshake.start(i_wand_handshake_delay);
+          ms_wand_handshake_checking.start(i_wand_handshake_delay / 2);
           b_wand_connected = true;
         break;
         
