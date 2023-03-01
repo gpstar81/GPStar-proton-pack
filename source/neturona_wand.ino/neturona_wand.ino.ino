@@ -261,8 +261,10 @@ millisDelay ms_settings_blinking;
 const int i_settings_blinking_delay = 350;
 boolean b_playing_music = false;
 boolean b_repeat_track = false;
-// millisDelay ms_check_music; // Not used
-//const int i_music_check_delay = 1000; // Not used
+millisDelay ms_check_music;
+const int i_music_check_delay = 2000;
+millisDelay ms_music_next_track;
+const int i_music_next_track_delay = 2000;
 
 /* 
  *  Wand firing modes
@@ -278,7 +280,6 @@ int year_mode = 2021;
 boolean b_firing = false;
 boolean b_sound_idle = false;
 boolean b_beeping = false;
-
 
 void setup() {
   Serial.begin(9600);
@@ -327,24 +328,29 @@ void setup() {
 
   // We bootup the wand in the classic proton mode.
   FIRING_MODE = PROTON;
+
+  // Check music timer.
+  ms_check_music.start(i_music_check_delay);
 }
 
-void loop() {
+void loop() { 
   if(b_wait_for_pack == true) {
     // Handshake with the pack. Telling the pack that we are here.
     Serial.write(14);
 
     checkPack();
+    
     delay(200);
   }
-  else {
+  else {   
     mainLoop();
-  }
+  } 
 }
 
 void mainLoop() {
   w_trig.update();
-
+  
+  checkMusic();
   checkPack();
   switchLoops();
   checkRotary();  
@@ -358,9 +364,9 @@ void mainLoop() {
     case ACTION_OFF:
       wandOff();
     break;
-
+    
     case ACTION_FIRING:    
-      if(b_pack_on == true && b_pack_alarm == false) { 
+      if(b_pack_on == true && b_pack_alarm == false) {
         if(b_firing == false) {
           b_firing = true;
           modeFireStart();
@@ -400,7 +406,7 @@ void mainLoop() {
         modeFireStop();
       }
     break;
-
+    
     case ACTION_OVERHEATING:
       settingsBlinkingLights();
       
@@ -525,40 +531,40 @@ void mainLoop() {
                 i_current_music_track++;
               }
             }
-
-          // Tell the pack which music track to change to.
-          Serial.write(i_current_music_track);
-         }
-
-        if(analogRead(switch_mode) > 1020 && ms_switch_mode_debounce.justFinished()) {
-          if(i_current_music_track - 1 < i_music_track_start) {
-            if(b_playing_music == true) {
-              // Go to the last track to play it.
-              stopMusic();
-              i_current_music_track = i_music_track_start + (i_music_count -1);
-              playMusic();
-            }
-            else {
-              i_current_music_track = i_music_track_start + (i_music_count -1);
-            }
-          }
-          else {
-            // Stop the old track and play the new track if music is currently playing.
-            if(b_playing_music == true) {
-              stopMusic();
-              i_current_music_track--;
-              playMusic();
-            }
-            else {
-              i_current_music_track--;
-            }
-          }
-
-          // Tell the pack which music track to change to.
-          Serial.write(i_current_music_track);
           
-          ms_switch_mode_debounce.start(a_switch_debounce_time);
-        }          
+            // Tell the pack which music track to change to.
+            Serial.write(i_current_music_track);
+          }
+
+          if(analogRead(switch_mode) > 1020 && ms_switch_mode_debounce.justFinished()) {
+            if(i_current_music_track - 1 < i_music_track_start) {
+              if(b_playing_music == true) {
+                // Go to the last track to play it.
+                stopMusic();
+                i_current_music_track = i_music_track_start + (i_music_count -1);
+                playMusic();
+              }
+              else {
+                i_current_music_track = i_music_track_start + (i_music_count -1);
+              }
+            }
+            else {
+              // Stop the old track and play the new track if music is currently playing.
+              if(b_playing_music == true) {
+                stopMusic();
+                i_current_music_track--;
+                playMusic();
+              }
+              else {
+                i_current_music_track--;
+              }
+            }
+          
+            // Tell the pack which music track to change to.
+            Serial.write(i_current_music_track);
+            
+            ms_switch_mode_debounce.start(a_switch_debounce_time);
+          }          
         break;
 
         // Play music or stop music.
@@ -567,8 +573,10 @@ void mainLoop() {
             if(b_playing_music == true) {
               // Stop music
               b_playing_music = false;
-              
+
+              // Tell the pack to stop music.
               Serial.write(98);
+              
               stopMusic();             
             }
             else {
@@ -587,7 +595,7 @@ void mainLoop() {
       }
     break;
   }
-
+  
   switch(WAND_STATUS) {
     case MODE_OFF:
 
@@ -639,13 +647,56 @@ void mainLoop() {
   if(ms_firing_lights_end.justFinished()) {
     fireStreamEnd(0,0,0);
   }
+  
 }
+
+void checkMusic() { 
+  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
+    ms_check_music.start(i_music_check_delay);
+        
+    // Loop through all the tracks if the music is not set to repeat a track.
+    if(b_playing_music == true && b_repeat_track == false) {      
+      if(!w_trig.isTrackPlaying(i_current_music_track)) {
+        ms_check_music.stop();
+                
+        stopMusic();
+
+        // Tell the pack to stop playing music.
+        Serial.write(98);
+            
+        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+          i_current_music_track = i_music_track_start;
+        }
+        else {
+          i_current_music_track++;          
+        }
+
+        // Tell the pack which music track to change to.
+        Serial.write(i_current_music_track);
+    
+        ms_music_next_track.start(i_music_next_track_delay);
+      }
+    }
+  }
+
+  if(ms_music_next_track.justFinished()) {
+    ms_music_next_track.stop();
+        
+    playMusic(); 
+
+    // Tell the pack to play music.
+    Serial.write(99);
+    
+    ms_check_music.start(i_music_check_delay); 
+  }
+} 
 
 void stopMusic() {
   w_trig.trackStop(i_current_music_track);
+  w_trig.update();
 }
 
-void playMusic() {
+void playMusic() {  
   w_trig.trackGain(i_current_music_track, i_volume_music);
   w_trig.trackPlayPoly(i_current_music_track, true);
   
@@ -655,6 +706,8 @@ void playMusic() {
   else {
     w_trig.trackLoop(i_current_music_track, 0);
   }
+
+  w_trig.update();
 }
 
 void settingsBlinkingLights() {
@@ -730,6 +783,8 @@ void checkSwitches() {
         // Turn wand and pack on.
         WAND_ACTION_STATUS = ACTION_ACTIVATE;
       }
+      
+      soundBeepLoopStop();
     break;
 
     case MODE_ON:
@@ -781,7 +836,7 @@ void checkSwitches() {
                 Serial.write(6);
               break;
 
-               case PROTON:
+              case PROTON:
                 WAND_ACTION_STATUS = ACTION_IDLE;
                 wandHeatUp();
 
@@ -803,17 +858,19 @@ void checkSwitches() {
         soundIdleStart();
 
         if(switch_wand.getState() == LOW) {
-          // Beep loop.
-          soundBeepLoop();
+          if(b_beeping != true) {
+            // Beep loop.
+            soundBeepLoop();
+          }  
         }
         else {
           soundBeepLoopStop();
         }
       }
-      else if(switch_vent.getState() == HIGH) {
+      else if(switch_vent.getState() == HIGH) {        
         // Vent light and top white light off.
         digitalWrite(led_vent, HIGH);
-        
+
         soundBeepLoopStop();
         soundIdleStop();
       }
@@ -1053,7 +1110,6 @@ void soundIdleStart() {
       ms_gun_loop_2.stop();
     }
   }
-  
 }
 
 void soundIdleStop() {
@@ -1069,12 +1125,11 @@ void soundIdleStop() {
         ms_gun_loop_2.stop();
       break;
     }
-    
   }
   
   b_sound_idle = false;
 
-  soundBeepLoopStop();
+  //soundBeepLoopStop();
 
   switch(year_mode) {
     case 1984:
@@ -1089,6 +1144,21 @@ void soundIdleStop() {
   }
 }
 
+void soundBeepLoopStop() {
+  if(b_beeping == true) {
+    b_beeping = false;
+    
+    w_trig.trackStop(S_AFTERLIFE_BEEP_WAND);
+    w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S1);
+    w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S2);
+    w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S3);
+    w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S4);
+    w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S5);
+    
+    ms_reset_sound_beep.stop();
+    ms_reset_sound_beep.start(i_sound_timer);
+  }
+}
 void soundBeepLoop() {  
   if(ms_reset_sound_beep.justFinished()) {
     if(b_beeping == false) {
@@ -1143,24 +1213,12 @@ void soundBeepLoop() {
           }
          break;
       }
-  
+      
       b_beeping = true;
+      
       ms_reset_sound_beep.stop();
     }
   }
-}
-
-void soundBeepLoopStop() {
-  b_beeping = false;
-  
-  w_trig.trackStop(S_AFTERLIFE_BEEP_WAND);
-  w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S1);
-  w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S2);
-  w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S3);
-  w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S4);
-  w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S5);
-  
-  ms_reset_sound_beep.start(i_sound_timer);
 }
 
 void modeFireStart() {
@@ -1347,25 +1405,25 @@ void modeFiring() {
     ms_overheat_initate.start(i_ms_overheat_initate);
   }
   
-  switch(FIRING_MODE) {
+  switch(FIRING_MODE) {     
     case PROTON:
-      fireStreamStart(255, random(30,70), 0);
-      fireStream(0, 0, random(200,255));
+       fireStreamStart(255, 70, 0);
+       fireStream(0, 0, 255);     
     break;
-
+      
     case SLIME:
-      fireStreamStart(0, 255, random(30,70));
-      fireStream(random(0-40), random(180-200), random(30,70));
+       fireStreamStart(0, 255, 45);
+       fireStream(20, 200, 45);  
     break;
 
     case STASIS:
-      fireStreamStart(0, random(30,70), 100);
-      fireStream(0, 100, random(200,255));
+       fireStreamStart(0, 45, 100);
+       fireStream(0, 100, 255);  
     break;
 
     case MESON:
-      fireStreamStart(random(150,255), random(150,255), random(10,30));
-      fireStream(random(180,200), random(0-40), random(30-70));
+       fireStreamStart(200, 200, 20);
+       fireStream(190, 20, 70);
     break;
   }
 
@@ -1485,22 +1543,49 @@ void wandBarrelHeatDown() {
 
 void fireStream(int r, int g, int b) {
   if(ms_firing_stream_blue.justFinished()) {
-    if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {
+    if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {      
       switch(FIRING_MODE) {
         case PROTON:
-          barrel_leds[i_barrel_light - 1] = CRGB(random(30,70), random(200,255), 0);
+          barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+
+          // Make the stream more slightly more red on higher power modes.
+          switch(i_power_mode) {
+            case 1:
+              barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+            break;
+
+            case 2:
+              barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
+            break;
+
+            case 3:
+              barrel_leds[i_barrel_light - 1] = CRGB(30, 255, 0);
+            break;
+
+            case 4:
+              barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
+            break;
+
+            case 5:
+              barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+            break;
+
+            default:
+              barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+            break;
+          }
         break;
 
         case SLIME:
-          barrel_leds[i_barrel_light - 1] = CRGB(random(90,255), random(0,40), random(30,70));
+          barrel_leds[i_barrel_light - 1] = CRGB(120, 20, 45);
         break;
 
         case STASIS:
-          barrel_leds[i_barrel_light - 1] = CRGB(random(0,30), random(30,70), random(100,255));
+          barrel_leds[i_barrel_light - 1] = CRGB(15, 50, 155);
         break;
 
         case MESON:
-          barrel_leds[i_barrel_light - 1] = CRGB(random(150,255), random(150,255), random(10,30));
+          barrel_leds[i_barrel_light - 1] = CRGB(200, 200, 15);
         break;
       }
       
@@ -2062,8 +2147,13 @@ int8_t readRotary() {
       store <<= 4;
       store |= prev_next_code;
 
-      if ((store&0xff)==0x2b) return -1;
-      if ((store&0xff)==0x17) return 1;
+      if((store&0xff) == 0x2b) {
+        return -1;
+      }
+      
+      if((store&0xff) == 0x17) {
+        return 1;
+      }
    }
    
    return 0;
