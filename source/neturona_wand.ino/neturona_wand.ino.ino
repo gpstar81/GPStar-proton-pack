@@ -114,7 +114,7 @@ const int STARTUP_VOLUME = 0;
 
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
- * Otherwise the wand will wait until it is connected to a Proton Pack before it can activate.
+ * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
  */
 boolean b_no_pack = false;
 
@@ -363,7 +363,7 @@ void setup() {
   ms_check_music.start(i_music_check_delay);
 
   if(b_no_pack == true) {
-    b_wait_for_pack = false);
+    b_wait_for_pack = false;
     b_pack_on = true;
   }
 }
