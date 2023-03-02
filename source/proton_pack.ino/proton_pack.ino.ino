@@ -124,6 +124,14 @@ const int STARTUP_VOLUME = 0;
 bool b_clockwise = true;
 
 /*
+ * Set this to true if you want to know if your wand and pack are communicating.
+ * This can be handy when you are first building your board and connections to test things.
+ * If the wand and pack have a serial connection, you will hear a beeping sound.
+ * Set to false to turn off the sound.
+ */
+bool b_diagnostic = false;
+
+/*
  * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
  */
 
@@ -151,6 +159,7 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
  * 0.03 ms to update 1 LED. So 3 ms should be ok. Lets bump it up to 8 just in case.
  */
 const int i_fast_led_delay = 8;
+millisDelay ms_fast_led;
 
 /*
  * Powercell LEDs control.
@@ -218,8 +227,8 @@ int i_led_cyclotron_ring = 0;
 bool b_inner_ramp_up = true;
 bool b_inner_ramp_down = false;
 const int i_2021_inner_delay = 5;
-const int i_1984_inner_delay = 5;
-int i_inner_current_ramp_speed = i_2021_delay / i_2021_inner_delay;
+const int i_1984_inner_delay = 1;
+int i_inner_current_ramp_speed = i_2021_delay - i_2021_inner_delay;
         
 /* 
  *  Inner cyclotron communication
@@ -357,7 +366,6 @@ int i_last_val_rotary;
 int i_mode_year = 2021; // 1984 or 2021
 bool b_pack_on = false;
 bool b_pack_shutting_down = false;
-millisDelay ms_fast_led;
 
 void setup() {
   Serial.begin(9600);
@@ -1094,7 +1102,7 @@ void cyclotronControl() {
       }
       else {
         r_2021_ramp.go(i_2021_ramp_delay - i_2021_delay, i_2021_ramp_length, CIRCULAR_OUT);
-        r_inner_ramp.go(i_inner_ramp_delay - (i_2021_delay / i_2021_inner_delay), i_2021_ramp_length, CIRCULAR_OUT);
+        r_inner_ramp.go(i_inner_ramp_delay - (i_2021_delay - i_2021_inner_delay), i_2021_ramp_length, CIRCULAR_OUT);
       }
     }
     else if(b_2021_ramp_down_start == true) {
@@ -1119,7 +1127,7 @@ void cyclotronControl() {
     }
     else {
       cyclotron2021(i_2021_delay);
-      innerCyclotronRing(i_inner_delay / i_2021_inner_delay);
+      innerCyclotronRing(i_inner_delay - i_2021_inner_delay);
     }
   }
 }
@@ -1365,7 +1373,7 @@ void cyclotronOverHeating() {
   switch (i_mode_year) {
     case 2021:
       cyclotron2021(i_2021_delay * 20);
-      innerCyclotronRing(i_inner_delay / i_2021_inner_delay * 20);
+      innerCyclotronRing(i_inner_delay - i_2021_inner_delay * 20);
     break;
 
     case 1984:
@@ -1399,7 +1407,7 @@ void cyclotronNoCable() {
   switch (i_mode_year) {
     case 2021:
       cyclotron2021(i_2021_delay * 10);
-      innerCyclotronRing(i_inner_delay / i_2021_inner_delay * 10);
+      innerCyclotronRing(i_inner_delay - i_2021_inner_delay * 10);
     break;
 
     case 1984:
@@ -2234,8 +2242,8 @@ void checkFan() {
  * Check if the wand is still connected.
  */
 void wandHandShake() {  
-  if(b_wand_connected == true) {
-    if(ms_wand_handshake.justFinished()) {     
+  if(b_wand_connected == true) {    
+    if(ms_wand_handshake.justFinished()) {         
       if(PACK_STATUS == MODE_ON) {
         // Shut the pack down as the wand was disconnected.
         packShutdown();
@@ -2246,6 +2254,12 @@ void wandHandShake() {
       b_wand_connected = false;
     }
     else if(ms_wand_handshake_checking.justFinished()) {  
+      if(b_diagnostic == true) {
+        // Play a beep sound to know if the wand is connected, while in diagnostic mode.
+        w_trig.trackGain(S_VENT_BEEP, i_volume);
+        w_trig.trackPlayPoly(S_VENT_BEEP);
+      }
+      
       ms_wand_handshake_checking.stop();
       
       // Ask the wand if it is still connected.
@@ -2254,7 +2268,7 @@ void wandHandShake() {
   }
   else {
     if(ms_wand_handshake.justFinished()) {        
-      // Ask the wand if it is still connected.
+      // Ask the wand if it connected.
       Serial2.write(11);
 
       ms_wand_handshake.start(i_wand_handshake_delay);
