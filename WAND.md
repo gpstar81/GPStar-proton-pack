@@ -63,7 +63,7 @@ The following is a diagram of the Arduino Nano pins from left and right, when or
 |---------------|----------|---|----------|------------|
 | D8 (Red)      | D13  |   | D12  | D7 (Red)      |
 |               | 3V3  |   | D11  | Motor-NPN     |
-|               | REF  |   | D10  | Q2 (Red)      |
+|               | REF  |   | D10  | Q2 (Yellow)   |
 | SW2 (Red)     | A0   |   | D9   | WavTrigger RX |
 | D2 (Brown)    | A1   |   | D8   | WavTrigger TX |
 | D3 (Red)      | A2   |   | D7   | ROT (Yellow)  |
