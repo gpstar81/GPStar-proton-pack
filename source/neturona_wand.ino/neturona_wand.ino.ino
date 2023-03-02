@@ -5,11 +5,14 @@
 
   NOTE: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are uploading code to your Nano.
 ********************************************************/
+/*
+ * You need to edit wavTrigger.h and make sure you comment out the proper serial port. (Near the top of the wavTrigger.h file).
+ * We are going to use Pins 8 and 9 on the Nano. __WT_USE_ALTSOFTSERIAL__
+ */
 #include <wavTrigger.h>
 /* 
  *  AltSoftSerial uses: Pin 9 = TX & Pin 8 = RX. 
  *  So Pin 9 goes to the RX of the WavTrigger and Pin 8 goes to the TX of the WavTrigger. 
- *  You need to edit wavTrigger.h (near the top of the wavTrigger.h file) and make sure you are using __WT_USE_ALTSOFTSERIAL__
  */
 #include <AltSoftSerial.h>
 #include <millisDelay.h> 
@@ -100,6 +103,19 @@ enum sound_fx {
   S_CROSS_STREAMS_START
 };
 
+/*
+ * You can set the default startup volume for your wand here.
+ * NOTE: Make sure to set this to the same value in the Proton Pack code.
+ * If not then the startup volume will levels will not be in sync.
+ * 4 = loudest
+ * -70 = quietest
+ */
+const int STARTUP_VOLUME = 0;
+
+/*
+ * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
+ */
+ 
 /* 
  * Wand state. 
  */
@@ -130,8 +146,8 @@ const uint8_t i_music_track_start = 100; // Music tracks start on file named 100
 /* 
  *  Volume (4 = loudest, -70 = quietest)
  */
-int i_volume = 0;
-int i_volume_music = 0;
+int i_volume = STARTUP_VOLUME;
+int i_volume_music = STARTUP_VOLUME;
 
 /* 
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
@@ -268,8 +284,8 @@ const int i_music_next_track_delay = 2000;
 
 /* 
  *  Wand firing modes
+ *  Proton, Slime, Stasis, Meson, Settings
  */
-const int i_max_modes = 4; // Proton, Slime, Stasis, Meson, Settings
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
 
@@ -792,13 +808,22 @@ void checkSwitches() {
         if(analogRead(switch_mode) > 1020 && ms_switch_mode_debounce.justFinished()) {
           if(i_wand_menu == 5) {
             // Cycle through the firing modes and setting menu.
-            if(FIRING_MODE + 1 > i_max_modes) {
-              FIRING_MODE = PROTON;
+            if(FIRING_MODE == PROTON) {
+              FIRING_MODE = SLIME;
+            }
+            else if(FIRING_MODE == SLIME) {
+              FIRING_MODE = STASIS;
+            }
+            else if(FIRING_MODE == STASIS) {
+              FIRING_MODE = MESON;
+            }
+            else if(FIRING_MODE == MESON) {
+              FIRING_MODE = SETTINGS;
             }
             else {
-              FIRING_MODE = FIRING_MODE + 1;
+              FIRING_MODE = PROTON;
             }
-
+   
             w_trig.trackGain(S_CLICK, i_volume);
             w_trig.trackPlayPoly(S_CLICK);
 
@@ -2289,8 +2314,8 @@ void checkPack() {
 
       case 14:
         // Reset volumes
-        i_volume = 0;
-        i_volume_music = 0;
+        i_volume = STARTUP_VOLUME;
+        i_volume_music = STARTUP_VOLUME;
         w_trig.masterGain(i_volume);
       break;
       
