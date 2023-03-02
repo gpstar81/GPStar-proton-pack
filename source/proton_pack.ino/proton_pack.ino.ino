@@ -132,6 +132,22 @@ bool b_clockwise = true;
 bool b_diagnostic = false;
 
 /*
+ * Inner cyclotron 35 LED NeoPixel ring speed.
+ * The higher the number, the faster it will spin.
+ * Do not go any higher than 12.
+ */
+const int i_2021_inner_delay = 7;
+const int i_1984_inner_delay = 2;
+
+/*
+ * Cyclotron Lid LED delays.
+ * Time in milliseconds between when a LED changes.
+ * It is recommended not to go lower than 10.
+ * 1000 = 1 second.
+ */
+const int i_1984_delay = 1050;
+const int i_2021_delay = 15;
+/*
  * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
  */
 
@@ -196,8 +212,6 @@ enum PACK_ACTION_STATE PACK_ACTION_STATUS;
  */
 const int cyclotron_led_start = 13; // First LED in the cyclotron.
 int i_led_cyclotron = cyclotron_led_start; // Current cyclotron LED that we are lighting up.
-const int i_1984_delay = 1050;
-const int i_2021_delay = 15;
 const int i_2021_ramp_delay = 300;
 const int i_2021_ramp_length = 6000;
 const int i_1984_ramp_length = 2000;
@@ -226,8 +240,6 @@ const int i_inner_ramp_delay = i_2021_ramp_delay;
 int i_led_cyclotron_ring = 0;
 bool b_inner_ramp_up = true;
 bool b_inner_ramp_down = false;
-const int i_2021_inner_delay = 5;
-const int i_1984_inner_delay = 1;
 int i_inner_current_ramp_speed = i_2021_delay - i_2021_inner_delay;
         
 /* 
