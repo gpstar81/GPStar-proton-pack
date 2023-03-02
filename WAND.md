@@ -24,7 +24,7 @@ The space within the Neutron Wand is extremely limited, though multiple componen
 |      |        | <font color="red">Red</font> |  |  |
 | SW3  |        | <font color="brown">Brown</font> | V+ | Rotary encoder (intensity) on top of wand |
 |      |        | <font color="red">Red</font> | A  |  |
-|      |        | <font color="yellow">Yellow</font> | B |  |
+|      |        | <font color="orange">Orange</font> | B |  |
 | SW7  |        | <font color="orange">Orange</font> | SPST Switch | Wand tip retraction/extension sensor |
 |      |        | <font color="orange">Orange</font> |  |  |
 | SW4  | JST-PH | <font color="red">Red</font> | SPDT Toggle | Activate toggle on left control box |
@@ -61,21 +61,21 @@ The following is a diagram of the Arduino Nano pins from left and right, when or
 
 | Connection    | Nano (L) |   | Nano (R) | Connection |
 |---------------|----------|---|----------|------------|
-| D8            | D13  |   | D12  | D7            |
-|               | 3V3  |   | D11  | Motor-NPN.    |
+| D8 (Red)      | D13  |   | D12  | D7 (Red)      |
+|               | 3V3  |   | D11  | Motor-NPN     |
 |               | REF  |   | D10  | Q2 (Red)      |
-| SW2           | A0   |   | D9   | WavTrigger RX |
-| D2            | A1   |   | D8   | WavTrigger TX |
-| D3            | A2   |   | D7   | ROT (Yellow)  |
-| D4            | A3   |   | D6   | ROT (Red)     |
-| D5            | A4   |   | D5   | D1 & D9       |
-| D6            | A5   |   | D4   | SW1           |
-| SW6           | A6   |   | D3   | SW4           |
-| SW7           | A7   |   | D2   | SW45          |
+| SW2 (Red)     | A0   |   | D9   | WavTrigger RX |
+| D2 (Brown)    | A1   |   | D8   | WavTrigger TX |
+| D3 (Red)      | A2   |   | D7   | ROT (Yellow)  |
+| D4 (Orange)   | A3   |   | D6   | ROT (Red)     |
+| D5 (Yellow)   | A4   |   | D5   | D1 & D9 (Red) |
+| D6 (Green)    | A5   |   | D4   | SW1 (Brown)   |
+| SW6 (White)   | A6   |   | D3   | SW4 (Red)     |
+| SW7 (Orange)  | A7   |   | D2   | SW45 (White)  |
 |               | 5V   |   | GND  |               |
 |               | RST  |   | RST  |               |
-| Ground (Pack) | GND  |   | RX0  | TX (Pack)     |
-| +5V (Pack)    | VIN  |   | TX1  | RX (Pack      |
+| Ground (Pack) | GND  |   | RX0  | TX (to Pack)  |
+| +5V (Pack)    | VIN  |   | TX1  | RX (to Pack)  |
 
 ### Connections by Component
 
@@ -97,20 +97,20 @@ Note: If you want to replace LEDs, the bargraph uses 3mm LED diodes.
 | <font color="brown">Brown</font>   | → | 140 Ω | →  | Pin A1   | D2   |
 
 | LOWER RIGHT TOGGLE → SW1         |   |        |     | Nano Pin | Hasbro Ref | Notes |
-|----------------------------------|---|--------|-----|----------|-----|-----------------------------------------------------|
-| <font color="brown">Brown</font> | → | Ground |     |          | SW1 | Shouldn’t matter which wire goes where. (GND or D4) |
-| <font color="brown">Brown</font> | → | →      | →   | Pin D4   | SW1 | Shouldn’t matter which wire goes where. (GND or D4) |
+|----------------------------------|---|--------|-----|----------|-----|----------------------------------------|
+| <font color="brown">Brown</font> | → | Ground |     |          | SW1 | Shouldn’t matter which wire goes where |
+| <font color="brown">Brown</font> | → | →      | →   | Pin D4   | SW1 | Shouldn’t matter which wire goes where |
 
 | UPPER RIGHT TOGGLE → SW2         |   |        |     | Nano Pin | Hasbro Ref | Notes |
-|----------------------------------|---|--------|-----|----------|-----|-----------------------------------------------------|
-| <font color="red">Red</font>     | → | Ground |     |          | SW2 | Shouldn’t matter which wire goes where. (GND or A0) |
-| <font color="red">Red</font>     | → | →      | →   | Pin A0   | SW2 | Shouldn’t matter which wire goes where. (GND or A0) |
+|----------------------------------|---|--------|-----|----------|-----|----------------------------------------|
+| <font color="red">Red</font>     | → | Ground |     |          | SW2 | Shouldn’t matter which wire goes where |
+| <font color="red">Red</font>     | → | →      | →   | Pin A0   | SW2 | Shouldn’t matter which wire goes where |
 
 | ROTARY ENCODER (ROT) → SW3 |   |              |    | Nano Pin | Hasbro Ref |
 |----------------------------|---|--------------|----|----------|------------|
 | <font color="brown">Brown</font>   | → | +5V  |    |        | SW3 |
 | <font color="red">Red</font>       | → | →    | →  | Pin D6 | SW3 |
-| <font color="yellow">Yellow</font> | → | →    | →  | Pin D7 | SW3 |
+| <font color="orange">Orange</font> | → | →    | →  | Pin D7 | SW3 |
 
 | SW45/SW4 Connector: SW45 = Intensify / SW4 = Activate |   |        |    | Nano Pin | Hasbro Ref |
 |-------------------------------------------------------|---|--------|----|----------|------------|
@@ -126,8 +126,8 @@ Note: If you want to replace LEDs, the bargraph uses 3mm LED diodes.
 
 | BARREL EXTENSION SWITCH → SW7 |   |        |    | Nano Pin | Hasbro Ref |                                        |
 |-------------------------------|---|--------|----|----------|------------|----------------------------------------|
-| <font color="yellow">Yellow</font> | → | +5V    |    |          | SW6   | Shouldn’t matter which wire goes where |
-| <font color="yellow">Yellow</font> | → | 10k Ω  | →  | Pin A7   | SW6   | Shouldn’t matter which wire goes where |
+| <font color="orange">Orange</font> | → | +5V    |    |          | SW6   | Shouldn’t matter which wire goes where |
+| <font color="orange">Orange</font> | → | 10k Ω  | →  | Pin A7   | SW6   | Shouldn’t matter which wire goes where |
 
 | VIBRATION&nbsp;MOTOR |   |            | Motor Wire | Nano&nbsp;Pin | Notes                                     |
 |----------------------|---|------------|------------|---------|-------------------------------------------------|
