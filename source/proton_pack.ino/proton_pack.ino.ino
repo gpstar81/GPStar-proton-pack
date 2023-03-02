@@ -1,11 +1,11 @@
 /********************************************************
-  Haslab Proton Pack Controller.
+  Haslab Proton Pack.
   January 2022.
   Michael Rajotte / gpstar
 ********************************************************/
 /* 
- *  NOTE: You need to edit wavTrigger.h and make sure you comment out the proper serial port. (Near the top of the wavTrigger.h file).
- *  We are going to use tx/rx pins #3 on the Mega.  __WT_USE_SERIAL3___
+ *  You need to edit wavTrigger.h and make sure you comment out the proper serial port. (Near the top of the wavTrigger.h file).
+ *  We are going to use tx/rx #3 on the Mega.  __WT_USE_SERIAL3___
  */
 #include <wavTrigger.h>
 #include <millisDelay.h> 
@@ -17,7 +17,7 @@
  *  SD Card sound files in order. If you have no sound, your SD card might be too slow, try another one.
  *  File naming 000_ is important as well. For music, it is 100_ and higher.
  *  Also note if you add more sounds to this list, you need to update the wavtrigger setup function to let it know the last
- *  sound effect file. The wav trigger uses this to determine how many music tracks there are if any.
+ *  sound effect file (very bottom of this code). The wav trigger uses this to determine how many music tracks there are if any.
  */
 enum sound_fx {
   S_EMPTY, 
@@ -97,6 +97,37 @@ enum sound_fx {
   S_CROSS_STREAMS_START
 };
 
+/*
+ * Use the following defines to change which optional NeoPixels you are using
+ * in your inner cyclotron. If you are not using any, then this can be left alone.
+ * Leave at least one in place, even if you are not using any.
+ * 35 -> For a 35 LED NeoPixel Ring
+ * 56 -> For 8 NeoPixel Jewels chained together. (7 pixels per jewel)
+ */
+#define CYCLOTRON_NUM_LEDS 35
+//#define CYCLOTRON_NUM_LEDS 56
+
+/*
+ * You can set the default startup volume for your pack here.
+ * NOTE: Make sure to set this to the same value in the Neturona Wand code.
+ * If not then the startup volume will levels will not be in sync.
+ * 4 = loudest
+ * -70 = quietest
+ */
+const int STARTUP_VOLUME = 0;
+
+/* 
+ *  Default the cyclotron lights direction to clockwise. 
+ *  This can be controlled by an optional switch on pin 29. 
+ *  Set to false to be counter clockwise.
+ */
+bool b_clockwise = true;
+
+/*
+ * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
+ */
+
+ 
 /* 
  *  PowerCell and Cyclotron Lid LEDs.
  *  25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
@@ -105,20 +136,21 @@ enum sound_fx {
 #define PACK_LED_PIN 53
 #define PACK_NUM_LEDS 32
 CRGB pack_leds[PACK_NUM_LEDS];
-#define VENT_LIGHT_START 26
+#define VENT_LIGHT_START 25
 
 /*
  * Inner Cyclotron LEDs. (optional).
  * Uses pin 13.
- * 56 LEDs if using 8 chainable NeoPixel Jewels. (7 per jewel).
- * 35 LEDs for a 35 LED NeoPixel Ring.
  */
 #define CYCLOTRON_LED_PIN 13
-// For 8 chainable NeoPixel Jewels, use this.
-//#define CYCLOTRON_NUM_LEDS 56
-// For a 35 LED NeoPixel Ring, use this.
-#define CYCLOTRON_NUM_LEDS 35
 CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
+
+/*
+ * Delay for fastled to update the addressable LEDs. 
+ * We have up to 88 addressable LEDs if using NeoPixel jewels in the inner cyclotron and n-filter.
+ * 0.03 ms to update 1 LED. So 3 ms should be ok. Lets bump it up to 8 just in case.
+ */
+const int i_fast_led_delay = 8;
 
 /*
  * Powercell LEDs control.
@@ -147,7 +179,7 @@ enum PACK_STATE PACK_STATUS;
 /*
  * Pack action state.
  */
-enum PACK_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_OVERHEATING, ACTION_ALARM };
+enum PACK_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE };
 enum PACK_ACTION_STATE PACK_ACTION_STATUS;
 
 /*
@@ -171,8 +203,31 @@ bool b_2021_ramp_down = false;
 bool b_reset_start_led = true;
 rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
-bool b_clockwise = true; // Default the cyclotron lights direction to clockwise. Controlled by a optional switch on pin 29. Set to false to be counter-clockwise.
 boolean b_cyclotron_lid_on = true;
+
+/*
+ * Inner cyclotron NeoPixel ring ramp control.
+ * The 8 Jewel option is piggybacking off the cyclotron lid led controls above.
+ * This is for the 35 LED NeoPixel ring option.
+ */
+millisDelay ms_cyclotron_ring;
+rampInt r_inner_ramp;
+const int i_inner_delay = i_2021_delay;
+const int i_inner_ramp_delay = i_2021_ramp_delay;
+int i_led_cyclotron_ring = 0;
+bool b_inner_ramp_up = true;
+bool b_inner_ramp_down = false;
+const int i_2021_inner_delay = 5;
+const int i_1984_inner_delay = 5;
+int i_inner_current_ramp_speed = i_2021_delay / i_2021_inner_delay;
+        
+/* 
+ *  Inner cyclotron communication
+ *  This is used by the 8 NeoPixel Jewel option only.
+ *  The jewel option is piggybacking it's timing off the cyclotron lid led controls.
+ */
+int i_cyclotron_data = 0;
+int i_prev_cyclotron_data = 0;
 
 /*
  * Cyclotron Switch Plate LEDs
@@ -219,8 +274,8 @@ boolean b_repeat_track = false;
 /* 
  *  Volume (4 = loudest, -70 = quietest)
  */
-int i_volume = 0;
-int i_volume_music = 0;
+int i_volume = STARTUP_VOLUME;
+int i_volume_music = STARTUP_VOLUME;
 
 /*
  * Vibration motor settings
@@ -296,19 +351,13 @@ int i_encoder_pos = 0;
 int i_val_rotary;
 int i_last_val_rotary;
 
-/* 
- *  Inner cyclotron communication
- */
-int i_cyclotron_data = 0;
-int i_prev_cyclotron_data = 0;
-int i_cyclotron_inner_ring_led = 0; // Used for a 35 LED NeoPixel ring.
-
 /*
  * Misc.
  */
 int i_mode_year = 2021; // 1984 or 2021
 bool b_pack_on = false;
 bool b_pack_shutting_down = false;
+millisDelay ms_fast_led;
 
 void setup() {
   Serial.begin(9600);
@@ -367,17 +416,20 @@ void setup() {
 
   // Start some timers
   ms_cyclotron.start(i_2021_delay);
+  ms_cyclotron_ring.start(i_inner_ramp_delay);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
   ms_wand_handshake.start(1);
- 
+  ms_fast_led.start(i_fast_led_delay);
+
   // Tell the wand the pack is here.
   Serial2.write(0);
+
 }
 
 void loop() {
   w_trig.update();
   
-  cyclotronCommunication();
+  innerCyclotronCommunication();
   cyclotronSwitchPlateLEDs();
 
   wandHandShake();
@@ -400,6 +452,7 @@ void loop() {
       if(b_pack_on == true) {
         b_2021_ramp_up = false;
         b_2021_ramp_up_start = false;
+        b_inner_ramp_up = false;
 
         reset2021RampDown();
 
@@ -409,7 +462,7 @@ void loop() {
       if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
         cyclotronSwitchLEDLoop();        
         powercellLoop();
-        cyclotron_control();
+        cyclotronControl();
       }
       else {   
         powercellOff();     
@@ -423,17 +476,19 @@ void loop() {
         ms_cyclotron_switch_led.stop();
         ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
         
-        // Need to reset the cyclotron timer.
+        // Need to reset the cyclotron timers.
         ms_cyclotron.start(i_2021_delay);
+        ms_cyclotron_ring.start(i_inner_ramp_delay);
         
         b_overheating = false;
         b_2021_ramp_down = false;
         b_2021_ramp_down_start = false;
         b_reset_start_led = true; // reset the start led of the cyclotron.
+        b_inner_ramp_down = false;
         
-        resetCyclotronLeds();
+        resetCyclotronLeds();        
         reset2021RampUp();
-        
+
         // Update Cyclotron LED timer delay and optional cyclotron led switch plate LED timers delays.
         switch(i_mode_year) {
           case 2021:
@@ -491,7 +546,8 @@ void loop() {
 
           packStartup();
           
-          ms_cyclotron.start(i_2021_delay);          
+          ms_cyclotron.start(i_2021_delay);
+          ms_cyclotron_ring.start(i_inner_ramp_delay);      
         }
       }   
 
@@ -545,7 +601,7 @@ void loop() {
       
       cyclotronSwitchLEDLoop();
       powercellLoop();
-      cyclotron_control();
+      cyclotronControl();
     break;
    }
 
@@ -561,6 +617,12 @@ void loop() {
     case ACTION_ACTIVATE:
       packStartup();
     break;
+  }
+
+  // Update the LEDs
+  if(ms_fast_led.justFinished()) {
+    FastLED.show();
+    ms_fast_led.start(i_fast_led_delay);
   }
 }
 
@@ -650,24 +712,29 @@ void packShutdown() {
 }
 
 void checkSwitches() {
-  if(switch_cyclotron_direction.getState() == LOW) {
+  // Cyclotron direction toggle switch.
+  if(switch_cyclotron_direction.isPressed()) {
     b_clockwise = true;
   }
-  else {
+  else if(switch_cyclotron_direction.isReleased()) {
     b_clockwise = false;
   }
-
+  
+  // Smoke
   if(switch_smoke.getState() == HIGH) {
     if(b_smoke_enabled == true) {
       smokeControl(false);
+
+      b_smoke_enabled = false;
     }
-    
-    b_smoke_enabled = false;
   }
   else {
-    b_smoke_enabled = true;
+    if(b_smoke_enabled == false) {
+      b_smoke_enabled = true;
+    }
   }
-  
+
+  // Vibration toggle switch.
   if(switch_vibration.getState() == LOW) {
     if(b_vibration == false) {
       // Tell the wand to turn vibration on.
@@ -675,9 +742,10 @@ void checkSwitches() {
       
       w_trig.trackStop(S_BEEPS_ALT);    
       w_trig.trackGain(S_BEEPS_ALT, 0);
-      w_trig.trackPlayPoly(S_BEEPS_ALT);      
+      w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+      b_vibration = true;
     }
-    b_vibration = true;
   }
   else {
     if(b_vibration == true) {
@@ -687,19 +755,13 @@ void checkSwitches() {
       w_trig.trackStop(S_BEEPS_ALT);    
       w_trig.trackGain(S_BEEPS_ALT, 0);
       w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+      b_vibration = false;
     }
-    
-    b_vibration = false;
   }  
 
-  
   // Play sound when the mode switch is pressed or released.
   if(switch_mode.isPressed() || switch_mode.isReleased()) {
-    /*
-    w_trig.trackStop(S_CLICK);    
-    w_trig.trackGain(S_CLICK, 0);
-    w_trig.trackPlayPoly(S_CLICK);
-    */
     w_trig.trackStop(S_BEEPS_BARGRAPH);    
     w_trig.trackGain(S_BEEPS_BARGRAPH, 0);
     w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
@@ -940,8 +1002,9 @@ void powercellLoop() {
     }
     
     pack_leds[i_powercell_led] = CRGB(0,0,255);
-    FastLED.show();
-    
+
+    //FastLED.show();
+
     i_powercell_led++;
     
     // Setup the delays again.
@@ -966,12 +1029,34 @@ void powercellLoop() {
   }
 }
 
-void cyclotron_control() {    
+void powercellOff() {
+  for(int i = 0; i <= PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
+    pack_leds[i] = CRGB(0,0,0);
+  }
+  
+  //FastLED.show();
+  
+  i_powercell_led = 0;
+}
+
+void cyclotronControl() {
+  // Only reset the starting led when the pack is first started up.
+  if(b_reset_start_led == true) {
+    b_reset_start_led = false;
+    if(b_clockwise == false && i_mode_year == 2021) {
+      i_led_cyclotron = cyclotron_led_start + 2; // Start on LED #2 in anti-clockwise mode in 2021 mode.
+    }
+    else {
+      i_led_cyclotron = cyclotron_led_start;
+    }
+  }
+        
   if(switch_alarm.getState() == HIGH && PACK_STATUS != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false) {
     if(b_alarm == false) {
       w_trig.trackStop(S_BEEP_8);
 
       b_2021_ramp_up = false;
+      b_inner_ramp_up = false;
       b_alarm = true;
       packAlarm();
       ms_alarm.start(i_alarm_delay);
@@ -988,6 +1073,7 @@ void cyclotron_control() {
       w_trig.trackStop(S_BEEP_8);
 
       b_2021_ramp_up = false;
+      b_inner_ramp_up = false;
       b_alarm = true;
       packAlarm();
       ms_alarm.start(i_alarm_delay);
@@ -1000,161 +1086,45 @@ void cyclotron_control() {
       b_2021_ramp_up_start = false;
 
       r_2021_ramp.go(0); // Reset the ramp.
-
+      r_inner_ramp.go(0); // Inner cyclotron ramp reset.
+      
       if(i_mode_year == 1984) {
         r_2021_ramp.go(i_2021_ramp_delay - i_2021_delay, i_1984_ramp_length, CIRCULAR_OUT);
+        r_inner_ramp.go(i_inner_ramp_delay - (i_2021_delay - i_1984_inner_delay), i_1984_ramp_length, CIRCULAR_OUT);
       }
       else {
         r_2021_ramp.go(i_2021_ramp_delay - i_2021_delay, i_2021_ramp_length, CIRCULAR_OUT);
-      }
-
-      // Only reset the starting led when the pack is first started up.
-      if(b_reset_start_led == true) {
-        b_reset_start_led = false;
-        if(b_clockwise == false && i_mode_year == 2021) {
-          i_led_cyclotron = cyclotron_led_start + 2; // Start on LED #2 in anti-clockwise mode in 2021 mode.
-        }
-        else {
-          i_led_cyclotron = cyclotron_led_start;
-        }
+        r_inner_ramp.go(i_inner_ramp_delay - (i_2021_delay / i_2021_inner_delay), i_2021_ramp_length, CIRCULAR_OUT);
       }
     }
     else if(b_2021_ramp_down_start == true) {
       b_2021_ramp_down_start = false;
 
       r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+      r_inner_ramp.go(i_inner_current_ramp_speed); // Reset the inner cyclotron ramp.
 
       if(i_mode_year == 1984) {
         r_2021_ramp.go(i_2021_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN); 
+        r_inner_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN); 
       }
       else {
         r_2021_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length, CIRCULAR_IN);
+        r_inner_ramp.go(i_inner_ramp_delay, i_2021_ramp_down_length, CIRCULAR_IN);
       }
     }
   
     if(i_mode_year == 1984) {
       cyclotron1984(i_1984_delay);
+      innerCyclotronRing(i_inner_delay - i_1984_inner_delay);
     }
     else {
       cyclotron2021(i_2021_delay);
+      innerCyclotronRing(i_inner_delay / i_2021_inner_delay);
     }
   }
 }
 
-void cyclotronOverHeating() {  
-  vibrationPack(50);
-  smokeControl(true);
-
-  if(ms_overheating.justFinished()) {
-    w_trig.trackPlayPoly(S_VENT_SMOKE, true);
-    smokeControl(false);
-  }
-
-  switch (i_mode_year) {
-    case 2021:
-      cyclotron2021(i_2021_delay * 20);
-    break;
-
-    case 1984:
-      if(ms_alarm.justFinished()) {
-        resetCyclotronLeds();
-        ms_alarm.start(i_alarm_delay);
-      }
-      else {
-        cyclotron1984Alarm(i_1984_delay);
-      }
-    break;
-  }
-
-
-  if(ms_vent_light_off.justFinished()) {
-    ms_vent_light_off.stop();
-    ms_vent_light_on.start(i_vent_light_delay);
-
-    ventLight(true);
-  }
-  else if(ms_vent_light_on.justFinished()) {
-    ms_vent_light_on.stop();
-    ms_vent_light_off.start(i_vent_light_delay);
-
-    ventLight(false);
-  }
-}
-
-void ventLight(boolean b_on) {
-  if(b_on == true) {
-    int r = random(200,255);
-    int g = random(200,255);
-    int b = random(200,255);
-
-    // If doing firing smoke effects, lets change the light colours.
-    if(b_wand_firing == true) {
-      switch(FIRING_MODE) {
-        case PROTON:
-          r = 0;
-          g = 55;
-          b = 55;
-        break;
-        
-        case SLIME:
-          r = 0;
-          g = 255;
-          b = 0;
-        break;
-        
-        case STASIS:
-          r = 0;
-          g = 0;
-          b = 255;
-        break;
-        
-        case MESON:
-          r = 255;
-          g = 255;
-          b = 0;
-        break;   
-        
-        default:
-          r = 50;
-          g = 255;
-          b = 255;
-        break;
-      }
-    }
-    for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
-      pack_leds[i] = CRGB(r,g,b);
-    }
-  }
-  else {
-    for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
-      pack_leds[i] = CRGB(0,0,0);
-    }
-  }
-
-  FastLED.show();
-}
-
-void cyclotronNoCable() {  
-  vibrationPack(50);
-
-  switch (i_mode_year) {
-    case 2021:
-      cyclotron2021(i_2021_delay * 10);
-    break;
-
-    case 1984:
-      if(ms_alarm.justFinished()) {
-        resetCyclotronLeds();
-        ms_alarm.start(i_alarm_delay);
-      }
-      else {
-        cyclotron1984Alarm(i_1984_delay);
-      }
-    break;
-  }
-}
-
-int cyclotron2021(int cDelay) {
+void cyclotron2021(int cDelay) {
   if(ms_cyclotron.justFinished()) {
     if(i_cyclotron_multiplier > 1) {
       cDelay = cDelay / i_cyclotron_multiplier + 5;
@@ -1163,44 +1133,40 @@ int cyclotron2021(int cDelay) {
       cDelay = cDelay / i_cyclotron_multiplier;
     }
 
-    if(b_clockwise == true) {
-      if(i_led_cyclotron < PACK_NUM_LEDS - 7) {
-        pack_leds[i_led_cyclotron - 1] = CRGB(0,0,0);
+    if(b_clockwise == true) {      
+      pack_leds[i_led_cyclotron] = CRGB(255,0,0);
+
+      if(i_led_cyclotron == cyclotron_led_start) {
+        pack_leds[PACK_NUM_LEDS - 7 - 1] = CRGB(0,0,0);
       }
       else {
         pack_leds[i_led_cyclotron - 1] = CRGB(0,0,0);
-        i_led_cyclotron = cyclotron_led_start;
-      }
-  
-      if(i_led_cyclotron > PACK_NUM_LEDS - 7 - 1) {
-        i_led_cyclotron = cyclotron_led_start;
       }
 
-      pack_leds[i_led_cyclotron] = CRGB(255,0,0);
-      FastLED.show();
-      
+      //FastLED.show();
+
       i_led_cyclotron++;
+        
+      if(i_led_cyclotron > PACK_NUM_LEDS - 7 - 1) {
+        i_led_cyclotron = cyclotron_led_start;
+      }   
     }
     else {
-      if(i_led_cyclotron + 1 > PACK_NUM_LEDS - 7) {
+      pack_leds[i_led_cyclotron] = CRGB(255,0,0);
+      
+      if(i_led_cyclotron + 1 > PACK_NUM_LEDS - 7 - 1) {
         pack_leds[cyclotron_led_start] = CRGB(0,0,0);
       }
       else {
         pack_leds[i_led_cyclotron + 1] = CRGB(0,0,0);
       }
 
-      if(i_led_cyclotron < cyclotron_led_start) {
-        i_led_cyclotron = PACK_NUM_LEDS - 7;
-      }
-            
-      pack_leds[i_led_cyclotron] = CRGB(255,0,0);
-      FastLED.show();
+      //FastLED.show();
+
+      i_led_cyclotron--;
       
-      if(i_led_cyclotron == cyclotron_led_start) {
-        i_led_cyclotron = PACK_NUM_LEDS - 7;
-      }
-      else {
-        i_led_cyclotron--;
+      if(i_led_cyclotron < cyclotron_led_start) {
+        i_led_cyclotron = PACK_NUM_LEDS - 7 - 1;
       }
     }
 
@@ -1279,9 +1245,9 @@ int cyclotron2021(int cDelay) {
   }
 }
 
-int cyclotron1984(int cDelay) {
+void cyclotron1984(int cDelay) {
   int i_pack_vibration = 100;
-
+  
   if(ms_cyclotron.justFinished()) {
     cDelay = cDelay / i_cyclotron_multiplier;
     
@@ -1336,41 +1302,29 @@ int cyclotron1984(int cDelay) {
   }
 }
 
-int cyclotron1984Alarm(int cDelay) {
+void cyclotron1984Alarm(int cDelay) {
   if(ms_cyclotron.justFinished()) {
     int led1 = cyclotron_led_start + 1;
     int led2 = led1 + 3;
     int led3 = led2 + 3;
     int led4 = led3 + 3;
-    
+
     pack_leds[led1] = CRGB(255,0,0);
     pack_leds[led2] = CRGB(255,0,0);
     pack_leds[led3] = CRGB(255,0,0);
     pack_leds[led4] = CRGB(255,0,0);
-
-    FastLED.show();
-
+    
     // Prepare to tell the inner cyclotron to turn all lights on.
-    i_cyclotron_data = 5;
+    innerCyclotronShowAll();
   
     ms_cyclotron.start(cDelay);
   }
 }
 
-void reset2021RampUp() {
-  b_2021_ramp_up = true;
-  b_2021_ramp_up_start = true;
-}
-
-void reset2021RampDown() {
-  b_2021_ramp_down = true;
-  b_2021_ramp_down_start = true;
-}
-
-void cyclotron84LightOn(int cLed) {  
+void cyclotron84LightOn(int cLed) {
   pack_leds[cLed+1] = CRGB(255,0,0);
 
-  FastLED.show();
+  //FastLED.show();
 
   // Preparing to tell the inner cyclotron which led's to turn on.
   switch(cLed) {
@@ -1394,18 +1348,78 @@ void cyclotron84LightOn(int cLed) {
 
 void cyclotron84LightOff(int cLed) {
   pack_leds[cLed+1] = CRGB(0,0,0);
-  FastLED.show();
-
+  
   // Tell the inner cyclotron to turn off the leds.
-  i_cyclotron_data = 0;
+  innerCyclotronOff();
+}
+
+void cyclotronOverHeating() {  
+  vibrationPack(50);
+  smokeControl(true);
+
+  if(ms_overheating.justFinished()) {
+    w_trig.trackPlayPoly(S_VENT_SMOKE, true);
+    smokeControl(false);
+  }
+
+  switch (i_mode_year) {
+    case 2021:
+      cyclotron2021(i_2021_delay * 20);
+      innerCyclotronRing(i_inner_delay / i_2021_inner_delay * 20);
+    break;
+
+    case 1984:
+      if(ms_alarm.justFinished()) {
+        resetCyclotronLeds();
+        ms_alarm.start(i_alarm_delay);
+      }
+      else {
+        cyclotron1984Alarm(i_1984_delay);
+      }
+    break;
+  }
+
+  if(ms_vent_light_off.justFinished()) {
+    ms_vent_light_off.stop();
+    ms_vent_light_on.start(i_vent_light_delay);
+
+    ventLight(true);
+  }
+  else if(ms_vent_light_on.justFinished()) {
+    ms_vent_light_on.stop();
+    ms_vent_light_off.start(i_vent_light_delay);
+
+    ventLight(false);
+  }
+}
+      
+void cyclotronNoCable() {  
+  vibrationPack(50);
+
+  switch (i_mode_year) {
+    case 2021:
+      cyclotron2021(i_2021_delay * 10);
+      innerCyclotronRing(i_inner_delay / i_2021_inner_delay * 10);
+    break;
+
+    case 1984:
+      if(ms_alarm.justFinished()) {
+        resetCyclotronLeds();
+        ms_alarm.start(i_alarm_delay);
+      }
+      else {
+        cyclotron1984Alarm(i_1984_delay);
+      }
+    break;
+  }
 }
 
 void resetCyclotronLeds() {
-  for(int i = cyclotron_led_start; i < PACK_NUM_LEDS -7; i++) {
+  for(int i = cyclotron_led_start; i < PACK_NUM_LEDS; i++) {
     pack_leds[i] = CRGB(0,0,0);
   }
 
-  FastLED.show();
+  //FastLED.show();
 
   // Only reset the start led if the pack is off or just started.
   if(b_reset_start_led == true) {
@@ -1413,19 +1427,9 @@ void resetCyclotronLeds() {
   }
 
   // Tell the inner cyclotron to turn off the leds.
-  i_cyclotron_data = 0;
+  innerCyclotronOff();
   
   cyclotronSpeedRevert();
-}
-
-void powercellOff() {
-  for(int i = 0; i <= PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
-    pack_leds[i] = CRGB(0,0,0);
-  }
-
-  FastLED.show();
-
-  i_powercell_led = 0;
 }
 
 void innerCyclotronOff() {
@@ -1433,9 +1437,158 @@ void innerCyclotronOff() {
     cyclotron_leds[i] = CRGB(0,0,0);
   }
 
-  FastLED.show();
+  //FastLED.show();
 }
 
+void innerCyclotronShowAll() {
+  if(b_cyclotron_lid_on != true) {
+    for(int i = 0; i < CYCLOTRON_NUM_LEDS; i++) {
+      cyclotron_leds[i] = CRGB(255,0,0);
+    }
+
+    //FastLED.show();
+  }
+}
+
+// For NeoPixel rings, ramp up and ramp down the LEDs in the ring and set the speed. (optional)
+void innerCyclotronRing(int cDelay) {
+  if(ms_cyclotron_ring.justFinished()) {
+    // Colour control for the inner cyclotron leds. (red,green,blue)
+    int r = 0;
+    int g = 0;
+    int b = 0;
+  
+    switch(FIRING_MODE) {
+      case PROTON:
+        r = 255;
+        g = 0;
+        b = 0;
+      break;
+  
+      case SLIME:
+        r = 0;
+        g = 255;
+        b = 0;
+      break;
+  
+      case STASIS:
+        r = 0;
+        g = 0;
+        b = 255;
+      break;
+  
+      case MESON:
+        r = 255;
+        g = 255;
+        b = 0;
+      break;   
+  
+      default:
+        r = 255;
+        g = 0;
+        b = 0;
+      break;
+    }
+  
+    if(i_cyclotron_multiplier > 1) {
+      switch(i_cyclotron_multiplier) {
+        case 5:
+          cDelay = cDelay - 2.5;
+        break;
+        
+        case 4:
+          cDelay = cDelay - 2;
+        break;
+        
+        case 3:
+          cDelay = cDelay - 1.5;
+        break;
+        
+        case 2:
+          cDelay = cDelay - 1;
+        break;
+          
+        default:
+          cDelay = cDelay - 1;
+        break;
+      }
+    }
+    else {
+      cDelay = cDelay / i_cyclotron_multiplier;
+    }
+    
+    if(b_clockwise == true) {
+      if(b_cyclotron_lid_on != true) {
+        if(CYCLOTRON_NUM_LEDS == 35) {
+          cyclotron_leds[i_led_cyclotron_ring] = CRGB(r,g,b);
+  
+          if(i_led_cyclotron_ring == 0) {
+            cyclotron_leds[CYCLOTRON_NUM_LEDS - 1] = CRGB(0,0,0);
+          }
+          else {
+            cyclotron_leds[i_led_cyclotron_ring - 1] = CRGB(0,0,0);
+          }
+          
+          //FastLED.show();
+        }
+      }
+
+      i_led_cyclotron_ring++;
+      
+      if(i_led_cyclotron_ring > CYCLOTRON_NUM_LEDS - 1) {
+        i_led_cyclotron_ring = 0;
+      }
+    }
+    else {
+      if(b_cyclotron_lid_on != true) {
+        if(CYCLOTRON_NUM_LEDS == 35) {
+          cyclotron_leds[i_led_cyclotron_ring] = CRGB(r,g,b);
+          
+          if(i_led_cyclotron_ring + 1 > CYCLOTRON_NUM_LEDS - 1) {
+            cyclotron_leds[0] = CRGB(0,0,0);
+          }
+          else {
+            cyclotron_leds[i_led_cyclotron_ring + 1] = CRGB(0,0,0);
+          }
+
+          //FastLED.show();
+        }
+      }
+      
+      i_led_cyclotron_ring--;
+
+      if(i_led_cyclotron_ring < 0) {
+        i_led_cyclotron_ring = CYCLOTRON_NUM_LEDS -1;
+      }
+    }
+
+    if(b_inner_ramp_up == true) {      
+      if(r_inner_ramp.isFinished()) {
+        b_inner_ramp_up = false;
+        ms_cyclotron_ring.start(cDelay);
+        
+        i_inner_current_ramp_speed = cDelay;
+      }
+      else {     
+        ms_cyclotron_ring.start(i_inner_ramp_delay - r_inner_ramp.update());
+        i_inner_current_ramp_speed = i_inner_ramp_delay - r_inner_ramp.update();
+      }
+    }
+    else if(b_inner_ramp_down == true) {
+      if(r_inner_ramp.isFinished()) {
+        b_inner_ramp_down = false;
+      }
+      else {
+        ms_cyclotron_ring.start(r_inner_ramp.update());
+      }
+    }
+    else {
+      ms_cyclotron_ring.start(cDelay);
+    }  
+  }
+}
+
+// For 8 NeoPixel Jewel options for a inner cyclotron. (optional)
 void innerCyclotronShowLED(int i_led) {  
   // Colour control for the inner cyclotron leds. (red,green,blue)
   int r = 0;
@@ -1474,172 +1627,182 @@ void innerCyclotronShowLED(int i_led) {
     break;
   }
 
-  if(CYCLOTRON_NUM_LEDS == 35) {
-    cyclotron_leds[i_cyclotron_inner_ring_led] = CRGB(0,0,0);
-    
-    if(b_clockwise == true) {
-      if(i_cyclotron_inner_ring_led + 1 < CYCLOTRON_NUM_LEDS) {
-        i_cyclotron_inner_ring_led++;
+  // middle led for each jewel.
+  // Jewel 1: 6
+  // Jewel 2: 13
+  // Jewel 3: 20
+  // Jewel 4: 27
+  // Jewel 5: 34
+  // Jewel 6: 41
+  // Jewel 7: 48
+  // Jewel 8: 55
+
+  // Jewel 1 & 2: 0-13
+  // Jewel 3 & 4: 14-27
+  // Jewel 5 & 6: 28-41
+  // Jewel 7 & 8: 42-55
+  
+  // TODO: Add odd blue electric colours mixed in.
+  
+  // If using 8 NeoPixel Jewels.
+  switch(i_led) {
+    case 0:
+      for(int i = 0; i < CYCLOTRON_NUM_LEDS; i++) {
+        cyclotron_leds[i] = CRGB(0,0,0);
       }
-      else {
-        i_cyclotron_inner_ring_led = 0;
+    break;
+
+    case 1:
+      for(int i = 0; i <= 13; i++) {
+        cyclotron_leds[i] = CRGB(r,g,b);
       }
-    }
-    else {
-      if(i_cyclotron_inner_ring_led - 1 < 0) {
-        i_cyclotron_inner_ring_led = CYCLOTRON_NUM_LEDS - 1;
+    break;
+
+    case 2:
+      for(int i = 14; i <= 27; i++) {
+        cyclotron_leds[i] = CRGB(r,g,b);
       }
-      else {
-        i_cyclotron_inner_ring_led--;
+    break;
+
+    case 3:
+      for(int i = 28; i <= 41; i++) {
+        cyclotron_leds[i] = CRGB(r,g,b);
       }
-    }
-  
-    // For a 35 LED NeoPixel Ring.
-    cyclotron_leds[i_cyclotron_inner_ring_led] = CRGB(r,g,b);
-  }
-  else if(CYCLOTRON_NUM_LEDS == 56) {
-    // middle led for each jewel.
-    // Jewel 1: 6
-    // Jewel 2: 13
-    // Jewel 3: 20
-    // Jewel 4: 27
-    // Jewel 5: 34
-    // Jewel 6: 41
-    // Jewel 7: 48
-    // Jewel 8: 55
-  
-    // Jewel 1 & 2: 0-13
-    // Jewel 3 & 4: 14-27
-    // Jewel 5 & 6: 28-41
-    // Jewel 7 & 8: 42-55
-    
-    // TODO: Add odd blue electric colours mixed in.
-    
-    // If using 8 NeoPixel Jewels.
-    switch(i_led) {
-      case 0:
-        for(int i = 0; i < CYCLOTRON_NUM_LEDS; i++) {
-          cyclotron_leds[i] = CRGB(0,0,0);
-        }
-      break;
-  
-      case 1:
-        for(int i = 0; i <= 13; i++) {
-          cyclotron_leds[i] = CRGB(r,g,b);
-        }
-      break;
-  
-      case 2:
-        for(int i = 14; i <= 27; i++) {
-          cyclotron_leds[i] = CRGB(r,g,b);
-        }
-      break;
-  
-      case 3:
-        for(int i = 28; i <= 41; i++) {
-          cyclotron_leds[i] = CRGB(r,g,b);
-        }
-      break;
-  
-      case 4:
-        for(int i = 42; i <= 55; i++) {
-          cyclotron_leds[i] = CRGB(r,g,b);
-        }
-      break;
-    }
+    break;
+
+    case 4:
+      for(int i = 42; i <= 55; i++) {
+        cyclotron_leds[i] = CRGB(r,g,b);
+      }
+    break;
   }
 
-  FastLED.show();
+  //FastLED.show();
 }
 
-void innerCyclotronShowAll() {
-  for(int i = 0; i < CYCLOTRON_NUM_LEDS; i++) {
-    cyclotron_leds[i] = CRGB(255,0,0);
-  }
-  
-  FastLED.show();
-}
-
-void cyclotronCommunication() {
-  if(i_cyclotron_data != i_prev_cyclotron_data) {
+// For 8 NeoPixel Jewel options for a inner cyclotron. (optional)
+void innerCyclotronCommunication() {
+  if(i_cyclotron_data != i_prev_cyclotron_data && CYCLOTRON_NUM_LEDS == 56) {
     if(b_cyclotron_lid_on != true) {
-      if(CYCLOTRON_NUM_LEDS == 35) {
-        switch(i_cyclotron_data) {
-          case 0:
-            // Reset LEDs (turn off);
-            innerCyclotronOff();
-          break;
-
-          case 5:
-            // LED All
-            innerCyclotronShowAll();
-          break;
-
-          default:
-            innerCyclotronShowLED(1);
-          break;
-        }
-      }
-      else {
-       switch(i_cyclotron_data) {
-          case 0:
-            // Reset LEDs (turn off);
-            innerCyclotronOff();
-          break;
+     switch(i_cyclotron_data) {       
+        case 1:
+          // LED 1
+          innerCyclotronOff();
+          innerCyclotronShowLED(1);
+        break;
+  
+        case 2:
+          // LED 2
+          innerCyclotronOff();
+          innerCyclotronShowLED(2);
+        break;
+  
+        case 3:
+          // LED 3
+          innerCyclotronOff();
+          innerCyclotronShowLED(3);
+        break;
+  
+        case 4:
+          // LED 4
+          innerCyclotronOff();
+          innerCyclotronShowLED(4);
+        break;
         
-          case 1:
-            // LED 1
-            innerCyclotronOff();
-            innerCyclotronShowLED(1);
-          break;
-    
-          case 2:
-            // LED 2
-            innerCyclotronOff();
-            innerCyclotronShowLED(2);
-          break;
-    
-          case 3:
-            // LED 3
-            innerCyclotronOff();
-            innerCyclotronShowLED(3);
-          break;
-    
-          case 4:
-            // LED 4
-            innerCyclotronOff();
-            innerCyclotronShowLED(4);
-          break;
-    
-          case 5:
-            // LED All
-            innerCyclotronShowAll();
-          break;
-    
-          case 6:
-            innerCyclotronOff();
-            innerCyclotronShowLED(1);
-          break;
-    
-          case 7:
-            innerCyclotronOff();
-            innerCyclotronShowLED(2);
-          break;
-    
-          case 8:
-            innerCyclotronOff();
-            innerCyclotronShowLED(3);
-          break;
-    
-          case 9:
-            innerCyclotronOff();
-            innerCyclotronShowLED(4);
-          break;
-       }
+        case 6:
+          innerCyclotronOff();
+          innerCyclotronShowLED(1);
+        break;
+  
+        case 7:
+          innerCyclotronOff();
+          innerCyclotronShowLED(2);
+        break;
+  
+        case 8:
+          innerCyclotronOff();
+          innerCyclotronShowLED(3);
+        break;
+  
+        case 9:
+          innerCyclotronOff();
+          innerCyclotronShowLED(4);
+        break;
       }
     }
     
     i_prev_cyclotron_data = i_cyclotron_data;
+  }
+}
+
+void reset2021RampUp() {
+  b_2021_ramp_up = true;
+  b_2021_ramp_up_start = true;
+
+  // Inner cyclotron ring.
+  b_inner_ramp_up = true;
+}
+
+void reset2021RampDown() {
+  b_2021_ramp_down = true;
+  b_2021_ramp_down_start = true;
+
+  // Inner cyclotron ring.
+  b_inner_ramp_down = true;
+}
+
+void ventLight(boolean b_on) {
+  if(b_on == true) {
+    int r = random(200,255);
+    int g = random(200,255);
+    int b = random(200,255);
+
+    // If doing firing smoke effects, lets change the light colours.
+    if(b_wand_firing == true) {
+      switch(FIRING_MODE) {
+        case PROTON:
+          r = 0;
+          g = 55;
+          b = 55;
+        break;
+        
+        case SLIME:
+          r = 0;
+          g = 255;
+          b = 0;
+        break;
+        
+        case STASIS:
+          r = 0;
+          g = 0;
+          b = 255;
+        break;
+        
+        case MESON:
+          r = 255;
+          g = 255;
+          b = 0;
+        break;   
+        
+        default:
+          r = 50;
+          g = 255;
+          b = 255;
+        break;
+      }
+    }
+    for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
+      pack_leds[i] = CRGB(r,g,b);
+    }
+
+    //FastLED.show();
+  }
+  else {
+    for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
+      pack_leds[i] = CRGB(0,0,0);
+    }
+
+    //FastLED.show();
   }
 }
 
@@ -1722,6 +1885,10 @@ void wandFiring() {
       w_trig.trackFade(S_MESON_LOOP, 0, 5500, 0);
       w_trig.trackLoop(S_MESON_LOOP, 1);
     break;
+
+    case SETTINGS:
+      // Nothing.
+    break;
   }
 
   // Reset some vent light timers.
@@ -1771,6 +1938,10 @@ void wandStoppedFiring() {
       case MESON:
         w_trig.trackGain(S_MESON_END, 0);
         w_trig.trackPlayPoly(S_MESON_END, true);
+      break;
+
+      case SETTINGS:
+        // Nothing
       break;
     }
   }
@@ -2342,7 +2513,10 @@ void checkWand() {
       }
     }
     else {
-      // Check if the wand is telling us it is here after connecting it to the pack.
+      /* 
+       *  Check if the wand is telling us it is here after connecting it to the pack.
+       *  Then Synchronise some settings between the pack and the wand.
+       */
       if(rx_byte == 14 && prev_byte == rx_byte) {        
         // Tell the wand that the pack is here.
         Serial2.write(11);
@@ -2394,23 +2568,10 @@ void checkWand() {
 
         // Reset volumes.
         Serial2.write(14);
-        i_volume = 0;
-        i_volume_music = 0;
+        i_volume = STARTUP_VOLUME;
+        i_volume_music = STARTUP_VOLUME;
         w_trig.masterGain(i_volume);
         
-        // Synchronise the wand settings with the pack.
-        /*
-         * year mode
-         * power mode
-         * volume
-         * music volume
-         * music track
-         * play music or not
-         * pack alarm is on or off
-         * pack is on or off
-         * vibration is on or off
-         * 
-         */
         b_wand_connected = true;
       }
     }
@@ -2428,7 +2589,7 @@ void setupWavTrigger() {
 
   w_trig.stopAllTracks();
   w_trig.samplerateOffset(0); // Reset our sample rate offset        
-  w_trig.masterGain(i_volume); // Reset the master gain db. 0db is default. Range is -70 to +4.
+  w_trig.masterGain(i_volume); // Reset the master gain db. Range is -70 to +4.
   w_trig.setAmpPwr(false); // Turn off the onboard amp to draw less power if you decide to use the aux cable jack instead. If you use the output pins, you will need to turn this back on.
   
   // Enable track reporting from the WAV Trigger
