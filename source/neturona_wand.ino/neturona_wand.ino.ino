@@ -110,13 +110,13 @@ enum sound_fx {
  * 4 = loudest
  * -70 = quietest
  */
-const int STARTUP_VOLUME = -30;
+const int STARTUP_VOLUME = 0;
 
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
  * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
  */
-boolean b_no_pack = true;
+boolean b_no_pack = false;
 
 /*
  * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
