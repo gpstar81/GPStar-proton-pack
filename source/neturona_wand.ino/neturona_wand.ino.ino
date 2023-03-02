@@ -146,8 +146,8 @@ CRGB barrel_leds[BARREL_NUM_LEDS];
  * We have up to 5 addressable LEDs in the wand barrel.
  * 0.03 ms to update 1 LED. So 0.15 ms should be ok. Lets bump it up to 3 just in case.
  */
-//const int i_fast_led_delay = 3;
-//millisDelay ms_fast_led;
+const int i_fast_led_delay = 3;
+millisDelay ms_fast_led;
 
 /* 
  *  Wav trigger
@@ -256,6 +256,8 @@ millisDelay ms_firing_lights_end;
 millisDelay ms_firing_stream_blue;
 millisDelay ms_firing_stream_orange;
 millisDelay ms_impact; // Mix some impact sounds while firing.
+millisDelay ms_firing_start_sound_delay;
+millisDelay ms_firing_stop_sound_delay;
 const int d_firing_lights = 20; // 20 milliseconds. Timer for adjusting the firing stream colours.
 const int d_firing_stream = 100; // 100 milliseconds. Used by the firing timers to adjust stream colours.
 int i_barrel_light = 0; // using this to keep track which LED in the barrel is currently lighting up.
@@ -390,7 +392,11 @@ void mainLoop() {
   switchLoops();
   checkRotary();  
   checkSwitches();
-  
+
+  if(ms_firing_stop_sound_delay.justFinished()) {
+    modeFireStopSounds();
+  }
+      
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
       // Do nothing.
@@ -400,7 +406,11 @@ void mainLoop() {
       wandOff();
     break;
     
-    case ACTION_FIRING:    
+    case ACTION_FIRING:
+      if(ms_firing_start_sound_delay.justFinished()) {
+        modeFireStartSounds();
+      }
+    
       if(b_pack_on == true && b_pack_alarm == false) {
         if(b_firing == false) {
           b_firing = true;
@@ -410,7 +420,7 @@ void mainLoop() {
         if(ms_overheat_initate.justFinished() && i_power_mode == i_power_mode_max) {
           ms_overheat_initate.stop();
           modeFireStop();
-          
+
           delay(100);
           
           WAND_ACTION_STATUS = ACTION_OVERHEATING;
@@ -683,12 +693,11 @@ void mainLoop() {
     fireStreamEnd(0,0,0);
   }
 
-  /*
+  
   if(ms_fast_led.justFinished()) {
     FastLED.show();
     ms_fast_led.stop();
   }
-  */
 }
 
 void checkMusic() { 
@@ -1031,7 +1040,7 @@ void modeActivate() {
       soundIdleLoop(true);
 
       w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, 0);  // Preset Track to gain/volume to 0
-      w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1); // Start track
+      w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
       
       ms_gun_loop_1.start(620);
     break;
@@ -1119,7 +1128,6 @@ void soundIdleLoopStop() {
   w_trig.trackStop(S_IDLE_LOOP_GUN_3);
   w_trig.trackStop(S_IDLE_LOOP_GUN_4);
   w_trig.trackStop(S_IDLE_LOOP_GUN_5);
-  
 }
 
 void soundIdleStart() {
@@ -1271,41 +1279,9 @@ void soundBeepLoop() {
   }
 }
 
-void modeFireStart() {
-  // Stop all firing sounds first.
-  w_trig.trackStop(S_FIRING_END_GUN);
-  w_trig.trackStop(S_FIRE_START);
-  w_trig.trackStop(S_FIRE_START_SPARK);
-  w_trig.trackStop(S_FIRE_LOOP);
-  w_trig.trackStop(S_FIRE_LOOP_GUN);
-  w_trig.trackStop(S_FIRE_LOOP_IMPACT);
-  w_trig.trackStop(S_SLIME_START);
-  w_trig.trackStop(S_SLIME_LOOP);
-  w_trig.trackStop(S_SLIME_END);
-  w_trig.trackStop(S_STASIS_START);
-  w_trig.trackStop(S_STASIS_LOOP);
-  w_trig.trackStop(S_STASIS_END);
-  w_trig.trackStop(S_MESON_START);
-  w_trig.trackStop(S_MESON_LOOP);
-  w_trig.trackStop(S_MESON_END);
+void modeFireStartSounds() {
+  ms_firing_start_sound_delay.stop();
 
-  // Turn off any overheating sounds.
-  //w_trig.trackStop(S_VENT_BEEP);
-  w_trig.trackStop(S_CLICK);
-  w_trig.trackStop(S_VENT_DRY);
-      
-  delay(50);
-
-  // Tell the pack the wand is firing.
-  Serial.write(3);
-
-  ms_overheat_initate.stop();
-
-  // If in high power mode on the wand, start a overheat timer.
-  if(i_power_mode == i_power_mode_max) {
-    ms_overheat_initate.start(i_ms_overheat_initate);
-  }
-  
   // Some sparks for firing start.
   w_trig.trackGain(S_FIRE_START_SPARK, 0);
   w_trig.trackPlayPoly(S_FIRE_START_SPARK);
@@ -1354,6 +1330,43 @@ void modeFireStart() {
     case SETTINGS:
       // Nothing.
     break;
+  }  
+}
+
+void modeFireStart() {
+  // Stop all firing sounds first.
+  w_trig.trackStop(S_FIRING_END_GUN);
+  w_trig.trackStop(S_FIRE_START);
+  w_trig.trackStop(S_FIRE_START_SPARK);
+  w_trig.trackStop(S_FIRE_LOOP);
+  w_trig.trackStop(S_FIRE_LOOP_GUN);
+  w_trig.trackStop(S_FIRE_LOOP_IMPACT);
+  w_trig.trackStop(S_SLIME_START);
+  w_trig.trackStop(S_SLIME_LOOP);
+  w_trig.trackStop(S_SLIME_END);
+  w_trig.trackStop(S_STASIS_START);
+  w_trig.trackStop(S_STASIS_LOOP);
+  w_trig.trackStop(S_STASIS_END);
+  w_trig.trackStop(S_MESON_START);
+  w_trig.trackStop(S_MESON_LOOP);
+  w_trig.trackStop(S_MESON_END);
+
+  // Turn off any overheating sounds.
+  //w_trig.trackStop(S_VENT_BEEP);
+  w_trig.trackStop(S_CLICK);
+  w_trig.trackStop(S_VENT_DRY);
+      
+  //delay(50);
+  ms_firing_start_sound_delay.start(50);
+
+  // Tell the pack the wand is firing.
+  Serial.write(3);
+
+  ms_overheat_initate.stop();
+
+  // If in high power mode on the wand, start a overheat timer.
+  if(i_power_mode == i_power_mode_max) {
+    ms_overheat_initate.start(i_ms_overheat_initate);
   }
   
   barrelLightsOff();
@@ -1368,6 +1381,36 @@ void modeFireStart() {
   bargraphRampFiring();
 
   ms_impact.start(random(10,15) * 1000);
+}
+
+void modeFireStopSounds() {
+  ms_firing_stop_sound_delay.stop();
+
+ switch(FIRING_MODE) {
+    case PROTON:
+      w_trig.trackGain(S_FIRING_END_GUN, 40);
+      w_trig.trackPlayPoly(S_FIRING_END_GUN, true); // Gun firing end sound.
+    break;
+
+    case SLIME:
+      w_trig.trackGain(S_SLIME_END, 0);
+      w_trig.trackPlayPoly(S_SLIME_END, true);
+    break;
+
+    case STASIS:
+      w_trig.trackGain(S_STASIS_END, 0);
+      w_trig.trackPlayPoly(S_STASIS_END, true);
+    break;
+
+    case MESON:
+      w_trig.trackGain(S_MESON_END, 0);
+      w_trig.trackPlayPoly(S_MESON_END, true);
+    break;
+
+    case SETTINGS:
+      // Nothing
+    break;
+  }
 }
 
 void modeFireStop() {
@@ -1408,34 +1451,9 @@ void modeFireStop() {
   w_trig.trackStop(S_MESON_LOOP);
   w_trig.trackStop(S_MESON_END);
 
-  switch(FIRING_MODE) {
-    case PROTON:
-      w_trig.trackGain(S_FIRING_END_GUN, 40);
-      w_trig.trackPlayPoly(S_FIRING_END_GUN, true); // Gun firing end sound.
-    break;
-
-    case SLIME:
-      w_trig.trackGain(S_SLIME_END, 0);
-      w_trig.trackPlayPoly(S_SLIME_END, true);
-    break;
-
-    case STASIS:
-      w_trig.trackGain(S_STASIS_END, 0);
-      w_trig.trackPlayPoly(S_STASIS_END, true);
-    break;
-
-    case MESON:
-      w_trig.trackGain(S_MESON_END, 0);
-      w_trig.trackPlayPoly(S_MESON_END, true);
-    break;
-
-    case SETTINGS:
-      // Nothing
-    break;
-  }
-  
   // A tiny ramp down delay, helps with the sounds.
-  delay(100);
+  //delay(100);
+  ms_firing_stop_sound_delay.start(100);
 }
 
 void modeFiring() {
@@ -1546,26 +1564,26 @@ void wandBarrelHeatUp() {
     switch(FIRING_MODE) {
       case PROTON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
-        FastLED.show();
-        //ms_fast_led.start(i_fast_led_delay);
+        //FastLED.show();
+        ms_fast_led.start(i_fast_led_delay);
       break;
   
       case SLIME:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, 0, 0);
-        FastLED.show();
-        //ms_fast_led.start(i_fast_led_delay);
+        //FastLED.show();
+        ms_fast_led.start(i_fast_led_delay);
       break;
   
       case STASIS:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatup_counter);
-        FastLED.show();
-        //ms_fast_led.start(i_fast_led_delay);
+        //FastLED.show();
+        ms_fast_led.start(i_fast_led_delay);
       break;
   
       case MESON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
-        FastLED.show();
-        //ms_fast_led.start(i_fast_led_delay);
+        //FastLED.show();
+        ms_fast_led.start(i_fast_led_delay);
       break;
     } 
 
@@ -1579,26 +1597,26 @@ void wandBarrelHeatDown() {
     switch(FIRING_MODE) {
       case PROTON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
-        FastLED.show();
-        //ms_fast_led.start(i_fast_led_delay);
+        //FastLED.show();
+        ms_fast_led.start(i_fast_led_delay);
       break;
   
       case SLIME:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, 0, 0);
-        FastLED.show();
-        //ms_fast_led.start(i_fast_led_delay);
+        //FastLED.show();
+        ms_fast_led.start(i_fast_led_delay);
       break;
   
       case STASIS:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatdown_counter);
-        FastLED.show();
-        //ms_fast_led.start(i_fast_led_delay);
+        //FastLED.show();
+        ms_fast_led.start(i_fast_led_delay);
       break;
   
       case MESON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
-        FastLED.show();
-        //ms_fast_led.start(i_fast_led_delay);
+        //FastLED.show();
+        ms_fast_led.start(i_fast_led_delay);
       break;
     }
 
@@ -1663,8 +1681,8 @@ void fireStream(int r, int g, int b) {
         break;
       }
       
-      FastLED.show();
-      //ms_fast_led.start(i_fast_led_delay);
+      //FastLED.show();
+      ms_fast_led.start(i_fast_led_delay);
     }
 
     if(i_barrel_light == BARREL_NUM_LEDS) {
@@ -1674,8 +1692,8 @@ void fireStream(int r, int g, int b) {
     }
     else if(i_barrel_light < BARREL_NUM_LEDS) {
       barrel_leds[i_barrel_light] = CRGB(g,r,b);
-      FastLED.show();
-      //ms_fast_led.start(i_fast_led_delay);
+      //FastLED.show();
+      ms_fast_led.start(i_fast_led_delay);
             
       ms_firing_stream_blue.start(d_firing_lights);
   
@@ -1693,15 +1711,15 @@ void barrelLightsOff() {
     barrel_leds[i] = CRGB(0,0,0);
   }
 
-  FastLED.show();
-  //ms_fast_led.start(i_fast_led_delay);
+  //FastLED.show();
+  ms_fast_led.start(i_fast_led_delay);
 }
 
 void fireStreamStart(int r, int g, int b) {
   if(ms_firing_lights.justFinished() && i_barrel_light < BARREL_NUM_LEDS) {
     barrel_leds[i_barrel_light] = CRGB(g,r,b);
-    FastLED.show();
-    //ms_fast_led.start(i_fast_led_delay);
+    //FastLED.show();
+    ms_fast_led.start(i_fast_led_delay);
           
     ms_firing_lights.start(d_firing_lights);
 
@@ -1719,8 +1737,8 @@ void fireStreamStart(int r, int g, int b) {
 void fireStreamEnd(int r, int g, int b) {
   if(i_barrel_light < BARREL_NUM_LEDS) {
     barrel_leds[i_barrel_light] = CRGB(g,r,b);
-    FastLED.show();
-    //ms_fast_led.start(i_fast_led_delay);
+    //FastLED.show();
+    ms_fast_led.start(i_fast_led_delay);
           
     ms_firing_lights_end.start(d_firing_lights);
 
@@ -2282,8 +2300,8 @@ void wandBarrelLightsOff() {
     barrel_leds[i] = CRGB(0,0,0);
   }
   
-  FastLED.show();
-  //ms_fast_led.start(i_fast_led_delay);
+  //FastLED.show();
+  ms_fast_led.start(i_fast_led_delay);
 }
 
 /*
