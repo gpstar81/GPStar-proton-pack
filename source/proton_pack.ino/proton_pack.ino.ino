@@ -136,8 +136,8 @@ bool b_diagnostic = false;
  * The higher the number, the faster it will spin.
  * Do not go any higher than 12.
  */
-const int i_2021_inner_delay = 7;
-const int i_1984_inner_delay = 2;
+const int i_2021_inner_delay = 8;
+const int i_1984_inner_delay = 3;
 
 /*
  * Cyclotron Lid LED delays.

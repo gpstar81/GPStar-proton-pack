@@ -119,6 +119,15 @@ const int STARTUP_VOLUME = 0;
 boolean b_no_pack = false;
 
 /*
+ * Debug testing
+ * Set to true to debug some switch readings.
+ * Keep your wand unplugged from the pack while this is set to true.
+ * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
+ * You will respond a bit slower as it is streaming serial data to the usb serial. For debugging the analog switch readings only.
+ */
+boolean b_debug = false;
+
+/*
  * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
  */
  
@@ -193,6 +202,7 @@ const int switch_barrel = A7; // Barrel extension/open switch.
 /*
  * Some switch settings.
  */
+const int i_switch_mode_value = 200;
 const int i_switch_barrel_value = 100;
 const uint8_t switch_debounce_time = 50;
 const uint8_t a_switch_debounce_time = 250;
@@ -364,7 +374,7 @@ void setup() {
   // Check music timer.
   ms_check_music.start(i_music_check_delay);
 
-  if(b_no_pack == true) {
+  if(b_no_pack == true || b_debug == true) {
     b_wait_for_pack = false;
     b_pack_on = true;
   }
@@ -505,7 +515,7 @@ void mainLoop() {
             Serial.write(95);
           }
 
-          if(analogRead(switch_mode) > 1020 && ms_switch_mode_debounce.justFinished()) {
+          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
             decreaseVolume();
             
             // Tell pack to lower overall volume.
@@ -533,7 +543,7 @@ void mainLoop() {
               Serial.write(97);
             }
   
-            if(analogRead(switch_mode) > 1020 && ms_switch_mode_debounce.justFinished()) {
+            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
               if(i_volume_music - 1 < -70) {
                 i_volume_music = -70;
               }
@@ -581,7 +591,7 @@ void mainLoop() {
             Serial.write(i_current_music_track);
           }
 
-          if(analogRead(switch_mode) > 1020 && ms_switch_mode_debounce.justFinished()) {
+          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
             if(i_current_music_track - 1 < i_music_track_start) {
               if(b_playing_music == true) {
                 // Go to the last track to play it.
@@ -826,6 +836,16 @@ void settingsBlinkingLights() {
 
 // Change the WAND_STATE here based on switches changing or pressed.
 void checkSwitches() {
+  if(b_debug == true) {
+    Serial.print(F("A6 -> "));
+    Serial.println(analogRead(switch_mode));  
+
+    Serial.print(F("\n"));
+    
+    Serial.print(F("A7 -> "));
+    Serial.println(analogRead(switch_barrel));
+  }
+  
   switch(WAND_STATUS) {
     case MODE_OFF:
      //if(switch_activate.getState() == LOW && WAND_ACTION_STATUS == ACTION_IDLE) {
@@ -839,7 +859,7 @@ void checkSwitches() {
 
     case MODE_ON:
       if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(analogRead(switch_mode) > 1020 && ms_switch_mode_debounce.justFinished()) {
+        if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
           if(i_wand_menu == 5) {
             // Cycle through the firing modes and setting menu.
             if(FIRING_MODE == PROTON) {
