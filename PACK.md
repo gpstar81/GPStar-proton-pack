@@ -1,6 +1,6 @@
-# Pack Setup
+# Proton Pack Setup
 
-## Reference
+## Component Reference
 
 **A Note on Transistors**
 
@@ -20,11 +20,13 @@ Rotary encoder pin layout reference to be used for volume control. Contains pins
 
 ![](images/RotaryEncoder.jpg)
 
-**HasLab Legacy Connections - Reused Connections Only**
+**HasLab Legacy Connections**
+
+This chart lists only the components in the stock pack which will be reused. There are several new and optional components which can be added as part of this guide. These items are expected to be implemented at a minimum for basic operation.
 
 | **Connector Label** | **Header Color** | **Wire Color**  | **Purpose** | **Notes** |
 |---|---|---|---|---|
-| M1 | <font color="green">Green</font> | <font color="red">Red</font> | VCC | Pack vibration motor; cannot be turned on or off when pack is "active", only when in "powered down" state. |
+| M1 | <font color="green">Green</font> | <font color="red">Red</font> | VCC | Pack vibration motor; cannot be turned on or off when pack is "active", only when in "powered down" state. (This is the only stock item which may be considered optional.) |
 |  |  | Black | GND |  |
 | JP3 | <font color="gray">White</font> | <font color="green">Green</font> | B0 | Power, ground, and data (DI) for Powercell LED's; Contains LED's D1-D13 and returns data signal back to board via the B0 pin. |
 |  |  | Black | GND |  |
@@ -51,8 +53,12 @@ You may choose one of two routes for implementing the new Proton Pack controller
 
 1. A minimal approach which only focuses on reusing the stock connections and hardware (switches, LED's, motor).
 	- For this approach, see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf)
+	- This provides power to the Neutrona Wand but no interactions with the Proton Pack.
 1. Use all stock hardware as above, but with room for additional features, each of which is considered optional.
+	- This will provide full interation with the new controller for the Neutrona Wand.
 	- Keep reading to continue with this approach.
+
+**Prototyping and Connections**
 
 Use a half size protoboard like ([1609 Adafruit](https://www.adafruit.com/product/1609)) or by any other brand. These work similar to a breadboard, where LETTERED columns run horizontal and are connected as a group, and each side contains 2 rails for (+) and (-) connections and run vertically along the board, also connected together.
 
@@ -158,7 +164,7 @@ When you see a letter or code in a cells above, it references where component ne
 
 ## Additional Connections to the Arduino MEGA
 
-These are connections which are not covered in the diagram above and can connect directly to the Arduino board.
+These are connections which are not covered in the diagram above and can connect directly to the Arduino board. For the WavTrigger these are the same connections which are used for the FTDI breakout board to program the WavTrigger. Use pins and sockets for an easy connection to that device should a firmware upgrade be required in the future.
 
 | Connection → Pin         | Notes |
 |--------------------------|-----------|
