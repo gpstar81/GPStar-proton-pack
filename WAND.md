@@ -119,22 +119,19 @@ Note: If you want to replace LEDs, the bargraph uses 3mm LED diodes.
 | <font color="red">Red</font>    | → | Ground |    |        | SW4  |
 | <font color="Red"> Red </font>  | → | →      | →  | Pin D3 | SW4  |
 
-| MODE SWITCH → SW6 |    |            |    | Nano Pin | Hasbro Ref |                                        |
-|-------------------|----|------------|----|----------|------------|----------------------------------------|
-| <font color="gray">White</font> | → | +5V     |   |        | SW6 | Shouldn’t matter which wire goes where |
-| <font color="gray">White</font> | → | 10k Ω   | → | Pin A6 | SW6 | Shouldn’t matter which wire goes where |
+| MODE SWITCH → SW6 |    |            |    | Nano Pin | Hasbro Ref |                                       |
+|-------------------|----|------------|----|----------|------------|---------------------------------------|
+| <font color="gray">White</font> | → | +5V    |   |        | SW6 | Shouldn’t matter which wire goes where |
+| <font color="gray">White</font> | → | 10k Ω  | → | Pin A6 | SW6 | Shouldn’t matter which wire goes where |
+|                                 |   | ↕      |   |        |     |                                        |
+|                                 |   | Ground |   |        |     | Need to pull to ground (for reference) |
 
-| BARREL EXTENSION SWITCH → SW7 |   |        |    | Nano Pin | Hasbro Ref |                                        |
-|-------------------------------|---|--------|----|----------|------------|----------------------------------------|
-| <font color="orange">Orange</font> | → | +5V    |    |          | SW6   | Shouldn’t matter which wire goes where |
-| <font color="orange">Orange</font> | → | 10k Ω  | →  | Pin A7   | SW6   | Shouldn’t matter which wire goes where |
-
-| VIBRATION&nbsp;MOTOR |   |            | Motor Wire | Nano&nbsp;Pin | Notes                                     |
-|----------------------|---|------------|------------|---------|-------------------------------------------------|
-|                      |   | 1N4001 (s) | Red        | +5V     |                                                 |
-| NPN C                | → | 1N4001     | Black      |         | NPN = PN2222 NPN Bipolar Transistor. Reference Pack page for more info. |
-| NPN B                | → | 330 Ω      | →          | Pin D11 | 1N4001 diode (s = the striped end of the diode) |
-| NPN E                | → | →          | →          | Ground  |                                                 |
+| BARREL EXTENSION SWITCH → SW7 |   |        |    | Nano Pin | Hasbro Ref |                                   |
+|-------------------------------|---|--------|----|----------|------------|-----------------------------------|
+| <font color="orange">Orange</font> | → | +5V    |   |        | SW7 | Shouldn’t matter which wire goes where |
+| <font color="orange">Orange</font> | → | 10k Ω  | → | Pin A7 | SW7 | Shouldn’t matter which wire goes where |
+|                                    |   | ↕      |   |        |     |                                        |
+|                                    |   | Ground |   |        |     | Need to pull to ground (for reference) |
 
 | VENT LIGHT LED BOARD → D7 & D8  |   |      |    | Nano Pin | Hasbro Ref |                                        |
 |---------------------------------|---|------|----|----------|------------|----------------------------------------|
@@ -142,25 +139,37 @@ Note: If you want to replace LEDs, the bargraph uses 3mm LED diodes.
 | <font color="gray">White</font> | → | 90 Ω | →  | Pin D12  | D7         | Blinking white led on top of the wand  |
 | Black                           | → | 90 Ω | →  | Pin D13  | D8         | White led inside the wand (vent light) |
 
+| VIBRATION&nbsp;MOTOR |   |            | Motor Wire | Nano&nbsp;Pin | Notes                                     |
+|----------------------|---|------------|------------|---------|-------------------------------------------------|
+|                      |   | 1N4001 (s) | <font color="red">Red</font> | +5V     | 1N4001 diode (s = striped end of the diode) |
+| NPN C                | → | 1N4001     | Black                        |         | NPN* = PN2222                               |
+| NPN B                | → | 330 Ω      | →                            | Pin D11 |                                             |
+| NPN E                | → | →          | →                            | Ground  |                                             |
+
+*NPN Bipolar Transistor. Reference Pack page for more info.
+
 For Below: Regarding sharing 2 LED’s on 1 pin from the Nano. The spec sheet for the nano says a max 40mA draw on a pin. With 2 LEDs it is at that threshold. I have been running this setup for a month now and have not blown out the pin. I prefer this solution as it requires less space than using a transistor method.
 
 | SLO-BLO → D1         |    |       |    | Nano Pin     | Hasbro Ref | Notes |
 |----------------------|----|-------|----|--------------|----|-------------------------------------|
-| <font color="red">Red</font> | → | →     | → | Pin D5 | D1 | Nano pin shared with FRONT LEFT LED |
-| Black                        | → | 140 Ω | → | Ground | D1 |                                     |
+| <font color="red">Red</font> | → | 140 Ω | → | Pin D5 | D1 | Nano pin shared with FRONT LEFT LED |
+| Black                        | → | →     | → | Ground | D1 |                                     |
 
 | FRONT LEFT LED → D9 |    |       |    | Nano Pin     | Hasbro Ref | Notes |
 |---------------------|----|-------|----|--------------|----|-------------------------------------|
 | <font color="red">Red</font>       | → | 140 Ω | → | Pin D5 | D9 | Nano pin shared with SLO-BLO |
 | <font color="yellow">Yellow</font> | → | →     | → | Ground | D9 |                              |
 
-OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin if you wish to use that method instead. See example breadboard setup photo below that you can replicate onto [a ¼ protoboard](https://www.adafruit.com/product/1608).
+OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin if you wish to use that method instead.	 See example breadboard setup photo below that you can replicate onto [a ¼ protoboard](https://www.adafruit.com/product/1608).
 
-| Slo-Blo (B) | Front Left LED (Y) |        |
-|-------------|--------------------|--------|
-|             |                    | 140 Ω  |
-| NPN C       | →                  | Ground |
-| NPN B       | →                  | 1k Ω   |
-| NPN E       | →                  | Ground |
+| NPN* = PN2222 |   | Slo-Blo (B) | Front Left LED (Y)| Nano Pin |
+|---------------|---|-------------|-------------------|----------|
+|               |   | 140 Ω       | 140 Ω             |          |
+|               |   | ↕           | ↕                 |          |
+| NPN C         | → | Ground      | ← (Ground)        |          |
+| NPN B         | → | 1k Ω        | →                 | Pin D5   |
+| NPN E         | → | Ground      |                   |          |
+
+*NPN Bipolar Transistor. Reference Pack page for more info.
 
 ![](images/SloBloAlt.jpg)
