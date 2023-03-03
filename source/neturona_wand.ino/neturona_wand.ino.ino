@@ -105,7 +105,7 @@ enum sound_fx {
 
 /*
  * You can set the default startup volume for your wand here.
- * NOTE: Make sure to set this to the same value in the Proton Pack code.
+ * Make sure to set this to the same value in the Proton Pack code.
  * If not then the startup volume will levels will not be in sync.
  * 4 = loudest
  * -70 = quietest
@@ -123,7 +123,7 @@ boolean b_no_pack = false;
  * Set to true to debug some switch readings.
  * Keep your wand unplugged from the pack while this is set to true.
  * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
- * You will respond a bit slower as it is streaming serial data to the usb serial. For debugging the analog switch readings only.
+ * The wand will respond a bit slower as it is streaming serial data to the usb serial. For debugging the analog switch readings only.
  */
 boolean b_debug = false;
 

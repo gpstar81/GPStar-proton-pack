@@ -124,12 +124,10 @@ const int STARTUP_VOLUME = 0;
 bool b_clockwise = true;
 
 /*
- * Set this to true if you want to know if your wand and pack are communicating.
- * This can be handy when you are first building your board and connections to test things.
- * If the wand and pack have a serial connection, you will hear a beeping sound.
- * Set to false to turn off the sound.
+ * If you want the n-filter NeoPixel jewel to strobe during overheat, set to true.
+ * If false, the light stay solid white during overheat.
  */
-bool b_diagnostic = false;
+bool b_overheat_strobe = false;
 
 /*
  * Inner cyclotron 35 LED NeoPixel ring speed.
@@ -147,6 +145,14 @@ const int i_1984_inner_delay = 3;
  */
 const int i_1984_delay = 1050;
 const int i_2021_delay = 15;
+
+/*
+ * Set this to true if you want to know if your wand and pack are communicating.
+ * If the wand and pack have a serial connection, you will hear a beeping sound.
+ * Set to false to turn off the sound.
+ */
+bool b_diagnostic = false;
+
 /*
  * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
  */
@@ -341,6 +347,7 @@ millisDelay ms_vent_light_on;
 millisDelay ms_vent_light_off;
 const int i_vent_light_delay = 50;
 boolean b_vent_sounds; // A flag for playing smoke and vent sounds.
+bool b_vent_light_on = false; // To know if the light is on or off.
 
 /* 
  *  Wand communication
@@ -1403,13 +1410,24 @@ void cyclotronOverHeating() {
     ms_vent_light_off.stop();
     ms_vent_light_on.start(i_vent_light_delay);
 
-    ventLight(true);
+    if(b_overheat_strobe == true) {
+      ventLight(true);
+    }
   }
   else if(ms_vent_light_on.justFinished()) {
     ms_vent_light_on.stop();
     ms_vent_light_off.start(i_vent_light_delay);
 
-    ventLight(false);
+    if(b_overheat_strobe == true) {
+      ventLight(false);
+    }
+  }
+  
+  if(b_overheat_strobe != true) {
+    if(b_vent_light_on != true) {
+      // Solid light on if strobe option turned off.
+      ventLight(true);
+    }
   }
 }
       
@@ -1772,18 +1790,20 @@ void reset2021RampDown() {
 }
 
 void ventLight(boolean b_on) {
+  b_vent_light_on = b_on;
+  
   if(b_on == true) {
-    int r = random(200,255);
-    int g = random(200,255);
-    int b = random(200,255);
+    int r = 255;
+    int g = 255;
+    int b = 255;
 
     // If doing firing smoke effects, lets change the light colours.
     if(b_wand_firing == true) {
       switch(FIRING_MODE) {
         case PROTON:
-          r = 0;
-          g = 55;
-          b = 55;
+          r = 50;
+          g = 255;
+          b = 255;
         break;
         
         case SLIME:
@@ -1811,18 +1831,15 @@ void ventLight(boolean b_on) {
         break;
       }
     }
+    
     for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
       pack_leds[i] = CRGB(r,g,b);
     }
-
-    //FastLED.show();
   }
   else {
     for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
       pack_leds[i] = CRGB(0,0,0);
     }
-
-    //FastLED.show();
   }
 }
 
@@ -2280,7 +2297,7 @@ void wandHandShake() {
   }
   else {
     if(ms_wand_handshake.justFinished()) {        
-      // Ask the wand if it connected.
+      // Ask the wand if it is connected.
       Serial2.write(11);
 
       ms_wand_handshake.start(i_wand_handshake_delay);
