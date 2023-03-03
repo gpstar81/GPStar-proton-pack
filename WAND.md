@@ -120,15 +120,17 @@ These switches utilize a "pull down" resistor to measure the difference in volta
 |                                    |   | ↕      |   |        |     |                                        |
 |                                    |   | Ground |   |        |     | Need to pull to ground (for reference) |
 
-The rotary encoder is similar to that used on the Proton Pack. It requires +5V power and sends a pulse on its 2 legs to indicate which direction it was turned.
+The rotary encoder is similar to that used on the Proton Pack. It requires a common ground connection and sends data via the A/B signal wires to indicate which direction it was turned.
 
 | ROTARY ENCODER (ROT) → SW3 |   |              |    | Nano Pin | Hasbro Ref |
 |----------------------------|---|--------------|----|----------|------------|
-| <font color="brown">Brown</font>   | → | +5V  |    |        | SW3 |
-| <font color="red">Red</font>       | → | →    | →  | Pin D6 | SW3 |
-| <font color="orange">Orange</font> | → | →    | →  | Pin D7 | SW3 |
+| <font color="brown">Brown</font>   | → | Ground |    |        | V+ |
+| <font color="red">Red</font>       | → | →      | →  | Pin D6 | SW3 |
+| <font color="orange">Orange</font> | → | →      | →  | Pin D7 | SW3 |
 
 **Motors**
+
+Considered optional as this can be left out if desired, and without impact to normal operation.
 
 | VIBRATION&nbsp;MOTOR |   |            | Motor Wire | Nano&nbsp;Pin | Notes                                     |
 |----------------------|---|------------|------------|---------|-------------------------------------------------|

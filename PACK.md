@@ -22,7 +22,7 @@ Rotary encoder pin layout reference to be used for volume control. Contains pins
 
 **HasLab Legacy Connections**
 
-This chart lists only the components in the stock pack which will be reused. There are several new and optional components which can be added as part of this guide. These items are expected to be implemented at a minimum for basic operation.
+This chart lists only the components in the stock pack which will be reused, while others will be replaced (such as the speaker output and rotary encoder which are both soldered to the stock controller). There are several new and optional components which can be added as part of this guide. These items are expected to be implemented at a minimum for basic operation.
 
 | **Connector Label** | **Header Color** | **Wire Color**  | **Purpose** | **Notes** |
 |---|---|---|---|---|
