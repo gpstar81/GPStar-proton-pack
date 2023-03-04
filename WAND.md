@@ -2,6 +2,16 @@
 
 The space within the Neutron Wand is extremely limited, though multiple components must be fit into this space. To maximize what is available, some wires from the original controller (PCB) will be directly soldered onto the Arduino Nano. Where resistors or inline components are required, these may be soldered between the wire and Arduino Nano to reduce need for an additional protoboard. If needed, a [a ¼ protoboard from Adafruit](https://www.adafruit.com/product/1608) or any similar size from another manufacturer will be used.
 
+You will find that the wand poses some challenges due to confined spaces and fragile wires to all the stock components. The following are suggestions to help you minimize damage to existing wiring, unless you plan to remove all stock component and run new wires.
+
+- Remove what you can of any plastic covers over the switches internally, and use a hot glue gun to dribble some glue over the ends of the toggles, rotary encoder, and any other wire connections to reinforce them as they stand.
+- Gently separate any wires that are bonded together, allowing about 1" of excess for stripping.
+- Use a mechanical wire stripper to ensure you quickly strip back the sheathing for each.
+- Use silicone-coated stranded wiring (22AWG down to 26AWG) to allow for maximum flexibility, and solder on extensions to every wire in the wand.
+- Use heat-shrink tubing to reinforce the connections and to make a better bond with the stock wire to prevent breakage.
+- Continue the extended wire to either a PCB or the Nano for soldering, making sure that ALL of the strands of wire make it through the holes.
+- It's too easy to have some strands that get missed which could cause a short--check your connections after soldering. A magnifying glass and good lighting is your friend!
+
 ## Original Connection References
 
 You may refer to this PCB drawing and the following table to help identify components in the Neutrona Wand.
