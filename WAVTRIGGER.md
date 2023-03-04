@@ -2,41 +2,50 @@
 
 The first thing to take care of is updating the firmware on the WavTrigger boards. Sometimes they ship with firmware version 1.28 and 1.34 is required for one feature used during music playback. It is possible to use the WavTriggers without updating the firmware, the only issue you will have is during music playback: when a track ends, the next track will not automatically load and play itself.
 
-The WavTrigger firmware and software updater and instructions [can be found on the Robertsonics website](https://www.robertsonics.com/wav-trigger). To update the firmware, an [FTDI Basic (5V version)](https://www.sparkfun.com/products/9716) from Sparkfun can be used.
+The WavTrigger firmware and software updater and instructions [can be found on the Robertsonics website](https://www.robertsonics.com/wav-trigger) or in this repository under the [WavTrigger](WavTrigger) folder. To update the firmware, an [FTDI Basic (5V version)](https://www.sparkfun.com/products/9716) from Sparkfun should be used to interface with the WavTrigger.
 
-![](images/FTDI.png)
+![FTDI Board](images/FTDI.png)
 
-![](images/WavTriggerFTDI.jpg)
-
-![](images/WavTrigger5V.jpg)
+Only 4 connections between the boards will be required: TX/RX and 5V/Ground.
+![USB and Wire Connections](images/WavTriggerFTDI.jpg)
 
 **Firmware Summary Steps**
 
-1. There is a small switch near the power connect (barrel) to on the WavTrigger, set it to the “load” position
-1. Use dupont connectors to connect the following wires from the FTDI to WavTrigger:
-	- RX on the FTDI basic to the TX of the WavTrigger.
-	- TX from the FTDI basic to the RX of the WavTrigger.
-	- 5V and GND from each side to the other, respectively.
-1. Plug in USB cable from computer to the FTDI basic.
+1. Solder wires directly or use a row of pin headers to the holes along the bottom right edge of the WavTrigger (as viewed with the barrel connector oriented at the top left).
+1. Solder the small pad marked "5V" just below the sockets for SPKR +/-. This will allow the WavTrigger to operate from the 5V supplied by USB and later the battery for your Proton Pack.
+1. There is a small switch near the power connect (barrel) to on the WavTrigger, set it to the “load” position.
+1. Connect the following wires from the FTDI to WavTrigger:
+	- RX on the FTDI to the TX of the WavTrigger.
+	- TX from the FTDI to the RX of the WavTrigger.
+	- 5V from the FTDI to 5Vin.
+	- GND from one side to the other.
+1. Plug in a mini-USB cable from computer to the FTDI board.
+1. Follow the instructions outlined in the manual for upgrading the firmware using the WTFlasher utility.
 
 **IMPORTANT: Make sure after flashing the firmware to set the small switch on the Wav Trigger back to the RUN position.**
 
+Note the "5V" pad just below the SPKR connection holes.
+![Board Closeup](images/WavTrigger.jpg)
+
+![Connection Overview](images/WavTrigger5V.jpg)
+
 ## Arduino Connections
 
-Once the firmware is updated to 1.34 and you have confirmed this, there will be connections made to the respective Arduino boards. Similar to the previous step the RX and TX will go to the respective TX and RX ports on the Arduino boards. See the setup instructions for the Pack and Wand as necessary. The 5Vin and GND will be connected to the power to each of the pack and wand, respectively.
+Once the firmware is updated to 1.34 and you have confirmed this using the WavTrigger setup utility, there will be connections made to the respective Arduino boards. Similar to the previous step the RX and TX will go to the respective TX and RX ports on the Arduino boards. See the setup instructions for the Pack and Wand as necessary. The 5Vin and GND will be connected to the power to each of the pack and wand, respectively. DO NOT use the 5V port on either Arduino to drive this device--you will need to split your power connection to each device to provide sufficient current.
 
 NOTE: See below for more information. I used standard breadboard friendly header jumper cables to make the connections from the FTDI basic to the connectors I added to the WavTrigger. Also note that the WavTriggers have both a AUX output and/or 2 pins for audio output. You can use either or to connect to your speakers or amps.
 
-**IMPORTANT: You will need to solder the 5Vpad on the Wav Trigger to enable 5V power from the device. When you do this, NEVER USE the BARREL CONNECTOR for power. We will be using 5V to power the Wav Triggers for both in the Pack and the Wand.**
+**IMPORTANT: You will need to solder the 5V pad on the WavTrigger to enable 5V power from the device. After you do this, NEVER USE the BARREL CONNECTOR for power. We will be using 5V to power the Wav Triggers for both in the Pack and the Wand.**
 
-Note the "5V" pad just below the SPKR connection holes.
-![](images/WavTrigger.jpg)
+## Preparing Audio
+
+This repository (for somewhat obvious reasons) does not provide music tracks for your project other than a single track which was graciously approved by the independent artist for inclusion. You will need to prepare any music tracks for use by exporting MP3 or AAC audio files as 44.1kHz 16-bit WAV files. This can be done easily using a program such as [Audacity](https://www.audacityteam.org/) to open the music file and export to WAV format. See the instructions below for how to name your files for loading onto the SD cards used by the WavTrigger boards.
 
 ## Loading Files to the SD Cards
 
 Your SD cards **must** be formatted as FAT32 using 32KB block size per the WavTrigger manual. Use a full formatting option for the SD cards not a quick formatting for best results.
 
-Load [all sound effects files from the "sounds" folder](sounds) (and music, optionally) onto both SD cards. The file names must be identical and match between the SD cards so that any synchronized effects are both played by both WavTrigger devices at the same time. Although only some of the same tracks are played on the wand and pack while firing, some tracks play the same like the firing tail end, video game firing sounds, etc. For the proton stream, the wand plays a different sound vs the pack, so they overlap and mix in person for a nice effect.
+Load [all sound files from the "sounds" folder](sounds) (and music, optionally) onto both SD cards. The file names must be identical and match between the SD cards so that any synchronized effects are both played by both WavTrigger devices at the same time. Although only some of the same tracks are played on the wand and pack while firing, some tracks play the same like the firing tail end, video game firing sounds, etc. For the proton stream, the wand plays a different sound vs the pack, so they overlap and mix in person for a nice effect.
 
 Sound effects are prefixed with numbers 001-099 while music files will be prefixed as 100 and above. **DO NOT LEAVE GAPS IN PREFIXES WHEN NUMBERING FILES!** The only exception is between the last sound effect and first music track; when the pack and wand boot up, they ask the WavTrigger to count all the sound files on the SD cards, then I do some simple math by subtracting a known number of sound effects from the total number of loaded sound files, then it knows how many music tracks have been added and plays them accordingly.
 
