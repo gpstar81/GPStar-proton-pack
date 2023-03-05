@@ -1,5 +1,7 @@
 # Neutrona Wand Setup
 
+This guide begins with some explanations for common items you will encounter during the upgrade process. Note that it will be necessary to upgrade the hose and conductors between the pack and wand. This exercise is left to individual preferences on connectors and style of replacement, though you will need 4 conductors at a minimum (+5V, Ground, and TX/RX for communications.
+
 The space within the Neutron Wand is extremely limited, though multiple components must be fit into this space. To maximize what is available, some wires from the original controller (PCB) will be directly soldered onto the Arduino Nano. Where resistors or inline components are required, these may be soldered between the wire and Arduino Nano to reduce need for an additional protoboard. If needed, a [a ¼ protoboard from Adafruit](https://www.adafruit.com/product/1608) or any similar size from another manufacturer will be used.
 
 You will find that the wand poses some challenges due to confined spaces and fragile wires to all the stock components. The following are suggestions to help you minimize damage to existing wiring, unless you plan to remove all stock component and run new wires.
@@ -202,3 +204,7 @@ OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin
 *NPN Bipolar Transistor. Reference Pack page for more info.
 
 ![](images/SloBloAlt.jpg)
+
+## Component Fitment
+
+As noted at the start of this guide the space inside of the gun box for the wand is extremely limited. Creative placement of any protoboards, the Arduino, WavTrigger, and speaker (if upgraded) will be left to each individual. As a matter of advice, placing the WavTrigger under the wand barrel is an advised option with other items "stacked" above and beside the spring-loaded mechanism. As an alternative option, the WavTrigger can also fit in the opposite half of the gun box if the barrel jack is removed--this is to avoid the spring which attaches to the wand barrel.
