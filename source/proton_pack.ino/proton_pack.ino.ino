@@ -13,6 +13,67 @@
 #include <ezButton.h>
 #include <Ramp.h>
 
+/*
+ * Use the following defines to change which optional NeoPixels you are using
+ * in your inner cyclotron. If you are not using any, then this can be left alone.
+ * Leave at least one in place, even if you are not using any.
+ * 35 -> For a 35 LED NeoPixel Ring
+ * 56 -> For 8 NeoPixel Jewels chained together. (7 pixels per jewel)
+ */
+#define CYCLOTRON_NUM_LEDS 35
+//#define CYCLOTRON_NUM_LEDS 56
+// TODO: Add support for 24 NeoPixel ring.
+
+/*
+ * You can set the default startup volume for your pack here.
+ * NOTE: Make sure to set this to the same value in the Neturona Wand code.
+ * If not then the startup volume will levels will not be in sync.
+ * 4 = loudest
+ * -70 = quietest
+ */
+const int STARTUP_VOLUME = 0;
+
+/* 
+ *  Default the cyclotron lights direction to clockwise. 
+ *  This can be controlled by an optional switch on pin 29. 
+ *  Set to false to be counter clockwise.
+ */
+bool b_clockwise = true;
+
+/*
+ * If you want the n-filter NeoPixel jewel to strobe during overheat, set to true.
+ * If false, the light stay solid white during overheat.
+ */
+bool b_overheat_strobe = false;
+
+/*
+ * Inner cyclotron 35 LED NeoPixel ring speed.
+ * The higher the number, the faster it will spin.
+ * Do not go any higher than 12.
+ */
+const int i_2021_inner_delay = 8;
+const int i_1984_inner_delay = 3;
+
+/*
+ * Cyclotron Lid LED delays.
+ * Time in milliseconds between when a LED changes.
+ * It is recommended not to go lower than 10.
+ * 1000 = 1 second.
+ */
+const int i_1984_delay = 1050;
+const int i_2021_delay = 15;
+
+/*
+ * Set this to true if you want to know if your wand and pack are communicating.
+ * If the wand and pack have a serial connection, you will hear a beeping sound.
+ * Set to false to turn off the sound.
+ */
+bool b_diagnostic = false;
+
+/*
+ * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
+ */
+
 /* 
  *  SD Card sound files in order. If you have no sound, your SD card might be too slow, try another one.
  *  File naming 000_ is important as well. For music, it is 100_ and higher.
@@ -96,67 +157,6 @@ enum sound_fx {
   S_CROSS_STREAMS_END,
   S_CROSS_STREAMS_START
 };
-
-/*
- * Use the following defines to change which optional NeoPixels you are using
- * in your inner cyclotron. If you are not using any, then this can be left alone.
- * Leave at least one in place, even if you are not using any.
- * 35 -> For a 35 LED NeoPixel Ring
- * 56 -> For 8 NeoPixel Jewels chained together. (7 pixels per jewel)
- */
-#define CYCLOTRON_NUM_LEDS 35
-//#define CYCLOTRON_NUM_LEDS 56
-
-/*
- * You can set the default startup volume for your pack here.
- * NOTE: Make sure to set this to the same value in the Neturona Wand code.
- * If not then the startup volume will levels will not be in sync.
- * 4 = loudest
- * -70 = quietest
- */
-const int STARTUP_VOLUME = 0;
-
-/* 
- *  Default the cyclotron lights direction to clockwise. 
- *  This can be controlled by an optional switch on pin 29. 
- *  Set to false to be counter clockwise.
- */
-bool b_clockwise = true;
-
-/*
- * If you want the n-filter NeoPixel jewel to strobe during overheat, set to true.
- * If false, the light stay solid white during overheat.
- */
-bool b_overheat_strobe = false;
-
-/*
- * Inner cyclotron 35 LED NeoPixel ring speed.
- * The higher the number, the faster it will spin.
- * Do not go any higher than 12.
- */
-const int i_2021_inner_delay = 8;
-const int i_1984_inner_delay = 3;
-
-/*
- * Cyclotron Lid LED delays.
- * Time in milliseconds between when a LED changes.
- * It is recommended not to go lower than 10.
- * 1000 = 1 second.
- */
-const int i_1984_delay = 1050;
-const int i_2021_delay = 15;
-
-/*
- * Set this to true if you want to know if your wand and pack are communicating.
- * If the wand and pack have a serial connection, you will hear a beeping sound.
- * Set to false to turn off the sound.
- */
-bool b_diagnostic = false;
-
-/*
- * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
- */
-
  
 /* 
  *  PowerCell and Cyclotron Lid LEDs.

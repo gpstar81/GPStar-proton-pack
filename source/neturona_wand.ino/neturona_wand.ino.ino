@@ -19,7 +19,35 @@
 #include <FastLED.h>
 #include <ezButton.h>
 
-/* 
+/*
+ * You can set the default startup volume for your wand here.
+ * Make sure to set this to the same value in the Proton Pack code.
+ * If not then the startup volume will levels will not be in sync.
+ * 4 = loudest
+ * -70 = quietest
+ */
+const int STARTUP_VOLUME = 0;
+
+/*
+ * Set this to true to be able to use your wand without a Proton Pack connected.
+ * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
+ */
+boolean b_no_pack = false;
+
+/*
+ * Debug testing
+ * Set to true to debug some switch readings.
+ * Keep your wand unplugged from the pack while this is set to true.
+ * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
+ * The wand will respond a bit slower as it is streaming serial data to the usb serial. For debugging the analog switch readings only.
+ */
+boolean b_debug = false;
+
+/*
+ * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
+ */
+
+ /* 
  *  SD Card sound files in order. If you have no sound, your SD card might be too slow. 
  *  Try a faster one. File naming 000_ is important as well. For music, it is 100_ and higher.
  *  Also note if you add more sounds to this list, you need to update the wavtrigger setup function to let it know the last
@@ -103,34 +131,6 @@ enum sound_fx {
   S_CROSS_STREAMS_START
 };
 
-/*
- * You can set the default startup volume for your wand here.
- * Make sure to set this to the same value in the Proton Pack code.
- * If not then the startup volume will levels will not be in sync.
- * 4 = loudest
- * -70 = quietest
- */
-const int STARTUP_VOLUME = 0;
-
-/*
- * Set this to true to be able to use your wand without a Proton Pack connected.
- * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
- */
-boolean b_no_pack = false;
-
-/*
- * Debug testing
- * Set to true to debug some switch readings.
- * Keep your wand unplugged from the pack while this is set to true.
- * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
- * The wand will respond a bit slower as it is streaming serial data to the usb serial. For debugging the analog switch readings only.
- */
-boolean b_debug = false;
-
-/*
- * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
- */
- 
 /* 
  * Wand state. 
  */
@@ -314,6 +314,7 @@ const int i_music_next_track_delay = 2000;
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
+enum FIRING_MODES PREV_FIRING_MODE;
 
 /*
  * Misc wand settings and flags.
@@ -370,7 +371,8 @@ void setup() {
 
   // We bootup the wand in the classic proton mode.
   FIRING_MODE = PROTON;
-
+  PREV_FIRING_MODE = SETTINGS;
+  
   // Check music timer.
   ms_check_music.start(i_music_check_delay);
 
@@ -652,8 +654,59 @@ void mainLoop() {
   }
   
   switch(WAND_STATUS) {
-    case MODE_OFF:
+    case MODE_OFF:           
+      if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+        w_trig.trackGain(S_CLICK, i_volume);
+        w_trig.trackPlayPoly(S_CLICK);
+          
+        if(FIRING_MODE != SETTINGS) {
+            PREV_FIRING_MODE = FIRING_MODE;
+            FIRING_MODE = SETTINGS;
+            
+            WAND_ACTION_STATUS = ACTION_SETTINGS;
+            i_wand_menu = 5;
+            ms_settings_blinking.start(i_settings_blinking_delay);
+      
+            // Tell the pack we are in settings mode.
+            Serial.write(9);
+        }
+        else {
+            FIRING_MODE = PREV_FIRING_MODE;
 
+            switch(PREV_FIRING_MODE) {
+              case MESON:
+                // Tell the pack we are in meson mode.
+                Serial.write(8);
+              break;
+
+              case STASIS:
+                // Tell the pack we are in stasis mode.
+                Serial.write(7);
+              break;
+
+              case SLIME:  
+                // Tell the pack we are in slime mode.
+                Serial.write(6);
+              break;
+
+              case PROTON: 
+                // Tell the pack we are in proton mode.
+                Serial.write(5);
+              break;
+
+              default:
+                // Tell the pack we are in proton mode.
+                Serial.write(5);
+              break;
+            }
+            
+            WAND_ACTION_STATUS = ACTION_IDLE;
+
+            wandLightsOff();
+        }
+      
+        ms_switch_mode_debounce.start(a_switch_debounce_time);
+      }
     break;
 
     case MODE_ON:
@@ -848,7 +901,6 @@ void checkSwitches() {
   
   switch(WAND_STATUS) {
     case MODE_OFF:
-     //if(switch_activate.getState() == LOW && WAND_ACTION_STATUS == ACTION_IDLE) {
      if(switch_activate.isPressed() && WAND_ACTION_STATUS == ACTION_IDLE) {
         // Turn wand and pack on.
         WAND_ACTION_STATUS = ACTION_ACTIVATE;
@@ -860,69 +912,67 @@ void checkSwitches() {
     case MODE_ON:
       if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
-          if(i_wand_menu == 5) {
-            // Cycle through the firing modes and setting menu.
-            if(FIRING_MODE == PROTON) {
-              FIRING_MODE = SLIME;
-            }
-            else if(FIRING_MODE == SLIME) {
-              FIRING_MODE = STASIS;
-            }
-            else if(FIRING_MODE == STASIS) {
-              FIRING_MODE = MESON;
-            }
-            else if(FIRING_MODE == MESON) {
-              FIRING_MODE = SETTINGS;
-            }
-            else {
-              FIRING_MODE = PROTON;
-            }
-   
-            w_trig.trackGain(S_CLICK, i_volume);
-            w_trig.trackPlayPoly(S_CLICK);
+          // Cycle through the firing modes and setting menu.
+          if(FIRING_MODE == PROTON) {
+            FIRING_MODE = SLIME;
+          }
+          else if(FIRING_MODE == SLIME) {
+            FIRING_MODE = STASIS;
+          }
+          else if(FIRING_MODE == STASIS) {
+            FIRING_MODE = MESON;
+          }
+          else if(FIRING_MODE == MESON) {
+            FIRING_MODE = SETTINGS;
+          }
+          else {
+            FIRING_MODE = PROTON;
+          }
+ 
+          w_trig.trackGain(S_CLICK, i_volume);
+          w_trig.trackPlayPoly(S_CLICK);
 
-            switch(FIRING_MODE) {
-              case SETTINGS:
-                WAND_ACTION_STATUS = ACTION_SETTINGS;
-                i_wand_menu = 5;
-                ms_settings_blinking.start(i_settings_blinking_delay);
+          switch(FIRING_MODE) {
+            case SETTINGS:
+              WAND_ACTION_STATUS = ACTION_SETTINGS;
+              i_wand_menu = 5;
+              ms_settings_blinking.start(i_settings_blinking_delay);
 
-                // Tell the pack we are in settings mode.
-                Serial.write(9);
-              break;
+              // Tell the pack we are in settings mode.
+              Serial.write(9);
+            break;
 
-              case MESON:
-                WAND_ACTION_STATUS = ACTION_IDLE;
-                wandHeatUp();
+            case MESON:
+              WAND_ACTION_STATUS = ACTION_IDLE;
+              wandHeatUp();
 
-                // Tell the pack we are in meson mode.
-                Serial.write(8);
-              break;
+              // Tell the pack we are in meson mode.
+              Serial.write(8);
+            break;
 
-              case STASIS:
-                WAND_ACTION_STATUS = ACTION_IDLE;
-                wandHeatUp();
+            case STASIS:
+              WAND_ACTION_STATUS = ACTION_IDLE;
+              wandHeatUp();
 
-                // Tell the pack we are in stasis mode.
-                Serial.write(7);
-              break;
+              // Tell the pack we are in stasis mode.
+              Serial.write(7);
+            break;
 
-              case SLIME:
-                WAND_ACTION_STATUS = ACTION_IDLE;
-                wandHeatUp();
+            case SLIME:
+              WAND_ACTION_STATUS = ACTION_IDLE;
+              wandHeatUp();
 
-                // Tell the pack we are in slime mode.
-                Serial.write(6);
-              break;
+              // Tell the pack we are in slime mode.
+              Serial.write(6);
+            break;
 
-              case PROTON:
-                WAND_ACTION_STATUS = ACTION_IDLE;
-                wandHeatUp();
+            case PROTON:
+              WAND_ACTION_STATUS = ACTION_IDLE;
+              wandHeatUp();
 
-                // Tell the pack we are in proton mode.
-                Serial.write(5);
-              break;
-            }
+              // Tell the pack we are in proton mode.
+              Serial.write(5);
+            break;
           }
 
           ms_switch_mode_debounce.start(a_switch_debounce_time);
@@ -2107,25 +2157,23 @@ void checkRotary() {
 
     switch(WAND_ACTION_STATUS) {
       case ACTION_SETTINGS:
-        if(WAND_STATUS == MODE_ON) {
-          // Counter clockwise.
-          if(prev_next_code == 0x0b) {
-            if(i_wand_menu - 1 < 1) {
-              i_wand_menu = 1;
-            }
-            else {
-              i_wand_menu--;
-            }
+        // Counter clockwise.
+        if(prev_next_code == 0x0b) {
+          if(i_wand_menu - 1 < 1) {
+            i_wand_menu = 1;
           }
-  
-          // Clockwise.
-          if(prev_next_code == 0x07) {
-            if(i_wand_menu + 1 > 5) {
-              i_wand_menu = 5;
-            }
-            else {
-              i_wand_menu++;
-            }
+          else {
+            i_wand_menu--;
+          }
+        }
+
+        // Clockwise.
+        if(prev_next_code == 0x07) {
+          if(i_wand_menu + 1 > 5) {
+            i_wand_menu = 5;
+          }
+          else {
+            i_wand_menu++;
           }
         }
       break;
@@ -2155,7 +2203,7 @@ void checkRotary() {
           }
 
           // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-          if(WAND_STATUS == MODE_OFF && b_playing_music == true) {
+          if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
             if(i_volume_music - 1 < -70) {
               i_volume_music = -70;
             }
@@ -2194,7 +2242,7 @@ void checkRotary() {
           }
 
           // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-          if(WAND_STATUS == MODE_OFF && b_playing_music == true) {
+          if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
             if(i_volume_music + 1 > 0) {
               i_volume_music = 0;
             }
