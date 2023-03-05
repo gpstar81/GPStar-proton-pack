@@ -26,13 +26,13 @@
  * 4 = loudest
  * -70 = quietest
  */
-const int STARTUP_VOLUME = -25;
+const int STARTUP_VOLUME = 0;
 
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
  * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
  */
-boolean b_no_pack = true;
+boolean b_no_pack = false;
 
 /*
  * Debug testing
