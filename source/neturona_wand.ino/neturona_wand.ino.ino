@@ -26,13 +26,13 @@
  * 4 = loudest
  * -70 = quietest
  */
-const int STARTUP_VOLUME = 0;
+const int STARTUP_VOLUME = -25;
 
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
  * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
  */
-boolean b_no_pack = false;
+boolean b_no_pack = true;
 
 /*
  * Debug testing
@@ -660,49 +660,49 @@ void mainLoop() {
         w_trig.trackPlayPoly(S_CLICK);
           
         if(FIRING_MODE != SETTINGS) {
-            PREV_FIRING_MODE = FIRING_MODE;
-            FIRING_MODE = SETTINGS;
-            
-            WAND_ACTION_STATUS = ACTION_SETTINGS;
-            i_wand_menu = 5;
-            ms_settings_blinking.start(i_settings_blinking_delay);
-      
-            // Tell the pack we are in settings mode.
-            Serial.write(9);
+          PREV_FIRING_MODE = FIRING_MODE;
+          FIRING_MODE = SETTINGS;
+          
+          WAND_ACTION_STATUS = ACTION_SETTINGS;
+          i_wand_menu = 5;
+          ms_settings_blinking.start(i_settings_blinking_delay);
+    
+          // Tell the pack we are in settings mode.
+          Serial.write(9);
         }
         else {
-            FIRING_MODE = PREV_FIRING_MODE;
+          FIRING_MODE = PREV_FIRING_MODE;
 
-            switch(PREV_FIRING_MODE) {
-              case MESON:
-                // Tell the pack we are in meson mode.
-                Serial.write(8);
-              break;
+          switch(PREV_FIRING_MODE) {
+            case MESON:
+              // Tell the pack we are in meson mode.
+              Serial.write(8);
+            break;
 
-              case STASIS:
-                // Tell the pack we are in stasis mode.
-                Serial.write(7);
-              break;
+            case STASIS:
+              // Tell the pack we are in stasis mode.
+              Serial.write(7);
+            break;
 
-              case SLIME:  
-                // Tell the pack we are in slime mode.
-                Serial.write(6);
-              break;
+            case SLIME:  
+              // Tell the pack we are in slime mode.
+              Serial.write(6);
+            break;
 
-              case PROTON: 
-                // Tell the pack we are in proton mode.
-                Serial.write(5);
-              break;
+            case PROTON: 
+              // Tell the pack we are in proton mode.
+              Serial.write(5);
+            break;
 
-              default:
-                // Tell the pack we are in proton mode.
-                Serial.write(5);
-              break;
-            }
-            
-            WAND_ACTION_STATUS = ACTION_IDLE;
+            default:
+              // Tell the pack we are in proton mode.
+              Serial.write(5);
+            break;
+          }
+          
+          WAND_ACTION_STATUS = ACTION_IDLE;
 
-            wandLightsOff();
+          wandLightsOff();
         }
       
         ms_switch_mode_debounce.start(a_switch_debounce_time);
@@ -1553,8 +1553,34 @@ void modeFiring() {
   
   switch(FIRING_MODE) {     
     case PROTON:
-       fireStreamStart(255, 70, 0);
-       fireStream(0, 0, 255);     
+      // Make the stream more slightly more red on higher power modes.
+      switch(i_power_mode) {
+        case 1:
+          fireStreamStart(255, 20, 0);
+        break;
+      
+        case 2:
+          fireStreamStart(255, 30, 0);
+        break;
+      
+        case 3:
+          fireStreamStart(255, 40, 0);
+        break;
+      
+        case 4:
+          fireStreamStart(255, 60, 0);
+        break;
+      
+        case 5:
+          fireStreamStart(255, 70, 0);
+        break;
+      
+        default:
+          fireStreamStart(255, 20, 0);
+        break;
+      }
+          
+      fireStream(0, 0, 255);     
     break;
       
     case SLIME:
@@ -1704,16 +1730,16 @@ void fireStream(int r, int g, int b) {
     if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {      
       switch(FIRING_MODE) {
         case PROTON:
-          barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+          barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
 
           // Make the stream more slightly more red on higher power modes.
           switch(i_power_mode) {
             case 1:
-              barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+              barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
             break;
 
             case 2:
-              barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
+              barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
             break;
 
             case 3:
@@ -1721,15 +1747,15 @@ void fireStream(int r, int g, int b) {
             break;
 
             case 4:
-              barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
+              barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
             break;
 
             case 5:
-              barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+              barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
             break;
 
             default:
-              barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+              barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
             break;
           }
         break;
@@ -1781,14 +1807,12 @@ void barrelLightsOff() {
     barrel_leds[i] = CRGB(0,0,0);
   }
 
-  //FastLED.show();
   ms_fast_led.start(i_fast_led_delay);
 }
 
 void fireStreamStart(int r, int g, int b) {
   if(ms_firing_lights.justFinished() && i_barrel_light < BARREL_NUM_LEDS) {
     barrel_leds[i_barrel_light] = CRGB(g,r,b);
-    //FastLED.show();
     ms_fast_led.start(i_fast_led_delay);
           
     ms_firing_lights.start(d_firing_lights);
@@ -1807,7 +1831,6 @@ void fireStreamStart(int r, int g, int b) {
 void fireStreamEnd(int r, int g, int b) {
   if(i_barrel_light < BARREL_NUM_LEDS) {
     barrel_leds[i_barrel_light] = CRGB(g,r,b);
-    //FastLED.show();
     ms_fast_led.start(i_fast_led_delay);
           
     ms_firing_lights_end.start(d_firing_lights);
