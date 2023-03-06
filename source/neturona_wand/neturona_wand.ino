@@ -131,6 +131,11 @@ enum sound_fx {
   S_CROSS_STREAMS_START
 };
 
+/*
+ * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
+ */
+const int i_last_effects_track = S_CROSS_STREAMS_START;
+
 /* 
  * Wand state. 
  */
@@ -169,8 +174,9 @@ const uint8_t i_music_track_start = 100; // Music tracks start on file named 100
 /* 
  *  Volume (4 = loudest, -70 = quietest)
  */
-int i_volume = STARTUP_VOLUME;
-int i_volume_music = STARTUP_VOLUME;
+int i_volume = STARTUP_VOLUME; // Sound effects
+int i_volume_master = STARTUP_VOLUME; // Master overall volume
+int i_volume_music = STARTUP_VOLUME; // Music volume
 
 /* 
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
@@ -508,27 +514,27 @@ void mainLoop() {
         }
         break;
 
-        // Pack / Wand overall volume.
+        // Pack / Wand sound effects volume.
         case 4:
           if(switch_intensify.isPressed()) {
-            increaseVolume();
+            increaseVolumeEffects();
             
-            // Tell pack to increase overall volume.
-            Serial.write(95);
+            // Tell pack to increase the sound effects volume.
+            Serial.write(92);
           }
 
           if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
-            decreaseVolume();
+            decreaseVolumeEffects();
             
-            // Tell pack to lower overall volume.
-            Serial.write(94);
+            // Tell pack to lower the sound effects volume.
+            Serial.write(91);
             
             ms_switch_mode_debounce.start(a_switch_debounce_time);
           }
         
         break;
 
-        // Adjust music volume.
+        // Pack / Wand music volume.
         case 3:
           if(b_playing_music == true) {
             if(switch_intensify.isPressed()) {
@@ -738,9 +744,8 @@ void mainLoop() {
 
       if(year_mode == 2021) {
         if(ms_gun_loop_1.justFinished()) {
-          w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_1, -20);
+          w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_1, i_volume);
           w_trig.trackPlayPoly(S_AFTERLIFE_GUN_LOOP_1);
-          w_trig.trackFade(S_AFTERLIFE_GUN_LOOP_1, -20, 200, 0);
           w_trig.trackLoop(S_AFTERLIFE_GUN_LOOP_1, 1);
           ms_gun_loop_1.stop();
         }
@@ -1074,8 +1079,11 @@ void wandOff() {
   w_trig.trackStop(S_PACK_SLIME_OPEN);
   w_trig.trackStop(S_STASIS_START);
   w_trig.trackStop(S_MESON_START);
-  
+
+  w_trig.trackGain(S_WAND_SHUTDOWN, i_volume);
   w_trig.trackPlayPoly(S_WAND_SHUTDOWN);
+
+  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_DOWN_1, i_volume);
   w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_DOWN_1);
   
   // Turn off some timers.
@@ -1115,7 +1123,7 @@ void modeActivate() {
     default:
       soundIdleLoop(true);
 
-      w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, 0);  // Preset Track to gain/volume to 0
+      w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);  // Preset Track to gain/volume to 0
       w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
       
       ms_gun_loop_1.start(620);
@@ -1127,13 +1135,13 @@ void soundIdleLoop(boolean fade) {
   switch(i_power_mode) {
     case 1:
       if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_1, -20);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume - 20);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
-        w_trig.trackFade(S_IDLE_LOOP_GUN_1, -10, 2000, 0);
+        w_trig.trackFade(S_IDLE_LOOP_GUN_1, i_volume, 1000, 0);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
       }
       else {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_1, -10);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
       }
@@ -1141,13 +1149,13 @@ void soundIdleLoop(boolean fade) {
 
      case 2:
       if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_1, -20);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume - 20);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
-        w_trig.trackFade(S_IDLE_LOOP_GUN_1, -8, 2000, 0);
+        w_trig.trackFade(S_IDLE_LOOP_GUN_1, i_volume, 1000, 0);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
       }
       else {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_1, -8);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
       }
@@ -1155,13 +1163,13 @@ void soundIdleLoop(boolean fade) {
 
      case 3:
       if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_2, -20);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume - 20);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
-        w_trig.trackFade(S_IDLE_LOOP_GUN_2, -6, 2000, 0);
+        w_trig.trackFade(S_IDLE_LOOP_GUN_2, i_volume, 1000, 0);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
       }
       else {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_2, -6);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
       }
@@ -1169,13 +1177,13 @@ void soundIdleLoop(boolean fade) {
 
      case 4:
       if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_2, -20);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume - 20);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
-        w_trig.trackFade(S_IDLE_LOOP_GUN_2, -4, 2000, 0);
+        w_trig.trackFade(S_IDLE_LOOP_GUN_2, i_volume, 1000, 0);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
       }
       else {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_2, -4);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
       }
@@ -1183,13 +1191,13 @@ void soundIdleLoop(boolean fade) {
 
      case 5:
       if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_5, -20);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume - 20);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_5, true);
-        w_trig.trackFade(S_IDLE_LOOP_GUN_5, -1, 2000, 0);
+        w_trig.trackFade(S_IDLE_LOOP_GUN_5, i_volume, 1000, 0);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_5, 1);
       }
       else {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_5, -1);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_5, true);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_5, 1);
       }
@@ -1210,7 +1218,7 @@ void soundIdleStart() {
   if(b_sound_idle == false) {  
     switch(year_mode) {
       case 1984:
-          w_trig.trackGain(S_BOOTUP, 0);
+          w_trig.trackGain(S_BOOTUP, i_volume);
           w_trig.trackPlayPoly(S_BOOTUP, true);
 
           soundIdleLoop(true);        
@@ -1222,7 +1230,7 @@ void soundIdleStart() {
           w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_2);
           w_trig.trackStop(S_AFTERLIFE_GUN_LOOP_1);
           
-          w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_2, 0);  // Preset Track to gain/volume to 0
+          w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_2, i_volume);  // Preset Track to gain/volume to 0
           w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_2, true); // Start track
 
           ms_gun_loop_1.stop();
@@ -1237,7 +1245,7 @@ void soundIdleStart() {
 
   if(year_mode == 2021) {
     if(ms_gun_loop_2.justFinished()) {
-      w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_2, -15);
+      w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_2, i_volume);
       w_trig.trackPlayPoly(S_AFTERLIFE_GUN_LOOP_2, true);
       w_trig.trackLoop(S_AFTERLIFE_GUN_LOOP_2, 1);
       
@@ -1250,10 +1258,12 @@ void soundIdleStop() {
   if(b_sound_idle == true) {
     switch(year_mode) {
       case 1984:
+        w_trig.trackGain(S_WAND_SHUTDOWN, i_volume);
         w_trig.trackPlayPoly(S_WAND_SHUTDOWN, true);
       break;
 
       default:
+        w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_DOWN_2, i_volume);
         w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_DOWN_2, true);
         ms_gun_loop_1.start(1400);
         ms_gun_loop_2.stop();
@@ -1262,8 +1272,6 @@ void soundIdleStop() {
   }
   
   b_sound_idle = false;
-
-  //soundBeepLoopStop();
 
   switch(year_mode) {
     case 1984:
@@ -1298,7 +1306,9 @@ void soundBeepLoop() {
     if(b_beeping == false) {
       switch(i_power_mode) {
         case 1:
+          w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume);
           w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S1, true);
+          
           if(year_mode != 1984) {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, 1);
           }
@@ -1308,7 +1318,9 @@ void soundBeepLoop() {
          break;
   
          case 2:
+          w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume);
           w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S2, true);
+          
           if(year_mode != 1984) {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, 1);
           }
@@ -1318,7 +1330,9 @@ void soundBeepLoop() {
          break;
   
          case 3:
+          w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume);
           w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S3, true);
+          
           if(year_mode != 1984) {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S3, 1);
           }
@@ -1328,7 +1342,9 @@ void soundBeepLoop() {
          break;
   
          case 4:
+          w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume);
           w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S4, true);
+          
           if(year_mode != 1984) {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S4, 1);
           }
@@ -1338,7 +1354,9 @@ void soundBeepLoop() {
          break;
   
          case 5:
+          w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume);
           w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S5, true);
+          
           if(year_mode != 1984) {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S5, 1);
           }
@@ -1359,47 +1377,44 @@ void modeFireStartSounds() {
   ms_firing_start_sound_delay.stop();
 
   // Some sparks for firing start.
-  w_trig.trackGain(S_FIRE_START_SPARK, 0);
+  w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
   w_trig.trackPlayPoly(S_FIRE_START_SPARK);
 
   switch(FIRING_MODE) {
     case PROTON:
-      w_trig.trackGain(S_FIRE_START, 0);
+      w_trig.trackGain(S_FIRE_START, i_volume);
       w_trig.trackPlayPoly(S_FIRE_START);
   
-      w_trig.trackGain(S_FIRE_LOOP_GUN, 0);
+      w_trig.trackGain(S_FIRE_LOOP_GUN, i_volume - 20);
       w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
-      w_trig.trackFade(S_FIRE_LOOP_GUN, 0, 1000, 0);
+      w_trig.trackFade(S_FIRE_LOOP_GUN, i_volume, 1000, 0);
       w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
     break;
 
     case SLIME:
-      w_trig.trackGain(S_SLIME_START, 0);
+      w_trig.trackGain(S_SLIME_START, i_volume);
       w_trig.trackPlayPoly(S_SLIME_START);
       
-      w_trig.trackGain(S_SLIME_LOOP, 0);
+      w_trig.trackGain(S_SLIME_LOOP, i_volume);
       w_trig.trackPlayPoly(S_SLIME_LOOP, true);
-      w_trig.trackFade(S_SLIME_LOOP, 0, 1500, 0);
       w_trig.trackLoop(S_SLIME_LOOP, 1);
     break;
 
     case STASIS:
-      w_trig.trackGain(S_STASIS_START, 0);
+      w_trig.trackGain(S_STASIS_START, i_volume);
       w_trig.trackPlayPoly(S_STASIS_START);
       
-      w_trig.trackGain(S_STASIS_LOOP, 0);
+      w_trig.trackGain(S_STASIS_LOOP, i_volume);
       w_trig.trackPlayPoly(S_STASIS_LOOP, true);
-      w_trig.trackFade(S_STASIS_LOOP, 0, 1000, 0);
       w_trig.trackLoop(S_STASIS_LOOP, 1);
     break;
 
     case MESON:
-      w_trig.trackGain(S_MESON_START, 0);
+      w_trig.trackGain(S_MESON_START, i_volume);
       w_trig.trackPlayPoly(S_MESON_START);
       
-      w_trig.trackGain(S_MESON_LOOP, 0);
+      w_trig.trackGain(S_MESON_LOOP, i_volume);
       w_trig.trackPlayPoly(S_MESON_LOOP, true);
-      w_trig.trackFade(S_MESON_LOOP, 0, 5500, 0);
       w_trig.trackLoop(S_MESON_LOOP, 1);
     break;
 
@@ -1464,22 +1479,22 @@ void modeFireStopSounds() {
 
  switch(FIRING_MODE) {
     case PROTON:
-      w_trig.trackGain(S_FIRING_END_GUN, 40);
+      w_trig.trackGain(S_FIRING_END_GUN, i_volume);
       w_trig.trackPlayPoly(S_FIRING_END_GUN, true); // Gun firing end sound.
     break;
 
     case SLIME:
-      w_trig.trackGain(S_SLIME_END, 0);
+      w_trig.trackGain(S_SLIME_END, i_volume);
       w_trig.trackPlayPoly(S_SLIME_END, true);
     break;
 
     case STASIS:
-      w_trig.trackGain(S_STASIS_END, 0);
+      w_trig.trackGain(S_STASIS_END, i_volume);
       w_trig.trackPlayPoly(S_STASIS_END, true);
     break;
 
     case MESON:
-      w_trig.trackGain(S_MESON_END, 0);
+      w_trig.trackGain(S_MESON_END, i_volume);
       w_trig.trackPlayPoly(S_MESON_END, true);
     break;
 
@@ -1616,8 +1631,9 @@ void modeFiring() {
 
   // Mix some impact sound every 10-15 seconds while firing.
   if(ms_impact.justFinished()) {
+    w_trig.trackGain(S_FIRE_LOOP_IMPACT, i_volume);
     w_trig.trackPlayPoly(S_FIRE_LOOP_IMPACT);
-    ms_impact.start(random(10,15) * 1000);
+    ms_impact.start(15000);
   }
 }
 
@@ -2144,26 +2160,56 @@ void vibrationOff() {
   analogWrite(vibration, 0);
 }
 
-void increaseVolume() {
+void increaseVolumeEffects() {
   if(i_volume + 1 > 0) {
     i_volume = 0;
   }
   else {
     i_volume = i_volume + 1;
   }
-  
-  w_trig.masterGain(i_volume);
+
+  for(int i=0; i <= i_last_effects_track; i++) {
+    if(w_trig.isTrackPlaying(i)) {
+      w_trig.trackGain(i, i_volume);
+    }
+  }
 }
 
-void decreaseVolume() {
+void decreaseVolumeEffects() {
   if(i_volume - 1 < -70) {
     i_volume = -70;
   }
   else {
     i_volume = i_volume - 1;
   }
+              
+  for(int i=0; i <= i_last_effects_track; i++) {
+    if(w_trig.isTrackPlaying(i)) {
+      w_trig.trackGain(i, i_volume);
+    }
+  }
+}
+
+void increaseVolume() {
+  if(i_volume_master + 1 > 0) {
+    i_volume_master = 0;
+  }
+  else {
+    i_volume_master = i_volume_master + 1;
+  }
   
-  w_trig.masterGain(i_volume);
+  w_trig.masterGain(i_volume_master);
+}
+
+void decreaseVolume() {
+  if(i_volume_master - 1 < -70) {
+    i_volume_master = -70;
+  }
+  else {
+    i_volume_master = i_volume_master - 1;
+  }
+  
+  w_trig.masterGain(i_volume_master);
 }
 
 /*
@@ -2477,8 +2523,10 @@ void checkPack() {
       case 14:
         // Reset volumes
         i_volume = STARTUP_VOLUME;
+        i_volume_master = STARTUP_VOLUME;
         i_volume_music = STARTUP_VOLUME;
-        w_trig.masterGain(i_volume);
+        
+        w_trig.masterGain(i_volume_master);
       break;
       
       case 99:
@@ -2516,7 +2564,7 @@ void setupWavTrigger() {
   //  reset while the WAV Trigger was already playing.
   w_trig.stopAllTracks();
   w_trig.samplerateOffset(0); // Reset our sample rate offset        
-  w_trig.masterGain(i_volume); // Reset the master gain db. 0db is default. Range is -70 to +4. (Can go higher than 4?)
+  w_trig.masterGain(i_volume_master); // Reset the master gain db. 0db is default. Range is -70 to +4. (Can go higher than 4?)
   w_trig.setAmpPwr(true); // Turn on the onboard amp. Turn it off to draw less power if you decide to use the aux cable jack instead.
   
   // Enable track reporting from the WAV Trigger
