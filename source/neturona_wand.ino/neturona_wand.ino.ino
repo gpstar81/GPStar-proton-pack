@@ -39,7 +39,7 @@ boolean b_no_pack = false;
  * Set to true to debug some switch readings.
  * Keep your wand unplugged from the pack while this is set to true.
  * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
- * The wand will respond a bit slower as it is streaming serial data to the usb serial. For debugging the analog switch readings only.
+ * The wand will respond a bit slower as it is streaming serial data back. For debugging the analog switch readings only.
  */
 boolean b_debug = false;
 
@@ -756,7 +756,7 @@ void mainLoop() {
     fireStreamEnd(0,0,0);
   }
 
-  
+  // Update the barrel LEDs.
   if(ms_fast_led.justFinished()) {
     FastLED.show();
     ms_fast_led.stop();
@@ -1660,25 +1660,21 @@ void wandBarrelHeatUp() {
     switch(FIRING_MODE) {
       case PROTON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
-        //FastLED.show();
         ms_fast_led.start(i_fast_led_delay);
       break;
   
       case SLIME:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, 0, 0);
-        //FastLED.show();
         ms_fast_led.start(i_fast_led_delay);
       break;
   
       case STASIS:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatup_counter);
-        //FastLED.show();
         ms_fast_led.start(i_fast_led_delay);
       break;
   
       case MESON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
-        //FastLED.show();
         ms_fast_led.start(i_fast_led_delay);
       break;
     } 
@@ -1693,25 +1689,21 @@ void wandBarrelHeatDown() {
     switch(FIRING_MODE) {
       case PROTON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
-        //FastLED.show();
         ms_fast_led.start(i_fast_led_delay);
       break;
   
       case SLIME:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, 0, 0);
-        //FastLED.show();
         ms_fast_led.start(i_fast_led_delay);
       break;
   
       case STASIS:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatdown_counter);
-        //FastLED.show();
         ms_fast_led.start(i_fast_led_delay);
       break;
   
       case MESON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
-        //FastLED.show();
         ms_fast_led.start(i_fast_led_delay);
       break;
     }
@@ -1777,7 +1769,6 @@ void fireStream(int r, int g, int b) {
         break;
       }
       
-      //FastLED.show();
       ms_fast_led.start(i_fast_led_delay);
     }
 
@@ -1788,7 +1779,7 @@ void fireStream(int r, int g, int b) {
     }
     else if(i_barrel_light < BARREL_NUM_LEDS) {
       barrel_leds[i_barrel_light] = CRGB(g,r,b);
-      //FastLED.show();
+
       ms_fast_led.start(i_fast_led_delay);
             
       ms_firing_stream_blue.start(d_firing_lights);
@@ -2391,7 +2382,6 @@ void wandBarrelLightsOff() {
     barrel_leds[i] = CRGB(0,0,0);
   }
   
-  //FastLED.show();
   ms_fast_led.start(i_fast_led_delay);
 }
 
