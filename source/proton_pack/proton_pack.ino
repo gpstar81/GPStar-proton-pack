@@ -53,8 +53,8 @@ bool b_overheat_strobe = false;
  * The higher the number, the faster it will spin.
  * Do not go any higher than 12.
  */
-const int i_2021_inner_delay = 8;
-const int i_1984_inner_delay = 3;
+const int i_2021_inner_delay = 10;
+const int i_1984_inner_delay = 6;
 
 /*
  * Cyclotron Lid LED delays.
@@ -380,7 +380,7 @@ enum FIRING_MODES FIRING_MODE;
 boolean b_wand_firing = false;
 boolean b_wand_connected = false;
 millisDelay ms_wand_handshake;
-const int i_wand_handshake_delay = 6000;
+const int i_wand_handshake_delay = 3000;
 millisDelay ms_wand_handshake_checking;
 int i_wand_power_level = 1; // Power level of the wand.
 int rx_byte = 0;
@@ -472,7 +472,6 @@ void setup() {
 
   // Tell the wand the pack is here.
   Serial2.write(0);
-
 }
 
 void loop() {
@@ -587,10 +586,12 @@ void loop() {
         if(b_alarm == true) {
           // Tell the wand the pack alarm is off.
           Serial2.write(4);
-          
+
+          // Reset the LEDs before resetting the alarm flag.
+          resetCyclotronLeds();
+
           b_alarm = false;
 
-          resetCyclotronLeds();
           reset2021RampUp();
 
           packStartup();
@@ -1482,8 +1483,10 @@ void resetCyclotronLeds() {
     i_led_cyclotron = cyclotron_led_start;
   }
 
-  // Tell the inner cyclotron to turn off the leds.
-  innerCyclotronOff();
+  if(b_alarm != true) {
+    // Tell the inner cyclotron to turn off the leds.
+    innerCyclotronOff();
+  }
   
   cyclotronSpeedRevert();
 }
@@ -2442,10 +2445,12 @@ void checkWand() {
           
           // Turn off the smoke.
           smokeControl(false);
-          
+
+          // Reset the LEDs before resetting the alarm flag.
+          resetCyclotronLeds();
+      
           b_alarm = false;
     
-          resetCyclotronLeds();
           reset2021RampUp();
     
           packStartup();
