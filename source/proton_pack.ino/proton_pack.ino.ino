@@ -473,7 +473,7 @@ void loop() {
 
   checkSwitches();
   checkRotaryEncoder();
-  
+
   switch (PACK_STATUS) {
     case MODE_OFF:
       if(b_pack_on == true) {
@@ -2341,8 +2341,11 @@ void checkWand() {
           FIRING_MODE = PROTON;
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
-          w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
-          w_trig.trackPlayPoly(S_FIRE_START_SPARK);
+          
+          if(PACK_STATUS == MODE_ON) {
+            w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
+            w_trig.trackPlayPoly(S_FIRE_START_SPARK);
+          }
         break;
     
         case 6:
@@ -2350,8 +2353,11 @@ void checkWand() {
           FIRING_MODE = SLIME;
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
-          w_trig.trackGain(S_PACK_SLIME_OPEN, i_volume);
-          w_trig.trackPlayPoly(S_PACK_SLIME_OPEN);
+          
+          if(PACK_STATUS == MODE_ON) {
+            w_trig.trackGain(S_PACK_SLIME_OPEN, i_volume);
+            w_trig.trackPlayPoly(S_PACK_SLIME_OPEN);
+          }
         break;
     
         case 7:
@@ -2359,8 +2365,11 @@ void checkWand() {
           FIRING_MODE = STASIS;
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
-          w_trig.trackGain(S_STASIS_OPEN, i_volume);
-          w_trig.trackPlayPoly(S_STASIS_OPEN);
+          
+          if(PACK_STATUS == MODE_ON) {
+            w_trig.trackGain(S_STASIS_OPEN, i_volume);
+            w_trig.trackPlayPoly(S_STASIS_OPEN);
+          }
         break;
     
         case 8:
@@ -2368,8 +2377,11 @@ void checkWand() {
           FIRING_MODE = MESON;
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
-          w_trig.trackGain(S_MESON_OPEN, i_volume);
-          w_trig.trackPlayPoly(S_MESON_OPEN);
+          
+          if(PACK_STATUS == MODE_ON) {
+            w_trig.trackGain(S_MESON_OPEN, i_volume);
+            w_trig.trackPlayPoly(S_MESON_OPEN);
+          }
         break;
     
         case 9:
