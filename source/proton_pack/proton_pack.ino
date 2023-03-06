@@ -533,7 +533,7 @@ void loop() {
         b_2021_ramp_down_start = false;
         b_reset_start_led = true; // reset the start led of the cyclotron.
         b_inner_ramp_down = false;
-        
+                
         resetCyclotronLeds();        
         reset2021RampUp();
 
@@ -826,7 +826,7 @@ void checkSwitches() {
       }
 
       // Year mode. Best to adjust it only when the pack is off.
-      if(r_2021_ramp.isRunning() == false && b_pack_on == false) {        
+      if(b_2021_ramp_down != true && b_pack_on == false) {        
         if(switch_mode.getState() == LOW) {
           if(i_mode_year == 2021) {
             // Tell the wand to switch to 1984 mode.
@@ -847,7 +847,6 @@ void checkSwitches() {
     break;
 
     case MODE_ON:
-      //if(switch_power.getState() == HIGH) {
       if(switch_power.isReleased() || switch_power.isPressed()) {
         // Turn the pack off.
         PACK_ACTION_STATUS = ACTION_OFF;
@@ -1483,11 +1482,22 @@ void resetCyclotronLeds() {
     i_led_cyclotron = cyclotron_led_start;
   }
 
-  if(b_alarm != true) {
-    // Tell the inner cyclotron to turn off the leds.
-    innerCyclotronOff();
+  // Tell the inner cyclotron to turn off the leds.
+  switch (i_mode_year) {
+    case 2021:
+      if(b_cyclotron_lid_on == true) {
+        innerCyclotronOff();
+      }
+      else if(b_alarm != true || PACK_STATUS == MODE_OFF) {
+        innerCyclotronOff();
+      }
+    break;
+
+    case 1984:
+      innerCyclotronOff();
+    break;
   }
-  
+
   cyclotronSpeedRevert();
 }
 
