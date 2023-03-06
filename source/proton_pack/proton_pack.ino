@@ -310,7 +310,7 @@ ezButton switch_mode(25); // 1984 / 2021 mode toggle switch
 ezButton switch_vibration(27); // Vibration toggle switch
 ezButton switch_cyclotron_direction(29); // Newly added switch for controlling the direction of the cyclotron lights. Not required. Defaults to clockwise.
 ezButton switch_power(31); // Red power switch under the ion arm.
-ezButton switch_smoke(37);
+ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
 
 /* 
  *  Wav trigger

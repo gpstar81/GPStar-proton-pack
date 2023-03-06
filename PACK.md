@@ -205,3 +205,7 @@ The following are *OPTIONAL* builds for use within the Proton Pack.
 ## Component Fitment
 
 Given the large spaces and "compartments" within the pack, finding a place for the protoboard, Arduino, WavTrigger, audio amplifier, and battery should be no problem. Reusing the space from the old controller is ideal for the protoboard and Arduino. Most modders have found that the removal of the case for a Talencell battery allows it to fit under the original battery compartment--just use care that the sides of the batteries are covered with electrical tape and nothing can accidentally damage or short the components which may be exposed. Additionally, it's worth covering the bottom contacts on any circuit boards which are in close proximity to each other just in case shifting occurs while wearing the pack.
+
+## Arduino Mega Pinout Reference
+
+![](images/Arduino-mega-pinout.png)
