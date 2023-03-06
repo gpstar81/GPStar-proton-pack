@@ -195,7 +195,7 @@ boolean b_vibration_on = false;
 ezButton switch_wand(A0); // Contols the beeping. Top right switch on the wand.
 ezButton switch_intensify(2);
 ezButton switch_activate(3);
-ezButton switch_vent(4); // Turns onhte vent light.
+ezButton switch_vent(4); // Turns on the vent light.
 const int switch_mode = A6; // Changes firing modes or to reach the settings menu.
 const int switch_barrel = A7; // Barrel extension/open switch.
 
@@ -274,7 +274,7 @@ int i_barrel_light = 0; // using this to keep track which LED in the barrel is c
 
 /* 
  *  Wand power mode. Controlled by the rotary encoder on the top of the wand.
- *   1,2,3,4 = Allow's continous firing of the wand. The pack will occasionally activate it's smoke triggers while continiously firing for longer periods.
+ *   1,2,3,4 = Allow's continuous firing of the wand. The pack will occasionally activate it's smoke triggers while continiously firing for longer periods.
  *   At higher power settings, the pack will trigger the smoke pins earlier compared to lower power settings.
  *   5 = Highest power output. The wand/pack will overheat on this setting if you are firing for too long.
  */

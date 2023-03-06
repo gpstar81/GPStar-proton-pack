@@ -208,3 +208,7 @@ OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin
 ## Component Fitment
 
 As noted at the start of this guide the space inside of the gun box for the wand is extremely limited. Creative placement of any protoboards, the Arduino, WavTrigger, and speaker (if upgraded) will be left to each individual. As a matter of advice, placing the WavTrigger under the wand barrel is an advised option with other items "stacked" above and beside the spring-loaded mechanism. As an alternative option, the WavTrigger can also fit in the opposite half of the gun box if the barrel jack is removed--this is to avoid the spring which attaches to the wand barrel.
+
+## Arduino Nano Pinout Reference
+
+![](images/Arduino-nano-pinout.png)

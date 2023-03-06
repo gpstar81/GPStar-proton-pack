@@ -43,6 +43,7 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 
 - The rotary dial on the top of the gun box changes the power mode of the wand, affecting the intensity of the stream effects, indicated by increasing or decreasing the bargraph lights (just as the stock wand did). There are 5 wand power modes as based on the original bargraph which has only 5 LED's available:
 	- The wand will fire forever on modes 1 through 4 (applies to all firing modes).
+	- For levels 2 and above, the pack will emit smoke effects during longer firing (if enabled).
 	- On mode 5 (full power), the proton stream will appear more red than yellow.
 	- Also on mode 5, the wand and pack will overheat after a certain amount of time of firing.
 - As the dial is turned, any beeping rate will increase or decrease depending on the theme in use.
