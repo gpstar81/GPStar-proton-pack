@@ -671,38 +671,41 @@ void mainLoop() {
           Serial.write(9);
         }
         else {
-          FIRING_MODE = PREV_FIRING_MODE;
-
-          switch(PREV_FIRING_MODE) {
-            case MESON:
-              // Tell the pack we are in meson mode.
-              Serial.write(8);
-            break;
-
-            case STASIS:
-              // Tell the pack we are in stasis mode.
-              Serial.write(7);
-            break;
-
-            case SLIME:  
-              // Tell the pack we are in slime mode.
-              Serial.write(6);
-            break;
-
-            case PROTON: 
-              // Tell the pack we are in proton mode.
-              Serial.write(5);
-            break;
-
-            default:
-              // Tell the pack we are in proton mode.
-              Serial.write(5);
-            break;
+          // Only exit the settings menu when on menu #5.
+          if(i_wand_menu == 5) {
+            FIRING_MODE = PREV_FIRING_MODE;
+  
+            switch(PREV_FIRING_MODE) {
+              case MESON:
+                // Tell the pack we are in meson mode.
+                Serial.write(8);
+              break;
+  
+              case STASIS:
+                // Tell the pack we are in stasis mode.
+                Serial.write(7);
+              break;
+  
+              case SLIME:  
+                // Tell the pack we are in slime mode.
+                Serial.write(6);
+              break;
+  
+              case PROTON: 
+                // Tell the pack we are in proton mode.
+                Serial.write(5);
+              break;
+  
+              default:
+                // Tell the pack we are in proton mode.
+                Serial.write(5);
+              break;
+            }
+            
+            WAND_ACTION_STATUS = ACTION_IDLE;
+  
+            wandLightsOff();
           }
-          
-          WAND_ACTION_STATUS = ACTION_IDLE;
-
-          wandLightsOff();
         }
       
         ms_switch_mode_debounce.start(a_switch_debounce_time);
@@ -912,69 +915,72 @@ void checkSwitches() {
     case MODE_ON:
       if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
-          // Cycle through the firing modes and setting menu.
-          if(FIRING_MODE == PROTON) {
-            FIRING_MODE = SLIME;
+          // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
+          if(i_wand_menu == 5) {
+            // Cycle through the firing modes and setting menu.
+            if(FIRING_MODE == PROTON) {
+              FIRING_MODE = SLIME;
+            }
+            else if(FIRING_MODE == SLIME) {
+              FIRING_MODE = STASIS;
+            }
+            else if(FIRING_MODE == STASIS) {
+              FIRING_MODE = MESON;
+            }
+            else if(FIRING_MODE == MESON) {
+              FIRING_MODE = SETTINGS;
+            }
+            else {
+              FIRING_MODE = PROTON;
+            }
+   
+            w_trig.trackGain(S_CLICK, i_volume);
+            w_trig.trackPlayPoly(S_CLICK);
+  
+            switch(FIRING_MODE) {
+              case SETTINGS:
+                WAND_ACTION_STATUS = ACTION_SETTINGS;
+                i_wand_menu = 5;
+                ms_settings_blinking.start(i_settings_blinking_delay);
+  
+                // Tell the pack we are in settings mode.
+                Serial.write(9);
+              break;
+  
+              case MESON:
+                WAND_ACTION_STATUS = ACTION_IDLE;
+                wandHeatUp();
+  
+                // Tell the pack we are in meson mode.
+                Serial.write(8);
+              break;
+  
+              case STASIS:
+                WAND_ACTION_STATUS = ACTION_IDLE;
+                wandHeatUp();
+  
+                // Tell the pack we are in stasis mode.
+                Serial.write(7);
+              break;
+  
+              case SLIME:
+                WAND_ACTION_STATUS = ACTION_IDLE;
+                wandHeatUp();
+  
+                // Tell the pack we are in slime mode.
+                Serial.write(6);
+              break;
+  
+              case PROTON:
+                WAND_ACTION_STATUS = ACTION_IDLE;
+                wandHeatUp();
+  
+                // Tell the pack we are in proton mode.
+                Serial.write(5);
+              break;
+            }
           }
-          else if(FIRING_MODE == SLIME) {
-            FIRING_MODE = STASIS;
-          }
-          else if(FIRING_MODE == STASIS) {
-            FIRING_MODE = MESON;
-          }
-          else if(FIRING_MODE == MESON) {
-            FIRING_MODE = SETTINGS;
-          }
-          else {
-            FIRING_MODE = PROTON;
-          }
- 
-          w_trig.trackGain(S_CLICK, i_volume);
-          w_trig.trackPlayPoly(S_CLICK);
-
-          switch(FIRING_MODE) {
-            case SETTINGS:
-              WAND_ACTION_STATUS = ACTION_SETTINGS;
-              i_wand_menu = 5;
-              ms_settings_blinking.start(i_settings_blinking_delay);
-
-              // Tell the pack we are in settings mode.
-              Serial.write(9);
-            break;
-
-            case MESON:
-              WAND_ACTION_STATUS = ACTION_IDLE;
-              wandHeatUp();
-
-              // Tell the pack we are in meson mode.
-              Serial.write(8);
-            break;
-
-            case STASIS:
-              WAND_ACTION_STATUS = ACTION_IDLE;
-              wandHeatUp();
-
-              // Tell the pack we are in stasis mode.
-              Serial.write(7);
-            break;
-
-            case SLIME:
-              WAND_ACTION_STATUS = ACTION_IDLE;
-              wandHeatUp();
-
-              // Tell the pack we are in slime mode.
-              Serial.write(6);
-            break;
-
-            case PROTON:
-              WAND_ACTION_STATUS = ACTION_IDLE;
-              wandHeatUp();
-
-              // Tell the pack we are in proton mode.
-              Serial.write(5);
-            break;
-          }
-
+          
           ms_switch_mode_debounce.start(a_switch_debounce_time);
         }
       }
