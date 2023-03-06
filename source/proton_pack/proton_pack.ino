@@ -1,8 +1,10 @@
+
 /********************************************************
   Haslab Proton Pack.
   January 2022.
   Michael Rajotte / gpstar
 ********************************************************/
+
 /* 
  *  You need to edit wavTrigger.h and make sure you comment out the proper serial port. (Near the top of the wavTrigger.h file).
  *  We are going to use tx/rx #3 on the Mega.  __WT_USE_SERIAL3___
@@ -62,6 +64,28 @@ const int i_1984_inner_delay = 3;
  */
 const int i_1984_delay = 1050;
 const int i_2021_delay = 15;
+
+/*
+ * How long until smoke pins (+ fan) activates during continuous firing. (not overheating venting)
+ * Default is 30,000 milliseconds (30 seconds)
+ * This delay gets divided by the wand power level.
+ * Example: 
+ * level 1: 30000 / 1 = 30000
+ * level 2: 30000 / 2 = 15000
+ * level 3: 30000 / 3 = 10000
+ * level 4: 30000 / 4 = 7500
+ * level 5: 30000 / 5 = 6000
+ */
+const int i_smoke_timer = 30000;
+
+/*
+ *  How long do you want your smoke pins to stay on high while firing. (not overheating venting)
+ *  When the pins are high, then smoke will be generated if you have smoke machines etc wired up.
+ *  Default is 3000 milliseconds (3 seconds). 
+ *  This does not affect smoke during overheat or affects when smoke is triggered. 
+ *  This only affects how long your smoke stays on after it has been triggered in continuous firing.
+ */
+const int i_smoke_on_time = 3000;
 
 /*
  * Set this to true if you want to know if your wand and pack are communicating.
@@ -336,9 +360,7 @@ const int i_fan_stop_timer = 9000;
 millisDelay ms_overheating;
 const int i_overheating_delay = 4000;
 boolean b_overheating = false;
-const int i_smoke_timer = 30000;
 millisDelay ms_smoke_timer;
-
 
 /*
  * Vent light timers and delay for over heating.
@@ -358,7 +380,7 @@ enum FIRING_MODES FIRING_MODE;
 boolean b_wand_firing = false;
 boolean b_wand_connected = false;
 millisDelay ms_wand_handshake;
-const int i_wand_handshake_delay = 2000;
+const int i_wand_handshake_delay = 6000;
 millisDelay ms_wand_handshake_checking;
 int i_wand_power_level = 1; // Power level of the wand.
 int rx_byte = 0;
@@ -580,7 +602,7 @@ void loop() {
 
       // Play a little bit of smoke and n-filter vent lights while firing. Just a tiny bit....
       if(b_wand_firing == true) {
-        if(ms_smoke_timer.remaining() < 3000 && ms_smoke_timer.remaining() > 0) {
+        if(ms_smoke_timer.remaining() < i_smoke_on_time && ms_smoke_timer.remaining() > 0) {
           // Turn on some smoke and play some vent sounds if smoke is enabled.
           if(b_smoke_enabled == true) {
             // Turn on some smoke.
