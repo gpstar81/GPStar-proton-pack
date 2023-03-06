@@ -181,7 +181,7 @@ enum sound_fx {
   S_CROSS_STREAMS_END,
   S_CROSS_STREAMS_START
 };
- 
+
 /* 
  *  PowerCell and Cyclotron Lid LEDs.
  *  25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
@@ -325,8 +325,9 @@ boolean b_repeat_track = false;
 /* 
  *  Volume (4 = loudest, -70 = quietest)
  */
-int i_volume = STARTUP_VOLUME;
-int i_volume_music = STARTUP_VOLUME;
+int i_volume = STARTUP_VOLUME; // Sound effects
+int i_volume_master = STARTUP_VOLUME; // Master overall volume
+int i_volume_music = STARTUP_VOLUME; // Music volume
 
 /*
  * Vibration motor settings
@@ -611,9 +612,9 @@ void loop() {
   
             // Play some sounds with the smoke and vent lighting.
             if(b_vent_sounds == true) {
-              w_trig.trackGain(S_VENT_SMOKE, -5);
+              w_trig.trackGain(S_VENT_SMOKE, i_volume);
               w_trig.trackPlayPoly(S_VENT_SMOKE);
-              w_trig.trackGain(S_SPARKS_LOOP, -5);
+              w_trig.trackGain(S_SPARKS_LOOP, i_volume);
               w_trig.trackPlayPoly(S_SPARKS_LOOP);
   
               b_vent_sounds = false;
@@ -689,22 +690,22 @@ void packStartup() {
     
     switch(i_mode_year) {
       case 1984:
-        w_trig.trackGain(S_BOOTUP, 0);
+        w_trig.trackGain(S_BOOTUP, i_volume);
         w_trig.trackPlayPoly(S_BOOTUP, true);
          
-        w_trig.trackGain(S_IDLE_LOOP, -20);
+        w_trig.trackGain(S_IDLE_LOOP, i_volume - 20);
         w_trig.trackPlayPoly(S_IDLE_LOOP, true);
-        w_trig.trackFade(S_IDLE_LOOP, -1, 2000, 0);
+        w_trig.trackFade(S_IDLE_LOOP, i_volume, 2000, 0);
         w_trig.trackLoop(S_IDLE_LOOP, 1);
       break;
   
       default:
-        w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, 0);
+        w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
         w_trig.trackPlayPoly(S_AFTERLIFE_PACK_STARTUP, true);
   
-        w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, -20);
+        w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume - 20);
         w_trig.trackPlayPoly(S_AFTERLIFE_PACK_IDLE_LOOP, true);
-        w_trig.trackFade(S_AFTERLIFE_PACK_IDLE_LOOP, -1, 15000, 0);
+        w_trig.trackFade(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume, 15000, 0);
         w_trig.trackLoop(S_AFTERLIFE_PACK_IDLE_LOOP, 1);
       break;
     }
@@ -732,16 +733,20 @@ void packShutdown() {
   if(b_alarm != true) {
     switch(i_mode_year) {
       case 1984:
+        w_trig.trackGain(S_SHUTDOWN, i_volume);
         w_trig.trackPlayPoly(S_SHUTDOWN, true);
+        w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
         w_trig.trackPlayPoly(S_PACK_SHUTDOWN, true);
       break;
   
       default:
+        w_trig.trackGain(S_PACK_SHUTDOWN_AFTERLIFE, i_volume);
         w_trig.trackPlayPoly(S_PACK_SHUTDOWN_AFTERLIFE, true);
       break;
     }
   }
   else {
+    w_trig.trackGain(S_SHUTDOWN, i_volume);
     w_trig.trackPlayPoly(S_SHUTDOWN, true);
   }
 
@@ -791,7 +796,7 @@ void checkSwitches() {
       Serial2.write(5);
       
       w_trig.trackStop(S_BEEPS_ALT);    
-      w_trig.trackGain(S_BEEPS_ALT, 0);
+      w_trig.trackGain(S_BEEPS_ALT, i_volume);
       w_trig.trackPlayPoly(S_BEEPS_ALT);
 
       b_vibration = true;
@@ -803,7 +808,7 @@ void checkSwitches() {
       Serial2.write(6);
 
       w_trig.trackStop(S_BEEPS_ALT);    
-      w_trig.trackGain(S_BEEPS_ALT, 0);
+      w_trig.trackGain(S_BEEPS_ALT, i_volume);
       w_trig.trackPlayPoly(S_BEEPS_ALT);
 
       b_vibration = false;
@@ -813,7 +818,7 @@ void checkSwitches() {
   // Play sound when the mode switch is pressed or released.
   if(switch_mode.isPressed() || switch_mode.isReleased()) {
     w_trig.trackStop(S_BEEPS_BARGRAPH);    
-    w_trig.trackGain(S_BEEPS_BARGRAPH, 0);
+    w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
     w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
   }
   
@@ -1405,6 +1410,7 @@ void cyclotronOverHeating() {
   smokeControl(true);
 
   if(ms_overheating.justFinished()) {
+    w_trig.trackGain(S_VENT_SMOKE, i_volume);
     w_trig.trackPlayPoly(S_VENT_SMOKE, true);
     smokeControl(false);
   }
@@ -1903,52 +1909,52 @@ void wandFiring() {
           
   vibrationPack(255);
 
-  w_trig.trackGain(S_FIRE_START_SPARK, 0);
+  w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
   w_trig.trackPlayPoly(S_FIRE_START_SPARK);
 
   switch(FIRING_MODE) {
     case PROTON:
-      w_trig.trackGain(S_FIRE_START, 0);
+      w_trig.trackGain(S_FIRE_START, i_volume);
       w_trig.trackPlayPoly(S_FIRE_START, true);
     
-      w_trig.trackGain(S_FIRE_LOOP_GUN, 0);
+      w_trig.trackGain(S_FIRE_LOOP_GUN, i_volume);
       w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
-      w_trig.trackFade(S_FIRE_LOOP_GUN, 0, 1000, 0);
+      w_trig.trackFade(S_FIRE_LOOP_GUN, i_volume, 1000, 0);
       w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
     
-      w_trig.trackGain(S_FIRE_LOOP, 0);
+      w_trig.trackGain(S_FIRE_LOOP, i_volume);
       w_trig.trackPlayPoly(S_FIRE_LOOP, true);
-      w_trig.trackFade(S_FIRE_LOOP, 0, 1000, 0);
+      w_trig.trackFade(S_FIRE_LOOP, i_volume, 1000, 0);
       w_trig.trackLoop(S_FIRE_LOOP, 1); 
     break;
 
     case SLIME:
-      w_trig.trackGain(S_SLIME_START, 0);
+      w_trig.trackGain(S_SLIME_START, i_volume);
       w_trig.trackPlayPoly(S_SLIME_START);
       
-      w_trig.trackGain(S_SLIME_LOOP, 0);
+      w_trig.trackGain(S_SLIME_LOOP, i_volume);
       w_trig.trackPlayPoly(S_SLIME_LOOP);
-      w_trig.trackFade(S_SLIME_LOOP, 0, 1500, 0);
+      w_trig.trackFade(S_SLIME_LOOP, i_volume, 1500, 0);
       w_trig.trackLoop(S_SLIME_LOOP, 1);
     break;
 
     case STASIS:
-      w_trig.trackGain(S_STASIS_START, 0);
+      w_trig.trackGain(S_STASIS_START, i_volume);
       w_trig.trackPlayPoly(S_STASIS_START);
       
-      w_trig.trackGain(S_STASIS_LOOP, 0);
+      w_trig.trackGain(S_STASIS_LOOP, i_volume);
       w_trig.trackPlayPoly(S_STASIS_LOOP);
-      w_trig.trackFade(S_STASIS_LOOP, 0, 1000, 0);
+      w_trig.trackFade(S_STASIS_LOOP, i_volume, 1000, 0);
       w_trig.trackLoop(S_STASIS_LOOP, 1);
     break;
 
     case MESON:
-      w_trig.trackGain(S_MESON_START, 0);
+      w_trig.trackGain(S_MESON_START, i_volume);
       w_trig.trackPlayPoly(S_MESON_START);
       
-      w_trig.trackGain(S_MESON_LOOP, 0);
+      w_trig.trackGain(S_MESON_LOOP, i_volume);
       w_trig.trackPlayPoly(S_MESON_LOOP);
-      w_trig.trackFade(S_MESON_LOOP, 0, 5500, 0);
+      w_trig.trackFade(S_MESON_LOOP, i_volume, 5500, 0);
       w_trig.trackLoop(S_MESON_LOOP, 1);
     break;
 
@@ -1978,31 +1984,34 @@ void wandStoppedFiring() {
         // Play different firing end stream sound depending on how long we have been firing for.
         if(ms_firing_length_timer.remaining() < 5000) {
           // Long tail end.
+          w_trig.trackGain(S_FIRING_END, i_volume);
           w_trig.trackPlayPoly(S_FIRING_END, true);
         }
         else if(ms_firing_length_timer.remaining() < 10000) {
           // Mid tail end.
+          w_trig.trackGain(S_FIRING_END_MID, i_volume);
           w_trig.trackPlayPoly(S_FIRING_END_MID, true);
         }
         else {
           // Short tail end.
+          w_trig.trackGain(S_FIRING_END_GUN, i_volume);
           w_trig.trackPlayPoly(S_FIRING_END_GUN, true);
         }
       break;
   
       case SLIME:
-        w_trig.trackGain(S_SLIME_END, 0);
+        w_trig.trackGain(S_SLIME_END, i_volume);
         w_trig.trackPlayPoly(S_SLIME_END, true);
       break;
   
       case STASIS:
-        w_trig.trackGain(S_STASIS_END, 0);
+        w_trig.trackGain(S_STASIS_END, i_volume);
         w_trig.trackPlayPoly(S_STASIS_END, true);
         
       break;
   
       case MESON:
-        w_trig.trackGain(S_MESON_END, 0);
+        w_trig.trackGain(S_MESON_END, i_volume);
         w_trig.trackPlayPoly(S_MESON_END, true);
       break;
 
@@ -2058,10 +2067,14 @@ void packAlarm() {
   w_trig.trackStop(S_IDLE_LOOP);
   w_trig.trackStop(S_BOOTUP);
 
+  w_trig.trackGain(S_SHUTDOWN, i_volume);
   w_trig.trackPlayPoly(S_SHUTDOWN, true);
+
+  w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
   w_trig.trackPlayPoly(S_PACK_SHUTDOWN, true);
 
   if(b_overheating != true) {
+    w_trig.trackGain(S_PACK_BEEPING, i_volume);
     w_trig.trackPlayPoly(S_PACK_BEEPING, true);
     w_trig.trackLoop(S_PACK_BEEPING, 1);
   }
@@ -2077,15 +2090,15 @@ void cyclotronSwitchPlateLEDs() {
     w_trig.trackStop(S_SPARKS_LOOP);
     w_trig.trackStop(S_BEEPS_BARGRAPH);
 
-    w_trig.trackGain(S_MODE_SWITCH, 0);
+    w_trig.trackGain(S_MODE_SWITCH, i_volume);
     w_trig.trackPlayPoly(S_MODE_SWITCH);
     
-    w_trig.trackGain(S_VENT_SMOKE, 0);
+    w_trig.trackGain(S_VENT_SMOKE, i_volume);
     w_trig.trackPlayPoly(S_VENT_SMOKE);
 
     // Play some spark sounds if the pack is running and the lid is removed.
     if(PACK_STATUS == MODE_ON) {
-      w_trig.trackGain(S_SPARKS_LOOP, 0);
+      w_trig.trackGain(S_SPARKS_LOOP, i_volume);
       w_trig.trackPlayPoly(S_SPARKS_LOOP);
     }
   }
@@ -2094,12 +2107,12 @@ void cyclotronSwitchPlateLEDs() {
     // Play sounds when lid is mounted.
     w_trig.trackStop(S_CLICK);    
     
-    w_trig.trackGain(S_CLICK, 0);
+    w_trig.trackGain(S_CLICK, i_volume);
     w_trig.trackPlayPoly(S_CLICK);
 
     // Play some spark sounds if the pack is running and the lid is put back on                          .
     if(PACK_STATUS == MODE_ON) {
-      w_trig.trackGain(S_SPARKS_LOOP, 0);
+      w_trig.trackGain(S_SPARKS_LOOP, i_volume);
       w_trig.trackPlayPoly(S_SPARKS_LOOP);
     }
   }
@@ -2190,26 +2203,66 @@ void cyclotronSpeedIncrease() {
   i_cyclotron_switch_led_mulitplier++;
 }
 
-void increaseVolume() {
+void increaseVolumeEffects() {
   if(i_volume + 1 > 0) {
     i_volume = 0;
   }
   else {
     i_volume = i_volume + 1;
   }
-  
-  w_trig.masterGain(i_volume);
+
+  w_trig.trackGain(S_BEEP_8, i_volume);
+  w_trig.trackGain(S_SHUTDOWN, i_volume);
+  w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
+  w_trig.trackGain(S_PACK_SHUTDOWN_AFTERLIFE, i_volume);
+
+  w_trig.trackGain(S_PACK_BEEPING, i_volume);
+  w_trig.trackGain(S_IDLE_LOOP, i_volume);
+  w_trig.trackGain(S_BOOTUP, i_volume);
+  w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
+  w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume);
 }
 
-void decreaseVolume() {
+void decreaseVolumeEffects() {
   if(i_volume - 1 < -70) {
     i_volume = -70;
   }
   else {
     i_volume = i_volume - 1;
   }
+
+  w_trig.trackGain(S_BEEP_8, i_volume);
+  w_trig.trackGain(S_SHUTDOWN, i_volume);
+  w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
+  w_trig.trackGain(S_PACK_SHUTDOWN_AFTERLIFE, i_volume);
+
+  w_trig.trackGain(S_PACK_BEEPING, i_volume);
+  w_trig.trackGain(S_IDLE_LOOP, i_volume);
+  w_trig.trackGain(S_BOOTUP, i_volume);
+  w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
+  w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume);
+}
+
+void increaseVolume() {
+  if(i_volume_master + 1 > 0) {
+    i_volume_master = 0;
+  }
+  else {
+    i_volume_master = i_volume_master + 1;
+  }
   
-  w_trig.masterGain(i_volume);         
+  w_trig.masterGain(i_volume_master);
+}
+
+void decreaseVolume() {
+  if(i_volume_master - 1 < -70) {
+    i_volume_master = -70;
+  }
+  else {
+    i_volume_master = i_volume_master - 1;
+  }
+  
+  w_trig.masterGain(i_volume_master);         
 }
 
 void readEncoder() {
@@ -2520,6 +2573,16 @@ void checkWand() {
           // Wand power level 5
           i_wand_power_level = 5;
         break;        
+
+        case 91:
+          // Lower the sound effects volume.
+          decreaseVolumeEffects();
+        break;
+    
+        case 92:
+          // Increase the sound effects volume.
+          increaseVolumeEffects();
+        break;
         
         case 93:
           // Loop the music track.
@@ -2675,7 +2738,7 @@ void setupWavTrigger() {
 
   w_trig.stopAllTracks();
   w_trig.samplerateOffset(0); // Reset our sample rate offset        
-  w_trig.masterGain(i_volume); // Reset the master gain db. Range is -70 to +4.
+  w_trig.masterGain(i_volume_master); // Reset the master gain db. Range is -70 to +4.
   w_trig.setAmpPwr(false); // Turn off the onboard amp to draw less power if you decide to use the aux cable jack instead. If you use the output pins, you will need to turn this back on.
   
   // Enable track reporting from the WAV Trigger
@@ -2690,7 +2753,7 @@ void setupWavTrigger() {
 
   // Build the music track count.
   i_music_count = w_num_tracks - S_CROSS_STREAMS_START;
-
+  
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 100_
   }
