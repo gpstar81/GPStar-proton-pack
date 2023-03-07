@@ -2211,6 +2211,11 @@ void increaseVolumeEffects() {
     i_volume = i_volume + 4;
   }
 
+
+  /*
+   * With all the addresable LEDs running on the pack.
+   * Lets reset the gain only on the idle tracks that could be playing.
+   */
   w_trig.trackGain(S_BEEP_8, i_volume);
   w_trig.trackGain(S_SHUTDOWN, i_volume);
   w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
@@ -2231,6 +2236,10 @@ void decreaseVolumeEffects() {
     i_volume = i_volume - 4;
   }
 
+  /*
+   * With all the addresable LEDs running on the pack.
+   * Lets reset the gain only on the idle tracks that could be playing.
+   */
   w_trig.trackGain(S_BEEP_8, i_volume);
   w_trig.trackGain(S_SHUTDOWN, i_volume);
   w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
