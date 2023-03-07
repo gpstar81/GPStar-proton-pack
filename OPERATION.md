@@ -56,7 +56,7 @@ When you are in the settings menu system [Mode 5] all the bargraph leds begin fl
 | Menu Level | Purpose | Description |
 |------------|---------|-------------|
 | 5 | Music&nbsp;Track&nbsp;Looping | Press **Intensify** to set the current track to loop forever; press again to turn off the loop feature. (Note that the LED #5 will stay solid when this single-track loop is enabled, it will blink on/off when looping is disabled). |
-| 4 | Overall&nbsp;System&nbsp;Volume | Press **Intensify** to increase volume, press the orange **Mode** switch to decrease volume. |
+| 4 | Effects-only&nbsp;Volume | Press **Intensify** to increase volume, press the orange **Mode** switch to decrease volume. |
 | 3 | Music-only&nbsp;Volume | Press **Intensify** to increase volume, press the orange **Mode** switch to decrease volume. |
 | 2 | Switch&nbsp;Music&nbsp;Track | Press **Intensify** to cycle forward. Press the orange **Mode** switch to cycle backward. |
 | 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music | Press **Intensify** to play music. Press it again to stop the music. |
