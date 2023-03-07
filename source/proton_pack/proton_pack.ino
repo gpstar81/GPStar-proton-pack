@@ -2204,11 +2204,11 @@ void cyclotronSpeedIncrease() {
 }
 
 void increaseVolumeEffects() {
-  if(i_volume + 1 > 0) {
+  if(i_volume + 4 > 0) {
     i_volume = 0;
   }
   else {
-    i_volume = i_volume + 1;
+    i_volume = i_volume + 4;
   }
 
   w_trig.trackGain(S_BEEP_8, i_volume);
@@ -2224,11 +2224,11 @@ void increaseVolumeEffects() {
 }
 
 void decreaseVolumeEffects() {
-  if(i_volume - 1 < -70) {
+  if(i_volume - 4 < -70) {
     i_volume = -70;
   }
   else {
-    i_volume = i_volume - 1;
+    i_volume = i_volume - 4;
   }
 
   w_trig.trackGain(S_BEEP_8, i_volume);
@@ -2574,6 +2574,34 @@ void checkWand() {
           i_wand_power_level = 5;
         break;        
 
+        case 89:
+          // Lower music volume by 2.
+          if(b_playing_music == true) {
+            if(i_volume_music - 2 < -70) {
+              i_volume_music = -70;
+            }
+            else {
+              i_volume_music = i_volume_music - 2;
+            }
+    
+            w_trig.trackGain(i_current_music_track, i_volume_music);
+          }
+        break;
+    
+        case 90:
+          // Increase music volum by 2.
+         if(b_playing_music == true) {
+            if(i_volume_music + 2 > 0) {
+              i_volume_music = 0;
+            }
+            else {
+              i_volume_music = i_volume_music + 2;
+            }
+    
+            w_trig.trackGain(i_current_music_track, i_volume_music);
+          } 
+        break;
+        
         case 91:
           // Lower the sound effects volume.
           decreaseVolumeEffects();
