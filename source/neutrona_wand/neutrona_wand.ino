@@ -213,6 +213,8 @@ const int i_switch_barrel_value = 100;
 const uint8_t switch_debounce_time = 50;
 const uint8_t a_switch_debounce_time = 250;
 millisDelay ms_switch_mode_debounce;
+millisDelay ms_intensify_timer;
+const int i_intensify_delay = 500;
 
 /*
  * Wand lights
@@ -313,14 +315,14 @@ enum VOLUME_SYNC VOLUME_SYNC_WAIT;
  *  Wand menu & music
  */
 int i_wand_menu = 5;
-millisDelay ms_settings_blinking;
 const int i_settings_blinking_delay = 350;
 boolean b_playing_music = false;
 boolean b_repeat_track = false;
-millisDelay ms_check_music;
 const int i_music_check_delay = 2000;
-millisDelay ms_music_next_track;
 const int i_music_next_track_delay = 2000;
+millisDelay ms_settings_blinking;
+millisDelay ms_check_music;
+millisDelay ms_music_next_track;
 
 /* 
  *  Wand firing modes
@@ -506,7 +508,9 @@ void mainLoop() {
       switch(i_wand_menu) {
         case 5:
         // Track loop setting.
-        if(switch_intensify.isPressed()) {
+        if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+          ms_intensify_timer.start(i_intensify_delay / 2);
+          
           if(b_repeat_track == false) {
             // Loop the track.
             b_repeat_track = true;
@@ -524,7 +528,9 @@ void mainLoop() {
 
         // Pack / Wand sound effects volume.
         case 4:
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay);
+            
             increaseVolumeEffects();
             
             // Tell pack to increase the sound effects volume.
@@ -537,7 +543,7 @@ void mainLoop() {
             // Tell pack to lower the sound effects volume.
             Serial.write(91);
             
-            ms_switch_mode_debounce.start(a_switch_debounce_time);
+            ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
           }
         
         break;
@@ -545,7 +551,9 @@ void mainLoop() {
         // Pack / Wand music volume.
         case 3:
           if(b_playing_music == true) {
-            if(switch_intensify.isPressed()) {
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+              
               if(i_volume_music + 2 > 0) {
                 i_volume_music = 0;
               }
@@ -559,7 +567,7 @@ void mainLoop() {
               Serial.write(90);
             }
   
-            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {              
               if(i_volume_music - 2 < -70) {
                 i_volume_music = -70;
               }
@@ -572,14 +580,16 @@ void mainLoop() {
               // Tell pack to lower music volume.
               Serial.write(89);
               
-              ms_switch_mode_debounce.start(a_switch_debounce_time);
+              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
             }  
           }
         break;
 
         // Change music tracks.
         case 2:          
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay);
+            
             if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
               if(b_playing_music == true) {               
                 // Go to the first track to play it.
@@ -607,7 +617,7 @@ void mainLoop() {
             Serial.write(i_current_music_track);
           }
 
-          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {            
             if(i_current_music_track - 1 < i_music_track_start) {
               if(b_playing_music == true) {
                 // Go to the last track to play it.
@@ -634,13 +644,15 @@ void mainLoop() {
             // Tell the pack which music track to change to.
             Serial.write(i_current_music_track);
             
-            ms_switch_mode_debounce.start(a_switch_debounce_time);
+            ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
           }          
         break;
 
         // Play music or stop music.
         case 1:          
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay);
+
             if(b_playing_music == true) {
               // Stop music
               b_playing_music = false;
@@ -669,7 +681,7 @@ void mainLoop() {
   
   switch(WAND_STATUS) {
     case MODE_OFF:           
-      if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+      if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {        
         w_trig.trackPlayPoly(S_CLICK);
           
         if(FIRING_MODE != SETTINGS) {
@@ -913,6 +925,10 @@ void checkSwitches() {
     Serial.println(analogRead(switch_barrel));
   }
   
+  if(ms_intensify_timer.justFinished()) {
+    ms_intensify_timer.stop();
+  }
+        
   switch(WAND_STATUS) {
     case MODE_OFF:
      if(switch_activate.isPressed() && WAND_ACTION_STATUS == ACTION_IDLE) {
@@ -925,7 +941,7 @@ void checkSwitches() {
 
     case MODE_ON:
       if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+        if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {          
           // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
           if(i_wand_menu == 5) {
             // Cycle through the firing modes and setting menu.
@@ -1019,9 +1035,9 @@ void checkSwitches() {
         soundBeepLoopStop();
         soundIdleStop();
       }
-
+      
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(switch_intensify.getState() == LOW && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_firing == false && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {
+        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_firing == false && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {          
           WAND_ACTION_STATUS = ACTION_FIRING;
         }
       
@@ -1400,6 +1416,10 @@ void modeFireStartSounds() {
 }
 
 void modeFireStart() {
+  if(ms_intensify_timer.isRunning() != true) {
+    ms_intensify_timer.start(i_intensify_delay);
+  }
+  
   // Stop all firing sounds first.
   w_trig.trackStop(S_FIRING_END_GUN);
   w_trig.trackStop(S_FIRE_START);
