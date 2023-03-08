@@ -455,7 +455,8 @@ void setup() {
   // Powercell and cyclotron LEDs.
   FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, PACK_NUM_LEDS);
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
-  
+  FastLED.setMaxPowerInVoltsAndMilliamps(5,250);  // Limit draw to 250mA at 5v of power draw.
+   
   // Cyclotron Switch Panel LEDs
   pinMode(cyclotron_sw_plate_led_r1, OUTPUT);
   pinMode(cyclotron_sw_plate_led_r2, OUTPUT);
@@ -687,7 +688,6 @@ void loop() {
   // Update the LEDs
   if(ms_fast_led.justFinished()) {
     FastLED.delay(3);
-    //FastLED.show();
     ms_fast_led.start(i_fast_led_delay);
   }
 }
