@@ -15,7 +15,7 @@
 #include <ezButton.h>
 #include <Ramp.h>
 
-/*
+/*over
  * Use the following defines to change which optional NeoPixels you are using
  * in your inner cyclotron. If you are not using any, then this can be left alone.
  * Leave at least one in place, even if you are not using any.
@@ -66,9 +66,10 @@ const int i_1984_delay = 1050;
 const int i_2021_delay = 15;
 
 /*
- * How long until smoke pins (+ fan) activates during continuous firing. (not overheating venting)
+ * How long until the smoke pins (+ fan) are activated during continuous firing. (not overheating venting)
  * Default is 30,000 milliseconds (30 seconds)
  * This delay gets divided by the wand power level.
+ * Note that the wand will initate the overheat sequence at 12,000 milliseconds. 
  * Example: 
  * level 1: 30000 / 1 = 30000
  * level 2: 30000 / 2 = 15000
@@ -79,10 +80,10 @@ const int i_2021_delay = 15;
 const int i_smoke_timer = 30000;
 
 /*
- *  How long do you want your smoke pins to stay on high while firing. (not overheating venting)
- *  When the pins are high, then smoke will be generated if you have smoke machines etc wired up.
+ *  How long do you want your smoke pins (+ fan) to stay on while firing. (not overheating venting)
+ *  When the pins are high (controlled by the i_smoke_timer above), then smoke will be generated if you have smoke machines etc wired up.
  *  Default is 3000 milliseconds (3 seconds). 
- *  This does not affect smoke during overheat or affects when smoke is triggered. 
+ *  This does not affect smoke during overheat. 
  *  This only affects how long your smoke stays on after it has been triggered in continuous firing.
  */
 const int i_smoke_on_time = 3000;
@@ -181,6 +182,11 @@ enum sound_fx {
   S_CROSS_STREAMS_END,
   S_CROSS_STREAMS_START
 };
+
+/*
+ * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
+ */
+const int i_last_effects_track = S_CROSS_STREAMS_START;
 
 /* 
  *  PowerCell and Cyclotron Lid LEDs.
@@ -328,6 +334,7 @@ boolean b_repeat_track = false;
 int i_volume = STARTUP_VOLUME; // Sound effects
 int i_volume_master = STARTUP_VOLUME; // Master overall volume
 int i_volume_music = STARTUP_VOLUME; // Music volume
+millisDelay ms_volume_check; // Put some timing on the master volume gain to not overload the wav trigger serial communication.
 
 /*
  * Vibration motor settings
@@ -353,7 +360,7 @@ const int smoke_booster_pin = 35;
  */
 const int fan_pin = 33;
 millisDelay ms_fan_stop_timer;
-const int i_fan_stop_timer = 9000;
+const int i_fan_stop_timer = 7000;
 
 /* 
  * Overheating and smoke timers for smoke_pin. 
@@ -362,6 +369,7 @@ millisDelay ms_overheating;
 const int i_overheating_delay = 4000;
 boolean b_overheating = false;
 millisDelay ms_smoke_timer;
+millisDelay ms_smoke_on;
 
 /*
  * Vent light timers and delay for over heating.
@@ -590,11 +598,12 @@ void loop() {
 
           // Reset the LEDs before resetting the alarm flag.
           resetCyclotronLeds();
-
+          ventLight(false);
+          
           b_alarm = false;
 
           reset2021RampUp();
-
+          
           packStartup();
           
           ms_cyclotron.start(i_2021_delay);
@@ -604,7 +613,19 @@ void loop() {
 
       // Play a little bit of smoke and n-filter vent lights while firing. Just a tiny bit....
       if(b_wand_firing == true) {
-        if(ms_smoke_timer.remaining() < i_smoke_on_time && ms_smoke_timer.remaining() > 0) {
+        if(ms_smoke_on.justFinished()) {
+          ms_smoke_on.stop();
+          ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+          b_vent_sounds = true;
+        }
+        
+        if(ms_smoke_timer.justFinished()) {
+          if(ms_smoke_on.isRunning() != true) {
+            ms_smoke_on.start(i_smoke_on_time);
+          }
+        }
+
+        if(ms_smoke_on.isRunning() == true) {
           // Turn on some smoke and play some vent sounds if smoke is enabled.
           if(b_smoke_enabled == true) {
             // Turn on some smoke.
@@ -626,7 +647,7 @@ void loop() {
           if(ms_vent_light_off.justFinished()) {
             ms_vent_light_off.stop();
             ms_vent_light_on.start(i_vent_light_delay);
-        
+
             ventLight(true);
           }
           else if(ms_vent_light_on.justFinished()) {
@@ -638,15 +659,8 @@ void loop() {
         }
         else {
           smokeControl(false);
-
           ventLight(false);
-
           fanControl(false);
-        }
-
-        if(ms_smoke_timer.justFinished()) {
-          ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
-          b_vent_sounds = true;
         }
       }
       
@@ -757,7 +771,9 @@ void packShutdown() {
 
   // Turn off any smoke.
   smokeControl(false);
-
+  ms_smoke_timer.stop();
+  ms_smoke_on.stop();
+  
   // Turn off the n-filter fan.
   ms_fan_stop_timer.stop();
   fanControl(false);
@@ -1356,23 +1372,19 @@ void cyclotron1984(int cDelay) {
   }
 }
 
-void cyclotron1984Alarm(int cDelay) {
-  if(ms_cyclotron.justFinished()) {
-    int led1 = cyclotron_led_start + 1;
-    int led2 = led1 + 3;
-    int led3 = led2 + 3;
-    int led4 = led3 + 3;
+void cyclotron1984Alarm() {
+  int led1 = cyclotron_led_start + 1;
+  int led2 = led1 + 3;
+  int led3 = led2 + 3;
+  int led4 = led3 + 3;
 
-    pack_leds[led1] = CRGB(255,0,0);
-    pack_leds[led2] = CRGB(255,0,0);
-    pack_leds[led3] = CRGB(255,0,0);
-    pack_leds[led4] = CRGB(255,0,0);
-    
-    // Prepare to tell the inner cyclotron to turn all lights on.
-    innerCyclotronShowAll();
+  pack_leds[led1] = CRGB(255,0,0);
+  pack_leds[led2] = CRGB(255,0,0);
+  pack_leds[led3] = CRGB(255,0,0);
+  pack_leds[led4] = CRGB(255,0,0);
   
-    ms_cyclotron.start(cDelay);
-  }
+  // Prepare to tell the inner cyclotron to turn all lights on.
+  innerCyclotronShowAll();
 }
 
 void cyclotron84LightOn(int cLed) {
@@ -1424,35 +1436,42 @@ void cyclotronOverHeating() {
     case 1984:
       if(ms_alarm.justFinished()) {
         resetCyclotronLeds();
-        ms_alarm.start(i_1984_delay / 2);
+        ms_alarm.start(i_1984_delay);
       }
       else {
-        cyclotron1984Alarm(i_1984_delay);
+        if(ms_alarm.remaining() < i_1984_delay / 2) {
+          cyclotron1984Alarm();
+        }
       }
     break;
   }
 
-  if(ms_vent_light_off.justFinished()) {
-    ms_vent_light_off.stop();
-    ms_vent_light_on.start(i_vent_light_delay);
-
-    if(b_overheat_strobe == true) {
-      ventLight(true);
-    }
-  }
-  else if(ms_vent_light_on.justFinished()) {
-    ms_vent_light_on.stop();
-    ms_vent_light_off.start(i_vent_light_delay);
-
-    if(b_overheat_strobe == true) {
-      ventLight(false);
-    }
-  }
+  // Time the n-light to when the fan is running.
+  if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {    
+    // For strobing the vent light.
+    if(ms_vent_light_off.justFinished()) {
+      ms_vent_light_off.stop();
+      ms_vent_light_on.start(i_vent_light_delay);
   
-  if(b_overheat_strobe != true) {
-    if(b_vent_light_on != true) {
-      // Solid light on if strobe option turned off.
-      ventLight(true);
+      if(b_overheat_strobe == true) {
+        ventLight(true);
+      }
+    }
+    else if(ms_vent_light_on.justFinished()) {
+      ms_vent_light_on.stop();
+      ms_vent_light_off.start(i_vent_light_delay);
+  
+      if(b_overheat_strobe == true) {
+        ventLight(false);
+      }
+    }
+  
+    // For non strobing vent light option.
+    if(b_overheat_strobe != true) {
+      if(b_vent_light_on != true) {
+        // Solid light on if strobe option turned off.
+        ventLight(true);
+      }
     }
   }
 }
@@ -1464,15 +1483,33 @@ void cyclotronNoCable() {
     case 2021:
       cyclotron2021(i_2021_delay * 10);      
       innerCyclotronRing((i_inner_delay - i_2021_inner_delay) * 10);
+
+      if(ms_alarm.justFinished()) {
+        ventLight(false);
+        ms_alarm.start(i_1984_delay);
+      }
+      else {
+        if(ms_alarm.remaining() < i_1984_delay / 2) {
+          ventLight(true);
+        }
+      }
     break;
 
     case 1984:
       if(ms_alarm.justFinished()) {
         resetCyclotronLeds();
-        ms_alarm.start(i_1984_delay / 2);
+        ms_alarm.start(i_1984_delay);
+
+        // Turn off the n-filter light.
+        ventLight(false);
       }
       else {
-        cyclotron1984Alarm(i_1984_delay);
+        if(ms_alarm.remaining() < i_1984_delay / 2) {
+          cyclotron1984Alarm();
+          
+          // Turn off the n-filter light.
+          ventLight(true);
+        }
       }
     break;
   }
@@ -1482,7 +1519,7 @@ void resetCyclotronLeds() {
   for(int i = cyclotron_led_start; i < PACK_NUM_LEDS; i++) {
     pack_leds[i] = CRGB(0,0,0);
   }
-
+  
   // Only reset the start led if the pack is off or just started.
   if(b_reset_start_led == true) {
     i_led_cyclotron = cyclotron_led_start;
@@ -1826,7 +1863,7 @@ void reset2021RampDown() {
 
 void ventLight(boolean b_on) {
   b_vent_light_on = b_on;
-  
+
   if(b_on == true) {
     int r = 255;
     int g = 255;
@@ -1836,9 +1873,44 @@ void ventLight(boolean b_on) {
     if(b_wand_firing == true) {
       switch(FIRING_MODE) {
         case PROTON:
-          r = 50;
-          g = 255;
-          b = 255;
+          // Adjust the n-filter light colours during firing.
+          switch(i_wand_power_level) {
+            case 1:
+              r = 200;
+              g = 255;
+              b = 255;
+            break;
+
+            case 2:
+              r = 150;
+              g = 255;
+              b = 255;
+            break;
+
+            case 3:
+              r = 100;
+              g = 255;
+              b = 230;
+            break;
+
+            case 4:
+              r = 50;
+              g = 255;
+              b = 255;
+            break;
+
+            case 5:
+              r = 0;
+              g = 255;
+              b = 255;
+            break;
+
+            default:
+              r = 0;
+              g = 255;
+              b = 255;
+            break;
+          }
         break;
         
         case SLIME:
@@ -1865,6 +1937,11 @@ void ventLight(boolean b_on) {
           b = 255;
         break;
       }
+    }
+    else if(b_alarm == true && b_overheating != true) {
+      r = 255;
+      g = 0;
+      b = 0;
     }
     
     for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
@@ -1903,10 +1980,11 @@ void wandFiring() {
 
   // Turn off any smoke.
   smokeControl(false);
-  
+
   // Start a smoke timer to play a little bit of smoke while firing.
   ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
-          
+  ms_smoke_on.stop();       
+  
   vibrationPack(255);
 
   w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
@@ -2038,6 +2116,8 @@ void wandStoppedFiring() {
   fanControl(false); 
 
   ms_firing_length_timer.stop();
+  ms_smoke_timer.stop();
+  ms_smoke_on.stop();
 }
 
 void wandStopFiringSounds() {
@@ -2203,6 +2283,15 @@ void cyclotronSpeedIncrease() {
   i_cyclotron_switch_led_mulitplier++;
 }
 
+void adjustVolumeEffectsGain() {
+  /*
+   * If the pack is running, there will be a slight pause in the LEDs due to serial communication to the wav trigger.
+   */
+  for(int i=0; i <= i_last_effects_track; i++) {
+    w_trig.trackGain(i, i_volume);
+  }
+}
+
 void increaseVolumeEffects() {
   if(i_volume + 4 > 0) {
     i_volume = 0;
@@ -2212,20 +2301,7 @@ void increaseVolumeEffects() {
   }
 
 
-  /*
-   * With all the addresable LEDs running on the pack.
-   * Lets reset the gain only on the idle tracks that could be playing.
-   */
-  w_trig.trackGain(S_BEEP_8, i_volume);
-  w_trig.trackGain(S_SHUTDOWN, i_volume);
-  w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
-  w_trig.trackGain(S_PACK_SHUTDOWN_AFTERLIFE, i_volume);
-
-  w_trig.trackGain(S_PACK_BEEPING, i_volume);
-  w_trig.trackGain(S_IDLE_LOOP, i_volume);
-  w_trig.trackGain(S_BOOTUP, i_volume);
-  w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
-  w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume);
+  adjustVolumeEffectsGain();
 }
 
 void decreaseVolumeEffects() {
@@ -2236,39 +2312,26 @@ void decreaseVolumeEffects() {
     i_volume = i_volume - 4;
   }
 
-  /*
-   * With all the addresable LEDs running on the pack.
-   * Lets reset the gain only on the idle tracks that could be playing.
-   */
-  w_trig.trackGain(S_BEEP_8, i_volume);
-  w_trig.trackGain(S_SHUTDOWN, i_volume);
-  w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
-  w_trig.trackGain(S_PACK_SHUTDOWN_AFTERLIFE, i_volume);
-
-  w_trig.trackGain(S_PACK_BEEPING, i_volume);
-  w_trig.trackGain(S_IDLE_LOOP, i_volume);
-  w_trig.trackGain(S_BOOTUP, i_volume);
-  w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
-  w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume);
+  adjustVolumeEffectsGain();
 }
 
 void increaseVolume() {
-  if(i_volume_master + 1 > 0) {
+  if(i_volume_master + 2 > 0) {
     i_volume_master = 0;
   }
   else {
-    i_volume_master = i_volume_master + 1;
+    i_volume_master = i_volume_master + 2;
   }
   
   w_trig.masterGain(i_volume_master);
 }
 
 void decreaseVolume() {
-  if(i_volume_master - 1 < -70) {
+  if(i_volume_master - 2 < -70) {
     i_volume_master = -70;
   }
   else {
-    i_volume_master = i_volume_master - 1;
+    i_volume_master = i_volume_master - 2;
   }
   
   w_trig.masterGain(i_volume_master);         
@@ -2287,20 +2350,32 @@ void readEncoder() {
 
 void checkRotaryEncoder() {
   if(i_val_rotary > i_last_val_rotary) {
-    increaseVolume();
+    if(ms_volume_check.isRunning() != true) {
+      increaseVolume();
       
-    // Tell wand to increase volume.
-    Serial2.write(9);
+      // Tell wand to increase volume.
+      Serial2.write(9);
+
+      ms_volume_check.start(50);
+    }
   }
   
   if(i_val_rotary < i_last_val_rotary) {
-    decreaseVolume();
-      
-    // Tell wand to decrease the volume.
-    Serial2.write(10);
+    if(ms_volume_check.isRunning() != true) {
+      decreaseVolume();
+        
+      // Tell wand to decrease the volume.
+      Serial2.write(10);
+
+      ms_volume_check.start(50);
+    }
   }
   
   i_last_val_rotary = i_val_rotary;
+
+  if(ms_volume_check.justFinished()) {
+    ms_volume_check.stop();
+  }
 }
 
 void smokeControl(boolean b_smoke_on) {  
@@ -2353,7 +2428,7 @@ void checkFan() {
     fanControl(false);
     ms_fan_stop_timer.stop();
   }
-  else if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 5000) {
+  else if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
     fanControl(true);
   }
 }
@@ -2363,10 +2438,10 @@ void checkFan() {
  */
 void wandHandShake() {  
   if(b_wand_connected == true) {    
-    if(ms_wand_handshake.justFinished()) {         
-      if(PACK_STATUS == MODE_ON) {
-        // Shut the pack down as the wand was disconnected.
-        packShutdown();
+    if(ms_wand_handshake.justFinished()) {     
+          
+      if(b_wand_firing == true) {
+        wandStoppedFiring();
       }
       
       ms_wand_handshake.start(i_wand_handshake_delay);
@@ -2387,11 +2462,11 @@ void wandHandShake() {
     }
   }
   else {
-    if(ms_wand_handshake.justFinished()) {        
+    if(ms_wand_handshake.justFinished()) {    
       // Ask the wand if it is connected.
       Serial2.write(11);
 
-      ms_wand_handshake.start(i_wand_handshake_delay);
+      ms_wand_handshake.start(i_wand_handshake_delay / 5);
     }
   }
 }
@@ -2399,11 +2474,11 @@ void wandHandShake() {
 /*
  * Incoming messages from the wand.
  */
-void checkWand() {
+void checkWand() {  
   if(Serial2.available() > 0) {
     prev_byte = rx_byte;  
     rx_byte = Serial2.read();
-    
+
     if(b_wand_connected == true) {
       switch(rx_byte) {
         case 1:
@@ -2505,15 +2580,15 @@ void checkWand() {
           ms_fan_stop_timer.stop();
           ms_vent_light_off.start(i_vent_light_delay);
           ms_fan_stop_timer.start(i_fan_stop_timer);
-    
-          // Start the vent light.
-          ventLight(true);
         break;
     
         case 11:
           // Overheating finished
           w_trig.trackGain(S_VENT_DRY, i_volume);
           b_overheating = false;
+
+          // Stop the fan.
+          ms_fan_stop_timer.stop();
           
           // Turn off the smoke.
           smokeControl(false);
@@ -2561,26 +2636,61 @@ void checkWand() {
         case 16:
           // Wand power level 1
           i_wand_power_level = 1;
+
+          // Reset the smoke timer if the wand is firing.
+          if(b_wand_firing == true) {
+            if(ms_smoke_timer.isRunning() == true) {
+              ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+            }
+          }
         break;
     
         case 17:
           // Wand power level 2
           i_wand_power_level = 2;
+
+          // Reset the smoke timer if the wand is firing.
+          if(b_wand_firing == true) {
+            if(ms_smoke_timer.isRunning() == true) {
+              ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+            }
+          }
         break;
     
         case 18:
           // Wand power level 3
           i_wand_power_level = 3;
+          
+          // Reset the smoke timer if the wand is firing.
+          if(b_wand_firing == true) {
+            if(ms_smoke_timer.isRunning() == true) {
+              ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+            }
+          }
         break;
     
         case 19:
           // Wand power level 4
           i_wand_power_level = 4;
+
+          // Reset the smoke timer if the wand is firing.
+          if(b_wand_firing == true) {
+            if(ms_smoke_timer.isRunning() == true) {
+              ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+            }
+          }
         break;
     
         case 20:
           // Wand power level 5
           i_wand_power_level = 5;
+
+          // Reset the smoke timer if the wand is firing.
+          if(b_wand_firing == true) {
+            if(ms_smoke_timer.isRunning() == true) {
+              ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+            }
+          }
         break;        
 
         case 89:
@@ -2752,12 +2862,14 @@ void checkWand() {
           Serial2.write(2);
         }
 
-        // Reset volumes.
-        Serial2.write(14);
-        i_volume = STARTUP_VOLUME;
-        i_volume_music = STARTUP_VOLUME;
-        w_trig.masterGain(i_volume);
-        
+        // Put the wand into volume sync mode.
+        Serial2.write(15);
+
+        // Sequence here is important.
+        Serial2.write(i_volume * -1);
+        Serial2.write(i_volume_master * -1);
+        Serial2.write(i_volume_music * -1);
+                 
         b_wand_connected = true;
       }
     }

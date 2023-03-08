@@ -299,7 +299,15 @@ int rx_byte = 0;
 boolean b_pack_on = false;
 boolean b_pack_alarm = false;
 boolean b_wait_for_pack = true;
+boolean b_volume_sync_wait = false;
 int i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the cyclotron lights.
+
+/*
+ * Volume sync status with the pack.
+ */
+enum VOLUME_SYNC { EFFECTS, MASTER, MUSIC };
+enum VOLUME_SYNC VOLUME_SYNC_WAIT;
+
 
 /* 
  *  Wand menu & music
@@ -390,9 +398,12 @@ void setup() {
 
 void loop() { 
   if(b_wait_for_pack == true) {
-    // Handshake with the pack. Telling the pack that we are here.
-    Serial.write(14);
+    if(b_volume_sync_wait != true) {
+      // Handshake with the pack. Telling the pack that we are here.
+      Serial.write(14);
+    }
 
+    // Synchronise some settings with the pack until.
     checkPack();
     
     delay(200);
@@ -2114,6 +2125,15 @@ void vibrationOff() {
   analogWrite(vibration, 0);
 }
 
+void adjustVolumeEffectsGain() {
+  /*
+   * Since no addressable LEDs are activate, lets reset the gain on all sound effect tracks.
+   */
+  for(int i=0; i <= i_last_effects_track; i++) {
+    w_trig.trackGain(i, i_volume);
+  }
+}
+
 void increaseVolumeEffects() {
   if(i_volume + 4 > 0) {
     i_volume = 0;
@@ -2122,12 +2142,7 @@ void increaseVolumeEffects() {
     i_volume = i_volume + 4;
   }
 
-  /*
-   * Since no addressable LEDs are activate, lets reset the gain on all sound effect tracks.
-   */
-  for(int i=0; i <= i_last_effects_track; i++) {
-    w_trig.trackGain(i, i_volume);
-  }
+  adjustVolumeEffectsGain();
 }
 
 void decreaseVolumeEffects() {
@@ -2138,31 +2153,26 @@ void decreaseVolumeEffects() {
     i_volume = i_volume - 4;
   }
 
-  /*
-   * Since no addressable LEDs are activate, lets reset the gain on all sound effect tracks.
-   */
-  for(int i=0; i <= i_last_effects_track; i++) {
-    w_trig.trackGain(i, i_volume);
-  }
+  adjustVolumeEffectsGain();
 }
 
 void increaseVolume() {
-  if(i_volume_master + 1 > 0) {
+  if(i_volume_master + 2 > 0) {
     i_volume_master = 0;
   }
   else {
-    i_volume_master = i_volume_master + 1;
+    i_volume_master = i_volume_master + 2;
   }
   
   w_trig.masterGain(i_volume_master);
 }
 
 void decreaseVolume() {
-  if(i_volume_master - 1 < -70) {
+  if(i_volume_master - 2 < -70) {
     i_volume_master = -70;
   }
   else {
-    i_volume_master = i_volume_master - 1;
+    i_volume_master = i_volume_master - 2;
   }
   
   w_trig.masterGain(i_volume_master);
@@ -2399,110 +2409,143 @@ void wandBarrelLightsOff() {
 void checkPack() {
   if(Serial.available() > 0) {
     rx_byte = Serial.read();
-    
-    switch(rx_byte) {      
-      case 1:
-        // Pack is on.
-        b_pack_on = true;
-      break;
 
-      case 2:
-        if(b_pack_on == true) {
-          // Turn wand off.
-          if(WAND_STATUS != MODE_OFF) {
-            WAND_ACTION_STATUS = ACTION_OFF;
+    if(b_volume_sync_wait == true) {
+        switch(VOLUME_SYNC_WAIT) {
+          case EFFECTS:
+            i_volume = rx_byte * -1;
+
+            adjustVolumeEffectsGain();
+            
+            VOLUME_SYNC_WAIT = MASTER;
+          break;
+
+          case MASTER:
+            i_volume_master = rx_byte * -1;
+            w_trig.masterGain(i_volume_master);
+            VOLUME_SYNC_WAIT = MUSIC;
+          break;
+
+          case MUSIC:
+            i_volume_music = rx_byte * -1;
+            b_volume_sync_wait = false;
+            b_wait_for_pack = false;
+            VOLUME_SYNC_WAIT = EFFECTS;
+          break;
+        }      
+    }
+    else {
+      switch(rx_byte) {      
+        case 1:
+          // Pack is on.
+          b_pack_on = true;
+        break;
+  
+        case 2:
+          if(b_pack_on == true) {
+            // Turn wand off.
+            if(WAND_STATUS != MODE_OFF) {
+              WAND_ACTION_STATUS = ACTION_OFF;
+            }
           }
-        }
+          
+          // Pack is off.
+          b_pack_on = false;
+        break;
+  
+        case 3:
+          // Alarm is on.
+          b_pack_alarm = true;
+        break;
+  
+        case 4:
+          // Alarm is off.
+          b_pack_alarm = false;
+        break;
+  
+        case 5:
+          // Vibration on.
+          b_vibration_on = true;
+        break;
+  
+        case 6:
+          // Vibration off.
+          b_vibration_on = false;
+          vibrationOff();
+        break;
+  
+        case 7:
+          // 1984 mode.
+          year_mode = 1984;
+        break;
+  
+        case 8:
+          // 2021 mode.
+          year_mode = 2021;
+        break;
+  
+        case 9:
+          // Increase overall volume.
+          increaseVolume();
+        break;
+  
+        case 10:
+          // Decrease overall volume.
+          decreaseVolume();
+        break;
+  
+        case 11:
+          // The pack is asking us if we are still here. Respond back.
+          Serial.write(14);
+        break;
+  
+        case 12:
+          // Repeat music track.
+          b_repeat_track = true;
+        break;
+  
+        case 13:
+          // Repeat music track.
+          b_repeat_track = false;
+        break;
+
+        /*
+         * Not used.
+         */
+        case 14:
+          // Reset volumes
+          i_volume = STARTUP_VOLUME;
+          i_volume_master = STARTUP_VOLUME;
+          i_volume_music = STARTUP_VOLUME;
+          
+          w_trig.masterGain(i_volume_master);
+        break;
+  
+        case 15:
+          // Put the wand into volume sync mode.
+          b_volume_sync_wait = true;
+          VOLUME_SYNC_WAIT = EFFECTS;
+        break;
         
-        // Pack is off.
-        b_pack_on = false;
-      break;
-
-      case 3:
-        // Alarm is on.
-        b_pack_alarm = true;
-      break;
-
-      case 4:
-        // Alarm is off.
-        b_pack_alarm = false;
-      break;
-
-      case 5:
-        // Vibration on.
-        b_vibration_on = true;
-      break;
-
-      case 6:
-        // Vibration off.
-        b_vibration_on = false;
-        vibrationOff();
-      break;
-
-      case 7:
-        // 1984 mode.
-        year_mode = 1984;
-      break;
-
-      case 8:
-        // 2021 mode.
-        year_mode = 2021;
-      break;
-
-      case 9:
-        // Increase overall volume.
-        increaseVolume();
-      break;
-
-      case 10:
-        // Decrease overall volume.
-        decreaseVolume();
-      break;
-
-      case 11:
-        // The pack is asking us if we are still here. Respond back.
-        Serial.write(14);
-
-        b_wait_for_pack = false;
-      break;
-
-      case 12:
-        // Repeat music track.
-        b_repeat_track = true;
-      break;
-
-      case 13:
-        // Repeat music track.
-        b_repeat_track = false;
-      break;
-
-      case 14:
-        // Reset volumes
-        i_volume = STARTUP_VOLUME;
-        i_volume_master = STARTUP_VOLUME;
-        i_volume_music = STARTUP_VOLUME;
+        case 99:
+          // Stop music
+          stopMusic();
+        break;
         
-        w_trig.masterGain(i_volume_master);
-      break;
-      
-      case 99:
-        // Stop music
-        stopMusic();
-      break;
-      
-      default:
-        // Music track number to be played.
-        if(rx_byte > 99) {
-          if(b_playing_music == true) {
-            stopMusic();
-            i_current_music_track = rx_byte;
-            playMusic();
+        default:
+          // Music track number to be played.
+          if(rx_byte > 99) {
+            if(b_playing_music == true) {
+              stopMusic();
+              i_current_music_track = rx_byte;
+              playMusic();
+            }
+            else {
+              i_current_music_track = rx_byte;
+            }
           }
-          else {
-            i_current_music_track = rx_byte;
-          }
-        }
-      break;
+        break;
+      }
     }
   }
 }
