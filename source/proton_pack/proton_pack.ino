@@ -2447,6 +2447,9 @@ void wandHandShake() {
       ms_wand_handshake.start(i_wand_handshake_delay);
       
       b_wand_connected = false;
+
+      // Where are you wand?
+      Serial2.write(11);
     }
     else if(ms_wand_handshake_checking.justFinished()) {  
       if(b_diagnostic == true) {
