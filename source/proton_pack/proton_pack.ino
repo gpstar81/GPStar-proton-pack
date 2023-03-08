@@ -208,7 +208,7 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
 /*
  * Delay for fastled to update the addressable LEDs. 
  * We have up to 88 addressable LEDs if using NeoPixel jewels in the inner cyclotron and n-filter.
- * 0.03 ms to update 1 LED. So 3 ms should be ok. Lets bump it up to 8 just in case.
+ * 0.03 ms to update 1 LED. So 3 ms should be ok. Lets bump it up to 10 just in case.
  */
 const int i_fast_led_delay = 8;
 millisDelay ms_fast_led;
@@ -686,7 +686,8 @@ void loop() {
 
   // Update the LEDs
   if(ms_fast_led.justFinished()) {
-    FastLED.show();
+    FastLED.delay(3);
+    //FastLED.show();
     ms_fast_led.start(i_fast_led_delay);
   }
 }
@@ -837,7 +838,6 @@ void checkSwitches() {
     w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
     w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
   }
-  
   
   switch(PACK_STATUS) {
     case MODE_OFF:     
@@ -2592,7 +2592,10 @@ void checkWand() {
 
           // Stop the fan.
           ms_fan_stop_timer.stop();
-          
+
+          // Turn off the n-filter fan.
+          fanControl(false);
+  
           // Turn off the smoke.
           smokeControl(false);
 
@@ -2894,7 +2897,7 @@ void setupWavTrigger() {
   w_trig.setAmpPwr(false); // Turn off the onboard amp to draw less power if you decide to use the aux cable jack instead. If you use the output pins, you will need to turn this back on.
   
   // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(true);
+  w_trig.setReporting(false);
 
   // Allow time for the WAV Triggers to respond with the version string and number of tracks.
   delay(350);
