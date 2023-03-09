@@ -20,19 +20,54 @@
 #include <ezButton.h>
 
 /*
+ * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
+ * Change the variables below to alter the behaviour of your Neutrona wand.
+ */
+ 
+/*
  * You can set the default startup volume for your wand here.
- * Make sure to set this to the same value in the Proton Pack code.
- * If not then the startup volume will levels will not be in sync.
- * 4 = loudest
+ * This gets overridden if you connect your wand to the pack.
+ * 0 = loudest
  * -70 = quietest
  */
 const int STARTUP_VOLUME = 0;
+
+/*
+ * Set to false to disable the onboard amplifer on the wav trigger. 
+ * Turning off the onboard amp draws less power. 
+ * If using the AUX cable jack, the amp can be disabled to save power.
+ * If you use the output pins directly on the wav trigger board to your speakers, you will need to enable the onboard amp.
+ * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
+ */
+const boolean b_onboard_amp_enabled = true;
 
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
  * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
  */
 boolean b_no_pack = false;
+
+/*
+ * Time in milliseconds for when overheating will initate if enabled for that power mode.
+ * Overheat only happens if enabled for that power mode (see below).
+ * Example: 12000 = (12 seconds)
+ */
+const unsigned long int i_ms_overheat_initate_mode_1 = 60000;
+const unsigned long int i_ms_overheat_initate_mode_2 = 30000;
+const unsigned long int i_ms_overheat_initate_mode_3 = 20000;
+const unsigned long int i_ms_overheat_initate_mode_4 = 15000;
+const unsigned long int i_ms_overheat_initate_mode_5 = 12000;
+
+/*
+ * Which power modes do you want to be able to overheat.
+ * Set to true to allow the wand and pack to overheat in that mode.
+ * Set to false to disable overheating in that power mode. You will be able to continously fire instead.
+ */
+const boolean b_overheat_mode_1 = false;
+const boolean b_overheat_mode_2 = false;
+const boolean b_overheat_mode_3 = false;
+const boolean b_overheat_mode_4 = false;
+const boolean b_overheat_mode_5 = true;
 
 /*
  * Debug testing
@@ -158,7 +193,7 @@ CRGB barrel_leds[BARREL_NUM_LEDS];
 /*
  * Delay for fastled to update the addressable LEDs. 
  * We have up to 5 addressable LEDs in the wand barrel.
- * 0.03 ms to update 1 LED. So 0.15 ms should be ok. Lets bump it up to 3 just in case.
+ * 0.03 ms to update 1 LED. So 0.15 ms should be ok? Lets bump it up to 3 just in case.
  */
 const int i_fast_led_delay = 3;
 millisDelay ms_fast_led;
@@ -172,7 +207,7 @@ uint8_t i_current_music_track = 0;
 const uint8_t i_music_track_start = 100; // Music tracks start on file named 100_ and higher.
 
 /* 
- *  Volume (4 = loudest, -70 = quietest)
+ *  Volume (0 = loudest, -70 = quietest)
  */
 int i_volume = STARTUP_VOLUME; // Sound effects
 int i_volume_master = STARTUP_VOLUME; // Master overall volume
@@ -185,7 +220,7 @@ int i_volume_music = STARTUP_VOLUME; // Music volume
 #define r_encoderA 6
 #define r_encoderB 7
 static uint8_t prev_next_code = 0;
-static uint16_t store=0;
+static uint16_t store = 0;
 
 /* 
  *  Vibration
@@ -237,12 +272,13 @@ millisDelay ms_white_light;
 const int d_white_light_interval = 150;
 
 /* 
- *  Overheat timers.
+ *  Overheat timers
  */
 millisDelay ms_overheat_initate;
-const int i_ms_overheat_initate = 12000;
 millisDelay ms_overheating;
-const int i_ms_overheating = 6500;
+const int i_ms_overheating = 6500; // Overheating for 6.5 seconds.
+const boolean b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
+const long int i_ms_overheat_initate[5] = { i_ms_overheat_initate_mode_1, i_ms_overheat_initate_mode_2, i_ms_overheat_initate_mode_3, i_ms_overheat_initate_mode_4, i_ms_overheat_initate_mode_5 };
 
 /* 
  *  Bargraph timers
@@ -282,9 +318,7 @@ int i_barrel_light = 0; // using this to keep track which LED in the barrel is c
 
 /* 
  *  Wand power mode. Controlled by the rotary encoder on the top of the wand.
- *   1,2,3,4 = Allow's continuous firing of the wand. The pack will occasionally activate it's smoke triggers while continiously firing for longer periods.
- *   At higher power settings, the pack will trigger the smoke pins earlier compared to lower power settings.
- *   5 = Highest power output. The wand/pack will overheat on this setting if you are firing for too long.
+ *  You can enable or disable overheating for each mode individually in the user adjustable values at the top of this file.
  */
 const int i_power_mode_max = 5;
 const int i_power_mode_min = 1;
@@ -310,7 +344,6 @@ int i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down t
 enum VOLUME_SYNC { EFFECTS, MASTER, MUSIC };
 enum VOLUME_SYNC VOLUME_SYNC_WAIT;
 
-
 /* 
  *  Wand menu & music
  */
@@ -325,7 +358,7 @@ millisDelay ms_check_music;
 millisDelay ms_music_next_track;
 
 /* 
- *  Wand firing modes
+ *  Wand firing modes + settings
  *  Proton, Slime, Stasis, Meson, Settings
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SETTINGS };
@@ -344,7 +377,7 @@ void setup() {
   Serial.begin(9600);
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
-  TCCR2B = TCCR2B & B11111000 | B00000110; // for PWM frequency of 122.55 Hz
+  TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
   
   setupWavTrigger();
   
@@ -395,7 +428,7 @@ void setup() {
   if(b_no_pack == true || b_debug == true) {
     b_wait_for_pack = false;
     b_pack_on = true;
-  }
+  }  
 }
 
 void loop() { 
@@ -447,8 +480,9 @@ void mainLoop() {
           b_firing = true;
           modeFireStart();
         }
-       
-        if(ms_overheat_initate.justFinished() && i_power_mode == i_power_mode_max) {
+
+        // Overheating.
+        if(ms_overheat_initate.justFinished() && b_overheat_mode[i_power_mode - 1] == true) {
           ms_overheat_initate.stop();
           modeFireStop();
 
@@ -1157,6 +1191,7 @@ void soundIdleLoop(boolean fade) {
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
       }
       else {
+        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
       }
@@ -1170,6 +1205,7 @@ void soundIdleLoop(boolean fade) {
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
       }
       else {
+        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
       }
@@ -1180,9 +1216,10 @@ void soundIdleLoop(boolean fade) {
         w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume - 20);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
         w_trig.trackFade(S_IDLE_LOOP_GUN_2, i_volume, 1000, 0);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
+        w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
       }
       else {
+        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
       }
@@ -1196,6 +1233,7 @@ void soundIdleLoop(boolean fade) {
         w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
       }
       else {
+        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
       }
@@ -1209,6 +1247,7 @@ void soundIdleLoop(boolean fade) {
         w_trig.trackLoop(S_IDLE_LOOP_GUN_5, 1);
       }
       else {
+        w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_5, true);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_5, 1);
       }
@@ -1442,7 +1481,6 @@ void modeFireStart() {
   w_trig.trackStop(S_CLICK);
   w_trig.trackStop(S_VENT_DRY);
       
-  //delay(50);
   ms_firing_start_sound_delay.start(50);
 
   // Tell the pack the wand is firing.
@@ -1451,8 +1489,8 @@ void modeFireStart() {
   ms_overheat_initate.stop();
 
   // If in high power mode on the wand, start a overheat timer.
-  if(i_power_mode == i_power_mode_max) {
-    ms_overheat_initate.start(i_ms_overheat_initate);
+  if(b_overheat_mode[i_power_mode - 1] == true) {
+    ms_overheat_initate.start(i_ms_overheat_initate[i_power_mode - 1]);
   }
   
   barrelLightsOff();
@@ -1490,7 +1528,7 @@ void modeFireStopSounds() {
     break;
 
     case SETTINGS:
-      // Nothing
+      // Nothing.
     break;
   }
 }
@@ -1552,15 +1590,15 @@ void modeFiring() {
    */
 
    // If the user changes the wand power output while firing, turn off the overheat timer.
-  if(i_power_mode != i_power_mode_max && ms_overheat_initate.isRunning()) {
+  if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initate.isRunning()) {
     ms_overheat_initate.stop();
     
     // Tell the pack to revert back to regular cyclotron speeds.
     Serial.write(12);
   }
-  else if(i_power_mode == i_power_mode_max && ms_overheat_initate.remaining() == 0) {
-    // If the user changes back to high power mode while firing, start up a timer.
-    ms_overheat_initate.start(i_ms_overheat_initate);
+  else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initate.remaining() == 0) {
+    // If the user changes back to power mode that overheats while firing, start up a timer.
+    ms_overheat_initate.start(i_ms_overheat_initate[i_power_mode - 1]);
   }
   
   switch(FIRING_MODE) {     
@@ -1611,7 +1649,7 @@ void modeFiring() {
     break;
 
     case SETTINGS:
-      // Nothing
+      // Nothing.
     break;
   }
 
@@ -1649,6 +1687,10 @@ void wandHeatUp() {
     case MESON:
       w_trig.trackPlayPoly(S_MESON_OPEN);
     break;
+
+    case SETTINGS:
+      // Nothing.
+    break;
   }
 
   wandBarrelPreHeatUp();
@@ -1685,6 +1727,10 @@ void wandBarrelHeatUp() {
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
         ms_fast_led.start(i_fast_led_delay);
       break;
+
+      case SETTINGS:
+        // nothing
+      break;
     } 
 
     i_heatup_counter++;
@@ -1713,6 +1759,10 @@ void wandBarrelHeatDown() {
       case MESON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
         ms_fast_led.start(i_fast_led_delay);
+      break;
+
+      case SETTINGS:
+        // Nothing.
       break;
     }
 
@@ -1773,7 +1823,7 @@ void fireStream(int r, int g, int b) {
         break;
 
         case SETTINGS:
-          // Nothing
+          // Nothing.
         break;
       }
       
@@ -1914,25 +1964,25 @@ void bargraphRampFiring() {
     break;
   }
 
-  // If in high power mode on the wand, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
-  if(i_power_mode == i_power_mode_max) {
-    if(ms_overheat_initate.remaining() < i_ms_overheat_initate / 6) {
+  // If in power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
+  if(b_overheat_mode[i_power_mode - 1] == true) {
+    if(ms_overheat_initate.remaining() < i_ms_overheat_initate[i_power_mode - 1] / 6) {
       ms_bargraph_firing.start(d_bargraph_ramp_interval / 5);
       cyclotronSpeedUp(6);
     }
-    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate / 5) {
+    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate[i_power_mode - 1] / 5) {
       ms_bargraph_firing.start(d_bargraph_ramp_interval / 4);
       cyclotronSpeedUp(5);
     }
-    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate / 4) {
+    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate[i_power_mode - 1] / 4) {
       ms_bargraph_firing.start(d_bargraph_ramp_interval / 3.5);
       cyclotronSpeedUp(4);    
     }
-    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate / 3) {
+    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate[i_power_mode - 1] / 3) {
       ms_bargraph_firing.start(d_bargraph_ramp_interval / 3);
       cyclotronSpeedUp(3);
     }
-    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate / 2) {
+    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate[i_power_mode - 1] / 2) {
       ms_bargraph_firing.start(d_bargraph_ramp_interval / 2.5);
       cyclotronSpeedUp(2);
     }
@@ -2204,7 +2254,7 @@ void decreaseVolume() {
 void checkRotary() {
   static int8_t c,val;
 
-  if(val = readRotary()) {
+  if((val = readRotary())) {
     c += val;
 
     switch(WAND_ACTION_STATUS) {
@@ -2274,6 +2324,7 @@ void checkRotary() {
         if(prev_next_code == 0x07) {
           if(i_power_mode + 1 <= i_power_mode_max && WAND_STATUS == MODE_ON) {
             i_power_mode++;
+            
             soundBeepLoopStop();
     
             switch(year_mode) {
@@ -2583,8 +2634,8 @@ void setupWavTrigger() {
   //  reset while the WAV Trigger was already playing.
   w_trig.stopAllTracks();
   w_trig.samplerateOffset(0); // Reset our sample rate offset        
-  w_trig.masterGain(i_volume_master); // Reset the master gain db. 0db is default. Range is -70 to +4. (Can go higher than 4?)
-  w_trig.setAmpPwr(true); // Turn on the onboard amp. Turn it off to draw less power if you decide to use the aux cable jack instead.
+  w_trig.masterGain(i_volume_master); // Reset the master gain db. 0db is default. Range is -70 to 0.
+  w_trig.setAmpPwr(b_onboard_amp_enabled); // Turn on the onboard amp.
   
   // Enable track reporting from the WAV Trigger
   w_trig.setReporting(true);
@@ -2601,13 +2652,4 @@ void setupWavTrigger() {
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 100_
   }
-  
-  /*
-  Serial.print(w_trig_version);
-  Serial.print("\n");
-  Serial.print("Number of tracks = ");
-  Serial.print(w_num_tracks);
-  Serial.print("\n");
-  Serial.println(i_music_count);
-  */
 }

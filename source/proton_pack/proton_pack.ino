@@ -15,43 +15,30 @@
 #include <ezButton.h>
 #include <Ramp.h>
 
-/*over
- * Use the following defines to change which optional NeoPixels you are using
+/*
+ * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
+ * Change the variables below to alter the behaviour of your Proton Pack.
+ */
+ 
+/*
+ * Use only one of the following defines to change which optional NeoPixels you are using
  * in your inner cyclotron. If you are not using any, then this can be left alone.
- * Leave at least one in place, even if you are not using any.
+ * Leave at least one in place, even if you are not this optional item.
+ * 24 -> For a 24 LED NeoPixel Ring
  * 35 -> For a 35 LED NeoPixel Ring
  * 56 -> For 8 NeoPixel Jewels chained together. (7 pixels per jewel)
  */
+//#define CYCLOTRON_NUM_LEDS 24
 #define CYCLOTRON_NUM_LEDS 35
 //#define CYCLOTRON_NUM_LEDS 56
-// TODO: Add support for 24 NeoPixel ring.
 
 /*
- * You can set the default startup volume for your pack here.
- * NOTE: Make sure to set this to the same value in the Neturona Wand code.
- * If not then the startup volume will levels will not be in sync.
- * 4 = loudest
- * -70 = quietest
- */
-const int STARTUP_VOLUME = 0;
-
-/* 
- *  Default the cyclotron lights direction to clockwise. 
- *  This can be controlled by an optional switch on pin 29. 
- *  Set to false to be counter clockwise.
- */
-bool b_clockwise = true;
-
-/*
- * If you want the n-filter NeoPixel jewel to strobe during overheat, set to true.
- * If false, the light stay solid white during overheat.
- */
-bool b_overheat_strobe = false;
-
-/*
- * Inner cyclotron 35 LED NeoPixel ring speed.
+ * Inner cyclotron NeoPixel ring speed.
  * The higher the number, the faster it will spin.
  * Do not go any higher than 12.
+ * Default settings for a 35 NeoPixel ring are: 10 for 2021 mode and 6 for 1984 mode.
+ * If you are using a ring with less than 35 NeoPixels, you may need to slightly lower these numbers.
+ * NOTE: This does not affect the 8 NeoPixel option.
  */
 const int i_2021_inner_delay = 10;
 const int i_1984_inner_delay = 6;
@@ -66,27 +53,109 @@ const int i_1984_delay = 1050;
 const int i_2021_delay = 15;
 
 /*
- * How long until the smoke pins (+ fan) are activated during continuous firing. (not overheating venting)
- * Default is 30,000 milliseconds (30 seconds)
- * This delay gets divided by the wand power level.
- * Note that the wand will initate the overheat sequence at 12,000 milliseconds. 
- * Example: 
- * level 1: 30000 / 1 = 30000
- * level 2: 30000 / 2 = 15000
- * level 3: 30000 / 3 = 10000
- * level 4: 30000 / 4 = 7500
- * level 5: 30000 / 5 = 6000
+ * You can set the default startup volume for your pack here.
+ * When a Neutrona wand is connected, it will sync to these settings.
+ * 0 = loudest
+ * -70 = quietest
  */
-const int i_smoke_timer = 30000;
+const int STARTUP_VOLUME = 0;
 
 /*
- *  How long do you want your smoke pins (+ fan) to stay on while firing. (not overheating venting)
+ * Set to true to enable the onboard amplifer on the wav trigger. 
+ * Turning off the onboard amp draws less power. 
+ * If using the AUX cable jack, the amp can be disabled to save power.
+ * If you use the output pins directly on the wav trigger board to your speakers, you will need to enable the onboard amp.
+ * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
+ */
+const boolean b_onboard_amp_enabled = false;
+
+/* 
+ *  Default the cyclotron lights direction to clockwise. 
+ *  This can be controlled by an optional switch on pin 29. 
+ *  Set to false to be counter clockwise.
+ */
+bool b_clockwise = true;
+
+/*
+ * If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true.
+ * If false, the light stay solid white during overheat.
+ */
+const bool b_overheat_strobe = false;
+
+/*
+ * Enable or disable overall smoke settings.
+ * THIS OVERRIDES all other smoke settings.
+ * This can be toggled with a switch on PIN 37.
+ */
+boolean b_smoke_enabled = false;
+
+/*
+ * ****************** ADVANCED USER CONFIGURABLE SMOKE SETTINGS BELOW ************************
+ * The default settings work very well. Changing them can produce strange timing effect.
+ */
+ 
+/*
+ * Enable or disable smoke during continuous firing.
+ * Control which of the 3 pins that go high during continuous firing smoke effects.
+ * This can be overriden if b_smoke_enabled is set to false.
+ */
+const boolean b_smoke_1_continuous_firing = true;
+const boolean b_smoke_2_continuous_firing = true;
+const boolean b_fan_continuous_firing = true;
+
+/*
+ * Enable or disable smoke in individual wand power modes for continuous firing smoke.
+ * Example: if b_smoke_continuous_mode_1 is true, smoke will happen in continious firing in wand power mode 1. If false, no smoke in mode 1.
+ * This is overridden if b_smoke_enabled or can be by the continious_firing settings above when they are set to false.
+ */
+const boolean b_smoke_continuous_mode_1 = true;
+const boolean b_smoke_continuous_mode_2 = true;
+const boolean b_smoke_continuous_mode_3 = true;
+const boolean b_smoke_continuous_mode_4 = true;
+const boolean b_smoke_continuous_mode_5 = true;
+
+/*
+ * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power mode. (not overheating venting)
+ * Example: 30,000 milliseconds (30 seconds)
+ */
+const unsigned long int i_smoke_timer_mode_1 = 30000;
+const unsigned long int i_smoke_timer_mode_2 = 15000;
+const unsigned long int i_smoke_timer_mode_3 = 10000;
+const unsigned long int i_smoke_timer_mode_4 = 7500;
+const unsigned long int i_smoke_timer_mode_5 = 6000;
+
+/*
+ *  How long do you want your smoke pins (+ fan) to stay on while firing for each firing power mode. (not overheating venting)
  *  When the pins are high (controlled by the i_smoke_timer above), then smoke will be generated if you have smoke machines etc wired up.
  *  Default is 3000 milliseconds (3 seconds). 
  *  This does not affect smoke during overheat. 
  *  This only affects how long your smoke stays on after it has been triggered in continuous firing.
  */
-const int i_smoke_on_time = 3000;
+const unsigned long int i_smoke_on_time_mode_1 = 3000;
+const unsigned long int i_smoke_on_time_mode_2 = 3000;
+const unsigned long int i_smoke_on_time_mode_3 = 3500;
+const unsigned long int i_smoke_on_time_mode_4 = 3500;
+const unsigned long int i_smoke_on_time_mode_5 = 4000;
+
+/*
+ * Enable or disable smoke during overheat sequences.
+ * Control which of the 3 pins that go high during overheat.
+ * This can be overriden if b_smoke_enabled is set to false.
+ */
+const boolean b_smoke_1_overheat = true;
+const boolean b_smoke_2_overheat = true;
+const boolean b_fan_overheat = true;
+
+/*
+ * Enable or disable overheat smoke in different wand power modes.
+ * Example: If b_smoke_overheat_mode_1 is false, then no smoke will be generated during overheat in wand power mode 1, if overheat is enabled for that power mode in the wand code.
+ * This is overridden if b_smoke_enabled or can be by the b_overheat settings above when they are set to false.
+ */
+const boolean b_smoke_overheat_mode_1 = true;
+const boolean b_smoke_overheat_mode_2 = true;
+const boolean b_smoke_overheat_mode_3 = true;
+const boolean b_smoke_overheat_mode_4 = true;
+const boolean b_smoke_overheat_mode_5 = true;
 
 /*
  * Set this to true if you want to know if your wand and pack are communicating.
@@ -208,7 +277,7 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
 /*
  * Delay for fastled to update the addressable LEDs. 
  * We have up to 88 addressable LEDs if using NeoPixel jewels in the inner cyclotron and n-filter.
- * 0.03 ms to update 1 LED. So 3 ms should be ok. Lets bump it up to 10 just in case.
+ * 0.03 ms to update 1 LED. So 3 ms should be ok. Lets bump it up to 8 just in case.
  */
 const int i_fast_led_delay = 8;
 millisDelay ms_fast_led;
@@ -329,7 +398,7 @@ boolean b_playing_music = false;
 boolean b_repeat_track = false;
 
 /* 
- *  Volume (4 = loudest, -70 = quietest)
+ *  Volume (0 = loudest, -70 = quietest)
  */
 int i_volume = STARTUP_VOLUME; // Sound effects
 int i_volume_master = STARTUP_VOLUME; // Master overall volume
@@ -345,10 +414,9 @@ int i_vibration_level_prev = 0;
 boolean b_vibration = false;
 
 /*
- * Smoke & over heating
+ * Smoke
  */
 const int smoke_pin = 39;
-boolean b_smoke_enabled = false;
 
 /*
  * Smoke for a second smoke machine or motor. I use this in the booster tube.
@@ -370,6 +438,10 @@ const int i_overheating_delay = 4000;
 boolean b_overheating = false;
 millisDelay ms_smoke_timer;
 millisDelay ms_smoke_on;
+const int i_smoke_timer[5] = { i_smoke_timer_mode_1, i_smoke_timer_mode_2, i_smoke_timer_mode_3, i_smoke_timer_mode_4, i_smoke_timer_mode_5 };
+const int i_smoke_on_time[5] = { i_smoke_on_time_mode_1, i_smoke_on_time_mode_2, i_smoke_on_time_mode_3, i_smoke_on_time_mode_4, i_smoke_on_time_mode_5 };
+const boolean b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
+const boolean b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
 
 /*
  * Vent light timers and delay for over heating.
@@ -394,6 +466,7 @@ millisDelay ms_wand_handshake_checking;
 int i_wand_power_level = 1; // Power level of the wand.
 int rx_byte = 0;
 int prev_byte = 0;
+
 
 /*
  * Firing timers
@@ -438,7 +511,7 @@ void setup() {
   switch_smoke.setDebounceTime(50);
   
   // Adjust the pwm frequency of the vibration motor.
-  TCCR5B = TCCR5B & B11111000 | B00000100;  // for PWM frequency of 122.55 Hz
+  TCCR5B = (TCCR5B & B11111000) | (B00000100);  // for PWM frequency of 122.55 Hz
 
   // Vibration motor
   pinMode(vibration, OUTPUT);
@@ -455,7 +528,7 @@ void setup() {
   // Powercell and cyclotron LEDs.
   FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, PACK_NUM_LEDS);
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
-  FastLED.setMaxPowerInVoltsAndMilliamps(5,250);  // Limit draw to 250mA at 5v of power draw.
+  FastLED.setMaxPowerInVoltsAndMilliamps(5,500);  // Limit draw to 500mA at 5v of power.
    
   // Cyclotron Switch Panel LEDs
   pinMode(cyclotron_sw_plate_led_r1, OUTPUT);
@@ -616,13 +689,13 @@ void loop() {
       if(b_wand_firing == true) {
         if(ms_smoke_on.justFinished()) {
           ms_smoke_on.stop();
-          ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+          ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
           b_vent_sounds = true;
         }
         
         if(ms_smoke_timer.justFinished()) {
           if(ms_smoke_on.isRunning() != true) {
-            ms_smoke_on.start(i_smoke_on_time);
+            ms_smoke_on.start(i_smoke_on_time[i_wand_power_level - 1]);
           }
         }
 
@@ -1982,7 +2055,7 @@ void wandFiring() {
   smokeControl(false);
 
   // Start a smoke timer to play a little bit of smoke while firing.
-  ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+  ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
   ms_smoke_on.stop();       
   
   vibrationPack(255);
@@ -2378,43 +2451,72 @@ void checkRotaryEncoder() {
   }
 }
 
+/*
+ * Smoke # 1. I put this one in my n-filter cone outlet.
+ */
 void smokeControl(boolean b_smoke_on) {  
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
-      digitalWrite(smoke_pin, HIGH);
-      smokeBooster(b_smoke_on);
+      if(b_wand_firing == true && b_overheating != true && b_smoke_1_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(smoke_pin, HIGH);
+      }
+      else if(b_overheating == true && b_wand_firing != true && b_smoke_1_overheat == true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(smoke_pin, HIGH);
+      }
+      else {
+        digitalWrite(smoke_pin, LOW);
+      }
     }
     else {
       digitalWrite(smoke_pin, LOW);
-      smokeBooster(false);
     }
 
-    if(b_wand_firing == true) {
-      smokeBooster(b_smoke_on);
-    }
+    smokeBooster(b_smoke_on);
   }
 }
 
 /* 
- *  Alternate 5V high pin. This one turns on while firing occasionally for smoke. I put this one in my booster tube.
+ *  Smoke # 2. I put this one in my booster tube.
  */
 void smokeBooster(boolean b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
-      digitalWrite(smoke_booster_pin, HIGH);
+      if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(smoke_booster_pin, HIGH);
+      }
+      else if(b_overheating == true && b_smoke_2_overheat == true && b_wand_firing != true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(smoke_booster_pin, HIGH);
+      }
+      else {
+        digitalWrite(smoke_booster_pin, LOW);
+      }
     }
     else {
       digitalWrite(smoke_booster_pin, LOW);
     }
   }
 }
-
+ 
+/*
+ * Fan control. You can use this to switch on any device when properly hooked up with a transistor etc
+ * A fan is a good idea for the n-filter for example.
+ */
 void fanControl(boolean b_fan_on) {
-  if(b_fan_on == true) {
-    digitalWrite(fan_pin, HIGH);
-  }
-  else {
-    digitalWrite(fan_pin, LOW);
+  if(b_smoke_enabled == true) {
+    if(b_fan_on == true) {
+      if(b_wand_firing == true && b_overheating != true && b_fan_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(fan_pin, HIGH);
+      }
+      else if(b_overheating == true && b_wand_firing != true && b_fan_overheat == true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(fan_pin, HIGH);
+      }
+      else {
+        digitalWrite(fan_pin, LOW);
+      }
+    }
+    else {
+      digitalWrite(fan_pin, LOW);
+    }
   }
 }
 
@@ -2646,7 +2748,7 @@ void checkWand() {
           // Reset the smoke timer if the wand is firing.
           if(b_wand_firing == true) {
             if(ms_smoke_timer.isRunning() == true) {
-              ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+              ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
             }
           }
         break;
@@ -2658,7 +2760,7 @@ void checkWand() {
           // Reset the smoke timer if the wand is firing.
           if(b_wand_firing == true) {
             if(ms_smoke_timer.isRunning() == true) {
-              ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+              ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
             }
           }
         break;
@@ -2670,7 +2772,7 @@ void checkWand() {
           // Reset the smoke timer if the wand is firing.
           if(b_wand_firing == true) {
             if(ms_smoke_timer.isRunning() == true) {
-              ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+              ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
             }
           }
         break;
@@ -2682,7 +2784,7 @@ void checkWand() {
           // Reset the smoke timer if the wand is firing.
           if(b_wand_firing == true) {
             if(ms_smoke_timer.isRunning() == true) {
-              ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+              ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
             }
           }
         break;
@@ -2694,7 +2796,7 @@ void checkWand() {
           // Reset the smoke timer if the wand is firing.
           if(b_wand_firing == true) {
             if(ms_smoke_timer.isRunning() == true) {
-              ms_smoke_timer.start(i_smoke_timer / i_wand_power_level);
+              ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
             }
           }
         break;        
@@ -2893,8 +2995,8 @@ void setupWavTrigger() {
 
   w_trig.stopAllTracks();
   w_trig.samplerateOffset(0); // Reset our sample rate offset        
-  w_trig.masterGain(i_volume_master); // Reset the master gain db. Range is -70 to +4.
-  w_trig.setAmpPwr(false); // Turn off the onboard amp to draw less power if you decide to use the aux cable jack instead. If you use the output pins, you will need to turn this back on.
+  w_trig.masterGain(i_volume_master); // Reset the master gain db. Range is -70 to 0.
+  w_trig.setAmpPwr(b_onboard_amp_enabled);
   
   // Enable track reporting from the WAV Trigger
   w_trig.setReporting(false);
@@ -2912,13 +3014,4 @@ void setupWavTrigger() {
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 100_
   }
-  
-  /*
-  Serial.print(w_trig_version);
-  Serial.print("\n");
-  Serial.print("Number of tracks = ");
-  Serial.print(w_num_tracks);
-  Serial.print("\n");
-  Serial.println(i_music_count);
-  */
 }
