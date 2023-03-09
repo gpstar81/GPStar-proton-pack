@@ -143,9 +143,10 @@ To provide smooth power to certain components, it is recommended to place a smal
 
 | Positive  | Capacitor | Negative    |
 |-----------|-----------|-------------|
-| JP3 (Red) | CAP 100uf | JP3 (Black) |
-| JP4 (Red) | CAP 100uf | JP4 (Black) |
-| M1 (Red)  | CAP 100uf | M1 (Black)  |
+| JP3 (<font color="red">Red</font>) | CAP 100uf | JP3 (Black) |
+| JP4 (<font color="red">Red</font>) | CAP 100uf | JP4 (Black) |
+| NEO-CYC (+)                        | CAP 100uf | NEO-CYC (-) | 
+| M1 (<font color="red">Red</font>)  | CAP 100uf | M1 (Black)  |
 
 **Protoboard Diagram Reference and Interpretations:**
 
