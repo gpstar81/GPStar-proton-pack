@@ -1460,26 +1460,38 @@ void modeFireStart() {
   }
   
   // Stop all firing sounds first.
-  w_trig.trackStop(S_FIRING_END_GUN);
-  w_trig.trackStop(S_FIRE_START);
-  w_trig.trackStop(S_FIRE_START_SPARK);
-  w_trig.trackStop(S_FIRE_LOOP);
-  w_trig.trackStop(S_FIRE_LOOP_GUN);
-  w_trig.trackStop(S_FIRE_LOOP_IMPACT);
-  w_trig.trackStop(S_SLIME_START);
-  w_trig.trackStop(S_SLIME_LOOP);
-  w_trig.trackStop(S_SLIME_END);
-  w_trig.trackStop(S_STASIS_START);
-  w_trig.trackStop(S_STASIS_LOOP);
-  w_trig.trackStop(S_STASIS_END);
-  w_trig.trackStop(S_MESON_START);
-  w_trig.trackStop(S_MESON_LOOP);
-  w_trig.trackStop(S_MESON_END);
+  switch(FIRING_MODE) {
+    case PROTON:
+      w_trig.trackStop(S_FIRING_END_GUN);
+      w_trig.trackStop(S_FIRE_START);
+      w_trig.trackStop(S_FIRE_START_SPARK);
+      w_trig.trackStop(S_FIRE_LOOP);
+      w_trig.trackStop(S_FIRE_LOOP_GUN);
+      w_trig.trackStop(S_FIRE_LOOP_IMPACT);
+    break;
 
-  // Turn off any overheating sounds.
-  //w_trig.trackStop(S_VENT_BEEP);
-  w_trig.trackStop(S_CLICK);
-  w_trig.trackStop(S_VENT_DRY);
+    case SLIME:
+      w_trig.trackStop(S_SLIME_START);
+      w_trig.trackStop(S_SLIME_LOOP);
+      w_trig.trackStop(S_SLIME_END);
+    break;
+
+    case STASIS:
+      w_trig.trackStop(S_STASIS_START);
+      w_trig.trackStop(S_STASIS_LOOP);
+      w_trig.trackStop(S_STASIS_END);
+    break;
+
+    case MESON:
+      w_trig.trackStop(S_MESON_START);
+      w_trig.trackStop(S_MESON_LOOP);
+      w_trig.trackStop(S_MESON_END);
+    break;
+
+    case SETTINGS:
+      // Nothing.
+    break;
+  }
       
   ms_firing_start_sound_delay.start(50);
 
@@ -1555,24 +1567,40 @@ void modeFireStop() {
   ms_firing_lights_end.start(10);
 
   // Stop all other firing sounds.
-  w_trig.trackStop(S_FIRING_END_GUN);
-  w_trig.trackStop(S_FIRE_START);
-  w_trig.trackStop(S_FIRE_START_SPARK);
-  w_trig.trackStop(S_FIRE_LOOP);
-  w_trig.trackStop(S_FIRE_LOOP_GUN);
-  w_trig.trackStop(S_FIRE_LOOP_IMPACT);
-  w_trig.trackStop(S_SLIME_START);
-  w_trig.trackStop(S_SLIME_LOOP);
-  w_trig.trackStop(S_SLIME_END);
-  w_trig.trackStop(S_STASIS_START);
-  w_trig.trackStop(S_STASIS_LOOP);
-  w_trig.trackStop(S_STASIS_END);
-  w_trig.trackStop(S_MESON_START);
-  w_trig.trackStop(S_MESON_LOOP);
-  w_trig.trackStop(S_MESON_END);
+  switch(FIRING_MODE) {
+    case PROTON:
+      w_trig.trackStop(S_FIRING_END_GUN);
+      w_trig.trackStop(S_FIRE_START);
+      w_trig.trackStop(S_FIRE_START_SPARK);
+      w_trig.trackStop(S_FIRE_LOOP);
+      w_trig.trackStop(S_FIRE_LOOP_GUN);
+      w_trig.trackStop(S_FIRE_LOOP_IMPACT);
+    break;
+
+    case SLIME:
+      w_trig.trackStop(S_SLIME_START);
+      w_trig.trackStop(S_SLIME_LOOP);
+      w_trig.trackStop(S_SLIME_END);
+    break;
+
+    case STASIS:
+      w_trig.trackStop(S_STASIS_START);
+      w_trig.trackStop(S_STASIS_LOOP);
+      w_trig.trackStop(S_STASIS_END);
+    break;
+
+    case MESON:
+      w_trig.trackStop(S_MESON_START);
+      w_trig.trackStop(S_MESON_LOOP);
+      w_trig.trackStop(S_MESON_END);
+    break;
+
+    case SETTINGS:
+      // Nothing.
+    break;
+  }
 
   // A tiny ramp down delay, helps with the sounds.
-  //delay(100);
   ms_firing_stop_sound_delay.start(100);
 }
 
