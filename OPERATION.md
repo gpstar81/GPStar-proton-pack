@@ -42,10 +42,12 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 **Top Dial Behavior**
 
 - The rotary dial on the top of the gun box changes the power mode of the wand, affecting the intensity of the stream effects, indicated by increasing or decreasing the bargraph lights (just as the stock wand did). There are 5 wand power modes as based on the original bargraph which has only 5 LED's available:
-	- The wand will fire forever on modes 1 through 4 (applies to all firing modes).
-	- For levels 2 and above, the pack will emit smoke effects during longer firing (if enabled).
-	- On mode 5 (full power), the proton stream will appear more red than yellow.
-	- Also on mode 5, the wand and pack will overheat after a certain amount of time of firing.
+	- The wand can be user configured in the Neutrona Wand code to overheat the pack in any of the power modes. When not set to overheat, you can fire continiously. 
+	- The pack can also be user configured in the Proton Pack Code to adjust the duration of smoke effects (for each power mode), which smoke pins are activated (for each power mode), overheating smoke effects (for each power mode) or smoke disabled entirely.
+
+	Default settings: The wand will fire forever on modes 1 through 4 and overheat on mode 5.
+- The pack will emit smoke effects during longer firing (if enabled).
+- Lower power modes, the proton stream is more red. On higher modes, the stream will appear more yellow.
 - As the dial is turned, any beeping rate will increase or decrease depending on the theme in use.
 - This dial will be used to navigate the menu system and adjust volume in certain cases (see next section).
 
