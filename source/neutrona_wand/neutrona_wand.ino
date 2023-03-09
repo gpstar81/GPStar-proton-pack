@@ -48,15 +48,15 @@ const boolean b_onboard_amp_enabled = true;
 boolean b_no_pack = false;
 
 /*
- * Time in milliseconds for when overheating will initate if enabled for that power mode.
+ * Time in milliseconds for when overheating will initiate if enabled for that power mode.
  * Overheat only happens if enabled for that power mode (see below).
  * Example: 12000 = (12 seconds)
  */
-const unsigned long int i_ms_overheat_initate_mode_1 = 60000;
-const unsigned long int i_ms_overheat_initate_mode_2 = 30000;
-const unsigned long int i_ms_overheat_initate_mode_3 = 20000;
-const unsigned long int i_ms_overheat_initate_mode_4 = 15000;
-const unsigned long int i_ms_overheat_initate_mode_5 = 12000;
+const unsigned long int i_ms_overheat_initiate_mode_1 = 60000;
+const unsigned long int i_ms_overheat_initiate_mode_2 = 30000;
+const unsigned long int i_ms_overheat_initiate_mode_3 = 20000;
+const unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
+const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 
 /*
  * Which power modes do you want to be able to overheat.
@@ -274,11 +274,11 @@ const int d_white_light_interval = 150;
 /* 
  *  Overheat timers
  */
-millisDelay ms_overheat_initate;
+millisDelay ms_overheat_initiate;
 millisDelay ms_overheating;
 const int i_ms_overheating = 6500; // Overheating for 6.5 seconds.
 const boolean b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
-const long int i_ms_overheat_initate[5] = { i_ms_overheat_initate_mode_1, i_ms_overheat_initate_mode_2, i_ms_overheat_initate_mode_3, i_ms_overheat_initate_mode_4, i_ms_overheat_initate_mode_5 };
+const long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_mode_1, i_ms_overheat_initiate_mode_2, i_ms_overheat_initiate_mode_3, i_ms_overheat_initiate_mode_4, i_ms_overheat_initiate_mode_5 };
 
 /* 
  *  Bargraph timers
@@ -482,8 +482,8 @@ void mainLoop() {
         }
 
         // Overheating.
-        if(ms_overheat_initate.justFinished() && b_overheat_mode[i_power_mode - 1] == true) {
-          ms_overheat_initate.stop();
+        if(ms_overheat_initiate.justFinished() && b_overheat_mode[i_power_mode - 1] == true) {
+          ms_overheat_initiate.stop();
           modeFireStop();
 
           delay(100);
@@ -1140,7 +1140,7 @@ void wandOff() {
   // Turn off some timers.
   ms_bargraph.stop();
   ms_bargraph_firing.stop();
-  ms_overheat_initate.stop();
+  ms_overheat_initiate.stop();
   ms_overheating.stop();
   ms_settings_blinking.stop();
     
@@ -1498,11 +1498,11 @@ void modeFireStart() {
   // Tell the pack the wand is firing.
   Serial.write(3);
 
-  ms_overheat_initate.stop();
+  ms_overheat_initiate.stop();
 
   // If in high power mode on the wand, start a overheat timer.
   if(b_overheat_mode[i_power_mode - 1] == true) {
-    ms_overheat_initate.start(i_ms_overheat_initate[i_power_mode - 1]);
+    ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
   }
   
   barrelLightsOff();
@@ -1546,7 +1546,7 @@ void modeFireStopSounds() {
 }
 
 void modeFireStop() {
-  ms_overheat_initate.stop();
+  ms_overheat_initiate.stop();
   
   // Tell the pack the wand stopped firing.
   Serial.write(4);
@@ -1618,15 +1618,15 @@ void modeFiring() {
    */
 
    // If the user changes the wand power output while firing, turn off the overheat timer.
-  if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initate.isRunning()) {
-    ms_overheat_initate.stop();
+  if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {
+    ms_overheat_initiate.stop();
     
     // Tell the pack to revert back to regular cyclotron speeds.
     Serial.write(12);
   }
-  else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initate.remaining() == 0) {
+  else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0) {
     // If the user changes back to power mode that overheats while firing, start up a timer.
-    ms_overheat_initate.start(i_ms_overheat_initate[i_power_mode - 1]);
+    ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
   }
   
   switch(FIRING_MODE) {     
@@ -1994,23 +1994,23 @@ void bargraphRampFiring() {
 
   // If in power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
   if(b_overheat_mode[i_power_mode - 1] == true) {
-    if(ms_overheat_initate.remaining() < i_ms_overheat_initate[i_power_mode - 1] / 6) {
+    if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
       ms_bargraph_firing.start(d_bargraph_ramp_interval / 5);
       cyclotronSpeedUp(6);
     }
-    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate[i_power_mode - 1] / 5) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 5) {
       ms_bargraph_firing.start(d_bargraph_ramp_interval / 4);
       cyclotronSpeedUp(5);
     }
-    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate[i_power_mode - 1] / 4) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 4) {
       ms_bargraph_firing.start(d_bargraph_ramp_interval / 3.5);
       cyclotronSpeedUp(4);    
     }
-    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate[i_power_mode - 1] / 3) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 3) {
       ms_bargraph_firing.start(d_bargraph_ramp_interval / 3);
       cyclotronSpeedUp(3);
     }
-    else if(ms_overheat_initate.remaining() < i_ms_overheat_initate[i_power_mode - 1] / 2) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 2) {
       ms_bargraph_firing.start(d_bargraph_ramp_interval / 2.5);
       cyclotronSpeedUp(2);
     }
