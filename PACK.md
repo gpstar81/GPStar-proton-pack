@@ -72,7 +72,8 @@ Connections from stock JST-XH connectors may be split to maximize use of the sma
 |---|---|
 | 1N4001 (Diode) | Use of (s) denotes the striped end (cathode) |
 | NPN [EBC] | Standard PN2222 Transistor [Denotes Pin] |
-| ### Ω | Denotes a resistor with given Ohms rating |
+| CAP ###uf | Denotes an electrolytic capacitor with given microfarad rating |
+| R ### Ω | Denotes a resistor with given Ohms rating |
 | SW-CYC | Cyclotron Spin Direction Switch |
 | SW-SMOKE | Smoke Switch (enable or disable smoke) |
 | LED-R# | 2x Red LED for cyclotron switch plate (OPTIONAL) |
@@ -110,31 +111,41 @@ Some connections to components will be made directly to the Arduino Mega. Please
 | **5**  |  |  | <font color="green">SW4&nbsp;(Green)</font> | PIN&nbsp;25 |  |  |  |  | LED-R1 (-) | LED-R2 (-) | LED-Y1 (-) | LED-Y2 (-) | E- |  | E- |
 | **6**  |  |  | <font color="red">SW6&nbsp;(Red)</font> | PIN&nbsp;23 |  |  |  |  | LED-G1 (-) | LED-G2 (-) | LED-MSW<br/>(-) | LED-VSW <br/>(-) | F- |  | F- |
 | **7**  |  |  | ROT (1) | PIN 3 |  |  |  |  | ROT (3) | PIN 2 |  |  |  |  |
-| **8**  | <font color="red">JP3&nbsp;(Red)</font> |  | <font color="orange">JP3&nbsp;(Yellow)</font> |  |  |  | 470 Ω | ↔ | 470 Ω | PIN 53 |  |  |  |  | JP3&nbsp;(Black) |
+| **8**  | <font color="red">JP3&nbsp;(Red)</font> |  | <font color="orange">JP3&nbsp;(Yellow)</font> |  |  |  | R&nbsp;470&nbsp;Ω | ↔ | R&nbsp;470&nbsp;Ω | PIN 53 |  |  |  |  | JP3&nbsp;(Black) |
 | **9**  |  |  | <font color="green">JP3&nbsp;(Green)</font> | <font color="orange">JP4&nbsp;(Yellow)</font> |  |  |  |  |  |  |  |  |  |  |  |
 | **10** | <font color="red">JP4&nbsp;(Red)</font> |  |  | <font color="brown">JP4&nbsp;(Brown)</font> | PIN&nbsp;51 |  |  |  |  |  |  |  |  |  | JP4 (Black) |
-| **11** | <font color="red">NEO-CYC<br/>(+)</font> |  | <font color="blue">NEO-CYC<br/>(Data)</font> |  |  |  | 470 Ω | ↔ | 470 Ω | PIN&nbsp;13 |  |  |  |  | NEO-CYC<br/>(-) |
+| **11** | <font color="red">NEO-CYC<br/>(+)</font> |  | <font color="blue">NEO-CYC<br/>(Data)</font> |  |  |  | R&nbsp;470&nbsp;Ω | ↔ | R&nbsp;470&nbsp;Ω | PIN&nbsp;13 |  |  |  |  | NEO-CYC<br/>(-) |
 | **12** |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| **13** | <font color="red">G+</font> |  | <font color="red">G+</font> |  | 1N4001&nbsp;(s) | <font color="red">FAN-1&nbsp;(+)</font> |  |  | <font color="red">H+</font> |  | 1N4001&nbsp;(s) | <font color="red">M1&nbsp;(Red)</font> |  |  |  |
-| **14** | <font color="red">H+</font> |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
-| **15** |  |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
-| **16** |  |  | NPN C |  | 1N4001 | FAN-1&nbsp;(-) |  |  | NPN C |  | 1N4001 | M1&nbsp;(Black) |  |  |  |
-| **17** |  |  | NPN B |  | 330 Ω |  |  |  | NPN B |  | 330 Ω |  |  |  |  |
+| **13** | <font color="red">G+</font> |  | <font color="red">G+</font> |  | 1N4001&nbsp;(s) | <font color="red">FAN-1&nbsp;(+)</font> |  |  | <font color="red">H+</font> | CAP 100uf | 1N4001&nbsp;(s) | <font color="red">M1&nbsp;(Red)</font> |  |  |  |
+| **14** | <font color="red">H+</font> |  |  |  | ↕ |  |  |  |  | ↕ | ↕ |  |  |  |  |
+| **15** |  |  |  |  | ↕ |  |  |  |  | ↕ | ↕ |  |  |  |  |
+| **16** |  |  | NPN C |  | 1N4001 | FAN-1&nbsp;(-) |  |  | NPN C | CAP 100uf | 1N4001 | M1&nbsp;(Black) |  |  |  |
+| **17** |  |  | NPN B |  | R&nbsp;330&nbsp;Ω |  |  |  | NPN B |  | R&nbsp;330&nbsp;Ω |  |  |  |  |
 | **18** |  |  | NPN E |  | ↕ |  | I- |  | NPN E |  | ↕ |  | J- |  | J- |
 | **19** |  |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  | I- |
-| **20** |  |  |  |  | 330 Ω |  | PIN&nbsp;33 |  |  |  | 330 Ω |  | PIN&nbsp;45 |  |  |
+| **20** |  |  |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;33 |  |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;45 |  |  |
 | **21** |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | **22** | <font color="red">K+</font> |  | <font color="red">K+</font> |  | 1N4001&nbsp;(s) | <font color="red">SMOKE2&nbsp;(+)</font> |  |  | <font color="red">L+</font> |  | 1N4001&nbsp;(s) | <font color="red">SMOKE1&nbsp;(+)</font> |  |  |  |
 | **23** | <font color="red">L+</font> |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
 | **24** |  |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
 | **25** |  |  | NPN C |  | 1N4001 | SMOKE2&nbsp;(-) |  |  | NPN C |  | 1N4001 | SMOKE1&nbsp;(-) |  |  |  |
-| **26** |  |  | NPN B |  | 330 Ω |  |  |  | NPN B |  | 330 Ω |  |  |  |  |
+| **26** |  |  | NPN B |  | R&nbsp;330&nbsp;Ω |  |  |  | NPN B |  | R&nbsp;330&nbsp;Ω |  |  |  |  |
 | **27** |  |  | NPN E |  | ↕ |  | M- |  | NPN E |  | ↕ |  | N- |  | N- |
 | **28** |  |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  | M- |
-| **29** |  |  |  |  | 330 Ω |  | PIN&nbsp;35 |  |  |  | 330 Ω |  | PIN&nbsp;39 |  |  |
+| **29** |  |  |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;35 |  |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;39 |  |  |
 | **30** |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
 ![](images/Breadboard.jpg)
+
+**Recommended: Capacitors for Motors and LED "Pixels"**
+
+To provide smooth power to certain components, it is recommended to place a small electrolytic capacitor across the positive and negative terminals for the following. It is better to place this closer to the component than the PCB when possible.
+
+| Positive  | Capacitor | Negative    |
+|-----------|-----------|-------------|
+| JP3 (Red) | CAP 100uf | JP3 (Black) |
+| JP4 (Red) | CAP 100uf | JP4 (Black) |
+| M1 (Red)  | CAP 100uf | M1 (Black)  |
 
 **Protoboard Diagram Reference and Interpretations:**
 

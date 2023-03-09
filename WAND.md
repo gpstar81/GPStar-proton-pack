@@ -147,6 +147,7 @@ Considered optional as this can be left out if desired, and without impact to no
 | VIBRATION&nbsp;MOTOR |   |            | Motor Wire | Nano&nbsp;Pin | Notes                                     |
 |----------------------|---|------------|------------|---------|-------------------------------------------------|
 |                      |   | 1N4001 (s) | <font color="red">Red</font> | +5V     | 1N4001 diode (s = striped end of the diode) |
+|                      |   | CAP 100uf  | ↕                            |         | Capacitor across the +/- motor wires        |
 | NPN C                | → | 1N4001     | Black                        |         | NPN* = PN2222                               |
 | NPN B                | → | 330 Ω      | →                            | Pin D11 |                                             |
 | NPN E                | → | →          | →                            | Ground  |                                             |
@@ -155,9 +156,10 @@ Considered optional as this can be left out if desired, and without impact to no
 
 | WAND-TUBE → Q2 |   |              |   | Nano Pin | Hasbro Ref | Notes                                  |
 |----------------|---|--------------|---|----------|------------|----------------------------------------|
-| <font color="blue">Blue</font>     | → | +5V      |   |         | Q2 | Power to 5 wand LED's           |
-| <font color="yellow">Yellow</font> | → | 470Ω     | → | Pin D10 | Q2 | Data input for addressing LED's |
-| <font color="red">Red</font>       | → | Ground   |   |         | Q2 | Ground to 5 wand LED's          |
+| <font color="blue">Blue</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LED's                |
+|                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires | 
+| <font color="red">Red</font>       | → | Ground |    |         | Q2 | Ground to 5 wand LED's               |
+| <font color="yellow">Yellow</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LED's      |
 
 | BARGRAPH → J3                      |   |       |    | Nano Pin | Hasbro Ref |
 |------------------------------------|---|-------|----|----------|------------|
