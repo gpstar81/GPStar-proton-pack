@@ -104,13 +104,13 @@ Some connections to components will be made directly to the Arduino Mega. Please
 
 |        | **+** | **-** | **A** | **B** | **C** | **D** | **E** |   | **F** | **G** | **H** | **I** | **J** | **+** | **-** |
 |--------|-------|-------|-------|-------|-------|-------|-------|---|-------|-------|-------|-------|-------|-------|-------|
-| **1**  | <font color="red">BAT&nbsp;(+)</font> |  | <font color="red">A+</font> | Mega&nbsp;(+) | WavTrig&nbsp;(+) | WAND&nbsp;(+) |  |  |       | WAND&nbsp;(-) | WavTrig&nbsp;(-) | Mega&nbsp;(-) | B- |  | BAT&nbsp;(-) |
-| **2**  | <font color="red">A+</font> |  |  |  |  |  |  |  |  |  |  |  |  |  | B- |
+| **1**  | <font color="red">Z+</font> | Y- |  | <font color="red">Z+</font> | WAND&nbsp;(+) | <font color="red">BAT&nbsp;(+)</font> | <font color="red">X+</font> |  | Y- | BAT&nbsp;(-) | WAND&nbsp;(-) | W- |  | <font color="red">X+</font> | W- |
+| **2**  | <font color="red">WavTrig<br/>(+)</font> | WavTrig<br/>(-) |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | **3**  |  |  | <font color="red">SW1&nbsp;(Red)</font> | PIN&nbsp;31 |  |  |  |  | SW1&nbsp;(Black) | <font color="green">SW3&nbsp;(Green)</font> | <font color="red">SW4&nbsp;(Red)</font> | SW6&nbsp;(Black) | C- |  | C- |
 | **4**  |  |  | <font color="blue">SW3&nbsp;(Blue)</font> | PIN&nbsp;27 |  |  |  |  | SW-CYC<br/>(Black) | SW-SMOKE<br/>(Black) | ROT&nbsp;(2) |  | D- |  | D- |
 | **5**  |  |  | <font color="green">SW4&nbsp;(Green)</font> | PIN&nbsp;25 |  |  |  |  | LED-R1 (-) | LED-R2 (-) | LED-Y1 (-) | LED-Y2 (-) | E- |  | E- |
 | **6**  |  |  | <font color="red">SW6&nbsp;(Red)</font> | PIN&nbsp;23 |  |  |  |  | LED-G1 (-) | LED-G2 (-) | LED-MSW<br/>(-) | LED-VSW <br/>(-) | F- |  | F- |
-| **7**  |  |  | ROT (1) | PIN 3 |  |  |  |  | ROT (3) | PIN 2 |  |  |  |  |
+| **7**  | <font color="red">Mega<br/>(+)</font> | Mega<br/>(-) | ROT (1) | PIN 3 |  |  |  |  | ROT (3) | PIN 2 |  |  |  |  |
 | **8**  | <font color="red">JP3&nbsp;(Red)</font> |  | <font color="orange">JP3&nbsp;(Yellow)</font> |  |  |  | R&nbsp;470&nbsp;Ω | ↔ | R&nbsp;470&nbsp;Ω | PIN 53 |  |  |  |  | JP3&nbsp;(Black) |
 | **9**  |  |  | <font color="green">JP3&nbsp;(Green)</font> | <font color="orange">JP4&nbsp;(Yellow)</font> |  |  |  |  |  |  |  |  |  |  |  |
 | **10** | <font color="red">JP4&nbsp;(Red)</font> |  |  | <font color="brown">JP4&nbsp;(Brown)</font> | PIN&nbsp;51 |  |  |  |  |  |  |  |  |  | JP4 (Black) |
@@ -156,9 +156,9 @@ When you see a letter or code in a cells above, it references where component ne
 
 	- These are jumper wires to provide power or ground connections to a specific row of connections on the board. They do not indicate a specific space to make the connection. Each letter should have a (+) or (-) designation to help identify it as +5V or Ground.
 
-		- Example #1: You see "A+" in space "+2" (Column "+", Row 2) on the breadboard and again on "A1" (Column "A", Row 1). You need to connect a wire to these 2 points. In this case, the result is positive power on the "+" rail being delivered into all of row 1 for any connections in columns A through E.
+		- Example #1: You see "Z+" in space "+1" (Column "+", Row 1) on the breadboard and again on "B1" (Column "B", Row 1). You need to connect a wire to these 2 points. In this case, the result is positive power on the "+" rail being delivered into all of row 1 for any connections in columns A through E.
 
-		- Example #2: In space "J1" you have a connection "B-" and you need to run a wire from "J1" to "-1" on the right side of the breadboard. This will deliver ground from the "-" rail to columns F through J on row 1.
+		- Example #2: In space "-1" you have a connection "Y-" and you need to run a wire from "-1" to "F1" on the right side of the breadboard. This will deliver ground from the "-" rail to columns F through J on row 1.
 
 - **Components will be connected in multiple adjacent spaces.**
 
