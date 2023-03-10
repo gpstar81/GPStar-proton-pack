@@ -104,36 +104,36 @@ Some connections to components will be made directly to the Arduino Mega. Please
 
 |        | **+** | **-** | **A** | **B** | **C** | **D** | **E** |   | **F** | **G** | **H** | **I** | **J** | **+** | **-** |
 |--------|-------|-------|-------|-------|-------|-------|-------|---|-------|-------|-------|-------|-------|-------|-------|
-| **1**  | <font color="red">Z+</font> | Y- |  | <font color="red">Z+</font> | WAND&nbsp;(+) | <font color="red">BAT&nbsp;(+)</font> | <font color="red">X+</font> |  | Y- | BAT&nbsp;(-) | WAND&nbsp;(-) | W- |  | <font color="red">X+</font> | W- |
-| **2**  | <font color="red">WavTrig<br/>(+)</font> | WavTrig<br/>(-) |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| **3**  |  |  | <font color="red">SW1&nbsp;(Red)</font> | PIN&nbsp;31 |  |  |  |  | SW1&nbsp;(Black) | <font color="green">SW3&nbsp;(Green)</font> | <font color="red">SW4&nbsp;(Red)</font> | SW6&nbsp;(Black) | C- |  | C- |
-| **4**  |  |  | <font color="blue">SW3&nbsp;(Blue)</font> | PIN&nbsp;27 |  |  |  |  | SW-CYC<br/>(Black) | SW-SMOKE<br/>(Black) | ROT&nbsp;(2) |  | D- |  | D- |
-| **5**  |  |  | <font color="green">SW4&nbsp;(Green)</font> | PIN&nbsp;25 |  |  |  |  | LED-R1 (-) | LED-R2 (-) | LED-Y1 (-) | LED-Y2 (-) | E- |  | E- |
-| **6**  |  |  | <font color="red">SW6&nbsp;(Red)</font> | PIN&nbsp;23 |  |  |  |  | LED-G1 (-) | LED-G2 (-) | LED-MSW<br/>(-) | LED-VSW <br/>(-) | F- |  | F- |
-| **7**  | <font color="red">Mega<br/>(+)</font> | Mega<br/>(-) | ROT (1) | PIN 3 |  |  |  |  | ROT (3) | PIN 2 |  |  |  |  |
-| **8**  | <font color="red">JP3&nbsp;(Red)</font> |  | <font color="orange">JP3&nbsp;(Yellow)</font> |  |  |  | R&nbsp;470&nbsp;Ω | ↔ | R&nbsp;470&nbsp;Ω | PIN 53 |  |  |  |  | JP3&nbsp;(Black) |
-| **9**  |  |  | <font color="green">JP3&nbsp;(Green)</font> | <font color="orange">JP4&nbsp;(Yellow)</font> |  |  |  |  |  |  |  |  |  |  |  |
-| **10** | <font color="red">JP4&nbsp;(Red)</font> |  |  | <font color="brown">JP4&nbsp;(Brown)</font> | PIN&nbsp;51 |  |  |  |  |  |  |  |  |  | JP4 (Black) |
-| **11** | <font color="red">NEO-CYC<br/>(+)</font> |  | <font color="blue">NEO-CYC<br/>(Data)</font> |  |  |  | R&nbsp;470&nbsp;Ω | ↔ | R&nbsp;470&nbsp;Ω | PIN&nbsp;13 |  |  |  |  | NEO-CYC<br/>(-) |
-| **12** |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| **13** | <font color="red">G+</font> |  | <font color="red">G+</font> |  | 1N4001&nbsp;(s) | <font color="red">FAN-1&nbsp;(+)</font> |  |  | <font color="red">H+</font> | CAP 100uf | 1N4001&nbsp;(s) | <font color="red">M1&nbsp;(Red)</font> |  |  |  |
-| **14** | <font color="red">H+</font> |  |  |  | ↕ |  |  |  |  | ↕ | ↕ |  |  |  |  |
-| **15** |  |  |  |  | ↕ |  |  |  |  | ↕ | ↕ |  |  |  |  |
-| **16** |  |  | NPN C |  | 1N4001 | FAN-1&nbsp;(-) |  |  | NPN C | CAP 100uf | 1N4001 | M1&nbsp;(Black) |  |  |  |
-| **17** |  |  | NPN B |  | R&nbsp;330&nbsp;Ω |  |  |  | NPN B |  | R&nbsp;330&nbsp;Ω |  |  |  |  |
-| **18** |  |  | NPN E |  | ↕ |  | I- |  | NPN E |  | ↕ |  | J- |  | J- |
-| **19** |  |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  | I- |
-| **20** |  |  |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;33 |  |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;45 |  |  |
-| **21** |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| **22** | <font color="red">K+</font> |  | <font color="red">K+</font> |  | 1N4001&nbsp;(s) | <font color="red">SMOKE2&nbsp;(+)</font> |  |  | <font color="red">L+</font> |  | 1N4001&nbsp;(s) | <font color="red">SMOKE1&nbsp;(+)</font> |  |  |  |
-| **23** | <font color="red">L+</font> |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
-| **24** |  |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  |  |
-| **25** |  |  | NPN C |  | 1N4001 | SMOKE2&nbsp;(-) |  |  | NPN C |  | 1N4001 | SMOKE1&nbsp;(-) |  |  |  |
-| **26** |  |  | NPN B |  | R&nbsp;330&nbsp;Ω |  |  |  | NPN B |  | R&nbsp;330&nbsp;Ω |  |  |  |  |
-| **27** |  |  | NPN E |  | ↕ |  | M- |  | NPN E |  | ↕ |  | N- |  | N- |
-| **28** |  |  |  |  | ↕ |  |  |  |  |  | ↕ |  |  |  | M- |
-| **29** |  |  |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;35 |  |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;39 |  |  |
-| **30** |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| **1**  | <font color="red">Z+</font> | Y- |  | <font color="red">Z+</font> | WAND&nbsp;(+) | <font color="red">BAT&nbsp;(+)</font> | <font color="red">X+</font> |  | Y- | BAT&nbsp;(-) | WAND&nbsp;(-) | W- |  | <font color="red">X+</font> | W-    |
+| **2**  | <font color="red">WavTrig&nbsp;(+)</font> | WavTrig&nbsp;(&dash;) |  |  |  |  |  |  |  |  |  |  |  |       |       |
+| **3**  |       | V-    | V-    | SW1&nbsp;(Black) | <font color="green">SW3&nbsp;(Green)</font> | <font color="red">SW4&nbsp;(Red)</font> | SW6&nbsp;(Black) |       |  | <font color="red">SW1&nbsp;(Red)</font> | PIN&nbsp;31 |  |  |       |      |
+| **4**  |       | U-    | U-    | SW-CYC<br/>(Black) | SW-SMOKE<br/>(Black) | ROT&nbsp;(2) |  |  |  | <font color="blue">SW3&nbsp;(Blue)</font> |  PIN&nbsp;27 |  |  |       |       |
+| **5**  |       | T-    | T-    | LED-R1 (-) | LED-R2 (-) | LED-Y1 (-) | LED-Y2 (-) |  |  | <font color="green">SW4&nbsp;(Green)</font> | PIN&nbsp;25 |  |  |       |       |
+| **6**  |       | S-    | S-    |  LED-G1 (-) | LED-G2 (-) | LED-MSW<br/>(-) | LED-VSW <br/>(-) |  |  | <font color="red">SW6&nbsp;(Red)</font> | PIN&nbsp;23 |  |  |       |       |
+| **7**  | <font color="red">Mega&nbsp;(+)</font> | Mega&nbsp;(&dash;) |  | ROT (1) | PIN 3 |  |  |  | ROT (3) | PIN 2 |  |  |       |       |
+| **8**  | <font color="red">JP3&nbsp;(Red)</font> | JP3&nbsp;(Black) |  |  |  | <font color="orange">JP3&nbsp;(Yellow)</font> | R&nbsp;470&nbsp;Ω | ↔ | R&nbsp;470&nbsp;Ω | PIN 53 |  |  |  |       |       |
+| **9**  | <font color="red">JP4&nbsp;(Red)</font> | JP4 (Black) |  | <font color="green">JP3&nbsp;(Green)</font> | <font color="orange">JP4&nbsp;(Yellow)</font> |  |  |  | | <font color="brown">JP4&nbsp;(Brown)</font> | PIN&nbsp;51 |  |  |       |       |
+| **10** |       |       |  |  |  |  |  |  |  |  |  |  |  |       |       |
+| **11** | <font color="red">NEO-CYC<br/>(+)</font> | NEO-CYC<br/>(-) |  |  |  | <font color="blue">NEO-CYC<br/>(Data)</font> | R&nbsp;470&nbsp;Ω | ↔ | R&nbsp;470&nbsp;Ω | PIN&nbsp;13 |  |  |  |       |       |
+| **12** |       |       |  |  |  |  |  |  |  |  |  |  |  | <font color="red">R+</font> |       |
+| **13** |       |       |  |  | 1N4001&nbsp;(s) | <font color="red">FAN-1&nbsp;(+)</font> | <font color="red">R+</font> |  |  | CAP 100uf | 1N4001&nbsp;(s) | <font color="red">M1&nbsp;(Red)</font> | <font color="red">Q+</font> | <font color="red">Q+</font> |       |
+| **14** |       |       |  |  | ↕ |  |  |  |  | ↕ | ↕ |  |  |       |      |
+| **15** |       |       |  |  | ↕ |  |  |  |  | ↕ | ↕ |  |  |       |       |
+| **16** |       |       | NPN&nbsp;C |  | 1N4001 | FAN-1&nbsp;(-) |  |  | NPN&nbsp;C | CAP 100uf | 1N4001 | M1&nbsp;(Black) |  |       |       |
+| **17** |       |       | NPN&nbsp;B |  | R&nbsp;330&nbsp;Ω |  |  |  | NPN&nbsp;B |  | R&nbsp;330&nbsp;Ω |  |  |       |       |
+| **18** |       |       | NPN&nbsp;E |  | ↕ |  | P-    |  | NPN&nbsp;E |  | ↕ |  | O-    |       | O-    |
+| **19** |       |       |  |  | ↕ |  |  |  |  |  | ↕ |  |  |       | P- |
+| **20** |       |       |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;33 |  |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;45 |       |       |
+| **21** |       |       |  |  |  |  |  |  |  |  |  |  |  | <font color="red">N+</font> |       |
+| **22** |       |       |  |  | 1N4001&nbsp;(s) | <font color="red">SMOKE2&nbsp;(+)</font> | <font color="red">N+</font> |  |       |       | 1N4001&nbsp;(s) | <font color="red">SMOKE1&nbsp;(+)</font> | <font color="red">M+</font> | <font color="red">M+</font> |       |
+| **23** |       |       |  |  | ↕ |  |  |  |  |  | ↕ |  |  |       |       |
+| **24** |       |       |  |  | ↕ |  |  |  |  |  | ↕ |  |  |       |       |
+| **25** |       |       | NPN&nbsp;C |  | 1N4001 | SMOKE2&nbsp;(-) |  |  | NPN&nbsp;C |  | 1N4001 | SMOKE1&nbsp;(-) |  |      |       |
+| **26** |       |       | NPN&nbsp;B |  | R&nbsp;330&nbsp;Ω |  |  |  | NPN&nbsp;B |  | R&nbsp;330&nbsp;Ω |  |  |       |       |
+| **27** |       |       | NPN&nbsp;E |  | ↕ |  | L-    |  | NPN&nbsp;E |  | ↕ |  | K-    |       | K-    |
+| **28** |       |       |  |  | ↕ |  |  |  |  |  | ↕ |  |  |       | L-    |
+| **29** |       |       |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;35 |  |  |  | R&nbsp;330&nbsp;Ω |  | PIN&nbsp;39 |       |       |
+| **30** |       |       |  |  |  |  |  |  |  |  |  |  |  |       |       |
 
 ![](images/Breadboard.jpg)
 
