@@ -48,17 +48,6 @@ const boolean b_onboard_amp_enabled = true;
 boolean b_no_pack = false;
 
 /*
- * Time in milliseconds for when overheating will initiate if enabled for that power mode.
- * Overheat only happens if enabled for that power mode (see below).
- * Example: 12000 = (12 seconds)
- */
-const unsigned long int i_ms_overheat_initiate_mode_1 = 60000;
-const unsigned long int i_ms_overheat_initiate_mode_2 = 30000;
-const unsigned long int i_ms_overheat_initiate_mode_3 = 20000;
-const unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
-const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
-
-/*
  * Which power modes do you want to be able to overheat.
  * Set to true to allow the wand and pack to overheat in that mode.
  * Set to false to disable overheating in that power mode. You will be able to continously fire instead.
@@ -68,6 +57,17 @@ const boolean b_overheat_mode_2 = false;
 const boolean b_overheat_mode_3 = false;
 const boolean b_overheat_mode_4 = false;
 const boolean b_overheat_mode_5 = true;
+
+/*
+ * Time in milliseconds for when overheating will initiate if enabled for that power mode.
+ * Overheat only happens if enabled for that power mode (see below).
+ * Example: 12000 = (12 seconds)
+ */
+const unsigned long int i_ms_overheat_initiate_mode_1 = 60000;
+const unsigned long int i_ms_overheat_initiate_mode_2 = 30000;
+const unsigned long int i_ms_overheat_initiate_mode_3 = 20000;
+const unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
+const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 
 /*
  * Debug testing
@@ -249,7 +249,7 @@ const uint8_t switch_debounce_time = 50;
 const uint8_t a_switch_debounce_time = 250;
 millisDelay ms_switch_mode_debounce;
 millisDelay ms_intensify_timer;
-const int i_intensify_delay = 500;
+const int i_intensify_delay = 400;
 
 /*
  * Wand lights
@@ -315,6 +315,8 @@ millisDelay ms_firing_stop_sound_delay;
 const int d_firing_lights = 20; // 20 milliseconds. Timer for adjusting the firing stream colours.
 const int d_firing_stream = 100; // 100 milliseconds. Used by the firing timers to adjust stream colours.
 int i_barrel_light = 0; // using this to keep track which LED in the barrel is currently lighting up.
+const int i_fire_start_sound_delay = 50; // Delay for starting firing sounds.
+const int i_fire_stop_sound_delay = 100; // Delay for stopping fire sounds.
 
 /* 
  *  Wand power mode. Controlled by the rotary encoder on the top of the wand.
@@ -323,6 +325,7 @@ int i_barrel_light = 0; // using this to keep track which LED in the barrel is c
 const int i_power_mode_max = 5;
 const int i_power_mode_min = 1;
 int i_power_mode = 1;
+int i_power_mode_prev = 1; // Not used.
 
 /* 
  *  Wand / Pack communication
@@ -1465,7 +1468,6 @@ void modeFireStart() {
       w_trig.trackStop(S_FIRING_END_GUN);
       w_trig.trackStop(S_FIRE_START);
       w_trig.trackStop(S_FIRE_START_SPARK);
-      w_trig.trackStop(S_FIRE_LOOP);
       w_trig.trackStop(S_FIRE_LOOP_GUN);
       w_trig.trackStop(S_FIRE_LOOP_IMPACT);
     break;
@@ -1492,8 +1494,8 @@ void modeFireStart() {
       // Nothing.
     break;
   }
-      
-  ms_firing_start_sound_delay.start(50);
+
+  ms_firing_start_sound_delay.start(i_fire_stop_sound_delay);
 
   // Tell the pack the wand is firing.
   Serial.write(3);
@@ -1572,7 +1574,6 @@ void modeFireStop() {
       w_trig.trackStop(S_FIRING_END_GUN);
       w_trig.trackStop(S_FIRE_START);
       w_trig.trackStop(S_FIRE_START_SPARK);
-      w_trig.trackStop(S_FIRE_LOOP);
       w_trig.trackStop(S_FIRE_LOOP_GUN);
       w_trig.trackStop(S_FIRE_LOOP_IMPACT);
     break;
@@ -1601,7 +1602,7 @@ void modeFireStop() {
   }
 
   // A tiny ramp down delay, helps with the sounds.
-  ms_firing_stop_sound_delay.start(100);
+  ms_firing_stop_sound_delay.start(i_fire_stop_sound_delay);
 }
 
 void modeFiring() {
@@ -2312,6 +2313,7 @@ void checkRotary() {
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
           if(i_power_mode - 1 >= i_power_mode_min && WAND_STATUS == MODE_ON) {
+            i_power_mode_prev = i_power_mode;
             i_power_mode--;
             soundBeepLoopStop();
     
@@ -2351,6 +2353,7 @@ void checkRotary() {
         
         if(prev_next_code == 0x07) {
           if(i_power_mode + 1 <= i_power_mode_max && WAND_STATUS == MODE_ON) {
+            i_power_mode_prev = i_power_mode;
             i_power_mode++;
             
             soundBeepLoopStop();
