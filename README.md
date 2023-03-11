@@ -22,6 +22,10 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 1. [Operation Manual](OPERATION.md)
 
+1. [Smoke Examples](SMOKE.md)
+
+1. [Hose Examples](HOSE.md)
+
 ### Viewing MD Files
 
 GitHub should automatically display these files with basic formatting, though to view these MD (MarkDown) files linked above with full formatting including color-coding, you can use a program such as [MarkdownPad](http://markdownpad.com/) (Windows) or [MacDown](https://macdown.uranusjr.com/) (MacOS). Alternatively, you may copy the contents into [an online viewer](https://markdownlivepreview.com/).
