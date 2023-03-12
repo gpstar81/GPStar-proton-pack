@@ -7,6 +7,7 @@ There are 3 pins on the Mega configured to go HIGH during smoke effect phases. S
 **WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.**
 
 ## Booster Tube Example
+
 For this example, I used the following parts:
 
 * 1 - Air Pump and Vacuum DC Motor - 4.5 V -> https://www.adafruit.com/product/4699
@@ -34,4 +35,6 @@ Here are some photos the basic smoke setup.
 
 ## N-Filter Example
 
-...
+This also uses a vape pen approach with a 3V mini aquarium pump, and can be run from a 3V relay module. The vape pen (T2 Clearomizer style) uses a 1.8 ohm coil and wants about 3.6-4V to make decent smoke. Meanwhile, the pump doesn't like much above 3V and 4V is pushing it. Since both run for short bursts you can split the difference and use 3.8V which is about right for decent smoke AND to push everything out of the cartridge and so far only the coil gets the hottest of all the components.
+
+For the 3V relay, this was paired with a dedicated DC buck converter taking 12V from a Talentcell battery down to the 3.8V, and runs through a toggle so you can completely cut the power to the converter and anything downstream from it. The relay module has an optoisolator and also allows for powering the relay coil from a separate source from the signal, so using  3.8V power it's possible to run both the relay coil and the smoke/pump combo (the relay controls the +3.8V to the smoke/pump combo). This allows the Arduino to send a signal (found to work with 3.3V or 5V) at any time to trigger the relay, but if there's no power from the buck converter via the toggle it's just a no-op (does nothing). This setup with the relay allows the nearly 1amp needed by the vape coil (and pump), so at worst it may only burn out the DC buck converter as the Arduino remains electrically isolated. And if you wanted to use a separate power source just for smoke effects then you can easily do that as well (so long as you have a common ground between. your power sources).

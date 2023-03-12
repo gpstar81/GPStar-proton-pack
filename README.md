@@ -12,6 +12,8 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 1. [Bill of Materials](BOM.md)
 
+1. [Power Requirements](POWER.md)
+
 1. [Arduino IDE Setup](ARDUINO.md)
 
 1. [WavTrigger Configuration](WAVTRIGGER.md)
