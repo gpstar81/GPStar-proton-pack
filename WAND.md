@@ -75,6 +75,8 @@ These are the same connections which are used for the FTDI breakout board to pro
 
 The following is a diagram of the Arduino Nano pins from left and right, when oriented with the USB connection facing up (north).
 
+You can also reference the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance on the Wand wiring configuration.
+
 | Connection    | Nano (L) |   | Nano (R) | Connection |
 |---------------|----------|---|----------|------------|
 | D8 (Red)      | D13  |   | D12  | D7 (Red)      |
@@ -147,7 +149,6 @@ Considered optional as this can be left out if desired, and without impact to no
 | VIBRATION&nbsp;MOTOR |   |            | Motor Wire | Nano&nbsp;Pin | Notes                                     |
 |----------------------|---|------------|------------|---------|-------------------------------------------------|
 |                      |   | 1N4001 (s) | <font color="red">Red</font> | +5V     | 1N4001 diode (s = striped end of the diode) |
-|                      |   | CAP 100uf  | ↕                            |         | Capacitor across the +/- motor wires        |
 | NPN C                | → | 1N4001     | Black                        |         | NPN* = PN2222                               |
 | NPN B                | → | 330 Ω      | →                            | Pin D11 |                                             |
 | NPN E                | → | →          | →                            | Ground  |                                             |
@@ -181,7 +182,7 @@ Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes
 
 *NPN Bipolar Transistor. Reference Pack page for more info.
 
-For the SLO-BLO and Front-Left LED which share on 1 pin from the Nano. The spec sheet for the nano states a max 40mA draw on a pin. With 2 LEDs it is at that threshold. I have been running this setup for a month now and have not blown out the pin. I prefer this solution as it requires less space than using a transistor method.
+For the SLO-BLO and Front-Left LED which share on 1 pin from the Nano. The spec sheet for the nano states a max 40mA draw on a pin. With 2 LEDs it is at that threshold. I have been testing this setup extensively and have not blown out the pin. I prefer this solution as it requires less space than using a transistor method.
 
 | SLO-BLO → D1         |    |       |    | Nano Pin     | Hasbro Ref | Notes |
 |----------------------|----|-------|----|--------------|----|-------------------------------------|
