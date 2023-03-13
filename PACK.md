@@ -54,11 +54,12 @@ This chart lists only the components in the stock pack which will be reused, whi
 You may choose one of two routes for implementing the new Proton Pack controller:
 
 1. A minimal approach which only focuses on reusing the stock connections and hardware (switches, LED's, motor).
-	- For this approach, see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf)
-	- This provides power to the Neutrona Wand but no interactions with the Proton Pack.
-1. Use all stock hardware as above, but with room for additional features, each of which is considered optional.
+	- For this approach, reference the tables below and see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance.
+	- It is possible to forego replacing the microcontroller in the Hasbro wand and instead use a stock wand. This approach will provide power to the wand but no interactivity between the wand and the pack.
+1. Using all stock hardware as above, but with room for additional features, each of which is considered optional.
 	- This will provide full interation with the new controller for the Neutrona Wand.
-	- Keep reading to continue with this approach.
+	- Reference the tables below but also see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance.
+
 
 **Prototyping and Connections**
 
@@ -116,10 +117,10 @@ Some connections to components will be made directly to the Arduino Mega. Please
 | **10** |       |       |  |  |  |  |  |  |  |  |  |  |  |       |       |
 | **11** | <font color="red">NEO-CYC<br/>(+)</font> | NEO-CYC<br/>(-) |  |  |  | <font color="blue">NEO-CYC<br/>(Data)</font> | R&nbsp;470&nbsp;Ω | ↔ | R&nbsp;470&nbsp;Ω | PIN&nbsp;13 |  |  |  |       |       |
 | **12** |       |       |  |  |  |  |  |  |  |  |  |  |  | <font color="red">R+</font> |       |
-| **13** |       |       |  |  | 1N4001&nbsp;(s) | <font color="red">FAN-1&nbsp;(+)</font> | <font color="red">R+</font> |  |  | CAP 100uf | 1N4001&nbsp;(s) | <font color="red">M1&nbsp;(Red)</font> | <font color="red">Q+</font> | <font color="red">Q+</font> |       |
-| **14** |       |       |  |  | ↕ |  |  |  |  | ↕ | ↕ |  |  |       |      |
-| **15** |       |       |  |  | ↕ |  |  |  |  | ↕ | ↕ |  |  |       |       |
-| **16** |       |       | NPN&nbsp;C |  | 1N4001 | FAN-1&nbsp;(-) |  |  | NPN&nbsp;C | CAP 100uf | 1N4001 | M1&nbsp;(Black) |  |       |       |
+| **13** |       |       |  |  | 1N4001&nbsp;(s) | <font color="red">FAN-1&nbsp;(+)</font> | <font color="red">R+</font> |  |  |  | 1N4001&nbsp;(s) | <font color="red">M1&nbsp;(Red)</font> | <font color="red">Q+</font> | <font color="red">Q+</font> |       |
+| **14** |       |       |  |  | ↕ |  |  |  |  |  | ↕ |  |  |       |      |
+| **15** |       |       |  |  | ↕ |  |  |  |  |  | ↕ |  |  |       |       |
+| **16** |       |       | NPN&nbsp;C |  | 1N4001 | FAN-1&nbsp;(-) |  |  | NPN&nbsp;C |  | 1N4001 | M1&nbsp;(Black) |  |       |       |
 | **17** |       |       | NPN&nbsp;B |  | R&nbsp;330&nbsp;Ω |  |  |  | NPN&nbsp;B |  | R&nbsp;330&nbsp;Ω |  |  |       |       |
 | **18** |       |       | NPN&nbsp;E |  | ↕ |  | P-    |  | NPN&nbsp;E |  | ↕ |  | O-    |       | O-    |
 | **19** |       |       |  |  | ↕ |  |  |  |  |  | ↕ |  |  |       | P- |
@@ -137,16 +138,15 @@ Some connections to components will be made directly to the Arduino Mega. Please
 
 ![](images/Breadboard.jpg)
 
-**Recommended: Capacitors for Motors and LED "Pixels"**
+**Recommended: Capacitors for LED "Pixels"**
 
-To provide smooth power to certain components, it is recommended to place a small electrolytic capacitor across the positive and negative terminals for the following. It is better to place this closer to the component than the PCB when possible.
+To provide smooth power to certain components, it is recommended to place a small electrolytic capacitor across the positive and negative terminals for the following addressable LEDs. It is better to place this as close as possible to the component rather than on PCB when possible.
 
 | Positive  | Capacitor | Negative    |
 |-----------|-----------|-------------|
 | JP3 (<font color="red">Red</font>) | CAP 100uf | JP3 (Black) |
 | JP4 (<font color="red">Red</font>) | CAP 100uf | JP4 (Black) |
 | NEO-CYC (+)                        | CAP 100uf | NEO-CYC (-) | 
-| M1 (<font color="red">Red</font>)  | CAP 100uf | M1 (Black)  |
 
 **Protoboard Diagram Reference and Interpretations:**
 
