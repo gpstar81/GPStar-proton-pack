@@ -74,13 +74,13 @@ const boolean b_onboard_amp_enabled = false;
  *  This can be controlled by an optional switch on pin 29. 
  *  Set to false to be counter clockwise.
  */
-bool b_clockwise = true;
+boolean b_clockwise = true;
 
 /*
  * If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true.
  * If false, the light stay solid white during overheat.
  */
-const bool b_overheat_strobe = false;
+const boolean b_overheat_strobe = false;
 
 /*
  * Enable or disable overall smoke settings.
@@ -162,7 +162,7 @@ const boolean b_smoke_overheat_mode_5 = true;
  * If the wand and pack have a serial connection, you will hear a beeping sound.
  * Set to false to turn off the sound.
  */
-bool b_diagnostic = false;
+const boolean b_diagnostic = false;
 
 /*
  * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
