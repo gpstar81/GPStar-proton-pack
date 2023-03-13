@@ -857,24 +857,38 @@ void packShutdown() {
 
 void checkSwitches() {
   // Cyclotron direction toggle switch.
-  if(switch_cyclotron_direction.isPressed()) {
-    b_clockwise = true;
-  }
-  else if(switch_cyclotron_direction.isReleased()) {
-    b_clockwise = false;
+  if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
+    if(b_clockwise == true) {
+      b_clockwise = false;
+
+      w_trig.trackStop(S_BEEPS_ALT);    
+      w_trig.trackGain(S_BEEPS_ALT, i_volume);
+      w_trig.trackPlayPoly(S_BEEPS_ALT);
+    }
+    else {
+      b_clockwise = true;
+
+      w_trig.trackStop(S_BEEPS);
+      w_trig.trackGain(S_BEEPS, i_volume);
+      w_trig.trackPlayPoly(S_BEEPS);
+    }
   }
   
   // Smoke
-  if(switch_smoke.getState() == HIGH) {
+  if(switch_smoke.isPressed() || switch_smoke.isReleased()) {
     if(b_smoke_enabled == true) {
-      smokeControl(false);
-
       b_smoke_enabled = false;
+
+      w_trig.trackStop(S_VENT_DRY);
+      w_trig.trackGain(S_VENT_DRY, i_volume);
+      w_trig.trackPlayPoly(S_VENT_DRY);
     }
-  }
-  else {
-    if(b_smoke_enabled == false) {
+    else {
       b_smoke_enabled = true;
+
+      w_trig.trackStop(S_VENT_SMOKE);
+      w_trig.trackGain(S_VENT_SMOKE, i_volume);
+      w_trig.trackPlayPoly(S_VENT_SMOKE);
     }
   }
 
@@ -2258,9 +2272,13 @@ void cyclotronSwitchPlateLEDs() {
   if(switch_cyclotron_lid.isPressed()) {
     // Play sounds when lid is mounted.
     w_trig.trackStop(S_CLICK);    
-    
+    w_trig.trackStop(S_VENT_DRY);
+
     w_trig.trackGain(S_CLICK, i_volume);
     w_trig.trackPlayPoly(S_CLICK);
+
+    w_trig.trackGain(S_VENT_DRY, i_volume);
+    w_trig.trackPlayPoly(S_VENT_DRY);
 
     // Play some spark sounds if the pack is running and the lid is put back on                          .
     if(PACK_STATUS == MODE_ON) {

@@ -26,7 +26,7 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 - The orange button at the end of the wand switches between the available firing modes:
 	1. Proton Stream (Default)
 	1. Slime Gun
-	1. Statis Beam
+	1. Stasis Beam
 	1. Meson Collider
 	1. Special: Setting 5 is a settings menu system (see section below).
 
