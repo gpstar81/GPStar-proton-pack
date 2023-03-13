@@ -15,18 +15,18 @@ There is also the matter of how long you may wish to run your pack. For those wh
 
 ## Warning
 
-In no case should you use the Arduino Mega's barrel jack to convert 12VDC into 5VDC for that board, nor use the 5V pin on the controller for operating any other devices. The power converter on the controller can become hot and may burn out over time, or you could easily draw more power than the Arduino can sustain, causing the need to replace the entire controller. Your best option is to utilize the 5Vin pin (and GND) to power any Arduino controllers.
+In no case should you use the Arduino Mega's barrel jack to convert 12VDC into 5VDC for that board, nor use the 5V pin on the controller for running any other devices. The power converter on the microcontroller can become hot and may burn out over time, or you could easily draw more power than the Arduino can sustain, causing the need to replace the entire controller. Your best option is to utilize the 5Vin pin (and GND) to power any Arduino controllers which should come from a stable power source. The D-cell batteries supplied with the stock equipment may not be sufficient for the long runtimes expected by the solutions offered by these guides.
 
-Also note that any battery pack which uses PD (power delivery) is not recommended, nor is use of USB-C connections as these could potentially supply up to 100W of power and will destroy your equipment. Using standard USB-A connections is recommended as there are dedicated power wires which are easy to access from a modified cable.
+Also note that any battery pack which uses PD (power delivery) is not recommended, nor is use of USB-C connections as these could potentially supply up to 100W of power and could destroy your equipment. Using standard USB-A connections is recommended as there are dedicated power wires which are easy to access from a modified cable and is typically limited to 2-3 Amps for output.
 
 ### Good
 
-A typical USB battery pack with a modified USB cable to deliver only the +5VDC and - (Ground) for use by all components.
+A standard USB battery pack with a modified USB cable to deliver only the +5VDC and - (Ground) for use by all components. YMMV based on the option you choose. See the next 2 options for more recommended solutions.
 
 ### Better
 
-The TalentCell battery packs which only offer a 12VDC output, plus the use of one or more DC buck converters which are set to deliver 5VDC for common components or <5VDC for special components, while 12VDC will be used for components such as standalone audio amplifiers. These batteries come in a variety of mAh ratings, though 3000 or 6000 are common capacities. The downsides is that the standalone buck converters is that they can become hot over time and may "burn out" with extremely prolonged use. Be sure to mount these where they will be able to radiate heat and do not cover them with tape or other materials.
+The TalentCell battery packs which [only offer a 12VDC output](https://a.co/d/j4m2Kff), plus the use of one or more DC buck converters which are set to deliver 5VDC for common components or less than 5VDC for special components, while 12VDC will be used for components such as standalone audio amplifiers. These batteries come in a variety of mAh ratings, though 3000 or 6000 are common capacities. The downsides is that the standalone buck converters is that they can become hot over time and may "burn out" with extremely prolonged use. Be sure to mount these where they will be able to radiate heat and do not cover them with tape or other materials.
 
 ### Best
 
-The TalentCell battery packs which offer both USB connections and 12VDC output. Similar to the above, this may still require a buck converter to obtain <5VDC power, but can easily use a modified USB cable for the core components while supplying a full 12VDC to devices such as an audio amplifier. These batteries come in a variety of mAh ratings, though 3000 or 6000 are common capacities.
+The TalentCell battery packs which offer [both USB connections and 12VDC output](https://a.co/d/8q0VcxT). Similar to the above, this may still require a buck converter to obtain less than 5VDC power, but can easily use a modified USB cable for the core components while supplying a full 12VDC to devices such as an audio amplifier. These batteries come in a variety of mAh ratings, though 3000 or 6000 are common capacities.
