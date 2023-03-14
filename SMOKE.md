@@ -2,7 +2,13 @@
 
 Below are some examples of how to implement smoke into your Proton Pack.
 
-There are 3 pins on the Mega configured to go HIGH during smoke effect phases. Smoke1 -> Pin 39, Smoke2 -> Pin 35 and Fan 1 - Pin 33. With a simple transistor setup, you can activate pumps, external smoke machine devices, etc.
+There are 3 pins on the Mega configured to go HIGH during smoke effect phases:
+
+- Smoke1 `Pin 39`
+- Smoke2 `Pin 35`
+- Fan1 `Pin 33`
+
+Each uses a simple transistor setup to activate pumps, external devices, etc.
 
 **WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.**
 
@@ -20,7 +26,7 @@ For this example, I used the following parts:
 - 1 - PN2222 NPN Transitor -> Refer to main parts list
 - 100% Pure Vegetable Glycerine for the vape pen to generate smoke
 
-I will be using SMOKE2, which is Pin #39 on the Mega. In the pack schematic diagrams, refer to SMOKE2 setup on the breadboard for the connection guide in the PACK instructions for more detail instructions. A quick rundown on what happens is, Pin #39 on the Mega goes high during smoke events, which makes the transistor open and the connected DC pump will then have 5V power which begins to operate. I removed the original battery compartment in the HasLab motherboard, so I have quick access to the vape pen from the battery door on the motherboard when it needs recharging and refilling with more vegetable glycerine.
+I will be using SMOKE2, which is Pin #35 on the Mega. In the pack schematic diagrams, refer to SMOKE2 setup on the breadboard for the connection guide in the PACK instructions for more detail instructions. A quick rundown on what happens is, Pin #35 on the Mega goes high during smoke events, which makes the transistor open and the connected DC pump will then have 5V power which begins to operate. I removed the original battery compartment in the HasLab motherboard, so I have quick access to the vape pen from the battery door on the motherboard when it needs recharging and refilling with more vegetable glycerine.
 
 Here are some photos the basic smoke setup. 
 
@@ -40,7 +46,7 @@ Here are some photos the basic smoke setup.
 
 *Provided by JustinDustin*
 
-This also uses a vape pen approach with a 3V mini aquarium pump, and can be run from a 3V relay module. The vape pen (T2 Clearomizer style) uses a 1.8 ohm coil and wants about 3.6-4V to make decent smoke. Meanwhile, the pump doesn't like much above 3V and 4V is pushing it. Since both run for short bursts you can split the difference and use 3.8V which is about right for decent smoke AND to push everything out of the cartridge and so far only the coil gets the hottest of all the components.
+This also uses a vape pen approach with a 3V mini aquarium pump, and can be run from a 3V relay module. The vape pen (T2 Clearomizer style) uses a 1.8 ohm coil and wants about 3.6-4V to make decent smoke. Meanwhile, the pump doesn't like much above 3V and above 4V is pushing it. Since both run for short bursts you can split the difference and use 3.8V which is about right for decent smoke AND to push everything out of the cartridge, and so far only the coil gets the hottest of all the components.
 
 - [Kanger T2 Clearomizer Tank (Pack of 5)](https://www.ecigmafia.com/products/kanger-t2-clearomizer-tank-pack-of-5.html) - Note that for many US states the online ordering of vaping supplies may be restricted. This supplier has successfully shipped to Georgia, which is one such restricted state. Be sure to make sure the supplier can ship to your state before ordering.
 - [3V Aquarium Mini Air Pump](https://a.co/d/ghiL09S)
@@ -56,7 +62,7 @@ For the 3V relay, this was paired with a dedicated DC buck converter taking 12V 
 
 ![](images/RelayModule.jpg)
 
-The relay module uses power from the dedicated buck converter set to 3.8V to power both the coil for the relay as well as the smoke device. This fully separates the electrical connections from the Arduino (which normally outputs 5V and 20ma to each pin) from the smoke solution which is lower voltage but higher amperage. Per the diagram above, the relay module with the optocoupler allows a 3V-ish connections to the V+ pin on the JP1 and a ground connection on V- for JP2. The positive (power) is split between that V+ pin and the COM (common) on the relay, while the ground is split between the V- pin and the smoke device. The vape+pump combo's positive power is then connected to the NO (normally-open) terminal. In order to trigger the smoke device, there must be a signal sent to the relay which will be from the Smoke1 Pin #39 on the Arduino Mega. The pin must be connected to the VCC terminal with a jumper from VCC to the IN terminal. A shared ground connection is made from the Arduino to the GND terminal. This allows the Arduino's Pin 39 to go HIGH when needed, which will trigger the relay module.
+The relay module uses power from the dedicated buck converter set to 3.8V to power both the coil for the relay as well as the smoke device. This fully separates the electrical connections from the Arduino (which normally outputs 5V and 20ma to each pin) from the smoke solution which is lower voltage but higher amperage. Per the diagram above, the relay module with the optocoupler allows a 3V-ish connections to the V+ pin on the JP1 and a ground connection on V- for JP2. The positive (power) is split between that V+ pin and the COM (common) on the relay, while the ground is split between the V- pin and the smoke device. The vape+pump combo's positive power is then connected to the NO (normally-open) terminal. In order to trigger the smoke device, there must be a signal sent to the relay which will be from the Smoke1 Pin #39 on the Arduino Mega. The pin must be connected to the VCC terminal with a jumper from VCC to the IN terminal. A shared ground connection is made from the Arduino to the GND terminal. This allows the Arduino's Pin #39 to go HIGH when needed, which will trigger the relay module.
 
 ![](images/NFilterFan.jpg)
 
@@ -64,8 +70,8 @@ It is possible to fit this smoke solution into the existing battery compartment,
 
 ![](images/SmokeCompartment.jpg)
 
-To deliver smoke to the N-Filter, air line tubing is used with a quick-connect attached to the end of the vape tank and fed to the center of the cone under the filter. The middle of the cone is drilled out to allow the tubing to come up from below--which means drilling a hole into the base under the cone for the tubing plus a small hole for the blower fan. The blower fan is then simply placed under the base for the cone and will help push any smoke out the top of the N-Filter.
+To deliver smoke to the N-Filter, air line tubing is used with a quick-connect attached to the end of the vape tank and fed to the center of the cone under the filter. The middle of the cone is drilled out to allow the tubing to come up from below--which means drilling a hole into the base under the cone for the tubing plus a small hole for the blower fan. The blower fan is then simply placed under the base for the cone and will help push any smoke out the top of the N-Filter. I used some scrap EVA foam and hot glue to keep the fan in place, oriented vertically under the N-Filter.
 
-One issue encountered is that within the N-Filter portion of the cyclotron lid is a screw post which sits directly over the cone and will block smoke flow. Using a small drill bit, it is possible to slowly drill out 2-3 holes within the plastic screw post which will let smoke enter the top of the N-Filter, and will be vented via the screened holes by the blower fan.
+One issue encountered is that within the N-Filter portion of the cyclotron lid is a screw post which sits directly over the cone and will block smoke flow. Using a small drill bit, it is possible to slowly drill out 2-3 holes within the plastic screw post which will let smoke enter the top of the N-Filter, and will be vented by the blower fan via the screened holes. The preview below shows how effective the fan can be at pushing the smoke generated.
 
 ![](images/NFilterSmoke.gif)

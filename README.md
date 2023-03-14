@@ -28,7 +28,7 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 1. [Hose Examples](HOSE.md)
 
-## Walk through video ##
+## Walkthrough Video ##
 
 [Haslab Proton Pack Arduino Powered Walkthrough Video](https://www.youtube.com/watch?v=mnfljGd5-uU) (YouTube)
 [![Haslab Proton Pack Arduino Powered Walkthrough Video](https://img.youtube.com/vi/mnfljGd5-uU/maxresdefault.jpg)](https://www.youtube.com/watch?v=mnfljGd5-uU)

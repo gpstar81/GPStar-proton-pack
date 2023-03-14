@@ -19,6 +19,8 @@ In no case should you use the Arduino Mega's barrel jack to convert 12VDC into 5
 
 Also note that any battery pack which uses PD (power delivery) is not recommended, nor is use of USB-C connections as these could potentially supply up to 100W of power and could destroy your equipment. Using standard USB-A connections is recommended as there are dedicated power wires which are easy to access from a modified cable and is typically limited to 2-3 Amps for output.
 
+## Options
+
 ### Good
 
 A standard USB battery pack with a modified USB cable to deliver only the +5VDC and - (Ground) for use by all components. YMMV based on the option you choose. See the next 2 options for more recommended solutions.
