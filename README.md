@@ -28,6 +28,11 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 1. [Hose Examples](HOSE.md)
 
+## Walk through video ##
+
+[Haslab Proton Pack Arduino Powered Walkthrough Video](https://www.youtube.com/watch?v=mnfljGd5-uU) (YouTube)
+[![Haslab Proton Pack Arduino Powered Walkthrough Video](https://img.youtube.com/vi/mnfljGd5-uU/maxresdefault.jpg)](https://www.youtube.com/watch?v=mnfljGd5-uU)
+
 ### Viewing MD Files
 
 GitHub should automatically display these files with basic formatting, though to view these MD (MarkDown) files linked above with full formatting including color-coding, you can use a program such as [MarkdownPad](http://markdownpad.com/) (Windows) or [MacDown](https://macdown.uranusjr.com/) (MacOS). Alternatively, you may copy the contents into [an online viewer](https://markdownlivepreview.com/).
