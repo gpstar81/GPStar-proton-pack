@@ -34,6 +34,7 @@ Here are some photos the basic smoke setup.
 
 ![Booster Setup](images/SmokeBooster4.jpg)
 
+![](images/BoosterSmoke.gif)
 
 ## N-Filter Example
 
