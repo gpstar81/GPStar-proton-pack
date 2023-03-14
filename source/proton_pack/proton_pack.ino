@@ -105,8 +105,8 @@ const boolean b_fan_continuous_firing = true;
 
 /*
  * Enable or disable smoke in individual wand power modes for continuous firing smoke.
- * Example: if b_smoke_continuous_mode_1 is true, smoke will happen in continious firing in wand power mode 1. If false, no smoke in mode 1.
- * This is overridden if b_smoke_enabled or can be by the continious_firing settings above when they are set to false.
+ * Example: if b_smoke_continuous_mode_1 is true, smoke will happen in continuous firing in wand power mode 1. If false, no smoke in mode 1.
+ * This is overridden if b_smoke_enabled or can be by the continuous_firing settings above when they are set to false.
  */
 const boolean b_smoke_continuous_mode_1 = true;
 const boolean b_smoke_continuous_mode_2 = true;
@@ -140,7 +140,7 @@ const unsigned long int i_smoke_on_time_mode_5 = 4000;
 /*
  * Enable or disable smoke during overheat sequences.
  * Control which of the 3 pins that go high during overheat.
- * This can be overriden if b_smoke_enabled is set to false.
+ * This can be overridden if b_smoke_enabled is set to false.
  */
 const boolean b_smoke_1_overheat = true;
 const boolean b_smoke_2_overheat = true;
