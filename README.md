@@ -10,6 +10,8 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 ## Table of Contents
 
+### Build Guides
+
 1. [Bill of Materials](BOM.md)
 
 1. [Power Requirements](POWER.md)
@@ -22,13 +24,15 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 1. [Wand Setup](WAND.md)
 
+### Addendums
+
 1. [Operation Manual](OPERATION.md)
 
 1. [Smoke Examples](SMOKE.md)
 
 1. [Hose Examples](HOSE.md)
 
-1. [Questions and Answers](QA.md)
+1. [Frequently Asked Questions](FAQ.md)
 
 ## Walkthrough Video ##
 
