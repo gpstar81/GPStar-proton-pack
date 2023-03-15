@@ -2,7 +2,7 @@
 
 **Q: What are the power requirements?**
 
-**A:**I think 5V is required. It is recommended not to run higher voltage into the VIN or barrel connector jack on the Arduino Mega or Wav Trigger, as they can generate quite some heat with there onboard regulators over prolong use. A regulated 5V is recommended. Total draw depends on how many optional devices you add, but 5V 2amps is more than enough to run various pumps, lights, etc. Please view the [POWER.md](POWER.md) guide for additional info and recommendations.
+**A:** The pack and wand require 5V. It is recommended not to run higher voltage into the VIN or barrel connector jack on the Arduino Mega or Wav Trigger, as they can generate quite some heat with their onboard regulators over prolong use. A regulated 5V is recommended. Total draw depends on how many optional devices you add, but 5V 2amps is more than enough to run various pumps, lights, etc. Please view the [POWER.md](POWER.md) guide for additional info and recommendations.
 
 **Q: Is a wand required?**
 
