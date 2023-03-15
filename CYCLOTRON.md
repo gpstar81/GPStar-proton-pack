@@ -13,5 +13,5 @@ You can run either a NeoPixel ring (35 pixel ring recommended) or chain together
 ![35 Pixel NeoPixel Ring](images/35NeoPixelRing.jpg)
 ![Cake with NeoPixels](images/CakeLights.jpg)
 
-Included is also a set of stl files if you wish to print a new inner cyclotron. The lid is held down onto the bottom part of this printable cyclotron with m3x12 hex screws.
+Included is also a set of stl files if you wish to print a new inner cyclotron. The lid is held down onto the bottom part of this printable cyclotron with m3x12 hex screws on the outer ring. The inner ring you can use smaller m3x8 hex screws for decoration.
 ![3D Cyclotron](images/3DCyclotron.jpg)
