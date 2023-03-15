@@ -8,6 +8,10 @@
 
 **A:** No, a wand is not required for the pack-only conversion. However, a modified wand is required if you want full control of the pack from the wand. You can still connect a stock unmodified Hasbro Spengler Neutrona wand, however you will not be able to control the pack with it.
 
+**Q: How many wires / pins are required for the connection between the Proton Pack and Neutrona Wand?**
+
+**A:** 4 wires / pins are required (Positive, Negative, TX and RX). See the [Hose Examples](HOSE.md) page for more information.
+
 **Q: Running my vibration motors or any other DC motor is giving me noise on my sound output.**
 
 **A:** It is recommended as per the schematics to move all your DC motors onto the right hand +/- rail on the 1/2 breadboard in the pack. You can also add 0.1uf ceramic capacitors across your DC motor terminals, however during testing this was not required as keeping the DC motors on a separate power rail away from the Arduino and Wav Trigger boards was more than enough to avoid any motor noise. More information can be found here if you want to learn more: [Dealing with Motor Noise](https://www.pololu.com/docs/0J15/9)
@@ -16,9 +20,17 @@
 
 **A:** In theory yes, with some minor modifications to the code depending on what type of LED setup you are using. This solution was designed primarily with the stock lights and switches in use by the Hasbro products.
 
-**Q: Can I sell and produce kits for others for commerical purposes?**
+**Q: Can I produce and sell kits for others for commerical purposes?**
 
 **A:** Yes, the code is released under a GPLv3 License. Modifications or enhancements which may be useful to the community are encouraged to be contributed back to this original respository.
+
+**Q: Can I send you my Proton Pack and Neutrona Wand so you can modify it for me?**
+
+**A:** Sorry, no.
+
+**Q: I have some cool ideas, can you add some custom bits in the code for me?**
+
+**A:** Feel free to use the discussion section of this repository to talk about them. Anybody can contribute modifications or enchancements back to this repository.
 
 **Q: Help, I fried my stock equipment or components!**
 
