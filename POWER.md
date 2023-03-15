@@ -27,8 +27,12 @@ A standard USB battery pack with a modified USB cable to deliver only the +5VDC 
 
 ### Better
 
-The TalentCell battery packs which [only offer a 12VDC output](https://a.co/d/j4m2Kff), plus the use of one or more DC buck converters which are set to deliver 5VDC for common components or less than 5VDC for special components, while 12VDC will be used for components such as standalone audio amplifiers. These batteries come in a variety of mAh ratings, though 3000 or 6000 are common capacities. The downsides is that the standalone buck converters is that they can become hot over time and may "burn out" with extremely prolonged use. Be sure to mount these where they will be able to radiate heat and do not cover them with tape or other materials.
+The TalentCell battery packs which [only offer a 12VDC output](https://a.co/d/j4m2Kff), plus the use of one or more DC buck converters which are set to deliver 5VDC for common components or less than 5VDC for special components, while 12VDC will be used for components such as standalone audio amplifiers. These batteries come in a variety of mAh ratings, though 3000 or 6000 are common capacities. The downsides to using standalone buck converters is that they can become hot over time and may "burn out" with extremely prolonged use. Be sure to mount these where they will be able to radiate heat and do not cover them with tape or other materials.
 
 ### Best
 
 The TalentCell battery packs which offer [both USB connections and 12VDC output](https://a.co/d/8q0VcxT). Similar to the above, this may still require a buck converter to obtain less than 5VDC power, but can easily use a modified USB cable for the core components while supplying a full 12VDC to devices such as an audio amplifier. These batteries come in a variety of mAh ratings, though 3000 or 6000 are common capacities.
+
+## Using Multiple Power Sources
+
+For those who wish to use different power sources for components, eg. a 5V USB power pack for electronics with a 12V battery for audio, should be aware that a common ground connection is necessary to avoid unexpected behavior. Each power source will provide its respective voltage, but that voltage is in reference to a 0V ground state--and with 2 power sources means 2 different reference points. Use of a wire which connects the ground of your power supplies together will remedy this issue.
