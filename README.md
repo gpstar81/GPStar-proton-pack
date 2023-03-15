@@ -28,11 +28,21 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 1. [Hose Examples](HOSE.md)
 
+1. [Questions and Answers](QA.md)
+
 ## Walkthrough Video ##
 
 [Haslab Proton Pack Arduino Powered Walkthrough Video](https://www.youtube.com/watch?v=mnfljGd5-uU) (YouTube)
 [![Haslab Proton Pack Arduino Powered Walkthrough Video](https://img.youtube.com/vi/mnfljGd5-uU/maxresdefault.jpg)](https://www.youtube.com/watch?v=mnfljGd5-uU)
 
-### Viewing MD Files
+## Viewing MD Files
 
 GitHub should automatically display these files with basic formatting, though to view these MD (MarkDown) files linked above with full formatting including color-coding, you can use a program such as [MarkdownPad](http://markdownpad.com/) (Windows) or [MacDown](https://macdown.uranusjr.com/) (MacOS). Alternatively, you may copy the contents into [an online viewer](https://markdownlivepreview.com/).
+
+## Licensing
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
