@@ -1,10 +1,26 @@
-/********************************************************
-  Hasbro Neutrona Wand.
-  January 2022.
-  Michael Rajotte / gpstar
+/**
+ *   Neutrona Wand - Arduino Powered Ghostbusters Proton Pack & Neutrona Wand.
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
-  NOTE: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are uploading code to your Nano.
-********************************************************/
+/*
+IMPORTANT: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are uploading code to your Nano.
+*/
+
 /*
  * You need to edit wavTrigger.h and make sure you comment out the proper serial port. (Near the top of the wavTrigger.h file).
  * We are going to use Pins 8 and 9 on the Nano. __WT_USE_ALTSOFTSERIAL__
