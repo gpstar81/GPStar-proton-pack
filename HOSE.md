@@ -18,7 +18,7 @@ On the wand side, I used a modified Neutrik NAC3FX-W connector. This is a 3 pin 
 
 I use black electrical tape to secure the 3/4 splitless wire loom to the Neutrik connector on the Wand side and the Amphenol connector on the Proton Pack side.
 
-Provided in the wand STL folder is a printable connector which threads into the handle of the Hasbro Neutrona Wand. With this connector, you can shave down the square corners of the 4 pin Neutrik NL4MP-ST connector so it is round, and it can slide into the 3d printable connector. I then screw the 3d printable connector into the wand handle and make a mark on the bottom side of it. I remove the connector and make a hole in it. I then use a m3x5 hex socket screw (or which ever set set you want to use) to secure the Neutrik NL4MP-ST connector into the Neutrona Wand handle.
+Provided in the wand STL folder is a printable connector which threads into the handle of the Hasbro Neutrona Wand. With this connector, you can shave down the square corners of the 4 pin Neutrik NL4MP-ST connector so it is round, and it can slide into the 3d printable connector. I then screw the 3d printable connector into the wand handle and make a mark on the bottom side of it. I remove the connector and make a hole in it. I then use a m3x5 hex socket screw (or which ever set screw you want to use) to secure the Neutrik NL4MP-ST connector into the Neutrona Wand handle.
 
 **READ BELOW IF USING A MODIFIED NAC3FX-W with a NL4FC.**
 
