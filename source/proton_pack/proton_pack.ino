@@ -843,6 +843,7 @@ void packShutdown() {
   if(b_gb2_mode == true) {
     w_trig.trackStop(S_GB2_PACK_START);
     w_trig.trackStop(S_GB2_PACK_LOOP);
+    w_trig.trackStop(S_GB2_PACK_OFF);
   }
   else {
     w_trig.trackStop(S_PACK_SHUTDOWN);
