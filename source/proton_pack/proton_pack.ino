@@ -35,7 +35,7 @@
 /*
  * Use only one of the following defines to change which optional NeoPixels you are using
  * in your inner cyclotron. If you are not using any, then this can be left alone.
- * Leave at least one in place, even if you are not this optional item.
+ * Leave at least one in place, even if you are not using this optional item.
  * 24 -> For a 24 LED NeoPixel Ring
  * 35 -> For a 35 LED NeoPixel Ring
  * 56 -> For 8 NeoPixel Jewels chained together. (7 pixels per jewel)
