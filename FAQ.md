@@ -1,5 +1,9 @@
 # Frequently Asked Questions
 
+**Q: Can I send you my Proton Pack and Neutrona Wand so you can modify it for me?**
+
+**A:** Sorry, no.
+
 **Q: What are the power requirements?**
 
 **A:** For most every component 5V is required. It is recommended not to run higher voltage into the VIN or barrel connector jacks on the Arduino Mega or WavTrigger devices as they can generate quite some heat with their onboard regulators for prolonged use. A pre-regulated 5V is recommended. Total draw (amperage) depends on how many optional devices you add, but 5V at 2amps is more than enough to run various pumps, lights, etc. Please view the [POWER.md](POWER.md) guide for additional info and recommendations.
@@ -24,14 +28,10 @@
 
 **A:** Yes, the code is released under a GPLv3 License. Modifications or enhancements which may be useful to the community are encouraged to be contributed back to this original respository.
 
-**Q: Can I send you my Proton Pack and Neutrona Wand so you can modify it for me?**
-
-**A:** Sorry, no.
-
 **Q: I have some cool ideas, can you add some custom bits in the code for me?**
 
 **A:** Feel free to use the discussion section of this repository to talk about them. Anybody can contribute modifications or enchancements back to this repository.
 
 **Q: Help, I fried my stock equipment or components!**
 
-**A:** OK, not really a question but a common occurrence. Electrical mistakes can happen, and unfortunately there's no warranty or guarantee that this won't happen to you. The best advice is to start small and slow, checking your components work before you connect them to a soldered protoboard by use of a breadboard, first. If everything works or there are mistakes, you can hopefully catch those issues quickly before they become permanently installed. ALWAYS check your input voltages with a multimeter, and verify that you've connected any power sources to the correct device pins BEFORE you apply power. Reversing polarity is a common mistake, so use consistent colors for your positive and negative wires. It is also easy to over-power an LED, so check your resistors using a multimeter and if in doubt or short on parts use the next higher resistance than the recommended value--at the worst your LED's will just be slightly dimmer but won't burn out.
+**A:** OK, not really a question but a common occurrence. Electrical mistakes can happen, and unfortunately there's no warranty or guarantee that this won't happen to you. The best advice is to start small and slow, checking your components work before you connect them to a soldered protoboard by use of a breadboard, first. If everything works or there are mistakes, you can hopefully catch those issues quickly before they become permanently installed. ALWAYS check your input voltages with a multimeter, and verify that you've connected any power sources to the correct device pins BEFORE you apply power. Reversing polarity is a common mistake, so use consistent colors for your positive and negative wires. It is also easy to over-power an LED, so check your resistors using a multimeter and if in doubt or short on parts use the next higher resistance than the recommended value--at the worst your LED's will just be slightly dimmer but won't burn out. Much of this advice comes from hard-learned personal experiences--we've all been there, done that.

@@ -1,6 +1,6 @@
 # Microcontroller Replacements for the Haslab Spengler Series Proton Pack and Neutrona Wand
 
-This repository outlines the full replacement of the stock microcontrollers which run the Proton Pack and Neutrona Wand while retaining the use and function of all existing switches and lights. This is an advanced build-out which requires opening all devices and soldering. Proceed with caution.
+This repository outlines the full replacement of the stock microcontrollers which run the Proton Pack and Neutrona Wand while retaining the use and function of all existing switches and lights. This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
 
 The process is outlined through use of multiple guides, starting with a list of all parts and materials needed, and moving through the preparation of the hardware and software before modifying the pack and wand themselves. Lastly, there is an operation manual for navigating the various features within the new controllers.
 
@@ -9,6 +9,10 @@ The process is outlined through use of multiple guides, starting with a list of 
 Special thanks to Michael Klodzinksi for graciously allowing us to include his version of [Savin' The Day](https://www.youtube.com/watch?v=shJslMSAxE0) as a bundled music file to demo your awesome proton pack mods! Check out his other works at [michaelk.net](https://michaelk.net).
 
 ## Table of Contents
+
+*"Ray, pretend for a moment that I don't know anything about metallurgy, engineering, or physics, and just tell me what the hell is going on." -Dr. Venkman*
+
+That's alright, this will help you study. Below you will find the various guides to build out your new electronic brains, and maybe find some cool new features to implement as part of the addendums.
 
 ### Build Guides
 
@@ -36,7 +40,9 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 ## Walkthrough Video ##
 
-[Haslab Proton Pack Arduino Powered Walkthrough Video](https://www.youtube.com/watch?v=mnfljGd5-uU) (YouTube)
+*"You know, it just occurred to me that we really haven't had a successful test of this equipment." -Ray Stantz*
+
+Except that we have! Here is a [Walkthrough Video Contributed by JustinDustin](https://www.youtube.com/watch?v=mnfljGd5-uU) (YouTube) showcasing several of the stock features in a converted pack/wand combination. Several optional features were implemented as part of this build.
 [![Haslab Proton Pack Arduino Powered Walkthrough Video](https://img.youtube.com/vi/mnfljGd5-uU/maxresdefault.jpg)](https://www.youtube.com/watch?v=mnfljGd5-uU)
 
 ## Viewing MD Files
