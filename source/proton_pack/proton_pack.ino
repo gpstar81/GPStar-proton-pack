@@ -72,6 +72,13 @@ const int i_2021_delay = 15;
  */
 const int STARTUP_VOLUME = 0;
 
+
+/*
+ * When set to true, 1984 mode is turned into 1989 mode. 
+ * The pack will play 1989 sound effects instead of 1984 sound effects.
+*/
+const boolean b_gb2_mode = false;
+
 /*
  * Set to true to enable the onboard amplifer on the wav trigger. 
  * Turning off the onboard amp draws less power. 
@@ -789,13 +796,24 @@ void packStartup() {
     
     switch(i_mode_year) {
       case 1984:
-        w_trig.trackGain(S_BOOTUP, i_volume);
-        w_trig.trackPlayPoly(S_BOOTUP, true);
-         
-        w_trig.trackGain(S_IDLE_LOOP, i_volume - 20);
-        w_trig.trackPlayPoly(S_IDLE_LOOP, true);
-        w_trig.trackFade(S_IDLE_LOOP, i_volume, 2000, 0);
-        w_trig.trackLoop(S_IDLE_LOOP, 1);
+        if(b_gb2_mode == true) {
+          w_trig.trackGain(S_GB2_PACK_START, i_volume);
+          w_trig.trackPlayPoly(S_GB2_PACK_START, true);
+
+          w_trig.trackGain(S_GB2_PACK_LOOP, i_volume - 20);
+          w_trig.trackPlayPoly(S_GB2_PACK_LOOP, true);
+          w_trig.trackFade(S_GB2_PACK_LOOP, i_volume, 2000, 0);
+          w_trig.trackLoop(S_GB2_PACK_LOOP, 1);
+        }
+        else {
+          w_trig.trackGain(S_BOOTUP, i_volume);
+          w_trig.trackPlayPoly(S_BOOTUP, true);
+
+          w_trig.trackGain(S_IDLE_LOOP, i_volume - 20);
+          w_trig.trackPlayPoly(S_IDLE_LOOP, true);
+          w_trig.trackFade(S_IDLE_LOOP, i_volume, 2000, 0);
+          w_trig.trackLoop(S_IDLE_LOOP, 1);
+        }
       break;
   
       default:
@@ -818,24 +836,37 @@ void packShutdown() {
   // Stop the firing if the pack is doing it.
   wandStoppedFiring();
 
+  w_trig.trackStop(S_PACK_BEEPING);
   w_trig.trackStop(S_BEEP_8);
   w_trig.trackStop(S_SHUTDOWN);
-  w_trig.trackStop(S_PACK_SHUTDOWN);
-  w_trig.trackStop(S_PACK_SHUTDOWN_AFTERLIFE);
 
-  w_trig.trackStop(S_PACK_BEEPING);
-  w_trig.trackStop(S_IDLE_LOOP);
-  w_trig.trackStop(S_BOOTUP);
-  w_trig.trackStop(S_AFTERLIFE_PACK_STARTUP);
-  w_trig.trackStop(S_AFTERLIFE_PACK_IDLE_LOOP);
+  if(b_gb2_mode == true) {
+    w_trig.trackStop(S_GB2_PACK_START);
+    w_trig.trackStop(S_GB2_PACK_LOOP);
+  }
+  else {
+    w_trig.trackStop(S_PACK_SHUTDOWN);
+    w_trig.trackStop(S_PACK_SHUTDOWN_AFTERLIFE);
+    w_trig.trackStop(S_IDLE_LOOP);
+    w_trig.trackStop(S_BOOTUP);
+    w_trig.trackStop(S_AFTERLIFE_PACK_STARTUP);
+    w_trig.trackStop(S_AFTERLIFE_PACK_IDLE_LOOP);
+  }
 
   if(b_alarm != true) {
     switch(i_mode_year) {
       case 1984:
         w_trig.trackGain(S_SHUTDOWN, i_volume);
         w_trig.trackPlayPoly(S_SHUTDOWN, true);
-        w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
-        w_trig.trackPlayPoly(S_PACK_SHUTDOWN, true);
+
+        if(b_gb2_mode == true) {
+          w_trig.trackGain(S_GB2_PACK_OFF, i_volume);
+          w_trig.trackPlayPoly(S_GB2_PACK_OFF, true);
+        }
+        else {
+          w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
+          w_trig.trackPlayPoly(S_PACK_SHUTDOWN, true);
+        }
       break;
   
       default:
@@ -2240,16 +2271,28 @@ void packAlarm() {
   wandStopFiringSounds();
 
   // Pack sounds.
-  w_trig.trackStop(S_AFTERLIFE_PACK_STARTUP);
-  w_trig.trackStop(S_AFTERLIFE_PACK_IDLE_LOOP);
-  w_trig.trackStop(S_IDLE_LOOP);
-  w_trig.trackStop(S_BOOTUP);
+  if(b_gb2_mode == true) {
+    w_trig.trackStop(S_GB2_PACK_START);
+    w_trig.trackStop(S_GB2_PACK_LOOP);
+  }
+  else {
+    w_trig.trackStop(S_AFTERLIFE_PACK_STARTUP);
+    w_trig.trackStop(S_AFTERLIFE_PACK_IDLE_LOOP);
+    w_trig.trackStop(S_IDLE_LOOP);
+    w_trig.trackStop(S_BOOTUP);
+  }
 
   w_trig.trackGain(S_SHUTDOWN, i_volume);
   w_trig.trackPlayPoly(S_SHUTDOWN, true);
 
-  w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
-  w_trig.trackPlayPoly(S_PACK_SHUTDOWN, true);
+  if(b_gb2_mode == true) {
+    w_trig.trackGain(S_GB2_PACK_OFF, i_volume);
+    w_trig.trackPlayPoly(S_GB2_PACK_OFF, true);
+  }
+  else {
+    w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
+    w_trig.trackPlayPoly(S_PACK_SHUTDOWN, true);
+  }
 
   if(b_overheating != true) {
     w_trig.trackGain(S_PACK_BEEPING, i_volume);
