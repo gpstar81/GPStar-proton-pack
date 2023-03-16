@@ -4,6 +4,10 @@
 
 **A:** Sorry, no.
 
+**Q: Does this replace everything in the pack/wand?**
+
+**A:** This solution focuses on replacement of the microcontrollers which run the pack and wand only. It is not necessary to replace all of the switches and lights unless you truly desire to do so. Although in the case of the wand the toggle switches and every other component are attached with very thin wires, so it may be worth considering temporarily removing some items to solder better (thicker) wires to avoid breakage later.
+
 **Q: What are the power requirements?**
 
 **A:** For most every component 5V is required. It is recommended not to run higher voltage into the VIN or barrel connector jacks on the Arduino Mega or WavTrigger devices as they can generate quite some heat with their onboard regulators for prolonged use. A pre-regulated 5V is recommended. Total draw (amperage) depends on how many optional devices you add, but 5V at 2amps is more than enough to run various pumps, lights, etc. Please view the [POWER.md](POWER.md) guide for additional info and recommendations.

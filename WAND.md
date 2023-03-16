@@ -2,23 +2,26 @@
 
 This guide begins with some explanations for common items you will encounter during the upgrade process. Note that it will be necessary to upgrade the hose and conductors between the pack and wand. This exercise is left to individual preferences on connectors and style of replacement, though you will need 4 conductors at a minimum (+5V, Ground, and TX/RX for communications.
 
-The space within the Neutron Wand is extremely limited, though multiple components must be fit into this space. To maximize what is available, some wires from the original controller (PCB) will be directly soldered onto the Arduino Nano. Where resistors or inline components are required, these may be soldered between the wire and Arduino Nano to reduce need for an additional protoboard. If needed, a [a ¼ protoboard from Adafruit](https://www.adafruit.com/product/1608) or any similar size from another manufacturer will be used.
+The space within the Neutron Wand is extremely limited, though multiple components must be fit into this space. To maximize what is available, some wires from the original controller (PCB) can be directly soldered onto the Arduino Nano. Where resistors or inline components are required, these may be soldered between the wire and Arduino Nano to reduce need for an additional protoboard. If needed, a [a ¼ protoboard from Adafruit](https://www.adafruit.com/product/1608) or any similar size from another manufacturer will be used.
 
-You will find that the wand poses some challenges due to confined spaces and fragile wires to all the stock components. The following are suggestions to help you minimize damage to existing wiring, unless you plan to remove all stock component and run new wires.
+## Special Cautions and Warnings
 
-- Remove what you can of any plastic covers over the switches internally, and use a hot glue gun to dribble some glue over the ends of the toggles, rotary encoder, and any other wire connections to reinforce them as they stand.
+You will find that the wand poses some challenges due to confined spaces and fragile wires to all the stock components. The following are suggestions to help you minimize damage to existing wiring, unless you plan to remove all stock component and connect new wires.
+
+- Remove what you can of any plastic covers over the switches internally, and use a hot glue gun to carefully drip glue over the soldered ends of the toggles, rotary encoder, and any other wire connections to reinforce them as they stand.
 - Gently separate any wires that are bonded together, allowing about 1" of excess for stripping.
-- Use a mechanical wire stripper to ensure you quickly strip back the sheathing for each.
-- Use silicone-coated stranded wiring (22AWG down to 26AWG) to allow for maximum flexibility, and solder on extensions to every wire in the wand.
-- Use heat-shrink tubing to reinforce the connections and to make a better bond with the stock wire to prevent breakage.
-- Continue the extended wire to either a PCB or the Nano for soldering, making sure that ALL of the strands of wire make it through the holes.
+- Use a mechanical wire stripper to ensure you quickly strip back the sheathing for each wire.
+- Use silicone-coated **stranded** wiring (22AWG down to 26AWG) to allow for maximum flexibility.
+- Solder on extensions to every wire in the wand and use heat-shrink tubing to reinforce extended connections to make a better bond with the stock wire to prevent breakage.
+- Continue the extended wire to either a PCB or the Nano for soldering, making sure that ALL of the strands of wire make it through the holes. Twist your bare wires tightly, and you can pre-tin the ends with a bit of solder to keep everything together as you fit the wire through any PCB holes (this also works well for making breadboard connections).
+- Optionally, this is where you may consider a full replacement of some wires if they break off at the component you are connecting.
 - It's too easy to have some strands that get missed which could cause a short--check your connections after soldering. A magnifying glass and good lighting is your friend!
 
 ## Original Connection References
 
-You may refer to this PCB drawing and the following table to help identify components in the Neutrona Wand.
+You may refer to this PCB drawing and the following table to help identify the original components in the Neutrona Wand.
 
-![](images/WandPCBs.png)
+![Stock PCB Layout](images/WandPCBs.png)
 
 *[Wand Reference Diagrams](https://github.com/Tomdf/Ghostbusters/tree/main/Haslab%20Pack%20Illustrations/Neutrona_Wand_Illustration) by Tomdf*
 
@@ -77,23 +80,23 @@ The following is a diagram of the Arduino Nano pins from left and right, when or
 
 You can also reference the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance on the Wand wiring configuration.
 
-| Connection    | Nano (L) |   | Nano (R) | Connection |
-|---------------|----------|---|----------|------------|
-| D8 (Red)      | D13  |   | D12  | D7 (Red)      |
-|               | 3V3  |   | D11  | Motor-NPN     |
-|               | REF  |   | D10  | Q2 (Yellow)   |
-| SW2 (Red)     | A0   |   | D9   | WavTrigger RX |
-| D2 (Brown)    | A1   |   | D8   | WavTrigger TX |
-| D3 (Red)      | A2   |   | D7   | ROT (Yellow)  |
-| D4 (Orange)   | A3   |   | D6   | ROT (Red)     |
-| D5 (Yellow)   | A4   |   | D5   | D1 & D9 (Red) |
-| D6 (Green)    | A5   |   | D4   | SW1 (Brown)   |
-| SW6 (White)   | A6   |   | D3   | SW4 (Red)     |
-| SW7 (Orange)  | A7   |   | D2   | SW45 (White)  |
-|               | 5V   |   | GND  |               |
-|               | RST  |   | RST  |               |
-| Ground (Pack) | GND  |   | RX0  | TX (to Pack)  |
-| +5V (Pack)    | VIN  |   | TX1  | RX (to Pack)  |
+| Connection    | Nano (L) | USB | Nano (R) | Connection |
+|---------------|----------|-----|----------|------------|
+| D8 (Red)      | D13   |     | D12   | D7 (Red)      |
+|               | 3V3   |     | D11   | Motor-NPN     |
+|               | REF   |     | D10   | Q2 (Yellow)   |
+| SW2 (Red)     | A0    |     | D9    | WavTrigger RX |
+| D2 (Brown)    | A1    |     | D8    | WavTrigger TX |
+| D3 (Red)      | A2    |     | D7    | ROT (Yellow)  |
+| D4 (Orange)   | A3    |     | D6    | ROT (Red)     |
+| D5 (Yellow)   | A4    |     | D5    | D1 & D9 (Red) |
+| D6 (Green)    | A5    |     | D4    | SW1 (Brown)   |
+| SW6 (White)   | A6    |     | D3    | SW4 (Red)     |
+| SW7 (Orange)  | A7    |     | D2    | SW45 (White)  |
+|               | 5V    |     | GND   |               |
+|               | RST   |     | RST   |               |
+| Ground (Pack) | GND   |     | RX0   | TX (to Pack)  |
+| +5V (Pack)    | VIN   |     | TX1   | RX (to Pack)  |
 
 ### Connections by Component
 
@@ -172,7 +175,7 @@ Considered optional as this can be left out if desired, and without impact to no
 | <font color="brown">Brown</font>   | → | 140 Ω | →  | Pin A1   | D2   |
 
 Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes.
-**Use the appropriate resistor for your replacement LED's!**
+**Use the appropriate resistor for your replacement LED's based on their forward voltage given a 5V source!**
 
 | VENT LIGHT LED BOARD → D7 & D8  |   |      |    | Nano Pin | Hasbro Ref |                                        |
 |---------------------------------|---|------|----|----------|------------|----------------------------------------|
@@ -211,6 +214,10 @@ OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin
 ## Component Fitment
 
 As noted at the start of this guide the space inside of the gun box for the wand is extremely limited. Creative placement of any protoboards, the Arduino, WavTrigger, and speaker (if upgraded) will be left to each individual. As a matter of advice, placing the WavTrigger under the wand barrel is an advised option with other items "stacked" above and beside the spring-loaded mechanism. As an alternative option, the WavTrigger can also fit in the opposite half of the gun box if the barrel jack is removed--this is to avoid the spring which attaches to the wand barrel.
+
+Below is a view of the wand internals showing the Arduino Nano, a PCB for connections, and many of the wires which extends the stock wiring. This solution is using several of the included STL files: a small spacer is meant to fit under the barrel if you removed some of the plastic from the old controller mount; another 3D printed part is meant to protect the wiring from intruding on the barrel latching mechanism while still allowing the wires to connect to the barrel. And lastly, a mini USB cable has been routed through the casing to allow updating of the Arduino without removing the cover--in this case the vibration motor had already been removed to save space and make this area more accessible.
+
+![](images/WandUSB.jpg)
 
 ## Arduino Nano Pinout Reference
 
