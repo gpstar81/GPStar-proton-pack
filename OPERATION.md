@@ -15,6 +15,7 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 - The pack can run without a wand.
 - Vibration switch in the cyclotron switch plate enables or disables the vibration motors for both the pack and wand.
 - 1984/2021 year switch in the cyclotron switch plate changes the pack and wand from 1984 (OG) to 2021 (Afterlife) modes.
+- Optional 1989 sound effects mode on the pack with advanced user configuration setting **\*see below\***
 - Optional switches and lights available for smoke effects, cyclotron panel, etc.
 
 ## Neutrona Wand				
@@ -86,6 +87,7 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const int i&#95;1984&#95;delay | This controls the delay in milliseconds when a LED changes on the cyclotron lid in 1984 mode. The default setting is 1050 which is 1.05 seconds. | 1050 |
 | const int i&#95;2021&#95;delay | This controls the delay in milliseconds when a LED changes on the cyclotron lid in 2021 mode. The default setting is 15. It is recommended not to go lower than 10. | 15 |
 | const int STARTUP&#95;VOLUME | This is the default startup volume of the proton pack. 0 = the loudest, -70 = the quietest. When a Neutrona Wand is connected, it will sync to these values. | 0 |
+| const boolean b&#95;gb2&#95;mode | When set to true, the pack will be in 1989 sound effects instead of 1984 sound effects when the proton pack year mode toggle switch is set to 1984 mode | false |
 | const boolean b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms**| false |
 | boolean b&#95;clockwise | Set to true for the cyclotron lights to spin clockwise. Set to false to be counter clockwise. This can be controlled by an optional switch on pin 29 | true |
 | const boolean b&#95;overheat&#95;strobe | If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true. When false, the light stays solid white during overheat. | false |
