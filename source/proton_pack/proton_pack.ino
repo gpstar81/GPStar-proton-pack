@@ -1407,19 +1407,6 @@ void cyclotronFade() {
     case 1984:
       if(b_fade_in_cyclotron_led == true || b_fade_out_cyclotron_led != true) {
         for(int i = 0; i < cyclotron_led_start - 1; i++) {
-          if(b_fade_out_cyclotron_led == true) {
-            if(ms_cyclotron_led_fade_out[i].isRunning() && ms_cyclotron_led_fade_out[i].isFinished() != true) {
-              if(ms_cyclotron_led_fade_out[i].isFinished()) {
-                i_cyclotron_led_on_status[i] = false;
-
-                pack_leds[i + cyclotron_led_start] = CRGB(0,0,0);
-              }
-              else {
-                pack_leds[i + cyclotron_led_start] = CRGB(ms_cyclotron_led_fade_out[i].update(),0,0);
-              }
-            }
-          }
-
           if(b_fade_in_cyclotron_led == true) {
             if(ms_cyclotron_led_fade_in[i].isRunning() && ms_cyclotron_led_fade_in[i].isFinished() != true) {
               i_cyclotron_led_on_status[i] = true;
@@ -1429,6 +1416,19 @@ void cyclotronFade() {
               }
               else {  
                 pack_leds[i + cyclotron_led_start] = CRGB(ms_cyclotron_led_fade_in[i].update(),0,0);
+              }
+            }
+          }
+
+          if(b_fade_out_cyclotron_led == true) {
+            if(ms_cyclotron_led_fade_out[i].isRunning() && ms_cyclotron_led_fade_out[i].isFinished() != true) {
+              if(ms_cyclotron_led_fade_out[i].isFinished()) {
+                i_cyclotron_led_on_status[i] = false;
+
+                pack_leds[i + cyclotron_led_start] = CRGB(0,0,0);
+              }
+              else {
+                pack_leds[i + cyclotron_led_start] = CRGB(ms_cyclotron_led_fade_out[i].update(),0,0);
               }
             }
           }
@@ -1529,17 +1529,16 @@ void cyclotron2021(int cDelay) {
       }   
     }
     else {
-      pack_leds[i_led_cyclotron] = CRGB(255,0,0);
-      ms_cyclotron_led_fade_in[i_led_cyclotron].go(0);
-      ms_cyclotron_led_fade_in[i_led_cyclotron].go(255, cDelay, CIRCULAR_IN);
+      ms_cyclotron_led_fade_in[i_led_cyclotron - cyclotron_led_start].go(0);
+      ms_cyclotron_led_fade_in[i_led_cyclotron - cyclotron_led_start].go(255, cDelay, CIRCULAR_IN);
 
       if(i_led_cyclotron + 1 > PACK_NUM_LEDS - 7 - 1) {
-        ms_cyclotron_led_fade_out[cyclotron_led_start].go(255);
-        ms_cyclotron_led_fade_out[cyclotron_led_start].go(0, cDelay, CIRCULAR_OUT);
+        ms_cyclotron_led_fade_out[0].go(255);
+        ms_cyclotron_led_fade_out[0].go(0, cDelay, CIRCULAR_OUT);
       }
       else {
-        ms_cyclotron_led_fade_out[i_led_cyclotron + 1].go(255);
-        ms_cyclotron_led_fade_out[i_led_cyclotron + 1].go(0, cDelay, CIRCULAR_OUT);
+        ms_cyclotron_led_fade_out[i_led_cyclotron + 1 - cyclotron_led_start].go(255);
+        ms_cyclotron_led_fade_out[i_led_cyclotron + 1 - cyclotron_led_start].go(0, cDelay, CIRCULAR_OUT);
       }
 
       i_led_cyclotron--;
