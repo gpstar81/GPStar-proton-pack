@@ -83,7 +83,7 @@ boolean b_clockwise = true;
  * When set to true, 1984 mode is turned into 1989 mode. 
  * The pack will play 1989 sound effects instead of 1984 sound effects.
 */
-const boolean b_gb2_mode = false;
+const boolean b_gb2_mode = true;
 
 /*
  * When set to false, 1984 mode LED's will not fade out.
@@ -885,19 +885,16 @@ void packShutdown() {
   w_trig.trackStop(S_BEEP_8);
   w_trig.trackStop(S_SHUTDOWN);
 
-  if(b_gb2_mode == true) {
-    w_trig.trackStop(S_GB2_PACK_START);
-    w_trig.trackStop(S_GB2_PACK_LOOP);
-    w_trig.trackStop(S_GB2_PACK_OFF);
-  }
-  else {
-    w_trig.trackStop(S_PACK_SHUTDOWN);
-    w_trig.trackStop(S_PACK_SHUTDOWN_AFTERLIFE);
-    w_trig.trackStop(S_IDLE_LOOP);
-    w_trig.trackStop(S_BOOTUP);
-    w_trig.trackStop(S_AFTERLIFE_PACK_STARTUP);
-    w_trig.trackStop(S_AFTERLIFE_PACK_IDLE_LOOP);
-  }
+
+  w_trig.trackStop(S_GB2_PACK_START);
+  w_trig.trackStop(S_GB2_PACK_LOOP);
+  w_trig.trackStop(S_GB2_PACK_OFF);
+  w_trig.trackStop(S_PACK_SHUTDOWN);
+  w_trig.trackStop(S_PACK_SHUTDOWN_AFTERLIFE);
+  w_trig.trackStop(S_IDLE_LOOP);
+  w_trig.trackStop(S_BOOTUP);
+  w_trig.trackStop(S_AFTERLIFE_PACK_STARTUP);
+  w_trig.trackStop(S_AFTERLIFE_PACK_IDLE_LOOP);
 
   if(b_alarm != true) {
     switch(i_mode_year) {
