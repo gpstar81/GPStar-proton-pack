@@ -530,7 +530,6 @@ int i_wand_power_level = 1; // Power level of the wand.
 int rx_byte = 0;
 int prev_byte = 0;
 
-
 /*
  * Firing timers
  */
