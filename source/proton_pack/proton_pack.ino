@@ -83,7 +83,7 @@ boolean b_clockwise = true;
  * When set to true, 1984 mode is turned into 1989 mode. 
  * The pack will play 1989 sound effects instead of 1984 sound effects.
 */
-const boolean b_gb2_mode = true;
+const boolean b_gb2_mode = false;
 
 /*
  * When set to false, 1984 mode LED's will not fade out.
