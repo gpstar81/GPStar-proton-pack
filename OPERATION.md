@@ -82,8 +82,8 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 |Variable| Description| Default Setting |
 |--------|------------|-----------------|
 | #define CYCLOTRON&#95;NUM&#95;LEDS | This setting controls how many optional LEDs are in the Inner (cake) Cyclotron. Default setting of 35 is for a 35 pixel NeoPixel ring. If you change this for a smaller NeoPixel ring, you may need to alter the i&#95;2021&#95;inner&#95;delay and i&#95;1984&#95;inner&#95;delay to lower values to slow down the rotation speed for a smaller ring. | 35 |
-| const int i&#95;2021&#95;inner&#95;delay | This setting controls the optional NeoPixel ring speed for the inner cyclotron in 2021 mode. The default setting is 10 which is set for a 35 pixel NeoPixel ring. Decrease this number to make the ring spin slower, or increase to spin faster. Do not go any higher than 12. | 10 |
-| const int i&#95;1984&#95;inner&#95;delay | The same as above, but for 1984 mode. Default setting is 6 for a 35 pixel NeoPixel ring. | 6 |
+| const int i&#95;2021&#95;inner&#95;delay | This setting controls the optional NeoPixel ring speed for the inner cyclotron in 2021 mode. The default setting is 13 which is set for a 35 pixel NeoPixel ring. Decrease this number to make the ring spin slower, or increase to spin faster. Do not go any higher than 16. | 13 |
+| const int i&#95;1984&#95;inner&#95;delay | The same as above, but for 1984 mode. Default setting is 8 for a 35 pixel NeoPixel ring. | 8 |
 | const int i&#95;1984&#95;delay | This controls the delay in milliseconds when a LED changes on the cyclotron lid in 1984 mode. The default setting is 1050 which is 1.05 seconds. | 1050 |
 | const int i&#95;2021&#95;delay | This controls the delay in milliseconds when a LED changes on the cyclotron lid in 2021 mode. The default setting is 18. It is recommended not to go lower than 10. | 18 |
 | const int STARTUP&#95;VOLUME | This is the default startup volume of the proton pack. 0 = the loudest, -70 = the quietest. When a Neutrona Wand is connected, it will sync to these values. | 0 |
