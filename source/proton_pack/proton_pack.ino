@@ -45,6 +45,14 @@
 //#define CYCLOTRON_NUM_LEDS 56
 
 /*
+ * You can set the default startup volume for your pack here.
+ * When a Neutrona wand is connected, it will sync to these settings.
+ * 0 = loudest
+ * -70 = quietest
+ */
+const int STARTUP_VOLUME = 0;
+
+/*
  * Inner cyclotron NeoPixel ring speed.
  * The higher the number, the faster it will spin.
  * Do not go any higher than 12.
@@ -63,14 +71,6 @@ const int i_1984_inner_delay = 6;
  */
 const int i_1984_delay = 1050;
 const int i_2021_delay = 18;
-
-/*
- * You can set the default startup volume for your pack here.
- * When a Neutrona wand is connected, it will sync to these settings.
- * 0 = loudest
- * -70 = quietest
- */
-const int STARTUP_VOLUME = -25;
 
 /* 
  *  Default the cyclotron lights direction to clockwise. 
