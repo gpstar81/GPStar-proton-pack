@@ -55,13 +55,13 @@ const int STARTUP_VOLUME = 0;
 /*
  * Inner cyclotron NeoPixel ring speed.
  * The higher the number, the faster it will spin.
- * Do not go any higher than 12.
- * Default settings for a 35 NeoPixel ring are: 10 for 2021 mode and 6 for 1984 mode.
+ * Do not go any higher than 16.
+ * Default settings for a 35 NeoPixel ring are: 13 for 2021 mode and 8 for 1984 mode.
  * If you are using a ring with less than 35 NeoPixels, you may need to slightly lower these numbers.
  * NOTE: This does not affect the 8 NeoPixel option.
  */
-const int i_2021_inner_delay = 10;
-const int i_1984_inner_delay = 6;
+const int i_2021_inner_delay = 13;
+const int i_1984_inner_delay = 8;
 
 /*
  * Cyclotron Lid LED delays.
