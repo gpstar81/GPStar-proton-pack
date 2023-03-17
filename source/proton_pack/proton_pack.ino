@@ -2507,7 +2507,7 @@ void packAlarm() {
   wandStopFiringSounds();
 
   // Pack sounds.
-  if(b_gb2_mode == true) {
+  if(b_gb2_mode == true && i_mode_year == 1984) {
     w_trig.trackStop(S_GB2_PACK_START);
     w_trig.trackStop(S_GB2_PACK_LOOP);
   }
@@ -2521,7 +2521,7 @@ void packAlarm() {
   w_trig.trackGain(S_SHUTDOWN, i_volume);
   w_trig.trackPlayPoly(S_SHUTDOWN, true);
 
-  if(b_gb2_mode == true) {
+  if(b_gb2_mode == true && i_mode_year == 1984) {
     w_trig.trackGain(S_GB2_PACK_OFF, i_volume);
     w_trig.trackPlayPoly(S_GB2_PACK_OFF, true);
   }
