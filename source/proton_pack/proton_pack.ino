@@ -33,12 +33,11 @@
  */
  
 /*
- * Use only one of the following defines to change which optional NeoPixels you are using
+ * Use only one of the following defines to change which optional NeoPixel ring you are using
  * in your inner cyclotron. If you are not using any, then this can be left alone.
  * Leave at least one in place, even if you are not using this optional item.
  * 24 -> For a 24 LED NeoPixel Ring
  * 35 -> For a 35 LED NeoPixel Ring
- * 56 -> For 8 NeoPixel Jewels chained together. (7 pixels per jewel)
  */
 //#define CYCLOTRON_NUM_LEDS 24
 #define CYCLOTRON_NUM_LEDS 35
@@ -54,14 +53,12 @@ const int STARTUP_VOLUME = 0;
 
 /*
  * Inner cyclotron NeoPixel ring speed.
- * The higher the number, the faster it will spin.
- * Do not go any higher than 16.
- * Default settings for a 35 NeoPixel ring are: 13 for 2021 mode and 8 for 1984 mode.
+ * The lower the number, the faster it will spin.
+ * Default settings for a 35 NeoPixel ring is: 5 for 2021 mode and 9 for 1984 mode.
  * If you are using a ring with less than 35 NeoPixels, you may need to slightly lower these numbers.
- * NOTE: This does not affect the 8 NeoPixel option.
  */
-const int i_2021_inner_delay = 13;
-const int i_1984_inner_delay = 8;
+const int i_2021_inner_delay = 5;
+const int i_1984_inner_delay = 9;
 
 /*
  * Cyclotron Lid LED delays.
@@ -353,9 +350,9 @@ const int cyclotron_led_start = 13; // First LED in the cyclotron.
 int i_led_cyclotron = cyclotron_led_start; // Current cyclotron LED that we are lighting up.
 const int i_2021_ramp_delay = 300;
 const int i_2021_ramp_length = 6000;
-const int i_1984_ramp_length = 2000;
+const int i_1984_ramp_length = 3000;
 const int i_2021_ramp_down_length = 5000;
-const int i_1984_ramp_down_length = 3000;
+const int i_1984_ramp_down_length = 2500;
 int i_current_ramp_speed = i_2021_ramp_delay;
 int i_cyclotron_multiplier = 1;
 bool b_2021_ramp_up = true;
@@ -363,9 +360,23 @@ bool b_2021_ramp_up_start = true;
 bool b_2021_ramp_down_start = false;
 bool b_2021_ramp_down = false;
 bool b_reset_start_led = true;
+bool b_1984_led_start = true;
 rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
 boolean b_cyclotron_lid_on = true;
+
+/*
+ * Inner cyclotron NeoPixel ring ramp control.
+ * This is for the 35 LED NeoPixel ring option.
+ */
+millisDelay ms_cyclotron_ring;
+rampInt r_inner_ramp;
+const int i_inner_delay = i_2021_inner_delay;
+const int i_inner_ramp_delay = 300;
+int i_led_cyclotron_ring = 0;
+bool b_inner_ramp_up = true;
+bool b_inner_ramp_down = false;
+int i_inner_current_ramp_speed = i_inner_ramp_delay;
 
 rampInt ms_cyclotron_fade_out_led_1;
 rampInt ms_cyclotron_fade_out_led_2;
@@ -395,29 +406,6 @@ const int i_2021_fade_delay = 5;
 boolean i_cyclotron_led_on_status[12] = { false, false, false, false, false, false, false, false, false, false, false, false };
 rampInt ms_cyclotron_led_fade_out[12] = { ms_cyclotron_fade_out_led_1, ms_cyclotron_fade_out_led_2, ms_cyclotron_fade_out_led_3, ms_cyclotron_fade_out_led_4, ms_cyclotron_fade_out_led_5, ms_cyclotron_fade_out_led_6, ms_cyclotron_fade_out_led_7, ms_cyclotron_fade_out_led_8, ms_cyclotron_fade_out_led_9, ms_cyclotron_fade_out_led_10, ms_cyclotron_fade_out_led_11, ms_cyclotron_fade_out_led_12 };
 rampInt ms_cyclotron_led_fade_in[12] = { ms_cyclotron_fade_in_led_1, ms_cyclotron_fade_in_led_2, ms_cyclotron_fade_in_led_3, ms_cyclotron_fade_in_led_4, ms_cyclotron_fade_in_led_5, ms_cyclotron_fade_in_led_6, ms_cyclotron_fade_in_led_7, ms_cyclotron_fade_in_led_8, ms_cyclotron_fade_in_led_9, ms_cyclotron_fade_in_led_10, ms_cyclotron_fade_in_led_11, ms_cyclotron_fade_in_led_12 };
-
-
-/*
- * Inner cyclotron NeoPixel ring ramp control.
- * The 8 Jewel option is piggybacking off the cyclotron lid led controls above.
- * This is for the 35 LED NeoPixel ring option.
- */
-millisDelay ms_cyclotron_ring;
-rampInt r_inner_ramp;
-const int i_inner_delay = i_2021_delay;
-const int i_inner_ramp_delay = i_2021_ramp_delay;
-int i_led_cyclotron_ring = 0;
-bool b_inner_ramp_up = true;
-bool b_inner_ramp_down = false;
-int i_inner_current_ramp_speed = i_2021_delay - i_2021_inner_delay;
-        
-/* 
- *  Inner cyclotron communication
- *  This is used by the 8 NeoPixel Jewel option only.
- *  The jewel option is piggybacking it's timing off the cyclotron lid led controls.
- */
-int i_cyclotron_data = 0;
-int i_prev_cyclotron_data = 0;
 
 /*
  * Cyclotron Switch Plate LEDs
@@ -608,9 +596,21 @@ void setup() {
   // Bootup the pack into Proton mode, the same as the wand.
   FIRING_MODE = PROTON;
 
+  switch(i_mode_year) {
+    case 1984:
+      i_current_ramp_speed = i_1984_delay * 1.3;
+      i_inner_current_ramp_speed = i_inner_ramp_delay;
+    break;
+
+    case 2021:          
+      i_current_ramp_speed = i_2021_ramp_delay;
+      i_inner_current_ramp_speed = i_inner_ramp_delay;
+    break;
+  }
+
   // Start some timers
-  ms_cyclotron.start(i_2021_delay);
-  ms_cyclotron_ring.start(i_inner_ramp_delay);
+  ms_cyclotron.start(i_current_ramp_speed);
+  ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
   ms_wand_handshake.start(1);
   ms_fast_led.start(i_fast_led_delay);
@@ -622,7 +622,6 @@ void setup() {
 void loop() {
   w_trig.update();
   
-  innerCyclotronCommunication();
   cyclotronSwitchPlateLEDs();
 
   wandHandShake();
@@ -713,6 +712,10 @@ void loop() {
     break;
    
     case MODE_ON:
+      if(b_pack_shutting_down == true) {
+        b_pack_shutting_down = false;
+      }
+      
       if(b_pack_on == false) {
         // Tell the wand the pack is on.
         Serial2.write(1);
@@ -742,8 +745,13 @@ void loop() {
           
           packStartup();
           
-          ms_cyclotron.start(i_2021_delay);
-          ms_cyclotron_ring.start(i_inner_ramp_delay);      
+          if(i_mode_year == 1984) {
+            ms_cyclotron.start(0);
+          }
+          else {
+            ms_cyclotron.start(i_current_ramp_speed);
+          }
+          ms_cyclotron_ring.start(i_inner_current_ramp_speed);      
         }
       }   
 
@@ -833,6 +841,11 @@ void packStartup() {
   PACK_ACTION_STATUS = ACTION_IDLE;
 
   if(b_alarm == true) {
+    if(i_mode_year == 1984) {
+      ms_cyclotron.start(0);
+      ms_alarm.start(0);
+    }
+
     packAlarm();
   }
   else {
@@ -1027,7 +1040,8 @@ void checkSwitches() {
           }
           
           // Reset the ramp speeds.
-          i_current_ramp_speed = i_2021_delay;
+          i_current_ramp_speed = i_1984_delay * 1.3;
+          i_inner_current_ramp_speed = i_inner_ramp_delay;
 
           i_mode_year = 1984;
         }
@@ -1039,7 +1053,8 @@ void checkSwitches() {
           
           // Reset the ramp speeds.
           i_current_ramp_speed = i_2021_ramp_delay;
-          
+          i_inner_current_ramp_speed = i_inner_ramp_delay;
+
           i_mode_year = 2021;
         }
       }
@@ -1224,7 +1239,7 @@ void cyclotronSwitchLEDLoop() {
 
       case 1984:
         if(b_2021_ramp_up == true) {
-          i_cyc_led_delay = i_cyclotron_switch_led_delay + (i_2021_ramp_delay - r_2021_ramp.update());
+          i_cyc_led_delay = i_cyclotron_switch_led_delay + (r_2021_ramp.update() - i_1984_delay);
         }
         else if(b_2021_ramp_down == true) {
           i_cyc_led_delay = i_cyclotron_switch_led_delay / 6 + r_2021_ramp.update();
@@ -1235,7 +1250,7 @@ void cyclotronSwitchLEDLoop() {
     if(b_alarm == true) {
       i_cyc_led_delay = i_cyclotron_switch_led_delay * 2;
     }
-  
+
     ms_cyclotron_switch_led.start(i_cyc_led_delay);    
   }
 }
@@ -1267,10 +1282,10 @@ void powercellLoop() {
     switch(i_mode_year) {
       case 1984:
         if(b_2021_ramp_up == true) {
-          i_pc_delay = i_powercell_delay + (i_2021_ramp_delay - r_2021_ramp.update());
+          i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
         }
         else if(b_2021_ramp_down == true) {
-          i_pc_delay = i_powercell_delay + r_2021_ramp.update();
+          i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
         }
       break;
 
@@ -1319,8 +1334,16 @@ void cyclotronControl() {
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
       b_alarm = true;
+      
+      if(i_mode_year == 1984) {
+        ms_cyclotron.start(0);
+        ms_alarm.start(0);
+      }
+      else {
+        ms_alarm.start(i_alarm_delay);
+      }
+
       packAlarm();
-      ms_alarm.start(i_alarm_delay);
 
       // Tell the wand the pack alarm is on.
       Serial2.write(3);
@@ -1335,9 +1358,21 @@ void cyclotronControl() {
 
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
+      
+      if(i_mode_year == 1984) {
+        ms_cyclotron.start(0);
+        ms_alarm.start(0);
+      }
+      else {
+        ms_alarm.start(i_alarm_delay);
+      }
+
+      if(i_mode_year == 2021) {
+        resetCyclotronLeds();
+      }
+
       b_alarm = true;
       packAlarm();
-      ms_alarm.start(i_alarm_delay);
     }
     
     cyclotronOverHeating();
@@ -1346,17 +1381,20 @@ void cyclotronControl() {
     if(b_2021_ramp_up_start == true) {
       b_2021_ramp_up_start = false;
 
-      r_inner_ramp.go(0); // Inner cyclotron ramp reset.
-      
       if(i_mode_year == 1984) {
-        r_2021_ramp.go(0); // Reset the ramp.
-        r_2021_ramp.go(i_2021_ramp_delay - i_2021_delay, i_1984_ramp_length, CIRCULAR_OUT);
-        r_inner_ramp.go(i_inner_ramp_delay - (i_2021_delay - i_1984_inner_delay), i_1984_ramp_length, CIRCULAR_OUT);
+        //r_2021_ramp.go(); // Reset the ramp.
+        //r_2021_ramp.go(i_2021_ramp_delay - i_2021_delay, i_1984_ramp_length, CIRCULAR_OUT);
+        r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+        r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
+
+        r_inner_ramp.go(i_inner_current_ramp_speed); // Inner cyclotron ramp reset.
+        r_inner_ramp.go(i_1984_inner_delay, i_1984_ramp_length, CIRCULAR_OUT);
       }
       else {
         r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
         r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, CIRCULAR_OUT);
-        r_inner_ramp.go(i_inner_ramp_delay - (i_2021_delay - i_2021_inner_delay), i_2021_ramp_length, CIRCULAR_OUT);
+        r_inner_ramp.go(i_inner_current_ramp_speed);
+        r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, CIRCULAR_OUT);
       }
     }
     else if(b_2021_ramp_down_start == true) {
@@ -1366,7 +1404,9 @@ void cyclotronControl() {
       r_inner_ramp.go(i_inner_current_ramp_speed); // Reset the inner cyclotron ramp.
 
       if(i_mode_year == 1984) {
-        r_2021_ramp.go(i_2021_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN); 
+        //r_2021_ramp.go(i_2021_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN); 
+        r_2021_ramp.go(i_1984_delay * 1.3, i_1984_ramp_down_length, CIRCULAR_IN); 
+
         r_inner_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN); 
       }
       else {
@@ -1376,12 +1416,12 @@ void cyclotronControl() {
     }
   
     if(i_mode_year == 1984) {
-      cyclotron1984(i_1984_delay);
-      innerCyclotronRing(i_inner_delay - i_1984_inner_delay);
+      cyclotron1984(i_current_ramp_speed);
+      innerCyclotronRing(i_inner_current_ramp_speed);
     }
     else {
       cyclotron2021(i_current_ramp_speed);
-      innerCyclotronRing(i_inner_delay - i_2021_inner_delay);
+      innerCyclotronRing(i_inner_current_ramp_speed);
     }
   }
 
@@ -1504,9 +1544,6 @@ void cyclotron2021(int cDelay) {
       if(i_cyclotron_multiplier > 1) {
         cDelay = cDelay / i_cyclotron_multiplier + 5;
       }
-      else {
-        cDelay = cDelay;
-      }
 
       i_current_ramp_speed = cDelay;
       ms_cyclotron.start(cDelay);
@@ -1517,12 +1554,21 @@ void cyclotron2021(int cDelay) {
     }
 
     if(i_cyclotron_multiplier > 1) {
-      cDelay = cDelay / i_cyclotron_multiplier + 5;
+      if(i_cyclotron_multiplier > 3) {
+        cDelay = cDelay - 3;
+      }
+      else {
+        cDelay = cDelay - i_cyclotron_multiplier;
+      }
     }
     else {
       cDelay = cDelay / i_cyclotron_multiplier;
       
       cDelay = cDelay * 2;
+    }
+
+    if(cDelay < 1) {
+      cDelay = 1;
     }
     
     if(b_clockwise == true) {
@@ -1566,25 +1612,6 @@ void cyclotron2021(int cDelay) {
       if(i_led_cyclotron < cyclotron_led_start) {
         i_led_cyclotron = PACK_NUM_LEDS - 7 - 1;
       }
-    }
-    
-    // Preparing to tell the inner cyclotron which led's to turn on.
-    switch(i_led_cyclotron) {
-      case 14:
-        i_cyclotron_data = 1;
-      break;
-      
-      case 17:
-        i_cyclotron_data = 2;
-      break;
-  
-      case 20:
-        i_cyclotron_data = 3;
-      break;
-  
-      case 23:
-        i_cyclotron_data = 4;
-      break;
     }    
   }
 }
@@ -1592,10 +1619,16 @@ void cyclotron2021(int cDelay) {
 void cyclotron1984(int cDelay) {
   int i_pack_vibration = 100;
   
-  if(ms_cyclotron.justFinished()) {
+  if(ms_cyclotron.justFinished()) {    
     cDelay = cDelay / i_cyclotron_multiplier;
     
-    cyclotron84LightOff(i_led_cyclotron);
+    if(b_1984_led_start != true) {
+      cyclotron84LightOff(i_led_cyclotron);
+    }
+
+    if(b_1984_led_start == true) {
+      b_1984_led_start = false;
+    }
 
     if(b_clockwise == true) {
       i_led_cyclotron = i_led_cyclotron + 3;
@@ -1620,9 +1653,9 @@ void cyclotron1984(int cDelay) {
         
         i_current_ramp_speed = cDelay;
       }
-      else {        
-        ms_cyclotron.start(cDelay * 1.3 - r_2021_ramp.update());
-        i_current_ramp_speed = cDelay * 1.3 - r_2021_ramp.update();
+      else {       
+        ms_cyclotron.start(r_2021_ramp.update());
+        i_current_ramp_speed = r_2021_ramp.update();        
       }
     }
     else if(b_2021_ramp_down == true) {
@@ -1633,6 +1666,8 @@ void cyclotron1984(int cDelay) {
       else {
         ms_cyclotron.start(r_2021_ramp.update());
         
+        i_current_ramp_speed = r_2021_ramp.update();
+
         i_pack_vibration = r_2021_ramp.update() / 13;
       }
     }
@@ -1692,25 +1727,6 @@ void cyclotron84LightOn(int cLed) {
       ms_cyclotron_led_fade_in[cLed + 1 - cyclotron_led_start].go(0);
       ms_cyclotron_led_fade_in[cLed + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);    
   }
-
-  // Preparing to tell the inner cyclotron which led's to turn on.
-  switch(cLed) {
-    case 13:
-      i_cyclotron_data = 1;
-    break;
-    
-    case 16:
-      i_cyclotron_data = 2;
-    break;
-
-    case 19:
-      i_cyclotron_data = 3;
-    break;
-
-    case 22:
-      i_cyclotron_data = 4;
-    break;
-  }
 }
 
 void cyclotron84LightOff(int cLed) {
@@ -1718,13 +1734,9 @@ void cyclotron84LightOff(int cLed) {
     pack_leds[cLed+1] = CRGB(0,0,0);
   }
   else {
-      ms_cyclotron_led_fade_out[cLed + 1 - cyclotron_led_start].go(255);
-      ms_cyclotron_led_fade_out[cLed + 1 - cyclotron_led_start].go(0, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);    
-    //ms_cyclotron_led_fade_out[cLed + 1 - cyclotron_led_start].start(i_1984_fade_out_delay / i_cyclotron_multiplier);
+    ms_cyclotron_led_fade_out[cLed + 1 - cyclotron_led_start].go(255);
+    ms_cyclotron_led_fade_out[cLed + 1 - cyclotron_led_start].go(0, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
   }
-  
-  // Tell the inner cyclotron to turn off the leds.
-  innerCyclotronOff();
 }
 
 void cyclotronOverHeating() {  
@@ -1740,7 +1752,7 @@ void cyclotronOverHeating() {
   switch (i_mode_year) {
     case 2021:
       cyclotron2021(i_2021_delay * 10);
-      innerCyclotronRing((i_inner_delay - i_2021_inner_delay) * 20);
+      innerCyclotronRing(i_2021_inner_delay * 14);
     break;
 
     case 1984:
@@ -1751,6 +1763,8 @@ void cyclotronOverHeating() {
           resetCyclotronLeds();
         }
         else {
+          innerCyclotronOff();
+          
           if(ms_cyclotron_led_fade_in[1].isRunning() != true && i_cyclotron_led_on_status[1] == false) {
             ms_cyclotron_led_fade_out[1].go(255);
             ms_cyclotron_led_fade_out[1].go(0, i_1984_fade_out_delay, CIRCULAR_OUT);                
@@ -1816,7 +1830,7 @@ void cyclotronNoCable() {
   switch (i_mode_year) {
     case 2021:
       cyclotron2021(i_2021_delay * 10);      
-      innerCyclotronRing((i_inner_delay - i_2021_inner_delay) * 10);
+      innerCyclotronRing(i_2021_inner_delay * 14);
 
       if(ms_alarm.justFinished()) {
         ventLight(false);
@@ -1837,6 +1851,8 @@ void cyclotronNoCable() {
           resetCyclotronLeds();
         }
         else {
+          innerCyclotronOff();
+
           if(ms_cyclotron_led_fade_in[1].isRunning() != true && i_cyclotron_led_on_status[1] == false) {
             ms_cyclotron_led_fade_out[1].go(255);
             ms_cyclotron_led_fade_out[1].go(0, i_1984_fade_out_delay, CIRCULAR_OUT);                
@@ -1890,6 +1906,13 @@ void resetCyclotronLeds() {
     i_led_cyclotron = cyclotron_led_start;
   }
 
+  // Keep the fade control fading out a light that is not on during startup.
+  if(PACK_STATUS == MODE_OFF){ 
+    if(b_1984_led_start != true) {
+      b_1984_led_start = true;
+    }
+  }
+
   // Tell the inner cyclotron to turn off the leds.
   switch (i_mode_year) {
     case 2021:
@@ -1926,6 +1949,47 @@ void innerCyclotronShowAll() {
 // For NeoPixel rings, ramp up and ramp down the LEDs in the ring and set the speed. (optional)
 void innerCyclotronRing(int cDelay) {
   if(ms_cyclotron_ring.justFinished()) {
+    if(b_inner_ramp_up == true) {      
+      if(r_inner_ramp.isFinished()) {
+        b_inner_ramp_up = false;
+        ms_cyclotron_ring.start(cDelay);
+        
+        i_inner_current_ramp_speed = cDelay;
+      }
+      else {     
+        ms_cyclotron_ring.start(r_inner_ramp.update());
+        i_inner_current_ramp_speed = r_inner_ramp.update();
+      }
+    }
+    else if(b_inner_ramp_down == true) {
+      if(r_inner_ramp.isFinished()) {
+        b_inner_ramp_down = false;
+      }
+      else {
+        ms_cyclotron_ring.start(r_inner_ramp.update());
+
+        i_inner_current_ramp_speed = r_inner_ramp.update();
+      }
+    }
+    else {
+      i_inner_current_ramp_speed = cDelay;
+
+      if(i_cyclotron_multiplier > 1) {
+        if(i_cyclotron_multiplier > 4) {
+          cDelay = cDelay - 4;
+        }
+        else {
+          cDelay = cDelay - i_cyclotron_multiplier;
+        }
+      }
+
+      if(cDelay < 1) {
+        cDelay = 1;
+      }
+
+      ms_cyclotron_ring.start(cDelay);
+    }  
+
     // Colour control for the inner cyclotron leds. (red,green,blue)
     int r = 0;
     int g = 0;
@@ -2038,30 +2102,6 @@ void innerCyclotronRing(int cDelay) {
         i_led_cyclotron_ring = CYCLOTRON_NUM_LEDS -1;
       }
     }
-
-    if(b_inner_ramp_up == true) {      
-      if(r_inner_ramp.isFinished()) {
-        b_inner_ramp_up = false;
-        ms_cyclotron_ring.start(cDelay);
-        
-        i_inner_current_ramp_speed = cDelay;
-      }
-      else {     
-        ms_cyclotron_ring.start(i_inner_ramp_delay - r_inner_ramp.update());
-        i_inner_current_ramp_speed = i_inner_ramp_delay - r_inner_ramp.update();
-      }
-    }
-    else if(b_inner_ramp_down == true) {
-      if(r_inner_ramp.isFinished()) {
-        b_inner_ramp_down = false;
-      }
-      else {
-        ms_cyclotron_ring.start(r_inner_ramp.update());
-      }
-    }
-    else {
-      ms_cyclotron_ring.start(cDelay);
-    }  
   }
 }
 
@@ -2152,61 +2192,6 @@ void innerCyclotronShowLED(int i_led) {
         cyclotron_leds[i] = CRGB(r,g,b);
       }
     break;
-  }
-}
-
-// For 8 NeoPixel Jewel options for a inner cyclotron. (optional)
-void innerCyclotronCommunication() {
-  if(i_cyclotron_data != i_prev_cyclotron_data && CYCLOTRON_NUM_LEDS == 56) {
-    if(b_cyclotron_lid_on != true) {
-     switch(i_cyclotron_data) {       
-        case 1:
-          // LED 1
-          innerCyclotronOff();
-          innerCyclotronShowLED(1);
-        break;
-  
-        case 2:
-          // LED 2
-          innerCyclotronOff();
-          innerCyclotronShowLED(2);
-        break;
-  
-        case 3:
-          // LED 3
-          innerCyclotronOff();
-          innerCyclotronShowLED(3);
-        break;
-  
-        case 4:
-          // LED 4
-          innerCyclotronOff();
-          innerCyclotronShowLED(4);
-        break;
-        
-        case 6:
-          innerCyclotronOff();
-          innerCyclotronShowLED(1);
-        break;
-  
-        case 7:
-          innerCyclotronOff();
-          innerCyclotronShowLED(2);
-        break;
-  
-        case 8:
-          innerCyclotronOff();
-          innerCyclotronShowLED(3);
-        break;
-  
-        case 9:
-          innerCyclotronOff();
-          innerCyclotronShowLED(4);
-        break;
-      }
-    }
-    
-    i_prev_cyclotron_data = i_cyclotron_data;
   }
 }
 
@@ -2986,13 +2971,18 @@ void checkWand() {
     
           // Start timer for a second smoke sound.
           ms_overheating.start(i_overheating_delay);
-    
+
           // Reset some vent light timers.
           ms_vent_light_off.stop();
           ms_vent_light_on.stop();
           ms_fan_stop_timer.stop();
           ms_vent_light_off.start(i_vent_light_delay);
           ms_fan_stop_timer.start(i_fan_stop_timer);
+          
+          // Reset the inner cyclotron speed.
+          if(i_mode_year == 1984) {
+            i_inner_current_ramp_speed = i_inner_ramp_delay;
+          }
         break;
     
         case 11:
