@@ -41,7 +41,6 @@
  */
 //#define CYCLOTRON_NUM_LEDS 24
 #define CYCLOTRON_NUM_LEDS 35
-//#define CYCLOTRON_NUM_LEDS 56
 
 /*
  * You can set the default startup volume for your pack here.
