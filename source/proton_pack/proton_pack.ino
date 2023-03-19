@@ -54,7 +54,7 @@ const int STARTUP_VOLUME = 0;
  * Inner cyclotron NeoPixel ring speed.
  * The lower the number, the faster it will spin.
  * Default settings for a 35 NeoPixel ring is: 5 for 2021 mode and 9 for 1984 mode.
- * If you are using a ring with less than 35 NeoPixels, you may need to slightly lower these numbers.
+ * If you are using a ring with less than 35 NeoPixels, you may need to slightly raise these numbers.
  */
 const int i_2021_inner_delay = 5;
 const int i_1984_inner_delay = 9;
@@ -62,11 +62,10 @@ const int i_1984_inner_delay = 9;
 /*
  * Cyclotron Lid LED delays.
  * Time in milliseconds between when a LED changes.
- * It is recommended not to go lower than 10.
  * 1000 = 1 second.
  */
 const int i_1984_delay = 1050;
-const int i_2021_delay = 18;
+const int i_2021_delay = 15;
 
 /* 
  *  Default the cyclotron lights direction to clockwise. 
@@ -1542,7 +1541,7 @@ void cyclotron2021(int cDelay) {
       i_current_ramp_speed = cDelay;
       
       if(i_cyclotron_multiplier > 1) {
-        cDelay = cDelay / i_cyclotron_multiplier + 8;
+        cDelay = cDelay / i_cyclotron_multiplier + 6;
       }
 
       ms_cyclotron.start(cDelay);
@@ -1553,7 +1552,7 @@ void cyclotron2021(int cDelay) {
     }
 
     if(i_cyclotron_multiplier > 1) {
-      cDelay = cDelay / i_cyclotron_multiplier + 8;
+      cDelay = cDelay / i_cyclotron_multiplier + 6;
     }
     else {
       cDelay = cDelay / i_cyclotron_multiplier;
