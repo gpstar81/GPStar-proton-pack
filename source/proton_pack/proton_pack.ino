@@ -48,7 +48,7 @@
  * 0 = loudest
  * -70 = quietest
  */
-const int STARTUP_VOLUME = -25;
+const int STARTUP_VOLUME = 0;
 
 /*
  * Inner cyclotron NeoPixel ring speed.
