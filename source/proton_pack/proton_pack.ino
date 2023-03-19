@@ -111,7 +111,7 @@ const boolean b_overheat_strobe = false;
  * THIS OVERRIDES all other smoke settings.
  * This can be toggled with a switch on PIN 37.
  */
-boolean b_smoke_enabled = false;
+boolean b_smoke_enabled_switch = false;
 
 /*
  * ****************** ADVANCED USER CONFIGURABLE SMOKE SETTINGS BELOW ************************
@@ -486,6 +486,7 @@ const int i_smoke_timer[5] = { i_smoke_timer_mode_1, i_smoke_timer_mode_2, i_smo
 const int i_smoke_on_time[5] = { i_smoke_on_time_mode_1, i_smoke_on_time_mode_2, i_smoke_on_time_mode_3, i_smoke_on_time_mode_4, i_smoke_on_time_mode_5 };
 const boolean b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
 const boolean b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
+boolean b_smoke_enabled = b_smoke_enabled_switch;
 
 /*
  * Vent light timers and delay for over heating.
@@ -968,7 +969,7 @@ void checkSwitches() {
   }
   
   // Smoke
-  if(switch_smoke.isPressed() || switch_smoke.isReleased()) {
+  if(switch_smoke.getState() == LOW)
     if(b_smoke_enabled == true) {
       b_smoke_enabled = false;
 
