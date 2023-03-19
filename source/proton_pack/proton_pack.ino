@@ -968,7 +968,7 @@ void checkSwitches() {
   }
   
   // Smoke
-  if(switch_smoke.isPressed() || switch_smoke.isReleased()) {
+  if(switch_smoke.getState() == LOW) {
     if(b_smoke_enabled == true) {
       b_smoke_enabled = false;
 
