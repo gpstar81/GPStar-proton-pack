@@ -976,7 +976,9 @@ void checkSwitches() {
       w_trig.trackGain(S_VENT_DRY, i_volume);
       w_trig.trackPlayPoly(S_VENT_DRY);
     }
-    else {
+  }
+  else {
+    if(b_smoke_enabled == false) {
       b_smoke_enabled = true;
 
       w_trig.trackStop(S_VENT_SMOKE);
