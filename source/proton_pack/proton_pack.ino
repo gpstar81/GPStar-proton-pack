@@ -459,7 +459,7 @@ const int smoke_pin = 39;
  * Enable or disable overall smoke settings.
  * This can be toggled with a switch on PIN 37.
  */
-boolean b_smoke_enabled = false;
+boolean b_smoke_enabled = true;
 
 /*
  * Smoke for a second smoke machine or motor. I use this in the booster tube.
@@ -967,22 +967,20 @@ void checkSwitches() {
   }
   
   // Smoke
-  if(switch_smoke.getState() == HIGH) {
-    if(b_smoke_enabled == false) {
-      b_smoke_enabled = true;
-
-      w_trig.trackStop(S_VENT_SMOKE);
-      w_trig.trackGain(S_VENT_SMOKE, i_volume);
-      w_trig.trackPlayPoly(S_VENT_SMOKE);
-    }
-  }
-  else {
+  if(switch_smoke.isPressed() || switch_smoke.isReleased()) {
     if(b_smoke_enabled == true) {
       b_smoke_enabled = false;
 
       w_trig.trackStop(S_VENT_DRY);
       w_trig.trackGain(S_VENT_DRY, i_volume);
       w_trig.trackPlayPoly(S_VENT_DRY);
+    }
+    else {
+      b_smoke_enabled = true;
+
+      w_trig.trackStop(S_VENT_SMOKE);
+      w_trig.trackGain(S_VENT_SMOKE, i_volume);
+      w_trig.trackPlayPoly(S_VENT_SMOKE);
     }
   }
 
