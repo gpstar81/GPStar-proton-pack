@@ -107,13 +107,6 @@ const boolean b_onboard_amp_enabled = false;
 const boolean b_overheat_strobe = false;
 
 /*
- * Enable or disable overall smoke settings.
- * THIS OVERRIDES all other smoke settings.
- * This can be toggled with a switch on PIN 37.
- */
-boolean b_smoke_enabled = false;
-
-/*
  * ****************** ADVANCED USER CONFIGURABLE SMOKE SETTINGS BELOW ************************
  * The default settings work very well. Changing them can produce strange timing effect.
  */
@@ -461,6 +454,12 @@ boolean b_vibration = false;
  * Smoke
  */
 const int smoke_pin = 39;
+
+/*
+ * Enable or disable overall smoke settings.
+ * This can be toggled with a switch on PIN 37.
+ */
+boolean b_smoke_enabled = false;
 
 /*
  * Smoke for a second smoke machine or motor. I use this in the booster tube.
@@ -968,22 +967,22 @@ void checkSwitches() {
   }
   
   // Smoke
-  if(switch_smoke.getState() == LOW) {
-    if(b_smoke_enabled == true) {
-      b_smoke_enabled = false;
-
-      w_trig.trackStop(S_VENT_DRY);
-      w_trig.trackGain(S_VENT_DRY, i_volume);
-      w_trig.trackPlayPoly(S_VENT_DRY);
-    }
-  }
-  else {
+  if(switch_smoke.getState() == HIGH) {
     if(b_smoke_enabled == false) {
       b_smoke_enabled = true;
 
       w_trig.trackStop(S_VENT_SMOKE);
       w_trig.trackGain(S_VENT_SMOKE, i_volume);
       w_trig.trackPlayPoly(S_VENT_SMOKE);
+    }
+  }
+  else {
+    if(b_smoke_enabled == true) {
+      b_smoke_enabled = false;
+
+      w_trig.trackStop(S_VENT_DRY);
+      w_trig.trackGain(S_VENT_DRY, i_volume);
+      w_trig.trackPlayPoly(S_VENT_DRY);
     }
   }
 
