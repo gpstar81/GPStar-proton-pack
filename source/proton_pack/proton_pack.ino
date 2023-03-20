@@ -107,6 +107,12 @@ const boolean b_onboard_amp_enabled = false;
 const boolean b_overheat_strobe = false;
 
 /*
+ * Enable or disable overall smoke settings.
+ * This can be toggled with a switch on PIN 37.
+ */
+boolean b_smoke_enabled = true;
+
+/*
  * ****************** ADVANCED USER CONFIGURABLE SMOKE SETTINGS BELOW ************************
  * The default settings work very well. Changing them can produce strange timing effect.
  */
@@ -454,12 +460,6 @@ boolean b_vibration = false;
  * Smoke
  */
 const int smoke_pin = 39;
-
-/*
- * Enable or disable overall smoke settings.
- * This can be toggled with a switch on PIN 37.
- */
-boolean b_smoke_enabled = true;
 
 /*
  * Smoke for a second smoke machine or motor. I use this in the booster tube.
