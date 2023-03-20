@@ -94,6 +94,7 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const boolean b&#95;fade&#95;cyclotron&#95;led | When set to false, the LEDs on the cyclotron lid in 1984 mode will not fade. | true |
 | const int i&#95;1984&#95;fade&#95;out&#95;delay | Time in milliseconds for the cyclotron lid LED to fade out when enabled. | 210 |
 | const int i&#95;1984&#95;fade&#95;in&#95;delay | Time in milliseconds for the cyclotron lid LED to fade in when enabled. | 210 |
+| boolean b&#95;smoke&#95;enabled | Enable or disable smoke settings. This can be toggled with a switch on PIN 37. | true |
 | const boolean b&#95;smoke&#95;1&#95;continuous&#95;firing | Set to true to enable smoke 1 during continuous firing events. **This can be overridden if b&#95;smoke&#95;enabled is set to false** | true | 
 | const boolean b&#95;smoke&#95;2&#95;continuous&#95;firing | Set to true to enable smoke 2 during continuous firing events. **This can be overridden if b&#95;smoke&#95;enabled is set to false** | true |
 | const boolean b&#95;fan&#95;continuous&#95;firing | Set to true to enable the fan during continuous firing events. **This can be overridden if b&#95;smoke&#95;enabled is set to false** | true |
