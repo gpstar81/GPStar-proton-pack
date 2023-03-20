@@ -213,11 +213,24 @@ OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin
 
 ## Component Fitment
 
-As noted at the start of this guide the space inside of the gun box for the wand is extremely limited. Creative placement of any protoboards, the Arduino, WavTrigger, and speaker (if upgraded) will be left to each individual. As a matter of advice, placing the WavTrigger under the wand barrel is an advised option with other items "stacked" above and beside the spring-loaded mechanism. As an alternative option, the WavTrigger can also fit in the opposite half of the gun box if the barrel jack is removed--this is to avoid the spring which attaches to the wand barrel.
+As noted at the start of this guide the space inside of the gun box for the wand is extremely limited. Creative placement of any protoboards, the Arduino, WavTrigger, and speaker (if upgraded) will be left to each individual. As a matter of advice, placing the WavTrigger under the wand barrel is an advised option with other items "stacked" above and beside the spring-loaded mechanism.
+
+### (See the alternate component fitment section below for more information on the stacking option) ###
+
+For another fitment option, the WavTrigger can also fit in the opposite half of the gun box if the barrel jack is removed--this is to avoid the spring which attaches to the wand barrel.
+
+### (See the Audio Output addendum for more information on the opposite half gun box mounting solution)
+[Audio Output Addendum](SOUND.md)
 
 Below is a view of the wand internals showing the Arduino Nano, a PCB for connections, and many of the wires which extends the stock wiring. This solution is using several of the included STL files: a small spacer is meant to fit under the barrel if you removed some of the plastic from the old controller mount; another 3D printed part is meant to protect the wiring from intruding on the barrel latching mechanism while still allowing the wires to connect to the barrel. And lastly, a mini USB cable has been routed through the casing to allow updating of the Arduino without removing the cover--in this case the vibration motor had already been removed to save space and make this area more accessible.
 
 ![](images/WandUSB.jpg)
+
+## Alternate component fitment
+This solution requires removing plastic within the wand, and printing some of the included STL mount files and stacking the PCB board then Arduino Nano on top of the Wav Trigger. Everything is then screwed into one of the remaining holes in the wand body.
+![](images/WandMountAlt1.jpg)
+![](images/WandMountAlt2.jpg)
+![](images/WandMountAlt3.jpg)
 
 ## Arduino Nano Pinout Reference
 

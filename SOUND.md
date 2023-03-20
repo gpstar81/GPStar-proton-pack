@@ -16,6 +16,9 @@ Optional Part Shown: [3D Model for Wand - 40mm Speaker Mount](stl/wand/speaker_m
 
 ![Wand Audio Example](images/Audio-Wand.jpg)
 
+### For more wand mounting solutions, refer to the [Wand Setup](WAND.md) page ###
+
+
 ## Pack Audio
 
 This is where you can branch out to other options as desired and can really go all-out with your choice of audio. The WavTrigger in the pack does not use its onboard amplifier by default, only the 3.5mm / ⅛" stereo phono jack which means you can use any amplifier which accepts that type of connection. When you choose your amplifier, that should dictate the choice of speakers to match.
