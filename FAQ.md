@@ -34,7 +34,7 @@
 
 **Q: I have some cool ideas, can you add some custom bits in the code for me?**
 
-**A:** Feel free to use the discussion section of this repository to talk about them. Anybody can contribute modifications or enchancements back to this repository.
+**A:** Feel free to use the discussion section of this repository to talk about them. Anybody can contribute modifications or enhancements back to this repository.
 
 **Q: Help, I fried my stock equipment or components!**
 
