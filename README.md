@@ -32,6 +32,8 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Operation Manual](OPERATION.md)
 
+1. [Audio Output](SOUND.md)
+
 1. [Smoke Examples](SMOKE.md)
 
 1. [Hose Examples](HOSE.md)
