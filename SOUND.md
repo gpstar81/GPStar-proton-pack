@@ -12,13 +12,14 @@ There has been success in using [this 40mm speaker](https://a.co/d/93sbe2V) rate
 
 ## Pack Audio
 
-This is where you can branch out to other options as desired and can really go all-out with your choice of audio. The WavTrigger in the pack does not use its onboard amplifier, only the 1/8" stereo phono jack which means you can use any amplifier which accepts that type of connection. When you choose your amplifier, that should dictate the choice of speakers to match.
+This is where you can branch out to other options as desired and can really go all-out with your choice of audio. The WavTrigger in the pack does not use its onboard amplifier, only the 3.5mm / ⅛" stereo phono jack which means you can use any amplifier which accepts that type of connection. When you choose your amplifier, that should dictate the choice of speakers to match.
 
 The following components were demonstrated in the walkthrough video by JustinDustin and provides ample sound with a benefit of providing enough low-end rumble that a vibration motor may be considered optional:
 
 - [Drok 15W Class D Stereo Amplifier (8-26V)](https://a.co/d/9VnB8e9)
-  - This will operate successfully using the full 12V output from a TalentCell battery
-  - Note that this output wattage using a 12V supply will draw around 1.25 Amps, so plan the capacity of your battery carefully (read: this is why the larger 6000 mAh TalentCell battery is recommended)
+  - This will operate successfully using the full 12V output offered by most TalentCell batteries
+  - Note the output wattage using a 12V supply will draw around 1-1.25 Amps so plan the capacity of your battery accordingly (read: this is why the larger 6000 mAh TalentCell battery is recommended)
+  - Increasing the output wattage using a different amplifier will increase the power draw as well as heat output, so choose carefully and plan accordingly for how/where to mount your amplifier
 - [Pair of 3" Full Range Bookshelf Speaker (15W @ 8Ω)](https://a.co/d/cMg5Vrt)
   - Note the power rating of 15W which matches the amplifier to be used
   - Take note of your amplifier's recommended ohms rating for speakers
