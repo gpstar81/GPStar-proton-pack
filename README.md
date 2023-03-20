@@ -38,6 +38,10 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Hose Examples](HOSE.md)
 
+1. [Cyclotron Lights](CYCLOTRON.md) (Optional add-ons)
+
+1. [N-Filter Vent Light](NFILTER.md) (Optional add-on)
+
 1. [Frequently Asked Questions](FAQ.md)
 
 ## Walkthrough Video ##
