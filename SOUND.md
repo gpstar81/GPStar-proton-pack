@@ -6,13 +6,13 @@ Sound is a huge component of this build and the options are relatively open for 
 
 ## Wand Audio
 
-Let's begin with the most restrictive of spaces, the Wand. Due to the additional components and wiring to be added, there is little room for options but replacements can be made. The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--essentially more of a tweeter than a full-range speaker. By default, the WavTrigger to be used in the wand will enable its on-board amplifier which is rated for 2W @ 4Ω or 1W @ 8Ω, so it is advised that if you would like better sound you will want a better speaker.
+Let's begin with the most restrictive of spaces, the Wand. Due to the additional components and wiring to be added, there is little room for options but replacements can be made. The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--essentially more of a tweeter than a full-range speaker. By default, the WavTrigger to be used in the wand will enable its on-board mono amplifier which is rated for 2W @ 4Ω or 1W @ 8Ω, so it is advised that if you would like better sound you will want a better speaker. Otherwise you can still use the original Hasbro wand speaker.
 
 There has been success in using [this 40mm speaker](https://a.co/d/93sbe2V) rated for 3W @ 4Ω. While this does not fit in the standard speaker location under the heatsink (its size interferes with the retraction of the wand) it can be mounted within the base of the gun box and offers just enough sound to be heard (indoors at least) and can double as a rumble motor due to being able to reproduce the low-end sounds which the stock speaker cannot. YMMV with any other choice of speaker, though there are many options for 40mm speakers on Amazon.
 
 ## Pack Audio
 
-This is where you can branch out to other options as desired and can really go all-out with your choice of audio. The WavTrigger in the pack does not use its onboard amplifier, only the 3.5mm / ⅛" stereo phono jack which means you can use any amplifier which accepts that type of connection. When you choose your amplifier, that should dictate the choice of speakers to match.
+This is where you can branch out to other options as desired and can really go all-out with your choice of audio. The WavTrigger in the pack does not use its onboard amplifier by default, only the 3.5mm / ⅛" stereo phono jack which means you can use any amplifier which accepts that type of connection. When you choose your amplifier, that should dictate the choice of speakers to match.
 
 The following components were demonstrated in the walkthrough video by JustinDustin and provides ample sound with a benefit of providing enough low-end rumble that a vibration motor may be considered optional:
 
