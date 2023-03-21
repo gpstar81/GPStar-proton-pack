@@ -88,6 +88,9 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const int i&#95;2021&#95;delay | This controls the delay in milliseconds when a LED changes on the cyclotron lid in 2021 mode. The default setting is 15. | 15 |
 | const int STARTUP&#95;VOLUME | This is the default startup volume of the proton pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. When a Neutrona Wand is connected, it will sync to these values. | 100 |
 | const int MINIMUM&#95;VOLUME | You can set the minimum lowest volume the wand can go. 0 = loudest, and -70 = quietest. | -50 |
+| const int VOLUME&#95;MULTIPLIER | Percentage increments of master volume change. | 2 |
+| const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
+| const int VOLUME&#95;EFFECTS&#95;MULTIPLIER | Percentage increments of the sound effects volume change. | 5 |
 | const boolean b&#95;gb2&#95;mode | When set to true, the pack will be in 1989 sound effects instead of 1984 sound effects when the proton pack year mode toggle switch is set to 1984 mode | false |
 | const boolean b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms**| false |
 | boolean b&#95;clockwise | Set to true for the cyclotron lights to spin clockwise. Set to false to be counter clockwise. This can be controlled by an optional switch on pin 29 | true |
@@ -130,6 +133,9 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 |--------|------------|-----------------|
 | const int STARTUP&#95;VOLUME | You can set the default volume of your wand. This gets overriden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between %100 and %0. 100 = highest, 0 = lowest. | 100 |
 | const int MINIMUM&#95;VOLUME | You can set the minimum lowest volume the wand can go. 0 = loudest, and -70 = quietest. If your Proton Pack is overpowering your Neutrona Wand sounds at lower volume levels, incrase this number. | -35 |
+| const int VOLUME&#95;MULTIPLIER | Percentage increments of main volume change. | 2 |
+| const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
+| const int VOLUME&#95;EFFECTS&#95;MULTIPLIER | Percentage increments of the sound effects volume change. | 5 |
 | const boolean b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms** | true |
 | boolean b&#95;no&#95;pack | Set this to true if you want to use your Neutrona Wand without a Proton Pack connected. Otherwise when false, the Neutrona Wand will wait until it is connected to a Proton Pack before it can activate. | false |
 | const boolean b&#95;overheat&#95;mode&#95;1 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 1** | false |

@@ -61,17 +61,17 @@ const int STARTUP_VOLUME = 100;
 const int MINIMUM_VOLUME = -50;
 
 /*
- * Percentage value of volume change.
+ * Percentage increments of main volume change.
 */
 const int VOLUME_MULTIPLIER = 2;
 
 /*
- * Percentage value of music volume change.
+ * Percentage increments of the music volume change..
 */
 const int VOLUME_MUSIC_MULTIPLIER = 5;
 
 /*
- * Percentage value of effects volume change.
+ * Percentage increments of the sound effects volume change.
 */
 const int VOLUME_EFFECTS_MULTIPLIER = 5;
 
