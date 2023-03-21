@@ -43,10 +43,20 @@ IMPORTANT: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are
 /*
  * You can set the default startup volume for your wand here.
  * This gets overridden if you connect your wand to the pack.
- * 0 = loudest
- * -70 = quietest
+ * Values are in % of the volume.
+ * 0 = quietest
+ * 100 = loudest
  */
-const int STARTUP_VOLUME = 0;
+const int STARTUP_VOLUME = 100;
+
+/*
+ * Minimum volume that the pack can achieve. 
+ * Values must be from 0 to -70. 0 = the loudest and -70 = the quietest.
+ * Volume changes are based on percentages. 
+ * If your pack is overpowering the wand at lower volumes, you can either increase the minimum value in the wand,
+ * or decrease the minimum value for the pack.
+*/
+const int MINIMUM_VOLUME = -35;
 
 /*
  * Set to false to disable the onboard amplifer on the wav trigger. 
@@ -222,12 +232,15 @@ uint8_t i_music_count = 0;
 uint8_t i_current_music_track = 0;
 const uint8_t i_music_track_start = 100; // Music tracks start on file named 100_ and higher.
 
-/* 
+/*
  *  Volume (0 = loudest, -70 = quietest)
- */
-int i_volume = STARTUP_VOLUME; // Sound effects
-int i_volume_master = STARTUP_VOLUME; // Master overall volume
-int i_volume_music = STARTUP_VOLUME; // Music volume
+*/
+int i_volume_percentage = STARTUP_VOLUME; // Sound effects
+int i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
+int i_volume_music_percentage = STARTUP_VOLUME; // Music volume
+int i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
+int i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
+int i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
 
 /* 
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
@@ -607,12 +620,14 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
               
-              if(i_volume_music + 2 > 0) {
-                i_volume_music = 0;
+              if(i_volume_music_percentage + 2 > 100) {
+                i_volume_music_percentage = 100;
               }
               else {
-                i_volume_music = i_volume_music + 2;
+                i_volume_music_percentage = i_volume_master_percentage + 2;
               }
+
+              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
               w_trig.trackGain(i_current_music_track, i_volume_music);
               
@@ -621,12 +636,14 @@ void mainLoop() {
             }
   
             if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {              
-              if(i_volume_music - 2 < -70) {
-                i_volume_music = -70;
+              if(i_volume_music_percentage - 2 < 0) {
+                i_volume_music_percentage = 0;
               }
               else {
-                i_volume_music = i_volume_music - 2;
+                i_volume_music_percentage = i_volume_master_percentage - 2;
               }
+
+              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
               w_trig.trackGain(i_current_music_track, i_volume_music);
               
@@ -2250,45 +2267,51 @@ void adjustVolumeEffectsGain() {
 }
 
 void increaseVolumeEffects() {
-  if(i_volume + 4 > 0) {
-    i_volume = 0;
+  if(i_volume_percentage + 2 > 100) {
+    i_volume_percentage = 100;
   }
   else {
-    i_volume = i_volume + 4;
+    i_volume_percentage = i_volume_percentage + 2;
   }
+
+  i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
 
 void decreaseVolumeEffects() {
-  if(i_volume - 4 < -70) {
-    i_volume = -70;
+  if(i_volume_percentage - 2 < 0) {
+    i_volume_percentage = 0;
   }
   else {
-    i_volume = i_volume - 4;
+    i_volume_percentage = i_volume_percentage - 2;
   }
 
   adjustVolumeEffectsGain();
 }
 
 void increaseVolume() {
-  if(i_volume_master + 2 > 0) {
-    i_volume_master = 0;
+  if(i_volume_master_percentage + 2 > 100) {
+    i_volume_master_percentage = 100;
   }
   else {
-    i_volume_master = i_volume_master + 2;
+    i_volume_master_percentage = i_volume_master_percentage + 2;
   }
+
+  i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
   
   w_trig.masterGain(i_volume_master);
 }
 
 void decreaseVolume() {
-  if(i_volume_master - 2 < -70) {
-    i_volume_master = -70;
+  if(i_volume_master_percentage - 2 < 0) {
+    i_volume_master_percentage = 0;
   }
   else {
-    i_volume_master = i_volume_master - 2;
+    i_volume_master_percentage = i_volume_master_percentage - 2;
   }
+
+  i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
   
   w_trig.masterGain(i_volume_master);
 }
@@ -2352,12 +2375,14 @@ void checkRotary() {
 
           // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
           if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
-            if(i_volume_music - 1 < -70) {
-              i_volume_music = -70;
+            if(i_volume_music_percentage - 2 < 0) {
+              i_volume_music_percentage = 0;
             }
             else {
-              i_volume_music = i_volume_music - 1;
+              i_volume_music_percentage = i_volume_master_percentage - 2;
             }
+
+            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
             w_trig.trackGain(i_current_music_track, i_volume_music);
             
@@ -2393,12 +2418,14 @@ void checkRotary() {
 
           // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
           if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
-            if(i_volume_music + 1 > 0) {
-              i_volume_music = 0;
+            if(i_volume_music_percentage + 1 > 100) {
+              i_volume_music_percentage = 100;
             }
             else {
-              i_volume_music = i_volume_music + 1;
+              i_volume_music_percentage = i_volume_master_percentage + 2;
             }
+
+            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
             w_trig.trackGain(i_current_music_track, i_volume_music);
             
@@ -2531,21 +2558,25 @@ void checkPack() {
     if(b_volume_sync_wait == true) {
         switch(VOLUME_SYNC_WAIT) {
           case EFFECTS:
-            i_volume = rx_byte * -1;
+            i_volume_percentage = rx_byte;
+            i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
             adjustVolumeEffectsGain();
-            
             VOLUME_SYNC_WAIT = MASTER;
           break;
 
           case MASTER:
-            i_volume_master = rx_byte * -1;
+            i_volume_master_percentage = rx_byte;
+            i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+
             w_trig.masterGain(i_volume_master);
             VOLUME_SYNC_WAIT = MUSIC;
           break;
 
           case MUSIC:
-            i_volume_music = rx_byte * -1;
+            i_volume_music_percentage = rx_byte;
+            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
             b_volume_sync_wait = false;
             b_wait_for_pack = false;
             VOLUME_SYNC_WAIT = EFFECTS;
@@ -2631,12 +2662,7 @@ void checkPack() {
          * Not used.
          */
         case 14:
-          // Reset volumes
-          i_volume = STARTUP_VOLUME;
-          i_volume_master = STARTUP_VOLUME;
-          i_volume_music = STARTUP_VOLUME;
-          
-          w_trig.masterGain(i_volume_master);
+
         break;
   
         case 15:
