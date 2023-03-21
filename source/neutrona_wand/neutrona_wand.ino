@@ -59,6 +59,21 @@ const int STARTUP_VOLUME = 100;
 const int MINIMUM_VOLUME = -35;
 
 /*
+ * Percentage value of volume change.
+*/
+const int VOLUME_MULTIPLIER = 2;
+
+/*
+ * Percentage value of music volume change.
+*/
+const int VOLUME_MUSIC_MULTIPLIER = 5;
+
+/*
+ * Percentage value of effects volume change.
+*/
+const int VOLUME_EFFECTS_MULTIPLIER = 5;
+
+/*
  * Set to false to disable the onboard amplifer on the wav trigger. 
  * Turning off the onboard amp draws less power. 
  * If using the AUX cable jack, the amp can be disabled to save power.
@@ -620,11 +635,11 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
               
-              if(i_volume_music_percentage + 2 > 100) {
+              if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
                 i_volume_music_percentage = 100;
               }
               else {
-                i_volume_music_percentage = i_volume_music_percentage + 2;
+                i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
               }
 
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
@@ -636,11 +651,11 @@ void mainLoop() {
             }
   
             if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {              
-              if(i_volume_music_percentage - 2 < 0) {
+              if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
                 i_volume_music_percentage = 0;
               }
               else {
-                i_volume_music_percentage = i_volume_music_percentage - 2;
+                i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
               }
 
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
@@ -2267,11 +2282,11 @@ void adjustVolumeEffectsGain() {
 }
 
 void increaseVolumeEffects() {
-  if(i_volume_percentage + 2 > 100) {
+  if(i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
     i_volume_percentage = 100;
   }
   else {
-    i_volume_percentage = i_volume_percentage + 2;
+    i_volume_percentage = i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER;
   }
 
   i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
@@ -2280,22 +2295,22 @@ void increaseVolumeEffects() {
 }
 
 void decreaseVolumeEffects() {
-  if(i_volume_percentage - 2 < 0) {
+  if(i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
     i_volume_percentage = 0;
   }
   else {
-    i_volume_percentage = i_volume_percentage - 2;
+    i_volume_percentage = i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER;
   }
 
   adjustVolumeEffectsGain();
 }
 
 void increaseVolume() {
-  if(i_volume_master_percentage + 2 > 100) {
+  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
     i_volume_master_percentage = 100;
   }
   else {
-    i_volume_master_percentage = i_volume_master_percentage + 2;
+    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
   }
 
   i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
@@ -2304,11 +2319,11 @@ void increaseVolume() {
 }
 
 void decreaseVolume() {
-  if(i_volume_master_percentage - 2 < 0) {
+  if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
     i_volume_master_percentage = 0;
   }
   else {
-    i_volume_master_percentage = i_volume_master_percentage - 2;
+    i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
   }
 
   i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
@@ -2375,11 +2390,11 @@ void checkRotary() {
 
           // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
           if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
-            if(i_volume_music_percentage - 2 < 0) {
+            if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
               i_volume_music_percentage = 0;
             }
             else {
-              i_volume_music_percentage = i_volume_music_percentage - 2;
+              i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
             }
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
@@ -2418,11 +2433,11 @@ void checkRotary() {
 
           // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
           if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
-            if(i_volume_music_percentage + 1 > 100) {
+            if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
               i_volume_music_percentage = 100;
             }
             else {
-              i_volume_music_percentage = i_volume_music_percentage + 2;
+              i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
             }
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
