@@ -87,7 +87,7 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const int i&#95;1984&#95;delay | This controls the delay in milliseconds when a LED changes on the cyclotron lid in 1984 mode. The default setting is 1050 which is 1.05 seconds. | 1050 |
 | const int i&#95;2021&#95;delay | This controls the delay in milliseconds when a LED changes on the cyclotron lid in 2021 mode. The default setting is 15. | 15 |
 | const int STARTUP&#95;VOLUME | This is the default startup volume of the proton pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. When a Neutrona Wand is connected, it will sync to these values. | 100 |
-| const int MINIMUM&#95;VOLUME | You can set the minimum lowest volume the wand can go. 0 = loudest, and -70 = quietest. | -50 |
+| const int MINIMUM&#95;VOLUME | You can set the minimum lowest volume the proton pack can go. 0 = loudest, and -70 = quietest. | -50 |
 | const int VOLUME&#95;MULTIPLIER | Percentage increments of master volume change. | 2 |
 | const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
 | const int VOLUME&#95;EFFECTS&#95;MULTIPLIER | Percentage increments of the sound effects volume change. | 5 |
