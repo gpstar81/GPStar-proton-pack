@@ -61,6 +61,21 @@ const int STARTUP_VOLUME = 100;
 const int MINIMUM_VOLUME = -50;
 
 /*
+ * Percentage value of volume change.
+*/
+const int VOLUME_MULTIPLIER = 2;
+
+/*
+ * Percentage value of music volume change.
+*/
+const int VOLUME_MUSIC_MULTIPLIER = 5;
+
+/*
+ * Percentage value of effects volume change.
+*/
+const int VOLUME_EFFECTS_MULTIPLIER = 5;
+
+/*
  * Inner cyclotron NeoPixel ring speed.
  * The lower the number, the faster it will spin.
  * Default settings for a 35 NeoPixel ring is: 5 for 2021 mode and 9 for 1984 mode.
@@ -2521,11 +2536,11 @@ void adjustVolumeEffectsGain() {
 }
 
 void increaseVolumeEffects() {
-  if(i_volume_percentage + 2 > 100) {
+  if(i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
     i_volume_percentage = 100;
   }
   else {
-    i_volume_percentage = i_volume_percentage + 2;
+    i_volume_percentage = i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER;
   }
 
   i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
@@ -2534,11 +2549,11 @@ void increaseVolumeEffects() {
 }
 
 void decreaseVolumeEffects() {
-  if(i_volume_percentage - 2 < 0) {
+  if(i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
     i_volume_percentage = 0;
   }
   else {
-    i_volume_percentage = i_volume_percentage - 2;
+    i_volume_percentage = i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER;
   }
 
   i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
@@ -2547,11 +2562,11 @@ void decreaseVolumeEffects() {
 }
 
 void increaseVolume() { 
-  if(i_volume_master_percentage + 2 > 100) {
+  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
     i_volume_master_percentage = 100;
   }
   else {
-    i_volume_master_percentage = i_volume_master_percentage + 2;
+    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
   }
 
   i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
@@ -2560,11 +2575,11 @@ void increaseVolume() {
 }
 
 void decreaseVolume() {
-  if(i_volume_master_percentage - 2 < 0) {
+  if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
     i_volume_master_percentage = 0;
   }
   else {
-    i_volume_master_percentage = i_volume_master_percentage - 2;
+    i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
   }
 
   i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
@@ -2973,11 +2988,11 @@ void checkWand() {
         case 89:
           // Lower music volume.
           if(b_playing_music == true) {    
-            if(i_volume_music_percentage - 2 < 0) {
+            if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
               i_volume_music_percentage = 0;
             }
             else {
-              i_volume_music_percentage = i_volume_music_percentage - 2;
+              i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
             }
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
@@ -2989,11 +3004,11 @@ void checkWand() {
         case 90:
           // Increase music volume.
          if(b_playing_music == true) {
-            if(i_volume_music_percentage + 2 > 100) {
+            if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
               i_volume_music_percentage = 100;
             }
             else {
-              i_volume_music_percentage = i_volume_music_percentage + 2;
+              i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
             }
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
@@ -3037,12 +3052,14 @@ void checkWand() {
         case 96:
           // Lower music volume.
           if(b_playing_music == true) {
-            if(i_volume_music - 1 < -70) {
-              i_volume_music = -70;
+            if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
+              i_volume_music_percentage = 0;
             }
             else {
-              i_volume_music = i_volume_music - 1;
+              i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
             }
+
+            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
     
             w_trig.trackGain(i_current_music_track, i_volume_music);
           }
@@ -3051,12 +3068,14 @@ void checkWand() {
         case 97:
           // Increase music volume.
          if(b_playing_music == true) {
-            if(i_volume_music + 1 > 0) {
-              i_volume_music = 0;
+            if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
+              i_volume_music_percentage = 100;
             }
             else {
-              i_volume_music = i_volume_music + 1;
+              i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
             }
+
+            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
     
             w_trig.trackGain(i_current_music_track, i_volume_music);
           } 
