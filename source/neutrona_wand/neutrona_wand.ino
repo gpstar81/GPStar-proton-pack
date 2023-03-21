@@ -624,7 +624,7 @@ void mainLoop() {
                 i_volume_music_percentage = 100;
               }
               else {
-                i_volume_music_percentage = i_volume_master_percentage + 2;
+                i_volume_music_percentage = i_volume_music_percentage + 2;
               }
 
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
@@ -640,7 +640,7 @@ void mainLoop() {
                 i_volume_music_percentage = 0;
               }
               else {
-                i_volume_music_percentage = i_volume_master_percentage - 2;
+                i_volume_music_percentage = i_volume_music_percentage - 2;
               }
 
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
@@ -2379,7 +2379,7 @@ void checkRotary() {
               i_volume_music_percentage = 0;
             }
             else {
-              i_volume_music_percentage = i_volume_master_percentage - 2;
+              i_volume_music_percentage = i_volume_music_percentage - 2;
             }
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
@@ -2422,7 +2422,7 @@ void checkRotary() {
               i_volume_music_percentage = 100;
             }
             else {
-              i_volume_music_percentage = i_volume_master_percentage + 2;
+              i_volume_music_percentage = i_volume_music_percentage + 2;
             }
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
