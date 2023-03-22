@@ -41,7 +41,7 @@ IMPORTANT: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are
  */
  
 /*
- * You can set the default startup volume for your wand here.
+ * You can set the default master startup volume for your wand here.
  * This gets overridden if you connect your wand to the pack.
  * Values are in % of the volume.
  * 0 = quietest
@@ -50,7 +50,25 @@ IMPORTANT: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are
 const int STARTUP_VOLUME = 100;
 
 /*
- * Minimum volume that the pack can achieve. 
+ * You can set the default music volume for your wand here.
+ * This gets overridden if you connect your wand to the pack.
+ * Values are in % of the volume.
+ * 0 = quietest
+ * 100 = loudest
+ */
+const int STARTUP_VOLUME_MUSIC = 100;
+
+/*
+ * You can set the default sound effects volume for your wand here.
+ * This gets overridden if you connect your wand to the pack.
+ * Values are in % of the volume.
+ * 0 = quietest
+ * 100 = loudest
+ */
+const int STARTUP_VOLUME_EFFECTS = 100;
+
+/*
+ * Minimum volume that the Neutrona Wand can achieve. 
  * Values must be from 0 to -70. 0 = the loudest and -70 = the quietest.
  * Volume changes are based on percentages. 
  * If your pack is overpowering the wand at lower volumes, you can either increase the minimum value in the wand,
@@ -250,9 +268,9 @@ const uint8_t i_music_track_start = 100; // Music tracks start on file named 100
 /*
  *  Volume (0 = loudest, -70 = quietest)
 */
-int i_volume_percentage = STARTUP_VOLUME; // Sound effects
+int i_volume_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 int i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-int i_volume_music_percentage = STARTUP_VOLUME; // Music volume
+int i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 int i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
 int i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
 int i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
