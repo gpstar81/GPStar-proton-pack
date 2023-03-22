@@ -43,13 +43,31 @@
 #define CYCLOTRON_NUM_LEDS 35
 
 /*
- * You can set the default startup volume for your pack here.
+ * You can set the default master startup volume for your pack here.
  * When a Neutrona wand is connected, it will sync to these settings.
  * Values are in % of the volume.
  * 0 = quietest
  * 100 = loudest
  */
 const int STARTUP_VOLUME = 100;
+
+/*
+ * You can set the default music volume for your pack here.
+ * When a Neutrona wand is connected, it will sync to these settings.
+ * Values are in % of the volume.
+ * 0 = quietest
+ * 100 = loudest
+ */
+const int STARTUP_VOLUME_MUSIC = 100;
+
+/*
+ * You can set the default sound effects volume for your pack here.
+ * When a Neutrona wand is connected, it will sync to these settings.
+ * Values are in % of the volume.
+ * 0 = quietest
+ * 100 = loudest
+ */
+const int STARTUP_VOLUME_EFFECTS = 100;
 
 /*
  * Minimum volume that the pack can achieve. 
@@ -468,9 +486,9 @@ boolean b_repeat_track = false;
 /* 
  *  Volume (0 = loudest, -70 = quietest)
  */
-int i_volume_percentage = STARTUP_VOLUME; // Sound effects
+int i_volume_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 int i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-int i_volume_music_percentage = STARTUP_VOLUME; // Music volume
+int i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 
 int i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
 int i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
@@ -2570,7 +2588,7 @@ void increaseVolume() {
   }
 
   i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-   
+
   w_trig.masterGain(i_volume_master);
 }
 
@@ -2583,7 +2601,7 @@ void decreaseVolume() {
   }
 
   i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-   
+     
   w_trig.masterGain(i_volume_master);       
 }
 
@@ -2721,6 +2739,7 @@ void wandHandShake() {
           
       if(b_wand_firing == true) {
         wandStoppedFiring();
+        cyclotronSpeedRevert();
       }
       
       ms_wand_handshake.start(i_wand_handshake_delay);
@@ -2744,7 +2763,12 @@ void wandHandShake() {
     }
   }
   else {
-    if(ms_wand_handshake.justFinished()) {    
+    if(b_wand_firing == true) {
+      wandStoppedFiring();
+      cyclotronSpeedRevert();
+    }
+
+    if(ms_wand_handshake.justFinished()) {
       // Ask the wand if it is connected.
       Serial2.write(11);
 

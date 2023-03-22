@@ -86,7 +86,9 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const int i&#95;1984&#95;inner&#95;delay | The same as above, but for 1984 mode. Default setting is 9 for a 35 pixel NeoPixel ring. | 9 |
 | const int i&#95;1984&#95;delay | This controls the delay in milliseconds when a LED changes on the cyclotron lid in 1984 mode. The default setting is 1050 which is 1.05 seconds. | 1050 |
 | const int i&#95;2021&#95;delay | This controls the delay in milliseconds when a LED changes on the cyclotron lid in 2021 mode. The default setting is 15. | 15 |
-| const int STARTUP&#95;VOLUME | This is the default startup volume of the proton pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. When a Neutrona Wand is connected, it will sync to this value. | 100 |
+| const int STARTUP&#95;VOLUME | The default startup master volume of the proton pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. When a Neutrona Wand is connected, it will sync to this value. | 100 |
+| const int STARTUP&#95;VOLUME&#95;MUSIC | The default music volume of the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. When a Neutrona Wand is connected, it will sync to this value. | 100 |
+| const int STARTUP&#95;VOLUME&#95;EFFECTS | The default sound effects volume of the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. When a Neutrona Wand is connected, it will sync to this value. | 100 |
 | const int MINIMUM&#95;VOLUME | You can set the minimum lowest volume the proton pack can go. 0 = loudest, and -70 = quietest. | -50 |
 | const int VOLUME&#95;MULTIPLIER | Percentage increments of master volume change. | 2 |
 | const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
@@ -131,7 +133,9 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 
 |Variable| Description| Default Setting |
 |--------|------------|-----------------|
-| const int STARTUP&#95;VOLUME | You can set the default volume of your wand. This gets overriden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between %100 and %0. 100 = highest, 0 = lowest. | 100 |
+| const int STARTUP&#95;VOLUME | The default master volume of your wand. This will be overriden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. | 100 |
+| const int STARTUP&#95;VOLUME&#95;MUSIC | The default music volume of the Neutrona Wand. This will be overriden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. | 100 |
+| const int STARTUP&#95;VOLUME&#95;EFFECTS | The default sound effects volume of the Neutrona Wand. This will be overriden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. | 100 |
 | const int MINIMUM&#95;VOLUME | You can set the minimum lowest volume the Neutona Wand can go. 0 = loudest, and -70 = quietest. If your Proton Pack is overpowering your Neutrona Wand sounds at lower volume levels, increase this number. | -35 |
 | const int VOLUME&#95;MULTIPLIER | Percentage increments of main volume change. | 2 |
 | const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
