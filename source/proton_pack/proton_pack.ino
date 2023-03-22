@@ -2740,7 +2740,6 @@ void wandHandShake() {
       if(b_wand_firing == true) {
         wandStoppedFiring();
         cyclotronSpeedRevert();
-        Serial.println("Wand disconnected, stop stuff 1 and sent to false");
       }
       
       ms_wand_handshake.start(i_wand_handshake_delay);
@@ -2767,7 +2766,6 @@ void wandHandShake() {
     if(b_wand_firing == true) {
       wandStoppedFiring();
       cyclotronSpeedRevert();
-      Serial.println("wand disconnected, stop stuff");
     }
 
     if(ms_wand_handshake.justFinished()) {
@@ -2788,8 +2786,6 @@ void checkWand() {
     rx_byte = Serial2.read();
 
     if(b_wand_connected == true) {
-      //Serial.println(rx_byte);
-
       switch(rx_byte) {
         case 1:
           // The wand has been turned on.
