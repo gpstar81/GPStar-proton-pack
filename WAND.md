@@ -57,7 +57,22 @@ You may refer to this PCB drawing and the following table to help identify the o
 | D8   |        | Black | GND | Top Vent LED |
 | D9   |        | <font color="red">Red</font> | VCC | Clippard LED (Top Left) |
 |      |        | <font color="yellow">Yellow</font> | GND |  |
-| Q2   | JST-PH | <font color="blue">Blue</font> | VCC | Neopixels for wand tip effects (5 total) |
+
+# (Important) Neutrona Wand Barrel LEDs wire colour differences.
+
+It appears some of the silver tip generation 1 Neutrona Wands and orange tip generation 2 Neutrona Wands may have different wire colour combinations for the barrel LED lights:
+
+## Generation 1 (Silver tip Neutrona Wands)
+| Name | Socket | Color | Haslab Pin | Notes |
+|------|--------|-------|------------|-------|
+| Q2   | JST-PH | <font color="yellow">Yellow</font> | VCC | Addressable LEDs for wand tip effects (5 total) |
+|      |        | <font color="red">Red</font> | Data |  |
+|      |        | <font color="red">Brown</font> | Gnd |  |
+
+## Generation 2 (Orange tip Neutrona Wands)
+| Name | Socket | Color | Haslab Pin | Notes |
+|------|--------|-------|------------|-------|
+| Q2   | JST-PH | <font color="blue">Blue</font> | VCC | Addressable LEDs for wand tip effects (5 total) |
 |      |        | <font color="yellow">Yellow</font> | Data |  |
 |      |        | <font color="red">Red</font> | Gnd |  |
 
@@ -84,7 +99,7 @@ You can also reference the PDF document for the [Pack Schematic Minimal](circuit
 |---------------|----------|-----|----------|------------|
 | D8 (Red)      | D13   |     | D12   | D7 (Red)      |
 |               | 3V3   |     | D11   | Motor-NPN     |
-|               | REF   |     | D10   | Q2 (Yellow)   |
+|               | REF   |     | D10   | Q2 (Yellow) or (Red) <br /> <br /> **\*See note above about Barrel LED wire colour differences\*** <br /> Generation 1 Neutrona Wands (silver tip) data line is (Red) while generation 2 Neutrona Wands (orange tip) data line is (Yellow) |
 | SW2 (Red)     | A0    |     | D9    | WavTrigger RX |
 | D2 (Brown)    | A1    |     | D8    | WavTrigger TX |
 | D3 (Red)      | A2    |     | D7    | ROT (Yellow)  |
@@ -158,13 +173,6 @@ Considered optional as this can be left out if desired, and without impact to no
 
 **LED's**
 
-| WAND-TUBE → Q2 |   |              |   | Nano Pin | Hasbro Ref | Notes                                  |
-|----------------|---|--------------|---|----------|------------|----------------------------------------|
-| <font color="blue">Blue</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LED's                |
-|                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires | 
-| <font color="red">Red</font>       | → | Ground |    |         | Q2 | Ground to 5 wand LED's               |
-| <font color="yellow">Yellow</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LED's      |
-
 | BARGRAPH → J3                      |   |       |    | Nano Pin | Hasbro Ref |
 |------------------------------------|---|-------|----|----------|------------|
 | <font color="blue">Blue</font>     | → | +5V   |    |          | VDD  |
@@ -210,6 +218,26 @@ OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin
 *NPN Bipolar Transistor. Reference Pack page for more info.
 
 ![](images/SloBloAlt.jpg)
+
+## Wand Barrel LED's
+
+**\*See note near the top of this page about the Neutrona Wand barrel LED wire colours differences between the silver tip and orange tip Neutrona Wands\***
+
+**Generation 1 (Silver Tip Wands)**
+| WAND-TUBE → Q2 |   |              |   | Nano Pin | Hasbro Ref | Notes                                  |
+|----------------|---|--------------|---|----------|------------|----------------------------------------|
+| <font color="yellow">Yellow</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LED's                |
+|                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires | 
+| <font color="brown">Brown</font>       | → | Ground |    |         | Q2 | Ground to 5 wand LED's               |
+| <font color="red">Red</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LED's      |
+
+**Generation 2 (Orange Tip Wands)**
+| WAND-TUBE → Q2 |   |              |   | Nano Pin | Hasbro Ref | Notes                                  |
+|----------------|---|--------------|---|----------|------------|----------------------------------------|
+| <font color="blue">Blue</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LED's                |
+|                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires | 
+| <font color="red">Red</font>       | → | Ground |    |         | Q2 | Ground to 5 wand LED's               |
+| <font color="yellow">Yellow</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LED's      |
 
 ## Component Fitment
 
