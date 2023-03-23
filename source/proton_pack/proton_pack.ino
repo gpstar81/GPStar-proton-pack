@@ -329,7 +329,7 @@ const int i_last_effects_track = S_CROSS_STREAMS_START;
  *  7 additional (32 in total) for a NeoPixel jewel that you can put into the n-filter (optional). This jewel chains off LED #4 in the lid.
  */
 #define PACK_LED_PIN 53
-#define PACK_NUM_LEDS 32
+#define PACK_NUM_LEDS 60
 CRGB pack_leds[PACK_NUM_LEDS];
 #define VENT_LIGHT_START 25
 
@@ -1466,6 +1466,11 @@ void cyclotronControl() {
 }
 
 void cyclotronFade() {
+  // Colour control for the inner cyclotron leds. (red,green,blue)
+  int r = 0;
+  int g = 0;
+  int b = 0;
+
   switch (i_mode_year) {
     case 2021:
       for(int i = 0; i < cyclotron_led_start - 1; i++) {
@@ -1473,12 +1478,76 @@ void cyclotronFade() {
           i_cyclotron_led_on_status[i] = true;
           int i_led = ms_cyclotron_led_fade_in[i].update();
 
-          pack_leds[i + cyclotron_led_start] = CRGB(i_led,0,0);
+          switch(FIRING_MODE) {
+            case PROTON:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+        
+            case SLIME:
+              r = 0;
+              g = i_led;
+              b = 0;
+            break;
+        
+            case STASIS:
+              r = 0;
+              g = 0;
+              b = i_led;
+            break;
+        
+            case MESON:
+              r = i_led;
+              g = i_led;
+              b = 0;
+            break;   
+        
+            default:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+          }
+
+          pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
           i_cyclotron_led_value[i] = i_led;
         }
 
         if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > 254 && i_cyclotron_led_on_status[i] == true) {
-          pack_leds[i + cyclotron_led_start] = CRGB(255,0,0);
+          switch(FIRING_MODE) {
+            case PROTON:
+              r = 255;
+              g = 0;
+              b = 0;
+            break;
+        
+            case SLIME:
+              r = 0;
+              g = 255;
+              b = 0;
+            break;
+        
+            case STASIS:
+              r = 0;
+              g = 0;
+              b = 255;
+            break;
+        
+            case MESON:
+              r = 255;
+              g = 255;
+              b = 0;
+            break;   
+        
+            default:
+              r = 255;
+              g = 0;
+              b = 0;
+            break;
+          }
+
+          pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
           i_cyclotron_led_value[i] = 255;
           i_cyclotron_led_on_status[i] = false;
 
@@ -1488,7 +1557,40 @@ void cyclotronFade() {
 
         if(ms_cyclotron_led_fade_out[i].isRunning() && i_cyclotron_led_on_status[i] == false) {
           int i_led = ms_cyclotron_led_fade_out[i].update();
-          pack_leds[i + cyclotron_led_start] = CRGB(i_led,0,0);
+          
+          switch(FIRING_MODE) {
+            case PROTON:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+        
+            case SLIME:
+              r = 0;
+              g = i_led;
+              b = 0;
+            break;
+        
+            case STASIS:
+              r = 0;
+              g = 0;
+              b = i_led;
+            break;
+        
+            case MESON:
+              r = i_led;
+              g = i_led;
+              b = 0;
+            break;   
+        
+            default:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+          }
+
+          pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
           i_cyclotron_led_value[i] = i_led;
         }
       
@@ -1507,18 +1609,115 @@ void cyclotronFade() {
             i_cyclotron_led_on_status[i] = true;
             int i_led = ms_cyclotron_led_fade_in[i].update();
 
-            pack_leds[i + cyclotron_led_start] = CRGB(i_led,0,0);
+            switch(FIRING_MODE) {
+              case PROTON:
+                r = i_led;
+                g = 0;
+                b = 0;
+              break;
+          
+              case SLIME:
+                r = 0;
+                g = i_led;
+                b = 0;
+              break;
+          
+              case STASIS:
+                r = 0;
+                g = 0;
+                b = i_led;
+              break;
+          
+              case MESON:
+                r = i_led;
+                g = i_led;
+                b = 0;
+              break;   
+          
+              default:
+                r = i_led;
+                g = 0;
+                b = 0;
+              break;
+            }
+
+            pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
             i_cyclotron_led_value[i] = i_led;
           }
 
           if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > 254 && i_cyclotron_led_on_status[i] == true) {
-            pack_leds[i + cyclotron_led_start] = CRGB(255,0,0);
+            switch(FIRING_MODE) {
+              case PROTON:
+                r = 255;
+                g = 0;
+                b = 0;
+              break;
+          
+              case SLIME:
+                r = 0;
+                g = 255;
+                b = 0;
+              break;
+          
+              case STASIS:
+                r = 0;
+                g = 0;
+                b = 255;
+              break;
+          
+              case MESON:
+                r = 255;
+                g = 255;
+                b = 0;
+              break;   
+          
+              default:
+                r = 255;
+                g = 0;
+                b = 0;
+              break;
+            }
+
+            pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
             i_cyclotron_led_value[i] = 255;
           }
 
           if(ms_cyclotron_led_fade_out[i].isRunning()) {
             int i_led = ms_cyclotron_led_fade_out[i].update();
-            pack_leds[i + cyclotron_led_start] = CRGB(i_led,0,0);
+
+            switch(FIRING_MODE) {
+            case PROTON:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+        
+            case SLIME:
+              r = 0;
+              g = i_led;
+              b = 0;
+            break;
+        
+            case STASIS:
+              r = 0;
+              g = 0;
+              b = i_led;
+            break;
+        
+            case MESON:
+              r = i_led;
+              g = i_led;
+              b = 0;
+            break;   
+        
+            default:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+          }
+
+            pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
             i_cyclotron_led_value[i] = i_led;              
             i_cyclotron_led_on_status[i] = false;
           }
