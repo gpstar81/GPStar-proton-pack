@@ -331,7 +331,7 @@ const int i_last_effects_track = S_CROSS_STREAMS_START;
 #define PACK_LED_PIN 53
 #define PACK_NUM_LEDS 60
 CRGB pack_leds[PACK_NUM_LEDS];
-#define VENT_LIGHT_START 25
+#define VENT_LIGHT_START 53
 
 /*
  * Inner Cyclotron LEDs. (optional).
