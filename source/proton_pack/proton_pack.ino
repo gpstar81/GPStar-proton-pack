@@ -73,7 +73,7 @@ const int i_2021_delay = 10; // 15 for stock Haslab LEDs.
  * 0 = quietest
  * 100 = loudest
  */
-const int STARTUP_VOLUME = 0;
+const int STARTUP_VOLUME = 100;
 
 /*
  * You can set the default music volume for your pack here.
