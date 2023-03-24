@@ -141,14 +141,18 @@ These switches utilize a "pull down" resistor to measure the difference in volta
 | MODE SWITCH → SW6 |    |            |    | Nano Pin | Hasbro Ref |                                       |
 |-------------------|----|------------|----|----------|------------|---------------------------------------|
 | <font color="gray">White</font> | → | +5V    |   |        | SW6 | Shouldn’t matter which wire goes where |
-| <font color="gray">White</font> | → | 10k Ω  | → | Pin A6 | SW6 | Shouldn’t matter which wire goes where |
+| <font color="gray">White</font> | → | →  | → | Pin A6 | SW6 | Shouldn’t matter which wire goes where |
 |                                 |   | ↕      |   |        |     |                                        |
+|                                 |   | 10k Ω    |   |        |     |                                        |
+|                                    |   | ↕      |   |        |     |                                        |
 |                                 |   | Ground |   |        |     | Need to pull to ground (for reference) |
 
 | BARREL EXTENSION SWITCH → SW7 |   |        |    | Nano Pin | Hasbro Ref |                                   |
 |-------------------------------|---|--------|----|----------|------------|-----------------------------------|
 | <font color="orange">Orange</font> | → | +5V    |   |        | SW7 | Shouldn’t matter which wire goes where |
-| <font color="orange">Orange</font> | → | 10k Ω  | → | Pin A7 | SW7 | Shouldn’t matter which wire goes where |
+| <font color="orange">Orange</font> | → | →  | → | Pin A7 | SW7 | Shouldn’t matter which wire goes where |
+|                                    |   | ↕      |   |        |     |                                        |
+|                                    |   | 10k Ω     |   |        |     |                                        |
 |                                    |   | ↕      |   |        |     |                                        |
 |                                    |   | Ground |   |        |     | Need to pull to ground (for reference) |
 
