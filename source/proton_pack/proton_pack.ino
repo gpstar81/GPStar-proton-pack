@@ -331,7 +331,7 @@ const int i_last_effects_track = S_CROSS_STREAMS_START;
 #define PACK_LED_PIN 53
 #define PACK_NUM_LEDS 60
 CRGB pack_leds[PACK_NUM_LEDS];
-#define VENT_LIGHT_START 25
+#define VENT_LIGHT_START 53
 
 /*
  * Inner Cyclotron LEDs. (optional).
@@ -411,6 +411,34 @@ rampInt ms_cyclotron_fade_out_led_9;
 rampInt ms_cyclotron_fade_out_led_10;
 rampInt ms_cyclotron_fade_out_led_11;
 rampInt ms_cyclotron_fade_out_led_12;
+rampInt ms_cyclotron_fade_out_led_13;
+rampInt ms_cyclotron_fade_out_led_14;
+rampInt ms_cyclotron_fade_out_led_15;
+rampInt ms_cyclotron_fade_out_led_16;
+rampInt ms_cyclotron_fade_out_led_17;
+rampInt ms_cyclotron_fade_out_led_18;
+rampInt ms_cyclotron_fade_out_led_19;
+rampInt ms_cyclotron_fade_out_led_20;
+rampInt ms_cyclotron_fade_out_led_21;
+rampInt ms_cyclotron_fade_out_led_22;
+rampInt ms_cyclotron_fade_out_led_23;
+rampInt ms_cyclotron_fade_out_led_24;
+rampInt ms_cyclotron_fade_out_led_25;
+rampInt ms_cyclotron_fade_out_led_26;
+rampInt ms_cyclotron_fade_out_led_27;
+rampInt ms_cyclotron_fade_out_led_28;
+rampInt ms_cyclotron_fade_out_led_29;
+rampInt ms_cyclotron_fade_out_led_30;
+rampInt ms_cyclotron_fade_out_led_31;
+rampInt ms_cyclotron_fade_out_led_32;
+rampInt ms_cyclotron_fade_out_led_33;
+rampInt ms_cyclotron_fade_out_led_34;
+rampInt ms_cyclotron_fade_out_led_35;
+rampInt ms_cyclotron_fade_out_led_36;
+rampInt ms_cyclotron_fade_out_led_37;
+rampInt ms_cyclotron_fade_out_led_38;
+rampInt ms_cyclotron_fade_out_led_39;
+rampInt ms_cyclotron_fade_out_led_40;
 rampInt ms_cyclotron_fade_in_led_1;
 rampInt ms_cyclotron_fade_in_led_2;
 rampInt ms_cyclotron_fade_in_led_3;
@@ -423,10 +451,38 @@ rampInt ms_cyclotron_fade_in_led_9;
 rampInt ms_cyclotron_fade_in_led_10;
 rampInt ms_cyclotron_fade_in_led_11;
 rampInt ms_cyclotron_fade_in_led_12;
-boolean i_cyclotron_led_on_status[12] = { false, false, false, false, false, false, false, false, false, false, false, false };
-rampInt ms_cyclotron_led_fade_out[12] = { ms_cyclotron_fade_out_led_1, ms_cyclotron_fade_out_led_2, ms_cyclotron_fade_out_led_3, ms_cyclotron_fade_out_led_4, ms_cyclotron_fade_out_led_5, ms_cyclotron_fade_out_led_6, ms_cyclotron_fade_out_led_7, ms_cyclotron_fade_out_led_8, ms_cyclotron_fade_out_led_9, ms_cyclotron_fade_out_led_10, ms_cyclotron_fade_out_led_11, ms_cyclotron_fade_out_led_12 };
-rampInt ms_cyclotron_led_fade_in[12] = { ms_cyclotron_fade_in_led_1, ms_cyclotron_fade_in_led_2, ms_cyclotron_fade_in_led_3, ms_cyclotron_fade_in_led_4, ms_cyclotron_fade_in_led_5, ms_cyclotron_fade_in_led_6, ms_cyclotron_fade_in_led_7, ms_cyclotron_fade_in_led_8, ms_cyclotron_fade_in_led_9, ms_cyclotron_fade_in_led_10, ms_cyclotron_fade_in_led_11, ms_cyclotron_fade_in_led_12 };
-int i_cyclotron_led_value[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+rampInt ms_cyclotron_fade_in_led_13;
+rampInt ms_cyclotron_fade_in_led_14;
+rampInt ms_cyclotron_fade_in_led_15;
+rampInt ms_cyclotron_fade_in_led_16;
+rampInt ms_cyclotron_fade_in_led_17;
+rampInt ms_cyclotron_fade_in_led_18;
+rampInt ms_cyclotron_fade_in_led_19;
+rampInt ms_cyclotron_fade_in_led_20;
+rampInt ms_cyclotron_fade_in_led_21;
+rampInt ms_cyclotron_fade_in_led_22;
+rampInt ms_cyclotron_fade_in_led_23;
+rampInt ms_cyclotron_fade_in_led_24;
+rampInt ms_cyclotron_fade_in_led_25;
+rampInt ms_cyclotron_fade_in_led_26;
+rampInt ms_cyclotron_fade_in_led_27;
+rampInt ms_cyclotron_fade_in_led_28;
+rampInt ms_cyclotron_fade_in_led_29;
+rampInt ms_cyclotron_fade_in_led_30;
+rampInt ms_cyclotron_fade_in_led_31;
+rampInt ms_cyclotron_fade_in_led_32;
+rampInt ms_cyclotron_fade_in_led_33;
+rampInt ms_cyclotron_fade_in_led_34;
+rampInt ms_cyclotron_fade_in_led_35;
+rampInt ms_cyclotron_fade_in_led_36;
+rampInt ms_cyclotron_fade_in_led_37;
+rampInt ms_cyclotron_fade_in_led_38;
+rampInt ms_cyclotron_fade_in_led_39;
+rampInt ms_cyclotron_fade_in_led_40;
+boolean i_cyclotron_led_on_status[40] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+rampInt ms_cyclotron_led_fade_out[40] = { ms_cyclotron_fade_out_led_1, ms_cyclotron_fade_out_led_2, ms_cyclotron_fade_out_led_3, ms_cyclotron_fade_out_led_4, ms_cyclotron_fade_out_led_5, ms_cyclotron_fade_out_led_6, ms_cyclotron_fade_out_led_7, ms_cyclotron_fade_out_led_8, ms_cyclotron_fade_out_led_9, ms_cyclotron_fade_out_led_10, ms_cyclotron_fade_out_led_11, ms_cyclotron_fade_out_led_12, ms_cyclotron_fade_out_led_13, ms_cyclotron_fade_out_led_14, ms_cyclotron_fade_out_led_15, ms_cyclotron_fade_out_led_16, ms_cyclotron_fade_out_led_17, ms_cyclotron_fade_out_led_18, ms_cyclotron_fade_out_led_19, ms_cyclotron_fade_out_led_20, ms_cyclotron_fade_out_led_21, ms_cyclotron_fade_out_led_22, ms_cyclotron_fade_out_led_23, ms_cyclotron_fade_out_led_24, ms_cyclotron_fade_out_led_25, ms_cyclotron_fade_out_led_26, ms_cyclotron_fade_out_led_27, ms_cyclotron_fade_out_led_28, ms_cyclotron_fade_out_led_29, ms_cyclotron_fade_out_led_30, ms_cyclotron_fade_out_led_31, ms_cyclotron_fade_out_led_32, ms_cyclotron_fade_out_led_33, ms_cyclotron_fade_out_led_34, ms_cyclotron_fade_out_led_35, ms_cyclotron_fade_out_led_36, ms_cyclotron_fade_out_led_37, ms_cyclotron_fade_out_led_38, ms_cyclotron_fade_out_led_39, ms_cyclotron_fade_out_led_40 };
+rampInt ms_cyclotron_led_fade_in[40] = { ms_cyclotron_fade_in_led_1, ms_cyclotron_fade_in_led_2, ms_cyclotron_fade_in_led_3, ms_cyclotron_fade_in_led_4, ms_cyclotron_fade_in_led_5, ms_cyclotron_fade_in_led_6, ms_cyclotron_fade_in_led_7, ms_cyclotron_fade_in_led_8, ms_cyclotron_fade_in_led_9, ms_cyclotron_fade_in_led_10, ms_cyclotron_fade_in_led_11, ms_cyclotron_fade_in_led_12, ms_cyclotron_fade_in_led_13, ms_cyclotron_fade_in_led_14, ms_cyclotron_fade_in_led_15, ms_cyclotron_fade_in_led_16, ms_cyclotron_fade_in_led_17, ms_cyclotron_fade_in_led_18, ms_cyclotron_fade_in_led_19, ms_cyclotron_fade_in_led_20, ms_cyclotron_fade_in_led_21, ms_cyclotron_fade_in_led_22, ms_cyclotron_fade_in_led_23, ms_cyclotron_fade_in_led_24, ms_cyclotron_fade_in_led_25, ms_cyclotron_fade_in_led_26, ms_cyclotron_fade_in_led_27, ms_cyclotron_fade_in_led_28, ms_cyclotron_fade_in_led_29, ms_cyclotron_fade_in_led_30, ms_cyclotron_fade_in_led_31, ms_cyclotron_fade_in_led_32, ms_cyclotron_fade_in_led_33, ms_cyclotron_fade_in_led_34, ms_cyclotron_fade_in_led_35, ms_cyclotron_fade_in_led_36, ms_cyclotron_fade_in_led_37, ms_cyclotron_fade_in_led_38, ms_cyclotron_fade_in_led_39, ms_cyclotron_fade_in_led_40 };
+int i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 /*
  * Inner cyclotron NeoPixel ring ramp control.
@@ -1301,7 +1357,7 @@ void powercellLoop() {
     int i_extra_delay = 0;
     
     // Powercell
-    if(i_powercell_led > PACK_NUM_LEDS - 7 - cyclotron_led_start) {
+    if(i_powercell_led > cyclotron_led_start - 1) {
       powercellOff();
   
       i_powercell_led = 0;
@@ -1310,7 +1366,7 @@ void powercellLoop() {
       pack_leds[i_powercell_led] = CRGB(0,0,255);
 
       // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
-      if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == PACK_NUM_LEDS - 7 - cyclotron_led_start) {
+      if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
         i_extra_delay = 250;
       }
       
@@ -1349,7 +1405,7 @@ void powercellLoop() {
 }
 
 void powercellOff() {
-  for(int i = 0; i <= PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
+  for(int i = 0; i <= cyclotron_led_start - 1; i++) {
     pack_leds[i] = CRGB(0,0,0);
   }
    
@@ -1473,7 +1529,7 @@ void cyclotronFade() {
 
   switch (i_mode_year) {
     case 2021:
-      for(int i = 0; i < cyclotron_led_start - 1; i++) {
+      for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           i_cyclotron_led_on_status[i] = true;
           int i_led = ms_cyclotron_led_fade_in[i].update();
@@ -1604,7 +1660,7 @@ void cyclotronFade() {
 
     case 1984:
       if(b_fade_cyclotron_led == true) {
-        for(int i = 0; i < cyclotron_led_start - 1; i++) {
+        for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
             i_cyclotron_led_on_status[i] = true;
             int i_led = ms_cyclotron_led_fade_in[i].update();
@@ -2086,7 +2142,7 @@ void resetCyclotronLeds() {
     pack_leds[i] = CRGB(0,0,0);
   }
 
-  for(int i = 0; i < cyclotron_led_start - 1; i++) {
+  for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
       ms_cyclotron_led_fade_out[i].go(0);
       ms_cyclotron_led_fade_in[i].go(0);
 
