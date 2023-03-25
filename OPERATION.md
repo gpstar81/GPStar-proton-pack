@@ -70,7 +70,7 @@ To exit the menu system, navigate to **Menu 5** and press the orange **Mode** sw
 
 **When music is playing while the pack and wand are turned off, you can use the Rotary knob on the top of the wand to easily access independent music volume control.**
 
-**When the wand and pack are turned off, you can stil access the Wand Settings Menu System by pressing the orange mode switch button at the end of the wand.**
+**When the wand and pack are turned off, you can still access the Wand Settings Menu System by pressing the orange mode switch button at the end of the wand.**
 
 Refer the [WavTrigger section](WAVTRIGGER.md) for more information on loading additional music tracks.
 
