@@ -1,10 +1,10 @@
 # N-Filter Vent Light
 
-Written in the code is support for chaining 1 NeoPixel Jewel off the last LED in the cyclotron lid (LED #4) (see photos below). This NeoPixel jewel is timed to go off during overheating or anytime the pack is activating the smoke pins. 
+Written in the code is support for chaining 1 NeoPixel Jewel off the last LED in the cyclotron lid (see photos below) (**NOTE: This can be chained off any addressable LEDs, for example if you add a NeoPixel ring in your cyclotron lid**). This NeoPixel jewel is timed to go off during overheating or anytime the pack is activating the smoke pins. 
 
 To access the cyclotron led, you will have to take apart the cyclotron lid. There are several plastic tabs that are glued. When taking apart the lid, you will end up either breaking the tabs or the glue bonds. KEEP THIS IN MIND IF YOU DO THIS MOD.
 
-The trick to taking apart the lid to break the tabs or glue bonds is using 2 flathead screw drivers, work you way around the lid seam, until you reach a pin, then slightly force it up/pry slightly to break the pin or glue bond. You only want to pry/lift up when you get to a pin. Take your time and go easy.
+The trick to taking apart the lid to break the tabs or glue bonds is using 2 flathead screw drivers, work your way around the lid seam, until you reach a pin, then slightly force it up/pry slightly to break the pin or glue bond. You only want to pry/lift up when you get to a pin. Take your time and go easy.
 
 When you eventually access LED #4 (see photos below), you want to solder wires from the 5V out, GND Out and OUT pin onto the 5V IN, GND IN and IN pin on the NeoPixel Jewel.
 In the photos below, my red wire is GROUND, middle yellow wire is the OUT signal wire, and the outer yellow wire is 5V out. (cyclotron lid LED I wire into to connect to the NeoPixel jewel)
