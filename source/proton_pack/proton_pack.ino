@@ -30,14 +30,46 @@
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
  * Change the variables below to alter the behaviour of your Proton Pack.
+ * All the default settings below are setup for a stock Haslab Proton Pack lighting kit.
  */
  
+ /* 
+ *  PowerCell and Cyclotron Lid LEDs.
+ *  25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
+ *  
+ *  For the stock Haslab LEDs, use const int i_pack_num_leds = 25; and const i_1984_cyclotron_leds 2, 5, 8, 11.
+ *  For a 40 LED NeoPixel ring, use const int i_pack_num_leds = 53 and const i_1984_cyclotron_leds 1, 11, 19, 29.
+ *  You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.  
+ *
+ *  i_1984_cyclotron_leds is the middle led aligned in each lens window. Adjust this setting if you use different LED setups and installations.
+ *  Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as cyclotron lens #1 and work your way clockwise)
+ *
+ */ 
+ // For stock Haslab LEDs
+const int i_pack_num_leds = 25;
+const int i_1984_cyclotron_leds[4] = { 2, 5, 8, 11 };
+
+// For a 40 LED NeoPixel ring.
+//const int i_pack_num_leds = 53;
+//const int i_1984_cyclotron_leds[4] = { 1, 11, 19, 29 };
+
 /*
- * Use only one of the following defines to change which optional NeoPixel ring you are using
- * in your inner cyclotron. If you are not using any, then this can be left alone.
+ * Cyclotron Lid LED delays.
+ * Time in milliseconds between when a LED changes.
+ * 1000 = 1 second.
+ * For a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
+ * For stock Haslab LEDs, 15 for i_2021_delay is good.
+ * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
+ */
+const int i_1984_delay = 1050;
+const int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 LED NeoPixel ring.
+
+/*
+ * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
+ * If you are not using any, then this can be left alone.
  * Leave at least one in place, even if you are not using this optional item.
  * 24 -> For a 24 LED NeoPixel Ring
- * 35 -> For a 35 LED NeoPixel Ring
+ * 35 -> For a 35 LED NeoPixel Ring. (Recommended ring size)
  */
 //#define CYCLOTRON_NUM_LEDS 24
 #define CYCLOTRON_NUM_LEDS 35
@@ -101,14 +133,6 @@ const int VOLUME_EFFECTS_MULTIPLIER = 5;
  */
 const int i_2021_inner_delay = 5;
 const int i_1984_inner_delay = 9;
-
-/*
- * Cyclotron Lid LED delays.
- * Time in milliseconds between when a LED changes.
- * 1000 = 1 second.
- */
-const int i_1984_delay = 1050;
-const int i_2021_delay = 15;
 
 /* 
  *  Default the cyclotron lights direction to clockwise. 
@@ -323,15 +347,19 @@ enum sound_fx {
  */
 const int i_last_effects_track = S_CROSS_STREAMS_START;
 
-/* 
- *  PowerCell and Cyclotron Lid LEDs.
- *  25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
- *  7 additional (32 in total) for a NeoPixel jewel that you can put into the n-filter (optional). This jewel chains off LED #4 in the lid.
+ /* 
+ *  PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
+ *  7 additional (32 in total in stock form) for a NeoPixel jewel that you can put into the n-filter (optional). 
+ *  This jewel chains off cyclotron lens #4 in the lid (top left lens).
  */
+#define PACK_NUM_LEDS i_pack_num_leds + 7
+#define VENT_LIGHT_START i_pack_num_leds
+
+/*
+ * Proton pack powercell and cyclotron lid led pin.
+*/
 #define PACK_LED_PIN 53
-#define PACK_NUM_LEDS 32
 CRGB pack_leds[PACK_NUM_LEDS];
-#define VENT_LIGHT_START 25
 
 /*
  * Inner Cyclotron LEDs. (optional).
@@ -411,6 +439,34 @@ rampInt ms_cyclotron_fade_out_led_9;
 rampInt ms_cyclotron_fade_out_led_10;
 rampInt ms_cyclotron_fade_out_led_11;
 rampInt ms_cyclotron_fade_out_led_12;
+rampInt ms_cyclotron_fade_out_led_13;
+rampInt ms_cyclotron_fade_out_led_14;
+rampInt ms_cyclotron_fade_out_led_15;
+rampInt ms_cyclotron_fade_out_led_16;
+rampInt ms_cyclotron_fade_out_led_17;
+rampInt ms_cyclotron_fade_out_led_18;
+rampInt ms_cyclotron_fade_out_led_19;
+rampInt ms_cyclotron_fade_out_led_20;
+rampInt ms_cyclotron_fade_out_led_21;
+rampInt ms_cyclotron_fade_out_led_22;
+rampInt ms_cyclotron_fade_out_led_23;
+rampInt ms_cyclotron_fade_out_led_24;
+rampInt ms_cyclotron_fade_out_led_25;
+rampInt ms_cyclotron_fade_out_led_26;
+rampInt ms_cyclotron_fade_out_led_27;
+rampInt ms_cyclotron_fade_out_led_28;
+rampInt ms_cyclotron_fade_out_led_29;
+rampInt ms_cyclotron_fade_out_led_30;
+rampInt ms_cyclotron_fade_out_led_31;
+rampInt ms_cyclotron_fade_out_led_32;
+rampInt ms_cyclotron_fade_out_led_33;
+rampInt ms_cyclotron_fade_out_led_34;
+rampInt ms_cyclotron_fade_out_led_35;
+rampInt ms_cyclotron_fade_out_led_36;
+rampInt ms_cyclotron_fade_out_led_37;
+rampInt ms_cyclotron_fade_out_led_38;
+rampInt ms_cyclotron_fade_out_led_39;
+rampInt ms_cyclotron_fade_out_led_40;
 rampInt ms_cyclotron_fade_in_led_1;
 rampInt ms_cyclotron_fade_in_led_2;
 rampInt ms_cyclotron_fade_in_led_3;
@@ -423,10 +479,39 @@ rampInt ms_cyclotron_fade_in_led_9;
 rampInt ms_cyclotron_fade_in_led_10;
 rampInt ms_cyclotron_fade_in_led_11;
 rampInt ms_cyclotron_fade_in_led_12;
-boolean i_cyclotron_led_on_status[12] = { false, false, false, false, false, false, false, false, false, false, false, false };
-rampInt ms_cyclotron_led_fade_out[12] = { ms_cyclotron_fade_out_led_1, ms_cyclotron_fade_out_led_2, ms_cyclotron_fade_out_led_3, ms_cyclotron_fade_out_led_4, ms_cyclotron_fade_out_led_5, ms_cyclotron_fade_out_led_6, ms_cyclotron_fade_out_led_7, ms_cyclotron_fade_out_led_8, ms_cyclotron_fade_out_led_9, ms_cyclotron_fade_out_led_10, ms_cyclotron_fade_out_led_11, ms_cyclotron_fade_out_led_12 };
-rampInt ms_cyclotron_led_fade_in[12] = { ms_cyclotron_fade_in_led_1, ms_cyclotron_fade_in_led_2, ms_cyclotron_fade_in_led_3, ms_cyclotron_fade_in_led_4, ms_cyclotron_fade_in_led_5, ms_cyclotron_fade_in_led_6, ms_cyclotron_fade_in_led_7, ms_cyclotron_fade_in_led_8, ms_cyclotron_fade_in_led_9, ms_cyclotron_fade_in_led_10, ms_cyclotron_fade_in_led_11, ms_cyclotron_fade_in_led_12 };
-int i_cyclotron_led_value[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+rampInt ms_cyclotron_fade_in_led_13;
+rampInt ms_cyclotron_fade_in_led_14;
+rampInt ms_cyclotron_fade_in_led_15;
+rampInt ms_cyclotron_fade_in_led_16;
+rampInt ms_cyclotron_fade_in_led_17;
+rampInt ms_cyclotron_fade_in_led_18;
+rampInt ms_cyclotron_fade_in_led_19;
+rampInt ms_cyclotron_fade_in_led_20;
+rampInt ms_cyclotron_fade_in_led_21;
+rampInt ms_cyclotron_fade_in_led_22;
+rampInt ms_cyclotron_fade_in_led_23;
+rampInt ms_cyclotron_fade_in_led_24;
+rampInt ms_cyclotron_fade_in_led_25;
+rampInt ms_cyclotron_fade_in_led_26;
+rampInt ms_cyclotron_fade_in_led_27;
+rampInt ms_cyclotron_fade_in_led_28;
+rampInt ms_cyclotron_fade_in_led_29;
+rampInt ms_cyclotron_fade_in_led_30;
+rampInt ms_cyclotron_fade_in_led_31;
+rampInt ms_cyclotron_fade_in_led_32;
+rampInt ms_cyclotron_fade_in_led_33;
+rampInt ms_cyclotron_fade_in_led_34;
+rampInt ms_cyclotron_fade_in_led_35;
+rampInt ms_cyclotron_fade_in_led_36;
+rampInt ms_cyclotron_fade_in_led_37;
+rampInt ms_cyclotron_fade_in_led_38;
+rampInt ms_cyclotron_fade_in_led_39;
+rampInt ms_cyclotron_fade_in_led_40;
+boolean i_cyclotron_led_on_status[40] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+rampInt ms_cyclotron_led_fade_out[40] = { ms_cyclotron_fade_out_led_1, ms_cyclotron_fade_out_led_2, ms_cyclotron_fade_out_led_3, ms_cyclotron_fade_out_led_4, ms_cyclotron_fade_out_led_5, ms_cyclotron_fade_out_led_6, ms_cyclotron_fade_out_led_7, ms_cyclotron_fade_out_led_8, ms_cyclotron_fade_out_led_9, ms_cyclotron_fade_out_led_10, ms_cyclotron_fade_out_led_11, ms_cyclotron_fade_out_led_12, ms_cyclotron_fade_out_led_13, ms_cyclotron_fade_out_led_14, ms_cyclotron_fade_out_led_15, ms_cyclotron_fade_out_led_16, ms_cyclotron_fade_out_led_17, ms_cyclotron_fade_out_led_18, ms_cyclotron_fade_out_led_19, ms_cyclotron_fade_out_led_20, ms_cyclotron_fade_out_led_21, ms_cyclotron_fade_out_led_22, ms_cyclotron_fade_out_led_23, ms_cyclotron_fade_out_led_24, ms_cyclotron_fade_out_led_25, ms_cyclotron_fade_out_led_26, ms_cyclotron_fade_out_led_27, ms_cyclotron_fade_out_led_28, ms_cyclotron_fade_out_led_29, ms_cyclotron_fade_out_led_30, ms_cyclotron_fade_out_led_31, ms_cyclotron_fade_out_led_32, ms_cyclotron_fade_out_led_33, ms_cyclotron_fade_out_led_34, ms_cyclotron_fade_out_led_35, ms_cyclotron_fade_out_led_36, ms_cyclotron_fade_out_led_37, ms_cyclotron_fade_out_led_38, ms_cyclotron_fade_out_led_39, ms_cyclotron_fade_out_led_40 };
+rampInt ms_cyclotron_led_fade_in[40] = { ms_cyclotron_fade_in_led_1, ms_cyclotron_fade_in_led_2, ms_cyclotron_fade_in_led_3, ms_cyclotron_fade_in_led_4, ms_cyclotron_fade_in_led_5, ms_cyclotron_fade_in_led_6, ms_cyclotron_fade_in_led_7, ms_cyclotron_fade_in_led_8, ms_cyclotron_fade_in_led_9, ms_cyclotron_fade_in_led_10, ms_cyclotron_fade_in_led_11, ms_cyclotron_fade_in_led_12, ms_cyclotron_fade_in_led_13, ms_cyclotron_fade_in_led_14, ms_cyclotron_fade_in_led_15, ms_cyclotron_fade_in_led_16, ms_cyclotron_fade_in_led_17, ms_cyclotron_fade_in_led_18, ms_cyclotron_fade_in_led_19, ms_cyclotron_fade_in_led_20, ms_cyclotron_fade_in_led_21, ms_cyclotron_fade_in_led_22, ms_cyclotron_fade_in_led_23, ms_cyclotron_fade_in_led_24, ms_cyclotron_fade_in_led_25, ms_cyclotron_fade_in_led_26, ms_cyclotron_fade_in_led_27, ms_cyclotron_fade_in_led_28, ms_cyclotron_fade_in_led_29, ms_cyclotron_fade_in_led_30, ms_cyclotron_fade_in_led_31, ms_cyclotron_fade_in_led_32, ms_cyclotron_fade_in_led_33, ms_cyclotron_fade_in_led_34, ms_cyclotron_fade_in_led_35, ms_cyclotron_fade_in_led_36, ms_cyclotron_fade_in_led_37, ms_cyclotron_fade_in_led_38, ms_cyclotron_fade_in_led_39, ms_cyclotron_fade_in_led_40 };
+int i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+int i_1984_counter = 0;
 
 /*
  * Inner cyclotron NeoPixel ring ramp control.
@@ -1301,7 +1386,7 @@ void powercellLoop() {
     int i_extra_delay = 0;
     
     // Powercell
-    if(i_powercell_led > PACK_NUM_LEDS - 7 - cyclotron_led_start) {
+    if(i_powercell_led > cyclotron_led_start - 1) {
       powercellOff();
   
       i_powercell_led = 0;
@@ -1310,7 +1395,7 @@ void powercellLoop() {
       pack_leds[i_powercell_led] = CRGB(0,0,255);
 
       // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
-      if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == PACK_NUM_LEDS - 7 - cyclotron_led_start) {
+      if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
         i_extra_delay = 250;
       }
       
@@ -1349,7 +1434,7 @@ void powercellLoop() {
 }
 
 void powercellOff() {
-  for(int i = 0; i <= PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
+  for(int i = 0; i <= cyclotron_led_start - 1; i++) {
     pack_leds[i] = CRGB(0,0,0);
   }
    
@@ -1360,11 +1445,24 @@ void cyclotronControl() {
   // Only reset the starting led when the pack is first started up.
   if(b_reset_start_led == true) {
     b_reset_start_led = false;
-    if(b_clockwise == false && i_mode_year == 2021) {
-      i_led_cyclotron = cyclotron_led_start + 2; // Start on LED #2 in anti-clockwise mode in 2021 mode.
+    if(b_clockwise == false) {
+      if(i_mode_year == 2021) {
+        i_led_cyclotron = cyclotron_led_start + 2; // Start on LED #2 in anti-clockwise mode in 2021 mode.
+      }
+      else {
+        i_1984_counter = 1;
+        i_led_cyclotron = cyclotron_led_start + i_1984_cyclotron_leds[i_1984_counter] - 2;      
+      }
     }
     else {
-      i_led_cyclotron = cyclotron_led_start;
+      if(i_mode_year == 1984) {
+        i_1984_counter = 3;
+        i_led_cyclotron = cyclotron_led_start + i_1984_cyclotron_leds[i_1984_counter] - 2;
+        
+      }
+      else {
+        i_led_cyclotron = cyclotron_led_start;
+      }
     }
   }
         
@@ -1466,19 +1564,88 @@ void cyclotronControl() {
 }
 
 void cyclotronFade() {
+  // Colour control for the inner cyclotron leds. (red,green,blue)
+  int r = 0;
+  int g = 0;
+  int b = 0;
+
   switch (i_mode_year) {
     case 2021:
-      for(int i = 0; i < cyclotron_led_start - 1; i++) {
+      for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           i_cyclotron_led_on_status[i] = true;
           int i_led = ms_cyclotron_led_fade_in[i].update();
 
-          pack_leds[i + cyclotron_led_start] = CRGB(i_led,0,0);
+          switch(FIRING_MODE) {
+            case PROTON:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+        
+            case SLIME:
+              r = 0;
+              g = i_led;
+              b = 0;
+            break;
+        
+            case STASIS:
+              r = 0;
+              g = 0;
+              b = i_led;
+            break;
+        
+            case MESON:
+              r = i_led;
+              g = i_led;
+              b = 0;
+            break;   
+        
+            default:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+          }
+
+          pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
           i_cyclotron_led_value[i] = i_led;
         }
 
         if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > 254 && i_cyclotron_led_on_status[i] == true) {
-          pack_leds[i + cyclotron_led_start] = CRGB(255,0,0);
+          switch(FIRING_MODE) {
+            case PROTON:
+              r = 255;
+              g = 0;
+              b = 0;
+            break;
+        
+            case SLIME:
+              r = 0;
+              g = 255;
+              b = 0;
+            break;
+        
+            case STASIS:
+              r = 0;
+              g = 0;
+              b = 255;
+            break;
+        
+            case MESON:
+              r = 255;
+              g = 255;
+              b = 0;
+            break;   
+        
+            default:
+              r = 255;
+              g = 0;
+              b = 0;
+            break;
+          }
+
+          pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
           i_cyclotron_led_value[i] = 255;
           i_cyclotron_led_on_status[i] = false;
 
@@ -1488,7 +1655,40 @@ void cyclotronFade() {
 
         if(ms_cyclotron_led_fade_out[i].isRunning() && i_cyclotron_led_on_status[i] == false) {
           int i_led = ms_cyclotron_led_fade_out[i].update();
-          pack_leds[i + cyclotron_led_start] = CRGB(i_led,0,0);
+          
+          switch(FIRING_MODE) {
+            case PROTON:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+        
+            case SLIME:
+              r = 0;
+              g = i_led;
+              b = 0;
+            break;
+        
+            case STASIS:
+              r = 0;
+              g = 0;
+              b = i_led;
+            break;
+        
+            case MESON:
+              r = i_led;
+              g = i_led;
+              b = 0;
+            break;   
+        
+            default:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+          }
+
+          pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
           i_cyclotron_led_value[i] = i_led;
         }
       
@@ -1502,23 +1702,120 @@ void cyclotronFade() {
 
     case 1984:
       if(b_fade_cyclotron_led == true) {
-        for(int i = 0; i < cyclotron_led_start - 1; i++) {
+        for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
             i_cyclotron_led_on_status[i] = true;
             int i_led = ms_cyclotron_led_fade_in[i].update();
 
-            pack_leds[i + cyclotron_led_start] = CRGB(i_led,0,0);
+            switch(FIRING_MODE) {
+              case PROTON:
+                r = i_led;
+                g = 0;
+                b = 0;
+              break;
+          
+              case SLIME:
+                r = 0;
+                g = i_led;
+                b = 0;
+              break;
+          
+              case STASIS:
+                r = 0;
+                g = 0;
+                b = i_led;
+              break;
+          
+              case MESON:
+                r = i_led;
+                g = i_led;
+                b = 0;
+              break;   
+          
+              default:
+                r = i_led;
+                g = 0;
+                b = 0;
+              break;
+            }
+
+            pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
             i_cyclotron_led_value[i] = i_led;
           }
 
           if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > 254 && i_cyclotron_led_on_status[i] == true) {
-            pack_leds[i + cyclotron_led_start] = CRGB(255,0,0);
+            switch(FIRING_MODE) {
+              case PROTON:
+                r = 255;
+                g = 0;
+                b = 0;
+              break;
+          
+              case SLIME:
+                r = 0;
+                g = 255;
+                b = 0;
+              break;
+          
+              case STASIS:
+                r = 0;
+                g = 0;
+                b = 255;
+              break;
+          
+              case MESON:
+                r = 255;
+                g = 255;
+                b = 0;
+              break;   
+          
+              default:
+                r = 255;
+                g = 0;
+                b = 0;
+              break;
+            }
+
+            pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
             i_cyclotron_led_value[i] = 255;
           }
 
           if(ms_cyclotron_led_fade_out[i].isRunning()) {
             int i_led = ms_cyclotron_led_fade_out[i].update();
-            pack_leds[i + cyclotron_led_start] = CRGB(i_led,0,0);
+
+            switch(FIRING_MODE) {
+            case PROTON:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+        
+            case SLIME:
+              r = 0;
+              g = i_led;
+              b = 0;
+            break;
+        
+            case STASIS:
+              r = 0;
+              g = 0;
+              b = i_led;
+            break;
+        
+            case MESON:
+              r = i_led;
+              g = i_led;
+              b = 0;
+            break;   
+        
+            default:
+              r = i_led;
+              g = 0;
+              b = 0;
+            break;
+          }
+
+            pack_leds[i + cyclotron_led_start] = CRGB(r,g,b);
             i_cyclotron_led_value[i] = i_led;              
             i_cyclotron_led_on_status[i] = false;
           }
@@ -1653,18 +1950,20 @@ void cyclotron1984(int cDelay) {
     }
 
     if(b_clockwise == true) {
-      i_led_cyclotron = i_led_cyclotron + 3;
+      i_1984_counter++;
     }
     else {
-      i_led_cyclotron = i_led_cyclotron - 3;
+      i_1984_counter--;
     }
 
-    if(i_led_cyclotron < cyclotron_led_start) {
-      i_led_cyclotron = PACK_NUM_LEDS - 7 - 3;
+    if(i_1984_counter > 3) {
+      i_1984_counter = 0;
     }
-    else if(i_led_cyclotron > PACK_NUM_LEDS - 7 - 3) {
-      i_led_cyclotron = cyclotron_led_start;
+    else if(i_1984_counter < 0) {
+      i_1984_counter = 3;
     }
+
+    i_led_cyclotron = cyclotron_led_start + i_1984_cyclotron_leds[i_1984_counter] - 2;
     
     cyclotron84LightOn(i_led_cyclotron);
 
@@ -1704,10 +2003,10 @@ void cyclotron1984(int cDelay) {
 }
 
 void cyclotron1984Alarm() {
-  int led1 = cyclotron_led_start + 1;
-  int led2 = led1 + 3;
-  int led3 = led2 + 3;
-  int led4 = led3 + 3;
+  int led1 = cyclotron_led_start + i_1984_cyclotron_leds[0] - 1;
+  int led2 = cyclotron_led_start + i_1984_cyclotron_leds[1] - 1;
+  int led3 = cyclotron_led_start + i_1984_cyclotron_leds[2] - 1;
+  int led4 = cyclotron_led_start + i_1984_cyclotron_leds[3] - 1;
 
   if(b_fade_cyclotron_led != true) {
     pack_leds[led1] = CRGB(255,0,0);
@@ -1788,10 +2087,10 @@ void cyclotronOverHeating() {
           resetCyclotronLeds();
         }
         else {
-          cyclotron84LightOff(0 + cyclotron_led_start);
-          cyclotron84LightOff(3 + cyclotron_led_start);
-          cyclotron84LightOff(6 + cyclotron_led_start);
-          cyclotron84LightOff(9 + cyclotron_led_start);
+          cyclotron84LightOff(i_1984_cyclotron_leds[0] + cyclotron_led_start - 2);
+          cyclotron84LightOff(i_1984_cyclotron_leds[1] + cyclotron_led_start - 2);
+          cyclotron84LightOff(i_1984_cyclotron_leds[2] + cyclotron_led_start - 2);
+          cyclotron84LightOff(i_1984_cyclotron_leds[3] + cyclotron_led_start - 2);
         }
       }
       else {
@@ -1861,10 +2160,10 @@ void cyclotronNoCable() {
           resetCyclotronLeds();
         }
         else {
-          cyclotron84LightOff(0 + cyclotron_led_start);
-          cyclotron84LightOff(3 + cyclotron_led_start);
-          cyclotron84LightOff(6 + cyclotron_led_start);
-          cyclotron84LightOff(9 + cyclotron_led_start);
+          cyclotron84LightOff(i_1984_cyclotron_leds[0] + cyclotron_led_start - 2);
+          cyclotron84LightOff(i_1984_cyclotron_leds[1] + cyclotron_led_start - 2);
+          cyclotron84LightOff(i_1984_cyclotron_leds[2] + cyclotron_led_start - 2);
+          cyclotron84LightOff(i_1984_cyclotron_leds[3] + cyclotron_led_start - 2);
         }
 
         // Turn off the n-filter light.
@@ -1887,7 +2186,7 @@ void resetCyclotronLeds() {
     pack_leds[i] = CRGB(0,0,0);
   }
 
-  for(int i = 0; i < cyclotron_led_start - 1; i++) {
+  for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
       ms_cyclotron_led_fade_out[i].go(0);
       ms_cyclotron_led_fade_in[i].go(0);
 
