@@ -60,7 +60,6 @@ You may choose one of two routes for implementing the new Proton Pack controller
 	- This will provide full interation with the new controller for the Neutrona Wand.
 	- Reference the tables below but also see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance.
 
-
 **Prototyping and Connections**
 
 Use a half size protoboard like ([1609 Adafruit](https://www.adafruit.com/product/1609)) or by any other brand. These work similar to a breadboard, where LETTERED columns run horizontal and are connected as a group, and each side contains 2 rails for (+) and (-) connections and run vertically along the board, also connected together.
