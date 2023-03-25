@@ -45,13 +45,13 @@
  *  Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as cyclotron lens #1 and work your way clockwise)
  *
  */ 
+ // For stock Haslab LEDs
+const int i_pack_num_leds = 25;
+const int i_1984_cyclotron_leds[4] = { 2, 5, 8, 11 };
+
 // For a 40 LED NeoPixel ring.
 //const int i_pack_num_leds = 53;
 //const int i_1984_cyclotron_leds[4] = { 1, 11, 19, 29 };
-
-// For stock Haslab LEDs
-const int i_pack_num_leds = 25;
-const int i_1984_cyclotron_leds[4] = { 2, 5, 8, 11 };
 
 /*
  * Cyclotron Lid LED delays.
