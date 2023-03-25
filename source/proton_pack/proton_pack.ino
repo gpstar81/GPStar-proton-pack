@@ -30,38 +30,47 @@
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
  * Change the variables below to alter the behaviour of your Proton Pack.
+ * All the default settings below are setup for a stock Haslab Proton Pack lighting kit.
  */
  
-/*
- * For a 40 LED NeoPixel ring, use PACK_NUM_LEDS 60 and VENT_LIGHT_START 53 and i_1984_cyclotron_leds 1, 11, 19, 29.
- * For the stock Haslab LEDs, use PACK_NUM_LEDS 32 and VENT_LIGHT_START 25 and i_1984_cyclotron_leds 2, 5, 8, 11.
+ /* 
+ *  PowerCell and Cyclotron Lid LEDs.
+ *  25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
+ *  7 additional (32 in total) for a NeoPixel jewel that you can put into the n-filter (optional). This jewel chains off cyclotron lens #4 in the lid (top left lens).
+ *  
+ *  For the stock Haslab LEDs, use const int i_pack_num_leds = 25; and const i_1984_cyclotron_leds 2, 5, 8, 11.
+ *  For a 40 LED NeoPixel ring, use const int i_pack_num_leds = 53 and const i_1984_cyclotron_leds 1, 11, 19, 29.
+ *  You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.  
+ *
+ *  i_1984_cyclotron_leds is the middle led aligned in each lens window. Adjust this setting if you use different LED setups and installations.
+ *  Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as cyclotron lens #1 and work your way clockwise)
+ *
  */ 
 // For a 40 LED NeoPixel ring.
-#define PACK_NUM_LEDS 60
-#define VENT_LIGHT_START 53
-int i_1984_cyclotron_leds[4] = { 1, 11, 19, 29 };
+//const int i_pack_num_leds = 53;
+//const int i_1984_cyclotron_leds[4] = { 1, 11, 19, 29 };
 
 // For stock Haslab LEDs
-//#define PACK_NUM_LEDS 32
-//#define VENT_LIGHT_START 25
-//int i_1984_cyclotron_leds[4] = { 2, 5, 8, 11 };
+const int i_pack_num_leds = 25;
+const int i_1984_cyclotron_leds[4] = { 2, 5, 8, 11 };
 
 /*
  * Cyclotron Lid LED delays.
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
- * For a 40 LED NeoPixel ring, 10 for 2021 delay is good.
- * For stock Haslab LEDs, 15 for 2021 delay is good.
+ * For a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
+ * For stock Haslab LEDs, 15 for i_2021_delay is good.
+ * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
  */
 const int i_1984_delay = 1050;
-const int i_2021_delay = 10; // 15 for stock Haslab LEDs.
+const int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 LED NeoPixel ring.
 
 /*
- * Use only one of the following defines to change which optional NeoPixel ring you are using
- * in your inner cyclotron. If you are not using any, then this can be left alone.
+ * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
+ * If you are not using any, then this can be left alone.
  * Leave at least one in place, even if you are not using this optional item.
  * 24 -> For a 24 LED NeoPixel Ring
- * 35 -> For a 35 LED NeoPixel Ring
+ * 35 -> For a 35 LED NeoPixel Ring. (Recommended ring size)
  */
 //#define CYCLOTRON_NUM_LEDS 24
 #define CYCLOTRON_NUM_LEDS 35
@@ -73,7 +82,7 @@ const int i_2021_delay = 10; // 15 for stock Haslab LEDs.
  * 0 = quietest
  * 100 = loudest
  */
-const int STARTUP_VOLUME = 0;
+const int STARTUP_VOLUME = 100;
 
 /*
  * You can set the default music volume for your pack here.
@@ -339,11 +348,15 @@ enum sound_fx {
  */
 const int i_last_effects_track = S_CROSS_STREAMS_START;
 
-/* 
- *  PowerCell and Cyclotron Lid LEDs.
- *  25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
- *  7 additional (32 in total) for a NeoPixel jewel that you can put into the n-filter (optional). This jewel chains off LED #4 in the lid.
+ /* 
+ *  PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
  */
+#define PACK_NUM_LEDS i_pack_num_leds + 7
+#define VENT_LIGHT_START i_pack_num_leds
+
+/*
+ * Proton pack powercell and cyclotron lid led pin.
+*/
 #define PACK_LED_PIN 53
 CRGB pack_leds[PACK_NUM_LEDS];
 
