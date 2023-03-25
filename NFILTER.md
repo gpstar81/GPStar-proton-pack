@@ -10,6 +10,8 @@ When you eventually access LED #4 (see photos below), you want to solder wires f
 In the photos below, my red wire is GROUND, middle yellow wire is the OUT signal wire, and the outer yellow wire is 5V out. (cyclotron lid LED I wire into to connect to the NeoPixel jewel)
 Note that the lid can be pressed fit back together and stay in place, no glue required as the N-Filter keeps/holds it together.
 
+**If you replace the cyclotron LEDs with for example a NeoPixel ring, you can chain the N-Filter NeoPixel jewel from that.**
+
 ![](images/NFilterAttachment.jpg)
 
 ![](images/CyclotronLid.jpg)
