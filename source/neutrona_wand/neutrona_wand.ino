@@ -1237,7 +1237,7 @@ void modeActivate() {
 
   switch(year_mode) {
     case 1984:
-      // Nothing in 1984 mode.
+      w_trig.trackPlayPoly(S_CLICK, true);
     break;
 
     default:
@@ -1490,10 +1490,10 @@ void modeFireStartSounds() {
   
   switch(FIRING_MODE) {
     case PROTON:
-        w_trig.trackPlayPoly(S_FIRE_START);
-
         w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
         w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+
+        w_trig.trackPlayPoly(S_FIRE_START);        
     break;
 
     case SLIME:
@@ -1531,10 +1531,10 @@ void modeFireStart() {
   // Stop all firing sounds first.
   switch(FIRING_MODE) {
     case PROTON:
-      w_trig.trackStop(S_FIRING_END_GUN);
+      w_trig.trackStop(S_FIRE_LOOP_GUN);
       w_trig.trackStop(S_FIRE_START);
       w_trig.trackStop(S_FIRE_START_SPARK);
-      w_trig.trackStop(S_FIRE_LOOP_GUN);
+      w_trig.trackStop(S_FIRING_END_GUN);
       w_trig.trackStop(S_FIRE_LOOP_IMPACT);
     break;
 
@@ -1592,7 +1592,7 @@ void modeFireStopSounds() {
 
  switch(FIRING_MODE) {
     case PROTON:
-      w_trig.trackPlayPoly(S_FIRING_END_GUN, true); // Gun firing end sound.
+      w_trig.trackPlayPoly(S_FIRING_END_GUN, true);
     break;
 
     case SLIME:
@@ -1637,10 +1637,10 @@ void modeFireStop() {
   // Stop all other firing sounds.
   switch(FIRING_MODE) {
     case PROTON:
+      w_trig.trackStop(S_FIRE_LOOP_GUN);
       w_trig.trackStop(S_FIRING_END_GUN);
       w_trig.trackStop(S_FIRE_START);
       w_trig.trackStop(S_FIRE_START_SPARK);
-      w_trig.trackStop(S_FIRE_LOOP_GUN);
       w_trig.trackStop(S_FIRE_LOOP_IMPACT);
     break;
 
