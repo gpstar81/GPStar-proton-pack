@@ -36,7 +36,6 @@
  /* 
  *  PowerCell and Cyclotron Lid LEDs.
  *  25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
- *  7 additional (32 in total) for a NeoPixel jewel that you can put into the n-filter (optional). This jewel chains off cyclotron lens #4 in the lid (top left lens).
  *  
  *  For the stock Haslab LEDs, use const int i_pack_num_leds = 25; and const i_1984_cyclotron_leds 2, 5, 8, 11.
  *  For a 40 LED NeoPixel ring, use const int i_pack_num_leds = 53 and const i_1984_cyclotron_leds 1, 11, 19, 29.
@@ -350,6 +349,8 @@ const int i_last_effects_track = S_CROSS_STREAMS_START;
 
  /* 
  *  PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
+ *  7 additional (32 in total in stock form) for a NeoPixel jewel that you can put into the n-filter (optional). 
+ *  This jewel chains off cyclotron lens #4 in the lid (top left lens).
  */
 #define PACK_NUM_LEDS i_pack_num_leds + 7
 #define VENT_LIGHT_START i_pack_num_leds
