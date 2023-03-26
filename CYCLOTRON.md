@@ -17,6 +17,20 @@ Included is also a set of STL files if you wish to print a new inner cyclotron. 
 ![3D Cyclotron](images/3DCyclotron.jpg)
 ![3D Cyclotron Draft Print](images/3DCyclotronDraftPrint.jpg)
 
-## Cyclotron Lid (Optional)
+## Cyclotron Lid Lights (Optional)
 
-TBD - Questions have been raised as to whether the LED's for the cyclotron lid can be replaced with RGB[W] LED's. This is being investigated...
+The stock lights ing the Habro pack only supplies 12 addressable LED's which are red-only. If you wish to be able to change the colors of these lights you will need to replace them with an addressable LED ring or individual Neopixels.
+
+Regardless of solution you will need to split apart the cyclotron lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.
+
+### Neopixel Ring
+
+This approach simply adds the lights atop the old circuit board and LED's between the outer and inner layers of the cyclotron lid. Print the [Cyclotron Ring Diffuser](stl/pack/Cyclotron_Ring_Diffuser.stl) to help orient the ring and keep it positioned behind each lens. The pixel opposite the soldered connections should be number 1 and should be made the dead center of the top-right lens. See below for an illustration of this orientation and use of the diffuser ring.
+
+![](images/CyclotronLidRing.jpg)
+
+To improve the fit of the new ring, it is recommended to use a Dremel with a sanding drum to remove any raised plastic bits which are below the ring. Also note that the added materials will not allow the inner and outer shells to fit as tightly. Applying some black foam weatherstripping to the edge of the outer shell will help hide any gaps but also provide some material to push back against the inner shell when screwing the halves together.
+
+### Individual Neopixels
+
+TBD...

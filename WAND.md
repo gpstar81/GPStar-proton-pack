@@ -19,7 +19,7 @@ You will find that the wand poses some challenges due to confined spaces and fra
 
 ## Original Connection References
 
-You may refer to this PCB drawing and the following table to help identify the original components in the Neutrona Wand.
+You may wish to refer to this PCB drawing and the following table to help identify the original components in the Neutrona Wand.
 
 ![Stock PCB Layout](images/WandPCBs.png)
 
