@@ -19,7 +19,7 @@ Included is also a set of STL files if you wish to print a new inner cyclotron. 
 
 ## Cyclotron Lid Lights (Optional)
 
-The stock lights ing the Habro pack only supplies 12 addressable LED's which are red-only. If you wish to be able to change the colors of these lights you will need to replace them with an addressable LED ring or individual Neopixels.
+The stock lights in the Habro pack only supplies 12 addressable LED's which are red-only. If you wish to be able to change the colors of these lights you will need to replace them with an addressable LED ring or individual Neopixels.
 
 Regardless of solution you will need to split apart the cyclotron lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.
 
