@@ -189,6 +189,28 @@ Considered optional as this can be left out if desired, and without impact to no
 Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes.
 **Use the appropriate resistor for your replacement LED's based on their forward voltage given a 5V source!**
 
+
+###***(OPTIONAL) -***  BARMETER 28 SEGMENT BARGRAPH
+The stock Hasbro 5 LED bargraph indicated above, can be replaced with a Barmeter 28 Segment Bargraph (BL28Z-3005SA04Y). 
+
+| HT16K33 Board  |   |        | Nano Pin | Barmeter Pin |
+|----------------|---|--------|----------|--------------|
+| VDD            | → | +5V    |          |              |
+| GND            | → | Ground |          |              |
+| SDA            | → | →      | Pin A5   |              |
+| SCL            | → | →      | Pin A4   |              |
+| A0             | → | →      | →        |              |
+| A1             | → | →      | →        |              |
+| A2             | → | →      | →        |              |
+| A3             | → | →      | →        |              |
+| A4             | → | →      | →        |              |
+| A5             | → | →      | →        |              |
+| C0             | → | →      | →        |              |
+| C1             | → | →      | →        |              |
+| C2             | → | →      | →        |              |
+| C3             | → | →      | →        |              |
+
+
 | VENT LIGHT LED BOARD → D7 & D8  |   |      |    | Nano Pin | Hasbro Ref |                                        |
 |---------------------------------|---|------|----|----------|------------|----------------------------------------|
 | <font color="red">Red</font>    | → | +5V  |    |          | VDD        |                                        |

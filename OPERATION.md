@@ -143,6 +143,7 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
 | const int VOLUME&#95;EFFECTS&#95;MULTIPLIER | Percentage increments of the sound effects volume change. | 5 |
 | const boolean b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms** | true |
+| boolean b&#95;bargraph&#95;alt | Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph. Part #: BL28Z-3005SA04Y | false |
 | boolean b&#95;no&#95;pack | Set this to true if you want to use your Neutrona Wand without a Proton Pack connected. Otherwise when false, the Neutrona Wand will wait until it is connected to a Proton Pack before it can activate. | false |
 | const boolean b&#95;overheat&#95;mode&#95;1 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 1** | false |
 | const boolean b&#95;overheat&#95;mode&#95;2 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 2** | false |
