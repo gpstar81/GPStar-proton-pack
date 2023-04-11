@@ -339,7 +339,9 @@ enum sound_fx {
   S_FIRING_END_MID,
   S_FIRING_LOOP_GB1,
   S_CROSS_STREAMS_END,
-  S_CROSS_STREAMS_START
+  S_CROSS_STREAMS_START,
+  S_PACK_RIBBON_ALARM_1,
+  S_PACK_RIBBON_ALARM_2
 };
 
 /*
@@ -975,11 +977,12 @@ void packStartup() {
     packAlarm();
   }
   else {
-    w_trig.trackStop(S_PACK_BEEPING);
     w_trig.trackStop(S_PACK_SHUTDOWN_AFTERLIFE);
     
     switch(i_mode_year) {
       case 1984:
+        w_trig.trackStop(S_PACK_RIBBON_ALARM_1);
+
         if(b_gb2_mode == true) {
           w_trig.trackGain(S_GB2_PACK_START, i_volume);
           w_trig.trackPlayPoly(S_GB2_PACK_START, true);
@@ -1001,6 +1004,7 @@ void packStartup() {
       break;
   
       default:
+        w_trig.trackStop(S_PACK_RIBBON_ALARM_2);
         w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
         w_trig.trackPlayPoly(S_AFTERLIFE_PACK_STARTUP, true);
   
@@ -1020,10 +1024,18 @@ void packShutdown() {
   // Stop the firing if the pack is doing it.
   wandStoppedFiring();
 
-  w_trig.trackStop(S_PACK_BEEPING);
+  switch(i_mode_year) {
+    case 1984:
+      w_trig.trackStop(S_PACK_RIBBON_ALARM_1);
+    break;
+
+    default:
+      w_trig.trackStop(S_PACK_RIBBON_ALARM_2);
+    break;
+  }
+
   w_trig.trackStop(S_BEEP_8);
   w_trig.trackStop(S_SHUTDOWN);
-
 
   w_trig.trackStop(S_GB2_PACK_START);
   w_trig.trackStop(S_GB2_PACK_LOOP);
@@ -1037,7 +1049,7 @@ void packShutdown() {
 
   if(b_alarm != true) {
     switch(i_mode_year) {
-      case 1984:
+      case 1984:      
         w_trig.trackGain(S_SHUTDOWN, i_volume);
         w_trig.trackPlayPoly(S_SHUTDOWN, true);
 
@@ -2710,9 +2722,19 @@ void packAlarm() {
   }
 
   if(b_overheating != true) {
-    w_trig.trackGain(S_PACK_BEEPING, i_volume);
-    w_trig.trackPlayPoly(S_PACK_BEEPING, true);
-    w_trig.trackLoop(S_PACK_BEEPING, 1);
+    switch(i_mode_year) {
+      case 1984:
+        w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume);
+        w_trig.trackPlayPoly(S_PACK_RIBBON_ALARM_1, true);
+        w_trig.trackLoop(S_PACK_RIBBON_ALARM_1, 1);
+      break;
+
+      default:
+        w_trig.trackGain(S_PACK_RIBBON_ALARM_2, i_volume);
+        w_trig.trackPlayPoly(S_PACK_RIBBON_ALARM_2, true);
+        w_trig.trackLoop(S_PACK_RIBBON_ALARM_2, 1);
+      break;
+    }
   }
 }
 
