@@ -3623,7 +3623,7 @@ void setupWavTrigger() {
   w_trig.getVersion(w_trig_version, VERSION_STRING_LEN);
   
   // Build the music track count.
-  i_music_count = w_num_tracks - S_CROSS_STREAMS_START;
+  i_music_count = w_num_tracks - S_PACK_RIBBON_ALARM_2;
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 100_
   }
