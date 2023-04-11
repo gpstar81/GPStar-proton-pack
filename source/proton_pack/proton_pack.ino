@@ -261,8 +261,8 @@ const boolean b_diagnostic = false;
 /* 
  *  SD Card sound files in order. If you have no sound, your SD card might be too slow, try another one.
  *  File naming 000_ is important as well. For music, it is 100_ and higher.
- *  Also note if you add more sounds to this list, you need to update the wavtrigger setup function to let it know the last
- *  sound effect file (very bottom of this code). The wav trigger uses this to determine how many music tracks there are if any.
+ *  Also note if you add more sounds to this list, you need to update the i_last_effects_track variable.
+ *  The wav trigger uses this to determine how many music tracks there are if any.
  */
 enum sound_fx {
   S_EMPTY, 
@@ -347,7 +347,7 @@ enum sound_fx {
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const int i_last_effects_track = S_CROSS_STREAMS_START;
+const int i_last_effects_track = S_PACK_RIBBON_ALARM_2;
 
  /* 
  *  PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
@@ -3546,7 +3546,7 @@ void setupWavTrigger() {
   w_trig.getVersion(w_trig_version, VERSION_STRING_LEN);
 
   // Build the music track count.
-  i_music_count = w_num_tracks - S_CROSS_STREAMS_START;
+  i_music_count = w_num_tracks - i_last_effects_track;
   
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 100_
