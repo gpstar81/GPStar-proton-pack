@@ -108,10 +108,10 @@ You can also reference the PDF document for the [Pack Schematic Minimal](circuit
 | D6 (Green)    | A5    |     | D4    | SW1 (Brown)   |
 | SW6 (White)   | A6    |     | D3    | SW4 (Red)     |
 | SW7 (Orange)  | A7    |     | D2    | SW45 (White)  |
-|               | 5V    |     | GND   |               |
+| +5V (Pack)    | 5V    |     | GND   |               |
 |               | RST   |     | RST   |               |
 | Ground (Pack) | GND   |     | RX0   | TX (to Pack)  |
-| +5V (Pack)    | VIN   |     | TX1   | RX (to Pack)  |
+|               | VIN   |     | TX1   | RX (to Pack)  |
 
 ### Connections by Component
 
