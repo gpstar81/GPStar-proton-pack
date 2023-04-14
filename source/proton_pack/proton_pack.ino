@@ -139,18 +139,18 @@ const int i_1984_inner_delay = 9;
  *  This can be controlled by an optional switch on pin 29. 
  *  Set to false to be counter clockwise.
  */
-boolean b_clockwise = true;
+bool b_clockwise = true;
 
 /*
  * When set to true, 1984 mode is turned into 1989 mode. 
  * The pack will play 1989 sound effects instead of 1984 sound effects.
 */
-const boolean b_gb2_mode = false;
+const bool b_gb2_mode = false;
 
 /*
  * When set to false, 1984 mode LED's will fade in or out.
 */
-const boolean b_fade_cyclotron_led = true;
+const bool b_fade_cyclotron_led = true;
 
 /*
  * When fading is enabled for 1984 mode cyclotron lid lights, control the delay of the fading.
@@ -165,19 +165,19 @@ const int i_1984_fade_in_delay = 210;
  * If you use the output pins directly on the wav trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */
-const boolean b_onboard_amp_enabled = false;
+const bool b_onboard_amp_enabled = false;
 
 /*
  * If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true.
  * If false, the light stay solid white during overheat.
  */
-const boolean b_overheat_strobe = false;
+const bool b_overheat_strobe = false;
 
 /*
  * Enable or disable overall smoke settings.
  * This can be toggled with a switch on PIN 37.
  */
-boolean b_smoke_enabled = true;
+bool b_smoke_enabled = true;
 
 /*
  * ****************** ADVANCED USER CONFIGURABLE SMOKE SETTINGS BELOW ************************
@@ -189,20 +189,20 @@ boolean b_smoke_enabled = true;
  * Control which of the 3 pins that go high during continuous firing smoke effects.
  * This can be overriden if b_smoke_enabled is set to false.
  */
-const boolean b_smoke_1_continuous_firing = true;
-const boolean b_smoke_2_continuous_firing = true;
-const boolean b_fan_continuous_firing = true;
+const bool b_smoke_1_continuous_firing = true;
+const bool b_smoke_2_continuous_firing = true;
+const bool b_fan_continuous_firing = true;
 
 /*
  * Enable or disable smoke in individual wand power modes for continuous firing smoke.
  * Example: if b_smoke_continuous_mode_1 is true, smoke will happen in continuous firing in wand power mode 1. If false, no smoke in mode 1.
  * This is overridden if b_smoke_enabled or can be by the continuous_firing settings above when they are set to false.
  */
-const boolean b_smoke_continuous_mode_1 = true;
-const boolean b_smoke_continuous_mode_2 = true;
-const boolean b_smoke_continuous_mode_3 = true;
-const boolean b_smoke_continuous_mode_4 = true;
-const boolean b_smoke_continuous_mode_5 = true;
+const bool b_smoke_continuous_mode_1 = true;
+const bool b_smoke_continuous_mode_2 = true;
+const bool b_smoke_continuous_mode_3 = true;
+const bool b_smoke_continuous_mode_4 = true;
+const bool b_smoke_continuous_mode_5 = true;
 
 /*
  * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power mode. (not overheating venting)
@@ -232,27 +232,27 @@ const unsigned long int i_smoke_on_time_mode_5 = 4000;
  * Control which of the 3 pins that go high during overheat.
  * This can be overridden if b_smoke_enabled is set to false.
  */
-const boolean b_smoke_1_overheat = true;
-const boolean b_smoke_2_overheat = true;
-const boolean b_fan_overheat = true;
+const bool b_smoke_1_overheat = true;
+const bool b_smoke_2_overheat = true;
+const bool b_fan_overheat = true;
 
 /*
  * Enable or disable overheat smoke in different wand power modes.
  * Example: If b_smoke_overheat_mode_1 is false, then no smoke will be generated during overheat in wand power mode 1, if overheat is enabled for that power mode in the wand code.
  * This is overridden if b_smoke_enabled or can be by the b_overheat settings above when they are set to false.
  */
-const boolean b_smoke_overheat_mode_1 = true;
-const boolean b_smoke_overheat_mode_2 = true;
-const boolean b_smoke_overheat_mode_3 = true;
-const boolean b_smoke_overheat_mode_4 = true;
-const boolean b_smoke_overheat_mode_5 = true;
+const bool b_smoke_overheat_mode_1 = true;
+const bool b_smoke_overheat_mode_2 = true;
+const bool b_smoke_overheat_mode_3 = true;
+const bool b_smoke_overheat_mode_4 = true;
+const bool b_smoke_overheat_mode_5 = true;
 
 /*
  * Set this to true if you want to know if your wand and pack are communicating.
  * If the wand and pack have a serial connection, you will hear a beeping sound.
  * Set to false to turn off the sound.
  */
-const boolean b_diagnostic = false;
+const bool b_diagnostic = false;
 
 /*
  * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
@@ -428,7 +428,7 @@ bool b_reset_start_led = true;
 bool b_1984_led_start = true;
 rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
-boolean b_cyclotron_lid_on = true;
+bool b_cyclotron_lid_on = true;
 rampInt ms_cyclotron_fade_out_led_1;
 rampInt ms_cyclotron_fade_out_led_2;
 rampInt ms_cyclotron_fade_out_led_3;
@@ -509,7 +509,7 @@ rampInt ms_cyclotron_fade_in_led_37;
 rampInt ms_cyclotron_fade_in_led_38;
 rampInt ms_cyclotron_fade_in_led_39;
 rampInt ms_cyclotron_fade_in_led_40;
-boolean i_cyclotron_led_on_status[40] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+bool i_cyclotron_led_on_status[40] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 rampInt ms_cyclotron_led_fade_out[40] = { ms_cyclotron_fade_out_led_1, ms_cyclotron_fade_out_led_2, ms_cyclotron_fade_out_led_3, ms_cyclotron_fade_out_led_4, ms_cyclotron_fade_out_led_5, ms_cyclotron_fade_out_led_6, ms_cyclotron_fade_out_led_7, ms_cyclotron_fade_out_led_8, ms_cyclotron_fade_out_led_9, ms_cyclotron_fade_out_led_10, ms_cyclotron_fade_out_led_11, ms_cyclotron_fade_out_led_12, ms_cyclotron_fade_out_led_13, ms_cyclotron_fade_out_led_14, ms_cyclotron_fade_out_led_15, ms_cyclotron_fade_out_led_16, ms_cyclotron_fade_out_led_17, ms_cyclotron_fade_out_led_18, ms_cyclotron_fade_out_led_19, ms_cyclotron_fade_out_led_20, ms_cyclotron_fade_out_led_21, ms_cyclotron_fade_out_led_22, ms_cyclotron_fade_out_led_23, ms_cyclotron_fade_out_led_24, ms_cyclotron_fade_out_led_25, ms_cyclotron_fade_out_led_26, ms_cyclotron_fade_out_led_27, ms_cyclotron_fade_out_led_28, ms_cyclotron_fade_out_led_29, ms_cyclotron_fade_out_led_30, ms_cyclotron_fade_out_led_31, ms_cyclotron_fade_out_led_32, ms_cyclotron_fade_out_led_33, ms_cyclotron_fade_out_led_34, ms_cyclotron_fade_out_led_35, ms_cyclotron_fade_out_led_36, ms_cyclotron_fade_out_led_37, ms_cyclotron_fade_out_led_38, ms_cyclotron_fade_out_led_39, ms_cyclotron_fade_out_led_40 };
 rampInt ms_cyclotron_led_fade_in[40] = { ms_cyclotron_fade_in_led_1, ms_cyclotron_fade_in_led_2, ms_cyclotron_fade_in_led_3, ms_cyclotron_fade_in_led_4, ms_cyclotron_fade_in_led_5, ms_cyclotron_fade_in_led_6, ms_cyclotron_fade_in_led_7, ms_cyclotron_fade_in_led_8, ms_cyclotron_fade_in_led_9, ms_cyclotron_fade_in_led_10, ms_cyclotron_fade_in_led_11, ms_cyclotron_fade_in_led_12, ms_cyclotron_fade_in_led_13, ms_cyclotron_fade_in_led_14, ms_cyclotron_fade_in_led_15, ms_cyclotron_fade_in_led_16, ms_cyclotron_fade_in_led_17, ms_cyclotron_fade_in_led_18, ms_cyclotron_fade_in_led_19, ms_cyclotron_fade_in_led_20, ms_cyclotron_fade_in_led_21, ms_cyclotron_fade_in_led_22, ms_cyclotron_fade_in_led_23, ms_cyclotron_fade_in_led_24, ms_cyclotron_fade_in_led_25, ms_cyclotron_fade_in_led_26, ms_cyclotron_fade_in_led_27, ms_cyclotron_fade_in_led_28, ms_cyclotron_fade_in_led_29, ms_cyclotron_fade_in_led_30, ms_cyclotron_fade_in_led_31, ms_cyclotron_fade_in_led_32, ms_cyclotron_fade_in_led_33, ms_cyclotron_fade_in_led_34, ms_cyclotron_fade_in_led_35, ms_cyclotron_fade_in_led_36, ms_cyclotron_fade_in_led_37, ms_cyclotron_fade_in_led_38, ms_cyclotron_fade_in_led_39, ms_cyclotron_fade_in_led_40 };
 int i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -567,8 +567,8 @@ wavTrigger w_trig;
 int i_music_count = 0;
 int i_current_music_track = 0;
 const int i_music_track_start = 100; // Music tracks start on file named 100_ and higher.
-boolean b_playing_music = false;
-boolean b_repeat_track = false;
+bool b_playing_music = false;
+bool b_repeat_track = false;
 
 /* 
  *  Volume (0 = loudest, -70 = quietest)
@@ -589,7 +589,7 @@ millisDelay ms_volume_check; // Put some timing on the master volume gain to not
 const int vibration = 45;
 int i_vibration_level = 0;
 int i_vibration_level_prev = 0;
-boolean b_vibration = false;
+bool b_vibration = false;
 
 /*
  * Smoke
@@ -613,13 +613,13 @@ const int i_fan_stop_timer = 7000;
  */
 millisDelay ms_overheating;
 const int i_overheating_delay = 4000;
-boolean b_overheating = false;
+bool b_overheating = false;
 millisDelay ms_smoke_timer;
 millisDelay ms_smoke_on;
 const int i_smoke_timer[5] = { i_smoke_timer_mode_1, i_smoke_timer_mode_2, i_smoke_timer_mode_3, i_smoke_timer_mode_4, i_smoke_timer_mode_5 };
 const int i_smoke_on_time[5] = { i_smoke_on_time_mode_1, i_smoke_on_time_mode_2, i_smoke_on_time_mode_3, i_smoke_on_time_mode_4, i_smoke_on_time_mode_5 };
-const boolean b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
-const boolean b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
+const bool b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
+const bool b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
 
 /*
  * Vent light timers and delay for over heating.
@@ -627,7 +627,7 @@ const boolean b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_over
 millisDelay ms_vent_light_on;
 millisDelay ms_vent_light_off;
 const int i_vent_light_delay = 50;
-boolean b_vent_sounds; // A flag for playing smoke and vent sounds.
+bool b_vent_sounds; // A flag for playing smoke and vent sounds.
 bool b_vent_light_on = false; // To know if the light is on or off.
 
 /* 
@@ -635,8 +635,8 @@ bool b_vent_light_on = false; // To know if the light is on or off.
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
-boolean b_wand_firing = false;
-boolean b_wand_connected = false;
+bool b_wand_firing = false;
+bool b_wand_connected = false;
 millisDelay ms_wand_handshake;
 const int i_wand_handshake_delay = 3000;
 millisDelay ms_wand_handshake_checking;
@@ -2417,7 +2417,7 @@ void reset2021RampDown() {
   b_inner_ramp_down = true;
 }
 
-void ventLight(boolean b_on) {
+void ventLight(bool b_on) {
   b_vent_light_on = b_on;
 
   if(b_on == true) {
@@ -2970,7 +2970,7 @@ void checkRotaryEncoder() {
 /*
  * Smoke # 1. I put this one in my n-filter cone outlet.
  */
-void smokeControl(boolean b_smoke_on) {  
+void smokeControl(bool b_smoke_on) {  
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_smoke_1_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
@@ -2994,7 +2994,7 @@ void smokeControl(boolean b_smoke_on) {
 /* 
  *  Smoke # 2. I put this one in my booster tube.
  */
-void smokeBooster(boolean b_smoke_on) {
+void smokeBooster(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
@@ -3017,7 +3017,7 @@ void smokeBooster(boolean b_smoke_on) {
  * Fan control. You can use this to switch on any device when properly hooked up with a transistor etc
  * A fan is a good idea for the n-filter for example.
  */
-void fanControl(boolean b_fan_on) {
+void fanControl(bool b_fan_on) {
   if(b_smoke_enabled == true) {
     if(b_fan_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_fan_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {

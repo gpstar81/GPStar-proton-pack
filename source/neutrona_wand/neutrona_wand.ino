@@ -99,35 +99,35 @@ const int VOLUME_EFFECTS_MULTIPLIER = 5;
  * If you use the output pins directly on the wav trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */
-const boolean b_onboard_amp_enabled = true;
+const bool b_onboard_amp_enabled = true;
 
 /*
  * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
  * Set to false if you are using the sock Hasbro bargraph.
  * Part #: BL28Z-3005SA04Y
 */
-const boolean b_bargraph_alt = false;
+const bool b_bargraph_alt = false;
 
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
  * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
  */
-boolean b_no_pack = false;
+const bool b_no_pack = false;
 
 /*
  * Which power modes do you want to be able to overheat.
  * Set to true to allow the wand and pack to overheat in that mode.
  * Set to false to disable overheating in that power mode. You will be able to continously fire instead.
  */
-const boolean b_overheat_mode_1 = false;
-const boolean b_overheat_mode_2 = false;
-const boolean b_overheat_mode_3 = false;
-const boolean b_overheat_mode_4 = false;
-const boolean b_overheat_mode_5 = true;
+const bool b_overheat_mode_1 = false;
+const bool b_overheat_mode_2 = false;
+const bool b_overheat_mode_3 = false;
+const bool b_overheat_mode_4 = false;
+const bool b_overheat_mode_5 = true;
 
 /*
  * Time in milliseconds for when overheating will initiate if enabled for that power mode.
- * Overheat only happens if enabled for that power mode (see below).
+ * Overheat only happens if enabled for that power mode (see above).
  * Example: 12000 = (12 seconds)
  */
 const unsigned long int i_ms_overheat_initiate_mode_1 = 60000;
@@ -143,7 +143,7 @@ const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
  * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
  * The wand will respond a bit slower as it is streaming serial data back. For debugging the analog switch readings only.
  */
-boolean b_debug = false;
+const bool b_debug = false;
 
 /*
  * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
@@ -153,7 +153,7 @@ boolean b_debug = false;
  *  SD Card sound files in order. If you have no sound, your SD card might be too slow. 
  *  Try a faster one. File naming 000_ is important as well. For music, it is 100_ and higher.
  *  Also note if you add more sounds to this list, you need to update the i_last_effects_track variable.
- * The wav trigger uses this to determine how many music tracks there are if any.
+ *  The wav trigger uses this to determine how many music tracks there are if any.
  */
 enum sound_fx {
   S_EMPTY, 
@@ -300,7 +300,7 @@ static uint16_t store = 0;
 const uint8_t vibration = 11;
 int i_vibration_level = 55;
 int i_vibration_level_prev = 0;
-boolean b_vibration_on = false;
+bool b_vibration_on = false;
 
 /* 
  *  Various Switches on the wand.
@@ -349,7 +349,7 @@ const int d_white_light_interval = 150;
 millisDelay ms_overheat_initiate;
 millisDelay ms_overheating;
 const int i_ms_overheating = 6500; // Overheating for 6.5 seconds.
-const boolean b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
+const bool b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
 const long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_mode_1, i_ms_overheat_initiate_mode_2, i_ms_overheat_initiate_mode_3, i_ms_overheat_initiate_mode_4, i_ms_overheat_initiate_mode_5 };
 
 /* 
@@ -368,7 +368,7 @@ HT16K33 ht_bargraph;
 const int i_bargraph_interval = 4;
 const int i_bargraph_wait = 180;
 millisDelay ms_bargraph_alt;
-boolean b_bargraph_up = false;
+bool b_bargraph_up = false;
 unsigned int i_bargraph_status_alt = 0;
 const int d_bargraph_ramp_interval_alt = 40;
 const int i_bargraph_multiplier_ramp_1984 = 3;
@@ -428,10 +428,10 @@ int rx_byte = 0;
 /*
  * Some pack flags which get transmitted to the wand depending on the pack status.
  */
-boolean b_pack_on = false;
-boolean b_pack_alarm = false;
-boolean b_wait_for_pack = true;
-boolean b_volume_sync_wait = false;
+bool b_pack_on = false;
+bool b_pack_alarm = false;
+bool b_wait_for_pack = true;
+bool b_volume_sync_wait = false;
 int i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the cyclotron lights.
 
 /*
@@ -445,8 +445,8 @@ enum VOLUME_SYNC VOLUME_SYNC_WAIT;
  */
 int i_wand_menu = 5;
 const int i_settings_blinking_delay = 350;
-boolean b_playing_music = false;
-boolean b_repeat_track = false;
+bool b_playing_music = false;
+bool b_repeat_track = false;
 const int i_music_check_delay = 2000;
 const int i_music_next_track_delay = 2000;
 millisDelay ms_settings_blinking;
@@ -465,9 +465,9 @@ enum FIRING_MODES PREV_FIRING_MODE;
  * Misc wand settings and flags.
  */
 int year_mode = 2021;
-boolean b_firing = false;
-boolean b_sound_idle = false;
-boolean b_beeping = false;
+bool b_firing = false;
+bool b_sound_idle = false;
+bool b_beeping = false;
 
 void setup() {
   Serial.begin(9600);
@@ -544,7 +544,7 @@ void loop() {
       Serial.write(14);
     }
 
-    // Synchronise some settings with the pack until.
+    // Synchronise some settings with the pack.
     checkPack();
     
     delay(200);
@@ -629,7 +629,6 @@ void mainLoop() {
         
         WAND_ACTION_STATUS = ACTION_IDLE;
 
-        //w_trig.trackStop(S_VENT_BEEP);
         w_trig.trackStop(S_CLICK);
         w_trig.trackStop(S_VENT_DRY);
         
@@ -705,7 +704,7 @@ void mainLoop() {
 
               w_trig.trackGain(i_current_music_track, i_volume_music);
               
-              // Tell pack to increase music volume by 2.
+              // Tell pack to increase music volume.
               Serial.write(90);
             }
   
@@ -902,6 +901,7 @@ void mainLoop() {
         bargraphRampUp();
       }
       else if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        // Bargraph idling loop.
         bargraphPowerCheck();
       }
 
@@ -1388,7 +1388,7 @@ void modeActivate() {
   }
 }
 
-void soundIdleLoop(boolean fade) {      
+void soundIdleLoop(bool fade) {      
   switch(i_power_mode) {
     case 1:
       if(fade == true) {
@@ -2627,6 +2627,7 @@ void bargraphClearAlt() {
 }
 
 void bargraphPowerCheck() {
+  // Control for the 28 segment barmeter bargraph.
   if(b_bargraph_alt == true) {
     if(ms_bargraph_alt.justFinished()) {
       int i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
@@ -2803,6 +2804,7 @@ void bargraphPowerCheck() {
     }
   }
   else {
+    // Stock haslab bargraph control.
     switch(i_power_mode) {
       case 1:
         digitalWrite(led_bargraph_1, LOW);
@@ -3150,7 +3152,7 @@ void vibrationOff() {
 
 void adjustVolumeEffectsGain() {
   /*
-   * Since no addressable LEDs are activate, lets reset the gain on all sound effect tracks.
+   * Reset the gain on all sound effect tracks.
    */
   for(int i=0; i <= i_last_effects_track; i++) {
     w_trig.trackGain(i, i_volume);
@@ -3285,7 +3287,6 @@ void checkRotary() {
             // Tell pack to lower music volume.
             Serial.write(96);
           }
-
         }
         
         if(prev_next_code == 0x07) {
@@ -3597,7 +3598,7 @@ void checkPack() {
 }
 
 void setupWavTrigger() {
-    // If the controller is powering the WAV Trigger, we should wait for the WAV trigger to finish reset before trying to send commands.
+  // If the controller is powering the WAV Trigger, we should wait for the WAV trigger to finish reset before trying to send commands.
   delay(1000);
   
   // WAV Trigger's startup at 57600

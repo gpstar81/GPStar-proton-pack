@@ -108,10 +108,10 @@ You can also reference the PDF document for the [Pack Schematic Minimal](circuit
 | D6 (Green)    | A5    |     | D4    | SW1 (Brown)   |
 | SW6 (White)   | A6    |     | D3    | SW4 (Red)     |
 | SW7 (Orange)  | A7    |     | D2    | SW45 (White)  |
-|               | 5V    |     | GND   |               |
+| +5V (Pack)    | 5V    |     | GND   |               |
 |               | RST   |     | RST   |               |
 | Ground (Pack) | GND   |     | RX0   | TX (to Pack)  |
-| +5V (Pack)    | VIN   |     | TX1   | RX (to Pack)  |
+|               | VIN   |     | TX1   | RX (to Pack)  |
 
 ### Connections by Component
 
@@ -191,7 +191,7 @@ Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes
 
 
 ### ***(OPTIONAL) -***  BARMETER 28 SEGMENT BARGRAPH ###
-The stock Hasbro 5 LED bargraph indicated above, can be replaced with a Barmeter 28 Segment Bargraph (BL28Z-3005SA04Y). Connection Guide below. You can find the Barmeter pin reference below this connection guide for referencing the Barmeter Pin numbers.
+The stock Hasbro 5 LED bargraph indicated above, can be replaced with a Barmeter 28 Segment Bargraph (BL28Z-3005SA04Y). You can find the Barmeter pin reference below this connection guide for referencing the Barmeter Pin numbers. See the component fitment guide at the bottom of this page for how to mount this Bargraph into your wand body.
 
 | HT16K33 Board  |   |        | Nano Pin | Barmeter Pin |
 |----------------|---|--------|----------|--------------|
@@ -295,6 +295,9 @@ This solution requires removing plastic within the wand, and printing some of th
 ![](images/WandMountAlt1.jpg)
 ![](images/WandMountAlt2.jpg)
 ![](images/WandMountAlt3.jpg)
+
+## (Optional) Barmeter 28 Segment Bargraph fitment (BL28Z-3005SA04Y)
+*space reserved*
 
 ## Arduino Nano Pinout Reference
 
