@@ -637,6 +637,7 @@ enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
 bool b_wand_firing = false;
 bool b_wand_connected = false;
+bool b_wand_on = false;
 millisDelay ms_wand_handshake;
 const int i_wand_handshake_delay = 3000;
 millisDelay ms_wand_handshake_checking;
@@ -3110,6 +3111,8 @@ void checkWand() {
       switch(rx_byte) {
         case 1:
           // The wand has been turned on.
+          b_wand_on = true;
+
           // Turn the pack on.
           if(PACK_STATUS != MODE_ON) {
             PACK_ACTION_STATUS = ACTION_ACTIVATE;
@@ -3118,6 +3121,8 @@ void checkWand() {
     
         case 2:
           // The wand has been turned off.
+          b_wand_on = false;
+
           // Turn the pack off.
           if(PACK_STATUS != MODE_OFF) {
             PACK_ACTION_STATUS = ACTION_OFF;
@@ -3141,7 +3146,7 @@ void checkWand() {
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
           
-          if(PACK_STATUS == MODE_ON) {
+          if(PACK_STATUS == MODE_ON && b_wand_on == true) {
             w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
             w_trig.trackPlayPoly(S_FIRE_START_SPARK);
           }
@@ -3153,7 +3158,7 @@ void checkWand() {
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
           
-          if(PACK_STATUS == MODE_ON) {
+          if(PACK_STATUS == MODE_ON && b_wand_on == true) {
             w_trig.trackGain(S_PACK_SLIME_OPEN, i_volume);
             w_trig.trackPlayPoly(S_PACK_SLIME_OPEN);
           }
@@ -3165,7 +3170,7 @@ void checkWand() {
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
           
-          if(PACK_STATUS == MODE_ON) {
+          if(PACK_STATUS == MODE_ON && b_wand_on == true) {
             w_trig.trackGain(S_STASIS_OPEN, i_volume);
             w_trig.trackPlayPoly(S_STASIS_OPEN);
           }
@@ -3177,7 +3182,7 @@ void checkWand() {
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
           
-          if(PACK_STATUS == MODE_ON) {
+          if(PACK_STATUS == MODE_ON && b_wand_on == true) {
             w_trig.trackGain(S_MESON_OPEN, i_volume);
             w_trig.trackPlayPoly(S_MESON_OPEN);
           }
