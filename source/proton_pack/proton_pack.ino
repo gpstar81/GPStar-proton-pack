@@ -429,7 +429,7 @@ int i_led_cyclotron = cyclotron_led_start; // Current cyclotron LED that we are 
 const int i_2021_ramp_delay = 300;
 const int i_2021_ramp_length = 6000;
 const int i_1984_ramp_length = 3000;
-const int i_2021_ramp_down_length = 5000;
+const int i_2021_ramp_down_length = 10500;
 const int i_1984_ramp_down_length = 2500;
 int i_current_ramp_speed = i_2021_ramp_delay;
 int i_cyclotron_multiplier = 1;
@@ -649,6 +649,11 @@ bool b_vent_light_on = false; // To know if the light is on or off.
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
 bool b_wand_firing = false;
+bool b_firing_alt = false;
+bool b_firing_intensify = false;
+bool b_firing_cross_streams = false;
+bool b_sound_firing_intensify_trigger = false;
+bool b_sound_firing_alt_trigger = false;
 bool b_wand_connected = false;
 bool b_wand_on = false;
 millisDelay ms_wand_handshake;
@@ -2568,16 +2573,30 @@ void wandFiring() {
     case PROTON:
       w_trig.trackGain(S_FIRE_START, i_volume);
       w_trig.trackPlayPoly(S_FIRE_START, true);
-    
-      w_trig.trackGain(S_FIRE_LOOP_GUN, i_volume);
-      w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
-      w_trig.trackFade(S_FIRE_LOOP_GUN, i_volume, 1000, 0);
-      w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
-    
-      w_trig.trackGain(S_FIRE_LOOP, i_volume);
-      w_trig.trackPlayPoly(S_FIRE_LOOP, true);
-      w_trig.trackFade(S_FIRE_LOOP, i_volume, 1000, 0);
-      w_trig.trackLoop(S_FIRE_LOOP, 1); 
+
+      if(b_firing_intensify == true) {
+        w_trig.trackGain(S_FIRE_LOOP_GUN, i_volume);
+        w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
+        w_trig.trackFade(S_FIRE_LOOP_GUN, i_volume, 1000, 0);
+        w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+
+        b_sound_firing_intensify_trigger = true;
+      }
+      else {
+        b_sound_firing_intensify_trigger = false;
+      }
+
+      if(b_firing_alt == true) {
+        w_trig.trackGain(S_FIRING_LOOP_GB1, i_volume);
+        w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+        w_trig.trackFade(S_FIRING_LOOP_GB1, i_volume, 1000, 0);
+        w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+
+        b_sound_firing_alt_trigger = true;
+      }
+      else {
+        b_sound_firing_alt_trigger = false;
+      }
     break;
 
     case SLIME:
@@ -2674,6 +2693,8 @@ void wandStoppedFiring() {
   }
   
   b_wand_firing = false;
+  b_firing_alt = false;
+  b_firing_intensify = false;
 
   // Reset some vent light timers.
   ms_vent_light_off.stop();
@@ -2699,6 +2720,7 @@ void wandStopFiringSounds() {
   w_trig.trackStop(S_FIRE_START);
   w_trig.trackStop(S_FIRE_START_SPARK);
   w_trig.trackStop(S_FIRE_LOOP);
+  w_trig.trackStop(S_FIRING_LOOP_GB1);
   w_trig.trackStop(S_FIRE_LOOP_GUN);
   w_trig.trackStop(S_FIRE_LOOP_IMPACT);
   w_trig.trackStop(S_SLIME_START);
@@ -2710,6 +2732,15 @@ void wandStopFiringSounds() {
   w_trig.trackStop(S_MESON_START);
   w_trig.trackStop(S_MESON_LOOP);
   w_trig.trackStop(S_MESON_END);
+
+  if(b_firing_cross_streams == true) {
+    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+
+    b_firing_cross_streams = false;
+  }
+
+  b_sound_firing_intensify_trigger = false;
+  b_sound_firing_alt_trigger = false;
 }
 
 void packAlarm() {
@@ -3364,6 +3395,58 @@ void checkWand() {
             }
           }
         break;        
+
+        case 21:
+          // Wand firing in intensify mode.
+          b_firing_intensify = true;
+
+          if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
+            b_sound_firing_intensify_trigger = true;
+            w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
+            w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+          }
+        break;
+
+        case 22:
+          // Wand no longer firing in intensify mode.
+          b_firing_intensify = false;
+          b_sound_firing_intensify_trigger = false;
+
+          w_trig.trackStop(S_FIRE_LOOP_GUN);
+        break;
+
+        case 23:
+          // Wand firing in alt mode.
+          b_firing_alt = true;
+
+          if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
+            b_sound_firing_alt_trigger = true;
+            w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+            w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+          }
+        break;
+
+        case 24:
+          // Wand no longer firing in alt mode.
+          b_firing_alt = false;
+          b_sound_firing_alt_trigger = false;
+
+          w_trig.trackStop(S_FIRING_LOOP_GB1);
+        break;
+
+        case 25:
+          b_firing_cross_streams = true;
+          w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+          w_trig.trackPlayPoly(S_FIRE_START_SPARK);
+          w_trig.trackPlayPoly(S_FIRE_LOOP, true);
+          w_trig.trackLoop(S_FIRE_LOOP, 1);
+        break;
+
+        case 26:
+          b_firing_cross_streams = false;
+          w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+          w_trig.trackStop(S_FIRE_LOOP);
+        break;
 
         case 89:
           // Lower music volume.

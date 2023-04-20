@@ -26,12 +26,24 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 - Right-hand toggles affect the vent light and additional sound effects.
 	- Note that for both 2021 and 1984 modes, the wand will not fire unless these switches are turned on.
 	- Additionally, the lever switch near the gunbox must be pulled to extend the barrel before firing.
+
+**Video Game Mode (Default)**
+
 - The orange button at the end of the wand switches between the available firing modes:
 	1. Proton Stream (Default)
 	1. Slime Gun
 	1. Stasis Beam
 	1. Meson Collider
 	1. Special: Setting 5 is a settings menu system (see section below).
+
+**Crossing the Streams / Alternate Firing (Optional)**
+
+- The orange button at the end of the wand acts as a alternate fire mode.
+- The overheat features can only be triggered when enabled by the alternate firing mode.
+- Pressing both the Intensify and orange button at the end of the wand at the same time enables the Crossing the Streams. The Proton Pack and Wand can still overheat if enabled during this mode.
+
+To enable the Crossing the Streams and alternate firing, you need to set **const bool b&#95;cross&#95;the&#95;streams** to true in the Advanced User Configuration settings at the top of the Neutrona wand code. (see Advanced User Configuration settings below)
+
 
 **Toggle Switch Behavior**
 
@@ -145,6 +157,7 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
 | const int VOLUME&#95;EFFECTS&#95;MULTIPLIER | Percentage increments of the sound effects volume change. | 5 |
 | const bool b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms** | true |
+| const bool b&#95;cross&#95;the&#95;streams |  When set to true, the mode switch button to change firing modes changes to a alternate firing button. Pressing this button together at the same time as the Intensify button does a cross the streams firing. **The video game firing modes will be disabled when you enable this** | false |
 | const bool b&#95;bargraph&#95;alt | Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph. Part #: BL28Z-3005SA04Y | false |
 | const bool b&#95;vibration&#95;enabled | Enable or disable vibration control for the Neutrona wand. When set to false, there will be no vibration enabled for the Neutrona wand, and it will ignore the toggle switch settings from the Proton Pack. | true |
 | const bool b&#95;vibration&#95;firing | When set to true, when vibration is enabled from the Proton Pack side, the Neutrona will only vibrate during firing. Setting b&#95;vibration&#95;enabled to false will override this. | false |

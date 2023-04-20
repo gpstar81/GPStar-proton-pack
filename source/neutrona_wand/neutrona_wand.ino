@@ -102,6 +102,14 @@ const int VOLUME_EFFECTS_MULTIPLIER = 5;
 const bool b_onboard_amp_enabled = true;
 
 /*
+ * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
+ * Pressing this button together at the same time as the Intensify button does a cross the streams firing.
+ * The video game firing modes will be disabled when you enable this. 
+ * Access to the wand system menu settings to control volume and music will only be able to be reached when the wand is powered down.
+*/
+const bool b_cross_the_streams = false;
+
+/*
  * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
  * Set to false if you are using the sock Hasbro bargraph.
  * Part #: BL28Z-3005SA04Y
@@ -479,6 +487,13 @@ enum FIRING_MODES PREV_FIRING_MODE;
  */
 int year_mode = 2021;
 bool b_firing = false;
+bool b_firing_intensify = false;
+bool b_firing_alt = false;
+bool b_firing_cross_streams = false;
+bool b_sound_firing_intensify_trigger = false;
+bool b_sound_firing_alt_trigger = false;
+bool b_sound_firing_cross_the_streams = false;
+
 bool b_sound_idle = false;
 bool b_beeping = false;
 
@@ -1173,8 +1188,9 @@ void checkSwitches() {
     break;
 
     case MODE_ON:
-      if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {          
+      // This is for when the mode switch is enabled for video game mode. b_cross_the_streams must not be true.
+      if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true) {
+        if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {     
           // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
           if(i_wand_menu == 5) {
             // Cycle through the firing modes and setting menu.
@@ -1270,12 +1286,42 @@ void checkSwitches() {
       }
       
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_firing == false && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {          
-          WAND_ACTION_STATUS = ACTION_FIRING;
+        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {          
+          if(WAND_ACTION_STATUS != ACTION_FIRING) {
+            WAND_ACTION_STATUS = ACTION_FIRING;
+          }
+        
+          b_firing_intensify = true;
         }
-      
-        if(switch_intensify.getState() == HIGH && b_firing == true) {
-          WAND_ACTION_STATUS = ACTION_IDLE;
+
+        // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
+        if(b_cross_the_streams == true) {
+          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished() && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {
+            if(WAND_ACTION_STATUS != ACTION_FIRING) {
+              WAND_ACTION_STATUS = ACTION_FIRING;
+            }
+
+            b_firing_alt = true;
+
+            ms_switch_mode_debounce.start(a_switch_debounce_time);
+          }
+          else if(analogRead(switch_mode) < i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+            if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+              WAND_ACTION_STATUS = ACTION_IDLE;
+            }
+
+            b_firing_alt = false;
+
+            ms_switch_mode_debounce.start(a_switch_debounce_time);
+          }
+        }
+
+        if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
+          if(b_firing_alt != true) {
+            WAND_ACTION_STATUS = ACTION_IDLE;
+          }
+          
+          b_firing_intensify = false;
         }
       
         if(switch_activate.getState() == HIGH) {
@@ -1641,8 +1687,26 @@ void modeFireStartSounds() {
   
   switch(FIRING_MODE) {
     case PROTON:
-        w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
-        w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+        if(b_firing_intensify == true) {
+          // Reset some sound triggers.
+          b_sound_firing_intensify_trigger = true;
+          w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
+          w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+        }
+        else {
+          b_sound_firing_intensify_trigger = false;
+        }
+
+        if(b_firing_alt == true) {
+          // Reset some sound triggers.
+          b_sound_firing_alt_trigger = true;
+
+          w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+          w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);          
+        }
+        else {
+          b_sound_firing_alt_trigger = false;
+        }
 
         w_trig.trackPlayPoly(S_FIRE_START);        
     break;
@@ -1675,14 +1739,33 @@ void modeFireStartSounds() {
 }
 
 void modeFireStart() {
+  // Reset some sound triggers.
+  b_sound_firing_intensify_trigger = true;
+  b_sound_firing_alt_trigger = true;
+  b_sound_firing_cross_the_streams = false;
+  b_firing_cross_streams = false;
+
   if(ms_intensify_timer.isRunning() != true) {
     ms_intensify_timer.start(i_intensify_delay);
   }
   
+  // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode.
+  if(b_firing_intensify == true) {
+    Serial.write(21);
+  }
+
+  // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
+  if(b_firing_alt == true) {
+    Serial.write(23);
+  }
+
   // Stop all firing sounds first.
   switch(FIRING_MODE) {
     case PROTON:
+      w_trig.trackStop(S_FIRE_LOOP);
       w_trig.trackStop(S_FIRE_LOOP_GUN);
+      w_trig.trackStop(S_FIRING_LOOP_GB1);
+
       w_trig.trackStop(S_FIRE_START);
       w_trig.trackStop(S_FIRE_START_SPARK);
       w_trig.trackStop(S_FIRING_END_GUN);
@@ -1719,9 +1802,22 @@ void modeFireStart() {
 
   ms_overheat_initiate.stop();
 
-  // If in high power mode on the wand, start a overheat timer.
-  if(b_overheat_mode[i_power_mode - 1] == true) {
-    ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+  bool b_overheat_flag = true;
+
+  if(b_cross_the_streams == true && b_firing_alt != true) {
+    b_overheat_flag = false;
+  }
+
+  if(b_overheat_flag == true) {
+    // If in high power mode on the wand, start a overheat timer.
+    if(b_overheat_mode[i_power_mode - 1] == true) {
+      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+    }
+    else if(b_cross_the_streams == true) {
+      if(b_firing_alt == true) {
+        ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+      }
+    }
   }
   
   barrelLightsOff();
@@ -1741,6 +1837,11 @@ void modeFireStart() {
 }
 
 void modeFireStopSounds() {
+  // Reset some sound triggers.
+  b_sound_firing_intensify_trigger = false;
+  b_sound_firing_alt_trigger = false;
+  b_sound_firing_cross_the_streams = false;
+
   ms_firing_stop_sound_delay.stop();
 
  switch(FIRING_MODE) {
@@ -1764,6 +1865,12 @@ void modeFireStopSounds() {
       // Nothing.
     break;
   }
+
+  if(b_firing_cross_streams == true) {
+    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+
+    b_firing_cross_streams = false;
+  }
 }
 
 void modeFireStop() {
@@ -1775,6 +1882,8 @@ void modeFireStop() {
   WAND_ACTION_STATUS = ACTION_IDLE;
   
   b_firing = false;
+  b_firing_intensify = false;
+  b_firing_alt = false;
 
   ms_bargraph_firing.stop();
   ms_bargraph_alt.stop(); // Stop the 1984 24 segment optional bargraph timer just in case.
@@ -1805,7 +1914,9 @@ void modeFireStop() {
   // Stop all other firing sounds.
   switch(FIRING_MODE) {
     case PROTON:
+      w_trig.trackStop(S_FIRE_LOOP);
       w_trig.trackStop(S_FIRE_LOOP_GUN);
+      w_trig.trackStop(S_FIRING_LOOP_GB1);
       w_trig.trackStop(S_FIRING_END_GUN);
       w_trig.trackStop(S_FIRE_START);
       w_trig.trackStop(S_FIRE_START_SPARK);
@@ -1840,6 +1951,92 @@ void modeFireStop() {
 }
 
 void modeFiring() {
+  // Sound trigger flags.
+  if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
+    // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode.
+    Serial.write(21);
+
+    b_sound_firing_intensify_trigger = true;
+    w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
+    w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+  }
+
+  if(b_firing_intensify != true && b_sound_firing_intensify_trigger == true) {
+    // Tell the Proton Pack that the Neutrona wand is no longer firing in Intensify mode.
+    Serial.write(22);
+
+    b_sound_firing_intensify_trigger = false;
+    w_trig.trackStop(S_FIRE_LOOP_GUN);
+  }
+
+  if(b_firing_alt == true && b_sound_firing_alt_trigger != true) {
+    // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
+    Serial.write(23);
+
+    b_sound_firing_alt_trigger = true;
+    w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+    w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+  }
+
+  if(b_firing_alt != true && b_sound_firing_alt_trigger == true) {
+    // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
+    Serial.write(24);
+
+    b_sound_firing_alt_trigger = false;
+    w_trig.trackStop(S_FIRING_LOOP_GB1);
+  }
+
+  if(b_firing_alt == true && b_firing_intensify == true && b_sound_firing_cross_the_streams != true && b_firing_cross_streams != true) {
+    // Tell the Proton Pack that the Neutrona wand is crossing the streams.
+    Serial.write(25);
+
+    b_firing_cross_streams = true;
+    b_sound_firing_cross_the_streams = true;
+    w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+    w_trig.trackPlayPoly(S_FIRE_START_SPARK);
+    w_trig.trackPlayPoly(S_FIRE_LOOP, true);
+    w_trig.trackLoop(S_FIRE_LOOP, 1);
+  }
+
+  if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true) {
+    // Tell the Proton Pack that the Neutrona wand is no longer crossing the streams.
+    Serial.write(26);
+
+    b_firing_cross_streams = false;
+    b_sound_firing_cross_the_streams = false;
+    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+    w_trig.trackStop(S_FIRE_LOOP);
+  }
+
+  // Overheat timers.
+  bool b_overheat_flag = true;
+  
+  if(b_cross_the_streams == true && b_firing_alt != true) {
+    b_overheat_flag = false;
+  }
+
+  if(b_overheat_flag == true) {
+    // If the user changes the wand power output while firing, turn off the overheat timer.
+    if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {
+      ms_overheat_initiate.stop();
+      
+      // Tell the pack to revert back to regular cyclotron speeds.
+      Serial.write(12);
+    }
+    else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0) {
+      // If the user changes back to power mode that overheats while firing, start up a timer.
+      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+    }
+  }
+  else {
+    if(ms_overheat_initiate.isRunning()) {
+      ms_overheat_initiate.stop();
+      
+      // Tell the pack to revert back to regular cyclotron speeds.
+      Serial.write(12);
+    }
+  }
+
   /*
    * CRGB 
    * R = green
@@ -1851,19 +2048,6 @@ void modeFiring() {
    * orange = 40, 255, 0
    * dark orange = 20, 255, 0
    */
-
-   // If the user changes the wand power output while firing, turn off the overheat timer.
-  if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {
-    ms_overheat_initiate.stop();
-    
-    // Tell the pack to revert back to regular cyclotron speeds.
-    Serial.write(12);
-  }
-  else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0) {
-    // If the user changes back to power mode that overheats while firing, start up a timer.
-    ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
-  }
-  
   switch(FIRING_MODE) {     
     case PROTON:
       // Make the stream more slightly more red on higher power modes.
