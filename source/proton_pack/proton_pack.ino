@@ -142,6 +142,11 @@ const int i_1984_inner_delay = 9;
 bool b_clockwise = true;
 
 /*
+ * When set to true, when vibration is enabled the Proton Pack will only vibrate while the Neutrona wand is firing.
+*/
+const bool b_vibration_firing = false;
+
+/*
  * When set to true, 1984 mode is turned into 1989 mode. 
  * The pack will play 1989 sound effects instead of 1984 sound effects.
 */
@@ -430,7 +435,7 @@ rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
 bool b_cyclotron_lid_on = true;
 rampInt ms_cyclotron_fade_out_led_1;
-rampInt ms_cyclotron_fade_out_led_2;
+rampInt ms_cyclotron_fade_out_led_2; 
 rampInt ms_cyclotron_fade_out_led_3;
 rampInt ms_cyclotron_fade_out_led_4;
 rampInt ms_cyclotron_fade_out_led_5;
@@ -2834,9 +2839,22 @@ void cyclotronSwitchPlateLEDs() {
 
 void vibrationPack(int i_level) {
   if(b_vibration == true) {
-    if(i_level != i_vibration_level_prev) {
-      i_vibration_level_prev = i_level;
-      analogWrite(vibration, i_level);
+    if(b_vibration_firing == true) {
+      if(b_wand_firing == true) {
+        if(i_level != i_vibration_level_prev) {
+          i_vibration_level_prev = i_level;
+          analogWrite(vibration, i_level);
+        }
+      }
+      else {
+        analogWrite(vibration, 0);
+      }
+    }
+    else {
+      if(i_level != i_vibration_level_prev) {
+        i_vibration_level_prev = i_level;
+        analogWrite(vibration, i_level);
+      }
     }
   }
   else {
@@ -3089,7 +3107,7 @@ void wandHandShake() {
       wandStoppedFiring();
       cyclotronSpeedRevert();
     }
-
+    
     if(ms_wand_handshake.justFinished()) {
       // Ask the wand if it is connected.
       Serial2.write(11);

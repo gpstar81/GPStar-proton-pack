@@ -109,6 +109,11 @@ const bool b_onboard_amp_enabled = true;
 const bool b_bargraph_alt = false;
 
 /*
+ * When set to true, when vibration is enabled from the Proton Pack side, the Neutrona wand will only vibrate during firing.
+*/
+const bool b_vibration_firing = false;
+
+/*
  * Set this to true to be able to use your wand without a Proton Pack connected.
  * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
  */
@@ -2146,9 +2151,24 @@ void fireStreamEnd(int r, int g, int b) {
 
 void vibrationWand(int i_level) {
   if(b_vibration_on == true) {
-    if(i_level != i_vibration_level_prev) {
-      i_vibration_level_prev = i_level;
-      analogWrite(vibration, i_level);
+    // Only vibrate the wand during firing only when enabled. (When enabled by the pack)
+    if(b_vibration_firing == true) {
+      if(WAND_ACTION_STATUS == ACTION_FIRING) {
+        if(i_level != i_vibration_level_prev) {
+          i_vibration_level_prev = i_level;
+          analogWrite(vibration, i_level);
+        }
+      }
+      else {
+        analogWrite(vibration, 0);
+      }
+    }
+    else {
+      // Wand vibrates, even when idling, etc. (When enabled by the pack)
+      if(i_level != i_vibration_level_prev) {
+        i_vibration_level_prev = i_level;
+        analogWrite(vibration, i_level);
+      }
     }
   }
   else {
