@@ -2227,33 +2227,36 @@ void fireStream(int r, int g, int b) {
     if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {      
       switch(FIRING_MODE) {
         case PROTON:
-          barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+          if(b_firing_cross_streams == true) {
+            barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
+          }
+          else {
+            // Make the stream more slightly more red on higher power modes.
+            switch(i_power_mode) {
+              case 1:
+                barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+              break;
 
-          // Make the stream more slightly more red on higher power modes.
-          switch(i_power_mode) {
-            case 1:
-              barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
-            break;
+              case 2:
+                barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
+              break;
 
-            case 2:
-              barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
-            break;
+              case 3:
+                barrel_leds[i_barrel_light - 1] = CRGB(30, 255, 0);
+              break;
 
-            case 3:
-              barrel_leds[i_barrel_light - 1] = CRGB(30, 255, 0);
-            break;
+              case 4:
+                barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
+              break;
 
-            case 4:
-              barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
-            break;
+              case 5:
+                barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+              break;
 
-            case 5:
-              barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
-            break;
-
-            default:
-              barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
-            break;
+              default:
+                barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+              break;
+            }
           }
         break;
 
