@@ -1873,7 +1873,9 @@ void cyclotron2021(int cDelay) {
           }
         }
         
-        vibrationPack(i_vibration_level);
+        if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
+          vibrationPack(i_vibration_level);
+        }
       }
     }
     else if(b_2021_ramp_down == true) {
@@ -1896,7 +1898,9 @@ void cyclotron2021(int cDelay) {
           i_vibration_level = 0;
         }
         
-        vibrationPack(i_vibration_level);
+        if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
+          vibrationPack(i_vibration_level);
+        }
       }
     }
     else {
