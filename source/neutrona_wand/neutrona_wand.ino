@@ -109,7 +109,15 @@ const bool b_onboard_amp_enabled = true;
 const bool b_bargraph_alt = false;
 
 /*
+ * Enable or disable vibration control for the Neutrona wand.
+ * Vibration is toggled on and off by a toggle switch in the Proton Pack.
+ * When set to false, there will be no vibration enabled for the Neutrona wand, and it will ignore the toggle switch settings from the Proton Pack.
+*/
+const bool b_vibration_enabled = true;
+
+/*
  * When set to true, when vibration is enabled from the Proton Pack side, the Neutrona wand will only vibrate during firing.
+ * Setting b_vibration_enabled to false will override this.
 */
 const bool b_vibration_firing = false;
 
@@ -2150,7 +2158,7 @@ void fireStreamEnd(int r, int g, int b) {
 }
 
 void vibrationWand(int i_level) {
-  if(b_vibration_on == true) {
+  if(b_vibration_on == true && b_vibration_enabled == true) {
     // Only vibrate the wand during firing only when enabled. (When enabled by the pack)
     if(b_vibration_firing == true) {
       if(WAND_ACTION_STATUS == ACTION_FIRING) {

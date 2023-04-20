@@ -142,7 +142,15 @@ const int i_1984_inner_delay = 9;
 bool b_clockwise = true;
 
 /*
- * When set to true, when vibration is enabled the Proton Pack will only vibrate while the Neutrona wand is firing.
+ * Enable or disable vibration control for the Proton Pack.
+ * Vibration is toggled on and off by a switch on Pin 27.
+ * When set to false, there will be no vibration enabled for the Proton Pack, and it will ignore the toggle switch on pin 27.
+*/
+const bool b_vibration_enabled = true;
+
+/*
+ * When set to true, when vibration is enabled, the Proton Pack will only vibrate while the Neutrona wand is firing.
+ * Note that vibration is controlled by a switch on pin 27.
 */
 const bool b_vibration_firing = false;
 
@@ -2842,7 +2850,7 @@ void cyclotronSwitchPlateLEDs() {
 }
 
 void vibrationPack(int i_level) {
-  if(b_vibration == true) {
+  if(b_vibration == true && b_vibration_enabled == true) {
     if(b_vibration_firing == true) {
       if(b_wand_firing == true) {
         if(i_level != i_vibration_level_prev) {
