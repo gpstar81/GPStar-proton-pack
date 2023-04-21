@@ -107,7 +107,7 @@ const bool b_onboard_amp_enabled = true;
  * The video game firing modes will be disabled when you enable this. 
  * Access to the wand system menu settings to control volume and music will only be able to be reached when the wand is powered down.
 */
-const bool b_cross_the_streams = false;
+bool b_cross_the_streams = false;
 
 /*
  * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
@@ -127,7 +127,7 @@ const bool b_vibration_enabled = true;
  * When set to true, when vibration is enabled from the Proton Pack side, the Neutrona wand will only vibrate during firing.
  * Setting b_vibration_enabled to false will override this.
 */
-const bool b_vibration_firing = false;
+bool b_vibration_firing = false;
 
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
@@ -253,13 +253,26 @@ enum sound_fx {
   S_CROSS_STREAMS_END,
   S_CROSS_STREAMS_START,
   S_PACK_RIBBON_ALARM_1,
-  S_PACK_RIBBON_ALARM_2
+  S_PACK_RIBBON_ALARM_2,
+  S_VOICE_1984,
+  S_VOICE_1989,
+  S_VOICE_2021,
+  S_VOICE_VIBRATION_ENABLED,
+  S_VOICE_VIBRATION_DISABLED,
+  S_VOICE_VIBRATION_FIRING_ENABLED,
+  S_VOICE_VIBRATION_FIRING_DISABLED,
+  S_VOICE_SMOKE_ENABLED,
+  S_VOICE_SMOKE_DISABLED,
+  S_VOICE_CYCLOTRON_CLOCKWISE,
+  S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE,
+  S_VOICE_CROSS_THE_STREAMS,
+  S_VOICE_VIDEO_GAME_MODES
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const int i_last_effects_track = S_PACK_RIBBON_ALARM_2;
+const int i_last_effects_track = S_VOICE_VIDEO_GAME_MODES;
 
 /* 
  * Wand state. 
@@ -465,6 +478,7 @@ enum VOLUME_SYNC VOLUME_SYNC_WAIT;
  *  Wand menu & music
  */
 int i_wand_menu = 5;
+bool b_wand_menu_sub = false;
 const int i_settings_blinking_delay = 350;
 bool b_playing_music = false;
 bool b_repeat_track = false;
@@ -673,175 +687,362 @@ void mainLoop() {
       settingsBlinkingLights();
       
       switch(i_wand_menu) {
+        /*
+         * Top menu: Music track loop setting.
+         * Sub menu: Enable or disable crossing the streams / video game modes.
+        */
         case 5:
-        // Track loop setting.
-        if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-          ms_intensify_timer.start(i_intensify_delay / 2);
-          
-          if(b_repeat_track == false) {
-            // Loop the track.
-            b_repeat_track = true;
-            w_trig.trackLoop(i_current_music_track, 1);
+        // Music track loop setting.
+        if(b_wand_menu_sub != true) {
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+            
+            if(b_repeat_track == false) {
+              // Loop the track.
+              b_repeat_track = true;
+              w_trig.trackLoop(i_current_music_track, 1);
+            }
+            else {
+              b_repeat_track = false;
+              w_trig.trackLoop(i_current_music_track, 0);
+            }
+            
+            // Tell pack to loop the music track.
+            Serial.write(93);
           }
-          else {
-            b_repeat_track = false;
-            w_trig.trackLoop(i_current_music_track, 0);
+        }
+        else {
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            // Enable or disable crossing the streams / video game modes.
+            if(b_cross_the_streams == true) {
+              // Turn off crossing the streams mode and switch back to video game mode.
+              b_cross_the_streams = false;
+              w_trig.trackStop(S_CLICK);    
+              w_trig.trackGain(S_CLICK, i_volume);
+              w_trig.trackPlayPoly(S_CLICK);
+
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
+              w_trig.trackGain(S_VOICE_VIDEO_GAME_MODES, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_MODES);
+
+              // Tell the proton pack to reset back to the proton stream.
+              Serial.write(34);
+            }
+            else {
+              // Turn on crossing the streams mode and turn off video game mode.
+              b_cross_the_streams = true;
+
+              w_trig.trackStop(S_CLICK);    
+              w_trig.trackGain(S_CLICK, i_volume);
+              w_trig.trackPlayPoly(S_CLICK);
+
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);    
+              w_trig.trackGain(S_VOICE_CROSS_THE_STREAMS, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS);
+
+              // Tell the proton pack to reset back to the proton stream.
+              Serial.write(28);
+            }
+
+            // Reset the previous firing mode to the proton stream.
+            PREV_FIRING_MODE = PROTON;
           }
-          
-          // Tell pack to loop the music track.
-          Serial.write(93);
         }
         break;
 
-        // Pack / Wand sound effects volume.
+        /*
+         * Top menu: Adjust the Proton Pack / Neutrona wand sound effects volume.
+         * Sub menu: Enable or disable smoke for the Proton Pack.
+        */
         case 4:
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay);
-            
-            increaseVolumeEffects();
-            
-            // Tell pack to increase the sound effects volume.
-            Serial.write(92);
-          }
-
-          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
-            decreaseVolumeEffects();
-            
-            // Tell pack to lower the sound effects volume.
-            Serial.write(91);
-            
-            ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
-          }
-        
-        break;
-
-        // Pack / Wand music volume.
-        case 3:
-          if(b_playing_music == true) {
+          // Adjust the Proton Pack / Neutrona wand sound effects volume.
+          if(b_wand_menu_sub != true) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
               
-              if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
-                i_volume_music_percentage = 100;
-              }
-              else {
-                i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
-              }
-
-              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-              w_trig.trackGain(i_current_music_track, i_volume_music);
+              increaseVolumeEffects();
               
-              // Tell pack to increase music volume.
-              Serial.write(90);
+              // Tell pack to increase the sound effects volume.
+              Serial.write(92);
             }
-  
-            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {              
-              if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
-                i_volume_music_percentage = 0;
-              }
-              else {
-                i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
-              }
 
-              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-              w_trig.trackGain(i_current_music_track, i_volume_music);
+            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+              decreaseVolumeEffects();
               
-              // Tell pack to lower music volume.
-              Serial.write(89);
+              // Tell pack to lower the sound effects volume.
+              Serial.write(91);
               
               ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
-            }  
+            }
+          }
+          else {
+            // Enable or disable smoke for the Proton Pack.
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+
+              // Tell the Proton Pack to toggle the smoke on or off.
+              Serial.write(33);
+            }
           }
         break;
 
-        // Change music tracks.
-        case 2:          
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay);
-            
-            if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-              if(b_playing_music == true) {               
-                // Go to the first track to play it.
-                stopMusic();
-                i_current_music_track = i_music_track_start;
-                playMusic();
-              }
-              else {
-                i_current_music_track = i_music_track_start;
-              }
-            }
-            else {
-              // Stop the old track and play the new track if music is currently playing.
-              if(b_playing_music == true) {
-                stopMusic();
-                i_current_music_track++;                
-                playMusic();
-              }
-              else {
-                i_current_music_track++;
-              }
-            }
-          
-            // Tell the pack which music track to change to.
-            Serial.write(i_current_music_track);
-          }
-
-          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {            
-            if(i_current_music_track - 1 < i_music_track_start) {
-              if(b_playing_music == true) {
-                // Go to the last track to play it.
-                stopMusic();
-                i_current_music_track = i_music_track_start + (i_music_count -1);
-                playMusic();
-              }
-              else {
-                i_current_music_track = i_music_track_start + (i_music_count -1);
-              }
-            }
-            else {
-              // Stop the old track and play the new track if music is currently playing.
-              if(b_playing_music == true) {
-                stopMusic();
-                i_current_music_track--;
-                playMusic();
-              }
-              else {
-                i_current_music_track--;
-              }
-            }
-          
-            // Tell the pack which music track to change to.
-            Serial.write(i_current_music_track);
-            
-            ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
-          }          
-        break;
-
-        // Play music or stop music.
-        case 1:          
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay);
-
+        /*
+         * Top menu: Adjust Proton Pack / Neutrona wand music volume.
+         * Sub menu: Enable or disable vibration for firing events only.
+        */
+        case 3:
+          // Adjust Proton Pack / Neutrona wand music volume..
+          if(b_wand_menu_sub != true) {
             if(b_playing_music == true) {
-              // Stop music
-              b_playing_music = false;
-
-              // Tell the pack to stop music.
-              Serial.write(98);
-              
-              stopMusic();             
-            }
-            else {
-              if(i_music_count > 0 && i_current_music_track > 99) {
-                // Start music.
-                b_playing_music = true;
-
-                // Tell the pack to play music.
-                Serial.write(99);
+              if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+                ms_intensify_timer.start(i_intensify_delay);
                 
-                playMusic();
+                if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
+                  i_volume_music_percentage = 100;
+                }
+                else {
+                  i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
+                }
+
+                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+                w_trig.trackGain(i_current_music_track, i_volume_music);
+                
+                // Tell pack to increase music volume.
+                Serial.write(90);
+              }
+    
+              if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {              
+                if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
+                  i_volume_music_percentage = 0;
+                }
+                else {
+                  i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
+                }
+
+                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+                w_trig.trackGain(i_current_music_track, i_volume_music);
+                
+                // Tell pack to lower music volume.
+                Serial.write(89);
+                
+                ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+              }  
+            }
+          }
+          else {
+            // Enable or disable vibration for firing events only.
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+
+              w_trig.trackStop(S_BEEPS_ALT);    
+              w_trig.trackGain(S_BEEPS_ALT, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+              // Enable or disable vibration
+              if(b_vibration_firing == true) {
+                b_vibration_firing = false;
+
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_FIRING_DISABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_DISABLED);
+
+                // Tell the proton pack to disable vibration during firing only option.
+                Serial.write(31);
+              }
+              else {
+                b_vibration_firing = true;
+
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_FIRING_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_ENABLED);
+
+                // Tell the Proton pack to enable vibration during firing only.
+                Serial.write(32);
+
+                analogWrite(vibration, 150);
+                delay(250);
+                analogWrite(vibration,0);
+              }
+            }
+          }
+        break;
+
+        /*
+         * Top menu: Change music tracks.
+         * Sub menu: Enable or disable vibration (Proton Pack and Neutrona wand)
+        */
+        case 2:       
+          // Change music tracks.
+          if(b_wand_menu_sub != true) {             
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+              
+              if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+                if(b_playing_music == true) {               
+                  // Go to the first track to play it.
+                  stopMusic();
+                  i_current_music_track = i_music_track_start;
+                  playMusic();
+                }
+                else {
+                  i_current_music_track = i_music_track_start;
+                }
+              }
+              else {
+                // Stop the old track and play the new track if music is currently playing.
+                if(b_playing_music == true) {
+                  stopMusic();
+                  i_current_music_track++;                
+                  playMusic();
+                }
+                else {
+                  i_current_music_track++;
+                }
+              }
+            
+              // Tell the pack which music track to change to.
+              Serial.write(i_current_music_track);
+            }
+
+            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {            
+              if(i_current_music_track - 1 < i_music_track_start) {
+                if(b_playing_music == true) {
+                  // Go to the last track to play it.
+                  stopMusic();
+                  i_current_music_track = i_music_track_start + (i_music_count -1);
+                  playMusic();
+                }
+                else {
+                  i_current_music_track = i_music_track_start + (i_music_count -1);
+                }
+              }
+              else {
+                // Stop the old track and play the new track if music is currently playing.
+                if(b_playing_music == true) {
+                  stopMusic();
+                  i_current_music_track--;
+                  playMusic();
+                }
+                else {
+                  i_current_music_track--;
+                }
+              }
+            
+              // Tell the pack which music track to change to.
+              Serial.write(i_current_music_track);
+              
+              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+            }   
+          }
+          else {
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+
+              w_trig.trackStop(S_BEEPS_ALT);    
+              w_trig.trackGain(S_BEEPS_ALT, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+              // Enable or disable vibration
+              if(b_vibration_on == true) {
+                b_vibration_on = false;
+
+                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_DISABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);
+
+                // Tell the proton pack to disable vibration.
+                Serial.write(29);
+              }
+              else {
+                b_vibration_on = true;
+
+                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_ENABLED);
+
+                // Tell the Proton pack to enable vibration.
+                Serial.write(30);
+
+                analogWrite(vibration, 150);
+                delay(250);
+                analogWrite(vibration,0);
+              }
+            }
+          }  
+        break;
+
+        /*
+         * Top menu: Play music or stop music.
+         * Sub menu: Switch between 1984/1989/2021 mode.
+        */
+        case 1:
+          // Play or stop the current music track.
+          if(b_wand_menu_sub != true) {          
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+
+              if(b_playing_music == true) {
+                // Stop music
+                b_playing_music = false;
+
+                // Tell the pack to stop music.
+                Serial.write(98);
+                
+                stopMusic();             
+              }
+              else {
+                if(i_music_count > 0 && i_current_music_track > 99) {
+                  // Start music.
+                  b_playing_music = true;
+
+                  // Tell the pack to play music.
+                  Serial.write(99);
+                  
+                  playMusic();
+                }
+              }
+            }
+          }
+          else {
+            // Switch between 1984/1989/2021 mode.
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+              
+              // Tell the Proton Pack to cycle through year modes.
+              Serial.write(27);
+
+              w_trig.trackStop(S_BEEPS_BARGRAPH);    
+              w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
+
+              // There is no pack connected, lets change the years.
+              if(b_no_pack == true) {
+                if(year_mode == 1984) {
+                  year_mode = 2021;
+                  w_trig.trackStop(S_VOICE_2021);    
+                  w_trig.trackStop(S_VOICE_1984);    
+                  w_trig.trackGain(S_VOICE_2021, i_volume);
+                  w_trig.trackPlayPoly(S_VOICE_2021);
+
+                }
+                else if(year_mode == 2021) {
+                  year_mode = 1984;
+
+                  w_trig.trackStop(S_VOICE_2021);    
+                  w_trig.trackStop(S_VOICE_1984);    
+                  w_trig.trackGain(S_VOICE_1984, i_volume);
+                  w_trig.trackPlayPoly(S_VOICE_1984);
+                }
               }
             }
           }
@@ -853,9 +1054,9 @@ void mainLoop() {
   switch(WAND_STATUS) {
     case MODE_OFF:      
       if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {        
-        w_trig.trackPlayPoly(S_CLICK);
-          
         if(FIRING_MODE != SETTINGS) {
+          w_trig.trackPlayPoly(S_CLICK);
+
           PREV_FIRING_MODE = FIRING_MODE;
           FIRING_MODE = SETTINGS;
           
@@ -867,10 +1068,11 @@ void mainLoop() {
           Serial.write(9);
         }
         else {
-          // Only exit the settings menu when on menu #5.
-          if(i_wand_menu == 5) {
+          // Only exit the settings menu when on menu #5 in the top menu.
+          if(i_wand_menu == 5 && b_wand_menu_sub != true) {
             FIRING_MODE = PREV_FIRING_MODE;
-  
+            w_trig.trackPlayPoly(S_CLICK);
+
             switch(PREV_FIRING_MODE) {
               case MESON:
                 // Tell the pack we are in meson mode.
@@ -1039,8 +1241,19 @@ void settingsBlinkingLights() {
       digitalWrite(led_bargraph_4, HIGH);
     }
 
+    bool b_solid_five = false;
+
     // Indicator for looping track setting.
-    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_wand_menu_sub != true) {
+      b_solid_five = true;
+    }
+
+    // Indicator for crossing the streams setting.
+    if(b_cross_the_streams == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_wand_menu_sub == true) {
+      b_solid_five = true;
+    }
+
+    if(b_solid_five == true) {
       if(b_bargraph_alt == true) {
         for(int i = 24; i < 28; i++) {
           ht_bargraph.clearLedNow(i_bargraph[i]);
@@ -3438,7 +3651,23 @@ void checkRotary() {
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
           if(i_wand_menu - 1 < 1) {
-            i_wand_menu = 1;
+            
+            // We are entering the sub menu. Only accessible when the Neutrona Wand is powered down.
+            if(WAND_STATUS == MODE_OFF) {
+              if(b_wand_menu_sub != true) {
+                b_wand_menu_sub = true;
+                i_wand_menu = 5;
+
+                // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
+                analogWrite(led_slo_blo, 255);
+              }
+              else {
+                i_wand_menu = 1;
+              }
+            }
+            else {
+              i_wand_menu = 1;
+            }
           }
           else {
             i_wand_menu--;
@@ -3448,7 +3677,22 @@ void checkRotary() {
         // Clockwise.
         if(prev_next_code == 0x07) {
           if(i_wand_menu + 1 > 5) {
-            i_wand_menu = 5;
+            // We are leaving the sub menu. Only accessible when the Neutrona Wand is powered down.
+            if(WAND_STATUS == MODE_OFF) {
+              if(b_wand_menu_sub == true) {
+                b_wand_menu_sub = false;
+                i_wand_menu = 1;
+
+                // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
+                analogWrite(led_slo_blo, 0);
+              }
+              else {
+                i_wand_menu = 5;
+              }
+            }
+            else {
+              i_wand_menu = 5;
+            }
           }
           else {
             i_wand_menu++;
@@ -3789,6 +4033,60 @@ void checkPack() {
           VOLUME_SYNC_WAIT = EFFECTS;
         break;
         
+        case 16:
+          // Vibration firing on.
+          b_vibration_firing = true;
+          vibrationOff();
+        break;
+  
+        case 17:
+          // Vibration firing off
+          b_vibration_firing = false;
+        break;
+
+        case 18:
+          // Play 2021 voice.
+          w_trig.trackStop(S_VOICE_2021);  
+          w_trig.trackStop(S_VOICE_1989);
+          w_trig.trackStop(S_VOICE_1984);    
+          w_trig.trackGain(S_VOICE_2021, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_2021);
+        break;
+
+        case 19:
+          // Play 1989 voice.
+          w_trig.trackStop(S_VOICE_2021);  
+          w_trig.trackStop(S_VOICE_1989);
+          w_trig.trackStop(S_VOICE_1984);    
+          w_trig.trackGain(S_VOICE_1989, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_1989);
+        break;
+
+        case 20:
+          // Play 1989 voice.
+          w_trig.trackStop(S_VOICE_2021);  
+          w_trig.trackStop(S_VOICE_1989);
+          w_trig.trackStop(S_VOICE_1984);    
+          w_trig.trackGain(S_VOICE_1984, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_1984);
+        break;
+
+        case 21:
+          // Play smoke disabled voice.
+          w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
+          w_trig.trackStop(S_VOICE_SMOKE_ENABLED);    
+          w_trig.trackGain(S_VOICE_SMOKE_DISABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
+        break;
+
+        case 22:
+          // Play smoke enabled voice.
+          w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
+          w_trig.trackStop(S_VOICE_SMOKE_DISABLED);    
+          w_trig.trackGain(S_VOICE_SMOKE_ENABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);
+        break;
+
         case 99:
           // Stop music
           stopMusic();

@@ -69,13 +69,27 @@ To enable the Crossing the Streams and alternate firing, you need to set **const
 
 When you are in the settings menu system [Mode 5] all the bargraph leds begin flashing. All other functions of the wand (such as firing) are disabled while in the menu system. There are 5 different menu settings, which are indicated by the bargraph LED's 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED is flashing that means you are on menu 1. **Use the rotary knob on the top of the wand to navigate up and down through the menu system!**
 
-| Menu Level | Purpose | Description |
+**Top Level Menu**
+
+| Top Menu Level | Purpose | Description |
 |------------|---------|-------------|
 | 5 | Music&nbsp;Track&nbsp;Looping | Press **Intensify** to set the current track to loop forever; press again to turn off the loop feature. (Note that the LED #5 will stay solid when this single-track loop is enabled, it will blink on/off when looping is disabled). |
 | 4 | Effects-only&nbsp;Volume | Press **Intensify** to increase volume, press the orange **Mode** switch to decrease volume. |
 | 3 | Music-only&nbsp;Volume | Press **Intensify** to increase volume, press the orange **Mode** switch to decrease volume. |
 | 2 | Switch&nbsp;Music&nbsp;Track | Press **Intensify** to cycle forward. Press the orange **Mode** switch to cycle backward. |
 | 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music | Press **Intensify** to play music. Press it again to stop the music. |
+
+**Sub Level Menu (Only accessible while the Neutrona Wand is powered down)**
+
+**To access the sub level menu, use the rotary dial on the top of the wand. When you reach the sub level menu, the slo-blo LED will light up to indicate this menu**
+
+| Sub Menu Level | Purpose | Description |
+|------------|---------|-------------|
+| 5 | Cross The Streams / Video Game Mode | Press **Intensify** to enable the cross the streams feature or revert back to video game modes. |
+| 4 | Smoke Settings | Press **Intensify** to enable or disable smoke. |
+| 3 | Vibration Firing Mode | Press **Intensify** to enable vibration during firing only. Press again to disable. |
+| 2 | Vibration | Press **Intensify** to enable vibration or disable |
+| 1 | Year Mode | Press **Intensify** cycle through 1984, 1989 or 2021 modes. |
 
 To exit the menu system, navigate to **Menu 5** and press the orange **Mode** switch button, the wand will now go to the Proton Stream mode (this will be accompanied by an additional audio cue that you've returned to the firing modes). Music will continue to play (and advance/loop) even when the pack and wand are turned off. 
 
@@ -106,11 +120,11 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const int VOLUME&#95;MULTIPLIER | Percentage increments of master volume change. | 2 |
 | const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
 | const int VOLUME&#95;EFFECTS&#95;MULTIPLIER | Percentage increments of the sound effects volume change. | 5 |
-| const bool b&#95;gb2&#95;mode | When set to true, the pack will be in 1989 sound effects instead of 1984 sound effects when the proton pack year mode toggle switch is set to 1984 mode | false |
+| bool b&#95;gb2&#95;mode | When set to true, the pack will be in 1989 sound effects instead of 1984 sound effects when the proton pack year mode toggle switch is set to 1984 mode | false |
 | const bool b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms**| false |
 | bool b&#95;clockwise | Set to true for the cyclotron lights to spin clockwise. Set to false to be counter clockwise. This can be controlled by an optional switch on pin 29 | true |
 | const bool b&#95;vibration&#95;enabled | Enable or disable vibration control for the Proton Pack. When set to false, there will be no vibration enabled for the Proton Pack, and it will ignore the toggle switch on pin 27. | true |
-| const bool b&#95;vibration&#95;firing | When set to true, when vibration is enabled, the Proton Pack will only vibrate while the Neutrona wand is firing. | false |
+| bool b&#95;vibration&#95;firing | When set to true, when vibration is enabled, the Proton Pack will only vibrate while the Neutrona wand is firing. | false |
 | const bool b&#95;overheat&#95;strobe | If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true. When false, the light stays solid white during overheat. | false |
 | const bool b&#95;fade&#95;cyclotron&#95;led | When set to false, the LEDs on the cyclotron lid in 1984 mode will not fade. | true |
 | const int i&#95;1984&#95;fade&#95;out&#95;delay | Time in milliseconds for the cyclotron lid LED to fade out when enabled. | 210 |
@@ -159,7 +173,7 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const bool b&#95;cross&#95;the&#95;streams |  When set to true, the mode switch button to change firing modes changes to a alternate firing button. Pressing this button together at the same time as the Intensify button does a cross the streams firing. **The video game firing modes will be disabled when you enable this** | false |
 | const bool b&#95;bargraph&#95;alt | Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph. Part #: BL28Z-3005SA04Y | false |
 | const bool b&#95;vibration&#95;enabled | Enable or disable vibration control for the Neutrona wand. When set to false, there will be no vibration enabled for the Neutrona wand, and it will ignore the toggle switch settings from the Proton Pack. | true |
-| const bool b&#95;vibration&#95;firing | When set to true, when vibration is enabled from the Proton Pack side, the Neutrona will only vibrate during firing. Setting b&#95;vibration&#95;enabled to false will override this. | false |
+| bool b&#95;vibration&#95;firing | When set to true, when vibration is enabled from the Proton Pack side, the Neutrona will only vibrate during firing. Setting b&#95;vibration&#95;enabled to false will override this. | false |
 | const bool b&#95;no&#95;pack | Set this to true if you want to use your Neutrona Wand without a Proton Pack connected. Otherwise when false, the Neutrona Wand will wait until it is connected to a Proton Pack before it can activate. | false |
 | const bool b&#95;overheat&#95;mode&#95;1 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 1** | false |
 | const bool b&#95;overheat&#95;mode&#95;2 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 2** | false |
