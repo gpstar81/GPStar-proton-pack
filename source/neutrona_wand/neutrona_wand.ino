@@ -983,7 +983,8 @@ void mainLoop() {
 
         /*
          * Top menu: Play music or stop music.
-         * Sub menu: Switch between 1984/1989/2021 mode.
+         * Sub menu: (Intensify) -> Switch between 1984/1989/2021 mode.
+         * Sub menu: (Mode switch) -> Toggle cyclotron rotation direction.
         */
         case 1:
           // Play or stop the current music track.
@@ -1044,6 +1045,13 @@ void mainLoop() {
                   w_trig.trackPlayPoly(S_VOICE_1984);
                 }
               }
+            }
+
+             if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) { 
+              // Tell the Proton Pack to change the cyclotron rotation direction.
+              Serial.write(35);
+
+              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
             }
           }
         break;
@@ -4063,7 +4071,7 @@ void checkPack() {
         break;
 
         case 20:
-          // Play 1989 voice.
+          // Play 1984 voice.
           w_trig.trackStop(S_VOICE_2021);  
           w_trig.trackStop(S_VOICE_1989);
           w_trig.trackStop(S_VOICE_1984);    
@@ -4085,6 +4093,22 @@ void checkPack() {
           w_trig.trackStop(S_VOICE_SMOKE_DISABLED);    
           w_trig.trackGain(S_VOICE_SMOKE_ENABLED, i_volume);
           w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);
+        break;
+
+        case 23:
+          // Play cyclotron counter clockwise voice.
+          w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+          w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+          w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);   
+        break;
+
+        case 24:
+          // Play cyclotron clockwise voice.
+          w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+          w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+          w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);   
         break;
 
         case 99:

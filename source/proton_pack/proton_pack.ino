@@ -1151,6 +1151,14 @@ void checkSwitches() {
       w_trig.trackStop(S_BEEPS_ALT);    
       w_trig.trackGain(S_BEEPS_ALT, i_volume);
       w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+      w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+      w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+      w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
+      w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE); 
+
+      // Tell wand to play cyclotron counter clockwise voice.
+      Serial2.write(23);
     }
     else {
       b_clockwise = true;
@@ -1158,6 +1166,14 @@ void checkSwitches() {
       w_trig.trackStop(S_BEEPS);
       w_trig.trackGain(S_BEEPS, i_volume);
       w_trig.trackPlayPoly(S_BEEPS);
+
+      w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+      w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+      w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
+      w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);
+    
+      // Tell wand to play cyclotron clockwise voice.
+      Serial2.write(24);
     }
   }
   
@@ -1169,6 +1185,14 @@ void checkSwitches() {
       w_trig.trackStop(S_VENT_DRY);
       w_trig.trackGain(S_VENT_DRY, i_volume);
       w_trig.trackPlayPoly(S_VENT_DRY);
+
+      w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
+      w_trig.trackStop(S_VOICE_SMOKE_ENABLED);    
+      w_trig.trackGain(S_VOICE_SMOKE_DISABLED, i_volume);
+      w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
+
+      // Tell wand to play smoke disabled voice.
+      Serial2.write(21);  
     }
     else {
       b_smoke_enabled = true;
@@ -1176,6 +1200,14 @@ void checkSwitches() {
       w_trig.trackStop(S_VENT_SMOKE);
       w_trig.trackGain(S_VENT_SMOKE, i_volume);
       w_trig.trackPlayPoly(S_VENT_SMOKE);
+
+      w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
+      w_trig.trackStop(S_VOICE_SMOKE_DISABLED);    
+      w_trig.trackGain(S_VOICE_SMOKE_ENABLED, i_volume);
+      w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);  
+
+      // Tell wand to play smoke enabled voice.
+      Serial2.write(22);    
     }
   }
 
@@ -1191,6 +1223,11 @@ void checkSwitches() {
           Serial2.write(5);
 
           b_vibration = true;
+
+          w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+          w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+          w_trig.trackGain(S_VOICE_VIBRATION_ENABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_VIBRATION_ENABLED);          
         }
       }
       else {
@@ -1199,6 +1236,11 @@ void checkSwitches() {
           Serial2.write(6);
 
           b_vibration = false;
+
+          w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+          w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+          w_trig.trackGain(S_VOICE_VIBRATION_DISABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);          
         }
       }
   }
@@ -1231,6 +1273,7 @@ void checkSwitches() {
             }
             
             i_mode_year = 1984;
+            i_mode_year_tmp = 1984;
           }
           else {
             if(i_mode_year == 1984) {
@@ -1239,6 +1282,7 @@ void checkSwitches() {
             }
 
             i_mode_year = 2021;
+            i_mode_year_tmp = 2021;
           }
         }
         else {
@@ -1251,6 +1295,7 @@ void checkSwitches() {
               }
 
               i_mode_year = 1984;
+              i_mode_year_tmp = 1984;
             break;
 
             case 2021:
@@ -1260,6 +1305,7 @@ void checkSwitches() {
               }
 
               i_mode_year = 2021;
+              i_mode_year_tmp = 2021;
             break;
           }
         }
@@ -3522,7 +3568,7 @@ void checkWand() {
           w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
           w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
 
-          switch(i_mode_year) {
+          switch(i_mode_year_tmp) {
             case 1984:
               if(b_gb2_mode != true) {
                 b_gb2_mode = true;
@@ -3685,6 +3731,38 @@ void checkWand() {
           w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
           w_trig.trackGain(S_VOICE_VIDEO_GAME_MODES, i_volume);
           w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_MODES);          
+        break;
+
+        case 35:
+          // Toggle the cyclotron direction.
+          if(b_clockwise == true) {
+            b_clockwise = false;
+
+            w_trig.trackStop(S_BEEPS_ALT);    
+            w_trig.trackGain(S_BEEPS_ALT, i_volume);
+            w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+            w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+            w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+            w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
+            w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);     
+
+            Serial2.write(23);
+          }
+          else {
+            b_clockwise = true;
+
+            w_trig.trackStop(S_BEEPS);
+            w_trig.trackGain(S_BEEPS, i_volume);
+            w_trig.trackPlayPoly(S_BEEPS);
+
+            w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+            w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+            w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
+            w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);
+
+            Serial2.write(24);
+          }
         break;
 
         case 89:

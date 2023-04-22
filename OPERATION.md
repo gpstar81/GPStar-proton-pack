@@ -42,7 +42,7 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 - The overheat features can only be triggered when enabled by the alternate firing mode.
 - Pressing both the Intensify and orange button at the end of the wand at the same time enables the Crossing the Streams. The Proton Pack and Wand can still overheat if enabled during this mode.
 
-To enable the Crossing the Streams and alternate firing, you need to set **const bool b&#95;cross&#95;the&#95;streams** to true in the Advanced User Configuration settings at the top of the Neutrona wand code. (see Advanced User Configuration settings below). **Important: The wand settings menu can only be reached while the wand is powered down if you enable this feature**
+To enable the Crossing the Streams and alternate firing by default, you need to set **bool b&#95;cross&#95;the&#95;streams** to true in the Advanced User Configuration settings at the top of the Neutrona wand code. (see Advanced User Configuration settings below). Otherwise you can toggle between Crossing the Streams and Video Game modes via the Neutrona Wand Sub Menu Settings (see below). **Important: The Neutrona Wand sub menu settings can only be reached while the Neutrona Wand is powered down**
 
 **Toggle Switch Behavior**
 
