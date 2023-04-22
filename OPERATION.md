@@ -89,9 +89,9 @@ When you are in the settings menu system [Mode 5] all the bargraph leds begin fl
 | 4 | Smoke Settings | Press **Intensify** to enable or disable smoke. |
 | 3 | Vibration Firing Mode | Press **Intensify** to enable vibration during firing only. Press again to disable. |
 | 2 | Vibration | Press **Intensify** to enable vibration or disable |
-| 1 | Year Mode | Press **Intensify** cycle through 1984, 1989 or 2021 modes. |
+| 1 | Year Mode / Cyclotron Rotation Direction | Press **Intensify** cycle through 1984, 1989 or 2021 modes. Press the **Orange Mode Switch** button to change the direction of the cyclotron rotation. |
 
-To exit the menu system, navigate to **Menu 5** and press the orange **Mode** switch button, the wand will now go to the Proton Stream mode (this will be accompanied by an additional audio cue that you've returned to the firing modes). Music will continue to play (and advance/loop) even when the pack and wand are turned off. 
+To exit the menu system, navigate to the top menu in **Setting 5** and press the orange **Mode** switch button, the wand will now go to the Proton Stream mode (this will be accompanied by an additional audio cue that you've returned to the firing modes). Music will continue to play (and advance/loop) even when the pack and wand are turned off. 
 
 **When music is playing while the pack and wand are turned off, you can use the Rotary knob on the top of the wand to easily access independent music volume control.**
 
