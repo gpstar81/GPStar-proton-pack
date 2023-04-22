@@ -1054,7 +1054,7 @@ void packStartup() {
       break;
   
       default:
-        w_trig.trackStop(S_PACK_RIBBON_ALARM_2);
+        w_trig.trackStop(S_PACK_BEEPING);
         w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
         w_trig.trackPlayPoly(S_AFTERLIFE_PACK_STARTUP, true);
   
@@ -1080,7 +1080,7 @@ void packShutdown() {
     break;
 
     default:
-      w_trig.trackStop(S_PACK_RIBBON_ALARM_2);
+      w_trig.trackStop(S_PACK_BEEPING);
     break;
   }
 
@@ -1640,8 +1640,8 @@ void cyclotronControl() {
         r_inner_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN); 
       }
       else {
-        r_2021_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length, CIRCULAR_IN);
-        r_inner_ramp.go(i_inner_ramp_delay, i_2021_ramp_down_length, CIRCULAR_IN);
+        r_2021_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length, SINUSOIDAL_IN);
+        r_inner_ramp.go(i_inner_ramp_delay, i_2021_ramp_down_length, SINUSOIDAL_IN);
       }
     }
   
@@ -2843,9 +2843,9 @@ void packAlarm() {
       break;
 
       default:
-        w_trig.trackGain(S_PACK_RIBBON_ALARM_2, i_volume);
-        w_trig.trackPlayPoly(S_PACK_RIBBON_ALARM_2, true);
-        w_trig.trackLoop(S_PACK_RIBBON_ALARM_2, 1);
+        w_trig.trackGain(S_PACK_BEEPING, i_volume);
+        w_trig.trackPlayPoly(S_PACK_BEEPING, true);
+        w_trig.trackLoop(S_PACK_BEEPING, 1);
       break;
     }
   }
@@ -3531,8 +3531,8 @@ void checkWand() {
                 w_trig.trackStop(S_VOICE_2021);    
                 w_trig.trackStop(S_VOICE_1984); 
                 w_trig.trackStop(S_VOICE_1989);
-                w_trig.trackGain(S_VOICE_1984, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_1984);
+                w_trig.trackGain(S_VOICE_1989, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_1989);
 
                 // Tell the wand to play the 1989 sound effect.
                 Serial2.write(19);
@@ -3541,7 +3541,7 @@ void checkWand() {
                 i_mode_year_tmp = 2021;
 
                 w_trig.trackStop(S_VOICE_2021);    
-                w_trig.trackStop(S_VOICE_1984); 
+                w_trig.trackStop(S_VOICE_1984);
                 w_trig.trackStop(S_VOICE_1989);
                 w_trig.trackGain(S_VOICE_2021, i_volume);
                 w_trig.trackPlayPoly(S_VOICE_2021);
@@ -3558,8 +3558,8 @@ void checkWand() {
               w_trig.trackStop(S_VOICE_2021);    
               w_trig.trackStop(S_VOICE_1984); 
               w_trig.trackStop(S_VOICE_1989);
-              w_trig.trackGain(S_VOICE_1989, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_1989);
+              w_trig.trackGain(S_VOICE_1984, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_1984);
               
               // Tell the wand to play the 1984 sound effect.
               Serial2.write(20);
