@@ -144,7 +144,7 @@ bool b_clockwise = true;
 
 /*
  * Enable or disable vibration control for the Proton Pack.
- * Vibration is toggled on and off by a switch on Pin 27.
+ * Vibration is toggled on and off by a switch on Pin 27 or from the Neutrona wand sub menu system.
  * When set to false, there will be no vibration enabled for the Proton Pack, and it will ignore the toggle switch on pin 27.
 */
 const bool b_vibration_enabled = true;
