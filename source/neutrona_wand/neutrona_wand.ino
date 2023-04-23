@@ -105,7 +105,7 @@ const bool b_onboard_amp_enabled = true;
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
  * Pressing this button together at the same time as the Intensify button does a cross the streams firing.
  * The video game firing modes will be disabled when you enable this. 
- * Access to the wand system menu settings to control volume and music will only be able to be reached when the wand is powered down.
+ * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
 bool b_cross_the_streams = false;
 
@@ -120,12 +120,14 @@ const bool b_bargraph_alt = false;
  * Enable or disable vibration control for the Neutrona wand.
  * Vibration is toggled on and off by a toggle switch in the Proton Pack.
  * When set to false, there will be no vibration enabled for the Neutrona wand, and it will ignore the toggle switch settings from the Proton Pack.
+ * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
 const bool b_vibration_enabled = true;
 
 /*
  * When set to true, when vibration is enabled from the Proton Pack side, the Neutrona wand will only vibrate during firing.
  * Setting b_vibration_enabled to false will override this.
+ * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
 bool b_vibration_firing = false;
 
