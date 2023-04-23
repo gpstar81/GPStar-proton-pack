@@ -139,18 +139,31 @@ const int i_1984_inner_delay = 9;
  *  This can be controlled by an optional switch on pin 29. 
  *  Set to false to be counter clockwise.
  */
-boolean b_clockwise = true;
+bool b_clockwise = true;
+
+/*
+ * Enable or disable vibration control for the Proton Pack.
+ * Vibration is toggled on and off by a switch on Pin 27.
+ * When set to false, there will be no vibration enabled for the Proton Pack, and it will ignore the toggle switch on pin 27.
+*/
+const bool b_vibration_enabled = true;
+
+/*
+ * When set to true, when vibration is enabled, the Proton Pack will only vibrate while the Neutrona wand is firing.
+ * Note that vibration is controlled by a switch on pin 27.
+*/
+bool b_vibration_firing = false;
 
 /*
  * When set to true, 1984 mode is turned into 1989 mode. 
  * The pack will play 1989 sound effects instead of 1984 sound effects.
 */
-const boolean b_gb2_mode = false;
+bool b_gb2_mode = false;
 
 /*
  * When set to false, 1984 mode LED's will fade in or out.
 */
-const boolean b_fade_cyclotron_led = true;
+const bool b_fade_cyclotron_led = true;
 
 /*
  * When fading is enabled for 1984 mode cyclotron lid lights, control the delay of the fading.
@@ -165,19 +178,19 @@ const int i_1984_fade_in_delay = 210;
  * If you use the output pins directly on the wav trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */
-const boolean b_onboard_amp_enabled = false;
+const bool b_onboard_amp_enabled = false;
 
 /*
  * If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true.
  * If false, the light stay solid white during overheat.
  */
-const boolean b_overheat_strobe = false;
+const bool b_overheat_strobe = false;
 
 /*
  * Enable or disable overall smoke settings.
  * This can be toggled with a switch on PIN 37.
  */
-boolean b_smoke_enabled = true;
+bool b_smoke_enabled = true;
 
 /*
  * ****************** ADVANCED USER CONFIGURABLE SMOKE SETTINGS BELOW ************************
@@ -189,20 +202,20 @@ boolean b_smoke_enabled = true;
  * Control which of the 3 pins that go high during continuous firing smoke effects.
  * This can be overriden if b_smoke_enabled is set to false.
  */
-const boolean b_smoke_1_continuous_firing = true;
-const boolean b_smoke_2_continuous_firing = true;
-const boolean b_fan_continuous_firing = true;
+const bool b_smoke_1_continuous_firing = true;
+const bool b_smoke_2_continuous_firing = true;
+const bool b_fan_continuous_firing = true;
 
 /*
  * Enable or disable smoke in individual wand power modes for continuous firing smoke.
  * Example: if b_smoke_continuous_mode_1 is true, smoke will happen in continuous firing in wand power mode 1. If false, no smoke in mode 1.
  * This is overridden if b_smoke_enabled or can be by the continuous_firing settings above when they are set to false.
  */
-const boolean b_smoke_continuous_mode_1 = true;
-const boolean b_smoke_continuous_mode_2 = true;
-const boolean b_smoke_continuous_mode_3 = true;
-const boolean b_smoke_continuous_mode_4 = true;
-const boolean b_smoke_continuous_mode_5 = true;
+const bool b_smoke_continuous_mode_1 = true;
+const bool b_smoke_continuous_mode_2 = true;
+const bool b_smoke_continuous_mode_3 = true;
+const bool b_smoke_continuous_mode_4 = true;
+const bool b_smoke_continuous_mode_5 = true;
 
 /*
  * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power mode. (not overheating venting)
@@ -232,27 +245,27 @@ const unsigned long int i_smoke_on_time_mode_5 = 4000;
  * Control which of the 3 pins that go high during overheat.
  * This can be overridden if b_smoke_enabled is set to false.
  */
-const boolean b_smoke_1_overheat = true;
-const boolean b_smoke_2_overheat = true;
-const boolean b_fan_overheat = true;
+const bool b_smoke_1_overheat = true;
+const bool b_smoke_2_overheat = true;
+const bool b_fan_overheat = true;
 
 /*
  * Enable or disable overheat smoke in different wand power modes.
  * Example: If b_smoke_overheat_mode_1 is false, then no smoke will be generated during overheat in wand power mode 1, if overheat is enabled for that power mode in the wand code.
  * This is overridden if b_smoke_enabled or can be by the b_overheat settings above when they are set to false.
  */
-const boolean b_smoke_overheat_mode_1 = true;
-const boolean b_smoke_overheat_mode_2 = true;
-const boolean b_smoke_overheat_mode_3 = true;
-const boolean b_smoke_overheat_mode_4 = true;
-const boolean b_smoke_overheat_mode_5 = true;
+const bool b_smoke_overheat_mode_1 = true;
+const bool b_smoke_overheat_mode_2 = true;
+const bool b_smoke_overheat_mode_3 = true;
+const bool b_smoke_overheat_mode_4 = true;
+const bool b_smoke_overheat_mode_5 = true;
 
 /*
  * Set this to true if you want to know if your wand and pack are communicating.
  * If the wand and pack have a serial connection, you will hear a beeping sound.
  * Set to false to turn off the sound.
  */
-const boolean b_diagnostic = false;
+const bool b_diagnostic = false;
 
 /*
  * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
@@ -261,8 +274,8 @@ const boolean b_diagnostic = false;
 /* 
  *  SD Card sound files in order. If you have no sound, your SD card might be too slow, try another one.
  *  File naming 000_ is important as well. For music, it is 100_ and higher.
- *  Also note if you add more sounds to this list, you need to update the wavtrigger setup function to let it know the last
- *  sound effect file (very bottom of this code). The wav trigger uses this to determine how many music tracks there are if any.
+ *  Also note if you add more sounds to this list, you need to update the i_last_effects_track variable.
+ *  The wav trigger uses this to determine how many music tracks there are if any.
  */
 enum sound_fx {
   S_EMPTY, 
@@ -339,13 +352,28 @@ enum sound_fx {
   S_FIRING_END_MID,
   S_FIRING_LOOP_GB1,
   S_CROSS_STREAMS_END,
-  S_CROSS_STREAMS_START
+  S_CROSS_STREAMS_START,
+  S_PACK_RIBBON_ALARM_1,
+  S_PACK_RIBBON_ALARM_2,
+  S_VOICE_1984,
+  S_VOICE_1989,
+  S_VOICE_2021,
+  S_VOICE_VIBRATION_ENABLED,
+  S_VOICE_VIBRATION_DISABLED,
+  S_VOICE_VIBRATION_FIRING_ENABLED,
+  S_VOICE_VIBRATION_FIRING_DISABLED,
+  S_VOICE_SMOKE_ENABLED,
+  S_VOICE_SMOKE_DISABLED,
+  S_VOICE_CYCLOTRON_CLOCKWISE,
+  S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE,
+  S_VOICE_CROSS_THE_STREAMS,
+  S_VOICE_VIDEO_GAME_MODES
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const int i_last_effects_track = S_CROSS_STREAMS_START;
+const int i_last_effects_track = S_VOICE_VIDEO_GAME_MODES;
 
  /* 
  *  PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
@@ -414,7 +442,7 @@ int i_led_cyclotron = cyclotron_led_start; // Current cyclotron LED that we are 
 const int i_2021_ramp_delay = 300;
 const int i_2021_ramp_length = 6000;
 const int i_1984_ramp_length = 3000;
-const int i_2021_ramp_down_length = 5000;
+const int i_2021_ramp_down_length = 10500;
 const int i_1984_ramp_down_length = 2500;
 int i_current_ramp_speed = i_2021_ramp_delay;
 int i_cyclotron_multiplier = 1;
@@ -426,9 +454,9 @@ bool b_reset_start_led = true;
 bool b_1984_led_start = true;
 rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
-boolean b_cyclotron_lid_on = true;
+bool b_cyclotron_lid_on = true;
 rampInt ms_cyclotron_fade_out_led_1;
-rampInt ms_cyclotron_fade_out_led_2;
+rampInt ms_cyclotron_fade_out_led_2; 
 rampInt ms_cyclotron_fade_out_led_3;
 rampInt ms_cyclotron_fade_out_led_4;
 rampInt ms_cyclotron_fade_out_led_5;
@@ -507,7 +535,7 @@ rampInt ms_cyclotron_fade_in_led_37;
 rampInt ms_cyclotron_fade_in_led_38;
 rampInt ms_cyclotron_fade_in_led_39;
 rampInt ms_cyclotron_fade_in_led_40;
-boolean i_cyclotron_led_on_status[40] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+bool i_cyclotron_led_on_status[40] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 rampInt ms_cyclotron_led_fade_out[40] = { ms_cyclotron_fade_out_led_1, ms_cyclotron_fade_out_led_2, ms_cyclotron_fade_out_led_3, ms_cyclotron_fade_out_led_4, ms_cyclotron_fade_out_led_5, ms_cyclotron_fade_out_led_6, ms_cyclotron_fade_out_led_7, ms_cyclotron_fade_out_led_8, ms_cyclotron_fade_out_led_9, ms_cyclotron_fade_out_led_10, ms_cyclotron_fade_out_led_11, ms_cyclotron_fade_out_led_12, ms_cyclotron_fade_out_led_13, ms_cyclotron_fade_out_led_14, ms_cyclotron_fade_out_led_15, ms_cyclotron_fade_out_led_16, ms_cyclotron_fade_out_led_17, ms_cyclotron_fade_out_led_18, ms_cyclotron_fade_out_led_19, ms_cyclotron_fade_out_led_20, ms_cyclotron_fade_out_led_21, ms_cyclotron_fade_out_led_22, ms_cyclotron_fade_out_led_23, ms_cyclotron_fade_out_led_24, ms_cyclotron_fade_out_led_25, ms_cyclotron_fade_out_led_26, ms_cyclotron_fade_out_led_27, ms_cyclotron_fade_out_led_28, ms_cyclotron_fade_out_led_29, ms_cyclotron_fade_out_led_30, ms_cyclotron_fade_out_led_31, ms_cyclotron_fade_out_led_32, ms_cyclotron_fade_out_led_33, ms_cyclotron_fade_out_led_34, ms_cyclotron_fade_out_led_35, ms_cyclotron_fade_out_led_36, ms_cyclotron_fade_out_led_37, ms_cyclotron_fade_out_led_38, ms_cyclotron_fade_out_led_39, ms_cyclotron_fade_out_led_40 };
 rampInt ms_cyclotron_led_fade_in[40] = { ms_cyclotron_fade_in_led_1, ms_cyclotron_fade_in_led_2, ms_cyclotron_fade_in_led_3, ms_cyclotron_fade_in_led_4, ms_cyclotron_fade_in_led_5, ms_cyclotron_fade_in_led_6, ms_cyclotron_fade_in_led_7, ms_cyclotron_fade_in_led_8, ms_cyclotron_fade_in_led_9, ms_cyclotron_fade_in_led_10, ms_cyclotron_fade_in_led_11, ms_cyclotron_fade_in_led_12, ms_cyclotron_fade_in_led_13, ms_cyclotron_fade_in_led_14, ms_cyclotron_fade_in_led_15, ms_cyclotron_fade_in_led_16, ms_cyclotron_fade_in_led_17, ms_cyclotron_fade_in_led_18, ms_cyclotron_fade_in_led_19, ms_cyclotron_fade_in_led_20, ms_cyclotron_fade_in_led_21, ms_cyclotron_fade_in_led_22, ms_cyclotron_fade_in_led_23, ms_cyclotron_fade_in_led_24, ms_cyclotron_fade_in_led_25, ms_cyclotron_fade_in_led_26, ms_cyclotron_fade_in_led_27, ms_cyclotron_fade_in_led_28, ms_cyclotron_fade_in_led_29, ms_cyclotron_fade_in_led_30, ms_cyclotron_fade_in_led_31, ms_cyclotron_fade_in_led_32, ms_cyclotron_fade_in_led_33, ms_cyclotron_fade_in_led_34, ms_cyclotron_fade_in_led_35, ms_cyclotron_fade_in_led_36, ms_cyclotron_fade_in_led_37, ms_cyclotron_fade_in_led_38, ms_cyclotron_fade_in_led_39, ms_cyclotron_fade_in_led_40 };
 int i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -565,8 +593,8 @@ wavTrigger w_trig;
 int i_music_count = 0;
 int i_current_music_track = 0;
 const int i_music_track_start = 100; // Music tracks start on file named 100_ and higher.
-boolean b_playing_music = false;
-boolean b_repeat_track = false;
+bool b_playing_music = false;
+bool b_repeat_track = false;
 
 /* 
  *  Volume (0 = loudest, -70 = quietest)
@@ -587,7 +615,7 @@ millisDelay ms_volume_check; // Put some timing on the master volume gain to not
 const int vibration = 45;
 int i_vibration_level = 0;
 int i_vibration_level_prev = 0;
-boolean b_vibration = false;
+bool b_vibration = false;
 
 /*
  * Smoke
@@ -611,13 +639,13 @@ const int i_fan_stop_timer = 7000;
  */
 millisDelay ms_overheating;
 const int i_overheating_delay = 4000;
-boolean b_overheating = false;
+bool b_overheating = false;
 millisDelay ms_smoke_timer;
 millisDelay ms_smoke_on;
 const int i_smoke_timer[5] = { i_smoke_timer_mode_1, i_smoke_timer_mode_2, i_smoke_timer_mode_3, i_smoke_timer_mode_4, i_smoke_timer_mode_5 };
 const int i_smoke_on_time[5] = { i_smoke_on_time_mode_1, i_smoke_on_time_mode_2, i_smoke_on_time_mode_3, i_smoke_on_time_mode_4, i_smoke_on_time_mode_5 };
-const boolean b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
-const boolean b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
+const bool b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
+const bool b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
 
 /*
  * Vent light timers and delay for over heating.
@@ -625,7 +653,7 @@ const boolean b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_over
 millisDelay ms_vent_light_on;
 millisDelay ms_vent_light_off;
 const int i_vent_light_delay = 50;
-boolean b_vent_sounds; // A flag for playing smoke and vent sounds.
+bool b_vent_sounds; // A flag for playing smoke and vent sounds.
 bool b_vent_light_on = false; // To know if the light is on or off.
 
 /* 
@@ -633,8 +661,14 @@ bool b_vent_light_on = false; // To know if the light is on or off.
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
-boolean b_wand_firing = false;
-boolean b_wand_connected = false;
+bool b_wand_firing = false;
+bool b_firing_alt = false;
+bool b_firing_intensify = false;
+bool b_firing_cross_streams = false;
+bool b_sound_firing_intensify_trigger = false;
+bool b_sound_firing_alt_trigger = false;
+bool b_wand_connected = false;
+bool b_wand_on = false;
 millisDelay ms_wand_handshake;
 const int i_wand_handshake_delay = 3000;
 millisDelay ms_wand_handshake_checking;
@@ -661,6 +695,8 @@ int i_last_val_rotary;
  * Misc.
  */
 int i_mode_year = 2021; // 1984 or 2021
+int i_mode_year_tmp = 2021; // Controlled by the Neutrona wand.
+bool b_switch_mode_override = false; // Year mode override flag controlled by the Neutrona wand. This resets when you flip the mode year toggle switch on the pack.
 bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 
@@ -738,6 +774,22 @@ void setup() {
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
   ms_wand_handshake.start(1);
   ms_fast_led.start(i_fast_led_delay);
+
+  // Configure the vibration state.
+  if(switch_vibration.getState() == LOW) {
+    b_vibration = true;
+  }
+  else {
+    b_vibration = false;
+  }
+
+  // Configure the year mode.
+  if(switch_mode.getState() == LOW) {
+    i_mode_year = 1984;
+  }
+  else {
+    i_mode_year = 2021;
+  }
 
   // Tell the wand the pack is here.
   Serial2.write(0);
@@ -975,11 +1027,12 @@ void packStartup() {
     packAlarm();
   }
   else {
-    w_trig.trackStop(S_PACK_BEEPING);
     w_trig.trackStop(S_PACK_SHUTDOWN_AFTERLIFE);
     
     switch(i_mode_year) {
       case 1984:
+        w_trig.trackStop(S_PACK_RIBBON_ALARM_1);
+
         if(b_gb2_mode == true) {
           w_trig.trackGain(S_GB2_PACK_START, i_volume);
           w_trig.trackPlayPoly(S_GB2_PACK_START, true);
@@ -1001,6 +1054,7 @@ void packStartup() {
       break;
   
       default:
+        w_trig.trackStop(S_PACK_BEEPING);
         w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
         w_trig.trackPlayPoly(S_AFTERLIFE_PACK_STARTUP, true);
   
@@ -1020,10 +1074,18 @@ void packShutdown() {
   // Stop the firing if the pack is doing it.
   wandStoppedFiring();
 
-  w_trig.trackStop(S_PACK_BEEPING);
+  switch(i_mode_year) {
+    case 1984:
+      w_trig.trackStop(S_PACK_RIBBON_ALARM_1);
+    break;
+
+    default:
+      w_trig.trackStop(S_PACK_BEEPING);
+    break;
+  }
+
   w_trig.trackStop(S_BEEP_8);
   w_trig.trackStop(S_SHUTDOWN);
-
 
   w_trig.trackStop(S_GB2_PACK_START);
   w_trig.trackStop(S_GB2_PACK_LOOP);
@@ -1037,7 +1099,7 @@ void packShutdown() {
 
   if(b_alarm != true) {
     switch(i_mode_year) {
-      case 1984:
+      case 1984:      
         w_trig.trackGain(S_SHUTDOWN, i_volume);
         w_trig.trackPlayPoly(S_SHUTDOWN, true);
 
@@ -1089,6 +1151,14 @@ void checkSwitches() {
       w_trig.trackStop(S_BEEPS_ALT);    
       w_trig.trackGain(S_BEEPS_ALT, i_volume);
       w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+      w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+      w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+      w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
+      w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE); 
+
+      // Tell wand to play cyclotron counter clockwise voice.
+      Serial2.write(23);
     }
     else {
       b_clockwise = true;
@@ -1096,6 +1166,14 @@ void checkSwitches() {
       w_trig.trackStop(S_BEEPS);
       w_trig.trackGain(S_BEEPS, i_volume);
       w_trig.trackPlayPoly(S_BEEPS);
+
+      w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+      w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+      w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
+      w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);
+    
+      // Tell wand to play cyclotron clockwise voice.
+      Serial2.write(24);
     }
   }
   
@@ -1107,6 +1185,14 @@ void checkSwitches() {
       w_trig.trackStop(S_VENT_DRY);
       w_trig.trackGain(S_VENT_DRY, i_volume);
       w_trig.trackPlayPoly(S_VENT_DRY);
+
+      w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
+      w_trig.trackStop(S_VOICE_SMOKE_ENABLED);    
+      w_trig.trackGain(S_VOICE_SMOKE_DISABLED, i_volume);
+      w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
+
+      // Tell wand to play smoke disabled voice.
+      Serial2.write(21);  
     }
     else {
       b_smoke_enabled = true;
@@ -1114,40 +1200,59 @@ void checkSwitches() {
       w_trig.trackStop(S_VENT_SMOKE);
       w_trig.trackGain(S_VENT_SMOKE, i_volume);
       w_trig.trackPlayPoly(S_VENT_SMOKE);
+
+      w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
+      w_trig.trackStop(S_VOICE_SMOKE_DISABLED);    
+      w_trig.trackGain(S_VOICE_SMOKE_ENABLED, i_volume);
+      w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);  
+
+      // Tell wand to play smoke enabled voice.
+      Serial2.write(22);    
     }
   }
 
   // Vibration toggle switch.
-  if(switch_vibration.getState() == LOW) {
-    if(b_vibration == false) {
-      // Tell the wand to turn vibration on.
-      Serial2.write(5);
-      
+  if(switch_vibration.isPressed() || switch_vibration.isReleased()) {
       w_trig.trackStop(S_BEEPS_ALT);    
       w_trig.trackGain(S_BEEPS_ALT, i_volume);
       w_trig.trackPlayPoly(S_BEEPS_ALT);
 
-      b_vibration = true;
-    }
+      if(switch_vibration.getState() == LOW) {
+        if(b_vibration == false) {
+          // Tell the wand to turn vibration on.
+          Serial2.write(5);
+
+          b_vibration = true;
+
+          w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+          w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+          w_trig.trackGain(S_VOICE_VIBRATION_ENABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_VIBRATION_ENABLED);          
+        }
+      }
+      else {
+        if(b_vibration == true) {
+          // Tell the wand to turn vibration off.
+          Serial2.write(6);
+
+          b_vibration = false;
+
+          w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+          w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+          w_trig.trackGain(S_VOICE_VIBRATION_DISABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);          
+        }
+      }
   }
-  else {
-    if(b_vibration == true) {
-      // Tell the wand to turn vibration off.
-      Serial2.write(6);
 
-      w_trig.trackStop(S_BEEPS_ALT);    
-      w_trig.trackGain(S_BEEPS_ALT, i_volume);
-      w_trig.trackPlayPoly(S_BEEPS_ALT);
-
-      b_vibration = false;
-    }
-  }  
-
-  // Play sound when the mode switch is pressed or released.
+  // Play sound when the year mode switch is pressed or released.
   if(switch_mode.isPressed() || switch_mode.isReleased()) {
     w_trig.trackStop(S_BEEPS_BARGRAPH);    
     w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
     w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
+
+    // Turn off the year mode override flag controlled by the Neutrona wand.
+    b_switch_mode_override = false;
   }
   
   switch(PACK_STATUS) {
@@ -1158,30 +1263,66 @@ void checkSwitches() {
       }
 
       // Year mode. Best to adjust it only when the pack is off.
-      if(b_2021_ramp_down != true && b_pack_on == false) {        
-        if(switch_mode.getState() == LOW) {
-          if(i_mode_year == 2021) {
-            // Tell the wand to switch to 1984 mode.
-            Serial2.write(7);
+      if(b_2021_ramp_down != true && b_pack_on == false) {
+        // If switching manually by the pack toggle switch.
+        if(b_switch_mode_override != true) {     
+          if(switch_mode.getState() == LOW) {
+            if(i_mode_year == 2021) {
+              // Tell the wand to switch to 1984 mode.
+              Serial2.write(7);
+            }
+            
+            i_mode_year = 1984;
+            i_mode_year_tmp = 1984;
           }
-          
-          // Reset the ramp speeds.
-          i_current_ramp_speed = i_1984_delay * 1.3;
-          i_inner_current_ramp_speed = i_inner_ramp_delay;
+          else {
+            if(i_mode_year == 1984) {
+              // Tell the wand to switch to 2021 mode.
+              Serial2.write(8);
+            }
 
-          i_mode_year = 1984;
+            i_mode_year = 2021;
+            i_mode_year_tmp = 2021;
+          }
         }
         else {
-          if(i_mode_year == 1984) {
-            // Tell the wand to switch to 2021 mode.
-            Serial2.write(8);
-          }
-          
-          // Reset the ramp speeds.
-          i_current_ramp_speed = i_2021_ramp_delay;
-          i_inner_current_ramp_speed = i_inner_ramp_delay;
+          // If the Neutrona wand sub menu setting told the Proton Pack to change years.
+          switch(i_mode_year_tmp) {
+            case 1984:
+              if(i_mode_year == 2021) {
+                // Tell the wand to switch to 1984 mode.
+                Serial2.write(7);
+              }
 
-          i_mode_year = 2021;
+              i_mode_year = 1984;
+              i_mode_year_tmp = 1984;
+            break;
+
+            case 2021:
+              if(i_mode_year == 1984) {
+                // Tell the wand to switch to 2021 mode.
+                Serial2.write(8);
+              }
+
+              i_mode_year = 2021;
+              i_mode_year_tmp = 2021;
+            break;
+          }
+        }
+
+        // Reset the ramp speeds.
+        switch(i_mode_year) {
+          case 1984:
+              // Reset the ramp speeds.
+              i_current_ramp_speed = i_1984_delay * 1.3;
+              i_inner_current_ramp_speed = i_inner_ramp_delay;
+          break;
+
+          case 2021:
+            // Reset the ramp speeds.
+            i_current_ramp_speed = i_2021_ramp_delay;
+            i_inner_current_ramp_speed = i_inner_ramp_delay;
+          break;
         }
       }
     break;
@@ -1545,8 +1686,8 @@ void cyclotronControl() {
         r_inner_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN); 
       }
       else {
-        r_2021_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length, CIRCULAR_IN);
-        r_inner_ramp.go(i_inner_ramp_delay, i_2021_ramp_down_length, CIRCULAR_IN);
+        r_2021_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length, SINUSOIDAL_IN);
+        r_inner_ramp.go(i_inner_ramp_delay, i_2021_ramp_down_length, SINUSOIDAL_IN);
       }
     }
   
@@ -1855,7 +1996,9 @@ void cyclotron2021(int cDelay) {
           }
         }
         
-        vibrationPack(i_vibration_level);
+        if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
+          vibrationPack(i_vibration_level);
+        }
       }
     }
     else if(b_2021_ramp_down == true) {
@@ -1878,7 +2021,9 @@ void cyclotron2021(int cDelay) {
           i_vibration_level = 0;
         }
         
-        vibrationPack(i_vibration_level);
+        if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
+          vibrationPack(i_vibration_level);
+        }
       }
     }
     else {
@@ -2405,7 +2550,7 @@ void reset2021RampDown() {
   b_inner_ramp_down = true;
 }
 
-void ventLight(boolean b_on) {
+void ventLight(bool b_on) {
   b_vent_light_on = b_on;
 
   if(b_on == true) {
@@ -2538,16 +2683,30 @@ void wandFiring() {
     case PROTON:
       w_trig.trackGain(S_FIRE_START, i_volume);
       w_trig.trackPlayPoly(S_FIRE_START, true);
-    
-      w_trig.trackGain(S_FIRE_LOOP_GUN, i_volume);
-      w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
-      w_trig.trackFade(S_FIRE_LOOP_GUN, i_volume, 1000, 0);
-      w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
-    
-      w_trig.trackGain(S_FIRE_LOOP, i_volume);
-      w_trig.trackPlayPoly(S_FIRE_LOOP, true);
-      w_trig.trackFade(S_FIRE_LOOP, i_volume, 1000, 0);
-      w_trig.trackLoop(S_FIRE_LOOP, 1); 
+
+      if(b_firing_intensify == true) {
+        w_trig.trackGain(S_FIRE_LOOP_GUN, i_volume);
+        w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
+        w_trig.trackFade(S_FIRE_LOOP_GUN, i_volume, 1000, 0);
+        w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+
+        b_sound_firing_intensify_trigger = true;
+      }
+      else {
+        b_sound_firing_intensify_trigger = false;
+      }
+
+      if(b_firing_alt == true) {
+        w_trig.trackGain(S_FIRING_LOOP_GB1, i_volume);
+        w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+        w_trig.trackFade(S_FIRING_LOOP_GB1, i_volume, 1000, 0);
+        w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+
+        b_sound_firing_alt_trigger = true;
+      }
+      else {
+        b_sound_firing_alt_trigger = false;
+      }
     break;
 
     case SLIME:
@@ -2644,6 +2803,8 @@ void wandStoppedFiring() {
   }
   
   b_wand_firing = false;
+  b_firing_alt = false;
+  b_firing_intensify = false;
 
   // Reset some vent light timers.
   ms_vent_light_off.stop();
@@ -2669,6 +2830,7 @@ void wandStopFiringSounds() {
   w_trig.trackStop(S_FIRE_START);
   w_trig.trackStop(S_FIRE_START_SPARK);
   w_trig.trackStop(S_FIRE_LOOP);
+  w_trig.trackStop(S_FIRING_LOOP_GB1);
   w_trig.trackStop(S_FIRE_LOOP_GUN);
   w_trig.trackStop(S_FIRE_LOOP_IMPACT);
   w_trig.trackStop(S_SLIME_START);
@@ -2680,6 +2842,15 @@ void wandStopFiringSounds() {
   w_trig.trackStop(S_MESON_START);
   w_trig.trackStop(S_MESON_LOOP);
   w_trig.trackStop(S_MESON_END);
+
+  if(b_firing_cross_streams == true) {
+    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+
+    b_firing_cross_streams = false;
+  }
+
+  b_sound_firing_intensify_trigger = false;
+  b_sound_firing_alt_trigger = false;
 }
 
 void packAlarm() {
@@ -2710,9 +2881,19 @@ void packAlarm() {
   }
 
   if(b_overheating != true) {
-    w_trig.trackGain(S_PACK_BEEPING, i_volume);
-    w_trig.trackPlayPoly(S_PACK_BEEPING, true);
-    w_trig.trackLoop(S_PACK_BEEPING, 1);
+    switch(i_mode_year) {
+      case 1984:
+        w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume);
+        w_trig.trackPlayPoly(S_PACK_RIBBON_ALARM_1, true);
+        w_trig.trackLoop(S_PACK_RIBBON_ALARM_1, 1);
+      break;
+
+      default:
+        w_trig.trackGain(S_PACK_BEEPING, i_volume);
+        w_trig.trackPlayPoly(S_PACK_BEEPING, true);
+        w_trig.trackLoop(S_PACK_BEEPING, 1);
+      break;
+    }
   }
 }
 
@@ -2810,13 +2991,28 @@ void cyclotronSwitchPlateLEDs() {
 }
 
 void vibrationPack(int i_level) {
-  if(b_vibration == true) {
-    if(i_level != i_vibration_level_prev) {
-      i_vibration_level_prev = i_level;
-      analogWrite(vibration, i_level);
+  if(b_vibration == true && b_vibration_enabled == true) {
+    if(b_vibration_firing == true) {
+      if(b_wand_firing == true) {
+        if(i_level != i_vibration_level_prev) {
+          i_vibration_level_prev = i_level;
+          analogWrite(vibration, i_level);
+        }
+      }
+      else {
+        i_vibration_level_prev = 0;
+        analogWrite(vibration, 0);
+      }
+    }
+    else {
+      if(i_level != i_vibration_level_prev) {
+        i_vibration_level_prev = i_level;
+        analogWrite(vibration, i_level);
+      }
     }
   }
   else {
+    i_vibration_level_prev = 0;
     analogWrite(vibration, 0);
   }
 }
@@ -2948,7 +3144,7 @@ void checkRotaryEncoder() {
 /*
  * Smoke # 1. I put this one in my n-filter cone outlet.
  */
-void smokeControl(boolean b_smoke_on) {  
+void smokeControl(bool b_smoke_on) {  
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_smoke_1_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
@@ -2972,7 +3168,7 @@ void smokeControl(boolean b_smoke_on) {
 /* 
  *  Smoke # 2. I put this one in my booster tube.
  */
-void smokeBooster(boolean b_smoke_on) {
+void smokeBooster(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
@@ -2995,7 +3191,7 @@ void smokeBooster(boolean b_smoke_on) {
  * Fan control. You can use this to switch on any device when properly hooked up with a transistor etc
  * A fan is a good idea for the n-filter for example.
  */
-void fanControl(boolean b_fan_on) {
+void fanControl(bool b_fan_on) {
   if(b_smoke_enabled == true) {
     if(b_fan_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_fan_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
@@ -3066,7 +3262,7 @@ void wandHandShake() {
       wandStoppedFiring();
       cyclotronSpeedRevert();
     }
-
+    
     if(ms_wand_handshake.justFinished()) {
       // Ask the wand if it is connected.
       Serial2.write(11);
@@ -3088,6 +3284,8 @@ void checkWand() {
       switch(rx_byte) {
         case 1:
           // The wand has been turned on.
+          b_wand_on = true;
+
           // Turn the pack on.
           if(PACK_STATUS != MODE_ON) {
             PACK_ACTION_STATUS = ACTION_ACTIVATE;
@@ -3096,6 +3294,8 @@ void checkWand() {
     
         case 2:
           // The wand has been turned off.
+          b_wand_on = false;
+
           // Turn the pack off.
           if(PACK_STATUS != MODE_OFF) {
             PACK_ACTION_STATUS = ACTION_OFF;
@@ -3119,7 +3319,7 @@ void checkWand() {
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
           
-          if(PACK_STATUS == MODE_ON) {
+          if(PACK_STATUS == MODE_ON && b_wand_on == true) {
             w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
             w_trig.trackPlayPoly(S_FIRE_START_SPARK);
           }
@@ -3131,7 +3331,7 @@ void checkWand() {
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
           
-          if(PACK_STATUS == MODE_ON) {
+          if(PACK_STATUS == MODE_ON && b_wand_on == true) {
             w_trig.trackGain(S_PACK_SLIME_OPEN, i_volume);
             w_trig.trackPlayPoly(S_PACK_SLIME_OPEN);
           }
@@ -3143,7 +3343,7 @@ void checkWand() {
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
           
-          if(PACK_STATUS == MODE_ON) {
+          if(PACK_STATUS == MODE_ON && b_wand_on == true) {
             w_trig.trackGain(S_STASIS_OPEN, i_volume);
             w_trig.trackPlayPoly(S_STASIS_OPEN);
           }
@@ -3155,7 +3355,7 @@ void checkWand() {
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
           
-          if(PACK_STATUS == MODE_ON) {
+          if(PACK_STATUS == MODE_ON && b_wand_on == true) {
             w_trig.trackGain(S_MESON_OPEN, i_volume);
             w_trig.trackPlayPoly(S_MESON_OPEN);
           }
@@ -3307,6 +3507,263 @@ void checkWand() {
             }
           }
         break;        
+
+        case 21:
+          // Wand firing in intensify mode.
+          b_firing_intensify = true;
+
+          if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
+            b_sound_firing_intensify_trigger = true;
+            w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
+            w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+          }
+        break;
+
+        case 22:
+          // Wand no longer firing in intensify mode.
+          b_firing_intensify = false;
+          b_sound_firing_intensify_trigger = false;
+
+          w_trig.trackStop(S_FIRE_LOOP_GUN);
+        break;
+
+        case 23:
+          // Wand firing in alt mode.
+          b_firing_alt = true;
+
+          if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
+            b_sound_firing_alt_trigger = true;
+            w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+            w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+          }
+        break;
+
+        case 24:
+          // Wand no longer firing in alt mode.
+          b_firing_alt = false;
+          b_sound_firing_alt_trigger = false;
+
+          w_trig.trackStop(S_FIRING_LOOP_GB1);
+        break;
+
+        case 25:
+          // Wand is crossing the streams.
+          b_firing_cross_streams = true;
+          w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+          w_trig.trackPlayPoly(S_FIRE_START_SPARK);
+          w_trig.trackPlayPoly(S_FIRE_LOOP, true);
+          w_trig.trackLoop(S_FIRE_LOOP, 1);
+        break;
+
+        case 26:
+          // The wand is no longer crossing the streams.
+          b_firing_cross_streams = false;
+          w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+          w_trig.trackStop(S_FIRE_LOOP);
+        break;
+
+        case 27:
+          // Toggle between the year modes.
+          w_trig.trackStop(S_BEEPS_BARGRAPH);    
+          w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
+          w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
+
+          switch(i_mode_year_tmp) {
+            case 1984:
+              if(b_gb2_mode != true) {
+                b_gb2_mode = true;
+                i_mode_year_tmp = 1984;
+
+                w_trig.trackStop(S_VOICE_2021);    
+                w_trig.trackStop(S_VOICE_1984); 
+                w_trig.trackStop(S_VOICE_1989);
+                w_trig.trackGain(S_VOICE_1989, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_1989);
+
+                // Tell the wand to play the 1989 sound effect.
+                Serial2.write(19);
+              }
+              else {
+                i_mode_year_tmp = 2021;
+
+                w_trig.trackStop(S_VOICE_2021);    
+                w_trig.trackStop(S_VOICE_1984);
+                w_trig.trackStop(S_VOICE_1989);
+                w_trig.trackGain(S_VOICE_2021, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_2021);
+
+                // Tell the wand to play the 2021 sound effect.
+                Serial2.write(18);
+              }
+            break;
+
+            case 2021:
+              b_gb2_mode = false;
+              i_mode_year_tmp = 1984;
+
+              w_trig.trackStop(S_VOICE_2021);    
+              w_trig.trackStop(S_VOICE_1984); 
+              w_trig.trackStop(S_VOICE_1989);
+              w_trig.trackGain(S_VOICE_1984, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_1984);
+              
+              // Tell the wand to play the 1984 sound effect.
+              Serial2.write(20);
+            break;
+          }
+
+          // Turn on the year mode override flag. This resets when you flip the mode year toggle switch on the pack.
+          b_switch_mode_override = true;
+        break;
+
+        case 28:
+          // Revert back to Proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
+          FIRING_MODE = PROTON;
+
+          w_trig.trackStop(S_CLICK);    
+          w_trig.trackGain(S_CLICK, i_volume);
+          w_trig.trackPlayPoly(S_CLICK);
+
+          w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
+          w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);    
+          w_trig.trackGain(S_VOICE_CROSS_THE_STREAMS, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS);          
+        break;
+
+        case 29:
+          // Vibration disabled.
+          w_trig.trackStop(S_BEEPS_ALT);    
+          w_trig.trackGain(S_BEEPS_ALT, i_volume);
+          w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+          w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+          w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+          w_trig.trackGain(S_VOICE_VIBRATION_DISABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);
+
+          b_vibration = false;
+        break;
+
+        case 30:
+          // Vibration enabled.
+          w_trig.trackStop(S_BEEPS_ALT);    
+          w_trig.trackGain(S_BEEPS_ALT, i_volume);
+          w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+          w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+          w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+          w_trig.trackGain(S_VOICE_VIBRATION_ENABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_VIBRATION_ENABLED);
+
+          b_vibration = true;
+        break;
+
+        case 31:
+          // Vibration during firing only disabled.
+          w_trig.trackStop(S_BEEPS_ALT);    
+          w_trig.trackGain(S_BEEPS_ALT, i_volume);
+          w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+          w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
+          w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
+          w_trig.trackGain(S_VOICE_VIBRATION_FIRING_DISABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_DISABLED);
+
+          b_vibration_firing = false;
+        break;
+
+        case 32:
+          // Vibration during firing only enabled.
+          w_trig.trackStop(S_BEEPS_ALT);    
+          w_trig.trackGain(S_BEEPS_ALT, i_volume);
+          w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+          w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
+          w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
+          w_trig.trackGain(S_VOICE_VIBRATION_FIRING_ENABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_ENABLED);
+
+          b_vibration_firing = true;
+        break;
+
+        case 33:
+          if(b_smoke_enabled == true) {
+            b_smoke_enabled = false;
+
+            w_trig.trackStop(S_VENT_DRY);
+            w_trig.trackGain(S_VENT_DRY, i_volume);
+            w_trig.trackPlayPoly(S_VENT_DRY);
+
+            w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
+            w_trig.trackStop(S_VOICE_SMOKE_ENABLED);    
+            w_trig.trackGain(S_VOICE_SMOKE_DISABLED, i_volume);
+            w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
+
+            // Tell the wand to play the smoke disabled voice.
+            Serial2.write(21);
+          }
+          else {
+            b_smoke_enabled = true;
+
+            w_trig.trackStop(S_VENT_SMOKE);
+            w_trig.trackGain(S_VENT_SMOKE, i_volume);
+            w_trig.trackPlayPoly(S_VENT_SMOKE);
+
+            w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
+            w_trig.trackStop(S_VOICE_SMOKE_DISABLED);    
+            w_trig.trackGain(S_VOICE_SMOKE_ENABLED, i_volume);
+            w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);
+
+            // Tell the wand to play the smoke enabled voice.
+            Serial2.write(22);
+          }
+        break;
+
+        case 34:
+          // Revert back to Proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
+          FIRING_MODE = PROTON;
+
+          w_trig.trackStop(S_CLICK);    
+          w_trig.trackGain(S_CLICK, i_volume);
+          w_trig.trackPlayPoly(S_CLICK);
+
+          w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);    
+          w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
+          w_trig.trackGain(S_VOICE_VIDEO_GAME_MODES, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_MODES);          
+        break;
+
+        case 35:
+          // Toggle the cyclotron direction.
+          if(b_clockwise == true) {
+            b_clockwise = false;
+
+            w_trig.trackStop(S_BEEPS_ALT);    
+            w_trig.trackGain(S_BEEPS_ALT, i_volume);
+            w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+            w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+            w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+            w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
+            w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);     
+
+            Serial2.write(23);
+          }
+          else {
+            b_clockwise = true;
+
+            w_trig.trackStop(S_BEEPS);
+            w_trig.trackGain(S_BEEPS, i_volume);
+            w_trig.trackPlayPoly(S_BEEPS);
+
+            w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+            w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+            w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
+            w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);
+
+            Serial2.write(24);
+          }
+        break;
 
         case 89:
           // Lower music volume.
@@ -3469,6 +3926,14 @@ void checkWand() {
           Serial2.write(6);
         }
 
+        // Vibration while firing option.
+        if(b_vibration_firing == true) {
+          Serial2.write(16);
+        }
+        else {
+          Serial2.write(17);
+        }
+
         // Ribbon cable alarm.
         if(b_alarm == true) {
           Serial2.write(3);
@@ -3524,7 +3989,7 @@ void setupWavTrigger() {
   w_trig.getVersion(w_trig_version, VERSION_STRING_LEN);
 
   // Build the music track count.
-  i_music_count = w_num_tracks - S_CROSS_STREAMS_START;
+  i_music_count = w_num_tracks - i_last_effects_track;
   
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 100_

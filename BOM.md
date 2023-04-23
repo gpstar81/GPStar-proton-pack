@@ -43,6 +43,8 @@ Note that just about everything can be sourced at [Mouser](https://www.mouser.co
 |-----|------|-----|------|
 | 1   | Arduino Nano | REQUIRED - I used a 3 pack of clone ones from Elegoo, cheaper and have no headers. | [https://amzn.eu/d/25FUZeS ](https://amzn.eu/d/25FUZeS)<br/>[https://a.co/d/hLWMKby](https://a.co/d/hLWMKby) |
 | 1   | ¼ Size Proto PCB board | RECOMMENDED - I use one from Adafruit. Can be any other PCB as you see fit. | [https://www.adafruit.com/product/1608](https://www.adafruit.com/product/1608)<br/>[Gold Plated PCB Solderable Breadboards](https://a.co/d/8E5rik4) |
+| 1   | Barmeter 28 Segment Bargraph | OPTIONAL - It is possible to replace the Hasbro 5 LED bargraph with a Barmeter 28 Segment Bargraph. <br><br>Please note the part number: ***BL28Z-3005SA04Y*** | [https://www.aliexpress.us/item/3256803648954593.html](https://www.aliexpress.us/item/3256803648954593.html) |
+| 1   | Adafruit 16x8 LED Matrix Driver Backpack - HT16K33 Breakout | OPTIONAL - If you intend to replace the stock Hasbro bargraph with a Barmeter 28 Segment Bargraph, you will require this. | [https://www.adafruit.com/product/1427](https://www.adafruit.com/product/1427) |
 | 2   | 2.9 x 9.5mm screw | OPTIONAL - Used to hold the adafruit ¼ pcb onto the 3d printed bracket, and the key lock for the nano bracket. |
 | 1   | M3 x 25 allen screw | OPTIONAL - Used to hold the entire bracket setup and wav trigger onto the screw hole in the wand. |
 | 5   | 3mm LED Diodes | OPTIONAL - If you have problems with your Hasbro bargraph LEDs, they are just standard 3mm LED diodes. | [https://www.amazon.com/Chanzon-100pcs-colors-Emitting-Assorted/dp/B01AUI4W5U](https://www.amazon.com/Chanzon-100pcs-colors-Emitting-Assorted/dp/B01AUI4W5U)

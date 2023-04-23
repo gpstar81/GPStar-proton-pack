@@ -34,6 +34,7 @@ IMPORTANT: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are
 #include <millisDelay.h> 
 #include <FastLED.h>
 #include <ezButton.h>
+#include <ht16k33.h>
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
@@ -98,28 +99,56 @@ const int VOLUME_EFFECTS_MULTIPLIER = 5;
  * If you use the output pins directly on the wav trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */
-const boolean b_onboard_amp_enabled = true;
+const bool b_onboard_amp_enabled = true;
+
+/*
+ * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
+ * Pressing this button together at the same time as the Intensify button does a cross the streams firing.
+ * The video game firing modes will be disabled when you enable this. 
+ * Access to the wand system menu settings to control volume and music will only be able to be reached when the wand is powered down.
+*/
+bool b_cross_the_streams = false;
+
+/*
+ * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
+ * Set to false if you are using the sock Hasbro bargraph.
+ * Part #: BL28Z-3005SA04Y
+*/
+const bool b_bargraph_alt = false;
+
+/*
+ * Enable or disable vibration control for the Neutrona wand.
+ * Vibration is toggled on and off by a toggle switch in the Proton Pack.
+ * When set to false, there will be no vibration enabled for the Neutrona wand, and it will ignore the toggle switch settings from the Proton Pack.
+*/
+const bool b_vibration_enabled = true;
+
+/*
+ * When set to true, when vibration is enabled from the Proton Pack side, the Neutrona wand will only vibrate during firing.
+ * Setting b_vibration_enabled to false will override this.
+*/
+bool b_vibration_firing = false;
 
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
  * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
  */
-boolean b_no_pack = false;
+const bool b_no_pack = false;
 
 /*
  * Which power modes do you want to be able to overheat.
  * Set to true to allow the wand and pack to overheat in that mode.
  * Set to false to disable overheating in that power mode. You will be able to continously fire instead.
  */
-const boolean b_overheat_mode_1 = false;
-const boolean b_overheat_mode_2 = false;
-const boolean b_overheat_mode_3 = false;
-const boolean b_overheat_mode_4 = false;
-const boolean b_overheat_mode_5 = true;
+const bool b_overheat_mode_1 = false;
+const bool b_overheat_mode_2 = false;
+const bool b_overheat_mode_3 = false;
+const bool b_overheat_mode_4 = false;
+const bool b_overheat_mode_5 = true;
 
 /*
  * Time in milliseconds for when overheating will initiate if enabled for that power mode.
- * Overheat only happens if enabled for that power mode (see below).
+ * Overheat only happens if enabled for that power mode (see above).
  * Example: 12000 = (12 seconds)
  */
 const unsigned long int i_ms_overheat_initiate_mode_1 = 60000;
@@ -135,7 +164,7 @@ const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
  * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
  * The wand will respond a bit slower as it is streaming serial data back. For debugging the analog switch readings only.
  */
-boolean b_debug = false;
+const bool b_debug = false;
 
 /*
  * -------------****** DO NOT CHANGE ANYTHING BELOW THIS LINE ******-------------
@@ -144,8 +173,8 @@ boolean b_debug = false;
  /* 
  *  SD Card sound files in order. If you have no sound, your SD card might be too slow. 
  *  Try a faster one. File naming 000_ is important as well. For music, it is 100_ and higher.
- *  Also note if you add more sounds to this list, you need to update the wavtrigger setup function to let it know the last
- *  sound effect file. The wav trigger uses this to determine how many music tracks there are if any.
+ *  Also note if you add more sounds to this list, you need to update the i_last_effects_track variable.
+ *  The wav trigger uses this to determine how many music tracks there are if any.
  */
 enum sound_fx {
   S_EMPTY, 
@@ -222,13 +251,28 @@ enum sound_fx {
   S_FIRING_END_MID,
   S_FIRING_LOOP_GB1,
   S_CROSS_STREAMS_END,
-  S_CROSS_STREAMS_START
+  S_CROSS_STREAMS_START,
+  S_PACK_RIBBON_ALARM_1,
+  S_PACK_RIBBON_ALARM_2,
+  S_VOICE_1984,
+  S_VOICE_1989,
+  S_VOICE_2021,
+  S_VOICE_VIBRATION_ENABLED,
+  S_VOICE_VIBRATION_DISABLED,
+  S_VOICE_VIBRATION_FIRING_ENABLED,
+  S_VOICE_VIBRATION_FIRING_DISABLED,
+  S_VOICE_SMOKE_ENABLED,
+  S_VOICE_SMOKE_DISABLED,
+  S_VOICE_CYCLOTRON_CLOCKWISE,
+  S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE,
+  S_VOICE_CROSS_THE_STREAMS,
+  S_VOICE_VIDEO_GAME_MODES
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const int i_last_effects_track = S_CROSS_STREAMS_START;
+const int i_last_effects_track = S_VOICE_VIDEO_GAME_MODES;
 
 /* 
  * Wand state. 
@@ -290,7 +334,7 @@ static uint16_t store = 0;
 const uint8_t vibration = 11;
 int i_vibration_level = 55;
 int i_vibration_level_prev = 0;
-boolean b_vibration_on = false;
+bool b_vibration_on = false;
 
 /* 
  *  Various Switches on the wand.
@@ -339,16 +383,37 @@ const int d_white_light_interval = 150;
 millisDelay ms_overheat_initiate;
 millisDelay ms_overheating;
 const int i_ms_overheating = 6500; // Overheating for 6.5 seconds.
-const boolean b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
+const bool b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
 const long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_mode_1, i_ms_overheat_initiate_mode_2, i_ms_overheat_initiate_mode_3, i_ms_overheat_initiate_mode_4, i_ms_overheat_initiate_mode_5 };
 
 /* 
- *  Bargraph timers
+ *  Stock Hasbro Bargraph timers
  */
 millisDelay ms_bargraph;
 millisDelay ms_bargraph_firing;
 const int d_bargraph_ramp_interval = 120;
-int i_bargraph_status = 0;
+unsigned int i_bargraph_status = 0;
+
+/*
+ * (Optional) Barmeter 28 segment bargraph configuration and timers.
+ * Part #: BL28Z-3005SA04Y
+*/
+HT16K33 ht_bargraph;
+const int i_bargraph_interval = 4;
+const int i_bargraph_wait = 180;
+millisDelay ms_bargraph_alt;
+bool b_bargraph_up = false;
+unsigned int i_bargraph_status_alt = 0;
+const int d_bargraph_ramp_interval_alt = 40;
+const int i_bargraph_multiplier_ramp_1984 = 3;
+const int i_bargraph_multiplier_ramp_2021 = 10;
+int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+
+/*
+ * (Optional) Barmeter 28 segment bargraph mapping.
+ * Part #: BL28Z-3005SA04Y
+*/
+const uint8_t i_bargraph[28] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 
 /* 
  *  A timer for controlling the wand beep. in 2021 mode.
@@ -387,7 +452,7 @@ const int i_fire_stop_sound_delay = 100; // Delay for stopping fire sounds.
 const int i_power_mode_max = 5;
 const int i_power_mode_min = 1;
 int i_power_mode = 1;
-int i_power_mode_prev = 1; // Not used.
+int i_power_mode_prev = 1;
 
 /* 
  *  Wand / Pack communication
@@ -397,10 +462,10 @@ int rx_byte = 0;
 /*
  * Some pack flags which get transmitted to the wand depending on the pack status.
  */
-boolean b_pack_on = false;
-boolean b_pack_alarm = false;
-boolean b_wait_for_pack = true;
-boolean b_volume_sync_wait = false;
+bool b_pack_on = false;
+bool b_pack_alarm = false;
+bool b_wait_for_pack = true;
+bool b_volume_sync_wait = false;
 int i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the cyclotron lights.
 
 /*
@@ -413,9 +478,10 @@ enum VOLUME_SYNC VOLUME_SYNC_WAIT;
  *  Wand menu & music
  */
 int i_wand_menu = 5;
+bool b_wand_menu_sub = false;
 const int i_settings_blinking_delay = 350;
-boolean b_playing_music = false;
-boolean b_repeat_track = false;
+bool b_playing_music = false;
+bool b_repeat_track = false;
 const int i_music_check_delay = 2000;
 const int i_music_next_track_delay = 2000;
 millisDelay ms_settings_blinking;
@@ -434,9 +500,16 @@ enum FIRING_MODES PREV_FIRING_MODE;
  * Misc wand settings and flags.
  */
 int year_mode = 2021;
-boolean b_firing = false;
-boolean b_sound_idle = false;
-boolean b_beeping = false;
+bool b_firing = false;
+bool b_firing_intensify = false;
+bool b_firing_alt = false;
+bool b_firing_cross_streams = false;
+bool b_sound_firing_intensify_trigger = false;
+bool b_sound_firing_alt_trigger = false;
+bool b_sound_firing_cross_the_streams = false;
+
+bool b_sound_idle = false;
+bool b_beeping = false;
 
 void setup() {
   Serial.begin(9600);
@@ -458,11 +531,21 @@ void setup() {
   pinMode(r_encoderA, INPUT_PULLUP);
   pinMode(r_encoderB, INPUT_PULLUP);
   
-  pinMode(led_bargraph_1, OUTPUT);
-  pinMode(led_bargraph_2, OUTPUT);
-  pinMode(led_bargraph_3, OUTPUT);
-  pinMode(led_bargraph_4, OUTPUT);
-  pinMode(led_bargraph_5, OUTPUT);
+  bargraphYearModeUpdate();
+
+  // Setup the bargraph.
+  if(b_bargraph_alt == true) {
+    // 28 Segment optional bargraph.
+    ht_bargraph.begin(0x00);
+  }
+  else {
+    // Original Hasbro bargraph.
+    pinMode(led_bargraph_1, OUTPUT);
+    pinMode(led_bargraph_2, OUTPUT);
+    pinMode(led_bargraph_3, OUTPUT);
+    pinMode(led_bargraph_4, OUTPUT);
+    pinMode(led_bargraph_5, OUTPUT);
+  }
   
   pinMode(led_slo_blo, OUTPUT);
   pinMode(led_vent, OUTPUT);
@@ -493,7 +576,7 @@ void setup() {
   if(b_no_pack == true || b_debug == true) {
     b_wait_for_pack = false;
     b_pack_on = true;
-  }  
+  }
 }
 
 void loop() { 
@@ -503,7 +586,7 @@ void loop() {
       Serial.write(14);
     }
 
-    // Synchronise some settings with the pack until.
+    // Synchronise some settings with the pack.
     checkPack();
     
     delay(200);
@@ -588,7 +671,6 @@ void mainLoop() {
         
         WAND_ACTION_STATUS = ACTION_IDLE;
 
-        //w_trig.trackStop(S_VENT_BEEP);
         w_trig.trackStop(S_CLICK);
         w_trig.trackStop(S_VENT_DRY);
         
@@ -605,176 +687,371 @@ void mainLoop() {
       settingsBlinkingLights();
       
       switch(i_wand_menu) {
+        /*
+         * Top menu: Music track loop setting.
+         * Sub menu: Enable or disable crossing the streams / video game modes.
+        */
         case 5:
-        // Track loop setting.
-        if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-          ms_intensify_timer.start(i_intensify_delay / 2);
-          
-          if(b_repeat_track == false) {
-            // Loop the track.
-            b_repeat_track = true;
-            w_trig.trackLoop(i_current_music_track, 1);
+        // Music track loop setting.
+        if(b_wand_menu_sub != true) {
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+            
+            if(b_repeat_track == false) {
+              // Loop the track.
+              b_repeat_track = true;
+              w_trig.trackLoop(i_current_music_track, 1);
+            }
+            else {
+              b_repeat_track = false;
+              w_trig.trackLoop(i_current_music_track, 0);
+            }
+            
+            // Tell pack to loop the music track.
+            Serial.write(93);
           }
-          else {
-            b_repeat_track = false;
-            w_trig.trackLoop(i_current_music_track, 0);
+        }
+        else {
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            // Enable or disable crossing the streams / video game modes.
+            if(b_cross_the_streams == true) {
+              // Turn off crossing the streams mode and switch back to video game mode.
+              b_cross_the_streams = false;
+              w_trig.trackStop(S_CLICK);    
+              w_trig.trackGain(S_CLICK, i_volume);
+              w_trig.trackPlayPoly(S_CLICK);
+
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
+              w_trig.trackGain(S_VOICE_VIDEO_GAME_MODES, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_MODES);
+
+              // Tell the proton pack to reset back to the proton stream.
+              Serial.write(34);
+            }
+            else {
+              // Turn on crossing the streams mode and turn off video game mode.
+              b_cross_the_streams = true;
+
+              w_trig.trackStop(S_CLICK);    
+              w_trig.trackGain(S_CLICK, i_volume);
+              w_trig.trackPlayPoly(S_CLICK);
+
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);    
+              w_trig.trackGain(S_VOICE_CROSS_THE_STREAMS, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS);
+
+              // Tell the proton pack to reset back to the proton stream.
+              Serial.write(28);
+            }
+
+            // Reset the previous firing mode to the proton stream.
+            PREV_FIRING_MODE = PROTON;
           }
-          
-          // Tell pack to loop the music track.
-          Serial.write(93);
         }
         break;
 
-        // Pack / Wand sound effects volume.
+        /*
+         * Top menu: Adjust the Proton Pack / Neutrona wand sound effects volume.
+         * Sub menu: Enable or disable smoke for the Proton Pack.
+        */
         case 4:
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay);
-            
-            increaseVolumeEffects();
-            
-            // Tell pack to increase the sound effects volume.
-            Serial.write(92);
-          }
-
-          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
-            decreaseVolumeEffects();
-            
-            // Tell pack to lower the sound effects volume.
-            Serial.write(91);
-            
-            ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
-          }
-        
-        break;
-
-        // Pack / Wand music volume.
-        case 3:
-          if(b_playing_music == true) {
+          // Adjust the Proton Pack / Neutrona wand sound effects volume.
+          if(b_wand_menu_sub != true) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
               
-              if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
-                i_volume_music_percentage = 100;
-              }
-              else {
-                i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
-              }
-
-              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-              w_trig.trackGain(i_current_music_track, i_volume_music);
+              increaseVolumeEffects();
               
-              // Tell pack to increase music volume by 2.
-              Serial.write(90);
+              // Tell pack to increase the sound effects volume.
+              Serial.write(92);
             }
-  
-            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {              
-              if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
-                i_volume_music_percentage = 0;
-              }
-              else {
-                i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
-              }
 
-              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-              w_trig.trackGain(i_current_music_track, i_volume_music);
+            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+              decreaseVolumeEffects();
               
-              // Tell pack to lower music volume.
-              Serial.write(89);
+              // Tell pack to lower the sound effects volume.
+              Serial.write(91);
               
               ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
-            }  
+            }
+          }
+          else {
+            // Enable or disable smoke for the Proton Pack.
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+
+              // Tell the Proton Pack to toggle the smoke on or off.
+              Serial.write(33);
+            }
           }
         break;
 
-        // Change music tracks.
-        case 2:          
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay);
-            
-            if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-              if(b_playing_music == true) {               
-                // Go to the first track to play it.
-                stopMusic();
-                i_current_music_track = i_music_track_start;
-                playMusic();
-              }
-              else {
-                i_current_music_track = i_music_track_start;
-              }
-            }
-            else {
-              // Stop the old track and play the new track if music is currently playing.
-              if(b_playing_music == true) {
-                stopMusic();
-                i_current_music_track++;                
-                playMusic();
-              }
-              else {
-                i_current_music_track++;
-              }
-            }
-          
-            // Tell the pack which music track to change to.
-            Serial.write(i_current_music_track);
-          }
-
-          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {            
-            if(i_current_music_track - 1 < i_music_track_start) {
-              if(b_playing_music == true) {
-                // Go to the last track to play it.
-                stopMusic();
-                i_current_music_track = i_music_track_start + (i_music_count -1);
-                playMusic();
-              }
-              else {
-                i_current_music_track = i_music_track_start + (i_music_count -1);
-              }
-            }
-            else {
-              // Stop the old track and play the new track if music is currently playing.
-              if(b_playing_music == true) {
-                stopMusic();
-                i_current_music_track--;
-                playMusic();
-              }
-              else {
-                i_current_music_track--;
-              }
-            }
-          
-            // Tell the pack which music track to change to.
-            Serial.write(i_current_music_track);
-            
-            ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
-          }          
-        break;
-
-        // Play music or stop music.
-        case 1:          
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay);
-
+        /*
+         * Top menu: Adjust Proton Pack / Neutrona wand music volume.
+         * Sub menu: Enable or disable vibration for firing events only.
+        */
+        case 3:
+          // Adjust Proton Pack / Neutrona wand music volume..
+          if(b_wand_menu_sub != true) {
             if(b_playing_music == true) {
-              // Stop music
-              b_playing_music = false;
-
-              // Tell the pack to stop music.
-              Serial.write(98);
-              
-              stopMusic();             
-            }
-            else {
-              if(i_music_count > 0 && i_current_music_track > 99) {
-                // Start music.
-                b_playing_music = true;
-
-                // Tell the pack to play music.
-                Serial.write(99);
+              if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+                ms_intensify_timer.start(i_intensify_delay);
                 
-                playMusic();
+                if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
+                  i_volume_music_percentage = 100;
+                }
+                else {
+                  i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
+                }
+
+                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+                w_trig.trackGain(i_current_music_track, i_volume_music);
+                
+                // Tell pack to increase music volume.
+                Serial.write(90);
               }
+    
+              if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {              
+                if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
+                  i_volume_music_percentage = 0;
+                }
+                else {
+                  i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
+                }
+
+                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+                w_trig.trackGain(i_current_music_track, i_volume_music);
+                
+                // Tell pack to lower music volume.
+                Serial.write(89);
+                
+                ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+              }  
+            }
+          }
+          else {
+            // Enable or disable vibration for firing events only.
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+
+              w_trig.trackStop(S_BEEPS_ALT);    
+              w_trig.trackGain(S_BEEPS_ALT, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+              // Enable or disable vibration
+              if(b_vibration_firing == true) {
+                b_vibration_firing = false;
+
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_FIRING_DISABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_DISABLED);
+
+                // Tell the proton pack to disable vibration during firing only option.
+                Serial.write(31);
+              }
+              else {
+                b_vibration_firing = true;
+
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_FIRING_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_ENABLED);
+
+                // Tell the Proton pack to enable vibration during firing only.
+                Serial.write(32);
+
+                analogWrite(vibration, 150);
+                delay(250);
+                analogWrite(vibration,0);
+              }
+            }
+          }
+        break;
+
+        /*
+         * Top menu: Change music tracks.
+         * Sub menu: Enable or disable vibration (Proton Pack and Neutrona wand)
+        */
+        case 2:       
+          // Change music tracks.
+          if(b_wand_menu_sub != true) {             
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+              
+              if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+                if(b_playing_music == true) {               
+                  // Go to the first track to play it.
+                  stopMusic();
+                  i_current_music_track = i_music_track_start;
+                  playMusic();
+                }
+                else {
+                  i_current_music_track = i_music_track_start;
+                }
+              }
+              else {
+                // Stop the old track and play the new track if music is currently playing.
+                if(b_playing_music == true) {
+                  stopMusic();
+                  i_current_music_track++;                
+                  playMusic();
+                }
+                else {
+                  i_current_music_track++;
+                }
+              }
+            
+              // Tell the pack which music track to change to.
+              Serial.write(i_current_music_track);
+            }
+
+            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {            
+              if(i_current_music_track - 1 < i_music_track_start) {
+                if(b_playing_music == true) {
+                  // Go to the last track to play it.
+                  stopMusic();
+                  i_current_music_track = i_music_track_start + (i_music_count -1);
+                  playMusic();
+                }
+                else {
+                  i_current_music_track = i_music_track_start + (i_music_count -1);
+                }
+              }
+              else {
+                // Stop the old track and play the new track if music is currently playing.
+                if(b_playing_music == true) {
+                  stopMusic();
+                  i_current_music_track--;
+                  playMusic();
+                }
+                else {
+                  i_current_music_track--;
+                }
+              }
+            
+              // Tell the pack which music track to change to.
+              Serial.write(i_current_music_track);
+              
+              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+            }   
+          }
+          else {
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+
+              w_trig.trackStop(S_BEEPS_ALT);    
+              w_trig.trackGain(S_BEEPS_ALT, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+              // Enable or disable vibration
+              if(b_vibration_on == true) {
+                b_vibration_on = false;
+
+                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_DISABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);
+
+                // Tell the proton pack to disable vibration.
+                Serial.write(29);
+              }
+              else {
+                b_vibration_on = true;
+
+                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_ENABLED);
+
+                // Tell the Proton pack to enable vibration.
+                Serial.write(30);
+
+                analogWrite(vibration, 150);
+                delay(250);
+                analogWrite(vibration,0);
+              }
+            }
+          }  
+        break;
+
+        /*
+         * Top menu: Play music or stop music.
+         * Sub menu: (Intensify) -> Switch between 1984/1989/2021 mode.
+         * Sub menu: (Mode switch) -> Toggle cyclotron rotation direction.
+        */
+        case 1:
+          // Play or stop the current music track.
+          if(b_wand_menu_sub != true) {          
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+
+              if(b_playing_music == true) {
+                // Stop music
+                b_playing_music = false;
+
+                // Tell the pack to stop music.
+                Serial.write(98);
+                
+                stopMusic();             
+              }
+              else {
+                if(i_music_count > 0 && i_current_music_track > 99) {
+                  // Start music.
+                  b_playing_music = true;
+
+                  // Tell the pack to play music.
+                  Serial.write(99);
+                  
+                  playMusic();
+                }
+              }
+            }
+          }
+          else {
+            // Switch between 1984/1989/2021 mode.
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay);
+              
+              // Tell the Proton Pack to cycle through year modes.
+              Serial.write(27);
+
+              w_trig.trackStop(S_BEEPS_BARGRAPH);    
+              w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
+
+              // There is no pack connected, lets change the years.
+              if(b_no_pack == true) {
+                if(year_mode == 1984) {
+                  year_mode = 2021;
+                  w_trig.trackStop(S_VOICE_2021);    
+                  w_trig.trackStop(S_VOICE_1984);    
+                  w_trig.trackGain(S_VOICE_2021, i_volume);
+                  w_trig.trackPlayPoly(S_VOICE_2021);
+
+                }
+                else if(year_mode == 2021) {
+                  year_mode = 1984;
+
+                  w_trig.trackStop(S_VOICE_2021);    
+                  w_trig.trackStop(S_VOICE_1984);    
+                  w_trig.trackGain(S_VOICE_1984, i_volume);
+                  w_trig.trackPlayPoly(S_VOICE_1984);
+                }
+              }
+            }
+
+             if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) { 
+              // Tell the Proton Pack to change the cyclotron rotation direction.
+              Serial.write(35);
+
+              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
             }
           }
         break;
@@ -783,11 +1060,11 @@ void mainLoop() {
   }
   
   switch(WAND_STATUS) {
-    case MODE_OFF:           
+    case MODE_OFF:      
       if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {        
-        w_trig.trackPlayPoly(S_CLICK);
-          
         if(FIRING_MODE != SETTINGS) {
+          w_trig.trackPlayPoly(S_CLICK);
+
           PREV_FIRING_MODE = FIRING_MODE;
           FIRING_MODE = SETTINGS;
           
@@ -799,10 +1076,11 @@ void mainLoop() {
           Serial.write(9);
         }
         else {
-          // Only exit the settings menu when on menu #5.
-          if(i_wand_menu == 5) {
+          // Only exit the settings menu when on menu #5 in the top menu.
+          if(i_wand_menu == 5 && b_wand_menu_sub != true) {
             FIRING_MODE = PREV_FIRING_MODE;
-  
+            w_trig.trackPlayPoly(S_CLICK);
+
             switch(PREV_FIRING_MODE) {
               case MESON:
                 // Tell the pack we are in meson mode.
@@ -856,11 +1134,12 @@ void mainLoop() {
         }
       }
 
-      // Ramp the bargraph up and set it to led 1 for default power level setting on a fresh start.
+      // Ramp the bargraph up ramp down back to the default power level setting on a fresh start.
       if(ms_bargraph.justFinished()) {
         bargraphRampUp();
       }
       else if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        // Bargraph idling loop.
         bargraphPowerCheck();
       }
 
@@ -952,65 +1231,152 @@ void playMusic() {
   w_trig.update();
 }
 
-void settingsBlinkingLights() {
+void settingsBlinkingLights() {  
   if(ms_settings_blinking.justFinished()) {
      ms_settings_blinking.start(i_settings_blinking_delay);
   }
 
   if(ms_settings_blinking.remaining() < i_settings_blinking_delay / 2) {
-    digitalWrite(led_bargraph_1, HIGH);
-    digitalWrite(led_bargraph_2, HIGH);
-    digitalWrite(led_bargraph_3, HIGH);
-    digitalWrite(led_bargraph_4, HIGH);
-
-    // Indicator for looping track setting.
-    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-      digitalWrite(led_bargraph_5, LOW);
+    if(b_bargraph_alt == true) {
+      for(int i = 0; i < 24; i++) {
+        ht_bargraph.clearLedNow(i_bargraph[i]);
+      }
     }
     else {
-      digitalWrite(led_bargraph_5, HIGH);
+      digitalWrite(led_bargraph_1, HIGH);
+      digitalWrite(led_bargraph_2, HIGH);
+      digitalWrite(led_bargraph_3, HIGH);
+      digitalWrite(led_bargraph_4, HIGH);
+    }
+
+    bool b_solid_five = false;
+
+    // Indicator for looping track setting.
+    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_wand_menu_sub != true) {
+      b_solid_five = true;
+    }
+
+    // Indicator for crossing the streams setting.
+    if(b_cross_the_streams == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_wand_menu_sub == true) {
+      b_solid_five = true;
+    }
+
+    if(b_solid_five == true) {
+      if(b_bargraph_alt == true) {
+        for(int i = 24; i < 28; i++) {
+          ht_bargraph.clearLedNow(i_bargraph[i]);
+        }
+      }
+      else {
+        digitalWrite(led_bargraph_5, LOW);
+      }
+    }
+    else {
+      if(b_bargraph_alt == true) {
+        for(int i = 24; i < 28; i++) {
+          ht_bargraph.setLedNow(i_bargraph[i]);
+        }
+      }
+      else {
+        digitalWrite(led_bargraph_5, HIGH);
+      }
     }
   }
   else {
     switch(i_wand_menu) {
       case 5:
+        if(b_bargraph_alt == true) {
+          for(int i = 0; i < 28; i++) {
+            ht_bargraph.setLedNow(i_bargraph[i]);
+          }
+        }
+        else {
           digitalWrite(led_bargraph_1, LOW);
           digitalWrite(led_bargraph_2, LOW);
           digitalWrite(led_bargraph_3, LOW);
           digitalWrite(led_bargraph_4, LOW);
           digitalWrite(led_bargraph_5, LOW);
+        }
       break;
 
       case 4:
+        if(b_bargraph_alt == true) {
+          for(int i = 0; i < 28; i++) {
+            if(i < 24) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+            }
+            else {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+            }
+          }
+        }
+        else {
           digitalWrite(led_bargraph_1, LOW);
           digitalWrite(led_bargraph_2, LOW);
           digitalWrite(led_bargraph_3, LOW);
           digitalWrite(led_bargraph_4, LOW);
           digitalWrite(led_bargraph_5, HIGH);
+        }
       break;
 
       case 3:
+        if(b_bargraph_alt == true) {
+          for(int i = 0; i < 28; i++) {
+            if(i < 18) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+            }
+            else {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+            }
+          }
+        }
+        else {      
           digitalWrite(led_bargraph_1, LOW);
           digitalWrite(led_bargraph_2, LOW);
           digitalWrite(led_bargraph_3, LOW);
           digitalWrite(led_bargraph_4, HIGH);
           digitalWrite(led_bargraph_5, HIGH);
+        }
       break;
 
       case 2:
+        if(b_bargraph_alt == true) {
+          for(int i = 0; i < 28; i++) {
+            if(i < 12) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+            }
+            else {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+            }
+          }
+        }
+        else {   
           digitalWrite(led_bargraph_1, LOW);
           digitalWrite(led_bargraph_2, LOW);
           digitalWrite(led_bargraph_3, HIGH);
           digitalWrite(led_bargraph_4, HIGH);
           digitalWrite(led_bargraph_5, HIGH);
+        }
       break;
 
       case 1:
+        if(b_bargraph_alt == true) {
+          for(int i = 0; i < 28; i++) {
+            if(i < 6) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+            }
+            else {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+            }
+          }
+        }
+        else {  
           digitalWrite(led_bargraph_1, LOW);
           digitalWrite(led_bargraph_2, HIGH);
           digitalWrite(led_bargraph_3, HIGH);
           digitalWrite(led_bargraph_4, HIGH);
           digitalWrite(led_bargraph_5, HIGH);
+        }
       break;
     }
   }
@@ -1043,8 +1409,9 @@ void checkSwitches() {
     break;
 
     case MODE_ON:
-      if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {          
+      // This is for when the mode switch is enabled for video game mode. b_cross_the_streams must not be true.
+      if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true) {
+        if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {     
           // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
           if(i_wand_menu == 5) {
             // Cycle through the firing modes and setting menu.
@@ -1140,12 +1507,42 @@ void checkSwitches() {
       }
       
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_firing == false && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {          
-          WAND_ACTION_STATUS = ACTION_FIRING;
+        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {          
+          if(WAND_ACTION_STATUS != ACTION_FIRING) {
+            WAND_ACTION_STATUS = ACTION_FIRING;
+          }
+        
+          b_firing_intensify = true;
         }
-      
-        if(switch_intensify.getState() == HIGH && b_firing == true) {
-          WAND_ACTION_STATUS = ACTION_IDLE;
+
+        // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
+        if(b_cross_the_streams == true) {
+          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished() && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {
+            if(WAND_ACTION_STATUS != ACTION_FIRING) {
+              WAND_ACTION_STATUS = ACTION_FIRING;
+            }
+
+            b_firing_alt = true;
+
+            ms_switch_mode_debounce.start(a_switch_debounce_time);
+          }
+          else if(analogRead(switch_mode) < i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+            if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+              WAND_ACTION_STATUS = ACTION_IDLE;
+            }
+
+            b_firing_alt = false;
+
+            ms_switch_mode_debounce.start(a_switch_debounce_time);
+          }
+        }
+
+        if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
+          if(b_firing_alt != true) {
+            WAND_ACTION_STATUS = ACTION_IDLE;
+          }
+          
+          b_firing_intensify = false;
         }
       
         if(switch_activate.getState() == HIGH) {
@@ -1208,6 +1605,7 @@ void wandOff() {
   
   // Turn off some timers.
   ms_bargraph.stop();
+  ms_bargraph_alt.stop();
   ms_bargraph_firing.stop();
   ms_overheat_initiate.stop();
   ms_overheating.stop();
@@ -1216,6 +1614,16 @@ void wandOff() {
   // Turn off remaining lights.
   wandLightsOff();
   barrelLightsOff();
+
+  switch(year_mode) {
+    case 2021:
+      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+    break;
+
+    case 1984:
+      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+    break;
+  }
 }
 
 void modeActivate() {
@@ -1226,6 +1634,16 @@ void modeActivate() {
   WAND_ACTION_STATUS = ACTION_IDLE;
   
   // Ramp up the bargraph.
+  switch(year_mode) {
+    case 2021:
+      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+    break;
+
+    case 1984:
+      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+    break;
+  }
+
   bargraphRampUp();
   
   // Turn on slo-blo light.
@@ -1250,7 +1668,7 @@ void modeActivate() {
   }
 }
 
-void soundIdleLoop(boolean fade) {      
+void soundIdleLoop(bool fade) {      
   switch(i_power_mode) {
     case 1:
       if(fade == true) {
@@ -1490,8 +1908,26 @@ void modeFireStartSounds() {
   
   switch(FIRING_MODE) {
     case PROTON:
-        w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
-        w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+        if(b_firing_intensify == true) {
+          // Reset some sound triggers.
+          b_sound_firing_intensify_trigger = true;
+          w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
+          w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+        }
+        else {
+          b_sound_firing_intensify_trigger = false;
+        }
+
+        if(b_firing_alt == true) {
+          // Reset some sound triggers.
+          b_sound_firing_alt_trigger = true;
+
+          w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+          w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);          
+        }
+        else {
+          b_sound_firing_alt_trigger = false;
+        }
 
         w_trig.trackPlayPoly(S_FIRE_START);        
     break;
@@ -1524,14 +1960,33 @@ void modeFireStartSounds() {
 }
 
 void modeFireStart() {
+  // Reset some sound triggers.
+  b_sound_firing_intensify_trigger = true;
+  b_sound_firing_alt_trigger = true;
+  b_sound_firing_cross_the_streams = false;
+  b_firing_cross_streams = false;
+
   if(ms_intensify_timer.isRunning() != true) {
     ms_intensify_timer.start(i_intensify_delay);
   }
   
+  // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode.
+  if(b_firing_intensify == true) {
+    Serial.write(21);
+  }
+
+  // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
+  if(b_firing_alt == true) {
+    Serial.write(23);
+  }
+
   // Stop all firing sounds first.
   switch(FIRING_MODE) {
     case PROTON:
+      w_trig.trackStop(S_FIRE_LOOP);
       w_trig.trackStop(S_FIRE_LOOP_GUN);
+      w_trig.trackStop(S_FIRING_LOOP_GB1);
+
       w_trig.trackStop(S_FIRE_START);
       w_trig.trackStop(S_FIRE_START_SPARK);
       w_trig.trackStop(S_FIRING_END_GUN);
@@ -1568,9 +2023,22 @@ void modeFireStart() {
 
   ms_overheat_initiate.stop();
 
-  // If in high power mode on the wand, start a overheat timer.
-  if(b_overheat_mode[i_power_mode - 1] == true) {
-    ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+  bool b_overheat_flag = true;
+
+  if(b_cross_the_streams == true && b_firing_alt != true) {
+    b_overheat_flag = false;
+  }
+
+  if(b_overheat_flag == true) {
+    // If in high power mode on the wand, start a overheat timer.
+    if(b_overheat_mode[i_power_mode - 1] == true) {
+      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+    }
+    else if(b_cross_the_streams == true) {
+      if(b_firing_alt == true) {
+        ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+      }
+    }
   }
   
   barrelLightsOff();
@@ -1580,14 +2048,21 @@ void modeFireStart() {
 
   // Stop any bargraph ramps.
   ms_bargraph.stop();
-
+  ms_bargraph_alt.stop();
+  b_bargraph_up = false;
   i_bargraph_status = 1;
+  i_bargraph_status_alt = 0;
   bargraphRampFiring();
 
   ms_impact.start(random(10,15) * 1000);
 }
 
 void modeFireStopSounds() {
+  // Reset some sound triggers.
+  b_sound_firing_intensify_trigger = false;
+  b_sound_firing_alt_trigger = false;
+  b_sound_firing_cross_the_streams = false;
+
   ms_firing_stop_sound_delay.stop();
 
  switch(FIRING_MODE) {
@@ -1611,6 +2086,12 @@ void modeFireStopSounds() {
       // Nothing.
     break;
   }
+
+  if(b_firing_cross_streams == true) {
+    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+
+    b_firing_cross_streams = false;
+  }
 }
 
 void modeFireStop() {
@@ -1622,9 +2103,26 @@ void modeFireStop() {
   WAND_ACTION_STATUS = ACTION_IDLE;
   
   b_firing = false;
+  b_firing_intensify = false;
+  b_firing_alt = false;
 
   ms_bargraph_firing.stop();
+  ms_bargraph_alt.stop(); // Stop the 1984 24 segment optional bargraph timer just in case.
+  b_bargraph_up = false;
+
   i_bargraph_status = i_power_mode - 1;
+  i_bargraph_status_alt = 0;
+  bargraphClearAlt();
+
+  switch(year_mode) {
+    case 2021:
+      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+    break;
+
+    case 1984:
+      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 / 2;
+    break;
+  }
   bargraphRampUp();
   
   ms_firing_stream_blue.stop();
@@ -1637,7 +2135,9 @@ void modeFireStop() {
   // Stop all other firing sounds.
   switch(FIRING_MODE) {
     case PROTON:
+      w_trig.trackStop(S_FIRE_LOOP);
       w_trig.trackStop(S_FIRE_LOOP_GUN);
+      w_trig.trackStop(S_FIRING_LOOP_GB1);
       w_trig.trackStop(S_FIRING_END_GUN);
       w_trig.trackStop(S_FIRE_START);
       w_trig.trackStop(S_FIRE_START_SPARK);
@@ -1672,6 +2172,92 @@ void modeFireStop() {
 }
 
 void modeFiring() {
+  // Sound trigger flags.
+  if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
+    // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode.
+    Serial.write(21);
+
+    b_sound_firing_intensify_trigger = true;
+    w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
+    w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+  }
+
+  if(b_firing_intensify != true && b_sound_firing_intensify_trigger == true) {
+    // Tell the Proton Pack that the Neutrona wand is no longer firing in Intensify mode.
+    Serial.write(22);
+
+    b_sound_firing_intensify_trigger = false;
+    w_trig.trackStop(S_FIRE_LOOP_GUN);
+  }
+
+  if(b_firing_alt == true && b_sound_firing_alt_trigger != true) {
+    // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
+    Serial.write(23);
+
+    b_sound_firing_alt_trigger = true;
+    w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+    w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+  }
+
+  if(b_firing_alt != true && b_sound_firing_alt_trigger == true) {
+    // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
+    Serial.write(24);
+
+    b_sound_firing_alt_trigger = false;
+    w_trig.trackStop(S_FIRING_LOOP_GB1);
+  }
+
+  if(b_firing_alt == true && b_firing_intensify == true && b_sound_firing_cross_the_streams != true && b_firing_cross_streams != true) {
+    // Tell the Proton Pack that the Neutrona wand is crossing the streams.
+    Serial.write(25);
+
+    b_firing_cross_streams = true;
+    b_sound_firing_cross_the_streams = true;
+    w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+    w_trig.trackPlayPoly(S_FIRE_START_SPARK);
+    w_trig.trackPlayPoly(S_FIRE_LOOP, true);
+    w_trig.trackLoop(S_FIRE_LOOP, 1);
+  }
+
+  if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true) {
+    // Tell the Proton Pack that the Neutrona wand is no longer crossing the streams.
+    Serial.write(26);
+
+    b_firing_cross_streams = false;
+    b_sound_firing_cross_the_streams = false;
+    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+    w_trig.trackStop(S_FIRE_LOOP);
+  }
+
+  // Overheat timers.
+  bool b_overheat_flag = true;
+  
+  if(b_cross_the_streams == true && b_firing_alt != true) {
+    b_overheat_flag = false;
+  }
+
+  if(b_overheat_flag == true) {
+    // If the user changes the wand power output while firing, turn off the overheat timer.
+    if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {
+      ms_overheat_initiate.stop();
+      
+      // Tell the pack to revert back to regular cyclotron speeds.
+      Serial.write(12);
+    }
+    else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0) {
+      // If the user changes back to power mode that overheats while firing, start up a timer.
+      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+    }
+  }
+  else {
+    if(ms_overheat_initiate.isRunning()) {
+      ms_overheat_initiate.stop();
+      
+      // Tell the pack to revert back to regular cyclotron speeds.
+      Serial.write(12);
+    }
+  }
+
   /*
    * CRGB 
    * R = green
@@ -1683,19 +2269,6 @@ void modeFiring() {
    * orange = 40, 255, 0
    * dark orange = 20, 255, 0
    */
-
-   // If the user changes the wand power output while firing, turn off the overheat timer.
-  if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {
-    ms_overheat_initiate.stop();
-    
-    // Tell the pack to revert back to regular cyclotron speeds.
-    Serial.write(12);
-  }
-  else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0) {
-    // If the user changes back to power mode that overheats while firing, start up a timer.
-    ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
-  }
-  
   switch(FIRING_MODE) {     
     case PROTON:
       // Make the stream more slightly more red on higher power modes.
@@ -1875,33 +2448,36 @@ void fireStream(int r, int g, int b) {
     if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {      
       switch(FIRING_MODE) {
         case PROTON:
-          barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+          if(b_firing_cross_streams == true) {
+            barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
+          }
+          else {
+            // Make the stream more slightly more red on higher power modes.
+            switch(i_power_mode) {
+              case 1:
+                barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+              break;
 
-          // Make the stream more slightly more red on higher power modes.
-          switch(i_power_mode) {
-            case 1:
-              barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
-            break;
+              case 2:
+                barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
+              break;
 
-            case 2:
-              barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
-            break;
+              case 3:
+                barrel_leds[i_barrel_light - 1] = CRGB(30, 255, 0);
+              break;
 
-            case 3:
-              barrel_leds[i_barrel_light - 1] = CRGB(30, 255, 0);
-            break;
+              case 4:
+                barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
+              break;
 
-            case 4:
-              barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
-            break;
+              case 5:
+                barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+              break;
 
-            case 5:
-              barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
-            break;
-
-            default:
-              barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
-            break;
+              default:
+                barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+              break;
+            }
           }
         break;
 
@@ -1990,10 +2566,25 @@ void fireStreamEnd(int r, int g, int b) {
 }
 
 void vibrationWand(int i_level) {
-  if(b_vibration_on == true) {
-    if(i_level != i_vibration_level_prev) {
-      i_vibration_level_prev = i_level;
-      analogWrite(vibration, i_level);
+  if(b_vibration_on == true && b_vibration_enabled == true) {
+    // Only vibrate the wand during firing only when enabled. (When enabled by the pack)
+    if(b_vibration_firing == true) {
+      if(WAND_ACTION_STATUS == ACTION_FIRING) {
+        if(i_level != i_vibration_level_prev) {
+          i_vibration_level_prev = i_level;
+          analogWrite(vibration, i_level);
+        }
+      }
+      else {
+        analogWrite(vibration, 0);
+      }
+    }
+    else {
+      // Wand vibrates, even when idling, etc. (When enabled by the pack)
+      if(i_level != i_vibration_level_prev) {
+        i_vibration_level_prev = i_level;
+        analogWrite(vibration, i_level);
+      }
     }
   }
   else {
@@ -2002,92 +2593,407 @@ void vibrationWand(int i_level) {
 }
 
 void bargraphRampFiring() {
-  switch(i_bargraph_status) {
-    case 1:
-      vibrationWand(i_vibration_level + 110);
-             
-      digitalWrite(led_bargraph_1, LOW);
-      digitalWrite(led_bargraph_2, HIGH);
-      digitalWrite(led_bargraph_3, HIGH);
-      digitalWrite(led_bargraph_4, HIGH);
-      digitalWrite(led_bargraph_5, LOW);
-      i_bargraph_status++;
-    break;
+  // (Optional) 28 Segment barmeter bargraph.
+  if(b_bargraph_alt == true) {    
+    // Start ramping up and down from the middle to the top/bottom and back to the middle again.
+    switch(i_bargraph_status_alt) {
+      case 0:
+        vibrationWand(i_vibration_level + 110);
 
-    case 2:
-      vibrationWand(i_vibration_level + 112);  
-      
-      digitalWrite(led_bargraph_1, HIGH);
-      digitalWrite(led_bargraph_2, LOW);
-      digitalWrite(led_bargraph_3, HIGH);
-      digitalWrite(led_bargraph_4, LOW);
-      digitalWrite(led_bargraph_5, HIGH);
-      i_bargraph_status++;
-    break;
+        ht_bargraph.setLedNow(i_bargraph[13]);
+        ht_bargraph.setLedNow(i_bargraph[14]);
 
-    case 3:
-      vibrationWand(i_vibration_level + 115);
-      
-      digitalWrite(led_bargraph_1, HIGH);
-      digitalWrite(led_bargraph_2, HIGH);
-      digitalWrite(led_bargraph_3, LOW);
-      digitalWrite(led_bargraph_4, HIGH);
-      digitalWrite(led_bargraph_5, HIGH);
-      i_bargraph_status++;
-    break;
+        i_bargraph_status_alt++;
 
-    case 4:
-      vibrationWand(i_vibration_level + 112);
+        if(b_bargraph_up == false) {
+          ht_bargraph.clearLedNow(i_bargraph[12]);
+          ht_bargraph.clearLedNow(i_bargraph[15]);
+        }
 
-      digitalWrite(led_bargraph_1, HIGH);
-      digitalWrite(led_bargraph_2, LOW);
-      digitalWrite(led_bargraph_3, HIGH);
-      digitalWrite(led_bargraph_4, LOW);
-      digitalWrite(led_bargraph_5, HIGH);
-      i_bargraph_status++;
-    break;
+        b_bargraph_up = true;
+      break;
 
-    case 5:
-      vibrationWand(i_vibration_level + 110);
-      
-      digitalWrite(led_bargraph_1, LOW);
-      digitalWrite(led_bargraph_2, HIGH);
-      digitalWrite(led_bargraph_3, HIGH);
-      digitalWrite(led_bargraph_4, HIGH);
-      digitalWrite(led_bargraph_5, LOW);
-      i_bargraph_status = 1;
-    break;
+      case 1:
+        vibrationWand(i_vibration_level + 110);
+
+        ht_bargraph.setLedNow(i_bargraph[12]);
+        ht_bargraph.setLedNow(i_bargraph[15]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[13]);
+          ht_bargraph.clearLedNow(i_bargraph[14]);
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[11]);
+          ht_bargraph.clearLedNow(i_bargraph[16]);
+
+          i_bargraph_status_alt--;
+        }
+      break;
+
+      case 2:
+        vibrationWand(i_vibration_level + 110);
+
+        ht_bargraph.setLedNow(i_bargraph[11]);
+        ht_bargraph.setLedNow(i_bargraph[16]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[12]);
+          ht_bargraph.clearLedNow(i_bargraph[15]);
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[10]);
+          ht_bargraph.clearLedNow(i_bargraph[17]);
+
+          i_bargraph_status_alt--;
+        }
+      break;
+
+      case 3:
+        vibrationWand(i_vibration_level + 110);
+
+        ht_bargraph.setLedNow(i_bargraph[10]);
+        ht_bargraph.setLedNow(i_bargraph[17]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[11]);
+          ht_bargraph.clearLedNow(i_bargraph[16]);
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[9]);
+          ht_bargraph.clearLedNow(i_bargraph[18]);
+
+          i_bargraph_status_alt--;
+        }
+      break;
+
+      case 4:
+        vibrationWand(i_vibration_level + 110);
+
+        ht_bargraph.setLedNow(i_bargraph[9]);
+        ht_bargraph.setLedNow(i_bargraph[18]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[10]);
+          ht_bargraph.clearLedNow(i_bargraph[17]);
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[8]);
+          ht_bargraph.clearLedNow(i_bargraph[19]);
+          
+          i_bargraph_status_alt--;
+        }
+      break;
+
+      case 5:
+        vibrationWand(i_vibration_level + 110);
+
+        ht_bargraph.setLedNow(i_bargraph[8]);
+        ht_bargraph.setLedNow(i_bargraph[19]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[9]);
+          ht_bargraph.clearLedNow(i_bargraph[18]);
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[7]);
+          ht_bargraph.clearLedNow(i_bargraph[20]);
+
+          i_bargraph_status_alt--;
+        }
+      break;
+
+      case 6:
+        vibrationWand(i_vibration_level + 112);
+
+        ht_bargraph.setLedNow(i_bargraph[7]);
+        ht_bargraph.setLedNow(i_bargraph[20]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[8]);
+          ht_bargraph.clearLedNow(i_bargraph[19]);
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[6]);
+          ht_bargraph.clearLedNow(i_bargraph[21]);
+
+          i_bargraph_status_alt--;
+        }
+      break;
+
+      case 7:
+        vibrationWand(i_vibration_level + 112);
+
+        ht_bargraph.setLedNow(i_bargraph[6]);
+        ht_bargraph.setLedNow(i_bargraph[21]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[7]);
+          ht_bargraph.clearLedNow(i_bargraph[20]);
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[5]);
+          ht_bargraph.clearLedNow(i_bargraph[22]);
+
+          i_bargraph_status_alt--;
+        }
+      break;
+
+      case 8:
+        vibrationWand(i_vibration_level + 112);
+
+        ht_bargraph.setLedNow(i_bargraph[5]);
+        ht_bargraph.setLedNow(i_bargraph[22]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[6]);
+          ht_bargraph.clearLedNow(i_bargraph[21]); 
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[4]);
+          ht_bargraph.clearLedNow(i_bargraph[23]);
+
+          i_bargraph_status_alt--;
+        }
+      break;
+
+      case 9:
+        vibrationWand(i_vibration_level + 112);
+
+        ht_bargraph.setLedNow(i_bargraph[4]);
+        ht_bargraph.setLedNow(i_bargraph[23]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[5]);
+          ht_bargraph.clearLedNow(i_bargraph[22]); 
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[3]);
+          ht_bargraph.clearLedNow(i_bargraph[24]);
+
+          i_bargraph_status_alt--;
+        }
+      break;            
+
+      case 10:
+        vibrationWand(i_vibration_level + 112);
+
+        ht_bargraph.setLedNow(i_bargraph[3]);
+        ht_bargraph.setLedNow(i_bargraph[24]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[4]);
+          ht_bargraph.clearLedNow(i_bargraph[23]); 
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[2]);
+          ht_bargraph.clearLedNow(i_bargraph[25]);
+
+          i_bargraph_status_alt--;
+        }
+      break;
+
+      case 11:
+        vibrationWand(i_vibration_level + 115);
+
+        ht_bargraph.setLedNow(i_bargraph[2]);
+        ht_bargraph.setLedNow(i_bargraph[25]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[3]);
+          ht_bargraph.clearLedNow(i_bargraph[24]);
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[1]);
+          ht_bargraph.clearLedNow(i_bargraph[26]);
+
+          i_bargraph_status_alt--;
+        }
+      break;      
+
+      case 12:
+        vibrationWand(i_vibration_level + 115);
+
+        ht_bargraph.setLedNow(i_bargraph[1]);
+        ht_bargraph.setLedNow(i_bargraph[26]);
+
+        if(b_bargraph_up == true) {
+          ht_bargraph.clearLedNow(i_bargraph[2]);
+          ht_bargraph.clearLedNow(i_bargraph[25]);
+
+          i_bargraph_status_alt++;
+        }
+        else {
+          ht_bargraph.clearLedNow(i_bargraph[0]);
+          ht_bargraph.clearLedNow(i_bargraph[27]);
+
+          i_bargraph_status_alt--;
+        }
+      break;
+
+      case 13:
+        vibrationWand(i_vibration_level + 115);
+
+        ht_bargraph.setLedNow(i_bargraph[0]);
+        ht_bargraph.setLedNow(i_bargraph[27]);
+
+        ht_bargraph.clearLedNow(i_bargraph[1]);
+        ht_bargraph.clearLedNow(i_bargraph[26]);
+
+        i_bargraph_status_alt--;
+
+        b_bargraph_up = false;
+      break;    
+    }
+  }
+  else {
+    // Hasbro bargraph.
+    switch(i_bargraph_status) {
+      case 1:
+        vibrationWand(i_vibration_level + 110);
+              
+        digitalWrite(led_bargraph_1, LOW);
+        digitalWrite(led_bargraph_2, HIGH);
+        digitalWrite(led_bargraph_3, HIGH);
+        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(led_bargraph_5, LOW);
+        i_bargraph_status++;
+      break;
+
+      case 2:
+        vibrationWand(i_vibration_level + 112);  
+        
+        digitalWrite(led_bargraph_1, HIGH);
+        digitalWrite(led_bargraph_2, LOW);
+        digitalWrite(led_bargraph_3, HIGH);
+        digitalWrite(led_bargraph_4, LOW);
+        digitalWrite(led_bargraph_5, HIGH);
+        i_bargraph_status++;
+      break;
+
+      case 3:
+        vibrationWand(i_vibration_level + 115);
+        
+        digitalWrite(led_bargraph_1, HIGH);
+        digitalWrite(led_bargraph_2, HIGH);
+        digitalWrite(led_bargraph_3, LOW);
+        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(led_bargraph_5, HIGH);
+        i_bargraph_status++;
+      break;
+
+      case 4:
+        vibrationWand(i_vibration_level + 112);
+
+        digitalWrite(led_bargraph_1, HIGH);
+        digitalWrite(led_bargraph_2, LOW);
+        digitalWrite(led_bargraph_3, HIGH);
+        digitalWrite(led_bargraph_4, LOW);
+        digitalWrite(led_bargraph_5, HIGH);
+        i_bargraph_status++;
+      break;
+
+      case 5:
+        vibrationWand(i_vibration_level + 110);
+        
+        digitalWrite(led_bargraph_1, LOW);
+        digitalWrite(led_bargraph_2, HIGH);
+        digitalWrite(led_bargraph_3, HIGH);
+        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(led_bargraph_5, LOW);
+        i_bargraph_status = 1;
+      break;
+    }
+  }
+
+  int i_ramp_interval = d_bargraph_ramp_interval;
+
+  if(b_bargraph_alt == true) {
+    // Switch to a different ramp speed if using the (Optional) 28 segment barmeter bargraph.
+    i_ramp_interval = d_bargraph_ramp_interval_alt;
   }
 
   // If in power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
-  if(b_overheat_mode[i_power_mode - 1] == true) {
+  if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning()) {
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
-      ms_bargraph_firing.start(d_bargraph_ramp_interval / 5);
+      if(b_bargraph_alt == true) {
+        ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
+      }
+      else {
+        ms_bargraph_firing.start(i_ramp_interval / 5);
+      }
+      
       cyclotronSpeedUp(6);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 5) {
-      ms_bargraph_firing.start(d_bargraph_ramp_interval / 4);
+      if(b_bargraph_alt == true) {
+        ms_bargraph_firing.start(i_ramp_interval / 9);
+      }
+      else {
+        ms_bargraph_firing.start(i_ramp_interval / 4);
+      }
+
       cyclotronSpeedUp(5);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 4) {
-      ms_bargraph_firing.start(d_bargraph_ramp_interval / 3.5);
+      if(b_bargraph_alt == true) {
+        ms_bargraph_firing.start(i_ramp_interval / 7);
+      }
+      else {
+        ms_bargraph_firing.start(i_ramp_interval / 3.5);
+      }
+
       cyclotronSpeedUp(4);    
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 3) {
-      ms_bargraph_firing.start(d_bargraph_ramp_interval / 3);
+      if(b_bargraph_alt == true) {
+        ms_bargraph_firing.start(i_ramp_interval / 5);
+      }
+      else {      
+        ms_bargraph_firing.start(i_ramp_interval / 3);
+      }
+
       cyclotronSpeedUp(3);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 2) {
-      ms_bargraph_firing.start(d_bargraph_ramp_interval / 2.5);
+      if(b_bargraph_alt == true) {
+        ms_bargraph_firing.start(i_ramp_interval / 3);
+      }
+      else {      
+        ms_bargraph_firing.start(i_ramp_interval / 2.5);
+      }
+
       cyclotronSpeedUp(2);
     }
     else {
-      ms_bargraph_firing.start(d_bargraph_ramp_interval / 2);
+      ms_bargraph_firing.start(i_ramp_interval / 2);
       i_cyclotron_speed_up = 1;
     }
   }
   else {  
-    ms_bargraph_firing.start(d_bargraph_ramp_interval / 2);
+    ms_bargraph_firing.start(i_ramp_interval / 2);
   }
 }
 
@@ -2108,182 +3014,572 @@ void cyclotronSpeedUp(int i_switch) {
   }  
 }
 
+/*
+ * 2021 mode for optional 28 segment bargraph. Checks if we ramp up or down when changing power levels.
+*/
+void bargraphPowerCheck2021Alt() {
+  if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+    if(i_power_mode != i_power_mode_prev) {
+      if(i_power_mode > i_power_mode_prev) {
+        b_bargraph_up = true;
+      }
+      else {
+        b_bargraph_up = false;
+      }
+
+      switch(i_power_mode) {
+        case 5:
+          ms_bargraph_alt.start(i_bargraph_wait / 3);
+        break;
+
+        case 4:
+          ms_bargraph_alt.start(i_bargraph_wait / 4);
+        break;
+
+        case 3:
+          ms_bargraph_alt.start(i_bargraph_wait / 5);
+        break;
+
+        case 2:
+          ms_bargraph_alt.start(i_bargraph_wait / 6);
+        break;
+
+        case 1:
+          ms_bargraph_alt.start(i_bargraph_wait / 7);
+        break;
+      }
+    }
+  }
+}
+
+void bargraphClearAlt() {
+  if(b_bargraph_alt == true) {
+    for(int i = 0; i < 28; i++) {
+      ht_bargraph.clearLedNow(i_bargraph[i]);
+    }
+
+    i_bargraph_status_alt = 0;
+  }
+}
+
 void bargraphPowerCheck() {
-  switch(i_power_mode) {
-    case 1:
-      digitalWrite(led_bargraph_1, LOW);
-      digitalWrite(led_bargraph_2, HIGH);
-      digitalWrite(led_bargraph_3, HIGH);
-      digitalWrite(led_bargraph_4, HIGH);
-      digitalWrite(led_bargraph_5, HIGH);
-    break;
+  // Control for the 28 segment barmeter bargraph.
+  if(b_bargraph_alt == true) {
+    if(ms_bargraph_alt.justFinished()) {
+      int i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
+      
+      if(year_mode == 2021) {
+        for(int i = 0; i <= sizeof(i_bargraph_multiplier); i++) {
+          i_bargraph_multiplier[i] = 10;
+        }
+      }
 
-    case 2:
-      digitalWrite(led_bargraph_1, LOW);
-      digitalWrite(led_bargraph_2, LOW);
-      digitalWrite(led_bargraph_3, HIGH);
-      digitalWrite(led_bargraph_4, HIGH);
-      digitalWrite(led_bargraph_5, HIGH);
-    break;
+      if(b_bargraph_up == true) {     
+        ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
 
-    case 3:
-      digitalWrite(led_bargraph_1, LOW);
-      digitalWrite(led_bargraph_2, LOW);
-      digitalWrite(led_bargraph_3, LOW);
-      digitalWrite(led_bargraph_4, HIGH);
-      digitalWrite(led_bargraph_5, HIGH);
-    break;
+        switch(i_power_mode) {
+          case 5:
+            if(i_bargraph_status_alt > 26) {
+              b_bargraph_up = false;
 
-    case 4:
-      digitalWrite(led_bargraph_1, LOW);
-      digitalWrite(led_bargraph_2, LOW);
-      digitalWrite(led_bargraph_3, LOW);
-      digitalWrite(led_bargraph_4, LOW);
-      digitalWrite(led_bargraph_5, HIGH);
-    break;
+              i_bargraph_status_alt = 27;
 
-    case 5:
-      digitalWrite(led_bargraph_1, LOW);
-      digitalWrite(led_bargraph_2, LOW);
-      digitalWrite(led_bargraph_3, LOW);
-      digitalWrite(led_bargraph_4, LOW);
-      digitalWrite(led_bargraph_5, LOW);
-    break;
+              if(year_mode == 2021) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+               // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+            }
+          break;
+
+          case 4:
+            if(i_bargraph_status_alt > 21) {
+              b_bargraph_up = false;
+
+              if(year_mode == 2021) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+            }
+          break;
+
+          case 3:
+            if(i_bargraph_status_alt > 16) {
+              b_bargraph_up = false;
+              if(year_mode == 2021) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+            }
+          break;
+
+          case 2:
+            if(i_bargraph_status_alt > 10) {
+              b_bargraph_up = false;
+              if(year_mode == 2021) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+            }
+          break;
+
+          case 1:
+            if(i_bargraph_status_alt > 4) {
+              b_bargraph_up = false;
+              if(year_mode == 2021) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+            }
+          break;
+        }
+
+        if(b_bargraph_up == true) {
+          i_bargraph_status_alt++;
+        }
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[i_bargraph_status_alt]);
+
+        if(i_bargraph_status_alt == 0) {
+          i_bargraph_status_alt = 0;
+          b_bargraph_up = true;
+          // A little pause when we reach the bottom.
+          ms_bargraph_alt.start(i_bargraph_wait / 2);
+        }
+        else {
+          i_bargraph_status_alt--;
+
+          switch(i_power_mode) {
+            case 5:
+              if(year_mode == 2021 && i_bargraph_status_alt < 27) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                ms_bargraph_alt.start(i_bargraph_interval * 3);
+              }
+            break;
+
+            case 4:
+              if(year_mode == 2021 && i_bargraph_status_alt < 22) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                ms_bargraph_alt.start(i_bargraph_interval * 4);
+              }
+            break;
+
+            case 3:
+              if(year_mode == 2021 && i_bargraph_status_alt < 17) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                ms_bargraph_alt.start(i_bargraph_interval * 5);
+              }
+            break; 
+
+            case 2:
+              if(year_mode == 2021 && i_bargraph_status_alt < 11) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                ms_bargraph_alt.start(i_bargraph_interval * 6);
+              }
+            break;
+
+            case 1:
+              if(year_mode == 2021 && i_bargraph_status_alt < 5) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                ms_bargraph_alt.start(i_bargraph_interval * 7);
+              }
+            break;
+          }
+        }
+      }
+    }
+  }
+  else {
+    // Stock haslab bargraph control.
+    switch(i_power_mode) {
+      case 1:
+        digitalWrite(led_bargraph_1, LOW);
+        digitalWrite(led_bargraph_2, HIGH);
+        digitalWrite(led_bargraph_3, HIGH);
+        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(led_bargraph_5, HIGH);
+      break;
+
+      case 2:
+        digitalWrite(led_bargraph_1, LOW);
+        digitalWrite(led_bargraph_2, LOW);
+        digitalWrite(led_bargraph_3, HIGH);
+        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(led_bargraph_5, HIGH);
+      break;
+
+      case 3:
+        digitalWrite(led_bargraph_1, LOW);
+        digitalWrite(led_bargraph_2, LOW);
+        digitalWrite(led_bargraph_3, LOW);
+        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(led_bargraph_5, HIGH);
+      break;
+
+      case 4:
+        digitalWrite(led_bargraph_1, LOW);
+        digitalWrite(led_bargraph_2, LOW);
+        digitalWrite(led_bargraph_3, LOW);
+        digitalWrite(led_bargraph_4, LOW);
+        digitalWrite(led_bargraph_5, HIGH);
+      break;
+
+      case 5:
+        digitalWrite(led_bargraph_1, LOW);
+        digitalWrite(led_bargraph_2, LOW);
+        digitalWrite(led_bargraph_3, LOW);
+        digitalWrite(led_bargraph_4, LOW);
+        digitalWrite(led_bargraph_5, LOW);
+      break;
+    }
   }
 }
 
 void bargraphRampUp() { 
-  switch(i_bargraph_status) {
-    case 0:
-      vibrationWand(i_vibration_level + 10);
+  if(b_bargraph_alt == true) {
+    switch(i_bargraph_status_alt) {
+      case 0 ... 27:
+        ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
+
+        if(i_bargraph_status > 22) {
+          vibrationWand(i_vibration_level + 80);
+        }
+        else if(i_bargraph_status > 16) {
+          vibrationWand(i_vibration_level + 40);
+        }
+        else if(i_bargraph_status > 10) {
+          vibrationWand(i_vibration_level + 30);
+        }
+        else if(i_bargraph_status > 4) {
+          vibrationWand(i_vibration_level + 20);
+        }
+        else if(i_bargraph_status > 0) {
+          vibrationWand(i_vibration_level + 10);
+        }
+
+        i_bargraph_status_alt++;
+
+        if(i_bargraph_status_alt == 28) {
+          // A little pause when we reach the top.
+          ms_bargraph.start(i_bargraph_wait / 2);
+        }
+        else {
+          ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+        }
+      break;
+
+      case 28 ... 56:
+        int i_tmp = i_bargraph_status_alt - 27;
+        i_tmp = 28 - i_tmp;
+
+        if((i_power_mode < 5 && year_mode == 2021) || year_mode == 1984) {
+          ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
+        }
+
+        switch(year_mode) {
+          case 1984:
+            // Bargraph has ramped up and down. In 1984 mode we want to start the ramping.
+            if(i_bargraph_status_alt == 54) {
+              ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
+              ms_bargraph.stop();
+              b_bargraph_up = true;
+              i_bargraph_status_alt = 0;
+              bargraphYearModeUpdate();
               
-      digitalWrite(led_bargraph_1, LOW);
-      digitalWrite(led_bargraph_2, HIGH);
-      digitalWrite(led_bargraph_3, HIGH);
-      digitalWrite(led_bargraph_4, HIGH);
-      digitalWrite(led_bargraph_5, HIGH);
-      ms_bargraph.start(d_bargraph_ramp_interval);
-      i_bargraph_status++;
-    break;
+              vibrationWand(i_vibration_level);
+            }
+            else {
+              ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+              i_bargraph_status_alt++;
+            }
+            
+          break;
 
-    case 1:
-      vibrationWand(i_vibration_level + 20);
-      
-      digitalWrite(led_bargraph_2, LOW);
-      digitalWrite(led_bargraph_3, HIGH);
-      digitalWrite(led_bargraph_4, HIGH);
-      digitalWrite(led_bargraph_5, HIGH);
-      ms_bargraph.start(d_bargraph_ramp_interval);
-      i_bargraph_status++;
-    break;
+          case 2021:
+            switch(i_power_mode) {
+              case 5:
+                ms_bargraph.stop();
+                b_bargraph_up = false;
+                i_bargraph_status_alt = 27;
+                bargraphYearModeUpdate();
 
-    case 2:
-      vibrationWand(i_vibration_level + 30);
-           
-      digitalWrite(led_bargraph_3, LOW);
-      digitalWrite(led_bargraph_4, HIGH);
-      digitalWrite(led_bargraph_5, HIGH);
-      ms_bargraph.start(d_bargraph_ramp_interval);
-      i_bargraph_status++;
-    break;
+                vibrationWand(i_vibration_level + 25);
+              break;
 
-    case 3:
-      vibrationWand(i_vibration_level + 40);
-      
-      digitalWrite(led_bargraph_4, LOW);
-      digitalWrite(led_bargraph_5, HIGH);
-      ms_bargraph.start(d_bargraph_ramp_interval);
-      i_bargraph_status++;
-    break;
+              case 4:
+                if(i_bargraph_status_alt == 31) {
+                  ms_bargraph.stop();
+                  b_bargraph_up = false;
+                  i_bargraph_status_alt = 23;
+                  bargraphYearModeUpdate();
 
-    case 4:
-      vibrationWand(i_vibration_level + 80);
-      
-      digitalWrite(led_bargraph_5, LOW);
+                  vibrationWand(i_vibration_level + 30);
+                }
+                else {
+                  ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                  i_bargraph_status_alt++;
 
-      if(i_bargraph_status + 1 == i_power_mode) {
-        ms_bargraph.stop();
-        i_bargraph_status = 0;
-      }
-      else {
+                  vibrationWand(i_vibration_level + 12);
+                }
+              break;
+
+              case 3:
+                if(i_bargraph_status_alt == 37) {
+                  ms_bargraph.stop();
+                  b_bargraph_up = false;
+                  i_bargraph_status_alt = 17;
+                  bargraphYearModeUpdate();
+
+                  vibrationWand(i_vibration_level + 10);
+                }
+                else {
+                  ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                  i_bargraph_status_alt++;
+
+                  vibrationWand(i_vibration_level + 20);
+                }
+              break;
+
+              case 2:
+                if(i_bargraph_status_alt == 43) {
+                  ms_bargraph.stop();
+                  b_bargraph_up = false;
+                  i_bargraph_status_alt = 11;
+                  bargraphYearModeUpdate();
+                  
+                  vibrationWand(i_vibration_level + 5);
+                }
+                else {
+                  ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                  i_bargraph_status_alt++;
+
+                  vibrationWand(i_vibration_level + 10);
+                }
+              break;
+
+              case 1:
+                vibrationWand(i_vibration_level);
+
+                if(i_bargraph_status_alt == 49) {
+                  ms_bargraph.stop();
+                  b_bargraph_up = false;
+                  i_bargraph_status_alt = 5;
+
+                  bargraphYearModeUpdate();
+                }
+                else {
+                  ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                  i_bargraph_status_alt++;
+                }
+              break;
+            }
+          break;
+        }              
+
+      break;
+    }
+  }
+  else {
+    switch(i_bargraph_status) {
+      case 0:
+        vibrationWand(i_vibration_level + 10);
+                
+        digitalWrite(led_bargraph_1, LOW);
+        digitalWrite(led_bargraph_2, HIGH);
+        digitalWrite(led_bargraph_3, HIGH);
+        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(led_bargraph_5, HIGH);
+        ms_bargraph.start(d_bargraph_ramp_interval);
         i_bargraph_status++;
+      break;
+
+      case 1:
+        vibrationWand(i_vibration_level + 20);
+        
+        digitalWrite(led_bargraph_2, LOW);
+        digitalWrite(led_bargraph_3, HIGH);
+        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(led_bargraph_5, HIGH);
         ms_bargraph.start(d_bargraph_ramp_interval);
-      }
-    break;
-    
-    case 5:
-      vibrationWand(i_vibration_level + 40);
-      
-      digitalWrite(led_bargraph_5, HIGH);
-      
-      if(i_bargraph_status - 1 == i_power_mode) {
-        ms_bargraph.stop();
-        i_bargraph_status = 0;
-      }
-      else {
         i_bargraph_status++;
+      break;
+
+      case 2:
+        vibrationWand(i_vibration_level + 30);
+            
+        digitalWrite(led_bargraph_3, LOW);
+        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(led_bargraph_5, HIGH);
         ms_bargraph.start(d_bargraph_ramp_interval);
-      }
-    break;
-    
-    case 6:
-      vibrationWand(i_vibration_level + 30);
-          
-      digitalWrite(led_bargraph_4, HIGH);
-      
-      if(i_bargraph_status - 3 == i_power_mode) {
-        ms_bargraph.stop();
-        i_bargraph_status = 0;
-      }
-      else {
         i_bargraph_status++;
+      break;
+
+      case 3:
+        vibrationWand(i_vibration_level + 40);
+        
+        digitalWrite(led_bargraph_4, LOW);
+        digitalWrite(led_bargraph_5, HIGH);
         ms_bargraph.start(d_bargraph_ramp_interval);
-      }
-    break;
-    
-    case 7:
-      vibrationWand(i_vibration_level + 20);
-          
-      digitalWrite(led_bargraph_3, HIGH);
-      
-      if(i_bargraph_status - 5 == i_power_mode) {
-        ms_bargraph.stop();
-        i_bargraph_status = 0;
-      }
-      else {
         i_bargraph_status++;
-        ms_bargraph.start(d_bargraph_ramp_interval);
-      }
+      break;
+
+      case 4:
+        vibrationWand(i_vibration_level + 80);
+        
+        digitalWrite(led_bargraph_5, LOW);
+
+        if(i_bargraph_status + 1 == i_power_mode) {
+          ms_bargraph.stop();
+          i_bargraph_status = 0;
+        }
+        else {
+          i_bargraph_status++;
+          ms_bargraph.start(d_bargraph_ramp_interval);
+        }
+      break;
+      
+      case 5:
+        vibrationWand(i_vibration_level + 40);
+        
+        digitalWrite(led_bargraph_5, HIGH);
+        
+        if(i_bargraph_status - 1 == i_power_mode) {
+          ms_bargraph.stop();
+          i_bargraph_status = 0;
+        }
+        else {
+          i_bargraph_status++;
+          ms_bargraph.start(d_bargraph_ramp_interval);
+        }
+      break;
+      
+      case 6:
+        vibrationWand(i_vibration_level + 30);
+            
+        digitalWrite(led_bargraph_4, HIGH);
+        
+        if(i_bargraph_status - 3 == i_power_mode) {
+          ms_bargraph.stop();
+          i_bargraph_status = 0;
+        }
+        else {
+          i_bargraph_status++;
+          ms_bargraph.start(d_bargraph_ramp_interval);
+        }
+      break;
+      
+      case 7:
+        vibrationWand(i_vibration_level + 20);
+            
+        digitalWrite(led_bargraph_3, HIGH);
+        
+        if(i_bargraph_status - 5 == i_power_mode) {
+          ms_bargraph.stop();
+          i_bargraph_status = 0;
+        }
+        else {
+          i_bargraph_status++;
+          ms_bargraph.start(d_bargraph_ramp_interval);
+        }
+      break;
+
+      case 8:
+        vibrationWand(i_vibration_level + 10);
+            
+        digitalWrite(led_bargraph_4, HIGH);
+        
+        if(i_bargraph_status - 7 == i_power_mode) {
+          ms_bargraph.stop();
+          i_bargraph_status = 0;
+        }
+        else {
+          ms_bargraph.start(d_bargraph_ramp_interval);
+          i_bargraph_status = 1;
+        }
+    }
+  }
+}
+
+void bargraphYearModeUpdate() {
+  switch(year_mode) {
+    case 2021:
+      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
     break;
 
-    case 8:
-      vibrationWand(i_vibration_level + 10);
-          
-      digitalWrite(led_bargraph_4, HIGH);
-      
-      if(i_bargraph_status - 7 == i_power_mode) {
-        ms_bargraph.stop();
-        i_bargraph_status = 0;
-      }
-      else {
-        ms_bargraph.start(d_bargraph_ramp_interval);
-        i_bargraph_status = 1;
-      }
+    case 1984:
+      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
+    break;
   }
 }
 
 void wandLightsOff() {
-  digitalWrite(led_bargraph_1, HIGH);
-  digitalWrite(led_bargraph_2, HIGH);
-  digitalWrite(led_bargraph_3, HIGH);
-  digitalWrite(led_bargraph_4, HIGH);
-  digitalWrite(led_bargraph_5, HIGH);
+  if(b_bargraph_alt == true) {
+    bargraphClearAlt();
+  }
+  else {
+    digitalWrite(led_bargraph_1, HIGH);
+    digitalWrite(led_bargraph_2, HIGH);
+    digitalWrite(led_bargraph_3, HIGH);
+    digitalWrite(led_bargraph_4, HIGH);
+    digitalWrite(led_bargraph_5, HIGH);
+  }
 
   analogWrite(led_slo_blo, 0);
   digitalWrite(led_vent, HIGH);
   digitalWrite(led_white, HIGH);
 
   i_bargraph_status = 0;
+  i_bargraph_status_alt = 0;
 }
 
 void vibrationOff() {
@@ -2292,7 +3588,7 @@ void vibrationOff() {
 
 void adjustVolumeEffectsGain() {
   /*
-   * Since no addressable LEDs are activate, lets reset the gain on all sound effect tracks.
+   * Reset the gain on all sound effect tracks.
    */
   for(int i=0; i <= i_last_effects_track; i++) {
     w_trig.trackGain(i, i_volume);
@@ -2363,7 +3659,23 @@ void checkRotary() {
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
           if(i_wand_menu - 1 < 1) {
-            i_wand_menu = 1;
+            
+            // We are entering the sub menu. Only accessible when the Neutrona Wand is powered down.
+            if(WAND_STATUS == MODE_OFF) {
+              if(b_wand_menu_sub != true) {
+                b_wand_menu_sub = true;
+                i_wand_menu = 5;
+
+                // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
+                analogWrite(led_slo_blo, 255);
+              }
+              else {
+                i_wand_menu = 1;
+              }
+            }
+            else {
+              i_wand_menu = 1;
+            }
           }
           else {
             i_wand_menu--;
@@ -2373,7 +3685,22 @@ void checkRotary() {
         // Clockwise.
         if(prev_next_code == 0x07) {
           if(i_wand_menu + 1 > 5) {
-            i_wand_menu = 5;
+            // We are leaving the sub menu. Only accessible when the Neutrona Wand is powered down.
+            if(WAND_STATUS == MODE_OFF) {
+              if(b_wand_menu_sub == true) {
+                b_wand_menu_sub = false;
+                i_wand_menu = 1;
+
+                // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
+                analogWrite(led_slo_blo, 0);
+              }
+              else {
+                i_wand_menu = 5;
+              }
+            }
+            else {
+              i_wand_menu = 5;
+            }
           }
           else {
             i_wand_menu++;
@@ -2387,6 +3714,11 @@ void checkRotary() {
           if(i_power_mode - 1 >= i_power_mode_min && WAND_STATUS == MODE_ON) {
             i_power_mode_prev = i_power_mode;
             i_power_mode--;
+
+            if(year_mode == 2021 && b_bargraph_alt == true) {
+              bargraphPowerCheck2021Alt();
+            }
+
             soundBeepLoopStop();
     
             switch(year_mode) {
@@ -2422,7 +3754,6 @@ void checkRotary() {
             // Tell pack to lower music volume.
             Serial.write(96);
           }
-
         }
         
         if(prev_next_code == 0x07) {
@@ -2430,6 +3761,10 @@ void checkRotary() {
             i_power_mode_prev = i_power_mode;
             i_power_mode++;
             
+            if(year_mode == 2021 && b_bargraph_alt == true) {
+              bargraphPowerCheck2021Alt();
+            }
+
             soundBeepLoopStop();
     
             switch(year_mode) {
@@ -2659,11 +3994,13 @@ void checkPack() {
         case 7:
           // 1984 mode.
           year_mode = 1984;
+          bargraphYearModeUpdate();
         break;
   
         case 8:
           // 2021 mode.
           year_mode = 2021;
+          bargraphYearModeUpdate();
         break;
   
         case 9:
@@ -2704,6 +4041,76 @@ void checkPack() {
           VOLUME_SYNC_WAIT = EFFECTS;
         break;
         
+        case 16:
+          // Vibration firing on.
+          b_vibration_firing = true;
+          vibrationOff();
+        break;
+  
+        case 17:
+          // Vibration firing off
+          b_vibration_firing = false;
+        break;
+
+        case 18:
+          // Play 2021 voice.
+          w_trig.trackStop(S_VOICE_2021);  
+          w_trig.trackStop(S_VOICE_1989);
+          w_trig.trackStop(S_VOICE_1984);    
+          w_trig.trackGain(S_VOICE_2021, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_2021);
+        break;
+
+        case 19:
+          // Play 1989 voice.
+          w_trig.trackStop(S_VOICE_2021);  
+          w_trig.trackStop(S_VOICE_1989);
+          w_trig.trackStop(S_VOICE_1984);    
+          w_trig.trackGain(S_VOICE_1989, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_1989);
+        break;
+
+        case 20:
+          // Play 1984 voice.
+          w_trig.trackStop(S_VOICE_2021);  
+          w_trig.trackStop(S_VOICE_1989);
+          w_trig.trackStop(S_VOICE_1984);    
+          w_trig.trackGain(S_VOICE_1984, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_1984);
+        break;
+
+        case 21:
+          // Play smoke disabled voice.
+          w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
+          w_trig.trackStop(S_VOICE_SMOKE_ENABLED);    
+          w_trig.trackGain(S_VOICE_SMOKE_DISABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
+        break;
+
+        case 22:
+          // Play smoke enabled voice.
+          w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
+          w_trig.trackStop(S_VOICE_SMOKE_DISABLED);    
+          w_trig.trackGain(S_VOICE_SMOKE_ENABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);
+        break;
+
+        case 23:
+          // Play cyclotron counter clockwise voice.
+          w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+          w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+          w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);   
+        break;
+
+        case 24:
+          // Play cyclotron clockwise voice.
+          w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+          w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+          w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);   
+        break;
+
         case 99:
           // Stop music
           stopMusic();
@@ -2728,7 +4135,7 @@ void checkPack() {
 }
 
 void setupWavTrigger() {
-    // If the controller is powering the WAV Trigger, we should wait for the WAV trigger to finish reset before trying to send commands.
+  // If the controller is powering the WAV Trigger, we should wait for the WAV trigger to finish reset before trying to send commands.
   delay(1000);
   
   // WAV Trigger's startup at 57600
@@ -2754,7 +4161,7 @@ void setupWavTrigger() {
   w_trig.getVersion(w_trig_version, VERSION_STRING_LEN);
   
   // Build the music track count.
-  i_music_count = w_num_tracks - S_CROSS_STREAMS_START;
+  i_music_count = w_num_tracks - i_last_effects_track;
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 100_
   }

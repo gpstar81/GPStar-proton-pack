@@ -26,12 +26,23 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 - Right-hand toggles affect the vent light and additional sound effects.
 	- Note that for both 2021 and 1984 modes, the wand will not fire unless these switches are turned on.
 	- Additionally, the lever switch near the gunbox must be pulled to extend the barrel before firing.
+
+**Video Game Mode (Default)**
+
 - The orange button at the end of the wand switches between the available firing modes:
 	1. Proton Stream (Default)
 	1. Slime Gun
 	1. Stasis Beam
 	1. Meson Collider
 	1. Special: Setting 5 is a settings menu system (see section below).
+
+**Crossing the Streams / Alternate Firing (Optional)**
+
+- The orange button at the end of the wand acts as a alternate fire mode.
+- The overheat features can only be triggered when enabled by the alternate firing mode.
+- Pressing both the Intensify and orange button at the end of the wand at the same time enables the Crossing the Streams. The Proton Pack and Wand can still overheat if enabled during this mode.
+
+To enable the Crossing the Streams and alternate firing by default, you need to set **bool b&#95;cross&#95;the&#95;streams** to true in the Advanced User Configuration settings at the top of the Neutrona wand code. (see Advanced User Configuration settings below). Otherwise you can toggle between Crossing the Streams and Video Game modes via the Neutrona Wand Sub Menu Settings (see below). **Important: The Neutrona Wand sub menu settings can only be reached while the Neutrona Wand is powered down**
 
 **Toggle Switch Behavior**
 
@@ -58,7 +69,9 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 
 When you are in the settings menu system [Mode 5] all the bargraph leds begin flashing. All other functions of the wand (such as firing) are disabled while in the menu system. There are 5 different menu settings, which are indicated by the bargraph LED's 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED is flashing that means you are on menu 1. **Use the rotary knob on the top of the wand to navigate up and down through the menu system!**
 
-| Menu Level | Purpose | Description |
+**Top Level Menu**
+
+| Top Menu Level | Purpose | Description |
 |------------|---------|-------------|
 | 5 | Music&nbsp;Track&nbsp;Looping | Press **Intensify** to set the current track to loop forever; press again to turn off the loop feature. (Note that the LED #5 will stay solid when this single-track loop is enabled, it will blink on/off when looping is disabled). |
 | 4 | Effects-only&nbsp;Volume | Press **Intensify** to increase volume, press the orange **Mode** switch to decrease volume. |
@@ -66,7 +79,19 @@ When you are in the settings menu system [Mode 5] all the bargraph leds begin fl
 | 2 | Switch&nbsp;Music&nbsp;Track | Press **Intensify** to cycle forward. Press the orange **Mode** switch to cycle backward. |
 | 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music | Press **Intensify** to play music. Press it again to stop the music. |
 
-To exit the menu system, navigate to **Menu 5** and press the orange **Mode** switch button, the wand will now go to the Proton Stream mode (this will be accompanied by an additional audio cue that you've returned to the firing modes). Music will continue to play (and advance/loop) even when the pack and wand are turned off. 
+**Sub Level Menu (Only accessible while the Neutrona Wand is powered down)**
+
+**To access the sub level menu, use the rotary dial on the top of the wand. When you reach the sub level menu, the slo-blo LED will light up to indicate this menu**
+
+| Sub Menu Level | Purpose | Description |
+|------------|---------|-------------|
+| 5 | Cross The Streams / Video Game Mode | Press **Intensify** to enable the cross the streams feature or revert back to video game modes. |
+| 4 | Smoke Settings | Press **Intensify** to enable or disable smoke. |
+| 3 | Vibration Firing Mode | Press **Intensify** to enable vibration during firing only. Press again to disable. |
+| 2 | Vibration | Press **Intensify** to enable vibration or disable |
+| 1 | Year Mode / Cyclotron Rotation Direction | Press **Intensify** cycle through 1984, 1989 or 2021 modes. Press the **Orange Mode Switch** button to change the direction of the cyclotron rotation. |
+
+To exit the menu system, navigate to the top menu in **Setting 5** and press the orange **Mode** switch button, the wand will now go to the Proton Stream mode (this will be accompanied by an additional audio cue that you've returned to the firing modes). Music will continue to play (and advance/loop) even when the pack and wand are turned off. 
 
 **When music is playing while the pack and wand are turned off, you can use the Rotary knob on the top of the wand to easily access independent music volume control.**
 
@@ -95,22 +120,24 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const int VOLUME&#95;MULTIPLIER | Percentage increments of master volume change. | 2 |
 | const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
 | const int VOLUME&#95;EFFECTS&#95;MULTIPLIER | Percentage increments of the sound effects volume change. | 5 |
-| const boolean b&#95;gb2&#95;mode | When set to true, the pack will be in 1989 sound effects instead of 1984 sound effects when the proton pack year mode toggle switch is set to 1984 mode | false |
-| const boolean b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms**| false |
-| boolean b&#95;clockwise | Set to true for the cyclotron lights to spin clockwise. Set to false to be counter clockwise. This can be controlled by an optional switch on pin 29 | true |
-| const boolean b&#95;overheat&#95;strobe | If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true. When false, the light stays solid white during overheat. | false |
-| const boolean b&#95;fade&#95;cyclotron&#95;led | When set to false, the LEDs on the cyclotron lid in 1984 mode will not fade. | true |
+| bool b&#95;gb2&#95;mode | When set to true, the pack will be in 1989 sound effects instead of 1984 sound effects when the proton pack year mode toggle switch is set to 1984 mode | false |
+| const bool b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms**| false |
+| bool b&#95;clockwise | Set to true for the cyclotron lights to spin clockwise. Set to false to be counter clockwise. This can be controlled by an optional switch on pin 29 | true |
+| const bool b&#95;vibration&#95;enabled | Enable or disable vibration control for the Proton Pack. When set to false, there will be no vibration enabled for the Proton Pack, and it will ignore the toggle switch on pin 27. | true |
+| bool b&#95;vibration&#95;firing | When set to true, when vibration is enabled, the Proton Pack will only vibrate while the Neutrona wand is firing. | false |
+| const bool b&#95;overheat&#95;strobe | If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true. When false, the light stays solid white during overheat. | false |
+| const bool b&#95;fade&#95;cyclotron&#95;led | When set to false, the LEDs on the cyclotron lid in 1984 mode will not fade. | true |
 | const int i&#95;1984&#95;fade&#95;out&#95;delay | Time in milliseconds for the cyclotron lid LED to fade out when enabled. | 210 |
 | const int i&#95;1984&#95;fade&#95;in&#95;delay | Time in milliseconds for the cyclotron lid LED to fade in when enabled. | 210 |
-| boolean b&#95;smoke&#95;enabled | Enable or disable smoke settings. This can be toggled with a switch on PIN 37. | true |
-| const boolean b&#95;smoke&#95;1&#95;continuous&#95;firing | Set to true to enable smoke 1 during continuous firing events. **This can be overridden if b&#95;smoke&#95;enabled is set to false** | true | 
-| const boolean b&#95;smoke&#95;2&#95;continuous&#95;firing | Set to true to enable smoke 2 during continuous firing events. **This can be overridden if b&#95;smoke&#95;enabled is set to false** | true |
-| const boolean b&#95;fan&#95;continuous&#95;firing | Set to true to enable the fan during continuous firing events. **This can be overridden if b&#95;smoke&#95;enabled is set to false** | true |
-| const boolean b&#95;smoke&#95;continuous&#95;mode&#95;1 | Set to true to enable smoke events in **wand power mode 1** during continuous firing events. *This can be overridden if b&#95;smoke&#95;enabled is set to false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan&#95;continuous are set to false* | true |
-| const boolean b&#95;smoke&#95;continuous&#95;mode&#95;2 | Set to true to enable smoke events in **wand power mode 2** during continuous firing events. *This can be overridden if b&#95;smoke&#95;enabled is set to false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan&#95;continuous are set to false* | true |
-| const boolean b&#95;smoke&#95;continuous&#95;mode&#95;3 | Set to true to enable smoke events in **wand power mode 3** during continuous firing events. *This can be overridden if b&#95;smoke&#95;enabled is set to false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan&#95;continuous are set to false* | true |
-| const boolean b&#95;smoke&#95;continuous&#95;mode&#95;4 | Set to true to enable smoke events in **wand power mode 4** during continuous firing events. *This can be overridden if b&#95;smoke&#95;enabled is set to false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan&#95;continuous are set to false* | true |
-| const boolean b&#95;smoke&#95;continuous&#95;mode&#95;5 | Set to true to enable smoke events in **wand power mode 5** during continuous firing events. *This can be overridden if b&#95;smoke&#95;enabled is set to false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan&#95;continuous are set to false* | true |
+| bool b&#95;smoke&#95;enabled | Enable or disable smoke settings. This can be toggled with a switch on PIN 37. | true |
+| const bool b&#95;smoke&#95;1&#95;continuous&#95;firing | Set to true to enable smoke 1 during continuous firing events. **This can be overridden if b&#95;smoke&#95;enabled is set to false** | true | 
+| const bool b&#95;smoke&#95;2&#95;continuous&#95;firing | Set to true to enable smoke 2 during continuous firing events. **This can be overridden if b&#95;smoke&#95;enabled is set to false** | true |
+| const bool b&#95;fan&#95;continuous&#95;firing | Set to true to enable the fan during continuous firing events. **This can be overridden if b&#95;smoke&#95;enabled is set to false** | true |
+| const bool b&#95;smoke&#95;continuous&#95;mode&#95;1 | Set to true to enable smoke events in **wand power mode 1** during continuous firing events. *This can be overridden if b&#95;smoke&#95;enabled is set to false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan&#95;continuous are set to false* | true |
+| const bool b&#95;smoke&#95;continuous&#95;mode&#95;2 | Set to true to enable smoke events in **wand power mode 2** during continuous firing events. *This can be overridden if b&#95;smoke&#95;enabled is set to false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan&#95;continuous are set to false* | true |
+| const bool b&#95;smoke&#95;continuous&#95;mode&#95;3 | Set to true to enable smoke events in **wand power mode 3** during continuous firing events. *This can be overridden if b&#95;smoke&#95;enabled is set to false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan&#95;continuous are set to false* | true |
+| const bool b&#95;smoke&#95;continuous&#95;mode&#95;4 | Set to true to enable smoke events in **wand power mode 4** during continuous firing events. *This can be overridden if b&#95;smoke&#95;enabled is set to false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan&#95;continuous are set to false* | true |
+| const bool b&#95;smoke&#95;continuous&#95;mode&#95;5 | Set to true to enable smoke events in **wand power mode 5** during continuous firing events. *This can be overridden if b&#95;smoke&#95;enabled is set to false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan&#95;continuous are set to false* | true |
 | const unsigned long int i&#95;smoke&#95;timer&#95;mode&#95;1 | How long in milliseconds until the smoke pins & fan pin are activated during a continious firing in **wand power mode 1**. *Example: 30000 is 30 seconds* | 30000 |
 | const unsigned long int i&#95;smoke&#95;timer&#95;mode&#95;2 | How long in milliseconds until the smoke pins & fan pin are activated during a continious firing in **wand power mode 2**. *Example: 15000 is 15 seconds* | 15000 |
 | const unsigned long int i&#95;smoke&#95;timer&#95;mode&#95;3 | How long in milliseconds until the smoke pins & fan pin are activated during a continious firing in **wand power mode 3**. *Example: 10000 is 10 seconds* | 10000 |
@@ -121,15 +148,15 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const unsigned long int i&#95;smoke&#95;on&#95;time&#95;mode&#95;3 | How long do you want your smoke pins and fan pin to stay on while continuous firing in **wand power mode 3** after they have been activated. *Example: 3500 is 3.5 seconds* | 3500 |
 | const unsigned long int i&#95;smoke&#95;on&#95;time&#95;mode&#95;4 | How long do you want your smoke pins and fan pin to stay on while continuous firing in **wand power mode 4** after they have been activated. *Example: 3500 is 3.5 seconds* | 3500 |
 | const unsigned long int i&#95;smoke&#95;on&#95;time&#95;mode&#95;5 | How long do you want your smoke pins and fan pin to stay on while continuous firing in **wand power mode 3** after they have been activated. *Example: 3500 is 4 seconds* | 4000 |
-| const boolean b&#95;smoke&#95;1&#95;overheat | Set to true to enable smoke 1 pin during the overheat sequence. *This can be overridden if b&#95;smoke&#95;enabled is false* | true |
-| const boolean b&#95;smoke&#95;2&#95;overheat | Set to true to enable smoke 2 pin during the overheat seqeuence. *This can be overridden if b&#95;smoke&#95;enabled is false* | true |
-| const boolean b&#95;fan&#95;overheat | Set to true to enable the fan pin during the overheat seqeuence. *This can be overridden if b&#95;smoke&#95;enabled is false* | true |
-| const boolean b&#95;smoke&#95;overheat&#95;mode&#95;1 | Set to true to enable smoke events during the overheat sequence in **wand power mode 1**. *This can be overridden if b&#95;smoke&#95;enabled is false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan overheat are set to false*| true |
-| const boolean b&#95;smoke&#95;overheat&#95;mode&#95;2 | Set to true to enable smoke events during the overheat sequence in **wand power mode 2**. *This can be overridden if b&#95;smoke&#95;enabled is false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan overheat are set to false*| true |
-| const boolean b&#95;smoke&#95;overheat&#95;mode&#95;3 | Set to true to enable smoke events during the overheat sequence in **wand power mode 3**. *This can be overridden if b&#95;smoke&#95;enabled is false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan overheat are set to false*| true |
-| const boolean b&#95;smoke&#95;overheat&#95;mode&#95;4 | Set to true to enable smoke events during the overheat sequence in **wand power mode 4**. *This can be overridden if b&#95;smoke&#95;enabled is false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan overheat are set to false*| true |
-| const boolean b&#95;smoke&#95;overheat&#95;mode&#95;5 | Set to true to enable smoke events during the overheat sequence in **wand power mode 5**. *This can be overridden if b&#95;smoke&#95;enabled is false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan overheat are set to false*| true |
-| const boolean b&#95;diagnostic | Set to true if you want to know if your wand and pack are communicating. If the wand and pack have a serial connection to each other, you will hear a constant beeping sound. | false |
+| const bool b&#95;smoke&#95;1&#95;overheat | Set to true to enable smoke 1 pin during the overheat sequence. *This can be overridden if b&#95;smoke&#95;enabled is false* | true |
+| const bool b&#95;smoke&#95;2&#95;overheat | Set to true to enable smoke 2 pin during the overheat seqeuence. *This can be overridden if b&#95;smoke&#95;enabled is false* | true |
+| const bool b&#95;fan&#95;overheat | Set to true to enable the fan pin during the overheat seqeuence. *This can be overridden if b&#95;smoke&#95;enabled is false* | true |
+| const bool b&#95;smoke&#95;overheat&#95;mode&#95;1 | Set to true to enable smoke events during the overheat sequence in **wand power mode 1**. *This can be overridden if b&#95;smoke&#95;enabled is false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan overheat are set to false*| true |
+| const bool b&#95;smoke&#95;overheat&#95;mode&#95;2 | Set to true to enable smoke events during the overheat sequence in **wand power mode 2**. *This can be overridden if b&#95;smoke&#95;enabled is false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan overheat are set to false*| true |
+| const bool b&#95;smoke&#95;overheat&#95;mode&#95;3 | Set to true to enable smoke events during the overheat sequence in **wand power mode 3**. *This can be overridden if b&#95;smoke&#95;enabled is false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan overheat are set to false*| true |
+| const bool b&#95;smoke&#95;overheat&#95;mode&#95;4 | Set to true to enable smoke events during the overheat sequence in **wand power mode 4**. *This can be overridden if b&#95;smoke&#95;enabled is false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan overheat are set to false*| true |
+| const bool b&#95;smoke&#95;overheat&#95;mode&#95;5 | Set to true to enable smoke events during the overheat sequence in **wand power mode 5**. *This can be overridden if b&#95;smoke&#95;enabled is false or if all 3 of the smoke&#95;1, smoke&#95;2 and fan overheat are set to false*| true |
+| const bool b&#95;diagnostic | Set to true if you want to know if your wand and pack are communicating. If the wand and pack have a serial connection to each other, you will hear a constant beeping sound. | false |
 
 **Neutrona Wand**
 
@@ -142,16 +169,20 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const int VOLUME&#95;MULTIPLIER | Percentage increments of main volume change. | 2 |
 | const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
 | const int VOLUME&#95;EFFECTS&#95;MULTIPLIER | Percentage increments of the sound effects volume change. | 5 |
-| const boolean b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms** | true |
-| boolean b&#95;no&#95;pack | Set this to true if you want to use your Neutrona Wand without a Proton Pack connected. Otherwise when false, the Neutrona Wand will wait until it is connected to a Proton Pack before it can activate. | false |
-| const boolean b&#95;overheat&#95;mode&#95;1 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 1** | false |
-| const boolean b&#95;overheat&#95;mode&#95;2 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 2** | false |
-| const boolean b&#95;overheat&#95;mode&#95;3 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 3** | false |
-| const boolean b&#95;overheat&#95;mode&#95;4 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 4** | false |
-| const boolean b&#95;overheat&#95;mode&#95;5 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 5** | true |
+| const bool b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms** | true |
+| const bool b&#95;cross&#95;the&#95;streams |  When set to true, the mode switch button to change firing modes changes to a alternate firing button. Pressing this button together at the same time as the Intensify button does a cross the streams firing. **The video game firing modes will be disabled when you enable this** | false |
+| const bool b&#95;bargraph&#95;alt | Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph. Part #: BL28Z-3005SA04Y | false |
+| const bool b&#95;vibration&#95;enabled | Enable or disable vibration control for the Neutrona wand. When set to false, there will be no vibration enabled for the Neutrona wand, and it will ignore the toggle switch settings from the Proton Pack. | true |
+| bool b&#95;vibration&#95;firing | When set to true, when vibration is enabled from the Proton Pack side, the Neutrona will only vibrate during firing. Setting b&#95;vibration&#95;enabled to false will override this. | false |
+| const bool b&#95;no&#95;pack | Set this to true if you want to use your Neutrona Wand without a Proton Pack connected. Otherwise when false, the Neutrona Wand will wait until it is connected to a Proton Pack before it can activate. | false |
+| const bool b&#95;overheat&#95;mode&#95;1 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 1** | false |
+| const bool b&#95;overheat&#95;mode&#95;2 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 2** | false |
+| const bool b&#95;overheat&#95;mode&#95;3 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 3** | false |
+| const bool b&#95;overheat&#95;mode&#95;4 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 4** | false |
+| const bool b&#95;overheat&#95;mode&#95;5 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 5** | true |
 | const unsigned long int i&#95;ms&#95;overheat&#95;initiate&#95;mode&#95;1 | Time in milliseconds for when the overheat sequence will initiate for the Neutrona Wand and Proton Pack if enabled for **wand power mode 1**. *Example: 60000 is 60 seconds* | 60000 |
 | const unsigned long int i&#95;ms&#95;overheat&#95;initiate&#95;mode&#95;2 | Time in milliseconds for when the overheat sequence will initiate for the Neutrona Wand and Proton Pack if enabled for **wand power mode 2**. *Example: 30000 is 30 seconds* | 30000 |
 | const unsigned long int i&#95;ms&#95;overheat&#95;initiate&#95;mode&#95;3 | Time in milliseconds for when the overheat sequence will initiate for the Neutrona Wand and Proton Pack if enabled for **wand power mode 3**. *Example: 20000 is 20 seconds* | 20000 |
 | const unsigned long int i&#95;ms&#95;overheat&#95;initiate&#95;mode&#95;4 | Time in milliseconds for when the overheat sequence will initiate for the Neutrona Wand and Proton Pack if enabled for **wand power mode 4**. *Example: 15000 is 15 seconds* | 15000 |
 | const unsigned long int i&#95;ms&#95;overheat&#95;initiate&#95;mode&#95;5 | Time in milliseconds for when the overheat sequence will initiate for the Neutrona Wand and Proton Pack if enabled for **wand power mode 5**. *Example: 12000 is 12 seconds* | 12000 |
-| boolean b_debug | Debug testing. Set to true to debug the A6 and A7 analog pin readings of the Neutrona Wand. This uses the USB port and the tx/rx pins need to be disconnected from the Proton Pack so serial information can be sent back to the Arduino IDE. *The wand will respond slower in this mode as it is streaming constant serial data back to the debugger.* | false |
+| const bool b_debug | Debug testing. Set to true to debug the A6 and A7 analog pin readings of the Neutrona Wand. This uses the USB port and the tx/rx pins need to be disconnected from the Proton Pack so serial information can be sent back to the Arduino IDE. *The wand will respond slower in this mode as it is streaming constant serial data back to the debugger.* | false |

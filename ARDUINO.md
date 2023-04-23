@@ -10,6 +10,7 @@ The following libraries are required to be installed with the [Arduino IDE 2.x](
 - **ezButton** by ArduinoGetStarted.com
 - **Ramp** by Sylvain Garnavault
 - **AltSoftSerial** by Paul Stoffregen
+- **simple ht16k33 library** by lpaseen
 - **millisDelay** `See Below`
 - **WavTrigger** `See Below`
 
