@@ -118,9 +118,8 @@ const bool b_bargraph_alt = false;
 
 /*
  * Enable or disable vibration control for the Neutrona wand.
- * Vibration is toggled on and off by a toggle switch in the Proton Pack.
+ * Vibration is toggled on and off by a toggle switch in the Proton Pack or from the Neutrona wand sub menu system.
  * When set to false, there will be no vibration enabled for the Neutrona wand, and it will ignore the toggle switch settings from the Proton Pack.
- * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
 const bool b_vibration_enabled = true;
 
