@@ -136,7 +136,8 @@ const int i_1984_inner_delay = 9;
 
 /* 
  *  Default the cyclotron lights direction to clockwise. 
- *  This can be controlled by an optional switch on pin 29. 
+ *  This can be controlled by an optional switch on pin 29 and also from
+the Neutrona wand sub menu system.
  *  Set to false to be counter clockwise.
  */
 bool b_clockwise = true;
@@ -145,18 +146,21 @@ bool b_clockwise = true;
  * Enable or disable vibration control for the Proton Pack.
  * Vibration is toggled on and off by a switch on Pin 27.
  * When set to false, there will be no vibration enabled for the Proton Pack, and it will ignore the toggle switch on pin 27.
+ * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
 const bool b_vibration_enabled = true;
 
 /*
  * When set to true, when vibration is enabled, the Proton Pack will only vibrate while the Neutrona wand is firing.
  * Note that vibration is controlled by a switch on pin 27.
+ * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
 bool b_vibration_firing = false;
 
 /*
  * When set to true, 1984 mode is turned into 1989 mode. 
  * The pack will play 1989 sound effects instead of 1984 sound effects.
+ * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
 bool b_gb2_mode = false;
 
@@ -188,7 +192,8 @@ const bool b_overheat_strobe = false;
 
 /*
  * Enable or disable overall smoke settings.
- * This can be toggled with a switch on PIN 37.
+ * This can be toggled with a switch on PIN 37. This can also be controlled from
+the Neutrona wand sub menu system.
  */
 bool b_smoke_enabled = true;
 
