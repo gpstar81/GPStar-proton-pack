@@ -1517,7 +1517,7 @@ void checkSwitches() {
         }
 
         // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
-        if(b_cross_the_streams == true) {
+        if(b_cross_the_streams == true) {          
           if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished() && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_FIRING;
@@ -1662,9 +1662,9 @@ void modeActivate() {
     default:
       soundIdleLoop(true);
 
+      w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);
       w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
-      
-      ms_gun_loop_1.start(620);
+      ms_gun_loop_1.start(2000);
     break;
   }
 }
@@ -1756,21 +1756,21 @@ void soundIdleStart() {
   if(b_sound_idle == false) {  
     switch(year_mode) {
       case 1984:
-          w_trig.trackPlayPoly(S_BOOTUP, true);
+        w_trig.trackPlayPoly(S_BOOTUP, true);
 
-          soundIdleLoop(true);        
+        soundIdleLoop(true);        
       break;
   
       default:
-          w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_1);
-          w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_1);
-          w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_2);
-          w_trig.trackStop(S_AFTERLIFE_GUN_LOOP_1);
-          
-          w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_2, true); // Start track
+        w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_1);
+        w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_1);
+        w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_2);
+        w_trig.trackStop(S_AFTERLIFE_GUN_LOOP_1);
+        
+        w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_2, true); // Start track
 
-          ms_gun_loop_1.stop();
-          ms_gun_loop_2.start(700);
+        ms_gun_loop_1.stop();
+        ms_gun_loop_2.start(1500);
       break;
     }
   }
@@ -1798,25 +1798,27 @@ void soundIdleStop() {
 
       default:
         w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_DOWN_2, true);
-        ms_gun_loop_1.start(1400);
+        ms_gun_loop_1.start(1700);
         ms_gun_loop_2.stop();
       break;
     }
   }
   
-  b_sound_idle = false;
+  if(b_sound_idle == true) {
+    switch(year_mode) {
+      case 1984:
+        w_trig.trackStop(S_BOOTUP);
+        soundIdleLoopStop();
+      break;
 
-  switch(year_mode) {
-    case 1984:
-      w_trig.trackStop(S_BOOTUP);
-      soundIdleLoopStop();
-    break;
-
-    case 2021:
-      w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_2);
-      w_trig.trackStop(S_AFTERLIFE_GUN_LOOP_2);
-    break;
+      case 2021:
+        w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_2);
+        w_trig.trackStop(S_AFTERLIFE_GUN_LOOP_2);
+      break;
+    }
   }
+
+  b_sound_idle = false;
 }
 
 void soundBeepLoopStop() {
