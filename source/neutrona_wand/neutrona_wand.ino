@@ -267,13 +267,15 @@ enum sound_fx {
   S_VOICE_CYCLOTRON_CLOCKWISE,
   S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE,
   S_VOICE_CROSS_THE_STREAMS,
-  S_VOICE_VIDEO_GAME_MODES
+  S_VOICE_VIDEO_GAME_MODES,
+  S_VOICE_SINGLE_LED,
+  S_VOICE_THREE_LED  
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const int i_last_effects_track = S_VOICE_VIDEO_GAME_MODES;
+const int i_last_effects_track = S_VOICE_THREE_LED;
 
 /* 
  * Wand state. 
@@ -793,7 +795,8 @@ void mainLoop() {
 
         /*
          * Top menu: Adjust Proton Pack / Neutrona wand music volume.
-         * Sub menu: Enable or disable vibration for firing events only.
+         * Sub menu: Toggle cyclotron rotation direction.
+         * Sub menu: (Mode switch) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
         */
         case 3:
           // Adjust Proton Pack / Neutrona wand music volume..
@@ -837,41 +840,18 @@ void mainLoop() {
             }
           }
           else {
-            // Enable or disable vibration for firing events only.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              w_trig.trackStop(S_BEEPS_ALT);    
-              w_trig.trackGain(S_BEEPS_ALT, i_volume);
-              w_trig.trackPlayPoly(S_BEEPS_ALT);
+              // Tell the Proton Pack to change the cyclotron rotation direction.
+              Serial.write(35);
+            }
 
-              // Enable or disable vibration
-              if(b_vibration_firing == true) {
-                b_vibration_firing = false;
+            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) { 
+              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
 
-                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
-                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
-                w_trig.trackGain(S_VOICE_VIBRATION_FIRING_DISABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_DISABLED);
-
-                // Tell the proton pack to disable vibration during firing only option.
-                Serial.write(31);
-              }
-              else {
-                b_vibration_firing = true;
-
-                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
-                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
-                w_trig.trackGain(S_VOICE_VIBRATION_FIRING_ENABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_ENABLED);
-
-                // Tell the Proton pack to enable vibration during firing only.
-                Serial.write(32);
-
-                analogWrite(vibration, 150);
-                delay(250);
-                analogWrite(vibration,0);
-              }
+              // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
+              Serial.write(36);
             }
           }
         break;
@@ -879,6 +859,7 @@ void mainLoop() {
         /*
          * Top menu: Change music tracks.
          * Sub menu: Enable or disable vibration (Proton Pack and Neutrona wand)
+         * Sub menu: (Mode switch) -> Enable or disable vibration for firing events only.
         */
         case 2:       
           // Change music tracks.
@@ -978,6 +959,43 @@ void mainLoop() {
                 delay(250);
                 analogWrite(vibration,0);
               }
+
+              // Enable or disable vibration for firing events only.
+              if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) { 
+                ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+
+                w_trig.trackStop(S_BEEPS_ALT);    
+                w_trig.trackGain(S_BEEPS_ALT, i_volume);
+                w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+                // Enable or disable vibration for firing only events.
+                if(b_vibration_firing == true) {
+                  b_vibration_firing = false;
+
+                  w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
+                  w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
+                  w_trig.trackGain(S_VOICE_VIBRATION_FIRING_DISABLED, i_volume);
+                  w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_DISABLED);
+
+                  // Tell the proton pack to disable vibration during firing only option.
+                  Serial.write(31);
+                }
+                else {
+                  b_vibration_firing = true;
+
+                  w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
+                  w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
+                  w_trig.trackGain(S_VOICE_VIBRATION_FIRING_ENABLED, i_volume);
+                  w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_ENABLED);
+
+                  // Tell the Proton pack to enable vibration during firing only.
+                  Serial.write(32);
+
+                  analogWrite(vibration, 150);
+                  delay(250);
+                  analogWrite(vibration,0);
+                }
+              }
             }
           }  
         break;
@@ -985,7 +1003,6 @@ void mainLoop() {
         /*
          * Top menu: Play music or stop music.
          * Sub menu: (Intensify) -> Switch between 1984/1989/2021 mode.
-         * Sub menu: (Mode switch) -> Toggle cyclotron rotation direction.
         */
         case 1:
           // Play or stop the current music track.
@@ -1046,13 +1063,6 @@ void mainLoop() {
                   w_trig.trackPlayPoly(S_VOICE_1984);
                 }
               }
-            }
-
-             if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) { 
-              // Tell the Proton Pack to change the cyclotron rotation direction.
-              Serial.write(35);
-
-              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
             }
           }
         break;
@@ -4112,6 +4122,22 @@ void checkPack() {
           w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
           w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
           w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);   
+        break;
+
+        case 25:
+          // Play Single LED voice.
+          w_trig.trackStop(S_VOICE_THREE_LED);
+          w_trig.trackStop(S_VOICE_SINGLE_LED);    
+          w_trig.trackGain(S_VOICE_SINGLE_LED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_SINGLE_LED);
+        break;
+
+        case 26:
+          // Play 3 LED voice.
+          w_trig.trackStop(S_VOICE_THREE_LED);
+          w_trig.trackStop(S_VOICE_SINGLE_LED);    
+          w_trig.trackGain(S_VOICE_THREE_LED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_THREE_LED);
         break;
 
         case 99:

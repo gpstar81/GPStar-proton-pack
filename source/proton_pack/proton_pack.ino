@@ -169,6 +169,14 @@ bool b_gb2_mode = false;
 const bool b_fade_cyclotron_led = true;
 
 /*
+ * When set to true, 1984/1989 will utilise the middle single LED only in each cyclotron lens.
+ * When set to false, 3 LEDs from each cyclotron lens will light up instead for 1984/1989 mode.
+ * Useful feature for proton packs who utiltise 3 LED's per cyclotron lens, such as the Haslab Proton Pack.
+ * This can also be toggled from the Neutrona wand sub menu system.
+*/
+bool b_cyclotron_single_led = true;
+
+/*
  * When fading is enabled for 1984 mode cyclotron lid lights, control the delay of the fading.
 */
 const int i_1984_fade_out_delay = 210;
@@ -371,7 +379,9 @@ enum sound_fx {
   S_VOICE_CYCLOTRON_CLOCKWISE,
   S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE,
   S_VOICE_CROSS_THE_STREAMS,
-  S_VOICE_VIDEO_GAME_MODES
+  S_VOICE_VIDEO_GAME_MODES,
+  S_VOICE_SINGLE_LED,
+  S_VOICE_THREE_LED
 };
 
 /*
@@ -2162,6 +2172,21 @@ void cyclotron1984Alarm() {
     pack_leds[led2] = CRGB(255,0,0);
     pack_leds[led3] = CRGB(255,0,0);
     pack_leds[led4] = CRGB(255,0,0);
+
+    // Turn on all the other cyclotron LED's if required.
+    if(b_cyclotron_single_led != true) {
+      pack_leds[led1 - 1] = CRGB(255,0,0);
+      pack_leds[led1 + 1] = CRGB(255,0,0);
+
+      pack_leds[led2 - 1] = CRGB(255,0,0);
+      pack_leds[led2 + 1] = CRGB(255,0,0);
+
+      pack_leds[led3 - 1] = CRGB(255,0,0);
+      pack_leds[led3 + 1] = CRGB(255,0,0);
+
+      pack_leds[led4 - 1] = CRGB(255,0,0);
+      pack_leds[led4 + 1] = CRGB(255,0,0);
+    }
   }
   else {
     if(i_cyclotron_led_value[led1 - cyclotron_led_start] == 0) {
@@ -2183,30 +2208,111 @@ void cyclotron1984Alarm() {
       ms_cyclotron_led_fade_in[led4 - cyclotron_led_start].go(0);
       ms_cyclotron_led_fade_in[led4 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
     }
+
+    // Turn on all the other cyclotron LED's if required.
+    if(b_cyclotron_single_led != true) {
+      if(i_cyclotron_led_value[led1  - 1 - cyclotron_led_start] == 0) {
+        ms_cyclotron_led_fade_in[led1 - 1 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led1 - 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);
+      }
+
+      if(i_cyclotron_led_value[led1 + 1 - cyclotron_led_start] == 0) {
+        ms_cyclotron_led_fade_in[led1 + 1 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led1 + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);
+      }      
+
+      if(i_cyclotron_led_value[led2 - 1 - cyclotron_led_start] == 0) {      
+        ms_cyclotron_led_fade_in[led2 - 1 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led2 - 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);
+      }
+
+      if(i_cyclotron_led_value[led2 + 1 - cyclotron_led_start] == 0) {      
+        ms_cyclotron_led_fade_in[led2 + 1 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led2 + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);
+      }
+
+      if(i_cyclotron_led_value[led3 - 1 - cyclotron_led_start] == 0) {
+        ms_cyclotron_led_fade_in[led3 - 1 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led3 - 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
+      }
+
+      if(i_cyclotron_led_value[led3 + 1 - cyclotron_led_start] == 0) {
+        ms_cyclotron_led_fade_in[led3 + 1 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led3 + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
+      }
+
+      if(i_cyclotron_led_value[led4 - 1 - cyclotron_led_start] == 0) {      
+        ms_cyclotron_led_fade_in[led4 - 1 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led4 - 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
+      }
+
+      if(i_cyclotron_led_value[led4 + 1 - cyclotron_led_start] == 0) {      
+        ms_cyclotron_led_fade_in[led4 + 1 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led4 + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
+      }
+    }    
   }
 }
 
 void cyclotron84LightOn(int cLed) {
   if(b_fade_cyclotron_led != true) {
     pack_leds[cLed+1] = CRGB(255,0,0);
+
+    // Turn on the other 2 LEDs if we are allowing 3 to light up.
+    if(b_cyclotron_single_led != true) {
+      pack_leds[cLed] = CRGB(255,0,0);
+      pack_leds[cLed+2] = CRGB(255,0,0);
+    }
   }
   else {
     if(i_cyclotron_led_value[cLed + 1 - cyclotron_led_start] == 0) {
       ms_cyclotron_led_fade_in[cLed + 1 - cyclotron_led_start].go(0);
-      ms_cyclotron_led_fade_in[cLed + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);    
+      ms_cyclotron_led_fade_in[cLed + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);
     }
+
+    // Turn on the other 2 LEDs if we are allowing 3 to light up.
+    if(b_cyclotron_single_led != true) {
+      if(i_cyclotron_led_value[cLed - cyclotron_led_start] == 0) {
+        ms_cyclotron_led_fade_in[cLed - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[cLed - cyclotron_led_start].go(255, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);
+      }
+
+      if(i_cyclotron_led_value[cLed + 2 - cyclotron_led_start] == 0) {
+        ms_cyclotron_led_fade_in[cLed + 2 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[cLed + 2 - cyclotron_led_start].go(255, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);
+      }
+    }    
   }
 }
 
 void cyclotron84LightOff(int cLed) {
   if(b_fade_cyclotron_led != true) {
     pack_leds[cLed+1] = CRGB(0,0,0);
+
+    // Turn off the other 2 LEDs if we are allowing 3 to light up.
+    if(b_cyclotron_single_led != true) {
+      pack_leds[cLed] = CRGB(0,0,0);
+      pack_leds[cLed + 2] = CRGB(0,0,0);
+    }
   }
   else {
     if(i_cyclotron_led_value[cLed + 1 - cyclotron_led_start] == 255) {
       ms_cyclotron_led_fade_out[cLed + 1 - cyclotron_led_start].go(255);
       ms_cyclotron_led_fade_out[cLed + 1 - cyclotron_led_start].go(0, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
     }
+
+    // Turn off the other 2 LEDs if we are allowing 3 to light up.
+    if(b_cyclotron_single_led != true) {
+      if(i_cyclotron_led_value[cLed - cyclotron_led_start] == 255) {
+        ms_cyclotron_led_fade_out[cLed - cyclotron_led_start].go(255);
+        ms_cyclotron_led_fade_out[cLed - cyclotron_led_start].go(0, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
+      }
+
+      if(i_cyclotron_led_value[cLed + 2 - cyclotron_led_start] == 255) {
+        ms_cyclotron_led_fade_out[cLed + 2 - cyclotron_led_start].go(255);
+        ms_cyclotron_led_fade_out[cLed + 2 - cyclotron_led_start].go(0, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
+      }
+    }        
   }
 }
 
@@ -3751,6 +3857,7 @@ void checkWand() {
             w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
             w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);     
 
+            // Tell the wand to play the same sound.
             Serial2.write(23);
           }
           else {
@@ -3765,10 +3872,38 @@ void checkWand() {
             w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
             w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);
 
+            // Tell the wand to play the same sound.
             Serial2.write(24);
           }
         break;
 
+        case 36:
+          // Toggle single LED or 3 LEDs per cyclotron lens in 1984/1989 modes.
+          if(b_cyclotron_single_led == true) {
+            b_cyclotron_single_led = false;
+
+            w_trig.trackStop(S_VOICE_THREE_LED);
+            w_trig.trackStop(S_VOICE_SINGLE_LED);    
+            w_trig.trackGain(S_VOICE_THREE_LED, i_volume);
+            w_trig.trackPlayPoly(S_VOICE_THREE_LED);
+
+            // Tell the wand to play the same sound.
+            Serial2.write(26);
+          }
+          else {
+            b_cyclotron_single_led = true;
+
+            // Play Single LED voice.
+            w_trig.trackStop(S_VOICE_THREE_LED);
+            w_trig.trackStop(S_VOICE_SINGLE_LED);    
+            w_trig.trackGain(S_VOICE_SINGLE_LED, i_volume);
+            w_trig.trackPlayPoly(S_VOICE_SINGLE_LED);
+
+            // Tell the wand to play the same sound.
+            Serial2.write(25);
+          }
+        break;
+        
         case 89:
           // Lower music volume.
           if(b_playing_music == true) {    
