@@ -959,44 +959,44 @@ void mainLoop() {
                 delay(250);
                 analogWrite(vibration,0);
               }
-
-              // Enable or disable vibration for firing events only.
-              if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) { 
-                ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
-
-                w_trig.trackStop(S_BEEPS_ALT);    
-                w_trig.trackGain(S_BEEPS_ALT, i_volume);
-                w_trig.trackPlayPoly(S_BEEPS_ALT);
-
-                // Enable or disable vibration for firing only events.
-                if(b_vibration_firing == true) {
-                  b_vibration_firing = false;
-
-                  w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
-                  w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
-                  w_trig.trackGain(S_VOICE_VIBRATION_FIRING_DISABLED, i_volume);
-                  w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_DISABLED);
-
-                  // Tell the proton pack to disable vibration during firing only option.
-                  Serial.write(31);
-                }
-                else {
-                  b_vibration_firing = true;
-
-                  w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
-                  w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
-                  w_trig.trackGain(S_VOICE_VIBRATION_FIRING_ENABLED, i_volume);
-                  w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_ENABLED);
-
-                  // Tell the Proton pack to enable vibration during firing only.
-                  Serial.write(32);
-
-                  analogWrite(vibration, 150);
-                  delay(250);
-                  analogWrite(vibration,0);
-                }
-              }
             }
+
+            // Enable or disable vibration for firing events only.
+            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) { 
+              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+
+              w_trig.trackStop(S_BEEPS_ALT);    
+              w_trig.trackGain(S_BEEPS_ALT, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+              // Enable or disable vibration for firing only events.
+              if(b_vibration_firing == true) {
+                b_vibration_firing = false;
+
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_FIRING_DISABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_DISABLED);
+
+                // Tell the proton pack to disable vibration during firing only option.
+                Serial.write(31);
+              }
+              else {
+                b_vibration_firing = true;
+
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_FIRING_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_ENABLED);
+
+                // Tell the Proton pack to enable vibration during firing only.
+                Serial.write(32);
+
+                analogWrite(vibration, 150);
+                delay(250);
+                analogWrite(vibration,0);
+              }
+            }            
           }  
         break;
 
