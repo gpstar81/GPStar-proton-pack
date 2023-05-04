@@ -387,7 +387,7 @@ enum sound_fx {
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const int i_last_effects_track = S_VOICE_VIDEO_GAME_MODES;
+const int i_last_effects_track = S_VOICE_THREE_LED;
 
  /* 
  *  PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
