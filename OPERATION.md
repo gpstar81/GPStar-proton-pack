@@ -3,7 +3,6 @@
 Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.youtube.com/watch?v=nhGX1oJBNHk) (YouTube)
 [![Haslab Proton Pack Arduino Powered Demo & Features](https://img.youtube.com/vi/nhGX1oJBNHk/maxresdefault.jpg)](https://youtu.be/nhGX1oJBNHk)
 
-
 ## Proton Pack		
 
 ### Features
@@ -67,6 +66,8 @@ To enable the Crossing the Streams and alternate firing by default, you need to 
 - This dial will be used to navigate the menu system and adjust volume in certain cases (see next section).
 
 ## Wand Settings Menu System
+Wand Menu Settings Video Demo: [Proton Pack Wand Menu Settings Video Demo](https://www.youtube.com/watch?v=QrevSoQo_3M) (YouTube)
+[![Proton Pack Wand Menu Settings Video Demo](https://img.youtube.com/vi/QrevSoQo_3M/maxresdefault.jpg)](https://youtu.be/QrevSoQo_3M)
 
 When you are in the settings menu system [Mode 5] all the bargraph leds begin flashing. All other functions of the wand (such as firing) are disabled while in the menu system. There are 5 different menu settings, which are indicated by the bargraph LED's 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED is flashing that means you are on menu 1. **Use the rotary knob on the top of the wand to navigate up and down through the menu system!**
 
