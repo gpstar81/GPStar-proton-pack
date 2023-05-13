@@ -381,13 +381,15 @@ enum sound_fx {
   S_VOICE_CROSS_THE_STREAMS,
   S_VOICE_VIDEO_GAME_MODES,
   S_VOICE_SINGLE_LED,
-  S_VOICE_THREE_LED
+  S_VOICE_THREE_LED,
+  S_VOICE_OVERHEAT_ENABLED,
+  S_VOICE_OVERHEAT_DISABLED
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const int i_last_effects_track = S_VOICE_THREE_LED;
+const int i_last_effects_track = S_VOICE_OVERHEAT_DISABLED;
 
  /* 
  *  PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
@@ -3903,7 +3905,23 @@ void checkWand() {
             Serial2.write(25);
           }
         break;
-        
+
+        case 37:
+          // Play the overheating disabled voice.
+          w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);    
+          w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);    
+          w_trig.trackGain(S_VOICE_OVERHEAT_DISABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_OVERHEAT_DISABLED);
+        break;
+
+        case 38:
+          // Play the overheating enabled voice.
+          w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);    
+          w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);    
+          w_trig.trackGain(S_VOICE_OVERHEAT_ENABLED, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_OVERHEAT_ENABLED);
+        break;
+
         case 89:
           // Lower music volume.
           if(b_playing_music == true) {    

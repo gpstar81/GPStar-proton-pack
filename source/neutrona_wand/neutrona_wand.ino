@@ -137,6 +137,13 @@ bool b_vibration_firing = false;
 const bool b_no_pack = false;
 
 /*
+ * Set to true to enable overheating. Overheat settings are defined below.
+ * Set to false to disable overheating. This will override any overheat settings below.
+ * This can be controle from the Neutrona Wand submenu system.
+*/
+bool b_overheat_enabled = true;
+
+/*
  * Which power modes do you want to be able to overheat.
  * Set to true to allow the wand and pack to overheat in that mode.
  * Set to false to disable overheating in that power mode. You will be able to continously fire instead.
@@ -269,13 +276,15 @@ enum sound_fx {
   S_VOICE_CROSS_THE_STREAMS,
   S_VOICE_VIDEO_GAME_MODES,
   S_VOICE_SINGLE_LED,
-  S_VOICE_THREE_LED  
+  S_VOICE_THREE_LED,
+  S_VOICE_OVERHEAT_ENABLED,
+  S_VOICE_OVERHEAT_DISABLED
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const int i_last_effects_track = S_VOICE_THREE_LED;
+const int i_last_effects_track = S_VOICE_OVERHEAT_DISABLED;
 
 /* 
  * Wand state. 
@@ -633,7 +642,7 @@ void mainLoop() {
         }
 
         // Overheating.
-        if(ms_overheat_initiate.justFinished() && b_overheat_mode[i_power_mode - 1] == true) {
+        if(ms_overheat_initiate.justFinished() && b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
           ms_overheat_initiate.stop();
           modeFireStop();
 
@@ -760,6 +769,7 @@ void mainLoop() {
         /*
          * Top menu: Adjust the Proton Pack / Neutrona wand sound effects volume.
          * Sub menu: Enable or disable smoke for the Proton Pack.
+         * Sub menu: (Mode switch) -> Enable or disable overheating.
         */
         case 4:
           // Adjust the Proton Pack / Neutrona wand sound effects volume.
@@ -789,6 +799,36 @@ void mainLoop() {
 
               // Tell the Proton Pack to toggle the smoke on or off.
               Serial.write(33);
+            }
+
+            // Enable or disable overheating.
+            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+              if(b_overheat_enabled == true) {
+                b_overheat_enabled = false;
+                
+                // Play the overheating disabled voice.
+                w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);    
+                w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);    
+                w_trig.trackGain(S_VOICE_OVERHEAT_DISABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_OVERHEAT_DISABLED);
+
+                // Tell the Proton Pack that overheating is disabled.
+                Serial.write(37);
+              }
+              else {
+                b_overheat_enabled = true;
+
+                // Play the overheating enabled voice.
+                w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);    
+                w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);    
+                w_trig.trackGain(S_VOICE_OVERHEAT_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_OVERHEAT_ENABLED);
+
+                // Tell the Proton Pack that overheating is enabled.
+                Serial.write(38);
+              }
+              
+              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
             }
           }
         break;
@@ -2044,7 +2084,7 @@ void modeFireStart() {
 
   if(b_overheat_flag == true) {
     // If in high power mode on the wand, start a overheat timer.
-    if(b_overheat_mode[i_power_mode - 1] == true) {
+    if(b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
       ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
     }
     else if(b_cross_the_streams == true) {
@@ -2257,7 +2297,7 @@ void modeFiring() {
       // Tell the pack to revert back to regular cyclotron speeds.
       Serial.write(12);
     }
-    else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0) {
+    else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {
       // If the user changes back to power mode that overheats while firing, start up a timer.
       ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
     }
@@ -2948,8 +2988,8 @@ void bargraphRampFiring() {
     i_ramp_interval = d_bargraph_ramp_interval_alt;
   }
 
-  // If in power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
-  if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning()) {
+  // If in a power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
+  if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
       if(b_bargraph_alt == true) {
         ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);

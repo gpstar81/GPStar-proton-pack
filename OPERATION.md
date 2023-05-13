@@ -88,7 +88,7 @@ When you are in the settings menu system [Mode 5] all the bargraph leds begin fl
 | Sub Menu Level | Purpose | Description |
 |------------|---------|-------------|
 | 5 | Cross The Streams / Video Game Mode | Press **Intensify** to enable the cross the streams feature or revert back to video game modes. (Note that the LED #5 will stay solid when cross the streams is enabled while in the sub menu system). |
-| 4 | Smoke Settings | Press **Intensify** to enable or disable smoke. |
+| 4 | Smoke Settings / Overheating| Press **Intensify** to enable or disable smoke. Press the **Orange Mode Switch** to enable or disable overheating |
 | 3 | Cyclotron Rotation Direction / Cyclotron LED Setting Toggle | Press **Intensify** button to change the direction of the cyclotron rotation. Press the **Orange Mode Switch** to toggle between 1 single LED for the cyclotron lens or 3 LEDs during 1984/1989 modes for the cyclotron lid. |
 | 2 | Vibration / Vibration Firing Mode | Press **Intensify** to enable vibration or disable. Press the **Orange Mode Switch** to enable vibration during firing only. Press again to disable. |
 | 1 | Year Mode | Press **Intensify** cycle through 1984, 1989 or 2021 modes. |
@@ -178,11 +178,12 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const bool b&#95;vibration&#95;enabled | Enable or disable vibration control for the Neutrona wand. When set to false, there will be no vibration enabled for the Neutrona wand, and it will ignore the toggle switch settings from the Proton Pack. **Note: This can be toggled from the Neutrona Wand sub menu system.** | true |
 | bool b&#95;vibration&#95;firing | When set to true, when vibration is enabled from the Proton Pack side, the Neutrona will only vibrate during firing. Setting b&#95;vibration&#95;enabled to false will override this. **Note: This can be toggled from the Neutrona Wand sub menu system.** | false |
 | const bool b&#95;no&#95;pack | Set this to true if you want to use your Neutrona Wand without a Proton Pack connected. Otherwise when false, the Neutrona Wand will wait until it is connected to a Proton Pack before it can activate. | false |
-| const bool b&#95;overheat&#95;mode&#95;1 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 1** | false |
-| const bool b&#95;overheat&#95;mode&#95;2 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 2** | false |
-| const bool b&#95;overheat&#95;mode&#95;3 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 3** | false |
-| const bool b&#95;overheat&#95;mode&#95;4 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 4** | false |
-| const bool b&#95;overheat&#95;mode&#95;5 | Set to true if you wand the Neutrona Wand and Proton Pack to overheat in **wand power mode 5** | true |
+| bool b&#95;overheat&#95;enabled | Set to true if you want the Neutrona Wand and Proton Pack to overheat (Overheat settings below still need to be enabled for the necessary power levels. When set to false, it will override and overheating settings in each individual power mode. **Note: This can be toggled from the Neutrona Wand sub menu system.** | true |
+| const bool b&#95;overheat&#95;mode&#95;1 | Set to true if you want the Neutrona Wand and Proton Pack to overheat in **wand power mode 1** | false |
+| const bool b&#95;overheat&#95;mode&#95;2 | Set to true if you want the Neutrona Wand and Proton Pack to overheat in **wand power mode 2** | false |
+| const bool b&#95;overheat&#95;mode&#95;3 | Set to true if you want the Neutrona Wand and Proton Pack to overheat in **wand power mode 3** | false |
+| const bool b&#95;overheat&#95;mode&#95;4 | Set to true if you want the Neutrona Wand and Proton Pack to overheat in **wand power mode 4** | false |
+| const bool b&#95;overheat&#95;mode&#95;5 | Set to true if you want the Neutrona Wand and Proton Pack to overheat in **wand power mode 5** | true |
 | const unsigned long int i&#95;ms&#95;overheat&#95;initiate&#95;mode&#95;1 | Time in milliseconds for when the overheat sequence will initiate for the Neutrona Wand and Proton Pack if enabled for **wand power mode 1**. *Example: 60000 is 60 seconds* | 60000 |
 | const unsigned long int i&#95;ms&#95;overheat&#95;initiate&#95;mode&#95;2 | Time in milliseconds for when the overheat sequence will initiate for the Neutrona Wand and Proton Pack if enabled for **wand power mode 2**. *Example: 30000 is 30 seconds* | 30000 |
 | const unsigned long int i&#95;ms&#95;overheat&#95;initiate&#95;mode&#95;3 | Time in milliseconds for when the overheat sequence will initiate for the Neutrona Wand and Proton Pack if enabled for **wand power mode 3**. *Example: 20000 is 20 seconds* | 20000 |
