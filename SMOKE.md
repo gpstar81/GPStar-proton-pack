@@ -2,11 +2,16 @@
 
 Below are some examples of how to implement smoke into your Proton Pack.
 
-There are 3 pins on the Mega configured to go HIGH during smoke effect phases:
+There are 4 pins on the Mega configured to go HIGH during smoke effect phases:
 
 - Smoke1 `Pin 39`
 - Smoke2 `Pin 35`
 - Fan1 `Pin 33`
+- Fan2 `Pin 50`
+
+**Note: Fan1 is set to go off during overheat sequence only. It is useful for pushing smoke through the N-Filter**
+
+**Note: Fan2 is set to go off at the same time as Smoke2. This was requested if you want to repurpose Smoke2 from the booster tube for another purpose. For the purpose of smoke in the booster tube, this was not needed.**
 
 Each uses a simple transistor setup to activate pumps, external devices, etc.
 

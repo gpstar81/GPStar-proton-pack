@@ -644,7 +644,14 @@ const int smoke_pin = 39;
 const int smoke_booster_pin = 35;
 
 /*
- * Fan for smoke
+ * Fan for the smoke booster tube. 
+ * This will go off at the same time the smoke booster pin.
+ * It is not needed but it was requested by some people, who may want to use the smoke booster for another purpose.
+*/
+const int fan_booster_pin = 50;
+
+/*
+ * Fan for n-filter smoke
  */
 const int fan_pin = 33;
 millisDelay ms_fan_stop_timer;
@@ -745,11 +752,14 @@ void setup() {
   // Smoke motor
   pinMode(smoke_pin, OUTPUT);
 
+  // Fan pin for the n-filter smoke.
+  pinMode(fan_pin, OUTPUT);
+
   // Second smoke motor (booster tube)
   pinMode(smoke_booster_pin, OUTPUT);
 
-  // Fan pin for smoke
-  pinMode(fan_pin, OUTPUT);
+  // A fan pin that goes off at the same time of the booster tube smoke pin.
+  pinMode(fan_booster_pin, OUTPUT);
   
   // Powercell and cyclotron LEDs.
   FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, PACK_NUM_LEDS);
@@ -3279,22 +3289,28 @@ void smokeControl(bool b_smoke_on) {
 
 /* 
  *  Smoke # 2. I put this one in my booster tube.
+ *  A scond fan pin is timed to go off at the same time as this.
+ *  It is not needed for a basic smoke pump for the booster tube, but some people requested this for other purposes.
  */
 void smokeBooster(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_booster_pin, HIGH);
+        digitalWrite(fan_booster_pin, HIGH);
       }
       else if(b_overheating == true && b_smoke_2_overheat == true && b_wand_firing != true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_booster_pin, HIGH);
+        digitalWrite(fan_booster_pin, HIGH);
       }
       else {
         digitalWrite(smoke_booster_pin, LOW);
+        digitalWrite(fan_booster_pin, LOW);
       }
     }
     else {
       digitalWrite(smoke_booster_pin, LOW);
+      digitalWrite(fan_booster_pin, LOW);
     }
   }
 }
