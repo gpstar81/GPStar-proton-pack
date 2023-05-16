@@ -671,6 +671,12 @@ const bool b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_con
 const bool b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
 
 /*
+ * N-Filter LED (White) (Optional)
+ * Use a White LED with a Forward voltage of 3.0-3.2 with up to a 20ma current draw.
+*/
+const int i_nfilter_led_pin = 46;
+
+/*
  * Vent light timers and delay for over heating.
  */
 millisDelay ms_vent_light_on;
@@ -761,6 +767,9 @@ void setup() {
   // A fan pin that goes off at the same time of the booster tube smoke pin.
   pinMode(fan_booster_pin, OUTPUT);
   
+  // Another optional N-Filter LED.
+  pinMode(i_nfilter_led_pin, OUTPUT);
+
   // Powercell and cyclotron LEDs.
   FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, PACK_NUM_LEDS);
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
@@ -2368,7 +2377,7 @@ void cyclotronOverHeating() {
     break;
   }
 
-  // Time the n-light to when the fan is running.
+  // Time the n-filter light to when the fan is running.
   if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {    
     // For strobing the vent light.
     if(ms_vent_light_off.justFinished()) {
@@ -2452,6 +2461,9 @@ void resetCyclotronLeds() {
   for(int i = cyclotron_led_start; i < PACK_NUM_LEDS; i++) {
     pack_leds[i] = CRGB(0,0,0);
   }
+
+  // Turn off optional n-filter led.
+  digitalWrite(i_nfilter_led_pin, LOW);
 
   for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
       ms_cyclotron_led_fade_out[i].go(0);
@@ -2758,11 +2770,15 @@ void ventLight(bool b_on) {
     for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
       pack_leds[i] = CRGB(r,g,b);
     }
+
+    digitalWrite(i_nfilter_led_pin, HIGH);
   }
   else {
     for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
       pack_leds[i] = CRGB(0,0,0);
     }
+
+    digitalWrite(i_nfilter_led_pin, LOW);
   }
 }
 
