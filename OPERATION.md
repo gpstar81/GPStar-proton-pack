@@ -102,7 +102,7 @@ To exit the menu system, navigate to the top menu in **Setting 5** and press the
 Refer the [WavTrigger section](WAVTRIGGER.md) for more information on loading additional music tracks.
 
 ## Advanced User Configurations
-It is possible to change some of the default behaviour for both the Proton Pack and Neutrona Wand by changing some values at the top of the Proton Pack and Neutrona Wand code under CUSTOM USER CONFIGURABLE SETTINGS:
+It is possible to change some of the default behaviour for both the Proton Pack and Neutrona Wand by changing some values in the Configuration.h file. The Proton Pack and Neutrona Wand each have there own Configuration.h file that can be found in their respective folders.
 
 **Proton Pack**
 

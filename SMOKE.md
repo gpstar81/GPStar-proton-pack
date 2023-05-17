@@ -1,8 +1,8 @@
-# Smoke Configuration
+# Smoke Venting Configuration
 
 Below are some examples of how to implement smoke into your Proton Pack.
 
-There are 4 pins on the Mega configured to go HIGH during smoke effect phases:
+There are 4 outputs on the Mega and gpstar Proton Pack PCB that are configured to go 5V HIGH during smoke effect phases:
 
 - Smoke1 `Pin 39`
 - Smoke2 `Pin 35`
@@ -31,7 +31,7 @@ For this example, I used the following parts:
 - 1 - PN2222 NPN Transitor -> Refer to main parts list
 - 100% Pure Vegetable Glycerine for the vape pen to generate smoke
 
-I will be using SMOKE2, which is Pin #35 on the Mega. In the pack schematic diagrams, refer to SMOKE2 setup on the breadboard for the connection guide in the PACK instructions for more detail instructions. A quick rundown on what happens is, Pin #35 on the Mega goes high during smoke events, which makes the transistor open and the connected DC pump will then have 5V power which begins to operate. I removed the original battery compartment in the HasLab motherboard, so I have quick access to the vape pen from the battery door on the motherboard when it needs recharging and refilling with more vegetable glycerine.
+I will be using SMOKE2, which is Pin #35 on the Arduino Mega or the SM-2 connector on the gpstar Proton Pack PCB. In the pack schematic diagrams if you are using a Arduino Mega, refer to SMOKE2 setup on the breadboard for the connection guide in the PACK instructions for more detail instructions. A quick rundown on what happens is, Pin #35 on the Arduino Mega or the SM-2 connector on the gpstar Proton Pack PCB goes high during smoke events, which makes the transistor open and the connected DC pump will then have 5V power which begins to operate. I removed the original battery compartment in the HasLab motherboard, so I have quick access to the vape pen from the battery door on the motherboard when it needs recharging and refilling with more vegetable glycerine.
 
 Here are some photos the basic smoke setup. 
 

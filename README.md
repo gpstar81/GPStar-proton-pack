@@ -20,7 +20,7 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Power Requirements](POWER.md)
 
-1. [Arduino IDE Setup](ARDUINO.md)
+1. [Flashing/Uploading the code](FLASHING.md)
 
 1. [WavTrigger Configuration](WAVTRIGGER.md)
 
@@ -34,7 +34,7 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Audio Output](SOUND.md)
 
-1. [Smoke Examples](SMOKE.md)
+1. [Smoke Venting](SMOKE.md)
 
 1. [Hose Examples](HOSE.md)
 
