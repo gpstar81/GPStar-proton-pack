@@ -40,11 +40,52 @@ Connections for the pack should be made according to the table below.
 | ICSP | | Header for bootloader updates, DO NOT USE! |
 | UART | | Programming header for software updates |
 
-![](images/PackPCB-Labels1.png)
+![](images/PackPCB-Labels.png)
 
 
 ## Neutrona Wand
 
 Connections for the wand should be made according to the table below.
 
-![](images/WandPCB-Labels1.png)
+| Label | Pins | Notes |
+|-------|------|-------|
+| 5V-IN | +/\- | Power from Proton Pack. **This MUST be a regulated 5V source!** |
+| TX1/RX1 | | Communication for the Proton Pack |
+| WT-5V | +/\- | Power for the wand's WavTrigger |
+| TX3/RX3 | | Communication for the wand's WavTrigger |
+| Q2 | | Stock connection for barrel LED's |
+| SW45/SW4 | | Stock connection for the Intensify button and Activate toggle |
+| SW6 | | Orange barrel-end mode/alt switch |
+| HAT1 | | Connection for hat LED (optional) |
+| HAT2 | | Connection for hat LED (optional) |
+| BARREL-LED | | Connection for white wand tip light (optional) |
+| A7 | | Barrel retraction switch |
+| GND | | Barrel retraction switch |
+| D8 | | Slo-Blo VCC |
+| GND | | Slo-Blo GND |
+| D9 | | Front-left LED VCC |
+| GND | | Front-left LED GND |
+| A0 | | Upper-right Toggle |
+| GND | | Upper-right Toggle |
+| D4 | | Lower-right Toggle |
+| GND | | Lower-right Toggle |
+| R+ | | Rumble (vibration) motor VCC |
+| R- | | Rumble (vibration) motor GND |
+| VCC | | Power for stock bar graph |
+| A1 | | Stock bar graph LED |
+| A2 | | Stock bar graph LED |
+| A3 | | Stock bar graph LED |
+| A4 | | Stock bar graph LED |
+| A5 | | Stock bar graph LED |
+| D12 | | Stock connection for vent lights |
+| D13 | | Stock connection for vent lights |
+| VL+ | | VCC for vent lights |
+| D6 | | Rotary encoder A |
+| D7 | | Rotary encoder B |
+| ROT- | | Ground for rotary encoder |
+| 5V-OUT | +/\- | Power for additional accessories (optional) |
+| SCL/SDA | | Expansion serial port using I2C (optional) |
+| ICSP | | Header for bootloader updates, DO NOT USE! |
+| UART | | Programming header for software updates |
+
+![](images/WandPCB-Labels.png)
