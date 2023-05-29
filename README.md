@@ -14,7 +14,9 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 That's alright, this will help you study. Below you will find the various guides to build out your new electronic brains, and maybe find some cool new features to implement as part of the addendums.
 
-### Build Guides
+### DIY Build Guides
+
+Considered the "legacy" guide to building your own solution using the Arduino platform.
 
 1. [Bill of Materials](BOM.md)
 
@@ -28,7 +30,17 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Wand Setup](WAND.md)
 
+### Drop-In Hookup Guide
+
+This guide is intended for completing the connections for the all-in-one PCB approach.
+
+1. [Pack and Wand PCB's](PCB.md)
+
+1. TBD: Wiring Loom, External Connectors, etc.
+
 ### Addendums
+
+These apply to normal operation and usage of the equipment regardless of controller implementation.
 
 1. [Operation Manual](OPERATION.md)
 
@@ -41,6 +53,8 @@ That's alright, this will help you study. Below you will find the various guides
 1. [Cyclotron Lights](CYCLOTRON.md) (Optional add-ons)
 
 1. [N-Filter Vent Light](NFILTER.md) (Optional add-on)
+
+1. [Wand Bar Graph](BARGRAPH.md) (Optional add-on)
 
 1. [Frequently Asked Questions](FAQ.md)
 
