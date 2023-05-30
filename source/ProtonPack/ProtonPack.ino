@@ -1,5 +1,5 @@
 /**
- *   Proton Pack - Arduino Powered Ghostbusters Proton Pack & Neutrona Wand.
+ *   gpstar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -35,8 +35,8 @@
   * If you are compiling the code to upload to a Arduino Mega. You want to use ProtonPackMega.h and comment out ProtonpackPCB.h
   * If you are compiling the code to upload to the gpstar Proton Pack PCB, you want to use ProtonPackPCB.h and comment out ProtonPackMega.h
 */
-#include "ProtonPackMega.h"
-//#include "ProtonPackPCB.h"
+//#include "ProtonPackMega.h"
+#include "ProtonPackPCB.h"
 
 void setup() {
   Serial.begin(9600);
@@ -3027,7 +3027,7 @@ void checkWand() {
                 b_gb2_mode = true;
                 i_mode_year_tmp = 1984;
 
-                w_trig.trackStop(S_VOICE_2021);    
+                w_trig.trackStop(S_VOICE_AFTERLIFE);    
                 w_trig.trackStop(S_VOICE_1984); 
                 w_trig.trackStop(S_VOICE_1989);
                 w_trig.trackGain(S_VOICE_1989, i_volume);
@@ -3039,11 +3039,11 @@ void checkWand() {
               else {
                 i_mode_year_tmp = 2021;
 
-                w_trig.trackStop(S_VOICE_2021);    
+                w_trig.trackStop(S_VOICE_AFTERLIFE);    
                 w_trig.trackStop(S_VOICE_1984);
                 w_trig.trackStop(S_VOICE_1989);
-                w_trig.trackGain(S_VOICE_2021, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_2021);
+                w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
 
                 // Tell the wand to play the 2021 sound effect.
                 Serial2.write(18);
@@ -3054,7 +3054,7 @@ void checkWand() {
               b_gb2_mode = false;
               i_mode_year_tmp = 1984;
 
-              w_trig.trackStop(S_VOICE_2021);    
+              w_trig.trackStop(S_VOICE_AFTERLIFE);    
               w_trig.trackStop(S_VOICE_1984); 
               w_trig.trackStop(S_VOICE_1989);
               w_trig.trackGain(S_VOICE_1984, i_volume);

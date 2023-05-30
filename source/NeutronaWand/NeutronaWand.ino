@@ -1,5 +1,5 @@
 /**
- *   Neutrona Wand - Arduino Powered Ghostbusters Proton Pack & Neutrona Wand.
+ *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,7 @@
   * IMPORTANT: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are uploading code to your Nano.
   You want to use: #define __WT_USE_ALTSOFTSERIAL__
 
-  * If you are compiling the code to upload to the gpstar Neutrona Wand PCB:
+  * If you are compiling the code to upload to the gpstar Neutrona Wand micro controller:
   You want to use: #define __WT_USE_SERIAL3__
 */
 #include <wavTrigger.h>
@@ -43,10 +43,10 @@
 /*
   ***** IMPORTANT *****
   * If you are compiling the code to upload to a Arduino Nano. You want to use NeutronaWandNano.h and comment out NeutronaWandPCB.h
-  * If you are compiling the code to upload to the gpstar Neutrona Wand PCB, you want to use NeutronaWandPCB.h and comment out NeutronaWandNano.h
+  * If you are compiling the code to upload to the gpstar Neutrona Wand micro controller, you want to use NeutronaWandPCB.h and comment out NeutronaWandNano.h
 */
-#include "NeutronaWandNano.h"
-//#include "NeutronaWandPCB.h"
+//#include "NeutronaWandNano.h"
+#include "NeutronaWandPCB.h"
 
 void setup() {
   Serial.begin(9600);
@@ -58,11 +58,16 @@ void setup() {
   
   // Barrel LEDs
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_NUM_LEDS);
-
+  
   switch_wand.setDebounceTime(switch_debounce_time);
   switch_intensify.setDebounceTime(switch_debounce_time);
   switch_activate.setDebounceTime(switch_debounce_time);
   switch_vent.setDebounceTime(switch_debounce_time);
+  
+  if(b_pcb == true) {
+    pinMode(switch_mode, INPUT_PULLUP);
+    pinMode(switch_barrel, INPUT_PULLUP);
+  }
 
   // Rotary encoder on the top of the wand.
   pinMode(r_encoderA, INPUT_PULLUP);
@@ -85,6 +90,12 @@ void setup() {
   }
   
   pinMode(led_slo_blo, OUTPUT);
+
+  // Front left LED. When using the gpstar Neutrona Wand, it is wired to it's own pin. When using a Arduino Nano, it is linked with led_slo_blo.
+  if(b_pcb == true) {
+    pinMode(led_front_left, OUTPUT);
+  }
+
   pinMode(led_vent, OUTPUT);
   pinMode(led_white, OUTPUT);
 
@@ -101,6 +112,7 @@ void setup() {
 
   // Setup the mode switch debounce.
   ms_switch_mode_debounce.start(1);
+
   i_wand_menu = 5;
 
   // We bootup the wand in the classic proton mode.
@@ -133,7 +145,7 @@ void loop() {
   } 
 }
 
-void mainLoop() {
+void mainLoop() {  
   w_trig.update();
   
   checkMusic();
@@ -189,7 +201,7 @@ void mainLoop() {
           modeFiring();
           
           // Stop firing if any of the main switches are turned off or the barrel is retracted.
-          if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH || analogRead(switch_barrel) > i_switch_barrel_value) {
+          if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH || switchBarrel() == true) {
             modeFireStop();
           }
         }
@@ -203,6 +215,8 @@ void mainLoop() {
       settingsBlinkingLights();
       
       if(ms_overheating.justFinished()) {
+        bargraphClearAlt();
+
         ms_overheating.stop();
         ms_settings_blinking.stop();
         
@@ -211,6 +225,8 @@ void mainLoop() {
         w_trig.trackStop(S_CLICK);
         w_trig.trackStop(S_VENT_DRY);
         
+        bargraphRampUp();
+
         // Tell the pack that we finished overheating.
         Serial.write(11);
       }
@@ -308,7 +324,7 @@ void mainLoop() {
               Serial.write(92);
             }
 
-            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
               decreaseVolumeEffects();
               
               // Tell pack to lower the sound effects volume.
@@ -327,7 +343,7 @@ void mainLoop() {
             }
 
             // Enable or disable overheating.
-            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
               if(b_overheat_enabled == true) {
                 b_overheat_enabled = false;
                 
@@ -385,7 +401,7 @@ void mainLoop() {
                 Serial.write(90);
               }
     
-              if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {              
+              if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {                
                 if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
                   i_volume_music_percentage = 0;
                 }
@@ -412,7 +428,7 @@ void mainLoop() {
               Serial.write(35);
             }
 
-            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) { 
+            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
               ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
 
               // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
@@ -459,7 +475,7 @@ void mainLoop() {
               Serial.write(i_current_music_track);
             }
 
-            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {            
+            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {                     
               if(i_current_music_track - 1 < i_music_track_start) {
                 if(b_playing_music == true) {
                   // Go to the last track to play it.
@@ -527,7 +543,7 @@ void mainLoop() {
             }
 
             // Enable or disable vibration for firing events only.
-            if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) { 
+            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
               ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
 
               w_trig.trackStop(S_BEEPS_ALT);    
@@ -613,16 +629,16 @@ void mainLoop() {
               if(b_no_pack == true) {
                 if(year_mode == 1984) {
                   year_mode = 2021;
-                  w_trig.trackStop(S_VOICE_2021);    
+                  w_trig.trackStop(S_VOICE_AFTERLIFE);    
                   w_trig.trackStop(S_VOICE_1984);    
-                  w_trig.trackGain(S_VOICE_2021, i_volume);
-                  w_trig.trackPlayPoly(S_VOICE_2021);
+                  w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
+                  w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
 
                 }
                 else if(year_mode == 2021) {
                   year_mode = 1984;
 
-                  w_trig.trackStop(S_VOICE_2021);    
+                  w_trig.trackStop(S_VOICE_AFTERLIFE);    
                   w_trig.trackStop(S_VOICE_1984);    
                   w_trig.trackGain(S_VOICE_1984, i_volume);
                   w_trig.trackPlayPoly(S_VOICE_1984);
@@ -636,8 +652,8 @@ void mainLoop() {
   }
   
   switch(WAND_STATUS) {
-    case MODE_OFF:      
-      if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {        
+    case MODE_OFF:          
+      if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {     
         if(FIRING_MODE != SETTINGS) {
           w_trig.trackPlayPoly(S_CLICK);
 
@@ -656,6 +672,8 @@ void mainLoop() {
           if(i_wand_menu == 5 && b_wand_menu_sub != true) {
             FIRING_MODE = PREV_FIRING_MODE;
             w_trig.trackPlayPoly(S_CLICK);
+            
+            bargraphClearAlt();
 
             switch(PREV_FIRING_MODE) {
               case MESON:
@@ -813,18 +831,6 @@ void settingsBlinkingLights() {
   }
 
   if(ms_settings_blinking.remaining() < i_settings_blinking_delay / 2) {
-    if(b_bargraph_alt == true) {
-      for(int i = 0; i < 24; i++) {
-        ht_bargraph.clearLedNow(i_bargraph[i]);
-      }
-    }
-    else {
-      digitalWrite(led_bargraph_1, HIGH);
-      digitalWrite(led_bargraph_2, HIGH);
-      digitalWrite(led_bargraph_3, HIGH);
-      digitalWrite(led_bargraph_4, HIGH);
-    }
-
     bool b_solid_five = false;
 
     // Indicator for looping track setting.
@@ -837,21 +843,28 @@ void settingsBlinkingLights() {
       b_solid_five = true;
     }
 
-    if(b_solid_five == true) {
-      if(b_bargraph_alt == true) {
-        for(int i = 24; i < 28; i++) {
+    if(b_bargraph_alt == true) {
+      if(b_solid_five == true) {
+        for(int i = 0; i < 4; i++) {
           ht_bargraph.clearLedNow(i_bargraph[i]);
+        }
+
+        for(int i = 4; i < 5; i++) {
+          ht_bargraph.setLedNow(i_bargraph[i]);
         }
       }
       else {
-        digitalWrite(led_bargraph_5, LOW);
+        ht_bargraph.clearAll();
       }
     }
     else {
-      if(b_bargraph_alt == true) {
-        for(int i = 24; i < 28; i++) {
-          ht_bargraph.setLedNow(i_bargraph[i]);
-        }
+      digitalWrite(led_bargraph_1, HIGH);
+      digitalWrite(led_bargraph_2, HIGH);
+      digitalWrite(led_bargraph_3, HIGH);
+      digitalWrite(led_bargraph_4, HIGH);
+
+      if(b_solid_five == true) {
+        digitalWrite(led_bargraph_5, LOW);
       }
       else {
         digitalWrite(led_bargraph_5, HIGH);
@@ -862,7 +875,13 @@ void settingsBlinkingLights() {
     switch(i_wand_menu) {
       case 5:
         if(b_bargraph_alt == true) {
-          for(int i = 0; i < 28; i++) {
+          int i_leds = 5;
+
+          if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+            i_leds = 28;
+          }
+
+          for(int i = 0; i < i_leds; i++) {
             ht_bargraph.setLedNow(i_bargraph[i]);
           }
         }
@@ -877,13 +896,8 @@ void settingsBlinkingLights() {
 
       case 4:
         if(b_bargraph_alt == true) {
-          for(int i = 0; i < 28; i++) {
-            if(i < 24) {
-              ht_bargraph.setLedNow(i_bargraph[i]);
-            }
-            else {
-              ht_bargraph.clearLedNow(i_bargraph[i]);
-            }
+          for(int i = 0; i < 4; i++) {
+            ht_bargraph.setLedNow(i_bargraph[i]);
           }
         }
         else {
@@ -897,13 +911,8 @@ void settingsBlinkingLights() {
 
       case 3:
         if(b_bargraph_alt == true) {
-          for(int i = 0; i < 28; i++) {
-            if(i < 18) {
-              ht_bargraph.setLedNow(i_bargraph[i]);
-            }
-            else {
-              ht_bargraph.clearLedNow(i_bargraph[i]);
-            }
+          for(int i = 0; i < 3; i++) {
+            ht_bargraph.setLedNow(i_bargraph[i]);
           }
         }
         else {      
@@ -917,13 +926,8 @@ void settingsBlinkingLights() {
 
       case 2:
         if(b_bargraph_alt == true) {
-          for(int i = 0; i < 28; i++) {
-            if(i < 12) {
-              ht_bargraph.setLedNow(i_bargraph[i]);
-            }
-            else {
-              ht_bargraph.clearLedNow(i_bargraph[i]);
-            }
+          for(int i = 0; i < 2; i++) {
+            ht_bargraph.setLedNow(i_bargraph[i]);
           }
         }
         else {   
@@ -937,13 +941,8 @@ void settingsBlinkingLights() {
 
       case 1:
         if(b_bargraph_alt == true) {
-          for(int i = 0; i < 28; i++) {
-            if(i < 6) {
-              ht_bargraph.setLedNow(i_bargraph[i]);
-            }
-            else {
-              ht_bargraph.clearLedNow(i_bargraph[i]);
-            }
+          for(int i = 0; i < 1; i++) {
+            ht_bargraph.setLedNow(i_bargraph[i]);
           }
         }
         else {  
@@ -961,13 +960,15 @@ void settingsBlinkingLights() {
 // Change the WAND_STATE here based on switches changing or pressed.
 void checkSwitches() {
   if(b_debug == true) {
-    Serial.print(F("A6 -> "));
-    Serial.println(analogRead(switch_mode));  
+    if(b_pcb != true) {
+      Serial.print(F("A6 -> "));
+      Serial.println(analogRead(switch_mode));  
 
-    Serial.print(F("\n"));
-    
-    Serial.print(F("A7 -> "));
-    Serial.println(analogRead(switch_barrel));
+      Serial.print(F("\n"));
+      
+      Serial.print(F("A7 -> "));
+      Serial.println(analogRead(switch_barrel));
+    }
   }
   
   if(ms_intensify_timer.justFinished()) {
@@ -987,7 +988,7 @@ void checkSwitches() {
     case MODE_ON:
       // This is for when the mode switch is enabled for video game mode. b_cross_the_streams must not be true.
       if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true) {
-        if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {     
+          if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
           // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
           if(i_wand_menu == 5) {
             // Cycle through the firing modes and setting menu.
@@ -1005,6 +1006,8 @@ void checkSwitches() {
             }
             else {
               FIRING_MODE = PROTON;
+
+              bargraphClearAlt();
             }
    
             w_trig.trackPlayPoly(S_CLICK);
@@ -1083,7 +1086,7 @@ void checkSwitches() {
       }
       
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {          
+        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true) {          
           if(WAND_ACTION_STATUS != ACTION_FIRING) {
             WAND_ACTION_STATUS = ACTION_FIRING;
           }
@@ -1093,7 +1096,7 @@ void checkSwitches() {
 
         // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
         if(b_cross_the_streams == true) {          
-          if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.justFinished() && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && analogRead(switch_barrel) < i_switch_barrel_value) {
+          if(switchMode() == true && ms_switch_mode_debounce.justFinished() && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_FIRING;
             }
@@ -1102,7 +1105,7 @@ void checkSwitches() {
 
             ms_switch_mode_debounce.start(a_switch_debounce_time);
           }
-          else if(analogRead(switch_mode) < i_switch_mode_value && ms_switch_mode_debounce.justFinished()) {
+          else if(switchMode() != true && ms_switch_mode_debounce.justFinished()) {
             if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_IDLE;
             }
@@ -1112,7 +1115,7 @@ void checkSwitches() {
             ms_switch_mode_debounce.start(a_switch_debounce_time);
           }
         }
-
+        
         if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
           if(b_firing_alt != true) {
             WAND_ACTION_STATUS = ACTION_IDLE;
@@ -1216,14 +1219,19 @@ void modeActivate() {
     break;
 
     case 1984:
-      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
     break;
   }
 
   bargraphRampUp();
   
-  // Turn on slo-blo light.
+  // Turn on slo-blo light (and front left LED if using a Ardunio Nano).
   analogWrite(led_slo_blo, 255);
+  
+  // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
+  if(b_pcb == true) {
+    analogWrite(led_front_left, 255);
+  }
 
   // Top white light.
   ms_white_light.start(d_white_light_interval);
@@ -1544,6 +1552,8 @@ void modeFireStart() {
   b_sound_firing_cross_the_streams = false;
   b_firing_cross_streams = false;
 
+  bargraphClearAlt();
+
   if(ms_intensify_timer.isRunning() != true) {
     ms_intensify_timer.start(i_intensify_delay);
   }
@@ -1698,9 +1708,10 @@ void modeFireStop() {
     break;
 
     case 1984:
-      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 / 2;
+      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
     break;
   }
+  
   bargraphRampUp();
   
   ms_firing_stream_blue.stop();
@@ -1716,7 +1727,7 @@ void modeFireStop() {
       w_trig.trackStop(S_FIRE_LOOP);
       w_trig.trackStop(S_FIRE_LOOP_GUN);
       w_trig.trackStop(S_FIRING_LOOP_GB1);
-      w_trig.trackStop(S_FIRING_END_GUN);
+      //w_trig.trackStop(S_FIRING_END_GUN);
       w_trig.trackStop(S_FIRE_START);
       w_trig.trackStop(S_FIRE_START_SPARK);
       w_trig.trackStop(S_FIRE_LOOP_IMPACT);
@@ -2647,12 +2658,12 @@ void bargraphPowerCheck() {
       int i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
       
       if(year_mode == 2021) {
-        for(int i = 0; i <= sizeof(i_bargraph_multiplier); i++) {
+        for(int i = 0; i <= 4; i++) {
           i_bargraph_multiplier[i] = 10;
         }
       }
 
-      if(b_bargraph_up == true) {     
+      if(b_bargraph_up == true) {   
         ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
 
         switch(i_power_mode) {
@@ -2890,6 +2901,17 @@ void bargraphRampUp() {
         if(i_bargraph_status_alt == 28) {
           // A little pause when we reach the top.
           ms_bargraph.start(i_bargraph_wait / 2);
+
+          // Adjust the ramp down speed if necessary.
+          switch(year_mode) {
+            case 2021:
+              i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+            break;
+
+            case 1984:
+              // No changes.
+            break;
+          }
         }
         else {
           ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
@@ -3153,6 +3175,12 @@ void wandLightsOff() {
   }
 
   analogWrite(led_slo_blo, 0);
+
+  // If using the gpstar Neutrona Wand micro controller, the front left LED is wired separately, lets turn it off.
+  if(b_pcb == true) {
+    analogWrite(led_front_left, 0);
+  }
+
   digitalWrite(led_vent, HIGH);
   digitalWrite(led_white, HIGH);
 
@@ -3193,6 +3221,8 @@ void decreaseVolumeEffects() {
   else {
     i_volume_percentage = i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER;
   }
+
+  i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
@@ -3334,6 +3364,7 @@ void checkRotary() {
           }
         }
         
+        // Clockwise.
         if(prev_next_code == 0x07) {
           if(i_power_mode + 1 <= i_power_mode_max && WAND_STATUS == MODE_ON) {
             i_power_mode_prev = i_power_mode;
@@ -3359,7 +3390,7 @@ void checkRotary() {
               break;
             }
            
-            updatePackPowerLevel();     
+            updatePackPowerLevel();
           }
 
           // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
@@ -3492,6 +3523,54 @@ void wandBarrelLightsOff() {
   }
   
   ms_fast_led.start(i_fast_led_delay);
+}
+
+/*
+Mode switch is connected to analog input.
+PCB builds is pulled high.
+Nano builds is pulled low.
+*/
+bool switchMode() {
+  if(b_pcb == true) {
+    if(analogRead(switch_mode) < i_switch_mode_value) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  else {
+    if(analogRead(switch_mode) > i_switch_mode_value) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+}
+
+/*
+Barrel safety switch is connected to analog input.
+PCB builds is pulled high.
+Nano builds is pulled low.
+*/
+bool switchBarrel() {
+  if(b_pcb == true) {
+    if(analogRead(switch_barrel) < i_switch_barrel_value) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  else {
+    if(analogRead(switch_barrel) > i_switch_barrel_value) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 }
 
 /*
@@ -3632,16 +3711,16 @@ void checkPack() {
 
         case 18:
           // Play 2021 voice.
-          w_trig.trackStop(S_VOICE_2021);  
+          w_trig.trackStop(S_VOICE_AFTERLIFE);  
           w_trig.trackStop(S_VOICE_1989);
           w_trig.trackStop(S_VOICE_1984);    
-          w_trig.trackGain(S_VOICE_2021, i_volume);
-          w_trig.trackPlayPoly(S_VOICE_2021);
+          w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
+          w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
         break;
 
         case 19:
           // Play 1989 voice.
-          w_trig.trackStop(S_VOICE_2021);  
+          w_trig.trackStop(S_VOICE_AFTERLIFE);  
           w_trig.trackStop(S_VOICE_1989);
           w_trig.trackStop(S_VOICE_1984);    
           w_trig.trackGain(S_VOICE_1989, i_volume);
@@ -3650,7 +3729,7 @@ void checkPack() {
 
         case 20:
           // Play 1984 voice.
-          w_trig.trackStop(S_VOICE_2021);  
+          w_trig.trackStop(S_VOICE_AFTERLIFE);  
           w_trig.trackStop(S_VOICE_1989);
           w_trig.trackStop(S_VOICE_1984);    
           w_trig.trackGain(S_VOICE_1984, i_volume);
@@ -3752,10 +3831,16 @@ void setupWavTrigger() {
   
   char w_trig_version[VERSION_STRING_LEN]; // Firmware version.
   int w_num_tracks = w_trig.getNumTracks();
+
   w_trig.getVersion(w_trig_version, VERSION_STRING_LEN);
-  
+
+  if(b_debug == true) {
+    Serial.println(w_trig_version);
+  }
+
   // Build the music track count.
   i_music_count = w_num_tracks - i_last_effects_track;
+
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 100_
   }

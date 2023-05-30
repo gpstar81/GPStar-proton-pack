@@ -1,5 +1,5 @@
 /**
- *   Neutrona Wand - Arduino Powered Ghostbusters Proton Pack & Neutrona Wand.
+ *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -16,3 +16,7 @@
  *   along with this program; if not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+const bool b_pcb = true;
+const uint8_t led_slo_blo = 8;
+const uint8_t led_front_left = 9;

@@ -1,5 +1,5 @@
 /**
- *   Neutrona Wand - Arduino Powered Ghostbusters Proton Pack & Neutrona Wand.
+ *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 /* 
  *  SD Card sound files in order. If you have no sound, your SD card might be too slow. 
  *  Try a faster one. File naming 000_ is important as well. For music, it is 100_ and higher.
- *  Also note if you add more sounds to this list, you need to update the i_last_effects_track variable.
+ *  Also note if you add more sounds to this list, you need to update the i_last_effects_track variable located at the bottom of this file to the last enum definition.
  *  The wav trigger uses this to determine how many music tracks there are if any.
  */
 enum sound_fx {
@@ -117,10 +117,11 @@ enum sound_fx {
   S_VOICE_SINGLE_LED,
   S_VOICE_THREE_LED,
   S_VOICE_OVERHEAT_ENABLED,
-  S_VOICE_OVERHEAT_DISABLED
+  S_VOICE_OVERHEAT_DISABLED,
+  S_VOICE_AFTERLIFE
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const int i_last_effects_track = S_VOICE_OVERHEAT_DISABLED;
+const int i_last_effects_track = S_VOICE_AFTERLIFE;

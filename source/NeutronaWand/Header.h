@@ -1,5 +1,5 @@
 /**
- *   Neutrona Wand - Arduino Powered Ghostbusters Proton Pack & Neutrona Wand.
+ *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -92,18 +92,17 @@ const int switch_barrel = A7; // Barrel extension/open switch.
 /*
  * Some switch settings.
  */
-const int i_switch_mode_value = 200;
-const int i_switch_barrel_value = 100;
 const uint8_t switch_debounce_time = 50;
 const uint8_t a_switch_debounce_time = 250;
 millisDelay ms_switch_mode_debounce;
 millisDelay ms_intensify_timer;
 const int i_intensify_delay = 400;
+const int i_switch_mode_value = 200;
+const int i_switch_barrel_value = 100;
 
 /*
  * Wand lights
  */
-const uint8_t led_slo_blo = 5; // There are 2 LED's attached to this pin. The slo-blo and the light on the front of the wand body. You can drive up to 2 led's from 1 pin on a arduino.
 const uint8_t led_white = 12; // Blinking white light beside the vent on top of the wand.
 const uint8_t led_vent = 13; // Vent light
 const uint8_t led_bargraph_1 = A1;
@@ -149,7 +148,7 @@ bool b_bargraph_up = false;
 unsigned int i_bargraph_status_alt = 0;
 const int d_bargraph_ramp_interval_alt = 40;
 const int i_bargraph_multiplier_ramp_1984 = 3;
-const int i_bargraph_multiplier_ramp_2021 = 10;
+const int i_bargraph_multiplier_ramp_2021 = 16;
 int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
 /*

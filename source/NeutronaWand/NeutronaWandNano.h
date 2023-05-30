@@ -1,5 +1,5 @@
 /**
- *   Neutrona Wand - Arduino Powered Ghostbusters Proton Pack & Neutrona Wand.
+ *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,12 @@
 /* 
  *  AltSoftSerial uses: Pin 9 = TX & Pin 8 = RX. 
  *  So Pin 9 goes to the RX of the WavTrigger and Pin 8 goes to the TX of the WavTrigger. 
+ *  IMPORTANT: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are uploading code to your Nano.
+ *  You want to use: #define __WT_USE_ALTSOFTSERIAL__
  */
 #include <AltSoftSerial.h>
+
+const bool b_pcb = false;
+const uint8_t led_slo_blo = 5; // There are 2 LED's attached to this pin. The slo-blo and the light on the front of the wand body. You can drive up to 2 led's from 1 pin on a arduino.
+const uint8_t led_front_left = NULL;
 
