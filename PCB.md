@@ -30,8 +30,7 @@ Connections for the pack should be made according to the table below.
 | P.GREEN | | Connection for 2x green LED's in cyclotron inner panel (optional) |
 | P.SWITCH | | Connection for 2x blue? LED's in cyclotron inner panel (optional) |
 | LED-W | | Connection for standalone white LED in N-Filter (optional) |
-| WT-5V | +/\- | Power for the pack's WavTrigger |
-| RX3/TX3 | | Communication for the pack's WavTrigger |
+| WAV TRIGGER | +/\- | Communication and Power for the pack's WavTrigger |
 | WAND 5V-OUT | +/\- | Power for the Neutrona Wand |
 | WAND RX2/TX2 | | Communication for the Neutrona Wand |
 | 5V-OUT | +/\- | Power for additional accessories (optional) |
@@ -51,8 +50,7 @@ Connections for the wand should be made according to the table below.
 |-------|------|-------|
 | 5V-IN | +/\- | Power from Proton Pack. **This MUST be a regulated 5V source!** |
 | TX1/RX1 | | Communication for the Proton Pack |
-| WT-5V | +/\- | Power for the wand's WavTrigger |
-| TX3/RX3 | | Communication for the wand's WavTrigger |
+| WAV TRIGGER | | Communication and Power for the wands's WavTrigger |
 | Q2 | | Stock connection for barrel LED's |
 | SW45/SW4 | | Stock connection for the Intensify button and Activate toggle |
 | SW6 | | Orange barrel-end mode/alt switch |
