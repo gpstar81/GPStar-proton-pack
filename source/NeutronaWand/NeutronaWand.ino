@@ -185,9 +185,11 @@ void mainLoop() {
           if(ms_hat_1.isRunning()) {
             if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
               digitalWrite(led_hat_1, LOW);
+              digitalWrite(led_hat_2, HIGH);
             }
             else {
               digitalWrite(led_hat_1, HIGH);
+              digitalWrite(led_hat_2, LOW);
             }
 
             if(ms_hat_1.justFinished()) {
@@ -829,6 +831,12 @@ void mainLoop() {
 
           if(ms_hat_2.justFinished()) {
             ms_hat_2.start(i_hat_2_delay);
+          }
+        }
+        else {
+          if(ms_hat_1.isRunning() != true) {
+            // Hat 2 stays solid while the Neutrona Wand is on. It will blink though when about to overheat.
+            digitalWrite(led_hat_2, HIGH);
           }
         }
       }
