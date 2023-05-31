@@ -91,9 +91,12 @@ void setup() {
   
   pinMode(led_slo_blo, OUTPUT);
 
-  // Front left LED. When using the gpstar Neutrona Wand, it is wired to it's own pin. When using a Arduino Nano, it is linked with led_slo_blo.
+  // Extra optional items if using them with the gpstar Neutrona Wand micro controller.
   if(b_pcb == true) {
-    pinMode(led_front_left, OUTPUT);
+    pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand micro controller, it is wired to it's own pin. When using a Arduino Nano, it is linked with led_slo_blo.
+    pinMode(led_hat_1, OUTPUT); // Hat light at front of the wand near the barrel tip.
+    pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body.
+    pinMode(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
   }
 
   pinMode(led_vent, OUTPUT);
@@ -178,10 +181,31 @@ void mainLoop() {
           modeFireStart();
         }
 
+        if(b_pcb == true) {
+          if(ms_hat_1.isRunning()) {
+            if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
+              digitalWrite(led_hat_1, LOW);
+            }
+            else {
+              digitalWrite(led_hat_1, HIGH);
+            }
+
+            if(ms_hat_1.justFinished()) {
+              ms_hat_1.start(i_hat_1_delay);
+            }
+          }
+        }
+
         // Overheating.
         if(ms_overheat_initiate.justFinished() && b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
           ms_overheat_initiate.stop();
+
           modeFireStop();
+
+          // Turn on hat light 2.
+          if(b_pcb == true) {
+            digitalWrite(led_hat_2, HIGH);
+          }
 
           delay(100);
           
@@ -260,6 +284,11 @@ void mainLoop() {
         ms_overheating.stop();
         ms_settings_blinking.stop();
         
+        // Turn off hat light 2.
+        if(b_pcb == true) {
+          digitalWrite(led_hat_2, LOW);
+        }
+
         WAND_ACTION_STATUS = ACTION_IDLE;
 
         w_trig.trackStop(S_CLICK);
@@ -787,7 +816,23 @@ void mainLoop() {
       if(b_vibration_on == true && WAND_ACTION_STATUS != ACTION_SETTINGS) {
         vibrationSetting();
       }
-  
+
+      // Hat light 2 blinking when the Pack ribbon cable has been removed.
+      if(b_pcb == true) {
+        if(b_pack_alarm == true) {
+          if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
+            digitalWrite(led_hat_2, LOW);
+          }
+          else {
+            digitalWrite(led_hat_2, HIGH);
+          }
+
+          if(ms_hat_2.justFinished()) {
+            ms_hat_2.start(i_hat_2_delay);
+          }
+        }
+      }
+
       // Top white light.
       if(ms_white_light.justFinished()) {
         ms_white_light.start(d_white_light_interval);
@@ -1262,7 +1307,8 @@ void wandOff() {
   ms_overheat_initiate.stop();
   ms_overheating.stop();
   ms_settings_blinking.stop();
-    
+  ms_hat_1.stop();
+
   // Turn off remaining lights.
   wandLightsOff();
   barrelLightsOff();
@@ -1634,6 +1680,12 @@ void modeFireStart() {
 
   bargraphClearAlt();
 
+  // Turn on hat light 1.
+  if(b_pcb == true) {
+    digitalWrite(led_hat_1, HIGH);
+  }
+  ms_hat_1.stop();
+
   if(ms_intensify_timer.isRunning() != true) {
     ms_intensify_timer.start(i_intensify_delay);
   }
@@ -1801,6 +1853,14 @@ void modeFireStop() {
   i_barrel_light = 0;
   ms_firing_lights_end.start(10);
 
+  // If using optional items on the gpstar Neutrona Wand micro controller.
+  if(b_pcb == true) {
+    digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
+    digitalWrite(led_barrel_tip, LOW); // Turn off hat the wand barrel tip LED.
+  }
+  
+  ms_hat_1.stop();
+
   // Stop all other firing sounds.
   switch(FIRING_MODE) {
     case PROTON:
@@ -1910,6 +1970,12 @@ void modeFiring() {
     if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {
       ms_overheat_initiate.stop();
       
+      // Adjust hat light 1 to stay solid.
+      if(b_pcb == true) {
+        digitalWrite(led_hat_1, HIGH);
+      }
+      ms_hat_1.stop();
+
       // Tell the pack to revert back to regular cyclotron speeds.
       Serial.write(12);
     }
@@ -2196,6 +2262,11 @@ void barrelLightsOff() {
     barrel_leds[i] = CRGB(0,0,0);
   }
 
+  // Turn off the wand barrel tip LED.
+  if(b_pcb == true) {
+    digitalWrite(led_barrel_tip, LOW);
+  }
+
   ms_fast_led.start(i_fast_led_delay);
 }
 
@@ -2261,6 +2332,10 @@ void vibrationWand(int i_level) {
   }
 }
 
+/*
+ * Bargraph ramping during firing.
+ * Optional barrel LED tip strobing is controlled from here to give it a ramp effect if the Proton Pack and Neutrona Wand are going to overheat.
+*/
 void bargraphRampFiring() {
   // (Optional) 28 Segment barmeter bargraph.
   if(b_bargraph_alt == true) {    
@@ -2280,6 +2355,10 @@ void bargraphRampFiring() {
         }
 
         b_bargraph_up = true;
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
+        }
       break;
 
       case 1:
@@ -2299,6 +2378,10 @@ void bargraphRampFiring() {
           ht_bargraph.clearLedNow(i_bargraph[16]);
 
           i_bargraph_status_alt--;
+        }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
         }
       break;
 
@@ -2320,6 +2403,10 @@ void bargraphRampFiring() {
 
           i_bargraph_status_alt--;
         }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, LOW);
+        }
       break;
 
       case 3:
@@ -2340,6 +2427,10 @@ void bargraphRampFiring() {
 
           i_bargraph_status_alt--;
         }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, LOW);
+        }        
       break;
 
       case 4:
@@ -2359,6 +2450,10 @@ void bargraphRampFiring() {
           ht_bargraph.clearLedNow(i_bargraph[19]);
           
           i_bargraph_status_alt--;
+        }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
         }
       break;
 
@@ -2380,6 +2475,10 @@ void bargraphRampFiring() {
 
           i_bargraph_status_alt--;
         }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
+        }
       break;
 
       case 6:
@@ -2400,6 +2499,10 @@ void bargraphRampFiring() {
 
           i_bargraph_status_alt--;
         }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, LOW);
+        }        
       break;
 
       case 7:
@@ -2420,6 +2523,10 @@ void bargraphRampFiring() {
 
           i_bargraph_status_alt--;
         }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, LOW);
+        }        
       break;
 
       case 8:
@@ -2440,6 +2547,10 @@ void bargraphRampFiring() {
 
           i_bargraph_status_alt--;
         }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
+        }        
       break;
 
       case 9:
@@ -2460,6 +2571,10 @@ void bargraphRampFiring() {
 
           i_bargraph_status_alt--;
         }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
+        }        
       break;            
 
       case 10:
@@ -2480,6 +2595,10 @@ void bargraphRampFiring() {
 
           i_bargraph_status_alt--;
         }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, LOW);
+        }        
       break;
 
       case 11:
@@ -2500,6 +2619,10 @@ void bargraphRampFiring() {
 
           i_bargraph_status_alt--;
         }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, LOW);
+        }        
       break;      
 
       case 12:
@@ -2520,6 +2643,10 @@ void bargraphRampFiring() {
 
           i_bargraph_status_alt--;
         }
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
+        }        
       break;
 
       case 13:
@@ -2534,6 +2661,10 @@ void bargraphRampFiring() {
         i_bargraph_status_alt--;
 
         b_bargraph_up = false;
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
+        }        
       break;    
     }
   }
@@ -2549,6 +2680,10 @@ void bargraphRampFiring() {
         digitalWrite(led_bargraph_4, HIGH);
         digitalWrite(led_bargraph_5, LOW);
         i_bargraph_status++;
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
+        }        
       break;
 
       case 2:
@@ -2560,6 +2695,10 @@ void bargraphRampFiring() {
         digitalWrite(led_bargraph_4, LOW);
         digitalWrite(led_bargraph_5, HIGH);
         i_bargraph_status++;
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, LOW);
+        }        
       break;
 
       case 3:
@@ -2571,6 +2710,10 @@ void bargraphRampFiring() {
         digitalWrite(led_bargraph_4, HIGH);
         digitalWrite(led_bargraph_5, HIGH);
         i_bargraph_status++;
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
+        }        
       break;
 
       case 4:
@@ -2582,6 +2725,10 @@ void bargraphRampFiring() {
         digitalWrite(led_bargraph_4, LOW);
         digitalWrite(led_bargraph_5, HIGH);
         i_bargraph_status++;
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, LOW);
+        }        
       break;
 
       case 5:
@@ -2593,6 +2740,10 @@ void bargraphRampFiring() {
         digitalWrite(led_bargraph_4, HIGH);
         digitalWrite(led_bargraph_5, LOW);
         i_bargraph_status = 1;
+
+        if(b_pcb == true) {
+          digitalWrite(led_barrel_tip, HIGH);
+        }        
       break;
     }
   }
@@ -2674,6 +2825,8 @@ void cyclotronSpeedUp(int i_switch) {
 
       // Beep the wand 8 times.
       w_trig.trackPlayPoly(S_BEEP_8);
+
+      ms_hat_1.start(i_hat_1_delay);      
     }
     
     i_cyclotron_speed_up++;
@@ -3286,9 +3439,13 @@ void wandLightsOff() {
 
   analogWrite(led_slo_blo, 0);
 
-  // If using the gpstar Neutrona Wand micro controller, the front left LED is wired separately, lets turn it off.
+  // If using the gpstar Neutrona Wand micro controller.
   if(b_pcb == true) {
-    analogWrite(led_front_left, 0);
+    analogWrite(led_front_left, 0); // The front left LED is wired separately, lets turn it off.
+
+    digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
+    digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
+    digitalWrite(led_barrel_tip, LOW); // Turn off the wand barrel tip LED.
   }
 
   digitalWrite(led_vent, HIGH);
@@ -3742,11 +3899,21 @@ void checkPack() {
         case 3:
           // Alarm is on.
           b_pack_alarm = true;
+
+          if(b_pcb == true) {
+            digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
+            ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
+          }
         break;
   
         case 4:
           // Alarm is off.
           b_pack_alarm = false;
+
+          if(b_pcb == true) {
+            digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
+          }
+          ms_hat_2.stop();
         break;
   
         case 5:

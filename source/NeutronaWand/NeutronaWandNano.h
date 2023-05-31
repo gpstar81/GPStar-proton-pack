@@ -28,4 +28,6 @@
 const bool b_pcb = false;
 const uint8_t led_slo_blo = 5; // There are 2 LED's attached to this pin. The slo-blo and the light on the front of the wand body. You can drive up to 2 led's from 1 pin on a arduino.
 const uint8_t led_front_left = NULL;
-
+const uint8_t led_hat_1 = NULL;
+const uint8_t led_hat_2 = NULL;
+const uint8_t led_barrel_tip = NULL;

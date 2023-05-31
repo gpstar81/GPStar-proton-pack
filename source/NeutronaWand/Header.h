@@ -157,6 +157,14 @@ int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 */
 const uint8_t i_bargraph[28] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 
+/*
+ * Timers for the optional hat lights.
+*/
+millisDelay ms_hat_1;
+millisDelay ms_hat_2;
+const int i_hat_1_delay = 100;
+const int i_hat_2_delay = 400;
+
 /* 
  *  A timer for controlling the wand beep. in 2021 mode.
  */
