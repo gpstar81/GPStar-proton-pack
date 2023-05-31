@@ -188,9 +188,41 @@ void mainLoop() {
           WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
           // Play overheating sounds.
-          ms_overheating.start(i_ms_overheating);
-          ms_settings_blinking.start(i_settings_blinking_delay);
-          
+          ms_overheating.start(i_ms_overheating);        
+
+          // Blinking bargraph option for overheat.
+          if(b_overheat_bargraph_blink == true) {
+            ms_settings_blinking.start(i_settings_blinking_delay);
+          }
+          else {
+            // If bargraph is set to ramp down during overheat, we need to set a few things.
+            soundBeepLoopStop();
+            soundIdleStop();
+            soundIdleLoopStop();
+
+            b_sound_idle == false;
+            b_beeping = false;
+
+            // Reset some bargraph levels before we ramp the bargraph down.
+            i_bargraph_status_alt = 28; // For 28 segment bargraph
+            i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
+
+            if(b_bargraph_alt == true) {
+              for(int i = 0; i < 28; i++) {
+                ht_bargraph.setLedNow(i_bargraph[i]);
+              }
+            }
+            else {
+              digitalWrite(led_bargraph_1, LOW);
+              digitalWrite(led_bargraph_2, LOW);
+              digitalWrite(led_bargraph_3, LOW);
+              digitalWrite(led_bargraph_4, LOW);
+              digitalWrite(led_bargraph_5, LOW);
+            }
+
+            ms_bargraph.start(d_bargraph_ramp_interval);
+          }
+
           w_trig.trackPlayPoly(S_VENT_DRY);
           w_trig.trackPlayPoly(S_CLICK);
 
@@ -212,7 +244,15 @@ void mainLoop() {
     break;
     
     case ACTION_OVERHEATING:
-      settingsBlinkingLights();
+      if(b_overheat_bargraph_blink == true) {
+        settingsBlinkingLights();
+      }
+      else {
+        // Prepare to make the bargraph ramp if set to during overheat.
+        if(ms_bargraph.justFinished()) {
+          bargraphRampUp();
+        }
+      }
       
       if(ms_overheating.justFinished()) {
         bargraphClearAlt();
@@ -225,8 +265,39 @@ void mainLoop() {
         w_trig.trackStop(S_CLICK);
         w_trig.trackStop(S_VENT_DRY);
         
-        bargraphRampUp();
+        // Prepare a few things before ramping the bargraph back up from a full ramp down.
+        if(b_overheat_bargraph_blink != true) {
+          w_trig.trackPlayPoly(S_BOOTUP, true);
+          
+          if(year_mode == 2021) {
+            bargraphYearModeUpdate();
+          }
+          else {
+            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
+          }
+          
+          if(switch_vent.getState() == LOW) {
+            soundIdleLoop(true);
+          }
+          else {
+            switch(year_mode) {
+              case 1984:
+                // Do nothing.
+              break;
 
+              case 2021:
+                soundIdleLoop(true);
+
+                w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);
+                w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
+                ms_gun_loop_1.start(2000);
+              break;
+            }
+          }
+        }
+
+        bargraphRampUp();
+        
         // Tell the pack that we finished overheating.
         Serial.write(11);
       }
@@ -1060,31 +1131,33 @@ void checkSwitches() {
         }
       }
 
-      // Vent light and first stage of the safety system.
-      if(switch_vent.getState() == LOW) {
-        // Vent light and top white light on.
-        digitalWrite(led_vent, LOW);
+      if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        // Vent light and first stage of the safety system.
+        if(switch_vent.getState() == LOW) {
+          // Vent light and top white light on.
+          digitalWrite(led_vent, LOW);
 
-        soundIdleStart();
+          soundIdleStart();
 
-        if(switch_wand.getState() == LOW) {
-          if(b_beeping != true) {
-            // Beep loop.
-            soundBeepLoop();
-          }  
+          if(switch_wand.getState() == LOW) {
+            if(b_beeping != true) {
+              // Beep loop.
+              soundBeepLoop();
+            }  
+          }
+          else {
+            soundBeepLoopStop();
+          }
         }
-        else {
+        else if(switch_vent.getState() == HIGH) {        
+          // Vent light and top white light off.
+          digitalWrite(led_vent, HIGH);
+
           soundBeepLoopStop();
+          soundIdleStop();
         }
       }
-      else if(switch_vent.getState() == HIGH) {        
-        // Vent light and top white light off.
-        digitalWrite(led_vent, HIGH);
 
-        soundBeepLoopStop();
-        soundIdleStop();
-      }
-      
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true) {          
           if(WAND_ACTION_STATUS != ACTION_FIRING) {
@@ -1336,7 +1409,7 @@ void soundIdleLoopStop() {
 }
 
 void soundIdleStart() {
-  if(b_sound_idle == false) {  
+  if(b_sound_idle == false) {      
     switch(year_mode) {
       case 1984:
         w_trig.trackPlayPoly(S_BOOTUP, true);
@@ -1380,9 +1453,16 @@ void soundIdleStop() {
       break;
 
       default:
+        if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+          w_trig.trackPlayPoly(S_WAND_SHUTDOWN, true);
+        }
+
         w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_DOWN_2, true);
-        ms_gun_loop_1.start(1700);
-        ms_gun_loop_2.stop();
+
+        if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+          ms_gun_loop_1.start(1700);
+          ms_gun_loop_2.stop();
+        }
       break;
     }
   }
@@ -1420,7 +1500,7 @@ void soundBeepLoopStop() {
   }
 }
 void soundBeepLoop() {  
-  if(ms_reset_sound_beep.justFinished()) {
+  if(ms_reset_sound_beep.justFinished() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
     if(b_beeping == false) {
       switch(i_power_mode) {
         case 1:
@@ -2643,10 +2723,12 @@ void bargraphPowerCheck2021Alt() {
 
 void bargraphClearAlt() {
   if(b_bargraph_alt == true) {
+    ht_bargraph.clearAll();
+    /*
     for(int i = 0; i < 28; i++) {
       ht_bargraph.clearLedNow(i_bargraph[i]);
     }
-
+    */
     i_bargraph_status_alt = 0;
   }
 }
@@ -2922,114 +3004,135 @@ void bargraphRampUp() {
         int i_tmp = i_bargraph_status_alt - 27;
         i_tmp = 28 - i_tmp;
 
-        if((i_power_mode < 5 && year_mode == 2021) || year_mode == 1984) {
-          ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
+        if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+          if(i_bargraph_status_alt == 56) {
+            ms_bargraph.stop();
+            b_bargraph_up = false;
+            i_bargraph_status_alt = 0;
+          }
+          else {          
+            ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
+
+            ms_bargraph.start(d_bargraph_ramp_interval_alt * 2);
+            i_bargraph_status_alt++;
+          }
         }
+        else {
+          if((i_power_mode < 5 && year_mode == 2021) || year_mode == 1984) {
+            ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
+          }
 
-        switch(year_mode) {
-          case 1984:
-            // Bargraph has ramped up and down. In 1984 mode we want to start the ramping.
-            if(i_bargraph_status_alt == 54) {
-              ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
-              ms_bargraph.stop();
-              b_bargraph_up = true;
-              i_bargraph_status_alt = 0;
-              bargraphYearModeUpdate();
-              
-              vibrationWand(i_vibration_level);
-            }
-            else {
-              ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-              i_bargraph_status_alt++;
-            }
-            
-          break;
-
-          case 2021:
-            switch(i_power_mode) {
-              case 5:
+          switch(year_mode) {
+            case 1984:
+              // Bargraph has ramped up and down. In 1984 mode we want to start the ramping.
+              if(i_bargraph_status_alt == 54) {
+                ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
                 ms_bargraph.stop();
-                b_bargraph_up = false;
-                i_bargraph_status_alt = 27;
+                b_bargraph_up = true;
+                i_bargraph_status_alt = 0;
                 bargraphYearModeUpdate();
-
-                vibrationWand(i_vibration_level + 25);
-              break;
-
-              case 4:
-                if(i_bargraph_status_alt == 31) {
-                  ms_bargraph.stop();
-                  b_bargraph_up = false;
-                  i_bargraph_status_alt = 23;
-                  bargraphYearModeUpdate();
-
-                  vibrationWand(i_vibration_level + 30);
-                }
-                else {
-                  ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                  i_bargraph_status_alt++;
-
-                  vibrationWand(i_vibration_level + 12);
-                }
-              break;
-
-              case 3:
-                if(i_bargraph_status_alt == 37) {
-                  ms_bargraph.stop();
-                  b_bargraph_up = false;
-                  i_bargraph_status_alt = 17;
-                  bargraphYearModeUpdate();
-
-                  vibrationWand(i_vibration_level + 10);
-                }
-                else {
-                  ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                  i_bargraph_status_alt++;
-
-                  vibrationWand(i_vibration_level + 20);
-                }
-              break;
-
-              case 2:
-                if(i_bargraph_status_alt == 43) {
-                  ms_bargraph.stop();
-                  b_bargraph_up = false;
-                  i_bargraph_status_alt = 11;
-                  bargraphYearModeUpdate();
-                  
-                  vibrationWand(i_vibration_level + 5);
-                }
-                else {
-                  ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                  i_bargraph_status_alt++;
-
-                  vibrationWand(i_vibration_level + 10);
-                }
-              break;
-
-              case 1:
+                
                 vibrationWand(i_vibration_level);
+              }
+              else {
+                ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                i_bargraph_status_alt++;
+              }
+              
+            break;
 
-                if(i_bargraph_status_alt == 49) {
+            case 2021:
+              switch(i_power_mode) {
+                case 5:
                   ms_bargraph.stop();
                   b_bargraph_up = false;
-                  i_bargraph_status_alt = 5;
-
+                  i_bargraph_status_alt = 27;
                   bargraphYearModeUpdate();
-                }
-                else {
-                  ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                  i_bargraph_status_alt++;
-                }
-              break;
-            }
-          break;
+
+                  vibrationWand(i_vibration_level + 25);
+                break;
+
+                case 4:
+                  if(i_bargraph_status_alt == 31) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = false;
+                    i_bargraph_status_alt = 23;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 30);
+                  }
+                  else {
+                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                    i_bargraph_status_alt++;
+
+                    vibrationWand(i_vibration_level + 12);
+                  }
+                break;
+
+                case 3:
+                  if(i_bargraph_status_alt == 37) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = false;
+                    i_bargraph_status_alt = 17;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 10);
+                  }
+                  else {
+                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                    i_bargraph_status_alt++;
+
+                    vibrationWand(i_vibration_level + 20);
+                  }
+                break;
+
+                case 2:
+                  if(i_bargraph_status_alt == 43) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = false;
+                    i_bargraph_status_alt = 11;
+                    bargraphYearModeUpdate();
+                    
+                    vibrationWand(i_vibration_level + 5);
+                  }
+                  else {
+                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                    i_bargraph_status_alt++;
+
+                    vibrationWand(i_vibration_level + 10);
+                  }
+                break;
+
+                case 1:
+                  vibrationWand(i_vibration_level);
+
+                  if(i_bargraph_status_alt == 49) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = false;
+                    i_bargraph_status_alt = 5;
+
+                    bargraphYearModeUpdate();
+                  }
+                  else {
+                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                    i_bargraph_status_alt++;
+                  }
+                break;
+              }
+            break;
+          }
         }              
 
       break;
     }
   }
   else {
+    int t_bargraph_ramp_multiplier = 1;
+
+    if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+      t_bargraph_ramp_multiplier = 2;
+    }
+
     switch(i_bargraph_status) {
       case 0:
         vibrationWand(i_vibration_level + 10);
@@ -3039,7 +3142,7 @@ void bargraphRampUp() {
         digitalWrite(led_bargraph_3, HIGH);
         digitalWrite(led_bargraph_4, HIGH);
         digitalWrite(led_bargraph_5, HIGH);
-        ms_bargraph.start(d_bargraph_ramp_interval);
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
@@ -3050,7 +3153,7 @@ void bargraphRampUp() {
         digitalWrite(led_bargraph_3, HIGH);
         digitalWrite(led_bargraph_4, HIGH);
         digitalWrite(led_bargraph_5, HIGH);
-        ms_bargraph.start(d_bargraph_ramp_interval);
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
@@ -3060,7 +3163,7 @@ void bargraphRampUp() {
         digitalWrite(led_bargraph_3, LOW);
         digitalWrite(led_bargraph_4, HIGH);
         digitalWrite(led_bargraph_5, HIGH);
-        ms_bargraph.start(d_bargraph_ramp_interval);
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
@@ -3069,7 +3172,7 @@ void bargraphRampUp() {
         
         digitalWrite(led_bargraph_4, LOW);
         digitalWrite(led_bargraph_5, HIGH);
-        ms_bargraph.start(d_bargraph_ramp_interval);
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
@@ -3078,13 +3181,13 @@ void bargraphRampUp() {
         
         digitalWrite(led_bargraph_5, LOW);
 
-        if(i_bargraph_status + 1 == i_power_mode) {
+        if(i_bargraph_status + 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
         else {
           i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval);
+          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
       
@@ -3093,13 +3196,13 @@ void bargraphRampUp() {
         
         digitalWrite(led_bargraph_5, HIGH);
         
-        if(i_bargraph_status - 1 == i_power_mode) {
+        if(i_bargraph_status - 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
         else {
           i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval);
+          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
       
@@ -3108,13 +3211,13 @@ void bargraphRampUp() {
             
         digitalWrite(led_bargraph_4, HIGH);
         
-        if(i_bargraph_status - 3 == i_power_mode) {
+        if(i_bargraph_status - 3 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
         else {
           i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval);
+          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
       
@@ -3123,29 +3226,36 @@ void bargraphRampUp() {
             
         digitalWrite(led_bargraph_3, HIGH);
         
-        if(i_bargraph_status - 5 == i_power_mode) {
+        if(i_bargraph_status - 5 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
         else {
           i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval);
+          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
 
       case 8:
         vibrationWand(i_vibration_level + 10);
             
-        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(led_bargraph_2, HIGH);
         
-        if(i_bargraph_status - 7 == i_power_mode) {
+        if(i_bargraph_status - 7 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
         else {
-          ms_bargraph.start(d_bargraph_ramp_interval);
-          i_bargraph_status = 1;
+          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+          i_bargraph_status++;
         }
+      break;
+
+      case 9:
+        digitalWrite(led_bargraph_1, HIGH);
+        ms_bargraph.stop();
+        i_bargraph_status = 0;
+      break;
     }
   }
 }
@@ -3317,97 +3427,99 @@ void checkRotary() {
       break;
 
       default:
-        // Counter clockwise.
-        if(prev_next_code == 0x0b) {
-          if(i_power_mode - 1 >= i_power_mode_min && WAND_STATUS == MODE_ON) {
-            i_power_mode_prev = i_power_mode;
-            i_power_mode--;
+        if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+          // Counter clockwise.
+          if(prev_next_code == 0x0b) {
+            if(i_power_mode - 1 >= i_power_mode_min && WAND_STATUS == MODE_ON) {
+              i_power_mode_prev = i_power_mode;
+              i_power_mode--;
 
-            if(year_mode == 2021 && b_bargraph_alt == true) {
-              bargraphPowerCheck2021Alt();
-            }
+              if(year_mode == 2021 && b_bargraph_alt == true) {
+                bargraphPowerCheck2021Alt();
+              }
 
-            soundBeepLoopStop();
-    
-            switch(year_mode) {
-              case 1984:
-                if(switch_vent.getState() == LOW) {
-                  soundIdleLoopStop();
-                  soundIdleLoop(false);
-                }
-              break;
+              soundBeepLoopStop();
       
-              default:
-                  soundIdleLoopStop();
-                  soundIdleLoop(false);
-              break;
-            }
-
-            updatePackPowerLevel();
-          }
-
-          // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-          if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
-            if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
-              i_volume_music_percentage = 0;
-            }
-            else {
-              i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
-            }
-
-            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-            w_trig.trackGain(i_current_music_track, i_volume_music);
-            
-            // Tell pack to lower music volume.
-            Serial.write(96);
-          }
-        }
+              switch(year_mode) {
+                case 1984:
+                  if(switch_vent.getState() == LOW) {
+                    soundIdleLoopStop();
+                    soundIdleLoop(false);
+                  }
+                break;
         
-        // Clockwise.
-        if(prev_next_code == 0x07) {
-          if(i_power_mode + 1 <= i_power_mode_max && WAND_STATUS == MODE_ON) {
-            i_power_mode_prev = i_power_mode;
-            i_power_mode++;
-            
-            if(year_mode == 2021 && b_bargraph_alt == true) {
-              bargraphPowerCheck2021Alt();
+                default:
+                    soundIdleLoopStop();
+                    soundIdleLoop(false);
+                break;
+              }
+
+              updatePackPowerLevel();
             }
 
-            soundBeepLoopStop();
-    
-            switch(year_mode) {
-              case 1984:
-                if(switch_vent.getState() == LOW) {
-                  soundIdleLoopStop();
-                  soundIdleLoop(false);
-                }
-              break;
-      
-              default:
-                  soundIdleLoopStop();
-                  soundIdleLoop(false);
-              break;
+            // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
+            if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
+              if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
+                i_volume_music_percentage = 0;
+              }
+              else {
+                i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
+              }
+
+              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+              w_trig.trackGain(i_current_music_track, i_volume_music);
+              
+              // Tell pack to lower music volume.
+              Serial.write(96);
             }
-           
-            updatePackPowerLevel();
           }
+          
+          // Clockwise.
+          if(prev_next_code == 0x07) {
+            if(i_power_mode + 1 <= i_power_mode_max && WAND_STATUS == MODE_ON) {
+              i_power_mode_prev = i_power_mode;
+              i_power_mode++;
+              
+              if(year_mode == 2021 && b_bargraph_alt == true) {
+                bargraphPowerCheck2021Alt();
+              }
 
-          // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-          if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
-            if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
-              i_volume_music_percentage = 100;
-            }
-            else {
-              i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
-            }
-
-            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-            w_trig.trackGain(i_current_music_track, i_volume_music);
+              soundBeepLoopStop();
+      
+              switch(year_mode) {
+                case 1984:
+                  if(switch_vent.getState() == LOW) {
+                    soundIdleLoopStop();
+                    soundIdleLoop(false);
+                  }
+                break;
+        
+                default:
+                    soundIdleLoopStop();
+                    soundIdleLoop(false);
+                break;
+              }
             
-            // Tell pack to increase music volume.
-            Serial.write(97);
+              updatePackPowerLevel();
+            }
+
+            // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
+            if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
+              if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
+                i_volume_music_percentage = 100;
+              }
+              else {
+                i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
+              }
+
+              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+              w_trig.trackGain(i_current_music_track, i_volume_music);
+              
+              // Tell pack to increase music volume.
+              Serial.write(97);
+            }
           }
         }
       break;

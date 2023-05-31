@@ -92,7 +92,7 @@ bool b_cross_the_streams = false;
 
 /*
  * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
- * Set to false if you are using the sock Hasbro bargraph.
+ * Set to false if you are using the stock Hasbro bargraph.
  * Part #: BL28Z-3005SA04Y
 */
 const bool b_bargraph_alt = false;
@@ -123,6 +123,12 @@ const bool b_no_pack = false;
  * This can be controle from the Neutrona Wand submenu system.
 */
 bool b_overheat_enabled = true;
+
+/*
+ * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
+ * When false, the bargraph will ramp itself down instead.
+*/
+bool b_overheat_bargraph_blink = false;
 
 /*
  * Which power modes do you want to be able to overheat.
