@@ -175,8 +175,7 @@ Considered optional as this can be left out if desired, and without impact to no
 | NPN B                | → | 330 Ω      | →                            | Pin D11 |                                             |
 | NPN E                | → | →          | →                            | Ground  |                                             |
 
----
-### Hasbro Bargraph ###
+### Hasbro Bargraph
 | BARGRAPH → J3                      |   |       |    | Nano Pin | Hasbro Ref |
 |------------------------------------|---|-------|----|----------|------------|
 | <font color="blue">Blue</font>     | → | +5V   |    |          | VDD  |
@@ -189,38 +188,10 @@ Considered optional as this can be left out if desired, and without impact to no
 Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes.
 **Use the appropriate resistor for your replacement LED's based on their forward voltage given a 5V source!**
 
+OPTIONAL - To upgrade to a more accurate and animated bargraph, please see [this guide](BARGRAPH.md).
 
-### ***(OPTIONAL) -***  BARMETER 28 SEGMENT BARGRAPH ###
-The stock Hasbro 5 LED bargraph indicated above, can be replaced with a Barmeter 28 Segment Bargraph (BL28Z-3005SA04Y). You can find the Barmeter pin reference below this connection guide for referencing the Barmeter Pin numbers. See the component fitment guide at the bottom of this page for how to mount this Bargraph into your wand body.
+### Wand LED's
 
-| HT16K33 Board  |   |        | Nano Pin | Barmeter Pin |
-|----------------|---|--------|----------|--------------|
-| VDD            | → | +5V    |          |              |
-| GND            | → | Ground |          |              |
-| SDA            | → | →      | Pin A5   |              |
-| SCL            | → | →      | Pin A4   |              |
-| A0             | → | →      | →        | 22 (C1)      |
-| A1             | → | →      | →        |  1 (C2)      |
-| A2             | → | →      | →        | 19 (C3)      |
-| A3             | → | →      | →        | 18 (C4)      |
-| A4             | → | →      | →        |  7 (C5)      |
-| A5             | → | →      | →        | 10 (C6)      |
-| A6             | → | →      | →        | 11 (C7)      |
-| C0             | → | →      | →        | 21 (L1)      |
-| C1             | → | →      | →        | 16 (L4)      |
-| C2             | → | →      | →        | 13 (L3)      |
-| C3             | → | →      | →        | 15 (L2)      |
-
-![](images/barmeter.jpg)
-### BARMETER 28 SEGMENT BARGRAPH - BL28Z-3005SA04Y - Pin Layout Reference ###
-| Pin No  | 1  | 2 | 3 | 4 | 5 | 6 | 7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 |
-|---------|----|---|---|---|---|---|----|---|---|----|----|----|----|----|----|----|----|----|----|----|----|----|
-|         | C2 |   |   |   |   |   | C5 |   |   | C6 | C7 |    |    |    |    |    |    | C4 | C3 |    |    | C1 |
-|         |    |   |   |   |   |   |    |   |   |    |    |    | L3 |    | L2 | L4 |    |    |    |    | L1 |    |
-
----
-
-### Wand LED's ###
 | VENT LIGHT LED BOARD → D7 & D8  |   |      |    | Nano Pin | Hasbro Ref |                                        |
 |---------------------------------|---|------|----|----------|------------|----------------------------------------|
 | <font color="red">Red</font>    | → | +5V  |    |          | VDD        |                                        |
@@ -241,7 +212,7 @@ For the SLO-BLO and Front-Left LED which share on 1 pin from the Nano. The spec 
 | <font color="red">Red</font>       | → | 140 Ω | → | Pin D5 | D9 | Nano pin shared with SLO-BLO |
 | <font color="yellow">Yellow</font> | → | →     | → | Ground | D9 |                              |
 
-OPTIONAL - See below for transistor method to drive the 2 LEDs from the same pin if you wish to use that method instead. See example breadboard setup photo below that you can replicate onto [a ¼ protoboard](https://www.adafruit.com/product/1608).
+**OPTIONAL** - See below for transistor method to drive the 2 LEDs from the same pin if you wish to use that method instead. See example breadboard setup photo below that you can replicate onto [a ¼ protoboard](https://www.adafruit.com/product/1608).
 
 | NPN* = PN2222 |   | Slo-Blo (B) | Front Left LED (Y)| Nano Pin |
 |---------------|---|-------------|-------------------|----------|

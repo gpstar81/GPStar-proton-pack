@@ -79,32 +79,32 @@ Connections for the wand should be made according to the table below.
 
 ### Stock Connectors (Terminal Blocks)
 
-| Label/Pin | Notes |
-|-----------|-------|
-| A7 | Barrel extension switch (wire order does not matter) |
-| GND | Barrel extension switch (wire order does not matter) |
-| D8 | Slo-Blo VCC |
-| GND | Slo-Blo GND |
-| D4 | Lower-right Toggle (wire order does not matter) |
-| GND | Lower-right Toggle (wire order does not matter) |
-| A0 | Upper-right Toggle (wire order does not matter) |
-| GND | Upper-right Toggle (wire order does not matter) |
-| D9 | Front-left LED VCC |
-| GND | Front-left LED GND |
-| R+ | Rumble (vibration) motor VCC |
-| R- | Rumble (vibration) motor GND |
-| VCC | Power for stock bar graph |
-| A1 | Stock bar graph LED |
-| A2 | Stock bar graph LED |
-| A3 | Stock bar graph LED |
-| A4 | Stock bar graph LED |
-| A5 | Stock bar graph LED |
-| D12 | Stock connection for vent lights |
-| D13 | Stock connection for vent lights |
-| VL+ | VCC for vent lights |
-| D7 | Rotary encoder B |
-| D6 | Rotary encoder A |
-| ROT- | Ground for rotary encoder |
+| Label/Pin | Color | Notes |
+|-----------|-------|-------|
+| A7 | <font color="orange">Orange</font> | Barrel extension switch (wire order does not matter) |
+| GND | <font color="orange">Orange</font> | Barrel extension switch (wire order does not matter) |
+| D8 | <font color="red">Red</font> | Slo-Blo VCC |
+| GND | Black | Slo-Blo GND |
+| D4 | <font color="brown">Brown</font> | Lower-right Toggle (wire order does not matter) |
+| GND | <font color="brown">Brown</font> | Lower-right Toggle (wire order does not matter) |
+| A0 | <font color="red">Red</font> | Upper-right Toggle (wire order does not matter) |
+| GND | <font color="red">Red</font> | Upper-right Toggle (wire order does not matter) |
+| D9 | <font color="red">Red</font> | Clippard LED (Top Left) VCC |
+| GND | <font color="yellow">Yellow</font> | Clippard LED (Top Left) GND |
+| R+ | <font color="red">Red</font> | Rumble (vibration) motor VCC |
+| R- | Black | Rumble (vibration) motor GND |
+| VCC | <font color="blue">Blue</font> | Power for stock bar graph |
+| A1 | <font color="brown">Brown</font> | Stock bar graph LED |
+| A2 | <font color="red">Red</font> | Stock bar graph LED |
+| A3 | <font color="orange">Orange</font> | Stock bar graph LED |
+| A4 | <font color="yellow">Yellow</font> | Stock bar graph LED |
+| A5 | <font color="green">Green</font> | Stock bar graph LED |
+| D12 | <font color="gray">White</font> | Blinking top right LED |
+| D13 | Black | White vent light LED |
+| VL+ | <font color="red">Red</font> | VCC for vent lights |
+| D7 | <font color="orange">Orange</font> | Rotary encoder B |
+| D6 | <font color="red">Red</font> | Rotary encoder A |
+| ROT- | <font color="brown">Brown</font> | Ground for rotary encoder |
 
 ### Special Connectors
 
@@ -112,7 +112,7 @@ Connections for the wand should be made according to the table below.
 |-------|------|-------|
 | PACK (Serial) | TX1/RX1 | Serial communication for the Proton Pack |
 | WAV TRIGGER | GND/NC/VCC/TX/RX/NC | Communication and Power for the wands's Wav Trigger |
-| ICSP | DO NOT USE! | Reserved header for bootloader updates (reserved) |
+| ICSP | DO NOT USE! | Programming header for bootloader updates (reserved) |
 | UART | See Below | Programming header for software updates (optional) |
 
 For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label on each side. If using an FTDI to USB cable, the DTS pin will connect to the RTS pin. The CTS pin on most FTDI headers will not be used (connects to GND on the board).
@@ -127,6 +127,6 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 | 5V-OUT | +/\- | Power for additional accessories |
 | SCL/SDA | SCL/SDA | Expansion serial port using I2C |
 
-**Note:** If using the 28-segment bargraph, power may be delivered via the 5V-OUT while the SCL/SDA serial connection will provide data/control.
+**Note:** If using the [28-segment bargraph](BARGRAPH.md), power may be delivered via the 5V-OUT while the SCL/SDA serial connection will provide data/control.
 
 ![](images/WandPCB-Labels.png)
