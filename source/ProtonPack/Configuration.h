@@ -58,6 +58,7 @@ const int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 
  * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
  * If you are not using any, then this can be left alone.
  * Leave at least one in place, even if you are not using this optional item.
+ * You can use up to 35 LEDs.
  * 24 -> For a 24 LED NeoPixel Ring
  * 35 -> For a 35 LED NeoPixel Ring. (Recommended ring size)
  */

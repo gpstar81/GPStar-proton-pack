@@ -28,6 +28,7 @@
 #include <Ramp.h>
 #include "Configuration.h"
 #include "MusicSounds.h"
+#include "SerialDefs.h"
 #include "Header.h"
 
 /*
@@ -82,7 +83,7 @@ void setup() {
   // Powercell and cyclotron LEDs.
   FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, PACK_NUM_LEDS);
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
-  FastLED.setMaxPowerInVoltsAndMilliamps(5,500);  // Limit draw to 500mA at 5v of power.
+  //FastLED.setMaxPowerInVoltsAndMilliamps(5,500);  // Limit draw to 500mA at 5v of power.
    
   // Cyclotron Switch Panel LEDs
   pinMode(cyclotron_sw_plate_led_r1, OUTPUT);
@@ -1936,7 +1937,7 @@ void innerCyclotronRing(int cDelay) {
     
     if(b_clockwise == true) {
       if(b_cyclotron_lid_on != true) {
-        if(CYCLOTRON_NUM_LEDS == 35) {
+        //if(CYCLOTRON_NUM_LEDS == 35) {
           cyclotron_leds[i_led_cyclotron_ring] = CRGB(r,g,b);
   
           if(i_led_cyclotron_ring == 0) {
@@ -1946,8 +1947,8 @@ void innerCyclotronRing(int cDelay) {
             cyclotron_leds[i_led_cyclotron_ring - 1] = CRGB(0,0,0);
           }
         }
-      }
-
+      //}
+      
       i_led_cyclotron_ring++;
       
       if(i_led_cyclotron_ring > CYCLOTRON_NUM_LEDS - 1) {
@@ -1956,7 +1957,7 @@ void innerCyclotronRing(int cDelay) {
     }
     else {
       if(b_cyclotron_lid_on != true) {
-        if(CYCLOTRON_NUM_LEDS == 35) {
+        //if(CYCLOTRON_NUM_LEDS == 35) {
           cyclotron_leds[i_led_cyclotron_ring] = CRGB(r,g,b);
           
           if(i_led_cyclotron_ring + 1 > CYCLOTRON_NUM_LEDS - 1) {
@@ -1965,7 +1966,7 @@ void innerCyclotronRing(int cDelay) {
           else {
             cyclotron_leds[i_led_cyclotron_ring + 1] = CRGB(0,0,0);
           }
-        }
+        //}
       }
       
       i_led_cyclotron_ring--;

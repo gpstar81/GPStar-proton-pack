@@ -193,12 +193,12 @@ Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes
 ### ***(OPTIONAL) -***  BARMETER 28 SEGMENT BARGRAPH ###
 The stock Hasbro 5 LED bargraph indicated above, can be replaced with a Barmeter 28 Segment Bargraph (BL28Z-3005SA04Y). You can find the Barmeter pin reference below this connection guide for referencing the Barmeter Pin numbers. See the component fitment guide at the bottom of this page for how to mount this Bargraph into your wand body.
 
-| HT16K33 Board  |   |        | Nano Pin | Barmeter Pin |
+| HT16K33 Board  |   |        | Wand Board | Barmeter Pin |
 |----------------|---|--------|----------|--------------|
-| VDD            | → | +5V    |          |              |
-| GND            | → | Ground |          |              |
-| SDA            | → | →      | Pin A5   |              |
-| SCL            | → | →      | Pin A4   |              |
+| VDD            | → | +5V    |         |              |
+| GND            | → | Ground |         |              |
+| SDA            | → | →      | SDA (Pin A5)   |              |
+| SCL            | → | →      | SCL (Pin A4)  |              |
 | A0             | → | →      | →        | 22 (C1)      |
 | A1             | → | →      | →        |  1 (C2)      |
 | A2             | → | →      | →        | 19 (C3)      |
