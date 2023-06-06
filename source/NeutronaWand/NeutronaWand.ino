@@ -40,6 +40,7 @@
 #include <FastLED.h>
 #include <ezButton.h>
 #include <ht16k33.h>
+#include <SerialTransfer.h>
 #include "Configuration.h"
 #include "MusicSounds.h"
 #include "Communication.h"
@@ -55,6 +56,9 @@ void setup() {
   // Enable Serial1 if compiling for the gpstar Neutrona Wand micro controller board.
   #ifdef HAVE_HWSERIAL1
     Serial1.begin(9600);
+    wandComs.begin(Serial1);
+  #else
+    wandComs.begin(Serial);
   #endif
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
@@ -146,8 +150,8 @@ void loop() {
 
     // Synchronise some settings with the pack.
     checkPack();
-    
-    delay(200);
+
+    delay(10);    
   }
   else {   
     mainLoop();
@@ -3910,261 +3914,247 @@ bool switchBarrel() {
  * Pack commuication to the wand.
  */
 void checkPack() {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(Serial1.available() > 0) {
-  #else
-    if(Serial.available() > 0) {
-  #endif
-  
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      rx_byte = Serial1.read();
-    #else
-      rx_byte = Serial.read();
-    #endif
+  if(wandComs.available()) {
+    wandComs.rxObj(comStruct);
 
-    if(b_volume_sync_wait == true) {
-        switch(VOLUME_SYNC_WAIT) {
-          case EFFECTS:
-            i_volume_percentage = rx_byte;
-            i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+    if(!wandComs.currentPacketID()) {
+      if(comStruct.i > 0) {    
+        if(b_volume_sync_wait == true) {
+            switch(VOLUME_SYNC_WAIT) {
+              case EFFECTS:
+                i_volume_percentage = comStruct.i;
+                i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
-            adjustVolumeEffectsGain();
-            VOLUME_SYNC_WAIT = MASTER;
-          break;
+                adjustVolumeEffectsGain();
+                VOLUME_SYNC_WAIT = MASTER;
+              break;
 
-          case MASTER:
-            i_volume_master_percentage = rx_byte;
-            i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+              case MASTER:
+                i_volume_master_percentage = comStruct.i;
+                i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
 
-            w_trig.masterGain(i_volume_master);
-            VOLUME_SYNC_WAIT = MUSIC;
-          break;
+                w_trig.masterGain(i_volume_master);
+                VOLUME_SYNC_WAIT = MUSIC;
+              break;
 
-          case MUSIC:
-            i_volume_music_percentage = rx_byte;
-            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+              case MUSIC:
+                i_volume_music_percentage = comStruct.i;
+                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-            b_volume_sync_wait = false;
-            b_wait_for_pack = false;
-            VOLUME_SYNC_WAIT = EFFECTS;
-          break;
-        }      
-    }
-    else {
-      switch(rx_byte) {      
-        case P_ON:
-          // Pack is on.
-          b_pack_on = true;
-        break;
-  
-        case P_OFF:
-          if(b_pack_on == true) {
-            // Turn wand off.
-            if(WAND_STATUS != MODE_OFF) {
-              WAND_ACTION_STATUS = ACTION_OFF;
-            }
-          }
-          
-          // Pack is off.
-          b_pack_on = false;
-        break;
-  
-        case P_ALARM_ON:
-          // Alarm is on.
-          b_pack_alarm = true;
+                b_volume_sync_wait = false;
+                b_wait_for_pack = false;
+                VOLUME_SYNC_WAIT = EFFECTS;
+              break;
+            }      
+        }
+        else {
+          switch(comStruct.i) {
+            case P_ON:
+              // Pack is on.
+              b_pack_on = true;
+            break;
+      
+            case P_OFF:
+              if(b_pack_on == true) {
+                // Turn wand off.
+                if(WAND_STATUS != MODE_OFF) {
+                  WAND_ACTION_STATUS = ACTION_OFF;
+                }
+              }
+              
+              // Pack is off.
+              b_pack_on = false;
+            break;
+      
+            case P_ALARM_ON:
+              // Alarm is on.
+              b_pack_alarm = true;
 
-          if(b_pcb == true) {
-            digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
-            ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
-          }
-        break;
-  
-        case P_ALARM_OFF:
-          // Alarm is off.
-          b_pack_alarm = false;
+              if(b_pcb == true) {
+                digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
+                ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
+              }
+            break;
+      
+            case P_ALARM_OFF:
+              // Alarm is off.
+              b_pack_alarm = false;
 
-          if(b_pcb == true) {
-            digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
-          }
-          ms_hat_2.stop();
-        break;
-  
-        case P_VIBRATION_ENABLED:
-          // Vibration on.
-          b_vibration_on = true;
-        break;
-  
-        case P_VIBRATION_DISABLED:
-          // Vibration off.
-          b_vibration_on = false;
-          vibrationOff();
-        break;
-  
-        case P_YEAR_1984:
-          // 1984 mode.
-          year_mode = 1984;
-          bargraphYearModeUpdate();
-        break;
-  
-        case P_YEAR_AFTERLIFE:
-          // 2021 mode.
-          year_mode = 2021;
-          bargraphYearModeUpdate();
-        break;
-  
-        case P_VOLUME_INCREASE:
-          // Increase overall volume.
-          increaseVolume();
-        break;
-  
-        case P_VOLUME_DECREASE:
-          // Decrease overall volume.
-          decreaseVolume();
-        break;
-  
-        case P_HANDSHAKE:
-          // The pack is asking us if we are still here. Respond back.
-          wandSerialSend(W_HANDSHAKE);
-        break;
-  
-        case P_MUSIC_REPEAT:
-          // Repeat music track.
-          b_repeat_track = true;
-        break;
-  
-        case P_MUSIC_NO_REPEAT:
-          // Do not repeat the music track.
-          b_repeat_track = false;
-        break;
+              if(b_pcb == true) {
+                digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
+              }
+              ms_hat_2.stop();
+            break;
+      
+            case P_VIBRATION_ENABLED:
+              // Vibration on.
+              b_vibration_on = true;
+            break;
+      
+            case P_VIBRATION_DISABLED:
+              // Vibration off.
+              b_vibration_on = false;
+              vibrationOff();
+            break;
+      
+            case P_YEAR_1984:
+              // 1984 mode.
+              year_mode = 1984;
+              bargraphYearModeUpdate();
+            break;
+      
+            case P_YEAR_AFTERLIFE:
+              // 2021 mode.
+              year_mode = 2021;
+              bargraphYearModeUpdate();
+            break;
+      
+            case P_VOLUME_INCREASE:
+              // Increase overall volume.
+              increaseVolume();
+            break;
+      
+            case P_VOLUME_DECREASE:
+              // Decrease overall volume.
+              decreaseVolume();
+            break;
+      
+            case P_HANDSHAKE:
+              // The pack is asking us if we are still here. Respond back.
+              wandSerialSend(W_HANDSHAKE);
+            break;
+      
+            case P_MUSIC_REPEAT:
+              // Repeat music track.
+              b_repeat_track = true;
+            break;
+      
+            case P_MUSIC_NO_REPEAT:
+              // Do not repeat the music track.
+              b_repeat_track = false;
+            break;
+      
+            case P_VOLUME_SYNC_MODE:
+              // Put the wand into volume sync mode.
+              b_volume_sync_wait = true;
+              VOLUME_SYNC_WAIT = EFFECTS;
+            break;
+            
+            case P_VIBRATION_FIRING_ENABLED:
+              // Vibration firing on.
+              b_vibration_firing = true;
+              vibrationOff();
+            break;
+      
+            case P_VIBRATION_FIRING_DISABLED:
+              // Vibration firing off
+              b_vibration_firing = false;
+            break;
 
-        /*
-         * Not used.
-         */
-        case P_UNUSED:
+            case P_MODE_AFTERLIFE:
+              // Play 2021 voice.
+              w_trig.trackStop(S_VOICE_AFTERLIFE);  
+              w_trig.trackStop(S_VOICE_1989);
+              w_trig.trackStop(S_VOICE_1984);    
+              w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
+            break;
 
-        break;
-  
-        case P_VOLUME_SYNC_MODE:
-          // Put the wand into volume sync mode.
-          b_volume_sync_wait = true;
-          VOLUME_SYNC_WAIT = EFFECTS;
-        break;
-        
-        case P_VIBRATION_FIRING_ENABLED:
-          // Vibration firing on.
-          b_vibration_firing = true;
-          vibrationOff();
-        break;
-  
-        case P_VIBRATION_FIRING_DISABLED:
-          // Vibration firing off
-          b_vibration_firing = false;
-        break;
+            case P_MODE_1989:
+              // Play 1989 voice.
+              w_trig.trackStop(S_VOICE_AFTERLIFE);  
+              w_trig.trackStop(S_VOICE_1989);
+              w_trig.trackStop(S_VOICE_1984);    
+              w_trig.trackGain(S_VOICE_1989, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_1989);
+            break;
 
-        case P_MODE_AFTERLIFE:
-          // Play 2021 voice.
-          w_trig.trackStop(S_VOICE_AFTERLIFE);  
-          w_trig.trackStop(S_VOICE_1989);
-          w_trig.trackStop(S_VOICE_1984);    
-          w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
-          w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
-        break;
+            case P_MODE_1984:
+              // Play 1984 voice.
+              w_trig.trackStop(S_VOICE_AFTERLIFE);  
+              w_trig.trackStop(S_VOICE_1989);
+              w_trig.trackStop(S_VOICE_1984);    
+              w_trig.trackGain(S_VOICE_1984, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_1984);
+            break;
 
-        case P_MODE_1989:
-          // Play 1989 voice.
-          w_trig.trackStop(S_VOICE_AFTERLIFE);  
-          w_trig.trackStop(S_VOICE_1989);
-          w_trig.trackStop(S_VOICE_1984);    
-          w_trig.trackGain(S_VOICE_1989, i_volume);
-          w_trig.trackPlayPoly(S_VOICE_1989);
-        break;
+            case P_SMOKE_DISABLED:
+              // Play smoke disabled voice.
+              w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
+              w_trig.trackStop(S_VOICE_SMOKE_ENABLED);    
+              w_trig.trackGain(S_VOICE_SMOKE_DISABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
+            break;
 
-        case P_MODE_1984:
-          // Play 1984 voice.
-          w_trig.trackStop(S_VOICE_AFTERLIFE);  
-          w_trig.trackStop(S_VOICE_1989);
-          w_trig.trackStop(S_VOICE_1984);    
-          w_trig.trackGain(S_VOICE_1984, i_volume);
-          w_trig.trackPlayPoly(S_VOICE_1984);
-        break;
+            case P_SMOKE_ENABLED:
+              // Play smoke enabled voice.
+              w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
+              w_trig.trackStop(S_VOICE_SMOKE_DISABLED);    
+              w_trig.trackGain(S_VOICE_SMOKE_ENABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);
+            break;
 
-        case P_SMOKE_DISABLED:
-          // Play smoke disabled voice.
-          w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
-          w_trig.trackStop(S_VOICE_SMOKE_ENABLED);    
-          w_trig.trackGain(S_VOICE_SMOKE_DISABLED, i_volume);
-          w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
-        break;
+            case P_CYCLOTRON_COUNTER_CLOCKWISE:
+              // Play cyclotron counter clockwise voice.
+              w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+              w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+              w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);   
+            break;
 
-        case P_SMOKE_ENABLED:
-          // Play smoke enabled voice.
-          w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
-          w_trig.trackStop(S_VOICE_SMOKE_DISABLED);    
-          w_trig.trackGain(S_VOICE_SMOKE_ENABLED, i_volume);
-          w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);
-        break;
+            case P_CYCLOTRON_CLOCKWISE:
+              // Play cyclotron clockwise voice.
+              w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
+              w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+              w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);   
+            break;
 
-        case P_CYCLOTRON_COUNTER_CLOCKWISE:
-          // Play cyclotron counter clockwise voice.
-          w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
-          w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
-          w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
-          w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);   
-        break;
+            case P_CYCLOTRON_SINGLE_LED:
+              // Play Single LED voice.
+              w_trig.trackStop(S_VOICE_THREE_LED);
+              w_trig.trackStop(S_VOICE_SINGLE_LED);    
+              w_trig.trackGain(S_VOICE_SINGLE_LED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_SINGLE_LED);
+            break;
 
-        case P_CYCLOTRON_CLOCKWISE:
-          // Play cyclotron clockwise voice.
-          w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
-          w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
-          w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
-          w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);   
-        break;
+            case P_CYCLOTRON_THREE_LED:
+              // Play 3 LED voice.
+              w_trig.trackStop(S_VOICE_THREE_LED);
+              w_trig.trackStop(S_VOICE_SINGLE_LED);    
+              w_trig.trackGain(S_VOICE_THREE_LED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_THREE_LED);
+            break;
 
-        case P_CYCLOTRON_SINGLE_LED:
-          // Play Single LED voice.
-          w_trig.trackStop(S_VOICE_THREE_LED);
-          w_trig.trackStop(S_VOICE_SINGLE_LED);    
-          w_trig.trackGain(S_VOICE_SINGLE_LED, i_volume);
-          w_trig.trackPlayPoly(S_VOICE_SINGLE_LED);
-        break;
-
-        case P_CYCLOTRON_THREE_LED:
-          // Play 3 LED voice.
-          w_trig.trackStop(S_VOICE_THREE_LED);
-          w_trig.trackStop(S_VOICE_SINGLE_LED);    
-          w_trig.trackGain(S_VOICE_THREE_LED, i_volume);
-          w_trig.trackPlayPoly(S_VOICE_THREE_LED);
-        break;
-
-        case P_MUSIC_STOP:
-          // Stop music
-          stopMusic();
-        break;
-        
-        default:
-          // Music track number to be played.
-          if(rx_byte >= i_music_track_start) {
-            if(b_playing_music == true) {
+            case P_MUSIC_STOP:
+              // Stop music
               stopMusic();
-              i_current_music_track = rx_byte;
-              playMusic();
-            }
-            else {
-              i_current_music_track = rx_byte;
-            }
+            break;
+            
+            default:
+              // Music track number to be played.
+              if(comStruct.i >= i_music_track_start) {
+                if(b_playing_music == true) {
+                  stopMusic();
+                  i_current_music_track = comStruct.i;
+                  playMusic();
+                }
+                else {
+                  i_current_music_track = comStruct.i;
+                }
+              }
+            break;
           }
-        break;
+        }
       }
     }
   }
 }
 
 void wandSerialSend(int i_message) {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    Serial1.write(i_message);
-  #else
-    Serial.write(i_message);
-  #endif
+  sendStruct.i = i_message;
+  
+  wandComs.sendDatum(sendStruct);
 }
 
 void setupWavTrigger() {

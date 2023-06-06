@@ -25,6 +25,7 @@ The following libraries are required to be installed. All but the WavTrigger and
 - **Ramp** by Sylvain Garnavault
 - **AltSoftSerial** by Paul Stoffregen
 - **simple ht16k33 library** by lpaseen
+- **SerialTransfer** by PowerBroker2
 - **millisDelay** `See Below`
 - **WavTrigger** `See Below`
 

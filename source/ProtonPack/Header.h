@@ -329,6 +329,15 @@ millisDelay ms_wand_handshake_checking;
 int i_wand_power_level = 1; // Power level of the wand.
 int rx_byte = 0;
 int prev_byte = 0;
+SerialTransfer packComs;
+
+struct __attribute__((packed)) STRUCT {
+  int i;
+} comStruct;
+
+struct __attribute__((packed)) STRUCTSEND {
+  int i;
+} sendStruct;
 
 /*
  * Firing timers

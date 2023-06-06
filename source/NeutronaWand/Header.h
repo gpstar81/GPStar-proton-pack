@@ -209,6 +209,16 @@ int i_power_mode_prev = 1;
  */
 int rx_byte = 0;
 
+SerialTransfer wandComs;
+
+struct __attribute__((packed)) STRUCT {
+  int i;
+} comStruct;
+
+struct __attribute__((packed)) STRUCTSEND {
+  int i;
+} sendStruct;
+
 /*
  * Some pack flags which get transmitted to the wand depending on the pack status.
  */
