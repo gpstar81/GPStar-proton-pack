@@ -269,3 +269,19 @@ const bool b_smoke_overheat_mode_5 = true;
  * Set to false to turn off the sound.
  */
 const bool b_diagnostic = false;
+
+/*
+  *****
+  ***** INFORMATION FOR HOME BUILT gpstar Proton Packs using a Arduino Mega ********
+  *****
+  
+  * If you are compiling the code to upload to a Arduino Mega with the original gpstar home built instructions. You want to use disabled GPSTAR_PROTON_PACK_PCB.
+  * example: //#define GPSTAR_PROTON_PACK_PCB;  
+  * This is a legacy flag, for people who originally put the cyclotron lid detection on pin 51 and not pin 43. If your cyclotron lid detection is on pin 51, then comment/disable this define.
+  * If your home built gpstar proton pack was built with pin 43 for the cyclotron lid detection, then you can leave this enabled.
+
+  * If you are compiling the code to upload to the gpstar Proton Pack micro controller, or latest gpstar home built instructions, then enable and uncomment it (default).
+  * example: #define GPSTAR_PROTON_PACK_PCB;  
+  * In general, leave this enabled by default as very few people did the pin 51 setup.
+*/
+#define GPSTAR_PROTON_PACK_PCB;

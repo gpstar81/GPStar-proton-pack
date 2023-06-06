@@ -231,9 +231,9 @@ ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defa
  *  Wav trigger
  */
 wavTrigger w_trig;
-int i_music_count = 0;
-int i_current_music_track = 0;
-const int i_music_track_start = 100; // Music tracks start on file named 100_ and higher.
+unsigned int i_music_count = 0;
+unsigned int i_current_music_track = 0;
+const unsigned int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 bool b_playing_music = false;
 bool b_repeat_track = false;
 
@@ -353,3 +353,12 @@ int i_mode_year_tmp = 2021; // Controlled by the Neutrona wand.
 bool b_switch_mode_override = false; // Year mode override flag controlled by the Neutrona wand. This resets when you flip the mode year toggle switch on the pack.
 bool b_pack_on = false;
 bool b_pack_shutting_down = false;
+
+/*
+ * If you are compiling this for a Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
+*/
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  ezButton switch_cyclotron_lid(43); // Second cyclotron ground pin (brown) that we detect if the lid is removed or not.
+#else
+  ezButton switch_cyclotron_lid(51); // Second cyclotron ground pin (brown) that we detect if the lid is removed or not.
+#endif

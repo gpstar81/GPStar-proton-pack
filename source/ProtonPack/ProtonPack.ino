@@ -19,25 +19,19 @@
 
 /* 
  *  You need to edit wavTrigger.h and make sure you comment out the proper serial port. (Near the top of the wavTrigger.h file).
- *  We are going to use tx/rx #3 on the Mega.  __WT_USE_SERIAL3___
+ *  We are going to use tx/rx #3 on the Mega and on the gpstar Proton Pack micro controller board.  
+ *  __WT_USE_SERIAL3___
  */
 #include <wavTrigger.h>
+
 #include <millisDelay.h> 
 #include <FastLED.h>
 #include <ezButton.h>
 #include <Ramp.h>
 #include "Configuration.h"
 #include "MusicSounds.h"
-#include "SerialDefs.h"
+#include "Communication.h"
 #include "Header.h"
-
-/*
-  ***** IMPORTANT *****
-  * If you are compiling the code to upload to a Arduino Mega. You want to use ProtonPackMega.h and comment out ProtonpackPCB.h
-  * If you are compiling the code to upload to the gpstar Proton Pack PCB, you want to use ProtonPackPCB.h and comment out ProtonPackMega.h
-*/
-//#include "ProtonPackMega.h"
-#include "ProtonPackPCB.h"
 
 void setup() {
   Serial.begin(9600);
@@ -137,7 +131,7 @@ void setup() {
   }
 
   // Tell the wand the pack is here.
-  Serial2.write(0);
+  Serial2.write(P_PACK_BOOTUP);
 }
 
 void loop() {
@@ -226,7 +220,7 @@ void loop() {
       
       if(b_pack_on == true) {
         // Tell the wand the pack is off, so shut down the wand as well if it is still on.
-        Serial2.write(2);
+        Serial2.write(P_OFF);
       }
 
       b_pack_on = false;
@@ -239,7 +233,7 @@ void loop() {
       
       if(b_pack_on == false) {
         // Tell the wand the pack is on.
-        Serial2.write(1);
+        Serial2.write(P_ON);
       }
       
       b_pack_on = true;
@@ -255,7 +249,7 @@ void loop() {
       if(switch_alarm.getState() == LOW && b_overheating == false) {
         if(b_alarm == true) {
           // Tell the wand the pack alarm is off.
-          Serial2.write(4);
+          Serial2.write(P_ALARM_OFF);
 
           if(i_mode_year == 1984) {
             // Reset the LEDs before resetting the alarm flag.
@@ -503,7 +497,7 @@ void checkSwitches() {
       w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE); 
 
       // Tell wand to play cyclotron counter clockwise voice.
-      Serial2.write(23);
+      Serial2.write(P_CYCLOTRON_COUNTER_CLOCKWISE);
     }
     else {
       b_clockwise = true;
@@ -518,7 +512,7 @@ void checkSwitches() {
       w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);
     
       // Tell wand to play cyclotron clockwise voice.
-      Serial2.write(24);
+      Serial2.write(P_CYCLOTRON_CLOCKWISE);
     }
   }
   
@@ -537,7 +531,7 @@ void checkSwitches() {
       w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
 
       // Tell wand to play smoke disabled voice.
-      Serial2.write(21);  
+      Serial2.write(P_SMOKE_DISABLED);  
     }
     else {
       b_smoke_enabled = true;
@@ -552,7 +546,7 @@ void checkSwitches() {
       w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);  
 
       // Tell wand to play smoke enabled voice.
-      Serial2.write(22);    
+      Serial2.write(P_SMOKE_ENABLED);    
     }
   }
 
@@ -565,7 +559,7 @@ void checkSwitches() {
       if(switch_vibration.getState() == LOW) {
         if(b_vibration == false) {
           // Tell the wand to turn vibration on.
-          Serial2.write(5);
+          Serial2.write(P_VIBRATION_ENABLED);
 
           b_vibration = true;
 
@@ -578,7 +572,7 @@ void checkSwitches() {
       else {
         if(b_vibration == true) {
           // Tell the wand to turn vibration off.
-          Serial2.write(6);
+          Serial2.write(P_VIBRATION_DISABLED);
 
           b_vibration = false;
 
@@ -614,7 +608,7 @@ void checkSwitches() {
           if(switch_mode.getState() == LOW) {
             if(i_mode_year == 2021) {
               // Tell the wand to switch to 1984 mode.
-              Serial2.write(7);
+              Serial2.write(P_YEAR_1984);
             }
             
             i_mode_year = 1984;
@@ -623,7 +617,7 @@ void checkSwitches() {
           else {
             if(i_mode_year == 1984) {
               // Tell the wand to switch to 2021 mode.
-              Serial2.write(8);
+              Serial2.write(P_YEAR_AFTERLIFE);
             }
 
             i_mode_year = 2021;
@@ -636,7 +630,7 @@ void checkSwitches() {
             case 1984:
               if(i_mode_year == 2021) {
                 // Tell the wand to switch to 1984 mode.
-                Serial2.write(7);
+                Serial2.write(P_YEAR_1984);
               }
 
               i_mode_year = 1984;
@@ -646,7 +640,7 @@ void checkSwitches() {
             case 2021:
               if(i_mode_year == 1984) {
                 // Tell the wand to switch to 2021 mode.
-                Serial2.write(8);
+                Serial2.write(P_YEAR_AFTERLIFE);
               }
 
               i_mode_year = 2021;
@@ -972,7 +966,7 @@ void cyclotronControl() {
       packAlarm();
 
       // Tell the wand the pack alarm is on.
-      Serial2.write(3);
+      Serial2.write(P_ALARM_ON);
     }
     
     // Ribbon cable has been removed.
@@ -2565,7 +2559,7 @@ void checkRotaryEncoder() {
       increaseVolume();
       
       // Tell wand to increase volume.
-      Serial2.write(9);
+      Serial2.write(P_VOLUME_INCREASE);
 
       ms_volume_check.start(50);
     }
@@ -2576,7 +2570,7 @@ void checkRotaryEncoder() {
       decreaseVolume();
         
       // Tell wand to decrease the volume.
-      Serial2.write(10);
+      Serial2.write(P_VOLUME_DECREASE);
 
       ms_volume_check.start(50);
     }
@@ -2696,7 +2690,7 @@ void wandHandShake() {
       b_wand_connected = false;
 
       // Where are you wand?
-      Serial2.write(11);
+      Serial2.write(P_HANDSHAKE);
     }
     else if(ms_wand_handshake_checking.justFinished()) {  
       if(b_diagnostic == true) {
@@ -2708,7 +2702,7 @@ void wandHandShake() {
       ms_wand_handshake_checking.stop();
       
       // Ask the wand if it is still connected.
-      Serial2.write(11);
+      Serial2.write(P_HANDSHAKE);
     }
   }
   else {
@@ -2719,7 +2713,7 @@ void wandHandShake() {
     
     if(ms_wand_handshake.justFinished()) {
       // Ask the wand if it is connected.
-      Serial2.write(11);
+      Serial2.write(P_HANDSHAKE);
 
       ms_wand_handshake.start(i_wand_handshake_delay / 5);
     }
@@ -2736,7 +2730,7 @@ void checkWand() {
 
     if(b_wand_connected == true) {
       switch(rx_byte) {
-        case 1:
+        case W_ON:
           // The wand has been turned on.
           b_wand_on = true;
 
@@ -2746,7 +2740,7 @@ void checkWand() {
           }
         break;
     
-        case 2:
+        case W_OFF:
           // The wand has been turned off.
           b_wand_on = false;
 
@@ -2756,18 +2750,18 @@ void checkWand() {
           }
         break;
     
-        case 3:
+        case W_FIRING:
           // Wand is firing.
           wandFiring();
         break;
     
-        case 4:
+        case W_FIRING_STOPPED:
           // Wand just stopped firing.
           wandStoppedFiring();
           cyclotronSpeedRevert();
         break;
     
-        case 5:
+        case W_PROTON_MODE:
           // Proton mode
           FIRING_MODE = PROTON;
           w_trig.trackGain(S_CLICK, i_volume);
@@ -2779,7 +2773,7 @@ void checkWand() {
           }
         break;
     
-        case 6:
+        case W_SLIME_MODE:
           // Slime mode
           FIRING_MODE = SLIME;
           w_trig.trackGain(S_CLICK, i_volume);
@@ -2791,7 +2785,7 @@ void checkWand() {
           }
         break;
     
-        case 7:
+        case W_STASIS_MODE:
           // Stasis mode
           FIRING_MODE = STASIS;
           w_trig.trackGain(S_CLICK, i_volume);
@@ -2803,7 +2797,7 @@ void checkWand() {
           }
         break;
     
-        case 8:
+        case W_MESON_MODE:
           // Meson mode
           FIRING_MODE = MESON;
           w_trig.trackGain(S_CLICK, i_volume);
@@ -2815,14 +2809,14 @@ void checkWand() {
           }
         break;
     
-        case 9:
+        case W_SETTINGS_MODE:
           // Settings mode
           FIRING_MODE = SETTINGS;
           w_trig.trackGain(S_CLICK, i_volume);
           w_trig.trackPlayPoly(S_CLICK);
         break;
     
-        case 10:
+        case W_OVERHEATING:
           // Overheating
           w_trig.trackStop(S_BEEP_8);
           
@@ -2846,7 +2840,7 @@ void checkWand() {
           }
         break;
     
-        case 11:
+        case W_OVERHEATING_FINISHED:
           // Overheating finished
           w_trig.trackGain(S_VENT_DRY, i_volume);
           b_overheating = false;
@@ -2879,30 +2873,30 @@ void checkWand() {
           ms_cyclotron.start(i_2021_delay); 
         break;
     
-        case 12:
+        case W_CYCLOTRON_NORMAL_SPEED:
           // Reset cyclotron speed.
           cyclotronSpeedRevert();
         break;
     
-        case 13:
+        case W_CYCLOTRON_INCREASE_SPEED:
           // Speed up cyclotron.
           cyclotronSpeedIncrease();  
         break;
 
-        case 14:
+        case W_HANDSHAKE:
           // The wand is still here.
           ms_wand_handshake.start(i_wand_handshake_delay);
           ms_wand_handshake_checking.start(i_wand_handshake_delay / 2);
           b_wand_connected = true;
         break;
         
-        case 15:
+        case W_BEEP_START:
           // Play 8 overheat beeps before we overheat.
           w_trig.trackGain(S_BEEP_8, i_volume);
           w_trig.trackPlayPoly(S_BEEP_8);
         break;
     
-        case 16:
+        case W_POWER_LEVEL_1:
           // Wand power level 1
           i_wand_power_level = 1;
 
@@ -2914,7 +2908,7 @@ void checkWand() {
           }
         break;
     
-        case 17:
+        case W_POWER_LEVEL_2:
           // Wand power level 2
           i_wand_power_level = 2;
 
@@ -2926,7 +2920,7 @@ void checkWand() {
           }
         break;
     
-        case 18:
+        case W_POWER_LEVEL_3:
           // Wand power level 3
           i_wand_power_level = 3;
           
@@ -2938,7 +2932,7 @@ void checkWand() {
           }
         break;
     
-        case 19:
+        case W_POWER_LEVEL_4:
           // Wand power level 4
           i_wand_power_level = 4;
 
@@ -2950,7 +2944,7 @@ void checkWand() {
           }
         break;
     
-        case 20:
+        case W_POWER_LEVEL_5:
           // Wand power level 5
           i_wand_power_level = 5;
 
@@ -2962,7 +2956,7 @@ void checkWand() {
           }
         break;        
 
-        case 21:
+        case W_FIRING_INTENSIFY:
           // Wand firing in intensify mode.
           b_firing_intensify = true;
 
@@ -2973,7 +2967,7 @@ void checkWand() {
           }
         break;
 
-        case 22:
+        case W_FIRING_INTENSIFY_STOPPED:
           // Wand no longer firing in intensify mode.
           b_firing_intensify = false;
           b_sound_firing_intensify_trigger = false;
@@ -2981,7 +2975,7 @@ void checkWand() {
           w_trig.trackStop(S_FIRE_LOOP_GUN);
         break;
 
-        case 23:
+        case W_FIRING_ALT:
           // Wand firing in alt mode.
           b_firing_alt = true;
 
@@ -2992,7 +2986,7 @@ void checkWand() {
           }
         break;
 
-        case 24:
+        case W_FIRING_ALT_STOPPED:
           // Wand no longer firing in alt mode.
           b_firing_alt = false;
           b_sound_firing_alt_trigger = false;
@@ -3000,7 +2994,7 @@ void checkWand() {
           w_trig.trackStop(S_FIRING_LOOP_GB1);
         break;
 
-        case 25:
+        case W_FIRING_CROSSING_THE_STREAMS:
           // Wand is crossing the streams.
           b_firing_cross_streams = true;
           w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
@@ -3009,14 +3003,14 @@ void checkWand() {
           w_trig.trackLoop(S_FIRE_LOOP, 1);
         break;
 
-        case 26:
+        case W_FIRING_CROSSING_THE_STREAMS_STOPPED:
           // The wand is no longer crossing the streams.
           b_firing_cross_streams = false;
           w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
           w_trig.trackStop(S_FIRE_LOOP);
         break;
 
-        case 27:
+        case W_YEAR_MODES_CYCLE:
           // Toggle between the year modes.
           w_trig.trackStop(S_BEEPS_BARGRAPH);    
           w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
@@ -3035,7 +3029,7 @@ void checkWand() {
                 w_trig.trackPlayPoly(S_VOICE_1989);
 
                 // Tell the wand to play the 1989 sound effect.
-                Serial2.write(19);
+                Serial2.write(P_MODE_1989);
               }
               else {
                 i_mode_year_tmp = 2021;
@@ -3047,7 +3041,7 @@ void checkWand() {
                 w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
 
                 // Tell the wand to play the 2021 sound effect.
-                Serial2.write(18);
+                Serial2.write(P_MODE_AFTERLIFE);
               }
             break;
 
@@ -3062,7 +3056,7 @@ void checkWand() {
               w_trig.trackPlayPoly(S_VOICE_1984);
               
               // Tell the wand to play the 1984 sound effect.
-              Serial2.write(20);
+              Serial2.write(P_MODE_1984);
             break;
           }
 
@@ -3070,7 +3064,7 @@ void checkWand() {
           b_switch_mode_override = true;
         break;
 
-        case 28:
+        case W_RESET_PROTON_STREAM:
           // Revert back to Proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
           FIRING_MODE = PROTON;
 
@@ -3084,7 +3078,7 @@ void checkWand() {
           w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS);          
         break;
 
-        case 29:
+        case W_VIBRATION_DISABLED:
           // Vibration disabled.
           w_trig.trackStop(S_BEEPS_ALT);    
           w_trig.trackGain(S_BEEPS_ALT, i_volume);
@@ -3098,7 +3092,7 @@ void checkWand() {
           b_vibration = false;
         break;
 
-        case 30:
+        case W_VIBRATION_ENABLED:
           // Vibration enabled.
           w_trig.trackStop(S_BEEPS_ALT);    
           w_trig.trackGain(S_BEEPS_ALT, i_volume);
@@ -3112,7 +3106,7 @@ void checkWand() {
           b_vibration = true;
         break;
 
-        case 31:
+        case W_VIBRATION_FIRING_DISABLED:
           // Vibration during firing only disabled.
           w_trig.trackStop(S_BEEPS_ALT);    
           w_trig.trackGain(S_BEEPS_ALT, i_volume);
@@ -3126,7 +3120,7 @@ void checkWand() {
           b_vibration_firing = false;
         break;
 
-        case 32:
+        case W_VIBRATION_FIRING_ENABLED:
           // Vibration during firing only enabled.
           w_trig.trackStop(S_BEEPS_ALT);    
           w_trig.trackGain(S_BEEPS_ALT, i_volume);
@@ -3140,7 +3134,7 @@ void checkWand() {
           b_vibration_firing = true;
         break;
 
-        case 33:
+        case W_SMOKE_TOGGLE:
           if(b_smoke_enabled == true) {
             b_smoke_enabled = false;
 
@@ -3154,7 +3148,7 @@ void checkWand() {
             w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
 
             // Tell the wand to play the smoke disabled voice.
-            Serial2.write(21);
+            Serial2.write(P_SMOKE_DISABLED);
           }
           else {
             b_smoke_enabled = true;
@@ -3169,11 +3163,11 @@ void checkWand() {
             w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);
 
             // Tell the wand to play the smoke enabled voice.
-            Serial2.write(22);
+            Serial2.write(P_SMOKE_ENABLED);
           }
         break;
 
-        case 34:
+        case W_PROTON_MODE_REVERT:
           // Revert back to Proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
           FIRING_MODE = PROTON;
 
@@ -3187,7 +3181,7 @@ void checkWand() {
           w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_MODES);          
         break;
 
-        case 35:
+        case W_CYCLOTRON_DIRECTION_TOGGLE:
           // Toggle the cyclotron direction.
           if(b_clockwise == true) {
             b_clockwise = false;
@@ -3202,7 +3196,7 @@ void checkWand() {
             w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);     
 
             // Tell the wand to play the same sound.
-            Serial2.write(23);
+            Serial2.write(P_CYCLOTRON_COUNTER_CLOCKWISE);
           }
           else {
             b_clockwise = true;
@@ -3217,11 +3211,11 @@ void checkWand() {
             w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);
 
             // Tell the wand to play the same sound.
-            Serial2.write(24);
+            Serial2.write(P_CYCLOTRON_CLOCKWISE);
           }
         break;
 
-        case 36:
+        case W_CYCLOTRON_LED_TOGGLE:
           // Toggle single LED or 3 LEDs per cyclotron lens in 1984/1989 modes.
           if(b_cyclotron_single_led == true) {
             b_cyclotron_single_led = false;
@@ -3232,7 +3226,7 @@ void checkWand() {
             w_trig.trackPlayPoly(S_VOICE_THREE_LED);
 
             // Tell the wand to play the same sound.
-            Serial2.write(26);
+            Serial2.write(P_CYCLOTRON_THREE_LED);
           }
           else {
             b_cyclotron_single_led = true;
@@ -3244,11 +3238,11 @@ void checkWand() {
             w_trig.trackPlayPoly(S_VOICE_SINGLE_LED);
 
             // Tell the wand to play the same sound.
-            Serial2.write(25);
+            Serial2.write(P_CYCLOTRON_SINGLE_LED);
           }
         break;
 
-        case 37:
+        case W_OVERHEATING_DISABLED:
           // Play the overheating disabled voice.
           w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);    
           w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);    
@@ -3256,7 +3250,7 @@ void checkWand() {
           w_trig.trackPlayPoly(S_VOICE_OVERHEAT_DISABLED);
         break;
 
-        case 38:
+        case W_OVERHEATING_ENABLED:
           // Play the overheating enabled voice.
           w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);    
           w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);    
@@ -3264,7 +3258,7 @@ void checkWand() {
           w_trig.trackPlayPoly(S_VOICE_OVERHEAT_ENABLED);
         break;
 
-        case 89:
+        case W_VOLUME_MUSIC_DECREASE:
           // Lower music volume.
           if(b_playing_music == true) {    
             if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
@@ -3280,7 +3274,7 @@ void checkWand() {
           }
         break;
     
-        case 90:
+        case W_VOLUME_MUSIC_INCREASE:
           // Increase music volume.
          if(b_playing_music == true) {
             if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
@@ -3296,17 +3290,17 @@ void checkWand() {
           } 
         break;
         
-        case 91:
+        case W_VOLUME_SOUND_EFFECTS_DECREASE:
           // Lower the sound effects volume.
           decreaseVolumeEffects();
         break;
     
-        case 92:
+        case W_VOLUME_SOUND_EFFECTS_INCREASE:
           // Increase the sound effects volume.
           increaseVolumeEffects();
         break;
         
-        case 93:
+        case W_MUSIC_TRACK_LOOP_TOGGLE:
           // Loop the music track.
           if(b_repeat_track == false) {
             b_repeat_track = true;
@@ -3318,55 +3312,23 @@ void checkWand() {
           }
         break;
         
-        case 94:
+        case W_VOLUME_DECREASE:
           // Lower overall pack volume.
           decreaseVolume();
         break;
     
-        case 95:
+        case W_VOLUME_INCREASE:
           // Increase overall pack volume.
           increaseVolume();
         break;
-          
-        case 96:
-          // Lower music volume.
-          if(b_playing_music == true) {
-            if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
-              i_volume_music_percentage = 0;
-            }
-            else {
-              i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
-            }
-
-            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-    
-            w_trig.trackGain(i_current_music_track, i_volume_music);
-          }
-        break;
-    
-        case 97:
-          // Increase music volume.
-         if(b_playing_music == true) {
-            if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
-              i_volume_music_percentage = 100;
-            }
-            else {
-              i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
-            }
-
-            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-    
-            w_trig.trackGain(i_current_music_track, i_volume_music);
-          } 
-        break;
         
-        case 98:
+        case W_MUSIC_STOP:
           // Stop music.
           b_playing_music = false;
           stopMusic();
         break;
     
-        case 99:
+        case W_MUSIC_START:
           // Play music.
           b_playing_music = true;
           playMusic();
@@ -3392,65 +3354,65 @@ void checkWand() {
        *  Check if the wand is telling us it is here after connecting it to the pack.
        *  Then Synchronise some settings between the pack and the wand.
        */
-      if(rx_byte == 14 && prev_byte == rx_byte) {        
+      if(rx_byte == W_HANDSHAKE && prev_byte == rx_byte) {        
         // Tell the wand that the pack is here.
-        Serial2.write(11);
+        Serial2.write(P_HANDSHAKE);
 
         if(i_mode_year == 1984) {
-          Serial2.write(7);
+          Serial2.write(P_YEAR_1984);
         }
         else {
-          Serial2.write(8);
+          Serial2.write(P_YEAR_AFTERLIFE);
         }
 
         // Stop any music.
-        Serial2.write(99);
+        Serial2.write(P_MUSIC_STOP);
         b_playing_music = false;
         stopMusic();
 
         Serial2.write(i_current_music_track);
 
         if(b_repeat_track == true) {
-          Serial2.write(12);
+          Serial2.write(P_MUSIC_REPEAT);
         }
         else {
-          Serial2.write(13);
+          Serial2.write(P_MUSIC_NO_REPEAT);
         }
         
         // Vibration on
         if(b_vibration == true) {
-          Serial2.write(5);
+          Serial2.write(P_VIBRATION_ENABLED);
         }
         else {
-          Serial2.write(6);
+          Serial2.write(P_VIBRATION_DISABLED);
         }
 
         // Vibration while firing option.
         if(b_vibration_firing == true) {
-          Serial2.write(16);
+          Serial2.write(P_VIBRATION_FIRING_ENABLED);
         }
         else {
-          Serial2.write(17);
+          Serial2.write(P_VIBRATION_FIRING_DISABLED);
         }
 
         // Ribbon cable alarm.
         if(b_alarm == true) {
-          Serial2.write(3);
+          Serial2.write(P_ALARM_ON);
         }
         else {
-          Serial2.write(4);
+          Serial2.write(P_ALARM_OFF);
         }
 
         // Pack status
         if(PACK_STATUS != MODE_OFF) {
-          Serial2.write(1);
+          Serial2.write(P_ON);
         }
         else {
-          Serial2.write(2);
+          Serial2.write(P_OFF);
         }
 
         // Put the wand into volume sync mode.
-        Serial2.write(15);
+        Serial2.write(P_VOLUME_SYNC_MODE);
 
         // Sequence here is important. Synchronise the volume settings.
         Serial2.write(i_volume_percentage);
@@ -3491,6 +3453,6 @@ void setupWavTrigger() {
   i_music_count = w_num_tracks - i_last_effects_track;
   
   if(i_music_count > 0) {
-    i_current_music_track = i_music_track_start; // Set the first track of music as file 100_
+    i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
   }
 }

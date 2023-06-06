@@ -17,6 +17,10 @@
  *
  */
 
+#if defined(__AVR_ATmega2560__)
+  #define GPSTAR_NEUTRONA_WAND_PCB;
+#endif
+
 /*
   ***** IMPORTANT *****
   * You need to open and edit the wavTrigger.h file and make sure you un comment out the proper serial port.
@@ -38,21 +42,21 @@
 #include <ht16k33.h>
 #include "Configuration.h"
 #include "MusicSounds.h"
-//#include "SerialDefs.h"
+#include "Communication.h"
 #include "Header.h"
 
-/*
-  ***** IMPORTANT *****
-  * If you are compiling the code to upload to a Arduino Nano. You want to use NeutronaWandNano.h and comment out NeutronaWandPCB.h
-  * If you are compiling the code to upload to the gpstar Neutrona Wand micro controller, you want to use NeutronaWandPCB.h and comment out NeutronaWandNano.h
-*/
-//#include "NeutronaWandNano.h"
-#include "NeutronaWandPCB.h"
+#ifndef GPSTAR_NEUTRONA_WAND_PCB
+  #include <AltSoftSerial.h>
+#endif
 
 void setup() {  
   Serial.begin(9600);
-  Serial1.begin(9600);
-  
+
+  // Enable Serial1 if compiling for the gpstar Neutrona Wand micro controller board.
+  #ifdef HAVE_HWSERIAL1
+    Serial1.begin(9600);
+  #endif
+
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
   
@@ -137,7 +141,7 @@ void loop() {
   if(b_wait_for_pack == true) {
     if(b_volume_sync_wait != true) {
       // Handshake with the pack. Telling the pack that we are here.
-      Serial1.write(14);
+      wandSerialSend(W_HANDSHAKE);
     }
 
     // Synchronise some settings with the pack.
@@ -255,7 +259,7 @@ void mainLoop() {
           w_trig.trackPlayPoly(S_CLICK);
 
           // Tell the pack we are overheating.
-          Serial1.write(10);
+          wandSerialSend(W_OVERHEATING);
         }
         else {
           modeFiring();
@@ -332,7 +336,7 @@ void mainLoop() {
         bargraphRampUp();
         
         // Tell the pack that we finished overheating.
-        Serial1.write(11);
+        wandSerialSend(W_OVERHEATING_FINISHED);
       }
     break;
     
@@ -365,7 +369,7 @@ void mainLoop() {
             }
             
             // Tell pack to loop the music track.
-            Serial1.write(93);
+            wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);
           }
         }
         else {
@@ -386,7 +390,7 @@ void mainLoop() {
               w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_MODES);
 
               // Tell the proton pack to reset back to the proton stream.
-              Serial1.write(34);
+              wandSerialSend(W_PROTON_MODE_REVERT);
             }
             else {
               // Turn on crossing the streams mode and turn off video game mode.
@@ -402,7 +406,7 @@ void mainLoop() {
               w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS);
 
               // Tell the proton pack to reset back to the proton stream.
-              Serial1.write(28);
+              wandSerialSend(W_RESET_PROTON_STREAM);
             }
 
             // Reset the previous firing mode to the proton stream.
@@ -425,14 +429,14 @@ void mainLoop() {
               increaseVolumeEffects();
               
               // Tell pack to increase the sound effects volume.
-              Serial1.write(92);
+              wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
             }
 
             if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
               decreaseVolumeEffects();
               
               // Tell pack to lower the sound effects volume.
-              Serial1.write(91);
+              wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
               
               ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
             }
@@ -443,7 +447,7 @@ void mainLoop() {
               ms_intensify_timer.start(i_intensify_delay);
 
               // Tell the Proton Pack to toggle the smoke on or off.
-              Serial1.write(33);
+              wandSerialSend(W_SMOKE_TOGGLE);
             }
 
             // Enable or disable overheating.
@@ -458,7 +462,7 @@ void mainLoop() {
                 w_trig.trackPlayPoly(S_VOICE_OVERHEAT_DISABLED);
 
                 // Tell the Proton Pack that overheating is disabled.
-                Serial1.write(37);
+                wandSerialSend(W_OVERHEATING_DISABLED);
               }
               else {
                 b_overheat_enabled = true;
@@ -470,7 +474,7 @@ void mainLoop() {
                 w_trig.trackPlayPoly(S_VOICE_OVERHEAT_ENABLED);
 
                 // Tell the Proton Pack that overheating is enabled.
-                Serial1.write(38);
+                wandSerialSend(W_OVERHEATING_ENABLED);
               }
               
               ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
@@ -502,7 +506,7 @@ void mainLoop() {
                 w_trig.trackGain(i_current_music_track, i_volume_music);
                 
                 // Tell pack to increase music volume.
-                Serial1.write(90);
+                wandSerialSend(W_VOLUME_MUSIC_INCREASE);
               }
     
               if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {                
@@ -518,7 +522,7 @@ void mainLoop() {
                 w_trig.trackGain(i_current_music_track, i_volume_music);
                 
                 // Tell pack to lower music volume.
-                Serial1.write(89);
+                wandSerialSend(W_VOLUME_MUSIC_DECREASE);
                 
                 ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
               }  
@@ -529,14 +533,14 @@ void mainLoop() {
               ms_intensify_timer.start(i_intensify_delay);
 
               // Tell the Proton Pack to change the cyclotron rotation direction.
-              Serial1.write(35);
+              wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
 
             if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
               ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
 
               // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
-              Serial1.write(36);
+              wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
             }
           }
         break;
@@ -576,7 +580,7 @@ void mainLoop() {
               }
             
               // Tell the pack which music track to change to.
-              Serial1.write(i_current_music_track);
+              wandSerialSend(i_current_music_track);
             }
 
             if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {                     
@@ -604,7 +608,7 @@ void mainLoop() {
               }
             
               // Tell the pack which music track to change to.
-              Serial1.write(i_current_music_track);
+              wandSerialSend(i_current_music_track);
               
               ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
             }   
@@ -627,7 +631,7 @@ void mainLoop() {
                 w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);
 
                 // Tell the proton pack to disable vibration.
-                Serial1.write(29);
+                wandSerialSend(W_VIBRATION_DISABLED);
               }
               else {
                 b_vibration_on = true;
@@ -638,7 +642,7 @@ void mainLoop() {
                 w_trig.trackPlayPoly(S_VOICE_VIBRATION_ENABLED);
 
                 // Tell the Proton pack to enable vibration.
-                Serial1.write(30);
+                wandSerialSend(W_VIBRATION_ENABLED);
 
                 analogWrite(vibration, 150);
                 delay(250);
@@ -664,7 +668,7 @@ void mainLoop() {
                 w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_DISABLED);
 
                 // Tell the proton pack to disable vibration during firing only option.
-                Serial1.write(31);
+                wandSerialSend(W_VIBRATION_FIRING_DISABLED);
               }
               else {
                 b_vibration_firing = true;
@@ -675,7 +679,7 @@ void mainLoop() {
                 w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_ENABLED);
 
                 // Tell the Proton pack to enable vibration during firing only.
-                Serial1.write(32);
+                wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
                 analogWrite(vibration, 150);
                 delay(250);
@@ -700,17 +704,17 @@ void mainLoop() {
                 b_playing_music = false;
 
                 // Tell the pack to stop music.
-                Serial1.write(98);
+                wandSerialSend(W_MUSIC_STOP);
                 
                 stopMusic();             
               }
               else {
-                if(i_music_count > 0 && i_current_music_track > 99) {
+                if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
                   // Start music.
                   b_playing_music = true;
 
                   // Tell the pack to play music.
-                  Serial1.write(99);
+                  wandSerialSend(W_MUSIC_START);
                   
                   playMusic();
                 }
@@ -723,7 +727,7 @@ void mainLoop() {
               ms_intensify_timer.start(i_intensify_delay);
               
               // Tell the Proton Pack to cycle through year modes.
-              Serial1.write(27);
+              wandSerialSend(W_YEAR_MODES_CYCLE);
 
               w_trig.trackStop(S_BEEPS_BARGRAPH);    
               w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
@@ -769,7 +773,7 @@ void mainLoop() {
           ms_settings_blinking.start(i_settings_blinking_delay);
     
           // Tell the pack we are in settings mode.
-          Serial1.write(9);
+          wandSerialSend(W_SETTINGS_MODE);
         }
         else {
           // Only exit the settings menu when on menu #5 in the top menu.
@@ -782,27 +786,27 @@ void mainLoop() {
             switch(PREV_FIRING_MODE) {
               case MESON:
                 // Tell the pack we are in meson mode.
-                Serial1.write(8);
+                wandSerialSend(W_MESON_MODE);
               break;
   
               case STASIS:
                 // Tell the pack we are in stasis mode.
-                Serial1.write(7);
+                wandSerialSend(W_STASIS_MODE);
               break;
   
               case SLIME:  
                 // Tell the pack we are in slime mode.
-                Serial1.write(6);
+                wandSerialSend(W_SLIME_MODE);
               break;
   
               case PROTON: 
                 // Tell the pack we are in proton mode.
-                Serial1.write(5);
+                wandSerialSend(W_PROTON_MODE);
               break;
   
               default:
                 // Tell the pack we are in proton mode.
-                Serial1.write(5);
+                wandSerialSend(W_PROTON_MODE);
               break;
             }
             
@@ -903,7 +907,7 @@ void checkMusic() {
         stopMusic();
 
         // Tell the pack to stop playing music.
-        Serial1.write(98);
+        wandSerialSend(W_MUSIC_STOP);
             
         if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
           i_current_music_track = i_music_track_start;
@@ -913,7 +917,7 @@ void checkMusic() {
         }
 
         // Tell the pack which music track to change to.
-        Serial1.write(i_current_music_track);
+        wandSerialSend(i_current_music_track);
     
         ms_music_next_track.start(i_music_next_track_delay);
       }
@@ -926,7 +930,7 @@ void checkMusic() {
     playMusic(); 
 
     // Tell the pack to play music.
-    Serial1.write(99);
+    wandSerialSend(W_MUSIC_START);
     
     ms_check_music.start(i_music_check_delay); 
   }
@@ -1145,7 +1149,7 @@ void checkSwitches() {
                 ms_settings_blinking.start(i_settings_blinking_delay);
   
                 // Tell the pack we are in settings mode.
-                Serial1.write(9);
+                wandSerialSend(W_SETTINGS_MODE);
               break;
   
               case MESON:
@@ -1153,7 +1157,7 @@ void checkSwitches() {
                 wandHeatUp();
   
                 // Tell the pack we are in meson mode.
-                Serial1.write(8);
+                wandSerialSend(W_MESON_MODE);
               break;
   
               case STASIS:
@@ -1161,7 +1165,7 @@ void checkSwitches() {
                 wandHeatUp();
   
                 // Tell the pack we are in stasis mode.
-                Serial1.write(7);
+                wandSerialSend(W_STASIS_MODE);
               break;
   
               case SLIME:
@@ -1169,7 +1173,7 @@ void checkSwitches() {
                 wandHeatUp();
   
                 // Tell the pack we are in slime mode.
-                Serial1.write(6);
+                wandSerialSend(W_SLIME_MODE);
               break;
   
               case PROTON:
@@ -1177,7 +1181,7 @@ void checkSwitches() {
                 wandHeatUp();
   
                 // Tell the pack we are in proton mode.
-                Serial1.write(5);
+                wandSerialSend(W_PROTON_MODE);
               break;
             }
           }
@@ -1267,11 +1271,11 @@ void checkSwitches() {
 
 void wandOff() {
   // Tell the pack the wand is turned off.
-  Serial1.write(2);
+  wandSerialSend(W_OFF);
 
   if(FIRING_MODE == SETTINGS) {
     // If the wand is shut down while we are in settings mode (can happen if the pack is manually turned off), switch the wand and pack to proton mode.
-    Serial1.write(5);
+    wandSerialSend(W_PROTON_MODE);
     FIRING_MODE = PROTON;
   }
   
@@ -1336,7 +1340,7 @@ void wandOff() {
 
 void modeActivate() {
   // Tell the pack the wand is turned on.
-  Serial1.write(1);
+  wandSerialSend(W_ON);
   
   WAND_STATUS = MODE_ON;
   WAND_ACTION_STATUS = ACTION_IDLE;
@@ -1702,12 +1706,12 @@ void modeFireStart() {
   
   // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode.
   if(b_firing_intensify == true) {
-    Serial1.write(21);
+    wandSerialSend(W_FIRING_INTENSIFY);
   }
 
   // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
   if(b_firing_alt == true) {
-    Serial1.write(23);
+    wandSerialSend(W_FIRING_ALT);
   }
 
   // Stop all firing sounds first.
@@ -1749,7 +1753,7 @@ void modeFireStart() {
   ms_firing_start_sound_delay.start(i_fire_stop_sound_delay);
 
   // Tell the pack the wand is firing.
-  Serial1.write(3);
+  wandSerialSend(W_FIRING);
 
   ms_overheat_initiate.stop();
 
@@ -1828,7 +1832,7 @@ void modeFireStop() {
   ms_overheat_initiate.stop();
   
   // Tell the pack the wand stopped firing.
-  Serial1.write(4);
+  wandSerialSend(W_FIRING_STOPPED);
   
   WAND_ACTION_STATUS = ACTION_IDLE;
   
@@ -1914,7 +1918,7 @@ void modeFiring() {
   // Sound trigger flags.
   if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
     // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode.
-    Serial1.write(21);
+    wandSerialSend(W_FIRING_INTENSIFY);
 
     b_sound_firing_intensify_trigger = true;
     w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
@@ -1923,7 +1927,7 @@ void modeFiring() {
 
   if(b_firing_intensify != true && b_sound_firing_intensify_trigger == true) {
     // Tell the Proton Pack that the Neutrona wand is no longer firing in Intensify mode.
-    Serial1.write(22);
+    wandSerialSend(W_FIRING_INTENSIFY_STOPPED);
 
     b_sound_firing_intensify_trigger = false;
     w_trig.trackStop(S_FIRE_LOOP_GUN);
@@ -1931,7 +1935,7 @@ void modeFiring() {
 
   if(b_firing_alt == true && b_sound_firing_alt_trigger != true) {
     // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
-    Serial1.write(23);
+    wandSerialSend(W_FIRING_ALT);
 
     b_sound_firing_alt_trigger = true;
     w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
@@ -1939,8 +1943,8 @@ void modeFiring() {
   }
 
   if(b_firing_alt != true && b_sound_firing_alt_trigger == true) {
-    // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
-    Serial1.write(24);
+    // Tell the Proton Pack that the Neutrona wand is no longer firing in Alt mode.
+    wandSerialSend(W_FIRING_ALT_STOPPED);
 
     b_sound_firing_alt_trigger = false;
     w_trig.trackStop(S_FIRING_LOOP_GB1);
@@ -1948,7 +1952,7 @@ void modeFiring() {
 
   if(b_firing_alt == true && b_firing_intensify == true && b_sound_firing_cross_the_streams != true && b_firing_cross_streams != true) {
     // Tell the Proton Pack that the Neutrona wand is crossing the streams.
-    Serial1.write(25);
+    wandSerialSend(W_FIRING_CROSSING_THE_STREAMS);
 
     b_firing_cross_streams = true;
     b_sound_firing_cross_the_streams = true;
@@ -1960,7 +1964,7 @@ void modeFiring() {
 
   if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true) {
     // Tell the Proton Pack that the Neutrona wand is no longer crossing the streams.
-    Serial1.write(26);
+    wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED);
 
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
@@ -1987,7 +1991,7 @@ void modeFiring() {
       ms_hat_1.stop();
 
       // Tell the pack to revert back to regular cyclotron speeds.
-      Serial1.write(12);
+      wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
     }
     else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {
       // If the user changes back to power mode that overheats while firing, start up a timer.
@@ -1999,7 +2003,7 @@ void modeFiring() {
       ms_overheat_initiate.stop();
       
       // Tell the pack to revert back to regular cyclotron speeds.
-      Serial1.write(12);
+      wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
     }
   }
 
@@ -2818,12 +2822,62 @@ void bargraphRampFiring() {
       cyclotronSpeedUp(2);
     }
     else {
-      ms_bargraph_firing.start(i_ramp_interval / 2);
+      if(b_bargraph_alt == true) {
+        switch(i_power_mode) {
+          case 5:
+            ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
+          break;
+
+          case 4:
+            ms_bargraph_firing.start((i_ramp_interval / 2) - 3); // 15
+          break;
+
+          case 3:
+            ms_bargraph_firing.start(i_ramp_interval / 2); // 20
+          break;
+
+          case 2:
+            ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 30
+          break;
+
+          case 1:
+            ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 35
+          break;
+        }
+      }  
+      else {
+        ms_bargraph_firing.start(i_ramp_interval / 2);
+      }
       i_cyclotron_speed_up = 1;
     }
   }
-  else {  
-    ms_bargraph_firing.start(i_ramp_interval / 2);
+  else {
+    if(b_bargraph_alt == true) {
+      switch(i_power_mode) {
+        case 5:
+          ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
+        break;
+
+        case 4:
+          ms_bargraph_firing.start((i_ramp_interval / 2) - 3); // 15
+        break;
+
+        case 3:
+          ms_bargraph_firing.start(i_ramp_interval / 2); // 20
+        break;
+
+        case 2:
+          ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 25
+        break;
+
+        case 1:
+          ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30
+        break;
+      }
+    }  
+    else {
+      ms_bargraph_firing.start(i_ramp_interval / 2);
+    }
   }
 }
 
@@ -2831,7 +2885,7 @@ void cyclotronSpeedUp(int i_switch) {
   if(i_switch != i_cyclotron_speed_up) {
     if(i_switch == 4) {
       // Tell pack to start beeping before we overheat it.
-      Serial1.write(15);
+      wandSerialSend(W_BEEP_START);
 
       // Beep the wand 8 times.
       w_trig.trackPlayPoly(S_BEEP_8);
@@ -2842,7 +2896,7 @@ void cyclotronSpeedUp(int i_switch) {
     i_cyclotron_speed_up++;
     
     // Tell the pack to speed up the cyclotron.
-    Serial1.write(13);
+    wandSerialSend(W_CYCLOTRON_INCREASE_SPEED);
   }  
 }
 
@@ -3638,7 +3692,7 @@ void checkRotary() {
               w_trig.trackGain(i_current_music_track, i_volume_music);
               
               // Tell pack to lower music volume.
-              Serial1.write(96);
+              wandSerialSend(W_VOLUME_MUSIC_DECREASE);
             }
           }
           
@@ -3685,7 +3739,7 @@ void checkRotary() {
               w_trig.trackGain(i_current_music_track, i_volume_music);
               
               // Tell pack to increase music volume.
-              Serial1.write(97);
+              wandSerialSend(W_VOLUME_MUSIC_INCREASE);
             }
           }
         }
@@ -3701,27 +3755,27 @@ void updatePackPowerLevel() {
   switch(i_power_mode) {
     case 5:
       // Level 5
-      Serial1.write(20);
+      wandSerialSend(W_POWER_LEVEL_5);
     break;
 
     case 4:
       // Level 4
-      Serial1.write(19);
+      wandSerialSend(W_POWER_LEVEL_4);
     break;
 
     case 3:
       // Level 3
-      Serial1.write(18);
+      wandSerialSend(W_POWER_LEVEL_3);
     break;
 
     case 2:
       // Level 2
-      Serial1.write(17);
+      wandSerialSend(W_POWER_LEVEL_2);
     break;
 
     default:
       // Level 1
-      Serial1.write(16);
+      wandSerialSend(W_POWER_LEVEL_1);
     break;
   }
 }
@@ -3856,8 +3910,17 @@ bool switchBarrel() {
  * Pack commuication to the wand.
  */
 void checkPack() {
-  if(Serial1.available() > 0) {
-    rx_byte = Serial1.read();
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    if(Serial1.available() > 0) {
+  #else
+    if(Serial.available() > 0) {
+  #endif
+  
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      rx_byte = Serial1.read();
+    #else
+      rx_byte = Serial.read();
+    #endif
 
     if(b_volume_sync_wait == true) {
         switch(VOLUME_SYNC_WAIT) {
@@ -3889,12 +3952,12 @@ void checkPack() {
     }
     else {
       switch(rx_byte) {      
-        case 1:
+        case P_ON:
           // Pack is on.
           b_pack_on = true;
         break;
   
-        case 2:
+        case P_OFF:
           if(b_pack_on == true) {
             // Turn wand off.
             if(WAND_STATUS != MODE_OFF) {
@@ -3906,7 +3969,7 @@ void checkPack() {
           b_pack_on = false;
         break;
   
-        case 3:
+        case P_ALARM_ON:
           // Alarm is on.
           b_pack_alarm = true;
 
@@ -3916,7 +3979,7 @@ void checkPack() {
           }
         break;
   
-        case 4:
+        case P_ALARM_OFF:
           // Alarm is off.
           b_pack_alarm = false;
 
@@ -3926,79 +3989,79 @@ void checkPack() {
           ms_hat_2.stop();
         break;
   
-        case 5:
+        case P_VIBRATION_ENABLED:
           // Vibration on.
           b_vibration_on = true;
         break;
   
-        case 6:
+        case P_VIBRATION_DISABLED:
           // Vibration off.
           b_vibration_on = false;
           vibrationOff();
         break;
   
-        case 7:
+        case P_YEAR_1984:
           // 1984 mode.
           year_mode = 1984;
           bargraphYearModeUpdate();
         break;
   
-        case 8:
+        case P_YEAR_AFTERLIFE:
           // 2021 mode.
           year_mode = 2021;
           bargraphYearModeUpdate();
         break;
   
-        case 9:
+        case P_VOLUME_INCREASE:
           // Increase overall volume.
           increaseVolume();
         break;
   
-        case 10:
+        case P_VOLUME_DECREASE:
           // Decrease overall volume.
           decreaseVolume();
         break;
   
-        case 11:
+        case P_HANDSHAKE:
           // The pack is asking us if we are still here. Respond back.
-          Serial1.write(14);
+          wandSerialSend(W_HANDSHAKE);
         break;
   
-        case 12:
+        case P_MUSIC_REPEAT:
           // Repeat music track.
           b_repeat_track = true;
         break;
   
-        case 13:
-          // Repeat music track.
+        case P_MUSIC_NO_REPEAT:
+          // Do not repeat the music track.
           b_repeat_track = false;
         break;
 
         /*
          * Not used.
          */
-        case 14:
+        case P_UNUSED:
 
         break;
   
-        case 15:
+        case P_VOLUME_SYNC_MODE:
           // Put the wand into volume sync mode.
           b_volume_sync_wait = true;
           VOLUME_SYNC_WAIT = EFFECTS;
         break;
         
-        case 16:
+        case P_VIBRATION_FIRING_ENABLED:
           // Vibration firing on.
           b_vibration_firing = true;
           vibrationOff();
         break;
   
-        case 17:
+        case P_VIBRATION_FIRING_DISABLED:
           // Vibration firing off
           b_vibration_firing = false;
         break;
 
-        case 18:
+        case P_MODE_AFTERLIFE:
           // Play 2021 voice.
           w_trig.trackStop(S_VOICE_AFTERLIFE);  
           w_trig.trackStop(S_VOICE_1989);
@@ -4007,7 +4070,7 @@ void checkPack() {
           w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
         break;
 
-        case 19:
+        case P_MODE_1989:
           // Play 1989 voice.
           w_trig.trackStop(S_VOICE_AFTERLIFE);  
           w_trig.trackStop(S_VOICE_1989);
@@ -4016,7 +4079,7 @@ void checkPack() {
           w_trig.trackPlayPoly(S_VOICE_1989);
         break;
 
-        case 20:
+        case P_MODE_1984:
           // Play 1984 voice.
           w_trig.trackStop(S_VOICE_AFTERLIFE);  
           w_trig.trackStop(S_VOICE_1989);
@@ -4025,7 +4088,7 @@ void checkPack() {
           w_trig.trackPlayPoly(S_VOICE_1984);
         break;
 
-        case 21:
+        case P_SMOKE_DISABLED:
           // Play smoke disabled voice.
           w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
           w_trig.trackStop(S_VOICE_SMOKE_ENABLED);    
@@ -4033,7 +4096,7 @@ void checkPack() {
           w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
         break;
 
-        case 22:
+        case P_SMOKE_ENABLED:
           // Play smoke enabled voice.
           w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
           w_trig.trackStop(S_VOICE_SMOKE_DISABLED);    
@@ -4041,7 +4104,7 @@ void checkPack() {
           w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);
         break;
 
-        case 23:
+        case P_CYCLOTRON_COUNTER_CLOCKWISE:
           // Play cyclotron counter clockwise voice.
           w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
           w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
@@ -4049,7 +4112,7 @@ void checkPack() {
           w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);   
         break;
 
-        case 24:
+        case P_CYCLOTRON_CLOCKWISE:
           // Play cyclotron clockwise voice.
           w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
           w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
@@ -4057,7 +4120,7 @@ void checkPack() {
           w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);   
         break;
 
-        case 25:
+        case P_CYCLOTRON_SINGLE_LED:
           // Play Single LED voice.
           w_trig.trackStop(S_VOICE_THREE_LED);
           w_trig.trackStop(S_VOICE_SINGLE_LED);    
@@ -4065,7 +4128,7 @@ void checkPack() {
           w_trig.trackPlayPoly(S_VOICE_SINGLE_LED);
         break;
 
-        case 26:
+        case P_CYCLOTRON_THREE_LED:
           // Play 3 LED voice.
           w_trig.trackStop(S_VOICE_THREE_LED);
           w_trig.trackStop(S_VOICE_SINGLE_LED);    
@@ -4073,14 +4136,14 @@ void checkPack() {
           w_trig.trackPlayPoly(S_VOICE_THREE_LED);
         break;
 
-        case 99:
+        case P_MUSIC_STOP:
           // Stop music
           stopMusic();
         break;
         
         default:
           // Music track number to be played.
-          if(rx_byte > 99) {
+          if(rx_byte >= i_music_track_start) {
             if(b_playing_music == true) {
               stopMusic();
               i_current_music_track = rx_byte;
@@ -4094,6 +4157,14 @@ void checkPack() {
       }
     }
   }
+}
+
+void wandSerialSend(int i_message) {
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    Serial1.write(i_message);
+  #else
+    Serial.write(i_message);
+  #endif
 }
 
 void setupWavTrigger() {
@@ -4131,6 +4202,6 @@ void setupWavTrigger() {
   i_music_count = w_num_tracks - i_last_effects_track;
 
   if(i_music_count > 0) {
-    i_current_music_track = i_music_track_start; // Set the first track of music as file 100_
+    i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
   }
 }

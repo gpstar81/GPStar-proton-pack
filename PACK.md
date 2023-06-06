@@ -112,7 +112,7 @@ Some connections to components will be made directly to the Arduino Mega. Please
 | **6**  |       | S-    | S-    |  LED-G1 (-) | LED-G2 (-) | LED-MSW<br/>(-) | LED-VSW <br/>(-) |  |  | <font color="red">SW6&nbsp;(Red)</font> | PIN&nbsp;23 |  |  |       |       |
 | **7**  | <font color="red">Mega&nbsp;(+)</font> | Mega&nbsp;(&dash;) |  | ROT (1) | PIN 3 |  |  |  | ROT (3) | PIN 2 |  |  |       |       |
 | **8**  | <font color="red">JP3&nbsp;(Red)</font> | JP3&nbsp;(Black) |  |  |  | <font color="orange">JP3&nbsp;(Yellow)</font> | R&nbsp;470&nbsp;Ω | ↔ | R&nbsp;470&nbsp;Ω | PIN 53 |  |  |  |       |       |
-| **9**  | <font color="red">JP4&nbsp;(Red)</font> | JP4 (Black) |  | <font color="green">JP3&nbsp;(Green)</font> | <font color="orange">JP4&nbsp;(Yellow)</font> |  |  |  | | <font color="brown">JP4&nbsp;(Brown)</font> | PIN&nbsp;51 |  |  |       |       |
+| **9**  | <font color="red">JP4&nbsp;(Red)</font> | JP4 (Black) |  | <font color="green">JP3&nbsp;(Green)</font> | <font color="orange">JP4&nbsp;(Yellow)</font> |  |  |  | | <font color="brown">JP4&nbsp;(Brown)</font> | PIN&nbsp;43 |  |  |       |       |
 | **10** |       |       |  |  |  |  |  |  |  |  |  |  |  |       |       |
 | **11** | <font color="red">NEO-CYC<br/>(+)</font> | NEO-CYC<br/>(-) |  |  |  | <font color="blue">NEO-CYC<br/>(Data)</font> | R&nbsp;470&nbsp;Ω | ↔ | R&nbsp;470&nbsp;Ω | PIN&nbsp;13 |  |  |  |       |       |
 | **12** |       |       |  |  |  |  |  |  |  |  |  |  |  | <font color="red">R+</font> |       |

@@ -48,9 +48,9 @@ millisDelay ms_fast_led;
  *  Wav trigger
  */
 wavTrigger w_trig;
-uint8_t i_music_count = 0;
-uint8_t i_current_music_track = 0;
-const uint8_t i_music_track_start = 100; // Music tracks start on file named 100_ and higher.
+unsigned int i_music_count = 0;
+unsigned int i_current_music_track = 0;
+const unsigned int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 
 /*
  *  Volume (0 = loudest, -70 = quietest)
@@ -260,3 +260,19 @@ bool b_sound_firing_cross_the_streams = false;
 
 bool b_sound_idle = false;
 bool b_beeping = false;
+
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  const bool b_pcb = true;
+  const uint8_t led_slo_blo = 8;
+  const uint8_t led_front_left = 9;
+  const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
+  const uint8_t led_hat_2 = 23; // Hat light at top of the wand body. (Red LED)
+  const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
+#else
+  const bool b_pcb = false;
+  const uint8_t led_slo_blo = 5; // There are 2 LED's attached to this pin. The slo-blo and the light on the front of the wand body. You can drive up to 2 led's from 1 pin on a arduino.
+  const uint8_t led_front_left = NULL;
+  const uint8_t led_hat_1 = NULL;
+  const uint8_t led_hat_2 = NULL;
+  const uint8_t led_barrel_tip = NULL;
+#endif

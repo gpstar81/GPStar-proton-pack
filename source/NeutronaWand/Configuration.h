@@ -21,7 +21,7 @@
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
  * Change the variables below to alter the behaviour of your Neutrona wand.
  */
- 
+
 /*
  * You can set the default master startup volume for your wand here.
  * This gets overridden if you connect your wand to the pack.
@@ -95,7 +95,7 @@ bool b_cross_the_streams = false;
  * Set to false if you are using the stock Hasbro bargraph.
  * Part #: BL28Z-3005SA04Y
 */
-const bool b_bargraph_alt = true;
+const bool b_bargraph_alt = false;
 
 /*
  * Enable or disable vibration control for the Neutrona wand.
