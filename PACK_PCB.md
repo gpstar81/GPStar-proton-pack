@@ -23,9 +23,9 @@ Connections for the pack should be made according to the table below.
 | SW1 | D31/GND | Stock connection for main switch under the Ion Arm |
 | SW3/SW4 | GND/D27/D25/GND | Stock connection for cyclotron panel toggles, Vibration and Mode Switch |
 | SW6 | GND/D23 | Stock connection for ribbon cable disconnection alarm (wire order does not matter) |
-| M1 | GND/VCC | Stock connection for pack vibration motor (D45) |
-| Power Cell | VCC/D53/GND/CYC | Stock connection for power cell LED's (continues to cyclotron) |
-| Cyclotron | D43/GND/PC/VCC | Stock connection cyclotron lens LED's (continues from power cell), includes lid sensor |
+| M1 | VCC/GND | Stock connection for pack vibration motor (D45) |
+| Power Cell | VCC/D53/GND/PCCYC | Stock connection for power cell LED's (continues to cyclotron lid) |
+| Cyclotron | D43/GND/PCCYC/VCC | Stock connection cyclotron lens LED's (continues from power cell), includes lid sensor |
 
 ### Special Connectors
 
@@ -33,23 +33,26 @@ Connections for the pack should be made according to the table below.
 |-------|------|-------|
 | WAV TRIGGER | GND/NC/VCC/TX/RX/NC | Communication and Power for the pack's Wav Trigger |
 | WAND 5V-OUT | +/\- | Power to the Neutrona Wand |
-| WAND (Serial) | RX2/TX2 | Serial communication for the Neutrona Wand |
+| WAND (Serial) | RX2/TX2 | Serial communication to the Neutrona Wand |
 | ICSP | DO NOT USE! | Reserved header for bootloader updates (reserved) |
 | UART | See Below | Programming header for software updates (optional) |
 
-For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label on each side. If using an FTDI to USB cable, the DTS pin will connect to the RTS pin. The CTS pin on most FTDI headers will not be used (connects to GND on the board).
+For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label to the FTDI chip.
+
+- If using an FTDI to USB cable, the RTS pin will connect to the DTR board pin.
+- The CTS pin on any FTDI device will not be used (connects to GND on the board).
 
 ### Optional Connectors
 
 | Label | Pins | Notes |
 |-------|------|-------|
 | SW-D | D29/GND | Cyclotron direction switch (wire order does not matter) |
-| SM-T | D37/GND | Smoke Toggle switch to enable/disable smoke effects (wire order does not matter) |
+| SM-T | GND/D37| Smoke Toggle switch to enable/disable smoke effects (wire order does not matter) |
 | SM-1 | \-/+ | Smoke effects for N-Filter (D39) |
 | FN-1 | \-/+ | Fan for N-Filter smoke (D33) |
 | SM-2 | \-/+ | Smoke effects for Booster Tube (D35) |
 | FN-2 | \-/+ | Fan for Booster Tube smoke (D50) |
-| NEO-C | D13/VCC/GND | LED ring light for Inner Cyclotron "Cake" |
+| NEO-C | D13/VCC/GND | Neopixel LED ring for Inner Cyclotron "Cake" |
 | P.RED | D4/GND/D5/GND | Cyclotron Panel LED's: 2x Red |
 | P.YELLOW | D6/GND/D7/GND | Cyclotron Panel LED's: 2x Yellow |
 | P.GREEN | D8/GND/D9/GND | Cyclotron Panel LED's: 2x Green |

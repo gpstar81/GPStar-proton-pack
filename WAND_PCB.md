@@ -21,7 +21,7 @@ Connections for the wand should be made according to the table below.
 | 5V-IN | +/\- | Power from Proton Pack. **This MUST be a regulated 5V source!** |
 | Q2 | VCC/D10/GND | Stock connection for addressable barrel LED's |
 | SW45/SW4 | GND/D2/GND/D3 | Stock connection for the Intensify button and Activate toggle |
-| SW6 | A6/GND | Stock connection for the orange wand-end mode/alt switch |
+| SW6 | GND/A6 | Stock connection for the orange wand-end mode/alt switch |
 
 ### Stock Connectors (Terminal Blocks)
 
@@ -40,14 +40,14 @@ Connections for the wand should be made according to the table below.
 | R+ | <font color="red">Red</font> | Rumble (vibration) motor VCC |
 | R- | Black | Rumble (vibration) motor GND |
 | VCC | <font color="blue">Blue</font> | Power for stock bar graph |
-| A1 | <font color="brown">Brown</font> | Stock bar graph LED |
-| A2 | <font color="red">Red</font> | Stock bar graph LED |
-| A3 | <font color="orange">Orange</font> | Stock bar graph LED |
-| A4 | <font color="yellow">Yellow</font> | Stock bar graph LED |
-| A5 | <font color="green">Green</font> | Stock bar graph LED |
+| A1 | <font color="brown">Brown</font> | Stock bar graph LED 1 |
+| A2 | <font color="red">Red</font> | Stock bar graph LED 2 |
+| A3 | <font color="orange">Orange</font> | Stock bar graph LED 3 |
+| A4 | <font color="yellow">Yellow</font> | Stock bar graph LED 4 |
+| A5 | <font color="green">Green</font> | Stock bar graph LED 5 |
 | D12 | <font color="gray">White</font> | Blinking top right LED |
 | D13 | Black | White vent light LED |
-| VL+ | <font color="red">Red</font> | VCC for vent lights |
+| VL+ | <font color="red">Red</font> | VCC for top/vent lights |
 | D7 | <font color="orange">Orange</font> | Rotary encoder B |
 | D6 | <font color="red">Red</font> | Rotary encoder A |
 | ROT- | <font color="brown">Brown</font> | Ground for rotary encoder |
@@ -56,20 +56,23 @@ Connections for the wand should be made according to the table below.
 
 | Label | Pins | Notes |
 |-------|------|-------|
-| PACK (Serial) | TX1/RX1 | Serial communication for the Proton Pack |
+| PACK (Serial) | TX1/RX1 | Serial communication to the Proton Pack |
 | WAV TRIGGER | GND/NC/VCC/TX/RX/NC | Communication and Power for the wands's Wav Trigger |
 | ICSP | DO NOT USE! | Programming header for bootloader updates (reserved) |
 | UART | See Below | Programming header for software updates (optional) |
 
-For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label on each side. If using an FTDI to USB cable, the DTS pin will connect to the RTS pin. The CTS pin on most FTDI headers will not be used (connects to GND on the board).
+For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label to the FTDI chip.
+
+- If using an FTDI to USB cable, the RTS pin will connect to the DTR board pin.
+- The CTS pin on any FTDI device will not be used (connects to GND on the board).
 
 ### Optional Connectors
 
 | Label | Pins | Notes |
 |-------|------|-------|
-| HAT1 | D22/GND | Connection for hat LED |
-| HAT2 | D23/GND | Connection for hat LED |
-| BARREL-LED | D24/GND | Connection for white wand tip light |
+| HAT1 | GND/D22 | Connection for hat LED |
+| HAT2 | GND/D23 | Connection for hat LED |
+| BARREL-LED | GND/D24 | Connection for white wand tip light |
 | 5V-OUT | +/\- | Power for additional accessories |
 | SCL/SDA | SCL/SDA | Expansion serial port using I2C |
 
