@@ -357,7 +357,7 @@ bool b_pack_shutting_down = false;
 /*
  * If you are compiling this for a Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
 */
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
+#ifdef GPSTAR_PROTON_PACK_PCB
   ezButton switch_cyclotron_lid(43); // Second cyclotron ground pin (brown) that we detect if the lid is removed or not.
 #else
   ezButton switch_cyclotron_lid(51); // Second cyclotron ground pin (brown) that we detect if the lid is removed or not.
