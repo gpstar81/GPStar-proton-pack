@@ -34,7 +34,9 @@ Considered the "legacy" guide to building your own solution using the Arduino pl
 
 This guide is intended for completing the connections for the all-in-one PCB approach.
 
-1. [Pack and Wand PCB's](PCB.md)
+1. [Pack PCB](PACK_PCB.md)
+
+1. [Wand PCB](WAND_PCB.md)
 
 1. TBD: Wiring Loom, External Connectors, etc.
 
