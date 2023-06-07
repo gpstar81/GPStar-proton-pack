@@ -1,6 +1,0 @@
-{
-    "configuration": "cpu=atmega2560",
-    "board": "arduino:avr:mega",
-    "sketch": "proton_pack/proton_pack.ino",
-    "port": "/dev/tty.usbmodem14201"
-}
