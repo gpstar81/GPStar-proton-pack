@@ -20,9 +20,9 @@ The stock Hasbro 5 LED bargraph indicated above, can be replaced with a Barmeter
 | A5            | →      | →        | 10 (C6)      |
 | A6            | →      | →        | 11 (C7)      |
 | C0            | →      | →        | 21 (L1)      |
-| C1            | →      | →        | 16 (L4)      |
+| C1            | →      | →        | 15 (L2)      |
 | C2            | →      | →        | 13 (L3)      |
-| C3            | →      | →        | 15 (L2)      |
+| C3            | →      | →        | 16 (L4)      |
 
 **Note** - If using the all-in-one PCB controller, connect the SDA and SCL pins directly to the expansion port available on that board. Additionally, the VDD and GND pins may make use of the 5V-OUT connection on that controller.
 

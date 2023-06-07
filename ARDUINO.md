@@ -11,6 +11,7 @@ The following libraries are required to be installed with the [Arduino IDE 2.x](
 - **Ramp** by Sylvain Garnavault
 - **AltSoftSerial** by Paul Stoffregen
 - **simple ht16k33 library** by lpaseen
+- **SerialTransfer** by PowerBroker2
 - **millisDelay** `See Below`
 - **WavTrigger** `See Below`
 
@@ -27,15 +28,22 @@ The WavTrigger library must be downloaded from the project GitHub page. Download
 [https://github.com/robertsonics/WAV-Trigger-Arduino-Serial-Library](https://github.com/robertsonics/WAV-Trigger-Arduino-Serial-Library)
 
 ## +++ IMPORTANT +++
+
 Documented on both the Proton Pack and Neutron Wand code at the top of each file, is instructions on modifying the wavTrigger.h file. **You will need to open the wavTrigger.h file and comment out the neccessary #define required for the Proton Pack or Neutrona Wand**
 
 **(see For compiling code on the Arduino Mega or Nano below for more information)**. 
 
-The **wavTrigger.h** file can be located in your `Arduino/Libraries/<wav trigger folder>` (MacOS) or `C:\Arduino\Libraries` (Windows). See the special notes below for compiling the sketches for each of the Arduino boards.## For compiling code on the Arduino Mega:You need to enable `__WT_USE_SERIAL_3__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use. Note that you will need to confirm this value if you switch between compiling for the Arduino Nano.
+The **wavTrigger.h** file can be located in your `Arduino/Libraries/<wav trigger folder>` (MacOS) or `C:\Arduino\Libraries` (Windows). See the special notes below for compiling the sketches for each of the Arduino boards.
+
+### For compiling code on the Arduino Mega:
+
+You need to enable `__WT_USE_SERIAL_3__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use. Note that you will need to confirm this value if you switch between compiling for the Arduino Nano.
+
+**This will be the standard for both of the custom PCB's for the Proton Pack and Neutron Wand as they utilize the same Arduino Mega compatible chipset.**
 
 ![WavTrigger Serial Class for Arduino Mega](images/wt_serial_mega.png)
 
-## For compiling code on the Arduino Nano:
+### For compiling code on the Arduino Nano:
 
 You need to enable `__WT_USE_ALTSOFTSERIAL__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use. Note that you will need to confirm this value if you switch between compiling for the Arduino Mega.
 
