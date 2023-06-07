@@ -3156,6 +3156,7 @@ void checkWand() {
             case W_FIRING_CROSSING_THE_STREAMS:
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
+              w_trig.trackGain(S_CROSS_STREAMS_START, i_volume);
               w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
               w_trig.trackPlayPoly(S_FIRE_START_SPARK);
             break;
@@ -3163,6 +3164,7 @@ void checkWand() {
             case W_FIRING_CROSSING_THE_STREAMS_MIX:
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
+              w_trig.trackGain(S_CROSS_STREAMS_START, i_volume);
               w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
               w_trig.trackPlayPoly(S_FIRE_START_SPARK);
 
@@ -3181,6 +3183,7 @@ void checkWand() {
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED:
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
+              w_trig.trackGain(S_CROSS_STREAMS_END, i_volume);
               w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
               w_trig.trackStop(S_FIRING_LOOP_GB1);
             break;
@@ -3188,6 +3191,7 @@ void checkWand() {
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX:
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
+              w_trig.trackGain(S_CROSS_STREAMS_END, i_volume);
               w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
             break;
 
