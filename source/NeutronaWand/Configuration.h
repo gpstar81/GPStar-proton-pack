@@ -85,10 +85,18 @@ const bool b_onboard_amp_enabled = true;
 /*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
  * Pressing this button together at the same time as the Intensify button does a cross the streams firing.
+ * You can release one of the two firing buttons and the Neutrona wand will still continue to cross the streams.
  * The video game firing modes will be disabled when you enable this. 
  * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
 bool b_cross_the_streams = false;
+
+/*
+  * When set to true, to cross the streams you must be holding down both Intensify and the alternate firing button at the same time.
+  * Releasing one or the other button will stop cross the streams but continue firing a regular proton stream.
+  * This can be enabled or disabled from the Neutrona wand sub menu system.
+*/
+bool b_cross_the_streams_mix = false;
 
 /*
  * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.

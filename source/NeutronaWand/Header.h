@@ -50,7 +50,7 @@ millisDelay ms_fast_led;
 wavTrigger w_trig;
 unsigned int i_music_count = 0;
 unsigned int i_current_music_track = 0;
-const unsigned int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
+const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 
 /*
  *  Volume (0 = loudest, -70 = quietest)
@@ -117,7 +117,7 @@ const uint8_t led_bargraph_5 = A5;
 millisDelay ms_gun_loop_1;
 millisDelay ms_gun_loop_2;
 millisDelay ms_white_light;
-const int d_white_light_interval = 150;
+const int d_white_light_interval = 250;
 
 /* 
  *  Overheat timers
@@ -207,16 +207,18 @@ int i_power_mode_prev = 1;
 /* 
  *  Wand / Pack communication
  */
-int rx_byte = 0;
-
 SerialTransfer wandComs;
 
 struct __attribute__((packed)) STRUCT {
+  int s;
   int i;
+  int e;
 } comStruct;
 
 struct __attribute__((packed)) STRUCTSEND {
+  int s;
   int i;
+  int e;
 } sendStruct;
 
 /*
@@ -259,7 +261,7 @@ enum FIRING_MODES PREV_FIRING_MODE;
 /*
  * Misc wand settings and flags.
  */
-int year_mode = 2021;
+int year_mode = 1984;
 bool b_firing = false;
 bool b_firing_intensify = false;
 bool b_firing_alt = false;
@@ -286,3 +288,5 @@ bool b_beeping = false;
   const uint8_t led_hat_2 = NULL;
   const uint8_t led_barrel_tip = NULL;
 #endif
+
+// Blinking make it slower.

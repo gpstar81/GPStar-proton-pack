@@ -36,13 +36,13 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 	1. Meson Collider
 	1. Special: Setting 5 is a settings menu system (see section below).
 
-**Crossing the Streams / Alternate Firing (Optional)**
+**Crossing The Streams / Crossing The Streams Mix / Alternate Firing (Optional)**
 
 - The orange button at the end of the wand acts as a alternate fire mode.
 - The overheat features can only be triggered when enabled by the alternate firing mode.
-- Pressing both the Intensify and orange button at the end of the wand at the same time enables the Crossing the Streams. The Proton Pack and Wand can still overheat if enabled during this mode.
+- Pressing both the Intensify and orange button at the end of the wand at the same time enables the Crossing the Streams. Releasing one of the 2 firing buttons will continue crossing the streams. During Crossing The Streams Mix, you need to hold both the intensify and alternate firing button at the same time. Release one or the other will end crossing the streams but continue firing a regular proton stream. The Proton Pack and Wand can still overheat if enabled while crossing the streams in the power level you are at.
 
-To enable the Crossing the Streams and alternate firing by default, you need to set **bool b&#95;cross&#95;the&#95;streams** to true in the Advanced User Configuration settings at the top of the Neutrona wand code. (see Advanced User Configuration settings below). Otherwise you can toggle between Crossing the Streams and Video Game modes via the Neutrona Wand Sub Menu Settings (see below). **Important: The Neutrona Wand sub menu settings can only be reached while the Neutrona Wand is powered down**
+To enable the Crossing The Streams and alternate firing by default, you need to set **bool b&#95;cross&#95;the&#95;streams** to true in the Advanced User Configuration settings at the top of the Neutrona wand code. To further enable Crossing The Streams Mix, you need to set **bool b&#95;cross&#95;the&#95;streams&#95;** to true (see Advanced User Configuration settings below). Otherwise you can toggle between Crossing The Streams, Crossing The Streams Mix and Video Game modes via the Neutrona Wand Sub Menu Settings (see below). **Important: The Neutrona Wand sub menu settings can only be reached while the Neutrona Wand is powered down**
 
 **Toggle Switch Behavior**
 
@@ -87,7 +87,7 @@ When you are in the settings menu system [Mode 5] all the bargraph leds begin fl
 
 | Sub Menu Level | Purpose | Description |
 |------------|---------|-------------|
-| 5 | Cross The Streams / Video Game Mode | Press **Intensify** to enable the cross the streams feature or revert back to video game modes. (Note that the LED #5 will stay solid when cross the streams is enabled while in the sub menu system). |
+| 5 | Cross The Streams / Cross The Streams Mix / Video Game Mode | Press **Intensify** to enable the cross the streams feature or revert back to video game modes. (Note that the LED #5 will stay solid when cross the streams is enabled while in the sub menu system). Cross The Streams Mix requires holding down both intensify and the alternate firing button at the same time.
 | 4 | Smoke Settings / Overheating| Press **Intensify** to enable or disable smoke. Press the **Orange Mode Switch** to enable or disable overheating |
 | 3 | Cyclotron Rotation Direction / Cyclotron LED Setting Toggle | Press **Intensify** button to change the direction of the cyclotron rotation. Press the **Orange Mode Switch** to toggle between 1 single LED for the cyclotron lens or 3 LEDs during 1984/1989 modes for the cyclotron lid. |
 | 2 | Vibration / Vibration Firing Mode | Press **Intensify** to enable vibration or disable. Press the **Orange Mode Switch** to enable vibration during firing only. Press again to disable. |
@@ -122,7 +122,6 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const int VOLUME&#95;MULTIPLIER | Percentage increments of master volume change. | 2 |
 | const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |
 | const int VOLUME&#95;EFFECTS&#95;MULTIPLIER | Percentage increments of the sound effects volume change. | 5 |
-| bool b&#95;gb2&#95;mode | When set to true, the pack will be in 1989 sound effects instead of 1984 sound effects when the proton pack year mode toggle switch is set to 1984 mode. **Note: 1984/1989/2021 modes can still be toggled from the Neutrona Wand sub menu system.** | false |
 | const bool b&#95;onboard&#95;amp&#95;enabled | Set to true to enable the onboard amplifier of the Wav Trigger. Turning off the onboard amp draws less power. If using the AUX cable jack of the Wav Trigger, the amp can be disabled to save power. If you are using the output pins directly on the Wav Trigger board to your speakers, you will need to enable the amp. **The onboard mono audio amplifier and speaker connector specifications: 2w into 4 Ohms, 1.25W into 8 Ohms**| false |
 | bool b&#95;clockwise | Set to true for the cyclotron lights to spin clockwise. Set to false to be counter clockwise. This can be controlled by an optional switch on pin 29. **Note: This can be toggled from the Neutrona Wand sub menu system.** | true |
 | const bool b&#95;vibration&#95;enabled | Enable or disable vibration control for the Proton Pack. When set to false, there will be no vibration enabled for the Proton Pack, and it will ignore the toggle switch on pin 27. **Note: This can be toggled from the Neutrona Wand sub menu system.**| true |

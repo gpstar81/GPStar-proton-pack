@@ -148,13 +148,6 @@ const bool b_vibration_enabled = true;
 bool b_vibration_firing = false;
 
 /*
- * When set to true, 1984 mode is turned into 1989 mode. 
- * The pack will play 1989 sound effects instead of 1984 sound effects.
- * This can be enabled or disabled from the Neutrona wand sub menu system.
-*/
-bool b_gb2_mode = false;
-
-/*
  * When set to false, 1984 mode LED's will fade in or out.
 */
 const bool b_fade_cyclotron_led = true;

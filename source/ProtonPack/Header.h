@@ -213,7 +213,7 @@ const int i_cyclotron_switch_plate_leds_delay = 1000;
 /* 
  * Alarm. Used during overheating and or ribbon cable removal.
  */
-const int i_alarm_delay = 500;
+const unsigned int i_alarm_delay = 500;
 bool b_alarm = false;
 millisDelay ms_alarm;
 
@@ -233,7 +233,7 @@ ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defa
 wavTrigger w_trig;
 unsigned int i_music_count = 0;
 unsigned int i_current_music_track = 0;
-const unsigned int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
+const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 bool b_playing_music = false;
 bool b_repeat_track = false;
 
@@ -327,16 +327,19 @@ millisDelay ms_wand_handshake;
 const int i_wand_handshake_delay = 3000;
 millisDelay ms_wand_handshake_checking;
 int i_wand_power_level = 1; // Power level of the wand.
-int rx_byte = 0;
-int prev_byte = 0;
+const int i_wand_power_level_max = 5; // Max power level of the wand.
 SerialTransfer packComs;
 
 struct __attribute__((packed)) STRUCT {
+  int s;
   int i;
+  int e;
 } comStruct;
 
 struct __attribute__((packed)) STRUCTSEND {
+  int s;
   int i;
+  int e;
 } sendStruct;
 
 /*

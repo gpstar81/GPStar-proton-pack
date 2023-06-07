@@ -118,10 +118,17 @@ enum sound_fx {
   S_VOICE_THREE_LED,
   S_VOICE_OVERHEAT_ENABLED,
   S_VOICE_OVERHEAT_DISABLED,
-  S_VOICE_AFTERLIFE
+  S_VOICE_AFTERLIFE,
+  S_GB1_FIRE_LOOP,
+  S_GB1_FIRE_START,
+  S_GB1_FIRE_START_HIGH_POWER,
+  S_GB1_FIRE_HIGH_POWER_LOOP,
+  S_GB2_FIRE_LOOP,
+  S_GB2_FIRE_START,
+  S_VOICE_CROSS_THE_STREAMS_MIX
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const int i_last_effects_track = S_VOICE_AFTERLIFE;
+const int i_last_effects_track = S_VOICE_CROSS_THE_STREAMS_MIX;

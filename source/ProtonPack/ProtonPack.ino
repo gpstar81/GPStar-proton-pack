@@ -99,6 +99,7 @@ void setup() {
 
   switch(i_mode_year) {
     case 1984:
+    case 1989:
       i_current_ramp_speed = i_1984_delay * 1.3;
       i_inner_current_ramp_speed = i_inner_ramp_delay;
     break;
@@ -206,6 +207,7 @@ void loop() {
           break;
 
           case 1984:
+          case 1989:
             i_powercell_delay = i_powercell_delay_1984;
             i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base * 4;
           break;
@@ -253,7 +255,7 @@ void loop() {
           // Tell the wand the pack alarm is off.
           packSerialSend(P_ALARM_OFF);
 
-          if(i_mode_year == 1984) {
+          if(i_mode_year == 1984 || i_mode_year == 1989) {
             // Reset the LEDs before resetting the alarm flag.
             resetCyclotronLeds();
             ms_cyclotron.start(0);
@@ -360,7 +362,7 @@ void packStartup() {
   PACK_ACTION_STATUS = ACTION_IDLE;
 
   if(b_alarm == true) {
-    if(i_mode_year == 1984) {
+    if(i_mode_year == 1984 || i_mode_year == 1989) {
       ms_cyclotron.start(0);
       ms_alarm.start(0);
     }
@@ -374,7 +376,18 @@ void packStartup() {
       case 1984:
         w_trig.trackStop(S_PACK_RIBBON_ALARM_1);
 
-        if(b_gb2_mode == true) {
+        w_trig.trackGain(S_BOOTUP, i_volume);
+        w_trig.trackPlayPoly(S_BOOTUP, true);
+
+        w_trig.trackGain(S_IDLE_LOOP, i_volume - 20);
+        w_trig.trackPlayPoly(S_IDLE_LOOP, true);
+        w_trig.trackFade(S_IDLE_LOOP, i_volume, 2000, 0);
+        w_trig.trackLoop(S_IDLE_LOOP, 1);
+      break;
+
+      case 1989:
+          w_trig.trackStop(S_PACK_RIBBON_ALARM_1);
+
           w_trig.trackGain(S_GB2_PACK_START, i_volume);
           w_trig.trackPlayPoly(S_GB2_PACK_START, true);
 
@@ -382,19 +395,9 @@ void packStartup() {
           w_trig.trackPlayPoly(S_GB2_PACK_LOOP, true);
           w_trig.trackFade(S_GB2_PACK_LOOP, i_volume, 2000, 0);
           w_trig.trackLoop(S_GB2_PACK_LOOP, 1);
-        }
-        else {
-          w_trig.trackGain(S_BOOTUP, i_volume);
-          w_trig.trackPlayPoly(S_BOOTUP, true);
-
-          w_trig.trackGain(S_IDLE_LOOP, i_volume - 20);
-          w_trig.trackPlayPoly(S_IDLE_LOOP, true);
-          w_trig.trackFade(S_IDLE_LOOP, i_volume, 2000, 0);
-          w_trig.trackLoop(S_IDLE_LOOP, 1);
-        }
       break;
-  
-      default:
+
+      case 2021:
         w_trig.trackStop(S_PACK_BEEPING);
         w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
         w_trig.trackPlayPoly(S_AFTERLIFE_PACK_STARTUP, true);
@@ -417,6 +420,7 @@ void packShutdown() {
 
   switch(i_mode_year) {
     case 1984:
+    case 1989:
       w_trig.trackStop(S_PACK_RIBBON_ALARM_1);
     break;
 
@@ -443,18 +447,18 @@ void packShutdown() {
       case 1984:      
         w_trig.trackGain(S_SHUTDOWN, i_volume);
         w_trig.trackPlayPoly(S_SHUTDOWN, true);
+        w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
+        w_trig.trackPlayPoly(S_PACK_SHUTDOWN, true);
+      break;
 
-        if(b_gb2_mode == true) {
-          w_trig.trackGain(S_GB2_PACK_OFF, i_volume);
-          w_trig.trackPlayPoly(S_GB2_PACK_OFF, true);
-        }
-        else {
-          w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
-          w_trig.trackPlayPoly(S_PACK_SHUTDOWN, true);
-        }
+      case 1989:
+        w_trig.trackGain(S_SHUTDOWN, i_volume);
+        w_trig.trackPlayPoly(S_SHUTDOWN, true);
+        w_trig.trackGain(S_GB2_PACK_OFF, i_volume);
+        w_trig.trackPlayPoly(S_GB2_PACK_OFF, true);
       break;
   
-      default:
+      case 2021:
         w_trig.trackGain(S_PACK_SHUTDOWN_AFTERLIFE, i_volume);
         w_trig.trackPlayPoly(S_PACK_SHUTDOWN_AFTERLIFE, true);
       break;
@@ -639,8 +643,18 @@ void checkSwitches() {
               i_mode_year_tmp = 1984;
             break;
 
-            case 2021:
+            case 1989:
               if(i_mode_year == 1984) {
+                // Tell the wand to switch to 1989 mode.
+                packSerialSend(P_YEAR_1989);
+              }
+
+              i_mode_year = 1989;
+              i_mode_year_tmp = 1989;
+            break;
+
+            case 2021:
+              if(i_mode_year == 1989) {
                 // Tell the wand to switch to 2021 mode.
                 packSerialSend(P_YEAR_AFTERLIFE);
               }
@@ -654,6 +668,7 @@ void checkSwitches() {
         // Reset the ramp speeds.
         switch(i_mode_year) {
           case 1984:
+          case 1989:
               // Reset the ramp speeds.
               i_current_ramp_speed = i_1984_delay * 1.3;
               i_inner_current_ramp_speed = i_inner_ramp_delay;
@@ -846,6 +861,7 @@ void cyclotronSwitchLEDLoop() {
       break;
 
       case 1984:
+      case 1989:
         if(b_2021_ramp_up == true) {
           i_cyc_led_delay = i_cyclotron_switch_led_delay + (r_2021_ramp.update() - i_1984_delay);
         }
@@ -889,6 +905,7 @@ void powercellLoop() {
 
     switch(i_mode_year) {
       case 1984:
+      case 1989:
         if(b_2021_ramp_up == true) {
           i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
         }
@@ -937,7 +954,7 @@ void cyclotronControl() {
       }
     }
     else {
-      if(i_mode_year == 1984) {
+      if(i_mode_year == 1984 || i_mode_year == 1989) {
         i_1984_counter = 3;
         i_led_cyclotron = cyclotron_led_start + i_1984_cyclotron_leds[i_1984_counter] - 2;
         
@@ -956,7 +973,7 @@ void cyclotronControl() {
       b_inner_ramp_up = false;
       b_alarm = true;
       
-      if(i_mode_year == 1984) {
+      if(i_mode_year == 1984 || i_mode_year == 1989) {
         resetCyclotronLeds();
         ms_cyclotron.start(0);
         ms_alarm.start(0);
@@ -981,7 +998,7 @@ void cyclotronControl() {
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
       
-      if(i_mode_year == 1984) {
+      if(i_mode_year == 1984 || i_mode_year == 1989) {
         resetCyclotronLeds();
         ms_cyclotron.start(0);
         ms_alarm.start(0);
@@ -1001,7 +1018,7 @@ void cyclotronControl() {
     if(b_2021_ramp_up_start == true) {
       b_2021_ramp_up_start = false;
 
-      if(i_mode_year == 1984) {
+      if(i_mode_year == 1984 || i_mode_year == 1989) {
         r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
         r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
 
@@ -1021,7 +1038,7 @@ void cyclotronControl() {
       r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
       r_inner_ramp.go(i_inner_current_ramp_speed); // Reset the inner cyclotron ramp.
 
-      if(i_mode_year == 1984) {
+      if(i_mode_year == 1984 || i_mode_year == 1989) {
         r_2021_ramp.go(i_1984_delay * 1.3, i_1984_ramp_down_length, CIRCULAR_IN); 
 
         r_inner_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN); 
@@ -1032,7 +1049,7 @@ void cyclotronControl() {
       }
     }
   
-    if(i_mode_year == 1984) {
+    if(i_mode_year == 1984 || i_mode_year == 1989) {
       cyclotron1984(i_current_ramp_speed);
       innerCyclotronRing(i_inner_current_ramp_speed);
     }
@@ -1183,6 +1200,7 @@ void cyclotronFade() {
     break;
 
     case 1984:
+    case 1989:
       if(b_fade_cyclotron_led == true) {
         for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
@@ -1660,6 +1678,7 @@ void cyclotronOverHeating() {
     break;
 
     case 1984:
+    case 1989:
       innerCyclotronRing(i_2021_inner_delay * 14);
 
       if(ms_alarm.justFinished()) {
@@ -1733,6 +1752,7 @@ void cyclotronNoCable() {
     break;
 
     case 1984:
+    case 1989:
       innerCyclotronRing(i_2021_inner_delay * 14);
 
       if(ms_alarm.justFinished()) {
@@ -2128,28 +2148,71 @@ void wandFiring() {
       w_trig.trackGain(S_FIRE_START, i_volume);
       w_trig.trackPlayPoly(S_FIRE_START, true);
 
-      if(b_firing_intensify == true) {
-        w_trig.trackGain(S_FIRE_LOOP_GUN, i_volume);
-        w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
-        w_trig.trackFade(S_FIRE_LOOP_GUN, i_volume, 1000, 0);
-        w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
+      switch(i_wand_power_level) {
+        case 1 ... 4:
 
-        b_sound_firing_intensify_trigger = true;
-      }
-      else {
-        b_sound_firing_intensify_trigger = false;
-      }
+          if(b_firing_intensify == true) {
+            if(i_mode_year == 1989) {
+              w_trig.trackGain(S_GB2_FIRE_LOOP, i_volume);
+              w_trig.trackPlayPoly(S_GB2_FIRE_LOOP, true);
+              w_trig.trackFade(S_GB2_FIRE_LOOP, i_volume, 1000, 0);
+              w_trig.trackLoop(S_GB2_FIRE_LOOP, 1);  
 
-      if(b_firing_alt == true) {
-        w_trig.trackGain(S_FIRING_LOOP_GB1, i_volume);
-        w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
-        w_trig.trackFade(S_FIRING_LOOP_GB1, i_volume, 1000, 0);
-        w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+              w_trig.trackPlayPoly(S_GB2_FIRE_START);            
+            }
+            else {
+              w_trig.trackGain(S_GB1_FIRE_LOOP, i_volume);
+              w_trig.trackPlayPoly(S_GB1_FIRE_LOOP, true);
+              w_trig.trackFade(S_GB1_FIRE_LOOP, i_volume, 1000, 0);
+              w_trig.trackLoop(S_GB1_FIRE_LOOP, 1);
 
-        b_sound_firing_alt_trigger = true;
-      }
-      else {
-        b_sound_firing_alt_trigger = false;
+              w_trig.trackPlayPoly(S_GB1_FIRE_START);
+            }
+
+            b_sound_firing_intensify_trigger = true;
+          }
+          else {
+            b_sound_firing_intensify_trigger = false;
+          }
+
+          if(b_firing_alt == true) {
+            w_trig.trackGain(S_FIRING_LOOP_GB1, i_volume);
+            w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+            w_trig.trackFade(S_FIRING_LOOP_GB1, i_volume, 1000, 0);
+            w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+
+            w_trig.trackPlayPoly(S_FIRE_START);
+            
+            b_sound_firing_alt_trigger = true;
+          }
+          else {
+            b_sound_firing_alt_trigger = false;
+          }
+        
+        case 5:
+            if(b_firing_intensify == true) {
+              // Reset some sound triggers.
+              b_sound_firing_intensify_trigger = true;
+              w_trig.trackPlayPoly(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+              w_trig.trackLoop(S_GB1_FIRE_HIGH_POWER_LOOP, 1);
+            }
+            else {
+              b_sound_firing_intensify_trigger = false;
+            }
+
+            if(b_firing_alt == true) {
+              // Reset some sound triggers.
+              b_sound_firing_alt_trigger = true;
+
+              w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+              w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);          
+            }
+            else {
+              b_sound_firing_alt_trigger = false;
+            }
+
+            w_trig.trackPlayPoly(S_GB1_FIRE_START_HIGH_POWER);
+        break;
       }
     break;
 
@@ -2271,21 +2334,42 @@ void wandStoppedFiring() {
 
 void wandStopFiringSounds() {
   // Firing sounds.
-  w_trig.trackStop(S_FIRE_START);
-  w_trig.trackStop(S_FIRE_START_SPARK);
-  w_trig.trackStop(S_FIRE_LOOP);
-  w_trig.trackStop(S_FIRING_LOOP_GB1);
-  w_trig.trackStop(S_FIRE_LOOP_GUN);
-  w_trig.trackStop(S_FIRE_LOOP_IMPACT);
-  w_trig.trackStop(S_SLIME_START);
-  w_trig.trackStop(S_SLIME_LOOP);
-  w_trig.trackStop(S_SLIME_END);
-  w_trig.trackStop(S_STASIS_START);
-  w_trig.trackStop(S_STASIS_LOOP);
-  w_trig.trackStop(S_STASIS_END);
-  w_trig.trackStop(S_MESON_START);
-  w_trig.trackStop(S_MESON_LOOP);
-  w_trig.trackStop(S_MESON_END);
+  switch(FIRING_MODE) {
+    case PROTON:
+      if(i_mode_year == 1989) {
+        w_trig.trackStop(S_GB2_FIRE_LOOP);
+        w_trig.trackStop(S_GB2_FIRE_START);
+      }
+      else {
+        w_trig.trackStop(S_GB1_FIRE_START);
+        w_trig.trackStop(S_GB1_FIRE_LOOP);
+      }
+
+      w_trig.trackStop(S_FIRING_LOOP_GB1);
+      w_trig.trackStop(S_GB1_FIRE_START_HIGH_POWER);
+      w_trig.trackStop(S_GB1_FIRE_HIGH_POWER_LOOP);
+      w_trig.trackStop(S_FIRE_START_SPARK);
+      w_trig.trackStop(S_FIRE_START);
+    break;
+
+    case SLIME:
+      w_trig.trackStop(S_SLIME_START);
+      w_trig.trackStop(S_SLIME_LOOP);
+      w_trig.trackStop(S_SLIME_END);
+    break;
+
+    case STASIS:
+      w_trig.trackStop(S_STASIS_START);
+      w_trig.trackStop(S_STASIS_LOOP);
+      w_trig.trackStop(S_STASIS_END);
+    break;
+
+    case MESON:
+      w_trig.trackStop(S_MESON_START);
+      w_trig.trackStop(S_MESON_LOOP);
+      w_trig.trackStop(S_MESON_END);
+    break;
+  }
 
   if(b_firing_cross_streams == true) {
     w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
@@ -2301,7 +2385,7 @@ void packAlarm() {
   wandStopFiringSounds();
 
   // Pack sounds.
-  if(b_gb2_mode == true && i_mode_year == 1984) {
+  if(i_mode_year == 1989) {
     w_trig.trackStop(S_GB2_PACK_START);
     w_trig.trackStop(S_GB2_PACK_LOOP);
   }
@@ -2315,7 +2399,7 @@ void packAlarm() {
   w_trig.trackGain(S_SHUTDOWN, i_volume);
   w_trig.trackPlayPoly(S_SHUTDOWN, true);
 
-  if(b_gb2_mode == true && i_mode_year == 1984) {
+  if(i_mode_year == 1989) {
     w_trig.trackGain(S_GB2_PACK_OFF, i_volume);
     w_trig.trackPlayPoly(S_GB2_PACK_OFF, true);
   }
@@ -2327,12 +2411,13 @@ void packAlarm() {
   if(b_overheating != true) {
     switch(i_mode_year) {
       case 1984:
+      case 1989:
         w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume);
         w_trig.trackPlayPoly(S_PACK_RIBBON_ALARM_1, true);
         w_trig.trackLoop(S_PACK_RIBBON_ALARM_1, 1);
       break;
 
-      default:
+      case 2021:
         w_trig.trackGain(S_PACK_BEEPING, i_volume);
         w_trig.trackPlayPoly(S_PACK_BEEPING, true);
         w_trig.trackLoop(S_PACK_BEEPING, 1);
@@ -2399,7 +2484,7 @@ void cyclotronSwitchPlateLEDs() {
   }
 
   if(b_cyclotron_lid_on != true) {
-    if(i_mode_year == 1984) {        
+    if(i_mode_year == 1984 || i_mode_year == 1989) {        
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
         digitalWrite(cyclotron_switch_led_green, HIGH);
       }
@@ -2476,6 +2561,7 @@ void cyclotronSpeedIncrease() {
     break;
     
     case 1984:
+    case 1989:
       i_cyclotron_multiplier++;
     break;
   }
@@ -2838,7 +2924,7 @@ void checkWand() {
               ms_fan_stop_timer.start(i_fan_stop_timer);
               
               // Reset the inner cyclotron speed.
-              if(i_mode_year == 1984) {
+              if(i_mode_year == 1984 || i_mode_year == 1989) {
                 i_inner_current_ramp_speed = i_inner_ramp_delay;
               }
             break;
@@ -2858,7 +2944,7 @@ void checkWand() {
               smokeControl(false);
 
               // Reset the LEDs before resetting the alarm flag.
-              if(i_mode_year == 1984) {
+              if(i_mode_year == 1984 || i_mode_year == 1989) {
                 resetCyclotronLeds();
               }
           
@@ -2965,18 +3051,72 @@ void checkWand() {
 
               if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
                 b_sound_firing_intensify_trigger = true;
-                w_trig.trackPlayPoly(S_FIRE_LOOP_GUN, true);
-                w_trig.trackLoop(S_FIRE_LOOP_GUN, 1);
               }
             break;
+
+            case W_FIRING_INTENSIFY_MIX:
+              // Wand firing in intensify mode.
+              b_firing_intensify = true;
+
+              if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
+                b_sound_firing_intensify_trigger = true;
+
+                switch(i_wand_power_level) {
+                  case 1 ... 4:
+                    if(i_mode_year == 1989) {
+                      w_trig.trackPlayPoly(S_GB2_FIRE_LOOP, true);
+                      w_trig.trackLoop(S_GB2_FIRE_LOOP, 1);
+
+                      w_trig.trackPlayPoly(S_GB2_FIRE_START);
+                    }
+                    else {
+                      w_trig.trackPlayPoly(S_GB1_FIRE_LOOP, true);
+                      w_trig.trackLoop(S_GB1_FIRE_LOOP, 1);
+
+                      w_trig.trackPlayPoly(S_GB1_FIRE_START);
+                    }
+                  break;
+
+                  case 5:
+                    w_trig.trackPlayPoly(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+                    w_trig.trackLoop(S_GB1_FIRE_HIGH_POWER_LOOP, 1);
+                  break;
+                }
+              }
+            break;            
 
             case W_FIRING_INTENSIFY_STOPPED:
               // Wand no longer firing in intensify mode.
               b_firing_intensify = false;
               b_sound_firing_intensify_trigger = false;
-
-              w_trig.trackStop(S_FIRE_LOOP_GUN);
             break;
+
+            case W_FIRING_INTENSIFY_STOPPED_MIX:
+              // Wand no longer firing in intensify mode.
+              b_firing_intensify = false;
+              b_sound_firing_intensify_trigger = false;
+
+              if(b_firing_cross_streams != true) {
+                switch(i_wand_power_level) {
+                  case 1 ... 4:
+                    if(i_mode_year == 1989) {
+                      w_trig.trackStop(S_GB2_FIRE_LOOP);
+                      w_trig.trackStop(S_GB2_FIRE_START);
+                    }
+                    else {
+                      w_trig.trackStop(S_GB1_FIRE_LOOP);
+                      w_trig.trackStop(S_GB1_FIRE_LOOP);
+                      w_trig.trackStop(S_GB1_FIRE_START);
+                    }
+                  break;
+
+                  case 5:
+                    w_trig.trackStop(S_GB1_FIRE_HIGH_POWER_LOOP);
+                    w_trig.trackStop(S_GB1_FIRE_HIGH_POWER_LOOP);
+                  break;
+                } 
+              }
+            break;            
 
             case W_FIRING_ALT:
               // Wand firing in alt mode.
@@ -2984,6 +3124,16 @@ void checkWand() {
 
               if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
                 b_sound_firing_alt_trigger = true;
+              }
+            break;
+
+            case W_FIRING_ALT_MIX:
+              // Wand firing in alt mode.
+              b_firing_alt = true;
+
+              if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
+                b_sound_firing_alt_trigger = true;
+                
                 w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
                 w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
               }
@@ -2993,24 +3143,52 @@ void checkWand() {
               // Wand no longer firing in alt mode.
               b_firing_alt = false;
               b_sound_firing_alt_trigger = false;
+            break;
+
+            case W_FIRING_ALT_STOPPED_MIX:
+              // Wand no longer firing in alt mode mix.
+              b_firing_alt = false;
+              b_sound_firing_alt_trigger = false;
 
               w_trig.trackStop(S_FIRING_LOOP_GB1);
-            break;
+            break;            
 
             case W_FIRING_CROSSING_THE_STREAMS:
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
               w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
               w_trig.trackPlayPoly(S_FIRE_START_SPARK);
-              w_trig.trackPlayPoly(S_FIRE_LOOP, true);
-              w_trig.trackLoop(S_FIRE_LOOP, 1);
+            break;
+
+            case W_FIRING_CROSSING_THE_STREAMS_MIX:
+              // Wand is crossing the streams.
+              b_firing_cross_streams = true;
+              w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+              w_trig.trackPlayPoly(S_FIRE_START_SPARK);
+
+              w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
+              w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+
+              if(i_wand_power_level != i_wand_power_level_max) {
+                w_trig.trackPlayPoly(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+                w_trig.trackLoop(S_GB1_FIRE_HIGH_POWER_LOOP, 1);
+              }
+
+              w_trig.trackStop(S_GB2_FIRE_LOOP);
+              w_trig.trackStop(S_GB1_FIRE_LOOP);
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED:
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
               w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
-              w_trig.trackStop(S_FIRE_LOOP);
+              w_trig.trackStop(S_FIRING_LOOP_GB1);
+            break;
+
+            case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX:
+              // The wand is no longer crossing the streams.
+              b_firing_cross_streams = false;
+              w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
             break;
 
             case W_YEAR_MODES_CYCLE:
@@ -3021,35 +3199,32 @@ void checkWand() {
 
               switch(i_mode_year_tmp) {
                 case 1984:
-                  if(b_gb2_mode != true) {
-                    b_gb2_mode = true;
-                    i_mode_year_tmp = 1984;
+                  i_mode_year_tmp = 1989;
 
-                    w_trig.trackStop(S_VOICE_AFTERLIFE);    
-                    w_trig.trackStop(S_VOICE_1984); 
-                    w_trig.trackStop(S_VOICE_1989);
-                    w_trig.trackGain(S_VOICE_1989, i_volume);
-                    w_trig.trackPlayPoly(S_VOICE_1989);
+                  w_trig.trackStop(S_VOICE_AFTERLIFE);    
+                  w_trig.trackStop(S_VOICE_1984); 
+                  w_trig.trackStop(S_VOICE_1989);
+                  w_trig.trackGain(S_VOICE_1989, i_volume);
+                  w_trig.trackPlayPoly(S_VOICE_1989);
 
-                    // Tell the wand to play the 1989 sound effect.
-                    packSerialSend(P_MODE_1989);
-                  }
-                  else {
-                    i_mode_year_tmp = 2021;
+                  // Tell the wand to play the 1989 sound effect.
+                  packSerialSend(P_MODE_1989);
+                break;
 
-                    w_trig.trackStop(S_VOICE_AFTERLIFE);    
-                    w_trig.trackStop(S_VOICE_1984);
-                    w_trig.trackStop(S_VOICE_1989);
-                    w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
-                    w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
+                case 1989:
+                  i_mode_year_tmp = 2021;
 
-                    // Tell the wand to play the 2021 sound effect.
-                    packSerialSend(P_MODE_AFTERLIFE);
-                  }
+                  w_trig.trackStop(S_VOICE_AFTERLIFE);    
+                  w_trig.trackStop(S_VOICE_1984);
+                  w_trig.trackStop(S_VOICE_1989);
+                  w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
+                  w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
+
+                  // Tell the wand to play the 2021 sound effect.
+                  packSerialSend(P_MODE_AFTERLIFE);
                 break;
 
                 case 2021:
-                  b_gb2_mode = false;
                   i_mode_year_tmp = 1984;
 
                   w_trig.trackStop(S_VOICE_AFTERLIFE);    
@@ -3075,10 +3250,28 @@ void checkWand() {
               w_trig.trackGain(S_CLICK, i_volume);
               w_trig.trackPlayPoly(S_CLICK);
 
-              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);  
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);    
+  
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);    
               w_trig.trackGain(S_VOICE_CROSS_THE_STREAMS, i_volume);
               w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS);          
+            break;
+
+            case W_RESET_PROTON_STREAM_MIX:
+              // Revert back to Proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
+              FIRING_MODE = PROTON;
+
+              w_trig.trackStop(S_CLICK);    
+              w_trig.trackGain(S_CLICK, i_volume);
+              w_trig.trackPlayPoly(S_CLICK);
+
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);
+
+              w_trig.trackGain(S_VOICE_CROSS_THE_STREAMS_MIX, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS_MIX);          
             break;
 
             case W_VIBRATION_DISABLED:
@@ -3178,7 +3371,8 @@ void checkWand() {
               w_trig.trackGain(S_CLICK, i_volume);
               w_trig.trackPlayPoly(S_CLICK);
 
-              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);    
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);   
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX); 
               w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
               w_trig.trackGain(S_VOICE_VIDEO_GAME_MODES, i_volume);
               w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_MODES);          
@@ -3364,6 +3558,9 @@ void checkWand() {
             if(i_mode_year == 1984) {
               packSerialSend(P_YEAR_1984);
             }
+            else if(i_mode_year == 1989) {
+              packSerialSend(P_YEAR_1989);
+            }
             else {
               packSerialSend(P_YEAR_AFTERLIFE);
             }
@@ -3433,7 +3630,7 @@ void checkWand() {
 
 void packSerialSend(int i_message) {
   sendStruct.i = i_message;
-  
+
   packComs.sendDatum(sendStruct);
 }
 
