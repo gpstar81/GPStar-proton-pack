@@ -182,6 +182,12 @@ const bool b_onboard_amp_enabled = false;
 const bool b_overheat_strobe = false;
 
 /*
+ * When the pack is overheating, the cyclotron and powercell lights will turn off when set to true.
+ * When set to false, the powercell and cyclotron lights ramp at a slow speed during overheating.
+*/
+bool b_overheat_lights_off = true;
+
+/*
  * Enable or disable overall smoke settings.
  * This can be toggled with a switch on PIN 37. This can also be controlled from
 the Neutrona wand sub menu system.

@@ -333,7 +333,14 @@ void loop() {
       }
       
       cyclotronSwitchLEDLoop();
-      powercellLoop();
+
+      if(b_overheating == true && b_overheat_lights_off == true) {
+        powercellRampDown();
+      }
+      else {
+        powercellLoop();
+      }
+
       cyclotronControl();
     break;
    }
@@ -888,6 +895,57 @@ void cyclotronSwitchLEDLoop() {
   }
 }
 
+void powercellRampDown() {
+ if(ms_powercell.justFinished()) {
+    int i_extra_delay = 0;
+    
+    // Powercell
+    if(i_powercell_led < 0) {
+      // Do Nothing.
+    }
+    else {
+      pack_leds[i_powercell_led] = CRGB(0,0,0);
+
+      // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
+      if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
+        i_extra_delay = 250;
+      }
+      
+      i_powercell_led--;
+    }
+    
+    // Setup the delays again.
+    int i_pc_delay = i_powercell_delay;
+
+    switch(i_mode_year) {
+      case 1984:
+      case 1989:
+        if(b_2021_ramp_up == true) {
+          i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
+        }
+        else if(b_2021_ramp_down == true) {
+          i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
+        }
+      break;
+
+      case 2021:
+        if(b_2021_ramp_up == true) {
+          i_pc_delay = i_powercell_delay + r_2021_ramp.update();
+        }
+        else if(b_2021_ramp_down == true) {
+          i_pc_delay = i_powercell_delay + r_2021_ramp.update();
+        }
+      break;
+    }
+
+    if(b_alarm == true) {
+      i_pc_delay = i_powercell_delay * 3;
+    }
+
+    ms_powercell.start(i_pc_delay + i_extra_delay);
+  }
+}
+
 void powercellLoop() {
   if(ms_powercell.justFinished()) {
     int i_extra_delay = 0;
@@ -937,8 +995,68 @@ void powercellLoop() {
       i_pc_delay = i_powercell_delay * 5;
     }
 
-    ms_powercell.start(i_pc_delay + i_extra_delay);
+    // Speed up the power cell when the cyclotron speeds up before a overheat.
+    unsigned int i_multiplier = 0;
+    
+    if(i_cyclotron_multiplier > 1) {
+      switch(i_cyclotron_multiplier) {
+        case 2:
+          if(i_mode_year == 2021) {
+            i_multiplier = 5;
+          }
+          else {
+            i_multiplier = 10;
+          }
+        break;
+
+        case 3:
+          if(i_mode_year == 2021) {
+            i_multiplier = 10;
+          }
+          else {
+            i_multiplier = 20;
+          }
+        break;
+
+        case 4:
+          if(i_mode_year == 2021) {
+            i_multiplier = 15;
+          }
+          else {
+            i_multiplier = 30;
+          }
+        break;
+
+        case 5:
+          if(i_mode_year == 2021) {
+            i_multiplier = 25;
+          }
+          else {
+            i_multiplier = 40;
+          }
+        break;
+
+        case 6:
+          if(i_mode_year == 2021) {
+            i_multiplier = 30;
+          }
+          else {
+            i_multiplier = 50;
+          }
+        break;
+      }
+    }
+
+    ms_powercell.start((i_pc_delay + i_extra_delay) - i_multiplier);
   }
+}
+
+void powercellOn() {
+  for(int i = 0; i <= cyclotron_led_start - 1; i++) {
+    pack_leds[i] = CRGB(0,0,255);
+  }
+
+  i_powercell_led = cyclotron_led_start - 1;
 }
 
 void powercellOff() {
@@ -1014,6 +1132,16 @@ void cyclotronControl() {
       }
       else {
         ms_alarm.start(i_alarm_delay);
+      }
+
+      if(b_overheat_lights_off == true) {
+        cyclotronLidLedsOff();
+      
+        if(b_cyclotron_lid_on != true) {
+          innerCyclotronOff();
+        }
+
+        powercellOn();
       }
 
       b_alarm = true;
@@ -1682,30 +1810,38 @@ void cyclotronOverHeating() {
 
   switch (i_mode_year) {
     case 2021:
-      cyclotron2021(i_2021_delay * 10);
-      innerCyclotronRing(i_2021_inner_delay * 14);
+      if(b_overheat_lights_off != true) {
+        cyclotron2021(i_2021_delay * 10);
+        innerCyclotronRing(i_2021_inner_delay * 14);
+      }
     break;
 
     case 1984:
     case 1989:
-      innerCyclotronRing(i_2021_inner_delay * 14);
+      if(b_overheat_lights_off != true) {
+        innerCyclotronRing(i_2021_inner_delay * 14);
+      }
 
       if(ms_alarm.justFinished()) {
         ms_alarm.start(i_1984_delay / 2);
 
-        if(b_fade_cyclotron_led != true) {
-          resetCyclotronLeds();
-        }
-        else {
-          cyclotron84LightOff(i_1984_cyclotron_leds[0] + cyclotron_led_start - 2);
-          cyclotron84LightOff(i_1984_cyclotron_leds[1] + cyclotron_led_start - 2);
-          cyclotron84LightOff(i_1984_cyclotron_leds[2] + cyclotron_led_start - 2);
-          cyclotron84LightOff(i_1984_cyclotron_leds[3] + cyclotron_led_start - 2);
+        if(b_overheat_lights_off != true) {
+          if(b_fade_cyclotron_led != true) {
+            resetCyclotronLeds();
+          }
+          else {
+            cyclotron84LightOff(i_1984_cyclotron_leds[0] + cyclotron_led_start - 2);
+            cyclotron84LightOff(i_1984_cyclotron_leds[1] + cyclotron_led_start - 2);
+            cyclotron84LightOff(i_1984_cyclotron_leds[2] + cyclotron_led_start - 2);
+            cyclotron84LightOff(i_1984_cyclotron_leds[3] + cyclotron_led_start - 2);
+          }
         }
       }
       else {
         if(ms_alarm.remaining() < i_1984_delay / 4) {
-          cyclotron1984Alarm();
+          if(b_overheat_lights_off != true) {
+            cyclotron1984Alarm();
+          }
         }
       }
     break;
@@ -1789,6 +1925,15 @@ void cyclotronNoCable() {
         }
       }
     break;
+  }
+}
+
+/*
+ * Turns off the LEDs in the cyclotron lid only.
+*/
+void cyclotronLidLedsOff() {
+  for(int i = cyclotron_led_start; i < PACK_NUM_LEDS - 7; i++) {
+    pack_leds[i] = CRGB(0,0,0);
   }
 }
 
@@ -2958,7 +3103,27 @@ void checkWand() {
               }
           
               b_alarm = false;
-        
+
+              if(b_overheat_lights_off == true) {
+                cyclotronSpeedRevert();
+                
+                // Reset the ramp speeds.
+                switch(i_mode_year) {
+                  case 1984:
+                  case 1989:
+                      // Reset the ramp speeds.
+                      i_current_ramp_speed = i_1984_delay * 1.3;
+                      i_inner_current_ramp_speed = i_inner_ramp_delay;
+                  break;
+
+                  case 2021:
+                    // Reset the ramp speeds.
+                    i_current_ramp_speed = i_2021_ramp_delay;
+                    i_inner_current_ramp_speed = i_inner_ramp_delay;
+                  break;
+                }
+              }
+
               reset2021RampUp();
         
               packStartup();
