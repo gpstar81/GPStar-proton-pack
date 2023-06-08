@@ -800,8 +800,8 @@ void mainLoop() {
   
   switch(WAND_STATUS) {
     case MODE_OFF:          
-      if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {     
-        if(FIRING_MODE != SETTINGS) {
+      if(switchMode() == true && ms_switch_mode_debounce.justFinished() || b_pack_alarm == true) {     
+        if(FIRING_MODE != SETTINGS && b_pack_alarm != true) {
           w_trig.trackPlayPoly(S_CLICK);
 
           PREV_FIRING_MODE = FIRING_MODE;
@@ -816,10 +816,13 @@ void mainLoop() {
         }
         else {
           // Only exit the settings menu when on menu #5 in the top menu.
-          if(i_wand_menu == 5 && b_wand_menu_sub != true) {
+          if(i_wand_menu == 5 && b_wand_menu_sub != true && FIRING_MODE == SETTINGS) {
             FIRING_MODE = PREV_FIRING_MODE;
-            w_trig.trackPlayPoly(S_CLICK);
-            
+
+            if(b_pack_alarm != true) {
+              w_trig.trackPlayPoly(S_CLICK);
+            }
+
             bargraphClearAlt();
 
             switch(PREV_FIRING_MODE) {
@@ -856,6 +859,12 @@ void mainLoop() {
         }
       
         ms_switch_mode_debounce.start(a_switch_debounce_time);
+      }
+
+      if(b_pack_alarm == true) {
+        if(ms_hat_2.justFinished()) {
+          ms_hat_2.start(i_hat_2_delay);
+        }
       }
     break;
 
@@ -897,25 +906,32 @@ void mainLoop() {
         }
       }
 
-      // Ramp the bargraph up ramp down back to the default power level setting on a fresh start.
-      if(ms_bargraph.justFinished()) {
-        bargraphRampUp();
-      }
-      else if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        // Bargraph idling loop.
-        bargraphPowerCheck();
-      }
+      if(b_pack_alarm != true) {
+        // Ramp the bargraph up ramp down back to the default power level setting on a fresh start.
+        if(ms_bargraph.justFinished()) {
+          bargraphRampUp();
+        }
+        else if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+          // Bargraph idling loop.
+          bargraphPowerCheck();
+        }
 
-      if(year_mode == 2021) {
-        if(ms_gun_loop_1.justFinished()) {
-          w_trig.trackPlayPoly(S_AFTERLIFE_GUN_LOOP_1, true);
-          w_trig.trackLoop(S_AFTERLIFE_GUN_LOOP_1, 1);
-          ms_gun_loop_1.stop();
+        if(year_mode == 2021) {
+          if(ms_gun_loop_1.justFinished()) {
+            w_trig.trackPlayPoly(S_AFTERLIFE_GUN_LOOP_1, true);
+            w_trig.trackLoop(S_AFTERLIFE_GUN_LOOP_1, 1);
+            ms_gun_loop_1.stop();
+          }
+        }
+      }
+      else {
+        // This is going to cause the bargraph to ramp down.
+        if(ms_bargraph.justFinished()) {
+          bargraphRampUp();
         }
       }
 
       wandBarrelHeatUp();
-  
     break;
   } 
 
@@ -1223,8 +1239,8 @@ void checkSwitches() {
     break;
 
     case MODE_ON:
-      // This is for when the mode switch is enabled for video game mode. b_cross_the_streams must not be true.
-      if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true) {
+      // This is for when the mode switch is enabled for video game mode. b_cross_the_streams must not be enabled.
+      if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_pack_alarm != true) {
           if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
           // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
           if(i_wand_menu == 5) {
@@ -1245,6 +1261,14 @@ void checkSwitches() {
               FIRING_MODE = PROTON;
 
               bargraphClearAlt();
+
+              /*
+                If using the 28 segment bargraph, in Afterlife, we need to redraw the segments. 
+                1984/1989 years will go in to a auto ramp and do not need a manual refresh.
+              */
+              if(year_mode == 2021 && b_bargraph_alt == true) {
+                bargraphPowerCheck2021Alt();
+              }
             }
    
             w_trig.trackPlayPoly(S_CLICK);
@@ -1297,7 +1321,7 @@ void checkSwitches() {
         }
       }
 
-      if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+      if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
         // Vent light and first stage of the safety system.
         if(switch_vent.getState() == LOW) {
           // Vent light and top white light on.
@@ -1324,8 +1348,8 @@ void checkSwitches() {
         }
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true) {          
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {          
           if(WAND_ACTION_STATUS != ACTION_FIRING) {
             WAND_ACTION_STATUS = ACTION_FIRING;
           }
@@ -1335,7 +1359,7 @@ void checkSwitches() {
 
         // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
         if(b_cross_the_streams == true) {          
-          if(switchMode() == true && ms_switch_mode_debounce.justFinished() && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true) {
+          if(switchMode() == true && ms_switch_mode_debounce.justFinished() && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_FIRING;
             }
@@ -1367,7 +1391,7 @@ void checkSwitches() {
           WAND_ACTION_STATUS = ACTION_OFF;
         }
       }
-      else if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+      else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
         if(switch_activate.getState() == HIGH) {
           WAND_ACTION_STATUS = ACTION_OFF;
         }
@@ -1465,7 +1489,9 @@ void modeActivate() {
     break;
   }
 
-  bargraphRampUp();
+  if(b_pack_alarm != true) {
+    bargraphRampUp();
+  }
   
   // Turn on slo-blo light (and front left LED if using a Ardunio Nano).
   analogWrite(led_slo_blo, 255);
@@ -1479,19 +1505,21 @@ void modeActivate() {
   ms_white_light.start(d_white_light_interval);
   digitalWrite(led_white, LOW);
 
-  switch(year_mode) {
-    case 1984:
-    case 1989:
-      w_trig.trackPlayPoly(S_CLICK, true);
-    break;
+  if(b_pack_alarm != true) {
+    switch(year_mode) {
+      case 1984:
+      case 1989:
+        w_trig.trackPlayPoly(S_CLICK, true);
+      break;
 
-    default:
-      soundIdleLoop(true);
+      default:
+        soundIdleLoop(true);
 
-      w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);
-      w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
-      ms_gun_loop_1.start(2000);
-    break;
+        w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);
+        w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
+        ms_gun_loop_1.start(2000);
+      break;
+    }
   }
 }
 
@@ -1919,6 +1947,8 @@ void modeFireStart() {
 
   ms_overheat_initiate.stop();
 
+  
+  // This will only overheat when enabled by using the alt firing when in crossing the streams mode.
   bool b_overheat_flag = true;
 
   if(b_cross_the_streams == true && b_firing_alt != true) {
@@ -1936,7 +1966,7 @@ void modeFireStart() {
       }
     }
   }
-  
+
   barrelLightsOff();
   
   ms_firing_lights.start(10);
@@ -2021,7 +2051,14 @@ void modeFireStop() {
     break;
   }
   
-  bargraphRampUp();
+  if(b_pack_alarm == true) {
+    // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
+    prepBargraphRampDown();
+  }
+  else {
+    // We ramp the bargraph back up after finishing firing.
+    bargraphRampUp();
+  }
   
   ms_firing_stream_blue.stop();
   ms_firing_lights.stop();
@@ -2254,6 +2291,7 @@ void modeFiring() {
     }
     else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {
       // If the user changes back to power mode that overheats while firing, start up a timer.
+      // This currently works only in power levels 1-4. 5 stays locked when firing.
       ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
     }
   }
@@ -3481,7 +3519,7 @@ void bargraphRampUp() {
         int i_tmp = i_bargraph_status_alt - 27;
         i_tmp = 28 - i_tmp;
 
-        if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+        if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
           if(i_bargraph_status_alt == 56) {
             ms_bargraph.stop();
             b_bargraph_up = false;
@@ -3607,7 +3645,7 @@ void bargraphRampUp() {
   else {
     int t_bargraph_ramp_multiplier = 1;
 
-    if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+    if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
       t_bargraph_ramp_multiplier = 2;
     }
 
@@ -3735,6 +3773,93 @@ void bargraphRampUp() {
         i_bargraph_status = 0;
       break;
     }
+  }
+}
+
+void prepBargraphRampDown() {
+  if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) {
+    // If bargraph is set to ramp down during overheat, we need to set a few things.
+    soundBeepLoopStop();
+    soundIdleStop();
+    soundIdleLoopStop();
+
+    b_sound_idle == false;
+    b_beeping = false;
+
+    // Reset some bargraph levels before we ramp the bargraph down.
+    i_bargraph_status_alt = 28; // For 28 segment bargraph
+    i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
+
+    if(b_bargraph_alt == true) {
+      for(int i = 0; i < 28; i++) {
+        ht_bargraph.setLedNow(i_bargraph[i]);
+      }
+    }
+    else {
+      digitalWrite(led_bargraph_1, LOW);
+      digitalWrite(led_bargraph_2, LOW);
+      digitalWrite(led_bargraph_3, LOW);
+      digitalWrite(led_bargraph_4, LOW);
+      digitalWrite(led_bargraph_5, LOW);
+    }
+
+    ms_bargraph.start(d_bargraph_ramp_interval);
+
+    // Prepare to make the bargraph ramp down now.
+    //if(ms_bargraph.justFinished()) {
+      bargraphRampUp();
+    //}
+  }
+}
+
+void prepBargraphRampUp() {
+  if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) {
+    bargraphClearAlt();
+
+    ms_settings_blinking.stop();
+      
+    // Prepare a few things before ramping the bargraph back up from a full ramp down.
+    if(b_overheat_bargraph_blink != true) {
+      w_trig.trackPlayPoly(S_BOOTUP, true);
+      
+      if(year_mode == 2021) {
+        bargraphYearModeUpdate();
+      }
+      else {
+        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
+      }
+      
+      /*
+        If using the 28 segment bargraph, in Afterlife, we need to redraw the segments. 
+        1984/1989 years will go in to a auto ramp and do not need a manual refresh.
+      */
+      if(year_mode == 2021 && b_bargraph_alt == true) {
+        bargraphPowerCheck2021Alt();
+      }
+
+      updatePackPowerLevel();
+      bargraphRampUp();
+
+      if(switch_vent.getState() == LOW) {
+        soundIdleLoop(true);
+      }
+      else {
+        switch(year_mode) {
+          case 1984:
+          case 1989:
+            // Do nothing.
+          break;
+
+          case 2021:
+            soundIdleLoop(true);
+
+            w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);
+            w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
+            ms_gun_loop_1.start(2000);
+          break;
+        }
+      } 
+    } 
   }
 }
 
@@ -3910,7 +4035,7 @@ void checkRotary() {
       break;
 
       default:
-        if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
           if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_mode == i_power_mode_max) {
             // Do nothing, we are locked in full power mode while firing.
           }
@@ -4242,8 +4367,21 @@ void checkPack() {
               b_pack_alarm = true;
 
               if(b_pcb == true) {
-                digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
+                if(WAND_STATUS == MODE_ON) {
+                  digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
+                }
                 ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
+              }
+
+              if(WAND_STATUS == MODE_ON && FIRING_MODE == SETTINGS) {
+                // If the wand is in settings mode while the alarm is activated, exit the settings mode.
+                wandSerialSend(W_PROTON_MODE);
+                FIRING_MODE = PROTON;
+                WAND_ACTION_STATUS = ACTION_IDLE;
+              }
+
+              if(WAND_STATUS == MODE_ON) {
+                prepBargraphRampDown();
               }
             break;
       
@@ -4255,6 +4393,10 @@ void checkPack() {
                 digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
               }
               ms_hat_2.stop();
+
+              if(WAND_STATUS == MODE_ON) {
+                prepBargraphRampUp();
+              }
             break;
       
             case P_VIBRATION_ENABLED:

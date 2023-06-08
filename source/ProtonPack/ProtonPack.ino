@@ -220,6 +220,12 @@ void loop() {
         if(b_pack_shutting_down == true) {
           b_pack_shutting_down = false;
         }
+
+        // Tell the wand the alarm is off.
+        if(b_alarm == true) {
+          b_alarm = false;
+          packSerialSend(P_ALARM_OFF);
+        }
       }
       
       if(b_pack_on == true) {
@@ -252,9 +258,6 @@ void loop() {
         
       if(switch_alarm.getState() == LOW && b_overheating == false) {
         if(b_alarm == true) {
-          // Tell the wand the pack alarm is off.
-          packSerialSend(P_ALARM_OFF);
-
           if(i_mode_year == 1984 || i_mode_year == 1989) {
             // Reset the LEDs before resetting the alarm flag.
             resetCyclotronLeds();
@@ -274,7 +277,7 @@ void loop() {
           
           packStartup(); 
         }
-      }   
+      }
 
       // Play a little bit of smoke and n-filter vent lights while firing. Just a tiny bit....
       if(b_wand_firing == true) {
@@ -368,8 +371,14 @@ void packStartup() {
     }
 
     packAlarm();
+
+    // Tell the wand the pack alarm is off.
+    packSerialSend(P_ALARM_ON);
   }
   else {
+    // Tell the wand the pack alarm is off.
+    packSerialSend(P_ALARM_OFF);
+
     w_trig.trackStop(S_PACK_SHUTDOWN_AFTERLIFE);
     
     switch(i_mode_year) {
