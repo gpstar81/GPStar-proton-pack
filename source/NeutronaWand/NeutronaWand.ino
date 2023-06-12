@@ -1241,7 +1241,7 @@ void checkSwitches() {
     case MODE_ON:
       // This is for when the mode switch is enabled for video game mode. b_cross_the_streams must not be enabled.
       if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_pack_alarm != true) {
-          if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
+        if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
           // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
           if(i_wand_menu == 5) {
             // Cycle through the firing modes and setting menu.
@@ -1267,7 +1267,7 @@ void checkSwitches() {
                 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
               */
               if(year_mode == 2021 && b_bargraph_alt == true) {
-                bargraphPowerCheck2021Alt();
+                bargraphPowerCheck2021Alt(true);
               }
             }
    
@@ -3198,11 +3198,16 @@ void cyclotronSpeedUp(int i_switch) {
 }
 
 /*
- * 2021 mode for optional 28 segment bargraph. Checks if we ramp up or down when changing power levels.
+ * 2021 mode for optional 28 segment bargraph. 
+ * Checks if we ramp up or down when changing power levels.
+ * Forces the bargraph to redraw itself to the current power level.
 */
-void bargraphPowerCheck2021Alt() {
-  if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-    if(i_power_mode != i_power_mode_prev) {
+void bargraphPowerCheck2021Alt(bool b_override) {
+  Serial.println("alt 1");
+  if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override == true) {
+    Serial.println("alt 2");
+    if(i_power_mode != i_power_mode_prev || b_override == true) {
+      Serial.println("alt 3");
       if(i_power_mode > i_power_mode_prev) {
         b_bargraph_up = true;
       }
@@ -3238,11 +3243,7 @@ void bargraphPowerCheck2021Alt() {
 void bargraphClearAlt() {
   if(b_bargraph_alt == true) {
     ht_bargraph.clearAll();
-    /*
-    for(int i = 0; i < 28; i++) {
-      ht_bargraph.clearLedNow(i_bargraph[i]);
-    }
-    */
+
     i_bargraph_status_alt = 0;
   }
 }
@@ -3834,7 +3835,7 @@ void prepBargraphRampUp() {
         1984/1989 years will go in to a auto ramp and do not need a manual refresh.
       */
       if(year_mode == 2021 && b_bargraph_alt == true) {
-        bargraphPowerCheck2021Alt();
+        bargraphPowerCheck2021Alt(false);
       }
 
       updatePackPowerLevel();
@@ -4046,7 +4047,7 @@ void checkRotary() {
               i_power_mode--;
 
               if(year_mode == 2021 && b_bargraph_alt == true) {
-                bargraphPowerCheck2021Alt();
+                bargraphPowerCheck2021Alt(false);
               }
 
               soundBeepLoopStop();
@@ -4101,7 +4102,7 @@ void checkRotary() {
                 i_power_mode++;
                 
                 if(year_mode == 2021 && b_bargraph_alt == true) {
-                  bargraphPowerCheck2021Alt();
+                  bargraphPowerCheck2021Alt(false);
                 }
 
                 soundBeepLoopStop();

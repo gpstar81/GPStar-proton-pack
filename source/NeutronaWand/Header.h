@@ -261,7 +261,7 @@ enum FIRING_MODES PREV_FIRING_MODE;
 /*
  * Misc wand settings and flags.
  */
-int year_mode = 1984;
+int year_mode = 2021;
 bool b_firing = false;
 bool b_firing_intensify = false;
 bool b_firing_alt = false;
