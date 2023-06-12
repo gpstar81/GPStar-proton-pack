@@ -10,8 +10,10 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 - The switch underneath the ion arm can turn the pack on or off.
 - You can run the pack without the cyclotron lid on.
 	- Automatically switches to internal "cake" cyclotron, if implemented (optional).
+- The volume for the pack and wand can be controlled via the Crank Generator knob.
+   - Clockwise to raise volume, counter-clockwise to lower it.
 - Alarm ribbon cable will activate the alarm mode and degraded cyclotron spin.
-- The pack can run without a wand.
+- The pack can run without a wand, though it can only be activated via the switch under the Ion Arm.
 - Vibration switch in the cyclotron switch plate enables or disables the vibration motors for both the pack and wand.
 - 1984/2021 year switch in the cyclotron switch plate changes the pack and wand from 1984 (OG) to 2021 (Afterlife) modes.
 - Single LED per cyclotron lens for 1984/1989 modes. This can be toggled back to 3 LED's per cyclotron lens via the wand menu system.
@@ -55,10 +57,11 @@ To enable the Crossing The Streams and alternate firing by default, you need to 
 
 **Top Dial Behavior**
 
-- The rotary dial on the top of the gun box changes the power mode of the wand, affecting the intensity of the stream effects, indicated by increasing or decreasing the bargraph lights (just as the stock wand did). There are 5 wand power modes as based on the original bargraph which has only 5 LED's available:
-	- The wand can be user configured in the Neutrona Wand code to overheat the pack in any of the power modes. When not set to overheat, you can fire continiously. 
+- The rotary dial on the top of the gun box changes the power mode of the wand, affecting the intensity of the stream effects, indicated by increasing or decreasing the bargraph lights (just as the stock wand did).
+   - Clockwise to raise power/volume, counter-clockwise to lower these values.
+- There are 5 wand power modes as based on the original bargraph which has only 5 LED's available:
+	- The wand can be user-configured in the Neutrona Wand code to overheat the pack in any of the power modes. When not set to overheat, you can fire continiously.
 	- The pack can also be user configured in the Proton Pack Code to adjust the duration of smoke effects (for each power mode), which smoke pins are activated (for each power mode), overheating smoke effects (for each power mode) or smoke disabled entirely.
-
 	Default settings: The wand will fire forever on modes 1 through 4 and overheat on mode 5.
 - The pack will emit smoke effects during longer firing (if enabled).
 - Lower power modes, the proton stream is more red. On higher modes, the stream will appear more yellow.
@@ -66,6 +69,7 @@ To enable the Crossing The Streams and alternate firing by default, you need to 
 - This dial will be used to navigate the menu system and adjust volume in certain cases (see next section).
 
 ## Wand Settings Menu System
+
 Wand Menu Settings Video Demo: [Proton Pack Wand Menu Settings Video Demo](https://www.youtube.com/watch?v=QrevSoQo_3M) (YouTube)
 [![Proton Pack Wand Menu Settings Video Demo](https://img.youtube.com/vi/QrevSoQo_3M/maxresdefault.jpg)](https://youtu.be/QrevSoQo_3M)
 
@@ -81,9 +85,9 @@ When you are in the settings menu system [Mode 5] all the bargraph leds begin fl
 | 2 | Switch&nbsp;Music&nbsp;Track | Press **Intensify** to cycle forward. Press the orange **Mode** switch to cycle backward. |
 | 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music | Press **Intensify** to play music. Press it again to stop the music. |
 
-**Sub Level Menu (Only accessible while the Neutrona Wand is powered down)**
+**Sub Level Menu** (Only accessible while the Neutrona Wand is powered down)
 
-**To access the sub level menu, use the rotary dial on the top of the wand. When you reach the sub level menu, the slo-blo LED will light up to indicate this menu**
+**To access the sub level menu, use the rotary dial on the top of the wand. When you reach the sub level menu, the Slo-blo LED will light up to indicate this menu state.**
 
 | Sub Menu Level | Purpose | Description |
 |------------|---------|-------------|
@@ -102,6 +106,7 @@ To exit the menu system, navigate to the top menu in **Setting 5** and press the
 Refer the [WavTrigger section](WAVTRIGGER.md) for more information on loading additional music tracks.
 
 ## Advanced User Configurations
+
 It is possible to change some of the default behaviour for both the Proton Pack and Neutrona Wand by changing some values in the Configuration.h file. The Proton Pack and Neutrona Wand each have there own Configuration.h file that can be found in their respective folders.
 
 **Proton Pack**
