@@ -103,7 +103,7 @@ bool b_cross_the_streams_mix = false;
  * Set to false if you are using the stock Hasbro bargraph.
  * Part #: BL28Z-3005SA04Y
 */
-const bool b_bargraph_alt = true;
+const bool b_bargraph_alt = false;
 
 /*
  * Enable or disable vibration control for the Neutrona wand.
