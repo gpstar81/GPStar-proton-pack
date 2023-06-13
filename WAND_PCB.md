@@ -40,11 +40,11 @@ Connections for the wand should be made according to the table below.
 | R+ | <font color="red">Red</font> | Rumble (vibration) motor VCC |
 | R- | Black | Rumble (vibration) motor GND |
 | VCC | <font color="blue">Blue</font> | Power for stock bar graph |
-| A1 | <font color="brown">Brown</font> | Stock bar graph LED 1 |
-| A2 | <font color="red">Red</font> | Stock bar graph LED 2 |
-| A3 | <font color="orange">Orange</font> | Stock bar graph LED 3 |
-| A4 | <font color="yellow">Yellow</font> | Stock bar graph LED 4 |
 | A5 | <font color="green">Green</font> | Stock bar graph LED 5 |
+| A4 | <font color="yellow">Yellow</font> | Stock bar graph LED 4 |
+| A3 | <font color="orange">Orange</font> | Stock bar graph LED 3 |
+| A2 | <font color="red">Red</font> | Stock bar graph LED 2 |
+| A1 | <font color="brown">Brown</font> | Stock bar graph LED 1 |
 | D12 | <font color="gray">White</font> | Blinking top right LED |
 | D13 | Black | White vent light LED |
 | VL+ | <font color="red">Red</font> | VCC for top/vent lights |

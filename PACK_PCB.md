@@ -57,7 +57,7 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 | P.YELLOW | D6/GND/D7/GND | Cyclotron Panel LED's: 2x Yellow |
 | P.GREEN | D8/GND/D9/GND | Cyclotron Panel LED's: 2x Green |
 | P.SWITCH | D10/GND/D11/GND | Cyclotron Panel LED's: 1x Green (Mode Indicator, D10) and 1x Yellow (Vibration Enabled, D11) |
-| LED-W | D46/GND | Connection for standalone white LED in N-Filter |
+| LED-W | D46/GND | Connection for a standalone white LED in N-Filter |
 | 5V-OUT | +/\- | Power for additional accessories |
 | SCL/SDA | SCL/SDA | Expansion serial port using I2C |
 | RX1/TX1 | RX1/TX1 | Expansion serial port |
