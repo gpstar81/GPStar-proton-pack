@@ -151,7 +151,7 @@ void loop() {
     // Synchronise some settings with the pack.
     checkPack();
 
-    delay(10);    
+    delay(10);
   }
   else {   
     mainLoop();
@@ -894,7 +894,6 @@ void mainLoop() {
     case MODE_ERROR:    
       if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
         digitalWrite(led_white, HIGH);
-        digitalWrite(led_vent, HIGH);
 
         analogWrite(led_slo_blo, 0);       
 
@@ -912,12 +911,20 @@ void mainLoop() {
         }
 
         digitalWrite(led_white, LOW);
-        digitalWrite(led_vent, LOW);
         analogWrite(led_slo_blo, 255);
       }
 
       if(ms_hat_2.justFinished()) {
         ms_hat_2.start(i_hat_2_delay);
+
+        w_trig.trackPlayPoly(S_BEEPS_LOW, true);
+        w_trig.trackPlayPoly(S_BEEPS, true);
+      }
+
+      if(ms_hat_1.justFinished()) {
+        w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
+
+        ms_hat_1.start(i_hat_2_delay * 4);
       }
 
       settingsBlinkingLights();
@@ -1123,9 +1130,32 @@ void settingsBlinkingLights() {
             i_leds = 28;
           }
 
+          /*
+            * NOTE: If you draw all 28 segments at once often, you can overflow the serial buffer after around 5 seconds.
+          */
           for(int i = 0; i < i_leds; i++) {
             if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
-              ht_bargraph.setLedNow(i_bargraph[i]);
+              switch(i) {
+                case 3:
+                case 4:
+                case 5:
+                case 9:
+                case 10:
+                case 11:
+                case 15:
+                case 16:
+                case 17:
+                case 21:
+                case 22:
+                case 23:
+                case 27:
+                  // Nothing
+                break;
+
+                default:
+                  ht_bargraph.setLedNow(i_bargraph[i]);
+                break;
+              }
             }
             else {
               switch(i) {
@@ -1160,7 +1190,27 @@ void settingsBlinkingLights() {
         if(b_bargraph_alt == true) {
           for(int i = 0; i < 14; i++) {
             if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
-              ht_bargraph.setLedNow(i_bargraph[i]);
+              switch(i) {
+                case 3:
+                case 4:
+                case 5:
+                case 9:
+                case 10:
+                case 11:
+                case 15:
+                case 16:
+                case 17:
+                case 21:
+                case 22:
+                case 23:
+                case 27:
+                  // Nothing
+                break;
+
+                default:
+                  ht_bargraph.setLedNow(i_bargraph[i]);
+                break;
+              }
             }
             else {
               switch(i) {
@@ -1193,7 +1243,27 @@ void settingsBlinkingLights() {
         if(b_bargraph_alt == true) {
           for(int i = 0; i < 10; i++) {
             if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
-              ht_bargraph.setLedNow(i_bargraph[i]);
+              switch(i) {
+                case 3:
+                case 4:
+                case 5:
+                case 9:
+                case 10:
+                case 11:
+                case 15:
+                case 16:
+                case 17:
+                case 21:
+                case 22:
+                case 23:
+                case 27:
+                  // Nothing
+                break;
+
+                default:
+                  ht_bargraph.setLedNow(i_bargraph[i]);
+                break;
+              }
             }
             else {
               switch(i) {
@@ -1224,7 +1294,27 @@ void settingsBlinkingLights() {
         if(b_bargraph_alt == true) {
           for(int i = 0; i < 6; i++) {
             if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
-              ht_bargraph.setLedNow(i_bargraph[i]);
+              switch(i) {
+                case 3:
+                case 4:
+                case 5:
+                case 9:
+                case 10:
+                case 11:
+                case 15:
+                case 16:
+                case 17:
+                case 21:
+                case 22:
+                case 23:
+                case 27:
+                  // Nothing
+                break;
+
+                default:
+                  ht_bargraph.setLedNow(i_bargraph[i]);
+                break;
+              }
             }
             else {
               switch(i) {
@@ -1252,7 +1342,27 @@ void settingsBlinkingLights() {
       case 1:
         if(b_bargraph_alt == true) {
           for(int i = 0; i < 2; i++) {
-            ht_bargraph.setLedNow(i_bargraph[i]);
+              switch(i) {
+                case 3:
+                case 4:
+                case 5:
+                case 9:
+                case 10:
+                case 11:
+                case 15:
+                case 16:
+                case 17:
+                case 21:
+                case 22:
+                case 23:
+                case 27:
+                  // Nothing
+                break;
+
+                default:
+                  ht_bargraph.setLedNow(i_bargraph[i]);
+                break;
+              }
           }
         }
         else {  
@@ -1454,7 +1564,7 @@ void checkSwitches() {
           WAND_ACTION_STATUS = ACTION_OFF;
         }
       }
-      else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true && WAND_ACTION_STATUS == ACTION_ERROR) {
+      else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
         if(switch_activate.getState() == HIGH) {
           WAND_ACTION_STATUS = ACTION_OFF;
         }
@@ -1471,10 +1581,8 @@ void wandOff() {
   else {
     // Important to turn off looping on these tracks. Otherwise the bargraph beep or other can be used in the settings menu and be stuck in a loop.
     w_trig.trackStop(S_BEEPS_LOW);
-    w_trig.trackLoop(S_BEEPS_LOW, 0);
-
+    w_trig.trackStop(S_BEEPS);
     w_trig.trackStop(S_BEEPS_BARGRAPH);
-    w_trig.trackLoop(S_BEEPS_BARGRAPH, 0);
   }
 
   if(FIRING_MODE == SETTINGS) {
@@ -1549,20 +1657,23 @@ void modeActivate() {
   if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
     ms_hat_2.start(i_hat_2_delay);
 
+    // This is used for controlling a bargraph beep in a boot up error.
+    ms_hat_1.start(i_hat_2_delay * 4);
+
     WAND_STATUS = MODE_ERROR;
     WAND_ACTION_STATUS = ACTION_ERROR;
 
     ms_settings_blinking.start(i_settings_blinking_delay);
-
-    w_trig.trackStop(S_BEEPS_LOW);
+    
+    // Set the gain. The track is controlled in MODE_ERROR.
     w_trig.trackGain(S_BEEPS_LOW, i_volume);
     w_trig.trackPlayPoly(S_BEEPS_LOW, true);
-    w_trig.trackLoop(S_BEEPS_LOW, 1);
 
-    w_trig.trackStop(S_BEEPS_BARGRAPH);
+    w_trig.trackGain(S_BEEPS, i_volume);
+    w_trig.trackPlayPoly(S_BEEPS, true);
+
     w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
     w_trig.trackPlayPoly(S_BEEPS_BARGRAPH, true);
-    w_trig.trackLoop(S_BEEPS_BARGRAPH, 1);
   }
   else {
     WAND_STATUS = MODE_ON;
@@ -4413,32 +4524,32 @@ void checkPack() {
     if(!wandComs.currentPacketID()) {
       if(comStruct.i > 0) {    
         if(b_volume_sync_wait == true) {
-            switch(VOLUME_SYNC_WAIT) {
-              case EFFECTS:
-                i_volume_percentage = comStruct.i;
-                i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+          switch(VOLUME_SYNC_WAIT) {
+            case EFFECTS:
+              i_volume_percentage = comStruct.i;
+              i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
-                adjustVolumeEffectsGain();
-                VOLUME_SYNC_WAIT = MASTER;
-              break;
+              adjustVolumeEffectsGain();
+              VOLUME_SYNC_WAIT = MASTER;
+            break;
 
-              case MASTER:
-                i_volume_master_percentage = comStruct.i;
-                i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+            case MASTER:
+              i_volume_master_percentage = comStruct.i;
+              i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
 
-                w_trig.masterGain(i_volume_master);
-                VOLUME_SYNC_WAIT = MUSIC;
-              break;
+              //w_trig.masterGain(i_volume_master);
+              VOLUME_SYNC_WAIT = MUSIC;
+            break;
 
-              case MUSIC:
-                i_volume_music_percentage = comStruct.i;
-                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+            case MUSIC:
+              i_volume_music_percentage = comStruct.i;
+              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-                b_volume_sync_wait = false;
-                b_wait_for_pack = false;
-                VOLUME_SYNC_WAIT = EFFECTS;
-              break;
-            }      
+              b_volume_sync_wait = false;
+              b_wait_for_pack = false;
+              VOLUME_SYNC_WAIT = EFFECTS;
+            break;
+          }      
         }
         else {
           switch(comStruct.i) {
@@ -4451,7 +4562,12 @@ void checkPack() {
               if(b_pack_on == true) {
                 // Turn wand off.
                 if(WAND_STATUS != MODE_OFF) {
-                  WAND_ACTION_STATUS = ACTION_OFF;
+                  if(WAND_STATUS == MODE_ERROR) {
+                    wandOff();
+                  }
+                  else {
+                    WAND_ACTION_STATUS = ACTION_OFF;
+                  }
                 }
               }
               
@@ -4462,23 +4578,25 @@ void checkPack() {
             case P_ALARM_ON:
               // Alarm is on.
               b_pack_alarm = true;
-
-              if(b_pcb == true) {
-                if(WAND_STATUS == MODE_ON) {
-                  digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
+              
+              if(WAND_STATUS != MODE_ERROR) {
+                if(b_pcb == true) {
+                  if(WAND_STATUS == MODE_ON) {
+                    digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
+                  }
+                  ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
                 }
-                ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
-              }
 
-              if(WAND_STATUS == MODE_ON && FIRING_MODE == SETTINGS) {
-                // If the wand is in settings mode while the alarm is activated, exit the settings mode.
-                wandSerialSend(W_PROTON_MODE);
-                FIRING_MODE = PROTON;
-                WAND_ACTION_STATUS = ACTION_IDLE;
-              }
+                if(WAND_STATUS == MODE_ON && FIRING_MODE == SETTINGS) {
+                  // If the wand is in settings mode while the alarm is activated, exit the settings mode.
+                  wandSerialSend(W_PROTON_MODE);
+                  FIRING_MODE = PROTON;
+                  WAND_ACTION_STATUS = ACTION_IDLE;
+                }
 
-              if(WAND_STATUS == MODE_ON) {
-                prepBargraphRampDown();
+                if(WAND_STATUS == MODE_ON) {
+                  prepBargraphRampDown();
+                }
               }
             break;
       
@@ -4486,13 +4604,15 @@ void checkPack() {
               // Alarm is off.
               b_pack_alarm = false;
 
-              if(b_pcb == true) {
-                digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
-              }
-              ms_hat_2.stop();
+              if(WAND_STATUS != MODE_ERROR) {
+                if(b_pcb == true) {
+                  digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
+                }
+                ms_hat_2.stop();
 
-              if(WAND_STATUS == MODE_ON) {
-                prepBargraphRampUp();
+                if(WAND_STATUS == MODE_ON) {
+                  prepBargraphRampUp();
+                }
               }
             break;
       
