@@ -173,7 +173,26 @@ void mainLoop() {
       
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
-      // Do nothing.
+      if(WAND_STATUS == MODE_ON) {
+        switch(year_mode) {
+          case 1984:
+          case 1989:
+            // Do nothing.
+          break;
+          
+          case 2021:
+            if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+              // Ready to fire, the hat light LED at the barrel tip lights up in Afterlife mode.
+              if(switchBarrel() != true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                digitalWrite(led_hat_1, HIGH);
+              }
+              else {
+                digitalWrite(led_hat_1, LOW);
+              }
+            }
+          break;
+        }
+      }
     break;
 
     case ACTION_OFF:
@@ -345,6 +364,10 @@ void mainLoop() {
       }
     break;
     
+    case ACTION_ERROR:
+      //
+    break;
+
     case ACTION_ACTIVATE:
       modeActivate();
     break;
@@ -868,6 +891,38 @@ void mainLoop() {
       }
     break;
 
+    case MODE_ERROR:    
+      if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
+        digitalWrite(led_white, HIGH);
+        digitalWrite(led_vent, HIGH);
+
+        analogWrite(led_slo_blo, 0);       
+
+        if(b_pcb == true) {
+          digitalWrite(led_hat_2, LOW);
+          digitalWrite(led_hat_1, LOW);
+          analogWrite(led_front_left, 0);
+        }
+      }
+      else {
+        if(b_pcb == true) {
+          digitalWrite(led_hat_2, HIGH);
+          digitalWrite(led_hat_1, HIGH);
+          analogWrite(led_front_left, 255);
+        }
+
+        digitalWrite(led_white, LOW);
+        digitalWrite(led_vent, LOW);
+        analogWrite(led_slo_blo, 255);
+      }
+
+      if(ms_hat_2.justFinished()) {
+        ms_hat_2.start(i_hat_2_delay);
+      }
+
+      settingsBlinkingLights();
+    break;
+
     case MODE_ON:
       if(b_vibration_on == true && WAND_ACTION_STATUS != ACTION_SETTINGS) {
         vibrationSetting();
@@ -1019,12 +1074,12 @@ void settingsBlinkingLights() {
     bool b_solid_five = false;
 
     // Indicator for looping track setting.
-    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_wand_menu_sub != true) {
+    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub != true) {
       b_solid_five = true;
     }
 
     // Indicator for crossing the streams setting.
-    if(b_cross_the_streams == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_wand_menu_sub == true) {
+    if(b_cross_the_streams == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub == true) {
       b_solid_five = true;
     }
 
@@ -1060,14 +1115,16 @@ void settingsBlinkingLights() {
     switch(i_wand_menu) {
       case 5:
         if(b_bargraph_alt == true) {
+          // 18 for the 5 level menu system.
           int i_leds = 18;
 
-          if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+          if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
+            // All the segments.
             i_leds = 28;
           }
 
           for(int i = 0; i < i_leds; i++) {
-            if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+            if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
               ht_bargraph.setLedNow(i_bargraph[i]);
             }
             else {
@@ -1102,7 +1159,7 @@ void settingsBlinkingLights() {
       case 4:
         if(b_bargraph_alt == true) {
           for(int i = 0; i < 14; i++) {
-            if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+            if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
               ht_bargraph.setLedNow(i_bargraph[i]);
             }
             else {
@@ -1135,7 +1192,7 @@ void settingsBlinkingLights() {
       case 3:
         if(b_bargraph_alt == true) {
           for(int i = 0; i < 10; i++) {
-            if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+            if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
               ht_bargraph.setLedNow(i_bargraph[i]);
             }
             else {
@@ -1166,7 +1223,7 @@ void settingsBlinkingLights() {
       case 2:
         if(b_bargraph_alt == true) {
           for(int i = 0; i < 6; i++) {
-            if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+            if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
               ht_bargraph.setLedNow(i_bargraph[i]);
             }
             else {
@@ -1236,6 +1293,12 @@ void checkSwitches() {
       }
       
       soundBeepLoopStop();
+    break;
+
+    case MODE_ERROR:
+      if(switch_activate.getState() == HIGH) {
+        wandOff();
+      }
     break;
 
     case MODE_ON:
@@ -1391,7 +1454,7 @@ void checkSwitches() {
           WAND_ACTION_STATUS = ACTION_OFF;
         }
       }
-      else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+      else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true && WAND_ACTION_STATUS == ACTION_ERROR) {
         if(switch_activate.getState() == HIGH) {
           WAND_ACTION_STATUS = ACTION_OFF;
         }
@@ -1401,8 +1464,18 @@ void checkSwitches() {
 }
 
 void wandOff() {
-  // Tell the pack the wand is turned off.
-  wandSerialSend(W_OFF);
+  if(WAND_ACTION_STATUS != ACTION_ERROR) {
+    // Tell the pack the wand is turned off.
+    wandSerialSend(W_OFF);
+  }
+  else {
+    // Important to turn off looping on these tracks. Otherwise the bargraph beep or other can be used in the settings menu and be stuck in a loop.
+    w_trig.trackStop(S_BEEPS_LOW);
+    w_trig.trackLoop(S_BEEPS_LOW, 0);
+
+    w_trig.trackStop(S_BEEPS_BARGRAPH);
+    w_trig.trackLoop(S_BEEPS_BARGRAPH, 0);
+  }
 
   if(FIRING_MODE == SETTINGS) {
     // If the wand is shut down while we are in settings mode (can happen if the pack is manually turned off), switch the wand and pack to proton mode.
@@ -1453,6 +1526,7 @@ void wandOff() {
   ms_overheating.stop();
   ms_settings_blinking.stop();
   ms_hat_1.stop();
+  ms_hat_2.stop();
 
   // Turn off remaining lights.
   wandLightsOff();
@@ -1470,12 +1544,35 @@ void wandOff() {
   }
 }
 
-void modeActivate() {
-  // Tell the pack the wand is turned on.
-  wandSerialSend(W_ON);
-  
-  WAND_STATUS = MODE_ON;
-  WAND_ACTION_STATUS = ACTION_IDLE;
+void modeActivate() {  
+  // The wand was started while the top switch was already on. Lets put the wand into a startup error mode.
+  if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
+    ms_hat_2.start(i_hat_2_delay);
+
+    WAND_STATUS = MODE_ERROR;
+    WAND_ACTION_STATUS = ACTION_ERROR;
+
+    ms_settings_blinking.start(i_settings_blinking_delay);
+
+    w_trig.trackStop(S_BEEPS_LOW);
+    w_trig.trackGain(S_BEEPS_LOW, i_volume);
+    w_trig.trackPlayPoly(S_BEEPS_LOW, true);
+    w_trig.trackLoop(S_BEEPS_LOW, 1);
+
+    w_trig.trackStop(S_BEEPS_BARGRAPH);
+    w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
+    w_trig.trackPlayPoly(S_BEEPS_BARGRAPH, true);
+    w_trig.trackLoop(S_BEEPS_BARGRAPH, 1);
+  }
+  else {
+    WAND_STATUS = MODE_ON;
+
+    // Proper startup. Continue booting up the wand.
+    WAND_ACTION_STATUS = ACTION_IDLE;
+
+    // Tell the pack the wand is turned on.
+    wandSerialSend(W_ON);
+  }
   
   // Ramp up the bargraph.
   switch(year_mode) {
@@ -1489,36 +1586,38 @@ void modeActivate() {
     break;
   }
 
-  if(b_pack_alarm != true) {
-    bargraphRampUp();
-  }
-  
-  // Turn on slo-blo light (and front left LED if using a Ardunio Nano).
-  analogWrite(led_slo_blo, 255);
-  
-  // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
-  if(b_pcb == true) {
-    analogWrite(led_front_left, 255);
-  }
+  if(WAND_STATUS != MODE_ERROR) {
+    if(b_pack_alarm != true) {
+      bargraphRampUp();
+    }
+    
+    // Turn on slo-blo light (and front left LED if using a Ardunio Nano).
+    analogWrite(led_slo_blo, 255);
+    
+    // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
+    if(b_pcb == true) {
+      analogWrite(led_front_left, 255);
+    }
 
-  // Top white light.
-  ms_white_light.start(d_white_light_interval);
-  digitalWrite(led_white, LOW);
+    // Top white light.
+    ms_white_light.start(d_white_light_interval);
+    digitalWrite(led_white, LOW);
 
-  if(b_pack_alarm != true) {
-    switch(year_mode) {
-      case 1984:
-      case 1989:
-        w_trig.trackPlayPoly(S_CLICK, true);
-      break;
+    if(b_pack_alarm != true) {
+      switch(year_mode) {
+        case 1984:
+        case 1989:
+          w_trig.trackPlayPoly(S_CLICK, true);
+        break;
 
-      default:
-        soundIdleLoop(true);
+        default:
+          soundIdleLoop(true);
 
-        w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);
-        w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
-        ms_gun_loop_1.start(2000);
-      break;
+          w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);
+          w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
+          ms_gun_loop_1.start(2000);
+        break;
+      }
     }
   }
 }

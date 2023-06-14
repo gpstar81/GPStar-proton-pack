@@ -28,6 +28,7 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 - Right-hand toggles affect the vent light and additional sound effects.
 	- Note that for both 2021 and 1984 modes, the wand will not fire unless these switches are turned on.
 	- Additionally, the lever switch near the gunbox must be pulled to extend the barrel before firing.
+	- **\*Boot up errors\*** : If you attempt to boot up your Neutrona Wand while the top right switch (beep switch) is on, the Neutrona Wand will boot into a error mode. Turn this top right switch off and restart your Neutrona Wand to boot normally. **\*(default behaviour)\***. This feature can be disabled in the advanced user configuration settings by setting b_wand_boot_errors = false. **\*see below\***
 
 **Video Game Mode (Default)**
 
@@ -185,6 +186,7 @@ It is possible to change some of the default behaviour for both the Proton Pack 
 | const bool b&#95;no&#95;pack | Set this to true if you want to use your Neutrona Wand without a Proton Pack connected. Otherwise when false, the Neutrona Wand will wait until it is connected to a Proton Pack before it can activate. | false |
 | bool b&#95;overheat&#95;enabled | Set to true if you want the Neutrona Wand and Proton Pack to overheat (Overheat settings below still need to be enabled for the necessary power levels. When set to false, it will override and overheating settings in each individual power mode. **Note: This can be toggled from the Neutrona Wand sub menu system.** | true |
 | const bool b&#95;overheat&#95;bargraph&#95;blink | Set to true if you want the Neutrona Wand bargraph to blink/flash during overheat. When false, the bargraph ramps down and then ramps back up when overheating has ended.  | false |
+| const bool b&#95;wand&#95;boot&#95;errors | Set to true to have your Neutrona wand boot up with errors when the top right switch (beep switch) is on while you are turning on your wand. When set to false, this feature is disabled.  | true |
 | const bool b&#95;overheat&#95;mode&#95;1 | Set to true if you want the Neutrona Wand and Proton Pack to overheat in **wand power mode 1** | false |
 | const bool b&#95;overheat&#95;mode&#95;2 | Set to true if you want the Neutrona Wand and Proton Pack to overheat in **wand power mode 2** | false |
 | const bool b&#95;overheat&#95;mode&#95;3 | Set to true if you want the Neutrona Wand and Proton Pack to overheat in **wand power mode 3** | false |

@@ -120,12 +120,6 @@ const bool b_vibration_enabled = true;
 bool b_vibration_firing = false;
 
 /*
- * Set this to true to be able to use your wand without a Proton Pack connected.
- * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
- */
-const bool b_no_pack = false;
-
-/*
  * Set to true to enable overheating. Overheat settings are defined below.
  * Set to false to disable overheating. This will override any overheat settings below.
  * This can be controle from the Neutrona Wand submenu system.
@@ -137,6 +131,12 @@ bool b_overheat_enabled = true;
  * When false, the bargraph will ramp itself down instead.
 */
 bool b_overheat_bargraph_blink = false;
+
+/*
+ * Set to true to have your Neutrona wand boot up with errors when the top right switch (beep switch) is on while you are turning on your wand.
+ * When set to false, this will be ignored.
+*/
+const bool b_wand_boot_errors = true;
 
 /*
  * Which power modes do you want to be able to overheat.
@@ -159,6 +159,12 @@ const unsigned long int i_ms_overheat_initiate_mode_2 = 30000;
 const unsigned long int i_ms_overheat_initiate_mode_3 = 20000;
 const unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
 const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
+
+/*
+ * Set this to true to be able to use your wand without a Proton Pack connected.
+ * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
+ */
+const bool b_no_pack = false;
 
 /*
  * Debug testing
