@@ -3302,11 +3302,8 @@ void cyclotronSpeedUp(int i_switch) {
  * Forces the bargraph to redraw itself to the current power level.
 */
 void bargraphPowerCheck2021Alt(bool b_override) {
-  Serial.println("alt 1");
   if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override == true) {
-    Serial.println("alt 2");
     if(i_power_mode != i_power_mode_prev || b_override == true) {
-      Serial.println("alt 3");
       if(i_power_mode > i_power_mode_prev) {
         b_bargraph_up = true;
       }
