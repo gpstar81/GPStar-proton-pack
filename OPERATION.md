@@ -5,54 +5,45 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 
 ## Proton Pack		
 
-### Features
+### Standard Pack Features
 
 - The switch underneath the ion arm can turn the pack on or off.
-- You can run the pack without the cyclotron lid on.
-	- Automatically switches to internal "cake" cyclotron, if implemented (optional).
+- You can run the pack without the cyclotron lid on, unlike the stock Haslab hardware.
 - The volume for the pack and wand can be controlled via the Crank Generator knob.
    - Clockwise to raise volume, counter-clockwise to lower it.
-- Alarm ribbon cable will activate the alarm mode and degraded cyclotron spin.
+- When the ribbon cable is disconnected it will activate the alarm mode and degraded cyclotron spin.
 - The pack can run without a wand, though it can only be activated via the switch under the Ion Arm.
 - Vibration switch in the cyclotron switch plate enables or disables the vibration motors for both the pack and wand.
 - 1984/2021 year switch in the cyclotron switch plate changes the pack and wand from 1984 (OG) to 2021 (Afterlife) modes.
-- Single LED per cyclotron lens for 1984/1989 modes. This can be toggled back to 3 LED's per cyclotron lens via the wand menu system.
-- Optional 1989 sound effects mode on the pack with advanced user configuration setting **\*see below\***
-- Optional switches and lights available for smoke effects, cyclotron panel, etc.
+- Single (centered) LED per cyclotron lens for 1984/1989 modes by default.
+	- This can be toggled back to 3 LED's per cyclotron lens via the wand menu system.
+
+### Optional Pack Features
+
+- 1989 sound effects mode available on the pack with advanced user configuration setting **\*see below\***.
+- Support for switches for cyclotron direction and to enable/disable smoke effects.
+- Smoke effects with dedicated fans for the booster tube and N-filter.
+- Additional Lights available for the cyclotron panel and internal "cake" cyclotron.
+	- Automatically switches to internal "cake" cyclotron, if implemented (optional).
+	- This supports a 35 LED ring light (by default) to be installed in the "cake".
 
 ## Neutrona Wand				
 
-### Key Features
+### Standard Wand Features
 
-- Activate toggle on the gun box turns on both the pack and wand (the switch under the pack's ion arm does not need to be engaged for this to work).
-- Right-hand toggles affect the vent light and additional sound effects.
-	- Note that for both 2021 and 1984 modes, the wand will not fire unless these switches are turned on.
+- Activate toggle on the gun box turns on both the pack and wand.
+	- The switch under the pack's ion arm does not need to be engaged for this to work.
+- Right-hand toggles affectd the vent light and additional sound effects depending on mode.
+	- Regardless of mode, the wand will not fire unless these switches are turned on.
 	- Additionally, the lever switch near the gunbox must be pulled to extend the barrel before firing.
-	- **\*Boot up errors\*** : If you attempt to boot up your Neutrona Wand while the top right switch (beep switch) is on, the Neutrona Wand will boot into a error mode. Turn this top right switch off and restart your Neutrona Wand to boot normally. **\*(default behaviour)\***. This feature can be disabled in the advanced user configuration settings by setting b_wand_boot_errors = false. **\*see below\***
-
-**Video Game Mode (Default)**
-
-- The orange button at the end of the wand switches between the available firing modes:
-	1. Proton Stream (Default)
-	1. Slime Gun
-	1. Stasis Beam
-	1. Meson Collider
-	1. Special: Setting 5 is a settings menu system (see section below).
-
-**Crossing The Streams / Crossing The Streams Mix / Alternate Firing (Optional)**
-
-- The orange button at the end of the wand acts as a alternate fire mode.
-- The overheat features can only be triggered when enabled by the alternate firing mode.
-- Pressing both the Intensify and orange button at the end of the wand at the same time enables the Crossing the Streams. Releasing one of the 2 firing buttons will continue crossing the streams. During Crossing The Streams Mix, you need to hold both the intensify and alternate firing button at the same time. Release one or the other will end crossing the streams but continue firing a regular proton stream. The Proton Pack and Wand can still overheat if enabled while crossing the streams in the power level you are at.
-
-To enable the Crossing The Streams and alternate firing by default, you need to set **bool b&#95;cross&#95;the&#95;streams** to true in the Advanced User Configuration settings at the top of the Neutrona wand code. To further enable Crossing The Streams Mix, you need to set **bool b&#95;cross&#95;the&#95;streams&#95;** to true (see Advanced User Configuration settings below). Otherwise you can toggle between Crossing The Streams, Crossing The Streams Mix and Video Game modes via the Neutrona Wand Sub Menu Settings (see below). **Important: The Neutrona Wand sub menu settings can only be reached while the Neutrona Wand is powered down**
+	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top-right switch (beep switch) is on, the Neutrona Wand will boot into a error mode. Turn this top-right switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the advanced user configuration settings by setting **b&#95;wand&#95;boot&#95;errors** to false. **\*see below\***
 
 **Toggle Switch Behavior**
 
-- While in 1984 mode:
+- While in 1984/1989 modes:
 	- Bottom right switch turns on the vent light and plays the wand power up sound.
 	- Top right switch plays a single beep sound.
-- While in 2021 mode:
+- While in 2021 (Afterlife) mode:
 	- Bottom right switch turns on the vent light and the wand plays a ramp up sound.
  	- Top right switch turns on the looping beeping sounds.
 
@@ -62,12 +53,39 @@ To enable the Crossing The Streams and alternate firing by default, you need to 
    - Clockwise to raise power/volume, counter-clockwise to lower these values.
 - There are 5 wand power modes as based on the original bargraph which has only 5 LED's available:
 	- The wand can be user-configured in the Neutrona Wand code to overheat the pack in any of the power modes. When not set to overheat, you can fire continiously.
-	- The pack can also be user configured in the Proton Pack Code to adjust the duration of smoke effects (for each power mode), which smoke pins are activated (for each power mode), overheating smoke effects (for each power mode) or smoke disabled entirely.
+	- The pack can also be user configured in the Proton Pack Code to adjust the duration of smoke effects (for each power mode), which smoke effects are activated (for each power mode), use of overheating smoke effects (for each power mode), or whether smoke disabled entirely.
 	Default settings: The wand will fire forever on modes 1 through 4 and overheat on mode 5.
 - The pack will emit smoke effects during longer firing (if enabled).
-- Lower power modes, the proton stream is more red. On higher modes, the stream will appear more yellow.
+- For lower power modes, the proton stream is more red. On higher modes, the stream will appear more yellow.
 - As the dial is turned, any beeping rate will increase or decrease depending on the theme in use.
-- This dial will be used to navigate the menu system and adjust volume in certain cases (see next section).
+- This dial will be used to navigate the menu system and adjust volume in certain cases (see "Wand Settings Menu System" section).
+
+### Optional Wand Features
+
+- Support for additional lights such as the wand hat lights and wand barrel end strobe.
+- Serial connection and power for a 28-segment bargraph support (to replace stock 5 LED bargraph).
+
+## Runtime Modes
+
+The following features require the use of both the pack and wand replacement controllers (Arduino-based) which implements a menu system to access special features which affects overall operation. Details for the menu system will be covered below, but it's important to describe the various operating modes first.
+
+**Video Game Mode (Default)**
+
+- The orange button at the end of the wand switches between these available firing modes while the wand is active:
+	1. Proton Stream (Default)
+	1. Slime Gun
+	1. Stasis Beam
+	1. Meson Collider
+	1. Special: Setting 5 is a settings menu system (see "Top Level Menu" section below).
+
+**Alternate Firing Mode: Cross The Streams / Cross The Streams Mix**
+
+- The orange button at the end of the wand acts as a alternate fire mode only (it does not switch stream modes).
+- The overheat features can only be triggered when enabled by the alternate firing mode.
+- Pressing both the Intensify and orange button at the end of the wand at the same time enables the "Cross the Streams" audio and visual effects. Releasing one of the 2 firing buttons will continue these effects.
+	- During Crossing The Streams Mix, you need to hold both the intensify and alternate firing button at the same time. Releasing one or the other will end crossing the streams but continue firing a regular proton stream. The Proton Pack and Wand can still overheat if enabled while crossing the streams in the power level you are at.
+
+To enable the Crossing The Streams and alternate firing by default, you need to set **bool b&#95;cross&#95;the&#95;streams** to true in the Advanced User Configuration settings at the top of the Neutrona wand source code via the Configuration.h file. To further enable Crossing The Streams Mix, you need to set **bool b&#95;cross&#95;the&#95;streams&#95;** to true (see Advanced User Configuration settings below). Otherwise you can toggle between Crossing The Streams, Crossing The Streams Mix and Video Game modes via the Neutrona Wand Sub Menu Settings (see below). **Important: The Neutrona Wand sub menu settings can only be reached while the Neutrona Wand is powered down**
 
 ## Wand Settings Menu System
 
@@ -86,6 +104,8 @@ When you are in the settings menu system [Mode 5] all the bargraph leds begin fl
 | 2 | Switch&nbsp;Music&nbsp;Track | Press **Intensify** to cycle forward. Press the orange **Mode** switch to cycle backward. |
 | 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music | Press **Intensify** to play music. Press it again to stop the music. |
 
+When in the Video Game Mode, when you navigate back to the **Setting 5** and press the orange **Mode** switch, the wand will return the proton stream mode (accompanied by an audio cue to indicate this return to firing readiness).
+
 **Sub Level Menu** (Only accessible while the Neutrona Wand is powered down)
 
 **To access the sub level menu, use the rotary dial on the top of the wand. When you reach the sub level menu, the Slo-blo LED will light up to indicate this menu state.**
@@ -93,22 +113,20 @@ When you are in the settings menu system [Mode 5] all the bargraph leds begin fl
 | Sub Menu Level | Purpose | Description |
 |------------|---------|-------------|
 | 5 | Cross The Streams / Cross The Streams Mix / Video Game Mode | Press **Intensify** to enable the cross the streams feature or revert back to video game modes. (Note that the LED #5 will stay solid when cross the streams is enabled while in the sub menu system). Cross The Streams Mix requires holding down both intensify and the alternate firing button at the same time.
-| 4 | Smoke Settings / Overheating| Press **Intensify** to enable or disable smoke. Press the **Orange Mode Switch** to enable or disable overheating |
-| 3 | Cyclotron Rotation Direction / Cyclotron LED Setting Toggle | Press **Intensify** button to change the direction of the cyclotron rotation. Press the **Orange Mode Switch** to toggle between 1 single LED for the cyclotron lens or 3 LEDs during 1984/1989 modes for the cyclotron lid. |
-| 2 | Vibration / Vibration Firing Mode | Press **Intensify** to enable vibration or disable. Press the **Orange Mode Switch** to enable vibration during firing only. Press again to disable. |
-| 1 | Year Mode | Press **Intensify** cycle through 1984, 1989 or 2021 modes. |
+| 4 | Smoke Settings / Overheating| Press **Intensify** to enable or disable smoke.<br/>Press the **Orange Mode Switch** to enable or disable overheating |
+| 3 | Cyclotron Rotation Direction / Cyclotron LED Setting Toggle | Press **Intensify** button to change the direction of the cyclotron rotation.<br/>Press the **Orange Mode Switch** to toggle between 1 single LED for the cyclotron lens or 3 LEDs during 1984/1989 modes for the cyclotron lid. |
+| 2 | Vibration / Vibration Firing Mode | Press **Intensify** to enable vibration or disable.<br/>Press the **Orange Mode Switch** to enable vibration during firing only. Press again to disable. |
+| 1 | Year Mode | Press **Intensify** cycle through 1984, 1989 or Afterlife (2021) modes. |
 
-To exit the menu system, navigate to the top menu in **Setting 5** and press the orange **Mode** switch button, the wand will now go to the Proton Stream mode (this will be accompanied by an additional audio cue that you've returned to the firing modes). Music will continue to play (and advance/loop) even when the pack and wand are turned off. 
+To exit the menu system, navigate to the top menu in **Setting 5** and press the orange **Mode** switch button, the wand will now be ready to power up. Music will continue to play (and advance/loop) even when the pack and wand are turned off. 
 
-**When music is playing while the pack and wand are turned off, you can use the Rotary knob on the top of the wand to easily access independent music volume control.**
-
-**When the wand and pack are turned off, you can still access the Wand Settings Menu System by pressing the orange mode switch button at the end of the wand.**
+**When music is playing while the pack and wand are turned off, you can use the Rotary knob on the top of the wand to easily access the independent music volume control.**
 
 Refer the [WavTrigger section](WAVTRIGGER.md) for more information on loading additional music tracks.
 
 ## Advanced User Configurations
 
-It is possible to change some of the default behaviour for both the Proton Pack and Neutrona Wand by changing some values in the Configuration.h file. The Proton Pack and Neutrona Wand each have there own Configuration.h file that can be found in their respective folders.
+It is possible to change some of the default behaviour for both the Proton Pack and Neutrona Wand by changing some values in their respective **Configuration.h** file. Note that when loading the .ino file to the Arduino IDE this should load the related .h files automatically.
 
 **Proton Pack**
 
