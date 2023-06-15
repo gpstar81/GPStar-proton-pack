@@ -36,12 +36,12 @@
  *
  */ 
  // For stock Haslab LEDs
-const int i_pack_num_leds = 25;
-const int i_1984_cyclotron_leds[4] = { 2, 5, 8, 11 };
+const uint8_t i_pack_num_leds = 25;
+const uint8_t i_1984_cyclotron_leds[4] = { 2, 5, 8, 11 };
 
 // For a 40 LED NeoPixel ring.
-//const int i_pack_num_leds = 53;
-//const int i_1984_cyclotron_leds[4] = { 1, 11, 19, 29 };
+//const uint8_t i_pack_num_leds = 53;
+//const uint8_t i_1984_cyclotron_leds[4] = { 1, 11, 19, 29 };
 
 /*
  * Cyclotron Lid LED delays.
@@ -51,8 +51,8 @@ const int i_1984_cyclotron_leds[4] = { 2, 5, 8, 11 };
  * For stock Haslab LEDs, 15 for i_2021_delay is good.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
  */
-const int i_1984_delay = 1050;
-const int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 LED NeoPixel ring.
+const unsigned int i_1984_delay = 1050;
+const unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 LED NeoPixel ring.
 
 /*
  * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
@@ -72,7 +72,7 @@ const int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 
  * 0 = quietest
  * 100 = loudest
  */
-const int STARTUP_VOLUME = 100;
+const uint8_t STARTUP_VOLUME = 100;
 
 /*
  * You can set the default music volume for your pack here.
@@ -81,7 +81,7 @@ const int STARTUP_VOLUME = 100;
  * 0 = quietest
  * 100 = loudest
  */
-const int STARTUP_VOLUME_MUSIC = 100;
+const uint8_t STARTUP_VOLUME_MUSIC = 100;
 
 /*
  * You can set the default sound effects volume for your pack here.
@@ -90,7 +90,7 @@ const int STARTUP_VOLUME_MUSIC = 100;
  * 0 = quietest
  * 100 = loudest
  */
-const int STARTUP_VOLUME_EFFECTS = 100;
+const uint8_t STARTUP_VOLUME_EFFECTS = 100;
 
 /*
  * Minimum volume that the pack can achieve. 
@@ -104,17 +104,17 @@ const int MINIMUM_VOLUME = -50;
 /*
  * Percentage increments of main volume change.
 */
-const int VOLUME_MULTIPLIER = 2;
+const uint8_t VOLUME_MULTIPLIER = 2;
 
 /*
  * Percentage increments of the music volume change..
 */
-const int VOLUME_MUSIC_MULTIPLIER = 5;
+const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 
 /*
  * Percentage increments of the sound effects volume change.
 */
-const int VOLUME_EFFECTS_MULTIPLIER = 5;
+const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
  * Inner cyclotron NeoPixel ring speed.
@@ -122,8 +122,8 @@ const int VOLUME_EFFECTS_MULTIPLIER = 5;
  * Default settings for a 35 NeoPixel ring is: 5 for 2021 mode and 9 for 1984 mode.
  * If you are using a ring with less than 35 NeoPixels, you may need to slightly raise these numbers.
  */
-const int i_2021_inner_delay = 5;
-const int i_1984_inner_delay = 9;
+const uint8_t i_2021_inner_delay = 5;
+const uint8_t i_1984_inner_delay = 9;
 
 /* 
  *  Default the cyclotron lights direction to clockwise. 
@@ -163,8 +163,8 @@ bool b_cyclotron_single_led = true;
 /*
  * When fading is enabled for 1984 mode cyclotron lid lights, control the delay of the fading.
 */
-const int i_1984_fade_out_delay = 210;
-const int i_1984_fade_in_delay = 210;
+const unsigned int i_1984_fade_out_delay = 210;
+const unsigned int i_1984_fade_in_delay = 210;
 
 /*
  * Set to true to enable the onboard amplifer on the wav trigger. 
@@ -275,12 +275,12 @@ const bool b_diagnostic = false;
   *****
   
   * If you are compiling the code to upload to a Arduino Mega with the original gpstar home built instructions. You want to use disabled GPSTAR_PROTON_PACK_PCB.
-  * example: //#define GPSTAR_PROTON_PACK_PCB;  
+  * example: //#define GPSTAR_PROTON_PACK_PCB 
   * This is a legacy flag, for people who originally put the cyclotron lid detection on pin 51 and not pin 43. If your cyclotron lid detection is on pin 51, then comment/disable this define.
   * If your home built gpstar proton pack was built with pin 43 for the cyclotron lid detection, then you can leave this enabled.
 
   * If you are compiling the code to upload to the gpstar Proton Pack micro controller, or latest gpstar home built instructions, then enable and uncomment it (default).
-  * example: #define GPSTAR_PROTON_PACK_PCB;  
+  * example: #define GPSTAR_PROTON_PACK_PCB
   * In general, leave this enabled by default as very few people did the pin 51 setup.
 */
-#define GPSTAR_PROTON_PACK_PCB;
+#define GPSTAR_PROTON_PACK_PCB

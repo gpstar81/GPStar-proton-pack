@@ -29,7 +29,7 @@
  * 0 = quietest
  * 100 = loudest
  */
-const int STARTUP_VOLUME = 100;
+const uint8_t STARTUP_VOLUME = 100;
 
 /*
  * You can set the default music volume for your wand here.
@@ -38,7 +38,7 @@ const int STARTUP_VOLUME = 100;
  * 0 = quietest
  * 100 = loudest
  */
-const int STARTUP_VOLUME_MUSIC = 100;
+const uint8_t STARTUP_VOLUME_MUSIC = 100;
 
 /*
  * You can set the default sound effects volume for your wand here.
@@ -47,7 +47,7 @@ const int STARTUP_VOLUME_MUSIC = 100;
  * 0 = quietest
  * 100 = loudest
  */
-const int STARTUP_VOLUME_EFFECTS = 100;
+const uint8_t STARTUP_VOLUME_EFFECTS = 100;
 
 /*
  * Minimum volume that the Neutrona Wand can achieve. 
@@ -56,22 +56,22 @@ const int STARTUP_VOLUME_EFFECTS = 100;
  * If your pack is overpowering the wand at lower volumes, you can either increase the minimum value in the wand,
  * or decrease the minimum value for the pack.
 */
-const int MINIMUM_VOLUME = -35;
+const int8_t MINIMUM_VOLUME = -35;
 
 /*
  * Percentage increments of main volume change.
 */
-const int VOLUME_MULTIPLIER = 2;
+const uint8_t VOLUME_MULTIPLIER = 2;
 
 /*
  * Percentage increments of the music volume change..
 */
-const int VOLUME_MUSIC_MULTIPLIER = 5;
+const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 
 /*
  * Percentage increments of the sound effects volume change.
 */
-const int VOLUME_EFFECTS_MULTIPLIER = 5;
+const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
  * Set to false to disable the onboard amplifer on the wav trigger. 
@@ -102,8 +102,9 @@ bool b_cross_the_streams_mix = false;
  * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
  * Set to false if you are using the stock Hasbro bargraph.
  * Part #: BL28Z-3005SA04Y
+ * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
 */
-const bool b_bargraph_alt = false;
+bool b_bargraph_alt = false;
 
 /*
  * Enable or disable vibration control for the Neutrona wand.
@@ -154,8 +155,8 @@ const bool b_overheat_mode_5 = true;
  * Overheat only happens if enabled for that power mode (see above).
  * Example: 12000 = (12 seconds)
  */
-const unsigned long int i_ms_overheat_initiate_mode_1 = 60000;
-const unsigned long int i_ms_overheat_initiate_mode_2 = 30000;
+const unsigned long int i_ms_overheat_initiate_mode_1 = 6000;
+const unsigned long int i_ms_overheat_initiate_mode_2 = 3000;
 const unsigned long int i_ms_overheat_initiate_mode_3 = 20000;
 const unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
 const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;

@@ -2352,7 +2352,8 @@ void wandFiring() {
           else {
             b_sound_firing_alt_trigger = false;
           }
-        
+        break;
+
         case 5:
             if(b_firing_intensify == true) {
               // Reset some sound triggers.
@@ -2532,6 +2533,10 @@ void wandStopFiringSounds() {
       w_trig.trackStop(S_MESON_START);
       w_trig.trackStop(S_MESON_LOOP);
       w_trig.trackStop(S_MESON_END);
+    break;
+
+    case SETTINGS:
+      // Nothing
     break;
   }
 
@@ -2739,7 +2744,7 @@ void adjustVolumeEffectsGain() {
   /*
    * If the pack is running, there will be a slight pause in the LEDs due to serial communication to the wav trigger.
    */
-  for(int i=0; i <= i_last_effects_track; i++) {
+  for(unsigned int i=0; i <= i_last_effects_track; i++) {
     w_trig.trackGain(i, i_volume);
   }
 }
@@ -3844,9 +3849,7 @@ void setupWavTrigger() {
   // Allow time for the WAV Triggers to respond with the version string and number of tracks.
   delay(350);
   
-  char w_trig_version[VERSION_STRING_LEN]; // Firmware version.
   int w_num_tracks = w_trig.getNumTracks();
-  w_trig.getVersion(w_trig_version, VERSION_STRING_LEN);
 
   // Build the music track count.
   i_music_count = w_num_tracks - i_last_effects_track;
