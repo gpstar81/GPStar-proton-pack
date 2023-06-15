@@ -71,7 +71,7 @@ The following features require the use of both the pack and wand replacement con
 
 **Video Game Mode (Default)**
 
-- The orange button at the end of the wand switches between these available firing modes while the wand is active:
+- The Barrel Wing (orange) button at the end of the wand switches between these available firing modes while the wand is active:
 	1. Proton Stream (Default)
 	1. Slime Gun
 	1. Stasis Beam
@@ -80,8 +80,8 @@ The following features require the use of both the pack and wand replacement con
 
 **Alternate Firing Mode: Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)**
 
-- The Barrell Wing (orange) button at the end of the wand acts as a alternate fire mode only (it does not switch stream modes).
-- The overheat features can only be triggered when enabled by the alternate firing mode.
+- The Barrell Wing (orange) button at the end of the wand acts as a alternate fire mode only--it does not switch stream modes.
+- The overheat features can only be triggered when enabled by the alternate CTS firing mode.
 - Pressing both the Intensify and Barrel Wing button (at the end of the wand) at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing one of the 2 firing buttons will continue these effects.
 	- During Cross The Streams Mix, you need to hold both the intensify and alternate firing button at the same time. Releasing one or the other will end crossing the streams but continue firing a regular proton stream. The Proton Pack and Wand can still overheat if enabled while crossing the streams in the power level you are at.
 
