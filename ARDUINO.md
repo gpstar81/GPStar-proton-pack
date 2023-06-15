@@ -50,3 +50,7 @@ You need to enable `__WT_USE_ALTSOFTSERIAL__` by uncommenting this line inside t
 **NOTE: Before uploading to the Arduino Nano, be sure to either disconnect the wand from the pack or otherwise disconnect the TX/RX connections as these will interfere with the USB interface when still connected to the Arduino Mega in the pack.**
 
 ![WavTrigger Serial Class for Arduino Nano](images/wt_serial_nano.png)
+
+## Advanced User Configurations
+
+To modify defaults within the software, please see the [Advanced Configuration](ADVCONFIG.md) guide.
