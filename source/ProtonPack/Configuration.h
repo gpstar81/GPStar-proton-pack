@@ -28,10 +28,11 @@
  *  25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
  *  
  *  For the stock Haslab LEDs, use const int i_pack_num_leds = 25; and const i_1984_cyclotron_leds 2, 5, 8, 11.
- *  For a 40 LED NeoPixel ring, use const int i_pack_num_leds = 53 and const i_1984_cyclotron_leds 2, 12, 20, 30.
+ *  For a 40 LED NeoPixel ring, use const int i_pack_num_leds = 53 and const i_1984_cyclotron_leds 1, 11, 19, 29.
+ *  Adjust as neccesary depending on how you align your NeoPixel ring.
  *  You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.  
  *
- *  i_1984_cyclotron_leds is the middle led aligned in each lens window. Adjust this setting if you use different LED setups and installations.
+ *  i_1984_cyclotron_leds is the last led aligned in each lens window. (0 is the first LED). Adjust this setting if you use different LED setups and installations.
  *  Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as cyclotron lens #1 and work your way clockwise)
  *
  */ 
@@ -41,7 +42,7 @@ const uint8_t i_1984_cyclotron_leds[4] = { 2, 5, 8, 11 };
 
 // For a 40 LED NeoPixel ring.
 //const uint8_t i_pack_num_leds = 53;
-//const uint8_t i_1984_cyclotron_leds[4] = { 2, 12, 20, 30};
+//const uint8_t i_1984_cyclotron_leds[4] = { 1, 11, 19, 29};
 
 /*
  * Cyclotron Lid LED delays.

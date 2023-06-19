@@ -1740,6 +1740,10 @@ void cyclotron1984Alarm() {
 }
 
 void cyclotron84LightOn(int cLed) {
+  if(cLed < 0) {
+    cLed = PACK_NUM_LEDS - 7 - 1;
+  }
+
   if(b_fade_cyclotron_led != true) {
     pack_leds[cLed+1] = CRGB(255,0,0);
 
@@ -1771,6 +1775,10 @@ void cyclotron84LightOn(int cLed) {
 }
 
 void cyclotron84LightOff(int cLed) {
+  if(cLed < 0) {
+    cLed = PACK_NUM_LEDS - 7 - 1;
+  }
+
   if(b_fade_cyclotron_led != true) {
     pack_leds[cLed+1] = CRGB(0,0,0);
 
