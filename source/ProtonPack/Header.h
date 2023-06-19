@@ -240,9 +240,9 @@ bool b_repeat_track = false;
 /* 
  *  Volume (0 = loudest, -70 = quietest)
  */
-uint8_t i_volume_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
-uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
+int i_volume_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
+int i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
+int i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 
 unsigned int i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
 unsigned int i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
@@ -313,7 +313,7 @@ bool b_vent_light_on = false; // To know if the light is on or off.
 /* 
  *  Wand communication
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SETTINGS };
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
 bool b_wand_firing = false;
 bool b_firing_alt = false;

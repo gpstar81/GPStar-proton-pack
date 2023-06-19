@@ -18,6 +18,7 @@
  */
 
 enum pack_messages {
+  P_COM_START,
   P_PACK_BOOTUP,
   P_ON,
   P_OFF,
@@ -46,11 +47,12 @@ enum pack_messages {
   P_CYCLOTRON_CLOCKWISE,
   P_CYCLOTRON_SINGLE_LED,
   P_CYCLOTRON_THREE_LED,
-  P_MUSIC_STOP
+  P_MUSIC_STOP,
+  P_COM_END
 };
 
 enum wand_messages {
-  W_EMPTY,
+  W_COM_START,
   W_ON,
   W_OFF,
   W_FIRING,
@@ -59,6 +61,7 @@ enum wand_messages {
   W_SLIME_MODE,
   W_STASIS_MODE,
   W_MESON_MODE,
+  W_VENTING_MODE,
   W_SETTINGS_MODE,
   W_OVERHEATING,
   W_OVERHEATING_FINISHED,
@@ -104,5 +107,6 @@ enum wand_messages {
   W_MUSIC_STOP,
   W_MUSIC_START,
   W_VOLUME_DECREASE,
-  W_VOLUME_INCREASE
+  W_VOLUME_INCREASE,
+  W_COM_END
 };

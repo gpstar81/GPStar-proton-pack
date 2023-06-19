@@ -83,6 +83,14 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 const bool b_onboard_amp_enabled = true;
 
 /*
+ * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
+ * Set to false if you are using the stock Hasbro bargraph.
+ * Part #: BL28Z-3005SA04Y
+ * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
+*/
+bool b_bargraph_alt = false;
+
+/*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
  * Pressing this button together at the same time as the Intensify button does a cross the streams firing.
  * You can release one of the two firing buttons and the Neutrona wand will still continue to cross the streams.
@@ -97,14 +105,6 @@ bool b_cross_the_streams = false;
   * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
 bool b_cross_the_streams_mix = false;
-
-/*
- * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
- * Set to false if you are using the stock Hasbro bargraph.
- * Part #: BL28Z-3005SA04Y
- * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
-*/
-bool b_bargraph_alt = false;
 
 /*
  * Enable or disable vibration control for the Neutrona wand.

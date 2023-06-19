@@ -262,7 +262,7 @@ millisDelay ms_music_next_track;
  *  Wand firing modes + settings
  *  Proton, Slime, Stasis, Meson, Settings
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SETTINGS };
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
 enum FIRING_MODES PREV_FIRING_MODE;
 
@@ -288,5 +288,5 @@ bool b_beeping = false;
   const uint8_t led_hat_2 = 23; // Hat light at top of the wand body. (Red LED)
   const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
 #else
-  const uint8_t led_slo_blo = 5; // There are 2 LED's attached to this pin. The slo-blo and the light on the front of the wand body. You can drive up to 2 led's from 1 pin on a arduino.
+  const uint8_t led_slo_blo = 5; // There are 2 LED's attached to this pin when using a Arduino Nano. The slo-blo LED and the orange light on the front of the wand body (front_lef).
 #endif

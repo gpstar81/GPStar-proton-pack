@@ -219,12 +219,15 @@ void mainLoop() {
     break;
     
     case ACTION_FIRING:
-      if(ms_firing_start_sound_delay.justFinished()) {
-        modeFireStartSounds();
+      if(FIRING_MODE == VENTING) {
+        // If we are in venting mode, lets trigger a vent sequence.
+        startVentSequence();
       }
-    
-      if(b_pack_on == true && b_pack_alarm == false) {
-        
+      else if(b_pack_on == true && b_pack_alarm == false) {
+        if(ms_firing_start_sound_delay.justFinished()) {
+        modeFireStartSounds();
+        }
+
         if(b_firing == false) {
           b_firing = true;
           modeFireStart();
@@ -251,49 +254,7 @@ void mainLoop() {
         
         // Overheating.
         if(ms_overheat_initiate.justFinished() && b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
-          ms_overheat_initiate.stop();
-
-          modeFireStop();
-
-          // Turn on hat light 2.
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            digitalWrite(led_hat_2, HIGH);
-          #endif
-
-          delay(100);
-          
-          WAND_ACTION_STATUS = ACTION_OVERHEATING;
-
-          // Play overheating sounds.
-          ms_overheating.start(i_ms_overheating);        
-
-          // Blinking bargraph option for overheat.
-          if(b_overheat_bargraph_blink == true) {
-            ms_settings_blinking.start(i_settings_blinking_delay);
-          }
-          else {
-            // If bargraph is set to ramp down during overheat, we need to set a few things.
-            soundBeepLoopStop();
-            soundIdleStop();
-            soundIdleLoopStop();
-
-            b_sound_idle = false; // REMOVE ??
-            b_beeping = false;
-
-            // Reset some bargraph levels before we ramp the bargraph down.
-            i_bargraph_status_alt = 28; // For 28 segment bargraph
-            i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
-
-            bargraphFull();
-
-            ms_bargraph.start(d_bargraph_ramp_interval);
-          }
-
-          w_trig.trackPlayPoly(S_VENT_DRY);
-          w_trig.trackPlayPoly(S_CLICK);
-
-          // Tell the pack we are overheating.
-          wandSerialSend(W_OVERHEATING);
+          startVentSequence();
         }
         else {
           modeFiring();
@@ -860,7 +821,7 @@ void mainLoop() {
                 wandSerialSend(W_STASIS_MODE);
               break;
   
-              case SLIME:  
+              case SLIME:
                 // Tell the pack we are in slime mode.
                 wandSerialSend(W_SLIME_MODE);
               break;
@@ -869,7 +830,12 @@ void mainLoop() {
                 // Tell the pack we are in proton mode.
                 wandSerialSend(W_PROTON_MODE);
               break;
-  
+
+              case VENTING:
+                // Tell the pakc we are in venting mode.
+                wandSerialSend(W_VENTING_MODE);
+              break;
+
               default:
                 // Tell the pack we are in proton mode.
                 wandSerialSend(W_PROTON_MODE);
@@ -896,7 +862,7 @@ void mainLoop() {
       if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
         digitalWrite(led_white, HIGH);
 
-        analogWrite(led_slo_blo, 0);       
+        analogWrite(led_slo_blo, 0);
 
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           digitalWrite(led_hat_2, LOW);
@@ -967,9 +933,29 @@ void mainLoop() {
         ms_white_light.start(d_white_light_interval);
         if(digitalRead(led_white) == LOW) {
           digitalWrite(led_white, HIGH);
+
+          // We make the slo-blo light blink during vent mode.
+          if(FIRING_MODE == VENTING) {
+            analogWrite(led_slo_blo, 255);
+
+            // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              analogWrite(led_front_left, 255);
+            #endif
+          }
         }
         else {
           digitalWrite(led_white, LOW);
+
+          // We make the slo-blo light blink during vent mode.
+          if(FIRING_MODE == VENTING) {
+            analogWrite(led_slo_blo, 0); 
+
+            // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              analogWrite(led_front_left, 0);
+            #endif            
+          }
         }
       }
 
@@ -1000,8 +986,7 @@ void mainLoop() {
 
       wandBarrelHeatUp();
     break;
-  } 
-  
+  }
 
   if(b_firing == true && WAND_ACTION_STATUS != ACTION_FIRING) {
     modeFireStop();
@@ -1016,6 +1001,54 @@ void mainLoop() {
     FastLED.show();
     ms_fast_led.stop();
   }
+}
+
+void startVentSequence() {
+  ms_overheat_initiate.stop();
+
+  if(WAND_ACTION_STATUS == ACTION_FIRING && b_firing == true) {
+    modeFireStop();
+  }
+
+  // Turn on hat light 2.
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    digitalWrite(led_hat_2, HIGH);
+  #endif
+
+  delay(100);
+
+  WAND_ACTION_STATUS = ACTION_OVERHEATING;
+
+  // Play overheating sounds.
+  ms_overheating.start(i_ms_overheating);        
+
+  // Blinking bargraph option for overheat.
+  if(b_overheat_bargraph_blink == true) {
+    ms_settings_blinking.start(i_settings_blinking_delay);
+  }
+  else {
+    // If bargraph is set to ramp down during overheat, we need to set a few things.
+    soundBeepLoopStop();
+    soundIdleStop();
+    soundIdleLoopStop();
+
+    b_sound_idle = false; // REMOVE ??
+    b_beeping = false;
+
+    // Reset some bargraph levels before we ramp the bargraph down.
+    i_bargraph_status_alt = 28; // For 28 segment bargraph
+    i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
+
+    bargraphFull();
+
+    ms_bargraph.start(d_bargraph_ramp_interval);
+  }
+
+  w_trig.trackPlayPoly(S_VENT_DRY);
+  w_trig.trackPlayPoly(S_CLICK);
+
+  // Tell the pack we are overheating.
+  wandSerialSend(W_OVERHEATING);
 }
 
 void checkMusic() { 
@@ -1486,6 +1519,9 @@ void checkSwitches() {
               FIRING_MODE = MESON;
             }
             else if(FIRING_MODE == MESON) {
+              FIRING_MODE = VENTING;
+            }
+            else if(FIRING_MODE == VENTING) {
               FIRING_MODE = SETTINGS;
             }
             else {
@@ -1501,7 +1537,17 @@ void checkSwitches() {
                 }
               #endif
             }
-   
+
+            // Make sure the slo-blo light is turned back on, as entering venting mode will make it blink.
+            if(FIRING_MODE != VENTING) {
+              analogWrite(led_slo_blo, 255); 
+
+              // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                analogWrite(led_front_left, 255);
+              #endif  
+            }
+
             w_trig.trackPlayPoly(S_CLICK);
   
             switch(FIRING_MODE) {
@@ -1513,7 +1559,15 @@ void checkSwitches() {
                 // Tell the pack we are in settings mode.
                 wandSerialSend(W_SETTINGS_MODE);
               break;
-  
+
+              case VENTING:
+                WAND_ACTION_STATUS = ACTION_IDLE;
+                wandHeatUp();
+
+                // The the pack we are in venting mode.
+                wandSerialSend(W_VENTING_MODE);
+              break;
+
               case MESON:
                 WAND_ACTION_STATUS = ACTION_IDLE;
                 wandHeatUp();
@@ -2128,6 +2182,7 @@ void modeFireStartSounds() {
       w_trig.trackLoop(S_MESON_LOOP, 1);
     break;
 
+    case VENTING:
     case SETTINGS:
       // Nothing.
     break;
@@ -2204,6 +2259,7 @@ void modeFireStart() {
       w_trig.trackStop(S_MESON_END);
     break;
 
+    case VENTING:
     case SETTINGS:
       // Nothing.
     break;
@@ -2276,6 +2332,7 @@ void modeFireStopSounds() {
       w_trig.trackPlayPoly(S_MESON_END, true);
     break;
 
+    case VENTING:
     case SETTINGS:
       // Nothing.
     break;
@@ -2380,6 +2437,7 @@ void modeFireStop() {
       w_trig.trackStop(S_MESON_END);
     break;
 
+    case VENTING:
     case SETTINGS:
       // Nothing.
     break;
@@ -2620,6 +2678,7 @@ void modeFiring() {
        fireStream(190, 20, 70);
     break;
 
+    case VENTING:
     case SETTINGS:
       // Nothing.
     break;
@@ -2642,6 +2701,9 @@ void wandHeatUp() {
   w_trig.trackStop(S_PACK_SLIME_OPEN);
   w_trig.trackStop(S_STASIS_OPEN);
   w_trig.trackStop(S_MESON_OPEN);
+  w_trig.trackStop(S_VENT_DRY);
+  w_trig.trackStop(S_VENT_SMOKE);
+  w_trig.trackStop(S_MODE_SWITCH);
 
   switch(FIRING_MODE) {
     case PROTON:
@@ -2658,6 +2720,11 @@ void wandHeatUp() {
 
     case MESON:
       w_trig.trackPlayPoly(S_MESON_OPEN);
+    break;
+
+    case VENTING:
+      w_trig.trackPlayPoly(S_VENT_DRY);
+      w_trig.trackPlayPoly(S_MODE_SWITCH);
     break;
 
     case SETTINGS:
@@ -2700,6 +2767,7 @@ void wandBarrelHeatUp() {
         ms_fast_led.start(i_fast_led_delay);
       break;
 
+      case VENTING:
       case SETTINGS:
         // nothing
       break;
@@ -2732,7 +2800,8 @@ void wandBarrelHeatDown() {
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
         ms_fast_led.start(i_fast_led_delay);
       break;
-
+      
+      case VENTING:
       case SETTINGS:
         // Nothing.
       break;
@@ -2798,6 +2867,7 @@ void fireStream(uint8_t r, uint8_t g, uint8_t b) {
           barrel_leds[i_barrel_light - 1] = CRGB(200, 200, 15);
         break;
 
+        case VENTING:
         case SETTINGS:
           // Nothing.
         break;
@@ -4588,7 +4658,7 @@ void checkPack() {
       wandComs.rxObj(comStruct);
 
       if(!wandComs.currentPacketID()) {
-        if(comStruct.i > 0) {
+        if(comStruct.i > 0 && comStruct.s == P_COM_START && comStruct.e == P_COM_END) {
   #else
     if(Serial.available() > 0) {
       rx_byte = Serial.read();
@@ -4601,8 +4671,7 @@ void checkPack() {
       */
 
       if(comStruct.s > 0) {
-        if(comStruct.i > 0) {
-
+        if(comStruct.i > 0 && comstruct.s == P_COM_START && comstruct.e == P_COM_END) {
   #endif
         if(b_volume_sync_wait == true) {
           switch(VOLUME_SYNC_WAIT) {
@@ -4618,7 +4687,8 @@ void checkPack() {
               i_volume_master_percentage = comStruct.i;
               i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
 
-              //w_trig.masterGain(i_volume_master);
+              w_trig.masterGain(i_volume_master);
+
               VOLUME_SYNC_WAIT = MUSIC;
             break;
 
@@ -4876,7 +4946,9 @@ void checkPack() {
 void wandSerialSend(int i_message) {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     sendStruct.i = i_message;
-    
+    sendStruct.s = W_COM_START;
+    sendStruct.e = W_COM_END;
+
     wandComs.sendDatum(sendStruct);
   #endif
 }

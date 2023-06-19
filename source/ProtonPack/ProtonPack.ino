@@ -2317,12 +2317,14 @@ void wandFiring() {
 
           if(b_firing_intensify == true) {
             if(i_mode_year == 1989) {
-              w_trig.trackGain(S_GB2_FIRE_LOOP, i_volume);
+              w_trig.trackGain(S_GB2_FIRE_LOOP, -70);
               w_trig.trackPlayPoly(S_GB2_FIRE_LOOP, true);
-              w_trig.trackFade(S_GB2_FIRE_LOOP, i_volume, 1000, 0);
-              w_trig.trackLoop(S_GB2_FIRE_LOOP, 1);  
+              w_trig.trackFade(S_GB2_FIRE_LOOP, i_volume, 1100, 0);
+              w_trig.trackLoop(S_GB2_FIRE_LOOP, 1);
 
-              w_trig.trackPlayPoly(S_GB2_FIRE_START);            
+              w_trig.trackGain(S_GB2_FIRE_START, i_volume);
+              w_trig.trackPlayPoly(S_GB2_FIRE_START);
+              w_trig.trackFade(S_GB2_FIRE_START, -70, 1000, 0);
             }
             else {
               w_trig.trackGain(S_GB1_FIRE_LOOP, i_volume);
@@ -2410,7 +2412,8 @@ void wandFiring() {
       w_trig.trackFade(S_MESON_LOOP, i_volume, 5500, 0);
       w_trig.trackLoop(S_MESON_LOOP, 1);
     break;
-
+    
+    case VENTING:
     case SETTINGS:
       // Nothing.
     break;
@@ -2468,6 +2471,7 @@ void wandStoppedFiring() {
         w_trig.trackPlayPoly(S_MESON_END, true);
       break;
 
+      case VENTING:
       case SETTINGS:
         // Nothing
       break;
@@ -2535,6 +2539,7 @@ void wandStopFiringSounds() {
       w_trig.trackStop(S_MESON_END);
     break;
 
+    case VENTING:
     case SETTINGS:
       // Nothing
     break;
@@ -2843,7 +2848,7 @@ void checkRotaryEncoder() {
 }
 
 /*
- * Smoke # 1. I put this one in my n-filter cone outlet.
+ * Smoke # 1. N-filter cone outlet.
  */
 void smokeControl(bool b_smoke_on) {  
   if(b_smoke_enabled == true) {
@@ -2987,7 +2992,7 @@ void checkWand() {
     packComs.rxObj(comStruct);
 
     if(!packComs.currentPacketID()) {        
-      if(comStruct.i > 0) {    
+      if(comStruct.i > 0 && comStruct.s == W_COM_START && comStruct.e == W_COM_END) {    
         if(b_wand_connected == true) {
           switch(comStruct.i) {
             case W_ON:
@@ -3813,7 +3818,7 @@ void checkWand() {
             packSerialSend(i_volume_percentage);
             packSerialSend(i_volume_master_percentage);
             packSerialSend(i_volume_music_percentage);
-                    
+
             b_wand_connected = true;
           }
         }
@@ -3824,7 +3829,9 @@ void checkWand() {
 }
 
 void packSerialSend(int i_message) {
+  sendStruct.s = P_COM_START;
   sendStruct.i = i_message;
+  sendStruct.e = P_COM_END;
 
   packComs.sendDatum(sendStruct);
 }

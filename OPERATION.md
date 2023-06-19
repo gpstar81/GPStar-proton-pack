@@ -20,7 +20,7 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 
 ### Optional Pack Features
 
-- 1989 sound effects mode available on the pack with advanced user configuration setting **\*see below\***.
+- 1989 sound effects mode available on the pack, it can be accessed from the Wand sub menu system or set with the advanced user configuration settings. **\*see below\***.
 - Support for switches for cyclotron direction and to enable/disable smoke effects.
 - Smoke effects with dedicated fans for the booster tube and N-filter.
 - Additional Lights available for the cyclotron panel and internal "cake" cyclotron.
@@ -76,16 +76,21 @@ The following features require the use of both the pack and wand replacement con
 	1. Slime Gun
 	1. Stasis Beam
 	1. Meson Collider
-	1. Special: Setting 5 is a settings menu system (see "Top Level Menu" section below).
+	1. Manual Venting Mode (Manual vent your Proton Pack)
+	1. Special: Setting 6 is a settings menu system (see "Top Level Menu" section below).
+
+**Manual Venting Mode**
+
+- When in manual venting mode, the slo-blo LED and the orange LED on the front of the wand body will blink to indicate that you are in the manual venting mode. Press Intensify on the wand to manually vent your Proton Pack. (All the safety switches on the wand must be activated).
 
 **Alternate Firing Mode: Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)**
 
-- The Barrell Wing (orange) button at the end of the wand acts as a alternate fire mode only--it does not switch stream modes.
+- The Barrel Wing (orange) button at the end of the wand acts as a alternate fire mode only--it does not switch stream modes.
 - The overheat features can only be triggered when enabled by the alternate CTS firing mode.
 - Pressing both the Intensify and Barrel Wing button (at the end of the wand) at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing one of the 2 firing buttons will continue these effects.
 	- During Cross The Streams Mix, you need to hold both the intensify and alternate firing button at the same time. Releasing one or the other will end crossing the streams but continue firing a regular proton stream. The Proton Pack and Wand can still overheat if enabled while crossing the streams in the power level you are at.
 
-To enable a Cross The Streams (CTS) mode and alternate firing by default, please see the [Advanced Configuration](ADVCONFIG.md) guide.
+To enable a Cross The Streams (CTS) mode and alternate firing by default, please see the [Advanced Configuration](ADVCONFIG.md) guide, otherwise these can be accessed from the Wand settings menu system.
 
 ## Wand Settings Menu System
 
