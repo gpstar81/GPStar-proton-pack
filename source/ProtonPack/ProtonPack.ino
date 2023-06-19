@@ -3074,6 +3074,21 @@ void checkWand() {
               }
             break;
         
+            case W_VENTING_MODE:
+              // Settings mode
+              FIRING_MODE = VENTING;
+              w_trig.trackGain(S_CLICK, i_volume);
+              w_trig.trackPlayPoly(S_CLICK);
+
+              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+                w_trig.trackGain(S_VENT_DRY, i_volume);
+                w_trig.trackGain(S_MODE_SWITCH, i_volume);
+
+                w_trig.trackPlayPoly(S_VENT_DRY);
+                w_trig.trackPlayPoly(S_MODE_SWITCH);
+              }
+            break;
+
             case W_SETTINGS_MODE:
               // Settings mode
               FIRING_MODE = SETTINGS;
