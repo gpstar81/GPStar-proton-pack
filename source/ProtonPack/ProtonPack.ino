@@ -219,6 +219,8 @@ void loop() {
 
         if(b_pack_shutting_down == true) {
           b_pack_shutting_down = false;
+
+          clearCyclotronFades();
         }
 
         // Tell the wand the alarm is off.
@@ -1745,8 +1747,16 @@ void cyclotron84LightOn(int cLed) {
 
     // Turn on the other 2 LEDs if we are allowing 3 to light up.
     if(b_cyclotron_single_led != true) {
-      pack_leds[cLed-1] = CRGB(255,0,0);
       pack_leds[cLed+1] = CRGB(255,0,0);
+
+      if(cLed - 1 < cyclotron_led_start) {
+        cLed = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        cLed = cLed - 1;
+      }
+
+      pack_leds[cLed] = CRGB(255,0,0);
     }
   }
   else {
@@ -1757,14 +1767,21 @@ void cyclotron84LightOn(int cLed) {
 
     // Turn on the other 2 LEDs if we are allowing 3 to light up.
     if(b_cyclotron_single_led != true) {
-      if(i_cyclotron_led_value[cLed - 1 - cyclotron_led_start] == 0) {
-        ms_cyclotron_led_fade_in[cLed - 1 - cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[cLed - 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);
-      }
-
       if(i_cyclotron_led_value[cLed + 1 - cyclotron_led_start] == 0) {
         ms_cyclotron_led_fade_in[cLed + 1 - cyclotron_led_start].go(0);
         ms_cyclotron_led_fade_in[cLed + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);
+      }
+
+      if(cLed - 1 < cyclotron_led_start) {
+        cLed = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        cLed = cLed - 1;
+      }
+      
+      if(i_cyclotron_led_value[cLed - cyclotron_led_start] == 0) {
+        ms_cyclotron_led_fade_in[cLed - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[cLed - cyclotron_led_start].go(255, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);
       }
     }    
   }
@@ -1777,7 +1794,15 @@ void cyclotron84LightOff(int cLed) {
     // Turn off the other 2 LEDs if we are allowing 3 to light up.
     if(b_cyclotron_single_led != true) {
       pack_leds[cLed + 1] = CRGB(0,0,0);
-      pack_leds[cLed + 2] = CRGB(0,0,0);
+      
+      if(cLed - 1 < cyclotron_led_start) {
+        cLed = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        cLed = cLed - 1;
+      }
+
+      pack_leds[cLed] = CRGB(0,0,0);
     }
   }
   else {
@@ -1788,14 +1813,21 @@ void cyclotron84LightOff(int cLed) {
 
     // Turn off the other 2 LEDs if we are allowing 3 to light up.
     if(b_cyclotron_single_led != true) {
-      if(i_cyclotron_led_value[cLed - 1 - cyclotron_led_start] == 255) {
-        ms_cyclotron_led_fade_out[cLed - 1 - cyclotron_led_start].go(255);
-        ms_cyclotron_led_fade_out[cLed - 1 - cyclotron_led_start].go(0, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
-      }
-
       if(i_cyclotron_led_value[cLed + 1 - cyclotron_led_start] == 255) {
         ms_cyclotron_led_fade_out[cLed + 1 - cyclotron_led_start].go(255);
         ms_cyclotron_led_fade_out[cLed + 1 - cyclotron_led_start].go(0, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
+      }
+
+      if(cLed - 1 < cyclotron_led_start) {
+        cLed = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        cLed = cLed - 1;
+      }
+
+      if(i_cyclotron_led_value[cLed - cyclotron_led_start] == 255) {
+        ms_cyclotron_led_fade_out[cLed - cyclotron_led_start].go(255);
+        ms_cyclotron_led_fade_out[cLed - cyclotron_led_start].go(0, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
       }
     }        
   }
@@ -1983,6 +2015,12 @@ void resetCyclotronLeds() {
   }
 
   cyclotronSpeedRevert();
+}
+
+void clearCyclotronFades() {
+  for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
+    i_cyclotron_led_value[i] = 0;
+  }
 }
 
 void innerCyclotronOff() {
