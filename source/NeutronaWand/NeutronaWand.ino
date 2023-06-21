@@ -44,7 +44,9 @@
   #include <ht16k33.h>
 #endif
 
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
   #include <SerialTransfer.h>
+#endif
 
 #include "Configuration.h"
 #include "MusicSounds.h"
@@ -58,7 +60,7 @@
 void setup() {  
   Serial.begin(9600);
 
-  // Enable Serial1 if compiling for the gpstar Neutrona Wand micro controller board.
+  // Enable Serial1 if compiling for the gpstar Neutrona Wand micro controller.
   #ifdef HAVE_HWSERIAL1
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       Serial1.begin(9600);
@@ -2238,7 +2240,10 @@ void modeFireStart() {
 
       w_trig.trackStop(S_FIRE_START_SPARK);
       w_trig.trackStop(S_FIRING_END_GUN);
-      w_trig.trackStop(S_FIRE_LOOP_IMPACT);
+      
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        w_trig.trackStop(S_FIRE_LOOP_IMPACT);
+      #endif
     break;
 
     case SLIME:
@@ -2304,7 +2309,9 @@ void modeFireStart() {
   i_bargraph_status_alt = 0;
   bargraphRampFiring();
 
-  ms_impact.start(random(10,15) * 1000);
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    ms_impact.start(random(10,15) * 1000);
+  #endif
 }
 
 void modeFireStopSounds() {
@@ -2387,7 +2394,10 @@ void modeFireStop() {
   
   ms_firing_stream_blue.stop();
   ms_firing_lights.stop();
-  ms_impact.stop();
+  
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    ms_impact.stop();
+  #endif
 
   i_barrel_light = 0;
   ms_firing_lights_end.start(10);
@@ -2416,7 +2426,10 @@ void modeFireStop() {
       w_trig.trackStop(S_GB1_FIRE_START_HIGH_POWER);
       w_trig.trackStop(S_GB1_FIRE_HIGH_POWER_LOOP);
       w_trig.trackStop(S_FIRE_START_SPARK);
-      w_trig.trackStop(S_FIRE_LOOP_IMPACT);
+      
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        w_trig.trackStop(S_FIRE_LOOP_IMPACT);
+      #endif
     break;
 
     case SLIME:
@@ -2689,11 +2702,13 @@ void modeFiring() {
     bargraphRampFiring();
   }
 
-  // Mix some impact sound every 10-15 seconds while firing.
-  if(ms_impact.justFinished()) {
-    w_trig.trackPlayPoly(S_FIRE_LOOP_IMPACT);
-    ms_impact.start(15000);
-  }
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    // Mix some impact sound every 10-15 seconds while firing.
+    if(ms_impact.justFinished()) {
+      w_trig.trackPlayPoly(S_FIRE_LOOP_IMPACT);
+      ms_impact.start(15000);
+    }
+  #endif
 }
 
 void wandHeatUp() {
@@ -2901,7 +2916,7 @@ void barrelLightsOff() {
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
     barrel_leds[i] = CRGB(0,0,0);
   }
-
+  
   // Turn off the wand barrel tip LED.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB    
     digitalWrite(led_barrel_tip, LOW);
@@ -4659,19 +4674,18 @@ void checkPack() {
 
       if(!wandComs.currentPacketID()) {
         if(comStruct.i > 0 && comStruct.s == P_COM_START && comStruct.e == P_COM_END) {
+         
   #else
     if(Serial.available() > 0) {
       rx_byte = Serial.read();
 
-      /*
         // TODO: 
-        For Nano builds, read the first packet and stick it into the comStruct.s
-        Read the data packets.
-        Read the end packet and then process.
-      */
-
+        // For Nano builds, read the first packet and stick it into the comStruct.s
+        // Read the data packets.
+        // Read the end packet and then process.
+      
       if(comStruct.s > 0) {
-        if(comStruct.i > 0 && comstruct.s == P_COM_START && comstruct.e == P_COM_END) {
+        if(comStruct.i > 0 && comStruct.s == P_COM_START && comStruct.e == P_COM_END) {
   #endif
         if(b_volume_sync_wait == true) {
           switch(VOLUME_SYNC_WAIT) {

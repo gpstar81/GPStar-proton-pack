@@ -139,6 +139,7 @@ uint8_t i_bargraph_status = 0;
 /*
  * (Optional) Barmeter 28 segment bargraph configuration and timers.
  * Part #: BL28Z-3005SA04Y
+  * Only supported by the gpstar Neutrona Wand micro controller.
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   HT16K33 ht_bargraph;
@@ -156,6 +157,7 @@ unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 /*
  * (Optional) Barmeter 28 segment bargraph mapping.
  * Part #: BL28Z-3005SA04Y
+ * Only supported by the gpstar Neutrona Wand micro controller.
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   const uint8_t i_bargraph[28] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
@@ -163,6 +165,7 @@ unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
 /*
  * Timers for the optional hat lights.
+ * Also used for vent lights during error modes.
 */
 millisDelay ms_hat_1;
 millisDelay ms_hat_2;
@@ -190,7 +193,11 @@ millisDelay ms_firing_lights;
 millisDelay ms_firing_lights_end;
 millisDelay ms_firing_stream_blue;
 millisDelay ms_firing_stream_orange;
-millisDelay ms_impact; // Mix some impact sounds while firing.
+
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  millisDelay ms_impact; // Mix some impact sounds while firing.
+#endif
+
 millisDelay ms_firing_start_sound_delay;
 millisDelay ms_firing_stop_sound_delay;
 const uint8_t d_firing_lights = 20; // 20 milliseconds. Timer for adjusting the firing stream colours.
@@ -277,7 +284,6 @@ bool b_firing_cross_streams = false;
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_sound_firing_cross_the_streams = false;
-
 bool b_sound_idle = false;
 bool b_beeping = false;
 
