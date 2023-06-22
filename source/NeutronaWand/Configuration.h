@@ -88,7 +88,19 @@ const bool b_onboard_amp_enabled = true;
  * Part #: BL28Z-3005SA04Y
  * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
 */
-bool b_bargraph_alt = false;
+bool b_bargraph_alt = true;
+
+/*
+ * When defined, the Barmeter 28 segment bargraph will invert it's sequence.
+ * When using the Frutto Technologies 28 segment bargraph, this should be defined.
+ 
+ * Defined / Enabled:
+ #define GPSTAR_INVERT_BARGRAPH
+
+ * NOT Defined / Disabled:
+ //#define GPSTAR_INVERT_BARGRAPH
+*/
+//#define GPSTAR_INVERT_BARGRAPH
 
 /*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.

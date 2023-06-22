@@ -1,5 +1,8 @@
 # Wand Bargraph Upgrade
 
+
+**NOTE: Only supported with the gpstar Neutrona wand micro controller**
+
 This guide outlines the **optional** upgrade from the 5-LED stock bargraph to a more animated 28-segment bargraph (BL28Z-3005SA04Y). Additional parts will be required, as well as a more invasive disassembling of the wand.
 
 | Qty | Desc | Use | Link |
@@ -42,8 +45,26 @@ The following is Barmeter's internal reference for the numbered pins alone the e
 | C2 |  |  |  |  |  | C5 |  |  | C6 | C7 |  |  |  |  |  |  | C4 | C3 |  |  | C1 |
 |  |  |  |  |  |  |  |  |  |  |  |  | L3 |  | L2 | L4 |  |  |  |  | L1 |  |
 
+### Inverted Bargraph Sequences
+
+If your bargraph is inverted or upside down, you can either flip it physically in the wand, or you can set enabled or disable the:
+
+**#define GPSTAR&nbsp;INVERT&nbsp;BARGRAPH** 
+
+setting in the Neutrona Wand Configuration.h, please see the [Advanced Configuration](ADVCONFIG.md) guide for more information.
+
 ### Fitment & Installation
 
 The 28-segment bargraph is intended to take the place of the 5-LED + PCB assembly from the stock Haslab equipment. The only means of accessing this is to remove the barrel release assembly and a portion of the plastic base which sits below the stock controller board. This may require some cutting as the center of that piece is glued directly to the wand handle. Once removed, access to the old bargraph is quite easy and takes removal of 2 screws. The circuit board with the LED's resides under a small black cover and can be removed from the wand once that cover is removed.
 
-To fit the new bargraph in place, it needs a suitable holder to keep it in the correct orientation. Thankfully, it can be seen quite well without removing the clear/frosted plastic from the wand housing, though some minor trimming may be necessary at the bottom (when oriented with the rotary encoder facing up) of the bargraph socket. If you have access to a 3D printer, the file [bargraph_insert.stl](stl/wand/bargraph_insert.stl) should fit the bargraph tightly while also slotting into the clear plastic.
+To fit the new bargraph in place, it needs a suitable holder to keep it in the correct orientation. Thankfully, it can be seen quite well without removing the clear/frosted plastic from the wand housing, though some minor trimming may be necessary at the bottom (when oriented with the rotary encoder facing up) of the bargraph socket. 
+
+If you have access to a 3D printer, the file [bargraph_insert.stl](stl/wand/bargraph_insert.stl) should fit the bargraph tightly while also slotting into the clear plastic. 
+![](images/bargraph_mount_1.jpg)
+![](images/bargraph_mount_2.jpg)
+
+There is an alternative mounting solution which when you cut the original clear plastic away, you can fit the bargraph into the [bargraph_mount.stl](stl/wand/bargraph_mount.stl) and [bargraph_block.stl](stl/wand/bargraph_block.stl) which uses the stock mounting screw positions.
+![](images/bargraph_mount_3.jpg)
+![](images/bargraph_mount_4.jpg)
+![](images/bargraph_mount_5.jpg)
+![](images/bargraph_mount_6.jpg)

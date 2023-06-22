@@ -18,7 +18,7 @@
  */
 
 #if defined(__AVR_ATmega2560__)
-  #define GPSTAR_NEUTRONA_WAND_PCB;
+  #define GPSTAR_NEUTRONA_WAND_PCB
 #endif
 
 /*

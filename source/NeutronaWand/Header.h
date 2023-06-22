@@ -50,7 +50,7 @@ millisDelay ms_fast_led;
 wavTrigger w_trig;
 unsigned int i_music_count = 0;
 unsigned int i_current_music_track = 0;
-const unsigned int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
+const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 
 /*
  *  Volume (0 = loudest, -70 = quietest)
@@ -160,7 +160,11 @@ unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
  * Only supported by the gpstar Neutrona Wand micro controller.
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
-  const uint8_t i_bargraph[28] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
+  #ifdef GPSTAR_INVERT_BARGRAPH
+    const uint8_t i_bargraph[28] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
+  #else
+    const uint8_t i_bargraph[28] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
+  #endif
 #endif
 
 /*
