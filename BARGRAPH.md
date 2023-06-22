@@ -40,10 +40,11 @@ You will find the Barmeter pin reference below which will connect the bargraph t
 
 The following is Barmeter's internal reference for the numbered pins alone the edge of the bargraph packaging and their internal names. This is for technical reference only--the only concern for connections should be from the bargraph to the HT16K33 board.
 
-| 1  | 2 | 3 | 4 | 5 | 6 | 7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 |
-|------|----|---|---|---|---|---|----|---|---|----|----|----|----|----|----|----|----|----|----|----|----|----|
-| C2 |  |  |  |  |  | C5 |  |  | C6 | C7 |  |  |  |  |  |  | C4 | C3 |  |  | C1 |
-|  |  |  |  |  |  |  |  |  |  |  |  | L3 |  | L2 | L4 |  |  |  |  | L1 |  |
+| Pin #  | 1  | 2 | 3 | 4 | 5 | 6 | 7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 |
+|---------|----|---|---|---|---|---|----|---|---|----|----|----|----|----|----|----|----|----|----|----|----|----|
+|         | C2 |   |   |   |   |   | C5 |   |   | C6 | C7 |    |    |    |    |    |    | C4 | C3 |    |    | C1 |
+|         |    |   |   |   |   |   |    |   |   |    |    |    | L3 |    | L2 | L4 |    |    |    |    | L1 |    |
+
 
 ### Inverted Bargraph Sequences
 
