@@ -56,6 +56,16 @@ const unsigned int i_1984_delay = 1050;
 const unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 LED NeoPixel ring.
 
 /*
+ * Power Cell delays in milliseconds.
+ * 1000 = 1 second.
+ * The lower the number the faster the powercell lights cycle.
+ * For the stock Haslab powercell with 13 leds, 1984 at 75 and 2021 at 40 is a good setting.
+ * If you add more powercell leds, it is suggested to lower the values a little bit.
+*/
+const uint8_t i_powercell_delay_1984 = 75;
+const uint8_t i_powercell_delay_2021 = 40;
+
+/*
  * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
  * If you are not using any, then this can be left alone.
  * Leave at least one in place, even if you are not using this optional item.
@@ -128,25 +138,24 @@ const uint8_t i_1984_inner_delay = 9;
 
 /* 
  *  Default the cyclotron lights direction to clockwise. 
- *  This can be controlled by an optional switch on pin 29 and also from
-the Neutrona wand sub menu system.
+ *  This can be controlled by an optional switch on pin 29 and also from the Neutrona wand sub menu system.
  *  Set to false to be counter clockwise.
  */
 bool b_clockwise = true;
 
 /*
- * Enable or disable vibration control for the Proton Pack.
- * Vibration is toggled on and off by a switch on Pin 27 or from the Neutrona wand sub menu system.
- * When set to false, there will be no vibration enabled for the Proton Pack, and it will ignore the toggle switch on pin 27.
-*/
-const bool b_vibration_enabled = true;
-
-/*
- * When set to true, when vibration is enabled, the Proton Pack will only vibrate while the Neutrona wand is firing.
- * Note that vibration is controlled by a switch on pin 27.
+ * When set to true, when vibration is enabled from the Proton Pack vibration toggle switch, the Proton Pack will only vibrate always vibrate.
+ * Note that vibration is controlled by a the vibration toggle switch and can disable all vibration settings.
  * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
-bool b_vibration_firing = false;
+bool b_vibration = true;
+
+/*
+ * When set to true, when b_vibration is also set to true, the Proton Pack will only vibrate while the Neutrona wand is firing.
+ * Note that vibration is controlled by a the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
+ * This can be enabled or disabled from the Neutrona wand sub menu system.
+*/
+bool b_vibration_firing = true;
 
 /*
  * When set to false, 1984 mode LED's will fade in or out.

@@ -119,10 +119,10 @@ void setup() {
 
   // Configure the vibration state.
   if(switch_vibration.getState() == LOW) {
-    b_vibration = true;
+    b_vibration_enabled = true;
   }
   else {
-    b_vibration = false;
+    b_vibration_enabled = false;
   }
 
   // Configure the year mode.
@@ -584,11 +584,11 @@ void checkSwitches() {
       w_trig.trackPlayPoly(S_BEEPS_ALT);
 
       if(switch_vibration.getState() == LOW) {
-        if(b_vibration == false) {
-          // Tell the wand to turn vibration on.
+        if(b_vibration_enabled == false) {
+          // Tell the wand to enable vibration.
           packSerialSend(P_VIBRATION_ENABLED);
 
-          b_vibration = true;
+          b_vibration_enabled = true;
 
           w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
           w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
@@ -597,11 +597,11 @@ void checkSwitches() {
         }
       }
       else {
-        if(b_vibration == true) {
-          // Tell the wand to turn vibration off.
+        if(b_vibration_enabled == true) {
+          // Tell the wand to disable vibration.
           packSerialSend(P_VIBRATION_DISABLED);
 
-          b_vibration = false;
+          b_vibration_enabled = false;
 
           w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
           w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
@@ -1481,24 +1481,22 @@ void cyclotron2021(int cDelay) {
         ms_cyclotron.start(cDelay);
         
         i_current_ramp_speed = cDelay;
+
+        i_vibration_level = i_vibration_idle_level_2021;
       }
       else {     
         ms_cyclotron.start(r_2021_ramp.update());
+        
         i_current_ramp_speed = r_2021_ramp.update();
 
-        if(i_vibration_level > r_2021_ramp.update() - 85) {
-          // Do nothing.
-        }
-        else {
-          i_vibration_level = r_2021_ramp.update() - 85;
-          
-          if(i_vibration_level < 0) {
-            i_vibration_level = 0;
-          }
-        }
+        i_vibration_level = i_vibration_level + 1;
         
-        if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
-          vibrationPack(i_vibration_level);
+        if(i_vibration_level < 30) {
+          i_vibration_level = 30;
+        }
+
+        if(i_vibration_level > i_vibration_idle_level_2021) {
+          i_vibration_level = i_vibration_idle_level_2021;
         }
       }
     }
@@ -1510,20 +1508,16 @@ void cyclotron2021(int cDelay) {
         ms_cyclotron.start(r_2021_ramp.update());
 
         i_current_ramp_speed = r_2021_ramp.update();
-
-        if(r_2021_ramp.update() < 100) {
-          i_vibration_level = i_vibration_level - 2;
+        
+        if(i_current_ramp_speed > 40 && i_vibration_level > i_vibration_lowest_level + 20) {
+          i_vibration_level = i_vibration_level - 1;
         }
-        else {
-          i_vibration_level = i_vibration_level - 3;
+        else if(i_current_ramp_speed > 100 && i_vibration_level > i_vibration_lowest_level) {
+          i_vibration_level = i_vibration_level - 1;
         }
         
-        if(i_vibration_level < 20) {
-          i_vibration_level = 0;
-        }
-        
-        if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
-          vibrationPack(i_vibration_level);
+        if(i_vibration_level < i_vibration_lowest_level) {
+          i_vibration_level = i_vibration_lowest_level;
         }
       }
     }
@@ -1535,10 +1529,10 @@ void cyclotron2021(int cDelay) {
       }
 
       ms_cyclotron.start(cDelay);
+    }
 
-      if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
-        vibrationPack(i_vibration_level);
-      }
+    if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
+      vibrationPack(i_vibration_level);
     }
 
     if(i_cyclotron_multiplier > 1) {
@@ -1581,9 +1575,7 @@ void cyclotron2021(int cDelay) {
   }
 }
 
-void cyclotron1984(int cDelay) {
-  int i_pack_vibration = 100;
-  
+void cyclotron1984(int cDelay) { 
   if(ms_cyclotron.justFinished()) {    
     cDelay = cDelay / i_cyclotron_multiplier;
     
@@ -1619,23 +1611,30 @@ void cyclotron1984(int cDelay) {
         ms_cyclotron.start(cDelay);
         
         i_current_ramp_speed = cDelay;
+
+        i_vibration_level = i_vibration_idle_level_1984;
       }
       else {       
         ms_cyclotron.start(r_2021_ramp.update());
-        i_current_ramp_speed = r_2021_ramp.update();        
+        i_current_ramp_speed = r_2021_ramp.update();
+
+        i_vibration_level = i_vibration_idle_level_1984;
       }
     }
     else if(b_2021_ramp_down == true) {
       if(r_2021_ramp.isFinished()) {
         b_2021_ramp_down = false;
-        i_pack_vibration = 0;
       }
       else {
         ms_cyclotron.start(r_2021_ramp.update());
         
         i_current_ramp_speed = r_2021_ramp.update();
+               
+        i_vibration_level = i_vibration_level - 1;
 
-        i_pack_vibration = r_2021_ramp.update() / 13;
+        if(i_vibration_level < i_vibration_lowest_level) {
+          i_vibration_level = i_vibration_lowest_level;
+        }
       }
     }
     else {
@@ -1643,7 +1642,7 @@ void cyclotron1984(int cDelay) {
     } 
 
     if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
-      vibrationPack(i_pack_vibration);
+      vibrationPack(i_vibration_level);
     }
   }
 }
@@ -1834,7 +1833,6 @@ void cyclotron84LightOff(int cLed) {
 }
 
 void cyclotronOverHeating() {  
-  vibrationPack(50);
   smokeControl(true);
 
   if(ms_overheating.justFinished()) {
@@ -1848,10 +1846,17 @@ void cyclotronOverHeating() {
       if(b_overheat_lights_off != true) {
         cyclotron2021(i_2021_delay * 10);
         innerCyclotronRing(i_2021_inner_delay * 14);
+
+        vibrationPack(i_vibration_lowest_level * 2);
       }
       else if(b_overheat_lights_off == true) {
         if(i_powercell_led > 0) {
           cyclotron2021(i_2021_delay * 10);
+          
+          vibrationPack(i_vibration_lowest_level);
+        }
+        else {
+          vibrationPack(0);
         }
       }
     break;
@@ -1877,10 +1882,16 @@ void cyclotronOverHeating() {
       else {
         if(ms_alarm.remaining() < i_1984_delay / 4) {
           if(b_overheat_lights_off != true) {
+            vibrationPack(i_vibration_lowest_level);
             cyclotron1984Alarm();
           }
           else if(b_overheat_lights_off == true && i_powercell_led > 0) {
+            vibrationPack(i_vibration_lowest_level);
+
             cyclotron1984Alarm();
+          }
+          else {
+            vibrationPack(0);
           }
         }
       }
@@ -1918,8 +1929,6 @@ void cyclotronOverHeating() {
 }
       
 void cyclotronNoCable() {  
-  vibrationPack(50);
-
   switch (i_mode_year) {
     case 2021:
       cyclotron2021(i_2021_delay * 10);      
@@ -1934,6 +1943,8 @@ void cyclotronNoCable() {
           ventLight(true);
         }
       }
+
+      vibrationPack(i_vibration_lowest_level * 3);
     break;
 
     case 1984:
@@ -1944,25 +1955,16 @@ void cyclotronNoCable() {
       if(ms_alarm.justFinished()) {
         ms_alarm.start(i_1984_delay / 2);
 
-        /*
-        if(b_fade_cyclotron_led != true) {
-          resetCyclotronLeds();
-        }
-        else {
-          cyclotron84LightOff(i_1984_cyclotron_leds[0] + cyclotron_led_start);
-          cyclotron84LightOff(i_1984_cyclotron_leds[1] + cyclotron_led_start);
-          cyclotron84LightOff(i_1984_cyclotron_leds[2] + cyclotron_led_start);
-          cyclotron84LightOff(i_1984_cyclotron_leds[3] + cyclotron_led_start);
-        }
-        */
         // Turn off the n-filter light.
         ventLight(false);
+
+        vibrationPack(i_vibration_lowest_level);
       }
       else {
-        if(ms_alarm.remaining() < i_1984_delay / 4) {
-          //cyclotron1984Alarm();
-          
-          // Turn off the n-filter light.
+        if(ms_alarm.remaining() < i_1984_delay / 4) {   
+          vibrationPack(i_vibration_idle_level_1984);
+
+          // Turn on the n-filter light.
           ventLight(true);
         }
       }
@@ -3528,59 +3530,96 @@ void checkWand() {
             break;
 
             case W_VIBRATION_DISABLED:
-              // Vibration disabled.
+              // Neutrona Wand vibration disabled.
               w_trig.trackStop(S_BEEPS_ALT);    
               w_trig.trackGain(S_BEEPS_ALT, i_volume);
               w_trig.trackPlayPoly(S_BEEPS_ALT);
 
-              w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
-              w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
-              w_trig.trackGain(S_VOICE_VIBRATION_DISABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);
-
-              b_vibration = false;
+              w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+              w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);    
+              w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);    
+              w_trig.trackGain(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
             break;
 
             case W_VIBRATION_ENABLED:
-              // Vibration enabled.
+              // Neutrona Wand Vibration enabled.
               w_trig.trackStop(S_BEEPS_ALT);    
               w_trig.trackGain(S_BEEPS_ALT, i_volume);
               w_trig.trackPlayPoly(S_BEEPS_ALT);
 
-              w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
-              w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
-              w_trig.trackGain(S_VOICE_VIBRATION_ENABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_VIBRATION_ENABLED);
-
-              b_vibration = true;
+              w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+              w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);    
+              w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);    
+              w_trig.trackGain(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
             break;
-
-            case W_VIBRATION_FIRING_DISABLED:
-              // Vibration during firing only disabled.
-              w_trig.trackStop(S_BEEPS_ALT);    
-              w_trig.trackGain(S_BEEPS_ALT, i_volume);
-              w_trig.trackPlayPoly(S_BEEPS_ALT);
-
-              w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
-              w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
-              w_trig.trackGain(S_VOICE_VIBRATION_FIRING_DISABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_DISABLED);
-
-              b_vibration_firing = false;
-            break;
-
+            
             case W_VIBRATION_FIRING_ENABLED:
-              // Vibration during firing only enabled.
+              // Neutrona Wand vibration during firing only enabled.
               w_trig.trackStop(S_BEEPS_ALT);    
               w_trig.trackGain(S_BEEPS_ALT, i_volume);
               w_trig.trackPlayPoly(S_BEEPS_ALT);
 
-              w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
-              w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
-              w_trig.trackGain(S_VOICE_VIBRATION_FIRING_ENABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_ENABLED);
+              w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+              w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);    
+              w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);    
+              w_trig.trackGain(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+            break;
 
-              b_vibration_firing = true;
+            case W_VIBRATION_CYCLE_TOGGLE:
+              w_trig.trackStop(S_BEEPS_ALT);    
+              w_trig.trackGain(S_BEEPS_ALT, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+              if(b_vibration == false) {
+                b_vibration = true;
+                b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+
+                // Proton Pack Vibration enabled.
+                w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+                w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);    
+                w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);    
+                w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+
+                packSerialSend(P_PACK_VIBRATION_ENABLED);
+
+                analogWrite(vibration, 150);
+                delay(250);
+                analogWrite(vibration,0);
+              }
+              else if(b_vibration == true && b_vibration_firing != true) {
+                b_vibration_firing = true;
+                b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+
+                // Proton Pack Vibration firing enabled.
+                w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+                w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);    
+                w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);    
+                w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+
+                packSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
+
+                analogWrite(vibration, 150);
+                delay(250);
+                analogWrite(vibration,0);
+              }
+              else {
+                b_vibration_firing = false;
+                b_vibration = false;
+
+                // Proton Pack Vibration disabled.
+                w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+                w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);    
+                w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);    
+                w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_DISABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+
+                packSerialSend(P_PACK_VIBRATION_DISABLED);
+              }
             break;
 
             case W_SMOKE_TOGGLE:
@@ -3832,20 +3871,12 @@ void checkWand() {
               packSerialSend(P_MUSIC_NO_REPEAT);
             }
             
-            // Vibration on
-            if(b_vibration == true) {
+            // Vibration enabled or disabled from the Proton Pack toggle switch
+            if(b_vibration_enabled == true) {
               packSerialSend(P_VIBRATION_ENABLED);
             }
             else {
               packSerialSend(P_VIBRATION_DISABLED);
-            }
-
-            // Vibration while firing option.
-            if(b_vibration_firing == true) {
-              packSerialSend(P_VIBRATION_FIRING_ENABLED);
-            }
-            else {
-              packSerialSend(P_VIBRATION_FIRING_DISABLED);
             }
 
             // Ribbon cable alarm.

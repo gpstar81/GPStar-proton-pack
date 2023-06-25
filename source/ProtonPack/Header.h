@@ -49,8 +49,6 @@ millisDelay ms_fast_led;
 /*
  * Powercell LEDs control.
  */
-const uint8_t i_powercell_delay_1984 = 75;
-const uint8_t i_powercell_delay_2021 = 40;
 unsigned int i_powercell_delay = i_powercell_delay_2021;
 int i_powercell_led = 0;
 millisDelay ms_powercell;
@@ -97,91 +95,11 @@ bool b_1984_led_start = true;
 rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
 bool b_cyclotron_lid_on = true;
-rampInt ms_cyclotron_fade_out_led_1;
-rampInt ms_cyclotron_fade_out_led_2; 
-rampInt ms_cyclotron_fade_out_led_3;
-rampInt ms_cyclotron_fade_out_led_4;
-rampInt ms_cyclotron_fade_out_led_5;
-rampInt ms_cyclotron_fade_out_led_6;
-rampInt ms_cyclotron_fade_out_led_7;
-rampInt ms_cyclotron_fade_out_led_8;
-rampInt ms_cyclotron_fade_out_led_9;
-rampInt ms_cyclotron_fade_out_led_10;
-rampInt ms_cyclotron_fade_out_led_11;
-rampInt ms_cyclotron_fade_out_led_12;
-rampInt ms_cyclotron_fade_out_led_13;
-rampInt ms_cyclotron_fade_out_led_14;
-rampInt ms_cyclotron_fade_out_led_15;
-rampInt ms_cyclotron_fade_out_led_16;
-rampInt ms_cyclotron_fade_out_led_17;
-rampInt ms_cyclotron_fade_out_led_18;
-rampInt ms_cyclotron_fade_out_led_19;
-rampInt ms_cyclotron_fade_out_led_20;
-rampInt ms_cyclotron_fade_out_led_21;
-rampInt ms_cyclotron_fade_out_led_22;
-rampInt ms_cyclotron_fade_out_led_23;
-rampInt ms_cyclotron_fade_out_led_24;
-rampInt ms_cyclotron_fade_out_led_25;
-rampInt ms_cyclotron_fade_out_led_26;
-rampInt ms_cyclotron_fade_out_led_27;
-rampInt ms_cyclotron_fade_out_led_28;
-rampInt ms_cyclotron_fade_out_led_29;
-rampInt ms_cyclotron_fade_out_led_30;
-rampInt ms_cyclotron_fade_out_led_31;
-rampInt ms_cyclotron_fade_out_led_32;
-rampInt ms_cyclotron_fade_out_led_33;
-rampInt ms_cyclotron_fade_out_led_34;
-rampInt ms_cyclotron_fade_out_led_35;
-rampInt ms_cyclotron_fade_out_led_36;
-rampInt ms_cyclotron_fade_out_led_37;
-rampInt ms_cyclotron_fade_out_led_38;
-rampInt ms_cyclotron_fade_out_led_39;
-rampInt ms_cyclotron_fade_out_led_40;
-rampInt ms_cyclotron_fade_in_led_1;
-rampInt ms_cyclotron_fade_in_led_2;
-rampInt ms_cyclotron_fade_in_led_3;
-rampInt ms_cyclotron_fade_in_led_4;
-rampInt ms_cyclotron_fade_in_led_5;
-rampInt ms_cyclotron_fade_in_led_6;
-rampInt ms_cyclotron_fade_in_led_7;
-rampInt ms_cyclotron_fade_in_led_8;
-rampInt ms_cyclotron_fade_in_led_9;
-rampInt ms_cyclotron_fade_in_led_10;
-rampInt ms_cyclotron_fade_in_led_11;
-rampInt ms_cyclotron_fade_in_led_12;
-rampInt ms_cyclotron_fade_in_led_13;
-rampInt ms_cyclotron_fade_in_led_14;
-rampInt ms_cyclotron_fade_in_led_15;
-rampInt ms_cyclotron_fade_in_led_16;
-rampInt ms_cyclotron_fade_in_led_17;
-rampInt ms_cyclotron_fade_in_led_18;
-rampInt ms_cyclotron_fade_in_led_19;
-rampInt ms_cyclotron_fade_in_led_20;
-rampInt ms_cyclotron_fade_in_led_21;
-rampInt ms_cyclotron_fade_in_led_22;
-rampInt ms_cyclotron_fade_in_led_23;
-rampInt ms_cyclotron_fade_in_led_24;
-rampInt ms_cyclotron_fade_in_led_25;
-rampInt ms_cyclotron_fade_in_led_26;
-rampInt ms_cyclotron_fade_in_led_27;
-rampInt ms_cyclotron_fade_in_led_28;
-rampInt ms_cyclotron_fade_in_led_29;
-rampInt ms_cyclotron_fade_in_led_30;
-rampInt ms_cyclotron_fade_in_led_31;
-rampInt ms_cyclotron_fade_in_led_32;
-rampInt ms_cyclotron_fade_in_led_33;
-rampInt ms_cyclotron_fade_in_led_34;
-rampInt ms_cyclotron_fade_in_led_35;
-rampInt ms_cyclotron_fade_in_led_36;
-rampInt ms_cyclotron_fade_in_led_37;
-rampInt ms_cyclotron_fade_in_led_38;
-rampInt ms_cyclotron_fade_in_led_39;
-rampInt ms_cyclotron_fade_in_led_40;
-bool i_cyclotron_led_on_status[40] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
-rampInt ms_cyclotron_led_fade_out[40] = { ms_cyclotron_fade_out_led_1, ms_cyclotron_fade_out_led_2, ms_cyclotron_fade_out_led_3, ms_cyclotron_fade_out_led_4, ms_cyclotron_fade_out_led_5, ms_cyclotron_fade_out_led_6, ms_cyclotron_fade_out_led_7, ms_cyclotron_fade_out_led_8, ms_cyclotron_fade_out_led_9, ms_cyclotron_fade_out_led_10, ms_cyclotron_fade_out_led_11, ms_cyclotron_fade_out_led_12, ms_cyclotron_fade_out_led_13, ms_cyclotron_fade_out_led_14, ms_cyclotron_fade_out_led_15, ms_cyclotron_fade_out_led_16, ms_cyclotron_fade_out_led_17, ms_cyclotron_fade_out_led_18, ms_cyclotron_fade_out_led_19, ms_cyclotron_fade_out_led_20, ms_cyclotron_fade_out_led_21, ms_cyclotron_fade_out_led_22, ms_cyclotron_fade_out_led_23, ms_cyclotron_fade_out_led_24, ms_cyclotron_fade_out_led_25, ms_cyclotron_fade_out_led_26, ms_cyclotron_fade_out_led_27, ms_cyclotron_fade_out_led_28, ms_cyclotron_fade_out_led_29, ms_cyclotron_fade_out_led_30, ms_cyclotron_fade_out_led_31, ms_cyclotron_fade_out_led_32, ms_cyclotron_fade_out_led_33, ms_cyclotron_fade_out_led_34, ms_cyclotron_fade_out_led_35, ms_cyclotron_fade_out_led_36, ms_cyclotron_fade_out_led_37, ms_cyclotron_fade_out_led_38, ms_cyclotron_fade_out_led_39, ms_cyclotron_fade_out_led_40 };
-rampInt ms_cyclotron_led_fade_in[40] = { ms_cyclotron_fade_in_led_1, ms_cyclotron_fade_in_led_2, ms_cyclotron_fade_in_led_3, ms_cyclotron_fade_in_led_4, ms_cyclotron_fade_in_led_5, ms_cyclotron_fade_in_led_6, ms_cyclotron_fade_in_led_7, ms_cyclotron_fade_in_led_8, ms_cyclotron_fade_in_led_9, ms_cyclotron_fade_in_led_10, ms_cyclotron_fade_in_led_11, ms_cyclotron_fade_in_led_12, ms_cyclotron_fade_in_led_13, ms_cyclotron_fade_in_led_14, ms_cyclotron_fade_in_led_15, ms_cyclotron_fade_in_led_16, ms_cyclotron_fade_in_led_17, ms_cyclotron_fade_in_led_18, ms_cyclotron_fade_in_led_19, ms_cyclotron_fade_in_led_20, ms_cyclotron_fade_in_led_21, ms_cyclotron_fade_in_led_22, ms_cyclotron_fade_in_led_23, ms_cyclotron_fade_in_led_24, ms_cyclotron_fade_in_led_25, ms_cyclotron_fade_in_led_26, ms_cyclotron_fade_in_led_27, ms_cyclotron_fade_in_led_28, ms_cyclotron_fade_in_led_29, ms_cyclotron_fade_in_led_30, ms_cyclotron_fade_in_led_31, ms_cyclotron_fade_in_led_32, ms_cyclotron_fade_in_led_33, ms_cyclotron_fade_in_led_34, ms_cyclotron_fade_in_led_35, ms_cyclotron_fade_in_led_36, ms_cyclotron_fade_in_led_37, ms_cyclotron_fade_in_led_38, ms_cyclotron_fade_in_led_39, ms_cyclotron_fade_in_led_40 };
-uint8_t i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 int i_1984_counter = 0;
+bool i_cyclotron_led_on_status[40] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+rampInt ms_cyclotron_led_fade_out[40] = {};
+rampInt ms_cyclotron_led_fade_in[40] = {};
+uint8_t i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 /*
  * Inner cyclotron NeoPixel ring ramp control.
@@ -256,7 +174,15 @@ millisDelay ms_volume_check; // Put some timing on the master volume gain to not
 const uint8_t vibration = 45;
 int i_vibration_level = 0;
 int i_vibration_level_prev = 0;
-bool b_vibration = false;
+const int i_vibration_idle_level_2021 = 60;
+const int i_vibration_idle_level_1984 = 35;
+const int i_vibration_lowest_level = 15;
+
+/*
+ * Enable or disable vibration control for the Proton Pack.
+ * Vibration is toggled on and off the toggle switch in the Proton Pack.
+*/
+bool b_vibration_enabled = true;
 
 /*
  * Smoke

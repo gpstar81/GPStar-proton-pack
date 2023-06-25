@@ -15,12 +15,14 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 - The pack can run without a wand, though it can only be activated via the switch under the Ion Arm.
 - Vibration switch in the cyclotron switch plate enables or disables the vibration motors for both the pack and wand.
 - 1984/2021 year switch in the cyclotron switch plate changes the pack and wand from 1984 (OG) to 2021 (Afterlife) modes.
+- The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
 - Single (centered) LED per cyclotron lens for 1984/1989 modes by default.
 	- This can be toggled back to 3 LED's per cyclotron lens via the wand menu system.
 
+
 ### Optional Pack Features
 
-- 1989 sound effects mode available on the pack, it can be accessed from the Wand sub menu system or set with the advanced user configuration settings. **\*see below\***.
+- 1989 sound effects mode available on the pack, it can be accessed from the Wand sub menu system or set with the advanced user configuration settings. **\*see below\***
 - Support for switches for cyclotron direction and to enable/disable smoke effects.
 - Smoke effects with dedicated fans for the booster tube and N-filter.
 - Additional Lights available for the cyclotron panel and internal "cake" cyclotron.
@@ -37,6 +39,7 @@ Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.you
 	- Regardless of mode, the wand will not fire unless these switches are turned on.
 	- Additionally, the lever switch near the gunbox must be pulled to extend the barrel before firing.
 	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top-right switch (beep switch) is on, the Neutrona Wand will boot into a error mode. Turn this top-right switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the advanced user configuration settings by setting **b&#95;wand&#95;boot&#95;errors** to false. **\*see below\***
+- The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
 
 **Toggle Switch Behavior**
 
@@ -132,7 +135,7 @@ To access the sub level menu, use the rotary dial on the top of the wand. When y
 | 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through available modes<sup>3</sup> | - No Action - |
 | 4 | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/disable smoke effects | Enable/disable overheating |
 | 3 | Cyclotron&nbsp;LED&nbsp;Control | Change cyclotron rotation | Toggle between 1 (centered) or 3 LED's in cyclotron lid for 1984/1989 modes |
-| 2 | Vibration&nbsp;Control | Enable/disable vibration | Enable/disable vibration during firing only |
+| 2 | Vibration Settings | Proton Pack enable/disable vibration or vibration during firing. | Neutrona Wand enable/disable vibration or vibration during firing. |
 | 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes | - No Action - |
 
 <sup>3</sup> Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.

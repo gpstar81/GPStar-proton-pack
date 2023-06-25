@@ -119,18 +119,18 @@ bool b_cross_the_streams = false;
 bool b_cross_the_streams_mix = false;
 
 /*
- * Enable or disable vibration control for the Neutrona wand.
- * Vibration is toggled on and off by a toggle switch in the Proton Pack or from the Neutrona wand sub menu system.
- * When set to false, there will be no vibration enabled for the Neutrona wand, and it will ignore the toggle switch settings from the Proton Pack.
-*/
-const bool b_vibration_enabled = true;
-
-/*
- * When set to true, when vibration is enabled from the Proton Pack side, the Neutrona wand will only vibrate during firing.
- * Setting b_vibration_enabled to false will override this.
+ * When enabled, the Neutrona Wand will vibrate at all times.
+ * Vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
  * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
-bool b_vibration_firing = false;
+bool b_vibration_on = true;
+
+/*
+ * When set to true, when b_vibration_on is set to true, the Neutrona wand will only vibrate during firing.
+ * Note that vibration is controlled by a the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
+ * This can be enabled or disabled from the Neutrona wand sub menu system.
+*/
+bool b_vibration_firing = true;
 
 /*
  * Set to true to enable overheating. Overheat settings are defined below.

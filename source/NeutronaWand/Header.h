@@ -75,9 +75,16 @@ static uint16_t store = 0;
  *  Vibration
  */
 const uint8_t vibration = 11;
-uint8_t i_vibration_level = 55;
+const uint8_t i_vibration_level_min = 65;
+uint8_t i_vibration_level = i_vibration_level_min;
 uint8_t i_vibration_level_prev = 0;
-bool b_vibration_on = false;
+
+/*
+ * Enable or disable vibration control for the Neutrona wand.
+ * When set to false, there will be no vibration enabled for the Neutrona wand. 
+ * This is toggled by the proton pack vibration toggle switch.
+*/
+bool b_vibration_enabled = true;
 
 /* 
  *  Various Switches on the wand.

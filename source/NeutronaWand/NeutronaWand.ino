@@ -567,8 +567,8 @@ void mainLoop() {
         break;
 
         // Top menu: Change music tracks.
-        // Sub menu: Enable or disable vibration (Proton Pack and Neutrona wand)
-        // Sub menu: (Mode switch) -> Enable or disable vibration for firing events only.
+        // Sub menu: Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
+        // Sub menu: (Mode switch) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
         case 2:       
           // Change music tracks.
           if(b_wand_menu_sub != true) {             
@@ -633,6 +633,7 @@ void mainLoop() {
             }   
           }
           else {
+            // Enable or disable vibration for the Pack or during firing only.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
@@ -640,36 +641,10 @@ void mainLoop() {
               w_trig.trackGain(S_BEEPS_ALT, i_volume);
               w_trig.trackPlayPoly(S_BEEPS_ALT);
 
-              // Enable or disable vibration
-              if(b_vibration_on == true) {
-                b_vibration_on = false;
-
-                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
-                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
-                w_trig.trackGain(S_VOICE_VIBRATION_DISABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);
-
-                // Tell the proton pack to disable vibration.
-                wandSerialSend(W_VIBRATION_DISABLED);
-              }
-              else {
-                b_vibration_on = true;
-
-                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
-                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
-                w_trig.trackGain(S_VOICE_VIBRATION_ENABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_VIBRATION_ENABLED);
-
-                // Tell the Proton pack to enable vibration.
-                wandSerialSend(W_VIBRATION_ENABLED);
-
-                analogWrite(vibration, 150);
-                delay(250);
-                analogWrite(vibration,0);
-              }
+              wandSerialSend(W_VIBRATION_CYCLE_TOGGLE);
             }
 
-            // Enable or disable vibration for firing events only.
+            // Enable or disable vibration or firing vibration only for the wand.
             if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
               ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
 
@@ -677,32 +652,49 @@ void mainLoop() {
               w_trig.trackGain(S_BEEPS_ALT, i_volume);
               w_trig.trackPlayPoly(S_BEEPS_ALT);
 
-              // Enable or disable vibration for firing only events.
-              if(b_vibration_firing == true) {
-                b_vibration_firing = false;
+              if(b_vibration_on != true) {
+                b_vibration_on = true;
+                b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
-                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
-                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
-                w_trig.trackGain(S_VOICE_VIBRATION_FIRING_DISABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_DISABLED);
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);    
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);    
+                w_trig.trackGain(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
 
-                // Tell the proton pack to disable vibration during firing only option.
-                wandSerialSend(W_VIBRATION_FIRING_DISABLED);
+                wandSerialSend(W_VIBRATION_ENABLED);
+
+                analogWrite(vibration, 150);
+                delay(250);
+                analogWrite(vibration,0);
               }
-              else {
+              else if(b_vibration_on == true && b_vibration_firing != true) {
                 b_vibration_firing = true;
+                b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
-                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_ENABLED);    
-                w_trig.trackStop(S_VOICE_VIBRATION_FIRING_DISABLED);    
-                w_trig.trackGain(S_VOICE_VIBRATION_FIRING_ENABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_VIBRATION_FIRING_ENABLED);
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);    
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);    
+                w_trig.trackGain(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
 
-                // Tell the Proton pack to enable vibration during firing only.
                 wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
                 analogWrite(vibration, 150);
                 delay(250);
                 analogWrite(vibration,0);
+              }
+              else {
+                b_vibration_on = false;
+                b_vibration_firing = false;
+
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);    
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);    
+                w_trig.trackGain(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+
+                wandSerialSend(W_VIBRATION_DISABLED);
               }
             }            
           }  
@@ -900,7 +892,7 @@ void mainLoop() {
     break;
 
     case MODE_ON:
-      if(b_vibration_on == true && WAND_ACTION_STATUS != ACTION_SETTINGS) {
+      if(b_vibration_on == true && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         vibrationSetting();
       }
 
@@ -2961,7 +2953,7 @@ void fireStreamEnd(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 void vibrationWand(uint8_t i_level) {
-  if(b_vibration_on == true && b_vibration_enabled == true) {
+  if(b_vibration_on == true && b_vibration_enabled == true && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
     // Only vibrate the wand during firing only when enabled. (When enabled by the pack)
     if(b_vibration_firing == true) {
       if(WAND_ACTION_STATUS == ACTION_FIRING) {
@@ -2971,6 +2963,7 @@ void vibrationWand(uint8_t i_level) {
         }
       }
       else {
+        i_vibration_level_prev = 0;
         analogWrite(vibration, 0);
       }
     }
@@ -2983,6 +2976,7 @@ void vibrationWand(uint8_t i_level) {
     }
   }
   else {
+    i_vibration_level_prev = 0;
     analogWrite(vibration, 0);
   }
 }
@@ -3845,28 +3839,32 @@ void bargraphFull() {
 }
 
 void bargraphRampUp() { 
+  if(i_vibration_level < i_vibration_level_min) {
+    i_vibration_level = i_vibration_level_min;
+  }
+
   if(b_bargraph_alt == true) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       switch(i_bargraph_status_alt) {
         case 0 ... 27:
           ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
 
-          if(i_bargraph_status > 22) {
+          if(i_bargraph_status_alt > 22) {
             vibrationWand(i_vibration_level + 80);
           }
-          else if(i_bargraph_status > 16) {
+          else if(i_bargraph_status_alt > 16) {
             vibrationWand(i_vibration_level + 40);
           }
-          else if(i_bargraph_status > 10) {
+          else if(i_bargraph_status_alt > 10) {
             vibrationWand(i_vibration_level + 30);
           }
-          else if(i_bargraph_status > 4) {
+          else if(i_bargraph_status_alt > 4) {
             vibrationWand(i_vibration_level + 20);
           }
-          else if(i_bargraph_status > 0) {
+          else if(i_bargraph_status_alt > 0) {
             vibrationWand(i_vibration_level + 10);
           }
-
+          
           i_bargraph_status_alt++;
 
           if(i_bargraph_status_alt == 28) {
@@ -3893,6 +3891,10 @@ void bargraphRampUp() {
         case 28 ... 56:
           uint8_t i_tmp = i_bargraph_status_alt - 27;
           i_tmp = 28 - i_tmp;
+
+          if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+            vibrationOff();
+          }
 
           if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
             if(i_bargraph_status_alt == 56) {
@@ -4276,6 +4278,7 @@ void wandLightsOff() {
 }
 
 void vibrationOff() {
+  i_vibration_level_prev = 0;
   analogWrite(vibration, 0);
 }
 
@@ -4782,18 +4785,7 @@ void checkPack() {
                 }
               }
             break;
-      
-            case P_VIBRATION_ENABLED:
-              // Vibration on.
-              b_vibration_on = true;
-            break;
-      
-            case P_VIBRATION_DISABLED:
-              // Vibration off.
-              b_vibration_on = false;
-              vibrationOff();
-            break;
-      
+            
             case P_YEAR_1984:
               // 1984 mode.
               year_mode = 1984;
@@ -4843,15 +4835,79 @@ void checkPack() {
               VOLUME_SYNC_WAIT = EFFECTS;
             break;
             
-            case P_VIBRATION_FIRING_ENABLED:
-              // Vibration firing on.
-              b_vibration_firing = true;
-              vibrationOff();
+            case P_VIBRATION_ENABLED:
+              // Vibration enabled (from Proton Pack vibration toggle switch).
+              b_vibration_enabled = true;
+
+              // Only play the voice if we are not doing a Proton Pack / Neutrona Wand synchronisation.
+              if(b_wait_for_pack != true) {
+                w_trig.trackStop(S_BEEPS_ALT);    
+                w_trig.trackGain(S_BEEPS_ALT, i_volume);
+                w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_ENABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_ENABLED);
+              }        
             break;
       
-            case P_VIBRATION_FIRING_DISABLED:
-              // Vibration firing off
-              b_vibration_firing = false;
+            case P_VIBRATION_DISABLED:
+              // Vibration disabled (from Proton Pack vibration toggle switch).
+              b_vibration_enabled = false;
+              
+              // Only play the voice if we are not doing a Proton Pack / Neutrona Wand synchronisation.
+              if(b_wait_for_pack != true) {
+                w_trig.trackStop(S_BEEPS_ALT);    
+                w_trig.trackGain(S_BEEPS_ALT, i_volume);
+                w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
+                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+                w_trig.trackGain(S_VOICE_VIBRATION_DISABLED, i_volume);
+                w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);
+              }
+
+              vibrationOff();
+            break;
+
+            case P_PACK_VIBRATION_ENABLED:
+              // Proton Pack Vibration enabled.
+              w_trig.trackStop(S_BEEPS_ALT);    
+              w_trig.trackGain(S_BEEPS_ALT, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);    
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);    
+              w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_ENABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+            break;
+
+            case P_PACK_VIBRATION_DISABLED:
+              // Proton Pack Vibration disabled.
+              w_trig.trackStop(S_BEEPS_ALT);    
+              w_trig.trackGain(S_BEEPS_ALT, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);    
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);    
+              w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_DISABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+            break;
+
+            case P_PACK_VIBRATION_FIRING_ENABLED:
+              // Proton Pack Vibration firing enabled.
+              w_trig.trackStop(S_BEEPS_ALT);    
+              w_trig.trackGain(S_BEEPS_ALT, i_volume);
+              w_trig.trackPlayPoly(S_BEEPS_ALT);
+
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);    
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);    
+              w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
             break;
 
             case P_MODE_AFTERLIFE:
