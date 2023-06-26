@@ -126,7 +126,7 @@ Changes are made by pressing either the "Intensify" button on the gun box or the
 
 ## Sub Level Menu
 
-**Important: The Neutrona Wand sub-menu settings can only be reached while the Neutrona Wand is powered down**
+**Important: The Neutrona Wand sub-menu settings can only be reached while both the Neutrona Wand and Proton Pack are powered down**
 
 To access the sub level menu, use the rotary dial on the top of the wand. When you reach the sub level menu, the Slo-blo LED will light up to indicate this menu state.
 

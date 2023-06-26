@@ -780,7 +780,7 @@ void mainLoop() {
   switch(WAND_STATUS) {
     case MODE_OFF:          
       if((switchMode() == true && ms_switch_mode_debounce.justFinished()) || b_pack_alarm == true) {     
-        if(FIRING_MODE != SETTINGS && b_pack_alarm != true) {
+        if(FIRING_MODE != SETTINGS && b_pack_alarm != true && b_pack_on != true) {
           w_trig.trackPlayPoly(S_CLICK);
 
           PREV_FIRING_MODE = FIRING_MODE;
@@ -796,53 +796,14 @@ void mainLoop() {
         else {
           // Only exit the settings menu when on menu #5 in the top menu.
           if(i_wand_menu == 5 && b_wand_menu_sub != true && FIRING_MODE == SETTINGS) {
-            FIRING_MODE = PREV_FIRING_MODE;
-
-            if(b_pack_alarm != true) {
-              w_trig.trackPlayPoly(S_CLICK);
-            }
-
-            bargraphClearAlt();
-
-            switch(PREV_FIRING_MODE) {
-              case MESON:
-                // Tell the pack we are in meson mode.
-                wandSerialSend(W_MESON_MODE);
-              break;
-  
-              case STASIS:
-                // Tell the pack we are in stasis mode.
-                wandSerialSend(W_STASIS_MODE);
-              break;
-  
-              case SLIME:
-                // Tell the pack we are in slime mode.
-                wandSerialSend(W_SLIME_MODE);
-              break;
-  
-              case PROTON: 
-                // Tell the pack we are in proton mode.
-                wandSerialSend(W_PROTON_MODE);
-              break;
-
-              case VENTING:
-                // Tell the pakc we are in venting mode.
-                wandSerialSend(W_VENTING_MODE);
-              break;
-
-              default:
-                // Tell the pack we are in proton mode.
-                wandSerialSend(W_PROTON_MODE);
-              break;
-            }
-            
-            WAND_ACTION_STATUS = ACTION_IDLE;
-  
-            wandLightsOff();
+            wandExitMenu();
           }
         }
       
         ms_switch_mode_debounce.start(a_switch_debounce_time);
+      }
+      else if (WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on == true) {
+        wandExitMenu();
       }
 
       if(b_pack_alarm == true) {
@@ -2338,7 +2299,16 @@ void modeFireStopSounds() {
   }
 
   if(b_firing_cross_streams == true) {
-    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+    switch(year_mode) {
+      case 2021:
+        w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+      break;
+
+      case 1984:
+      case 1989:
+        w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+      break;
+    }
 
     b_firing_cross_streams = false;
   }
@@ -2555,7 +2525,18 @@ void modeFiring() {
   if(b_firing_alt == true && b_firing_intensify == true && b_sound_firing_cross_the_streams != true && b_firing_cross_streams != true) {
     b_firing_cross_streams = true;
     b_sound_firing_cross_the_streams = true;
-    w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+
+    switch(year_mode) {
+      case 2021:
+        w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
+      break;
+
+      case 1984:
+      case 1989:
+        w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+      break;
+    }
+    
     w_trig.trackPlayPoly(S_FIRE_START_SPARK);
 
     if(b_cross_the_streams_mix != true) {
@@ -2586,7 +2567,18 @@ void modeFiring() {
 
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
-    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+    
+    switch(year_mode) {
+      case 2021:
+        w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+      break;
+
+      case 1984:
+      case 1989:
+        w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+      break;
+    }
+
     w_trig.trackStop(S_FIRING_LOOP_GB1);
   }
   else if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && b_cross_the_streams_mix == true) {
@@ -2596,7 +2588,17 @@ void modeFiring() {
 
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
-    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+
+    switch(year_mode) {
+      case 2021:
+        w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+      break;
+
+      case 1984:
+      case 1989:
+        w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+      break;
+    }
   }
   
   // Overheat timers.
@@ -4625,6 +4627,55 @@ void wandBarrelLightsOff() {
   }
   
   ms_fast_led.start(i_fast_led_delay);
+}
+
+// Exit the wand menu system while the wand is off.
+void wandExitMenu() {
+  FIRING_MODE = PREV_FIRING_MODE;
+  
+  i_wand_menu = 5;
+
+  if(b_pack_alarm != true) {
+    w_trig.trackPlayPoly(S_CLICK);
+  }
+
+  bargraphClearAlt();
+
+  switch(PREV_FIRING_MODE) {
+    case MESON:
+      // Tell the pack we are in meson mode.
+      wandSerialSend(W_MESON_MODE);
+    break;
+
+    case STASIS:
+      // Tell the pack we are in stasis mode.
+      wandSerialSend(W_STASIS_MODE);
+    break;
+
+    case SLIME:
+      // Tell the pack we are in slime mode.
+      wandSerialSend(W_SLIME_MODE);
+    break;
+
+    case PROTON: 
+      // Tell the pack we are in proton mode.
+      wandSerialSend(W_PROTON_MODE);
+    break;
+
+    case VENTING:
+      // Tell the pakc we are in venting mode.
+      wandSerialSend(W_VENTING_MODE);
+    break;
+
+    default:
+      // Tell the pack we are in proton mode.
+      wandSerialSend(W_PROTON_MODE);
+    break;
+  }
+
+  WAND_ACTION_STATUS = ACTION_IDLE;
+
+  wandLightsOff();
 }
 
 // Mode switch is connected to analog input.

@@ -2479,9 +2479,9 @@ void wandStoppedFiring() {
       case PROTON:
         // Play different firing end stream sound depending on how long we have been firing for.
         if(ms_firing_length_timer.remaining() < 5000) {
-          // Long tail end.
-          w_trig.trackGain(S_FIRING_END, i_volume);
-          w_trig.trackPlayPoly(S_FIRING_END, true);
+          // Short tail end.
+          w_trig.trackGain(S_FIRING_END_GUN, i_volume);
+          w_trig.trackPlayPoly(S_FIRING_END_GUN, true);
         }
         else if(ms_firing_length_timer.remaining() < 10000) {
           // Mid tail end.
@@ -2489,9 +2489,9 @@ void wandStoppedFiring() {
           w_trig.trackPlayPoly(S_FIRING_END_MID, true);
         }
         else {
-          // Short tail end.
-          w_trig.trackGain(S_FIRING_END_GUN, i_volume);
-          w_trig.trackPlayPoly(S_FIRING_END_GUN, true);
+          // Long tail end.
+          w_trig.trackGain(S_FIRING_END, i_volume);
+          w_trig.trackPlayPoly(S_FIRING_END, true);
         }
       break;
   
@@ -2586,7 +2586,16 @@ void wandStopFiringSounds() {
   }
 
   if(b_firing_cross_streams == true) {
-    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+    switch(i_mode_year) {
+      case 2021:
+        w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+      break;
+
+      case 1984:
+      case 1989:
+        w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+      break;
+    }
 
     b_firing_cross_streams = false;
   }
@@ -3407,16 +3416,40 @@ void checkWand() {
             case W_FIRING_CROSSING_THE_STREAMS:
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
-              w_trig.trackGain(S_CROSS_STREAMS_START, i_volume);
-              w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+
+              switch(i_mode_year) {
+                case 2021:
+                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_START, i_volume);
+                  w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
+                break;
+
+                case 1984:
+                case 1989:
+                  w_trig.trackGain(S_CROSS_STREAMS_START, i_volume);
+                  w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+                break;
+              }
+
               w_trig.trackPlayPoly(S_FIRE_START_SPARK);
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_MIX:
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
-              w_trig.trackGain(S_CROSS_STREAMS_START, i_volume);
-              w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+              
+              switch(i_mode_year) {
+                case 2021:
+                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_START, i_volume);
+                  w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
+                break;
+
+                case 1984:
+                case 1989:
+                  w_trig.trackGain(S_CROSS_STREAMS_START, i_volume);
+                  w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+                break;
+              }
+
               w_trig.trackPlayPoly(S_FIRE_START_SPARK);
 
               w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
@@ -3434,16 +3467,39 @@ void checkWand() {
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED:
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
-              w_trig.trackGain(S_CROSS_STREAMS_END, i_volume);
-              w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+
+              switch(i_mode_year) {
+                case 2021:
+                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume);
+                  w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+                break;
+
+                case 1984:
+                case 1989:
+                  w_trig.trackGain(S_CROSS_STREAMS_END, i_volume);
+                  w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+                break;
+              }
+
               w_trig.trackStop(S_FIRING_LOOP_GB1);
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX:
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
-              w_trig.trackGain(S_CROSS_STREAMS_END, i_volume);
-              w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+
+              switch(i_mode_year) {
+                case 2021:
+                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume);
+                  w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+                break;
+
+                case 1984:
+                case 1989:
+                  w_trig.trackGain(S_CROSS_STREAMS_END, i_volume);
+                  w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+                break;
+              }
             break;
 
             case W_YEAR_MODES_CYCLE:

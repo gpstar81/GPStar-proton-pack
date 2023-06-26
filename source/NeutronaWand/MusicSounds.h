@@ -134,10 +134,12 @@ enum sound_fx {
   S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED,
   S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED,
   S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED,
-  S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_DISABLED
+  S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_DISABLED,
+  S_AFTERLIFE_CROSS_THE_STREAMS_START,
+  S_AFTERLIFE_CROSS_THE_STREAMS_END
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const unsigned int i_last_effects_track = S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_DISABLED;
+const unsigned int i_last_effects_track = S_AFTERLIFE_CROSS_THE_STREAMS_END;
