@@ -46,6 +46,8 @@ These apply to normal operation and usage of the equipment regardless of control
 
 1. [Operation Manual](OPERATION.md)
 
+1. [Advanced Configuration](ADVCONFIG.md)
+
 1. [Audio Output](SOUND.md)
 
 1. [Smoke Venting](SMOKE.md)
