@@ -24,11 +24,11 @@
  */
  
  /* 
- *  PowerCell and Cyclotron Lid LEDs.
- *  25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
- *  
- *  For the stock Haslab LEDs, use const int i_pack_num_leds = 25; and const i_1984_cyclotron_leds 1, 4, 7, 10.
- *  For a 40 LED NeoPixel ring, if you align your ring so that the first led is the middle, then use const int i_pack_num_leds = 53 and const i_1984_cyclotron_leds 0, 10, 18, 28.
+ *  Cyclotron Lid LEDs.
+ *  For the stock Haslab LEDs, there are 12 LED's in the cyclotron lid.
+ *  Use const int i_cyclotron_leds = 12; and const i_1984_cyclotron_leds 1, 4, 7, 10.
+ *
+ *  For a 40 LED NeoPixel ring, if you align your ring so that the first led is the middle, then use const int i_cyclotron_leds = 40 and const i_1984_cyclotron_leds 0, 10, 18, 28.
  *  Adjust as neccesary depending on how you align your NeoPixel ring.
  *  You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.  
  *
@@ -37,12 +37,20 @@
  *
  */ 
  // For stock Haslab LEDs
-const uint8_t i_pack_num_leds = 25;
+const uint8_t i_cyclotron_leds = 12;
 const uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 
 // For a 40 LED NeoPixel ring.
-//const uint8_t i_pack_num_leds = 53;
+//const uint8_t i_cyclotron_leds = 40;
 //const uint8_t i_1984_cyclotron_leds[4] = { 0, 10, 18, 28 };
+
+/*
+ * Power Cell LEDs
+ * The number of Power Cell leds. Stock Haslab has 13. 
+ * If you are installing a Frutto Technology PowerCell which has 15 LEDs, then change this to 15.
+ * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
+*/
+const uint8_t i_powercell_leds = 13;
 
 /*
  * Cyclotron Lid LED delays.

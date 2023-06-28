@@ -17,13 +17,22 @@
  *
  */
 
+/*
+  * Total number of LEDs in the Proton Pack
+  * PowerCell + Cyclotron Lid.
+  * 25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
+*/
+//const uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds;
+
  /* 
- *  PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
- *  7 additional (32 in total in stock form) for a NeoPixel jewel that you can put into the n-filter (optional). 
- *  This jewel chains off cyclotron lens #4 in the lid (top left lens).
+ * Total number of LEDs in the Proton Pack
+ * PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
+ * 25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
+ * 7 additional (32 in total) for a NeoPixel jewel that you can put into the n-filter (optional). 
+ * This jewel chains off cyclotron lens #4 in the lid (top left lens).
  */
-#define PACK_NUM_LEDS i_pack_num_leds + 7
-#define VENT_LIGHT_START i_pack_num_leds
+#define PACK_NUM_LEDS i_powercell_leds + i_cyclotron_leds + 7
+#define VENT_LIGHT_START i_powercell_leds + i_cyclotron_leds
 
 /*
  * Proton pack powercell and cyclotron lid led pin.
@@ -77,7 +86,7 @@ enum PACK_ACTION_STATE PACK_ACTION_STATUS;
 /*
  * Cyclotron lid LEDs control and lid detection.
  */
-const uint8_t cyclotron_led_start = 13; // First LED in the cyclotron.
+const uint8_t cyclotron_led_start = i_powercell_leds; // First LED in the cyclotron.
 uint8_t i_led_cyclotron = cyclotron_led_start; // Current cyclotron LED that we are lighting up.
 const unsigned int i_2021_ramp_delay = 300;
 const unsigned int i_2021_ramp_length = 6000;

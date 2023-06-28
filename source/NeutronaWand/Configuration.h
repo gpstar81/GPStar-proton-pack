@@ -74,15 +74,6 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
- * Set to false to disable the onboard amplifer on the wav trigger. 
- * Turning off the onboard amp draws less power. 
- * If using the AUX cable jack, the amp can be disabled to save power.
- * If you use the output pins directly on the wav trigger board to your speakers, you will need to enable the onboard amp.
- * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
- */
-const bool b_onboard_amp_enabled = true;
-
-/*
  * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
  * Set to false if you are using the stock Hasbro bargraph.
  * Part #: BL28Z-3005SA04Y
@@ -178,6 +169,15 @@ const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
  * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
  */
 const bool b_no_pack = false;
+
+/*
+ * Set to false to disable the onboard amplifer on the wav trigger. 
+ * Turning off the onboard amp draws less power. 
+ * If using the AUX cable jack, the amp can be disabled to save power.
+ * If you use the output pins directly on the wav trigger board to your speakers, you will need to enable the onboard amp.
+ * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
+ */
+const bool b_onboard_amp_enabled = true;
 
 /*
  * Debug testing
