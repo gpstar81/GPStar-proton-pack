@@ -779,8 +779,8 @@ void mainLoop() {
 
   switch(WAND_STATUS) {
     case MODE_OFF:          
-      if((switchMode() == true && ms_switch_mode_debounce.justFinished()) || b_pack_alarm == true) {     
-        if(FIRING_MODE != SETTINGS && b_pack_alarm != true && b_pack_on != true) {
+      if((switchMode() == true && ms_switch_mode_debounce.justFinished()) || b_pack_alarm == true) {
+        if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
           w_trig.trackPlayPoly(S_CLICK);
 
           PREV_FIRING_MODE = FIRING_MODE;
@@ -803,7 +803,11 @@ void mainLoop() {
         ms_switch_mode_debounce.start(a_switch_debounce_time);
       }
       else if (WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on == true) {
-        wandExitMenu();
+        if(b_no_pack != true) {
+          wandExitMenu();
+
+          ms_switch_mode_debounce.start(a_switch_debounce_time);
+        }
       }
 
       if(b_pack_alarm == true) {
@@ -1510,7 +1514,10 @@ void checkSwitches() {
                 WAND_ACTION_STATUS = ACTION_SETTINGS;
                 i_wand_menu = 5;
                 ms_settings_blinking.start(i_settings_blinking_delay);
-  
+
+                // Clear the bargraph.
+                bargraphClearAlt();
+
                 // Tell the pack we are in settings mode.
                 wandSerialSend(W_SETTINGS_MODE);
               break;
@@ -3555,7 +3562,6 @@ void bargraphPowerCheck2021Alt(bool b_override) {
       else {
         b_bargraph_up = false;
       }
-
       switch(i_power_mode) {
         case 5:
           ms_bargraph_alt.start(i_bargraph_wait / 3);
@@ -3939,11 +3945,13 @@ void bargraphRampUp() {
               case 2021:
                 switch(i_power_mode) {
                   case 5:
+                    // Stop any power check in 2021 if we are already in level 5.
+                    ms_bargraph_alt.stop();
+
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 27;
                     bargraphYearModeUpdate();
-
                     vibrationWand(i_vibration_level + 25);
                   break;
 
