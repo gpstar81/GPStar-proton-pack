@@ -909,7 +909,43 @@ void powercellRampDown() {
       // Do Nothing.
     }
     else {
-      pack_leds[i_powercell_led] = CRGB(0,0,0);
+      uint8_t r = 0;
+      uint8_t b = 255;
+      uint8_t g = 0;
+
+      switch(FIRING_MODE) {
+        case PROTON:
+          r = 0;
+          g = 0;
+          b = 255;
+        break;
+    
+        case SLIME:
+          r = 0;
+          g = 255;
+          b = 0;
+        break;
+    
+        case STASIS:
+          r = 0;
+          g = 0;
+          b = 255;
+        break;
+    
+        case MESON:
+          r = 255;
+          g = 255;
+          b = 0;
+        break;   
+    
+        default:
+          r = 0;
+          g = 0;
+          b = 255;
+        break;
+      }     
+          
+      pack_leds[i_powercell_led] = CRGB(r,g,b);
 
       // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
       if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
@@ -962,7 +998,43 @@ void powercellLoop() {
       i_powercell_led = 0;
     }
     else {
-      pack_leds[i_powercell_led] = CRGB(0,0,255);
+      uint8_t r = 0;
+      uint8_t b = 255;
+      uint8_t g = 0;
+
+      switch(FIRING_MODE) {
+        case PROTON:
+          r = 0;
+          g = 0;
+          b = 255;
+        break;
+    
+        case SLIME:
+          r = 0;
+          g = 255;
+          b = 0;
+        break;
+    
+        case STASIS:
+          r = 0;
+          g = 0;
+          b = 255;
+        break;
+    
+        case MESON:
+          r = 255;
+          g = 255;
+          b = 0;
+        break;   
+    
+        default:
+          r = 0;
+          g = 0;
+          b = 255;
+        break;
+      }
+
+      pack_leds[i_powercell_led] = CRGB(r,g,b);
 
       // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
       if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
@@ -1058,7 +1130,43 @@ void powercellLoop() {
 
 void powercellOn() {
   for(int i = 0; i <= cyclotron_led_start - 1; i++) {
-    pack_leds[i] = CRGB(0,0,255);
+    uint8_t r = 0;
+    uint8_t b = 255;
+    uint8_t g = 0;
+
+    switch(FIRING_MODE) {
+      case PROTON:
+        r = 0;
+        g = 0;
+        b = 255;
+      break;
+  
+      case SLIME:
+        r = 0;
+        g = 255;
+        b = 0;
+      break;
+  
+      case STASIS:
+        r = 0;
+        g = 0;
+        b = 255;
+      break;
+  
+      case MESON:
+        r = 255;
+        g = 255;
+        b = 0;
+      break;   
+  
+      default:
+        r = 0;
+        g = 0;
+        b = 255;
+      break;
+    }   
+
+    pack_leds[i] = CRGB(r,g,b);
   }
 
   i_powercell_led = cyclotron_led_start - 1;
