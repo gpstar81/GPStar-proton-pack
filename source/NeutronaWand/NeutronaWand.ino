@@ -82,7 +82,7 @@ void setup() {
   switch_vent.setDebounceTime(switch_debounce_time);
   
   #ifndef GPSTAR_NEUTRONA_WAND_PCB
-    b_bargraph_alt = false; // Force Arduino Nano builds to not use the 28 segment bargraph.
+    b_28segment_bargraph = false; // Force Arduino Nano builds to not use the 28 segment bargraph.
   #endif
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -98,7 +98,7 @@ void setup() {
 
   // Setup the bargraph.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_bargraph_alt == true) {
+    if(b_28segment_bargraph == true) {
       // 28 Segment optional bargraph.
       ht_bargraph.begin(0x00);
     }
@@ -1089,7 +1089,7 @@ void settingsBlinkingLights() {
     }
 
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      if(b_bargraph_alt == true) {
+      if(b_28segment_bargraph == true) {
         if(b_solid_five == true) { 
           for(uint8_t i = 0; i < 16; i++) {
             ht_bargraph.clearLedNow(i_bargraph[i]);
@@ -1134,7 +1134,7 @@ void settingsBlinkingLights() {
     switch(i_wand_menu) {
       case 5:
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_bargraph_alt == true) {
+          if(b_28segment_bargraph == true) {
             // 18 for the 5 level menu system.
             uint8_t i_leds = 18;
 
@@ -1206,7 +1206,7 @@ void settingsBlinkingLights() {
 
       case 4:
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_bargraph_alt == true) {
+          if(b_28segment_bargraph == true) {
             for(uint8_t i = 0; i < 14; i++) {
               if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
                 switch(i) {
@@ -1267,7 +1267,7 @@ void settingsBlinkingLights() {
 
       case 3:
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_bargraph_alt == true) {
+          if(b_28segment_bargraph == true) {
             for(uint8_t i = 0; i < 10; i++) {
               if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
                 switch(i) {
@@ -1326,7 +1326,7 @@ void settingsBlinkingLights() {
 
       case 2:
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_bargraph_alt == true) {
+          if(b_28segment_bargraph == true) {
             for(uint8_t i = 0; i < 6; i++) {
               if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
                 switch(i) {
@@ -1383,7 +1383,7 @@ void settingsBlinkingLights() {
 
       case 1:
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_bargraph_alt == true) {
+          if(b_28segment_bargraph == true) {
             for(uint8_t i = 0; i < 2; i++) {
                 switch(i) {
                   case 3:
@@ -1491,7 +1491,7 @@ void checkSwitches() {
               // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments. 
               // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                if(year_mode == 2021 && b_bargraph_alt == true) {
+                if(year_mode == 2021 && b_28segment_bargraph == true) {
                   bargraphPowerCheck2021Alt(true);
                 }
               #endif
@@ -2994,7 +2994,7 @@ void vibrationWand(uint8_t i_level) {
 // Optional barrel LED tip strobing is controlled from here to give it a ramp effect if the Proton Pack and Neutrona Wand are going to overheat.
 void bargraphRampFiring() {
   // (Optional) 28 Segment barmeter bargraph.
-  if(b_bargraph_alt == true) {    
+  if(b_28segment_bargraph == true) {    
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
     // Start ramping up and down from the middle to the top/bottom and back to the middle again.
     switch(i_bargraph_status_alt) {
@@ -3409,7 +3409,7 @@ void bargraphRampFiring() {
   int i_ramp_interval = d_bargraph_ramp_interval;
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_bargraph_alt == true) {
+    if(b_28segment_bargraph == true) {
       // Switch to a different ramp speed if using the (Optional) 28 segment barmeter bargraph.
       i_ramp_interval = d_bargraph_ramp_interval_alt;
     }
@@ -3418,7 +3418,7 @@ void bargraphRampFiring() {
   // If in a power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
   if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
-      if(b_bargraph_alt == true) {
+      if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
       }
       else {
@@ -3428,7 +3428,7 @@ void bargraphRampFiring() {
       cyclotronSpeedUp(6);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 5) {
-      if(b_bargraph_alt == true) {
+      if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 9);
       }
       else {
@@ -3438,7 +3438,7 @@ void bargraphRampFiring() {
       cyclotronSpeedUp(5);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 4) {
-      if(b_bargraph_alt == true) {
+      if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 7);
       }
       else {
@@ -3448,7 +3448,7 @@ void bargraphRampFiring() {
       cyclotronSpeedUp(4);    
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 3) {
-      if(b_bargraph_alt == true) {
+      if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 5);
       }
       else {      
@@ -3458,7 +3458,7 @@ void bargraphRampFiring() {
       cyclotronSpeedUp(3);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 2) {
-      if(b_bargraph_alt == true) {
+      if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 3);
       }
       else {      
@@ -3468,7 +3468,7 @@ void bargraphRampFiring() {
       cyclotronSpeedUp(2);
     }
     else {
-      if(b_bargraph_alt == true) {
+      if(b_28segment_bargraph == true) {
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           switch(i_power_mode) {
             case 5:
@@ -3500,7 +3500,7 @@ void bargraphRampFiring() {
     }
   }
   else {
-    if(b_bargraph_alt == true) {
+    if(b_28segment_bargraph == true) {
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         switch(i_power_mode) {
           case 5:
@@ -3589,7 +3589,7 @@ void bargraphPowerCheck2021Alt(bool b_override) {
 
 void bargraphClearAlt() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_bargraph_alt == true) {
+    if(b_28segment_bargraph == true) {
       ht_bargraph.clearAll();
 
       i_bargraph_status_alt = 0;
@@ -3599,7 +3599,7 @@ void bargraphClearAlt() {
 
 void bargraphPowerCheck() {
   // Control for the 28 segment barmeter bargraph.
-  if(b_bargraph_alt == true) {
+  if(b_28segment_bargraph == true) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       if(ms_bargraph_alt.justFinished()) {
         uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
@@ -3825,7 +3825,7 @@ void bargraphPowerCheck() {
 // Fully lights up the bargraphs.
 void bargraphFull() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_bargraph_alt == true) {
+    if(b_28segment_bargraph == true) {
       for(uint8_t i = 0; i < 28; i++) {
         ht_bargraph.setLedNow(i_bargraph[i]);
       }
@@ -3851,7 +3851,7 @@ void bargraphRampUp() {
     i_vibration_level = i_vibration_level_min;
   }
 
-  if(b_bargraph_alt == true) {
+  if(b_28segment_bargraph == true) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       switch(i_bargraph_status_alt) {
         case 0 ... 27:
@@ -4206,7 +4206,7 @@ void prepBargraphRampUp() {
       
       // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments. 
       // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
-      if(year_mode == 2021 && b_bargraph_alt == true) {
+      if(year_mode == 2021 && b_28segment_bargraph == true) {
         bargraphPowerCheck2021Alt(false);
       }
 
@@ -4251,7 +4251,7 @@ void bargraphYearModeUpdate() {
 
 void wandLightsOff() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_bargraph_alt == true) {
+    if(b_28segment_bargraph == true) {
       bargraphClearAlt();
     }
     else {
@@ -4403,6 +4403,10 @@ void checkRotary() {
 
                 // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
                 analogWrite(led_slo_blo, 255);
+
+                // Play a indication beep to notify we have changed to the sub menu.
+                w_trig.trackStop(S_BEEPS);
+                w_trig.trackPlayPoly(S_BEEPS);
               }
               else {
                 i_wand_menu = 1;
@@ -4428,6 +4432,10 @@ void checkRotary() {
 
                 // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
                 analogWrite(led_slo_blo, 0);
+
+                // Play a indication beep to notify we have left the sub menu.
+                w_trig.trackStop(S_BEEPS);
+                w_trig.trackPlayPoly(S_BEEPS);
               }
               else {
                 i_wand_menu = 5;
@@ -4455,7 +4463,7 @@ void checkRotary() {
               i_power_mode--;
 
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                if(year_mode == 2021 && b_bargraph_alt == true) {
+                if(year_mode == 2021 && b_28segment_bargraph == true) {
                   bargraphPowerCheck2021Alt(false);
                 }
               #endif
@@ -4512,7 +4520,7 @@ void checkRotary() {
                 i_power_mode++;
                 
                 #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                  if(year_mode == 2021 && b_bargraph_alt == true) {
+                  if(year_mode == 2021 && b_28segment_bargraph == true) {
                     bargraphPowerCheck2021Alt(false);
                   }
                 #endif
