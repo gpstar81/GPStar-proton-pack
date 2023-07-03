@@ -1941,12 +1941,12 @@ void cyclotron84LightOff(int cLed) {
 }
 
 void cyclotronOverHeating() {  
-  smokeControl(true);
+  //smokeControl(true);
 
   if(ms_overheating.justFinished()) {
     w_trig.trackGain(S_VENT_SMOKE, i_volume);
     w_trig.trackPlayPoly(S_VENT_SMOKE, true);
-    smokeControl(false);
+    //smokeControl(false);
   }
 
   switch (i_mode_year) {
@@ -2008,6 +2008,8 @@ void cyclotronOverHeating() {
 
   // Time the n-filter light to when the fan is running.
   if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {    
+    smokeControl(true);
+
     // For strobing the vent light.
     if(ms_vent_light_off.justFinished()) {
       ms_vent_light_off.stop();
