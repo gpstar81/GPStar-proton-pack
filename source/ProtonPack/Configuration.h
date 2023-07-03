@@ -206,6 +206,14 @@ const bool b_overheat_strobe = false;
 bool b_overheat_lights_off = true;
 
 /*
+ * When set to true, smoke from the n-filter will only operate at the same time the fan is operating.
+ * If you have a smoke/fan kit for the n-filter that operates the smoke and fan at the same time, and you are connected to the smoke n-filter pin on the pack board, then you would want to set this to true.
+ * When set to false (default), smoke in the n-filter will pump earlier than the fan to fill up the n-filter with some smoke.
+ * If you have a smoke kit where the smoke and fan are independently connected to the pack board, setting to false is preferred.
+*/
+bool b_overheat_sync_to_fan = false;
+
+/*
  * Enable or disable overall smoke settings.
  * This can be toggled with a switch on PIN 37. This can also be controlled from
 the Neutrona wand sub menu system.

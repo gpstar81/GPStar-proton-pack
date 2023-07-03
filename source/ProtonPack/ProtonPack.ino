@@ -1762,24 +1762,93 @@ void cyclotron1984Alarm() {
   int8_t led4 = cyclotron_led_start + i_1984_cyclotron_leds[3];
 
   if(b_fade_cyclotron_led != true) {
-    pack_leds[led1] = CRGB(255,0,0);
-    pack_leds[led2] = CRGB(255,0,0);
-    pack_leds[led3] = CRGB(255,0,0);
-    pack_leds[led4] = CRGB(255,0,0);
+    uint8_t r = 255;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    
+    switch(FIRING_MODE) {
+      case PROTON:
+        r = 255;
+        g = 0;
+        b = 0;
+      break;
+
+      case SLIME:
+        r = 0;
+        g = 255;
+        b = 0;
+      break;
+
+      case STASIS:
+        r = 0;
+        g = 0;
+        b = 255;
+      break;
+
+      case MESON:
+        r = 255;
+        g = 255;
+        b = 0;
+      break;   
+
+      default:
+        r = 255;
+        g = 0;
+        b = 0;
+      break;
+    }
+
+    pack_leds[led1] = CRGB(r,g,b);
+    pack_leds[led2] = CRGB(r,g,b);
+    pack_leds[led3] = CRGB(r,g,b);
+    pack_leds[led4] = CRGB(r,g,b);
 
     // Turn on all the other cyclotron LED's if required.
     if(b_cyclotron_single_led != true) {
-      pack_leds[led1 - 1] = CRGB(255,0,0);
-      pack_leds[led1 + 1] = CRGB(255,0,0);
+      pack_leds[led1 + 1] = CRGB(r,g,b);
 
-      pack_leds[led2 - 1] = CRGB(255,0,0);
-      pack_leds[led2 + 1] = CRGB(255,0,0);
+      if(led1 - 1 < cyclotron_led_start) {
+        led1 = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        led1 = led1 - 1;
+      }
 
-      pack_leds[led3 - 1] = CRGB(255,0,0);
-      pack_leds[led3 + 1] = CRGB(255,0,0);
+      pack_leds[led1] = CRGB(r,g,b);
 
-      pack_leds[led4 - 1] = CRGB(255,0,0);
-      pack_leds[led4 + 1] = CRGB(255,0,0);
+
+      pack_leds[led2 + 1] = CRGB(r,g,b);
+
+      if(led2 - 1 < cyclotron_led_start) {
+        led2 = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        led2 = led2 - 1;
+      }
+
+      pack_leds[led2] = CRGB(r,g,b);
+
+      pack_leds[led3 + 1] = CRGB(r,g,b);
+
+      if(led3 - 1 < cyclotron_led_start) {
+        led3 = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        led3 = led3 - 1;
+      }
+
+      pack_leds[led3] = CRGB(r,g,b);
+      
+      pack_leds[led4 + 1] = CRGB(r,g,b);
+
+      if(led4 - 1 < cyclotron_led_start) {
+        led4 = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        led4 = led4 - 1;
+      }
+
+      pack_leds[led4] = CRGB(r,g,b);
     }
   }
   else {
@@ -1805,19 +1874,21 @@ void cyclotron1984Alarm() {
 
     // Turn on all the other cyclotron LED's if required.
     if(b_cyclotron_single_led != true) {
-      if(i_cyclotron_led_value[led1  - 1 - cyclotron_led_start] == 0) {
-        ms_cyclotron_led_fade_in[led1 - 1 - cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[led1 - 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);
-      }
-
       if(i_cyclotron_led_value[led1 + 1 - cyclotron_led_start] == 0) {
         ms_cyclotron_led_fade_in[led1 + 1 - cyclotron_led_start].go(0);
         ms_cyclotron_led_fade_in[led1 + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);
-      }      
+      }    
 
-      if(i_cyclotron_led_value[led2 - 1 - cyclotron_led_start] == 0) {      
-        ms_cyclotron_led_fade_in[led2 - 1 - cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[led2 - 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);
+      if(led1 - 1 < cyclotron_led_start) {
+        led1 = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        led1 = led1 - 1;
+      }
+
+      if(i_cyclotron_led_value[led1  - cyclotron_led_start] == 0) {
+        ms_cyclotron_led_fade_in[led1 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);
       }
 
       if(i_cyclotron_led_value[led2 + 1 - cyclotron_led_start] == 0) {      
@@ -1825,9 +1896,16 @@ void cyclotron1984Alarm() {
         ms_cyclotron_led_fade_in[led2 + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);
       }
 
-      if(i_cyclotron_led_value[led3 - 1 - cyclotron_led_start] == 0) {
-        ms_cyclotron_led_fade_in[led3 - 1 - cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[led3 - 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
+      if(led2 - 1 < cyclotron_led_start) {
+        led2 = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        led2 = led2 - 1;
+      }
+
+      if(i_cyclotron_led_value[led2 - cyclotron_led_start] == 0) {      
+        ms_cyclotron_led_fade_in[led2 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led2 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);
       }
 
       if(i_cyclotron_led_value[led3 + 1 - cyclotron_led_start] == 0) {
@@ -1835,14 +1913,33 @@ void cyclotron1984Alarm() {
         ms_cyclotron_led_fade_in[led3 + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
       }
 
-      if(i_cyclotron_led_value[led4 - 1 - cyclotron_led_start] == 0) {      
-        ms_cyclotron_led_fade_in[led4 - 1 - cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[led4 - 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
+      if(led3 - 1 < cyclotron_led_start) {
+        led3 = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        led3 = led3 - 1;
+      }
+
+      if(i_cyclotron_led_value[led3 - cyclotron_led_start] == 0) {
+        ms_cyclotron_led_fade_in[led3 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led3 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
       }
 
       if(i_cyclotron_led_value[led4 + 1 - cyclotron_led_start] == 0) {      
         ms_cyclotron_led_fade_in[led4 + 1 - cyclotron_led_start].go(0);
         ms_cyclotron_led_fade_in[led4 + 1 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
+      }
+
+      if(led4 - 1 < cyclotron_led_start) {
+        led4 = PACK_NUM_LEDS - 7 - 1;
+      }
+      else {
+        led4 = led4 - 1;
+      }
+
+      if(i_cyclotron_led_value[led4 - cyclotron_led_start] == 0) {      
+        ms_cyclotron_led_fade_in[led4 - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[led4 - cyclotron_led_start].go(255, i_1984_fade_in_delay, CIRCULAR_IN);      
       }
     }    
   }
@@ -1850,11 +1947,47 @@ void cyclotron1984Alarm() {
 
 void cyclotron84LightOn(int cLed) {
   if(b_fade_cyclotron_led != true) {
-    pack_leds[cLed] = CRGB(255,0,0);
+    uint8_t r = 255;
+    uint8_t g = 0;
+    uint8_t b = 0;
+  
+    switch(FIRING_MODE) {
+      case PROTON:
+        r = 255;
+        g = 0;
+        b = 0;
+      break;
+  
+      case SLIME:
+        r = 0;
+        g = 255;
+        b = 0;
+      break;
+  
+      case STASIS:
+        r = 0;
+        g = 0;
+        b = 255;
+      break;
+  
+      case MESON:
+        r = 255;
+        g = 255;
+        b = 0;
+      break;   
+  
+      default:
+        r = 255;
+        g = 0;
+        b = 0;
+      break;
+    }
+
+    pack_leds[cLed] = CRGB(r,g,b);
 
     // Turn on the other 2 LEDs if we are allowing 3 to light up.
     if(b_cyclotron_single_led != true) {
-      pack_leds[cLed+1] = CRGB(255,0,0);
+      pack_leds[cLed+1] = CRGB(r,g,b);
 
       if(cLed - 1 < cyclotron_led_start) {
         cLed = PACK_NUM_LEDS - 7 - 1;
@@ -1863,7 +1996,7 @@ void cyclotron84LightOn(int cLed) {
         cLed = cLed - 1;
       }
 
-      pack_leds[cLed] = CRGB(255,0,0);
+      pack_leds[cLed] = CRGB(r,g,b);
     }
   }
   else {
@@ -1941,12 +2074,17 @@ void cyclotron84LightOff(int cLed) {
 }
 
 void cyclotronOverHeating() {  
-  //smokeControl(true);
+  if(b_overheat_sync_to_fan != true) {
+    smokeControl(true);
+  }
 
   if(ms_overheating.justFinished()) {
     w_trig.trackGain(S_VENT_SMOKE, i_volume);
     w_trig.trackPlayPoly(S_VENT_SMOKE, true);
-    //smokeControl(false);
+
+    if(b_overheat_sync_to_fan != true) {
+      smokeControl(false);
+    }
   }
 
   switch (i_mode_year) {
@@ -2007,8 +2145,10 @@ void cyclotronOverHeating() {
   }
 
   // Time the n-filter light to when the fan is running.
-  if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {    
-    smokeControl(true);
+  if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
+    if(b_overheat_sync_to_fan == true) {
+      smokeControl(true);
+    }
 
     // For strobing the vent light.
     if(ms_vent_light_off.justFinished()) {
@@ -2141,6 +2281,8 @@ void innerCyclotronOff() {
   }
 }
 
+// Unused.
+/*
 void innerCyclotronShowAll() {
   if(b_cyclotron_lid_on != true) {
     for(int i = 0; i < CYCLOTRON_NUM_LEDS; i++) {
@@ -2148,6 +2290,7 @@ void innerCyclotronShowAll() {
     }
   }
 }
+*/
 
 // For NeoPixel rings, ramp up and ramp down the LEDs in the ring and set the speed. (optional)
 void innerCyclotronRing(int cDelay) {
@@ -2194,9 +2337,9 @@ void innerCyclotronRing(int cDelay) {
     }  
 
     // Colour control for the inner cyclotron leds. (red,green,blue)
-    int r = 0;
-    int g = 0;
-    int b = 0;
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
   
     switch(FIRING_MODE) {
       case PROTON:
@@ -2328,9 +2471,9 @@ void ventLight(bool b_on) {
   b_vent_light_on = b_on;
 
   if(b_on == true) {
-    int r = 255;
-    int g = 255;
-    int b = 255;
+    uint8_t r = 255;
+    uint8_t g = 255;
+    uint8_t b = 255;
 
     // If doing firing smoke effects, lets change the light colours.
     if(b_wand_firing == true) {
@@ -3134,6 +3277,11 @@ void wandHandShake() {
       cyclotronSpeedRevert();
     }
     
+    // Turn off overheating if the wand gets disconnected.
+    if(b_overheating == true) {
+      packOverheatingFinished();
+    }
+
     if(ms_wand_handshake.justFinished()) {
       // Ask the wand if it is connected.
       packSerialSend(P_HANDSHAKE);
@@ -3141,6 +3289,58 @@ void wandHandShake() {
       ms_wand_handshake.start(i_wand_handshake_delay / 5);
     }
   }
+}
+
+void packOverheatingFinished() {
+  w_trig.trackGain(S_VENT_DRY, i_volume);
+  b_overheating = false;
+
+  // Stop the fan.
+  ms_fan_stop_timer.stop();
+
+  // Turn off the n-filter fan.
+  fanControl(false);
+
+  // Turn off the smoke.
+  smokeControl(false);
+
+  // Reset the LEDs before resetting the alarm flag.
+  if(i_mode_year == 1984 || i_mode_year == 1989) {
+    resetCyclotronLeds();
+  }
+
+  b_alarm = false;
+
+  if(b_overheat_lights_off == true) {
+    cyclotronSpeedRevert();
+    
+    // Reset the ramp speeds.
+    switch(i_mode_year) {
+      case 1984:
+      case 1989:
+          // Reset the ramp speeds.
+          i_current_ramp_speed = i_1984_delay * 1.3;
+          i_inner_current_ramp_speed = i_inner_ramp_delay;
+      break;
+
+      case 2021:
+        // Reset the ramp speeds.
+        i_current_ramp_speed = i_2021_ramp_delay;
+        i_inner_current_ramp_speed = i_inner_ramp_delay;
+      break;
+    }
+  }
+
+  reset2021RampUp();
+
+  packStartup();
+
+  // Turn off the vent light
+  ventLight(false);
+  ms_vent_light_off.stop();
+  ms_vent_light_on.stop();
+
+  ms_cyclotron.start(i_2021_delay); 
 }
 
 /*
@@ -3281,55 +3481,7 @@ void checkWand() {
         
             case W_OVERHEATING_FINISHED:
               // Overheating finished
-              w_trig.trackGain(S_VENT_DRY, i_volume);
-              b_overheating = false;
-
-              // Stop the fan.
-              ms_fan_stop_timer.stop();
-
-              // Turn off the n-filter fan.
-              fanControl(false);
-      
-              // Turn off the smoke.
-              smokeControl(false);
-
-              // Reset the LEDs before resetting the alarm flag.
-              if(i_mode_year == 1984 || i_mode_year == 1989) {
-                resetCyclotronLeds();
-              }
-          
-              b_alarm = false;
-
-              if(b_overheat_lights_off == true) {
-                cyclotronSpeedRevert();
-                
-                // Reset the ramp speeds.
-                switch(i_mode_year) {
-                  case 1984:
-                  case 1989:
-                      // Reset the ramp speeds.
-                      i_current_ramp_speed = i_1984_delay * 1.3;
-                      i_inner_current_ramp_speed = i_inner_ramp_delay;
-                  break;
-
-                  case 2021:
-                    // Reset the ramp speeds.
-                    i_current_ramp_speed = i_2021_ramp_delay;
-                    i_inner_current_ramp_speed = i_inner_ramp_delay;
-                  break;
-                }
-              }
-
-              reset2021RampUp();
-        
-              packStartup();
-        
-              // Turn off the vent light
-              ventLight(false);
-              ms_vent_light_off.stop();
-              ms_vent_light_on.stop();
-              
-              ms_cyclotron.start(i_2021_delay); 
+              packOverheatingFinished();
             break;
         
             case W_CYCLOTRON_NORMAL_SPEED:
