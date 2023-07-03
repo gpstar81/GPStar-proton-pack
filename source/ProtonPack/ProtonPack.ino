@@ -910,11 +910,6 @@ void powercellRampDown() {
     }
     else {     
       pack_leds[i_powercell_led] = CRGB(0,0,0);
-
-      // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
-      if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
-        i_extra_delay = 250;
-      }
       
       i_powercell_led--;
     }
