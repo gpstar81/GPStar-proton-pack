@@ -28,7 +28,7 @@
  * Values are in % of the volume.
  * 0 = quietest
  * 100 = loudest
- */
+*/
 const uint8_t STARTUP_VOLUME = 100;
 
 /*
@@ -37,7 +37,7 @@ const uint8_t STARTUP_VOLUME = 100;
  * Values are in % of the volume.
  * 0 = quietest
  * 100 = loudest
- */
+*/
 const uint8_t STARTUP_VOLUME_MUSIC = 100;
 
 /*
@@ -157,7 +157,7 @@ const bool b_overheat_mode_5 = true;
  * Time in milliseconds for when overheating will initiate if enabled for that power mode.
  * Overheat only happens if enabled for that power mode (see above).
  * Example: 12000 = (12 seconds)
- */
+*/
 const unsigned long int i_ms_overheat_initiate_mode_1 = 6000;
 const unsigned long int i_ms_overheat_initiate_mode_2 = 3000;
 const unsigned long int i_ms_overheat_initiate_mode_3 = 20000;
@@ -167,7 +167,7 @@ const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
  * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
- */
+*/
 const bool b_no_pack = false;
 
 /*
@@ -176,7 +176,7 @@ const bool b_no_pack = false;
  * If using the AUX cable jack, the amp can be disabled to save power.
  * If you use the output pins directly on the wav trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
- */
+*/
 const bool b_onboard_amp_enabled = true;
 
 /*
@@ -185,5 +185,5 @@ const bool b_onboard_amp_enabled = true;
  * Keep your wand unplugged from the pack while this is set to true.
  * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
  * The wand will respond a bit slower as it is streaming serial data back. For debugging the analog switch readings only.
- */
+*/
 const bool b_debug = false;

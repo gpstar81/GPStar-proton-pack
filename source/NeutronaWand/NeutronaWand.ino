@@ -700,8 +700,9 @@ void mainLoop() {
           }  
         break;
 
-         // Top menu: Play music or stop music.
-         // Sub menu: (Intensify) -> Switch between 1984/1989/2021 mode.
+        // Top menu: Play music or stop music.
+        // Sub menu: (Intensify) -> Switch between 1984/1989/2021 mode.
+        // Sub menu: (Mode switch) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
         case 1:
           // Play or stop the current music track.
           if(b_wand_menu_sub != true) {          
@@ -746,6 +747,7 @@ void mainLoop() {
               if(b_no_pack == true) {
                 if(year_mode == 1984) {
                   year_mode = 1989;
+
                   w_trig.trackStop(S_VOICE_AFTERLIFE);    
                   w_trig.trackStop(S_VOICE_1984);
                   w_trig.trackStop(S_VOICE_1989);    
@@ -754,6 +756,7 @@ void mainLoop() {
                 }
                 else if(year_mode == 1989) {
                   year_mode = 2021;
+
                   w_trig.trackStop(S_VOICE_AFTERLIFE);    
                   w_trig.trackStop(S_VOICE_1984);  
                   w_trig.trackStop(S_VOICE_1989);    
@@ -770,6 +773,14 @@ void mainLoop() {
                   w_trig.trackPlayPoly(S_VOICE_1984);
                 }
               }
+            }
+
+            // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
+            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
+              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+
+              // Tell the Proton Pack to cycle through the Video Game Colour toggles.
+              wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
             }
           }
         break;
@@ -4407,6 +4418,9 @@ void checkRotary() {
                 // Play a indication beep to notify we have changed to the sub menu.
                 w_trig.trackStop(S_BEEPS);
                 w_trig.trackPlayPoly(S_BEEPS);
+
+                // Tell the Proton Pack to play a beep during a sub menu to menu level change.
+                wandSerialSend(W_MENU_LEVEL_CHANGE);
               }
               else {
                 i_wand_menu = 1;
@@ -4436,6 +4450,9 @@ void checkRotary() {
                 // Play a indication beep to notify we have left the sub menu.
                 w_trig.trackStop(S_BEEPS);
                 w_trig.trackPlayPoly(S_BEEPS);
+
+                // Tell the Proton Pack to play a beep during a submenu to menu level change.
+                wandSerialSend(W_MENU_LEVEL_CHANGE);
               }
               else {
                 i_wand_menu = 5;
@@ -5050,6 +5067,46 @@ void checkPack() {
               w_trig.trackStop(S_VOICE_SINGLE_LED);    
               w_trig.trackGain(S_VOICE_THREE_LED, i_volume);
               w_trig.trackPlayPoly(S_VOICE_THREE_LED);
+            break;
+
+            case P_VIDEO_GAME_MODE_COLOURS_DISABLED:
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
+
+              w_trig.trackGain(S_VOICE_VIDEO_GAME_COLOURS_DISABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
+            break;
+
+            case P_VIDEO_GAME_MODE_POWER_CELL_ENABLED:
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
+
+              w_trig.trackGain(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
+            break;
+
+            case P_VIDEO_GAME_MODE_CYCLOTRON_ENABLED:
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
+
+              w_trig.trackGain(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
+            break;
+
+            case P_VIDEO_GAME_MODE_COLOURS_ENABLED:
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
+
+              w_trig.trackGain(S_VOICE_VIDEO_GAME_COLOURS_ENABLED, i_volume);
+              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
             break;
 
             case P_MUSIC_STOP:
