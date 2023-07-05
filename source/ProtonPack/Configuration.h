@@ -85,6 +85,12 @@ const uint8_t i_powercell_delay_2021 = 40;
 #define CYCLOTRON_NUM_LEDS 35
 
 /*
+  * If you use GRB (green/red/blue) instead of RGB (red/green/blue) addressable LEDs for your inner cyclotron leds, then set to true.
+  * Default is false.
+*/
+bool b_grb_cyclotron = false;
+
+/*
  * You can set the default master startup volume for your pack here.
  * When a Neutrona wand is connected, it will sync to these settings.
  * Values are in % of the volume.
@@ -297,7 +303,7 @@ const bool b_diagnostic = false;
 
 /*
   *****
-  ***** INFORMATION FOR HOME BUILT gpstar Proton Packs using a Arduino Mega ********
+  ***** INFORMATION FOR HOME BUILT gpstar Proton Packs using an Arduino Mega ********
   *****
   
   * If you are compiling the code to upload to a Arduino Mega with the original gpstar home built instructions. You want to use disabled GPSTAR_PROTON_PACK_PCB.

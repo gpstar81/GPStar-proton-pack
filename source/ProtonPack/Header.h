@@ -17,13 +17,6 @@
  *
  */
 
-/*
-  * Total number of LEDs in the Proton Pack
-  * PowerCell + Cyclotron Lid.
-  * 25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
-*/
-//const uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds;
-
  /* 
  * Total number of LEDs in the Proton Pack
  * PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
@@ -35,7 +28,7 @@
 #define VENT_LIGHT_START i_powercell_leds + i_cyclotron_leds
 
 /*
- * Proton pack powercell and cyclotron lid led pin.
+ * Proton pack Power Cell and Cyclotron lid led pin.
 */
 #define PACK_LED_PIN 53
 CRGB pack_leds[PACK_NUM_LEDS];
@@ -56,7 +49,7 @@ const uint8_t i_fast_led_delay = 6;
 millisDelay ms_fast_led;
 
 /*
- * Powercell LEDs control.
+ * Power Cell LEDs control.
  */
 unsigned int i_powercell_delay = i_powercell_delay_2021;
 int i_powercell_led = 0;
@@ -303,7 +296,7 @@ bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 
 /*
- * If you are compiling this for a Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
+ * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
 */
 #ifdef GPSTAR_PROTON_PACK_PCB
   ezButton switch_cyclotron_lid(43); // Second cyclotron ground pin (brown) that we detect if the lid is removed or not.

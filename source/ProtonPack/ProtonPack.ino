@@ -76,9 +76,17 @@ void setup() {
   // Another optional N-Filter LED.
   pinMode(i_nfilter_led_pin, OUTPUT);
 
-  // Powercell and cyclotron LEDs.
+  // Powercell and Cyclotron Lid.
   FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, PACK_NUM_LEDS);
-  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
+
+  // Inner Cyclotron LEDs.
+  if(b_grb_cyclotron == true) {
+    FastLED.addLeds<WS2812B, CYCLOTRON_LED_PIN, GRB>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
+  }
+  else {
+    FastLED.addLeds<WS2812B, CYCLOTRON_LED_PIN, RGB>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
+  }
+  
   //FastLED.setMaxPowerInVoltsAndMilliamps(5,500);  // Limit draw to 500mA at 5v of power.
    
   // Cyclotron Switch Panel LEDs
