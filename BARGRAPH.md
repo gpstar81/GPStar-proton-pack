@@ -14,23 +14,23 @@ This guide outlines the **optional** upgrade from the 5-LED stock bargraph to a 
 
 You will find the Barmeter pin reference below which will connect the bargraph to the matrix driver board. See the component fitment guide at the bottom of this page for how to mount this Bargraph into your wand body.
 
-| HT16K33 Board | PCB    | Nano Pin | Barmeter Pin |
-|---------------|--------|----------|--------------|
-| VDD           | +5V    |          |              |
-| GND           | Ground |          |              |
-| SDA           | →      | Pin A5   |              |
-| SCL           | →      | Pin A4   |              |
-| A0            | →      | →        | 22 (C1)      |
-| A1            | →      | →        |  1 (C2)      |
-| A2            | →      | →        | 19 (C3)      |
-| A3            | →      | →        | 18 (C4)      |
-| A4            | →      | →        |  7 (C5)      |
-| A5            | →      | →        | 10 (C6)      |
-| A6            | →      | →        | 11 (C7)      |
-| C0            | →      | →        | 21 (L1)      |
-| C1            | →      | →        | 15 (L2)      |
-| C2            | →      | →        | 13 (L3)      |
-| C3            | →      | →        | 16 (L4)      |
+| HT16K33 Board | Wand PCB |  Barmeter Pin |
+|---------------|--------|---------------|
+| VDD           | +5V    |               |
+| GND           | Ground |               |
+| SDA           | SDA    |               |
+| SCL           | SCL    |               |
+| A0            | →      |  22 (C1)      |
+| A1            | →      |   1 (C2)      |
+| A2            | →      |  19 (C3)      |
+| A3            | →      |  18 (C4)      |
+| A4            | →      |   7 (C5)      |
+| A5            | →      |  10 (C6)      |
+| A6            | →      |  11 (C7)      |
+| C0            | →      |  21 (L1)      |
+| C1            | →      |  15 (L2)      |
+| C2            | →      |  13 (L3)      |
+| C3            | →      |  16 (L4)      |
 
 **Note** - If using the all-in-one PCB controller, connect the SDA and SCL pins directly to the expansion port available on that board. Additionally, the VDD and GND pins may make use of the 5V-OUT connection on that controller.
 
@@ -60,11 +60,11 @@ The 28-segment bargraph is intended to take the place of the 5-LED + PCB assembl
 
 To fit the new bargraph in place, it needs a suitable holder to keep it in the correct orientation. Thankfully, it can be seen quite well without removing the clear/frosted plastic from the wand housing, though some minor trimming may be necessary at the bottom (when oriented with the rotary encoder facing up) of the bargraph socket. 
 
-If you have access to a 3D printer, the file [bargraph_insert.stl](stl/wand/bargraph_insert.stl) should fit the bargraph tightly while also slotting into the clear plastic. 
+If you have access to a 3D printer, the file [28_Segment_Bargraph_Insert.stl.stl](stl/wand/28_Segment_Bargraph_Insert.stl.stl) should fit the bargraph tightly while also slotting into the clear plastic. 
 ![](images/bargraph_mount_1.jpg)
 ![](images/bargraph_mount_2.jpg)
 
-There is an alternative mounting solution which when you cut the original clear plastic away, you can fit the bargraph into the [bargraph_mount.stl](stl/wand/bargraph_mount.stl) and [bargraph_block.stl](stl/wand/bargraph_block.stl) which uses the stock mounting screw positions.
+There is an alternative mounting solution which when you cut the original clear plastic away, you can fit the bargraph into the [28_Segment_Bargraph_Mount.stl](stl/wand/28_Segment_Bargraph_Mount.stl) and [28_Segment_Bargraph_Block.stl](stl/wand/28_Segment_Bargraph_Block.stl) which uses the stock mounting screw positions.
 ![](images/bargraph_mount_3.jpg)
 ![](images/bargraph_mount_4.jpg)
 ![](images/bargraph_mount_5.jpg)
