@@ -13,7 +13,7 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 That's alright, this will help you study. Below you will find the various guides to build out your new electronic brains, and maybe find some cool new features to implement as part of the addendums.
 
---
+<hr>
 <img src='images/gpstar_logo.png' width=50 align="left" /> <h3>gpstar Proton Pack and Neutrona Wand PCB Guide</h3>This guide is intended for completing the connections and installation for the gpstar Proton Pack and Neutrona Wand PCB boards.
 
 1. [Pack PCB](PACK_PCB.md)
@@ -26,7 +26,7 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Flashing Updates](FLASHING.md)
 
---
+<hr>
 ### DIY Arduino Build Guides
 
 Considered the "legacy" guide to building your own solution using the Arduino platform.
