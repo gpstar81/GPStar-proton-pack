@@ -57,7 +57,7 @@ Connections for the wand should be made according to the table below.
 | Label | Pins | Notes |
 |-------|------|-------|
 | PACK (Serial) | TX1/RX1 | Serial communication to the Proton Pack |
-| WAV TRIGGER | GND/NC/VCC/TX/RX/NC | Communication and Power for the wands's Wav Trigger |
+| AUDIO BOARD | GND/NC/VCC/TX/RX/NC | Communication and Power for the wands's Wav Trigger |
 | ICSP | DO NOT USE! | Programming header for bootloader updates (reserved) |
 | UART | See Below | Programming header for software updates (optional) |
 
@@ -77,4 +77,3 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 | SCL/SDA | SCL/SDA | Expansion serial port using I2C |
 
 **Note:** If using the [28-segment bargraph](BARGRAPH.md), power may be delivered via the 5V-OUT while the SCL/SDA serial connection will provide data/control.
-
