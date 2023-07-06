@@ -1,8 +1,7 @@
 # Microcontroller Replacements for the Haslab Spengler Series Proton Pack and Neutrona Wand
 
-This repository outlines the full replacement of the stock microcontrollers which run the Proton Pack and Neutrona Wand while retaining the use and function of all existing switches and lights. This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
+This repository outlines the full replacement of the stock microcontrollers which run the Proton Pack and Neutrona Wand while retaining the use and function of all existing switches and lights.
 
-The process is outlined through use of multiple guides, starting with a list of all parts and materials needed, and moving through the preparation of the hardware and software before modifying the pack and wand themselves. Lastly, there is an operation manual for navigating the various features within the new controllers.
 
 ### "Yes, have some"...music!
 
@@ -14,9 +13,24 @@ Special thanks to Michael Klodzinksi for graciously allowing us to include his v
 
 That's alright, this will help you study. Below you will find the various guides to build out your new electronic brains, and maybe find some cool new features to implement as part of the addendums.
 
-### DIY Build Guides
+--
+<img src='images/gpstar_logo.png' width=50 align="left" /> <h3>gpstar Proton Pack and Neutrona Wand PCB Guide</h3>This guide is intended for completing the connections and installation for the gpstar Proton Pack and Neutrona Wand PCB boards.
+
+1. [Pack PCB](PACK_PCB.md)
+
+1. [Wand PCB](WAND_PCB.md)
+
+1. TBD: Wiring Loom, External Connectors, etc.
+
+1. [Loading The Audio Files](AUDIO.md)
+
+1. [Flashing Updates](FLASHING.md)
+
+--
+### DIY Arduino Build Guides
 
 Considered the "legacy" guide to building your own solution using the Arduino platform.
+This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
 
 1. [Bill of Materials](BOM.md)
 
@@ -26,23 +40,16 @@ Considered the "legacy" guide to building your own solution using the Arduino pl
 
 1. [WavTrigger Configuration](WAVTRIGGER.md)
 
+1. [Loading The Audio Files](AUDIO.md)
+
 1. [Pack Setup](PACK.md)
 
 1. [Wand Setup](WAND.md)
 
-### Drop-In Hookup Guide
-
-This guide is intended for completing the connections for the all-in-one PCB approach.
-
-1. [Pack PCB](PACK_PCB.md)
-
-1. [Wand PCB](WAND_PCB.md)
-
-1. TBD: Wiring Loom, External Connectors, etc.
-
+--
 ### Addendums
 
-These apply to normal operation and usage of the equipment regardless of controller implementation.
+These apply to the normal operation and usage of the equipment regardless of which microcontroller boards you are using.
 
 1. [Operation Manual](OPERATION.md)
 
