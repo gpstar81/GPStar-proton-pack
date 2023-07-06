@@ -5,10 +5,10 @@ The custom software needed for operation must be compiled and uploaded to your d
 ## Supported Devices
 ###Proton Pack:###
  
-- <img src='images/gpstar_logo.png' width=30 align="left" /> gpstar Proton Pack PCB
+- Arduino Mega 2560
 
 ###Neutrona Wand:###
-- <img src='images/gpstar_logo.png' width=30 align="left" /> gpstar Neutrona Wand PCB
+- Arduino Nano
 
 ## Prerequisites
 
@@ -44,10 +44,29 @@ Documented on both the Proton Pack and Neutron Wand code at the top of each file
 
 **(see For compiling code on the Arduino Mega or Nano below for more information)**. 
 
-The **wavTrigger.h** file can be located in your `Arduino/Libraries/<wav trigger folder>` (MacOS) or `C:\Arduino\Libraries` (Windows). See the special notes below for compiling the sketches for each of the Arduino boards.## For compiling code for the gpstar Proton Pack PCB and gpstar Neutrona Wand PCB:You need to enable `__WT_USE_SERIAL_3__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use.
+The **wavTrigger.h** file can be located in your `Arduino/Libraries/<wav trigger folder>` (MacOS) or `C:\Arduino\Libraries` (Windows). See the special notes below for compiling the sketches for each of the Arduino boards.## For compiling code for Arduino Mega:You need to enable `__WT_USE_SERIAL_3__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use. Note that you will need to confirm this value if you switch between compiling for the Arduino Nano.
 
-![WavTrigger Serial Class for gpstar PCB boards](images/wt_serial_mega.png)
+![WavTrigger Serial Class for Arduino Mega](images/wt_serial_mega.png)
 
+## For compiling code on the Arduino Nano:
+
+You need to enable `__WT_USE_ALTSOFTSERIAL__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use. Note that you will need to confirm this value if you switch between compiling for the Arduino Mega.
+
+**NOTE: Before uploading to the Arduino Nano, be sure to either disconnect the wand from the pack or otherwise disconnect the TX/RX connections as these will interfere with the USB interface when still connected to the Arduino Mega in the pack.**
+
+![WavTrigger Serial Class for Arduino Nano](images/wt_serial_nano.png)
+
+### Important for Arduino Nano builds:
+  * You will need to open Packet.h located in your Arduino/Libraries/SerialTransfer folder and on line #34 and change the max packet size to 0x9B
+  * When building for your Mega, you can switch it back to 0xFE
+
+  * Before:
+  const uint8_t MAX_PACKET_SIZE = 0xFE; // Maximum allowed payload bytes per packet
+
+  * After:
+  const uint8_t MAX_PACKET_SIZE = 0x9B; // Maximum allowed payload bytes per packet
+
+![Serial build for Arduino Nano](images/Arduino_nano_serial_build.jpg)
 
 ## Advanced User Configurations
 
