@@ -352,6 +352,7 @@ void mainLoop() {
       switch(i_wand_menu) {
         // Top menu: Music track loop setting.
         // Sub menu: Enable or disable crossing the streams / video game modes.
+        // Sub menu: (Mode switch) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs. (when video game mode is selected).
         case 5:
         // Music track loop setting.
         if(b_wand_menu_sub != true) {
@@ -436,6 +437,14 @@ void mainLoop() {
 
             // Reset the previous firing mode to the proton stream.
             PREV_FIRING_MODE = PROTON;
+          }
+
+          // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
+          if(switchMode() == true && ms_switch_mode_debounce.justFinished() && b_cross_the_streams != true && b_cross_the_streams_mix != true) {              
+            ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+
+            // Tell the Proton Pack to cycle through the Video Game Colour toggles.
+            wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
           }
         }
         break;
@@ -701,8 +710,7 @@ void mainLoop() {
         break;
 
         // Top menu: Play music or stop music.
-        // Sub menu: (Intensify) -> Switch between 1984/1989/2021 mode.
-        // Sub menu: (Mode switch) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
+        // Sub menu: (Intensify) -> Switch between 1984/1989/Afterlife mode.
         case 1:
           // Play or stop the current music track.
           if(b_wand_menu_sub != true) {          
@@ -732,7 +740,7 @@ void mainLoop() {
             }
           }
           else {
-            // Switch between 1984/1989/2021 mode.
+            // Switch between 1984/1989/Afterlife mode.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
               
@@ -773,14 +781,6 @@ void mainLoop() {
                   w_trig.trackPlayPoly(S_VOICE_1984);
                 }
               }
-            }
-
-            // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
-            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
-              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
-
-              // Tell the Proton Pack to cycle through the Video Game Colour toggles.
-              wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
             }
           }
         break;
