@@ -440,11 +440,13 @@ void mainLoop() {
           }
 
           // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
-          if(switchMode() == true && ms_switch_mode_debounce.justFinished() && b_cross_the_streams != true && b_cross_the_streams_mix != true) {              
+          if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
             ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
 
-            // Tell the Proton Pack to cycle through the Video Game Colour toggles.
-            wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
+            if(b_cross_the_streams != true && b_cross_the_streams_mix != true) {
+              // Tell the Proton Pack to cycle through the Video Game Colour toggles.
+              wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
+            }
           }
         }
         break;
