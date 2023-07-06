@@ -35,7 +35,7 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 
 - Activate toggle on the gun box turns on both the pack and wand.
 	- The switch under the pack's ion arm does not need to be engaged for this to work.
-- Right-hand toggles affectd the vent light and additional sound effects depending on mode.
+- Right-hand toggles affect the vent light and additional sound effects depending on mode.
 	- Regardless of mode, the wand will not fire unless these switches are turned on.
 	- Additionally, the lever switch near the gunbox must be pulled to extend the barrel before firing.
 	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top-right switch (beep switch) is on, the Neutrona Wand will boot into a error mode. Turn this top-right switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the advanced user configuration settings by setting **b&#95;wand&#95;boot&#95;errors** to false. **\*see below\***
@@ -46,7 +46,7 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 - While in 1984/1989 modes:
 	- Bottom right switch turns on the vent light and plays the wand power up sound.
 	- Top right switch plays a single beep sound.
-- While in 2021 (Afterlife) mode:
+- While in Afterlife mode:
 	- Bottom right switch turns on the vent light and the wand plays a ramp up sound.
  	- Top right switch turns on the looping beeping sounds.
 
