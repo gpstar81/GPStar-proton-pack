@@ -47,7 +47,7 @@ This is an advanced build-out which requires opening all devices and performing 
 1. [Wand Setup](WAND.md)
 
 <hr>
-### Addendums
+<h3>Addendums</h3>
 
 These apply to the normal operation and usage of the equipment regardless of which microcontroller boards you are using.
 
