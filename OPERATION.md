@@ -1,7 +1,7 @@
 # Operating Manual
 					
-Video Demo: [Haslab Proton Pack Arduino Powered Demo & Features](https://www.youtube.com/watch?v=nhGX1oJBNHk) (YouTube)
-[![Haslab Proton Pack Arduino Powered Demo & Features](https://img.youtube.com/vi/nhGX1oJBNHk/maxresdefault.jpg)](https://youtu.be/nhGX1oJBNHk)
+Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube)
+[![Haslab Proton Pack Arduino Powered Demo & Features](https://img.youtube.com/vi/ePXz99UawLQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=ePXz99UawLQ)
 
 ## Proton Pack		
 
