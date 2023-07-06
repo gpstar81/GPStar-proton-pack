@@ -44,9 +44,18 @@
   #include <ht16k33.h>
 #endif
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  #include <SerialTransfer.h>
-#endif
+/*
+  ***** IMPORTANT *****
+  * For Arduino Nano builds, you need to open Packet.h located in your Arduino/Libraries/SerialTransfer folder and on line #34 and change the max packet size to 0x9B:
+  * When building for your Mega, you can switch it back to 0xFE
+
+  * Before:
+  const uint8_t MAX_PACKET_SIZE = 0xFE; // Maximum allowed payload bytes per packet
+
+  * After:
+  const uint8_t MAX_PACKET_SIZE = 0x9B; // Maximum allowed payload bytes per packet
+*/
+#include <SerialTransfer.h>
 
 #include "Configuration.h"
 #include "MusicSounds.h"
@@ -66,6 +75,8 @@ void setup() {
       Serial1.begin(9600);
       wandComs.begin(Serial1);
     #endif
+  #else
+    wandComs.begin(Serial);
   #endif
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
@@ -4757,25 +4768,12 @@ bool switchBarrel() {
 
 // Pack communication to the wand.
 void checkPack() {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
     if(wandComs.available()) {
       wandComs.rxObj(comStruct);
 
       if(!wandComs.currentPacketID()) {
         if(comStruct.i > 0 && comStruct.s == P_COM_START && comStruct.e == P_COM_END) {
-         
-  #else
-    if(Serial.available() > 0) {
-      rx_byte = Serial.read();
-
-        // TODO: 
-        // For Nano builds, read the first packet and stick it into the comStruct.s
-        // Read the data packets.
-        // Read the end packet and then process.
-      
-      if(comStruct.s > 0) {
-        if(comStruct.i > 0 && comStruct.s == P_COM_START && comStruct.e == P_COM_END) {
-  #endif
+  
         if(b_volume_sync_wait == true) {
           switch(VOLUME_SYNC_WAIT) {
             case EFFECTS:
@@ -5140,13 +5138,11 @@ void checkPack() {
 }
 
 void wandSerialSend(int i_message) {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    sendStruct.i = i_message;
-    sendStruct.s = W_COM_START;
-    sendStruct.e = W_COM_END;
+  sendStruct.i = i_message;
+  sendStruct.s = W_COM_START;
+  sendStruct.e = W_COM_END;
 
-    wandComs.sendDatum(sendStruct);
-  #endif
+  wandComs.sendDatum(sendStruct);
 }
 
 void setupWavTrigger() {

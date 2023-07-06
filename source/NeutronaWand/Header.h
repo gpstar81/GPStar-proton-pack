@@ -229,11 +229,7 @@ uint8_t i_power_mode_prev = 1;
 /* 
  *  Wand / Pack communication
  */
- #ifdef GPSTAR_NEUTRONA_WAND_PCB
-  SerialTransfer wandComs;
-#else
-  unsigned int rx_byte = 0;
-#endif
+SerialTransfer wandComs;
 
 struct __attribute__((packed)) STRUCT {
   int s;
