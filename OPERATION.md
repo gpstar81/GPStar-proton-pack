@@ -8,14 +8,14 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 ### Standard Pack Features
 
 - The switch underneath the ion arm can turn the pack on or off.
-- You can run the pack without the cyclotron lid on, unlike the stock Haslab hardware.
+- You can run the pack without the cyclotron lid on.
 - The volume for the pack and wand can be controlled via the Crank Generator knob.
    - Clockwise to raise volume, counter-clockwise to lower it.
-- When the ribbon cable is disconnected it will activate the alarm mode and degraded cyclotron spin.
+- When the ribbon cable is disconnected it will activate the alarm mode and degraded the cyclotron spin.
 - The pack can run without a wand, though it can only be activated via the switch under the Ion Arm.
 - Vibration switch in the cyclotron switch plate enables or disables the vibration motors for both the pack and wand.
-- 1984/2021 year switch in the cyclotron switch plate changes the pack and wand from 1984 (OG) to 2021 (Afterlife) modes.
-- The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
+- 1984/2021 (Afterlife) year switch in the cyclotron switch plate changes the pack and wand from 1984 (OG) to 2021 (Afterlife) modes.
+- The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
 - Single (centered) LED per cyclotron lens for 1984/1989 modes by default.
 	- This can be toggled back to 3 LED's per cyclotron lens via the wand menu system.
 
@@ -23,11 +23,12 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 ### Optional Pack Features
 
 - 1989 sound effects mode available on the pack, it can be accessed from the Wand sub menu system or set with the advanced user configuration settings. **\*see below\***
-- Support for switches for cyclotron direction and to enable/disable smoke effects.
+- Support for switches for cyclotron direction and to enable or disable smoke effects.
 - Smoke effects with dedicated fans for the booster tube and N-filter.
-- Additional Lights available for the cyclotron panel and internal "cake" cyclotron.
+- Additional Lights available for the cyclotron panel, internal "cake" cyclotron and Power Cell.
 	- Automatically switches to internal "cake" cyclotron, if implemented (optional).
-	- This supports a 35 LED ring light (by default) to be installed in the "cake".
+	- This supports a 35 LED ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
+- Video game colours supported if using RGB supported LEDs for the Cyclotron Lid, internal "cake" cyclotron and Power Cell.
 
 ## Neutrona Wand				
 
