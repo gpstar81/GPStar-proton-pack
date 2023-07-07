@@ -40,9 +40,9 @@ The WavTrigger library must be downloaded from the project GitHub page. Download
 [https://github.com/robertsonics/WAV-Trigger-Arduino-Serial-Library](https://github.com/robertsonics/WAV-Trigger-Arduino-Serial-Library)
 
 ## +++ IMPORTANT +++
-Documented on both the Proton Pack and Neutron Wand code at the top of each file, is instructions on modifying the wavTrigger.h file. **You will need to open the wavTrigger.h file and comment out the neccessary #define required for the Proton Pack or Neutrona Wand**
+Documented on both the Proton Pack and Neutron Wand code at the top of each file, is instructions on modifying the wavTrigger.h file. **You will need to open the wavTrigger.h file and comment out the neccessary #define required for the Proton Pack and Neutrona Wand**
 
-**(see For compiling code on the Arduino Mega or Nano below for more information)**. 
+**(see For compiling code on the gpstar Proton Pack and gpstar Neutrona Wand below for more information)**. 
 
 The **wavTrigger.h** file can be located in your `Arduino/Libraries/<wav trigger folder>` (MacOS) or `C:\Arduino\Libraries` (Windows). See the special notes below for compiling the sketches for each of the Arduino boards.## For compiling code for the gpstar Proton Pack PCB and gpstar Neutrona Wand PCB:You need to enable `__WT_USE_SERIAL_3__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use.
 
