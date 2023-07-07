@@ -164,9 +164,10 @@ int i_volume_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 int i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
 int i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 
-unsigned int i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
-unsigned int i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
-unsigned int i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
+int8_t i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
+int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
+int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
+int8_t i_volume_revert = i_volume_master;
 
 millisDelay ms_volume_check; // Put some timing on the master volume gain to not overload the wav trigger serial communication.
 

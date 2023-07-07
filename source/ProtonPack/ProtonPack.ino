@@ -3105,6 +3105,10 @@ void decreaseVolumeEffects() {
 }
 
 void increaseVolume() { 
+  if(i_volume_master == -70 && MINIMUM_VOLUME > i_volume_master) {
+    i_volume_master = MINIMUM_VOLUME;
+  }
+
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
     i_volume_master_percentage = 100;
   }
@@ -3113,21 +3117,28 @@ void increaseVolume() {
   }
 
   i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+  i_volume_revert = i_volume_master;
 
   w_trig.masterGain(i_volume_master);
 }
 
 void decreaseVolume() {
-  if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
-    i_volume_master_percentage = 0;
+  if(i_volume_master == -70) {
+    // Can not go any lower.
   }
   else {
-    i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
-  }
+    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
+      i_volume_master_percentage = 0;
+    }
+    else {
+      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
+    }
 
-  i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-     
-  w_trig.masterGain(i_volume_master);       
+    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master;
+
+    w_trig.masterGain(i_volume_master); 
+  }      
 }
 
 void readEncoder() {
@@ -4201,6 +4212,22 @@ void checkWand() {
               }
             break;
             
+            case W_SILENT_MODE:
+              i_volume_revert = i_volume_master;
+
+              // Set the master volume to silent.
+              i_volume_master = -70;
+              
+              w_trig.masterGain(i_volume_master); // Reset the master gain.
+            break;
+
+            case W_VOLUME_REVERT:
+              // Set the master volume to silent.
+              i_volume_master = i_volume_revert;
+              
+              w_trig.masterGain(i_volume_master); // Reset the master gain.
+            break;
+
             case W_VOLUME_DECREASE:
               // Lower overall pack volume.
               decreaseVolume();
@@ -4300,8 +4327,19 @@ void checkWand() {
 
             // Sequence here is important. Synchronise the volume settings.
             packSerialSend(i_volume_percentage);
+
             packSerialSend(i_volume_master_percentage);
+
             packSerialSend(i_volume_music_percentage);
+
+
+            if(i_volume_master == -70) {
+              // Telling the wand to be silent if required.
+              packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
+            }
+            else {
+              packSerialSend(P_MASTER_AUDIO_NORMAL);
+            }
 
             b_wand_connected = true;
           }
@@ -4309,7 +4347,6 @@ void checkWand() {
       }
     }
   }
-
 }
 
 void packSerialSend(int i_message) {

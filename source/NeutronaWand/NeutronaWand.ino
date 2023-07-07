@@ -723,6 +723,7 @@ void mainLoop() {
         break;
 
         // Top menu: Play music or stop music.
+        // Top menu: (Mode Switch). Mute the Proton Pack and Neutrona Wand.
         // Sub menu: (Intensify) -> Switch between 1984/1989/Afterlife mode.
         case 1:
           // Play or stop the current music track.
@@ -750,6 +751,26 @@ void mainLoop() {
                   playMusic();
                 }
               }
+            }
+
+            // Silent the Proton Pack or Neutrona Wand or revert back.
+            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
+              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+
+              if(i_volume_master == -70) {
+                wandSerialSend(W_VOLUME_REVERT);
+
+                i_volume_master = i_volume_revert;  
+              }
+              else {
+                i_volume_revert = i_volume_master;
+                // Set the master volume to silent.
+                i_volume_master = -70;
+              
+                wandSerialSend(W_SILENT_MODE);
+              }
+
+              w_trig.masterGain(i_volume_master); // Reset the master gain.
             }
           }
           else {
@@ -1101,6 +1122,7 @@ void settingsBlinkingLights() {
 
   if(ms_settings_blinking.remaining() < i_settings_blinking_delay / 2) {
     bool b_solid_five = false;
+    bool b_solid_one = false;
 
     // Indicator for looping track setting.
     if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub != true) {
@@ -1112,15 +1134,34 @@ void settingsBlinkingLights() {
       b_solid_five = true;
     }
 
+    if(i_volume_master == -70 && WAND_ACTION_STATUS == ACTION_SETTINGS && b_wand_menu_sub != true) {
+      b_solid_one = true;
+    }
+
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       if(b_28segment_bargraph == true) {
         if(b_solid_five == true) { 
           for(uint8_t i = 0; i < 16; i++) {
-            ht_bargraph.clearLedNow(i_bargraph[i]);
+            if(b_solid_one == true && i < 2) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+            }
+            else {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+            }
           }
 
           for(uint8_t i = 16; i < 18; i++) {
             ht_bargraph.setLedNow(i_bargraph[i]);
+          }
+        }
+        else if(b_solid_one == true) {
+          for(uint8_t i = 0; i < 18; i++) {
+            if(i < 2) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+            }
+            else {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+            }
           }
         }
         else {
@@ -1128,7 +1169,13 @@ void settingsBlinkingLights() {
         }
       }
       else {
-        digitalWrite(led_bargraph_1, HIGH);
+        if(b_solid_one == true) {
+          digitalWrite(led_bargraph_1, LOW);
+        }
+        else {
+          digitalWrite(led_bargraph_1, HIGH);
+        }
+
         digitalWrite(led_bargraph_2, HIGH);
         digitalWrite(led_bargraph_3, HIGH);
         digitalWrite(led_bargraph_4, HIGH);
@@ -1141,7 +1188,13 @@ void settingsBlinkingLights() {
         }
       }
     #else
-      digitalWrite(led_bargraph_1, HIGH);
+      if(b_solid_one == true) {
+        digitalWrite(led_bargraph_1, LOW);
+      }
+      else {
+        digitalWrite(led_bargraph_1, HIGH);
+      }
+
       digitalWrite(led_bargraph_2, HIGH);
       digitalWrite(led_bargraph_3, HIGH);
       digitalWrite(led_bargraph_4, HIGH);
@@ -4350,6 +4403,10 @@ void decreaseVolumeEffects() {
 }
 
 void increaseVolume() {
+  if(i_volume_master == -70 && MINIMUM_VOLUME > i_volume_master) {
+    i_volume_master = MINIMUM_VOLUME;
+  }
+
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
     i_volume_master_percentage = 100;
   }
@@ -4358,21 +4415,28 @@ void increaseVolume() {
   }
 
   i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-  
+  i_volume_revert = i_volume_master;
+
   w_trig.masterGain(i_volume_master);
 }
 
 void decreaseVolume() {
-  if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
-    i_volume_master_percentage = 0;
+  if(i_volume_master == -70) {
+    // Can not go any lower.
   }
   else {
-    i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
-  }
+    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
+      i_volume_master_percentage = 0;
+    }
+    else {
+      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
+    }
 
-  i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-  
-  w_trig.masterGain(i_volume_master);
+    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master;
+
+    w_trig.masterGain(i_volume_master);
+  }
 }
 
 int8_t readRotary() {
@@ -4786,7 +4850,9 @@ void checkPack() {
 
             case MASTER:
               i_volume_master_percentage = comStruct.i;
-              i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+              i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); 
+
+              i_volume_revert = i_volume_master;
 
               w_trig.masterGain(i_volume_master);
 
@@ -4797,8 +4863,22 @@ void checkPack() {
               i_volume_music_percentage = comStruct.i;
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
+              VOLUME_SYNC_WAIT = SILENT;
+            break;
+
+            case SILENT:
+              if(comStruct.i == P_MASTER_AUDIO_SILENT_MODE) {
+                i_volume_revert = i_volume_master;
+                
+                // The pack is telling us to be silent.
+                i_volume_master = -70;
+                w_trig.masterGain(i_volume_master);
+              }
+
+              // Exit the sync mode.
               b_volume_sync_wait = false;
               b_wait_for_pack = false;
+
               VOLUME_SYNC_WAIT = EFFECTS;
             break;
           }      

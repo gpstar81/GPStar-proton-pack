@@ -61,7 +61,7 @@ uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 int8_t i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
 int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
-
+int8_t i_volume_revert = i_volume_master;
 /* 
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
  * Also controls independent music volume while the pack/wand is off and if music is playing.
@@ -255,7 +255,7 @@ uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow do
 /*
  * Volume sync status with the pack.
  */
-enum VOLUME_SYNC { EFFECTS, MASTER, MUSIC };
+enum VOLUME_SYNC { EFFECTS, MASTER, MUSIC, SILENT };
 enum VOLUME_SYNC VOLUME_SYNC_WAIT;
 
 /* 

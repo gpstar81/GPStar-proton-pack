@@ -119,11 +119,13 @@ Changes are made by pressing either the "Intensify" button on the gun box or the
 | 4 | Sound&nbsp;FX&nbsp;Volume | Increases volume | Decreases volume |
 | 3 | Music&nbsp;Volume | Increases volume | Decreases volume |
 | 2 | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
-| 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music | Start/stop playing of music | - No Action - |
+| 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music / System Mute | Start/stop playing of music | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3 |
 
 <sup>1</sup> Note that the LED/segment #5 will stay solid when the single-track loop is enabled while in the top menu system; it will blink on/off when looping is disabled.
 
 <sup>2</sup> When you navigate back to the **Setting 5** while in Video Game Mode and press the Barrel Wing Button, the wand will return the proton stream mode (accompanied by an audio cue to indicate this return to firing readiness). When in CTS mode this will exit the menu and allow the wand to be powered on. Note that music will continue to play (and advance/loop) even when the pack and wand are turned off. 
+
+<sup>3</sup> Note that the LED/segment #1 will stay solid when the Proton Pack and Neutrona Wand volume is muted and turned off.
 
 ## Sub Level Menu
 
