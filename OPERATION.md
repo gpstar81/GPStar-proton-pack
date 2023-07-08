@@ -147,7 +147,7 @@ To exit the menu system, navigate to the top menu in **Setting 5** (Slo-blo LED 
 
 **When music is playing while the pack and wand are turned off, you can use the Rotary knob on the top of the wand to easily access the independent music volume control.**
 
-Refer the [WavTrigger section](WAVTRIGGER.md) for more information on loading additional music tracks.
+Refer the [Loading The Audio Files](AUDIO.md) for more information on loading additional music tracks.
 
 ## Advanced User Configurations
 
