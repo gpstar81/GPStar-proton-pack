@@ -7,7 +7,7 @@ This repository outlines the full replacement of the stock microcontrollers whic
 A fully integrated Proton Pack and Neutrona Wand, packed with features and add-ons.
 
 - Polyphonic sound
-  - Allows simultaneous playback of multiple audio tracks which can be layered together to create a rich experience with smoothly layered sound effects and transitions.
+  - Allows simultaneous playback of multiple audio tracks which can be layered together to create a rich experience with smoothly layered sound effects and buttery smooth transitions.
   - While blasting away with the Proton stream you can still hear all the layers of sound effects that came before...the Pack effects, each Wand toggle effect, Music etc.
 - Wand / Pack communication system
    - By implmenting both the pack and wand controllers with an upgraded hose connection, both devices work seamlessly together. Interactions with the wand have an immediate effect on the pack, and vice-versa.
