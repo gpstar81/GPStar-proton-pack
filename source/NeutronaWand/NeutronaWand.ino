@@ -451,8 +451,9 @@ void mainLoop() {
           }
 
           // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
-          if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
-            ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+          //if(switchMode() == true && ms_switch_mode_debounce.justFinished()) { 
+          if(switchMode() == true) {                           
+            //ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
 
             if(b_cross_the_streams != true && b_cross_the_streams_mix != true) {
               // Tell the Proton Pack to cycle through the Video Game Colour toggles.
@@ -477,13 +478,14 @@ void mainLoop() {
               wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
             }
 
-            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
+            //if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
+            if(switchMode() == true) {
               decreaseVolumeEffects();
               
               // Tell pack to lower the sound effects volume.
               wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
               
-              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+              //ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
             }
           }
           else {
@@ -496,7 +498,8 @@ void mainLoop() {
             }
 
             // Enable or disable overheating.
-            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
+            //if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
+            if(switchMode() == true) {                
               if(b_overheat_enabled == true) {
                 b_overheat_enabled = false;
                 
@@ -522,7 +525,7 @@ void mainLoop() {
                 wandSerialSend(W_OVERHEATING_ENABLED);
               }
               
-              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+              //ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
             }
           }
         break;
@@ -552,7 +555,8 @@ void mainLoop() {
                 wandSerialSend(W_VOLUME_MUSIC_INCREASE);
               }
     
-              if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {                
+              //if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
+              if(switchMode() == true) {                  
                 if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
                   i_volume_music_percentage = 0;
                 }
@@ -567,7 +571,7 @@ void mainLoop() {
                 // Tell pack to lower music volume.
                 wandSerialSend(W_VOLUME_MUSIC_DECREASE);
                 
-                ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+                //ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
               }  
             }
           }
@@ -579,8 +583,9 @@ void mainLoop() {
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
 
-            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
-              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+            //if(switchMode() == true && ms_switch_mode_debounce.justFinished()) { 
+            if(switchMode() == true) {                         
+              //ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
 
               // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
               wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
@@ -624,7 +629,8 @@ void mainLoop() {
               wandSerialSend(i_current_music_track);
             }
 
-            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {                     
+            //if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
+            if(switchMode() == true) {                                            
               if(i_current_music_track - 1 < i_music_track_start) {
                 if(b_playing_music == true) {
                   // Go to the last track to play it.
@@ -651,7 +657,7 @@ void mainLoop() {
               // Tell the pack which music track to change to.
               wandSerialSend(i_current_music_track);
               
-              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+              //ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
             }   
           }
           else {
@@ -667,8 +673,9 @@ void mainLoop() {
             }
 
             // Enable or disable vibration or firing vibration only for the wand.
-            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
-              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+            //if(switchMode() == true && ms_switch_mode_debounce.justFinished()) { 
+            if(switchMode() == true) {                 
+              //ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
 
               w_trig.trackStop(S_BEEPS_ALT);    
               w_trig.trackGain(S_BEEPS_ALT, i_volume);
@@ -754,8 +761,9 @@ void mainLoop() {
             }
 
             // Silent the Proton Pack or Neutrona Wand or revert back.
-            if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {              
-              ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+            //if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
+            if(switchMode() == true) {                
+              //ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
 
               if(i_volume_master == -70) {
                 wandSerialSend(W_VOLUME_REVERT);
@@ -824,7 +832,8 @@ void mainLoop() {
 
   switch(WAND_STATUS) {
     case MODE_OFF:          
-      if((switchMode() == true && ms_switch_mode_debounce.justFinished()) || b_pack_alarm == true) {
+      //if((switchMode() == true && ms_switch_mode_debounce.justFinished()) || b_pack_alarm == true) {
+      if(switchMode() == true || b_pack_alarm == true) {
         if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
           w_trig.trackPlayPoly(S_CLICK);
 
@@ -845,13 +854,13 @@ void mainLoop() {
           }
         }
       
-        ms_switch_mode_debounce.start(a_switch_debounce_time);
+        //ms_switch_mode_debounce.start(a_switch_debounce_time);
       }
       else if (WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on == true) {
         if(b_no_pack != true) {
           wandExitMenu();
 
-          ms_switch_mode_debounce.start(a_switch_debounce_time);
+          //ms_switch_mode_debounce.start(a_switch_debounce_time);
         }
       }
 
@@ -1541,7 +1550,8 @@ void checkSwitches() {
     case MODE_ON:
       // This is for when the mode switch is enabled for video game mode. b_cross_the_streams must not be enabled.
       if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_pack_alarm != true) {
-        if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
+        //if(switchMode() == true && ms_switch_mode_debounce.justFinished()) {
+        if(switchMode() == true) {
           // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
           if(i_wand_menu == 5) {
             // Cycle through the firing modes and setting menu.
@@ -1641,7 +1651,7 @@ void checkSwitches() {
             }
           }
           
-          ms_switch_mode_debounce.start(a_switch_debounce_time);
+          //ms_switch_mode_debounce.start(a_switch_debounce_time);
         }
       }
 
@@ -1683,23 +1693,25 @@ void checkSwitches() {
 
         // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
         if(b_cross_the_streams == true) {          
-          if(switchMode() == true && ms_switch_mode_debounce.justFinished() && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+          //if(switchMode() == true && ms_switch_mode_debounce.justFinished() && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+          if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_FIRING;
             }
 
             b_firing_alt = true;
 
-            ms_switch_mode_debounce.start(a_switch_debounce_time);
+            //ms_switch_mode_debounce.start(a_switch_debounce_time);
           }
-          else if(switchMode() != true && ms_switch_mode_debounce.justFinished()) {
+          //else if(switchMode() != true && ms_switch_mode_debounce.justFinished()) {
+          else if(switchMode() != true && ms_switch_mode_debounce.remaining() < 1) {
             if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_IDLE;
             }
 
             b_firing_alt = false;
 
-            ms_switch_mode_debounce.start(a_switch_debounce_time);
+            //ms_switch_mode_debounce.start(a_switch_debounce_time);
           }
         }
         
@@ -4793,14 +4805,28 @@ void wandExitMenu() {
 // Nano builds is pulled low.
 bool switchMode() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(analogRead(switch_mode) < i_switch_mode_value) {
+    if(analogRead(switch_mode) < i_switch_mode_value && ms_switch_mode_debounce.remaining() < 1) {
+      if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
+        ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+      }
+      else {
+        ms_switch_mode_debounce.start(a_switch_debounce_time);
+      }  
+
       return true;
     }
     else {
       return false;
     }
   #else
-    if(analogRead(switch_mode) > i_switch_mode_value) {
+    if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.remaining() < 1) {
+      if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
+        ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
+      }
+      else {
+        ms_switch_mode_debounce.start(a_switch_debounce_time);
+      }
+
       return true;
     }
     else {
