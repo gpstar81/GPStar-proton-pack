@@ -2,13 +2,16 @@
 
 This repository outlines the full replacement of the stock microcontrollers which run the Proton Pack and Neutrona Wand while retaining the use and function of all existing controls and lighting in these Haslab products.
 
-### Background and Origins
+### Summary
 
-The original goal of this project was to provide an "Keep-Alive Mod" (KAM) for the Haslab equipment which used inactivity timeouts for the Proton Pack (3 minutes) and Neutrona Wand (30 seconds). Though over time the hardware and software slowly evolved into a more feature-rich replacement for the stock controllers. The new controlers were primarily designed around the lights, dials, and switches present in the Haslab products while offering expandability to include common components and behavior typically expected by the Ghostbusters modding community, including products built by and for fellow modders. 
+A fully integrated Proton Pack and Neutrona Wand, packed with features and add-ons.
 
-A primary feature in this approach is the introduction of polyphonic sound provided by a dedicated sound controller which allows simultaneous playback multiple audio tracks. Unlike many dedicated audio player devices (such as DFPlayer and Adafruit Audio FX) this device makes use of uncompressed (high quality) WAV files with a multi-channel playback. This allows sound effects to be layered, as well as offering music playback while operating the pack and wand normally.
-
-Another key feature is the pack-wand communication system. By implmenting both the pack and wand controllers with an upgraded hose connection, both devices work seamlessly together. Interactions with the wand have an immediate effect on the pack, and vice-versa. This functionality includes sound effects, alarm triggers, cyclotron interaction, venting/overheat sequences, and proton stream effects (eg. video game colors and crossing the streams).
+- Polyphonic sound
+  - Allows simultaneous playback of multiple audio tracks which can be layered together to create a rich experience with smoothly layered sound effects and transitions.
+  - While blasting away with the Proton stream you can still hear all the layers of sound effects that came before...the Pack effects, each Wand toggle effect, Music etc.
+- Wand / Pack communication system
+   - By implmenting both the pack and wand controllers with an upgraded hose connection, both devices work seamlessly together. Interactions with the wand have an immediate effect on the pack, and vice-versa.
+   - This functionality includes sound effects, alarm triggers, cyclotron interaction, venting/overheat sequences, and proton stream effects (eg. video game colours and crossing the streams).
 
 ## Table of Contents
 
