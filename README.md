@@ -68,7 +68,7 @@ These apply to the normal operation and usage of the equipment regardless of whi
 
 1. [Hose Examples](HOSE.md)
 
-1. [Smoke Venting](SMOKE.md) (Optional add-ons)
+1. [Smoke Effects](SMOKE.md) (Optional add-ons)
 
 1. [Cyclotron Lights](CYCLOTRON.md) (Optional add-ons)
 

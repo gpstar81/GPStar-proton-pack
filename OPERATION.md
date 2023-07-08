@@ -1,6 +1,6 @@
 # Operating Manual
 					
-Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube)
+Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube, July 2023)
 [![Haslab Proton Pack Arduino Powered Demo & Features](https://img.youtube.com/vi/ePXz99UawLQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=ePXz99UawLQ)
 
 ## Proton Pack		
@@ -8,7 +8,7 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 ### Standard Pack Features
 
 - The switch underneath the ion arm can turn the pack on or off.
-- You can run the pack without the cyclotron lid on.
+- You can run the pack without the cyclotron lid attached.
 - The volume for the pack and wand can be controlled via the Crank Generator knob.
    - Clockwise to raise volume, counter-clockwise to lower it.
 - When the ribbon cable is disconnected it will activate the alarm mode and degraded the cyclotron spin.
@@ -19,12 +19,11 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 - Single (centered) LED per cyclotron lens for 1984/1989 modes by default.
 	- This can be toggled back to 3 LED's per cyclotron lens via the wand menu system.
 
-
 ### Optional Pack Features
 
-- 1989 sound effects mode available on the pack, it can be accessed from the Wand sub menu system or set with the advanced user configuration settings. **\*see below\***
+- 1989 sound effects mode is available on the pack, it can be accessed from the Wand sub menu system or set with the advanced user configuration settings. **\*see below\***
 - Support for switches for cyclotron direction and to enable or disable smoke effects.
-- Smoke effects with dedicated fans for the booster tube and N-filter.
+- Support for smoke effects with dedicated fans for the Booster Tube and N-filter. See [Smoke Effects](SMOKE.md) addendum.
 - Additional Lights available for the cyclotron panel, internal "cake" cyclotron and Power Cell.
 	- Automatically switches to internal "cake" cyclotron, if implemented (optional).
 	- This supports a 35 LED ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
@@ -34,7 +33,7 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 
 ### Standard Wand Features
 
-- Activate toggle on the gun box turns on both the pack and wand.
+- Activate toggle on the gun box turns on both the pack and wand, regardless of theme mode.
 	- The switch under the pack's ion arm does not need to be engaged for this to work.
 - Right-hand toggles affect the vent light and additional sound effects depending on mode.
 	- Regardless of mode, the wand will not fire unless these switches are turned on.
@@ -44,10 +43,10 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 
 **Toggle Switch Behavior**
 
-- While in 1984/1989 modes:
+- While in 1984/1989 theme modes:
 	- Bottom right switch turns on the vent light and plays the wand power up sound.
 	- Top right switch plays a single beep sound.
-- While in Afterlife mode:
+- While in Afterlife theme mode:
 	- Bottom right switch turns on the vent light and the wand plays a ramp up sound.
  	- Top right switch turns on the looping beeping sounds.
 
@@ -125,7 +124,7 @@ Changes are made by pressing either the "Intensify" button on the gun box or the
 
 <sup>2</sup> When you navigate back to the **Setting 5** while in Video Game Mode and press the Barrel Wing Button, the wand will return the proton stream mode (accompanied by an audio cue to indicate this return to firing readiness). When in CTS mode this will exit the menu and allow the wand to be powered on. Note that music will continue to play (and advance/loop) even when the pack and wand are turned off. 
 
-<sup>3</sup> Note that the LED/segment #1 will stay solid when the Proton Pack and Neutrona Wand volume is muted and turned off.
+<sup>3</sup> Note that the LED/segment #1 will stay solid when the Proton Pack and Neutrona Wand volume is muted.
 
 ## Sub Level Menu
 
@@ -135,15 +134,22 @@ To access the sub level menu, use the rotary dial on the top of the wand. When y
 
 | Sub&nbsp;Menu&nbsp;Level | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
-| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through available modes<sup>3</sup> | Enable/Disable video game colour modes when video game mode is enabled. (Proton Pack only) |
+| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes<sup>4</sup> |
 | 4 | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/Disable smoke effects | Enable/Disable overheating |
 | 3 | Cyclotron&nbsp;LED&nbsp;Control | Change cyclotron rotation | Toggle between 1 (centered) or 3 LED's in cyclotron lid for 1984/1989 modes |
 | 2 | Vibration Settings | Proton Pack Enable/Disable vibration or vibration during firing. | Neutrona Wand Enable/Disable vibration or vibration during firing. |
 | 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes | - No Action - |
 
-<sup>3</sup> Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.
+<sup>3</sup> Switch between Video Game and Cross the Stream (CTS) operation modes. Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.
 
-To exit the menu system, navigate to the top menu in **Setting 5** (Slo-blo LED is no longer illuminated) and press the Barrel Wing button button.
+<sup>4</sup> Enables/disables the video game colour modes for the Proton Pack's powercell and cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
+
+- Disable all the video game colours (powercell remains blue, cyclotron remains red).
+- Enable only the powercell LED's to change colors (requires RGB powercell such as that offered by Frutto Technology).
+- Enable only the cyclotron LED's to change colors (requires RGB replacement such as a Neopixel ring).
+- Enable both the powercell and cyclotron to use video game colours.
+
+To exit the menu system, navigate to the top menu in **Setting 5** (Slo-blo LED is no longer illuminated) and press the Barrel Wing button button. A small beep will be heard when transitioning between the top and sub menu levels.
 
 **When music is playing while the pack and wand are turned off, you can use the Rotary knob on the top of the wand to easily access the independent music volume control.**
 
