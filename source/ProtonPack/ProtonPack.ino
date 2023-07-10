@@ -399,7 +399,7 @@ void packStartup() {
         w_trig.trackGain(S_BOOTUP, i_volume);
         w_trig.trackPlayPoly(S_BOOTUP, true);
 
-        w_trig.trackGain(S_IDLE_LOOP, MINIMUM_VOLUME);
+        w_trig.trackGain(S_IDLE_LOOP, i_volume_abs_min);
         w_trig.trackPlayPoly(S_IDLE_LOOP, true);
         w_trig.trackFade(S_IDLE_LOOP, i_volume, 2000, 0);
         w_trig.trackLoop(S_IDLE_LOOP, 1);
@@ -411,7 +411,7 @@ void packStartup() {
         w_trig.trackGain(S_GB2_PACK_START, i_volume);
         w_trig.trackPlayPoly(S_GB2_PACK_START, true);
 
-        w_trig.trackGain(S_GB2_PACK_LOOP, MINIMUM_VOLUME);
+        w_trig.trackGain(S_GB2_PACK_LOOP, i_volume_abs_min);
         w_trig.trackPlayPoly(S_GB2_PACK_LOOP, true);
         w_trig.trackFade(S_GB2_PACK_LOOP, i_volume, 3000, 0);
         w_trig.trackLoop(S_GB2_PACK_LOOP, 1);
@@ -423,7 +423,7 @@ void packStartup() {
         w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
         w_trig.trackPlayPoly(S_AFTERLIFE_PACK_STARTUP, true);
   
-        w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, MINIMUM_VOLUME);
+        w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_abs_min);
         w_trig.trackPlayPoly(S_AFTERLIFE_PACK_IDLE_LOOP, true);
         w_trig.trackFade(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume, 18000, 0);
         w_trig.trackLoop(S_AFTERLIFE_PACK_IDLE_LOOP, 1);
@@ -2631,7 +2631,7 @@ void wandFiring() {
         case 1 ... 4:
           if(b_firing_intensify == true) {
             if(i_mode_year == 1989) {
-              w_trig.trackGain(S_GB2_FIRE_LOOP, MINIMUM_VOLUME);
+              w_trig.trackGain(S_GB2_FIRE_LOOP, i_volume_abs_min);
               w_trig.trackPlayPoly(S_GB2_FIRE_LOOP, true);
               w_trig.trackFade(S_GB2_FIRE_LOOP, i_volume, 6500, 0);
               w_trig.trackLoop(S_GB2_FIRE_LOOP, 1);
@@ -2640,7 +2640,7 @@ void wandFiring() {
               w_trig.trackPlayPoly(S_GB2_FIRE_START, true);
             }
             else {
-              w_trig.trackGain(S_GB1_FIRE_LOOP, MINIMUM_VOLUME);
+              w_trig.trackGain(S_GB1_FIRE_LOOP, i_volume_abs_min);
               w_trig.trackPlayPoly(S_GB1_FIRE_LOOP, true);
               w_trig.trackFade(S_GB1_FIRE_LOOP, i_volume, 800, 0);
               w_trig.trackLoop(S_GB1_FIRE_LOOP, 1);
@@ -2656,7 +2656,7 @@ void wandFiring() {
           }
 
           if(b_firing_alt == true) {
-            w_trig.trackGain(S_FIRING_LOOP_GB1, MINIMUM_VOLUME);
+            w_trig.trackGain(S_FIRING_LOOP_GB1, i_volume_abs_min);
             w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
             w_trig.trackFade(S_FIRING_LOOP_GB1, i_volume, 1000, 0);
             w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
@@ -2675,7 +2675,7 @@ void wandFiring() {
             if(b_firing_intensify == true) {
               // Reset some sound triggers.
               b_sound_firing_intensify_trigger = true;
-              w_trig.trackGain(S_GB1_FIRE_HIGH_POWER_LOOP, MINIMUM_VOLUME);
+              w_trig.trackGain(S_GB1_FIRE_HIGH_POWER_LOOP, i_volume_abs_min);
               w_trig.trackPlayPoly(S_GB1_FIRE_HIGH_POWER_LOOP, true);
               w_trig.trackFade(S_GB1_FIRE_HIGH_POWER_LOOP, i_volume, 800, 0);
               w_trig.trackLoop(S_GB1_FIRE_HIGH_POWER_LOOP, 1);
@@ -2688,7 +2688,7 @@ void wandFiring() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              w_trig.trackGain(S_FIRING_LOOP_GB1, MINIMUM_VOLUME);
+              w_trig.trackGain(S_FIRING_LOOP_GB1, i_volume_abs_min);
               w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
               w_trig.trackFade(S_FIRING_LOOP_GB1, i_volume, 800, 0);
               w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);          
@@ -2707,7 +2707,7 @@ void wandFiring() {
       w_trig.trackGain(S_SLIME_START, i_volume);
       w_trig.trackPlayPoly(S_SLIME_START);
       
-      w_trig.trackGain(S_SLIME_LOOP, MINIMUM_VOLUME);
+      w_trig.trackGain(S_SLIME_LOOP, i_volume_abs_min);
       w_trig.trackPlayPoly(S_SLIME_LOOP);
       w_trig.trackFade(S_SLIME_LOOP, i_volume, 1500, 0);
       w_trig.trackLoop(S_SLIME_LOOP, 1);
@@ -2717,7 +2717,7 @@ void wandFiring() {
       w_trig.trackGain(S_STASIS_START, i_volume);
       w_trig.trackPlayPoly(S_STASIS_START);
       
-      w_trig.trackGain(S_STASIS_LOOP, MINIMUM_VOLUME);
+      w_trig.trackGain(S_STASIS_LOOP, i_volume_abs_min);
       w_trig.trackPlayPoly(S_STASIS_LOOP);
       w_trig.trackFade(S_STASIS_LOOP, i_volume, 1000, 0);
       w_trig.trackLoop(S_STASIS_LOOP, 1);
@@ -2727,7 +2727,7 @@ void wandFiring() {
       w_trig.trackGain(S_MESON_START, i_volume);
       w_trig.trackPlayPoly(S_MESON_START);
       
-      w_trig.trackGain(S_MESON_LOOP, MINIMUM_VOLUME);
+      w_trig.trackGain(S_MESON_LOOP, i_volume_abs_min);
       w_trig.trackPlayPoly(S_MESON_LOOP);
       w_trig.trackFade(S_MESON_LOOP, i_volume, 5500, 0);
       w_trig.trackLoop(S_MESON_LOOP, 1);
