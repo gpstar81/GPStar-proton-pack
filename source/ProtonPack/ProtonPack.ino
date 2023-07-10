@@ -399,22 +399,22 @@ void packStartup() {
         w_trig.trackGain(S_BOOTUP, i_volume);
         w_trig.trackPlayPoly(S_BOOTUP, true);
 
-        w_trig.trackGain(S_IDLE_LOOP, i_volume - 20);
+        w_trig.trackGain(S_IDLE_LOOP, 0);
         w_trig.trackPlayPoly(S_IDLE_LOOP, true);
         w_trig.trackFade(S_IDLE_LOOP, i_volume, 2000, 0);
         w_trig.trackLoop(S_IDLE_LOOP, 1);
       break;
 
       case 1989:
-          w_trig.trackStop(S_PACK_RIBBON_ALARM_1);
+        w_trig.trackStop(S_PACK_RIBBON_ALARM_1);
 
-          w_trig.trackGain(S_GB2_PACK_START, i_volume);
-          w_trig.trackPlayPoly(S_GB2_PACK_START, true);
+        w_trig.trackGain(S_GB2_PACK_START, i_volume);
+        w_trig.trackPlayPoly(S_GB2_PACK_START, true);
 
-          w_trig.trackGain(S_GB2_PACK_LOOP, i_volume - 20);
-          w_trig.trackPlayPoly(S_GB2_PACK_LOOP, true);
-          w_trig.trackFade(S_GB2_PACK_LOOP, i_volume, 2000, 0);
-          w_trig.trackLoop(S_GB2_PACK_LOOP, 1);
+        w_trig.trackGain(S_GB2_PACK_LOOP, 0);
+        w_trig.trackPlayPoly(S_GB2_PACK_LOOP, true);
+        w_trig.trackFade(S_GB2_PACK_LOOP, i_volume, 3000, 0);
+        w_trig.trackLoop(S_GB2_PACK_LOOP, 1);
       break;
 
       case 2021:
@@ -423,9 +423,9 @@ void packStartup() {
         w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
         w_trig.trackPlayPoly(S_AFTERLIFE_PACK_STARTUP, true);
   
-        w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume - 20);
+        w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, 0);
         w_trig.trackPlayPoly(S_AFTERLIFE_PACK_IDLE_LOOP, true);
-        w_trig.trackFade(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume, 15000, 0);
+        w_trig.trackFade(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume, 18000, 0);
         w_trig.trackLoop(S_AFTERLIFE_PACK_IDLE_LOOP, 1);
       break;
     }
@@ -3714,13 +3714,13 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_START, i_volume);
+                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_START, i_volume + 4);
                   w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
                 break;
 
                 case 1984:
                 case 1989:
-                  w_trig.trackGain(S_CROSS_STREAMS_START, i_volume);
+                  w_trig.trackGain(S_CROSS_STREAMS_START, i_volume + 4);
                   w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
                 break;
               }
@@ -3734,13 +3734,13 @@ void checkWand() {
               
               switch(i_mode_year) {
                 case 2021:
-                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_START, i_volume);
+                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_START, i_volume + 4);
                   w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
                 break;
 
                 case 1984:
                 case 1989:
-                  w_trig.trackGain(S_CROSS_STREAMS_START, i_volume);
+                  w_trig.trackGain(S_CROSS_STREAMS_START, i_volume + 4);
                   w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
                 break;
               }
@@ -3765,13 +3765,13 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume);
+                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume + 4);
                   w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
                 break;
 
                 case 1984:
                 case 1989:
-                  w_trig.trackGain(S_CROSS_STREAMS_END, i_volume);
+                  w_trig.trackGain(S_CROSS_STREAMS_END, i_volume + 4);
                   w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
                 break;
               }
@@ -3785,13 +3785,13 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume);
+                  w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume + 4);
                   w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
                 break;
 
                 case 1984:
                 case 1989:
-                  w_trig.trackGain(S_CROSS_STREAMS_END, i_volume);
+                  w_trig.trackGain(S_CROSS_STREAMS_END, i_volume + 4);
                   w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
                 break;
               }
