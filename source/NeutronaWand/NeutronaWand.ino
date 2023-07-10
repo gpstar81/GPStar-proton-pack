@@ -741,7 +741,7 @@ void mainLoop() {
 
             // Silent the Proton Pack or Neutrona Wand or revert back.
             if(switchMode() == true) {                
-              if(i_volume_master == -70) {
+              if(i_volume_master == i_volume_abs_min) {
                 wandSerialSend(W_VOLUME_REVERT);
 
                 i_volume_master = i_volume_revert;  
@@ -750,7 +750,7 @@ void mainLoop() {
                 i_volume_revert = i_volume_master;
 
                 // Set the master volume to silent.
-                i_volume_master = -70;
+                i_volume_master = i_volume_abs_min;
               
                 wandSerialSend(W_SILENT_MODE);
               }
@@ -1115,7 +1115,7 @@ void settingsBlinkingLights() {
       b_solid_five = true;
     }
 
-    if(i_volume_master == -70 && WAND_ACTION_STATUS == ACTION_SETTINGS && b_wand_menu_sub != true) {
+    if(i_volume_master == i_volume_abs_min && WAND_ACTION_STATUS == ACTION_SETTINGS && b_wand_menu_sub != true) {
       b_solid_one = true;
     }
 
@@ -1863,7 +1863,7 @@ void soundIdleLoop(bool fade) {
   switch(i_power_mode) {
     case 1:
       if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume - 20);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_abs_min);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
         w_trig.trackFade(S_IDLE_LOOP_GUN_1, i_volume, 1000, 0);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
@@ -1877,7 +1877,7 @@ void soundIdleLoop(bool fade) {
 
      case 2:
       if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume - 20);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_abs_min);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
         w_trig.trackFade(S_IDLE_LOOP_GUN_1, i_volume, 1000, 0);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
@@ -1891,7 +1891,7 @@ void soundIdleLoop(bool fade) {
 
      case 3:
       if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume - 20);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_abs_min);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
         w_trig.trackFade(S_IDLE_LOOP_GUN_2, i_volume, 1000, 0);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
@@ -1905,7 +1905,7 @@ void soundIdleLoop(bool fade) {
 
      case 4:
       if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume - 20);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_abs_min);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
         w_trig.trackFade(S_IDLE_LOOP_GUN_2, i_volume, 1000, 0);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
@@ -1919,7 +1919,7 @@ void soundIdleLoop(bool fade) {
 
      case 5:
       if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume - 20);
+        w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_abs_min);
         w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_5, true);
         w_trig.trackFade(S_IDLE_LOOP_GUN_5, i_volume, 1000, 0);
         w_trig.trackLoop(S_IDLE_LOOP_GUN_5, 1);
@@ -2105,6 +2105,19 @@ void soundBeepLoop() {
 
 void modeFireStartSounds() {
   ms_firing_start_sound_delay.stop();
+
+  if(year_mode == 1989) {
+    int8_t i_v_spark = i_volume - 10;
+
+    if(i_v_spark < i_volume_abs_min) {
+      i_v_spark = i_volume_abs_min;
+    }
+
+    w_trig.trackGain(S_FIRE_START_SPARK, i_v_spark);
+  }
+  else {
+    w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
+  }
 
   // Some sparks for firing start.
   w_trig.trackPlayPoly(S_FIRE_START_SPARK);
@@ -4378,7 +4391,7 @@ void decreaseVolumeEffects() {
 }
 
 void increaseVolume() {
-  if(i_volume_master == -70 && MINIMUM_VOLUME > i_volume_master) {
+  if(i_volume_master == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master) {
     i_volume_master = MINIMUM_VOLUME;
   }
 
@@ -4396,7 +4409,7 @@ void increaseVolume() {
 }
 
 void decreaseVolume() {
-  if(i_volume_master == -70) {
+  if(i_volume_master == i_volume_abs_min) {
     // Can not go any lower.
   }
   else {
@@ -4860,7 +4873,7 @@ void checkPack() {
                 i_volume_revert = i_volume_master;
                 
                 // The pack is telling us to be silent.
-                i_volume_master = -70;
+                i_volume_master = i_volume_abs_min;
                 w_trig.masterGain(i_volume_master);
               }
 
