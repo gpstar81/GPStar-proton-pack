@@ -334,7 +334,7 @@ void mainLoop() {
               case 2021:
                 soundIdleLoop(true);
 
-                w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);
+                w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume - 10);
                 w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true);
                 ms_gun_loop_1.start(2000);
               break;
@@ -956,6 +956,7 @@ void mainLoop() {
 
         if(year_mode == 2021) {
           if(ms_gun_loop_1.justFinished()) {
+            w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_1, i_volume - 10);
             w_trig.trackPlayPoly(S_AFTERLIFE_GUN_LOOP_1, true);
             w_trig.trackLoop(S_AFTERLIFE_GUN_LOOP_1, 1);
             ms_gun_loop_1.stop();
@@ -1850,7 +1851,7 @@ void modeActivate() {
         default:
           soundIdleLoop(true);
 
-          w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);
+          w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume - 10);
           w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
           ms_gun_loop_1.start(2000);
         break;
@@ -1954,10 +1955,11 @@ void soundIdleStart() {
   
       default:
         w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_1);
+        w_trig.trackStop(S_AFTERLIFE_GUN_LOOP_2);
         w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_1);
         w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_2);
-        w_trig.trackStop(S_AFTERLIFE_GUN_LOOP_1);
-        
+
+        w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_2, i_volume - 10);
         w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_2, true); // Start track
 
         ms_gun_loop_1.stop();
@@ -1972,6 +1974,7 @@ void soundIdleStart() {
 
   if(year_mode == 2021) {
     if(ms_gun_loop_2.justFinished()) {
+      w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_2, i_volume - 10);
       w_trig.trackPlayPoly(S_AFTERLIFE_GUN_LOOP_2, true);
       w_trig.trackLoop(S_AFTERLIFE_GUN_LOOP_2, 1);
       
@@ -2373,11 +2376,13 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams == true) {
     switch(year_mode) {
       case 2021:
+        w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume + 10);
         w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
       break;
 
       case 1984:
       case 1989:
+        w_trig.trackGain(S_CROSS_STREAMS_END, i_volume + 10);
         w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
       break;
     }
@@ -2600,11 +2605,13 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
+        w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_START, i_volume + 10);
         w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
       break;
 
       case 1984:
       case 1989:
+        w_trig.trackGain(S_CROSS_STREAMS_START, i_volume + 10);
         w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
       break;
     }
@@ -2642,11 +2649,13 @@ void modeFiring() {
     
     switch(year_mode) {
       case 2021:
+        w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume + 10);
         w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
       break;
 
       case 1984:
       case 1989:
+        w_trig.trackGain(S_CROSS_STREAMS_END, i_volume + 10);
         w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
       break;
     }
@@ -2663,11 +2672,13 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
+        w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume + 10);
         w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
       break;
 
       case 1984:
       case 1989:
+        w_trig.trackGain(S_CROSS_STREAMS_END, i_volume + 10);
         w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
       break;
     }
@@ -4291,7 +4302,7 @@ void prepBargraphRampUp() {
           case 2021:
             soundIdleLoop(true);
 
-            w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume);
+            w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume - 10);
             w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
             ms_gun_loop_1.start(2000);
           break;
