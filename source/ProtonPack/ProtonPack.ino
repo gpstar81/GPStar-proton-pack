@@ -2629,17 +2629,15 @@ void wandFiring() {
 
       switch(i_wand_power_level) {
         case 1 ... 4:
-
           if(b_firing_intensify == true) {
             if(i_mode_year == 1989) {
               w_trig.trackGain(S_GB2_FIRE_LOOP, -70);
               w_trig.trackPlayPoly(S_GB2_FIRE_LOOP, true);
-              w_trig.trackFade(S_GB2_FIRE_LOOP, i_volume, 1100, 0);
+              w_trig.trackFade(S_GB2_FIRE_LOOP, i_volume, 6500, 0);
               w_trig.trackLoop(S_GB2_FIRE_LOOP, 1);
 
               w_trig.trackGain(S_GB2_FIRE_START, i_volume);
               w_trig.trackPlayPoly(S_GB2_FIRE_START);
-              w_trig.trackFade(S_GB2_FIRE_START, -70, 1000, 0);
             }
             else {
               w_trig.trackGain(S_GB1_FIRE_LOOP, i_volume);
