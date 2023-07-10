@@ -2619,27 +2619,49 @@ void wandFiring() {
   
   vibrationPack(255);
 
-  w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
+  if(i_mode_year == 1989) {
+    int8_t i_v_spark = i_volume - 10;
+
+    if(i_v_spark < -70) {
+      i_v_spark = -70;
+    }
+
+    w_trig.trackGain(S_FIRE_START_SPARK, i_v_spark);
+  }
+  else {
+    w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
+  }
+
   w_trig.trackPlayPoly(S_FIRE_START_SPARK);
 
   switch(FIRING_MODE) {
     case PROTON:
-      w_trig.trackGain(S_FIRE_START, i_volume);
+      if(i_mode_year == 1989) {
+        int8_t i_v_fire_start = i_volume - 10;
+
+        if(i_v_fire_start < -70) {
+          i_v_fire_start = -70;
+        }
+
+        w_trig.trackGain(S_FIRE_START, i_v_fire_start);
+      }
+      else {
+        w_trig.trackGain(S_FIRE_START, i_volume);
+      }
+
       w_trig.trackPlayPoly(S_FIRE_START, true);
 
       switch(i_wand_power_level) {
         case 1 ... 4:
-
           if(b_firing_intensify == true) {
             if(i_mode_year == 1989) {
               w_trig.trackGain(S_GB2_FIRE_LOOP, -70);
               w_trig.trackPlayPoly(S_GB2_FIRE_LOOP, true);
-              w_trig.trackFade(S_GB2_FIRE_LOOP, i_volume, 1100, 0);
+              w_trig.trackFade(S_GB2_FIRE_LOOP, i_volume, 6500, 0);
               w_trig.trackLoop(S_GB2_FIRE_LOOP, 1);
 
               w_trig.trackGain(S_GB2_FIRE_START, i_volume);
               w_trig.trackPlayPoly(S_GB2_FIRE_START);
-              w_trig.trackFade(S_GB2_FIRE_START, -70, 1000, 0);
             }
             else {
               w_trig.trackGain(S_GB1_FIRE_LOOP, i_volume);
@@ -2662,7 +2684,10 @@ void wandFiring() {
             w_trig.trackFade(S_FIRING_LOOP_GB1, i_volume, 1000, 0);
             w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
 
-            w_trig.trackPlayPoly(S_FIRE_START);
+            if(i_mode_year == 1989) {
+              w_trig.trackGain(S_GB2_FIRE_START, i_volume);
+              w_trig.trackPlayPoly(S_GB2_FIRE_START);
+            }
             
             b_sound_firing_alt_trigger = true;
           }
@@ -2672,6 +2697,14 @@ void wandFiring() {
         break;
 
         case 5:
+            if(i_mode_year == 1989) {
+              w_trig.trackGain(S_GB2_FIRE_START, i_volume);
+              w_trig.trackPlayPoly(S_GB2_FIRE_START);
+            }  
+            else {
+              w_trig.trackPlayPoly(S_GB1_FIRE_START_HIGH_POWER);
+            }
+
             if(b_firing_intensify == true) {
               // Reset some sound triggers.
               b_sound_firing_intensify_trigger = true;
@@ -2686,14 +2719,13 @@ void wandFiring() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
+              w_trig.trackGain(S_FIRING_LOOP_GB1, i_volume);
               w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
-              w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);          
+              w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);        
             }
             else {
               b_sound_firing_alt_trigger = false;
             }
-
-            w_trig.trackPlayPoly(S_GB1_FIRE_START_HIGH_POWER);
         break;
       }
     break;
@@ -3724,7 +3756,8 @@ void checkWand() {
                   w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
                 break;
               }
-
+              
+              w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
               w_trig.trackPlayPoly(S_FIRE_START_SPARK);
             break;
 
@@ -3745,6 +3778,7 @@ void checkWand() {
                 break;
               }
 
+              w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
               w_trig.trackPlayPoly(S_FIRE_START_SPARK);
 
               w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
