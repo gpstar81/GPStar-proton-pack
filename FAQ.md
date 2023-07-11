@@ -14,7 +14,7 @@
 
 **Q: Is a Neutrona Wand required?**
 
-**A:** No, a wand is not required for the pack-only conversion. However, a modified wand is required if you want full control of the pack from the wand. You can still connect a stock unmodified Hasbro Spengler Neutrona wand, however you will not be able to control the pack with it. **<b>ATENTION: Please keep in mind that this system is supplying 5V, while the stock Neutrona Wand from Hasbro is designed around 4.5V, so while a stock Hasbro Neutrona Wand can be connected, you do so at your own risk.**</b>
+**A:** No, a wand is not required for the pack-only conversion. However, a modified wand is required if you want full control of the pack from the wand. You can still connect a stock unmodified Hasbro Spengler Neutrona wand, however you will not be able to control the pack with it. **<b>ATTENTION: Please keep in mind that this system is supplying 5V, while the stock Neutrona Wand from Hasbro is designed around 4.5V, so while a stock Hasbro Neutrona Wand can be connected, you do so at your own risk.**</b>
 
 **Q: How many wires / pins are required for the connection between the Proton Pack and Neutrona Wand?**
 
