@@ -4,7 +4,7 @@ This repository (for somewhat obvious reasons) does not provide music tracks for
 
 ## Loading Files to the SD Cards
 
-###NOTE: Please consider high quality SD Cards. We recommend Sandisk Extreme A2 U3 V30 Micro SD Cards.###
+`NOTE: Please consider high quality SD Cards. We recommend Sandisk Extreme A2 U3 V30 Micro SD Cards.`
 
 Your SD cards **must** be formatted as FAT32 using 32KB block size per the WavTrigger manual. Use a full formatting option for the SD cards not a quick formatting for best results.
 
