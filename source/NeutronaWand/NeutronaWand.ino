@@ -3493,6 +3493,7 @@ void bargraphRampFiring() {
 
   // If in a power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
   if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
+    /*
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       for(uint8_t i = 0; i < 13; i++) {
         switch(i) {
@@ -3621,7 +3622,8 @@ void bargraphRampFiring() {
 
       wandSerialSend(W_VGA_OVERHEAT_LIGHTS);
     #endif
-
+    */
+    
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
