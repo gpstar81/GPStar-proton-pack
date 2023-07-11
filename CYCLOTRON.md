@@ -35,7 +35,3 @@ To improve the fit of the new ring, it is recommended to use a Dremel with a san
 
 [Demonstration Video by JustinDustin](https://www.youtube.com/watch?v=kXAhU2Zis18) (YouTube)
 [![Haslab Proton Pack 40 LED Neopixel Ring](https://img.youtube.com/vi/kXAhU2Zis18/maxresdefault.jpg)](https://www.youtube.com/watch?v=kXAhU2Zis18)
-
-### Individual Neopixels
-
-TBD...
