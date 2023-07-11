@@ -165,3 +165,8 @@ Refer the [Loading The Audio Files](AUDIO.md) for more information on loading ad
 ## Advanced User Configurations
 
 To modify defaults within the software, please see the [Advanced Configuration](ADVCONFIG.md) guide.
+<br>
+<br>
+<br>
+<br>
+**Neutrona Wand renders courtesy of Luis Peña*
