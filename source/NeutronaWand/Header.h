@@ -176,6 +176,13 @@ unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 #endif
 
 /*
+ * (Optional) Support for the Frutto Technology Video Game Accessories
+*/
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  bool b_overheat_indicators[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false};
+#endif
+
+/*
  * Timers for the optional hat lights.
  * Also used for vent lights during error modes.
 */
