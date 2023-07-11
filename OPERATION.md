@@ -30,42 +30,47 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 - Video game colours supported if using RGB supported LEDs for the Cyclotron Lid, internal "cake" cyclotron and Power Cell.
 
 ## Neutrona Wand				
-
 ### Standard Wand Features
+![](images/OperationNeutrona2.jpg)
 
-- Activate toggle on the gun box turns on both the pack and wand, regardless of theme mode.
-	- The switch under the pack's ion arm does not need to be engaged for this to work.
-- Right-hand toggles affect the vent light and additional sound effects depending on mode.
-	- Regardless of mode, the wand will not fire unless these switches are turned on.
-	- Additionally, the lever switch near the gunbox must be pulled to extend the barrel before firing.
-	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top-right switch (beep switch) is on, the Neutrona Wand will boot into a error mode. Turn this top-right switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the advanced user configuration settings by setting **b&#95;wand&#95;boot&#95;errors** to false. **\*see below\***
+- Activate toggle on the gun box turns on both the pack and wand, regardless of the theme mode.
+	- The switch under the Proton Pack's ion arm does not need to be engaged for this to work.
+- Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects depending on the mode. 
+	- The Neutrona Wand will not fire unless these switches are turned on.
+	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn this top toggle switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the advanced user configuration settings by setting **b&#95;wand&#95;boot&#95;errors** to false. **\*see below\***
+
+- Additionally, the lever switch near the gunbox acts as a safety switch and it must be pulled to extend the barrel before firing.
+	
 - The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
 
-**Toggle Switch Behavior**
+**Right-Hand Toggle Switch Behavior**
+![](images/OperationNeutrona3.jpg)
 
 - While in 1984/1989 theme modes:
-	- Bottom right switch turns on the vent light and plays the wand power up sound.
-	- Top right switch plays a single beep sound.
+	- Bottom toggle switch turns on the vent light and plays the wand power up sound.
+	- Top toggle switch plays a single beep sound.
 - While in Afterlife theme mode:
-	- Bottom right switch turns on the vent light and the wand plays a ramp up sound.
- 	- Top right switch turns on the looping beeping sounds.
+	- Bottom toggle switch turns on the vent light and the wand plays a ramp up sound.
+ 	- Top toggle switch turns on the looping beeping sounds.
 
 **Top Dial Behavior**
+![](images/OperationNeutrona5.jpg)
 
-- The rotary dial on the top of the gun box changes the power mode of the wand, affecting the intensity of the stream effects, indicated by increasing or decreasing the bargraph lights (just as the stock wand did).
+- The top dial on the top of the gun box changes the power mode of the wand, affecting the intensity of the stream effects, indicated by increasing or decreasing the bargraph lights (just as the stock wand did).
    - Clockwise to raise power/volume, counter-clockwise to lower these values.
-- There are 5 wand power modes as based on the original bargraph which has only 5 LED's available:
-	- The wand can be user-configured in the Neutrona Wand code to overheat the pack in any of the power modes. When not set to overheat, you can fire continiously.
-	- The pack can also be user configured in the Proton Pack Code to adjust the duration of smoke effects (for each power mode), which smoke effects are activated (for each power mode), use of overheating smoke effects (for each power mode), or whether smoke disabled entirely.
-	Default settings: The wand will fire forever on modes 1 through 4 and overheat on mode 5.
+- There are 5 wand power levels as based on the original bargraph which has only 5 LED's available:
+	- The wand can be user-configured in the Neutrona Wand code to overheat the pack in any of the power levels. When not set to overheat, you can fire continiously.
+	- The pack can also be user configured in the Proton Pack Code to adjust the duration of smoke effects (for each power level), which smoke effects are activated (for each power level), use of overheating smoke effects (for each power level), or whether smoke disabled entirely.
+	Default settings: The wand will fire forever on power levels level 1 through 4 and overheat on power level 5.
 - The pack will emit smoke effects during longer firing (if enabled).
-- For lower power modes, the proton stream is more red. On higher modes, the stream will appear more yellow.
-- As the dial is turned, any beeping rate will increase or decrease depending on the theme in use.
+- For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.
+- As the top dial is turned, any beeping rate will increase or decrease depending on the theme in use.
 - This dial will be used to navigate the menu system and adjust volume in certain cases (see "Wand Settings Menu System" section).
 
 ### Optional Wand Features
+![](images/OperationNeutrona7.jpg)
 
-- Support for additional lights such as the wand hat lights and wand barrel end strobe.
+- Support for additional lights such as the wand hat lights and wand barrel end LED strobe. A New Barrel Wing Button can then be added.
 - Serial connection and power for a 28-segment bargraph support (to replace stock 5 LED bargraph).
 
 ## Runtime Modes
@@ -73,8 +78,9 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 The following features require the use of both the pack and wand replacement controllers (Arduino-based) which implements a menu system to access special features which affects overall operation. Details for the menu system will be covered below, but it's important to describe the various operating modes first.
 
 **Video Game Mode (Default)**
+![](images/OperationNeutrona4.jpg)
 
-- The Barrel Wing (orange) button at the end of the wand switches between these available firing modes while the wand is active:
+- The Barrel Wing Button at the end of the Neutrona Wand switches between these available firing modes while the wand is active:
 	1. Proton Stream (Default)
 	1. Slime Gun
 	1. Stasis Beam
@@ -83,15 +89,16 @@ The following features require the use of both the pack and wand replacement con
 	1. Special: Setting 6 is a settings menu system (see "Top Level Menu" section below).
 
 **Manual Venting Mode**
+![](images/OperationNeutrona6.jpg)
 
-- When in manual venting mode, the slo-blo LED and the orange LED on the front of the wand body will blink to indicate that you are in the manual venting mode. Press Intensify on the wand to manually vent your Proton Pack. (All the safety switches on the wand must be activated).
+- When in manual venting mode, the Slo-Blo LED and the Orange LED on the front of the wand body will blink to indicate that you are in the manual venting mode. Press Intensify on the wand to manually vent your Proton Pack. (All the toggle and safety switches on the wand must be activated).
 
 **Alternate Firing Mode: Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)**
 
-- The Barrel Wing (orange) button at the end of the wand acts as a alternate fire mode only--it does not switch stream modes.
-- The overheat features can only be triggered when enabled by the alternate CTS firing mode.
-- Pressing both the Intensify and Barrel Wing button (at the end of the wand) at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing one of the 2 firing buttons will continue these effects.
-	- During Cross The Streams Mix, you need to hold both the intensify and alternate firing button at the same time. Releasing one or the other will end crossing the streams but continue firing a regular proton stream. The Proton Pack and Wand can still overheat if enabled while crossing the streams in the power level you are at.
+- The Barrel Wing Button at the end of the wand acts as a alternate fire mode button--it does not switch stream modes.
+- The overheat features can only be triggered when holding the alternate fire mode button (Barrel Wing Button).
+- Pressing both the Intensify and Barrel Wing Button at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing one of the 2 firing buttons will continue these effects.
+	- During Cross The Streams Mix, you need to hold both the Intensify and Barrel Wing Button at the same time. Releasing one or the other will end crossing the streams but continue firing a regular proton stream. The Proton Pack and Neutrona Wand can still overheat if enabled while crossing the streams in the power level you are at.
 
 To enable a Cross The Streams (CTS) mode and alternate firing by default, please see the [Advanced Configuration](ADVCONFIG.md) guide, otherwise these can be accessed from the Wand settings menu system.
 
