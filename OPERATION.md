@@ -109,13 +109,13 @@ Wand Menu Settings Video Demo: [Proton Pack Wand Menu Settings Video Demo](https
 
 ### Navigation
 
-**Use the rotary knob on the top of the wand to navigate up and down through the menu system.**
+`Use the Top Dial on the top of the wand to navigate up and down through the menu system.`
 
-When you are in the settings menu system the bargraph's 5 LED's begin flashing (or 5 distinct segments when using the 28-segment bargraph). All other functions of the wand (such as firing) are temporarily disabled while in the menu system. There are 5 different menu settings, which are indicated by the bargraph LED's/segments 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing that means you are on menu 1.
+When you are in the settings menu system the bargraph's 5 LED's begin flashing (or 5 distinct segments when using the 28-segment bargraph). All other functions of the wand (such as firing) are temporarily disabled while in the menu system. There are 5 different menu settings, which are indicated by the bargraph LED's/segments 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on menu 1.
 
 ### Actions
 
-Changes are made by pressing either the "Intensify" button on the gun box or the "Barrel Wing" button (orange mode button) at the end of the wand. As the latter button may be altered by some optional upgrades, 
+Changes are made by pressing either the `Intensify` button on the gun box or the `Barrel Wing Button` (orange mode button) at the end of the wand. As the latter button may be altered by some optional upgrades, 
 
 ## Top Level Menu
 
@@ -129,15 +129,15 @@ Changes are made by pressing either the "Intensify" button on the gun box or the
 
 <sup>1</sup> Note that the LED/segment #5 will stay solid when the single-track loop is enabled while in the top menu system; it will blink on/off when looping is disabled.
 
-<sup>2</sup> When you navigate back to the **Setting 5** while in Video Game Mode and press the Barrel Wing Button, the wand will return the proton stream mode (accompanied by an audio cue to indicate this return to firing readiness). When in CTS mode this will exit the menu and allow the wand to be powered on. Note that music will continue to play (and advance/loop) even when the pack and wand are turned off. 
+<sup>2</sup> When you navigate back to the `Setting 5` while in Video Game Mode and press the Barrel Wing Button, the wand will return the proton stream mode (accompanied by an audio cue to indicate this return to firing readiness). When in CTS mode this will exit the menu and allow the wand to be powered on. Note that music will continue to play (and advance/loop) even when the pack and wand are turned off. 
 
 <sup>3</sup> Note that the LED/segment #1 will stay solid when the Proton Pack and Neutrona Wand volume is muted.
 
 ## Sub Level Menu
 
-**Important: The Neutrona Wand sub-menu settings can only be reached while both the Neutrona Wand and Proton Pack are powered down**
+`Important: The Neutrona Wand sub-menu settings can only be reached while both the Neutrona Wand and Proton Pack are powered down`
 
-To access the sub level menu, use the rotary dial on the top of the wand. When you reach the sub level menu, the Slo-blo LED will light up to indicate this menu state.
+To access the sub level menu, use the `Top Dial` on the top of the wand. When you reach the sub level menu, the Slo-blo LED will light up to indicate this menu state.
 
 | Sub&nbsp;Menu&nbsp;Level | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
@@ -158,7 +158,7 @@ To access the sub level menu, use the rotary dial on the top of the wand. When y
 
 To exit the menu system, navigate to the top menu in **Setting 5** (Slo-blo LED is no longer illuminated) and press the Barrel Wing button button. A small beep will be heard when transitioning between the top and sub menu levels.
 
-**When music is playing while the pack and wand are turned off, you can use the Rotary knob on the top of the wand to easily access the independent music volume control.**
+`When music is playing while the pack and wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily access the independent music volume control.`
 
 Refer the [Loading The Audio Files](AUDIO.md) for more information on loading additional music tracks.
 
