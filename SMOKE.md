@@ -2,10 +2,10 @@
 
 Below are some examples of how to implement smoke into your Proton Pack. There are 4 outputs on the DIY Arduino Mega and gpstar Proton Pack PCB that are configured to go 5V HIGH during smoke effect phases:
 
-- Smoke1 `Pin 39` aka. N-Filter Smoke
-- Smoke2 `Pin 35` aka. Booster Smoke
-- Fan1 `Pin 33` aka. N-Filter Fan
-- Fan2 `Pin 50` aka. Booster Fan
+- Smoke1 `SM-1 - gpstar Proton Pack PCB` or `Pin 39 - Arudino Mega` aka. N-Filter Smoke
+- Smoke2 `SM-2 - gpstar Proton Pack PCB` or `Pin 35 - Arduino Mega` aka. Booster Smoke
+- Fan1 `FN-1 - gpstar Proton Pack PCB` or `Pin 33 - Arduino Mega` aka. N-Filter Fan
+- Fan2 `FN-2 - gpstar Proton Pack PCB` or `Pin 50 - Arduino Mega` aka. Booster Fan
 
 **Note: Fan1 is set to go off during overheat sequence only. It is useful for pushing smoke through the N-Filter**
 
@@ -15,9 +15,9 @@ Each pin is designed to make use of a transistor to activate pumps, external dev
 
 **WARNINGS**
 
-- Do not connect a device which draws more than 1 Amp of current. Use a relay module (such as [this](https://a.co/d/4BXJ9J1) or [this](https://a.co/d/iEuGPYK)) to drive such devices.
+- For `gpstar Proton Pack PCB boards`, the `SM-1, SM-2, FN-1 and FN-2` connectors provide 5V of power and can power devices such as pumps and fans. However do not connect any device which draws more than 1 Amp of current. Use a relay module (such as [this](https://a.co/d/4BXJ9J1) or [this](https://a.co/d/iEuGPYK)) to drive such devices.
 	- For devices which require a dedicated power source (such as 12V) ALWAYS use a relay module.
-- For DIY Users: DO NOT DRAW MORE THAN 40mA FROM A PIN. Use a transistor setup or relay module as previously noted.
+- For DIY Arduino Users: `DO NOT DRAW MORE THAN 40mA FROM A ARDUINO MEGA pin`. Use a transistor setup or relay module as previously noted.
 
 ## Booster Tube Example
 
