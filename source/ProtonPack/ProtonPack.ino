@@ -139,7 +139,7 @@ void setup() {
   packSerialSend(P_PACK_BOOTUP);
 }
 
-// Helper method to play a sound (track) using certain defaults.
+// Helper method to play a sound effect using certain defaults.
 void playTrack(int trackID, bool trackLoop=false, int8_t trackVolume=i_volume, bool fadeIn=false, int8_t fadeTime=0) {
   if(trackVolume < i_volume_abs_min) {
     trackVolume = i_volume_abs_min;
@@ -161,6 +161,31 @@ void playTrack(int trackID, bool trackLoop=false, int8_t trackVolume=i_volume, b
   if(trackLoop == true) {
     w_trig.trackLoop(trackID, 1);
   }
+}
+
+// Helper method to play a music track using certain defaults.
+void playMusic(int musicID=i_current_music_track, bool musicLoop=b_repeat_track, int8_t musicVolume=i_volume_music) {
+  if(musicVolume < i_volume_abs_min) {
+    musicVolume = i_volume_abs_min;
+  }
+  if(musicVolume > 10) {
+    musicVolume = i_volume_abs_max;
+  }
+
+  w_trig.trackGain(musicID, musicVolume);
+  w_trig.trackPlayPoly(musicID, true);
+
+  if(musicLoop == true) {
+    w_trig.trackLoop(musicID, 1);
+  }
+
+  w_trig.update();
+}
+
+void stopMusic() {
+  w_trig.trackStop(i_current_music_track);
+
+  w_trig.update();
 }
 
 void loop() {
@@ -2582,18 +2607,6 @@ void ventLight(bool b_on) {
   }
 }
 
-void stopMusic() {
-  w_trig.trackStop(i_current_music_track);
-
-  w_trig.update();
-}
-
-void playMusic() {
-  playTrack(i_current_music_track, b_repeat_track);
-
-  w_trig.update();
-}
-
 void wandFiring() {
   b_wand_firing = true;
 
@@ -3731,7 +3744,6 @@ void checkWand() {
             case W_YEAR_MODES_CYCLE:
               // Toggle between the year modes.
               w_trig.trackStop(S_BEEPS_BARGRAPH);
-              w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
 
               playTrack(S_BEEPS_BARGRAPH);
 
