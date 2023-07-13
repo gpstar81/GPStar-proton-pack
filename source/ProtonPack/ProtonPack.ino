@@ -369,7 +369,7 @@ void loop() {
 }
 
 // Helper method to play a sound effect using certain defaults.
-void playTrack(int trackID, bool trackLoop=false, int8_t trackVolume=i_volume, bool fadeIn=false, unsigned int fadeTime=0) {
+void playEffect(int trackID, bool trackLoop=false, int8_t trackVolume=i_volume, bool fadeIn=false, unsigned int fadeTime=0) {
   if(trackVolume < i_volume_abs_min) {
     trackVolume = i_volume_abs_min;
   }
@@ -418,8 +418,8 @@ void stopMusic(int musicID=i_current_music_track) {
 }
 
 void playVentSounds() {
-  playTrack(S_VENT_SMOKE);
-  playTrack(S_SPARKS_LOOP);
+  playEffect(S_VENT_SMOKE);
+  playEffect(S_SPARKS_LOOP);
 }
 
 void packStartup() {
@@ -446,18 +446,18 @@ void packStartup() {
 
     switch(i_mode_year) {
       case 1984:
-        playTrack(S_BOOTUP);
-        playTrack(S_IDLE_LOOP, true, i_volume, true, 2000);
+        playEffect(S_BOOTUP);
+        playEffect(S_IDLE_LOOP, true, i_volume, true, 2000);
       break;
 
       case 1989:
-        playTrack(S_GB2_PACK_START);
-        playTrack(S_GB2_PACK_LOOP, true, i_volume, true, 3000);
+        playEffect(S_GB2_PACK_START);
+        playEffect(S_GB2_PACK_LOOP, true, i_volume, true, 3000);
       break;
 
       case 2021:
-        playTrack(S_AFTERLIFE_PACK_STARTUP);
-        playTrack(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume, true, 18000);
+        playEffect(S_AFTERLIFE_PACK_STARTUP);
+        playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume, true, 18000);
       break;
     }
   }
@@ -499,22 +499,22 @@ void packShutdown() {
   if(b_alarm != true) {
     switch(i_mode_year) {
       case 1984:
-        playTrack(S_SHUTDOWN);
-        playTrack(S_PACK_SHUTDOWN);
+        playEffect(S_SHUTDOWN);
+        playEffect(S_PACK_SHUTDOWN);
       break;
 
       case 1989:
-        playTrack(S_SHUTDOWN);
-        playTrack(S_GB2_PACK_OFF);
+        playEffect(S_SHUTDOWN);
+        playEffect(S_GB2_PACK_OFF);
       break;
 
       case 2021:
-        playTrack(S_PACK_SHUTDOWN_AFTERLIFE);
+        playEffect(S_PACK_SHUTDOWN_AFTERLIFE);
       break;
     }
   }
   else {
-    playTrack(S_SHUTDOWN);
+    playEffect(S_SHUTDOWN);
   }
 
   // Turn off the vent light if it is on.
@@ -543,12 +543,12 @@ void checkSwitches() {
 
       w_trig.trackStop(S_BEEPS_ALT);
 
-      playTrack(S_BEEPS_ALT);
+      playEffect(S_BEEPS_ALT);
 
       w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
       w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
-      playTrack(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
+      playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
       // Tell wand to play cyclotron counter clockwise voice.
       packSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
@@ -558,12 +558,12 @@ void checkSwitches() {
 
       w_trig.trackStop(S_BEEPS);
 
-      playTrack(S_BEEPS);
+      playEffect(S_BEEPS);
 
       w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
       w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
-      playTrack(S_VOICE_CYCLOTRON_CLOCKWISE);
+      playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
 
       // Tell wand to play cyclotron clockwise voice.
       packSerialSend(P_CYCLOTRON_CLOCKWISE);
@@ -577,12 +577,12 @@ void checkSwitches() {
 
       w_trig.trackStop(S_VENT_DRY);
 
-      playTrack(S_VENT_DRY);
+      playEffect(S_VENT_DRY);
 
       w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
       w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
 
-      playTrack(S_VOICE_SMOKE_DISABLED);
+      playEffect(S_VOICE_SMOKE_DISABLED);
 
       // Tell wand to play smoke disabled voice.
       packSerialSend(P_SMOKE_DISABLED);
@@ -592,12 +592,12 @@ void checkSwitches() {
 
       w_trig.trackStop(S_VENT_SMOKE);
 
-      playTrack(S_VENT_SMOKE);
+      playEffect(S_VENT_SMOKE);
 
       w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
       w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
 
-      playTrack(S_VOICE_SMOKE_ENABLED);
+      playEffect(S_VOICE_SMOKE_ENABLED);
 
       // Tell wand to play smoke enabled voice.
       packSerialSend(P_SMOKE_ENABLED);
@@ -608,7 +608,7 @@ void checkSwitches() {
   if(switch_vibration.isPressed() || switch_vibration.isReleased()) {
       w_trig.trackStop(S_BEEPS_ALT);
 
-      playTrack(S_BEEPS_ALT);
+      playEffect(S_BEEPS_ALT);
 
       if(switch_vibration.getState() == LOW) {
         if(b_vibration_enabled == false) {
@@ -620,7 +620,7 @@ void checkSwitches() {
           w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);
           w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);
 
-          playTrack(S_VOICE_VIBRATION_ENABLED);
+          playEffect(S_VOICE_VIBRATION_ENABLED);
         }
       }
       else {
@@ -633,7 +633,7 @@ void checkSwitches() {
           w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);
           w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);
 
-          playTrack(S_VOICE_VIBRATION_DISABLED);
+          playEffect(S_VOICE_VIBRATION_DISABLED);
         }
       }
   }
@@ -642,7 +642,7 @@ void checkSwitches() {
   if(switch_mode.isPressed() || switch_mode.isReleased()) {
     w_trig.trackStop(S_BEEPS_BARGRAPH);
 
-    playTrack(S_BEEPS_BARGRAPH);
+    playEffect(S_BEEPS_BARGRAPH);
 
     // Turn off the year mode override flag controlled by the Neutrona wand.
     b_switch_mode_override = false;
@@ -2116,7 +2116,7 @@ void cyclotronOverHeating() {
   }
 
   if(ms_overheating.justFinished()) {
-    playTrack(S_VENT_SMOKE);
+    playEffect(S_VENT_SMOKE);
 
     if(b_overheat_sync_to_fan != true) {
       smokeControl(false);
@@ -2624,10 +2624,10 @@ void wandFiring() {
   vibrationPack(255);
 
   if(i_mode_year == 1989) {
-    playTrack(S_FIRE_START_SPARK, false, i_volume - 10);
+    playEffect(S_FIRE_START_SPARK, false, i_volume - 10);
   }
   else {
-    playTrack(S_FIRE_START_SPARK);
+    playEffect(S_FIRE_START_SPARK);
   }
 
   switch(FIRING_MODE) {
@@ -2639,22 +2639,22 @@ void wandFiring() {
           i_v_fire_start = i_volume_abs_min;
         }
 
-        playTrack(S_FIRE_START, false, i_v_fire_start);
+        playEffect(S_FIRE_START, false, i_v_fire_start);
       }
       else {
-        playTrack(S_FIRE_START);
+        playEffect(S_FIRE_START);
       }
 
       switch(i_wand_power_level) {
         case 1 ... 4:
           if(b_firing_intensify == true) {
             if(i_mode_year == 1989) {
-              playTrack(S_GB2_FIRE_LOOP, true, i_volume, true, 6500);
-              playTrack(S_GB2_FIRE_START);
+              playEffect(S_GB2_FIRE_LOOP, true, i_volume, true, 6500);
+              playEffect(S_GB2_FIRE_START);
             }
             else {
-              playTrack(S_GB1_FIRE_LOOP, true, i_volume, true, 1000);
-              playTrack(S_GB1_FIRE_START);
+              playEffect(S_GB1_FIRE_LOOP, true, i_volume, true, 1000);
+              playEffect(S_GB1_FIRE_START);
             }
 
             b_sound_firing_intensify_trigger = true;
@@ -2664,10 +2664,10 @@ void wandFiring() {
           }
 
           if(b_firing_alt == true) {
-            playTrack(S_FIRING_LOOP_GB1, true, i_volume, true, 1000);
+            playEffect(S_FIRING_LOOP_GB1, true, i_volume, true, 1000);
 
             if(i_mode_year == 1989) {
-              playTrack(S_GB2_FIRE_START);
+              playEffect(S_GB2_FIRE_START);
             }
 
             b_sound_firing_alt_trigger = true;
@@ -2679,16 +2679,16 @@ void wandFiring() {
 
         case 5:
             if(i_mode_year == 1989) {
-              playTrack(S_GB2_FIRE_START);
+              playEffect(S_GB2_FIRE_START);
             }
             else {
-              playTrack(S_GB1_FIRE_START_HIGH_POWER);
+              playEffect(S_GB1_FIRE_START_HIGH_POWER);
             }
 
             if(b_firing_intensify == true) {
               // Reset some sound triggers.
               b_sound_firing_intensify_trigger = true;
-              playTrack(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
             }
             else {
               b_sound_firing_intensify_trigger = false;
@@ -2698,7 +2698,7 @@ void wandFiring() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              playTrack(S_FIRING_LOOP_GB1, true);
+              playEffect(S_FIRING_LOOP_GB1, true);
             }
             else {
               b_sound_firing_alt_trigger = false;
@@ -2708,18 +2708,18 @@ void wandFiring() {
     break;
 
     case SLIME:
-      playTrack(S_SLIME_START);
-      playTrack(S_SLIME_LOOP, true, i_volume, true, 1500);
+      playEffect(S_SLIME_START);
+      playEffect(S_SLIME_LOOP, true, i_volume, true, 1500);
     break;
 
     case STASIS:
-      playTrack(S_STASIS_START);
-      playTrack(S_STASIS_LOOP, true, i_volume, true, 1000);
+      playEffect(S_STASIS_START);
+      playEffect(S_STASIS_LOOP, true, i_volume, true, 1000);
     break;
 
     case MESON:
-      playTrack(S_MESON_START);
-      playTrack(S_MESON_LOOP, true, i_volume, true, 5500);
+      playEffect(S_MESON_START);
+      playEffect(S_MESON_LOOP, true, i_volume, true, 5500);
     break;
 
     case VENTING:
@@ -2749,28 +2749,28 @@ void wandStoppedFiring() {
         // Play different firing end stream sound depending on how long we have been firing for.
         if(ms_firing_length_timer.remaining() < 5000) {
           // Short tail end.
-          playTrack(S_FIRING_END_GUN);
+          playEffect(S_FIRING_END_GUN);
         }
         else if(ms_firing_length_timer.remaining() < 10000) {
           // Mid tail end.
-          playTrack(S_FIRING_END_MID);
+          playEffect(S_FIRING_END_MID);
         }
         else {
           // Long tail end.
-          playTrack(S_FIRING_END);
+          playEffect(S_FIRING_END);
         }
       break;
 
       case SLIME:
-        playTrack(S_SLIME_END);
+        playEffect(S_SLIME_END);
       break;
 
       case STASIS:
-        playTrack(S_STASIS_END);
+        playEffect(S_STASIS_END);
       break;
 
       case MESON:
-        playTrack(S_MESON_END);
+        playEffect(S_MESON_END);
       break;
 
       case VENTING:
@@ -2850,12 +2850,12 @@ void wandStopFiringSounds() {
   if(b_firing_cross_streams == true) {
     switch(i_mode_year) {
       case 2021:
-        playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
       break;
 
       case 1984:
       case 1989:
-        playTrack(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
       break;
     }
 
@@ -2881,13 +2881,13 @@ void packAlarm() {
     w_trig.trackStop(S_BOOTUP);
   }
 
-  playTrack(S_SHUTDOWN);
+  playEffect(S_SHUTDOWN);
 
   if(i_mode_year == 1989) {
-    playTrack(S_GB2_PACK_OFF);
+    playEffect(S_GB2_PACK_OFF);
   }
   else {
-    playTrack(S_PACK_SHUTDOWN);
+    playEffect(S_PACK_SHUTDOWN);
   }
 
   if(b_overheating != true) {
@@ -2895,12 +2895,12 @@ void packAlarm() {
       case 1984:
       case 1989:
       case 2021:
-        playTrack(S_PACK_RIBBON_ALARM_1, true);
+        playEffect(S_PACK_RIBBON_ALARM_1, true);
       break;
 
       // Not used.
       default:
-        playTrack(S_PACK_BEEPING, true);
+        playEffect(S_PACK_BEEPING, true);
       break;
     }
   }
@@ -2916,13 +2916,13 @@ void cyclotronSwitchPlateLEDs() {
     w_trig.trackStop(S_SPARKS_LOOP);
     w_trig.trackStop(S_BEEPS_BARGRAPH);
 
-    playTrack(S_MODE_SWITCH);
+    playEffect(S_MODE_SWITCH);
 
-    playTrack(S_VENT_SMOKE);
+    playEffect(S_VENT_SMOKE);
 
     // Play some spark sounds if the pack is running and the lid is removed.
     if(PACK_STATUS == MODE_ON) {
-      playTrack(S_SPARKS_LOOP);
+      playEffect(S_SPARKS_LOOP);
     }
   }
 
@@ -2931,13 +2931,13 @@ void cyclotronSwitchPlateLEDs() {
     w_trig.trackStop(S_CLICK);
     w_trig.trackStop(S_VENT_DRY);
 
-    playTrack(S_CLICK);
+    playEffect(S_CLICK);
 
-    playTrack(S_VENT_DRY);
+    playEffect(S_VENT_DRY);
 
     // Play some spark sounds if the pack is running and the lid is put back on                          .
     if(PACK_STATUS == MODE_ON) {
-      playTrack(S_SPARKS_LOOP);
+      playEffect(S_SPARKS_LOOP);
     }
   }
 
@@ -3268,7 +3268,7 @@ void wandHandShake() {
     else if(ms_wand_handshake_checking.justFinished()) {
       if(b_diagnostic == true) {
         // Play a beep sound to know if the wand is connected, while in diagnostic mode.
-        playTrack(S_VENT_BEEP, true);
+        playEffect(S_VENT_BEEP, true);
       }
 
       ms_wand_handshake_checking.stop();
@@ -3394,65 +3394,65 @@ void checkWand() {
             case W_PROTON_MODE:
               // Proton mode
               FIRING_MODE = PROTON;
-              playTrack(S_CLICK);
+              playEffect(S_CLICK);
 
               if(PACK_STATUS == MODE_ON && b_wand_on == true) {
-                playTrack(S_FIRE_START_SPARK);
+                playEffect(S_FIRE_START_SPARK);
               }
             break;
 
             case W_SLIME_MODE:
               // Slime mode
               FIRING_MODE = SLIME;
-              playTrack(S_CLICK);
+              playEffect(S_CLICK);
 
               if(PACK_STATUS == MODE_ON && b_wand_on == true) {
-                playTrack(S_PACK_SLIME_OPEN);
+                playEffect(S_PACK_SLIME_OPEN);
               }
             break;
 
             case W_STASIS_MODE:
               // Stasis mode
               FIRING_MODE = STASIS;
-              playTrack(S_CLICK);
+              playEffect(S_CLICK);
 
               if(PACK_STATUS == MODE_ON && b_wand_on == true) {
-                playTrack(S_STASIS_OPEN);
+                playEffect(S_STASIS_OPEN);
               }
             break;
 
             case W_MESON_MODE:
               // Meson mode
               FIRING_MODE = MESON;
-              playTrack(S_CLICK);
+              playEffect(S_CLICK);
 
               if(PACK_STATUS == MODE_ON && b_wand_on == true) {
-                playTrack(S_MESON_OPEN);
+                playEffect(S_MESON_OPEN);
               }
             break;
 
             case W_VENTING_MODE:
               // Settings mode
               FIRING_MODE = VENTING;
-              playTrack(S_CLICK);
+              playEffect(S_CLICK);
 
               if(PACK_STATUS == MODE_ON && b_wand_on == true) {
-                playTrack(S_VENT_DRY);
-                playTrack(S_MODE_SWITCH);
+                playEffect(S_VENT_DRY);
+                playEffect(S_MODE_SWITCH);
               }
             break;
 
             case W_SETTINGS_MODE:
               // Settings mode
               FIRING_MODE = SETTINGS;
-              playTrack(S_CLICK);
+              playEffect(S_CLICK);
             break;
 
             case W_OVERHEATING:
               // Overheating
               w_trig.trackStop(S_BEEP_8);
 
-              playTrack(S_VENT_SLOW);
+              playEffect(S_VENT_SLOW);
 
               b_overheating = true;
 
@@ -3496,7 +3496,7 @@ void checkWand() {
 
             case W_BEEP_START:
               // Play 8 overheat beeps before we overheat.
-              playTrack(S_BEEP_8);
+              playEffect(S_BEEP_8);
             break;
 
             case W_POWER_LEVEL_1:
@@ -3578,17 +3578,17 @@ void checkWand() {
                 switch(i_wand_power_level) {
                   case 1 ... 4:
                     if(i_mode_year == 1989) {
-                      playTrack(S_GB2_FIRE_LOOP);
-                      playTrack(S_GB2_FIRE_START);
+                      playEffect(S_GB2_FIRE_LOOP);
+                      playEffect(S_GB2_FIRE_START);
                     }
                     else {
-                      playTrack(S_GB2_FIRE_LOOP, true);
-                      playTrack(S_GB2_FIRE_START);
+                      playEffect(S_GB2_FIRE_LOOP, true);
+                      playEffect(S_GB2_FIRE_START);
                     }
                   break;
 
                   case 5:
-                    playTrack(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+                    playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
                   break;
                 }
               }
@@ -3643,7 +3643,7 @@ void checkWand() {
               if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
                 b_sound_firing_alt_trigger = true;
 
-                playTrack(S_FIRING_LOOP_GB1, true);
+                playEffect(S_FIRING_LOOP_GB1, true);
               }
             break;
 
@@ -3667,16 +3667,16 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
+                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
                 break;
 
                 case 1984:
                 case 1989:
-                  playTrack(S_CROSS_STREAMS_START, false, i_volume + 10);
+                  playEffect(S_CROSS_STREAMS_START, false, i_volume + 10);
                 break;
               }
 
-              playTrack(S_FIRE_START_SPARK, false, i_volume + 10);
+              playEffect(S_FIRE_START_SPARK, false, i_volume + 10);
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_MIX:
@@ -3685,20 +3685,20 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
+                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
                 break;
 
                 case 1984:
                 case 1989:
-                  playTrack(S_CROSS_STREAMS_START, false, i_volume + 10);
+                  playEffect(S_CROSS_STREAMS_START, false, i_volume + 10);
                 break;
               }
 
-              playTrack(S_FIRE_START_SPARK);
-              playTrack(S_FIRING_LOOP_GB1, true);
+              playEffect(S_FIRE_START_SPARK);
+              playEffect(S_FIRING_LOOP_GB1, true);
 
               if(i_wand_power_level != i_wand_power_level_max) {
-                playTrack(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+                playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
               }
 
               w_trig.trackStop(S_GB2_FIRE_LOOP);
@@ -3711,12 +3711,12 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
                 break;
 
                 case 1984:
                 case 1989:
-                  playTrack(S_CROSS_STREAMS_END, false, i_volume + 10);
+                  playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
                 break;
               }
 
@@ -3729,12 +3729,12 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
                 break;
 
                 case 1984:
                 case 1989:
-                  playTrack(S_CROSS_STREAMS_END, false, i_volume + 10);
+                  playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
                 break;
               }
             break;
@@ -3743,7 +3743,7 @@ void checkWand() {
               // Toggle between the year modes.
               w_trig.trackStop(S_BEEPS_BARGRAPH);
 
-              playTrack(S_BEEPS_BARGRAPH);
+              playEffect(S_BEEPS_BARGRAPH);
 
               switch(i_mode_year_tmp) {
                 case 1984:
@@ -3753,7 +3753,7 @@ void checkWand() {
                   w_trig.trackStop(S_VOICE_1984);
                   w_trig.trackStop(S_VOICE_1989);
 
-                  playTrack(S_VOICE_1989);
+                  playEffect(S_VOICE_1989);
 
                   // Tell the wand to play the 1989 sound effect.
                   packSerialSend(P_MODE_1989);
@@ -3766,7 +3766,7 @@ void checkWand() {
                   w_trig.trackStop(S_VOICE_1984);
                   w_trig.trackStop(S_VOICE_1989);
 
-                  playTrack(S_VOICE_AFTERLIFE);
+                  playEffect(S_VOICE_AFTERLIFE);
 
                   // Tell the wand to play the 2021 sound effect.
                   packSerialSend(P_MODE_AFTERLIFE);
@@ -3779,7 +3779,7 @@ void checkWand() {
                   w_trig.trackStop(S_VOICE_1984);
                   w_trig.trackStop(S_VOICE_1989);
 
-                  playTrack(S_VOICE_1984);
+                  playEffect(S_VOICE_1984);
 
                   // Tell the wand to play the 1984 sound effect.
                   packSerialSend(P_MODE_1984);
@@ -3796,13 +3796,13 @@ void checkWand() {
 
               w_trig.trackStop(S_CLICK);
 
-              playTrack(S_CLICK);
+              playEffect(S_CLICK);
 
               w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);
 
-              playTrack(S_VOICE_CROSS_THE_STREAMS);
+              playEffect(S_VOICE_CROSS_THE_STREAMS);
             break;
 
             case W_RESET_PROTON_STREAM_MIX:
@@ -3810,58 +3810,58 @@ void checkWand() {
               FIRING_MODE = PROTON;
 
               w_trig.trackStop(S_CLICK);
-              playTrack(S_CLICK);
+              playEffect(S_CLICK);
 
               w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);
 
-              playTrack(S_VOICE_CROSS_THE_STREAMS_MIX);
+              playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
             break;
 
             case W_VIBRATION_DISABLED:
               // Neutrona Wand vibration disabled.
               w_trig.trackStop(S_BEEPS_ALT);
 
-              playTrack(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
               w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
               w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-              playTrack(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+              playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
             break;
 
             case W_VIBRATION_ENABLED:
               // Neutrona Wand Vibration enabled.
               w_trig.trackStop(S_BEEPS_ALT);
 
-              playTrack(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
               w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
               w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-              playTrack(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+              playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
             break;
 
             case W_VIBRATION_FIRING_ENABLED:
               // Neutrona Wand vibration during firing only enabled.
               w_trig.trackStop(S_BEEPS_ALT);
 
-              playTrack(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
               w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
               w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-              playTrack(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+              playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
             break;
 
             case W_VIBRATION_CYCLE_TOGGLE:
               w_trig.trackStop(S_BEEPS_ALT);
 
-              playTrack(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               if(b_vibration == false) {
                 b_vibration = true;
@@ -3872,7 +3872,7 @@ void checkWand() {
                 w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
                 w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
 
-                playTrack(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+                playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
 
                 packSerialSend(P_PACK_VIBRATION_ENABLED);
 
@@ -3889,7 +3889,7 @@ void checkWand() {
                 w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
                 w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
 
-                playTrack(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+                playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
 
                 packSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
 
@@ -3906,7 +3906,7 @@ void checkWand() {
                 w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
                 w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
 
-                playTrack(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+                playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
 
                 packSerialSend(P_PACK_VIBRATION_DISABLED);
               }
@@ -3918,12 +3918,12 @@ void checkWand() {
 
                 w_trig.trackStop(S_VENT_DRY);
 
-                playTrack(S_VENT_DRY);
+                playEffect(S_VENT_DRY);
 
                 w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
                 w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
 
-                playTrack(S_VOICE_SMOKE_DISABLED);
+                playEffect(S_VOICE_SMOKE_DISABLED);
 
                 // Tell the wand to play the smoke disabled voice.
                 packSerialSend(P_SMOKE_DISABLED);
@@ -3933,12 +3933,12 @@ void checkWand() {
 
                 w_trig.trackStop(S_VENT_SMOKE);
 
-                playTrack(S_VENT_SMOKE);
+                playEffect(S_VENT_SMOKE);
 
                 w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
                 w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
 
-                playTrack(S_VOICE_SMOKE_ENABLED);
+                playEffect(S_VOICE_SMOKE_ENABLED);
 
                 // Tell the wand to play the smoke enabled voice.
                 packSerialSend(P_SMOKE_ENABLED);
@@ -3951,13 +3951,13 @@ void checkWand() {
 
               w_trig.trackStop(S_CLICK);
 
-              playTrack(S_CLICK);
+              playEffect(S_CLICK);
 
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);
 
-              playTrack(S_VOICE_VIDEO_GAME_MODES);
+              playEffect(S_VOICE_VIDEO_GAME_MODES);
             break;
 
             case W_CYCLOTRON_DIRECTION_TOGGLE:
@@ -3967,12 +3967,12 @@ void checkWand() {
 
                 w_trig.trackStop(S_BEEPS_ALT);
 
-                playTrack(S_BEEPS_ALT);
+                playEffect(S_BEEPS_ALT);
 
                 w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
                 w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
-                playTrack(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
+                playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
                 // Tell the wand to play the same sound.
                 packSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
@@ -3982,12 +3982,12 @@ void checkWand() {
 
                 w_trig.trackStop(S_BEEPS);
 
-                playTrack(S_BEEPS);
+                playEffect(S_BEEPS);
 
                 w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
                 w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
-                playTrack(S_VOICE_CYCLOTRON_CLOCKWISE);
+                playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
 
                 // Tell the wand to play the same sound.
                 packSerialSend(P_CYCLOTRON_CLOCKWISE);
@@ -4002,7 +4002,7 @@ void checkWand() {
                 w_trig.trackStop(S_VOICE_THREE_LED);
                 w_trig.trackStop(S_VOICE_SINGLE_LED);
 
-                playTrack(S_VOICE_THREE_LED);
+                playEffect(S_VOICE_THREE_LED);
 
                 // Tell the wand to play the same sound.
                 packSerialSend(P_CYCLOTRON_THREE_LED);
@@ -4014,7 +4014,7 @@ void checkWand() {
                 w_trig.trackStop(S_VOICE_THREE_LED);
                 w_trig.trackStop(S_VOICE_SINGLE_LED);
 
-                playTrack(S_VOICE_SINGLE_LED);
+                playEffect(S_VOICE_SINGLE_LED);
 
                 // Tell the wand to play the same sound.
                 packSerialSend(P_CYCLOTRON_SINGLE_LED);
@@ -4033,7 +4033,7 @@ void checkWand() {
                 b_cyclotron_colour_toggle = false;
                 b_powercell_colour_toggle = false;
 
-                playTrack(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
+                playEffect(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
 
                 // Tell the wand to play the same sound.
                 packSerialSend(P_VIDEO_GAME_MODE_COLOURS_DISABLED);
@@ -4043,7 +4043,7 @@ void checkWand() {
                 b_cyclotron_colour_toggle = false;
                 b_powercell_colour_toggle = true;
 
-                playTrack(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
+                playEffect(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
 
                 // Tell the wand to play the same sound.
                 packSerialSend(P_VIDEO_GAME_MODE_POWER_CELL_ENABLED);
@@ -4053,7 +4053,7 @@ void checkWand() {
                 b_cyclotron_colour_toggle = true;
                 b_powercell_colour_toggle = false;
 
-                playTrack(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
+                playEffect(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
                 // Tell the wand to play the same sound.
                 packSerialSend(P_VIDEO_GAME_MODE_CYCLOTRON_ENABLED);
@@ -4063,7 +4063,7 @@ void checkWand() {
                 b_cyclotron_colour_toggle = true;
                 b_powercell_colour_toggle = true;
 
-                playTrack(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
+                playEffect(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
 
                 // Tell the wand to play the same sound.
                 packSerialSend(P_VIDEO_GAME_MODE_COLOURS_ENABLED);
@@ -4075,7 +4075,7 @@ void checkWand() {
               w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);
               w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);
 
-              playTrack(S_VOICE_OVERHEAT_DISABLED);
+              playEffect(S_VOICE_OVERHEAT_DISABLED);
             break;
 
             case W_OVERHEATING_ENABLED:
@@ -4083,14 +4083,14 @@ void checkWand() {
               w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);
               w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);
 
-              playTrack(S_VOICE_OVERHEAT_ENABLED);
+              playEffect(S_VOICE_OVERHEAT_ENABLED);
             break;
 
             case W_MENU_LEVEL_CHANGE:
               // Play a beep during a sub menu to menu level change.
               w_trig.trackStop(S_BEEPS);
 
-              playTrack(S_BEEPS);
+              playEffect(S_BEEPS);
             break;
 
             case W_VOLUME_MUSIC_DECREASE:

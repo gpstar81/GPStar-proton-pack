@@ -190,7 +190,7 @@ void loop() {
 
 
 // Helper method to play a sound effect using certain defaults.
-void playTrack(int trackID, bool trackLoop=false, int8_t trackVolume=i_volume, bool fadeIn=false, unsigned int fadeTime=0) {
+void playEffect(int trackID, bool trackLoop=false, int8_t trackVolume=i_volume, bool fadeIn=false, unsigned int fadeTime=0) {
   if(trackVolume < i_volume_abs_min) {
     trackVolume = i_volume_abs_min;
   }
@@ -362,7 +362,7 @@ void mainLoop() {
 
         // Prepare a few things before ramping the bargraph back up from a full ramp down.
         if(b_overheat_bargraph_blink != true) {
-          w_trig.trackPlayPoly(S_BOOTUP, true);
+          playEffect(S_BOOTUP);
 
           if(year_mode == 2021) {
             bargraphYearModeUpdate();
@@ -384,7 +384,7 @@ void mainLoop() {
               case 2021:
                 soundIdleLoop(true);
 
-                playTrack(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
+                playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
                 ms_gun_loop_1.start(2000);
               break;
             }
@@ -443,14 +443,14 @@ void mainLoop() {
               b_cross_the_streams = false;
               b_cross_the_streams_mix = false;
               w_trig.trackStop(S_CLICK);
-              w_trig.trackGain(S_CLICK, i_volume);
-              playTrack(S_CLICK);
+
+              playEffect(S_CLICK);
 
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);
-              w_trig.trackGain(S_VOICE_VIDEO_GAME_MODES, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_MODES);
+
+              playEffect(S_VOICE_VIDEO_GAME_MODES);
 
               // Tell the proton pack to reset back to the proton stream.
               wandSerialSend(W_PROTON_MODE_REVERT);
@@ -463,15 +463,14 @@ void mainLoop() {
               b_cross_the_streams_mix = true;
 
               w_trig.trackStop(S_CLICK);
-              w_trig.trackGain(S_CLICK, i_volume);
-              playTrack(S_CLICK);
+
+              playEffect(S_CLICK);
 
               w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);
 
-              w_trig.trackGain(S_VOICE_CROSS_THE_STREAMS_MIX, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS_MIX);
+              playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
 
               // Tell the proton pack to reset back to the proton stream.
               wandSerialSend(W_RESET_PROTON_STREAM_MIX);
@@ -482,14 +481,14 @@ void mainLoop() {
               b_cross_the_streams_mix = false;
 
               w_trig.trackStop(S_CLICK);
-              w_trig.trackGain(S_CLICK, i_volume);
-              playTrack(S_CLICK);
+
+              playEffect(S_CLICK);
 
               w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);
-              w_trig.trackGain(S_VOICE_CROSS_THE_STREAMS, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS);
+
+              playEffect(S_VOICE_CROSS_THE_STREAMS);
 
               // Tell the proton pack to reset back to the proton stream.
               wandSerialSend(W_RESET_PROTON_STREAM);
@@ -548,8 +547,8 @@ void mainLoop() {
                 // Play the overheating disabled voice.
                 w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);
                 w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);
-                w_trig.trackGain(S_VOICE_OVERHEAT_DISABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_OVERHEAT_DISABLED);
+
+                playEffect(S_VOICE_OVERHEAT_DISABLED);
 
                 // Tell the Proton Pack that overheating is disabled.
                 wandSerialSend(W_OVERHEATING_DISABLED);
@@ -560,8 +559,8 @@ void mainLoop() {
                 // Play the overheating enabled voice.
                 w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);
                 w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);
-                w_trig.trackGain(S_VOICE_OVERHEAT_ENABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_OVERHEAT_ENABLED);
+
+                playEffect(S_VOICE_OVERHEAT_ENABLED);
 
                 // Tell the Proton Pack that overheating is enabled.
                 wandSerialSend(W_OVERHEATING_ENABLED);
@@ -698,7 +697,7 @@ void mainLoop() {
 
               w_trig.trackStop(S_BEEPS_ALT);
 
-              playTrack(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               wandSerialSend(W_VIBRATION_CYCLE_TOGGLE);
             }
@@ -707,7 +706,7 @@ void mainLoop() {
             if(switchMode() == true) {
               w_trig.trackStop(S_BEEPS_ALT);
 
-              playTrack(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               if(b_vibration_on != true) {
                 b_vibration_on = true;
@@ -717,7 +716,7 @@ void mainLoop() {
                 w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
                 w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                playTrack(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
 
                 wandSerialSend(W_VIBRATION_ENABLED);
 
@@ -733,7 +732,7 @@ void mainLoop() {
                 w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
                 w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                playTrack(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
 
                 wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
@@ -748,8 +747,8 @@ void mainLoop() {
                 w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
                 w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
                 w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
-                w_trig.trackGain(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+
+                playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
                 wandSerialSend(W_VIBRATION_DISABLED);
               }
@@ -816,8 +815,8 @@ void mainLoop() {
               wandSerialSend(W_YEAR_MODES_CYCLE);
 
               w_trig.trackStop(S_BEEPS_BARGRAPH);
-              w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
-              w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
+
+              playEffect(S_BEEPS_BARGRAPH);
 
               // There is no pack connected, lets change the years.
               if(b_no_pack == true) {
@@ -827,8 +826,8 @@ void mainLoop() {
                   w_trig.trackStop(S_VOICE_AFTERLIFE);
                   w_trig.trackStop(S_VOICE_1984);
                   w_trig.trackStop(S_VOICE_1989);
-                  w_trig.trackGain(S_VOICE_1989, i_volume);
-                  w_trig.trackPlayPoly(S_VOICE_1989);
+
+                  playEffect(S_VOICE_1989);
                 }
                 else if(year_mode == 1989) {
                   year_mode = 2021;
@@ -836,8 +835,8 @@ void mainLoop() {
                   w_trig.trackStop(S_VOICE_AFTERLIFE);
                   w_trig.trackStop(S_VOICE_1984);
                   w_trig.trackStop(S_VOICE_1989);
-                  w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
-                  w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
+
+                  playEffect(S_VOICE_AFTERLIFE);
                 }
                 else if(year_mode == 2021) {
                   year_mode = 1984;
@@ -845,8 +844,8 @@ void mainLoop() {
                   w_trig.trackStop(S_VOICE_AFTERLIFE);
                   w_trig.trackStop(S_VOICE_1989);
                   w_trig.trackStop(S_VOICE_1984);
-                  w_trig.trackGain(S_VOICE_1984, i_volume);
-                  w_trig.trackPlayPoly(S_VOICE_1984);
+
+                  playEffect(S_VOICE_1984);
                 }
               }
             }
@@ -860,7 +859,7 @@ void mainLoop() {
     case MODE_OFF:
       if(switchMode() == true || b_pack_alarm == true) {
         if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
-          playTrack(S_CLICK);
+          playEffect(S_CLICK);
 
           PREV_FIRING_MODE = FIRING_MODE;
           FIRING_MODE = SETTINGS;
@@ -918,12 +917,12 @@ void mainLoop() {
       if(ms_hat_2.justFinished()) {
         ms_hat_2.start(i_hat_2_delay);
 
-        w_trig.trackPlayPoly(S_BEEPS_LOW, true);
-        w_trig.trackPlayPoly(S_BEEPS, true);
+        playEffect(S_BEEPS_LOW);
+        playEffect(S_BEEPS);
       }
 
       if(ms_hat_1.justFinished()) {
-        w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
+        playEffect(S_BEEPS_BARGRAPH);
 
         ms_hat_1.start(i_hat_2_delay * 4);
       }
@@ -1005,7 +1004,7 @@ void mainLoop() {
 
         if(year_mode == 2021) {
           if(ms_gun_loop_1.justFinished()) {
-            playTrack(S_AFTERLIFE_GUN_LOOP_1, true, i_volume - 10);
+            playEffect(S_AFTERLIFE_GUN_LOOP_1, true, i_volume - 10);
             ms_gun_loop_1.stop();
           }
         }
@@ -1077,8 +1076,8 @@ void startVentSequence() {
     ms_bargraph.start(d_bargraph_ramp_interval);
   }
 
-  playTrack(S_VENT_DRY);
-  playTrack(S_CLICK);
+  playEffect(S_VENT_DRY);
+  playEffect(S_CLICK);
 
   // Tell the pack we are overheating.
   wandSerialSend(W_OVERHEATING);
@@ -1594,7 +1593,7 @@ void checkSwitches() {
               #endif
             }
 
-            playTrack(S_CLICK);
+            playEffect(S_CLICK);
 
             switch(FIRING_MODE) {
               case SETTINGS:
@@ -1778,8 +1777,8 @@ void wandOff() {
   w_trig.trackStop(S_STASIS_START);
   w_trig.trackStop(S_MESON_START);
 
-  w_trig.trackPlayPoly(S_WAND_SHUTDOWN);
-  w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_DOWN_1, true);
+  playEffect(S_WAND_SHUTDOWN);
+  playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_1);
 
   // Turn off some timers.
   ms_bargraph.stop();
@@ -1820,15 +1819,11 @@ void modeActivate() {
 
     ms_settings_blinking.start(i_settings_blinking_delay);
 
-    // Set the gain. The track is controlled in MODE_ERROR.
-    w_trig.trackGain(S_BEEPS_LOW, i_volume);
-    w_trig.trackPlayPoly(S_BEEPS_LOW, true);
+    playEffect(S_BEEPS_LOW);
 
-    w_trig.trackGain(S_BEEPS, i_volume);
-    w_trig.trackPlayPoly(S_BEEPS, true);
+    playEffect(S_BEEPS);
 
-    w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
-    w_trig.trackPlayPoly(S_BEEPS_BARGRAPH, true);
+    playEffect(S_BEEPS_BARGRAPH);
   }
   else {
     WAND_STATUS = MODE_ON;
@@ -1873,13 +1868,13 @@ void modeActivate() {
       switch(year_mode) {
         case 1984:
         case 1989:
-          w_trig.trackPlayPoly(S_CLICK, true);
+          playEffect(S_CLICK);
         break;
 
         default:
           soundIdleLoop(true);
 
-          playTrack(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
+          playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
           ms_gun_loop_1.start(2000);
         break;
       }
@@ -1887,78 +1882,28 @@ void modeActivate() {
   }
 }
 
-void soundIdleLoop(bool fade) {
+void soundIdleLoop(bool fadeIn) {
   switch(i_power_mode) {
     case 1:
-      if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_abs_min);
-        w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
-        w_trig.trackFade(S_IDLE_LOOP_GUN_1, i_volume, 1000, 0);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
-      }
-      else {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume);
-        w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
-      }
-     break;
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume, fadeIn, 1000);
+    break;
 
-     case 2:
-      if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_abs_min);
-        w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
-        w_trig.trackFade(S_IDLE_LOOP_GUN_1, i_volume, 1000, 0);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
-      }
-      else {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume);
-        w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_1, true);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_1, 1);
-      }
-     break;
+    case 2:
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume, fadeIn, 1000);
+    break;
 
-     case 3:
-      if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_abs_min);
-        w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
-        w_trig.trackFade(S_IDLE_LOOP_GUN_2, i_volume, 1000, 0);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
-      }
-      else {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume);
-        w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
-      }
-     break;
+    case 3:
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume, fadeIn, 1000);
+    break;
 
-     case 4:
-      if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_abs_min);
-        w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
-        w_trig.trackFade(S_IDLE_LOOP_GUN_2, i_volume, 1000, 0);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
-      }
-      else {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume);
-        w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_2, true);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_2, 1);
-      }
-     break;
+    case 4:
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume, fadeIn, 1000);
+    break;
 
-     case 5:
-      if(fade == true) {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_abs_min);
-        w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_5, true);
-        w_trig.trackFade(S_IDLE_LOOP_GUN_5, i_volume, 1000, 0);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_5, 1);
-      }
-      else {
-        w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume);
-        w_trig.trackPlayPoly(S_IDLE_LOOP_GUN_5, true);
-        w_trig.trackLoop(S_IDLE_LOOP_GUN_5, 1);
-      }
-     break;
-    }
+    case 5:
+      playEffect(S_IDLE_LOOP_GUN_5, true, i_volume, fadeIn, 1000);
+    break;
+  }
 }
 
 void soundIdleLoopStop() {
@@ -1975,7 +1920,7 @@ void soundIdleStart() {
     switch(year_mode) {
       case 1984:
       case 1989:
-        w_trig.trackPlayPoly(S_BOOTUP, true);
+        playEffect(S_BOOTUP);
 
         soundIdleLoop(true);
       break;
@@ -1986,7 +1931,7 @@ void soundIdleStart() {
         w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_1);
         w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_2);
 
-        playTrack(S_AFTERLIFE_GUN_RAMP_2, false, i_volume - 10);
+        playEffect(S_AFTERLIFE_GUN_RAMP_2, false, i_volume - 10);
 
         ms_gun_loop_1.stop();
         ms_gun_loop_2.start(1500);
@@ -2000,7 +1945,7 @@ void soundIdleStart() {
 
   if(year_mode == 2021) {
     if(ms_gun_loop_2.justFinished()) {
-      playTrack(S_AFTERLIFE_GUN_LOOP_2, true, i_volume - 10);
+      playEffect(S_AFTERLIFE_GUN_LOOP_2, true, i_volume - 10);
 
       ms_gun_loop_2.stop();
     }
@@ -2012,15 +1957,15 @@ void soundIdleStop() {
     switch(year_mode) {
       case 1984:
       case 1989:
-        w_trig.trackPlayPoly(S_WAND_SHUTDOWN, true);
+        playEffect(S_WAND_SHUTDOWN);
       break;
 
       default:
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
-          w_trig.trackPlayPoly(S_WAND_SHUTDOWN, true);
+          playEffect(S_WAND_SHUTDOWN);
         }
 
-        w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_DOWN_2, true);
+        playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2);
 
         if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_gun_loop_1.start(1700);
@@ -2068,59 +2013,49 @@ void soundBeepLoop() {
     if(b_beeping == false) {
       switch(i_power_mode) {
         case 1:
-          w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S1, true);
-
           if(year_mode == 2021) {
-            w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, 1);
+            playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
           }
           else {
-            w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, 0);
+            playEffect(S_AFTERLIFE_BEEP_WAND_S1);
           }
-         break;
+        break;
 
-         case 2:
-          w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S2, true);
-
-          if(year_mode == 2021) {
-            w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, 1);
+        case 2:
+         if(year_mode == 2021) {
+            playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
           }
           else {
-            w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, 0);
+            playEffect(S_AFTERLIFE_BEEP_WAND_S2);
           }
-         break;
+        break;
 
-         case 3:
-          w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S3, true);
-
-          if(year_mode == 2021) {
-            w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S3, 1);
+        case 3:
+         if(year_mode == 2021) {
+            playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
           }
           else {
-            w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S3, 0);
+            playEffect(S_AFTERLIFE_BEEP_WAND_S3);
           }
-         break;
+        break;
 
-         case 4:
-          w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S4, true);
-
-          if(year_mode == 2021) {
-            w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S4, 1);
+        case 4:
+         if(year_mode == 2021) {
+            playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
           }
           else {
-            w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S4, 0);
+            playEffect(S_AFTERLIFE_BEEP_WAND_S4);
           }
-         break;
+        break;
 
-         case 5:
-          w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S5, true);
-
-          if(year_mode == 2021) {
-            w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S5, 1);
+        case 5:
+         if(year_mode == 2021) {
+            playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
           }
           else {
-            w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S5, 0);
+            playEffect(S_AFTERLIFE_BEEP_WAND_S5);
           }
-         break;
+        break;
       }
 
       b_beeping = true;
@@ -2135,10 +2070,10 @@ void modeFireStartSounds() {
 
   // Some sparks for firing start.
   if(year_mode == 1989) {
-    playTrack(S_FIRE_START_SPARK, false, i_volume - 10);
+    playEffect(S_FIRE_START_SPARK, false, i_volume - 10);
   }
   else {
-    playTrack(S_FIRE_START_SPARK);
+    playEffect(S_FIRE_START_SPARK);
   }
 
   switch(FIRING_MODE) {
@@ -2150,16 +2085,12 @@ void modeFireStartSounds() {
               b_sound_firing_intensify_trigger = true;
 
               if(year_mode == 1989) {
-                w_trig.trackPlayPoly(S_GB2_FIRE_LOOP, true);
-                w_trig.trackLoop(S_GB2_FIRE_LOOP, 1);
-
-                w_trig.trackPlayPoly(S_GB2_FIRE_START);
+                playEffect(S_GB2_FIRE_START);
+                playEffect(S_GB2_FIRE_LOOP, true);
               }
               else {
-                w_trig.trackPlayPoly(S_GB1_FIRE_LOOP, true);
-                w_trig.trackLoop(S_GB1_FIRE_LOOP, 1);
-
-                w_trig.trackPlayPoly(S_GB1_FIRE_START);
+                playEffect(S_GB1_FIRE_START);
+                playEffect(S_GB1_FIRE_LOOP, true);
               }
             }
             else {
@@ -2170,10 +2101,8 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
-              w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
-
-              w_trig.trackPlayPoly(S_FIRE_START);
+              playEffect(S_FIRE_START);
+              playEffect(S_FIRING_LOOP_GB1, true);
             }
             else {
               b_sound_firing_alt_trigger = false;
@@ -2184,8 +2113,7 @@ void modeFireStartSounds() {
             if(b_firing_intensify == true) {
               // Reset some sound triggers.
               b_sound_firing_intensify_trigger = true;
-              w_trig.trackPlayPoly(S_GB1_FIRE_HIGH_POWER_LOOP, true);
-              w_trig.trackLoop(S_GB1_FIRE_HIGH_POWER_LOOP, 1);
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
             }
             else {
               b_sound_firing_intensify_trigger = false;
@@ -2195,37 +2123,30 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
-              w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+              playEffect(S_FIRING_LOOP_GB1, true);
             }
             else {
               b_sound_firing_alt_trigger = false;
             }
 
-            w_trig.trackPlayPoly(S_GB1_FIRE_START_HIGH_POWER);
+            playEffect(S_GB1_FIRE_START_HIGH_POWER);
           break;
         }
     break;
 
     case SLIME:
-      w_trig.trackPlayPoly(S_SLIME_START);
-
-      w_trig.trackPlayPoly(S_SLIME_LOOP, true);
-      w_trig.trackLoop(S_SLIME_LOOP, 1);
+      playEffect(S_SLIME_START);
+      playEffect(S_SLIME_LOOP, true);
     break;
 
     case STASIS:
-      w_trig.trackPlayPoly(S_STASIS_START);
-
-      w_trig.trackPlayPoly(S_STASIS_LOOP, true);
-      w_trig.trackLoop(S_STASIS_LOOP, 1);
+      playEffect(S_STASIS_START);
+      playEffect(S_STASIS_LOOP, true);
     break;
 
     case MESON:
-      w_trig.trackPlayPoly(S_MESON_START);
-
-      w_trig.trackPlayPoly(S_MESON_LOOP, true);
-      w_trig.trackLoop(S_MESON_LOOP, 1);
+      playEffect(S_MESON_START);
+      playEffect(S_MESON_LOOP, true);
     break;
 
     case VENTING:
@@ -2368,19 +2289,19 @@ void modeFireStopSounds() {
 
  switch(FIRING_MODE) {
     case PROTON:
-      w_trig.trackPlayPoly(S_FIRING_END_GUN, true);
+      playEffect(S_FIRING_END_GUN);
     break;
 
     case SLIME:
-      w_trig.trackPlayPoly(S_SLIME_END, true);
+      playEffect(S_SLIME_END);
     break;
 
     case STASIS:
-      w_trig.trackPlayPoly(S_STASIS_END, true);
+      playEffect(S_STASIS_END);
     break;
 
     case MESON:
-      w_trig.trackPlayPoly(S_MESON_END, true);
+      playEffect(S_MESON_END);
     break;
 
     case VENTING:
@@ -2392,12 +2313,12 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams == true) {
     switch(year_mode) {
       case 2021:
-        playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
       break;
 
       case 1984:
       case 1989:
-        playTrack(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
       break;
     }
 
@@ -2525,22 +2446,17 @@ void modeFiring() {
       switch(i_power_mode) {
         case 1 ... 4:
           if(year_mode == 1989) {
-            w_trig.trackPlayPoly(S_GB2_FIRE_LOOP, true);
-            w_trig.trackLoop(S_GB2_FIRE_LOOP, 1);
-
-            w_trig.trackPlayPoly(S_GB2_FIRE_START);
+            playEffect(S_GB2_FIRE_START);
+            playEffect(S_GB2_FIRE_LOOP, true);
           }
           else {
-            w_trig.trackPlayPoly(S_GB1_FIRE_LOOP, true);
-            w_trig.trackLoop(S_GB1_FIRE_LOOP, 1);
-
-            w_trig.trackPlayPoly(S_GB1_FIRE_START);
+            playEffect(S_GB1_FIRE_START);
+            playEffect(S_GB1_FIRE_LOOP, true);
           }
         break;
 
         case 5:
-          w_trig.trackPlayPoly(S_GB1_FIRE_HIGH_POWER_LOOP, true);
-          w_trig.trackLoop(S_GB1_FIRE_HIGH_POWER_LOOP, 1);
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
         break;
       }
     }
@@ -2586,8 +2502,7 @@ void modeFiring() {
     b_sound_firing_alt_trigger = true;
 
     if(b_cross_the_streams_mix == true) {
-      w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
-      w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+      playEffect(S_FIRING_LOOP_GB1, true);
 
       // Tell the Proton Pack that the Neutrona wand is firing in Alt mode mix.
       wandSerialSend(W_FIRING_ALT_MIX);
@@ -2619,27 +2534,25 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
       break;
 
       case 1984:
       case 1989:
-        playTrack(S_CROSS_STREAMS_START, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_START, false, i_volume + 10);
       break;
     }
 
-    w_trig.trackPlayPoly(S_FIRE_START_SPARK);
+    playEffect(S_FIRE_START_SPARK);
 
     if(b_cross_the_streams_mix != true) {
       // Tell the Proton Pack that the Neutrona wand is crossing the streams mix.
       wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX);
 
-      w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
-      w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
+      playEffect(S_FIRING_LOOP_GB1, true);
 
       if(i_power_mode != i_power_mode_max) {
-        w_trig.trackPlayPoly(S_GB1_FIRE_HIGH_POWER_LOOP, true);
-        w_trig.trackLoop(S_GB1_FIRE_HIGH_POWER_LOOP, 1);
+        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
       }
 
       w_trig.trackStop(S_GB2_FIRE_LOOP);
@@ -2661,12 +2574,12 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
       break;
 
       case 1984:
       case 1989:
-        playTrack(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
       break;
     }
 
@@ -2682,12 +2595,12 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
       break;
 
       case 1984:
       case 1989:
-        playTrack(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
       break;
     }
   }
@@ -2790,7 +2703,7 @@ void modeFiring() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     // Mix some impact sound every 10-15 seconds while firing.
     if(ms_impact.justFinished()) {
-      playTrack(S_FIRE_LOOP_IMPACT);
+      playEffect(S_FIRE_LOOP_IMPACT);
       ms_impact.start(15000);
     }
   #endif
@@ -2807,24 +2720,24 @@ void wandHeatUp() {
 
   switch(FIRING_MODE) {
     case PROTON:
-      playTrack(S_FIRE_START_SPARK);
+      playEffect(S_FIRE_START_SPARK);
     break;
 
     case SLIME:
-      playTrack(S_PACK_SLIME_OPEN);
+      playEffect(S_PACK_SLIME_OPEN);
     break;
 
     case STASIS:
-      playTrack(S_STASIS_OPEN);
+      playEffect(S_STASIS_OPEN);
     break;
 
     case MESON:
-      playTrack(S_MESON_OPEN);
+      playEffect(S_MESON_OPEN);
     break;
 
     case VENTING:
-      playTrack(S_VENT_DRY);
-      playTrack(S_MODE_SWITCH);
+      playEffect(S_VENT_DRY);
+      playEffect(S_MODE_SWITCH);
     break;
 
     case SETTINGS:
@@ -3753,7 +3666,7 @@ void cyclotronSpeedUp(uint8_t i_switch) {
       wandSerialSend(W_BEEP_START);
 
       // Beep the wand 8 times.
-      w_trig.trackPlayPoly(S_BEEP_8);
+      playEffect(S_BEEP_8);
 
       ms_hat_1.start(i_hat_1_delay);
     }
@@ -4410,7 +4323,7 @@ void prepBargraphRampUp() {
 
     // Prepare a few things before ramping the bargraph back up from a full ramp down.
     if(b_overheat_bargraph_blink != true) {
-      playTrack(S_BOOTUP);
+      playEffect(S_BOOTUP);
 
       if(year_mode == 2021) {
         bargraphYearModeUpdate();
@@ -4441,7 +4354,7 @@ void prepBargraphRampUp() {
           case 2021:
             soundIdleLoop(true);
 
-            playTrack(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
+            playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
             ms_gun_loop_1.start(2000);
           break;
         }
@@ -4631,7 +4544,7 @@ void checkRotary() {
 
                 // Play a indication beep to notify we have changed to the sub menu.
                 w_trig.trackStop(S_BEEPS);
-                playTrack(S_BEEPS);
+                playEffect(S_BEEPS);
 
                 // Tell the Proton Pack to play a beep during a sub menu to menu level change.
                 wandSerialSend(W_MENU_LEVEL_CHANGE);
@@ -4663,7 +4576,7 @@ void checkRotary() {
 
                 // Play a indication beep to notify we have left the sub menu.
                 w_trig.trackStop(S_BEEPS);
-                w_trig.trackPlayPoly(S_BEEPS);
+                playEffect(S_BEEPS);
 
                 // Tell the Proton Pack to play a beep during a submenu to menu level change.
                 wandSerialSend(W_MENU_LEVEL_CHANGE);
@@ -4883,7 +4796,7 @@ void wandExitMenu() {
   i_wand_menu = 5;
 
   if(b_pack_alarm != true) {
-    playTrack(S_CLICK);
+    playEffect(S_CLICK);
   }
 
   bargraphClearAlt();
@@ -5158,12 +5071,12 @@ void checkPack() {
               if(b_wait_for_pack != true) {
                 w_trig.trackStop(S_BEEPS_ALT);
 
-                playTrack(S_BEEPS_ALT);
+                playEffect(S_BEEPS_ALT);
 
                 w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);
                 w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);
 
-                playTrack(S_VOICE_VIBRATION_ENABLED);
+                playEffect(S_VOICE_VIBRATION_ENABLED);
               }
             break;
 
@@ -5175,12 +5088,12 @@ void checkPack() {
               if(b_wait_for_pack != true) {
                 w_trig.trackStop(S_BEEPS_ALT);
 
-                playTrack(S_BEEPS_ALT);
+                playEffect(S_BEEPS_ALT);
 
                 w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);
                 w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);
-                w_trig.trackGain(S_VOICE_VIBRATION_DISABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);
+
+                playEffect(S_VOICE_VIBRATION_DISABLED);
               }
 
               vibrationOff();
@@ -5190,39 +5103,39 @@ void checkPack() {
               // Proton Pack Vibration enabled.
               w_trig.trackStop(S_BEEPS_ALT);
 
-              playTrack(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
-              w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_ENABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+
+              playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
             break;
 
             case P_PACK_VIBRATION_DISABLED:
               // Proton Pack Vibration disabled.
               w_trig.trackStop(S_BEEPS_ALT);
 
-              playTrack(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
-              w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_DISABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+
+              playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
             break;
 
             case P_PACK_VIBRATION_FIRING_ENABLED:
               // Proton Pack Vibration firing enabled.
               w_trig.trackStop(S_BEEPS_ALT);
 
-              playTrack(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
-              w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+
+              playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
             break;
 
             case P_MODE_AFTERLIFE:
@@ -5230,8 +5143,8 @@ void checkPack() {
               w_trig.trackStop(S_VOICE_AFTERLIFE);
               w_trig.trackStop(S_VOICE_1989);
               w_trig.trackStop(S_VOICE_1984);
-              w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
+
+              playEffect(S_VOICE_AFTERLIFE);
             break;
 
             case P_MODE_1989:
@@ -5239,8 +5152,8 @@ void checkPack() {
               w_trig.trackStop(S_VOICE_AFTERLIFE);
               w_trig.trackStop(S_VOICE_1989);
               w_trig.trackStop(S_VOICE_1984);
-              w_trig.trackGain(S_VOICE_1989, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_1989);
+
+              playEffect(S_VOICE_1989);
             break;
 
             case P_MODE_1984:
@@ -5248,56 +5161,56 @@ void checkPack() {
               w_trig.trackStop(S_VOICE_AFTERLIFE);
               w_trig.trackStop(S_VOICE_1989);
               w_trig.trackStop(S_VOICE_1984);
-              w_trig.trackGain(S_VOICE_1984, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_1984);
+
+              playEffect(S_VOICE_1984);
             break;
 
             case P_SMOKE_DISABLED:
               // Play smoke disabled voice.
               w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
               w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
-              w_trig.trackGain(S_VOICE_SMOKE_DISABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
+
+              playEffect(S_VOICE_SMOKE_DISABLED);
             break;
 
             case P_SMOKE_ENABLED:
               // Play smoke enabled voice.
               w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
               w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
-              w_trig.trackGain(S_VOICE_SMOKE_ENABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);
+
+              playEffect(S_VOICE_SMOKE_ENABLED);
             break;
 
             case P_CYCLOTRON_COUNTER_CLOCKWISE:
               // Play cyclotron counter clockwise voice.
               w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
               w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
-              w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
+
+              playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
             break;
 
             case P_CYCLOTRON_CLOCKWISE:
               // Play cyclotron clockwise voice.
               w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
               w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
-              w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);
+
+              playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
             break;
 
             case P_CYCLOTRON_SINGLE_LED:
               // Play Single LED voice.
               w_trig.trackStop(S_VOICE_THREE_LED);
               w_trig.trackStop(S_VOICE_SINGLE_LED);
-              w_trig.trackGain(S_VOICE_SINGLE_LED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_SINGLE_LED);
+
+              playEffect(S_VOICE_SINGLE_LED);
             break;
 
             case P_CYCLOTRON_THREE_LED:
               // Play 3 LED voice.
               w_trig.trackStop(S_VOICE_THREE_LED);
               w_trig.trackStop(S_VOICE_SINGLE_LED);
-              w_trig.trackGain(S_VOICE_THREE_LED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_THREE_LED);
+
+              playEffect(S_VOICE_THREE_LED);
             break;
 
             case P_VIDEO_GAME_MODE_COLOURS_DISABLED:
@@ -5306,8 +5219,7 @@ void checkPack() {
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
-              w_trig.trackGain(S_VOICE_VIDEO_GAME_COLOURS_DISABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
+              playEffect(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
             break;
 
             case P_VIDEO_GAME_MODE_POWER_CELL_ENABLED:
@@ -5316,8 +5228,7 @@ void checkPack() {
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
-              w_trig.trackGain(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
+              playEffect(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
             break;
 
             case P_VIDEO_GAME_MODE_CYCLOTRON_ENABLED:
@@ -5326,8 +5237,7 @@ void checkPack() {
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
-              w_trig.trackGain(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
+              playEffect(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
             break;
 
             case P_VIDEO_GAME_MODE_COLOURS_ENABLED:
@@ -5336,8 +5246,7 @@ void checkPack() {
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
-              w_trig.trackGain(S_VOICE_VIDEO_GAME_COLOURS_ENABLED, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
+              playEffect(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
             break;
 
             case P_MUSIC_STOP:
