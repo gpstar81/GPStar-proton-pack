@@ -71,7 +71,7 @@
 
 ## Runtime Modes
 
-The following features require the use of both the pack and wand replacement controllers (Arduino-based) which implements a menu system to access special features which affects overall operation. Details for the menu system will be covered below, but it's important to describe the various operating modes first.
+The following features require the use of both the pack and wand replacement controllers which implements a menu system to access special features which affects overall operation. Details for the menu system will be covered below, but it's important to describe the various operating modes first.
 
 **Video Game Mode (Default)**
 ![](images/OperationNeutrona4.jpg)
