@@ -139,55 +139,6 @@ void setup() {
   packSerialSend(P_PACK_BOOTUP);
 }
 
-// Helper method to play a sound effect using certain defaults.
-void playTrack(int trackID, bool trackLoop=false, int8_t trackVolume=i_volume, bool fadeIn=false, int8_t fadeTime=0) {
-  if(trackVolume < i_volume_abs_min) {
-    trackVolume = i_volume_abs_min;
-  }
-  if(trackVolume > 10) {
-    trackVolume = i_volume_abs_max;
-  }
-
-  if(fadeIn == true) {
-    w_trig.trackGain(trackID, i_volume_abs_min);
-    w_trig.trackPlayPoly(trackID, true);
-    w_trig.trackFade(trackID, trackVolume, fadeTime, 0);
-  }
-  else {
-    w_trig.trackGain(trackID, trackVolume);
-    w_trig.trackPlayPoly(trackID, true);
-  }
-
-  if(trackLoop == true) {
-    w_trig.trackLoop(trackID, 1);
-  }
-}
-
-// Helper method to play a music track using certain defaults.
-void playMusic(int musicID=i_current_music_track, bool musicLoop=b_repeat_track, int8_t musicVolume=i_volume_music) {
-  if(musicVolume < i_volume_abs_min) {
-    musicVolume = i_volume_abs_min;
-  }
-  if(musicVolume > 10) {
-    musicVolume = i_volume_abs_max;
-  }
-
-  w_trig.trackGain(musicID, musicVolume);
-  w_trig.trackPlayPoly(musicID, true);
-
-  if(musicLoop == true) {
-    w_trig.trackLoop(musicID, 1);
-  }
-
-  w_trig.update();
-}
-
-void stopMusic() {
-  w_trig.trackStop(i_current_music_track);
-
-  w_trig.update();
-}
-
 void loop() {
   w_trig.update();
 
@@ -354,8 +305,7 @@ void loop() {
 
             // Play some sounds with the smoke and vent lighting.
             if(b_vent_sounds == true) {
-              playTrack(S_VENT_SMOKE);
-              playTrack(S_SPARKS_LOOP);
+              playVentSounds();
 
               b_vent_sounds = false;
             }
@@ -416,6 +366,60 @@ void loop() {
     FastLED.show();
     ms_fast_led.start(i_fast_led_delay);
   }
+}
+
+// Helper method to play a sound effect using certain defaults.
+void playTrack(int trackID, bool trackLoop=false, int8_t trackVolume=i_volume, bool fadeIn=false, unsigned int fadeTime=0) {
+  if(trackVolume < i_volume_abs_min) {
+    trackVolume = i_volume_abs_min;
+  }
+  if(trackVolume > 10) {
+    trackVolume = i_volume_abs_max;
+  }
+
+  if(fadeIn == true) {
+    w_trig.trackGain(trackID, i_volume_abs_min);
+    w_trig.trackPlayPoly(trackID, true);
+    w_trig.trackFade(trackID, trackVolume, fadeTime, 0);
+  }
+  else {
+    w_trig.trackGain(trackID, trackVolume);
+    w_trig.trackPlayPoly(trackID, true);
+  }
+
+  if(trackLoop == true) {
+    w_trig.trackLoop(trackID, 1);
+  }
+}
+
+// Helper method to play a music track using certain defaults.
+void playMusic(int musicID=i_current_music_track, bool musicLoop=b_repeat_track, int8_t musicVolume=i_volume_music) {
+  if(musicVolume < i_volume_abs_min) {
+    musicVolume = i_volume_abs_min;
+  }
+  if(musicVolume > 10) {
+    musicVolume = i_volume_abs_max;
+  }
+
+  w_trig.trackGain(musicID, musicVolume);
+  w_trig.trackPlayPoly(musicID, true);
+
+  if(musicLoop == true) {
+    w_trig.trackLoop(musicID, 1);
+  }
+
+  w_trig.update();
+}
+
+void stopMusic() {
+  w_trig.trackStop(i_current_music_track);
+
+  w_trig.update();
+}
+
+void playVentSounds() {
+  playTrack(S_VENT_SMOKE);
+  playTrack(S_SPARKS_LOOP);
 }
 
 void packStartup() {
@@ -3270,7 +3274,7 @@ void wandHandShake() {
     else if(ms_wand_handshake_checking.justFinished()) {
       if(b_diagnostic == true) {
         // Play a beep sound to know if the wand is connected, while in diagnostic mode.
-        playTrack(S_VENT_BEEP);
+        playTrack(S_VENT_BEEP, true);
       }
 
       ms_wand_handshake_checking.stop();
