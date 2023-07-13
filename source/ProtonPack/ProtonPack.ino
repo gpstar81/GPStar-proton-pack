@@ -411,8 +411,8 @@ void playMusic(int musicID=i_current_music_track, bool musicLoop=b_repeat_track,
   w_trig.update();
 }
 
-void stopMusic() {
-  w_trig.trackStop(i_current_music_track);
+void stopMusic(int musicID=i_current_music_track) {
+  w_trig.trackStop(musicID);
 
   w_trig.update();
 }
@@ -2624,13 +2624,7 @@ void wandFiring() {
   vibrationPack(255);
 
   if(i_mode_year == 1989) {
-    int8_t i_v_spark = i_volume - 10;
-
-    if(i_v_spark < i_volume_abs_min) {
-      i_v_spark = i_volume_abs_min;
-    }
-
-    playTrack(S_FIRE_START_SPARK, false, i_v_spark);
+    playTrack(S_FIRE_START_SPARK, false, i_volume - 10);
   }
   else {
     playTrack(S_FIRE_START_SPARK);

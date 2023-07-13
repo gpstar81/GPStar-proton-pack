@@ -27,7 +27,7 @@
   * This can be found near the top of the wavTrigger.h file after opening it.
   * All other serial ports will need to be disabled and commented out in the wavTrigger.h file.
 
-  * If you are compiling the code to upload to a Arduino Nano: 
+  * If you are compiling the code to upload to a Arduino Nano:
   * IMPORTANT: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are uploading code to your Nano.
   You want to use: #define __WT_USE_ALTSOFTSERIAL__
 
@@ -36,7 +36,7 @@
 */
 #include <wavTrigger.h>
 
-#include <millisDelay.h> 
+#include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
 
@@ -66,7 +66,7 @@
   #include <AltSoftSerial.h>
 #endif
 
-void setup() {  
+void setup() {
   Serial.begin(9600);
 
   // Enable Serial1 if compiling for the gpstar Neutrona Wand micro controller.
@@ -81,17 +81,17 @@ void setup() {
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
-  
+
   setupWavTrigger();
-  
+
   // Barrel LEDs
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_NUM_LEDS);
-  
+
   switch_wand.setDebounceTime(switch_debounce_time);
   switch_intensify.setDebounceTime(switch_debounce_time);
   switch_activate.setDebounceTime(switch_debounce_time);
   switch_vent.setDebounceTime(switch_debounce_time);
-  
+
   #ifndef GPSTAR_NEUTRONA_WAND_PCB
     b_28segment_bargraph = false; // Force Arduino Nano builds to not use the 28 segment bargraph.
   #endif
@@ -104,7 +104,7 @@ void setup() {
   // Rotary encoder on the top of the wand.
   pinMode(r_encoderA, INPUT_PULLUP);
   pinMode(r_encoderB, INPUT_PULLUP);
-  
+
   bargraphYearModeUpdate();
 
   // Setup the bargraph.
@@ -143,10 +143,10 @@ void setup() {
   pinMode(led_white, OUTPUT);
 
   pinMode(vibration, OUTPUT);
-  
+
   // Make sure lights are off.
   wandLightsOff();
-  
+
   // Wand status.
   WAND_STATUS = MODE_OFF;
   WAND_ACTION_STATUS = ACTION_IDLE;
@@ -161,7 +161,7 @@ void setup() {
   // We bootup the wand in the classic proton mode.
   FIRING_MODE = PROTON;
   PREV_FIRING_MODE = SETTINGS;
-  
+
   // Check music timer.
   ms_check_music.start(i_music_check_delay);
 
@@ -171,7 +171,7 @@ void setup() {
   }
 }
 
-void loop() { 
+void loop() {
   if(b_wait_for_pack == true) {
     if(b_volume_sync_wait != true) {
       // Handshake with the pack. Telling the pack that we are here.
@@ -183,24 +183,74 @@ void loop() {
 
     delay(10);
   }
-  else {   
+  else {
     mainLoop();
-  } 
+  }
 }
 
-void mainLoop() {  
+
+// Helper method to play a sound effect using certain defaults.
+void playTrack(int trackID, bool trackLoop=false, int8_t trackVolume=i_volume, bool fadeIn=false, unsigned int fadeTime=0) {
+  if(trackVolume < i_volume_abs_min) {
+    trackVolume = i_volume_abs_min;
+  }
+  if(trackVolume > 10) {
+    trackVolume = i_volume_abs_max;
+  }
+
+  if(fadeIn == true) {
+    w_trig.trackGain(trackID, i_volume_abs_min);
+    w_trig.trackPlayPoly(trackID, true);
+    w_trig.trackFade(trackID, trackVolume, fadeTime, 0);
+  }
+  else {
+    w_trig.trackGain(trackID, trackVolume);
+    w_trig.trackPlayPoly(trackID, true);
+  }
+
+  if(trackLoop == true) {
+    w_trig.trackLoop(trackID, 1);
+  }
+}
+
+// Helper method to play a music track using certain defaults.
+void playMusic(int musicID=i_current_music_track, bool musicLoop=b_repeat_track, int8_t musicVolume=i_volume_music) {
+  if(musicVolume < i_volume_abs_min) {
+    musicVolume = i_volume_abs_min;
+  }
+  if(musicVolume > 10) {
+    musicVolume = i_volume_abs_max;
+  }
+
+  w_trig.trackGain(musicID, musicVolume);
+  w_trig.trackPlayPoly(musicID, true);
+
+  if(musicLoop == true) {
+    w_trig.trackLoop(musicID, 1);
+  }
+
   w_trig.update();
-  
+}
+
+void stopMusic(int musicID=i_current_music_track) {
+  w_trig.trackStop(musicID);
+
+  w_trig.update();
+}
+
+void mainLoop() {
+  w_trig.update();
+
   checkMusic();
   checkPack();
   switchLoops();
-  checkRotary();  
+  checkRotary();
   checkSwitches();
 
   if(ms_firing_stop_sound_delay.justFinished()) {
     modeFireStopSounds();
   }
-  
+
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
       if(WAND_STATUS == MODE_ON) {
@@ -209,7 +259,7 @@ void mainLoop() {
           case 1989:
             // Do nothing.
           break;
-          
+
           case 2021:
             #ifdef GPSTAR_NEUTRONA_WAND_PCB
               if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
@@ -230,7 +280,7 @@ void mainLoop() {
     case ACTION_OFF:
       wandOff();
     break;
-    
+
     case ACTION_FIRING:
       if(FIRING_MODE == VENTING) {
         // If we are in venting mode, lets trigger a vent sequence.
@@ -238,14 +288,14 @@ void mainLoop() {
       }
       else if(b_pack_on == true && b_pack_alarm == false) {
         if(ms_firing_start_sound_delay.justFinished()) {
-        modeFireStartSounds();
+          modeFireStartSounds();
         }
 
         if(b_firing == false) {
           b_firing = true;
           modeFireStart();
         }
-    
+
         if(ms_hat_1.isRunning()) {
           if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
             #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -264,14 +314,14 @@ void mainLoop() {
             ms_hat_1.start(i_hat_1_delay);
           }
         }
-        
+
         // Overheating.
         if(ms_overheat_initiate.justFinished() && b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
           startVentSequence();
         }
         else {
           modeFiring();
-          
+
           // Stop firing if any of the main switches are turned off or the barrel is retracted.
           if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH || switchBarrel() == true) {
             modeFireStop();
@@ -282,7 +332,7 @@ void mainLoop() {
         modeFireStop();
       }
     break;
-   
+
     case ACTION_OVERHEATING:
       if(b_overheat_bargraph_blink == true) {
         settingsBlinkingLights();
@@ -293,13 +343,13 @@ void mainLoop() {
           bargraphRampUp();
         }
       }
-      
+
       if(ms_overheating.justFinished()) {
         bargraphClearAlt();
 
         ms_overheating.stop();
         ms_settings_blinking.stop();
-        
+
         // Turn off hat light 2.
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           digitalWrite(led_hat_2, LOW);
@@ -309,18 +359,18 @@ void mainLoop() {
 
         w_trig.trackStop(S_CLICK);
         w_trig.trackStop(S_VENT_DRY);
-        
+
         // Prepare a few things before ramping the bargraph back up from a full ramp down.
         if(b_overheat_bargraph_blink != true) {
           w_trig.trackPlayPoly(S_BOOTUP, true);
-          
+
           if(year_mode == 2021) {
             bargraphYearModeUpdate();
           }
           else {
             i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
           }
-          
+
           if(switch_vent.getState() == LOW) {
             soundIdleLoop(true);
           }
@@ -334,8 +384,7 @@ void mainLoop() {
               case 2021:
                 soundIdleLoop(true);
 
-                w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume - 10);
-                w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true);
+                playTrack(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
                 ms_gun_loop_1.start(2000);
               break;
             }
@@ -343,23 +392,23 @@ void mainLoop() {
         }
 
         bargraphRampUp();
-        
+
         // Tell the pack that we finished overheating.
         wandSerialSend(W_OVERHEATING_FINISHED);
       }
     break;
-    
+
     case ACTION_ERROR:
       // nothing.
     break;
-    
+
     case ACTION_ACTIVATE:
       modeActivate();
     break;
-    
+
     case ACTION_SETTINGS:
       settingsBlinkingLights();
-      
+
       switch(i_wand_menu) {
         // Top menu: Music track loop setting.
         // Sub menu: Enable or disable crossing the streams / video game modes.
@@ -369,7 +418,7 @@ void mainLoop() {
         if(b_wand_menu_sub != true) {
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
-            
+
             if(b_repeat_track == false) {
               // Loop the track.
               b_repeat_track = true;
@@ -379,7 +428,7 @@ void mainLoop() {
               b_repeat_track = false;
               w_trig.trackLoop(i_current_music_track, 0);
             }
-            
+
             // Tell pack to loop the music track.
             wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);
           }
@@ -393,13 +442,13 @@ void mainLoop() {
               // Turn off crossing the streams mode and switch back to video game mode.
               b_cross_the_streams = false;
               b_cross_the_streams_mix = false;
-              w_trig.trackStop(S_CLICK);    
+              w_trig.trackStop(S_CLICK);
               w_trig.trackGain(S_CLICK, i_volume);
-              w_trig.trackPlayPoly(S_CLICK);
+              playTrack(S_CLICK);
 
-              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);  
-              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);      
-              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);
               w_trig.trackGain(S_VOICE_VIDEO_GAME_MODES, i_volume);
               w_trig.trackPlayPoly(S_VOICE_VIDEO_GAME_MODES);
 
@@ -413,14 +462,14 @@ void mainLoop() {
               // Turn on cross the streams mix.
               b_cross_the_streams_mix = true;
 
-              w_trig.trackStop(S_CLICK);    
+              w_trig.trackStop(S_CLICK);
               w_trig.trackGain(S_CLICK, i_volume);
-              w_trig.trackPlayPoly(S_CLICK);
+              playTrack(S_CLICK);
 
-              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);
               w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);
-              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);    
-    
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);
+
               w_trig.trackGain(S_VOICE_CROSS_THE_STREAMS_MIX, i_volume);
               w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS_MIX);
 
@@ -431,14 +480,14 @@ void mainLoop() {
               // Turn on crossing the streams mode and turn off video game mode.
               b_cross_the_streams = true;
               b_cross_the_streams_mix = false;
-              
-              w_trig.trackStop(S_CLICK);    
-              w_trig.trackGain(S_CLICK, i_volume);
-              w_trig.trackPlayPoly(S_CLICK);
 
-              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);    
-              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);    
-              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);    
+              w_trig.trackStop(S_CLICK);
+              w_trig.trackGain(S_CLICK, i_volume);
+              playTrack(S_CLICK);
+
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_MODES);
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS_MIX);
+              w_trig.trackStop(S_VOICE_CROSS_THE_STREAMS);
               w_trig.trackGain(S_VOICE_CROSS_THE_STREAMS, i_volume);
               w_trig.trackPlayPoly(S_VOICE_CROSS_THE_STREAMS);
 
@@ -451,7 +500,7 @@ void mainLoop() {
           }
 
           // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
-          if(switchMode() == true) {                           
+          if(switchMode() == true) {
             if(b_cross_the_streams != true && b_cross_the_streams_mix != true) {
               // Tell the Proton Pack to cycle through the Video Game Colour toggles.
               wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
@@ -468,18 +517,18 @@ void mainLoop() {
           if(b_wand_menu_sub != true) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
-              
+
               increaseVolumeEffects();
-              
+
               // Tell pack to increase the sound effects volume.
               wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
             }
 
             if(switchMode() == true) {
               decreaseVolumeEffects();
-              
+
               // Tell pack to lower the sound effects volume.
-              wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);              
+              wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
             }
           }
           else {
@@ -492,13 +541,13 @@ void mainLoop() {
             }
 
             // Enable or disable overheating.
-            if(switchMode() == true) {                
+            if(switchMode() == true) {
               if(b_overheat_enabled == true) {
                 b_overheat_enabled = false;
-                
+
                 // Play the overheating disabled voice.
-                w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);    
-                w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);    
+                w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);
+                w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);
                 w_trig.trackGain(S_VOICE_OVERHEAT_DISABLED, i_volume);
                 w_trig.trackPlayPoly(S_VOICE_OVERHEAT_DISABLED);
 
@@ -509,14 +558,14 @@ void mainLoop() {
                 b_overheat_enabled = true;
 
                 // Play the overheating enabled voice.
-                w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);    
-                w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);    
+                w_trig.trackStop(S_VOICE_OVERHEAT_DISABLED);
+                w_trig.trackStop(S_VOICE_OVERHEAT_ENABLED);
                 w_trig.trackGain(S_VOICE_OVERHEAT_ENABLED, i_volume);
                 w_trig.trackPlayPoly(S_VOICE_OVERHEAT_ENABLED);
 
                 // Tell the Proton Pack that overheating is enabled.
                 wandSerialSend(W_OVERHEATING_ENABLED);
-              }              
+              }
             }
           }
         break;
@@ -530,7 +579,7 @@ void mainLoop() {
             if(b_playing_music == true) {
               if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
                 ms_intensify_timer.start(i_intensify_delay);
-                
+
                 if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
                   i_volume_music_percentage = 100;
                 }
@@ -541,12 +590,12 @@ void mainLoop() {
                 i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
                 w_trig.trackGain(i_current_music_track, i_volume_music);
-                
+
                 // Tell pack to increase music volume.
                 wandSerialSend(W_VOLUME_MUSIC_INCREASE);
               }
-    
-              if(switchMode() == true) {                  
+
+              if(switchMode() == true) {
                 if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
                   i_volume_music_percentage = 0;
                 }
@@ -557,10 +606,10 @@ void mainLoop() {
                 i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
                 w_trig.trackGain(i_current_music_track, i_volume_music);
-                
+
                 // Tell pack to lower music volume.
-                wandSerialSend(W_VOLUME_MUSIC_DECREASE);                
-              }  
+                wandSerialSend(W_VOLUME_MUSIC_DECREASE);
+              }
             }
           }
           else {
@@ -571,7 +620,7 @@ void mainLoop() {
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
 
-            if(switchMode() == true) {                         
+            if(switchMode() == true) {
               // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
               wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
             }
@@ -581,14 +630,14 @@ void mainLoop() {
         // Top menu: Change music tracks.
         // Sub menu: Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
         // Sub menu: (Mode switch) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
-        case 2:       
+        case 2:
           // Change music tracks.
-          if(b_wand_menu_sub != true) {             
+          if(b_wand_menu_sub != true) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
-              
+
               if(i_current_music_track + 1 > i_music_track_start + (i_music_count - 1)) {
-                if(b_playing_music == true) {               
+                if(b_playing_music == true) {
                   // Go to the first track to play it.
                   stopMusic();
                   i_current_music_track = i_music_track_start;
@@ -602,19 +651,19 @@ void mainLoop() {
                 // Stop the old track and play the new track if music is currently playing.
                 if(b_playing_music == true) {
                   stopMusic();
-                  i_current_music_track++;                
+                  i_current_music_track++;
                   playMusic();
                 }
                 else {
                   i_current_music_track++;
                 }
               }
-            
+
               // Tell the pack which music track to change to.
               wandSerialSend(i_current_music_track);
             }
 
-            if(switchMode() == true) {                                            
+            if(switchMode() == true) {
               if(i_current_music_track - 1 < i_music_track_start) {
                 if(b_playing_music == true) {
                   // Go to the last track to play it.
@@ -637,38 +686,38 @@ void mainLoop() {
                   i_current_music_track--;
                 }
               }
-            
+
               // Tell the pack which music track to change to.
-              wandSerialSend(i_current_music_track);              
-            }   
+              wandSerialSend(i_current_music_track);
+            }
           }
           else {
             // Enable or disable vibration for the Pack or during firing only.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              w_trig.trackStop(S_BEEPS_ALT);    
-              w_trig.trackGain(S_BEEPS_ALT, i_volume);
-              w_trig.trackPlayPoly(S_BEEPS_ALT);
+              w_trig.trackStop(S_BEEPS_ALT);
+
+              playTrack(S_BEEPS_ALT);
 
               wandSerialSend(W_VIBRATION_CYCLE_TOGGLE);
             }
 
             // Enable or disable vibration or firing vibration only for the wand.
             if(switchMode() == true) {
-              w_trig.trackStop(S_BEEPS_ALT);    
-              w_trig.trackGain(S_BEEPS_ALT, i_volume);
-              w_trig.trackPlayPoly(S_BEEPS_ALT);
+              w_trig.trackStop(S_BEEPS_ALT);
+
+              playTrack(S_BEEPS_ALT);
 
               if(b_vibration_on != true) {
                 b_vibration_on = true;
                 b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
                 w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
-                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);    
-                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);    
-                w_trig.trackGain(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+
+                playTrack(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
 
                 wandSerialSend(W_VIBRATION_ENABLED);
 
@@ -681,10 +730,10 @@ void mainLoop() {
                 b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
                 w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
-                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);    
-                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);    
-                w_trig.trackGain(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+
+                playTrack(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
 
                 wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
@@ -697,15 +746,15 @@ void mainLoop() {
                 b_vibration_firing = false;
 
                 w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
-                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);    
-                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);    
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                w_trig.trackStop(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
                 w_trig.trackGain(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED, i_volume);
                 w_trig.trackPlayPoly(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
                 wandSerialSend(W_VIBRATION_DISABLED);
               }
-            }            
-          }  
+            }
+          }
         break;
 
         // Top menu: Play music or stop music.
@@ -713,7 +762,7 @@ void mainLoop() {
         // Sub menu: (Intensify) -> Switch between 1984/1989/Afterlife mode.
         case 1:
           // Play or stop the current music track.
-          if(b_wand_menu_sub != true) {          
+          if(b_wand_menu_sub != true) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
@@ -723,8 +772,8 @@ void mainLoop() {
 
                 // Tell the pack to stop music.
                 wandSerialSend(W_MUSIC_STOP);
-                
-                stopMusic();             
+
+                stopMusic();
               }
               else {
                 if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
@@ -733,25 +782,25 @@ void mainLoop() {
 
                   // Tell the pack to play music.
                   wandSerialSend(W_MUSIC_START);
-                  
+
                   playMusic();
                 }
               }
             }
 
             // Silent the Proton Pack or Neutrona Wand or revert back.
-            if(switchMode() == true) {                
+            if(switchMode() == true) {
               if(i_volume_master == i_volume_abs_min) {
                 wandSerialSend(W_VOLUME_REVERT);
 
-                i_volume_master = i_volume_revert;  
+                i_volume_master = i_volume_revert;
               }
               else {
                 i_volume_revert = i_volume_master;
 
                 // Set the master volume to silent.
                 i_volume_master = i_volume_abs_min;
-              
+
                 wandSerialSend(W_SILENT_MODE);
               }
 
@@ -762,11 +811,11 @@ void mainLoop() {
             // Switch between 1984/1989/Afterlife mode.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
-              
+
               // Tell the Proton Pack to cycle through year modes.
               wandSerialSend(W_YEAR_MODES_CYCLE);
 
-              w_trig.trackStop(S_BEEPS_BARGRAPH);    
+              w_trig.trackStop(S_BEEPS_BARGRAPH);
               w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume);
               w_trig.trackPlayPoly(S_BEEPS_BARGRAPH);
 
@@ -775,27 +824,27 @@ void mainLoop() {
                 if(year_mode == 1984) {
                   year_mode = 1989;
 
-                  w_trig.trackStop(S_VOICE_AFTERLIFE);    
+                  w_trig.trackStop(S_VOICE_AFTERLIFE);
                   w_trig.trackStop(S_VOICE_1984);
-                  w_trig.trackStop(S_VOICE_1989);    
+                  w_trig.trackStop(S_VOICE_1989);
                   w_trig.trackGain(S_VOICE_1989, i_volume);
                   w_trig.trackPlayPoly(S_VOICE_1989);
                 }
                 else if(year_mode == 1989) {
                   year_mode = 2021;
 
-                  w_trig.trackStop(S_VOICE_AFTERLIFE);    
-                  w_trig.trackStop(S_VOICE_1984);  
-                  w_trig.trackStop(S_VOICE_1989);    
+                  w_trig.trackStop(S_VOICE_AFTERLIFE);
+                  w_trig.trackStop(S_VOICE_1984);
+                  w_trig.trackStop(S_VOICE_1989);
                   w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
                   w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
                 }
                 else if(year_mode == 2021) {
                   year_mode = 1984;
 
-                  w_trig.trackStop(S_VOICE_AFTERLIFE);    
-                  w_trig.trackStop(S_VOICE_1989);  
-                  w_trig.trackStop(S_VOICE_1984);    
+                  w_trig.trackStop(S_VOICE_AFTERLIFE);
+                  w_trig.trackStop(S_VOICE_1989);
+                  w_trig.trackStop(S_VOICE_1984);
                   w_trig.trackGain(S_VOICE_1984, i_volume);
                   w_trig.trackPlayPoly(S_VOICE_1984);
                 }
@@ -808,18 +857,18 @@ void mainLoop() {
   }
 
   switch(WAND_STATUS) {
-    case MODE_OFF:          
+    case MODE_OFF:
       if(switchMode() == true || b_pack_alarm == true) {
         if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
-          w_trig.trackPlayPoly(S_CLICK);
+          playTrack(S_CLICK);
 
           PREV_FIRING_MODE = FIRING_MODE;
           FIRING_MODE = SETTINGS;
-          
+
           WAND_ACTION_STATUS = ACTION_SETTINGS;
           i_wand_menu = 5;
           ms_settings_blinking.start(i_settings_blinking_delay);
-    
+
           // Tell the pack we are in settings mode.
           wandSerialSend(W_SETTINGS_MODE);
         }
@@ -828,7 +877,7 @@ void mainLoop() {
           if(i_wand_menu == 5 && b_wand_menu_sub != true && FIRING_MODE == SETTINGS) {
             wandExitMenu();
           }
-        }      
+        }
       }
       else if(WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on == true) {
         if(b_no_pack != true) {
@@ -843,7 +892,7 @@ void mainLoop() {
       }
     break;
 
-    case MODE_ERROR:    
+    case MODE_ERROR:
       if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
         digitalWrite(led_white, HIGH);
 
@@ -934,12 +983,12 @@ void mainLoop() {
 
           // We make the slo-blo light blink during vent mode.
           if(FIRING_MODE == VENTING) {
-            analogWrite(led_slo_blo, 0); 
+            analogWrite(led_slo_blo, 0);
 
             // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
             #ifdef GPSTAR_NEUTRONA_WAND_PCB
               analogWrite(led_front_left, 0);
-            #endif            
+            #endif
           }
         }
       }
@@ -956,9 +1005,7 @@ void mainLoop() {
 
         if(year_mode == 2021) {
           if(ms_gun_loop_1.justFinished()) {
-            w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_1, i_volume - 10);
-            w_trig.trackPlayPoly(S_AFTERLIFE_GUN_LOOP_1, true);
-            w_trig.trackLoop(S_AFTERLIFE_GUN_LOOP_1, 1);
+            playTrack(S_AFTERLIFE_GUN_LOOP_1, true, i_volume - 10);
             ms_gun_loop_1.stop();
           }
         }
@@ -1006,7 +1053,7 @@ void startVentSequence() {
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
   // Play overheating sounds.
-  ms_overheating.start(i_ms_overheating);        
+  ms_overheating.start(i_ms_overheating);
 
   // Blinking bargraph option for overheat.
   if(b_overheat_bargraph_blink == true) {
@@ -1030,37 +1077,37 @@ void startVentSequence() {
     ms_bargraph.start(d_bargraph_ramp_interval);
   }
 
-  w_trig.trackPlayPoly(S_VENT_DRY);
-  w_trig.trackPlayPoly(S_CLICK);
+  playTrack(S_VENT_DRY);
+  playTrack(S_CLICK);
 
   // Tell the pack we are overheating.
   wandSerialSend(W_OVERHEATING);
 }
 
-void checkMusic() { 
+void checkMusic() {
   if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
     ms_check_music.start(i_music_check_delay);
-        
+
     // Loop through all the tracks if the music is not set to repeat a track.
-    if(b_playing_music == true && b_repeat_track == false) {      
+    if(b_playing_music == true && b_repeat_track == false) {
       if(!w_trig.isTrackPlaying(i_current_music_track)) {
         ms_check_music.stop();
-                
+
         stopMusic();
 
         // Tell the pack to stop playing music.
         wandSerialSend(W_MUSIC_STOP);
-            
+
         if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
           i_current_music_track = i_music_track_start;
         }
         else {
-          i_current_music_track++;          
+          i_current_music_track++;
         }
 
         // Tell the pack which music track to change to.
         wandSerialSend(i_current_music_track);
-    
+
         ms_music_next_track.start(i_music_next_track_delay);
       }
     }
@@ -1068,36 +1115,17 @@ void checkMusic() {
 
   if(ms_music_next_track.justFinished()) {
     ms_music_next_track.stop();
-        
-    playMusic(); 
+
+    playMusic();
 
     // Tell the pack to play music.
     wandSerialSend(W_MUSIC_START);
-    
-    ms_check_music.start(i_music_check_delay); 
-  }
-} 
 
-void stopMusic() {
-  w_trig.trackStop(i_current_music_track);
-  w_trig.update();
+    ms_check_music.start(i_music_check_delay);
+  }
 }
 
-void playMusic() {  
-  w_trig.trackGain(i_current_music_track, i_volume_music);
-  w_trig.trackPlayPoly(i_current_music_track, true);
-  
-  if(b_repeat_track == true) {
-    w_trig.trackLoop(i_current_music_track, 1);
-  }
-  else {
-    w_trig.trackLoop(i_current_music_track, 0);
-  }
-
-  w_trig.update();
-}
-
-void settingsBlinkingLights() { 
+void settingsBlinkingLights() {
   if(ms_settings_blinking.justFinished()) {
      ms_settings_blinking.start(i_settings_blinking_delay);
   }
@@ -1122,7 +1150,7 @@ void settingsBlinkingLights() {
 
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       if(b_28segment_bargraph == true) {
-        if(b_solid_five == true) { 
+        if(b_solid_five == true) {
           for(uint8_t i = 0; i < 16; i++) {
             if(b_solid_one == true && i < 2) {
               ht_bargraph.setLedNow(i_bargraph[i]);
@@ -1367,7 +1395,7 @@ void settingsBlinkingLights() {
               }
             }
             }
-            else {      
+            else {
               digitalWrite(led_bargraph_1, LOW);
               digitalWrite(led_bargraph_2, LOW);
               digitalWrite(led_bargraph_3, LOW);
@@ -1424,7 +1452,7 @@ void settingsBlinkingLights() {
               }
             }
           }
-          else {   
+          else {
             digitalWrite(led_bargraph_1, LOW);
             digitalWrite(led_bargraph_2, LOW);
             digitalWrite(led_bargraph_3, HIGH);
@@ -1467,7 +1495,7 @@ void settingsBlinkingLights() {
                 }
             }
           }
-          else {  
+          else {
             digitalWrite(led_bargraph_1, LOW);
             digitalWrite(led_bargraph_2, HIGH);
             digitalWrite(led_bargraph_3, HIGH);
@@ -1491,26 +1519,26 @@ void checkSwitches() {
   if(b_debug == true) {
     #ifndef GPSTAR_NEUTRONA_WAND_PCB
       Serial.print(F("A6 -> "));
-      Serial.println(analogRead(switch_mode));  
+      Serial.println(analogRead(switch_mode));
 
       Serial.print(F("\n"));
-      
+
       Serial.print(F("A7 -> "));
       Serial.println(analogRead(switch_barrel));
     #endif
   }
-  
+
   if(ms_intensify_timer.justFinished()) {
     ms_intensify_timer.stop();
   }
-        
+
   switch(WAND_STATUS) {
     case MODE_OFF:
      if(switch_activate.isPressed() && WAND_ACTION_STATUS == ACTION_IDLE) {
         // Turn wand and pack on.
         WAND_ACTION_STATUS = ACTION_ACTIVATE;
       }
-      
+
       soundBeepLoopStop();
     break;
 
@@ -1547,7 +1575,7 @@ void checkSwitches() {
 
               bargraphClearAlt();
 
-              // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments. 
+              // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
               // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
                 if(year_mode == 2021 && b_28segment_bargraph == true) {
@@ -1558,16 +1586,16 @@ void checkSwitches() {
 
             // Make sure the slo-blo light is turned back on, as entering venting mode will make it blink.
             if(FIRING_MODE != VENTING) {
-              analogWrite(led_slo_blo, 255); 
+              analogWrite(led_slo_blo, 255);
 
               // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
                 analogWrite(led_front_left, 255);
-              #endif  
+              #endif
             }
 
-            w_trig.trackPlayPoly(S_CLICK);
-  
+            playTrack(S_CLICK);
+
             switch(FIRING_MODE) {
               case SETTINGS:
                 WAND_ACTION_STATUS = ACTION_SETTINGS;
@@ -1592,36 +1620,36 @@ void checkSwitches() {
               case MESON:
                 WAND_ACTION_STATUS = ACTION_IDLE;
                 wandHeatUp();
-  
+
                 // Tell the pack we are in meson mode.
                 wandSerialSend(W_MESON_MODE);
               break;
-  
+
               case STASIS:
                 WAND_ACTION_STATUS = ACTION_IDLE;
                 wandHeatUp();
-  
+
                 // Tell the pack we are in stasis mode.
                 wandSerialSend(W_STASIS_MODE);
               break;
-  
+
               case SLIME:
                 WAND_ACTION_STATUS = ACTION_IDLE;
                 wandHeatUp();
-  
+
                 // Tell the pack we are in slime mode.
                 wandSerialSend(W_SLIME_MODE);
               break;
-  
+
               case PROTON:
                 WAND_ACTION_STATUS = ACTION_IDLE;
                 wandHeatUp();
-  
+
                 // Tell the pack we are in proton mode.
                 wandSerialSend(W_PROTON_MODE);
               break;
             }
-          }          
+          }
         }
       }
 
@@ -1637,13 +1665,13 @@ void checkSwitches() {
             if(b_beeping != true) {
               // Beep loop.
               soundBeepLoop();
-            }  
+            }
           }
           else {
             soundBeepLoopStop();
           }
         }
-        else if(switch_vent.getState() == HIGH) {        
+        else if(switch_vent.getState() == HIGH) {
           // Vent light and top white light off.
           digitalWrite(led_vent, HIGH);
 
@@ -1653,16 +1681,16 @@ void checkSwitches() {
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {          
+        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
           if(WAND_ACTION_STATUS != ACTION_FIRING) {
             WAND_ACTION_STATUS = ACTION_FIRING;
           }
-        
+
           b_firing_intensify = true;
         }
 
         // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
-        if(b_cross_the_streams == true) {          
+        if(b_cross_the_streams == true) {
           if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_FIRING;
@@ -1678,15 +1706,15 @@ void checkSwitches() {
             b_firing_alt = false;
           }
         }
-        
+
         if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
           if(b_firing_alt != true) {
             WAND_ACTION_STATUS = ACTION_IDLE;
           }
-          
+
           b_firing_intensify = false;
         }
-      
+
         if(switch_activate.getState() == HIGH) {
           WAND_ACTION_STATUS = ACTION_OFF;
         }
@@ -1717,16 +1745,16 @@ void wandOff() {
     wandSerialSend(W_PROTON_MODE);
     FIRING_MODE = PROTON;
   }
-  
+
   WAND_STATUS = MODE_OFF;
   WAND_ACTION_STATUS = ACTION_IDLE;
 
   soundBeepLoopStop();
   soundIdleStop();
   soundIdleLoopStop();
-  
+
   vibrationOff();
-  
+
   // Stop firing if the wand is turned off.
   if(b_firing == true) {
     modeFireStop();
@@ -1734,7 +1762,7 @@ void wandOff() {
 
   w_trig.trackStop(S_AFTERLIFE_GUN_LOOP_1);
   w_trig.trackStop(S_AFTERLIFE_GUN_LOOP_2);
-  
+
   w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_1);
   w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_2);
   w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_1);
@@ -1752,7 +1780,7 @@ void wandOff() {
 
   w_trig.trackPlayPoly(S_WAND_SHUTDOWN);
   w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_DOWN_1, true);
-  
+
   // Turn off some timers.
   ms_bargraph.stop();
   ms_bargraph_alt.stop();
@@ -1779,7 +1807,7 @@ void wandOff() {
   }
 }
 
-void modeActivate() {  
+void modeActivate() {
   // The wand was started while the top switch was already on. Lets put the wand into a startup error mode.
   if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
     ms_hat_2.start(i_hat_2_delay);
@@ -1791,7 +1819,7 @@ void modeActivate() {
     WAND_ACTION_STATUS = ACTION_ERROR;
 
     ms_settings_blinking.start(i_settings_blinking_delay);
-    
+
     // Set the gain. The track is controlled in MODE_ERROR.
     w_trig.trackGain(S_BEEPS_LOW, i_volume);
     w_trig.trackPlayPoly(S_BEEPS_LOW, true);
@@ -1811,7 +1839,7 @@ void modeActivate() {
     // Tell the pack the wand is turned on.
     wandSerialSend(W_ON);
   }
-  
+
   // Ramp up the bargraph.
   switch(year_mode) {
     case 2021:
@@ -1828,10 +1856,10 @@ void modeActivate() {
     if(b_pack_alarm != true) {
       bargraphRampUp();
     }
-    
+
     // Turn on slo-blo light (and front left LED if using a Ardunio Nano).
     analogWrite(led_slo_blo, 255);
-    
+
     // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       analogWrite(led_front_left, 255);
@@ -1851,8 +1879,7 @@ void modeActivate() {
         default:
           soundIdleLoop(true);
 
-          w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume - 10);
-          w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
+          playTrack(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
           ms_gun_loop_1.start(2000);
         break;
       }
@@ -1860,7 +1887,7 @@ void modeActivate() {
   }
 }
 
-void soundIdleLoop(bool fade) {      
+void soundIdleLoop(bool fade) {
   switch(i_power_mode) {
     case 1:
       if(fade == true) {
@@ -1944,23 +1971,22 @@ void soundIdleLoopStop() {
 }
 
 void soundIdleStart() {
-  if(b_sound_idle == false) {      
+  if(b_sound_idle == false) {
     switch(year_mode) {
       case 1984:
       case 1989:
         w_trig.trackPlayPoly(S_BOOTUP, true);
 
-        soundIdleLoop(true);        
+        soundIdleLoop(true);
       break;
-  
+
       default:
         w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_1);
         w_trig.trackStop(S_AFTERLIFE_GUN_LOOP_2);
         w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_1);
         w_trig.trackStop(S_AFTERLIFE_GUN_RAMP_DOWN_2);
 
-        w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_2, i_volume - 10);
-        w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_2, true); // Start track
+        playTrack(S_AFTERLIFE_GUN_RAMP_2, false, i_volume - 10);
 
         ms_gun_loop_1.stop();
         ms_gun_loop_2.start(1500);
@@ -1974,10 +2000,8 @@ void soundIdleStart() {
 
   if(year_mode == 2021) {
     if(ms_gun_loop_2.justFinished()) {
-      w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_2, i_volume - 10);
-      w_trig.trackPlayPoly(S_AFTERLIFE_GUN_LOOP_2, true);
-      w_trig.trackLoop(S_AFTERLIFE_GUN_LOOP_2, 1);
-      
+      playTrack(S_AFTERLIFE_GUN_LOOP_2, true, i_volume - 10);
+
       ms_gun_loop_2.stop();
     }
   }
@@ -2005,7 +2029,7 @@ void soundIdleStop() {
       break;
     }
   }
-  
+
   if(b_sound_idle == true) {
     switch(year_mode) {
       case 1984:
@@ -2027,25 +2051,25 @@ void soundIdleStop() {
 void soundBeepLoopStop() {
   if(b_beeping == true) {
     b_beeping = false;
-    
+
     w_trig.trackStop(S_AFTERLIFE_BEEP_WAND);
     w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S1);
     w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S2);
     w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S3);
     w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S4);
     w_trig.trackStop(S_AFTERLIFE_BEEP_WAND_S5);
-    
+
     ms_reset_sound_beep.stop();
     ms_reset_sound_beep.start(i_sound_timer);
   }
 }
-void soundBeepLoop() {  
+void soundBeepLoop() {
   if(ms_reset_sound_beep.justFinished() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
     if(b_beeping == false) {
       switch(i_power_mode) {
         case 1:
           w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S1, true);
-          
+
           if(year_mode == 2021) {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, 1);
           }
@@ -2053,10 +2077,10 @@ void soundBeepLoop() {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, 0);
           }
          break;
-  
+
          case 2:
           w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S2, true);
-          
+
           if(year_mode == 2021) {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, 1);
           }
@@ -2064,10 +2088,10 @@ void soundBeepLoop() {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, 0);
           }
          break;
-  
+
          case 3:
           w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S3, true);
-          
+
           if(year_mode == 2021) {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S3, 1);
           }
@@ -2075,10 +2099,10 @@ void soundBeepLoop() {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S3, 0);
           }
          break;
-  
+
          case 4:
           w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S4, true);
-          
+
           if(year_mode == 2021) {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S4, 1);
           }
@@ -2086,10 +2110,10 @@ void soundBeepLoop() {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S4, 0);
           }
          break;
-  
+
          case 5:
           w_trig.trackPlayPoly(S_AFTERLIFE_BEEP_WAND_S5, true);
-          
+
           if(year_mode == 2021) {
             w_trig.trackLoop(S_AFTERLIFE_BEEP_WAND_S5, 1);
           }
@@ -2098,9 +2122,9 @@ void soundBeepLoop() {
           }
          break;
       }
-      
+
       b_beeping = true;
-      
+
       ms_reset_sound_beep.stop();
     }
   }
@@ -2109,22 +2133,14 @@ void soundBeepLoop() {
 void modeFireStartSounds() {
   ms_firing_start_sound_delay.stop();
 
+  // Some sparks for firing start.
   if(year_mode == 1989) {
-    int8_t i_v_spark = i_volume - 10;
-
-    if(i_v_spark < i_volume_abs_min) {
-      i_v_spark = i_volume_abs_min;
-    }
-
-    w_trig.trackGain(S_FIRE_START_SPARK, i_v_spark);
+    playTrack(S_FIRE_START_SPARK, false, i_volume - 10);
   }
   else {
-    w_trig.trackGain(S_FIRE_START_SPARK, i_volume);
+    playTrack(S_FIRE_START_SPARK);
   }
 
-  // Some sparks for firing start.
-  w_trig.trackPlayPoly(S_FIRE_START_SPARK);
-  
   switch(FIRING_MODE) {
     case PROTON:
         switch(i_power_mode) {
@@ -2155,9 +2171,9 @@ void modeFireStartSounds() {
               b_sound_firing_alt_trigger = true;
 
               w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
-              w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);  
+              w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
 
-              w_trig.trackPlayPoly(S_FIRE_START);        
+              w_trig.trackPlayPoly(S_FIRE_START);
             }
             else {
               b_sound_firing_alt_trigger = false;
@@ -2180,7 +2196,7 @@ void modeFireStartSounds() {
               b_sound_firing_alt_trigger = true;
 
               w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
-              w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);          
+              w_trig.trackLoop(S_FIRING_LOOP_GB1, 1);
             }
             else {
               b_sound_firing_alt_trigger = false;
@@ -2193,21 +2209,21 @@ void modeFireStartSounds() {
 
     case SLIME:
       w_trig.trackPlayPoly(S_SLIME_START);
-      
+
       w_trig.trackPlayPoly(S_SLIME_LOOP, true);
       w_trig.trackLoop(S_SLIME_LOOP, 1);
     break;
 
     case STASIS:
       w_trig.trackPlayPoly(S_STASIS_START);
-      
+
       w_trig.trackPlayPoly(S_STASIS_LOOP, true);
       w_trig.trackLoop(S_STASIS_LOOP, 1);
     break;
 
     case MESON:
       w_trig.trackPlayPoly(S_MESON_START);
-      
+
       w_trig.trackPlayPoly(S_MESON_LOOP, true);
       w_trig.trackLoop(S_MESON_LOOP, 1);
     break;
@@ -2216,7 +2232,7 @@ void modeFireStartSounds() {
     case SETTINGS:
       // Nothing.
     break;
-  }  
+  }
 }
 
 void modeFireStart() {
@@ -2238,7 +2254,7 @@ void modeFireStart() {
   if(ms_intensify_timer.isRunning() != true) {
     ms_intensify_timer.start(i_intensify_delay);
   }
-  
+
   // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode.
   if(b_firing_intensify == true) {
     wandSerialSend(W_FIRING_INTENSIFY);
@@ -2268,7 +2284,7 @@ void modeFireStart() {
 
       w_trig.trackStop(S_FIRE_START_SPARK);
       w_trig.trackStop(S_FIRING_END_GUN);
-      
+
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         w_trig.trackStop(S_FIRE_LOOP_IMPACT);
       #endif
@@ -2325,7 +2341,7 @@ void modeFireStart() {
   }
 
   barrelLightsOff();
-  
+
   ms_firing_lights.start(10);
   i_barrel_light = 0;
 
@@ -2376,14 +2392,12 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams == true) {
     switch(year_mode) {
       case 2021:
-        w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume + 10);
-        w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+        playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
       break;
 
       case 1984:
       case 1989:
-        w_trig.trackGain(S_CROSS_STREAMS_END, i_volume + 10);
-        w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+        playTrack(S_CROSS_STREAMS_END, false, i_volume + 10);
       break;
     }
 
@@ -2393,12 +2407,12 @@ void modeFireStopSounds() {
 
 void modeFireStop() {
   ms_overheat_initiate.stop();
-  
+
   // Tell the pack the wand stopped firing.
   wandSerialSend(W_FIRING_STOPPED);
-  
+
   WAND_ACTION_STATUS = ACTION_IDLE;
-  
+
   b_firing = false;
   b_firing_intensify = false;
   b_firing_alt = false;
@@ -2421,7 +2435,7 @@ void modeFireStop() {
       i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
     break;
   }
-  
+
   if(b_pack_alarm == true) {
     // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
     prepBargraphRampDown();
@@ -2430,10 +2444,10 @@ void modeFireStop() {
     // We ramp the bargraph back up after finishing firing.
     bargraphRampUp();
   }
-  
+
   ms_firing_stream_blue.stop();
   ms_firing_lights.stop();
-  
+
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     ms_impact.stop();
   #endif
@@ -2446,7 +2460,7 @@ void modeFireStop() {
     digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
     digitalWrite(led_barrel_tip, LOW); // Turn off hat the wand barrel tip LED.
   #endif
-  
+
   ms_hat_1.stop();
 
   // Stop all other firing sounds.
@@ -2465,7 +2479,7 @@ void modeFireStop() {
       w_trig.trackStop(S_GB1_FIRE_START_HIGH_POWER);
       w_trig.trackStop(S_GB1_FIRE_HIGH_POWER_LOOP);
       w_trig.trackStop(S_FIRE_START_SPARK);
-      
+
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         w_trig.trackStop(S_FIRE_LOOP_IMPACT);
       #endif
@@ -2506,7 +2520,7 @@ void modeFiring() {
 
     if(b_cross_the_streams_mix == true) {
       // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode mix.
-      wandSerialSend(W_FIRING_INTENSIFY_MIX);   
+      wandSerialSend(W_FIRING_INTENSIFY_MIX);
 
       switch(i_power_mode) {
         case 1 ... 4:
@@ -2532,7 +2546,7 @@ void modeFiring() {
     }
     else {
       // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode.
-      wandSerialSend(W_FIRING_INTENSIFY);      
+      wandSerialSend(W_FIRING_INTENSIFY);
     }
   }
 
@@ -2560,7 +2574,7 @@ void modeFiring() {
           w_trig.trackStop(S_GB1_FIRE_HIGH_POWER_LOOP);
           w_trig.trackStop(S_GB1_FIRE_HIGH_POWER_LOOP);
         break;
-      }      
+      }
     }
     else {
       // Tell the Proton Pack that the Neutrona wand is no longer firing in Intensify mode.
@@ -2605,17 +2619,15 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_START, i_volume + 10);
-        w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
+        playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
       break;
 
       case 1984:
       case 1989:
-        w_trig.trackGain(S_CROSS_STREAMS_START, i_volume + 10);
-        w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
+        playTrack(S_CROSS_STREAMS_START, false, i_volume + 10);
       break;
     }
-    
+
     w_trig.trackPlayPoly(S_FIRE_START_SPARK);
 
     if(b_cross_the_streams_mix != true) {
@@ -2646,17 +2658,15 @@ void modeFiring() {
 
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
-    
+
     switch(year_mode) {
       case 2021:
-        w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume + 10);
-        w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+        playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
       break;
 
       case 1984:
       case 1989:
-        w_trig.trackGain(S_CROSS_STREAMS_END, i_volume + 10);
-        w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+        playTrack(S_CROSS_STREAMS_END, false, i_volume + 10);
       break;
     }
 
@@ -2672,21 +2682,19 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        w_trig.trackGain(S_AFTERLIFE_CROSS_THE_STREAMS_END, i_volume + 10);
-        w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+        playTrack(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
       break;
 
       case 1984:
       case 1989:
-        w_trig.trackGain(S_CROSS_STREAMS_END, i_volume + 10);
-        w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
+        playTrack(S_CROSS_STREAMS_END, false, i_volume + 10);
       break;
     }
   }
-  
+
   // Overheat timers.
   bool b_overheat_flag = true;
- 
+
   if(b_cross_the_streams == true && b_firing_alt != true) {
     b_overheat_flag = false;
   }
@@ -2695,7 +2703,7 @@ void modeFiring() {
     // If the user changes the wand power output while firing, turn off the overheat timer.
     if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {
       ms_overheat_initiate.stop();
-      
+
       // Adjust hat light 1 to stay solid.
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         digitalWrite(led_hat_1, HIGH);
@@ -2715,52 +2723,52 @@ void modeFiring() {
   else {
     if(ms_overheat_initiate.isRunning()) {
       ms_overheat_initiate.stop();
-      
+
       // Tell the pack to revert back to regular cyclotron speeds.
       wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
     }
   }
 
-  switch(FIRING_MODE) {     
+  switch(FIRING_MODE) {
     case PROTON:
       // Make the stream more slightly more red on higher power modes.
       switch(i_power_mode) {
         case 1:
           fireStreamStart(255, 20, 0);
         break;
-      
+
         case 2:
           fireStreamStart(255, 30, 0);
         break;
-      
+
         case 3:
           fireStreamStart(255, 40, 0);
         break;
-      
+
         case 4:
           fireStreamStart(255, 60, 0);
         break;
-      
+
         case 5:
           fireStreamStart(255, 70, 0);
         break;
-      
+
         default:
           fireStreamStart(255, 20, 0);
         break;
       }
-          
-      fireStream(0, 0, 255);     
+
+      fireStream(0, 0, 255);
     break;
-      
+
     case SLIME:
        fireStreamStart(0, 255, 45);
-       fireStream(20, 200, 45);  
+       fireStream(20, 200, 45);
     break;
 
     case STASIS:
        fireStreamStart(0, 45, 100);
-       fireStream(0, 100, 255);  
+       fireStream(0, 100, 255);
     break;
 
     case MESON:
@@ -2782,7 +2790,7 @@ void modeFiring() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     // Mix some impact sound every 10-15 seconds while firing.
     if(ms_impact.justFinished()) {
-      w_trig.trackPlayPoly(S_FIRE_LOOP_IMPACT);
+      playTrack(S_FIRE_LOOP_IMPACT);
       ms_impact.start(15000);
     }
   #endif
@@ -2799,24 +2807,24 @@ void wandHeatUp() {
 
   switch(FIRING_MODE) {
     case PROTON:
-      w_trig.trackPlayPoly(S_FIRE_START_SPARK);
+      playTrack(S_FIRE_START_SPARK);
     break;
 
     case SLIME:
-      w_trig.trackPlayPoly(S_PACK_SLIME_OPEN);
+      playTrack(S_PACK_SLIME_OPEN);
     break;
 
     case STASIS:
-      w_trig.trackPlayPoly(S_STASIS_OPEN);
+      playTrack(S_STASIS_OPEN);
     break;
 
     case MESON:
-      w_trig.trackPlayPoly(S_MESON_OPEN);
+      playTrack(S_MESON_OPEN);
     break;
 
     case VENTING:
-      w_trig.trackPlayPoly(S_VENT_DRY);
-      w_trig.trackPlayPoly(S_MODE_SWITCH);
+      playTrack(S_VENT_DRY);
+      playTrack(S_MODE_SWITCH);
     break;
 
     case SETTINGS:
@@ -2837,23 +2845,23 @@ void wandBarrelHeatUp() {
   if(i_heatup_counter > 100) {
     wandBarrelHeatDown();
   }
-  else if(ms_wand_heatup_fade.justFinished() && i_heatup_counter <= 100) {        
+  else if(ms_wand_heatup_fade.justFinished() && i_heatup_counter <= 100) {
     switch(FIRING_MODE) {
       case PROTON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
-  
+
       case SLIME:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, 0, 0);
         ms_fast_led.start(i_fast_led_delay);
       break;
-  
+
       case STASIS:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
-  
+
       case MESON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
         ms_fast_led.start(i_fast_led_delay);
@@ -2863,7 +2871,7 @@ void wandBarrelHeatUp() {
       case SETTINGS:
         // nothing
       break;
-    } 
+    }
 
     i_heatup_counter++;
     ms_wand_heatup_fade.start(i_delay_heatup);
@@ -2877,22 +2885,22 @@ void wandBarrelHeatDown() {
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
-  
+
       case SLIME:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, 0, 0);
         ms_fast_led.start(i_fast_led_delay);
       break;
-  
+
       case STASIS:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
-  
+
       case MESON:
         barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
         ms_fast_led.start(i_fast_led_delay);
       break;
-      
+
       case VENTING:
       case SETTINGS:
         // Nothing.
@@ -2903,7 +2911,7 @@ void wandBarrelHeatDown() {
 
     ms_wand_heatup_fade.start(i_delay_heatup);
   }
-  
+
   if(i_heatdown_counter == 0) {
     barrelLightsOff();
   }
@@ -2911,7 +2919,7 @@ void wandBarrelHeatDown() {
 
 void fireStream(uint8_t r, uint8_t g, uint8_t b) {
   if(ms_firing_stream_blue.justFinished()) {
-    if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {      
+    if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {
       switch(FIRING_MODE) {
         case PROTON:
           if(b_firing_cross_streams == true) {
@@ -2964,22 +2972,22 @@ void fireStream(uint8_t r, uint8_t g, uint8_t b) {
           // Nothing.
         break;
       }
-      
+
       ms_fast_led.start(i_fast_led_delay);
     }
 
     if(i_barrel_light == BARREL_NUM_LEDS) {
       i_barrel_light = 0;
-            
+
       ms_firing_stream_blue.start(d_firing_stream / 2);
     }
     else if(i_barrel_light < BARREL_NUM_LEDS) {
       barrel_leds[i_barrel_light] = CRGB(g,r,b);
 
       ms_fast_led.start(i_fast_led_delay);
-            
+
       ms_firing_stream_blue.start(d_firing_lights);
-  
+
       i_barrel_light++;
     }
   }
@@ -2989,13 +2997,13 @@ void barrelLightsOff() {
   ms_wand_heatup_fade.stop();
   i_heatup_counter = 0;
   i_heatdown_counter = 100;
-  
+
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
     barrel_leds[i] = CRGB(0,0,0);
   }
-  
+
   // Turn off the wand barrel tip LED.
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB    
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
     digitalWrite(led_barrel_tip, LOW);
   #endif
 
@@ -3006,14 +3014,14 @@ void fireStreamStart(uint8_t r, uint8_t g, uint8_t b) {
   if(ms_firing_lights.justFinished() && i_barrel_light < BARREL_NUM_LEDS) {
     barrel_leds[i_barrel_light] = CRGB(g,r,b);
     ms_fast_led.start(i_fast_led_delay);
-          
+
     ms_firing_lights.start(d_firing_lights);
 
     i_barrel_light++;
 
     if(i_barrel_light == BARREL_NUM_LEDS) {
       i_barrel_light = 0;
-            
+
       ms_firing_lights.stop();
       ms_firing_stream_blue.start(d_firing_stream);
     }
@@ -3024,14 +3032,14 @@ void fireStreamEnd(uint8_t r, uint8_t g, uint8_t b) {
   if(i_barrel_light < BARREL_NUM_LEDS) {
     barrel_leds[i_barrel_light] = CRGB(g,r,b);
     ms_fast_led.start(i_fast_led_delay);
-          
+
     ms_firing_lights_end.start(d_firing_lights);
 
     i_barrel_light++;
 
     if(i_barrel_light == BARREL_NUM_LEDS) {
       i_barrel_light = 0;
-      
+
       ms_firing_lights_end.stop();
     }
   }
@@ -3070,7 +3078,7 @@ void vibrationWand(uint8_t i_level) {
 // Optional barrel LED tip strobing is controlled from here to give it a ramp effect if the Proton Pack and Neutrona Wand are going to overheat.
 void bargraphRampFiring() {
   // (Optional) 28 Segment barmeter bargraph.
-  if(b_28segment_bargraph == true) {    
+  if(b_28segment_bargraph == true) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
     // Start ramping up and down from the middle to the top/bottom and back to the middle again.
     switch(i_bargraph_status_alt) {
@@ -3181,7 +3189,7 @@ void bargraphRampFiring() {
         else {
           ht_bargraph.clearLedNow(i_bargraph[8]);
           ht_bargraph.clearLedNow(i_bargraph[19]);
-          
+
           i_bargraph_status_alt--;
         }
 
@@ -3270,7 +3278,7 @@ void bargraphRampFiring() {
 
         if(b_bargraph_up == true) {
           ht_bargraph.clearLedNow(i_bargraph[6]);
-          ht_bargraph.clearLedNow(i_bargraph[21]); 
+          ht_bargraph.clearLedNow(i_bargraph[21]);
 
           i_bargraph_status_alt++;
         }
@@ -3294,7 +3302,7 @@ void bargraphRampFiring() {
 
         if(b_bargraph_up == true) {
           ht_bargraph.clearLedNow(i_bargraph[5]);
-          ht_bargraph.clearLedNow(i_bargraph[22]); 
+          ht_bargraph.clearLedNow(i_bargraph[22]);
 
           i_bargraph_status_alt++;
         }
@@ -3308,7 +3316,7 @@ void bargraphRampFiring() {
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           digitalWrite(led_barrel_tip, HIGH);
         #endif
-      break;            
+      break;
 
       case 10:
         vibrationWand(i_vibration_level + 112);
@@ -3318,7 +3326,7 @@ void bargraphRampFiring() {
 
         if(b_bargraph_up == true) {
           ht_bargraph.clearLedNow(i_bargraph[4]);
-          ht_bargraph.clearLedNow(i_bargraph[23]); 
+          ht_bargraph.clearLedNow(i_bargraph[23]);
 
           i_bargraph_status_alt++;
         }
@@ -3356,7 +3364,7 @@ void bargraphRampFiring() {
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           digitalWrite(led_barrel_tip, LOW);
         #endif
-      break;      
+      break;
 
       case 12:
         vibrationWand(i_vibration_level + 115);
@@ -3398,7 +3406,7 @@ void bargraphRampFiring() {
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           digitalWrite(led_barrel_tip, HIGH);
         #endif
-      break;    
+      break;
     }
     #endif
   }
@@ -3407,7 +3415,7 @@ void bargraphRampFiring() {
     switch(i_bargraph_status) {
       case 1:
         vibrationWand(i_vibration_level + 110);
-              
+
         digitalWrite(led_bargraph_1, LOW);
         digitalWrite(led_bargraph_2, HIGH);
         digitalWrite(led_bargraph_3, HIGH);
@@ -3421,8 +3429,8 @@ void bargraphRampFiring() {
       break;
 
       case 2:
-        vibrationWand(i_vibration_level + 112);  
-        
+        vibrationWand(i_vibration_level + 112);
+
         digitalWrite(led_bargraph_1, HIGH);
         digitalWrite(led_bargraph_2, LOW);
         digitalWrite(led_bargraph_3, HIGH);
@@ -3437,7 +3445,7 @@ void bargraphRampFiring() {
 
       case 3:
         vibrationWand(i_vibration_level + 115);
-        
+
         digitalWrite(led_bargraph_1, HIGH);
         digitalWrite(led_bargraph_2, HIGH);
         digitalWrite(led_bargraph_3, LOW);
@@ -3467,7 +3475,7 @@ void bargraphRampFiring() {
 
       case 5:
         vibrationWand(i_vibration_level + 110);
-        
+
         digitalWrite(led_bargraph_1, LOW);
         digitalWrite(led_bargraph_2, HIGH);
         digitalWrite(led_bargraph_3, HIGH);
@@ -3617,13 +3625,13 @@ void bargraphRampFiring() {
           default:
             b_overheat_indicators[i] = false;
           break;
-        }        
+        }
       }
 
       wandSerialSend(W_VGA_OVERHEAT_LIGHTS);
     #endif
     */
-    
+
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
@@ -3631,7 +3639,7 @@ void bargraphRampFiring() {
       else {
         ms_bargraph_firing.start(i_ramp_interval / 5);
       }
-      
+
       cyclotronSpeedUp(6);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 5) {
@@ -3652,13 +3660,13 @@ void bargraphRampFiring() {
         ms_bargraph_firing.start(i_ramp_interval / 3.5);
       }
 
-      cyclotronSpeedUp(4);    
+      cyclotronSpeedUp(4);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 3) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 5);
       }
-      else {      
+      else {
         ms_bargraph_firing.start(i_ramp_interval / 3);
       }
 
@@ -3668,7 +3676,7 @@ void bargraphRampFiring() {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 3);
       }
-      else {      
+      else {
         ms_bargraph_firing.start(i_ramp_interval / 2.5);
       }
 
@@ -3699,7 +3707,7 @@ void bargraphRampFiring() {
             break;
           }
         #endif
-      }  
+      }
       else {
         ms_bargraph_firing.start(i_ramp_interval / 2);
       }
@@ -3731,7 +3739,7 @@ void bargraphRampFiring() {
           break;
         }
       #endif
-    }  
+    }
     else {
       ms_bargraph_firing.start(i_ramp_interval / 2);
     }
@@ -3747,17 +3755,17 @@ void cyclotronSpeedUp(uint8_t i_switch) {
       // Beep the wand 8 times.
       w_trig.trackPlayPoly(S_BEEP_8);
 
-      ms_hat_1.start(i_hat_1_delay);      
+      ms_hat_1.start(i_hat_1_delay);
     }
-    
+
     i_cyclotron_speed_up++;
-    
+
     // Tell the pack to speed up the cyclotron.
     wandSerialSend(W_CYCLOTRON_INCREASE_SPEED);
-  }  
+  }
 }
 
-// 2021 mode for optional 28 segment bargraph. 
+// 2021 mode for optional 28 segment bargraph.
 // Checks if we ramp up or down when changing power levels.
 // Forces the bargraph to redraw itself to the current power level.
 void bargraphPowerCheck2021Alt(bool b_override) {
@@ -3810,14 +3818,14 @@ void bargraphPowerCheck() {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       if(ms_bargraph_alt.justFinished()) {
         uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
-        
+
         if(year_mode == 2021) {
           for(uint8_t i = 0; i <= 4; i++) {
             i_bargraph_multiplier[i] = 10;
           }
         }
 
-        if(b_bargraph_up == true) {   
+        if(b_bargraph_up == true) {
           ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
 
           switch(i_power_mode) {
@@ -3956,7 +3964,7 @@ void bargraphPowerCheck() {
                 else {
                   ms_bargraph_alt.start(i_bargraph_interval * 5);
                 }
-              break; 
+              break;
 
               case 2:
                 if(year_mode == 2021 && i_bargraph_status_alt < 11) {
@@ -4053,7 +4061,7 @@ void bargraphFull() {
   #endif
 }
 
-void bargraphRampUp() { 
+void bargraphRampUp() {
   if(i_vibration_level < i_vibration_level_min) {
     i_vibration_level = i_vibration_level_min;
   }
@@ -4079,7 +4087,7 @@ void bargraphRampUp() {
           else if(i_bargraph_status_alt > 0) {
             vibrationWand(i_vibration_level + 10);
           }
-          
+
           i_bargraph_status_alt++;
 
           if(i_bargraph_status_alt == 28) {
@@ -4117,7 +4125,7 @@ void bargraphRampUp() {
               b_bargraph_up = false;
               i_bargraph_status_alt = 0;
             }
-            else {          
+            else {
               ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
 
               ms_bargraph.start(d_bargraph_ramp_interval_alt * 2);
@@ -4139,14 +4147,14 @@ void bargraphRampUp() {
                   b_bargraph_up = true;
                   i_bargraph_status_alt = 0;
                   bargraphYearModeUpdate();
-                  
+
                   vibrationWand(i_vibration_level);
                 }
                 else {
                   ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                   i_bargraph_status_alt++;
                 }
-                
+
               break;
 
               case 2021:
@@ -4202,7 +4210,7 @@ void bargraphRampUp() {
                       b_bargraph_up = false;
                       i_bargraph_status_alt = 11;
                       bargraphYearModeUpdate();
-                      
+
                       vibrationWand(i_vibration_level + 5);
                     }
                     else {
@@ -4231,7 +4239,7 @@ void bargraphRampUp() {
                 }
               break;
             }
-          }              
+          }
 
         break;
       }
@@ -4247,7 +4255,7 @@ void bargraphRampUp() {
     switch(i_bargraph_status) {
       case 0:
         vibrationWand(i_vibration_level + 10);
-                
+
         digitalWrite(led_bargraph_1, LOW);
         digitalWrite(led_bargraph_2, HIGH);
         digitalWrite(led_bargraph_3, HIGH);
@@ -4259,7 +4267,7 @@ void bargraphRampUp() {
 
       case 1:
         vibrationWand(i_vibration_level + 20);
-        
+
         digitalWrite(led_bargraph_2, LOW);
         digitalWrite(led_bargraph_3, HIGH);
         digitalWrite(led_bargraph_4, HIGH);
@@ -4270,7 +4278,7 @@ void bargraphRampUp() {
 
       case 2:
         vibrationWand(i_vibration_level + 30);
-            
+
         digitalWrite(led_bargraph_3, LOW);
         digitalWrite(led_bargraph_4, HIGH);
         digitalWrite(led_bargraph_5, HIGH);
@@ -4280,7 +4288,7 @@ void bargraphRampUp() {
 
       case 3:
         vibrationWand(i_vibration_level + 40);
-        
+
         digitalWrite(led_bargraph_4, LOW);
         digitalWrite(led_bargraph_5, HIGH);
         ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
@@ -4289,7 +4297,7 @@ void bargraphRampUp() {
 
       case 4:
         vibrationWand(i_vibration_level + 80);
-        
+
         digitalWrite(led_bargraph_5, LOW);
 
         if(i_bargraph_status + 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
@@ -4301,12 +4309,12 @@ void bargraphRampUp() {
           ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
-      
+
       case 5:
         vibrationWand(i_vibration_level + 40);
-        
+
         digitalWrite(led_bargraph_5, HIGH);
-        
+
         if(i_bargraph_status - 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
@@ -4316,12 +4324,12 @@ void bargraphRampUp() {
           ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
-      
+
       case 6:
         vibrationWand(i_vibration_level + 30);
-            
+
         digitalWrite(led_bargraph_4, HIGH);
-        
+
         if(i_bargraph_status - 3 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
@@ -4331,12 +4339,12 @@ void bargraphRampUp() {
           ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
-      
+
       case 7:
         vibrationWand(i_vibration_level + 20);
-            
+
         digitalWrite(led_bargraph_3, HIGH);
-        
+
         if(i_bargraph_status - 5 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
@@ -4349,9 +4357,9 @@ void bargraphRampUp() {
 
       case 8:
         vibrationWand(i_vibration_level + 10);
-            
+
         digitalWrite(led_bargraph_2, HIGH);
-        
+
         if(i_bargraph_status - 7 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
@@ -4399,19 +4407,19 @@ void prepBargraphRampUp() {
     bargraphClearAlt();
 
     ms_settings_blinking.stop();
-      
+
     // Prepare a few things before ramping the bargraph back up from a full ramp down.
     if(b_overheat_bargraph_blink != true) {
-      w_trig.trackPlayPoly(S_BOOTUP, true);
-      
+      playTrack(S_BOOTUP);
+
       if(year_mode == 2021) {
         bargraphYearModeUpdate();
       }
       else {
         i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
       }
-      
-      // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments. 
+
+      // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
       // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
       if(year_mode == 2021 && b_28segment_bargraph == true) {
         bargraphPowerCheck2021Alt(false);
@@ -4433,13 +4441,12 @@ void prepBargraphRampUp() {
           case 2021:
             soundIdleLoop(true);
 
-            w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume - 10);
-            w_trig.trackPlayPoly(S_AFTERLIFE_GUN_RAMP_1, true); // Start track
+            playTrack(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
             ms_gun_loop_1.start(2000);
           break;
         }
-      } 
-    } 
+      }
+    }
   }
 }
 
@@ -4573,15 +4580,15 @@ int8_t readRotary() {
   static int8_t rot_enc_table[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
 
   prev_next_code <<= 2;
-  
-  if(digitalRead(r_encoderB)) { 
+
+  if(digitalRead(r_encoderB)) {
     prev_next_code |= 0x02;
   }
-  
+
   if(digitalRead(r_encoderA)) {
     prev_next_code |= 0x01;
   }
-  
+
   prev_next_code &= 0x0f;
 
    // If valid then store as 16 bit data.
@@ -4592,12 +4599,12 @@ int8_t readRotary() {
       if((store&0xff) == 0x2b) {
         return -1;
       }
-      
+
       if((store&0xff) == 0x17) {
         return 1;
       }
    }
-   
+
    return 0;
 }
 
@@ -4612,7 +4619,7 @@ void checkRotary() {
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
           if(i_wand_menu - 1 < 1) {
-            
+
             // We are entering the sub menu. Only accessible when the Neutrona Wand is powered down.
             if(WAND_STATUS == MODE_OFF) {
               if(b_wand_menu_sub != true) {
@@ -4624,7 +4631,7 @@ void checkRotary() {
 
                 // Play a indication beep to notify we have changed to the sub menu.
                 w_trig.trackStop(S_BEEPS);
-                w_trig.trackPlayPoly(S_BEEPS);
+                playTrack(S_BEEPS);
 
                 // Tell the Proton Pack to play a beep during a sub menu to menu level change.
                 wandSerialSend(W_MENU_LEVEL_CHANGE);
@@ -4693,7 +4700,7 @@ void checkRotary() {
               #endif
 
               soundBeepLoopStop();
-      
+
               switch(year_mode) {
                 case 1984:
                 case 1989:
@@ -4702,7 +4709,7 @@ void checkRotary() {
                     soundIdleLoop(false);
                   }
                 break;
-        
+
                 default:
                     soundIdleLoopStop();
                     soundIdleLoop(false);
@@ -4724,12 +4731,12 @@ void checkRotary() {
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
               w_trig.trackGain(i_current_music_track, i_volume_music);
-              
+
               // Tell pack to lower music volume.
               wandSerialSend(W_VOLUME_MUSIC_DECREASE);
             }
           }
-          
+
           if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_mode == i_power_mode_max) {
             // Do nothing, we are locked in full power mode while firing.
           }
@@ -4742,7 +4749,7 @@ void checkRotary() {
               else {
                 i_power_mode_prev = i_power_mode;
                 i_power_mode++;
-                
+
                 #ifdef GPSTAR_NEUTRONA_WAND_PCB
                   if(year_mode == 2021 && b_28segment_bargraph == true) {
                     bargraphPowerCheck2021Alt(false);
@@ -4750,7 +4757,7 @@ void checkRotary() {
                 #endif
 
                 soundBeepLoopStop();
-        
+
                 switch(year_mode) {
                   case 1984:
                   case 1989:
@@ -4759,13 +4766,13 @@ void checkRotary() {
                       soundIdleLoop(false);
                     }
                   break;
-          
+
                   default:
                       soundIdleLoopStop();
                       soundIdleLoop(false);
                   break;
                 }
-              
+
                 updatePackPowerLevel();
               }
             }
@@ -4782,14 +4789,14 @@ void checkRotary() {
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
               w_trig.trackGain(i_current_music_track, i_volume_music);
-              
+
               // Tell pack to increase music volume.
               wandSerialSend(W_VOLUME_MUSIC_INCREASE);
             }
           }
         }
       break;
-    }    
+    }
   }
 }
 
@@ -4830,19 +4837,19 @@ void vibrationSetting() {
         case 1:
           vibrationWand(i_vibration_level);
         break;
-    
+
         case 2:
           vibrationWand(i_vibration_level + 5);
         break;
-    
+
         case 3:
           vibrationWand(i_vibration_level + 10);
         break;
-    
+
         case 4:
           vibrationWand(i_vibration_level + 12);
         break;
-    
+
         case 5:
           vibrationWand(i_vibration_level + 25);
         break;
@@ -4865,18 +4872,18 @@ void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
     barrel_leds[i] = CRGB(0,0,0);
   }
-  
+
   ms_fast_led.start(i_fast_led_delay);
 }
 
 // Exit the wand menu system while the wand is off.
 void wandExitMenu() {
   FIRING_MODE = PREV_FIRING_MODE;
-  
+
   i_wand_menu = 5;
 
   if(b_pack_alarm != true) {
-    w_trig.trackPlayPoly(S_CLICK);
+    playTrack(S_CLICK);
   }
 
   bargraphClearAlt();
@@ -4897,7 +4904,7 @@ void wandExitMenu() {
       wandSerialSend(W_SLIME_MODE);
     break;
 
-    case PROTON: 
+    case PROTON:
       // Tell the pack we are in proton mode.
       wandSerialSend(W_PROTON_MODE);
     break;
@@ -4929,7 +4936,7 @@ bool switchMode() {
       }
       else {
         ms_switch_mode_debounce.start(a_switch_debounce_time);
-      }  
+      }
 
       return true;
     }
@@ -4981,7 +4988,7 @@ void checkPack() {
 
       if(!wandComs.currentPacketID()) {
         if(comStruct.i > 0 && comStruct.s == P_COM_START && comStruct.e == P_COM_END) {
-  
+
         if(b_volume_sync_wait == true) {
           switch(VOLUME_SYNC_WAIT) {
             case EFFECTS:
@@ -4994,7 +5001,7 @@ void checkPack() {
 
             case MASTER:
               i_volume_master_percentage = comStruct.i;
-              i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); 
+              i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
 
               i_volume_revert = i_volume_master;
 
@@ -5013,7 +5020,7 @@ void checkPack() {
             case SILENT:
               if(comStruct.i == P_MASTER_AUDIO_SILENT_MODE) {
                 i_volume_revert = i_volume_master;
-                
+
                 // The pack is telling us to be silent.
                 i_volume_master = i_volume_abs_min;
                 w_trig.masterGain(i_volume_master);
@@ -5025,7 +5032,7 @@ void checkPack() {
 
               VOLUME_SYNC_WAIT = EFFECTS;
             break;
-          }      
+          }
         }
         else {
           switch(comStruct.i) {
@@ -5033,7 +5040,7 @@ void checkPack() {
               // Pack is on.
               b_pack_on = true;
             break;
-      
+
             case P_OFF:
               if(b_pack_on == true) {
                 // Turn wand off.
@@ -5046,22 +5053,22 @@ void checkPack() {
                   }
                 }
               }
-              
+
               // Pack is off.
               b_pack_on = false;
             break;
-      
+
             case P_ALARM_ON:
               // Alarm is on.
               b_pack_alarm = true;
-              
+
               if(WAND_STATUS != MODE_ERROR) {
                 #ifdef GPSTAR_NEUTRONA_WAND_PCB
                   if(WAND_STATUS == MODE_ON) {
                     digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
-                  }  
+                  }
                 #endif
-                
+
                 ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
 
                 if(WAND_STATUS == MODE_ON && FIRING_MODE == SETTINGS) {
@@ -5076,7 +5083,7 @@ void checkPack() {
                 }
               }
             break;
-      
+
             case P_ALARM_OFF:
               // Alarm is off.
               b_pack_alarm = false;
@@ -5093,13 +5100,13 @@ void checkPack() {
                 }
               }
             break;
-            
+
             case P_YEAR_1984:
               // 1984 mode.
               year_mode = 1984;
               bargraphYearModeUpdate();
             break;
-      
+
             case P_YEAR_1989:
               // 1984 mode.
               year_mode = 1989;
@@ -5111,67 +5118,67 @@ void checkPack() {
               year_mode = 2021;
               bargraphYearModeUpdate();
             break;
-      
+
             case P_VOLUME_INCREASE:
               // Increase overall volume.
               increaseVolume();
             break;
-      
+
             case P_VOLUME_DECREASE:
               // Decrease overall volume.
               decreaseVolume();
             break;
-      
+
             case P_HANDSHAKE:
               // The pack is asking us if we are still here. Respond back.
               wandSerialSend(W_HANDSHAKE);
             break;
-      
+
             case P_MUSIC_REPEAT:
               // Repeat music track.
               b_repeat_track = true;
             break;
-      
+
             case P_MUSIC_NO_REPEAT:
               // Do not repeat the music track.
               b_repeat_track = false;
             break;
-      
+
             case P_VOLUME_SYNC_MODE:
               // Put the wand into volume sync mode.
               b_volume_sync_wait = true;
               VOLUME_SYNC_WAIT = EFFECTS;
             break;
-            
+
             case P_VIBRATION_ENABLED:
               // Vibration enabled (from Proton Pack vibration toggle switch).
               b_vibration_enabled = true;
 
               // Only play the voice if we are not doing a Proton Pack / Neutrona Wand synchronisation.
               if(b_wait_for_pack != true) {
-                w_trig.trackStop(S_BEEPS_ALT);    
-                w_trig.trackGain(S_BEEPS_ALT, i_volume);
-                w_trig.trackPlayPoly(S_BEEPS_ALT);
+                w_trig.trackStop(S_BEEPS_ALT);
 
-                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
-                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
-                w_trig.trackGain(S_VOICE_VIBRATION_ENABLED, i_volume);
-                w_trig.trackPlayPoly(S_VOICE_VIBRATION_ENABLED);
-              }        
+                playTrack(S_BEEPS_ALT);
+
+                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);
+                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);
+
+                playTrack(S_VOICE_VIBRATION_ENABLED);
+              }
             break;
-      
+
             case P_VIBRATION_DISABLED:
               // Vibration disabled (from Proton Pack vibration toggle switch).
               b_vibration_enabled = false;
-              
+
               // Only play the voice if we are not doing a Proton Pack / Neutrona Wand synchronisation.
               if(b_wait_for_pack != true) {
-                w_trig.trackStop(S_BEEPS_ALT);    
-                w_trig.trackGain(S_BEEPS_ALT, i_volume);
-                w_trig.trackPlayPoly(S_BEEPS_ALT);
+                w_trig.trackStop(S_BEEPS_ALT);
 
-                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);    
-                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);    
+                playTrack(S_BEEPS_ALT);
+
+                w_trig.trackStop(S_VOICE_VIBRATION_DISABLED);
+                w_trig.trackStop(S_VOICE_VIBRATION_ENABLED);
                 w_trig.trackGain(S_VOICE_VIBRATION_DISABLED, i_volume);
                 w_trig.trackPlayPoly(S_VOICE_VIBRATION_DISABLED);
               }
@@ -5181,66 +5188,66 @@ void checkPack() {
 
             case P_PACK_VIBRATION_ENABLED:
               // Proton Pack Vibration enabled.
-              w_trig.trackStop(S_BEEPS_ALT);    
-              w_trig.trackGain(S_BEEPS_ALT, i_volume);
-              w_trig.trackPlayPoly(S_BEEPS_ALT);
+              w_trig.trackStop(S_BEEPS_ALT);
+
+              playTrack(S_BEEPS_ALT);
 
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
-              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);    
-              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);    
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
               w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_ENABLED, i_volume);
               w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
             break;
 
             case P_PACK_VIBRATION_DISABLED:
               // Proton Pack Vibration disabled.
-              w_trig.trackStop(S_BEEPS_ALT);    
-              w_trig.trackGain(S_BEEPS_ALT, i_volume);
-              w_trig.trackPlayPoly(S_BEEPS_ALT);
+              w_trig.trackStop(S_BEEPS_ALT);
+
+              playTrack(S_BEEPS_ALT);
 
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
-              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);    
-              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);    
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
               w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_DISABLED, i_volume);
               w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
             break;
 
             case P_PACK_VIBRATION_FIRING_ENABLED:
               // Proton Pack Vibration firing enabled.
-              w_trig.trackStop(S_BEEPS_ALT);    
-              w_trig.trackGain(S_BEEPS_ALT, i_volume);
-              w_trig.trackPlayPoly(S_BEEPS_ALT);
+              w_trig.trackStop(S_BEEPS_ALT);
+
+              playTrack(S_BEEPS_ALT);
 
               w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
-              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);    
-              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);    
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+              w_trig.trackStop(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
               w_trig.trackGain(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED, i_volume);
               w_trig.trackPlayPoly(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
             break;
 
             case P_MODE_AFTERLIFE:
               // Play 2021 voice.
-              w_trig.trackStop(S_VOICE_AFTERLIFE);  
+              w_trig.trackStop(S_VOICE_AFTERLIFE);
               w_trig.trackStop(S_VOICE_1989);
-              w_trig.trackStop(S_VOICE_1984);    
+              w_trig.trackStop(S_VOICE_1984);
               w_trig.trackGain(S_VOICE_AFTERLIFE, i_volume);
               w_trig.trackPlayPoly(S_VOICE_AFTERLIFE);
             break;
 
             case P_MODE_1989:
               // Play 1989 voice.
-              w_trig.trackStop(S_VOICE_AFTERLIFE);  
+              w_trig.trackStop(S_VOICE_AFTERLIFE);
               w_trig.trackStop(S_VOICE_1989);
-              w_trig.trackStop(S_VOICE_1984);    
+              w_trig.trackStop(S_VOICE_1984);
               w_trig.trackGain(S_VOICE_1989, i_volume);
               w_trig.trackPlayPoly(S_VOICE_1989);
             break;
 
             case P_MODE_1984:
               // Play 1984 voice.
-              w_trig.trackStop(S_VOICE_AFTERLIFE);  
+              w_trig.trackStop(S_VOICE_AFTERLIFE);
               w_trig.trackStop(S_VOICE_1989);
-              w_trig.trackStop(S_VOICE_1984);    
+              w_trig.trackStop(S_VOICE_1984);
               w_trig.trackGain(S_VOICE_1984, i_volume);
               w_trig.trackPlayPoly(S_VOICE_1984);
             break;
@@ -5248,7 +5255,7 @@ void checkPack() {
             case P_SMOKE_DISABLED:
               // Play smoke disabled voice.
               w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
-              w_trig.trackStop(S_VOICE_SMOKE_ENABLED);    
+              w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
               w_trig.trackGain(S_VOICE_SMOKE_DISABLED, i_volume);
               w_trig.trackPlayPoly(S_VOICE_SMOKE_DISABLED);
             break;
@@ -5256,7 +5263,7 @@ void checkPack() {
             case P_SMOKE_ENABLED:
               // Play smoke enabled voice.
               w_trig.trackStop(S_VOICE_SMOKE_ENABLED);
-              w_trig.trackStop(S_VOICE_SMOKE_DISABLED);    
+              w_trig.trackStop(S_VOICE_SMOKE_DISABLED);
               w_trig.trackGain(S_VOICE_SMOKE_ENABLED, i_volume);
               w_trig.trackPlayPoly(S_VOICE_SMOKE_ENABLED);
             break;
@@ -5264,23 +5271,23 @@ void checkPack() {
             case P_CYCLOTRON_COUNTER_CLOCKWISE:
               // Play cyclotron counter clockwise voice.
               w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
-              w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+              w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
               w_trig.trackGain(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);   
+              w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
             break;
 
             case P_CYCLOTRON_CLOCKWISE:
               // Play cyclotron clockwise voice.
               w_trig.trackStop(S_VOICE_CYCLOTRON_CLOCKWISE);
-              w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);    
+              w_trig.trackStop(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
               w_trig.trackGain(S_VOICE_CYCLOTRON_CLOCKWISE, i_volume);
-              w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);   
+              w_trig.trackPlayPoly(S_VOICE_CYCLOTRON_CLOCKWISE);
             break;
 
             case P_CYCLOTRON_SINGLE_LED:
               // Play Single LED voice.
               w_trig.trackStop(S_VOICE_THREE_LED);
-              w_trig.trackStop(S_VOICE_SINGLE_LED);    
+              w_trig.trackStop(S_VOICE_SINGLE_LED);
               w_trig.trackGain(S_VOICE_SINGLE_LED, i_volume);
               w_trig.trackPlayPoly(S_VOICE_SINGLE_LED);
             break;
@@ -5288,14 +5295,14 @@ void checkPack() {
             case P_CYCLOTRON_THREE_LED:
               // Play 3 LED voice.
               w_trig.trackStop(S_VOICE_THREE_LED);
-              w_trig.trackStop(S_VOICE_SINGLE_LED);    
+              w_trig.trackStop(S_VOICE_SINGLE_LED);
               w_trig.trackGain(S_VOICE_THREE_LED, i_volume);
               w_trig.trackPlayPoly(S_VOICE_THREE_LED);
             break;
 
             case P_VIDEO_GAME_MODE_COLOURS_DISABLED:
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
-              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
@@ -5305,7 +5312,7 @@ void checkPack() {
 
             case P_VIDEO_GAME_MODE_POWER_CELL_ENABLED:
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
-              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
@@ -5315,7 +5322,7 @@ void checkPack() {
 
             case P_VIDEO_GAME_MODE_CYCLOTRON_ENABLED:
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
-              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
@@ -5325,7 +5332,7 @@ void checkPack() {
 
             case P_VIDEO_GAME_MODE_COLOURS_ENABLED:
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
-              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);    
+              w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
               w_trig.trackStop(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
@@ -5337,7 +5344,7 @@ void checkPack() {
               // Stop music
               stopMusic();
             break;
-            
+
             default:
               // Music track number to be played.
               if(comStruct.i >= i_music_track_start) {
@@ -5372,25 +5379,25 @@ void wandSerialSend(int i_message) {
 void setupWavTrigger() {
   // If the controller is powering the WAV Trigger, we should wait for the WAV trigger to finish reset before trying to send commands.
   delay(1000);
-  
+
   // WAV Trigger's startup at 57600
   w_trig.start();
-  
+
   delay(10);
 
   // Send a stop-all command and reset the sample-rate offset, in case we have
   //  reset while the WAV Trigger was already playing.
   w_trig.stopAllTracks();
-  w_trig.samplerateOffset(0); // Reset our sample rate offset        
+  w_trig.samplerateOffset(0); // Reset our sample rate offset
   w_trig.masterGain(i_volume_master); // Reset the master gain db. 0db is default. Range is -70 to 0.
   w_trig.setAmpPwr(b_onboard_amp_enabled); // Turn on the onboard amp.
-  
+
   // Enable track reporting from the WAV Trigger
   w_trig.setReporting(true);
 
   // Allow time for the WAV Trigger to respond with the version string and number of tracks.
   delay(350);
-  
+
   unsigned int w_num_tracks = w_trig.getNumTracks();
 
   // Build the music track count.
