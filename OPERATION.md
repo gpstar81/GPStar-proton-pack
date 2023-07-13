@@ -1,11 +1,7 @@
-# Operating Manual
-					
-Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube, July 2023)
-[![Haslab Proton Pack Arduino Powered Demo & Features](https://img.youtube.com/vi/ePXz99UawLQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=ePXz99UawLQ)
+<h1><img src='images/gpstar_logo.png' width=50 align="left"/>gpstar Proton Pack and Neutrona Wand Operation Manual</h1>
 
-## Proton Pack		
 
-### Standard Pack Features
+### Standard Proton Pack Features
 
 - The switch underneath the ion arm can turn the pack on or off.
 - You can run the pack without the cyclotron lid attached.
@@ -19,7 +15,7 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 - Single (centered) LED per cyclotron lens for 1984/1989 modes by default.
 	- This can be toggled back to 3 LED's per cyclotron lens via the wand menu system.
 
-### Optional Pack Features
+### Optional Proton Pack Features
 
 - 1989 sound effects mode is available on the pack, it can be accessed from the Wand sub menu system or set with the advanced user configuration settings. **\*see below\***
 - Support for switches for cyclotron direction and to enable or disable smoke effects.
@@ -86,7 +82,7 @@ The following features require the use of both the pack and wand replacement con
 	1. Stasis Beam
 	1. Meson Collider
 	1. Manual Venting Mode (Manual vent your Proton Pack)
-	1. Special: Setting 6 is a settings menu system (see "Top Level Menu" section below).
+	1. Special: Setting 6 is a settings menu system (see "Wand Settings Menu System" section below).
 
 **Manual Venting Mode**
 ![](images/OperationNeutrona6.jpg)
@@ -103,19 +99,23 @@ The following features require the use of both the pack and wand replacement con
 To enable a Cross The Streams (CTS) mode and alternate firing by default, please see the [Advanced Configuration](ADVCONFIG.md) guide, otherwise these can be accessed from the Wand settings menu system.
 
 ## Wand Settings Menu System
+![](images/OperationNeutrona9.jpg)
 
-Wand Menu Settings Video Demo: [Proton Pack Wand Menu Settings Video Demo](https://www.youtube.com/watch?v=QrevSoQo_3M) (YouTube)
-[![Proton Pack Wand Menu Settings Video Demo](https://img.youtube.com/vi/QrevSoQo_3M/maxresdefault.jpg)](https://youtu.be/QrevSoQo_3M)
+### Entering The Menu System
+There are 2 ways to enter the Menu System.
+
+- When the Neutrona Wand is in Video Game Mode and powered on, cycle through the various modes with the `Barrel Wing Button` until you reach the Menu System.
+- While the Neutrona Wand and Proton Pack are powered down, press the `Barrel Wing Button`.
 
 ### Navigation
-
-`Use the Top Dial on the top of the wand to navigate up and down through the menu system.`
+Use the Top Dial on the top of the wand to navigate up and down through the menu system.
+![](images/OperationNeutrona8.jpg)
 
 When you are in the settings menu system the bargraph's 5 LED's begin flashing (or 5 distinct segments when using the 28-segment bargraph). All other functions of the wand (such as firing) are temporarily disabled while in the menu system. There are 5 different menu settings, which are indicated by the bargraph LED's/segments 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on menu 1.
 
 ### Actions
 
-Changes are made by pressing either the `Intensify` button on the gun box or the `Barrel Wing Button` (orange mode button) at the end of the wand. As the latter button may be altered by some optional upgrades, 
+Changes are made by pressing either the `Intensify` button on the gun box or the `Barrel Wing Button` at the end of the wand.
 
 ## Top Level Menu
 
@@ -135,9 +135,10 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 ## Sub Level Menu
 
-`Important: The Neutrona Wand sub-menu settings can only be reached while both the Neutrona Wand and Proton Pack are powered down`
+`Important: The Neutrona Wand sub-menu settings can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
 
 To access the sub level menu, use the `Top Dial` on the top of the wand. When you reach the sub level menu, the Slo-blo LED will light up to indicate this menu state.
+![](images/OperationNeutrona10.jpg)
 
 | Sub&nbsp;Menu&nbsp;Level | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
@@ -165,7 +166,13 @@ Refer the [Loading The Audio Files](AUDIO.md) for more information on loading ad
 ## Advanced User Configurations
 
 To modify defaults within the software, please see the [Advanced Configuration](ADVCONFIG.md) guide.
-<br>
+
+## Video Demos
+Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube, July 2023)
+[![Haslab Proton Pack Arduino Powered Demo & Features](https://img.youtube.com/vi/ePXz99UawLQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=ePXz99UawLQ)
+
+Wand Menu Settings Video Demo: [Proton Pack Wand Menu Settings Video Demo](https://www.youtube.com/watch?v=QrevSoQo_3M) (YouTube)
+[![Proton Pack Wand Menu Settings Video Demo](https://img.youtube.com/vi/QrevSoQo_3M/maxresdefault.jpg)](https://youtu.be/QrevSoQo_3M)
 <br>
 <br>
 <br>

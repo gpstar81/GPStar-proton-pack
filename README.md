@@ -1,4 +1,6 @@
-# Microcontroller Replacements for the Haslab Spengler Series Proton Pack and Neutrona Wand
+<h1><img src='images/gpstar_logo.png' width=50 align="left"/>gpstar Proton Pack and Neutrona Wand</h1>
+
+<h3>Microcontroller Replacements for the Haslab Spengler Series Proton Pack and Neutrona Wand</h3>
 
 This repository outlines the full replacement of the stock microcontrollers which run the Proton Pack and Neutrona Wand while retaining the use and function of all existing controls and lighting in these Haslab products.
 
