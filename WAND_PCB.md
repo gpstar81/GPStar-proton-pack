@@ -70,8 +70,8 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 
 | Label | Pins | Notes |
 |-------|------|-------|
-| HAT1 | GND/D22 | `JST-PH` Connection for top of the wand box hat LED.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D22 which provides 5V and has a 100Ω resistor connected to it.<br><br>`Do not draw more than 40mA from this connector.` |
-| HAT2 | GND/D23 | `JST-PH` Connection for barrel tip hat LED.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D23 provides 5V and has a 100Ω resistor connected to it.<br><br>`Do not draw more than 40mA from this connector.`|
+| HAT1 | GND/D22 | `JST-PH` Connection for top of the wand box hat LED.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D22 which provides 5V and has a 140Ω resistor connected to it.<br><br>`Do not draw more than 40mA from this connector.` |
+| HAT2 | GND/D23 | `JST-PH` Connection for barrel tip hat LED.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D23 provides 5V and has a 140Ω resistor connected to it.<br><br>`Do not draw more than 40mA from this connector.`|
 | BARREL-LED | GND/D24 | `JST-PH` Connection for white wand tip light.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D24 which provides 5V and has a 100Ω resistor connected to it.<br><br>`Do not draw more than 40mA from this connector.` |
 | 5V-OUT | +/\- | `JST-PH` Power for additional accessories. |
 | SCL/SDA | SCL/SDA | `JST-PH` Expansion serial port using I2C |
