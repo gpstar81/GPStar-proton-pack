@@ -46,19 +46,19 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 
 | Label | Pins | Notes |
 |-------|------|-------|
-| SW-D | D29/GND | Cyclotron direction switch (wire order does not matter) |
-| SM-T | GND/D37| Smoke Toggle switch to enable/disable smoke effects (wire order does not matter) |
-| SM-1 | \-/+ | Smoke effects for the N-Filter (D39). SM-1 provides 5V during N-Filter smoke effects. You can connect a 5V pump to this pin to power it, or use it to trigger a relay for off the shelf smoke solutions.<br><br>`Do not draw more than 1.5amps from this connector.` |
-| FN-1 | \-/+ | Fan for N-Filter smoke (D33). FN-1 provides 5V during N-Filter smoke effects. During the overheat sequence, it is timed to go off at the same time as the N-Filter light. You can connect a 5V fan to this pin if desired or to trigger a relay. <br><br>`Do not draw more than 1.5amps from this connector.` |
+| SW-D | D29/GND | Cyclotron direction switch (wire order does not matter)<br><br>`Connector type: JST-XH`|
+| SM-T | GND/D37| Smoke Toggle switch to enable/disable smoke effects (wire order does not matter)<br><br>`Connector type: JST-XH`|
+| SM-1 | \-/+ | Smoke effects for the N-Filter (D39). SM-1 provides 5V during N-Filter smoke effects. You can connect a 5V pump to this pin to power it, or use it to trigger a relay for off the shelf smoke solutions.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
+| FN-1 | \-/+ | Fan for N-Filter smoke (D33). FN-1 provides 5V during N-Filter smoke effects. During the overheat sequence, it is timed to go off at the same time as the N-Filter light. You can connect a 5V fan to this pin if desired or to trigger a relay.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
 | SM-2 | \-/+ | Smoke effects for the Booster Tube (D35). SM-2 provides 5V during Booster Tube smoke effects. You can connect a 5V pump to this pin to power it, or use it to trigger a relay for off the shelf smoke solutions.<br><br>`Do not draw more than 1.5amps from this connector.` |
-| FN-2 | \-/+ | Fan for the Booster Tube smoke (D50). FN-2 provides 5V during Booster Tube smoke effects. You can connect a 5V fan to this pin if desired or use it to trigger a relay.<br><br>`Do not draw more than 1.5amps from this connector.` |
-| NEO-C | D13/VCC/GND | Neopixel LED ring for Inner Cyclotron "Cake" |
+| FN-2 | \-/+ | Fan for the Booster Tube smoke (D50). FN-2 provides 5V during Booster Tube smoke effects. You can connect a 5V fan to this pin if desired or use it to trigger a relay.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
+| NEO-C | D13/VCC/GND | Neopixel LED ring for Inner Cyclotron "Cake"<br><br>`Connector type: JST-XH`|
 | P.RED | D4/GND/D5/GND | Cyclotron Panel LED's: 2x Red. D4 and D5 provides 5V and has a 140Ω resistor connected to each of them.<br><br>`Do not draw more than 40mA from each LED connection.`|
-| P.YELLOW | D6/GND/D7/GND | Cyclotron Panel LED's: 2x Yellow. D6 and D7 provides 5V and has a 140Ω resistor connected to each of them.<br><br>`Do not draw more than 40mA from each LED connection.`|
-| P.GREEN | D8/GND/D9/GND | Cyclotron Panel LED's: 2x Green. D8 and D9 provides 5V and has a 100Ω resistor connected to each of them. <br><br>`Do not draw more than 40mA from each LED connection.` |
-| P.SWITCH | D10/GND/D11/GND | Cyclotron Panel LED's: 1x Green (Mode Indicator, D10) and 1x Yellow (Vibration Enabled, D11). D10 and D11 provides 5V. D10 and has a 100Ω resistor connected to it and D11 has a 140Ω resistor connected to it.<br><br>`Do not draw more than 40mA from each LED connection.` |
-| LED-W | D46/GND | Connection for a standalone white LED in the N-Filter. D46 provides 5V and has a 100Ω resistor connected to it.<br><br>`Do not draw more than 40mA from this connector.` |
-| 5V-OUT | +/\- | Power for additional accessories. <br><br>`Do not draw more than 1.5amps from this connector.` |
-| SCL/SDA | SCL/SDA | Expansion serial port using I2C |
-| RX1/TX1 | RX1/TX1 | Expansion serial port |
+| P.YELLOW | D6/GND/D7/GND | Cyclotron Panel LED's: 2x Yellow. D6 and D7 provides 5V and has a 140Ω resistor connected to each of them.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from each LED connection.`|
+| P.GREEN | D8/GND/D9/GND | Cyclotron Panel LED's: 2x Green. D8 and D9 provides 5V and has a 100Ω resistor connected to each of them.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from each LED connection.` |
+| P.SWITCH | D10/GND/D11/GND | `JST-XH` Cyclotron Panel LED's: 1x Green (Mode Indicator, D10) and 1x Yellow (Vibration Enabled, D11). D10 and D11 provides 5V. D10 and has a 100Ω resistor connected to it and D11 has a 140Ω resistor connected to it.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from each LED connection.` |
+| LED-W | D46/GND | Connection for a standalone white LED in the N-Filter. D46 provides 5V and has a 100Ω resistor connected to it.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from this connector.` |
+| 5V-OUT | +/\- | Power for additional accessories. <br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
+| SCL/SDA | SCL/SDA | Expansion serial port using I2C<br><br>`Connector type: JST-XH`|
+| RX1/TX1 | RX1/TX1 | Expansion serial port<br><br>`Connector type: JST-XH`|
 
