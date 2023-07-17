@@ -309,6 +309,7 @@ bool b_beeping = false;
  * Function prototypes for handling sound effects.
 */
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume, bool b_fade_in = false, unsigned int i_fade_time = 0);
+void stopEffect(int i_track_id);
 void stopMusic(int i_music_id = i_current_music_track);
 void playMusic(int i_music_id = i_current_music_track, bool b_music_loop = b_repeat_track, int8_t i_music_volume = i_volume_music);
 
