@@ -299,6 +299,13 @@ bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 
 /*
+ * Function prototypes for handling sound effects.
+*/
+void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume, bool b_fade_in = false, unsigned int i_fade_time = 0);
+void stopMusic(int i_music_id = i_current_music_track);
+void playMusic(int i_music_id = i_current_music_track, bool b_music_loop = b_repeat_track, int8_t i_music_volume = i_volume_music);
+
+/*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
 */
 #ifdef GPSTAR_PROTON_PACK_PCB
