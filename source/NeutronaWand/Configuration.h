@@ -79,7 +79,7 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
  * Part #: BL28Z-3005SA04Y
  * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
 */
-bool b_28segment_bargraph = false;
+bool b_28segment_bargraph = true;
 
 /*
  * When defined, the Barmeter 28 segment bargraph will invert it's sequence.
@@ -91,7 +91,7 @@ bool b_28segment_bargraph = false;
  * NOT Defined / Disabled:
  //#define GPSTAR_INVERT_BARGRAPH
 */
-#define GPSTAR_INVERT_BARGRAPH
+//#define GPSTAR_INVERT_BARGRAPH
 
 /*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
@@ -132,7 +132,7 @@ bool b_overheat_enabled = true;
 
 /*
  * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
- * When false, the bargraph will ramp itself down instead.
+ * When false, the bargraph will ramp down instead.
 */
 bool b_overheat_bargraph_blink = false;
 
