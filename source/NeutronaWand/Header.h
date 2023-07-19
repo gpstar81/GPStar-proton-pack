@@ -102,7 +102,13 @@ const int switch_barrel = A7; // Barrel extension/open switch.
  * Some switch settings.
  */
 const uint8_t switch_debounce_time = 50;
-const uint8_t a_switch_debounce_time = 250;
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  // Make the barrel wing switch a bit more snappier on the gpstar Neutrona Wand board.
+  const uint8_t a_switch_debounce_time = 200;
+#else
+  const uint8_t a_switch_debounce_time = 250;
+#endif
+
 millisDelay ms_switch_mode_debounce;
 millisDelay ms_intensify_timer;
 const unsigned int i_intensify_delay = 400;
@@ -152,7 +158,18 @@ uint8_t i_bargraph_status = 0;
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   HT16K33 ht_bargraph;
+  
+  // Used to scan the i2c bus and to locate the 28 segment bargraph.
+  #define WIRE Wire
 #endif
+
+/*
+ * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
+ * Set to false if you are using the stock Hasbro bargraph.
+ * Part #: BL28Z-3005SA04Y
+ * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
+*/
+bool b_28segment_bargraph = false;
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
 millisDelay ms_bargraph_alt;

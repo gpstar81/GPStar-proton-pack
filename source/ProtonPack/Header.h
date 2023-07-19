@@ -40,6 +40,9 @@ CRGB pack_leds[PACK_NUM_LEDS];
 #define CYCLOTRON_LED_PIN 13
 CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
 
+#define HASLAB_CYCLOTRON_LEDS 12
+#define HASLAB_POWERCELL_LEDS 13
+
 /*
  * Delay for fastled to update the addressable LEDs. 
  * We have up to 88 addressable LEDs if using NeoPixel jewels in the inner cyclotron and n-filter.
@@ -279,6 +282,8 @@ struct __attribute__((packed)) STRUCTSEND {
  */
 millisDelay ms_firing_length_timer;
 const unsigned int i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
+millisDelay ms_firing_sound_mix; // Used to play misc sound effects during firing.
+int i_last_firing_effect_mix = 0;
 
 /* 
  * Rotary encoder for volume control 
@@ -288,6 +293,17 @@ const unsigned int i_firing_timer_length = 15000; // 15 seconds. Used by ms_firi
 int i_encoder_pos = 0;
 int i_val_rotary;
 int i_last_val_rotary;
+
+/*
+ * LED Dimming / Brightness Control.
+*/
+enum pack_led_dim_control {
+  DIM_POWERCELL,
+  DIM_CYCLOTRON,
+  DIM_INNER_CYCLOTRON
+};
+
+uint8_t pack_dim_toggle = DIM_POWERCELL;
 
 /*
  * Misc.

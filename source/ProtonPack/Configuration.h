@@ -50,7 +50,7 @@ const uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
  * If you are installing a Frutto Technology PowerCell which has 15 LEDs, then change this to 15.
  * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
 */
-const uint8_t i_powercell_leds = 13;
+const uint8_t i_powercell_leds = 15;
 
 /*
  * Cyclotron Video Game Colour Toggle
@@ -88,10 +88,11 @@ const unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 
  * 1000 = 1 second.
  * The lower the number the faster the powercell lights cycle.
  * For the stock Haslab powercell with 13 leds, 1984 at 75 and 2021 at 40 is a good setting.
+ * For a Power Cell with 15 LEDS such as from Frutto Technology, 1984 at 60 and 2021 at 34 is a good setting.
  * If you add more powercell leds, it is suggested to lower the values a little bit.
 */
-const uint8_t i_powercell_delay_1984 = 75;
-const uint8_t i_powercell_delay_2021 = 40;
+const uint8_t i_powercell_delay_1984 = 60;
+const uint8_t i_powercell_delay_2021 = 34;
 
 /*
  * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
@@ -109,6 +110,17 @@ const uint8_t i_powercell_delay_2021 = 40;
  * Default is false.
 */
 bool b_grb_cyclotron = false;
+
+/*
+ * You can set the default brightness of your Power Cell, Cyclotron or Inner Cyclotron LEDs.
+ * Values are in percentages %.
+ * 0 = off.
+ * 100 = Maximum brightness.
+ * This can be adjusted from the Neutrona wand menu system.
+*/
+uint8_t i_powercell_brightness = 100;
+uint8_t i_cyclotron_brightness = 100;
+uint8_t i_cyclotron_inner_brightness = 100;
 
 /*
  * You can set the default master startup volume for your pack here.
@@ -160,6 +172,11 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
  * Percentage increments of the sound effects volume change.
 */
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
+
+/*
+  * When set to true, various impact and other stream effects will overlap and mix randomly into the Proton Stream for an added experience.
+*/
+bool b_stream_effects = true;
 
 /*
  * Inner Cyclotron NeoPixel ring speed.
@@ -233,8 +250,9 @@ const bool b_overheat_strobe = false;
 bool b_overheat_lights_off = true;
 
 /*
- * When set to true, smoke from the n-filter will only operate at the same time the fan is operating.
- * If you have a smoke/fan kit for the n-filter that operates the smoke and fan at the same time, and you are connected to the smoke n-filter pin on the pack board, then you would want to set this to true.
+ * When set to true, The n-filter smoke pin will only operate at the same time the n-filter fan pin.
+ * If you have a smoke/fan kit for the n-filter that operates the smoke and fan at the same time, and you are connected to the smoke n-filter pin on the pack board, then you MAY want want to set this to true.
+ * Alternatively, you can connect to the n-filter fan pin instead to recreate the same effect.
  * When set to false (default), smoke in the n-filter will pump earlier than the fan to fill up the n-filter with some smoke.
  * If you have a smoke kit where the smoke and fan are independently connected to the Proton Pack board, setting to false is preferred.
 */
@@ -297,7 +315,7 @@ const unsigned long int i_smoke_on_time_mode_5 = 4000;
 
 /*
  * Enable or disable smoke during overheat sequences.
- * Control which of the 3 pins that go high during overheat.
+ * Control which of the 3 pins that go 5V high during overheat.
  * This can be overridden if b_smoke_enabled is set to false.
 */
 const bool b_smoke_1_overheat = true;

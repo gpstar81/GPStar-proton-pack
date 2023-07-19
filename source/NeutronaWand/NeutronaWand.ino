@@ -42,6 +42,7 @@
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   #include <ht16k33.h>
+  #include <Wire.h>
 #endif
 
 /*
@@ -109,8 +110,31 @@ void setup() {
 
   // Setup the bargraph.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    delay(10);
+
+    WIRE.begin();
+
+    byte by_error, by_address;
+    unsigned int i_i2c_devices = 0;
+    
+    // Scan i2c for any devices (28 segment bargraph).
+    for(by_address = 1; by_address < 127; by_address++ ) {
+      WIRE.beginTransmission(by_address);
+      by_error = WIRE.endTransmission();
+
+      if(by_error == 0) {
+        i_i2c_devices++;
+      }
+    }
+
+    if(i_i2c_devices > 0) {
+      b_28segment_bargraph = true;
+    }
+    else {
+      b_28segment_bargraph = false;
+    }
+          
     if(b_28segment_bargraph == true) {
-      // 28 Segment optional bargraph.
       ht_bargraph.begin(0x00);
     }
     else {
@@ -459,26 +483,17 @@ void mainLoop() {
         }
         break;
 
-        // Top menu: Adjust the Proton Pack / Neutrona wand sound effects volume.
+        // Top menu: (Intensify + Top dial) Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
+        // Top menu: (Mode Switch) Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
         // Sub menu: Enable or disable smoke for the Proton Pack.
         // Sub menu: (Mode switch) -> Enable or disable overheating.
         case 4:
           // Adjust the Proton Pack / Neutrona wand sound effects volume.
           if(b_wand_menu_sub != true) {
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay);
-
-              increaseVolumeEffects();
-
-              // Tell pack to increase the sound effects volume.
-              wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
-            }
-
+            // Cycle through the dimming modes in the Proton Pack. (Power Cell, Cyclotron and Inner Cyclotron). Actualy control of the dimming is handled in checkRotary().
             if(switchMode() == true) {
-              decreaseVolumeEffects();
-
-              // Tell pack to lower the sound effects volume.
-              wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
+              // Tell the Proton Pack to change to the next dimming mode.
+              wandSerialSend(W_DIMMING_TOGGLE);
             }
           }
           else {
@@ -520,49 +535,14 @@ void mainLoop() {
           }
         break;
 
-        // Top menu: Adjust Proton Pack / Neutrona wand music volume.
+        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona wand sound effects. (Mode switch + top dial) Adjust Proton Pack / Neutrona Wand music volume.
+        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona wand sound effects. (Mode switch + top dial) Adjust Proton Pack / Neutrona Wand music volume.
         // Sub menu: Toggle cyclotron rotation direction.
         // Sub menu: (Mode switch) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
         case 3:
-          // Adjust Proton Pack / Neutrona wand music volume..
-          if(b_wand_menu_sub != true) {
-            if(b_playing_music == true) {
-              if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-                ms_intensify_timer.start(i_intensify_delay);
-
-                if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
-                  i_volume_music_percentage = 100;
-                }
-                else {
-                  i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
-                }
-
-                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-                w_trig.trackGain(i_current_music_track, i_volume_music);
-
-                // Tell pack to increase music volume.
-                wandSerialSend(W_VOLUME_MUSIC_INCREASE);
-              }
-
-              if(switchMode() == true) {
-                if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
-                  i_volume_music_percentage = 0;
-                }
-                else {
-                  i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
-                }
-
-                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-                w_trig.trackGain(i_current_music_track, i_volume_music);
-
-                // Tell pack to lower music volume.
-                wandSerialSend(W_VOLUME_MUSIC_DECREASE);
-              }
-            }
-          }
-          else {
+          // Top menu code is handled in checkRotary();
+          // Sub menu. Adjust cyclotron settings.
+          if(b_wand_menu_sub == true) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
@@ -710,6 +690,7 @@ void mainLoop() {
         // Top menu: Play music or stop music.
         // Top menu: (Mode Switch). Mute the Proton Pack and Neutrona Wand.
         // Sub menu: (Intensify) -> Switch between 1984/1989/Afterlife mode.
+        // Sub Menu: (Mode Switch) -> Enable or disable Proton Stream impact effects.
         case 1:
           // Play or stop the current music track.
           if(b_wand_menu_sub != true) {
@@ -799,6 +780,11 @@ void mainLoop() {
                   playEffect(S_VOICE_1984);
                 }
               }
+            }
+
+            if(switchMode() == true) {
+              // Tell the Proton Pack to toggle the Proton Stream impact effects.
+              wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
             }
           }
         break;
@@ -4474,7 +4460,7 @@ int8_t readRotary() {
 
 // Top rotary dial on the wand.
 void checkRotary() {
-  static int8_t c,val;
+  static int8_t c,val;            
 
   if((val = readRotary())) {
     c += val;
@@ -4482,8 +4468,37 @@ void checkRotary() {
       case ACTION_SETTINGS:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(i_wand_menu - 1 < 1) {
+          if(i_wand_menu == 4 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
+            // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
+            wandSerialSend(W_DIMMING_DECREASE);
 
+            stopEffect(S_BEEPS);
+            playEffect(S_BEEPS);                    
+          }
+          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
+            // Lower the sound effects volume.
+            decreaseVolumeEffects();
+
+            // Tell pack to lower the sound effects volume.
+            wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
+          }
+          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value && b_playing_music == true) {
+            // Decrease the music volume.
+            if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
+              i_volume_music_percentage = 0;
+            }
+            else {
+              i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
+            }
+
+            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+            w_trig.trackGain(i_current_music_track, i_volume_music);
+
+            // Tell pack to lower the music volume.
+            wandSerialSend(W_VOLUME_MUSIC_DECREASE);
+          }
+          else if(i_wand_menu - 1 < 1) {
             // We are entering the sub menu. Only accessible when the Neutrona Wand is powered down.
             if(WAND_STATUS == MODE_OFF) {
               if(b_wand_menu_sub != true) {
@@ -4515,7 +4530,37 @@ void checkRotary() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(i_wand_menu + 1 > 5) {
+          if(i_wand_menu == 4 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
+            // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
+            wandSerialSend(W_DIMMING_INCREASE);
+
+            stopEffect(S_BEEPS);
+            playEffect(S_BEEPS);                
+          }
+          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
+            // Increase sound effects volume.
+            increaseVolumeEffects();
+
+            // Tell pack to increase the sound effects volume.
+            wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
+          }
+          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value && b_playing_music == true) {
+            // Increase music volume.
+            if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
+              i_volume_music_percentage = 100;
+            }
+            else {
+              i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
+            }
+
+            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+            w_trig.trackGain(i_current_music_track, i_volume_music);
+
+            // Tell pack to increase music volume.
+            wandSerialSend(W_VOLUME_MUSIC_INCREASE);
+          }     
+          else if(i_wand_menu + 1 > 5) {
             // We are leaving the sub menu. Only accessible when the Neutrona Wand is powered down.
             if(WAND_STATUS == MODE_OFF) {
               if(b_wand_menu_sub == true) {
@@ -5203,6 +5248,44 @@ void checkPack() {
             case P_MUSIC_STOP:
               // Stop music
               stopMusic();
+            break;
+
+            case P_POWERCELL_DIMMING:
+              stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
+              stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
+              stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+
+              playEffect(S_VOICE_POWERCELL_BRIGHTNESS);
+            break;
+
+            case P_CYCLOTRON_DIMMING:
+              stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
+              stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
+              stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+
+              playEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
+            break;
+            
+            case P_INNER_CYCLOTRON_DIMMING:
+              stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
+              stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
+              stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+
+              playEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+            break;
+
+            case P_PROTON_STREAM_IMPACT_ENABLED:
+              stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
+              stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
+
+              playEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
+            break;
+
+            case P_PROTON_STREAM_IMPACT_DISABLED:
+              stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
+              stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
+
+              playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
             break;
 
             default:
