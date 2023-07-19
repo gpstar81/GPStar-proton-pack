@@ -50,7 +50,7 @@ const uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
  * If you are installing a Frutto Technology PowerCell which has 15 LEDs, then change this to 15.
  * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
 */
-const uint8_t i_powercell_leds = 15;
+const uint8_t i_powercell_leds = 13;
 
 /*
  * Cyclotron Video Game Colour Toggle
@@ -91,8 +91,8 @@ const unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 
  * For a Power Cell with 15 LEDS such as from Frutto Technology, 1984 at 60 and 2021 at 34 is a good setting.
  * If you add more powercell leds, it is suggested to lower the values a little bit.
 */
-const uint8_t i_powercell_delay_1984 = 60;
-const uint8_t i_powercell_delay_2021 = 34;
+uint8_t i_powercell_delay_1984 = 75;
+uint8_t i_powercell_delay_2021 = 40;
 
 /*
  * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
