@@ -1021,57 +1021,7 @@ void powercellLoop() {
       i_powercell_led = 0;
     }
     else {
-      uint8_t r = 0;
-      uint8_t g = 0;
-      uint8_t b = 0 + (255 * i_powercell_brightness / 100);
-     
-      if(b_powercell_colour_toggle == true) {
-        switch(FIRING_MODE) {
-          case PROTON:
-            r = 0;
-            g = 0;
-            b = 0 + (255 * i_powercell_brightness / 100);
-          break;
-
-          case SLIME:
-            r = 0;
-            g = 0 + (255 * i_powercell_brightness / 100);
-            b = 0;
-          break;
-
-          case STASIS:
-            r = 0;
-            g = 0;
-            b = 0 + (255 * i_powercell_brightness / 100);
-          break;
-
-          case MESON:
-            r = 0 + (255 * i_powercell_brightness / 100);
-            g = 0 + (255 * i_powercell_brightness / 100);
-            b = 0;
-          break;
-
-          case VENTING:
-            r = 0 + (255 * i_powercell_brightness / 100);
-            g = 0;
-            b = 0;
-          break;
-
-          case SETTINGS:
-            r = 0 + (255 * i_powercell_brightness / 100);
-            g = 0 + (255 * i_powercell_brightness / 100);
-            b = 0 + (255 * i_powercell_brightness / 100);
-          break;
-
-          default:
-            r = 0;
-            g = 0;
-            b = 0 + (255 * i_powercell_brightness / 100);
-          break;
-        }
-      }
-
-      pack_leds[i_powercell_led] = CRGB(r,g,b);
+      powercellDraw(b_powercell_colour_toggle, i_powercell_led);
 
       // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
       if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
@@ -1166,19 +1116,27 @@ void powercellLoop() {
 }
 
 void powercellOn() {
+  i_powercell_led = cyclotron_led_start - 1;
+
+  powercellDraw(b_powercell_colour_toggle);  
+}
+
+void powercellOff() {
   for(int i = 0; i <= cyclotron_led_start - 1; i++) {
+    pack_leds[i] = CRGB(0,0,0);
+  }
+
+  i_powercell_led = 0;
+}
+
+void powercellDraw(bool b_colour_toggle = false, int i_tmp = 0) {
+  for(int i = i_tmp; i <= i_powercell_led; i++) {
     uint8_t r = 0;
     uint8_t g = 0;
     uint8_t b = 0 + (255 * i_powercell_brightness / 100);
-
+    
     if(b_powercell_colour_toggle == true) {
       switch(FIRING_MODE) {
-        case PROTON:
-          r = 0;
-          g = 0;
-          b = 0 + (255 * i_powercell_brightness / 100);
-        break;
-
         case SLIME:
           r = 0;
           g = 0 + (255 * i_powercell_brightness / 100);
@@ -1209,76 +1167,12 @@ void powercellOn() {
           b = 0 + (255 * i_powercell_brightness / 100);
         break;
 
+        case PROTON:
         default:
           r = 0;
           g = 0;
-          b = 0 + (255 * i_powercell_brightness / 100);
         break;
       }
-    }
-
-    pack_leds[i] = CRGB(r,g,b);
-  }
-
-  i_powercell_led = cyclotron_led_start - 1;
-}
-
-void powercellOff() {
-  for(int i = 0; i <= cyclotron_led_start - 1; i++) {
-    pack_leds[i] = CRGB(0,0,0);
-  }
-
-  i_powercell_led = 0;
-}
-
-void powercellReset() {
-  for(int i = 0; i <= i_powercell_led; i++) {
-    uint8_t r = 0;
-    uint8_t g = 0;
-    uint8_t b = 0 + (255 * i_powercell_brightness / 100);
-
-    switch(FIRING_MODE) {
-      case PROTON:
-        r = 0;
-        g = 0;
-        b = 0 + (255 * i_powercell_brightness / 100);
-      break;
-
-      case SLIME:
-        r = 0;
-        g = 0 + (255 * i_powercell_brightness / 100);
-        b = 0;
-      break;
-
-      case STASIS:
-        r = 0;
-        g = 0;
-        b = 0 + (255 * i_powercell_brightness / 100);
-      break;
-
-      case MESON:
-        r = 0 + (255 * i_powercell_brightness / 100);
-        g = 0 + (255 * i_powercell_brightness / 100);
-        b = 0;
-      break;
-
-      case VENTING:
-        r = 0 + (255 * i_powercell_brightness / 100);
-        g = 0;
-        b = 0;
-      break;
-
-      case SETTINGS:
-        r = 0 + (255 * i_powercell_brightness / 100);
-        g = 0 + (255 * i_powercell_brightness / 100);
-        b = 0 + (255 * i_powercell_brightness / 100);
-      break;
-
-      default:
-        r = 0;
-        g = 0;
-        b = 0 + (255 * i_powercell_brightness / 100);
-      break;
     }
 
     pack_leds[i] = CRGB(r,g,b);
@@ -3686,7 +3580,7 @@ void checkWand() {
 
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
-                powercellReset();
+                powercellDraw();
               }
             break;
 
@@ -3706,7 +3600,7 @@ void checkWand() {
 
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
-                powercellReset();
+                powercellDraw();
               }              
             break;
 
@@ -3726,7 +3620,7 @@ void checkWand() {
 
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
-                powercellReset();
+                powercellDraw();
               }
             break;
 
@@ -3747,7 +3641,7 @@ void checkWand() {
 
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
-                powercellReset();
+                powercellDraw();
               }
             break;
 
@@ -4603,7 +4497,7 @@ void checkWand() {
                     }
 
                     // Reset the power cell.
-                    powercellReset();
+                    powercellDraw();
                     
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);                    
@@ -4658,7 +4552,7 @@ void checkWand() {
                     }
 
                     // Reset the Power Cell.
-                    powercellReset();
+                    powercellDraw();
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
