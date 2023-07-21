@@ -40,6 +40,9 @@ CRGB pack_leds[PACK_NUM_LEDS];
 #define CYCLOTRON_LED_PIN 13
 CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
 
+#define HASLAB_CYCLOTRON_LEDS 12
+#define HASLAB_POWERCELL_LEDS 13
+
 /*
  * Delay for fastled to update the addressable LEDs. 
  * We have up to 88 addressable LEDs if using NeoPixel jewels in the inner cyclotron and n-filter.
@@ -279,6 +282,9 @@ struct __attribute__((packed)) STRUCTSEND {
  */
 millisDelay ms_firing_length_timer;
 const unsigned int i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
+millisDelay ms_firing_sound_mix; // Used to play misc sound effects during firing.
+int i_last_firing_effect_mix = 0;
+millisDelay ms_idle_fire_fade; // Used for fading the afterlife idling sound with firing
 
 /* 
  * Rotary encoder for volume control 
@@ -290,6 +296,17 @@ int i_val_rotary;
 int i_last_val_rotary;
 
 /*
+ * LED Dimming / Brightness Control.
+*/
+enum pack_led_dim_control {
+  DIM_POWERCELL,
+  DIM_CYCLOTRON,
+  DIM_INNER_CYCLOTRON
+};
+
+uint8_t pack_dim_toggle = DIM_POWERCELL;
+
+/*
  * Misc.
  */
 unsigned int i_mode_year = 2021; // 1984, 1989 or 2021
@@ -299,12 +316,14 @@ bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 
 /*
- * Function prototypes for handling sound effects.
+ * Function prototypes.
 */
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume, bool b_fade_in = false, unsigned int i_fade_time = 0);
 void stopEffect(int i_track_id);
 void stopMusic(int i_music_id = i_current_music_track);
 void playMusic(int i_music_id = i_current_music_track, bool b_music_loop = b_repeat_track, int8_t i_music_volume = i_volume_music);
+void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume, bool b_fade = false, unsigned int i_fade_time = 0);
+void powercellDraw(bool b_colour_toggle = false, int i_tmp = 0);
 
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.

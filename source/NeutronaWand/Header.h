@@ -97,12 +97,13 @@ ezButton switch_activate(3);
 ezButton switch_vent(4); // Turns on the vent light.
 const int switch_mode = A6; // Changes firing modes or to reach the settings menu.
 const int switch_barrel = A7; // Barrel extension/open switch.
+bool b_switch_mode_pressed = false;
 
 /*
  * Some switch settings.
  */
 const uint8_t switch_debounce_time = 50;
-const uint8_t a_switch_debounce_time = 250;
+
 millisDelay ms_switch_mode_debounce;
 millisDelay ms_intensify_timer;
 const unsigned int i_intensify_delay = 400;
@@ -152,7 +153,18 @@ uint8_t i_bargraph_status = 0;
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   HT16K33 ht_bargraph;
+  
+  // Used to scan the i2c bus and to locate the 28 segment bargraph.
+  #define WIRE Wire
 #endif
+
+/*
+ * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
+ * Set to false if you are using the stock Hasbro bargraph.
+ * Part #: BL28Z-3005SA04Y
+ * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
+*/
+bool b_28segment_bargraph = false;
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
 millisDelay ms_bargraph_alt;
@@ -261,6 +273,7 @@ bool b_pack_on = false;
 bool b_pack_alarm = false;
 bool b_wait_for_pack = true;
 bool b_volume_sync_wait = false;
+bool b_sync = false;
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the cyclotron lights.
 
 /*

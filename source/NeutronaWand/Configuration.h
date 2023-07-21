@@ -74,15 +74,9 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
- * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
- * Set to false if you are using the stock Hasbro bargraph.
+ * When defined, when using the Barmeter 28 segment bargraph, it will invert the sequence.
  * Part #: BL28Z-3005SA04Y
  * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
-*/
-bool b_28segment_bargraph = false;
-
-/*
- * When defined, the Barmeter 28 segment bargraph will invert it's sequence.
  * When using the Frutto Technologies 28 segment bargraph, this should be defined.
  
  * Defined / Enabled:
@@ -113,6 +107,7 @@ bool b_cross_the_streams_mix = false;
  * When enabled, the Neutrona Wand will vibrate at all times.
  * Vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
  * This can be enabled or disabled from the Neutrona wand sub menu system.
+ * Default = true.
 */
 bool b_vibration_on = true;
 
@@ -120,6 +115,7 @@ bool b_vibration_on = true;
  * When set to true, when b_vibration_on is set to true, the Neutrona wand will only vibrate during firing.
  * Note that vibration is controlled by a the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
  * This can be enabled or disabled from the Neutrona wand sub menu system.
+ * Default = true.
 */
 bool b_vibration_firing = true;
 

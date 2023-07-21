@@ -14,6 +14,8 @@
 - The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
 - Single (centered) LED per cyclotron lens for 1984/1989 modes by default.
 	- This can be toggled back to 3 LED's per cyclotron lens via the wand menu system.
+- The Power Cell, Cyclotron and other lighting on the Proton Pack can have the bightness independently adjusted. **\*see below\***
+
 
 ### Optional Proton Pack Features
 
@@ -122,8 +124,8 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 | Top&nbsp;Menu&nbsp;Level | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
 | 5 | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
-| 4 | Sound&nbsp;FX&nbsp;Volume | Increases volume | Decreases volume |
-| 3 | Music&nbsp;Volume | Increases volume | Decreases volume |
+| 4 | Proton Pack Light Dimming | `(Intensify + Top Dial)` Increases/Decreases the Proton Pack lights brightness. | Toggles between Power Cell, Cyclotron or Inner Cyclotron |
+| 3 | Sound & Music&nbsp;Volume | `(Intensify + Top Dial)` Increases/Decreases effects volume | `(Intensify + Top Dial)` Increases/Decreases music volume |
 | 2 | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
 | 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music / System Mute | Start/stop playing of music | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3 |
 
@@ -146,7 +148,7 @@ To access the sub level menu, use the `Top Dial` on the top of the wand. When yo
 | 4 | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/Disable smoke effects | Enable/Disable overheating |
 | 3 | Cyclotron&nbsp;LED&nbsp;Control | Change cyclotron rotation | Toggle between 1 (centered) or 3 LED's in cyclotron lid for 1984/1989 modes |
 | 2 | Vibration Settings | Proton Pack Enable/Disable vibration or vibration during firing. | Neutrona Wand Enable/Disable vibration or vibration during firing. |
-| 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes | - No Action - |
+| 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes | Enable or Disable the Proton Stream impact sound effects. |
 
 <sup>3</sup> Switch between Video Game and Cross the Stream (CTS) operation modes. Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.
 
