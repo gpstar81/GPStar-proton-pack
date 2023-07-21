@@ -97,17 +97,12 @@ ezButton switch_activate(3);
 ezButton switch_vent(4); // Turns on the vent light.
 const int switch_mode = A6; // Changes firing modes or to reach the settings menu.
 const int switch_barrel = A7; // Barrel extension/open switch.
+bool b_switch_mode_pressed = false;
 
 /*
  * Some switch settings.
  */
 const uint8_t switch_debounce_time = 50;
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  // Make the barrel wing switch a bit more snappier on the gpstar Neutrona Wand board.
-  const uint8_t a_switch_debounce_time = 200;
-#else
-  const uint8_t a_switch_debounce_time = 250;
-#endif
 
 millisDelay ms_switch_mode_debounce;
 millisDelay ms_intensify_timer;
@@ -278,6 +273,7 @@ bool b_pack_on = false;
 bool b_pack_alarm = false;
 bool b_wait_for_pack = true;
 bool b_volume_sync_wait = false;
+bool b_sync = false;
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the cyclotron lights.
 
 /*

@@ -284,6 +284,7 @@ millisDelay ms_firing_length_timer;
 const unsigned int i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
 millisDelay ms_firing_sound_mix; // Used to play misc sound effects during firing.
 int i_last_firing_effect_mix = 0;
+millisDelay ms_idle_fire_fade; // Used for fading the afterlife idling sound with firing
 
 /* 
  * Rotary encoder for volume control 
@@ -321,6 +322,7 @@ void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume
 void stopEffect(int i_track_id);
 void stopMusic(int i_music_id = i_current_music_track);
 void playMusic(int i_music_id = i_current_music_track, bool b_music_loop = b_repeat_track, int8_t i_music_volume = i_volume_music);
+void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume, bool b_fade = false, unsigned int i_fade_time = 0);
 
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.

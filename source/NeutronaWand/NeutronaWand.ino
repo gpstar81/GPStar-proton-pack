@@ -214,7 +214,7 @@ void loop() {
 
 void mainLoop() {
   w_trig.update();
-
+  
   checkMusic();
   checkPack();
   switchLoops();
@@ -965,6 +965,9 @@ void mainLoop() {
     fireStreamEnd(0,0,0);
   }
 
+  // Check the wing barrel switch button status.
+  switchModePressedReset();
+
   // Update the barrel LEDs.
   if(ms_fast_led.justFinished()) {
     FastLED.show();
@@ -1634,7 +1637,8 @@ void checkSwitches() {
 
             b_firing_alt = true;
           }
-          else if(switchMode() != true && ms_switch_mode_debounce.remaining() < 1) {
+          //else if(switchMode() != true && ms_switch_mode_debounce.remaining() < 1) {
+          else if(b_switch_mode_pressed != true) {
             if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_IDLE;
             }
@@ -4470,10 +4474,7 @@ void checkRotary() {
         if(prev_next_code == 0x0b) {
           if(i_wand_menu == 4 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
             // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
-            wandSerialSend(W_DIMMING_DECREASE);
-
-            stopEffect(S_BEEPS);
-            playEffect(S_BEEPS);                    
+            wandSerialSend(W_DIMMING_DECREASE);                
           }
           else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
             // Lower the sound effects volume.
@@ -4532,10 +4533,7 @@ void checkRotary() {
         if(prev_next_code == 0x07) {
           if(i_wand_menu == 4 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
             // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
-            wandSerialSend(W_DIMMING_INCREASE);
-
-            stopEffect(S_BEEPS);
-            playEffect(S_BEEPS);                
+            wandSerialSend(W_DIMMING_INCREASE);             
           }
           else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
             // Increase sound effects volume.
@@ -4839,13 +4837,10 @@ void wandExitMenu() {
 // Nano builds is pulled low.
 bool switchMode() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(analogRead(switch_mode) < i_switch_mode_value && ms_switch_mode_debounce.remaining() < 1) {
-      if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
-        ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
-      }
-      else {
-        ms_switch_mode_debounce.start(a_switch_debounce_time);
-      }
+    if(analogRead(switch_mode) < i_switch_mode_value && ms_switch_mode_debounce.remaining() < 1 && b_switch_mode_pressed != true) {
+      ms_switch_mode_debounce.start(switch_debounce_time * 5);
+
+      b_switch_mode_pressed = true;
 
       return true;
     }
@@ -4853,18 +4848,28 @@ bool switchMode() {
       return false;
     }
   #else
-    if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.remaining() < 1) {
-      if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
-        ms_switch_mode_debounce.start(a_switch_debounce_time * 2);
-      }
-      else {
-        ms_switch_mode_debounce.start(a_switch_debounce_time);
-      }
+    if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.remaining() < 1 && b_switch_mode_pressed != true) {
+      ms_switch_mode_debounce.start(switch_debounce_time * 5);
+
+      b_switch_mode_pressed = true;
 
       return true;
     }
     else {
       return false;
+    }
+  #endif
+}
+
+// Check if the wing barrel switch is being held down or not.
+void switchModePressedReset() {
+ #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    if(analogRead(switch_mode) > i_switch_mode_value && b_switch_mode_pressed == true && ms_switch_mode_debounce.remaining() < 1) {
+      b_switch_mode_pressed = false;
+    }
+  #else
+    if(analogRead(switch_mode) < i_switch_mode_value && b_switch_mode_pressed == true && ms_switch_mode_debounce.remaining() < 1) {
+      b_switch_mode_pressed = false;
     }
   #endif
 }
@@ -4965,6 +4970,14 @@ void checkPack() {
 
               // Pack is off.
               b_pack_on = false;
+            break;
+
+            case P_SYNC_START:
+              b_sync = true;
+            break;
+
+            case P_SYNC_END:
+              b_sync = false;
             break;
 
             case P_ALARM_ON:
@@ -5250,6 +5263,11 @@ void checkPack() {
               stopMusic();
             break;
 
+            case P_DIMMING:
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+            break;
+
             case P_POWERCELL_DIMMING:
               stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
               stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
@@ -5328,18 +5346,23 @@ void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume
     i_track_volume = i_volume_abs_max;
   }
 
-  if(b_fade_in == true) {
-    w_trig.trackGain(i_track_id, i_volume_abs_min);
-    w_trig.trackPlayPoly(i_track_id, true);
-    w_trig.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
-  }
-  else {
-    w_trig.trackGain(i_track_id, i_track_volume);
-    w_trig.trackPlayPoly(i_track_id, true);
-  }
+  if(b_sync != true) {
+    if(b_fade_in == true) {
+      w_trig.trackGain(i_track_id, i_volume_abs_min);
+      w_trig.trackPlayPoly(i_track_id, true);
+      w_trig.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+    }
+    else {
+      w_trig.trackGain(i_track_id, i_track_volume);
+      w_trig.trackPlayPoly(i_track_id, true);
+    }
 
-  if(b_track_loop == true) {
-    w_trig.trackLoop(i_track_id, 1);
+    if(b_track_loop == true) {
+      w_trig.trackLoop(i_track_id, 1);
+    }
+    else {
+      w_trig.trackLoop(i_track_id, 0);
+    }
   }
 }
 
@@ -5361,6 +5384,9 @@ void playMusic(int i_music_id = i_current_music_track, bool b_music_loop = b_rep
 
   if(b_music_loop == true) {
     w_trig.trackLoop(i_music_id, 1);
+  }
+  else {
+    w_trig.trackLoop(i_music_id, 0);
   }
 
   w_trig.update();
