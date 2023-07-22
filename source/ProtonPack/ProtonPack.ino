@@ -450,6 +450,10 @@ void loop() {
     //FastLED.delay(3);
     FastLED.show();
     ms_fast_led.start(i_fast_led_delay);
+
+    if(b_powercell_updating == true) {
+      b_powercell_updating = false;
+    }
   }
 }
 
@@ -1025,14 +1029,16 @@ void powercellLoop() {
       i_powercell_led = 0;
     }
     else {
-      powercellDraw(b_powercell_colour_toggle, i_powercell_led);
+      if(b_powercell_updating != true) {
+        powercellDraw(b_powercell_colour_toggle, i_powercell_led);
 
-      // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
-      if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
-        i_extra_delay = 250;
+        // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
+        if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
+          i_extra_delay = 250;
+        }
+
+        i_powercell_led++;
       }
-
-      i_powercell_led++;
     }
 
     // Setup the delays again.
@@ -3596,6 +3602,13 @@ void checkWand() {
               if(PACK_STATUS == MODE_ON && b_wand_on == true) {
                 playEffect(S_FIRE_START_SPARK);
               }
+
+              if(b_powercell_colour_toggle == true) {
+                // Reset the Power Cell colours.
+                b_powercell_updating = true;
+                
+                powercellDraw();
+              }
             break;
 
             case W_SLIME_MODE:
@@ -3614,6 +3627,8 @@ void checkWand() {
 
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
+                b_powercell_updating = true;
+
                 powercellDraw();
               }
             break;
@@ -3634,8 +3649,10 @@ void checkWand() {
 
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
+                b_powercell_updating = true;
+                
                 powercellDraw();
-              }              
+              }          
             break;
 
             case W_MESON_MODE:
@@ -3654,6 +3671,8 @@ void checkWand() {
 
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
+                b_powercell_updating = true;
+                
                 powercellDraw();
               }
             break;
@@ -3675,6 +3694,8 @@ void checkWand() {
 
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
+                b_powercell_updating = true;
+                
                 powercellDraw();
               }
             break;
@@ -3683,6 +3704,13 @@ void checkWand() {
               // Settings mode
               FIRING_MODE = SETTINGS;
               playEffect(S_CLICK);
+
+              if(b_powercell_colour_toggle == true) {
+                // Reset the Power Cell colours.
+                b_powercell_updating = true;
+                
+                powercellDraw();
+              }              
             break;
 
             case W_OVERHEATING:
