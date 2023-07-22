@@ -42,7 +42,7 @@ int getBrightness(uint8_t i_percent = 100){
   if (i_percent > 100) {
     i_percent = 100;
   }
-  return (int) (255 * (i_percent / 100));
+  return (int) ((255 * i_percent) / 100);
 }
 
 CRGB getColor(uint8_t i_color, uint8_t i_brightness = 255, bool b_grb = false) {
@@ -51,7 +51,7 @@ CRGB getColor(uint8_t i_color, uint8_t i_brightness = 255, bool b_grb = false) {
     i_brightness = 255;
   }
 
-  // Colors will consist of full or half brightness values.
+  // Colors will be relative to pre-calculated full or half brightness values.
   uint8_t v_full = (int) ((255 * i_brightness) / 100);
   uint8_t v_half = (int) ((128 * i_brightness) / 100);
 

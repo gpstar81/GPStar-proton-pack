@@ -1030,7 +1030,7 @@ void powercellLoop() {
     }
     else {
       if(b_powercell_updating != true) {
-        powercellDraw(i_powercell_led);
+        powercellDraw(i_powercell_led); // Update starting at a specific LED.
 
         // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
         if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
@@ -1139,11 +1139,12 @@ void powercellOff() {
   i_powercell_led = 0;
 }
 
-void powercellDraw(int i_current = 0, bool b_toggle = b_powercell_colour_toggle) {
+void powercellDraw(uint8_t i_start = 0) {
+  uint8_t i_brightness = getBrightness(i_powercell_brightness); // Calculate desired brightness.
   uint8_t i_color = C_BLUE; // Default color.
-  uint8_t i_brightness = getBrightness(i_powercell_brightness);
 
-  if(b_toggle == true) {
+  // Use globally-scoped variable to know if color changes must occur.
+  if(b_powercell_colour_toggle == true) {
     switch(FIRING_MODE) {
       case PROTON:
         i_color = C_RED;
@@ -1169,10 +1170,12 @@ void powercellDraw(int i_current = 0, bool b_toggle = b_powercell_colour_toggle)
         i_color = C_RED;
       break;
     }
+  } else {
+    i_color = C_BLUE;
   }
 
   // Sets the color for each powercell LED, subject to color toggle setting.
-  for(int i = i_current; i <= i_powercell_led; i++) {
+  for(uint8_t i = i_start; i <= i_powercell_led; i++) {
     // Note: Always assumed to be RGB for built-in or Frutto LED's.
     pack_leds[i] = getHue(i_color, i_brightness);
   }
@@ -4233,7 +4236,7 @@ void checkWand() {
                     else {
                       i_cyclotron_inner_brightness = i_cyclotron_inner_brightness - 10;
                     }
-                    
+
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
                   }
