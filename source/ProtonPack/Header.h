@@ -105,6 +105,7 @@ bool i_cyclotron_led_on_status[40] = { false, false, false, false, false, false,
 rampInt ms_cyclotron_led_fade_out[40] = {};
 rampInt ms_cyclotron_led_fade_in[40] = {};
 uint8_t i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+bool b_powercell_updating = false;
 
 /*
  * Inner cyclotron NeoPixel ring ramp control.
