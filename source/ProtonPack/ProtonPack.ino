@@ -2871,11 +2871,6 @@ void cyclotronSpeedIncrease() {
 }
 
 void adjustVolumeEffectsGain() {
-  //If the pack is running, there will be a slight pause in the LEDs due to serial communication to the wav trigger.
-  //for(unsigned int i=0; i <= i_last_effects_track; i++) {
-  //  w_trig.trackGain(i, i_volume);
-  //}
-
   // Since adjusting only from the wand, only certain effects needs to be adjusted on the fly.
   w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume);
   w_trig.trackGain(S_ALARM_LOOP, i_volume);

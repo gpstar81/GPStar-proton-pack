@@ -16,7 +16,7 @@
  *   along with this program; if not, see <https://www.gnu.org/licenses/>.
  *
  */
- 
+
 /* 
  * Wand state. 
  */
@@ -319,7 +319,7 @@ bool b_sound_idle = false;
 bool b_beeping = false;
 
 /*
- * Function prototypes for handling sound effects.
+ * Function prototypes.
 */
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume, bool b_fade_in = false, unsigned int i_fade_time = 0);
 void stopEffect(int i_track_id);

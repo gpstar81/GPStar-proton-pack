@@ -36,6 +36,7 @@
 */
 #include <wavTrigger.h>
 
+// 3rd-Party Libraries
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
@@ -58,10 +59,12 @@
 */
 #include <SerialTransfer.h>
 
+// Local Files
 #include "Configuration.h"
 #include "MusicSounds.h"
 #include "Communication.h"
 #include "Header.h"
+#include "Colors.h"
 
 #ifndef GPSTAR_NEUTRONA_WAND_PCB
   #include <AltSoftSerial.h>
@@ -85,7 +88,7 @@ void setup() {
 
   setupWavTrigger();
 
-  // Barrel LEDs
+  // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_NUM_LEDS);
 
   switch_wand.setDebounceTime(switch_debounce_time);
@@ -2777,7 +2780,7 @@ void fireStream(uint8_t r, uint8_t g, uint8_t b) {
       switch(FIRING_MODE) {
         case PROTON:
           if(b_firing_cross_streams == true) {
-            barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
+            barrel_leds[i_barrel_light - 1] = getColor(C_WHITE);
           }
           else {
             // Make the stream more slightly more red on higher power modes.
@@ -2853,7 +2856,7 @@ void barrelLightsOff() {
   i_heatdown_counter = 100;
 
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
-    barrel_leds[i] = CRGB(0,0,0);
+    barrel_leds[i] = getColor(C_BLACK);
   }
 
   // Turn off the wand barrel tip LED.
@@ -4370,6 +4373,10 @@ void adjustVolumeEffectsGain() {
 void increaseVolumeEffects() {
   if(i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
     i_volume_percentage = 100;
+
+    // Provide feedback at maximum volume.
+    stopEffect(S_BEEPS_LOW);
+    playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
   }
   else {
     i_volume_percentage = i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER;
@@ -4383,6 +4390,10 @@ void increaseVolumeEffects() {
 void decreaseVolumeEffects() {
   if(i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
     i_volume_percentage = 0;
+
+    // Provide feedback at minimum volume.
+    stopEffect(S_BEEPS_LOW);
+    playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
   }
   else {
     i_volume_percentage = i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER;
@@ -4400,6 +4411,10 @@ void increaseVolume() {
 
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
     i_volume_master_percentage = 100;
+
+    // Provide feedback at maximum volume.
+    stopEffect(S_BEEPS_LOW);
+    playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -4487,6 +4502,10 @@ void checkRotary() {
             // Decrease the music volume.
             if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
               i_volume_music_percentage = 0;
+
+              // Provide feedback at minimum volume.
+              stopEffect(S_BEEPS_LOW);
+              playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
             }
             else {
               i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
@@ -4546,6 +4565,10 @@ void checkRotary() {
             // Increase music volume.
             if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
               i_volume_music_percentage = 100;
+
+              // Provide feedback at maximum volume.
+              stopEffect(S_BEEPS_LOW);
+              playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
             }
             else {
               i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
@@ -4777,7 +4800,7 @@ void switchLoops() {
 
 void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
-    barrel_leds[i] = CRGB(0,0,0);
+    barrel_leds[i] = getColor(C_BLACK);
   }
 
   ms_fast_led.start(i_fast_led_delay);

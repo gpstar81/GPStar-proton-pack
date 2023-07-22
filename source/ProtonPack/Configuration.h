@@ -16,7 +16,7 @@
  *   along with this program; if not, see <https://www.gnu.org/licenses/>.
  *
  */
- 
+
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
  * Change the variables below to alter the behaviour of your Proton Pack.

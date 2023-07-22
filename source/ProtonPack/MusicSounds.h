@@ -18,11 +18,12 @@
  */
  
 /* 
- *  SD Card sound files in order. If you have no sound, your SD card might be too slow, try another one.
+ *  SD Card sound files in order. If you have no sound, your SD card might be too slow, try a faster one.
  *  File naming 000_ is important as well. For music, it is 100_ and higher.
  *  Also note if you add more sounds to this list, you need to update the i_last_effects_track variable located at the bottom of this file to the last enum definition.
  *  The wav trigger uses this to determine how many music tracks there are if any.
  */
+
 enum sound_fx {
   S_EMPTY, 
   S_BOOTUP,
