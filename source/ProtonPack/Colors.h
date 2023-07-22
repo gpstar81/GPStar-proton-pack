@@ -37,12 +37,32 @@ enum colors {
   C_PURPLE
 };
 
-CRGB getColor(int8_t color, int8_t i_brightness = 255) {
-  // Returns a CRGB object with the correct color values for Red, Green, and Blue.
-  uint8_t v_full = (int) ((255 * i_cyclotron_inner_brightness) / 100);
-  uint8_t v_half = (int) ((128 * i_cyclotron_inner_brightness) / 100);
+int getBrightness(int8_t i_brightness = 255){
+  // Brightness here is a percentage, to be convered to a range 0-255.
+  if (i_brightness > 100) {
+    i_brightness = 100;
+  }
+  if (i_brightness < 0) {
+    i_brightness = 0;
+  }
+  return (int) ((255 * i_brightness) / 100);
+}
 
-  switch (color) {
+CRGB getColor(int8_t i_color, int8_t i_brightness = 255, bool b_grb = false) {
+  // Brightness here is a value from 0-255.
+  if (i_brightness > 255) {
+    i_brightness = 255;
+  }
+  if (i_brightness < 0) {
+    i_brightness = 0;
+  }
+
+  // Colors will consist of full or half brightness values.
+  uint8_t v_full = (int) ((255 * i_brightness) / 100);
+  uint8_t v_half = (int) ((128 * i_brightness) / 100);
+
+  // Returns a CRGB object with the correct color values for Red, Green, and Blue.
+  switch (i_color) {
     case C_BLACK:
       return CRGB(0, 0, 0);
       break;
@@ -50,36 +70,61 @@ CRGB getColor(int8_t color, int8_t i_brightness = 255) {
       return CRGB(v_full, v_full, v_full);
       break;
     case C_PINK:
+      if (b_grb) {
+        return CRGB(v_half, v_full, v_half);
+      }
       return CRGB(v_full, v_half, v_half);
       break;
     case C_RED:
+      if (b_grb) {
+        return CRGB(0, v_full, 0);
+      }
       return CRGB(v_full, 0, 0);
       break;
     case C_ORANGE:
+      if (b_grb) {
+        return CRGB(v_half, v_full, 0);
+      }
       return CRGB(v_full, v_half, 0);
       break;
     case C_YELLOW:
       return CRGB(v_full, v_full, 0);
       break;
     case C_GREEN:
+      if (b_grb) {
+        return CRGB(v_full, 0, 0);
+      }
       return CRGB(0, v_full, 0);
       break;
     case C_AQUA:
+      if (b_grb) {
+        return CRGB(0, v_full, v_full);
+      }
       return CRGB(0, v_full, v_full);
       break;
     case C_BLUE:
       return CRGB(0, 0, v_full);
       break;
     case C_PURPLE:
+      if (b_grb) {
+        return CRGB(0, v_full, v_full);
+      }
       return CRGB(v_full, 0, v_full);
       break;
   }
 }
 
-CHSV getHue(int8_t color, int8_t i_brightness = 255) {
-  // Returns a CHSV object with a hue (color), full saturation, and stated brightness.
+CHSV getHue(int8_t i_color, int8_t i_brightness = 255) {
+  // Brightness here is a value from 0-255.
+  if (i_brightness > 255) {
+    i_brightness = 255;
+  }
+  if (i_brightness < 0) {
+    i_brightness = 0;
+  }
 
-  switch (color) {
+  // Returns a CHSV object with a hue (color), full saturation, and stated brightness.
+  switch (i_color) {
     case C_BLACK:
       return CHSV(0, 0, 0);
       break;
