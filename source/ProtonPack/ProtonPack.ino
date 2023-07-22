@@ -364,7 +364,7 @@ void loop() {
             default:
               playEffect(S_FIRE_SPARKS_2, false, i_volume + 5);
               i_last_firing_effect_mix = S_FIRE_SPARKS_2;
-              
+
               ms_firing_sound_mix.start(500);
             break;
           }
@@ -483,7 +483,7 @@ void packStartup() {
 
     stopEffect(S_PACK_RIBBON_ALARM_1);
     stopEffect(S_ALARM_LOOP);
-    stopEffect(S_RIBBON_CABLE_START);  
+    stopEffect(S_RIBBON_CABLE_START);
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE); // This is a long track which may still be playing.
 
     switch(i_mode_year) {
@@ -1128,7 +1128,7 @@ void powercellLoop() {
 void powercellOn() {
   i_powercell_led = cyclotron_led_start - 1;
 
-  powercellDraw();  
+  powercellDraw();
 }
 
 void powercellOff() {
@@ -2229,7 +2229,7 @@ void innerCyclotronRing(int cDelay) {
         break;
       }
     }
-    
+
     if(i_cyclotron_multiplier > 1) {
       switch(i_cyclotron_multiplier) {
         case 6:
@@ -2411,7 +2411,7 @@ void ventLight(bool b_on) {
 
 void wandFiring() {
   b_wand_firing = true;
-  
+
   if(b_stream_effects == true) {
     unsigned int i_s_random = random(7,14) * 1000;
     ms_firing_sound_mix.start(i_s_random);
@@ -2426,7 +2426,7 @@ void wandFiring() {
       adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume - 2, true, ms_idle_fire_fade.remaining());
     }
   }
-  
+
   // Turn off any smoke.
   smokeControl(false);
 
@@ -2555,7 +2555,7 @@ void wandFiring() {
 void wandStoppedFiring() {
   // Stop all other firing sounds.
   wandStopFiringSounds();
-  
+
   ms_firing_sound_mix.stop();
 
   // Adjust the gain with the Afterlife idling track.
@@ -2722,7 +2722,7 @@ void packAlarm() {
       case 2021:
         playEffect(S_PACK_RIBBON_ALARM_1, true);
         playEffect(S_ALARM_LOOP, true);
-        playEffect(S_RIBBON_CABLE_START);        
+        playEffect(S_RIBBON_CABLE_START);
       break;
 
       // Not used.
@@ -2897,6 +2897,10 @@ void adjustVolumeEffectsGain() {
 void increaseVolumeEffects() {
   if(i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
     i_volume_percentage = 100;
+
+    // Provide feedback at maximum volume.
+    stopEffect(S_BEEPS_LOW);
+    playEffect(S_BEEPS_LOW);
   }
   else {
     i_volume_percentage = i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER;
@@ -2910,6 +2914,10 @@ void increaseVolumeEffects() {
 void decreaseVolumeEffects() {
   if(i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
     i_volume_percentage = 0;
+
+    // Provide feedback at minimum volume.
+    stopEffect(S_BEEPS_LOW);
+    playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
   }
   else {
     i_volume_percentage = i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER;
@@ -2927,6 +2935,10 @@ void increaseVolume() {
 
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
     i_volume_master_percentage = 100;
+
+    // Provide feedback at maximum volume.
+    stopEffect(S_BEEPS_LOW);
+    playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -3245,7 +3257,7 @@ void checkWand() {
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
-                
+
                 powercellDraw();
               }
             break;
@@ -3289,9 +3301,9 @@ void checkWand() {
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
-                
+
                 powercellDraw();
-              }          
+              }
             break;
 
             case W_MESON_MODE:
@@ -3311,7 +3323,7 @@ void checkWand() {
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
-                
+
                 powercellDraw();
               }
             break;
@@ -3334,7 +3346,7 @@ void checkWand() {
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
-                
+
                 powercellDraw();
               }
             break;
@@ -3347,9 +3359,9 @@ void checkWand() {
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
-                
+
                 powercellDraw();
-              }              
+              }
             break;
 
             case W_OVERHEATING:
@@ -4123,7 +4135,7 @@ void checkWand() {
 
                   playEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
 
-                  packSerialSend(P_INNER_CYCLOTRON_DIMMING);                  
+                  packSerialSend(P_INNER_CYCLOTRON_DIMMING);
                 break;
 
                 case DIM_INNER_CYCLOTRON:
@@ -4149,7 +4161,7 @@ void checkWand() {
                   playEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
 
                   packSerialSend(P_CYCLOTRON_DIMMING);
-                break;                
+                break;
               }
             break;
 
@@ -4166,10 +4178,14 @@ void checkWand() {
 
                     resetCyclotronLeds();
 
+                    packSerialSend(P_DIMMING);
+
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-
-                    packSerialSend(P_DIMMING);
+                  } else {
+                    // Already at 100%, indicate as such.
+                    stopEffect(S_BEEPS_LOW);
+                    playEffect(S_BEEPS_LOW);
                   }
                 break;
 
@@ -4183,7 +4199,11 @@ void checkWand() {
                     }
 
                     stopEffect(S_BEEPS);
-                    playEffect(S_BEEPS);                    
+                    playEffect(S_BEEPS);
+                  } else {
+                    // Already at 100%, indicate as such.
+                    stopEffect(S_BEEPS_LOW);
+                    playEffect(S_BEEPS_LOW);
                   }
                 break;
 
@@ -4199,11 +4219,15 @@ void checkWand() {
 
                     // Reset the power cell.
                     powercellDraw();
-                    
+
                     stopEffect(S_BEEPS);
-                    playEffect(S_BEEPS);                    
+                    playEffect(S_BEEPS);
+                  } else {
+                    // Already at 100%, indicate as such.
+                    stopEffect(S_BEEPS_LOW);
+                    playEffect(S_BEEPS_LOW);
                   }
-                break;                
+                break;
               }
             break;
 
@@ -4221,10 +4245,14 @@ void checkWand() {
                     // Reset the Cyclotron.
                     resetCyclotronLeds();
 
+                    packSerialSend(P_DIMMING);
+
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-
-                    packSerialSend(P_DIMMING);
+                  } else {
+                    // Already at 0%, indicate as such.
+                    stopEffect(S_BEEPS_LOW);
+                    playEffect(S_BEEPS_LOW);
                   }
                 break;
 
@@ -4239,6 +4267,10 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
+                  } else {
+                    // Already at 0%, indicate as such.
+                    stopEffect(S_BEEPS_LOW);
+                    playEffect(S_BEEPS_LOW);
                   }
                 break;
 
@@ -4257,9 +4289,13 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  }        
-                break;                
-              }              
+                  } else {
+                    // Already at 0%, indicate as such.
+                    stopEffect(S_BEEPS_LOW);
+                    playEffect(S_BEEPS_LOW);
+                  }
+                break;
+              }
             break;
 
             default:
