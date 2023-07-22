@@ -1139,7 +1139,7 @@ void powercellOff() {
   i_powercell_led = 0;
 }
 
-void powercellDraw(int i_current = 0, bool b_toggle = b_powercell_colour_toggle, int i_max = i_powercell_led) {
+void powercellDraw(int i_current = 0, bool b_toggle = b_powercell_colour_toggle) {
   uint8_t i_color = C_BLUE; // Default color.
   uint8_t i_brightness = getBrightness(i_powercell_brightness);
 
@@ -1172,8 +1172,8 @@ void powercellDraw(int i_current = 0, bool b_toggle = b_powercell_colour_toggle,
   }
 
   // Sets the color for each powercell LED, subject to color toggle setting.
-  for(int i = i_current; i <= i_max; i++) {
-    // Always assumed to be RGB for built-in or Frutto powercell LED's.
+  for(int i = i_current; i <= i_powercell_led; i++) {
+    // Note: Always assumed to be RGB for built-in or Frutto LED's.
     pack_leds[i] = getHue(i_color, i_brightness);
   }
 }
@@ -1210,8 +1210,12 @@ void cyclotronColourReset() {
     }
   }
 
-  for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
+  // Accounts for a total # of LED's minus the N-filter jewel and whatever preceeds the cyclotron.
+  uint8_t i_max = PACK_NUM_LEDS - 7 - cyclotron_led_start;
+  for(int i = 0; i < i_max; i++) {
     if(i_cyclotron_led_on_status[i] == true) {
+      // Note: Always assumed to be RGB for built-in or Frutto LED's.
+      // Sets 0-index <i> plus the position of the first cyclotron LED.
       pack_leds[i + cyclotron_led_start] = getHue(i_color, i_cyclotron_led_value[i]);
     }
   }
@@ -2388,7 +2392,7 @@ void ventLight(bool b_on) {
     }
 
     for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
-      pack_leds[i] = getHue(i_color, getBrightness(i_cyclotron_brightness));
+      pack_leds[i] = getHue(i_color); // Uses full brightness.
     }
 
     digitalWrite(i_nfilter_led_pin, HIGH);

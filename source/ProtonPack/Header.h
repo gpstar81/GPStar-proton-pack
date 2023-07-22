@@ -324,7 +324,7 @@ void stopEffect(int i_track_id);
 void stopMusic(int i_music_id = i_current_music_track);
 void playMusic(int i_music_id = i_current_music_track, bool b_music_loop = b_repeat_track, int8_t i_music_volume = i_volume_music);
 void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume, bool b_fade = false, unsigned int i_fade_time = 0);
-void powercellDraw(int i_current = 0, bool b_toggle = b_powercell_colour_toggle, int i_max = i_powercell_led);
+void powercellDraw(int i_current = 0, bool b_toggle = b_powercell_colour_toggle);
 
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
