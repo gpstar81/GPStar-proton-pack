@@ -117,7 +117,7 @@ CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 
   // Returns a CHSV object with a hue (color), full saturation, and stated brightness.
   switch (i_color) {
     case C_BLACK:
-      return CHSV(0, 0, 0);
+      return CHSV(0, 0, 0); // Overrides brightness.
       break;
     case C_WHITE:
       return CHSV(100, 0, i_brightness);

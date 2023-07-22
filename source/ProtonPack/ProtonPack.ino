@@ -1141,41 +1141,40 @@ void powercellOff() {
 
 void powercellDraw(int i_current = 0, bool b_toggle = b_powercell_colour_toggle, int i_max = i_powercell_led) {
   uint8_t i_color = C_BLUE; // Default color.
+  uint8_t i_brightness = getBrightness(i_powercell_brightness);
 
-  // Sets the color for the current powercell LED, subject to color toggle setting.
-  for(int i = i_current; i <= i_max; i++) {
-    if(b_toggle == true) {
-      switch(FIRING_MODE) {
-        case PROTON:
-          i_color = C_RED;
-        break;
+  if(b_toggle == true) {
+    switch(FIRING_MODE) {
+      case PROTON:
+        i_color = C_RED;
+      break;
 
-        case SLIME:
-          i_color = C_GREEN;
-        break;
+      case SLIME:
+        i_color = C_GREEN;
+      break;
 
-        case STASIS:
-          i_color = C_BLUE;
-        break;
+      case STASIS:
+        i_color = C_BLUE;
+      break;
 
-        case MESON:
-          i_color = C_ORANGE;
-        break;
+      case MESON:
+        i_color = C_ORANGE;
+      break;
 
-        case SETTINGS:
-          i_color = C_WHITE;
-        break;
+      case SETTINGS:
+        i_color = C_WHITE;
+      break;
 
-        default:
-          i_color = C_RED;
-        break;
-      }
-    } else {
-      i_color = C_BLUE; // Powercell defaults to blue.
+      default:
+        i_color = C_RED;
+      break;
     }
+  }
 
+  // Sets the color for each powercell LED, subject to color toggle setting.
+  for(int i = i_current; i <= i_max; i++) {
     // Always assumed to be RGB for built-in or Frutto powercell LED's.
-    pack_leds[i] = getHue(i_color, getBrightness(i_powercell_brightness));
+    pack_leds[i] = getHue(i_color, i_brightness);
   }
 }
 
@@ -1184,38 +1183,36 @@ void cyclotronColourReset() {
   uint8_t i_color = C_RED; // Default color.
 
   if(b_cyclotron_colour_toggle == true) {
-    for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
-      if(i_cyclotron_led_on_status[i] == true) {
-        uint8_t i_brightness = i_cyclotron_led_value[i];
+    switch(FIRING_MODE) {
+      case PROTON:
+        i_color = C_RED;
+      break;
 
-        switch(FIRING_MODE) {
-          case PROTON:
-            i_color = C_RED;
-          break;
+      case SLIME:
+        i_color = C_GREEN;
+      break;
 
-          case SLIME:
-            i_color = C_GREEN;
-          break;
+      case STASIS:
+        i_color = C_BLUE;
+      break;
 
-          case STASIS:
-            i_color = C_BLUE;
-          break;
+      case MESON:
+        i_color = C_ORANGE;
+      break;
 
-          case MESON:
-            i_color = C_ORANGE;
-          break;
+      case SETTINGS:
+        i_color = C_WHITE;
+      break;
 
-          case SETTINGS:
-            i_color = C_WHITE;
-          break;
+      default:
+        i_color = C_RED;
+      break;
+    }
+  }
 
-          default:
-            i_color = C_RED;
-          break;
-        }
-
-        pack_leds[i + cyclotron_led_start] = getHue(i_color, i_brightness);
-      }
+  for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
+    if(i_cyclotron_led_on_status[i] == true) {
+      pack_leds[i + cyclotron_led_start] = getHue(i_color, i_cyclotron_led_value[i]);
     }
   }
 }
@@ -1351,127 +1348,59 @@ void cyclotronControl() {
 void cyclotronFade() {
   uint8_t i_color = C_RED; // Default color.
 
+  if(b_cyclotron_colour_toggle == true) {
+    switch(FIRING_MODE) {
+      case PROTON:
+        i_color = C_RED;
+      break;
+
+      case SLIME:
+        i_color = C_GREEN;
+      break;
+
+      case STASIS:
+        i_color = C_BLUE;
+      break;
+
+      case MESON:
+        i_color = C_ORANGE;
+      break;
+
+      case SETTINGS:
+        i_color = C_WHITE;
+      break;
+
+      default:
+        i_color = C_RED;
+      break;
+    }
+  }
+
   switch (i_mode_year) {
     case 2021:
       for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           i_cyclotron_led_on_status[i] = true;
 
-          int i_brightness = ms_cyclotron_led_fade_in[i].update();
-
-          if(b_cyclotron_colour_toggle == true) {
-            switch(FIRING_MODE) {
-              case PROTON:
-                i_color = C_RED;
-              break;
-
-              case SLIME:
-                i_color = C_GREEN;
-              break;
-
-              case STASIS:
-                i_color = C_BLUE;
-              break;
-
-              case MESON:
-                i_color = C_ORANGE;
-              break;
-
-              case SETTINGS:
-                i_color = C_WHITE;
-              break;
-
-              default:
-                i_color = C_RED;
-              break;
-            }
-          }
-          else {
-            i_color = C_RED;
-          }
-
-          pack_leds[i + cyclotron_led_start] = getHue(i_color, i_brightness);
-          i_cyclotron_led_value[i] = i_brightness;
+          int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
+          pack_leds[i + cyclotron_led_start] = getHue(i_color, i_curr_brightness);
+          i_cyclotron_led_value[i] = i_curr_brightness;
         }
 
-        if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (getBrightness(i_cyclotron_brightness) - 1) && i_cyclotron_led_on_status[i] == true) {
-          if(b_cyclotron_colour_toggle == true) {
-            switch(FIRING_MODE) {
-              case PROTON:
-                i_color = C_RED;
-              break;
-
-              case SLIME:
-                i_color = C_GREEN;
-              break;
-
-              case STASIS:
-                i_color = C_BLUE;
-              break;
-
-              case MESON:
-                i_color = C_ORANGE;
-              break;
-
-              case SETTINGS:
-                i_color = C_WHITE;
-              break;
-
-              default:
-                i_color = C_RED;
-              break;
-            }
-          }
-          else {
-            i_color = C_RED;
-          }
-
-          int i_cyclotron_led = getBrightness(i_cyclotron_brightness);
-
-          pack_leds[i + cyclotron_led_start] = getHue(i_color, i_cyclotron_led);
-          i_cyclotron_led_value[i] = i_cyclotron_led;
+        int i_new_brightness = getBrightness(i_cyclotron_brightness);
+        if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {
+          pack_leds[i + cyclotron_led_start] = getHue(i_color, i_new_brightness);
+          i_cyclotron_led_value[i] = i_new_brightness;
           i_cyclotron_led_on_status[i] = false;
 
-          ms_cyclotron_led_fade_out[i].go(i_cyclotron_led);
+          ms_cyclotron_led_fade_out[i].go(i_new_brightness);
           ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed, CIRCULAR_OUT);
         }
 
         if(ms_cyclotron_led_fade_out[i].isRunning() && i_cyclotron_led_on_status[i] == false) {
-          int i_brightness = ms_cyclotron_led_fade_out[i].update();
-
-          if(b_cyclotron_colour_toggle == true) {
-            switch(FIRING_MODE) {
-              case PROTON:
-                i_color = C_RED;
-              break;
-
-              case SLIME:
-                i_color = C_GREEN;
-              break;
-
-              case STASIS:
-                i_color = C_BLUE;
-              break;
-
-              case MESON:
-                i_color = C_ORANGE;
-              break;
-
-              case SETTINGS:
-                i_color = C_WHITE;
-              break;
-
-              default:
-                i_color = C_RED;
-              break;
-            }
-          }
-          else {
-            i_color = C_RED;
-          }
-
-          pack_leds[i + cyclotron_led_start] = getHue(i_color, i_brightness);
-          i_cyclotron_led_value[i] = i_brightness;
+          int i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
+          pack_leds[i + cyclotron_led_start] = getHue(i_color, i_curr_brightness);
+          i_cyclotron_led_value[i] = i_curr_brightness;
         }
 
         if(ms_cyclotron_led_fade_out[i].isFinished() && i_cyclotron_led_on_status[i] == false) {
@@ -1488,115 +1417,21 @@ void cyclotronFade() {
         for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
             i_cyclotron_led_on_status[i] = true;
-            int i_brightness = ms_cyclotron_led_fade_in[i].update();
-
-            if(b_cyclotron_colour_toggle == true) {
-              switch(FIRING_MODE) {
-                case PROTON:
-                  i_color = C_RED;
-                break;
-
-                case SLIME:
-                  i_color = C_GREEN;
-                break;
-
-                case STASIS:
-                  i_color = C_BLUE;
-                break;
-
-                case MESON:
-                  i_color = C_ORANGE;
-                break;
-
-                case SETTINGS:
-                  i_color = C_WHITE;
-                break;
-
-                default:
-                  i_color = C_RED;
-                break;
-              }
-            }
-            else {
-              i_color = C_RED;
-            }
-
-            pack_leds[i + cyclotron_led_start] = getHue(i_color, i_brightness);
-            i_cyclotron_led_value[i] = i_brightness;
+            int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
+            pack_leds[i + cyclotron_led_start] = getHue(i_color, i_curr_brightness);
+            i_cyclotron_led_value[i] = i_curr_brightness;
           }
 
-          if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (getBrightness(i_cyclotron_brightness) - 1) && i_cyclotron_led_on_status[i] == true) {
-            if(b_cyclotron_colour_toggle == true) {
-              switch(FIRING_MODE) {
-                case PROTON:
-                  i_color = C_RED;
-                break;
-
-                case SLIME:
-                  i_color = C_GREEN;
-                break;
-
-                case STASIS:
-                  i_color = C_BLUE;
-                break;
-
-                case MESON:
-                  i_color = C_ORANGE;
-                break;
-
-                case SETTINGS:
-                  i_color = C_WHITE;
-                break;
-
-                default:
-                  i_color = C_RED;
-                break;
-              }
-            }
-            else {
-              i_color = C_RED;
-            }
-
-            pack_leds[i + cyclotron_led_start] = getHue(i_color, getBrightness(i_cyclotron_brightness));
-            i_cyclotron_led_value[i] = getBrightness(i_cyclotron_brightness);
+          int i_new_brightness = getBrightness(i_cyclotron_brightness);
+          if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {
+            pack_leds[i + cyclotron_led_start] = getHue(i_color, i_new_brightness);
+            i_cyclotron_led_value[i] = i_new_brightness;
           }
 
           if(ms_cyclotron_led_fade_out[i].isRunning()) {
-            int i_brightness = ms_cyclotron_led_fade_out[i].update();
-
-            if(b_cyclotron_colour_toggle == true) {
-              switch(FIRING_MODE) {
-                case PROTON:
-                  i_color = C_RED;
-                break;
-
-                case SLIME:
-                  i_color = C_GREEN;
-                break;
-
-                case STASIS:
-                  i_color = C_BLUE;
-                break;
-
-                case MESON:
-                  i_color = C_ORANGE;
-                break;
-
-                case SETTINGS:
-                  i_color = C_WHITE;
-                break;
-
-                default:
-                  i_color = C_RED;
-                break;
-              }
-            }
-            else {
-              i_color = C_RED;
-            }
-
-            pack_leds[i + cyclotron_led_start] = getHue(i_color, i_brightness);
-            i_cyclotron_led_value[i] = i_brightness;
+            int i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
+            pack_leds[i + cyclotron_led_start] = getHue(i_color, i_curr_brightness);
+            i_cyclotron_led_value[i] = i_curr_brightness;
             i_cyclotron_led_on_status[i] = false;
           }
 
@@ -2356,8 +2191,8 @@ void innerCyclotronRing(int cDelay) {
       ms_cyclotron_ring.start(cDelay);
     }
 
-    // Colour control for the inner cyclotron leds. (red,green,blue)
-    uint8_t i_color;
+    // Colour control for the inner cyclotron leds.
+    uint8_t i_color = C_RED;
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
 
     if(b_cyclotron_colour_toggle == true) {
