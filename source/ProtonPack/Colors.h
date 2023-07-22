@@ -21,7 +21,7 @@
  * Colors are based on the RGB pattern; for GRB the Red/Green values should be switched.
  * Brightness is based on varying the intensity of each (0-255) using a relative value.
  *
- * However, colors based on Hue use a color spectrum, a Saturation, and Value (brightness).
+ * However, colors based on Hue use a color degree, a Saturation, and Value (brightness).
 */
 
 enum colors {
@@ -37,24 +37,18 @@ enum colors {
   C_PURPLE
 };
 
-int getBrightness(int8_t i_brightness = 255){
+int getBrightness(uint8_t i_percent = 100){
   // Brightness here is a percentage, to be convered to a range 0-255.
-  if (i_brightness > 100) {
-    i_brightness = 100;
+  if (i_percent > 100) {
+    i_percent = 100;
   }
-  if (i_brightness < 0) {
-    i_brightness = 0;
-  }
-  return (int) ((255 * i_brightness) / 100);
+  return (int) (255 * (i_percent / 100));
 }
 
-CRGB getColor(int8_t i_color, int8_t i_brightness = 255, bool b_grb = false) {
+CRGB getColor(uint8_t i_color, uint8_t i_brightness = 255, bool b_grb = false) {
   // Brightness here is a value from 0-255.
   if (i_brightness > 255) {
     i_brightness = 255;
-  }
-  if (i_brightness < 0) {
-    i_brightness = 0;
   }
 
   // Colors will consist of full or half brightness values.
@@ -114,13 +108,10 @@ CRGB getColor(int8_t i_color, int8_t i_brightness = 255, bool b_grb = false) {
   }
 }
 
-CHSV getHue(int8_t i_color, int8_t i_brightness = 255) {
+CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
   // Brightness here is a value from 0-255.
   if (i_brightness > 255) {
     i_brightness = 255;
-  }
-  if (i_brightness < 0) {
-    i_brightness = 0;
   }
 
   // Returns a CHSV object with a hue (color), full saturation, and stated brightness.
@@ -132,28 +123,28 @@ CHSV getHue(int8_t i_color, int8_t i_brightness = 255) {
       return CHSV(100, 0, i_brightness);
       break;
     case C_PINK:
-      return CHSV(244, 255, i_brightness);
+      return CHSV(244, i_saturation, i_brightness);
       break;
     case C_RED:
-      return CHSV(0, 255, i_brightness);
+      return CHSV(0, i_saturation, i_brightness);
       break;
     case C_ORANGE:
-      return CHSV(32, 255, i_brightness);
+      return CHSV(32, i_saturation, i_brightness);
       break;
     case C_YELLOW:
-      return CHSV(64, 255, i_brightness);
+      return CHSV(64, i_saturation, i_brightness);
       break;
     case C_GREEN:
-      return CHSV(96, 255, i_brightness);
+      return CHSV(96, i_saturation, i_brightness);
       break;
     case C_AQUA:
-      return CHSV(128, 255, i_brightness);
+      return CHSV(128, i_saturation, i_brightness);
       break;
     case C_BLUE:
-      return CHSV(160, 255, i_brightness);
+      return CHSV(160, i_saturation, i_brightness);
       break;
     case C_PURPLE:
-      return CHSV(192, 255, i_brightness);
+      return CHSV(192, i_saturation, i_brightness);
       break;
   }
 }
