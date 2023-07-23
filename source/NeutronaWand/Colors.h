@@ -109,7 +109,7 @@ CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 
     break;
 
     case C_MINT:
-      return CHSV(100, 128, i_brightness);
+      return CHSV(112, 120, i_brightness);
     break;
 
     case C_AQUA:

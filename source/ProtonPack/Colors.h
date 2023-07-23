@@ -77,6 +77,10 @@ uint8_t getDeviceColor(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) {
         return C_ORANGE;
       break;
 
+      case VENTING:
+        return C_RED;
+      break;
+
       case SETTINGS:
         return C_WHITE;
       break;
@@ -159,7 +163,7 @@ CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 
     break;
 
     case C_MINT:
-      return CHSV(100, 128, i_brightness);
+      return CHSV(112, 120, i_brightness);
     break;
 
     case C_AQUA:
