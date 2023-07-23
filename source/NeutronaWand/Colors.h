@@ -106,6 +106,8 @@ CRGB getColor(uint8_t i_color, uint8_t i_brightness = 255, bool b_grb = false) {
       return CRGB(v_full, 0, v_full);
       break;
   }
+
+  return CRGB(0, 0, 0); // Return default if no case matches.
 }
 
 CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
@@ -147,4 +149,6 @@ CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 
       return CHSV(192, i_saturation, i_brightness);
       break;
   }
+
+  return CHSV(0, 0, 0); // Return default if no case matches.
 }
