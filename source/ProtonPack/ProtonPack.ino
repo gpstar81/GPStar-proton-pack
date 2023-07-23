@@ -139,16 +139,17 @@ void setup() {
     i_mode_year = 2021;
   }
 
-  // Check some LED brightness settings
-  if(i_powercell_brightness < 0 || i_powercell_brightness > 100) {
+  // Check some LED brightness settings for various LED's.
+  // The datatype used should avoid checks for negative values.
+  if(i_powercell_brightness > 100) {
     i_powercell_brightness = 100;
   }
 
-  if(i_cyclotron_brightness < 0 || i_cyclotron_brightness > 100) {
+  if(i_cyclotron_brightness > 100) {
     i_cyclotron_brightness = 100;
   }
 
-  if(i_cyclotron_inner_brightness < 0 || i_cyclotron_inner_brightness > 100) {
+  if(i_cyclotron_inner_brightness > 100) {
     i_cyclotron_inner_brightness = 100;
   }
 

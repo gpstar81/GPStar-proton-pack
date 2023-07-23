@@ -46,10 +46,7 @@ int getBrightness(uint8_t i_percent = 100){
 }
 
 CRGB getColor(uint8_t i_color, uint8_t i_brightness = 255, bool b_grb = false) {
-  // Brightness here is a value from 0-255.
-  if (i_brightness > 255) {
-    i_brightness = 255;
-  }
+  // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
 
   // Colors will be relative to pre-calculated full or half brightness values.
   uint8_t v_full = (int) ((255 * i_brightness) / 100);
@@ -111,10 +108,7 @@ CRGB getColor(uint8_t i_color, uint8_t i_brightness = 255, bool b_grb = false) {
 }
 
 CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
-  // Brightness here is a value from 0-255.
-  if (i_brightness > 255) {
-    i_brightness = 255;
-  }
+  // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
 
   // Returns a CHSV object with a hue (color), full saturation, and stated brightness.
   switch (i_color) {
