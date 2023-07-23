@@ -2200,8 +2200,8 @@ void innerCyclotronRing(int cDelay) {
     }
 
     // Colour control for the inner cyclotron leds.
-    uint8_t i_color = C_RED;
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
+    uint8_t i_color = C_RED;
 
     if(b_cyclotron_colour_toggle == true) {
       switch(FIRING_MODE) {
@@ -2230,7 +2230,7 @@ void innerCyclotronRing(int cDelay) {
         break;
       }
     }
-i_color = C_RAINBOW;
+
     if(i_cyclotron_multiplier > 1) {
       switch(i_cyclotron_multiplier) {
         case 6:
