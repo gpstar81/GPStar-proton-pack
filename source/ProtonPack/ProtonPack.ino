@@ -3056,7 +3056,6 @@ void checkWand() {
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
-
                 powercellDraw();
               }
             break;
@@ -3100,7 +3099,6 @@ void checkWand() {
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
-
                 powercellDraw();
               }
             break;
@@ -3122,7 +3120,6 @@ void checkWand() {
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
-
                 powercellDraw();
               }
             break;
@@ -3145,7 +3142,6 @@ void checkWand() {
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
-
                 powercellDraw();
               }
             break;
@@ -3158,7 +3154,6 @@ void checkWand() {
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
-
                 powercellDraw();
               }
             break;
