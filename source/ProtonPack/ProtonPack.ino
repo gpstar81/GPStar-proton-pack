@@ -3810,6 +3810,10 @@ void checkWand() {
               if(b_playing_music == true) {
                 if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
                   i_volume_music_percentage = 0;
+
+                  // Provide feedback at minimum volume.
+                  stopEffect(S_BEEPS_ALT);
+                  playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
                 }
                 else {
                   i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
@@ -3826,6 +3830,10 @@ void checkWand() {
               if(b_playing_music == true) {
                 if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
                   i_volume_music_percentage = 100;
+
+                  // Provide feedback at maximum volume.
+                  stopEffect(S_BEEPS_ALT);
+                  playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
                 }
                 else {
                   i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
