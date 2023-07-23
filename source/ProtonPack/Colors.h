@@ -29,9 +29,14 @@ enum colors {
   C_WHITE,
   C_PINK,
   C_RED,
+  C_RED2,
+  C_RED3,
+  C_RED4,
+  C_RED5,
   C_ORANGE,
   C_YELLOW,
   C_GREEN,
+  C_MINT,
   C_AQUA,
   C_BLUE,
   C_PURPLE,
@@ -53,6 +58,56 @@ int getBrightness(uint8_t i_percent = 100){
 uint8_t i_curr_color = 0;
 uint8_t i_count = 0;
 
+uint8_t getDeviceColor(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) {
+  if(b_toggle == true) {
+    switch(i_firing_mode) {
+      case PROTON:
+        return C_RED;
+      break;
+
+      case SLIME:
+        return C_GREEN;
+      break;
+
+      case STASIS:
+        return C_BLUE;
+      break;
+
+      case MESON:
+        return C_ORANGE;
+      break;
+
+      case SETTINGS:
+        return C_WHITE;
+      break;
+
+      default:
+        return C_BLUE;
+      break;
+    }
+  } else {
+    return C_BLUE;
+  }
+  switch(i_device) {
+    case POWERCELL:
+      return C_BLUE;
+    break;
+
+    case CYCLOTRON_OUTER:
+    case CYCLOTRON_INNER:
+      return C_RED;
+    break;
+
+    case VENT_LIGHT:
+      return C_AQUA;
+    break;
+
+    default:
+      return C_WHITE;
+    break;
+  }
+}
+
 CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 255, uint8_t i_cycle = 2) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
   // Note that for color cycles, i_cycle indicates how often to change color.
@@ -62,33 +117,63 @@ CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 
     case C_BLACK:
       return CHSV(0, 0, 0); // Overrides brightness.
     break;
+
     case C_WHITE:
       return CHSV(100, 0, i_brightness);
     break;
+
     case C_PINK:
       return CHSV(244, i_saturation, i_brightness);
     break;
+
     case C_RED:
       return CHSV(0, i_saturation, i_brightness);
     break;
+
+    case C_RED2:
+      return CHSV(5, i_saturation, i_brightness);
+    break;
+
+    case C_RED3:
+      return CHSV(10, i_saturation, i_brightness);
+    break;
+
+    case C_RED4:
+      return CHSV(15, i_saturation, i_brightness);
+    break;
+
+    case C_RED5:
+      return CHSV(20, i_saturation, i_brightness);
+    break;
+
     case C_ORANGE:
       return CHSV(32, i_saturation, i_brightness);
     break;
+
     case C_YELLOW:
       return CHSV(64, i_saturation, i_brightness);
     break;
+
     case C_GREEN:
       return CHSV(96, i_saturation, i_brightness);
     break;
+
+    case C_MINT:
+      return CHSV(100, 128, i_brightness);
+    break;
+
     case C_AQUA:
       return CHSV(128, i_saturation, i_brightness);
     break;
+
     case C_BLUE:
       return CHSV(160, i_saturation, i_brightness);
     break;
+
     case C_PURPLE:
       return CHSV(192, i_saturation, i_brightness);
     break;
+
     case C_REDGREEN:
       // Alternate between red (0) and green (96).
       if (i_curr_color != 0 && i_curr_color != 96) {
@@ -104,6 +189,7 @@ CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 
       }
       return CHSV(i_curr_color, 255, i_brightness);
     break;
+
     case C_ORANGEPURPLE:
       // Alternate between orange (32) and purple (192).
       if (i_curr_color != 32 && i_curr_color != 192) {
@@ -119,6 +205,7 @@ CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 
       }
       return CHSV(i_curr_color, 255, i_brightness);
     break;
+
     case C_PASTEL:
       // Cycle through all colors (0-255) at half saturation.
       i_count++;
@@ -127,6 +214,7 @@ CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 
       }
       return CHSV(i_curr_color, 128, i_brightness);
     break;
+
     case C_RAINBOW:
       // Cycle through all colors (0-255) at full saturation.
       i_count++;
@@ -135,13 +223,14 @@ CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 
       }
       return CHSV(i_curr_color, 255, i_brightness);
     break;
+
     default:
       return CHSV(100, 0, i_brightness); // White on no match.
     break;
   }
 }
 
-CRGB getColor(uint8_t i_color, uint8_t i_brightness = 255, bool b_grb = false) {
+CRGB getHueAsRGB(uint8_t i_color, uint8_t i_brightness = 255, bool b_grb = false) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
 
   // Get the initial color using the HSV scheme.
@@ -155,6 +244,9 @@ CRGB getColor(uint8_t i_color, uint8_t i_brightness = 255, bool b_grb = false) {
     return CRGB(rgb[1], rgb[0], rgb[2]);
   } else {
     return rgb; // Return RGB.
-  }
-  
+  } 
+}
+
+CRGB getHueAsGRB(uint8_t i_color, uint8_t i_brightness = 255) {
+  return getHueAsRGB(i_color, i_brightness, true);
 }

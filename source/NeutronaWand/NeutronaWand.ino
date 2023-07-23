@@ -966,7 +966,7 @@ void mainLoop() {
   }
 
   if(ms_firing_lights_end.justFinished()) {
-    fireStreamEnd(0,0,0);
+    fireStreamEnd(getHue(C_BLACK));
   }
 
   // Check the wing barrel switch button status.
@@ -2589,49 +2589,49 @@ void modeFiring() {
 
   switch(FIRING_MODE) {
     case PROTON:
-      // Make the stream more slightly more red on higher power modes.
+      // Shift the stream from red to orange on higher power modes.
       switch(i_power_mode) {
         case 1:
-          fireStreamStart(255, 20, 0);
+          fireStreamStart(getHueAsGRB(C_RED));
         break;
 
         case 2:
-          fireStreamStart(255, 30, 0);
+          fireStreamStart(getHueAsGRB(C_RED2));
         break;
 
         case 3:
-          fireStreamStart(255, 40, 0);
+          fireStreamStart(getHueAsGRB(C_RED3));
         break;
 
         case 4:
-          fireStreamStart(255, 60, 0);
+          fireStreamStart(getHueAsGRB(C_RED4));
         break;
 
         case 5:
-          fireStreamStart(255, 70, 0);
+          fireStreamStart(getHueAsGRB(C_RED5));
         break;
 
         default:
-          fireStreamStart(255, 20, 0);
+          fireStreamStart(getHueAsGRB(C_RED));
         break;
       }
-
-      fireStream(0, 0, 255);
+      
+      fireStream(getHueAsGRB(C_BLUE));
     break;
 
     case SLIME:
-       fireStreamStart(0, 255, 45);
-       fireStream(20, 200, 45);
+       fireStreamStart(getHueAsGRB(C_GREEN));
+       fireStream(getHueAsGRB(C_MINT));
     break;
 
     case STASIS:
-       fireStreamStart(0, 45, 100);
-       fireStream(0, 100, 255);
+       fireStreamStart(getHueAsGRB(C_BLUE));
+       fireStream(getHueAsGRB(C_AQUA));
     break;
 
     case MESON:
-       fireStreamStart(200, 200, 20);
-       fireStream(190, 20, 70);
+       fireStreamStart(getHueAsGRB(C_ORANGE));
+       fireStream(getHueAsGRB(C_YELLOW));
     break;
 
     case VENTING:
@@ -2706,22 +2706,22 @@ void wandBarrelHeatUp() {
   else if(ms_wand_heatup_fade.justFinished() && i_heatup_counter <= 100) {
     switch(FIRING_MODE) {
       case PROTON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_WHITE, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case SLIME:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, 0, 0);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_GREEN, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case STASIS:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatup_counter);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_BLUE, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case MESON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_ORANGE, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
@@ -2740,22 +2740,22 @@ void wandBarrelHeatDown() {
   if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
     switch(FIRING_MODE) {
       case PROTON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_WHITE, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case SLIME:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, 0, 0);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_GREEN, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case STASIS:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatdown_counter);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_BLUE, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case MESON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_ORANGE, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
@@ -2775,54 +2775,54 @@ void wandBarrelHeatDown() {
   }
 }
 
-void fireStream(uint8_t r, uint8_t g, uint8_t b) {
+void fireStream(CRGB c_color) {
   if(ms_firing_stream_blue.justFinished()) {
     if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {
       switch(FIRING_MODE) {
         case PROTON:
           if(b_firing_cross_streams == true) {
-            barrel_leds[i_barrel_light - 1] = getColor(C_WHITE);
+            barrel_leds[i_barrel_light - 1] = getHue(C_WHITE);
           }
           else {
-            // Make the stream more slightly more red on higher power modes.
+            // Shift the stream from red to orange on higher power modes.
             switch(i_power_mode) {
               case 1:
-                barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
               break;
 
               case 2:
-                barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED2);
               break;
 
               case 3:
-                barrel_leds[i_barrel_light - 1] = CRGB(30, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED3);
               break;
 
               case 4:
-                barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED4);
               break;
 
               case 5:
-                barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED5);
               break;
 
               default:
-                barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
               break;
             }
           }
         break;
 
         case SLIME:
-          barrel_leds[i_barrel_light - 1] = CRGB(120, 20, 45);
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_GREEN);
         break;
 
         case STASIS:
-          barrel_leds[i_barrel_light - 1] = CRGB(15, 50, 155);
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLUE);
         break;
 
         case MESON:
-          barrel_leds[i_barrel_light - 1] = CRGB(200, 200, 15);
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_ORANGE);
         break;
 
         case VENTING:
@@ -2840,7 +2840,7 @@ void fireStream(uint8_t r, uint8_t g, uint8_t b) {
       ms_firing_stream_blue.start(d_firing_stream / 2);
     }
     else if(i_barrel_light < BARREL_NUM_LEDS) {
-      barrel_leds[i_barrel_light] = CRGB(g,r,b);
+      barrel_leds[i_barrel_light] = c_color;
 
       ms_fast_led.start(i_fast_led_delay);
 
@@ -2857,7 +2857,7 @@ void barrelLightsOff() {
   i_heatdown_counter = 100;
 
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
-    barrel_leds[i] = getColor(C_BLACK);
+    barrel_leds[i] = getHue(C_BLACK);
   }
 
   // Turn off the wand barrel tip LED.
@@ -2868,9 +2868,9 @@ void barrelLightsOff() {
   ms_fast_led.start(i_fast_led_delay);
 }
 
-void fireStreamStart(uint8_t r, uint8_t g, uint8_t b) {
+void fireStreamStart(CRGB c_color) {
   if(ms_firing_lights.justFinished() && i_barrel_light < BARREL_NUM_LEDS) {
-    barrel_leds[i_barrel_light] = CRGB(g,r,b);
+    barrel_leds[i_barrel_light] = c_color;
     ms_fast_led.start(i_fast_led_delay);
 
     ms_firing_lights.start(d_firing_lights);
@@ -2886,9 +2886,9 @@ void fireStreamStart(uint8_t r, uint8_t g, uint8_t b) {
   }
 }
 
-void fireStreamEnd(uint8_t r, uint8_t g, uint8_t b) {
+void fireStreamEnd(CRGB c_color) {
   if(i_barrel_light < BARREL_NUM_LEDS) {
-    barrel_leds[i_barrel_light] = CRGB(g,r,b);
+    barrel_leds[i_barrel_light] = c_color;
     ms_fast_led.start(i_fast_led_delay);
 
     ms_firing_lights_end.start(d_firing_lights);
@@ -3359,137 +3359,6 @@ void bargraphRampFiring() {
 
   // If in a power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
   if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
-    /*
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      for(uint8_t i = 0; i < 13; i++) {
-        switch(i) {
-          case 12:
-            if(ms_overheat_initiate.remaining() < 3000) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 11:
-            if(ms_overheat_initiate.remaining() < 3750) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 10:
-            if(ms_overheat_initiate.remaining() < 4500) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 9:
-            if(ms_overheat_initiate.remaining() < 5250) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 8:
-            if(ms_overheat_initiate.remaining() < 6000) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 7:
-            if(ms_overheat_initiate.remaining() < 6750) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 6:
-            if(ms_overheat_initiate.remaining() < 7500) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 5:
-            if(ms_overheat_initiate.remaining() < 6750) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 4:
-            if(ms_overheat_initiate.remaining() < 8250) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 3:
-            if(ms_overheat_initiate.remaining() < 6750) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 2:
-            if(ms_overheat_initiate.remaining() < 9000) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 1:
-            if(ms_overheat_initiate.remaining() < 9750) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 0:
-            if(ms_overheat_initiate.remaining() < 1050) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          default:
-            b_overheat_indicators[i] = false;
-          break;
-        }
-      }
-
-      wandSerialSend(W_VGA_OVERHEAT_LIGHTS);
-    #endif
-    */
-
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
@@ -4819,7 +4688,7 @@ void switchLoops() {
 
 void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
-    barrel_leds[i] = getColor(C_BLACK);
+    barrel_leds[i] = getHue(C_BLACK);
   }
 
   ms_fast_led.start(i_fast_led_delay);

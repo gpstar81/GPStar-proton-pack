@@ -298,7 +298,7 @@ int i_last_val_rotary;
 
 /*
  * LED Dimming / Brightness Control.
-*/
+ */
 enum pack_led_dim_control {
   DIM_POWERCELL,
   DIM_CYCLOTRON,
@@ -306,6 +306,16 @@ enum pack_led_dim_control {
 };
 
 uint8_t pack_dim_toggle = DIM_POWERCELL;
+
+/*
+ * LED Devices.
+ */
+enum device {
+  POWERCELL,
+  CYCLOTRON_OUTER,
+  CYCLOTRON_INNER,
+  VENT_LIGHT
+};
 
 /*
  * Misc.
