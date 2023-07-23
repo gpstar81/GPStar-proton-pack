@@ -34,7 +34,8 @@ enum colors {
   C_GREEN,
   C_AQUA,
   C_BLUE,
-  C_PURPLE
+  C_PURPLE,
+  C_RAINBOW
 };
 
 int getBrightness(uint8_t i_percent = 100){
@@ -102,10 +103,16 @@ CRGB getColor(uint8_t i_color, uint8_t i_brightness = 255, bool b_grb = false) {
       }
       return CRGB(v_full, 0, v_full);
       break;
+    case C_RAINBOW:
+      return CRGB(v_full, v_full, v_full);
+      break;
   }
 
   return CRGB(0, 0, 0); // Return default if no case matches.
 }
+
+// Special value for rainbow cycle.
+uint8_t i_curr_color = 0;
 
 CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
@@ -141,6 +148,11 @@ CHSV getHue(uint8_t i_color, uint8_t i_brightness = 255, uint8_t i_saturation = 
       break;
     case C_PURPLE:
       return CHSV(192, i_saturation, i_brightness);
+      break;
+    case C_RAINBOW:
+      // Get next color, within the range of 0-255.
+      i_curr_color = (i_curr_color + 5) % 255;
+      return CHSV(i_curr_color, i_saturation, i_brightness);
       break;
   }
 

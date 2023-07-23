@@ -1910,7 +1910,7 @@ void soundIdleStop() {
           playEffect(S_WAND_SHUTDOWN);
         }
 
-        playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2, false, i_volume_effects - 8);
+        playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2, false, i_volume_effects - 10);
 
         if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_gun_loop_1.start(1700);
@@ -4365,10 +4365,28 @@ void vibrationOff() {
 }
 
 void adjustVolumeEffectsGain() {
-  // Reset the gain on all sound effect tracks.
-  for(unsigned int i=0; i <= i_last_effects_track; i++) {
-    w_trig.trackGain(i, i_volume_effects);
-  }
+  // Since adjusting only while in menu mode, only certain effects need to be adjusted on the fly.
+  w_trig.trackGain(S_BEEPS, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_1, i_volume_effects - 10); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_2, i_volume_effects - 10); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_LOW, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_HIGH, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume_effects - 10); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_2, i_volume_effects - 10); // Special volume in use.
+  w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_3, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_4, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
 }
 
 void increaseVolumeEffects() {

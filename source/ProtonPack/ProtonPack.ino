@@ -2230,7 +2230,7 @@ void innerCyclotronRing(int cDelay) {
         break;
       }
     }
-
+i_color = C_RAINBOW;
     if(i_cyclotron_multiplier > 1) {
       switch(i_cyclotron_multiplier) {
         case 6:
@@ -2349,7 +2349,7 @@ void ventLight(bool b_on) {
             break;
 
             case 2:
-              i_color = C_PINK;
+              i_color = C_ORANGE;
             break;
 
             case 3:
@@ -2872,7 +2872,7 @@ void cyclotronSpeedIncrease() {
 }
 
 void adjustVolumeEffectsGain() {
-  // Since adjusting only from the wand, only certain effects needs to be adjusted on the fly.
+  // Since adjusting only from the wand, only certain effects need to be adjusted on the fly.
   w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume_effects);
   w_trig.trackGain(S_ALARM_LOOP, i_volume_effects);
   w_trig.trackGain(S_RIBBON_CABLE_START, i_volume_effects);
