@@ -333,36 +333,36 @@ void loop() {
 
           switch (i_random) {
             case 3:
-              playEffect(S_FIRE_SPARKS, false, i_volume + 5);
+              playEffect(S_FIRE_SPARKS, false, i_volume_effects + 5);
               i_last_firing_effect_mix = S_FIRE_SPARKS;
 
               ms_firing_sound_mix.start(i_s_random * 10);
             break;
 
             case 2:
-              playEffect(S_FIRE_SPARKS_4, false, i_volume + 5);
+              playEffect(S_FIRE_SPARKS_4, false, i_volume_effects + 5);
               i_last_firing_effect_mix = S_FIRE_SPARKS_4;
 
               ms_firing_sound_mix.start(i_s_random);
             break;
 
             case 1:
-              playEffect(S_FIRE_SPARKS_3, false, i_volume + 5);
+              playEffect(S_FIRE_SPARKS_3, false, i_volume_effects + 5);
               i_last_firing_effect_mix = S_FIRE_SPARKS_3;
 
               ms_firing_sound_mix.start(i_s_random);
             break;
 
             case 0:
-              playEffect(S_FIRE_SPARKS_2, false, i_volume + 5);
-              playEffect(S_FIRE_SPARKS_5, false, i_volume + 5);
+              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects + 5);
+              playEffect(S_FIRE_SPARKS_5, false, i_volume_effects + 5);
               i_last_firing_effect_mix = S_FIRE_SPARKS_5;
 
               ms_firing_sound_mix.start(1800);
             break;
 
             default:
-              playEffect(S_FIRE_SPARKS_2, false, i_volume + 5);
+              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects + 5);
               i_last_firing_effect_mix = S_FIRE_SPARKS_2;
 
               ms_firing_sound_mix.start(500);
@@ -489,17 +489,17 @@ void packStartup() {
     switch(i_mode_year) {
       case 1984:
         playEffect(S_BOOTUP);
-        playEffect(S_IDLE_LOOP, true, i_volume, true, 2000);
+        playEffect(S_IDLE_LOOP, true, i_volume_effects, true, 2000);
       break;
 
       case 1989:
         playEffect(S_GB2_PACK_START);
-        playEffect(S_GB2_PACK_LOOP, true, i_volume, true, 3000);
+        playEffect(S_GB2_PACK_LOOP, true, i_volume_effects, true, 3000);
       break;
 
       case 2021:
         playEffect(S_AFTERLIFE_PACK_STARTUP);
-        playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume, true, 18000);
+        playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
         ms_idle_fire_fade.start(18000);
       break;
     }
@@ -2420,10 +2420,10 @@ void wandFiring() {
   // Adjust the gain with the Afterlife idling sound effect while firing.
   if(i_mode_year == 2021 && i_wand_power_level < 5) {
     if(ms_idle_fire_fade.remaining() < 3000) {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume - 2, true, 100);
+      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, 100);
     }
     else {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume - 2, true, ms_idle_fire_fade.remaining());
+      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
     }
   }
 
@@ -2437,7 +2437,7 @@ void wandFiring() {
   vibrationPack(255);
 
   if(i_mode_year == 1989) {
-    playEffect(S_FIRE_START_SPARK, false, i_volume - 10);
+    playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
   }
   else {
     playEffect(S_FIRE_START_SPARK);
@@ -2446,7 +2446,7 @@ void wandFiring() {
   switch(FIRING_MODE) {
     case PROTON:
       if(i_mode_year == 1989) {
-        int8_t i_v_fire_start = i_volume - 10;
+        int8_t i_v_fire_start = i_volume_effects - 10;
 
         if(i_v_fire_start < i_volume_abs_min) {
           i_v_fire_start = i_volume_abs_min;
@@ -2462,11 +2462,11 @@ void wandFiring() {
         case 1 ... 4:
           if(b_firing_intensify == true) {
             if(i_mode_year == 1989) {
-              playEffect(S_GB2_FIRE_LOOP, true, i_volume, true, 6500);
+              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
               playEffect(S_GB2_FIRE_START);
             }
             else {
-              playEffect(S_GB1_FIRE_LOOP, true, i_volume, true, 1000);
+              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000);
               playEffect(S_GB1_FIRE_START);
             }
 
@@ -2477,7 +2477,7 @@ void wandFiring() {
           }
 
           if(b_firing_alt == true) {
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume, true, 1000);
+            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
 
             if(i_mode_year == 1989) {
               playEffect(S_GB2_FIRE_START);
@@ -2522,17 +2522,17 @@ void wandFiring() {
 
     case SLIME:
       playEffect(S_SLIME_START);
-      playEffect(S_SLIME_LOOP, true, i_volume, true, 1500);
+      playEffect(S_SLIME_LOOP, true, i_volume_effects, true, 1500);
     break;
 
     case STASIS:
       playEffect(S_STASIS_START);
-      playEffect(S_STASIS_LOOP, true, i_volume, true, 1000);
+      playEffect(S_STASIS_LOOP, true, i_volume_effects, true, 1000);
     break;
 
     case MESON:
       playEffect(S_MESON_START);
-      playEffect(S_MESON_LOOP, true, i_volume, true, 5500);
+      playEffect(S_MESON_LOOP, true, i_volume_effects, true, 5500);
     break;
 
     case VENTING:
@@ -2561,10 +2561,10 @@ void wandStoppedFiring() {
   // Adjust the gain with the Afterlife idling track.
   if(i_mode_year == 2021 && i_wand_power_level < 5) {
     if(ms_idle_fire_fade.remaining() < 1000) {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume, true, 30);
+      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
     }
     else {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume, true, ms_idle_fire_fade.remaining());
+      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
     }
   }
 
@@ -2675,12 +2675,12 @@ void wandStopFiringSounds() {
   if(b_firing_cross_streams == true) {
     switch(i_mode_year) {
       case 2021:
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
-        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
 
@@ -2872,21 +2872,21 @@ void cyclotronSpeedIncrease() {
 
 void adjustVolumeEffectsGain() {
   // Since adjusting only from the wand, only certain effects needs to be adjusted on the fly.
-  w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume);
-  w_trig.trackGain(S_ALARM_LOOP, i_volume);
-  w_trig.trackGain(S_RIBBON_CABLE_START, i_volume);
-  w_trig.trackGain(S_PACK_BEEPING, i_volume); // Not used.
-  w_trig.trackGain(S_BEEP_8, i_volume);
-  w_trig.trackGain(S_SHUTDOWN, i_volume);
-  w_trig.trackGain(S_GB2_PACK_START, i_volume);
-  w_trig.trackGain(S_GB2_PACK_LOOP, i_volume);
-  w_trig.trackGain(S_GB2_PACK_OFF, i_volume);
-  w_trig.trackGain(S_PACK_SHUTDOWN, i_volume);
-  w_trig.trackGain(S_PACK_SHUTDOWN_AFTERLIFE, i_volume);
-  w_trig.trackGain(S_IDLE_LOOP, i_volume);
-  w_trig.trackGain(S_BOOTUP, i_volume);
-  w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume);
-  w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume);
+  w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume_effects);
+  w_trig.trackGain(S_ALARM_LOOP, i_volume_effects);
+  w_trig.trackGain(S_RIBBON_CABLE_START, i_volume_effects);
+  w_trig.trackGain(S_PACK_BEEPING, i_volume_effects); // Not used.
+  w_trig.trackGain(S_BEEP_8, i_volume_effects);
+  w_trig.trackGain(S_SHUTDOWN, i_volume_effects);
+  w_trig.trackGain(S_GB2_PACK_START, i_volume_effects);
+  w_trig.trackGain(S_GB2_PACK_LOOP, i_volume_effects);
+  w_trig.trackGain(S_GB2_PACK_OFF, i_volume_effects);
+  w_trig.trackGain(S_PACK_SHUTDOWN, i_volume_effects);
+  w_trig.trackGain(S_PACK_SHUTDOWN_AFTERLIFE, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP, i_volume_effects);
+  w_trig.trackGain(S_BOOTUP, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
 }
 
 void increaseVolumeEffects() {
@@ -2894,14 +2894,14 @@ void increaseVolumeEffects() {
     i_volume_percentage = 100;
 
     // Provide feedback at maximum volume.
-    stopEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS_LOW);
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT);
   }
   else {
     i_volume_percentage = i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
@@ -2911,14 +2911,14 @@ void decreaseVolumeEffects() {
     i_volume_percentage = 0;
 
     // Provide feedback at minimum volume.
-    stopEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
     i_volume_percentage = i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
@@ -2932,8 +2932,8 @@ void increaseVolume() {
     i_volume_master_percentage = 100;
 
     // Provide feedback at maximum volume.
-    stopEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -3147,7 +3147,7 @@ void wandHandShake() {
 }
 
 void packOverheatingFinished() {
-  w_trig.trackGain(S_VENT_DRY, i_volume);
+  w_trig.trackGain(S_VENT_DRY, i_volume_effects);
   b_overheating = false;
 
   // Stop the fan.
@@ -3578,18 +3578,18 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
+                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
                   playEffect(S_FIRE_SPARKS);
                 break;
 
                 case 1984:
                 case 1989:
-                  playEffect(S_CROSS_STREAMS_START, false, i_volume + 10);
+                  playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
                   playEffect(S_FIRE_SPARKS);
                 break;
               }
 
-              playEffect(S_FIRE_START_SPARK, false, i_volume + 10);
+              playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_MIX:
@@ -3598,12 +3598,12 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
+                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
                 break;
 
                 case 1984:
                 case 1989:
-                  playEffect(S_CROSS_STREAMS_START, false, i_volume + 10);
+                  playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
                 break;
               }
 
@@ -3624,12 +3624,12 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
                 break;
 
                 case 1984:
                 case 1989:
-                  playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
+                  playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
                 break;
               }
 
@@ -3642,12 +3642,12 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
                 break;
 
                 case 1984:
                 case 1989:
-                  playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
+                  playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
                 break;
               }
             break;
@@ -4179,8 +4179,8 @@ void checkWand() {
                     playEffect(S_BEEPS);
                   } else {
                     // Already at 100%, indicate as such.
-                    stopEffect(S_BEEPS_LOW);
-                    playEffect(S_BEEPS_LOW);
+                    stopEffect(S_BEEPS_ALT);
+                    playEffect(S_BEEPS_ALT);
                   }
                 break;
 
@@ -4197,8 +4197,8 @@ void checkWand() {
                     playEffect(S_BEEPS);
                   } else {
                     // Already at 100%, indicate as such.
-                    stopEffect(S_BEEPS_LOW);
-                    playEffect(S_BEEPS_LOW);
+                    stopEffect(S_BEEPS_ALT);
+                    playEffect(S_BEEPS_ALT);
                   }
                 break;
 
@@ -4219,8 +4219,8 @@ void checkWand() {
                     playEffect(S_BEEPS);
                   } else {
                     // Already at 100%, indicate as such.
-                    stopEffect(S_BEEPS_LOW);
-                    playEffect(S_BEEPS_LOW);
+                    stopEffect(S_BEEPS_ALT);
+                    playEffect(S_BEEPS_ALT);
                   }
                 break;
               }
@@ -4246,8 +4246,8 @@ void checkWand() {
                     playEffect(S_BEEPS);
                   } else {
                     // Already at 0%, indicate as such.
-                    stopEffect(S_BEEPS_LOW);
-                    playEffect(S_BEEPS_LOW);
+                    stopEffect(S_BEEPS_ALT);
+                    playEffect(S_BEEPS_ALT);
                   }
                 break;
 
@@ -4264,8 +4264,8 @@ void checkWand() {
                     playEffect(S_BEEPS);
                   } else {
                     // Already at 0%, indicate as such.
-                    stopEffect(S_BEEPS_LOW);
-                    playEffect(S_BEEPS_LOW);
+                    stopEffect(S_BEEPS_ALT);
+                    playEffect(S_BEEPS_ALT);
                   }
                 break;
 
@@ -4286,8 +4286,8 @@ void checkWand() {
                     playEffect(S_BEEPS);
                   } else {
                     // Already at 0%, indicate as such.
-                    stopEffect(S_BEEPS_LOW);
-                    playEffect(S_BEEPS_LOW);
+                    stopEffect(S_BEEPS_ALT);
+                    playEffect(S_BEEPS_ALT);
                   }
                 break;
               }
@@ -4402,7 +4402,7 @@ void packSerialSend(int i_message) {
 }
 
 // Helper method to play a sound effect using certain defaults.
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume, bool b_fade_in = false, unsigned int i_fade_time = 0) {
+void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0) {
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }

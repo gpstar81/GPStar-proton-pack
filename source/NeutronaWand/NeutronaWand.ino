@@ -361,7 +361,7 @@ void mainLoop() {
               case 2021:
                 soundIdleLoop(true);
 
-                playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
+                playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
                 ms_gun_loop_1.start(2000);
               break;
             }
@@ -944,7 +944,7 @@ void mainLoop() {
 
         if(year_mode == 2021) {
           if(ms_gun_loop_1.justFinished()) {
-            playEffect(S_AFTERLIFE_GUN_LOOP_1, true, i_volume - 10);
+            playEffect(S_AFTERLIFE_GUN_LOOP_1, true, i_volume_effects - 10);
             ms_gun_loop_1.stop();
           }
         }
@@ -1818,7 +1818,7 @@ void modeActivate() {
         default:
           soundIdleLoop(true);
 
-          playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
+          playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
           ms_gun_loop_1.start(2000);
         break;
       }
@@ -1829,23 +1829,23 @@ void modeActivate() {
 void soundIdleLoop(bool fadeIn) {
   switch(i_power_mode) {
     case 1:
-      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 2:
-      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 3:
-      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 4:
-      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 5:
-      playEffect(S_IDLE_LOOP_GUN_5, true, i_volume, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_5, true, i_volume_effects, fadeIn, 1000);
     break;
   }
 }
@@ -1875,7 +1875,7 @@ void soundIdleStart() {
         stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_1);
         stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2);
 
-        playEffect(S_AFTERLIFE_GUN_RAMP_2, false, i_volume - 10);
+        playEffect(S_AFTERLIFE_GUN_RAMP_2, false, i_volume_effects - 10);
 
         ms_gun_loop_1.stop();
         ms_gun_loop_2.start(1500);
@@ -1889,7 +1889,7 @@ void soundIdleStart() {
 
   if(year_mode == 2021) {
     if(ms_gun_loop_2.justFinished()) {
-      playEffect(S_AFTERLIFE_GUN_LOOP_2, true, i_volume - 10);
+      playEffect(S_AFTERLIFE_GUN_LOOP_2, true, i_volume_effects - 10);
 
       ms_gun_loop_2.stop();
     }
@@ -1909,7 +1909,7 @@ void soundIdleStop() {
           playEffect(S_WAND_SHUTDOWN);
         }
 
-        playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2, false, i_volume - 8);
+        playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2, false, i_volume_effects - 8);
 
         if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_gun_loop_1.start(1700);
@@ -2014,7 +2014,7 @@ void modeFireStartSounds() {
 
   // Some sparks for firing start.
   if(year_mode == 1989) {
-    playEffect(S_FIRE_START_SPARK, false, i_volume - 10);
+    playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
   }
   else {
     playEffect(S_FIRE_START_SPARK);
@@ -2257,12 +2257,12 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams == true) {
     switch(year_mode) {
       case 2021:
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
-        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
 
@@ -2478,12 +2478,12 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
-        playEffect(S_CROSS_STREAMS_START, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
       break;
     }
 
@@ -2518,12 +2518,12 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
-        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
 
@@ -2539,12 +2539,12 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
-        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
   }
@@ -4298,7 +4298,7 @@ void prepBargraphRampUp() {
           case 2021:
             soundIdleLoop(true);
 
-            playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
+            playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
             ms_gun_loop_1.start(2000);
           break;
         }
@@ -4366,7 +4366,7 @@ void vibrationOff() {
 void adjustVolumeEffectsGain() {
   // Reset the gain on all sound effect tracks.
   for(unsigned int i=0; i <= i_last_effects_track; i++) {
-    w_trig.trackGain(i, i_volume);
+    w_trig.trackGain(i, i_volume_effects);
   }
 }
 
@@ -4375,14 +4375,14 @@ void increaseVolumeEffects() {
     i_volume_percentage = 100;
 
     // Provide feedback at maximum volume.
-    stopEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
     i_volume_percentage = i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
@@ -4392,14 +4392,14 @@ void decreaseVolumeEffects() {
     i_volume_percentage = 0;
 
     // Provide feedback at minimum volume.
-    stopEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
     i_volume_percentage = i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
@@ -4413,8 +4413,8 @@ void increaseVolume() {
     i_volume_master_percentage = 100;
 
     // Provide feedback at maximum volume.
-    stopEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -4504,8 +4504,8 @@ void checkRotary() {
               i_volume_music_percentage = 0;
 
               // Provide feedback at minimum volume.
-              stopEffect(S_BEEPS_LOW);
-              playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
+              stopEffect(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
             }
             else {
               i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
@@ -4567,8 +4567,8 @@ void checkRotary() {
               i_volume_music_percentage = 100;
 
               // Provide feedback at maximum volume.
-              stopEffect(S_BEEPS_LOW);
-              playEffect(S_BEEPS_LOW, false, i_volume_master - 10);
+              stopEffect(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
             }
             else {
               i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
@@ -4930,7 +4930,7 @@ void checkPack() {
           switch(VOLUME_SYNC_WAIT) {
             case EFFECTS:
               i_volume_percentage = comStruct.i;
-              i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+              i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
               adjustVolumeEffectsGain();
               VOLUME_SYNC_WAIT = MASTER;
@@ -5361,7 +5361,7 @@ void wandSerialSend(int i_message) {
 }
 
 // Helper method to play a sound effect using certain defaults.
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume, bool b_fade_in = false, unsigned int i_fade_time = 0) {
+void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0) {
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
