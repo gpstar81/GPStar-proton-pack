@@ -36,6 +36,7 @@
 */
 #include <wavTrigger.h>
 
+// 3rd-Party Libraries
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
@@ -58,10 +59,12 @@
 */
 #include <SerialTransfer.h>
 
+// Local Files
 #include "Configuration.h"
 #include "MusicSounds.h"
 #include "Communication.h"
 #include "Header.h"
+#include "Colours.h"
 
 #ifndef GPSTAR_NEUTRONA_WAND_PCB
   #include <AltSoftSerial.h>
@@ -83,9 +86,10 @@ void setup() {
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
 
+  // Setup the Wav Trigger.
   setupWavTrigger();
 
-  // Barrel LEDs
+  // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_NUM_LEDS);
 
   switch_wand.setDebounceTime(switch_debounce_time);
@@ -358,7 +362,7 @@ void mainLoop() {
               case 2021:
                 soundIdleLoop(true);
 
-                playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
+                playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
                 ms_gun_loop_1.start(2000);
               break;
             }
@@ -941,7 +945,7 @@ void mainLoop() {
 
         if(year_mode == 2021) {
           if(ms_gun_loop_1.justFinished()) {
-            playEffect(S_AFTERLIFE_GUN_LOOP_1, true, i_volume - 10);
+            playEffect(S_AFTERLIFE_GUN_LOOP_1, true, i_volume_effects - 10);
             ms_gun_loop_1.stop();
           }
         }
@@ -962,7 +966,7 @@ void mainLoop() {
   }
 
   if(ms_firing_lights_end.justFinished()) {
-    fireStreamEnd(0,0,0);
+    fireStreamEnd(getHue(C_BLACK));
   }
 
   // Check the wing barrel switch button status.
@@ -1815,7 +1819,7 @@ void modeActivate() {
         default:
           soundIdleLoop(true);
 
-          playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
+          playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
           ms_gun_loop_1.start(2000);
         break;
       }
@@ -1826,23 +1830,23 @@ void modeActivate() {
 void soundIdleLoop(bool fadeIn) {
   switch(i_power_mode) {
     case 1:
-      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 2:
-      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 3:
-      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 4:
-      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 5:
-      playEffect(S_IDLE_LOOP_GUN_5, true, i_volume, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_5, true, i_volume_effects, fadeIn, 1000);
     break;
   }
 }
@@ -1872,7 +1876,7 @@ void soundIdleStart() {
         stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_1);
         stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2);
 
-        playEffect(S_AFTERLIFE_GUN_RAMP_2, false, i_volume - 10);
+        playEffect(S_AFTERLIFE_GUN_RAMP_2, false, i_volume_effects - 10);
 
         ms_gun_loop_1.stop();
         ms_gun_loop_2.start(1500);
@@ -1886,7 +1890,7 @@ void soundIdleStart() {
 
   if(year_mode == 2021) {
     if(ms_gun_loop_2.justFinished()) {
-      playEffect(S_AFTERLIFE_GUN_LOOP_2, true, i_volume - 10);
+      playEffect(S_AFTERLIFE_GUN_LOOP_2, true, i_volume_effects - 10);
 
       ms_gun_loop_2.stop();
     }
@@ -1906,7 +1910,7 @@ void soundIdleStop() {
           playEffect(S_WAND_SHUTDOWN);
         }
 
-        playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2, false, i_volume - 8);
+        playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2, false, i_volume_effects - 10);
 
         if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_gun_loop_1.start(1700);
@@ -2011,7 +2015,7 @@ void modeFireStartSounds() {
 
   // Some sparks for firing start.
   if(year_mode == 1989) {
-    playEffect(S_FIRE_START_SPARK, false, i_volume - 10);
+    playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
   }
   else {
     playEffect(S_FIRE_START_SPARK);
@@ -2254,12 +2258,12 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams == true) {
     switch(year_mode) {
       case 2021:
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
-        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
 
@@ -2475,12 +2479,12 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
-        playEffect(S_CROSS_STREAMS_START, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
       break;
     }
 
@@ -2515,12 +2519,12 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
-        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
 
@@ -2536,12 +2540,12 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
-        playEffect(S_CROSS_STREAMS_END, false, i_volume + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
   }
@@ -2585,49 +2589,49 @@ void modeFiring() {
 
   switch(FIRING_MODE) {
     case PROTON:
-      // Make the stream more slightly more red on higher power modes.
+      // Shift the stream from red to orange on higher power modes.
       switch(i_power_mode) {
         case 1:
-          fireStreamStart(255, 20, 0);
+          fireStreamStart(getHueAsGRB(C_RED));
         break;
 
         case 2:
-          fireStreamStart(255, 30, 0);
+          fireStreamStart(getHueAsGRB(C_RED2));
         break;
 
         case 3:
-          fireStreamStart(255, 40, 0);
+          fireStreamStart(getHueAsGRB(C_RED3));
         break;
 
         case 4:
-          fireStreamStart(255, 60, 0);
+          fireStreamStart(getHueAsGRB(C_RED4));
         break;
 
         case 5:
-          fireStreamStart(255, 70, 0);
+          fireStreamStart(getHueAsGRB(C_RED5));
         break;
 
         default:
-          fireStreamStart(255, 20, 0);
+          fireStreamStart(getHueAsGRB(C_RED));
         break;
       }
-
-      fireStream(0, 0, 255);
+      
+      fireStream(getHueAsGRB(C_BLUE));
     break;
 
     case SLIME:
-       fireStreamStart(0, 255, 45);
-       fireStream(20, 200, 45);
+       fireStreamStart(getHueAsGRB(C_GREEN));
+       fireStream(getHueAsGRB(C_MINT));
     break;
 
     case STASIS:
-       fireStreamStart(0, 45, 100);
-       fireStream(0, 100, 255);
+       fireStreamStart(getHueAsGRB(C_BLUE));
+       fireStream(getHueAsGRB(C_AQUA));
     break;
 
     case MESON:
-       fireStreamStart(200, 200, 20);
-       fireStream(190, 20, 70);
+       fireStreamStart(getHueAsGRB(C_ORANGE));
+       fireStream(getHueAsGRB(C_YELLOW));
     break;
 
     case VENTING:
@@ -2702,27 +2706,28 @@ void wandBarrelHeatUp() {
   else if(ms_wand_heatup_fade.justFinished() && i_heatup_counter <= 100) {
     switch(FIRING_MODE) {
       case PROTON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_WHITE, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case SLIME:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, 0, 0);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_GREEN, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case STASIS:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatup_counter);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_BLUE, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case MESON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_ORANGE, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case VENTING:
       case SETTINGS:
+      default:
         // nothing
       break;
     }
@@ -2736,27 +2741,28 @@ void wandBarrelHeatDown() {
   if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
     switch(FIRING_MODE) {
       case PROTON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_WHITE, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case SLIME:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, 0, 0);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_GREEN, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case STASIS:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatdown_counter);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_BLUE, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case MESON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
+        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_ORANGE, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
       case VENTING:
       case SETTINGS:
+      default:
         // Nothing.
       break;
     }
@@ -2771,54 +2777,54 @@ void wandBarrelHeatDown() {
   }
 }
 
-void fireStream(uint8_t r, uint8_t g, uint8_t b) {
+void fireStream(CRGB c_colour) {
   if(ms_firing_stream_blue.justFinished()) {
     if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {
       switch(FIRING_MODE) {
         case PROTON:
           if(b_firing_cross_streams == true) {
-            barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
+            barrel_leds[i_barrel_light - 1] = getHue(C_WHITE);
           }
           else {
-            // Make the stream more slightly more red on higher power modes.
+            // Shift the stream from red to orange on higher power modes.
             switch(i_power_mode) {
               case 1:
-                barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
               break;
 
               case 2:
-                barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED2);
               break;
 
               case 3:
-                barrel_leds[i_barrel_light - 1] = CRGB(30, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED3);
               break;
 
               case 4:
-                barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED4);
               break;
 
               case 5:
-                barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED5);
               break;
 
               default:
-                barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
               break;
             }
           }
         break;
 
         case SLIME:
-          barrel_leds[i_barrel_light - 1] = CRGB(120, 20, 45);
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_GREEN);
         break;
 
         case STASIS:
-          barrel_leds[i_barrel_light - 1] = CRGB(15, 50, 155);
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLUE);
         break;
 
         case MESON:
-          barrel_leds[i_barrel_light - 1] = CRGB(200, 200, 15);
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_ORANGE);
         break;
 
         case VENTING:
@@ -2836,7 +2842,7 @@ void fireStream(uint8_t r, uint8_t g, uint8_t b) {
       ms_firing_stream_blue.start(d_firing_stream / 2);
     }
     else if(i_barrel_light < BARREL_NUM_LEDS) {
-      barrel_leds[i_barrel_light] = CRGB(g,r,b);
+      barrel_leds[i_barrel_light] = c_colour;
 
       ms_fast_led.start(i_fast_led_delay);
 
@@ -2853,7 +2859,7 @@ void barrelLightsOff() {
   i_heatdown_counter = 100;
 
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
-    barrel_leds[i] = CRGB(0,0,0);
+    barrel_leds[i] = getHue(C_BLACK);
   }
 
   // Turn off the wand barrel tip LED.
@@ -2864,9 +2870,9 @@ void barrelLightsOff() {
   ms_fast_led.start(i_fast_led_delay);
 }
 
-void fireStreamStart(uint8_t r, uint8_t g, uint8_t b) {
+void fireStreamStart(CRGB c_colour) {
   if(ms_firing_lights.justFinished() && i_barrel_light < BARREL_NUM_LEDS) {
-    barrel_leds[i_barrel_light] = CRGB(g,r,b);
+    barrel_leds[i_barrel_light] = c_colour;
     ms_fast_led.start(i_fast_led_delay);
 
     ms_firing_lights.start(d_firing_lights);
@@ -2882,9 +2888,9 @@ void fireStreamStart(uint8_t r, uint8_t g, uint8_t b) {
   }
 }
 
-void fireStreamEnd(uint8_t r, uint8_t g, uint8_t b) {
+void fireStreamEnd(CRGB c_colour) {
   if(i_barrel_light < BARREL_NUM_LEDS) {
-    barrel_leds[i_barrel_light] = CRGB(g,r,b);
+    barrel_leds[i_barrel_light] = c_colour;
     ms_fast_led.start(i_fast_led_delay);
 
     ms_firing_lights_end.start(d_firing_lights);
@@ -3355,137 +3361,6 @@ void bargraphRampFiring() {
 
   // If in a power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
   if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
-    /*
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      for(uint8_t i = 0; i < 13; i++) {
-        switch(i) {
-          case 12:
-            if(ms_overheat_initiate.remaining() < 3000) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 11:
-            if(ms_overheat_initiate.remaining() < 3750) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 10:
-            if(ms_overheat_initiate.remaining() < 4500) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 9:
-            if(ms_overheat_initiate.remaining() < 5250) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 8:
-            if(ms_overheat_initiate.remaining() < 6000) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 7:
-            if(ms_overheat_initiate.remaining() < 6750) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 6:
-            if(ms_overheat_initiate.remaining() < 7500) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 5:
-            if(ms_overheat_initiate.remaining() < 6750) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 4:
-            if(ms_overheat_initiate.remaining() < 8250) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 3:
-            if(ms_overheat_initiate.remaining() < 6750) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 2:
-            if(ms_overheat_initiate.remaining() < 9000) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 1:
-            if(ms_overheat_initiate.remaining() < 9750) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          case 0:
-            if(ms_overheat_initiate.remaining() < 1050) {
-              b_overheat_indicators[i] = true;
-            }
-            else {
-              b_overheat_indicators[i] = false;
-            }
-          break;
-
-          default:
-            b_overheat_indicators[i] = false;
-          break;
-        }
-      }
-
-      wandSerialSend(W_VGA_OVERHEAT_LIGHTS);
-    #endif
-    */
-
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
@@ -4295,7 +4170,7 @@ void prepBargraphRampUp() {
           case 2021:
             soundIdleLoop(true);
 
-            playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume - 10);
+            playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
             ms_gun_loop_1.start(2000);
           break;
         }
@@ -4361,21 +4236,43 @@ void vibrationOff() {
 }
 
 void adjustVolumeEffectsGain() {
-  // Reset the gain on all sound effect tracks.
-  for(unsigned int i=0; i <= i_last_effects_track; i++) {
-    w_trig.trackGain(i, i_volume);
-  }
+  // Since adjusting only while in menu mode, only certain effects need to be adjusted on the fly.
+  w_trig.trackGain(S_BEEPS, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_1, i_volume_effects - 10); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_2, i_volume_effects - 10); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_LOW, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_HIGH, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume_effects - 10); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_2, i_volume_effects - 10); // Special volume in use.
+  w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_3, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_4, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
 }
 
 void increaseVolumeEffects() {
   if(i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
     i_volume_percentage = 100;
+
+    // Provide feedback at maximum volume.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
     i_volume_percentage = i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
@@ -4383,12 +4280,16 @@ void increaseVolumeEffects() {
 void decreaseVolumeEffects() {
   if(i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
     i_volume_percentage = 0;
+
+    // Provide feedback at minimum volume.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
     i_volume_percentage = i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
@@ -4400,6 +4301,10 @@ void increaseVolume() {
 
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
     i_volume_master_percentage = 100;
+
+    // Provide feedback at maximum volume.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -4487,6 +4392,10 @@ void checkRotary() {
             // Decrease the music volume.
             if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
               i_volume_music_percentage = 0;
+
+              // Provide feedback at minimum volume.
+              stopEffect(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
             }
             else {
               i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
@@ -4546,6 +4455,10 @@ void checkRotary() {
             // Increase music volume.
             if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
               i_volume_music_percentage = 100;
+
+              // Provide feedback at maximum volume.
+              stopEffect(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
             }
             else {
               i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
@@ -4777,7 +4690,7 @@ void switchLoops() {
 
 void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
-    barrel_leds[i] = CRGB(0,0,0);
+    barrel_leds[i] = getHue(C_BLACK);
   }
 
   ms_fast_led.start(i_fast_led_delay);
@@ -4907,7 +4820,7 @@ void checkPack() {
           switch(VOLUME_SYNC_WAIT) {
             case EFFECTS:
               i_volume_percentage = comStruct.i;
-              i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+              i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
 
               adjustVolumeEffectsGain();
               VOLUME_SYNC_WAIT = MASTER;
@@ -5306,6 +5219,61 @@ void checkPack() {
               playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
             break;
 
+            case P_PROTON_MODE:
+              FIRING_MODE = PROTON;
+              PREV_FIRING_MODE = SETTINGS;
+            break;
+
+            case P_SLIME_MODE:
+              FIRING_MODE = SLIME;
+              PREV_FIRING_MODE = PROTON;
+            break;
+            
+            case P_STASIS_MODE:
+              FIRING_MODE = STASIS;
+              PREV_FIRING_MODE = SLIME;
+            break;
+
+            case P_MESON_MODE:
+              FIRING_MODE = MESON;
+              PREV_FIRING_MODE = STASIS;
+            break;
+
+            case P_VENTING_MODE:
+              FIRING_MODE = VENTING;
+              PREV_FIRING_MODE = MESON;
+            break;
+
+            case P_SETTINGS_MODE:
+              FIRING_MODE = SETTINGS;
+              PREV_FIRING_MODE = VENTING;
+            break;
+
+            case P_POWER_LEVEL_1:
+              i_power_mode = 1;
+              i_power_mode_prev = 1;
+            break;
+
+            case P_POWER_LEVEL_2:
+              i_power_mode = 2;
+              i_power_mode_prev = 1;
+            break;
+
+            case P_POWER_LEVEL_3:
+              i_power_mode = 3;
+              i_power_mode_prev = 2;
+            break;            
+
+            case P_POWER_LEVEL_4:
+              i_power_mode = 4;
+              i_power_mode_prev = 3;
+            break;            
+
+            case P_POWER_LEVEL_5:
+              i_power_mode = 5;
+              i_power_mode_prev = 4;
+            break;
+
             default:
               // Music track number to be played.
               if(comStruct.i >= i_music_track_start) {
@@ -5338,7 +5306,7 @@ void wandSerialSend(int i_message) {
 }
 
 // Helper method to play a sound effect using certain defaults.
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume, bool b_fade_in = false, unsigned int i_fade_time = 0) {
+void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
@@ -5371,29 +5339,23 @@ void stopEffect(int i_track_id) {
 }
 
 // Helper method to play a music track using certain defaults.
-void playMusic(int i_music_id = i_current_music_track, bool b_music_loop = b_repeat_track, int8_t i_music_volume = i_volume_music) {
-  if(i_music_volume < i_volume_abs_min) {
-    i_music_volume = i_volume_abs_min;
-  }
-  if(i_music_volume > 10) {
-    i_music_volume = i_volume_abs_max;
-  }
-
-  w_trig.trackGain(i_music_id, i_music_volume);
-  w_trig.trackPlayPoly(i_music_id, true);
-
-  if(b_music_loop == true) {
-    w_trig.trackLoop(i_music_id, 1);
+void playMusic() {
+  // Loop the music track.
+  if(b_repeat_track == true) {
+    w_trig.trackLoop(i_current_music_track, 1);
   }
   else {
-    w_trig.trackLoop(i_music_id, 0);
+    w_trig.trackLoop(i_current_music_track, 0);
   }
+
+  w_trig.trackGain(i_current_music_track, i_volume_music);
+  w_trig.trackPlayPoly(i_current_music_track, true);
 
   w_trig.update();
 }
 
-void stopMusic(int i_music_id = i_current_music_track) {
-  w_trig.trackStop(i_music_id);
+void stopMusic() {
+  w_trig.trackStop(i_current_music_track);
 
   w_trig.update();
 }

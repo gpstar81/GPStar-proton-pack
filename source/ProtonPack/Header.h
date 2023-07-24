@@ -28,6 +28,11 @@
 #define VENT_LIGHT_START i_powercell_leds + i_cyclotron_leds
 
 /*
+ * The Haslab Cyclotron Lid has 12 LEDs.
+*/
+#define HASLAB_CYCLOTRON_LED_COUNT 12
+
+/*
  * Proton pack Power Cell and Cyclotron lid led pin.
 */
 #define PACK_LED_PIN 53
@@ -57,6 +62,7 @@ millisDelay ms_fast_led;
 unsigned int i_powercell_delay = i_powercell_delay_2021;
 int i_powercell_led = 0;
 millisDelay ms_powercell;
+bool b_powercell_updating = false;
 
 /* 
  *  Cyclotron Inner Switch Panel LEDs control. (optional)
@@ -105,7 +111,6 @@ bool i_cyclotron_led_on_status[40] = { false, false, false, false, false, false,
 rampInt ms_cyclotron_led_fade_out[40] = {};
 rampInt ms_cyclotron_led_fade_in[40] = {};
 uint8_t i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-bool b_powercell_updating = false;
 
 /*
  * Inner cyclotron NeoPixel ring ramp control.
@@ -170,8 +175,8 @@ int i_volume_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 int i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
 int i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 
-int8_t i_volume = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
+int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
 int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
 int8_t i_volume_revert = i_volume_master;
 
@@ -298,7 +303,7 @@ int i_last_val_rotary;
 
 /*
  * LED Dimming / Brightness Control.
-*/
+ */
 enum pack_led_dim_control {
   DIM_POWERCELL,
   DIM_CYCLOTRON,
@@ -306,6 +311,16 @@ enum pack_led_dim_control {
 };
 
 uint8_t pack_dim_toggle = DIM_POWERCELL;
+
+/*
+ * LED Devices.
+ */
+enum device {
+  POWERCELL,
+  CYCLOTRON_OUTER,
+  CYCLOTRON_INNER,
+  VENT_LIGHT
+};
 
 /*
  * Misc.
@@ -319,12 +334,12 @@ bool b_pack_shutting_down = false;
 /*
  * Function prototypes.
 */
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume, bool b_fade_in = false, unsigned int i_fade_time = 0);
+void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
 void stopEffect(int i_track_id);
-void stopMusic(int i_music_id = i_current_music_track);
-void playMusic(int i_music_id = i_current_music_track, bool b_music_loop = b_repeat_track, int8_t i_music_volume = i_volume_music);
-void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume, bool b_fade = false, unsigned int i_fade_time = 0);
-void powercellDraw(bool b_colour_toggle = false, int i_tmp = 0);
+void stopMusic();
+void playMusic();
+void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
+void powercellDraw(uint8_t i_start = 0);
 
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
