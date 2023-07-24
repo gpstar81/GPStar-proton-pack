@@ -28,6 +28,11 @@
 #define VENT_LIGHT_START i_powercell_leds + i_cyclotron_leds
 
 /*
+ * The Haslab Cyclotron Lid has 12 LEDs.
+*/
+#define HASLAB_CYCLOTRON_LED_COUNT 12
+
+/*
  * Proton pack Power Cell and Cyclotron lid led pin.
 */
 #define PACK_LED_PIN 53
@@ -57,6 +62,7 @@ millisDelay ms_fast_led;
 unsigned int i_powercell_delay = i_powercell_delay_2021;
 int i_powercell_led = 0;
 millisDelay ms_powercell;
+bool b_powercell_updating = false;
 
 /* 
  *  Cyclotron Inner Switch Panel LEDs control. (optional)
@@ -105,7 +111,6 @@ bool i_cyclotron_led_on_status[40] = { false, false, false, false, false, false,
 rampInt ms_cyclotron_led_fade_out[40] = {};
 rampInt ms_cyclotron_led_fade_in[40] = {};
 uint8_t i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-bool b_powercell_updating = false;
 
 /*
  * Inner cyclotron NeoPixel ring ramp control.
@@ -331,8 +336,8 @@ bool b_pack_shutting_down = false;
 */
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
 void stopEffect(int i_track_id);
-void stopMusic(int i_music_id = i_current_music_track);
-void playMusic(int i_music_id = i_current_music_track, bool b_music_loop = b_repeat_track, int8_t i_music_volume = i_volume_music);
+void stopMusic();
+void playMusic();
 void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
 void powercellDraw(uint8_t i_start = 0);
 
