@@ -64,7 +64,7 @@
 #include "MusicSounds.h"
 #include "Communication.h"
 #include "Header.h"
-#include "Colors.h"
+#include "Colours.h"
 
 #ifndef GPSTAR_NEUTRONA_WAND_PCB
   #include <AltSoftSerial.h>
@@ -2727,6 +2727,7 @@ void wandBarrelHeatUp() {
 
       case VENTING:
       case SETTINGS:
+      default:
         // nothing
       break;
     }
@@ -2761,6 +2762,7 @@ void wandBarrelHeatDown() {
 
       case VENTING:
       case SETTINGS:
+      default:
         // Nothing.
       break;
     }
@@ -2775,7 +2777,7 @@ void wandBarrelHeatDown() {
   }
 }
 
-void fireStream(CRGB c_color) {
+void fireStream(CRGB c_colour) {
   if(ms_firing_stream_blue.justFinished()) {
     if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {
       switch(FIRING_MODE) {
@@ -2840,7 +2842,7 @@ void fireStream(CRGB c_color) {
       ms_firing_stream_blue.start(d_firing_stream / 2);
     }
     else if(i_barrel_light < BARREL_NUM_LEDS) {
-      barrel_leds[i_barrel_light] = c_color;
+      barrel_leds[i_barrel_light] = c_colour;
 
       ms_fast_led.start(i_fast_led_delay);
 
@@ -2868,9 +2870,9 @@ void barrelLightsOff() {
   ms_fast_led.start(i_fast_led_delay);
 }
 
-void fireStreamStart(CRGB c_color) {
+void fireStreamStart(CRGB c_colour) {
   if(ms_firing_lights.justFinished() && i_barrel_light < BARREL_NUM_LEDS) {
-    barrel_leds[i_barrel_light] = c_color;
+    barrel_leds[i_barrel_light] = c_colour;
     ms_fast_led.start(i_fast_led_delay);
 
     ms_firing_lights.start(d_firing_lights);
@@ -2886,9 +2888,9 @@ void fireStreamStart(CRGB c_color) {
   }
 }
 
-void fireStreamEnd(CRGB c_color) {
+void fireStreamEnd(CRGB c_colour) {
   if(i_barrel_light < BARREL_NUM_LEDS) {
-    barrel_leds[i_barrel_light] = c_color;
+    barrel_leds[i_barrel_light] = c_colour;
     ms_fast_led.start(i_fast_led_delay);
 
     ms_firing_lights_end.start(d_firing_lights);
@@ -5215,6 +5217,61 @@ void checkPack() {
               stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
 
               playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
+            break;
+
+            case P_PROTON_MODE:
+              FIRING_MODE = PROTON;
+              PREV_FIRING_MODE = SETTINGS;
+            break;
+
+            case P_SLIME_MODE:
+              FIRING_MODE = SLIME;
+              PREV_FIRING_MODE = PROTON;
+            break;
+            
+            case P_STASIS_MODE:
+              FIRING_MODE = STASIS;
+              PREV_FIRING_MODE = SLIME;
+            break;
+
+            case P_MESON_MODE:
+              FIRING_MODE = MESON;
+              PREV_FIRING_MODE = STASIS;
+            break;
+
+            case P_VENTING_MODE:
+              FIRING_MODE = VENTING;
+              PREV_FIRING_MODE = MESON;
+            break;
+
+            case P_SETTINGS_MODE:
+              FIRING_MODE = SETTINGS;
+              PREV_FIRING_MODE = VENTING;
+            break;
+
+            case P_POWER_LEVEL_1:
+              i_power_mode = 1;
+              i_power_mode_prev = 1;
+            break;
+
+            case P_POWER_LEVEL_2:
+              i_power_mode = 2;
+              i_power_mode_prev = 1;
+            break;
+
+            case P_POWER_LEVEL_3:
+              i_power_mode = 3;
+              i_power_mode_prev = 2;
+            break;            
+
+            case P_POWER_LEVEL_4:
+              i_power_mode = 4;
+              i_power_mode_prev = 3;
+            break;            
+
+            case P_POWER_LEVEL_5:
+              i_power_mode = 5;
+              i_power_mode_prev = 4;
             break;
 
             default:
