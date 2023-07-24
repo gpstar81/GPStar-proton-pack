@@ -5306,7 +5306,7 @@ void wandSerialSend(int i_message) {
 }
 
 // Helper method to play a sound effect using certain defaults.
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0) {
+void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
@@ -5339,29 +5339,23 @@ void stopEffect(int i_track_id) {
 }
 
 // Helper method to play a music track using certain defaults.
-void playMusic(int i_music_id = i_current_music_track, bool b_music_loop = b_repeat_track, int8_t i_music_volume = i_volume_music) {
-  if(i_music_volume < i_volume_abs_min) {
-    i_music_volume = i_volume_abs_min;
-  }
-  if(i_music_volume > 10) {
-    i_music_volume = i_volume_abs_max;
-  }
-
-  w_trig.trackGain(i_music_id, i_music_volume);
-  w_trig.trackPlayPoly(i_music_id, true);
-
-  if(b_music_loop == true) {
-    w_trig.trackLoop(i_music_id, 1);
+void playMusic() {
+  // Loop the music track.
+  if(b_repeat_track == true) {
+    w_trig.trackLoop(i_current_music_track, 1);
   }
   else {
-    w_trig.trackLoop(i_music_id, 0);
+    w_trig.trackLoop(i_current_music_track, 0);
   }
+
+  w_trig.trackGain(i_current_music_track, i_volume_music);
+  w_trig.trackPlayPoly(i_current_music_track, true);
 
   w_trig.update();
 }
 
-void stopMusic(int i_music_id = i_current_music_track) {
-  w_trig.trackStop(i_music_id);
+void stopMusic() {
+  w_trig.trackStop(i_current_music_track);
 
   w_trig.update();
 }
