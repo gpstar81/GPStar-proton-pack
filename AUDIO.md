@@ -18,15 +18,19 @@ Mac and Linux users can format SD Cards larger than 32GB as FAT32 normally with 
 SD Cards with capacities of **32GB OR LESS** can be formatted normally in the Windows Explorer.
 ![Mac and Linux Formatting](images/fat32windows.jpg)
 
-**SD Cards with capacities larger than 32GB** for Windows users will need to be formatted a different way. We recommend the free tool Fat32Format by Tom Thornhill.
+**SD Cards with capacities larger than 32GB** for Windows users will need to be formatted a different way. We recommend the free tool Fat32Format by Tom Thornhill. It can be found in the `extras` folder of this repository or in the direct download link below
 
 (Web Site)
 [Fat 32 Format GUI version] (http://ridgecrop.co.uk/index.htm?guiformat.htm)
 
 (Direct Download link)
-[fat32format (exe)](http://ridgecrop.co.uk/guiformat.exe)
+[fat32format (exe)](extras/guiformat.exe)
 
 ![fat32formatter](images/fat32.jpg)
+
+`Thank you to Tom Thornhill for allowing us to distribute his FAT32 formatter for Windows users. If you find his software useful, you can donate directly to him by clicking on the button below`
+
+[![Tom Thornhill donate](images/donate.gif)](https://www.paypal.com/webapps/shoppingcart?flowlogging_id=f8611276523bf&mfid=1690302003463_f8611276523bf#/checkout/openButton)
 
 ## Loading Files to the SD Cards
 
