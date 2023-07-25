@@ -24,7 +24,7 @@ SD Cards with capacities of **32GB OR LESS** can be formatted normally in the Wi
 [Fat 32 Format GUI version] (http://ridgecrop.co.uk/index.htm?guiformat.htm)
 
 (Direct Download link)
-[fat32format (exe)](extras/guiformat.exe "download")
+[fat32format (exe)](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/guiformat.exe)
 
 ![fat32formatter](images/fat32.jpg)
 
