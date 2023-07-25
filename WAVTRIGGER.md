@@ -38,9 +38,9 @@ Note the "5V" pad just below the SPKR connection holes.
 
 ![Connection Overview](images/WavTrigger5V.jpg)
 
-## Arduino Connections
+## Connections
 
-Once the firmware is updated to 1.34 and you have confirmed this using the WavTrigger setup utility, there will be connections made to the respective Arduino boards. Similar to the previous step the RX and TX will go to the respective TX and RX ports on the Arduino boards. See the setup instructions for the Pack and Wand as necessary. The 5Vin and GND will be connected to the power to each of the pack and wand, respectively. DO NOT use the 5V port on either Arduino to drive this device--you will need to split your power connection to each device to provide sufficient current.
+Once the firmware is updated to 1.34 and you have confirmed this using the WavTrigger setup utility, there will be connections made to the respective microcontroller boards. Similar to the previous step the RX and TX will go to the respective TX and RX ports on the microcontroller boards. See the setup instructions for the Pack and Wand as necessary. The 5Vin and GND will be connected to the power to each of the pack and wand, respectively. DO NOT use the 5V port on either Mega or Nano to drive this device--you will need to split your power connection to each device to provide sufficient current.
 
 NOTE: See below for more information. I used standard breadboard friendly header jumper cables to make the connections from the FTDI basic to the connectors I added to the WavTrigger. Also note that the WavTriggers have both a AUX output and/or 2 pins for audio output. You can use either or to connect to your speakers or amps.
 
