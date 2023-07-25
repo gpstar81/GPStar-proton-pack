@@ -36,7 +36,7 @@
 #include "MusicSounds.h"
 #include "Communication.h"
 #include "Header.h"
-#include "colours.h"
+#include "Colours.h"
 
 void setup() {
   Serial.begin(9600);
@@ -2764,6 +2764,12 @@ void increaseVolume() {
   i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
   i_volume_revert = i_volume_master;
 
+  if(b_pack_on != true && b_pack_shutting_down != true) {
+    // Provide feedback when the Pack is not running.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master);
+  }
+
   w_trig.masterGain(i_volume_master);
 }
 
@@ -2784,6 +2790,12 @@ void decreaseVolume() {
 
     w_trig.masterGain(i_volume_master);
   }
+
+  if(b_pack_on != true && b_pack_shutting_down != true) {
+    // Provide feedback when the Pack is not running.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master);
+  }  
 }
 
 void readEncoder() {
