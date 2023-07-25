@@ -2182,7 +2182,7 @@ void ventLight(bool b_on) {
 
   if(b_on == true) {
     // If doing firing smoke effects, lets change the light colours.
-    if(b_wand_firing == true) {
+    if(b_wand_firing == true || b_overheating == true) {
       if(FIRING_MODE == PROTON) {
         // Override the N-filter light colours for a proton stream.
         switch(i_wand_power_level) {
@@ -2212,7 +2212,7 @@ void ventLight(bool b_on) {
         }
       }
     }
-    else if(b_alarm == true && b_overheating != true) {
+    else if(b_alarm == true) {
       i_colour_scheme = C_RED;
     }
 
