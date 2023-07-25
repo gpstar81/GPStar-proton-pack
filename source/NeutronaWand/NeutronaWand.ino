@@ -55,7 +55,7 @@
   const uint8_t MAX_PACKET_SIZE = 0xFE; // Maximum allowed payload bytes per packet
 
   * After:
-  const uint8_t MAX_PACKET_SIZE = 0x9B; // Maximum allowed payload bytes per packet
+  const uint8_t MAX_PACKET_SIZE = 0x50; // Maximum allowed payload bytes per packet
 */
 #include <SerialTransfer.h>
 
@@ -64,7 +64,10 @@
 #include "MusicSounds.h"
 #include "Communication.h"
 #include "Header.h"
-#include "Colours.h"
+
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  #include "Colours.h"
+#endif
 
 #ifndef GPSTAR_NEUTRONA_WAND_PCB
   #include <AltSoftSerial.h>
@@ -966,7 +969,11 @@ void mainLoop() {
   }
 
   if(ms_firing_lights_end.justFinished()) {
-    fireStreamEnd(getHue(C_BLACK));
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      fireStreamEnd(getHue(C_BLACK));
+    #else
+      fireStreamEnd(0,0,0);
+    #endif
   }
 
   // Check the wing barrel switch button status.
@@ -2591,47 +2598,92 @@ void modeFiring() {
     case PROTON:
       // Shift the stream from red to orange on higher power modes.
       switch(i_power_mode) {
-        case 1:
-          fireStreamStart(getHueAsGRB(C_RED));
-        break;
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          case 1:
+            fireStreamStart(getHueAsGRB(C_RED));
+          break;
 
-        case 2:
-          fireStreamStart(getHueAsGRB(C_RED2));
-        break;
+          case 2:
+            fireStreamStart(getHueAsGRB(C_RED2));
+          break;
 
-        case 3:
-          fireStreamStart(getHueAsGRB(C_RED3));
-        break;
+          case 3:
+            fireStreamStart(getHueAsGRB(C_RED3));
+          break;
 
-        case 4:
-          fireStreamStart(getHueAsGRB(C_RED4));
-        break;
+          case 4:
+            fireStreamStart(getHueAsGRB(C_RED4));
+          break;
 
-        case 5:
-          fireStreamStart(getHueAsGRB(C_RED5));
-        break;
+          case 5:
+            fireStreamStart(getHueAsGRB(C_RED5));
+          break;
 
-        default:
-          fireStreamStart(getHueAsGRB(C_RED));
-        break;
+          default:
+            fireStreamStart(getHueAsGRB(C_RED));
+          break;
+        #else
+          case 1:
+            fireStreamStart(255, 20, 0);
+          break;
+        
+          case 2:
+            fireStreamStart(255, 30, 0);
+          break;
+        
+          case 3:
+            fireStreamStart(255, 40, 0);
+          break;
+        
+          case 4:
+            fireStreamStart(255, 60, 0);
+          break;
+        
+          case 5:
+            fireStreamStart(255, 70, 0);
+          break;
+        
+          default:
+            fireStreamStart(255, 20, 0);
+          break;
+        #endif
       }
       
-      fireStream(getHueAsGRB(C_BLUE));
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        fireStream(getHueAsGRB(C_BLUE));
+      #else
+        fireStream(0, 0, 255);
+      #endif
     break;
 
     case SLIME:
-       fireStreamStart(getHueAsGRB(C_GREEN));
-       fireStream(getHueAsGRB(C_MINT));
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        fireStreamStart(getHueAsGRB(C_GREEN));
+        fireStream(getHueAsGRB(C_MINT));
+      #else
+        fireStreamStart(0, 255, 45);
+        fireStream(20, 200, 45);  
+      #endif
     break;
 
     case STASIS:
-       fireStreamStart(getHueAsGRB(C_BLUE));
-       fireStream(getHueAsGRB(C_AQUA));
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        fireStreamStart(getHueAsGRB(C_BLUE));
+        fireStream(getHueAsGRB(C_AQUA));
+      #else
+        fireStreamStart(0, 45, 100);
+        fireStream(0, 100, 255);  
+      #endif
     break;
 
     case MESON:
-       fireStreamStart(getHueAsGRB(C_ORANGE));
-       fireStream(getHueAsGRB(C_YELLOW));
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        fireStreamStart(getHueAsGRB(C_ORANGE));
+        fireStream(getHueAsGRB(C_YELLOW));
+      #else
+        fireStreamStart(200, 200, 20);
+        fireStream(190, 20, 70);
+      #endif
     break;
 
     case VENTING:
@@ -2705,31 +2757,57 @@ void wandBarrelHeatUp() {
   }
   else if(ms_wand_heatup_fade.justFinished() && i_heatup_counter <= 100) {
     switch(FIRING_MODE) {
-      case PROTON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_WHITE, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
-      break;
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        case PROTON:
+          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_WHITE, i_heatup_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
 
-      case SLIME:
-        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_GREEN, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
-      break;
+        case SLIME:
+          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_GREEN, i_heatup_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
 
-      case STASIS:
-        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_BLUE, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
-      break;
+        case STASIS:
+          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_BLUE, i_heatup_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
 
-      case MESON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_ORANGE, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
-      break;
+        case MESON:
+          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_ORANGE, i_heatup_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
 
-      case VENTING:
-      case SETTINGS:
-      default:
-        // nothing
-      break;
+        case VENTING:
+        case SETTINGS:
+        default:
+          // nothing
+        break;
+      #else
+        case PROTON:
+          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+    
+        case SLIME:
+          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, 0, 0);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+    
+        case STASIS:
+          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatup_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+    
+        case MESON:
+          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+
+        case SETTINGS:
+          // nothing
+        break;
+      #endif
     }
 
     i_heatup_counter++;
@@ -2740,31 +2818,57 @@ void wandBarrelHeatUp() {
 void wandBarrelHeatDown() {
   if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
     switch(FIRING_MODE) {
-      case PROTON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_WHITE, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
-      break;
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        case PROTON:
+          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_WHITE, i_heatdown_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
 
-      case SLIME:
-        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_GREEN, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
-      break;
+        case SLIME:
+          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_GREEN, i_heatdown_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
 
-      case STASIS:
-        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_BLUE, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
-      break;
+        case STASIS:
+          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_BLUE, i_heatdown_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
 
-      case MESON:
-        barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_ORANGE, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
-      break;
+        case MESON:
+          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_ORANGE, i_heatdown_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
 
-      case VENTING:
-      case SETTINGS:
-      default:
-        // Nothing.
-      break;
+        case VENTING:
+        case SETTINGS:
+        default:
+          // Nothing.
+        break;
+      #else
+        case PROTON:
+          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+    
+        case SLIME:
+          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, 0, 0);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+    
+        case STASIS:
+          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatdown_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+    
+        case MESON:
+          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+
+        case SETTINGS:
+          // Nothing.
+        break;
+      #endif
     }
 
     i_heatdown_counter--;
@@ -2777,54 +2881,100 @@ void wandBarrelHeatDown() {
   }
 }
 
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
 void fireStream(CRGB c_colour) {
+#else
+void fireStream(int r, int g, int b) {
+#endif
   if(ms_firing_stream_blue.justFinished()) {
     if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {
       switch(FIRING_MODE) {
         case PROTON:
           if(b_firing_cross_streams == true) {
-            barrel_leds[i_barrel_light - 1] = getHue(C_WHITE);
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              barrel_leds[i_barrel_light - 1] = getHue(C_WHITE);
+            #else
+              barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
+            #endif
           }
           else {
             // Shift the stream from red to orange on higher power modes.
             switch(i_power_mode) {
-              case 1:
-                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
-              break;
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                case 1:
+                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
+                break;
 
-              case 2:
-                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED2);
-              break;
+                case 2:
+                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED2);
+                break;
 
-              case 3:
-                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED3);
-              break;
+                case 3:
+                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED3);
+                break;
 
-              case 4:
-                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED4);
-              break;
+                case 4:
+                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED4);
+                break;
 
-              case 5:
-                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED5);
-              break;
+                case 5:
+                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED5);
+                break;
 
-              default:
-                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
-              break;
+                default:
+                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
+                break;
+              #else
+                case 1:
+                  barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+                break;
+
+                case 2:
+                  barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
+                break;
+
+                case 3:
+                  barrel_leds[i_barrel_light - 1] = CRGB(30, 255, 0);
+                break;
+
+                case 4:
+                  barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
+                break;
+
+                case 5:
+                  barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
+                break;
+
+                default:
+                  barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
+                break;
+              #endif
             }
           }
         break;
 
         case SLIME:
-          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_GREEN);
+          #ifdef GPSTAR_NEUTRONA_WAND_PCB
+            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_GREEN);
+          #else
+            barrel_leds[i_barrel_light - 1] = CRGB(120, 20, 45);
+          #endif
         break;
 
         case STASIS:
-          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLUE);
+          #ifdef GPSTAR_NEUTRONA_WAND_PCB
+            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLUE);
+          #else
+            barrel_leds[i_barrel_light - 1] = CRGB(15, 50, 155);
+          #endif
         break;
 
         case MESON:
-          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_ORANGE);
+          #ifdef GPSTAR_NEUTRONA_WAND_PCB
+            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_ORANGE);
+          #else
+            barrel_leds[i_barrel_light - 1] = CRGB(200, 200, 15);
+          #endif
         break;
 
         case VENTING:
@@ -2842,7 +2992,11 @@ void fireStream(CRGB c_colour) {
       ms_firing_stream_blue.start(d_firing_stream / 2);
     }
     else if(i_barrel_light < BARREL_NUM_LEDS) {
-      barrel_leds[i_barrel_light] = c_colour;
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        barrel_leds[i_barrel_light] = c_colour;
+      #else
+        barrel_leds[i_barrel_light] = CRGB(g,r,b);
+      #endif
 
       ms_fast_led.start(i_fast_led_delay);
 
@@ -2859,7 +3013,11 @@ void barrelLightsOff() {
   i_heatdown_counter = 100;
 
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
-    barrel_leds[i] = getHue(C_BLACK);
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      barrel_leds[i] = getHue(C_BLACK);
+    #else
+      barrel_leds[i] = CRGB(0,0,0);
+    #endif
   }
 
   // Turn off the wand barrel tip LED.
@@ -2870,9 +3028,19 @@ void barrelLightsOff() {
   ms_fast_led.start(i_fast_led_delay);
 }
 
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
 void fireStreamStart(CRGB c_colour) {
+#else
+void fireStreamStart(int r, int g, int b) {
+#endif
+
   if(ms_firing_lights.justFinished() && i_barrel_light < BARREL_NUM_LEDS) {
-    barrel_leds[i_barrel_light] = c_colour;
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      barrel_leds[i_barrel_light] = c_colour;
+    #else
+      barrel_leds[i_barrel_light] = CRGB(g,r,b);
+    #endif
+
     ms_fast_led.start(i_fast_led_delay);
 
     ms_firing_lights.start(d_firing_lights);
@@ -2888,9 +3056,19 @@ void fireStreamStart(CRGB c_colour) {
   }
 }
 
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
 void fireStreamEnd(CRGB c_colour) {
+#else
+void fireStreamEnd(int r, int g, int b) {
+#endif
+
   if(i_barrel_light < BARREL_NUM_LEDS) {
-    barrel_leds[i_barrel_light] = c_colour;
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      barrel_leds[i_barrel_light] = c_colour;
+    #else
+      barrel_leds[i_barrel_light] = CRGB(g,r,b);
+    #endif
+
     ms_fast_led.start(i_fast_led_delay);
 
     ms_firing_lights_end.start(d_firing_lights);
@@ -4690,7 +4868,11 @@ void switchLoops() {
 
 void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
-    barrel_leds[i] = getHue(C_BLACK);
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      barrel_leds[i] = getHue(C_BLACK);
+    #else
+      barrel_leds[i] = CRGB(0,0,0);
+    #endif
   }
 
   ms_fast_led.start(i_fast_led_delay);

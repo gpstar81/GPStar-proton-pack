@@ -57,14 +57,14 @@ You need to enable `__WT_USE_ALTSOFTSERIAL__` by uncommenting this line inside t
 ![WavTrigger Serial Class for Arduino Nano](images/wt_serial_nano.png)
 
 ### Important for Arduino Nano builds:
-  * You will need to open Packet.h located in your Arduino/Libraries/SerialTransfer folder and on line #34 and change the max packet size to 0x9B
+  * You will need to open Packet.h located in your Arduino/Libraries/SerialTransfer folder and on line #34 and change the max packet size to 0x50
   * When building for your Mega, you can switch it back to 0xFE
 
   * Before:
   const uint8_t MAX_PACKET_SIZE = 0xFE; // Maximum allowed payload bytes per packet
 
   * After:
-  const uint8_t MAX_PACKET_SIZE = 0x9B; // Maximum allowed payload bytes per packet
+  const uint8_t MAX_PACKET_SIZE = 0x50; // Maximum allowed payload bytes per packet
 
 ![Serial build for Arduino Nano](images/Arduino_nano_serial_build.jpg)
 

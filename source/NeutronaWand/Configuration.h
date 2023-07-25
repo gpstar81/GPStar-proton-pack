@@ -109,7 +109,7 @@ bool b_cross_the_streams_mix = false;
  * This can be enabled or disabled from the Neutrona wand sub menu system.
  * Default = true.
 */
-bool b_vibration_on = true;
+bool b_vibration_on = false;
 
 /*
  * When set to true, when b_vibration_on is set to true, the Neutrona wand will only vibrate during firing.
@@ -117,7 +117,7 @@ bool b_vibration_on = true;
  * This can be enabled or disabled from the Neutrona wand sub menu system.
  * Default = true.
 */
-bool b_vibration_firing = true;
+bool b_vibration_firing = false;
 
 /*
  * Set to true to enable overheating. Overheat settings are defined below.
@@ -164,7 +164,7 @@ const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
  * Set this to true to be able to use your wand without a Proton Pack connected.
  * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
 */
-const bool b_no_pack = false;
+const bool b_no_pack = true;
 
 /*
  * Set to false to disable the onboard amplifer on the wav trigger. 
