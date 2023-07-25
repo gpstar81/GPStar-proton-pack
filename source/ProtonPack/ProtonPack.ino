@@ -2752,10 +2752,6 @@ void increaseVolume() {
 
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
     i_volume_master_percentage = 100;
-
-    // Provide feedback at maximum volume.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
