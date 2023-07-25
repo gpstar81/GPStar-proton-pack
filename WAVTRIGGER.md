@@ -2,6 +2,8 @@
 
 The first thing to take care of is updating the firmware on the WavTrigger boards. Sometimes they ship with firmware version 1.28 and 1.34 is required for one feature used during music playback. It is possible to use the WavTriggers without updating the firmware, the only issue you will have is during music playback: when a track ends, the next track will not automatically load and play itself.
 
+`As of July 2023, all Wav Triggers purchased should have the latest firmware already installed.`
+
 The WavTrigger firmware and software updater and instructions [can be found on the Robertsonics website](https://www.robertsonics.com/wav-trigger). To update the firmware, an [FTDI Basic (5V version)](https://www.sparkfun.com/products/9716) from Sparkfun should be used to interface with the WavTrigger.
 
 [WAV Trigger Firmware v1.34](https://www.robertsonics.com/s/WAVTrig_134_20200324.zip)
