@@ -55,7 +55,7 @@
   const uint8_t MAX_PACKET_SIZE = 0xFE; // Maximum allowed payload bytes per packet
 
   * After:
-  const uint8_t MAX_PACKET_SIZE = 0x40; // Maximum allowed payload bytes per packet
+  const uint8_t MAX_PACKET_SIZE = 0x50; // Maximum allowed payload bytes per packet
 */
 #include <SerialTransfer.h>
 
