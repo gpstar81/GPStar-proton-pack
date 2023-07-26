@@ -24,8 +24,21 @@
  * 7 additional (32 in total) for a NeoPixel jewel that you can put into the n-filter (optional). 
  * This jewel chains off cyclotron lens #4 in the lid (top left lens).
  */
-#define PACK_NUM_LEDS i_powercell_leds + i_cyclotron_leds + 7
-#define VENT_LIGHT_START i_powercell_leds + i_cyclotron_leds
+// Max amount of LEDs allowed: 15 for the Power Cell and 40 for the Cyclotron lid.
+const uint8_t i_max_pack_leds = 15 + 40;
+const uint8_t i_nfilter_jewel_leds = 7;
+
+/*
+ * Updated count of all the LEDs plus the n-filter jewel.
+ * This gets updated by the system if the wand changes the led count in the EEPROM menu system.
+*/
+uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_leds;
+
+/*
+ * Which LED the N-Filter jewel LEDs start.
+ * This gets updated by the system if the wand changes the LED count in the EEPROM menu system.
+*/
+uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
 
 /*
  * The Haslab Cyclotron Lid has 12 LEDs.
@@ -36,12 +49,15 @@
  * Proton pack Power Cell and Cyclotron lid led pin.
 */
 #define PACK_LED_PIN 53
-CRGB pack_leds[PACK_NUM_LEDS];
+CRGB pack_leds[i_max_pack_leds + i_nfilter_jewel_leds];
 
 /*
  * Inner Cyclotron LEDs. (optional).
+ * Max number of LEDs supported = 35.
  * Uses pin 13.
  */
+ // Maximum allowed LEDs for the Inner Cyclotron is 35.
+#define CYCLOTRON_NUM_LEDS 35
 #define CYCLOTRON_LED_PIN 13
 CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
 
@@ -88,7 +104,7 @@ enum PACK_ACTION_STATE PACK_ACTION_STATUS;
 /*
  * Cyclotron lid LEDs control and lid detection.
  */
-const uint8_t cyclotron_led_start = i_powercell_leds; // First LED in the cyclotron.
+uint8_t cyclotron_led_start = i_powercell_leds; // First LED in the cyclotron.
 uint8_t i_led_cyclotron = cyclotron_led_start; // Current cyclotron LED that we are lighting up.
 const unsigned int i_2021_ramp_delay = 300;
 const unsigned int i_2021_ramp_length = 6000;
@@ -330,6 +346,23 @@ unsigned int i_mode_year_tmp = 2021; // Controlled by the Neutrona wand.
 bool b_switch_mode_override = false; // Year mode override flag controlled by the Neutrona wand. This resets when you flip the mode year toggle switch on the pack.
 bool b_pack_on = false;
 bool b_pack_shutting_down = false;
+
+/*
+ * EEPROM
+*/
+unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
+unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
+
+
+/*
+ * EEPROM Data structure object that is saved into the EEPROM memory.
+*/
+struct objEEPROM {
+  uint8_t powercell_count;
+  uint8_t cyclotron_count;
+  uint8_t inner_cyclotron_count;
+  uint8_t grb_inner_cyclotron;
+};
 
 /*
  * Function prototypes.

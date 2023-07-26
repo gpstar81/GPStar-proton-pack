@@ -142,7 +142,7 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 To access the sub level menu, use the `Top Dial` on the top of the wand. When you reach the sub level menu, the Slo-blo LED will light up to indicate this menu state.
 ![](images/OperationNeutrona10.jpg)
 
-| Sub&nbsp;Menu&nbsp;Level | Purpose | Intensify Button | Barrel Wing Button |
+| Sub&nbsp;Level&nbsp;Menu | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
 | 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes<sup>4</sup> |
 | 4 | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/Disable smoke effects | Enable/Disable overheating |
@@ -163,7 +163,26 @@ To exit the menu system, navigate to the top menu in **Setting 5** (Slo-blo LED 
 
 `When music is playing while the pack and wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily access the independent music volume control.`
 
-Refer the [Loading The Audio Files](AUDIO.md) for more information on loading additional music tracks.
+Refer to the [Loading The Audio Files](AUDIO.md) for more information on loading additional music tracks.
+
+## EEPROM Menu
+The EEPROM menu system can be used to configure different LED setups within your Proton Pack. All changes can be saved directly to the Proton Pack EEPROM and will be loaded automatically even if you turn off the power to your devices.
+
+To access the EEPROM menu system, hold the `Intensify Button` down and toggle the right hand `Top Toggle` button 5 times. You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM menu system.
+
+`The EEPROM menu system can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
+
+`The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your life time, but if you did, it can be disabled to bypass it. Refer to the Advanced User Configurations below for more information.`
+
+![](images/OperationNeutrona11.jpg)
+
+| EEPROM&nbsp;Menu&nbsp;Level | Purpose | Intensify Button | Barrel Wing Button |
+|----------------|---------|------------------|--------------------|
+| 5 | Save or Clear the EEPROM settings | Clear all the settings in the Proton Pack EEPROM.<br><br>***The Proton Pack will instead load the software defined defaults.***| Save the current settings to the Proton Pack EEPROM. |
+| 4 | Cyclotron LED Count Toggle| Toggle between 40, 20 or 12 LEDs for your Cyclotron. | - |
+| 3 | Power Cell LED Count Toggle | Toggle between 15 or 13 LEDs for your Power Cell. | - |
+| 2 | Inner Cyclotron LED Count Toggle | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron Cake. | - |
+| 1 | Inner Cyclotron GRB Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | - |
 
 ## Advanced User Configurations
 

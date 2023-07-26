@@ -152,10 +152,23 @@ enum sound_fx {
   S_VOICE_PROTON_MIX_EFFECTS_ENABLED,
   S_VOICE_PROTON_MIX_EFFECTS_DISABLED,
   S_ALARM_LOOP,
-  S_RIBBON_CABLE_START
+  S_RIBBON_CABLE_START,
+  S_VOICE_POWERCELL_15,
+  S_VOICE_POWERCELL_13,
+  S_VOICE_CYCLOTRON_40,
+  S_VOICE_CYCLOTRON_20,
+  S_VOICE_CYCLOTRON_12,
+  S_VOICE_INNER_CYCLOTRON_35,
+  S_VOICE_INNER_CYCLOTRON_24,
+  S_VOICE_INNER_CYCLOTRON_23,
+  S_VOICE_INNER_CYCLOTRON_12,
+  S_VOICE_RGB_INNER_CYCLOTRON,
+  S_VOICE_GRB_INNER_CYCLOTRON,
+  S_VOICE_EEPROM_ERASE,
+  S_VOICE_EEPROM_SAVE
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const unsigned int i_last_effects_track = S_RIBBON_CABLE_START;
+const unsigned int i_last_effects_track = S_VOICE_EEPROM_SAVE;
