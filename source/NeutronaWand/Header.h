@@ -103,7 +103,6 @@ bool b_switch_mode_pressed = false;
  * Some switch settings.
  */
 const uint8_t switch_debounce_time = 50;
-
 millisDelay ms_switch_mode_debounce;
 millisDelay ms_intensify_timer;
 const unsigned int i_intensify_delay = 400;
@@ -165,15 +164,18 @@ uint8_t i_bargraph_status = 0;
  * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
 */
 bool b_28segment_bargraph = false;
-const uint8_t i_bargraph_interval = 4;
-const uint8_t i_bargraph_wait = 180;
-millisDelay ms_bargraph_alt;
-bool b_bargraph_up = false;
-uint8_t i_bargraph_status_alt = 0;
-const uint8_t d_bargraph_ramp_interval_alt = 40;
-const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
-const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
-unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  const uint8_t i_bargraph_interval = 4;
+  const uint8_t i_bargraph_wait = 180;
+  bool b_bargraph_up = false;
+  millisDelay ms_bargraph_alt;
+  uint8_t i_bargraph_status_alt = 0;
+  const uint8_t d_bargraph_ramp_interval_alt = 40;
+  const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
+  const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
+  unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+#endif
 
 /*
  * (Optional) Barmeter 28 segment bargraph mapping.

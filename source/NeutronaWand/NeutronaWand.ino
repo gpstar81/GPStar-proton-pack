@@ -55,7 +55,7 @@
   const uint8_t MAX_PACKET_SIZE = 0xFE; // Maximum allowed payload bytes per packet
 
   * After:
-  const uint8_t MAX_PACKET_SIZE = 0x50; // Maximum allowed payload bytes per packet
+  const uint8_t MAX_PACKET_SIZE = 0x40; // Maximum allowed payload bytes per packet
 */
 #include <SerialTransfer.h>
 
@@ -113,10 +113,10 @@ void setup() {
   pinMode(r_encoderA, INPUT_PULLUP);
   pinMode(r_encoderB, INPUT_PULLUP);
 
-  bargraphYearModeUpdate();
-
   // Setup the bargraph.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    bargraphYearModeUpdate();
+
     delay(10);
 
     WIRE.begin();
@@ -326,7 +326,9 @@ void mainLoop() {
       }
 
       if(ms_overheating.justFinished()) {
-        bargraphClearAlt();
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          bargraphClearAlt();
+        #endif
 
         ms_overheating.stop();
         ms_settings_blinking.stop();
@@ -344,13 +346,15 @@ void mainLoop() {
         // Prepare a few things before ramping the bargraph back up from a full ramp down.
         if(b_overheat_bargraph_blink != true) {
           playEffect(S_BOOTUP);
-
-          if(year_mode == 2021) {
-            bargraphYearModeUpdate();
-          }
-          else {
-            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
-          }
+          
+          #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              if(year_mode == 2021) {
+                bargraphYearModeUpdate();
+              }
+              else {
+                i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
+              }
+          #endif
 
           if(switch_vent.getState() == LOW) {
             soundIdleLoop(true);
@@ -1019,7 +1023,10 @@ void startVentSequence() {
     b_beeping = false;
 
     // Reset some bargraph levels before we ramp the bargraph down.
-    i_bargraph_status_alt = 28; // For 28 segment bargraph
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      i_bargraph_status_alt = 28; // For 28 segment bargraph
+    #endif
+
     i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
 
     bargraphFull();
@@ -1523,7 +1530,9 @@ void checkSwitches() {
             else {
               FIRING_MODE = PROTON;
 
-              bargraphClearAlt();
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                bargraphClearAlt();
+              #endif
 
               // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
               // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
@@ -1552,8 +1561,10 @@ void checkSwitches() {
                 i_wand_menu = 5;
                 ms_settings_blinking.start(i_settings_blinking_delay);
 
-                // Clear the bargraph.
-                bargraphClearAlt();
+                #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                  // Clear the 28 segment bargraph.
+                  bargraphClearAlt();
+                #endif
 
                 // Tell the pack we are in settings mode.
                 wandSerialSend(W_SETTINGS_MODE);
@@ -1734,7 +1745,9 @@ void wandOff() {
 
   // Turn off some timers.
   ms_bargraph.stop();
-  ms_bargraph_alt.stop();
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    ms_bargraph_alt.stop();
+  #endif
   ms_bargraph_firing.stop();
   ms_overheat_initiate.stop();
   ms_overheating.stop();
@@ -1746,16 +1759,18 @@ void wandOff() {
   wandLightsOff();
   barrelLightsOff();
 
-  switch(year_mode) {
-    case 2021:
-      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
-    break;
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    switch(year_mode) {
+      case 2021:
+        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+      break;
 
-    case 1984:
-    case 1989:
-      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
-    break;
-  }
+      case 1984:
+      case 1989:
+        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+      break;
+    }
+  #endif
 }
 
 void modeActivate() {
@@ -1787,17 +1802,19 @@ void modeActivate() {
     wandSerialSend(W_ON);
   }
 
-  // Ramp up the bargraph.
-  switch(year_mode) {
-    case 2021:
-      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
-    break;
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    // Ramp up the bargraph.
+    switch(year_mode) {
+      case 2021:
+        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+      break;
 
-    case 1984:
-    case 1989:
-      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
-    break;
-  }
+      case 1984:
+      case 1989:
+        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
+      break;
+    }
+  #endif
 
   if(WAND_STATUS != MODE_ERROR) {
     if(b_pack_alarm != true) {
@@ -2115,7 +2132,9 @@ void modeFireStart() {
   b_sound_firing_cross_the_streams = false;
   b_firing_cross_streams = false;
 
-  bargraphClearAlt();
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    bargraphClearAlt();
+  #endif
 
   // Turn on hat light 1.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -2220,10 +2239,14 @@ void modeFireStart() {
 
   // Stop any bargraph ramps.
   ms_bargraph.stop();
-  ms_bargraph_alt.stop();
-  b_bargraph_up = false;
+
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    ms_bargraph_alt.stop();
+    i_bargraph_status_alt = 0;
+    b_bargraph_up = false;
+  #endif
+
   i_bargraph_status = 1;
-  i_bargraph_status_alt = 0;
   bargraphRampFiring();
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -2278,7 +2301,7 @@ void modeFireStopSounds() {
   }
 }
 
-void modeFireStop() {
+void modeFireStop() {  
   ms_overheat_initiate.stop();
 
   // Tell the pack the wand stopped firing.
@@ -2291,23 +2314,29 @@ void modeFireStop() {
   b_firing_alt = false;
 
   ms_bargraph_firing.stop();
-  ms_bargraph_alt.stop(); // Stop the 1984 24 segment optional bargraph timer just in case.
-  b_bargraph_up = false;
+  
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    ms_bargraph_alt.stop(); // Stop the 1984 24 segment optional bargraph timer.
+    b_bargraph_up = false;
+  #endif
 
   i_bargraph_status = i_power_mode - 1;
-  i_bargraph_status_alt = 0;
-  bargraphClearAlt();
+  
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    i_bargraph_status_alt = 0;
+    bargraphClearAlt();
+  
+    switch(year_mode) {
+      case 2021:
+        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+      break;
 
-  switch(year_mode) {
-    case 2021:
-      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
-    break;
-
-    case 1984:
-    case 1989:
-      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
-    break;
-  }
+      case 1984:
+      case 1989:
+        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+      break;
+    }
+  #endif
 
   if(b_pack_alarm == true) {
     // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
@@ -3675,49 +3704,51 @@ void cyclotronSpeedUp(uint8_t i_switch) {
 // 2021 mode for optional 28 segment bargraph.
 // Checks if we ramp up or down when changing power levels.
 // Forces the bargraph to redraw itself to the current power level.
-void bargraphPowerCheck2021Alt(bool b_override) {
-  if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override == true) {
-    if(i_power_mode != i_power_mode_prev || b_override == true) {
-      if(i_power_mode > i_power_mode_prev) {
-        b_bargraph_up = true;
-      }
-      else {
-        b_bargraph_up = false;
-      }
-      switch(i_power_mode) {
-        case 5:
-          ms_bargraph_alt.start(i_bargraph_wait / 3);
-        break;
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  void bargraphPowerCheck2021Alt(bool b_override) {
+    if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override == true) {
+      if(i_power_mode != i_power_mode_prev || b_override == true) {
+        if(i_power_mode > i_power_mode_prev) {
+          b_bargraph_up = true;
+        }
+        else {
+          b_bargraph_up = false;
+        }
+        switch(i_power_mode) {
+          case 5:
+            ms_bargraph_alt.start(i_bargraph_wait / 3);
+          break;
 
-        case 4:
-          ms_bargraph_alt.start(i_bargraph_wait / 4);
-        break;
+          case 4:
+            ms_bargraph_alt.start(i_bargraph_wait / 4);
+          break;
 
-        case 3:
-          ms_bargraph_alt.start(i_bargraph_wait / 5);
-        break;
+          case 3:
+            ms_bargraph_alt.start(i_bargraph_wait / 5);
+          break;
 
-        case 2:
-          ms_bargraph_alt.start(i_bargraph_wait / 6);
-        break;
+          case 2:
+            ms_bargraph_alt.start(i_bargraph_wait / 6);
+          break;
 
-        case 1:
-          ms_bargraph_alt.start(i_bargraph_wait / 7);
-        break;
+          case 1:
+            ms_bargraph_alt.start(i_bargraph_wait / 7);
+          break;
+        }
       }
     }
   }
-}
+#endif
 
-void bargraphClearAlt() {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  void bargraphClearAlt() {
     if(b_28segment_bargraph == true) {
       ht_bargraph.clearAll();
 
       i_bargraph_status_alt = 0;
     }
-  #endif
-}
+  }
+#endif
 
 void bargraphPowerCheck() {
   // Control for the 28 segment barmeter bargraph.
@@ -3747,7 +3778,7 @@ void bargraphPowerCheck() {
                   ms_bargraph_alt.stop();
                 }
                 else {
-                // A little pause when we reach the top.
+                  // A little pause when we reach the top.
                   ms_bargraph_alt.start(i_bargraph_wait / 2);
                 }
               }
@@ -4297,7 +4328,10 @@ void prepBargraphRampDown() {
     b_beeping = false;
 
     // Reset some bargraph levels before we ramp the bargraph down.
-    i_bargraph_status_alt = 28; // For 28 segment bargraph
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      i_bargraph_status_alt = 28; // For 28 segment bargraph
+    #endif
+
     i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
 
     bargraphFull();
@@ -4311,7 +4345,9 @@ void prepBargraphRampDown() {
 
 void prepBargraphRampUp() {
   if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) {
-    bargraphClearAlt();
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      bargraphClearAlt();
+    #endif
 
     ms_settings_blinking.stop();
 
@@ -4319,18 +4355,22 @@ void prepBargraphRampUp() {
     if(b_overheat_bargraph_blink != true) {
       playEffect(S_BOOTUP);
 
-      if(year_mode == 2021) {
-        bargraphYearModeUpdate();
-      }
-      else {
-        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
-      }
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        if(year_mode == 2021) {
+          bargraphYearModeUpdate();
+        }
+        else {
+          i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
+        }
+      #endif
 
       // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
       // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
-      if(year_mode == 2021 && b_28segment_bargraph == true) {
-        bargraphPowerCheck2021Alt(false);
-      }
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        if(year_mode == 2021 && b_28segment_bargraph == true) {
+          bargraphPowerCheck2021Alt(false);
+        }
+      #endif
 
       updatePackPowerLevel();
       bargraphRampUp();
@@ -4357,18 +4397,20 @@ void prepBargraphRampUp() {
   }
 }
 
-void bargraphYearModeUpdate() {
-  switch(year_mode) {
-    case 2021:
-      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
-    break;
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  void bargraphYearModeUpdate() {
+    switch(year_mode) {
+      case 2021:
+        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+      break;
 
-    case 1984:
-    case 1989:
-      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
-    break;
+      case 1984:
+      case 1989:
+        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
+      break;
+    }
   }
-}
+#endif
 
 void wandLightsOff() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -4405,7 +4447,10 @@ void wandLightsOff() {
   digitalWrite(led_white, HIGH);
 
   i_bargraph_status = 0;
-  i_bargraph_status_alt = 0;
+
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    i_bargraph_status_alt = 0;
+  #endif
 }
 
 void vibrationOff() {
@@ -4566,7 +4611,11 @@ void checkRotary() {
             // Tell pack to lower the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
           }
-          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value && b_playing_music == true) {
+          #ifdef GPSTAR_NEUTRONA_WAND_PCB
+            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value && b_playing_music == true) {
+          #else
+            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) > i_switch_mode_value && b_playing_music == true) {
+          #endif
             // Decrease the music volume.
             if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
               i_volume_music_percentage = 0;
@@ -4629,7 +4678,11 @@ void checkRotary() {
             // Tell pack to increase the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
           }
-          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value && b_playing_music == true) {
+          #ifdef GPSTAR_NEUTRONA_WAND_PCB
+            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value && b_playing_music == true) {
+          #else
+            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) > i_switch_mode_value && b_playing_music == true) {
+          #endif
             // Increase music volume.
             if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
               i_volume_music_percentage = 100;
@@ -4888,7 +4941,9 @@ void wandExitMenu() {
     playEffect(S_CLICK);
   }
 
-  bargraphClearAlt();
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    bargraphClearAlt();
+  #endif
 
   switch(PREV_FIRING_MODE) {
     case MESON:
@@ -5121,19 +5176,25 @@ void checkPack() {
             case P_YEAR_1984:
               // 1984 mode.
               year_mode = 1984;
-              bargraphYearModeUpdate();
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                bargraphYearModeUpdate();
+              #endif
             break;
 
             case P_YEAR_1989:
               // 1984 mode.
               year_mode = 1989;
-              bargraphYearModeUpdate();
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                bargraphYearModeUpdate();
+              #endif
             break;
 
             case P_YEAR_AFTERLIFE:
               // 2021 mode.
               year_mode = 2021;
-              bargraphYearModeUpdate();
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                bargraphYearModeUpdate();
+              #endif
             break;
 
             case P_VOLUME_INCREASE:
