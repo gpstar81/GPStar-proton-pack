@@ -875,32 +875,38 @@ void mainLoop() {
 
   switch(WAND_STATUS) {
     case MODE_OFF:
-      if(switchMode() == true || b_pack_alarm == true) {
-        if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
-          playEffect(S_CLICK);
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      if(WAND_ACTION_STATUS != ACTION_EEPROM_MENU) {
+      #endif
+        if(switchMode() == true || b_pack_alarm == true) {
+          if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
+            playEffect(S_CLICK);
 
-          PREV_FIRING_MODE = FIRING_MODE;
-          FIRING_MODE = SETTINGS;
+            PREV_FIRING_MODE = FIRING_MODE;
+            FIRING_MODE = SETTINGS;
 
-          WAND_ACTION_STATUS = ACTION_SETTINGS;
-          i_wand_menu = 5;
-          ms_settings_blinking.start(i_settings_blinking_delay);
+            WAND_ACTION_STATUS = ACTION_SETTINGS;
+            i_wand_menu = 5;
+            ms_settings_blinking.start(i_settings_blinking_delay);
 
-          // Tell the pack we are in settings mode.
-          wandSerialSend(W_SETTINGS_MODE);
+            // Tell the pack we are in settings mode.
+            wandSerialSend(W_SETTINGS_MODE);
+          }
+          else {
+            // Only exit the settings menu when on menu #5 in the top menu.
+            if(i_wand_menu == 5 && b_wand_menu_sub != true && FIRING_MODE == SETTINGS) {
+              wandExitMenu();
+            }
+          }
         }
-        else {
-          // Only exit the settings menu when on menu #5 in the top menu.
-          if(i_wand_menu == 5 && b_wand_menu_sub != true && FIRING_MODE == SETTINGS) {
+        else if(WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on == true) {
+          if(b_no_pack != true) {
             wandExitMenu();
           }
         }
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
       }
-      else if(WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on == true) {
-        if(b_no_pack != true) {
-          wandExitMenu();
-        }
-      }
+      #endif
 
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         // Reset the count of the wand switch
@@ -908,7 +914,7 @@ void mainLoop() {
           switch_wand.resetCount();
         }
 
-        if(WAND_ACTION_STATUS != ACTION_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
+        if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
           stopEffect(S_BEEPS_BARGRAPH);
           playEffect(S_BEEPS_BARGRAPH);
           
