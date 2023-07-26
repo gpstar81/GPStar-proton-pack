@@ -25,6 +25,7 @@
 #include <wavTrigger.h>
 
 // 3rd-Party Libraries
+#include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
@@ -81,7 +82,7 @@ void setup() {
   pinMode(i_nfilter_led_pin, OUTPUT);
 
   // Powercell and Cyclotron Lid.
-  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, PACK_NUM_LEDS);
+  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, i_max_pack_leds + i_nfilter_jewel_leds);
 
   // Inner Cyclotron LEDs.
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
@@ -155,6 +156,11 @@ void setup() {
 
   // Tell the wand the pack is here.
   packSerialSend(P_PACK_BOOTUP);
+
+  // Load any saved settings stored in the EEPROM memory of the Proton Pack.
+  if(b_eeprom == true) {
+    readEEPROM();
+  }
 }
 
 void loop() {
@@ -1161,7 +1167,7 @@ void cyclotronColourReset() {
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
     // Accounts for a total # of LED's minus the N-filter jewel and whatever preceeds the cyclotron.
-    uint8_t i_max = PACK_NUM_LEDS - 7 - cyclotron_led_start;
+    uint8_t i_max = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
     for(int i = 0; i < i_max; i++) {
       if(i_cyclotron_led_on_status[i] == true) {
         // Note: Always assumed to be RGB for built-in or Frutto LED's.
@@ -1311,7 +1317,7 @@ void cyclotronFade() {
 
   switch (i_mode_year) {
     case 2021:
-      for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
+      for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           i_cyclotron_led_on_status[i] = true;
 
@@ -1347,7 +1353,7 @@ void cyclotronFade() {
     case 1984:
     case 1989:
       if(b_fade_cyclotron_led == true) {
-        for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
+        for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
             i_cyclotron_led_on_status[i] = true;
             int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
@@ -1464,7 +1470,7 @@ void cyclotron2021(int cDelay) {
 
       i_led_cyclotron++;
 
-      if(i_led_cyclotron > PACK_NUM_LEDS - 7 - 1) {
+      if(i_led_cyclotron > i_pack_num_leds - i_nfilter_jewel_leds - 1) {
         i_led_cyclotron = cyclotron_led_start;
       }
     }
@@ -1477,7 +1483,7 @@ void cyclotron2021(int cDelay) {
       i_led_cyclotron--;
 
       if(i_led_cyclotron < cyclotron_led_start) {
-        i_led_cyclotron = PACK_NUM_LEDS - 7 - 1;
+        i_led_cyclotron = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
     }
   }
@@ -1574,7 +1580,7 @@ void cyclotron1984Alarm() {
       pack_leds[led1 + 1] = getHue(i_colour_scheme, i_brightness);
 
       if(led1 - 1 < cyclotron_led_start) {
-        led1 = PACK_NUM_LEDS - 7 - 1;
+        led1 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         led1 = led1 - 1;
@@ -1584,7 +1590,7 @@ void cyclotron1984Alarm() {
       pack_leds[led2 + 1] = getHue(i_colour_scheme, i_brightness);
 
       if(led2 - 1 < cyclotron_led_start) {
-        led2 = PACK_NUM_LEDS - 7 - 1;
+        led2 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         led2 = led2 - 1;
@@ -1594,7 +1600,7 @@ void cyclotron1984Alarm() {
       pack_leds[led3 + 1] = getHue(i_colour_scheme, i_brightness);
 
       if(led3 - 1 < cyclotron_led_start) {
-        led3 = PACK_NUM_LEDS - 7 - 1;
+        led3 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         led3 = led3 - 1;
@@ -1604,7 +1610,7 @@ void cyclotron1984Alarm() {
       pack_leds[led4 + 1] = getHue(i_colour_scheme, i_brightness);
 
       if(led4 - 1 < cyclotron_led_start) {
-        led4 = PACK_NUM_LEDS - 7 - 1;
+        led4 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         led4 = led4 - 1;
@@ -1642,7 +1648,7 @@ void cyclotron1984Alarm() {
       }
 
       if(led1 - 1 < cyclotron_led_start) {
-        led1 = PACK_NUM_LEDS - 7 - 1;
+        led1 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         led1 = led1 - 1;
@@ -1659,7 +1665,7 @@ void cyclotron1984Alarm() {
       }
 
       if(led2 - 1 < cyclotron_led_start) {
-        led2 = PACK_NUM_LEDS - 7 - 1;
+        led2 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         led2 = led2 - 1;
@@ -1676,7 +1682,7 @@ void cyclotron1984Alarm() {
       }
 
       if(led3 - 1 < cyclotron_led_start) {
-        led3 = PACK_NUM_LEDS - 7 - 1;
+        led3 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         led3 = led3 - 1;
@@ -1693,7 +1699,7 @@ void cyclotron1984Alarm() {
       }
 
       if(led4 - 1 < cyclotron_led_start) {
-        led4 = PACK_NUM_LEDS - 7 - 1;
+        led4 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         led4 = led4 - 1;
@@ -1725,7 +1731,7 @@ void cyclotron84LightOn(int cLed) {
       pack_leds[cLed+1] = getHue(i_colour_scheme, i_brightness);
 
       if(cLed - 1 < cyclotron_led_start) {
-        cLed = PACK_NUM_LEDS - 7 - 1;
+        cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         cLed = cLed - 1;
@@ -1748,7 +1754,7 @@ void cyclotron84LightOn(int cLed) {
       }
 
       if(cLed - 1 < cyclotron_led_start) {
-        cLed = PACK_NUM_LEDS - 7 - 1;
+        cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         cLed = cLed - 1;
@@ -1773,7 +1779,7 @@ void cyclotron84LightOff(int cLed) {
       pack_leds[cLed + 1] = getHue(C_BLACK);
 
       if(cLed - 1 < cyclotron_led_start) {
-        cLed = PACK_NUM_LEDS - 7 - 1;
+        cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         cLed = cLed - 1;
@@ -1796,7 +1802,7 @@ void cyclotron84LightOff(int cLed) {
       }
 
       if(cLed - 1 < cyclotron_led_start) {
-        cLed = PACK_NUM_LEDS - 7 - 1;
+        cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
         cLed = cLed - 1;
@@ -1960,20 +1966,20 @@ void cyclotronNoCable() {
  * Turns off the LEDs in the cyclotron lid only.
 */
 void cyclotronLidLedsOff() {
-  for(int i = cyclotron_led_start; i < PACK_NUM_LEDS - 7; i++) {
+  for(int i = cyclotron_led_start; i < i_pack_num_leds - i_nfilter_jewel_leds; i++) {
     pack_leds[i] = getHue(C_BLACK);
   }
 }
 
 void resetCyclotronLeds() {
-  for(int i = cyclotron_led_start; i < PACK_NUM_LEDS; i++) {
+  for(int i = cyclotron_led_start; i < i_pack_num_leds; i++) {
     pack_leds[i] = getHue(C_BLACK);
   }
 
   // Turn off optional n-filter led.
   digitalWrite(i_nfilter_led_pin, LOW);
 
-  for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
+  for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
       ms_cyclotron_led_fade_out[i].go(0);
       ms_cyclotron_led_fade_in[i].go(0);
 
@@ -2004,13 +2010,13 @@ void resetCyclotronLeds() {
 }
 
 void clearCyclotronFades() {
-  for(int i = 0; i < PACK_NUM_LEDS - 7 - cyclotron_led_start; i++) {
+  for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
     i_cyclotron_led_value[i] = 0;
   }
 }
 
 void innerCyclotronOff() {
-  for(int i = 0; i < CYCLOTRON_NUM_LEDS; i++) {
+  for(int i = 0; i < i_inner_cyclotron_num_leds; i++) {
     cyclotron_leds[i] = getHue(C_BLACK);
   }
 }
@@ -2019,7 +2025,7 @@ void innerCyclotronOff() {
 /*
 void innerCyclotronShowAll() {
   if(b_cyclotron_lid_on != true) {
-    for(int i = 0; i < CYCLOTRON_NUM_LEDS; i++) {
+    for(int i = 0; i < i_inner_cyclotron_num_leds; i++) {
       cyclotron_leds[i] = getHue(C_RED);
     }
   }
@@ -2120,7 +2126,7 @@ void innerCyclotronRing(int cDelay) {
         }
 
         if(i_led_cyclotron_ring == 0) {
-          cyclotron_leds[CYCLOTRON_NUM_LEDS - 1] = getHue(C_BLACK);
+          cyclotron_leds[i_inner_cyclotron_num_leds - 1] = getHue(C_BLACK);
         }
         else {
           cyclotron_leds[i_led_cyclotron_ring - 1] = getHue(C_BLACK);
@@ -2129,7 +2135,7 @@ void innerCyclotronRing(int cDelay) {
 
       i_led_cyclotron_ring++;
 
-      if(i_led_cyclotron_ring > CYCLOTRON_NUM_LEDS - 1) {
+      if(i_led_cyclotron_ring > i_inner_cyclotron_num_leds - 1) {
         i_led_cyclotron_ring = 0;
       }
     }
@@ -2143,7 +2149,7 @@ void innerCyclotronRing(int cDelay) {
           cyclotron_leds[i_led_cyclotron_ring] = getHue(i_colour_scheme, i_brightness);
         }
 
-        if(i_led_cyclotron_ring + 1 > CYCLOTRON_NUM_LEDS - 1) {
+        if(i_led_cyclotron_ring + 1 > i_inner_cyclotron_num_leds - 1) {
           cyclotron_leds[0] = getHue(C_BLACK);
         }
         else {
@@ -2154,7 +2160,7 @@ void innerCyclotronRing(int cDelay) {
       i_led_cyclotron_ring--;
 
       if(i_led_cyclotron_ring < 0) {
-        i_led_cyclotron_ring = CYCLOTRON_NUM_LEDS -1;
+        i_led_cyclotron_ring = i_inner_cyclotron_num_leds -1;
       }
     }
   }
@@ -2216,14 +2222,14 @@ void ventLight(bool b_on) {
       i_colour_scheme = C_RED;
     }
 
-    for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
+    for(int i = i_vent_light_start; i < i_pack_num_leds; i++) {
       pack_leds[i] = getHue(i_colour_scheme); // Uses full brightness.
     }
 
     digitalWrite(i_nfilter_led_pin, HIGH);
   }
   else {
-    for(int i = VENT_LIGHT_START; i < PACK_NUM_LEDS; i++) {
+    for(int i = i_vent_light_start; i < i_pack_num_leds; i++) {
       pack_leds[i] = getHue(C_BLACK);
     }
 
@@ -4136,6 +4142,178 @@ void checkWand() {
               }
             break;
 
+            case W_CLEAR_EEPROM_SETTINGS:
+              clearEEPROM();
+
+              stopEffect(S_VOICE_EEPROM_ERASE);
+              playEffect(S_VOICE_EEPROM_ERASE);
+            break;
+
+            case W_SAVE_EEPROM_SETTINGS:
+              saveEEPROM();
+
+              stopEffect(S_VOICE_EEPROM_SAVE);
+              playEffect(S_VOICE_EEPROM_SAVE);
+            break;
+
+            case W_TOGGLE_INNER_CYCLOTRON_LEDS:
+              stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+
+              switch(i_inner_cyclotron_num_leds) {
+                case 12:
+                  // Switch to 23 LEDs.
+                  i_inner_cyclotron_num_leds = 23;
+                  i_2021_inner_delay = 8;
+                  i_1984_inner_delay = 12;
+
+                  playEffect(S_VOICE_INNER_CYCLOTRON_23);
+                  packSerialSend(P_INNER_CYCLOTRON_LEDS_23);
+                break;
+
+                case 23:
+                  // Switch to 24 LEDs.
+                  i_inner_cyclotron_num_leds = 24;
+                  i_2021_inner_delay = 8;
+                  i_1984_inner_delay = 12;
+
+                  playEffect(S_VOICE_INNER_CYCLOTRON_24);
+                  packSerialSend(P_INNER_CYCLOTRON_LEDS_24);
+                break;
+
+                case 24:
+                default:
+                  // Switch to 35 LEDs.
+                  i_inner_cyclotron_num_leds = 35;
+                  i_2021_inner_delay = 5;
+                  i_1984_inner_delay = 9;
+
+                  playEffect(S_VOICE_INNER_CYCLOTRON_35);
+                  packSerialSend(P_INNER_CYCLOTRON_LEDS_35);
+                break;
+
+                case 35:
+                  // Switch to 12 LEDs.
+                  i_inner_cyclotron_num_leds = 12;
+                  i_2021_inner_delay = 12;
+                  i_1984_inner_delay = 15;
+
+                  playEffect(S_VOICE_INNER_CYCLOTRON_12);
+                  packSerialSend(P_INNER_CYCLOTRON_LEDS_12);
+                break;
+              }
+
+              updateProtonPackLEDCounts();
+            break;
+
+            case W_TOGGLE_POWERCELL_LEDS:
+              stopEffect(S_VOICE_POWERCELL_15);
+              stopEffect(S_VOICE_POWERCELL_13);
+
+              switch(i_powercell_leds) {
+                  case 13:
+                  // Switch to 15 Power Cell LEDs.
+                  i_powercell_leds = 15;
+                  i_powercell_delay_1984 = 60;
+                  i_powercell_delay_2021 = 34;    
+
+                  playEffect(S_VOICE_POWERCELL_15);
+                  packSerialSend(P_POWERCELL_LEDS_15);          
+                break;
+
+                case 15:
+                  default:
+                  // Switch to 13 Power Cell LEDs.
+                  i_powercell_leds = 13;
+                  i_powercell_delay_1984 = 75;
+                  i_powercell_delay_2021 = 40;
+
+                  playEffect(S_VOICE_POWERCELL_13);
+                  packSerialSend(P_POWERCELL_LEDS_13);
+                break;
+              }
+
+              updateProtonPackLEDCounts();
+            break;
+
+            case W_TOGGLE_CYCLOTRON_LEDS:
+              stopEffect(S_VOICE_CYCLOTRON_40);
+              stopEffect(S_VOICE_CYCLOTRON_20);
+              stopEffect(S_VOICE_CYCLOTRON_12);
+
+              switch(i_cyclotron_leds) {
+                case 40:
+                  // Switch to 20 LEDs. Frutto Technology.
+                  i_cyclotron_leds = 20;
+
+                  i_2021_delay = 13;
+                  i_1984_cyclotron_leds[0] = 2;
+                  i_1984_cyclotron_leds[1] = 7;
+                  i_1984_cyclotron_leds[2] = 12;
+                  i_1984_cyclotron_leds[3] = 17;
+
+                  playEffect(S_VOICE_CYCLOTRON_20);
+                  packSerialSend(P_CYCLOTRON_LEDS_20);
+                break;
+
+                case 20:
+                default:
+                  // Switch to 12 LEDs. Default Haslab.
+                  i_cyclotron_leds = 12;
+
+                  i_2021_delay = 15;
+                  i_1984_cyclotron_leds[0] = 1;
+                  i_1984_cyclotron_leds[1] = 4;
+                  i_1984_cyclotron_leds[2] = 7;
+                  i_1984_cyclotron_leds[3] = 10;  
+
+                  playEffect(S_VOICE_CYCLOTRON_12);
+                  packSerialSend(P_CYCLOTRON_LEDS_12);
+                break;
+
+                case 12:
+                  // Switch to 40 LEDs.
+                  i_cyclotron_leds = 40;
+
+                  i_2021_delay = 10;
+                  i_1984_cyclotron_leds[0] = 0;
+                  i_1984_cyclotron_leds[1] = 10;
+                  i_1984_cyclotron_leds[2] = 18;
+                  i_1984_cyclotron_leds[3] = 28;
+
+                  playEffect(S_VOICE_CYCLOTRON_40);
+                  packSerialSend(P_CYCLOTRON_LEDS_40);
+                break;
+              }
+
+              updateProtonPackLEDCounts();
+            break;
+
+            case W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS:
+              stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
+              stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
+              
+              if(b_grb_cyclotron == true) {
+                b_grb_cyclotron = false;
+                playEffect(S_VOICE_RGB_INNER_CYCLOTRON);
+
+                packSerialSend(P_RGB_INNER_CYCLOTRON_LEDS);
+              }
+              else {
+                b_grb_cyclotron = true;
+                playEffect(S_VOICE_GRB_INNER_CYCLOTRON);
+
+                packSerialSend(P_GRB_INNER_CYCLOTRON_LEDS);
+              }
+            break;
+
+            case W_EEPROM_MENU:
+              stopEffect(S_BEEPS_BARGRAPH);
+              playEffect(S_BEEPS_BARGRAPH);
+            break;
+
             default:
               // Music track number to be played.
               if(comStruct.i >= i_music_track_start) {
@@ -4308,6 +4486,13 @@ void packSerialSend(int i_message) {
   packComs.sendDatum(sendStruct);
 }
 
+// Update the LED counts for the Proton Pack.
+void updateProtonPackLEDCounts() {
+  i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_leds;
+  i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
+  cyclotron_led_start = i_powercell_leds;
+}
+
 // Helper method to play a sound effect using certain defaults.
 void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
   if(i_track_volume < i_volume_abs_min) {
@@ -4378,6 +4563,168 @@ void stopMusic() {
   w_trig.trackStop(i_current_music_track);
 
   w_trig.update();
+}
+
+void readEEPROM() {
+  // Get the stored CRC from the EEPROM.
+  unsigned long l_crc_check;
+  EEPROM.get(EEPROM.length() - sizeof(l_crc_size), l_crc_check);
+
+  // Check if the calculated CRC matches the stored CRC value in the EEPROM.
+  if(eepromCRC() == l_crc_check) {
+    // Read our object from the EEPROM.
+    objEEPROM obj_eeprom;
+    EEPROM.get(i_eepromAddress, obj_eeprom);
+
+    if(obj_eeprom.powercell_count > 0) {
+      i_powercell_leds = obj_eeprom.powercell_count;
+
+      switch(i_powercell_leds) {
+        case 15:
+          // 15 Power Cell LEDs.
+          i_powercell_delay_1984 = 60;
+          i_powercell_delay_2021 = 34;
+        break;
+
+        case 13:
+        default:
+          // 13 Power Cell LEDs.
+          i_powercell_delay_1984 = 75;
+          i_powercell_delay_2021 = 40;
+        break;
+      }
+    }
+
+    if(obj_eeprom.cyclotron_count > 0) {
+      i_cyclotron_leds = obj_eeprom.cyclotron_count;
+
+      switch(i_cyclotron_leds) {
+        // For a 40 LED Neopixel ring.
+        case 40:
+          i_2021_delay = 10;
+          i_1984_cyclotron_leds[0] = 0;
+          i_1984_cyclotron_leds[1] = 10;
+          i_1984_cyclotron_leds[2] = 18;
+          i_1984_cyclotron_leds[3] = 28;
+        break;
+
+        // For Frutto Technology Cyclotron LEDs.
+        case 20:
+          i_2021_delay = 13;
+          i_1984_cyclotron_leds[0] = 2;
+          i_1984_cyclotron_leds[1] = 7;
+          i_1984_cyclotron_leds[2] = 12;
+          i_1984_cyclotron_leds[3] = 17;
+        break;
+
+        // Default Haslab LEDs.
+        case 12:
+        default:
+          i_2021_delay = 15;
+          i_1984_cyclotron_leds[0] = 1;
+          i_1984_cyclotron_leds[1] = 4;
+          i_1984_cyclotron_leds[2] = 7;
+          i_1984_cyclotron_leds[3] = 10;          
+        break;
+      }
+    }
+
+    if(obj_eeprom.inner_cyclotron_count > 0) {
+      i_inner_cyclotron_num_leds = obj_eeprom.inner_cyclotron_count;
+
+      switch(i_inner_cyclotron_num_leds) {
+        case 12:
+          i_2021_inner_delay = 12;
+          i_1984_inner_delay = 15;
+        break;
+
+        case 23:
+        case 24:
+          i_2021_inner_delay = 8;
+          i_1984_inner_delay = 12;
+        break;
+
+        case 35:
+        default:
+          i_2021_inner_delay = 5;
+          i_1984_inner_delay = 9;
+        break;
+      }
+    }
+
+    if(obj_eeprom.grb_inner_cyclotron > 0) {
+      if(obj_eeprom.grb_inner_cyclotron > 1) {
+        b_grb_cyclotron = true;
+      }
+      else {
+        b_grb_cyclotron = false;
+      }       
+    }
+
+    // Update the LED counts for the Proton Pack.
+    updateProtonPackLEDCounts();
+  }
+}
+
+void clearEEPROM() {
+  // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
+  for(unsigned int i = 0 ; i < sizeof(objEEPROM); i++) {
+    EEPROM.write(i, 0);
+  }
+
+  updateCRCEEPROM();
+
+  updateProtonPackLEDCounts();
+}
+
+void saveEEPROM() {
+  // 1. Power Cell LEDs
+  // 2. Cyclotron LEDs
+  // 3. Inner Cyclotron LEDs
+  // 4. GRB / RGB Inner Cyclotron toggle flag
+  
+  uint8_t i_grb_cyclotron = 1;
+
+  if(b_grb_cyclotron == true) {
+    i_grb_cyclotron = 2;
+  }
+
+  // Write the data to the EEPROM if any of the values have changed.
+  objEEPROM obj_eeprom = {
+    i_powercell_leds,
+    i_cyclotron_leds,
+    i_inner_cyclotron_num_leds,
+    i_grb_cyclotron
+  };
+
+  // Save and update our object in the EEPROM.
+  EEPROM.put(i_eepromAddress, obj_eeprom);
+
+  updateCRCEEPROM();
+}
+
+// Update the CRC in the EEPROM.
+void updateCRCEEPROM() { 
+  EEPROM.put(EEPROM.length() - sizeof(l_crc_size), eepromCRC());
+}
+
+unsigned long eepromCRC(void) {
+  const unsigned long crc_table[16] = {
+    0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
+    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
+    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
+    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+  };
+
+  unsigned long crc = l_crc_size;
+
+  for (int index = 0 ; index < EEPROM.length() - sizeof(crc) ; ++index) {
+    crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
+    crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
+    crc = ~crc;
+  }
+
+  return crc;
 }
 
 void setupWavTrigger() {

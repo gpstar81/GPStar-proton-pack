@@ -26,9 +26,9 @@
  /* 
  *  Cyclotron Lid LEDs.
  *  For the stock Haslab LEDs, there are 12 LED's in the cyclotron lid.
- *  Use const int i_cyclotron_leds = 12; and const i_1984_cyclotron_leds 1, 4, 7, 10.
+ *  Use int i_cyclotron_leds = 12; and i_1984_cyclotron_leds 1, 4, 7, 10.
  *
- *  For a 40 LED NeoPixel ring, if you align your ring so that the first led is the middle, then use const int i_cyclotron_leds = 40 and const i_1984_cyclotron_leds 0, 10, 18, 28.
+ *  For a 40 LED NeoPixel ring, if you align your ring so that the first led is the middle, then use int i_cyclotron_leds = 40 and i_1984_cyclotron_leds 0, 10, 18, 28.
  *  Adjust as neccesary depending on how you align your NeoPixel ring.
  *  You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.  
  *
@@ -37,8 +37,8 @@
  *
 */ 
 // For stock Haslab LEDs
-const uint8_t i_cyclotron_leds = 12;
-const uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
+uint8_t i_cyclotron_leds = 12;
+uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 
 // For a 40 LED NeoPixel ring.
 //const uint8_t i_cyclotron_leds = 40;
@@ -50,7 +50,7 @@ const uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
  * If you are installing a Frutto Technology PowerCell which has 15 LEDs, then change this to 15.
  * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
 */
-const uint8_t i_powercell_leds = 13;
+uint8_t i_powercell_leds = 13;
 
 /*
  * Cyclotron Video Game Colour Toggle
@@ -81,7 +81,7 @@ bool b_powercell_colour_toggle = true;
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
 */
 const unsigned int i_1984_delay = 1050;
-const unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 LED NeoPixel ring.
+unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 LED NeoPixel ring.
 
 /*
  * Power Cell delays in milliseconds.
@@ -102,8 +102,7 @@ uint8_t i_powercell_delay_2021 = 40;
  * 24 -> For a 24 LED NeoPixel Ring
  * 35 -> For a 35 LED NeoPixel Ring. (Recommended ring size)
 */
-//#define CYCLOTRON_NUM_LEDS 24
-#define CYCLOTRON_NUM_LEDS 35
+uint8_t i_inner_cyclotron_num_leds = 35;
 
 /*
  * If you use GRB (green/red/blue) instead of RGB (red/green/blue) addressable LEDs for your inner cyclotron leds, then set to true.
@@ -184,8 +183,8 @@ bool b_stream_effects = true;
  * Default settings for a 35 NeoPixel ring is: 5 for 2021 mode and 9 for 1984/1989 mode.
  * If you are using a ring with less than 35 NeoPixels, you may need to slightly raise these numbers.
 */
-const uint8_t i_2021_inner_delay = 5;
-const uint8_t i_1984_inner_delay = 9;
+uint8_t i_2021_inner_delay = 5;
+uint8_t i_1984_inner_delay = 9;
 
 /* 
  * Cyclotron direction 
@@ -339,6 +338,11 @@ const bool b_smoke_overheat_mode_5 = true;
  * Set to false to turn off the sound.
 */
 const bool b_diagnostic = false;
+
+/*
+ * Set to false to ignore reading and saving data to the EEPROM.
+*/
+const bool b_eeprom = true;
 
 /*
   *****

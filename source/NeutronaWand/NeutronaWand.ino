@@ -48,14 +48,14 @@
 
 /*
   ***** IMPORTANT *****
-  * For Arduino Nano builds, you need to open Packet.h located in your Arduino/Libraries/SerialTransfer folder and on line #34 and change the max packet size to 0x9B:
+  * For Arduino Nano builds, you need to open Packet.h located in your Arduino/Libraries/SerialTransfer folder and on line #34 and change the max packet size to 0x40:
   * When building for your Mega, you can switch it back to 0xFE
 
   * Before:
   const uint8_t MAX_PACKET_SIZE = 0xFE; // Maximum allowed payload bytes per packet
 
   * After:
-  const uint8_t MAX_PACKET_SIZE = 0x50; // Maximum allowed payload bytes per packet
+  const uint8_t MAX_PACKET_SIZE = 0x40; // Maximum allowed payload bytes per packet
 */
 #include <SerialTransfer.h>
 
@@ -391,6 +391,76 @@ void mainLoop() {
       modeActivate();
     break;
 
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      case ACTION_EEPROM_MENU:
+        settingsBlinkingLights();
+
+        switch(i_wand_menu) {
+          // Intesify: Clear the Proton Pack EEPROM settings and exit.
+          // Mode switch: Save the current settings to the Proton Pack EEPROM and exit.
+          case 5:
+            // Tell the Proton Pack to clear the EEPROM settings and exit.
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay / 2);
+
+              // Tell pack to clear the EEPROM and exit.
+              wandSerialSend(W_CLEAR_EEPROM_SETTINGS);
+
+              stopEffect(S_VOICE_EEPROM_ERASE);
+              playEffect(S_VOICE_EEPROM_ERASE);
+
+              wandExitEEPROMMenu();
+            }
+            else if(switchMode() == true) {
+              // Tell the Proton Pack to save the current settings to the EEPROM and exit.
+              wandSerialSend(W_SAVE_EEPROM_SETTINGS);
+              
+              stopEffect(S_VOICE_EEPROM_SAVE);
+              playEffect(S_VOICE_EEPROM_SAVE);
+
+              wandExitEEPROMMenu();
+            }
+          break;
+
+          // Intensify: Cycle through the different Cyclotron LED counts.
+          case 4:
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay / 2);
+
+              wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
+            }
+          break;
+
+          // Intensify: Cycle through the different Powercell LED counts.
+          case 3:
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay / 2);
+              
+              wandSerialSend(W_TOGGLE_POWERCELL_LEDS);
+            }
+          break;
+
+          // Intensify: Cycle through the different inner Cyclotron LED counts.
+          case 2:
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay / 2);
+                
+              wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_LEDS);
+            }
+          break;
+
+          // Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
+          case 1:
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay / 2);
+              
+              wandSerialSend(W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS);
+            }
+          break;
+        }
+      break;
+    #endif
+    
     case ACTION_SETTINGS:
       settingsBlinkingLights();
 
@@ -832,6 +902,30 @@ void mainLoop() {
         }
       }
 
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        // Reset the count of the wand switch
+        if(switch_intensify.getState() == HIGH) {
+          switch_wand.resetCount();
+        }
+
+        if(WAND_ACTION_STATUS != ACTION_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
+          stopEffect(S_BEEPS_BARGRAPH);
+          playEffect(S_BEEPS_BARGRAPH);
+          
+          wandSerialSend(W_EEPROM_MENU);
+
+          i_wand_menu = 5;
+
+          WAND_ACTION_STATUS = ACTION_EEPROM_MENU;
+          ms_settings_blinking.start(i_settings_blinking_delay);
+        }
+        else if(WAND_ACTION_STATUS == ACTION_EEPROM_MENU && b_pack_on == true) {
+          if(b_no_pack != true) {
+            wandExitEEPROMMenu();
+          }
+        }
+      #endif
+
       if(b_pack_alarm == true) {
         if(ms_hat_2.justFinished()) {
           ms_hat_2.start(i_hat_2_delay);
@@ -1092,12 +1186,12 @@ void settingsBlinkingLights() {
     bool b_solid_one = false;
 
     // Indicator for looping track setting.
-    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub != true) {
+    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub != true && WAND_ACTION_STATUS != ACTION_EEPROM_MENU) {
       b_solid_five = true;
     }
 
     // Indicator for crossing the streams setting.
-    if(b_cross_the_streams == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub == true) {
+    if(b_cross_the_streams == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub == true && WAND_ACTION_STATUS != ACTION_EEPROM_MENU) {
       b_solid_five = true;
     }
 
@@ -1495,7 +1589,6 @@ void checkSwitches() {
         // Turn wand and pack on.
         WAND_ACTION_STATUS = ACTION_ACTIVATE;
       }
-
       soundBeepLoopStop();
     break;
 
@@ -1760,6 +1853,8 @@ void wandOff() {
   barrelLightsOff();
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    switch_wand.resetCount();
+
     switch(year_mode) {
       case 2021:
         i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
@@ -4597,6 +4692,30 @@ void checkRotary() {
   if((val = readRotary())) {
     c += val;
     switch(WAND_ACTION_STATUS) {
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        case ACTION_EEPROM_MENU:
+          // Counter clockwise.
+          if(prev_next_code == 0x0b) {
+            if(i_wand_menu - 1 < 1) {
+              i_wand_menu = 1;
+            }
+            else {
+              i_wand_menu--;
+            }
+          }
+
+          // Clockwise.
+          if(prev_next_code == 0x07) {
+            if(i_wand_menu + 1 > 5) {
+              i_wand_menu = 5;
+            }
+            else {
+              i_wand_menu++;
+            }
+          }
+        break;
+      #endif
+
       case ACTION_SETTINGS:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
@@ -4981,6 +5100,22 @@ void wandExitMenu() {
 
   wandLightsOff();
 }
+
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  // Exit the wand menu EEPROM system while the wand is off.
+  void wandExitEEPROMMenu() {
+    playEffect(S_BEEPS_BARGRAPH);
+    switch_wand.resetCount();
+
+    i_wand_menu = 5;
+
+    bargraphClearAlt();
+
+    WAND_ACTION_STATUS = ACTION_IDLE;
+
+    wandLightsOff();
+  }
+#endif
 
 // Mode switch is connected to analog input.
 // PCB builds is pulled high.
@@ -5515,6 +5650,116 @@ void checkPack() {
             case P_POWER_LEVEL_5:
               i_power_mode = 5;
               i_power_mode_prev = 4;
+            break;
+
+            case P_RGB_INNER_CYCLOTRON_LEDS:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
+                stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
+
+                playEffect(S_VOICE_RGB_INNER_CYCLOTRON);
+              #endif
+            break;
+
+            case P_GRB_INNER_CYCLOTRON_LEDS:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
+                stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
+
+                playEffect(S_VOICE_GRB_INNER_CYCLOTRON);
+              #endif
+            break;
+
+            case P_CYCLOTRON_LEDS_40:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_CYCLOTRON_40);
+                stopEffect(S_VOICE_CYCLOTRON_20);
+                stopEffect(S_VOICE_CYCLOTRON_12);
+
+                playEffect(S_VOICE_CYCLOTRON_40);
+              #endif
+            break;
+
+            case P_CYCLOTRON_LEDS_20:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_CYCLOTRON_40);
+                stopEffect(S_VOICE_CYCLOTRON_20);
+                stopEffect(S_VOICE_CYCLOTRON_12);
+
+                playEffect(S_VOICE_CYCLOTRON_20);
+              #endif
+            break;
+
+            case P_CYCLOTRON_LEDS_12:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_CYCLOTRON_40);
+                stopEffect(S_VOICE_CYCLOTRON_20);
+                stopEffect(S_VOICE_CYCLOTRON_12);
+
+                playEffect(S_VOICE_CYCLOTRON_12);
+              #endif
+            break;
+
+            case P_POWERCELL_LEDS_15:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_POWERCELL_15);
+                stopEffect(S_VOICE_POWERCELL_13);
+
+                playEffect(S_VOICE_POWERCELL_13);
+              #endif
+            break;
+
+            case P_POWERCELL_LEDS_13:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_POWERCELL_15);
+                stopEffect(S_VOICE_POWERCELL_13);
+
+                playEffect(S_VOICE_POWERCELL_15);
+              #endif
+            break;
+
+            case P_INNER_CYCLOTRON_LEDS_23:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+
+                playEffect(S_VOICE_INNER_CYCLOTRON_23);
+              #endif
+            break;
+
+            case P_INNER_CYCLOTRON_LEDS_24:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+
+                playEffect(S_VOICE_INNER_CYCLOTRON_24);
+              #endif
+            break;
+
+            case P_INNER_CYCLOTRON_LEDS_35:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+
+                playEffect(S_VOICE_INNER_CYCLOTRON_35);
+              #endif
+            break;
+
+            case P_INNER_CYCLOTRON_LEDS_12:
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+                stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+
+                playEffect(S_VOICE_INNER_CYCLOTRON_12);
+              #endif
             break;
 
             default:
