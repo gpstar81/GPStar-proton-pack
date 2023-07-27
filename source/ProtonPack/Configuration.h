@@ -340,13 +340,13 @@ const bool b_smoke_overheat_mode_5 = true;
 const bool b_diagnostic = false;
 
 /*
- * Set to false to ignore reading and saving data to the EEPROM.
+ * Set to false to ignore reading data from the EEPROM.
 */
 const bool b_eeprom = true;
 
 /*
   *****
-  ***** INFORMATION FOR HOME BUILT gpstar Proton Packs using an Arduino Mega ********
+  ***** INFORMATION FOR DIY builds of the gpstar Proton Packs using an Arduino Mega ********
   *****
   
   * If you are compiling the code to upload to an Arduino Mega with the original gpstar home built instructions. You want to use disabled GPSTAR_PROTON_PACK_PCB.

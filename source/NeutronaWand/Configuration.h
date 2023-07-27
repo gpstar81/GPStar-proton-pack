@@ -113,7 +113,7 @@ bool b_vibration_on = true;
 
 /*
  * When set to true, when b_vibration_on is set to true, the Neutrona wand will only vibrate during firing.
- * Note that vibration is controlled by a the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
+ * Note that vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
  * This can be enabled or disabled from the Neutrona wand sub menu system.
  * Default = true.
 */
@@ -183,3 +183,10 @@ const bool b_onboard_amp_enabled = true;
  * The wand will respond a bit slower as it is streaming serial data back. For debugging the analog switch readings only.
 */
 const bool b_debug = false;
+
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  /*
+  * Set to false to ignore reading data from the EEPROM.
+  */
+  const bool b_eeprom = true;
+#endif

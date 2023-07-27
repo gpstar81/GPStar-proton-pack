@@ -144,11 +144,11 @@ To access the sub level menu, use the `Top Dial` on the top of the wand. When yo
 
 | Sub&nbsp;Level&nbsp;Menu | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
-| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes<sup>4</sup> |
-| 4 | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/Disable smoke effects | Enable/Disable overheating |
-| 3 | Cyclotron&nbsp;LED&nbsp;Control | Change cyclotron rotation | Toggle between 1 (centered) or 3 LED's in cyclotron lid for 1984/1989 modes |
+| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes.<sup>4</sup> |
+| 4 | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/Disable smoke effects. | Enable/Disable overheating. |
+| 3 | Cyclotron&nbsp;LED&nbsp;Control | Change cyclotron rotation. | Toggle between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. |
 | 2 | Vibration Settings | Proton Pack Enable/Disable vibration or vibration during firing. | Neutrona Wand Enable/Disable vibration or vibration during firing. |
-| 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes | Enable or Disable the Proton Stream impact sound effects. |
+| 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes. | Enable or Disable the Proton Stream impact sound effects. |
 
 <sup>3</sup> Switch between Video Game and Cross the Stream (CTS) operation modes. Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.
 
@@ -165,24 +165,48 @@ To exit the menu system, navigate to the top menu in **Setting 5** (Slo-blo LED 
 
 Refer to the [Loading The Audio Files](AUDIO.md) for more information on loading additional music tracks.
 
-## EEPROM Menu
-The EEPROM menu system can be used to configure different LED setups within your Proton Pack. All changes can be saved directly to the Proton Pack EEPROM and will be loaded automatically even if you turn off the power to your devices.
-
-To access the EEPROM menu system, hold the `Intensify Button` down and toggle the right hand `Top Toggle` button 5 times. You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM menu system.
-
-`The EEPROM menu system can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
+## EEPROM Menus
+There are two different EEPROM menus that can be accessed to adjust and save configurations onto the Proton Pack and Neutrona Wand EEPROM memory. The EEPROM LED Menu and the EEPROM Configuration Menu.
 
 `The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your life time, but if you did, it can be disabled to bypass it. Refer to the Advanced User Configurations below for more information.`
 
+**EEPROM LED Menu**
+
+The EEPOM LED Menu can be used to configure different LED setups for your Proton Pack. All changes can be saved directly to the Proton Pack EEPROM and will be loaded automatically even if you turn off the power to your devices.
+
+To access the EEPROM LED Menu System, hold the `Intensify Button` down and toggle the right hand `Top Toggle` button 5 times. You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM LED Menu System.
+
+`The EEPROM LED Menu System can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
+
 ![](images/OperationNeutrona11.jpg)
 
-| EEPROM&nbsp;Menu&nbsp;Level | Purpose | Intensify Button | Barrel Wing Button |
+| EEPROM&nbsp;LED&nbsp;Menu&nbsp;Level | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |----------------|---------|------------------|--------------------|
-| 5 | Save or Clear the EEPROM settings | Clear all the settings in the Proton Pack EEPROM.<br><br>***The Proton Pack will instead load the software defined defaults.***| Save the current settings to the Proton Pack EEPROM. |
-| 4 | Cyclotron LED Count Toggle| Toggle between 40, 20 or 12 LEDs for your Cyclotron. | - |
+| 5 | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack EEPROM.<br><br>***The Proton Pack will instead load the software defined defaults the next time you turn the battery power off.***| Save the current settings to the Proton Pack EEPROM. |
+| 4 | Cyclotron LED Count Toggle | Toggle between 40, 20 or 12 LEDs for your Cyclotron. | - |
 | 3 | Power Cell LED Count Toggle | Toggle between 15 or 13 LEDs for your Power Cell. | - |
 | 2 | Inner Cyclotron LED Count Toggle | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron Cake. | - |
 | 1 | Inner Cyclotron GRB Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | - |
+
+**EEPROM Configuration Menu**
+
+The EEPROM Configuration Menu can be used to save certain behaviours of your Neutrona Wand and Proton Pack as the standard settings.
+
+To access the EEPROM Configuration Menu, hold the `Intensify Button` down and toggle the right hand `Bottom Toggle` button 5 times. You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM Configuration Menu System.
+
+`The EEPROM Configuration Menu System can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
+
+![](images/OperationNeutrona12.jpg)
+
+| EEPROM&nbsp;Configuration&nbsp;Menu&nbsp;Level | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
+|----------------|---------|------------------|--------------------|
+| 5 | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROM.<br><br>***The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time the battery power is turn back on.***| Save the current settings to the Proton Pack and Neutron Wand EEPROM. |
+| 4 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes to set as your default.<sup>3</sup> | - |
+| 3 | Overheating | Enable or Disable overheating. | - |
+| 2 | Cyclotron&nbsp;LED&nbsp;Control | Set from between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. | - |
+| 1 | Proton Stream Effects | Enable or Disable the Proton Stream impact sound effects. | - |
+
+<sup>3</sup> Choose between Video Game and Cross the Stream (CTS) operation modes. Cross the Streams modes is like what you see in the films.
 
 ## Advanced User Configurations
 

@@ -26,7 +26,7 @@ enum WAND_STATE WAND_STATUS;
 /*
  * Various wand action states.
  */
-enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_EEPROM_MENU };
+enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
 /* 
@@ -199,6 +199,23 @@ bool b_28segment_bargraph = false;
 #endif
 */
 
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  /*
+  * EEPROM
+  */
+  unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
+  unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
+
+  /*
+  * EEPROM data structure object that is saved into the EEPROM memory of the Neutrona Wand.
+  */
+  struct objEEPROM {
+    uint8_t cross_the_streams;
+    uint8_t cross_the_streams_mix;
+    uint8_t overheating;
+  };
+#endif
+
 /*
  * Timers for the optional hat lights.
  * Also used for vent lights during error modes.
@@ -297,13 +314,6 @@ const unsigned int i_music_next_track_delay = 2000;
 millisDelay ms_settings_blinking;
 millisDelay ms_check_music;
 millisDelay ms_music_next_track;
-
-/*
- * Wand EEPROM menu system.
-*/
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  //unsigned long l_toggle_switch_count = 0; // When the switch is toggled 5 times while holding intensify, then we enter the EEPROM menu system.
-#endif
 
 /* 
  *  Wand firing modes + settings

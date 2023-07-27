@@ -42,6 +42,7 @@
 #include <ezButton.h>
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
+  #include <EEPROM.h>
   #include <ht16k33.h>
   #include <Wire.h>
 #endif
@@ -195,6 +196,13 @@ void setup() {
 
   // Check music timer.
   ms_check_music.start(i_music_check_delay);
+
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    // Load any saved settings stored in the EEPROM memory of the gpstar Neutrona Wand.
+    if(b_eeprom == true) {
+      readEEPROM();
+    }
+  #endif
 
   if(b_no_pack == true || b_debug == true) {
     b_wait_for_pack = false;
@@ -459,6 +467,85 @@ void mainLoop() {
           break;
         }
       break;
+
+      case ACTION_CONFIG_EEPROM_MENU:
+        settingsBlinkingLights();
+
+        switch(i_wand_menu) {
+          // Intesify: Clear the Neutrona Wand EEPROM settings and exit.
+          // Mode switch: Save the current settings to the Neutrona Wand EEPROM and exit.
+          case 5:
+            // Tell the Neutrona Wand to clear the EEPROM settings and exit.
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay / 2);
+
+              // Tell the Proton Pack to clear it's current configuration from the EEPROM.
+              // Proton Stream Impact Effects / 3 LED mode in 1984/1989
+              wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
+
+              stopEffect(S_VOICE_EEPROM_ERASE);
+              playEffect(S_VOICE_EEPROM_ERASE);
+
+              // Clear wand EEPROM. (CTS/VGA, Overheating)
+              clearEEPROM();
+
+              wandExitEEPROMMenu();
+            }
+            else if(switchMode() == true) {
+              // Tell the Proton Pack to save it's current configuration to the EEPROM.
+              // Proton Stream Impact Effects / 3 LED mode in 1984/1989
+              wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
+              
+              stopEffect(S_VOICE_EEPROM_SAVE);
+              playEffect(S_VOICE_EEPROM_SAVE);
+
+              // Save wand EEPROM. (CTS/VGA, Overheating)
+              saveEEPROM();
+
+              wandExitEEPROMMenu();
+            }
+          break;
+
+          // Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
+          case 4:
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay / 2);
+
+              toggleWandModes();
+            }
+          break;
+
+          // Intensify: Enable or Disable overheating settings.
+          case 3:
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay / 2);
+              
+              toggleOverHeating();
+            }
+          break;
+
+          // Intensify: Enable or disable 3 LEDs for the Cyclotron in 1984/1989 modes.
+          case 2:
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay / 2);
+                
+              // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
+              wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
+            }
+          break;
+
+          // Intensify: Enable or disable Proton Stream Impact Effects.
+          case 1:
+            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+              ms_intensify_timer.start(i_intensify_delay / 2);
+              
+              // Tell the Proton Pack to toggle the Proton Stream impact effects.
+              wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+            }
+          break;
+        }
+      break;
+
     #endif
     
     case ACTION_SETTINGS:
@@ -492,66 +579,7 @@ void mainLoop() {
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
-            // Enable or disable crossing the streams / crossing the streams mix / video game modes.
-            if(b_cross_the_streams == true && b_cross_the_streams_mix == true) {
-              // Turn off crossing the streams mode and switch back to video game mode.
-              b_cross_the_streams = false;
-              b_cross_the_streams_mix = false;
-              
-              stopEffect(S_CLICK);
-
-              playEffect(S_CLICK);
-
-              stopEffect(S_VOICE_CROSS_THE_STREAMS);
-              stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
-              stopEffect(S_VOICE_VIDEO_GAME_MODES);
-
-              playEffect(S_VOICE_VIDEO_GAME_MODES);
-
-              // Tell the proton pack to reset back to the proton stream.
-              wandSerialSend(W_PROTON_MODE_REVERT);
-            }
-            else if(b_cross_the_streams == true && b_cross_the_streams_mix != true) {
-              // Keep cross the streams on.
-              b_cross_the_streams = true;
-
-              // Turn on cross the streams mix.
-              b_cross_the_streams_mix = true;
-
-              stopEffect(S_CLICK);
-
-              playEffect(S_CLICK);
-
-              stopEffect(S_VOICE_VIDEO_GAME_MODES);
-              stopEffect(S_VOICE_CROSS_THE_STREAMS);
-              stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
-
-              playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
-
-              // Tell the proton pack to reset back to the proton stream.
-              wandSerialSend(W_RESET_PROTON_STREAM_MIX);
-            }
-            else {
-              // Turn on crossing the streams mode and turn off video game mode.
-              b_cross_the_streams = true;
-              b_cross_the_streams_mix = false;
-
-              stopEffect(S_CLICK);
-
-              playEffect(S_CLICK);
-
-              stopEffect(S_VOICE_VIDEO_GAME_MODES);
-              stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
-              stopEffect(S_VOICE_CROSS_THE_STREAMS);
-
-              playEffect(S_VOICE_CROSS_THE_STREAMS);
-
-              // Tell the proton pack to reset back to the proton stream.
-              wandSerialSend(W_RESET_PROTON_STREAM);
-            }
-
-            // Reset the previous firing mode to the proton stream.
-            PREV_FIRING_MODE = PROTON;
+            toggleWandModes();
           }
 
           // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
@@ -588,30 +616,7 @@ void mainLoop() {
 
             // Enable or disable overheating.
             if(switchMode() == true) {
-              if(b_overheat_enabled == true) {
-                b_overheat_enabled = false;
-
-                // Play the overheating disabled voice.
-                stopEffect(S_VOICE_OVERHEAT_DISABLED);
-                stopEffect(S_VOICE_OVERHEAT_ENABLED);
-
-                playEffect(S_VOICE_OVERHEAT_DISABLED);
-
-                // Tell the Proton Pack that overheating is disabled.
-                wandSerialSend(W_OVERHEATING_DISABLED);
-              }
-              else {
-                b_overheat_enabled = true;
-
-                // Play the overheating enabled voice.
-                stopEffect(S_VOICE_OVERHEAT_DISABLED);
-                stopEffect(S_VOICE_OVERHEAT_ENABLED);
-
-                playEffect(S_VOICE_OVERHEAT_ENABLED);
-
-                // Tell the Proton Pack that overheating is enabled.
-                wandSerialSend(W_OVERHEATING_ENABLED);
-              }
+              toggleOverHeating();
             }
           }
         break;
@@ -876,7 +881,7 @@ void mainLoop() {
   switch(WAND_STATUS) {
     case MODE_OFF:
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      if(WAND_ACTION_STATUS != ACTION_EEPROM_MENU) {
+      if(WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
       #endif
         if(switchMode() == true || b_pack_alarm == true) {
           if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
@@ -912,9 +917,10 @@ void mainLoop() {
         // Reset the count of the wand switch
         if(switch_intensify.getState() == HIGH) {
           switch_wand.resetCount();
+          switch_vent.resetCount();
         }
 
-        if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
+        if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
           stopEffect(S_BEEPS_BARGRAPH);
           playEffect(S_BEEPS_BARGRAPH);
           
@@ -926,6 +932,23 @@ void mainLoop() {
           ms_settings_blinking.start(i_settings_blinking_delay);
         }
         else if(WAND_ACTION_STATUS == ACTION_EEPROM_MENU && b_pack_on == true) {
+          if(b_no_pack != true) {
+            wandExitEEPROMMenu();
+          }
+        }
+
+        if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
+          stopEffect(S_BEEPS_BARGRAPH);
+          playEffect(S_BEEPS_BARGRAPH);
+          
+          wandSerialSend(W_EEPROM_MENU);
+
+          i_wand_menu = 5;
+
+          WAND_ACTION_STATUS = ACTION_CONFIG_EEPROM_MENU;
+          ms_settings_blinking.start(i_settings_blinking_delay);
+        }
+        else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on == true) {
           if(b_no_pack != true) {
             wandExitEEPROMMenu();
           }
@@ -1090,6 +1113,98 @@ void mainLoop() {
   }
 }
 
+// Controlled the the Wand Sub Menu and Wand EEPROM Menu system.
+void toggleOverHeating() {
+  if(b_overheat_enabled == true) {
+    b_overheat_enabled = false;
+
+    // Play the overheating disabled voice.
+    stopEffect(S_VOICE_OVERHEAT_DISABLED);
+    stopEffect(S_VOICE_OVERHEAT_ENABLED);
+
+    playEffect(S_VOICE_OVERHEAT_DISABLED);
+
+    // Tell the Proton Pack that overheating is disabled.
+    wandSerialSend(W_OVERHEATING_DISABLED);
+  }
+  else {
+    b_overheat_enabled = true;
+
+    // Play the overheating enabled voice.
+    stopEffect(S_VOICE_OVERHEAT_DISABLED);
+    stopEffect(S_VOICE_OVERHEAT_ENABLED);
+
+    playEffect(S_VOICE_OVERHEAT_ENABLED);
+
+    // Tell the Proton Pack that overheating is enabled.
+    wandSerialSend(W_OVERHEATING_ENABLED);
+  }
+}
+
+// Controlled the the Wand Sub Menu and Wand EEPROM Menu system.
+void toggleWandModes() {
+  // Enable or disable crossing the streams / crossing the streams mix / video game modes.
+  if(b_cross_the_streams == true && b_cross_the_streams_mix == true) {
+    // Turn off crossing the streams mode and switch back to video game mode.
+    b_cross_the_streams = false;
+    b_cross_the_streams_mix = false;
+    
+    stopEffect(S_CLICK);
+
+    playEffect(S_CLICK);
+
+    stopEffect(S_VOICE_CROSS_THE_STREAMS);
+    stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
+    stopEffect(S_VOICE_VIDEO_GAME_MODES);
+
+    playEffect(S_VOICE_VIDEO_GAME_MODES);
+
+    // Tell the proton pack to reset back to the proton stream.
+    wandSerialSend(W_PROTON_MODE_REVERT);
+  }
+  else if(b_cross_the_streams == true && b_cross_the_streams_mix != true) {
+    // Keep cross the streams on.
+    b_cross_the_streams = true;
+
+    // Turn on cross the streams mix.
+    b_cross_the_streams_mix = true;
+
+    stopEffect(S_CLICK);
+
+    playEffect(S_CLICK);
+
+    stopEffect(S_VOICE_VIDEO_GAME_MODES);
+    stopEffect(S_VOICE_CROSS_THE_STREAMS);
+    stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
+
+    playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
+
+    // Tell the proton pack to reset back to the proton stream.
+    wandSerialSend(W_RESET_PROTON_STREAM_MIX);
+  }
+  else {
+    // Turn on crossing the streams mode and turn off video game mode.
+    b_cross_the_streams = true;
+    b_cross_the_streams_mix = false;
+
+    stopEffect(S_CLICK);
+
+    playEffect(S_CLICK);
+
+    stopEffect(S_VOICE_VIDEO_GAME_MODES);
+    stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
+    stopEffect(S_VOICE_CROSS_THE_STREAMS);
+
+    playEffect(S_VOICE_CROSS_THE_STREAMS);
+
+    // Tell the proton pack to reset back to the proton stream.
+    wandSerialSend(W_RESET_PROTON_STREAM);
+  }
+
+  // Reset the previous firing mode to the proton stream.
+  PREV_FIRING_MODE = PROTON;
+}
+
 void startVentSequence() {
   ms_overheat_initiate.stop();
 
@@ -1192,12 +1307,12 @@ void settingsBlinkingLights() {
     bool b_solid_one = false;
 
     // Indicator for looping track setting.
-    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub != true && WAND_ACTION_STATUS != ACTION_EEPROM_MENU) {
+    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub != true && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
       b_solid_five = true;
     }
 
     // Indicator for crossing the streams setting.
-    if(b_cross_the_streams == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub == true && WAND_ACTION_STATUS != ACTION_EEPROM_MENU) {
+    if(b_cross_the_streams == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub == true && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
       b_solid_five = true;
     }
 
@@ -1860,6 +1975,7 @@ void wandOff() {
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     switch_wand.resetCount();
+    switch_vent.resetCount();
 
     switch(year_mode) {
       case 2021:
@@ -4700,6 +4816,7 @@ void checkRotary() {
     switch(WAND_ACTION_STATUS) {
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         case ACTION_EEPROM_MENU:
+        case ACTION_CONFIG_EEPROM_MENU:
           // Counter clockwise.
           if(prev_next_code == 0x0b) {
             if(i_wand_menu - 1 < 1) {
@@ -5112,7 +5229,8 @@ void wandExitMenu() {
   void wandExitEEPROMMenu() {
     playEffect(S_BEEPS_BARGRAPH);
     switch_wand.resetCount();
-
+    switch_vent.resetCount();
+    
     i_wand_menu = 5;
 
     bargraphClearAlt();
@@ -5798,6 +5916,112 @@ void wandSerialSend(int i_message) {
 
   wandComs.sendDatum(sendStruct);
 }
+
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  void clearEEPROM() {
+    // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
+    for(unsigned int i = 0 ; i < sizeof(objEEPROM); i++) {
+      EEPROM.put(i, 0);
+    }
+
+    updateCRCEEPROM();
+  }
+
+  void saveEEPROM() {
+    // (Video Game Modes) + Cross The Streams / Cross The Streams Mix / Over Heating    
+    uint8_t i_cross_the_streams = 1;
+    uint8_t i_cross_the_streams_mix = 1;
+    uint8_t i_overheating = 1;
+
+    if(b_cross_the_streams == true) {
+      i_cross_the_streams = 2;
+    }
+
+    if(b_cross_the_streams_mix == true) {
+      i_cross_the_streams_mix = 2;
+    }
+
+    if(b_overheat_enabled == true) {
+      i_overheating = 2;
+    }
+
+    // Write the data to the EEPROM if any of the values have changed.
+    objEEPROM obj_eeprom = {
+      i_cross_the_streams,
+      i_cross_the_streams_mix,
+      i_overheating
+    };
+
+    // Save and update our object in the EEPROM.
+    EEPROM.put(i_eepromAddress, obj_eeprom);
+
+    updateCRCEEPROM();
+  }
+
+  // Update the CRC in the EEPROM.
+  void updateCRCEEPROM() { 
+    EEPROM.put(EEPROM.length() - sizeof(l_crc_size), eepromCRC());
+  }
+
+  unsigned long eepromCRC(void) {
+    const unsigned long crc_table[16] = {
+      0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
+      0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
+      0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
+      0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+    };
+
+    unsigned long crc = l_crc_size;
+
+    for(unsigned int index = 0; index < EEPROM.length() - sizeof(crc); ++index) {
+      crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
+      crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
+      crc = ~crc;
+    }
+
+    return crc;
+  }
+
+  void readEEPROM() {
+    // Get the stored CRC from the EEPROM.
+    unsigned long l_crc_check;
+    EEPROM.get(EEPROM.length() - sizeof(l_crc_size), l_crc_check);
+
+    // Check if the calculated CRC matches the stored CRC value in the EEPROM.
+    if(eepromCRC() == l_crc_check) {
+      // Read our object from the EEPROM.
+      objEEPROM obj_eeprom;
+      EEPROM.get(i_eepromAddress, obj_eeprom);
+
+      if(obj_eeprom.cross_the_streams > 0 && obj_eeprom.cross_the_streams != 255) {
+        if(obj_eeprom.cross_the_streams > 1) {
+          b_cross_the_streams = true;
+        }
+        else {
+          b_cross_the_streams = false;
+        }       
+      }
+
+      if(obj_eeprom.cross_the_streams_mix > 0 && obj_eeprom.cross_the_streams_mix != 255) {
+        if(obj_eeprom.cross_the_streams_mix > 1) {
+          b_cross_the_streams_mix = true;
+        }
+        else {
+          b_cross_the_streams_mix = false;
+        }       
+      }
+
+      if(obj_eeprom.overheating > 0 && obj_eeprom.overheating != 255) {
+        if(obj_eeprom.overheating > 1) {
+          b_overheat_enabled = true;
+        }
+        else {
+          b_overheat_enabled = false;
+        }       
+      }
+    }
+  }
+#endif
 
 // Helper method to play a sound effect using certain defaults.
 void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {

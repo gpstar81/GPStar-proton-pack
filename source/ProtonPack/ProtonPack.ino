@@ -4026,7 +4026,8 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } else {
+                  } 
+                  else {
                     // Already at 100%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
                     playEffect(S_BEEPS_ALT);
@@ -4044,7 +4045,8 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } else {
+                  } 
+                  else {
                     // Already at 100%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
                     playEffect(S_BEEPS_ALT);
@@ -4066,7 +4068,8 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } else {
+                  } 
+                  else {
                     // Already at 100%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
                     playEffect(S_BEEPS_ALT);
@@ -4093,7 +4096,8 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } else {
+                  } 
+                  else {
                     // Already at 0%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
                     playEffect(S_BEEPS_ALT);
@@ -4111,7 +4115,8 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } else {
+                  } 
+                  else {
                     // Already at 0%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
                     playEffect(S_BEEPS_ALT);
@@ -4133,13 +4138,28 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } else {
+                  } 
+                  else {
                     // Already at 0%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
                     playEffect(S_BEEPS_ALT);
                   }
                 break;
               }
+            break;
+
+            case W_CLEAR_CONFIG_EEPROM_SETTINGS:
+              stopEffect(S_VOICE_EEPROM_ERASE);
+              playEffect(S_VOICE_EEPROM_ERASE);
+
+              clearConfigEEPROM();
+            break;
+
+            case W_SAVE_CONFIG_EEPROM_SETTINGS:
+              stopEffect(S_VOICE_EEPROM_SAVE);
+              playEffect(S_VOICE_EEPROM_SAVE);
+
+              saveConfigEEPROM();
             break;
 
             case W_CLEAR_EEPROM_SETTINGS:
@@ -4575,8 +4595,8 @@ void readEEPROM() {
     // Read our object from the EEPROM.
     objEEPROM obj_eeprom;
     EEPROM.get(i_eepromAddress, obj_eeprom);
-
-    if(obj_eeprom.powercell_count > 0) {
+    
+    if(obj_eeprom.powercell_count > 0 && obj_eeprom.powercell_count != 255) {
       i_powercell_leds = obj_eeprom.powercell_count;
 
       switch(i_powercell_leds) {
@@ -4595,7 +4615,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.cyclotron_count > 0) {
+    if(obj_eeprom.cyclotron_count > 0 && obj_eeprom.cyclotron_count != 255) {
       i_cyclotron_leds = obj_eeprom.cyclotron_count;
 
       switch(i_cyclotron_leds) {
@@ -4629,7 +4649,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.inner_cyclotron_count > 0) {
+    if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {
       i_inner_cyclotron_num_leds = obj_eeprom.inner_cyclotron_count;
 
       switch(i_inner_cyclotron_num_leds) {
@@ -4652,7 +4672,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.grb_inner_cyclotron > 0) {
+    if(obj_eeprom.grb_inner_cyclotron > 0 && obj_eeprom.grb_inner_cyclotron != 255) {
       if(obj_eeprom.grb_inner_cyclotron > 1) {
         b_grb_cyclotron = true;
       }
@@ -4663,13 +4683,79 @@ void readEEPROM() {
 
     // Update the LED counts for the Proton Pack.
     updateProtonPackLEDCounts();
+
+    // Read our configration object from the EEPROM.
+    objConfigEEPROM obj_config_eeprom;
+    unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
+
+    EEPROM.get(i_eepromConfigAddress, obj_config_eeprom);
+
+    if(obj_config_eeprom.stream_effects > 0 && obj_config_eeprom.stream_effects != 255) {
+      if(obj_config_eeprom.stream_effects > 1) {
+        b_stream_effects = true;
+      }
+      else {
+        b_stream_effects = false;
+      }
+    }
+
+    if(obj_config_eeprom.stream_effects > 0 && obj_config_eeprom.stream_effects != 255) {
+      if(obj_config_eeprom.stream_effects > 1) {
+        b_cyclotron_single_led = true;
+      }
+      else {
+        b_cyclotron_single_led = false;
+      }
+    }
   }
+}
+
+void clearConfigEEPROM() {
+  // Clear out the EEPROM data for the configuration settings only.
+  unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
+
+  for(unsigned int i = 0 ; i < sizeof(objConfigEEPROM); i++) {
+    EEPROM.put(i_eepromConfigAddress, 0);
+
+    i_eepromConfigAddress++;
+  }
+
+  updateCRCEEPROM();
+}
+
+void saveConfigEEPROM() {
+  // Proton Stream Impact Effects
+  // Three LED setting
+
+  uint8_t i_single_led = 2;
+  uint8_t i_proton_stream_effects = 2;
+
+  if(b_cyclotron_single_led != true) {
+    i_single_led = 1;
+  }
+
+  if(b_stream_effects != true) {
+    i_proton_stream_effects = 1;
+  }
+
+  unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
+
+  objConfigEEPROM obj_eeprom = {
+    i_proton_stream_effects,
+    i_single_led
+  };
+
+  // Save to the EEPROM.
+  EEPROM.put(i_eepromConfigAddress, obj_eeprom);
+
+  updateCRCEEPROM();
 }
 
 void clearEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
   for(unsigned int i = 0 ; i < sizeof(objEEPROM); i++) {
-    EEPROM.write(i, 0);
+    //EEPROM.write(i, 0);
+    EEPROM.put(i, 0);
   }
 
   updateCRCEEPROM();
@@ -4678,10 +4764,10 @@ void clearEEPROM() {
 }
 
 void saveEEPROM() {
-  // 1. Power Cell LEDs
-  // 2. Cyclotron LEDs
-  // 3. Inner Cyclotron LEDs
-  // 4. GRB / RGB Inner Cyclotron toggle flag
+  // Power Cell LEDs
+  // Cyclotron LEDs
+  // Inner Cyclotron LEDs
+  // GRB / RGB Inner Cyclotron toggle flag
   
   uint8_t i_grb_cyclotron = 1;
 
@@ -4718,7 +4804,7 @@ unsigned long eepromCRC(void) {
 
   unsigned long crc = l_crc_size;
 
-  for (int index = 0 ; index < EEPROM.length() - sizeof(crc) ; ++index) {
+  for(unsigned int index = 0; index < EEPROM.length() - sizeof(crc); ++index) {
     crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
     crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
     crc = ~crc;
