@@ -4170,7 +4170,7 @@ void checkWand() {
             break;
 
             case W_SAVE_EEPROM_SETTINGS:
-              saveEEPROM();
+              saveLedEEPROM();
 
               stopEffect(S_VOICE_EEPROM_SAVE);
               playEffect(S_VOICE_EEPROM_SAVE);
@@ -4762,7 +4762,7 @@ void clearLedEEPROM() {
   updateProtonPackLEDCounts();
 }
 
-void saveEEPROM() {
+void saveLedEEPROM() {
   // Power Cell LEDs
   // Cyclotron LEDs
   // Inner Cyclotron LEDs
