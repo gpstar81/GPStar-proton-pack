@@ -61,10 +61,10 @@ You need to enable `__WT_USE_ALTSOFTSERIAL__` by uncommenting this line inside t
   * When building for your Mega, you can switch it back to 0xFE
 
   * Before:
-  const uint8_t MAX_PACKET_SIZE = 0xFE; // Maximum allowed payload bytes per packet
+  const uint8&#95;t MAX_PACKET_SIZE = 0xFE; // Maximum allowed payload bytes per packet
 
   * After:
-  const uint8_t MAX_PACKET_SIZE = 0x40; // Maximum allowed payload bytes per packet
+  const uint8&#95;t MAX_PACKET_SIZE = 0x40; // Maximum allowed payload bytes per packet
 
 ![Serial build for Arduino Nano](images/Arduino_nano_serial_build.jpg)
 
