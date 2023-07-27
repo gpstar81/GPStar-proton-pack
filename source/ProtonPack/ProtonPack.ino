@@ -4163,7 +4163,7 @@ void checkWand() {
             break;
 
             case W_CLEAR_EEPROM_SETTINGS:
-              clearEEPROM();
+              clearLedEEPROM();
 
               stopEffect(S_VOICE_EEPROM_ERASE);
               playEffect(S_VOICE_EEPROM_ERASE);
@@ -4751,10 +4751,9 @@ void saveConfigEEPROM() {
   updateCRCEEPROM();
 }
 
-void clearEEPROM() {
+void clearLedEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
   for(unsigned int i = 0 ; i < sizeof(objEEPROM); i++) {
-    //EEPROM.write(i, 0);
     EEPROM.put(i, 0);
   }
 
