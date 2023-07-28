@@ -154,8 +154,8 @@ const bool b_overheat_mode_5 = true;
  * Overheat only happens if enabled for that power mode (see above).
  * Example: 12000 = (12 seconds)
 */
-const unsigned long int i_ms_overheat_initiate_mode_1 = 6000;
-const unsigned long int i_ms_overheat_initiate_mode_2 = 3000;
+const unsigned long int i_ms_overheat_initiate_mode_1 = 60000;
+const unsigned long int i_ms_overheat_initiate_mode_2 = 30000;
 const unsigned long int i_ms_overheat_initiate_mode_3 = 20000;
 const unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
 const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
