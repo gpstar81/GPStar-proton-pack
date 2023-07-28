@@ -82,6 +82,7 @@ Refer to the [Operation Manual](OPERATION.md) for more information on how to ent
 | const bool b&#95;smoke&#95;overheat&#95;mode&#95;5 | Set to true to enable smoke events during the overheat sequence in **wand power mode 5**.<br><br>`This can be overridden if b_smoke&#95;enabled is false or if all 3 of the smoke_1, smoke_2 and fan overheat are set to false`| true |
 | const bool b&#95;diagnostic | Set to true if you want to know if your wand and pack are communicating. If the wand and pack have a serial connection to each other, you will hear a constant beeping sound. | false |
 | const bool b&#95;eeprom | Set to true if you to read the configuration data from the EEPROM memory in the Proton Pack.<br><br>`The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, but if you did, it can be disabled to bypass it.` | true |
+| const bool b&#95;cyclotron&#95;haslab&#95;chsv&#95;colour&#95;change | When using 12 LEDs for the Cycloton Lid (Stock Haslab), the system will default it to always red because changing the colour space with a CHSV colour object affects the brightness slightly for non RGB pixels such as the ones used in the Haslab Cyclotron Lid. If you are using 12 LEDs that are RGB, they will always be red when this is set to false. Setting this to true will override it and make the LEDs change colour if they are RGB.<br><br>`This only affects when you are using 12 LEDs for the Cyclotron Lid (Haslab)` | false |
 
 ## Neutrona Wand
 

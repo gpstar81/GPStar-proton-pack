@@ -1163,7 +1163,7 @@ void powercellDraw(uint8_t i_start) {
 void cyclotronColourReset() {
   // We only change / reset the colours if we are not using Haslab Cyclotron LEDs.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
-  if(i_cyclotron_leds != HASLAB_CYCLOTRON_LED_COUNT) {
+  if(i_cyclotron_leds != HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
     // Accounts for a total # of LED's minus the N-filter jewel and whatever preceeds the cyclotron.
@@ -1311,7 +1311,7 @@ void cyclotronFade() {
 
   // We override the colour changes when using stock Haslab Cyclotron LEDs.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
-  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT) {
+  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
   }
 
@@ -1719,7 +1719,7 @@ void cyclotron84LightOn(int cLed) {
 
   // We override the colour changes when using stock Haslab Cyclotron LEDs.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
-  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT) {
+  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
   }
 
@@ -4617,7 +4617,7 @@ void readEEPROM() {
 
     if(obj_eeprom.cyclotron_count > 0 && obj_eeprom.cyclotron_count != 255) {
       i_cyclotron_leds = obj_eeprom.cyclotron_count;
-
+      
       switch(i_cyclotron_leds) {
         // For a 40 LED Neopixel ring.
         case 40:

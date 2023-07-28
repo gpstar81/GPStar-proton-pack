@@ -48,6 +48,13 @@ The **wavTrigger.h** file can be located in your `Arduino/Libraries/<wav trigger
 
 ![WavTrigger Serial Class for Arduino Mega](images/wt_serial_mega.png)
 
+### Important information for older DIY gpstar Proton Pack builds
+If you are compiling the code to upload to an Arduino Mega with the original gpstar home built instructions. You want to use disabled GPSTAR&#95;PROTON&#95;PACK&#95;PCB which can be found at the very bottom of the `configuration.h` of the Proton Pack. 
+
+Example: `//#define GPSTAR_PROTON_PACK_PCB`
+
+This is a legacy flag, for people who originally put the cyclotron lid detection on pin 51 and not pin 43. If your cyclotron lid detection is on pin 51, then comment/disable this define. If your home built gpstar Proton Pack was built with pin 43 for the cyclotron lid detection, then you can leave this enabled.
+
 ## For compiling code on the Arduino Nano:
 
 You need to enable `__WT_USE_ALTSOFTSERIAL__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use. Note that you will need to confirm this value if you switch between compiling for the Arduino Mega.
