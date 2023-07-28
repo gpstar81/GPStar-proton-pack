@@ -2,8 +2,6 @@
 
 This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Proton Pack all stock connections can be made using the JST-XH connectors on all wiring.
 
-IMPORTANT: This solution still requires 2 of the WavTrigger devices for each of the pack and wand, whether supplied as part of a kit or if obtained on your own. The design of the PCB's will allow for completing the power and communication connections.
-
 ![](images/PackPCB-Labels.png)
 
 ## Proton Pack
