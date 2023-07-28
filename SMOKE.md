@@ -19,6 +19,24 @@ Each pin is designed to make use of a transistor to activate pumps, external dev
 	- For devices which require a dedicated power source (such as 12V) ALWAYS use a relay module.
 - For DIY Arduino Users: `DO NOT DRAW MORE THAN 40mA FROM A ARDUINO MEGA pin`. Use a transistor setup or relay module as previously noted.
 
+## Schematic Examples
+
+The following diagrams demonstrate the connections required for several smoke devices. These have been either directly verified or confirmed as "expected" by their respective makers. Other kits may be used, provided they adhere to the use of a relay for applying power directly to a vape coil device.
+
+![Built-in Battery](images/Smoke-NoBatt.png)
+
+![DIY - Single Battery](images/Smoke-DIY-1.png)
+
+![DIY - Dual Battery](images/Smoke-DIY-2.png)
+
+![5V - Single Battery](images/Smoke-DIY-1.png)
+
+![5V - Single Battery](images/Smoke-5V-2.png)
+
+![12V - Single Battery](images/Smoke-12V-2.png)
+
+![12V - Single Battery](images/Smoke-12V-2.png)
+
 ## Booster Tube Example
 
 *Provided by gpstar*
