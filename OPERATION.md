@@ -123,11 +123,11 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 | Top&nbsp;Menu&nbsp;Level | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
-| 5 | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
-| 4 | Proton Pack Light Dimming | `(Intensify + Top Dial)` Increases/Decreases the Proton Pack lights brightness. | Toggles between Power Cell, Cyclotron or Inner Cyclotron |
-| 3 | Sound & Music&nbsp;Volume | `(Intensify + Top Dial)` Increases/Decreases effects volume | `(Intensify + Top Dial)` Increases/Decreases music volume |
-| 2 | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
-| 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music / System Mute | Start/stop playing of music | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3 |
+| <center>5</center> | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
+| <center>4</center> | Proton Pack Light Dimming | `(Intensify + Top Dial)` Increases/Decreases the Proton Pack lights brightness. | Toggles between Power Cell, Cyclotron or Inner Cyclotron |
+| <center>3</center> | Sound & Music&nbsp;Volume | `(Intensify + Top Dial)` Increases/Decreases effects volume | `(Intensify + Top Dial)` Increases/Decreases music volume |
+| <center>2</center> | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
+| <center>1</center> | Play&nbsp;or&nbsp;Stop&nbsp;Music / System Mute | Start/stop playing of music | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3 |
 
 <sup>1</sup> Note that the LED/segment #5 will stay solid when the single-track loop is enabled while in the top menu system; it will blink on/off when looping is disabled.
 
@@ -144,11 +144,11 @@ To access the sub level menu, use the `Top Dial` on the top of the wand. When yo
 
 | Sub&nbsp;Level&nbsp;Menu | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
-| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes.<sup>4</sup> |
-| 4 | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/Disable smoke effects. | Enable/Disable overheating. |
-| 3 | Cyclotron&nbsp;LED&nbsp;Control | Change cyclotron rotation. | Toggle between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. |
-| 2 | Vibration Settings | Proton Pack Enable/Disable vibration or vibration during firing. | Neutrona Wand Enable/Disable vibration or vibration during firing. |
-| 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes. | Enable or Disable the Proton Stream impact sound effects. |
+| <center>5</center> | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes.<sup>4</sup> |
+| <center>4</center> | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/Disable smoke effects. | Enable/Disable overheating. |
+| <center>3</center> | Cyclotron&nbsp;LED&nbsp;Control | Change cyclotron rotation. | Toggle between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. |
+| <center>2</center> | Vibration Settings | Proton Pack Enable/Disable vibration or vibration during firing. | Neutrona Wand Enable/Disable vibration or vibration during firing. |
+| <center>1</center> | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes. | Enable or Disable the Proton Stream impact sound effects. |
 
 <sup>3</sup> Switch between Video Game and Cross the Stream (CTS) operation modes. Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.
 
@@ -180,13 +180,13 @@ To access the EEPROM LED Menu System, hold the `Intensify Button` down and toggl
 
 ![](images/OperationNeutrona11.jpg)
 
-| EEPROM&nbsp;LED&nbsp;Menu&nbsp;Level | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
+| EEPROM&nbsp;LED<br>Menu&nbsp;Level | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |----------------|---------|------------------|--------------------|
-| 5 | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack EEPROM.<br><br>***The Proton Pack will instead load the software defined defaults the next time you turn the battery power off.***| Save the current settings to the Proton Pack EEPROM. |
-| 4 | Cyclotron LED Count Toggle | Toggle between 40, 20 or 12 LEDs for your Cyclotron. | - |
-| 3 | Power Cell LED Count Toggle | Toggle between 15 or 13 LEDs for your Power Cell. | - |
-| 2 | Inner Cyclotron LED Count Toggle | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron Cake. | - |
-| 1 | Inner Cyclotron GRB Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | - |
+| <center>5</center> | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack EEPROM.<br><br>***The Proton Pack will instead load the software defined defaults the next time you turn the battery power off.***| Save the current settings to the Proton Pack EEPROM. |
+| <center>4</center> | Cyclotron LED Count Toggle | Toggle between 40, 20 or 12 LEDs for your Cyclotron. | <center>-</center> |
+| <center>3</center> | Power Cell LED Count Toggle | Toggle between 15 or 13 LEDs for your Power Cell. | <center>-</center> |
+| <center>2</center> | Inner Cyclotron LED Count Toggle | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron Cake. | <center>-</center> |
+| <center>1</center> | Inner Cyclotron GRB Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | <center>-</center> |
 
 **EEPROM Configuration Menu**
 
@@ -198,13 +198,13 @@ To access the EEPROM Configuration Menu, hold the `Intensify Button` down and to
 
 ![](images/OperationNeutrona12.jpg)
 
-| EEPROM&nbsp;Configuration&nbsp;Menu&nbsp;Level | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
+| EEPROM&nbsp;Configuration<br>Menu&nbsp;Level | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |----------------|---------|------------------|--------------------|
-| 5 | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROM.<br><br>***The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time the battery power is turn back on.***| Save the current settings to the Proton Pack and Neutron Wand EEPROM. |
-| 4 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes to set as your default.<sup>3</sup> | - |
-| 3 | Overheating | Enable or Disable overheating. | - |
-| 2 | Cyclotron&nbsp;LED&nbsp;Control | Set from between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. | - |
-| 1 | Proton Stream Effects | Enable or Disable the Proton Stream impact sound effects. | - |
+| <center>5</center> | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROM.<br><br>***The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time the battery power is turn back on.***| Save the current settings to the Proton Pack and Neutron Wand EEPROM. |
+| <center>4</center> | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes to set as your default.<sup>3</sup> | <center>-</center> |
+| <center>3</center> | Overheating | Enable or Disable overheating. | <center>-</center> |
+| <center>2</center> | Cyclotron&nbsp;LED&nbsp;Control | Set from between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. | <center>-</center> |
+| <center>1</center> | Proton Stream Effects | Enable or Disable the Proton Stream impact sound effects. | <center>-</center> |
 
 <sup>3</sup> Choose between Video Game and Cross the Stream (CTS) operation modes. Cross the Streams modes is like what you see in the films.
 
