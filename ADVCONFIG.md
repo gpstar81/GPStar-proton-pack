@@ -6,9 +6,9 @@ Please consider all items as changeable at your own risk. Deviating from any rec
 All user-configurable values reside within their respective `Configuration.h` file. Note that when loading the .ino file to the Arduino IDE this should load the related .h files automatically.
 
 ## EEPROM Data
-For those who customise your settings and flash your boards manually, any saved settings in the Proton Pack EEPROM can override some settings that you manually flash and update to your Proton Pack main system memory. Such as the Cyclotron and Power Cell Delays, the number of leds defined for the Power Cell or Cyclotron's etc. You can either override the EEPROM settings by setting `b_eeprom = false` in the Proton Pack Configuration.h file before flashing or clearing all the saved settings in your EEPROM from the Neutrona Wand EEPROM Menu System.
+For those who customise your settings and flash your boards manually, any saved settings in the Proton Pack or Neutrona Wand EEPROM can override some settings that you manually flash to your Proton Pack or Neutrona Wand's main system memory. Such as the Cyclotron and Power Cell Delays, the number of leds defined for the Power Cell or Cyclotron's, Overheating options, etc. You can either override the EEPROM settings by setting `b_eeprom = false` in the Proton Pack and or Neutrona Wand Configuration.h file before flashing or clearing all the saved settings in your EEPROM from the EEPROM LED Menu System and EEPROM Configuration Menu System.
 
-Refer to the [Operation Manual](OPERATION.md) for more information on how to enter the EEPROM Menu System.
+Refer to the [Operation Manual](OPERATION.md) for more information on how to enter the different EEPROM menu systems.
 
 `EEPROM data saving and menu system is only available while using the gpstar Neutrona Wand board with your Neutrona Wand.`
 
@@ -81,7 +81,8 @@ Refer to the [Operation Manual](OPERATION.md) for more information on how to ent
 | const bool b&#95;smoke&#95;overheat&#95;mode&#95;4 | Set to true to enable smoke events during the overheat sequence in **wand power mode 4**.<br><br>`This can be overridden if b_smoke&#95;enabled is false or if all 3 of the smoke_1, smoke_2 and fan overheat are set to false`| true |
 | const bool b&#95;smoke&#95;overheat&#95;mode&#95;5 | Set to true to enable smoke events during the overheat sequence in **wand power mode 5**.<br><br>`This can be overridden if b_smoke&#95;enabled is false or if all 3 of the smoke_1, smoke_2 and fan overheat are set to false`| true |
 | const bool b&#95;diagnostic | Set to true if you want to know if your wand and pack are communicating. If the wand and pack have a serial connection to each other, you will hear a constant beeping sound. | false |
-| const bool b&#95;eeprom | Set to true if you to read and save configuration data to the EEPROM memory in the Proton Pack.<br><br>`The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, but if you did, it can be disabled to bypass it.` | true |
+| const bool b&#95;eeprom | Set to true if you to read the configuration data from the EEPROM memory in the Proton Pack.<br><br>`The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, but if you did, it can be disabled to bypass it.` | true |
+| const bool b&#95;cyclotron&#95;haslab&#95;chsv&#95;colour&#95;change | When using 12 LEDs for the Cycloton Lid (Stock Haslab), the system will default it to always red because changing the colour space with a CHSV colour object affects the brightness slightly for non RGB pixels such as the ones used in the Haslab Cyclotron Lid. If you are using 12 LEDs that are RGB, they will always be red when this is set to false. Setting this to true will override it and make the LEDs change colour if they are RGB.<br><br>`This only affects when you are using 12 LEDs for the Cyclotron Lid (Haslab)` | false |
 
 ## Neutrona Wand
 
@@ -114,3 +115,4 @@ Refer to the [Operation Manual](OPERATION.md) for more information on how to ent
 | const unsigned long int i&#95;ms&#95;overheat&#95;initiate&#95;mode&#95;4 | Time in milliseconds for when the overheat sequence will initiate for the Neutrona Wand and Proton Pack if enabled for **wand power mode 4**.<br><br>`Example: 15000 is 15 seconds` | 15000 |
 | const unsigned long int i&#95;ms&#95;overheat&#95;initiate&#95;mode&#95;5 | Time in milliseconds for when the overheat sequence will initiate for the Neutrona Wand and Proton Pack if enabled for **wand power mode 5**.<br><br>`Example: 12000 is 12 seconds` | 12000 |
 | const bool b&#95;debug | Debug testing. Set to true to debug the A6 and A7 analog pin readings of the Neutrona Wand. This uses the USB port and the tx/rx pins need to be disconnected from the Proton Pack so serial information can be sent back to the Arduino IDE.<br><br>`The Neutrona Wand will respond slower in this mode as it is streaming constant serial data back to the debugger.` | false |
+| const bool b&#95;eeprom | Set to true if you want to read the configuration data from the EEPROM memory in the Neutrona Wand.<br><br>`The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, but if you did, it can be disabled to bypass it.` | true |

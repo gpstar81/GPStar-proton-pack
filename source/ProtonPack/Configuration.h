@@ -340,13 +340,20 @@ const bool b_smoke_overheat_mode_5 = true;
 const bool b_diagnostic = false;
 
 /*
- * Set to false to ignore reading and saving data to the EEPROM.
+ * Set to false to ignore reading data from the EEPROM.
 */
 const bool b_eeprom = true;
 
+/* 
+ * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the Haslab Cyclotron Lid.
+ * When using 12 LEDs for the Cycloton Lid, the system will default it to always red.
+ * Setting this to true will override it and allow CHSV colours to be applied to Cyclotron LIDs with 12 LEDs.
+*/
+const bool b_cyclotron_haslab_chsv_colour_change = false;
+
 /*
   *****
-  ***** INFORMATION FOR HOME BUILT gpstar Proton Packs using an Arduino Mega ********
+  ***** INFORMATION FOR DIY builds of the gpstar Proton Packs using an Arduino Mega ********
   *****
   
   * If you are compiling the code to upload to an Arduino Mega with the original gpstar home built instructions. You want to use disabled GPSTAR_PROTON_PACK_PCB.

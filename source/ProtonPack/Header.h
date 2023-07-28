@@ -353,7 +353,6 @@ bool b_pack_shutting_down = false;
 unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
 unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
 
-
 /*
  * EEPROM Data structure object that is saved into the EEPROM memory.
 */
@@ -362,6 +361,14 @@ struct objEEPROM {
   uint8_t cyclotron_count;
   uint8_t inner_cyclotron_count;
   uint8_t grb_inner_cyclotron;
+};
+
+/*
+ * EEPROM Another data structure object that is saved into the EEPROM memory.
+*/
+struct objConfigEEPROM {
+  uint8_t stream_effects;
+  uint8_t three_led;
 };
 
 /*
