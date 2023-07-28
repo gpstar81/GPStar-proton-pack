@@ -2,8 +2,6 @@
 
 This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB.
 
-IMPORTANT: This solution still requires 2 of the WavTrigger devices for each of the pack and wand, whether supplied as part of a kit or if obtained on your own. The design of the PCB's will allow for completing the power and communication connections.
-
 ![](images/WandPCB-Labels.png)
 
 ## Neutrona Wand
