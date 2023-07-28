@@ -54,10 +54,10 @@ Connections for the wand should be made according to the table below.
 
 | Label | Pins | Notes |
 |-------|------|-------|
-| PACK (Serial) | TX1/RX1 | Serial communication to the Proton Pack |
-| AUDIO BOARD | GND/NC/VCC/TX/RX/NC | Communication and Power for the wands's Wav Trigger |
-| ICSP | DO NOT USE! | Programming header for bootloader updates (reserved) |
-| UART | See Below | Programming header for software updates (optional) |
+| PACK (Serial) | TX1/RX1 | Serial communication to the Proton Pack.<br><br>`Connector type: JST-PH` |
+| AUDIO BOARD | GND/NC/VCC/TX/RX/NC | Communication and Power for the wands's Wav Trigger.<br><br>`Connector type: JST-PH` |
+| ICSP | DO NOT USE! | Programming header for bootloader updates (reserved).<br><br>`Connector type: Header pins` |
+| UART | See Below | Programming header for software updates (optional).<br><br>`Connector type: Header pins` |
 
 For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label to the FTDI chip.
 
