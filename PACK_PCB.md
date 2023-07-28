@@ -29,11 +29,11 @@ Connections for the pack should be made according to the table below.
 
 | Label | Pins | Notes |
 |-------|------|-------|
-| AUDIO BOARD | GND/NC/VCC/TX/RX/NC | Communication and Power for the pack's Wav Trigger |
-| NEUTRONA WAND 5V-OUT | +/\- | Power to the Neutrona Wand |
-| NEURTONA WAND (Serial) | RX2/TX2 | Serial communication to the Neutrona Wand |
-| ICSP | DO NOT USE! | Reserved header for bootloader updates (reserved) |
-| UART | See Below | Programming header for software updates (optional) |
+| AUDIO BOARD | GND/NC/VCC/TX/RX/NC | Communication and Power for the pack's Wav Trigger.<br><br>`Connector type: JST-PH` |
+| NEUTRONA WAND 5V-OUT | +/\- | Power to the Neutrona Wand.<br><br>`Connector type: JST-XH |
+| NEURTONA WAND (Serial) | RX2/TX2 | Serial communication to the Neutrona Wand.<br><br>`Connector type: JST-XH |
+| ICSP | DO NOT USE! | Reserved header for bootloader updates (reserved).<br><br>`Connector type: Header pins` |
+| UART | See Below | Programming header for software updates (optional).<br><br>`Connector type: Header pins` |
 
 For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label to the FTDI chip.
 
