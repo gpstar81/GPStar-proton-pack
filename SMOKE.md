@@ -31,11 +31,11 @@ The following diagrams demonstrate the connections required for several smoke de
 
 ![5V - Single Battery](images/Smoke-DIY-1.png)
 
-![5V - Single Battery](images/Smoke-5V-2.png)
+![5V - Dual Battery](images/Smoke-5V-2.png)
 
-![12V - Single Battery](images/Smoke-12V-2.png)
+![12V - Single Battery](images/Smoke-12V-1.png)
 
-![12V - Single Battery](images/Smoke-12V-2.png)
+![12V - Dual Battery](images/Smoke-12V-2.png)
 
 ## Booster Tube Example
 
