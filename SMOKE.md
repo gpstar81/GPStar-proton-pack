@@ -29,7 +29,7 @@ The following diagrams demonstrate the connections required for several smoke de
 
 ![DIY - Dual Battery](images/Smoke-DIY-2.png)
 
-![5V - Single Battery](images/Smoke-DIY-1.png)
+![5V - Single Battery](images/Smoke-5V-1.png)
 
 ![5V - Dual Battery](images/Smoke-5V-2.png)
 
