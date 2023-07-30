@@ -1,10 +1,12 @@
 # Wand PCB Hookup
 
-This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB.
+This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard Haslab connections, or when using the 28-segment bargraph from Frutto Technology.
 
-![](images/WandPCB-Labels.png)
+![Standard PCB Connections](images/WandPCB-Standard.png)
 
-## Neutrona Wand
+![Bargraph PCB Connections](images/WandPCB-Bargraph.png)
+
+## Neutrona Wand - Connection Details
 
 Connections for the wand should be made according to the table below.
 
@@ -61,8 +63,8 @@ Connections for the wand should be made according to the table below.
 
 For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label to the FTDI chip.
 
-- If using an FTDI to USB cable, the RTS pin will connect to the DTR board pin.
-- The CTS pin on any FTDI device will not be used (connects to GND on the board).
+- If using an FTDI to USB cable, the RTS pin will connect to the DTR pin on the PCB.
+- The CTS pin on any FTDI device will not be used, but must connect to a GND on the PCB.
 
 ### Optional Connectors
 

@@ -1,10 +1,10 @@
 # Pack PCB Hookup
 
-This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Proton Pack all stock connections can be made using the JST-XH connectors on all wiring.
+This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Proton Pack all stock connections can be made using the available JST-XH connectors on all existing wiring. The diagram below details the standard Haslab connections.
 
-![](images/PackPCB-Labels.png)
+![Standard PCB Connections](images/PackPCB-Standard.png)
 
-## Proton Pack
+## Proton Pack - Connection Details
 
 Connections for the pack should be made according to the table below.
 
@@ -37,8 +37,8 @@ Connections for the pack should be made according to the table below.
 
 For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label to the FTDI chip.
 
-- If using an FTDI to USB cable, the RTS pin will connect to the DTR board pin.
-- The CTS pin on any FTDI device will not be used (connects to GND on the board).
+- If using an FTDI to USB cable, the RTS pin will connect to the DTR pin on the PCB.
+- The CTS pin on any FTDI device will not be used, but must connect to a GND on the PCB.
 
 ### Optional Connectors
 
