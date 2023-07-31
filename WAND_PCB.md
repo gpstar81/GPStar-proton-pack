@@ -1,16 +1,20 @@
 # Wand PCB Hookup
 
-This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB.
+This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard Haslab connections, or when using the 28-segment bargraph from Frutto Technology.
 
-![](images/WandPCB-Labels.png)
+![Standard PCB Connections](images/WandPCB-Standard.png)
 
-## Neutrona Wand
+![Bargraph PCB Connections](images/WandPCB-Bargraph.png)
 
-Connections for the wand should be made according to the table below.
+## Neutrona Wand - Connection Details
+
+Connections for the wand should be made according to the tables below.
 
 - Ordering aligns with PCB labels or when viewed left-to-right with the connector keyhole at the bottom.
 - Pins denoted A#/D# correspond to the internal code and connection to the controller chip.
 - Ground may be designated as "GND" or simply "-".
+
+![](images/WandPCB-Labels.png)
 
 ### Stock Connectors (JST-PH)
 
@@ -59,10 +63,14 @@ Connections for the wand should be made according to the table below.
 | ICSP | DO NOT USE! | Programming header for bootloader updates (reserved).<br><br>`Connector type: Header pins` |
 | UART | See Below | Programming header for software updates (optional).<br><br>`Connector type: Header pins` |
 
-For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label to the FTDI chip.
+For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:
 
-- If using an FTDI to USB cable, the RTS pin will connect to the DTR board pin.
-- The CTS pin on any FTDI device will not be used (connects to GND on the board).
+- The ground pin will typically be a black wire, while VCC will typically be red.
+- The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.
+- Any wire labelled CTS will be connected to the 2nd pin labelled GND on the PCB.
+- Be careful to not reverse the connector!
+
+![UART Connection](images/uart_wand.jpg)
 
 ### Optional Connectors
 
