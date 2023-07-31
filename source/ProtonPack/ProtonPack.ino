@@ -3096,6 +3096,14 @@ void checkWand() {
               }
             break;
             
+            case W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED:
+              playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+            break;
+
+            case W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED:
+              playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+            break;
+
             case W_AFTERLIFE_RAMP_LOOP_2_STOP:
               stopEffect(S_AFTERLIFE_WAND_IDLE_2);            
             break;

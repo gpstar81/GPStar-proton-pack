@@ -368,29 +368,6 @@ void mainLoop() {
             soundIdleLoop(true);
           }
           else {
-            /*
-            switch(year_mode) {
-              case 1984:
-              case 1989:
-                // Do nothing.
-              break;
-
-              case 2021:
-                soundIdleLoop(true);
-
-                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 5);
-                b_sound_afterlife_idle_2_fade = true;
-
-                #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                  if(b_extra_pack_sounds == true) {
-                    wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
-                  }
-                #endif
-
-                ms_gun_loop_1.start(2000);
-              break;
-            }
-            */
             soundIdleLoop(true);
 
             if(switch_vent.getState() == HIGH) {
@@ -556,6 +533,24 @@ void mainLoop() {
               
               // Tell the Proton Pack to toggle the Proton Stream impact effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+            }
+
+            // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
+            if(switchMode() == true) {
+              if(b_extra_pack_sounds == true) {
+                b_extra_pack_sounds = false;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+              }
+              else {
+                b_extra_pack_sounds = true;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+              }
             }
           break;
         }
@@ -1094,11 +1089,9 @@ void mainLoop() {
             b_sound_afterlife_idle_2_fade = false;
             ms_gun_loop_1.stop();
 
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              if(b_extra_pack_sounds == true) {
-                wandSerialSend(W_AFTERLIFE_GUN_LOOP_1);
-              }
-            #endif
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_AFTERLIFE_GUN_LOOP_1);
+            }
           }
         }
       }
@@ -1967,11 +1960,9 @@ void wandOff() {
         if(WAND_ACTION_STATUS != ACTION_ERROR && b_pack_alarm != true) {
           playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 5);
 
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
-            }
-          #endif  
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+          }
         }
       break;
     }
@@ -1993,11 +1984,9 @@ void wandOff() {
 
   stopEffect(S_BOOTUP);
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_extra_pack_sounds == true) {
-      wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-    }
-  #endif
+  if(b_extra_pack_sounds == true) {
+    wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+  }
 
   // Turn off any overheating sounds.
   stopEffect(S_CLICK);
@@ -2182,26 +2171,22 @@ void soundIdleStart() {
           if(b_sound_afterlife_idle_2_fade == true) {
             playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 5);
 
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              if(b_extra_pack_sounds == true) {
-                wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
 
-                wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
-              }
-            #endif
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
+            }
 
             b_sound_afterlife_idle_2_fade = false;
           }
           else {
             playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 5);
 
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              if(b_extra_pack_sounds == true) {
-                wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
 
-                wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
-              }
-            #endif          
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
+            }
           }
           
           ms_gun_loop_2.start(1500);
@@ -2220,11 +2205,9 @@ void soundIdleStart() {
 
       ms_gun_loop_2.stop();
 
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(b_extra_pack_sounds == true) {
-          wandSerialSend(W_AFTERLIFE_GUN_LOOP_2);
-        }
-      #endif      
+      if(b_extra_pack_sounds == true) {
+        wandSerialSend(W_AFTERLIFE_GUN_LOOP_2);
+      }
     }
   }
 }
@@ -2245,20 +2228,16 @@ void soundIdleStop() {
 
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 5);
 
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              if(b_extra_pack_sounds == true) {
-                wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
-              }
-            #endif          
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
+            }
           }
           else if(WAND_ACTION_STATUS != ACTION_OFF) {
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 5);
 
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              if(b_extra_pack_sounds == true) {
-                wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
-              }
-            #endif
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
+            }
           }
 
           if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
@@ -2282,11 +2261,9 @@ void soundIdleStop() {
         stopEffect(S_AFTERLIFE_WAND_RAMP_2);
         stopEffect(S_AFTERLIFE_WAND_IDLE_2);
 
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_extra_pack_sounds == true) {
-            wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
-          }
-        #endif        
+        if(b_extra_pack_sounds == true) {
+          wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
+        }
       break;
     }
   }
@@ -5409,11 +5386,9 @@ void afterLifeRamp1() {
 
   ms_gun_loop_1.start(2000);
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_extra_pack_sounds == true) {
-      wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
-    }
-  #endif
+  if(b_extra_pack_sounds == true) {
+    wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
+  }
 }
 
 // Pack communication to the wand.
@@ -5529,12 +5504,10 @@ void checkPack() {
                       stopEffect(S_AFTERLIFE_WAND_IDLE_1);
                       playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 5);
 
-                      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                        if(b_extra_pack_sounds == true) {
-                          wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-                          wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
-                        }
-                      #endif    
+                      if(b_extra_pack_sounds == true) {
+                        wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+                        wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+                      }
                     }  
                   break;
                 }                 
@@ -6084,6 +6057,7 @@ void wandSerialSend(int i_message) {
     uint8_t i_cross_the_streams = 1;
     uint8_t i_cross_the_streams_mix = 1;
     uint8_t i_overheating = 1;
+    uint8_t i_neutrona_wand_sounds = 1;
 
     if(b_cross_the_streams == true) {
       i_cross_the_streams = 2;
@@ -6097,11 +6071,16 @@ void wandSerialSend(int i_message) {
       i_overheating = 2;
     }
 
+    if(b_extra_pack_sounds == true) {
+      i_neutrona_wand_sounds = 2;
+    }
+
     // Write the data to the EEPROM if any of the values have changed.
     objEEPROM obj_eeprom = {
       i_cross_the_streams,
       i_cross_the_streams_mix,
-      i_overheating
+      i_overheating,
+      i_neutrona_wand_sounds
     };
 
     // Save and update our object in the EEPROM.
@@ -6170,6 +6149,15 @@ void wandSerialSend(int i_message) {
         else {
           b_overheat_enabled = false;
         }       
+      }
+
+      if(obj_eeprom.neutrona_wand_sounds > 0 && obj_eeprom.neutrona_wand_sounds != 255) {
+        if(obj_eeprom.neutrona_wand_sounds > 1) {
+          b_extra_pack_sounds = true;
+        }
+        else {
+          b_extra_pack_sounds = false;
+        }
       }
     }
   }

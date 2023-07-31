@@ -170,8 +170,7 @@ const bool b_no_pack = false;
 const bool b_onboard_amp_enabled = true;
 
 /*
-  * When set to true, the Neutrona Wand will tell the Proton Pack to play additional Neutrona Wand sounds such as:
-  * Afterlife ramp up/ramp down, 1984/1989 heatup / heat down.
+  * When set to true, the Neutrona Wand will tell the Proton Pack to play the After Life Neutrona Wand ramp sounds:
   * Only compatible with the gpstar Neutrona Wand board.
   * The default setting is false.
 */
