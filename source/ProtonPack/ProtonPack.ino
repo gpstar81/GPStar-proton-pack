@@ -4347,7 +4347,7 @@ void checkWand() {
                   // Switch to 20 LEDs. Frutto Technology.
                   i_cyclotron_leds = 20;
 
-                  i_2021_delay = 13;
+                  i_2021_delay = 10;
                   i_1984_cyclotron_leds[0] = 2;
                   i_1984_cyclotron_leds[1] = 7;
                   i_1984_cyclotron_leds[2] = 12;
@@ -4376,7 +4376,7 @@ void checkWand() {
                   // Switch to 40 LEDs.
                   i_cyclotron_leds = 40;
 
-                  i_2021_delay = 10;
+                  i_2021_delay = 5;
                   i_1984_cyclotron_leds[0] = 0;
                   i_1984_cyclotron_leds[1] = 10;
                   i_1984_cyclotron_leds[2] = 18;
@@ -4709,7 +4709,7 @@ void readEEPROM() {
       switch(i_cyclotron_leds) {
         // For a 40 LED Neopixel ring.
         case 40:
-          i_2021_delay = 10;
+          i_2021_delay = 5;
           i_1984_cyclotron_leds[0] = 0;
           i_1984_cyclotron_leds[1] = 10;
           i_1984_cyclotron_leds[2] = 18;
@@ -4718,7 +4718,7 @@ void readEEPROM() {
 
         // For Frutto Technology Cyclotron LEDs.
         case 20:
-          i_2021_delay = 13;
+          i_2021_delay = 10;
           i_1984_cyclotron_leds[0] = 2;
           i_1984_cyclotron_leds[1] = 7;
           i_1984_cyclotron_leds[2] = 12;

@@ -44,6 +44,10 @@ uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 //const uint8_t i_cyclotron_leds = 40;
 //const uint8_t i_1984_cyclotron_leds[4] = { 0, 10, 18, 28 };
 
+// For a 20 LED Frutto Technology cyclotron.
+//const uint8_t i_cyclotron_leds = 20;
+//const uint8_t i_1984_cyclotron_leds[4] = { 2, 7, 12, 17 };
+
 /*
  * Power Cell LEDs
  * The number of Power Cell leds. Stock Haslab has 13. 
@@ -81,7 +85,7 @@ bool b_powercell_colour_toggle = true;
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
 */
 const unsigned int i_1984_delay = 1050;
-unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 LED NeoPixel ring.
+unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology cyclotron, and 5 for a 40 LED NeoPixel ring.
 
 /*
  * Power Cell delays in milliseconds.
