@@ -8,11 +8,13 @@ This guide is part of the kit approach to providing a minimally-invasive upgrade
 
 ## Neutrona Wand - Connection Details
 
-Connections for the wand should be made according to the table below.
+Connections for the wand should be made according to the tables below.
 
 - Ordering aligns with PCB labels or when viewed left-to-right with the connector keyhole at the bottom.
 - Pins denoted A#/D# correspond to the internal code and connection to the controller chip.
 - Ground may be designated as "GND" or simply "-".
+
+![](images/WandPCB-Labels.png)
 
 ### Stock Connectors (JST-PH)
 
