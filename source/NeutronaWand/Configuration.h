@@ -127,12 +127,6 @@ bool b_vibration_firing = true;
 bool b_overheat_enabled = true;
 
 /*
- * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
- * When false, the bargraph will ramp down instead.
-*/
-bool b_overheat_bargraph_blink = false;
-
-/*
  * Set to true to have your Neutrona wand boot up with errors when the top right switch (beep switch) is on while you are turning on your wand.
  * When set to false, this will be ignored.
 */
@@ -174,6 +168,14 @@ const bool b_no_pack = false;
  * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
 */
 const bool b_onboard_amp_enabled = true;
+
+/*
+  * When set to true, the Neutrona Wand will tell the Proton Pack to play additional Neutrona Wand sounds such as:
+  * Afterlife ramp up/ramp down, 1984/1989 heatup / heat down.
+  * Only compatible with the gpstar Neutrona Wand board.
+  * The default setting is false.
+*/
+bool b_extra_pack_sounds = true;
 
 /*
  * Debug testing

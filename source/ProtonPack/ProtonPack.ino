@@ -166,6 +166,7 @@ void setup() {
 void loop() {
   w_trig.update();
 
+  checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
 
   wandHandShake();
@@ -464,6 +465,18 @@ void loop() {
   }
 }
 
+void checkRibbonCableSwitch() {
+  if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
+    if(switch_alarm.getState() == LOW) {
+      // Ribbon cable is on.
+      packSerialSend(P_RIBBON_CABLE_ON);
+    }
+    else {
+      packSerialSend(P_RIBBON_CABLE_OFF);
+    }
+  }
+}
+
 void playVentSounds() {
   playEffect(S_VENT_SMOKE);
   playEffect(S_SPARKS_LOOP);
@@ -534,6 +547,8 @@ void packShutdown() {
       stopEffect(S_PACK_BEEPING);
     break;
   }
+
+  wandExtraSoundsStop();
 
   stopEffect(S_BEEP_8);
   stopEffect(S_SHUTDOWN);
@@ -2715,6 +2730,16 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_BOOTUP, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
+
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 10);            
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 10);           
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 10);      
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 10);      
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - 10);
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 10);                      
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 10);        
+  w_trig.trackGain(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 10);        
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 10);
 }
 
 void increaseVolumeEffects() {
@@ -2893,10 +2918,8 @@ void smokeBooster(bool b_smoke_on) {
   }
 }
 
-/*
- * Fan control. You can use this to switch on any device when properly hooked up with a transistor etc
- * A fan is a good idea for the n-filter for example.
- */
+// Fan control. You can use this to switch on any device when properly hooked up with a transistor etc
+// A fan is a good idea for the n-filter for example.
 void fanControl(bool b_fan_on) {
   if(b_smoke_enabled == true) {
     if(b_fan_on == true) {
@@ -2916,10 +2939,7 @@ void fanControl(bool b_fan_on) {
   }
 }
 
-/*
- *  Another optional 5V pin that goes high during overheat sequences.
- *  Perhaps this one would be good for a fan or dc motor to push some smoke into the n-filter with more force.
- */
+// Another optional 5V pin that goes high during overheat sequences.
 void checkFan() {
   if(ms_fan_stop_timer.justFinished()) {
     // Turn off fan.
@@ -2931,9 +2951,7 @@ void checkFan() {
   }
 }
 
-/*
- * Check if the wand is still connected.
- */
+// Check if the wand is still connected.
 void wandHandShake() {
   if(b_wand_connected == true) {
     if(ms_wand_handshake.justFinished()) {
@@ -2946,6 +2964,8 @@ void wandHandShake() {
       ms_wand_handshake.start(i_wand_handshake_delay);
 
       b_wand_connected = false;
+
+      wandExtraSoundsStop();
 
       // Where are you wand?
       packSerialSend(P_HANDSHAKE);
@@ -2972,7 +2992,7 @@ void wandHandShake() {
     if(b_overheating == true) {
       packOverheatingFinished();
     }
-
+    
     if(ms_wand_handshake.justFinished()) {
       // Ask the wand if it is connected.
       packSerialSend(P_HANDSHAKE);
@@ -2980,6 +3000,19 @@ void wandHandShake() {
       ms_wand_handshake.start(i_wand_handshake_delay / 5);
     }
   }
+}
+
+void wandExtraSoundsStop() {
+  stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+  stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+
+  stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+  stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+
+  stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);  
 }
 
 void packOverheatingFinished() {
@@ -3034,9 +3067,7 @@ void packOverheatingFinished() {
   ms_cyclotron.start(i_2021_delay);
 }
 
-/*
- * Incoming messages from the wand.
- */
+// Incoming messages from the wand.
 void checkWand() {
   if(packComs.available()) {
     packComs.rxObj(comStruct);
@@ -3063,6 +3094,46 @@ void checkWand() {
               if(PACK_STATUS != MODE_OFF) {
                 PACK_ACTION_STATUS = ACTION_OFF;
               }
+            break;
+            
+            case W_AFTERLIFE_RAMP_LOOP_2_STOP:
+              stopEffect(S_AFTERLIFE_WAND_IDLE_2);            
+            break;
+
+            case W_AFTERLIFE_GUN_RAMP_1:
+              playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 10);           
+            break;
+
+            case W_AFTERLIFE_GUN_RAMP_2:
+              playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 10);      
+            break;
+
+            case W_AFTERLIFE_GUN_RAMP_2_FADE_IN:
+              playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 10);      
+            break;
+
+            case W_AFTERLIFE_GUN_LOOP_1:
+              playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - 10);
+            break;
+
+            case W_AFTERLIFE_GUN_LOOP_2:
+              playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 10);                      
+            break;
+
+            case W_AFTERLIFE_GUN_RAMP_DOWN_2:
+              playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 10);        
+            break;
+
+            case S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT:
+              playEffect(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 10);        
+            break;
+
+            case W_AFTERLIFE_GUN_RAMP_DOWN_1:
+              playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 10);
+            break;
+
+            case W_EXTRA_WAND_SOUNDS_STOP:
+              wandExtraSoundsStop();
             break;
 
             case W_FIRING:
@@ -4469,7 +4540,16 @@ void checkWand() {
                 }
               break;              
             }
-
+            
+            // Tell the wand the status of the Proton Pack ribbon cable.
+            if(switch_alarm.getState() == LOW) {
+              // Ribbon cable is on.
+              packSerialSend(P_RIBBON_CABLE_ON);
+            }
+            else {
+              packSerialSend(P_RIBBON_CABLE_OFF);
+            }
+            
             // Put the wand into volume sync mode.
             packSerialSend(P_VOLUME_SYNC_MODE);
 

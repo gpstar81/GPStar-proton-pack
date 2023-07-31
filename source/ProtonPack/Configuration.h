@@ -340,6 +340,11 @@ const bool b_smoke_overheat_mode_5 = true;
 const bool b_diagnostic = false;
 
 /*
+ * Set to true to have the Proton Pack to play additional wand sounds such as beeps and idling sounds.
+*/
+bool b_additional_wand_sounds = false;
+
+/*
  * Set to false to ignore reading data from the EEPROM.
 */
 const bool b_eeprom = true;

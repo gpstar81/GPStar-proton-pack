@@ -368,6 +368,7 @@ void mainLoop() {
             soundIdleLoop(true);
           }
           else {
+            /*
             switch(year_mode) {
               case 1984:
               case 1989:
@@ -377,10 +378,24 @@ void mainLoop() {
               case 2021:
                 soundIdleLoop(true);
 
-                playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
+                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 5);
+                b_sound_afterlife_idle_2_fade = true;
+
+                #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                  if(b_extra_pack_sounds == true) {
+                    wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
+                  }
+                #endif
+
                 ms_gun_loop_1.start(2000);
               break;
             }
+            */
+            soundIdleLoop(true);
+
+            if(switch_vent.getState() == HIGH) {
+              afterLifeRamp1();
+            }  
           }
         }
 
@@ -1074,9 +1089,16 @@ void mainLoop() {
         }
 
         if(year_mode == 2021) {
-          if(ms_gun_loop_1.justFinished()) {
-            playEffect(S_AFTERLIFE_GUN_LOOP_1, true, i_volume_effects - 10);
+          if(ms_gun_loop_1.justFinished() && switch_vent.getState() == HIGH) {
+            playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - 5);
+            b_sound_afterlife_idle_2_fade = false;
             ms_gun_loop_1.stop();
+
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_AFTERLIFE_GUN_LOOP_1);
+              }
+            #endif
           }
         }
       }
@@ -1922,12 +1944,45 @@ void wandOff() {
     FIRING_MODE = PROTON;
   }
 
-  WAND_STATUS = MODE_OFF;
-  WAND_ACTION_STATUS = ACTION_IDLE;
+  stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+  stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
+
+  b_sound_afterlife_idle_2_fade = true;
+
+  if(b_pack_ribbon_cable_on == true) {
+    switch(year_mode) {
+      case 1989:
+      case 1984:
+        // Nothing for now.
+      break;
+
+      case 2021:
+      default:
+        if(WAND_ACTION_STATUS != ACTION_ERROR && b_pack_alarm != true) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 5);
+
+          #ifdef GPSTAR_NEUTRONA_WAND_PCB
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+            }
+          #endif  
+        }
+      break;
+    }
+  }
 
   soundBeepLoopStop();
   soundIdleStop();
   soundIdleLoopStop();
+
+  WAND_STATUS = MODE_OFF;
+  WAND_ACTION_STATUS = ACTION_IDLE;
 
   vibrationOff();
 
@@ -1936,14 +1991,13 @@ void wandOff() {
     modeFireStop();
   }
 
-  stopEffect(S_AFTERLIFE_GUN_LOOP_1);
-  stopEffect(S_AFTERLIFE_GUN_LOOP_2);
-
-  stopEffect(S_AFTERLIFE_GUN_RAMP_1);
-  stopEffect(S_AFTERLIFE_GUN_RAMP_2);
-  stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_1);
-  stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2);
   stopEffect(S_BOOTUP);
+
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    if(b_extra_pack_sounds == true) {
+      wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+    }
+  #endif
 
   // Turn off any overheating sounds.
   stopEffect(S_CLICK);
@@ -1955,7 +2009,6 @@ void wandOff() {
   stopEffect(S_MESON_START);
 
   playEffect(S_WAND_SHUTDOWN);
-  playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_1);
 
   // Turn off some timers.
   ms_bargraph.stop();
@@ -1991,6 +2044,8 @@ void wandOff() {
 }
 
 void modeActivate() {
+  b_sound_afterlife_idle_2_fade = true;
+
   // The wand was started while the top switch was already on. Lets put the wand into a startup error mode.
   if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
     ms_hat_2.start(i_hat_2_delay);
@@ -2056,12 +2111,14 @@ void modeActivate() {
         case 1989:
           playEffect(S_CLICK);
         break;
-
+        
+        case 2021:
         default:
           soundIdleLoop(true);
 
-          playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
-          ms_gun_loop_1.start(2000);
+          if(switch_vent.getState() == HIGH && b_pack_ribbon_cable_on == true) {
+            afterLifeRamp1();
+          }
         break;
       }
     }
@@ -2109,31 +2166,65 @@ void soundIdleStart() {
         playEffect(S_BOOTUP);
 
         soundIdleLoop(true);
+
+        b_sound_idle = true;
       break;
 
       default:
-        stopEffect(S_AFTERLIFE_GUN_RAMP_1);
-        stopEffect(S_AFTERLIFE_GUN_LOOP_2);
-        stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_1);
-        stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
+        
+        if(b_pack_ribbon_cable_on == true) {
+          if(b_sound_afterlife_idle_2_fade == true) {
+            playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 5);
 
-        playEffect(S_AFTERLIFE_GUN_RAMP_2, false, i_volume_effects - 10);
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+
+                wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
+              }
+            #endif
+
+            b_sound_afterlife_idle_2_fade = false;
+          }
+          else {
+            playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 5);
+
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+
+                wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
+              }
+            #endif          
+          }
+          
+          ms_gun_loop_2.start(1500);
+
+          b_sound_idle = true;
+        }
 
         ms_gun_loop_1.stop();
-        ms_gun_loop_2.start(1500);
       break;
     }
   }
 
-  if(b_sound_idle == false) {
-    b_sound_idle = true;
-  }
-
   if(year_mode == 2021) {
     if(ms_gun_loop_2.justFinished()) {
-      playEffect(S_AFTERLIFE_GUN_LOOP_2, true, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 5);
 
       ms_gun_loop_2.stop();
+
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        if(b_extra_pack_sounds == true) {
+          wandSerialSend(W_AFTERLIFE_GUN_LOOP_2);
+        }
+      #endif      
     }
   }
 }
@@ -2146,18 +2237,36 @@ void soundIdleStop() {
         playEffect(S_WAND_SHUTDOWN);
       break;
 
+      case 2021:
       default:
-        if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
-          playEffect(S_WAND_SHUTDOWN);
-        }
+        if(b_pack_ribbon_cable_on == true) {
+          if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+            //playEffect(S_WAND_SHUTDOWN);
 
-        playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2, false, i_volume_effects - 10);
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 5);
 
-        if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-          ms_gun_loop_1.start(1700);
-          ms_gun_loop_2.stop();
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
+              }
+            #endif          
+          }
+          else if(WAND_ACTION_STATUS != ACTION_OFF) {
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 5);
+
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
+              }
+            #endif
+          }
+
+          if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+            ms_gun_loop_1.start(1700);
+            ms_gun_loop_2.stop();
+          }
+        break;
         }
-      break;
     }
   }
 
@@ -2170,8 +2279,14 @@ void soundIdleStop() {
       break;
 
       case 2021:
-        stopEffect(S_AFTERLIFE_GUN_RAMP_2);
-        stopEffect(S_AFTERLIFE_GUN_LOOP_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
+          }
+        #endif        
       break;
     }
   }
@@ -4570,8 +4685,6 @@ void prepBargraphRampUp() {
 
     // Prepare a few things before ramping the bargraph back up from a full ramp down.
     if(b_overheat_bargraph_blink != true) {
-      playEffect(S_BOOTUP);
-
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         if(year_mode == 2021) {
           bargraphYearModeUpdate();
@@ -4591,25 +4704,6 @@ void prepBargraphRampUp() {
 
       updatePackPowerLevel();
       bargraphRampUp();
-
-      if(switch_vent.getState() == LOW) {
-        soundIdleLoop(true);
-      }
-      else {
-        switch(year_mode) {
-          case 1984:
-          case 1989:
-            // Do nothing.
-          break;
-
-          case 2021:
-            soundIdleLoop(true);
-
-            playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
-            ms_gun_loop_1.start(2000);
-          break;
-        }
-      }
     }
   }
 }
@@ -4681,17 +4775,22 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
   w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
   w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_1, i_volume_effects - 10); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_2, i_volume_effects - 10); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_LOW, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_HIGH, i_volume_effects);
+
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - 5); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 5); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 5); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 5); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 5); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 5); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 5); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 5); // Special volume in use.
+
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume_effects - 10); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_2, i_volume_effects - 10); // Special volume in use.
+  
   w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
   w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
   w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
@@ -5304,6 +5403,19 @@ bool switchBarrel() {
   #endif
 }
 
+void afterLifeRamp1() {
+  playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 5);
+  b_sound_afterlife_idle_2_fade = false;
+
+  ms_gun_loop_1.start(2000);
+
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    if(b_extra_pack_sounds == true) {
+      wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
+    }
+  #endif
+}
+
 // Pack communication to the wand.
 void checkPack() {
     if(wandComs.available()) {
@@ -5389,6 +5501,46 @@ void checkPack() {
               b_sync = false;
             break;
 
+            case P_RIBBON_CABLE_ON:
+              b_pack_ribbon_cable_on = true;
+
+              if(WAND_STATUS == MODE_ON && b_pack_alarm != true) {
+                soundIdleLoop(true);
+
+                if(switch_vent.getState() == HIGH) {
+                  afterLifeRamp1();
+                }
+              }
+            break;
+
+            case P_RIBBON_CABLE_OFF:
+              b_pack_ribbon_cable_on = false;
+
+              if(WAND_STATUS == MODE_ON && b_pack_alarm == true) {
+                switch(year_mode) {
+                  case 1989:
+                  case 1984:
+                    // Nothing for now.
+                  break;
+
+                  case 2021:
+                    default:
+                    if(switch_vent.getState() == HIGH) {
+                      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+                      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 5);
+
+                      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                        if(b_extra_pack_sounds == true) {
+                          wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+                          wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+                        }
+                      #endif    
+                    }  
+                  break;
+                }                 
+              }
+            break;
+
             case P_ALARM_ON:
               // Alarm is on.
               b_pack_alarm = true;
@@ -5411,7 +5563,7 @@ void checkPack() {
 
                 if(WAND_STATUS == MODE_ON) {
                   prepBargraphRampDown();
-                }
+                }               
               }
             break;
 

@@ -165,10 +165,18 @@ enum sound_fx {
   S_VOICE_RGB_INNER_CYCLOTRON,
   S_VOICE_GRB_INNER_CYCLOTRON,
   S_VOICE_EEPROM_ERASE,
-  S_VOICE_EEPROM_SAVE
+  S_VOICE_EEPROM_SAVE,
+  S_AFTERLIFE_WAND_RAMP_1,
+  S_AFTERLIFE_WAND_IDLE_1,
+  S_AFTERLIFE_WAND_RAMP_2,
+  S_AFTERLIFE_WAND_IDLE_2,
+  S_AFTERLIFE_WAND_RAMP_DOWN_1,
+  S_AFTERLIFE_WAND_RAMP_DOWN_2,
+  S_AFTERLIFE_WAND_RAMP_2_FADE_IN,
+  S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT,
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const unsigned int i_last_effects_track = S_VOICE_EEPROM_SAVE;
+const unsigned int i_last_effects_track = S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT;
