@@ -37,10 +37,14 @@ Connections for the pack should be made according to the tables below.
 | ICSP | DO NOT USE! | Reserved header for bootloader updates (reserved).<br><br>`Connector type: Header pins` |
 | UART | See Below | Programming header for software updates (optional).<br><br>`Connector type: Header pins` |
 
-For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Connect each pin to the respective label to the FTDI chip.
+For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:
 
-- If using an FTDI to USB cable, the RTS pin will connect to the DTR pin on the PCB.
-- The CTS pin on any FTDI device will not be used, but must connect to a GND on the PCB.
+- The ground pin will typically be a black wire, while VCC will typically be red.
+- The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.
+- Any wire labelled CTS will be connected to the 2nd pin labelled GND on the PCB.
+- Be careful to not reverse the connector!
+
+![UART Connection](images/uart_pack.jpg)
 
 ### Optional Connectors
 
