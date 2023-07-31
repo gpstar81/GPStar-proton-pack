@@ -1085,7 +1085,7 @@ void mainLoop() {
 
         if(year_mode == 2021) {
           if(ms_gun_loop_1.justFinished() && switch_vent.getState() == HIGH) {
-            playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - 5);
+            playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - 1);
             b_sound_afterlife_idle_2_fade = false;
             ms_gun_loop_1.stop();
 
@@ -1958,7 +1958,7 @@ void wandOff() {
       case 2021:
       default:
         if(WAND_ACTION_STATUS != ACTION_ERROR && b_pack_alarm != true) {
-          playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 5);
+          playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
 
           if(b_extra_pack_sounds == true) {
             wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
@@ -2169,7 +2169,7 @@ void soundIdleStart() {
         
         if(b_pack_ribbon_cable_on == true) {
           if(b_sound_afterlife_idle_2_fade == true) {
-            playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 5);
+            playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 1);
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -2180,7 +2180,7 @@ void soundIdleStart() {
             b_sound_afterlife_idle_2_fade = false;
           }
           else {
-            playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 5);
+            playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 1);
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -2201,7 +2201,7 @@ void soundIdleStart() {
 
   if(year_mode == 2021) {
     if(ms_gun_loop_2.justFinished()) {
-      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 5);
+      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 1);
 
       ms_gun_loop_2.stop();
 
@@ -2226,14 +2226,14 @@ void soundIdleStop() {
           if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
             //playEffect(S_WAND_SHUTDOWN);
 
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 5);
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 1);
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
             }
           }
           else if(WAND_ACTION_STATUS != ACTION_OFF) {
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 5);
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 1);
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
@@ -2241,7 +2241,7 @@ void soundIdleStop() {
           }
 
           if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-            ms_gun_loop_1.start(1700);
+            ms_gun_loop_1.start(1660);
             ms_gun_loop_2.stop();
           }
         break;
@@ -4753,14 +4753,14 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
   w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
 
-  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - 5); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 5); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 5); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 5); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 5); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 5); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 5); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 5); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 1); // Special volume in use.
 
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects);
@@ -5381,10 +5381,10 @@ bool switchBarrel() {
 }
 
 void afterLifeRamp1() {
-  playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 5);
+  playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 1);
   b_sound_afterlife_idle_2_fade = false;
 
-  ms_gun_loop_1.start(2000);
+  ms_gun_loop_1.start(1660);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
@@ -5502,7 +5502,7 @@ void checkPack() {
                     default:
                     if(switch_vent.getState() == HIGH) {
                       stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-                      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 5);
+                      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
 
                       if(b_extra_pack_sounds == true) {
                         wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
