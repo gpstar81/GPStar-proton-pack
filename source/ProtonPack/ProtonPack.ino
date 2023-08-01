@@ -1384,9 +1384,18 @@ void cyclotronFade() {
 
           if(ms_cyclotron_led_fade_out[i].isRunning()) {
             int i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
-            pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
-            i_cyclotron_led_value[i] = i_curr_brightness;
-            i_cyclotron_led_on_status[i] = false;
+
+            if(i_curr_brightness < 30) {
+              ms_cyclotron_led_fade_out[i].go(0);
+              pack_leds[i + cyclotron_led_start] = getHue(C_BLACK);
+              i_cyclotron_led_value[i] = 0;
+              i_cyclotron_led_on_status[i] = true;
+            }
+            else {
+              pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
+              i_cyclotron_led_value[i] = i_curr_brightness;
+              i_cyclotron_led_on_status[i] = false;
+            }
           }
 
           if(ms_cyclotron_led_fade_out[i].isFinished() && i_cyclotron_led_on_status[i] == false) {

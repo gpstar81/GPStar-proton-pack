@@ -228,7 +228,7 @@ bool b_cyclotron_single_led = true;
 /*
  * When fading is enabled for 1984 mode cyclotron lid lights, control the delay of the fading.
 */
-const unsigned int i_1984_fade_out_delay = 210;
+const unsigned int i_1984_fade_out_delay = 1110;
 const unsigned int i_1984_fade_in_delay = 210;
 
 /*

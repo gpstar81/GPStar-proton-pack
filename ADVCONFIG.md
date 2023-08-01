@@ -47,7 +47,7 @@ Refer to the [Operation Manual](OPERATION.md) for more information on how to ent
 | const bool b&#95;overheat&#95;lights&#95;off | When the pack is overheating, the powercell will ramp down and turn off. The cyclotron also turns off. When set to false, the powercell and cyclotron stays on during overheat but ramps and spins very slowly. | true |
 | const bool b&#95;fade&#95;cyclotron&#95;led | When set to false, the LEDs on the cyclotron lid in 1984 mode will not fade. | true |
 | bool b&#95;cyclotron&#95;single&#95;led | When set to true, the LEDs on the cyclotron lid will light up the middle LED only per cyclotron lens during 1984 and 1989 mode. When set to false, 3 LED's per lens will be displayed instead. <br><br>`This can be toggled from the Neutrona Wand sub menu system.` | true |
-| const int i&#95;1984&#95;fade&#95;out&#95;delay | Time in milliseconds for the cyclotron lid LED to fade out when enabled. | 210 |
+| const int i&#95;1984&#95;fade&#95;out&#95;delay | Time in milliseconds for the cyclotron lid LED to fade out when enabled. | 1110 |
 | const int i&#95;1984&#95;fade&#95;in&#95;delay | Time in milliseconds for the cyclotron lid LED to fade in when enabled. | 210 |
 | uint8&#95;t i&#95;powercell&#95;brightness | The default brightness of your Power Cell LEDs in percentages. 0 = off, 100 = maximum brightness.<br><br>`This can be toggled from the Neutrona Wand sub menu system.` | 100 |
 | uint8&#95;t i&#95;cyclotron&#95;brightness | The default brightness of your Cyclotron LEDs in percentages. 0 = off, 100 = maximum brightness.<br><br>`This can be toggled from the Neutrona Wand sub menu system.` | 100 |
