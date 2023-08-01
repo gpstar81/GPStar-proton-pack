@@ -2701,6 +2701,7 @@ void cyclotronSpeedRevert() {
 void cyclotronSpeedIncrease() {
   switch(i_mode_year) {
     case 2021:
+    default:
       i_cyclotron_multiplier++;
     break;
 
