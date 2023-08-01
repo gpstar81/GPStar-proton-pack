@@ -5849,32 +5849,52 @@ void checkPack() {
 
             case P_PROTON_MODE:
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = SETTINGS;
+              PREV_FIRING_MODE = SETTINGS;              
             break;
 
             case P_SLIME_MODE:
               FIRING_MODE = SLIME;
               PREV_FIRING_MODE = PROTON;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;              
             break;
             
             case P_STASIS_MODE:
               FIRING_MODE = STASIS;
               PREV_FIRING_MODE = SLIME;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;                  
             break;
 
             case P_MESON_MODE:
               FIRING_MODE = MESON;
               PREV_FIRING_MODE = STASIS;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;   
             break;
 
             case P_VENTING_MODE:
               FIRING_MODE = VENTING;
               PREV_FIRING_MODE = MESON;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;                 
             break;
 
             case P_SETTINGS_MODE:
               FIRING_MODE = SETTINGS;
               PREV_FIRING_MODE = VENTING;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;                 
             break;
 
             case P_POWER_LEVEL_1:
