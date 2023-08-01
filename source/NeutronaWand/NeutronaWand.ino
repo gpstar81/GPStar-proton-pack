@@ -370,7 +370,7 @@ void mainLoop() {
           else {
             soundIdleLoop(true);
 
-            if(switch_vent.getState() == HIGH) {
+            if(switch_vent.getState() == HIGH && year_mode == 2021) {
               afterLifeRamp1();
             }  
           }
@@ -2159,6 +2159,7 @@ void soundIdleStart() {
         b_sound_idle = true;
       break;
 
+      case 2021:
       default:
         stopEffect(S_AFTERLIFE_WAND_RAMP_1);
         stopEffect(S_AFTERLIFE_WAND_IDLE_2);
@@ -5482,7 +5483,7 @@ void checkPack() {
               if(WAND_STATUS == MODE_ON && b_pack_alarm != true) {
                 soundIdleLoop(true);
 
-                if(switch_vent.getState() == HIGH) {
+                if(switch_vent.getState() == HIGH && year_mode == 2021) {
                   afterLifeRamp1();
                 }
               }
