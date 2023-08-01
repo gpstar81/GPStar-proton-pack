@@ -3107,10 +3107,12 @@ void checkWand() {
             break;
             
             case W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED:
+              stopEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
               playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
             break;
 
             case W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED:
+              stopEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
               playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
             break;
 
@@ -3119,34 +3121,42 @@ void checkWand() {
             break;
 
             case W_AFTERLIFE_GUN_RAMP_1:
+              stopEffect(S_AFTERLIFE_WAND_RAMP_1);
               playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 10);           
             break;
 
             case W_AFTERLIFE_GUN_RAMP_2:
+              stopEffect(S_AFTERLIFE_WAND_RAMP_2);
               playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 10);      
             break;
 
             case W_AFTERLIFE_GUN_RAMP_2_FADE_IN:
+              stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
               playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 10);      
             break;
 
             case W_AFTERLIFE_GUN_LOOP_1:
+              stopEffect(S_AFTERLIFE_WAND_IDLE_1);
               playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - 10);
             break;
 
             case W_AFTERLIFE_GUN_LOOP_2:
+              stopEffect(S_AFTERLIFE_WAND_IDLE_2);
               playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 10);                      
             break;
 
             case W_AFTERLIFE_GUN_RAMP_DOWN_2:
+              stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
               playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 10);        
             break;
 
             case S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT:
+              stopEffect(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
               playEffect(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 10);        
             break;
 
             case W_AFTERLIFE_GUN_RAMP_DOWN_1:
+              stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
               playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 10);
             break;
 

@@ -372,7 +372,7 @@ void mainLoop() {
 
             if(switch_vent.getState() == HIGH && year_mode == 2021) {
               afterLifeRamp1();
-            }  
+            }
           }
         }
 
@@ -1266,6 +1266,8 @@ void startVentSequence() {
 
   playEffect(S_VENT_DRY);
   playEffect(S_CLICK);
+
+  playEffect(S_WAND_SHUTDOWN);
 
   // Tell the pack we are overheating.
   wandSerialSend(W_OVERHEATING);
@@ -5381,7 +5383,22 @@ bool switchBarrel() {
   #endif
 }
 
+void stopAfterLifeSounds() {
+  stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+  stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+
+  stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+  stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+
+  stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);  
+}
+
 void afterLifeRamp1() {
+  stopAfterLifeSounds();
+
   playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 1);
   b_sound_afterlife_idle_2_fade = false;
 
@@ -5480,11 +5497,19 @@ void checkPack() {
             case P_RIBBON_CABLE_ON:
               b_pack_ribbon_cable_on = true;
 
-              if(WAND_STATUS == MODE_ON && b_pack_alarm != true) {
+              if(WAND_STATUS == MODE_ON && b_pack_alarm != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
                 soundIdleLoop(true);
 
-                if(switch_vent.getState() == HIGH && year_mode == 2021) {
-                  afterLifeRamp1();
+                if(year_mode == 2021) {
+                  stopEffect(S_BOOTUP);
+                  playEffect(S_BOOTUP);
+                  
+                  if(switch_vent.getState() == HIGH) {
+                    afterLifeRamp1();
+                  }
+                  else {
+                    stopAfterLifeSounds();
+                  }                
                 }
               }
             break;
@@ -5492,7 +5517,7 @@ void checkPack() {
             case P_RIBBON_CABLE_OFF:
               b_pack_ribbon_cable_on = false;
 
-              if(WAND_STATUS == MODE_ON && b_pack_alarm == true) {
+              if(WAND_STATUS == MODE_ON && b_pack_alarm == true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
                 switch(year_mode) {
                   case 1989:
                   case 1984:
@@ -5500,9 +5525,12 @@ void checkPack() {
                   break;
 
                   case 2021:
-                    default:
+                  default:
+                      stopEffect(S_WAND_SHUTDOWN);
+                      playEffect(S_WAND_SHUTDOWN);
+
                     if(switch_vent.getState() == HIGH) {
-                      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+                      stopAfterLifeSounds();
                       playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
 
                       if(b_extra_pack_sounds == true) {
