@@ -174,7 +174,7 @@ const bool b_onboard_amp_enabled = true;
   * Only compatible with the gpstar Neutrona Wand board.
   * The default setting is false.
 */
-bool b_extra_pack_sounds = true;
+bool b_extra_pack_sounds = false;
 
 /*
  * Debug testing
