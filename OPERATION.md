@@ -33,12 +33,12 @@
 
 - Activate toggle on the gun box turns on both the pack and wand, regardless of the theme mode.
 	- The switch under the Proton Pack's ion arm does not need to be engaged for this to work.
-- Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects depending on the mode. 
+- Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects depending on the mode.
 	- The Neutrona Wand will not fire unless these switches are turned on.
 	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn this top toggle switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the advanced user configuration settings by setting **b&#95;wand&#95;boot&#95;errors** to false. **\*see below\***
 
 - Additionally, the lever switch near the gunbox acts as a safety switch and it must be pulled to extend the barrel before firing.
-	
+
 - The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
 
 **Right-Hand Toggle Switch Behavior**
@@ -131,7 +131,7 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 <sup>1</sup> Note that the LED/segment #5 will stay solid when the single-track loop is enabled while in the top menu system; it will blink on/off when looping is disabled.
 
-<sup>2</sup> When you navigate back to the `Setting 5` while in Video Game Mode and press the Barrel Wing Button, the wand will return the proton stream mode (accompanied by an audio cue to indicate this return to firing readiness). When in CTS mode this will exit the menu and allow the wand to be powered on. Note that music will continue to play (and advance/loop) even when the pack and wand are turned off. 
+<sup>2</sup> When you navigate back to the `Setting 5` while in Video Game Mode and press the Barrel Wing Button, the wand will return the proton stream mode (accompanied by an audio cue to indicate this return to firing readiness). When in CTS mode this will exit the menu and allow the wand to be powered on. Note that music will continue to play (and advance/loop) even when the pack and wand are turned off.
 
 <sup>3</sup> Note that the LED/segment #1 will stay solid when the Proton Pack and Neutrona Wand volume is muted.
 
@@ -204,7 +204,7 @@ To access the EEPROM Configuration Menu, hold the `Intensify Button` down and to
 | <p align="center">4</p> | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes to set as your default.<sup>3</sup> | <p align="center">-</p> |
 | <p align="center">3</p> | Overheating | Enable or Disable overheating. | <p align="center">-</p> |
 | <p align="center">2</p> | Cyclotron&nbsp;LED&nbsp;Control | Set from between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. | <p align="center">-</p> |
-| <p align="center">1</p> | Proton Stream Effects | Enable or Disable the Proton Stream impact sound effects. | <p align="center">-</p> |
+| <p align="center">1</p> | Sound Effects | Enable or Disable the Proton Stream impact sound effects. | Enable or disable extra Neutrona Wand sound effects to be played by the Proton Pack. |
 
 <sup>3</sup> Choose between Video Game and Cross the Stream (CTS) operation modes. Cross the Streams modes is like what you see in the films.
 

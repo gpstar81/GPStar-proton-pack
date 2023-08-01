@@ -213,6 +213,7 @@ bool b_28segment_bargraph = false;
     uint8_t cross_the_streams;
     uint8_t cross_the_streams_mix;
     uint8_t overheating;
+    uint8_t neutrona_wand_sounds;
   };
 #endif
 
@@ -336,6 +337,15 @@ bool b_sound_firing_alt_trigger = false;
 bool b_sound_firing_cross_the_streams = false;
 bool b_sound_idle = false;
 bool b_beeping = false;
+bool b_sound_afterlife_idle_2_fade = true;
+bool b_pack_ribbon_cable_on = true;
+
+/*
+ * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
+ * When false, the bargraph will ramp down instead.
+ * Removing this feature eventually....
+*/
+bool b_overheat_bargraph_blink = false;
 
 /*
  * Function prototypes.
