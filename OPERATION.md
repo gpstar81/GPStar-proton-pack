@@ -35,7 +35,7 @@
 	- The switch under the Proton Pack's ion arm does not need to be engaged for this to work.
 - Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects depending on the mode.
 	- The Neutrona Wand will not fire unless these switches are turned on.
-	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn this top toggle switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the advanced user configuration settings by setting **b&#95;wand&#95;boot&#95;errors** to false. **\*see below\***
+	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn the top toggle switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the advanced user configuration settings by setting **b&#95;wand&#95;boot&#95;errors** to false. **\*see below\***
 
 - Additionally, the lever switch near the gunbox acts as a safety switch and it must be pulled to extend the barrel before firing.
 
