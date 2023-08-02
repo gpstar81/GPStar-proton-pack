@@ -2485,13 +2485,14 @@ void wandStopFiringSounds() {
   switch(FIRING_MODE) {
     case PROTON:
       if(i_mode_year == 1989) {
-        stopEffect(S_GB2_FIRE_LOOP);
         stopEffect(S_GB2_FIRE_START);
       }
       else {
         stopEffect(S_GB1_FIRE_START);
-        stopEffect(S_GB1_FIRE_LOOP);
       }
+
+      stopEffect(S_GB1_FIRE_LOOP);
+      stopEffect(S_GB2_FIRE_LOOP);
 
       stopEffect(S_FIRING_LOOP_GB1);
       stopEffect(S_GB1_FIRE_START_HIGH_POWER);
