@@ -229,7 +229,7 @@ const uint8_t smoke_booster_pin = 35;
  * This will go off at the same time the smoke booster pin.
  * It is not needed but it was requested by some people, who may want to use the smoke booster for another purpose.
 */
-const uint8_t fan_booster_pin = 50;
+const uint8_t fan_booster_pin = 38;
 
 /*
  * Fan for n-filter smoke
