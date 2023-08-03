@@ -2297,7 +2297,7 @@ void wandFiring() {
 
   switch(FIRING_MODE) {
     case PROTON:
-      if(i_mode_year == 1989) {
+      if(i_mode_year == 1989 && b_firing_intensify == true) {
         int8_t i_v_fire_start = i_volume_effects - 10;
 
         if(i_v_fire_start < i_volume_abs_min) {
