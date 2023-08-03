@@ -44,6 +44,10 @@ uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 //const uint8_t i_cyclotron_leds = 40;
 //const uint8_t i_1984_cyclotron_leds[4] = { 0, 10, 18, 28 };
 
+// For a 20 LED Frutto Technology cyclotron.
+//const uint8_t i_cyclotron_leds = 20;
+//const uint8_t i_1984_cyclotron_leds[4] = { 2, 7, 12, 17 };
+
 /*
  * Power Cell LEDs
  * The number of Power Cell leds. Stock Haslab has 13. 
@@ -81,7 +85,7 @@ bool b_powercell_colour_toggle = true;
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
 */
 const unsigned int i_1984_delay = 1050;
-unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for a 40 LED NeoPixel ring.
+unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology cyclotron, and 5 for a 40 LED NeoPixel ring.
 
 /*
  * Power Cell delays in milliseconds.
@@ -224,7 +228,7 @@ bool b_cyclotron_single_led = true;
 /*
  * When fading is enabled for 1984 mode cyclotron lid lights, control the delay of the fading.
 */
-const unsigned int i_1984_fade_out_delay = 210;
+const unsigned int i_1984_fade_out_delay = 1110;
 const unsigned int i_1984_fade_in_delay = 210;
 
 /*
@@ -338,6 +342,11 @@ const bool b_smoke_overheat_mode_5 = true;
  * Set to false to turn off the sound.
 */
 const bool b_diagnostic = false;
+
+/*
+ * Set to true to have the Proton Pack to play additional wand sounds such as beeps and idling sounds.
+*/
+bool b_additional_wand_sounds = false;
 
 /*
  * Set to false to ignore reading data from the EEPROM.

@@ -368,18 +368,10 @@ void mainLoop() {
             soundIdleLoop(true);
           }
           else {
-            switch(year_mode) {
-              case 1984:
-              case 1989:
-                // Do nothing.
-              break;
+            soundIdleLoop(true);
 
-              case 2021:
-                soundIdleLoop(true);
-
-                playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
-                ms_gun_loop_1.start(2000);
-              break;
+            if(switch_vent.getState() == HIGH && year_mode == 2021) {
+              afterLifeRamp1();
             }
           }
         }
@@ -541,6 +533,24 @@ void mainLoop() {
               
               // Tell the Proton Pack to toggle the Proton Stream impact effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+            }
+
+            // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
+            if(switchMode() == true) {
+              if(b_extra_pack_sounds == true) {
+                b_extra_pack_sounds = false;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+              }
+              else {
+                b_extra_pack_sounds = true;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+              }
             }
           break;
         }
@@ -1074,9 +1084,14 @@ void mainLoop() {
         }
 
         if(year_mode == 2021) {
-          if(ms_gun_loop_1.justFinished()) {
-            playEffect(S_AFTERLIFE_GUN_LOOP_1, true, i_volume_effects - 10);
+          if(ms_gun_loop_1.justFinished() && switch_vent.getState() == HIGH) {
+            playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - 1);
+            b_sound_afterlife_idle_2_fade = false;
             ms_gun_loop_1.stop();
+
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_AFTERLIFE_GUN_LOOP_1);
+            }
           }
         }
       }
@@ -1251,6 +1266,8 @@ void startVentSequence() {
 
   playEffect(S_VENT_DRY);
   playEffect(S_CLICK);
+
+  playEffect(S_WAND_SHUTDOWN);
 
   // Tell the pack we are overheating.
   wandSerialSend(W_OVERHEATING);
@@ -1922,12 +1939,43 @@ void wandOff() {
     FIRING_MODE = PROTON;
   }
 
-  WAND_STATUS = MODE_OFF;
-  WAND_ACTION_STATUS = ACTION_IDLE;
+  stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+  stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
+
+  b_sound_afterlife_idle_2_fade = true;
+
+  if(b_pack_ribbon_cable_on == true) {
+    switch(year_mode) {
+      case 1989:
+      case 1984:
+        // Nothing for now.
+      break;
+
+      case 2021:
+      default:
+        if(WAND_ACTION_STATUS != ACTION_ERROR && b_pack_alarm != true) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+          }
+        }
+      break;
+    }
+  }
 
   soundBeepLoopStop();
   soundIdleStop();
   soundIdleLoopStop();
+
+  WAND_STATUS = MODE_OFF;
+  WAND_ACTION_STATUS = ACTION_IDLE;
 
   vibrationOff();
 
@@ -1936,14 +1984,11 @@ void wandOff() {
     modeFireStop();
   }
 
-  stopEffect(S_AFTERLIFE_GUN_LOOP_1);
-  stopEffect(S_AFTERLIFE_GUN_LOOP_2);
-
-  stopEffect(S_AFTERLIFE_GUN_RAMP_1);
-  stopEffect(S_AFTERLIFE_GUN_RAMP_2);
-  stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_1);
-  stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2);
   stopEffect(S_BOOTUP);
+
+  if(b_extra_pack_sounds == true) {
+    wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+  }
 
   // Turn off any overheating sounds.
   stopEffect(S_CLICK);
@@ -1955,7 +2000,6 @@ void wandOff() {
   stopEffect(S_MESON_START);
 
   playEffect(S_WAND_SHUTDOWN);
-  playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_1);
 
   // Turn off some timers.
   ms_bargraph.stop();
@@ -1991,6 +2035,8 @@ void wandOff() {
 }
 
 void modeActivate() {
+  b_sound_afterlife_idle_2_fade = true;
+
   // The wand was started while the top switch was already on. Lets put the wand into a startup error mode.
   if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
     ms_hat_2.start(i_hat_2_delay);
@@ -2056,12 +2102,14 @@ void modeActivate() {
         case 1989:
           playEffect(S_CLICK);
         break;
-
+        
+        case 2021:
         default:
           soundIdleLoop(true);
 
-          playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
-          ms_gun_loop_1.start(2000);
+          if(switch_vent.getState() == HIGH && b_pack_ribbon_cable_on == true) {
+            afterLifeRamp1();
+          }
         break;
       }
     }
@@ -2109,31 +2157,60 @@ void soundIdleStart() {
         playEffect(S_BOOTUP);
 
         soundIdleLoop(true);
+
+        b_sound_idle = true;
       break;
 
+      case 2021:
       default:
-        stopEffect(S_AFTERLIFE_GUN_RAMP_1);
-        stopEffect(S_AFTERLIFE_GUN_LOOP_2);
-        stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_1);
-        stopEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
+        
+        if(b_pack_ribbon_cable_on == true) {
+          if(b_sound_afterlife_idle_2_fade == true) {
+            playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 1);
 
-        playEffect(S_AFTERLIFE_GUN_RAMP_2, false, i_volume_effects - 10);
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
+            }
+
+            b_sound_afterlife_idle_2_fade = false;
+          }
+          else {
+            playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 1);
+
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
+            }
+          }
+          
+          ms_gun_loop_2.start(1500);
+
+          b_sound_idle = true;
+        }
 
         ms_gun_loop_1.stop();
-        ms_gun_loop_2.start(1500);
       break;
     }
   }
 
-  if(b_sound_idle == false) {
-    b_sound_idle = true;
-  }
-
   if(year_mode == 2021) {
     if(ms_gun_loop_2.justFinished()) {
-      playEffect(S_AFTERLIFE_GUN_LOOP_2, true, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 1);
 
       ms_gun_loop_2.stop();
+
+      if(b_extra_pack_sounds == true) {
+        wandSerialSend(W_AFTERLIFE_GUN_LOOP_2);
+      }
     }
   }
 }
@@ -2146,18 +2223,32 @@ void soundIdleStop() {
         playEffect(S_WAND_SHUTDOWN);
       break;
 
+      case 2021:
       default:
-        if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
-          playEffect(S_WAND_SHUTDOWN);
-        }
+        if(b_pack_ribbon_cable_on == true) {
+          if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+            //playEffect(S_WAND_SHUTDOWN);
 
-        playEffect(S_AFTERLIFE_GUN_RAMP_DOWN_2, false, i_volume_effects - 10);
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 1);
 
-        if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-          ms_gun_loop_1.start(1700);
-          ms_gun_loop_2.stop();
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
+            }
+          }
+          else if(WAND_ACTION_STATUS != ACTION_OFF) {
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 1);
+
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
+            }
+          }
+
+          if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+            ms_gun_loop_1.start(1660);
+            ms_gun_loop_2.stop();
+          }
+        break;
         }
-      break;
     }
   }
 
@@ -2170,8 +2261,12 @@ void soundIdleStop() {
       break;
 
       case 2021:
-        stopEffect(S_AFTERLIFE_GUN_RAMP_2);
-        stopEffect(S_AFTERLIFE_GUN_LOOP_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+
+        if(b_extra_pack_sounds == true) {
+          wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
+        }
       break;
     }
   }
@@ -4570,8 +4665,6 @@ void prepBargraphRampUp() {
 
     // Prepare a few things before ramping the bargraph back up from a full ramp down.
     if(b_overheat_bargraph_blink != true) {
-      playEffect(S_BOOTUP);
-
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         if(year_mode == 2021) {
           bargraphYearModeUpdate();
@@ -4591,25 +4684,6 @@ void prepBargraphRampUp() {
 
       updatePackPowerLevel();
       bargraphRampUp();
-
-      if(switch_vent.getState() == LOW) {
-        soundIdleLoop(true);
-      }
-      else {
-        switch(year_mode) {
-          case 1984:
-          case 1989:
-            // Do nothing.
-          break;
-
-          case 2021:
-            soundIdleLoop(true);
-
-            playEffect(S_AFTERLIFE_GUN_RAMP_1, false, i_volume_effects - 10);
-            ms_gun_loop_1.start(2000);
-          break;
-        }
-      }
     }
   }
 }
@@ -4681,17 +4755,22 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
   w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
   w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_1, i_volume_effects - 10); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_GUN_LOOP_2, i_volume_effects - 10); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_LOW, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_HIGH, i_volume_effects);
+
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 1); // Special volume in use.
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 1); // Special volume in use.
+
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_1, i_volume_effects - 10); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_GUN_RAMP_2, i_volume_effects - 10); // Special volume in use.
+  
   w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
   w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
   w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
@@ -5304,6 +5383,32 @@ bool switchBarrel() {
   #endif
 }
 
+void stopAfterLifeSounds() {
+  stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+  stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+
+  stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+  stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+
+  stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);  
+}
+
+void afterLifeRamp1() {
+  stopAfterLifeSounds();
+
+  playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 1);
+  b_sound_afterlife_idle_2_fade = false;
+
+  ms_gun_loop_1.start(1660);
+
+  if(b_extra_pack_sounds == true) {
+    wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
+  }
+}
+
 // Pack communication to the wand.
 void checkPack() {
     if(wandComs.available()) {
@@ -5389,6 +5494,55 @@ void checkPack() {
               b_sync = false;
             break;
 
+            case P_RIBBON_CABLE_ON:
+              b_pack_ribbon_cable_on = true;
+
+              if(WAND_STATUS == MODE_ON && b_pack_alarm != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+                soundIdleLoop(true);
+
+                if(year_mode == 2021) {
+                  stopEffect(S_BOOTUP);
+                  playEffect(S_BOOTUP);
+                  
+                  if(switch_vent.getState() == HIGH) {
+                    afterLifeRamp1();
+                  }
+                  else {
+                    stopAfterLifeSounds();
+                  }                
+                }
+              }
+            break;
+
+            case P_RIBBON_CABLE_OFF:
+              b_pack_ribbon_cable_on = false;
+
+              if(WAND_STATUS == MODE_ON && b_pack_alarm == true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+                switch(year_mode) {
+                  case 1989:
+                  case 1984:
+                    // Nothing for now.
+                  break;
+
+                  case 2021:
+                  default:
+                      stopEffect(S_WAND_SHUTDOWN);
+                      playEffect(S_WAND_SHUTDOWN);
+
+                    if(switch_vent.getState() == HIGH) {
+                      stopAfterLifeSounds();
+                      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+
+                      if(b_extra_pack_sounds == true) {
+                        wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+                        wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+                      }
+                    }  
+                  break;
+                }                 
+              }
+            break;
+
             case P_ALARM_ON:
               // Alarm is on.
               b_pack_alarm = true;
@@ -5411,7 +5565,7 @@ void checkPack() {
 
                 if(WAND_STATUS == MODE_ON) {
                   prepBargraphRampDown();
-                }
+                }               
               }
             break;
 
@@ -5723,32 +5877,52 @@ void checkPack() {
 
             case P_PROTON_MODE:
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = SETTINGS;
+              PREV_FIRING_MODE = SETTINGS;              
             break;
 
             case P_SLIME_MODE:
               FIRING_MODE = SLIME;
               PREV_FIRING_MODE = PROTON;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;              
             break;
             
             case P_STASIS_MODE:
               FIRING_MODE = STASIS;
               PREV_FIRING_MODE = SLIME;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;                  
             break;
 
             case P_MESON_MODE:
               FIRING_MODE = MESON;
               PREV_FIRING_MODE = STASIS;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;   
             break;
 
             case P_VENTING_MODE:
               FIRING_MODE = VENTING;
               PREV_FIRING_MODE = MESON;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;                 
             break;
 
             case P_SETTINGS_MODE:
               FIRING_MODE = SETTINGS;
               PREV_FIRING_MODE = VENTING;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;                 
             break;
 
             case P_POWER_LEVEL_1:
@@ -5932,6 +6106,7 @@ void wandSerialSend(int i_message) {
     uint8_t i_cross_the_streams = 1;
     uint8_t i_cross_the_streams_mix = 1;
     uint8_t i_overheating = 1;
+    uint8_t i_neutrona_wand_sounds = 1;
 
     if(b_cross_the_streams == true) {
       i_cross_the_streams = 2;
@@ -5945,11 +6120,16 @@ void wandSerialSend(int i_message) {
       i_overheating = 2;
     }
 
+    if(b_extra_pack_sounds == true) {
+      i_neutrona_wand_sounds = 2;
+    }
+
     // Write the data to the EEPROM if any of the values have changed.
     objEEPROM obj_eeprom = {
       i_cross_the_streams,
       i_cross_the_streams_mix,
-      i_overheating
+      i_overheating,
+      i_neutrona_wand_sounds
     };
 
     // Save and update our object in the EEPROM.
@@ -6018,6 +6198,15 @@ void wandSerialSend(int i_message) {
         else {
           b_overheat_enabled = false;
         }       
+      }
+
+      if(obj_eeprom.neutrona_wand_sounds > 0 && obj_eeprom.neutrona_wand_sounds != 255) {
+        if(obj_eeprom.neutrona_wand_sounds > 1) {
+          b_extra_pack_sounds = true;
+        }
+        else {
+          b_extra_pack_sounds = false;
+        }
       }
     }
   }
