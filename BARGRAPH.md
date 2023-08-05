@@ -1,9 +1,15 @@
-# Wand Bargraph Upgrade
+# Wand Bargraph and Power Cell Upgrade
 
+**NOTE: The 28 Segment Bargraph upgrade is only supported with the gpstar Neutrona wand micro controller**
 
-**NOTE: Only supported with the gpstar Neutrona wand micro controller**
+This guide outlines the **optional** upgrade from the 5-LED stock bargraph to a more animated 28-segment bargraph (BL28Z-3005SA04Y) or the 28 Segment Bargraph and Power Cell from Frutto Technology.
 
-This guide outlines the **optional** upgrade from the 5-LED stock bargraph to a more animated 28-segment bargraph (BL28Z-3005SA04Y). Additional parts will be required, as well as a more invasive disassembling of the wand.
+## Frutto Technology 28 Segment Bargraph and Power Cell Upgrade
+[Frutto Technology Bargraph and Power Cell Installation and Demo Video](https://www.youtube.com/watch?v=CrQuCUjera4) (YouTube)
+[![Frutto Technology Bargraph and Power Cell Installation and Demo Video](https://img.youtube.com/vi/CrQuCUjera4/maxresdefault.jpg)](https://www.youtube.com/watch?v=CrQuCUjera4)
+
+## DIY 28 Segment Bargraph
+Additional parts will be required, as well as a more invasive disassembling of the wand.
 
 | Qty | Desc | Use | Link |
 |-----|------|-----|------|
