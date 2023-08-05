@@ -76,7 +76,7 @@ These apply to the normal operation and usage of the equipment regardless of whi
 
 1. [N-Filter Vent Light](NFILTER.md) (Optional add-on)
 
-1. [Wand Bar Graph](BARGRAPH.md) (Optional add-on)
+1. [Neutrona Wand Bar Graph and Proton Pack Power Cell Upgrades](BARGRAPH.md) (Optional add-ons)
 
 1. [Hat Lights](HATS.md) (Optional add-on)
 
