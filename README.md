@@ -29,7 +29,7 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Wand PCB](WAND_PCB.md)
 
-1. [Hose Connections](HOSE.md)
+1. Wire Kits Installation (Coming Soon)
 
 1. [Loading The Audio Files](AUDIO.md)
 
@@ -55,6 +55,8 @@ This is an advanced build-out which requires opening all devices and performing 
 1. [Pack Setup](PACK.md)
 
 1. [Wand Setup](WAND.md)
+
+1. [Hose Connections](HOSE.md)
 
 ---
 
