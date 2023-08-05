@@ -19,11 +19,28 @@ Included is also a set of STL files if you wish to print a new inner cyclotron. 
 
 ## Cyclotron Lid Lights (Optional)
 
-The stock lights in the Habro pack only supplies 12 addressable LED's which are red-only. If you wish to be able to change the colors of these lights you will need to replace them with an addressable LED ring or individual Neopixels.
+The stock lights in the Habro pack only supplies 12 addressable LED's which are red-only. If you wish to be able to change the colors of these lights you will need to replace them with an addressable LED ring or custom LED's such as those made by [Frutto Technology](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit).
 
 Regardless of solution you will need to split apart the cyclotron lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.
 
-### Neopixel Ring
+### Frutto 5-LED Replacements
+
+The stock LED's can be removed by prying out the diffuser lenses, then snipping the 3 black plastic welds used to hold the PCB's in place. Whether pre-soldered or not, the new LED's should be oriented similar to the arcing pattern used by the stock LED's. Hot glue can be used to keep these in place until the diffusers are put back in place.
+![](images/Frutto_Cyc1.jpg)
+
+When replacing the diffuser lenses, keep wires tucked into the available slots to avoid pinching.
+![](images/Frutto_Cyc2.jpg)
+
+Secure all wires to avoid them from moving after installation.
+![](images/Frutto_Cyc3.jpg)
+
+The new LED's will need to be selected via the EEPROM setup menu #4. Select the 20-LED option for the correct count and speed defaults.
+![](images/Frutto_Cyc4.jpg)
+
+Reassemble the cyclotron lid using low-profile machine screws. The new LED's should not need additional diffusion unless that is your preference.
+![](images/Frutto_Cyc5.jpg)
+
+### 40-LED Neopixel Ring
 
 This approach simply adds the lights atop the old circuit board and LED's between the outer and inner layers of the cyclotron lid. Print the [Cyclotron Ring Diffuser](stl/pack/Cyclotron_Ring_Diffuser.stl) to help orient the ring and keep it positioned behind each lens. The pixel opposite the soldered connections should be number 1 and should be made the dead center of the top-right lens. See below for an illustration of this orientation and use of the diffuser ring.
 
