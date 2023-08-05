@@ -1,6 +1,30 @@
 # Pack Hose Replacements
 
-## Hose Example #1
+In order to deliver both power and data signals to the wand, a new set of cabling is required. As wiring is typically desired to remain internal to the hose the following approaches have been used to replace the stock 2-wire (power-only) hose with a new 4-wire solution. The existing wire loom (black hose) can be reused if desired, or replaced with a more flexible brand.
+
+## PCB Kit Hose
+
+For those who have purchased the PCB kits with the hose replacement, the following parts are utilized:
+
+* 1 - [CNLINKO 4 Pin Connector](https://a.co/d/8ALa9Gq) - This is the new connector for the pack which uses a square-based connector roughly the size of the stock connection
+* 1 - [Neutrik NL4FX 4 pole Locking SpeakON Cable Mount Connector](https://a.co/d/9c7djjo) - This is the connector at the wand end of the hose
+* 1 - [Neutrik NL4MP Speakon Panel Mount](https://a.co/d/atMuNfz) - This is the socket for the wand itself
+
+![](images/Wand_CNLINKO.jpg)
+For the CNLINKO, the receptacle on the pack uses soldered ports for a secure connection.
+
+![](images/Wand_SpeakON1.jpg)
+The socket for the wand is a panel connector which has 4 screw holes which must be sanded off. This can be done with a belt sander or hand sander. A 3D printed adapter is furnished with kits to allow the socket to be secured using the existing screw base for the original battery pack.
+
+![](images/Wand_SpeakON2.jpg)
+The SpeakON connector uses a twist-lock mechanism for a secure fit to the panel socket and 3D printed adapter.
+
+![](images/Wand_SpeakON3.jpg)
+The panel connector, like the pack connection, uses a soldered connection to secure the wires. Both connections at each end of the wand will use screw terminals to attach the wiring.
+
+## DIY Hose Example
+
+This approach uses parts which are slightly more accurate to the movie pack, though they may be more difficult to obtain. More work is needed to convert these to Haslab use.
 
 * 1 - [Amphenol MS3106A14S-2P (4 pin)](https://www.mouser.com/ProductDetail/654-MS3106A14S-2P)
 * 1 - [Amphenol MS3102A14S-2S (4 pin)](https://www.mouser.com/ProductDetail/654-MS3102A14S-2S)
@@ -32,7 +56,3 @@ If you are using the NAC3FX-W with the NL4FC internals, you will need to slightl
 ![Hose](images/Hose10.jpg)
 ![Hose](images/Hose7.jpg)
 ![Hose](images/Hose8.jpg)
-
-## Hose Example #2
-
-Another type of connector which is similar in appearance to the Neutrik are [CNLINKO connectors](https://www.amazon.com/s?k=cnlinko) which can be found with various pin connections (from 2 to 12). The square end matches nearly perfectly to the stock screw holes of the packs, though it may take some drilling to widen the center hole. Meanwhile, the plug end should screw into the end of the stock hose loom and can be secured with electrical tape. Similar to the above example a 4-pin connector should be sufficient, though CNLINKO also makes an ethernet connector which can be useful for anyone who may wish to have additional connections in the future and to run a standard Cat-5 cable down the center of the wire loom.

@@ -29,7 +29,7 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Wand PCB](WAND_PCB.md)
 
-1. TBD: Wiring Loom, External Connectors, etc.
+1. [Hose Connections](HOSE.md)
 
 1. [Loading The Audio Files](AUDIO.md)
 
@@ -68,8 +68,6 @@ These apply to the normal operation and usage of the equipment regardless of whi
 
 1. [Audio Output](SOUND.md)
 
-1. [Hose Examples](HOSE.md)
-
 1. [Smoke Effects](SMOKE.md) (Optional add-ons)
 
 1. [Cyclotron Lights](CYCLOTRON.md) (Optional add-ons)
@@ -77,6 +75,8 @@ These apply to the normal operation and usage of the equipment regardless of whi
 1. [N-Filter Vent Light](NFILTER.md) (Optional add-on)
 
 1. [Wand Bar Graph](BARGRAPH.md) (Optional add-on)
+
+1. [Hat Lights](HATS.md) (Optional add-on)
 
 1. [Frequently Asked Questions](FAQ.md)
 
