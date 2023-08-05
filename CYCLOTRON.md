@@ -40,6 +40,9 @@ The new LED's will need to be selected via the EEPROM setup menu #4. Select the 
 Reassemble the cyclotron lid using low-profile machine screws. The new LED's should not need additional diffusion unless that is your preference.
 ![](images/Frutto_Cyc5.jpg)
 
+[Installation Video](https://www.youtube.com/watch?v=S4SVeivRyuc) (YouTube)
+[![Haslab Proton Pack 40 LED Neopixel Ring](https://img.youtube.com/vi/S4SVeivRyuc/maxresdefault.jpg)](https://www.youtube.com/watch?v=S4SVeivRyuc)
+
 ### 40-LED Neopixel Ring
 
 This approach simply adds the lights atop the old circuit board and LED's between the outer and inner layers of the cyclotron lid. Print the [Cyclotron Ring Diffuser](stl/pack/Cyclotron_Ring_Diffuser.stl) to help orient the ring and keep it positioned behind each lens. The pixel opposite the soldered connections should be number 1 and should be made the dead center of the top-right lens. See below for an illustration of this orientation and use of the diffuser ring.
