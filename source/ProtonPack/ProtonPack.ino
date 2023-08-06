@@ -1174,7 +1174,7 @@ void powercellDraw(uint8_t i_start) {
 // Reset the cyclotron led colours.
 void cyclotronColourReset() {
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
-  uint8_t i_position;
+  int8_t i_position; // A (small) signed integer to indicate the correct LED offset (negative denotes no change).
 
   // We override the colour changes when using stock Haslab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
@@ -1331,7 +1331,7 @@ void cyclotronControl() {
     }
   }
 
-  //cyclotronFade();
+  cyclotronFade();
 }
 
 void cyclotronFade() {
@@ -1349,36 +1349,36 @@ void cyclotronFade() {
       // We base this on a 40-increment cycle giving each movement equal time to keep up this appearance of continuous motion.
       // The "trick" is that we may have less than 40 LED's in the array of pack LED's so we can only update at certain times.
       // For this we'll use a position indicator when LED's are less than 40, so we know which one needs to be updated.
-      uint8_t i_position;
+      int8_t i_position; // A (small) signed integer to indicate the correct LED offset (negative denotes no change).
       uint8_t i_last_brightness;
 
       for(uint8_t i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
-        if(ms_cyclotron_led_fade_in[i].isRunning()) {
-          i_cyclotron_led_on_status[i] = true;
-          i_last_brightness = ms_cyclotron_led_fade_in[i].update();
-        }
+        // if(ms_cyclotron_led_fade_in[i].isRunning()) {
+        //   i_cyclotron_led_on_status[i] = true;
+        //   i_last_brightness = ms_cyclotron_led_fade_in[i].update();
+        // }
 
-        uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
-        if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {          
-          i_last_brightness = i_new_brightness;
-          i_cyclotron_led_on_status[i] = false;
+        // uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
+        // if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {          
+        //   i_last_brightness = i_new_brightness;
+        //   i_cyclotron_led_on_status[i] = false;
 
-          ms_cyclotron_led_fade_out[i].go(i_new_brightness);
-          ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed, CIRCULAR_OUT);
-        }
+        //   ms_cyclotron_led_fade_out[i].go(i_new_brightness);
+        //   ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed, CIRCULAR_OUT);
+        // }
 
-        if(ms_cyclotron_led_fade_out[i].isRunning() && i_cyclotron_led_on_status[i] == false) {
-          i_last_brightness = ms_cyclotron_led_fade_out[i].update();
-        }
+        // if(ms_cyclotron_led_fade_out[i].isRunning() && i_cyclotron_led_on_status[i] == false) {
+        //   i_last_brightness = ms_cyclotron_led_fade_out[i].update();
+        // }
 
-        if(ms_cyclotron_led_fade_out[i].isFinished() && i_cyclotron_led_on_status[i] == false) {
-          i_colour_scheme = C_BLACK; // Total blackout, as fade is finished.
-          i_last_brightness = 0;
-          i_cyclotron_led_on_status[i] = true;
-        }
+        // if(ms_cyclotron_led_fade_out[i].isFinished() && i_cyclotron_led_on_status[i] == false) {
+        //   i_colour_scheme = C_BLACK; // Total blackout, as fade is finished.
+        //   i_last_brightness = 0;
+        //   i_cyclotron_led_on_status[i] = true;
+        // }
 
-        // Update the LED brightness with the last-determined value.
-        i_cyclotron_led_value[i] = i_last_brightness;
+        // // Update the LED brightness with the last-determined value.
+        // i_cyclotron_led_value[i] = i_last_brightness;
 
         // Perform an update to the appropriate LED.
         switch (i_cyclotron_leds) {
@@ -1394,7 +1394,7 @@ void cyclotronFade() {
         }
         if (i_position >= 0) {
           // Update the intended LED using the given color and brightness.
-          pack_leds[i_position + cyclotron_led_start] = getHue(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
+          pack_leds[i_position + cyclotron_led_start] = getHue(CYCLOTRON_OUTER, i_colour_scheme, getBrightness(i_cyclotron_brightness));
         }
       }
     break;
