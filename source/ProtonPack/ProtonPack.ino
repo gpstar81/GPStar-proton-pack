@@ -1336,13 +1336,13 @@ void cyclotronFade() {
       // We base this on a 40-increment cycle giving each movement equal time to keep up this appearance of continuous motion.
       // The "trick" is that we may have less than 40 LED's in the array of pack LED's so we can only update at certain times.
       // For this we'll use a position indicator when LED's are less than 40, so we know which one needs to be updated.
-      uint8_t i_position = 0;
+      int i_position = 0;
 
-      for(uint8_t i = 0; i < 40; i++) {
+      for(int i = 0; i < 40; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           i_cyclotron_led_on_status[i] = true;
 
-          uint8_t i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
+          int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
 
           switch (i_cyclotron_leds) {
@@ -1361,7 +1361,7 @@ void cyclotronFade() {
           }
         }
 
-        uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
+        int i_new_brightness = getBrightness(i_cyclotron_brightness);
         if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {          
           i_cyclotron_led_value[i] = i_new_brightness;
           i_cyclotron_led_on_status[i] = false;
@@ -1386,7 +1386,7 @@ void cyclotronFade() {
         }
 
         if(ms_cyclotron_led_fade_out[i].isRunning() && i_cyclotron_led_on_status[i] == false) {
-          uint8_t i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
+          int i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
 
           switch (i_cyclotron_leds) {
@@ -1430,22 +1430,22 @@ void cyclotronFade() {
     case 1984:
     case 1989:
       if(b_fade_cyclotron_led == true) {
-        for(uint8_t i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
+        for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
             i_cyclotron_led_on_status[i] = true;
-            uint8_t i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
+            int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
             pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
             i_cyclotron_led_value[i] = i_curr_brightness;
           }
 
-          uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
+          int i_new_brightness = getBrightness(i_cyclotron_brightness);
           if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {
             pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_new_brightness);
             i_cyclotron_led_value[i] = i_new_brightness;
           }
 
           if(ms_cyclotron_led_fade_out[i].isRunning()) {
-            uint8_t i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
+            int i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
 
             if(i_curr_brightness < 30) {
               ms_cyclotron_led_fade_out[i].go(0);
