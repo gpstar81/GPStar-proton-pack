@@ -1332,35 +1332,98 @@ void cyclotronFade() {
 
   switch (i_mode_year) {
     case 2021:
-      for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
+      // The 2021 (Afterlife) cyclotron moves in a complete circle, so every LED should be lit as if travelling on that path.
+      // We base this on a 40-increment cycle giving each movement equal time to keep up this appearance of continuous motion.
+      // The "trick" is that we may have less than 40 LED's in the array of pack LED's so we can only update at certain times.
+      // For this we'll use a position indicator when LED's are less than 40, so we know which one needs to be updated.
+      uint8_t i_curr_brightness = 0;
+      uint8_t i_new_brightness = 0;
+      uint8_t i_position = 0;
+      for(uint8_t i = 0; i < 40; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           i_cyclotron_led_on_status[i] = true;
 
-          int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
-          pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
+          i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
+
+          switch (i_cyclotron_leds) {
+            case 12:
+              i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
+              break;
+            case 20:
+              i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
+              break;
+            default:
+              i_position  = 1; // For 40-element LED ring (use value as-is).
+              break;
+          }
+          if (i_position >= 0) { 
+            pack_leds[i_position + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
+          }
         }
 
-        int i_new_brightness = getBrightness(i_cyclotron_brightness);
-        if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {
-          pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_new_brightness);
+        i_new_brightness = getBrightness(i_cyclotron_brightness);
+        if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {          
           i_cyclotron_led_value[i] = i_new_brightness;
           i_cyclotron_led_on_status[i] = false;
 
           ms_cyclotron_led_fade_out[i].go(i_new_brightness);
           ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed, CIRCULAR_OUT);
+
+          switch (i_cyclotron_leds) {
+            case 12:
+              i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
+              break;
+            case 20:
+              i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
+              break;
+            default:
+              i_position  = 1; // For 40-element LED ring (use value as-is).
+              break;
+          }
+          if (i_position >= 0) { 
+            pack_leds[i_position + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
+          }
         }
 
         if(ms_cyclotron_led_fade_out[i].isRunning() && i_cyclotron_led_on_status[i] == false) {
-          int i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
-          pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
+          i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
+
+          switch (i_cyclotron_leds) {
+            case 12:
+              i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
+              break;
+            case 20:
+              i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
+              break;
+            default:
+              i_position  = 1; // For 40-element LED ring (use value as-is).
+              break;
+          }
+          if (i_position >= 0) { 
+            pack_leds[i_position + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
+          }
         }
 
         if(ms_cyclotron_led_fade_out[i].isFinished() && i_cyclotron_led_on_status[i] == false) {
-          pack_leds[i + cyclotron_led_start] = getHue(C_BLACK);
           i_cyclotron_led_value[i] = 0;
           i_cyclotron_led_on_status[i] = true;
+
+          switch (i_cyclotron_leds) {
+            case 12:
+              i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
+              break;
+            case 20:
+              i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
+              break;
+            default:
+              i_position  = 1; // For 40-element LED ring (use value as-is).
+              break;
+          }
+          if (i_position >= 0) { 
+            pack_leds[i_position + cyclotron_led_start] = getHue(C_BLACK);
+          }
         }
       }
     break;
@@ -1368,22 +1431,22 @@ void cyclotronFade() {
     case 1984:
     case 1989:
       if(b_fade_cyclotron_led == true) {
-        for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
+        for(uint8_t i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
             i_cyclotron_led_on_status[i] = true;
-            int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
+            uint8_t i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
             pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
             i_cyclotron_led_value[i] = i_curr_brightness;
           }
 
-          int i_new_brightness = getBrightness(i_cyclotron_brightness);
+          uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
           if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {
             pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_new_brightness);
             i_cyclotron_led_value[i] = i_new_brightness;
           }
 
           if(ms_cyclotron_led_fade_out[i].isRunning()) {
-            int i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
+            uint8_t i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
 
             if(i_curr_brightness < 30) {
               ms_cyclotron_led_fade_out[i].go(0);
