@@ -127,7 +127,7 @@ bool i_cyclotron_led_on_status[40] = { false, false, false, false, false, false,
 rampInt ms_cyclotron_led_fade_out[40] = {};
 rampInt ms_cyclotron_led_fade_in[40] = {};
 uint8_t i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-// Map the position on a circle of 40 positions to a target LED.
+// Map the position on a circle of 40 positions to a target LED (where 0 is the top-right starting position).
 int8_t i_cyclotron_12led_position[40] = { 0, 1, 2, -1, -1, -1, -1, -1, -1, -1, 3, 4, 5, -1, -1, -1, -1, -1, -1, -1, 6, 7, 8, -1, -1, -1, -1, -1, -1, -1, 9, 10, 11, -1, -1, -1, -1, -1, -1, -1 };
 int8_t i_cyclotron_20led_position[40] = { 0, 1, 2, 3, 4, -1, -1, -1, -1, -1, 5, 6, 7, 8, 9, -1, -1, -1, -1, -1, 10, 11, 12, 13, 14, -1, -1, -1, -1, -1, 15, 16, 17, 18, 19, -1, -1, -1, -1, -1 };
 

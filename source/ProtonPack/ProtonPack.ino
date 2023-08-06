@@ -1336,14 +1336,13 @@ void cyclotronFade() {
       // We base this on a 40-increment cycle giving each movement equal time to keep up this appearance of continuous motion.
       // The "trick" is that we may have less than 40 LED's in the array of pack LED's so we can only update at certain times.
       // For this we'll use a position indicator when LED's are less than 40, so we know which one needs to be updated.
-      uint8_t i_curr_brightness = 0;
-      uint8_t i_new_brightness = 0;
       uint8_t i_position = 0;
+
       for(uint8_t i = 0; i < 40; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           i_cyclotron_led_on_status[i] = true;
 
-          i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
+          uint8_t i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
 
           switch (i_cyclotron_leds) {
@@ -1354,15 +1353,15 @@ void cyclotronFade() {
               i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
               break;
             default:
-              i_position  = 1; // For 40-element LED ring (use value as-is).
+              i_position = i; // For 40-element LED ring (use value as-is).
               break;
           }
-          if (i_position >= 0) { 
+          if (i_position >= 0) {
             pack_leds[i_position + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
           }
         }
 
-        i_new_brightness = getBrightness(i_cyclotron_brightness);
+        uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
         if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {          
           i_cyclotron_led_value[i] = i_new_brightness;
           i_cyclotron_led_on_status[i] = false;
@@ -1378,16 +1377,16 @@ void cyclotronFade() {
               i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
               break;
             default:
-              i_position  = 1; // For 40-element LED ring (use value as-is).
+              i_position = i; // For 40-element LED ring (use value as-is).
               break;
           }
           if (i_position >= 0) { 
-            pack_leds[i_position + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
+            pack_leds[i_position + cyclotron_led_start] = getHue(i_colour_scheme, i_new_brightness);
           }
         }
 
         if(ms_cyclotron_led_fade_out[i].isRunning() && i_cyclotron_led_on_status[i] == false) {
-          i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
+          uint8_t i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
 
           switch (i_cyclotron_leds) {
@@ -1398,7 +1397,7 @@ void cyclotronFade() {
               i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
               break;
             default:
-              i_position  = 1; // For 40-element LED ring (use value as-is).
+              i_position = i; // For 40-element LED ring (use value as-is).
               break;
           }
           if (i_position >= 0) { 
@@ -1418,7 +1417,7 @@ void cyclotronFade() {
               i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
               break;
             default:
-              i_position  = 1; // For 40-element LED ring (use value as-is).
+              i_position= i; // For 40-element LED ring (use value as-is).
               break;
           }
           if (i_position >= 0) { 
@@ -1815,7 +1814,7 @@ void cyclotron84LightOn(int cLed) {
 
     // Turn on the other 2 LEDs if we are allowing 3 to light up.
     if(b_cyclotron_single_led != true) {
-      pack_leds[cLed+1] = getHue(i_colour_scheme, i_brightness);
+      pack_leds[cLed + 1] = getHue(i_colour_scheme, i_brightness);
 
       if(cLed - 1 < cyclotron_led_start) {
         cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
