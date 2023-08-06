@@ -17,16 +17,46 @@
  *
  */
 
+/*
+ * The Haslab Cyclotron Lid has 12 LEDs.
+*/
+#define HASLAB_CYCLOTRON_LED_COUNT 12
+
+/*
+ * The Frutto Cyclotron Lid has 20 LEDs.
+*/
+#define FRUTTO_CYCLOTRON_LED_COUNT 20
+
+/*
+ * Set the number of steps for the outer cyclotron.
+*/
+#define OUTER_CYCLOTRON_LED_MAX 40
+
+/*
+ * The Haslab Powercell has 13 LEDs.
+*/
+#define HASLAB_POWERCELL_LED_COUNT 13
+
+/*
+ * The Frutto Powercell has 15 LEDs.
+*/
+#define FRUTTO_POWERCELL_LED_COUNT 15
+
+/*
+ * The gpstar N-Filter expects 7 LEDs.
+*/
+#define GPSTAR_NFILTER_LED_COUNT 7
+
  /* 
  * Total number of LEDs in the Proton Pack
  * PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
- * 25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
+ * 25 LEDs in the stock Haslab kit: 13 in the Powercell and 12 in the Cyclotron lid. 
  * 7 additional (32 in total) for a NeoPixel jewel that you can put into the n-filter (optional). 
  * This jewel chains off cyclotron lens #4 in the lid (top left lens).
  */
 // Max amount of LEDs allowed: 15 for the Power Cell and 40 for the Cyclotron lid.
-const uint8_t i_max_pack_leds = 15 + 40;
-const uint8_t i_nfilter_jewel_leds = 7;
+const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
+const uint8_t i_nfilter_jewel_leds = GPSTAR_NFILTER_LED_COUNT;
 
 /*
  * Updated count of all the LEDs plus the n-filter jewel.
@@ -39,16 +69,6 @@ uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_
  * This gets updated by the system if the wand changes the LED count in the EEPROM menu system.
 */
 uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
-
-/*
- * The Haslab Cyclotron Lid has 12 LEDs.
-*/
-#define HASLAB_CYCLOTRON_LED_COUNT 12
-
-/*
- * The Frutto Cyclotron Lid has 20 LEDs.
-*/
-#define FRUTTO_CYCLOTRON_LED_COUNT 20
 
 /*
  * Proton pack Power Cell and Cyclotron lid led pin.
@@ -127,14 +147,14 @@ bool b_1984_led_start = true;
 rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
 bool b_cyclotron_lid_on = true;
-int i_1984_counter = 0;
-bool i_cyclotron_led_on_status[40] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
-rampInt ms_cyclotron_led_fade_out[40] = {};
-rampInt ms_cyclotron_led_fade_in[40] = {};
-uint8_t i_cyclotron_led_value[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-// Map the position on a circle of 40 positions to a target LED (where 0 is the top-right starting position).
-int8_t i_cyclotron_12led_position[40] = { 0, 1, 2, -1, -1, -1, -1, -1, -1, -1, 3, 4, 5, -1, -1, -1, -1, -1, -1, -1, 6, 7, 8, -1, -1, -1, -1, -1, -1, -1, 9, 10, 11, -1, -1, -1, -1, -1, -1, -1 };
-int8_t i_cyclotron_20led_position[40] = { 0, 1, 2, 3, 4, -1, -1, -1, -1, -1, 5, 6, 7, 8, 9, -1, -1, -1, -1, -1, 10, 11, 12, 13, 14, -1, -1, -1, -1, -1, 15, 16, 17, 18, 19, -1, -1, -1, -1, -1 };
+uint8_t i_1984_counter = 0;
+bool i_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
+rampInt ms_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
+uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+// For the Afterlife cyclotron pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
+int8_t i_cyclotron_12led_position[OUTER_CYCLOTRON_LED_MAX] = { 0, 1, 2, -1, -1, -1, -1, -1, -1, -1, 3, 4, 5, -1, -1, -1, -1, -1, -1, -1, 6, 7, 8, -1, -1, -1, -1, -1, -1, -1, 9, 10, 11, -1, -1, -1, -1, -1, -1, -1 };
+int8_t i_cyclotron_20led_position[OUTER_CYCLOTRON_LED_MAX] = { 0, 1, 2, 3, 4, -1, -1, -1, -1, -1, 5, 6, 7, 8, 9, -1, -1, -1, -1, -1, 10, 11, 12, 13, 14, -1, -1, -1, -1, -1, 15, 16, 17, 18, 19, -1, -1, -1, -1, -1 };
 
 /*
  * Inner cyclotron NeoPixel ring ramp control.
