@@ -66,12 +66,15 @@ The 28-segment bargraph is intended to take the place of the 5-LED + PCB assembl
 
 To fit the new bargraph in place, it needs a suitable holder to keep it in the correct orientation. Thankfully, it can be seen quite well without removing the clear/frosted plastic from the wand housing, though some minor trimming may be necessary at the bottom (when oriented with the rotary encoder facing up) of the bargraph socket. 
 
-If you have access to a 3D printer, the file [28_Segment&#95;Bargraph&#95;Insert.stl](stl/wand/28_Segment_Bargraph_Insert.stl) should fit the bargraph tightly while also slotting into the clear plastic.
- 
+If you have access to a 3D printer, the file [28_Segment&#95;Bargraph&#95;Insert.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Insert.stl) should fit the bargraph tightly while also slotting into the clear plastic.
+
+If using the Frutto Technology 28 Segment Bargraph, there is a alternative version which fits more snug.
+[Frutto_28_Segment&#95;Bargraph&#95;Insert.stl](stl/wand/28%20Segment%20Bargraph/Frutto_28_Segment_Bargraph_Insert.stl)
+
 ![](images/bargraph_mount_1.jpg)
 ![](images/bargraph_mount_2.jpg)
 
-There is an alternative mounting solution which when you cut the original clear plastic away, you can fit the bargraph into the [28_Segment&#95;Bargraph&#95;Mount.stl](stl/wand/28_Segment_Bargraph_Mount.stl) and [28&#95;Segment&#95;Bargraph&#95;Block.stl](stl/wand/28_Segment_Bargraph_Block.stl) which uses the stock mounting screw positions.
+There is an alternative mounting solution which when you cut the original clear plastic away, you can fit the bargraph into the [28_Segment&#95;Bargraph&#95;Mount.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Mount.stl) and [28&#95;Segment&#95;Bargraph&#95;Block.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Block.stl) which uses the stock mounting screw positions.
 ![](images/bargraph_mount_3.jpg)
 ![](images/bargraph_mount_4.jpg)
 ![](images/bargraph_mount_5.jpg)
