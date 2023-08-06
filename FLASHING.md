@@ -44,10 +44,16 @@ Documented on both the Proton Pack and Neutron Wand code at the top of each file
 
 **(see For compiling code on the gpstar Proton Pack and gpstar Neutrona Wand below for more information)**. 
 
-The **wavTrigger.h** file can be located in your `Arduino/Libraries/<wav trigger folder>` (MacOS) or `C:\Arduino\Libraries` (Windows). See the special notes below for compiling the code for the gpstar Proton Pack and Neutrona Wand boards.## For compiling code for the gpstar Proton Pack PCB and gpstar Neutrona Wand PCB:You need to enable `__WT_USE_SERIAL_3__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use.
+The **wavTrigger.h** file can be located in your `Arduino/Libraries/<wav trigger folder>` (MacOS) or `C:\Arduino\Libraries` (Windows). See the special notes below for compiling the code for the gpstar Proton Pack and Neutrona Wand boards.
+
+## For compiling code for the gpstar Proton Pack PCB and gpstar Neutrona Wand PCB:
+
+You need to enable `__WT_USE_SERIAL_3__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use.
 
 ![WavTrigger Serial Class for gpstar PCB boards](images/wt_serial_mega.png)
 
+[Firmware Flashing Instructional Video](https://www.youtube.com/watch?v=J-P8rl3Hzck) (YouTube)
+[![Firmware Flashing Instructional Video](https://img.youtube.com/vi/J-P8rl3Hzck/maxresdefault.jpg)](https://www.youtube.com/watch?v=J-P8rl3Hzck)
 
 ## Advanced User Configurations
 

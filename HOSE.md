@@ -2,9 +2,9 @@
 
 In order to deliver both power and data signals to the wand, a new set of cabling is required. As wiring is typically desired to remain internal to the hose the following approaches have been used to replace the stock 2-wire (power-only) hose with a new 4-wire solution. The existing wire loom (black hose) can be reused if desired, or replaced with a more flexible brand.
 
-## PCB Kit Hose
+## DIY Hose Example #1
 
-For those who have purchased the PCB kits with the hose replacement, the following parts are utilized:
+The following parts are utilized:
 
 * 1 - [CNLINKO 4-Pin Connector](https://a.co/d/8ALa9Gq) - Connector for the pack which uses a square connector roughly the size of the stock connection
 * 1 - [Neutrik NL4FX 4-Pole Locking SpeakON Cable Connector](https://a.co/d/9c7djjo) - This is the connector at the wand end of the hose
@@ -39,7 +39,7 @@ The SpeakON connector uses a twist-lock mechanism for a secure fit to the panel 
 The SpeakON panel connector, like the pack connection, uses a soldered connection to secure the wires. Both connections at each end of the wand will use screw terminals to attach the wiring.
 ![](images/Wand_SpeakON3.jpg)
 
-## DIY Hose Example
+## DIY Hose Example #2
 
 This approach uses parts which are slightly more accurate to the movie pack, though they may be more difficult to obtain. More work is needed to convert these to Haslab use.
 

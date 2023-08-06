@@ -29,7 +29,7 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Wand PCB](WAND_PCB.md)
 
-1. [Hose Connections](HOSE.md)
+1. Wire Kits Installation (Coming Soon)
 
 1. [Loading The Audio Files](AUDIO.md)
 
@@ -56,6 +56,8 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Wand Setup](WAND.md)
 
+1. [Hose Connections](HOSE.md)
+
 ---
 
 ### Addendums
@@ -74,7 +76,7 @@ These apply to the normal operation and usage of the equipment regardless of whi
 
 1. [N-Filter Vent Light](NFILTER.md) (Optional add-on)
 
-1. [Wand Bar Graph](BARGRAPH.md) (Optional add-on)
+1. [Neutrona Wand Bar Graph and Proton Pack Power Cell Upgrades](BARGRAPH.md) (Optional add-ons)
 
 1. [Hat Lights](HATS.md) (Optional add-on)
 
