@@ -1356,7 +1356,6 @@ void cyclotronFade() {
           i_cyclotron_led_on_status[i] = true;
 
           uint8_t i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
-          i_cyclotron_led_value[i] = i_curr_brightness;
 
           switch (i_cyclotron_leds) {
             case HASLAB_CYCLOTRON_LED_COUNT:
@@ -1372,16 +1371,12 @@ void cyclotronFade() {
           if (i_position >= 0) {
             pack_leds[i_position + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
           }
+
+          i_cyclotron_led_value[i] = i_curr_brightness;
         }
 
         uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
         if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {          
-          i_cyclotron_led_value[i] = i_new_brightness;
-          i_cyclotron_led_on_status[i] = false;
-
-          ms_cyclotron_led_fade_out[i].go(i_new_brightness);
-          ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed, CIRCULAR_OUT);
-
           switch (i_cyclotron_leds) {
             case HASLAB_CYCLOTRON_LED_COUNT:
               i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
@@ -1396,11 +1391,16 @@ void cyclotronFade() {
           if (i_position >= 0) {
             pack_leds[i_position + cyclotron_led_start] = getHue(i_colour_scheme, i_new_brightness);
           }
+
+          i_cyclotron_led_value[i] = i_new_brightness;
+          i_cyclotron_led_on_status[i] = false;
+
+          ms_cyclotron_led_fade_out[i].go(i_new_brightness);
+          ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed, CIRCULAR_OUT);
         }
 
         if(ms_cyclotron_led_fade_out[i].isRunning() && i_cyclotron_led_on_status[i] == false) {
           uint8_t i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
-          i_cyclotron_led_value[i] = i_curr_brightness;
 
           switch (i_cyclotron_leds) {
             case HASLAB_CYCLOTRON_LED_COUNT:
@@ -1416,12 +1416,11 @@ void cyclotronFade() {
           if (i_position >= 0) {
             pack_leds[i_position + cyclotron_led_start] = getHue(i_colour_scheme, i_curr_brightness);
           }
+
+          i_cyclotron_led_value[i] = i_curr_brightness;
         }
 
         if(ms_cyclotron_led_fade_out[i].isFinished() && i_cyclotron_led_on_status[i] == false) {
-          i_cyclotron_led_value[i] = 0;
-          i_cyclotron_led_on_status[i] = true;
-
           switch (i_cyclotron_leds) {
             case HASLAB_CYCLOTRON_LED_COUNT:
               i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
@@ -1436,6 +1435,9 @@ void cyclotronFade() {
           if (i_position >= 0) {
             pack_leds[i_position + cyclotron_led_start] = getHue(C_BLACK);
           }
+
+          i_cyclotron_led_value[i] = 0;
+          i_cyclotron_led_on_status[i] = true;
         }
       }
     break;
