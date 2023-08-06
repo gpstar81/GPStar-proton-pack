@@ -46,6 +46,11 @@ uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
 #define HASLAB_CYCLOTRON_LED_COUNT 12
 
 /*
+ * The Frutto Cyclotron Lid has 20 LEDs.
+*/
+#define FRUTTO_CYCLOTRON_LED_COUNT 20
+
+/*
  * Proton pack Power Cell and Cyclotron lid led pin.
 */
 #define PACK_LED_PIN 53

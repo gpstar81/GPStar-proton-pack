@@ -80,12 +80,10 @@ bool b_powercell_colour_toggle = true;
  * Cyclotron Lid LED delays.
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
- * For a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
- * For stock Haslab LEDs, 15 for i_2021_delay is good.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
 */
 const unsigned int i_1984_delay = 1050;
-unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology cyclotron, and 5 for a 40 LED NeoPixel ring.
+unsigned int i_2021_delay = 10; // Universally sets the delay to 10ms regardless of LED count.
 
 /*
  * Power Cell delays in milliseconds.
@@ -352,13 +350,6 @@ bool b_additional_wand_sounds = false;
  * Set to false to ignore reading data from the EEPROM.
 */
 const bool b_eeprom = true;
-
-/* 
- * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the Haslab Cyclotron Lid.
- * When using 12 LEDs for the Cycloton Lid, the system will default it to always red.
- * Setting this to true will override it and allow CHSV colours to be applied to Cyclotron LIDs with 12 LEDs.
-*/
-const bool b_cyclotron_haslab_chsv_colour_change = false;
 
 /*
   *****
