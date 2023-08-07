@@ -1174,7 +1174,7 @@ void powercellDraw(uint8_t i_start) {
 // Reset the cyclotron led colours.
 void cyclotronColourReset() {
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
-  int8_t i_position = -1; // A (small) signed integer to indicate the correct LED offset (negative denotes no change).
+  int i_position = -1; // Used to indicate the correct LED offset (negative denotes no change).
 
   // We override the colour changes when using stock Haslab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
@@ -1214,21 +1214,21 @@ void cyclotronControl() {
     b_reset_start_led = false;
     if(b_clockwise == false) {
       if(i_mode_year == 2021) {
-        i_led_cyclotron = cyclotron_led_start + 2;
+        i_led_cyclotron = cyclotron_led_start + 2; // Start on LED #2 in anti-clockwise mode in 2021 mode.
       }
       else {
         i_1984_counter = 1;
         i_led_cyclotron = cyclotron_led_start + i_1984_cyclotron_leds[i_1984_counter];
       }
     }
-    else {
+    else {  
       if(i_mode_year == 1984 || i_mode_year == 1989) {
         i_1984_counter = 3;
         i_led_cyclotron = cyclotron_led_start + i_1984_cyclotron_leds[i_1984_counter];
 
       }
       else {
-        i_led_cyclotron = i_pack_num_leds - 1;
+        i_led_cyclotron = cyclotron_led_start;
       }
     }
   }
@@ -1351,7 +1351,7 @@ void cyclotronFade() {
       // We base this on a 40-increment cycle giving each movement equal time to keep up this appearance of continuous motion.
       // The "trick" is that we may have less than 40 LED's in the array of pack LED's so we can only update at certain times.
       // For this we'll use a position indicator when LED's are less than 40, so we know which one needs to be updated.
-      int8_t i_position = -1; // A (small) signed integer to indicate the correct LED offset (negative denotes no change).
+      int i_position = -1; // Used to indicate the correct LED offset (negative denotes no change).
 
       for(uint8_t i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
@@ -1902,7 +1902,7 @@ void cyclotron84LightOn(int cLed) {
   }
 }
 
-void cyclotron84LightOff(uint8_t cLed) {
+void cyclotron84LightOff(int cLed) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness); // Calculate desired brightness.
 
   if(b_fade_cyclotron_led != true) {

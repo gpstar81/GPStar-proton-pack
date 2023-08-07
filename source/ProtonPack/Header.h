@@ -45,7 +45,7 @@
 /*
  * The gpstar N-Filter expects 7 LEDs.
 */
-#define GPSTAR_NFILTER_LED_COUNT 7
+#define JEWEL_NFILTER_LED_COUNT 7
 
  /* 
  * Total number of LEDs in the Proton Pack
@@ -56,7 +56,7 @@
  */
 // Max amount of LEDs allowed: 15 for the Power Cell and 40 for the Cyclotron lid.
 const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
-const uint8_t i_nfilter_jewel_leds = GPSTAR_NFILTER_LED_COUNT;
+const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
 
 /*
  * Updated count of all the LEDs plus the n-filter jewel.
@@ -147,7 +147,7 @@ bool b_1984_led_start = true;
 rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
 bool b_cyclotron_lid_on = true;
-uint8_t i_1984_counter = 0;
+int i_1984_counter = 0;
 bool i_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 rampInt ms_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
