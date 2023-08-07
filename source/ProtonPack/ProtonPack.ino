@@ -1215,7 +1215,7 @@ void cyclotronColourReset() {
       if(i_cyclotron_led_on_status[i] == true) {
         // Note: Always assumed to be RGB for built-in or Frutto LED's.
         // Sets 0-index <i> plus the position of the first cyclotron LED.
-        pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_cyclotron_led_value[i]);
+        pack_leds[i + cyclotron_led_start] = getHue(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
       }
     }
   }
