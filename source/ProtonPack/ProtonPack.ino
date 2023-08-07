@@ -2099,20 +2099,20 @@ void cyclotronNoCable() {
  * Turns off the LEDs in the cyclotron lid only.
 */
 void cyclotronLidLedsOff() {
-  for(uint8_t i = cyclotron_led_start; i < i_pack_num_leds - i_nfilter_jewel_leds; i++) {
+  for(int i = cyclotron_led_start; i < i_pack_num_leds - i_nfilter_jewel_leds; i++) {
     pack_leds[i] = getHue(CYCLOTRON_OUTER, C_BLACK);
   }
 }
 
 void resetCyclotronLeds() {
-  for(uint8_t i = cyclotron_led_start; i < i_pack_num_leds; i++) {
+  for(int i = cyclotron_led_start; i < i_pack_num_leds; i++) {
     pack_leds[i] = getHue(CYCLOTRON_OUTER, C_BLACK);
   }
 
   // Turn off optional n-filter led.
   digitalWrite(i_nfilter_led_pin, LOW);
 
-  for(uint8_t i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
+  for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
       ms_cyclotron_led_fade_out[i].go(0);
       ms_cyclotron_led_fade_in[i].go(0);
 
@@ -2344,14 +2344,14 @@ void ventLight(bool b_on) {
       i_colour_scheme = C_RED;
     }
 
-    for(uint8_t i = i_vent_light_start; i < i_pack_num_leds; i++) {
+    for(int i = i_vent_light_start; i < i_pack_num_leds; i++) {
       pack_leds[i] = getHue(VENT_LIGHT, i_colour_scheme); // Uses full brightness.
     }
 
     digitalWrite(i_nfilter_led_pin, HIGH);
   }
   else {
-    for(uint8_t i = i_vent_light_start; i < i_pack_num_leds; i++) {
+    for(int i = i_vent_light_start; i < i_pack_num_leds; i++) {
       pack_leds[i] = getHue(VENT_LIGHT, C_BLACK);
     }
 
@@ -4506,8 +4506,6 @@ void checkWand() {
                 break;
               }
 
-              i_2021_delay = 10; // Set a consistent delay for Afterlife cyclotron spin.
-
               updateProtonPackLEDCounts();
             break;
 
@@ -4845,7 +4843,7 @@ void readEEPROM() {
         break;
 
         // Default Haslab LEDs.
-        case 12:
+        case HASLAB_CYCLOTRON_LED_COUNT:
         default:
           i_1984_cyclotron_leds[0] = 1;
           i_1984_cyclotron_leds[1] = 4;
@@ -4853,8 +4851,6 @@ void readEEPROM() {
           i_1984_cyclotron_leds[3] = 10;
         break;
       }
-
-      i_2021_delay = 10; // Set a consistent delay.
     }
 
     if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {
