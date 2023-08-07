@@ -223,7 +223,7 @@ bool b_vibration_firing = true;
 /*
  * When set to false, 1984/1989 mode LED's will fade in or out.
 */
-const bool b_fade_cyclotron_led = true;
+const bool b_fade_cyclotron_led = false;
 
 /*
  * When set to true, 1984/1989 will utilise the middle single LED only in each cyclotron lens.
@@ -365,6 +365,7 @@ const bool b_eeprom = true;
  * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the Haslab Cyclotron Lid.
  * When using 12 LEDs for the Cycloton Lid, the system will default it to always red.
  * Setting this to true will override it and allow CHSV colours to be applied to Cyclotron LIDs with 12 LEDs.
+ * Note that a NeoPixel Jewel will use the CHSV colour space which can make the default Haslab Cyclotron LEDs flicker when the jewel n-filter vent-light strobes.
 */
 const bool b_cyclotron_haslab_chsv_colour_change = false;
 
