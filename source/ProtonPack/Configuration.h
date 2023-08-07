@@ -41,12 +41,12 @@ uint8_t i_cyclotron_leds = 12;
 uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 
 // For a 40 LED NeoPixel ring.
-//const uint8_t i_cyclotron_leds = 40;
-//const uint8_t i_1984_cyclotron_leds[4] = { 0, 10, 18, 28 };
+//uint8_t i_cyclotron_leds = 40;
+//uint8_t i_1984_cyclotron_leds[4] = { 0, 10, 18, 28 };
 
 // For a 20 LED Frutto Technology cyclotron.
-//const uint8_t i_cyclotron_leds = 20;
-//const uint8_t i_1984_cyclotron_leds[4] = { 2, 7, 12, 17 };
+//uint8_t i_cyclotron_leds = 20;
+//uint8_t i_1984_cyclotron_leds[4] = { 2, 7, 12, 17 };
 
 /*
  * Power Cell LEDs
@@ -83,7 +83,7 @@ bool b_powercell_colour_toggle = true;
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
 */
 const unsigned int i_1984_delay = 1050;
-unsigned int i_2021_delay = 10; // Universally sets the Afterlife delay to 10ms regardless of LED count.
+const unsigned int i_2021_delay = 10; // Universally sets the Afterlife delay to 10ms regardless of LED count.
 
 /*
  * Power Cell delays in milliseconds.

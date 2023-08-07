@@ -1182,27 +1182,40 @@ void cyclotronColourReset() {
     i_colour_scheme = C_HASLAB;
   }
 
-  // Continues the 40-position cycle for LED's, regardless of the LED's in use.
-  for(int i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
-    if(i_cyclotron_led_on_status[i] == true) {
-      // Note: Always assumed to be RGB for built-in or Frutto LED's.
-      // Sets 0-index <i> plus the position of the first cyclotron LED.
+  if(i_mode_year == 2021) {
+    // Continues the 40-position cycle maximum for LED's, regardless of the LED's actually in use.
+    for(int i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
+      if(i_cyclotron_led_on_status[i] == true) {
+        // Note: Always assumed to be RGB for built-in or Frutto LED's.
+        // Sets 0-index <i> plus the position of the first cyclotron LED.
 
-      switch (i_cyclotron_leds) {
-        case HASLAB_CYCLOTRON_LED_COUNT:
-          i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
-        break;
+        switch (i_cyclotron_leds) {
+          case HASLAB_CYCLOTRON_LED_COUNT:
+            i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
+          break;
 
-        case FRUTTO_CYCLOTRON_LED_COUNT:
-          i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
-        break;
+          case FRUTTO_CYCLOTRON_LED_COUNT:
+            i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
+          break;
 
-        default:
-          i_position = i; // For 40-element LED ring (use value as-is).
-        break;
+          default:
+            i_position = i; // For 40-element LED ring (use value as-is).
+          break;
+        }
+        if (i_position >= 0) {
+          pack_leds[i_position + cyclotron_led_start] = getHue(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
+        }
       }
-      if (i_position >= 0) {
-        pack_leds[i_position + cyclotron_led_start] = getHue(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
+    }
+  }
+  else {
+    // For 1984/1989 modes, use total # of LED's minus the N-filter jewel and whatever preceeds the cyclotron.
+    uint8_t i_max = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
+    for(int i = 0; i < i_max; i++) {
+      if(i_cyclotron_led_on_status[i] == true) {
+        // Note: Always assumed to be RGB for built-in or Frutto LED's.
+        // Sets 0-index <i> plus the position of the first cyclotron LED.
+        pack_leds[i + cyclotron_led_start] = getHue(i_colour_scheme, i_cyclotron_led_value[i]);
       }
     }
   }
