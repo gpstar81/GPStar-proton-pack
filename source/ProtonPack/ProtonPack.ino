@@ -1595,16 +1595,17 @@ void cyclotron2021(uint8_t cDelay) {
       }
 
       i_led_cyclotron++; // Incrementing means moving in the natural order of the LED's.
+
       switch (i_mode_year) {
         case 2021:
-          if(i_led_cyclotron > (i_powercell_leds + OUTER_CYCLOTRON_LED_MAX + i_nfilter_jewel_leds) - i_nfilter_jewel_leds - 1) {
+          if(i_led_cyclotron > i_powercell_leds + OUTER_CYCLOTRON_LED_MAX - 1) {
             i_led_cyclotron = cyclotron_led_start;
           }
         break;
 
         case 1984:
         case 1989:
-          if(i_led_cyclotron > i_pack_num_leds - i_nfilter_jewel_leds - 1) {
+          if(i_led_cyclotron > i_powercell_leds + i_cyclotron_leds - 1) {
             i_led_cyclotron = cyclotron_led_start;
           }
         break;
@@ -1621,14 +1622,14 @@ void cyclotron2021(uint8_t cDelay) {
       switch (i_mode_year) {
         case 2021:
           if(i_led_cyclotron < cyclotron_led_start) {
-            i_led_cyclotron = (i_powercell_leds + OUTER_CYCLOTRON_LED_MAX + i_nfilter_jewel_leds) - i_nfilter_jewel_leds - 1;
+            i_led_cyclotron = i_powercell_leds + OUTER_CYCLOTRON_LED_MAX - 1;
           }
         break;
 
         case 1984:
         case 1989:
           if(i_led_cyclotron < cyclotron_led_start) {
-            i_led_cyclotron = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+            i_led_cyclotron = i_powercell_leds + i_cyclotron_leds - 1;
           }
         break;
       }
