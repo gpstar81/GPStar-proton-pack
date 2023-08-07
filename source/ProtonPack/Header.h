@@ -18,6 +18,16 @@
  */
 
 /*
+ * The Haslab Powercell has 13 LEDs.
+*/
+#define HASLAB_POWERCELL_LED_COUNT 13
+
+/*
+ * The Frutto Powercell has 15 LEDs.
+*/
+#define FRUTTO_POWERCELL_LED_COUNT 15
+
+/*
  * The Haslab Cyclotron Lid has 12 LEDs.
 */
 #define HASLAB_CYCLOTRON_LED_COUNT 12
@@ -31,16 +41,6 @@
  * Set the number of steps for the outer cyclotron.
 */
 #define OUTER_CYCLOTRON_LED_MAX 40
-
-/*
- * The Haslab Powercell has 13 LEDs.
-*/
-#define HASLAB_POWERCELL_LED_COUNT 13
-
-/*
- * The Frutto Powercell has 15 LEDs.
-*/
-#define FRUTTO_POWERCELL_LED_COUNT 15
 
 /*
  * The gpstar N-Filter expects 7 LEDs.

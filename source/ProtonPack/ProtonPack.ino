@@ -1174,7 +1174,7 @@ void powercellDraw(uint8_t i_start) {
 // Reset the cyclotron led colours.
 void cyclotronColourReset() {
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
-  int8_t i_position; // A (small) signed integer to indicate the correct LED offset (negative denotes no change).
+  int8_t i_position = -1; // A (small) signed integer to indicate the correct LED offset (negative denotes no change).
 
   // We override the colour changes when using stock Haslab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
@@ -1187,17 +1187,19 @@ void cyclotronColourReset() {
     if(i_cyclotron_led_on_status[i] == true) {
       // Note: Always assumed to be RGB for built-in or Frutto LED's.
       // Sets 0-index <i> plus the position of the first cyclotron LED.
-      
+
       switch (i_cyclotron_leds) {
         case HASLAB_CYCLOTRON_LED_COUNT:
           i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
-          break;
+        break;
+
         case FRUTTO_CYCLOTRON_LED_COUNT:
           i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
-          break;
+        break;
+
         default:
           i_position = i; // For 40-element LED ring (use value as-is).
-          break;
+        break;
       }
       if (i_position >= 0) {
         pack_leds[i_position + cyclotron_led_start] = getHue(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
@@ -1349,10 +1351,9 @@ void cyclotronFade() {
       // We base this on a 40-increment cycle giving each movement equal time to keep up this appearance of continuous motion.
       // The "trick" is that we may have less than 40 LED's in the array of pack LED's so we can only update at certain times.
       // For this we'll use a position indicator when LED's are less than 40, so we know which one needs to be updated.
-      int8_t i_position; // A (small) signed integer to indicate the correct LED offset (negative denotes no change).
+      int8_t i_position = -1; // A (small) signed integer to indicate the correct LED offset (negative denotes no change).
 
       for(uint8_t i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
-Serial.println(i);
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           i_cyclotron_led_on_status[i] = true;
           i_cyclotron_led_value[i] = ms_cyclotron_led_fade_in[i].update();
@@ -1361,13 +1362,15 @@ Serial.println(i);
           switch (i_cyclotron_leds) {
             case HASLAB_CYCLOTRON_LED_COUNT:
               i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
-              break;
+            break;
+
             case FRUTTO_CYCLOTRON_LED_COUNT:
               i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
-              break;
+            break;
+
             default:
               i_position = i; // For 40-element LED ring (use value as-is).
-              break;
+            break;
           }
           if (i_position >= 0) {
             // Update the intended LED using the given color and brightness.
@@ -1376,7 +1379,7 @@ Serial.println(i);
         }
 
         uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
-        if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {          
+        if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {
           i_cyclotron_led_value[i] = i_new_brightness;
           i_cyclotron_led_on_status[i] = false;
 
@@ -1387,13 +1390,15 @@ Serial.println(i);
           switch (i_cyclotron_leds) {
             case HASLAB_CYCLOTRON_LED_COUNT:
               i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
-              break;
+            break;
+
             case FRUTTO_CYCLOTRON_LED_COUNT:
               i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
-              break;
+            break;
+
             default:
               i_position = i; // For 40-element LED ring (use value as-is).
-              break;
+            break;
           }
           if (i_position >= 0) {
             // Update the intended LED using the given color and brightness.
@@ -1408,13 +1413,15 @@ Serial.println(i);
           switch (i_cyclotron_leds) {
             case HASLAB_CYCLOTRON_LED_COUNT:
               i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
-              break;
+            break;
+
             case FRUTTO_CYCLOTRON_LED_COUNT:
               i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
-              break;
+            break;
+
             default:
               i_position = i; // For 40-element LED ring (use value as-is).
-              break;
+            break;
           }
           if (i_position >= 0) {
             // Update the intended LED using the given color and brightness.
@@ -1430,13 +1437,15 @@ Serial.println(i);
           switch (i_cyclotron_leds) {
             case HASLAB_CYCLOTRON_LED_COUNT:
               i_position = i_cyclotron_12led_position[i]; // For stock Haslab LED's.
-              break;
+            break;
+
             case FRUTTO_CYCLOTRON_LED_COUNT:
               i_position = i_cyclotron_20led_position[i]; // For Frutto Technology LED's.
-              break;
+            break;
+
             default:
               i_position = i; // For 40-element LED ring (use value as-is).
-              break;
+            break;
           }
           if (i_position >= 0) {
             // Update the intended LED using the given color and brightness.
@@ -2811,14 +2820,14 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
 
-  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 10);            
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 10);           
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 10);      
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 10);      
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 10);
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 10);
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 10);
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 10);
   w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - 10);
-  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 10);                      
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 10);        
-  w_trig.trackGain(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 10);        
+  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 10);
+  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 10);
+  w_trig.trackGain(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 10);
   w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 10);
 }
 
@@ -2902,7 +2911,7 @@ void decreaseVolume() {
     // Provide feedback when the Pack is not running.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master);
-  }  
+  }
 }
 
 void readEncoder() {
@@ -3072,7 +3081,7 @@ void wandHandShake() {
     if(b_overheating == true) {
       packOverheatingFinished();
     }
-    
+
     if(ms_wand_handshake.justFinished()) {
       // Ask the wand if it is connected.
       packSerialSend(P_HANDSHAKE);
@@ -3092,7 +3101,7 @@ void wandExtraSoundsStop() {
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
 
   stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
-  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);  
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 }
 
 void packOverheatingFinished() {
@@ -3175,7 +3184,7 @@ void checkWand() {
                 PACK_ACTION_STATUS = ACTION_OFF;
               }
             break;
-            
+
             case W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED:
               stopEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
               playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
@@ -3187,22 +3196,22 @@ void checkWand() {
             break;
 
             case W_AFTERLIFE_RAMP_LOOP_2_STOP:
-              stopEffect(S_AFTERLIFE_WAND_IDLE_2);            
+              stopEffect(S_AFTERLIFE_WAND_IDLE_2);
             break;
 
             case W_AFTERLIFE_GUN_RAMP_1:
               stopEffect(S_AFTERLIFE_WAND_RAMP_1);
-              playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 10);           
+              playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 10);
             break;
 
             case W_AFTERLIFE_GUN_RAMP_2:
               stopEffect(S_AFTERLIFE_WAND_RAMP_2);
-              playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 10);      
+              playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 10);
             break;
 
             case W_AFTERLIFE_GUN_RAMP_2_FADE_IN:
               stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
-              playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 10);      
+              playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 10);
             break;
 
             case W_AFTERLIFE_GUN_LOOP_1:
@@ -3212,17 +3221,17 @@ void checkWand() {
 
             case W_AFTERLIFE_GUN_LOOP_2:
               stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-              playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 10);                      
+              playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 10);
             break;
 
             case W_AFTERLIFE_GUN_RAMP_DOWN_2:
               stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-              playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 10);        
+              playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 10);
             break;
 
             case S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT:
               stopEffect(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
-              playEffect(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 10);        
+              playEffect(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 10);
             break;
 
             case W_AFTERLIFE_GUN_RAMP_DOWN_1:
@@ -3258,7 +3267,7 @@ void checkWand() {
                 // Reset the Cyclotron LED colours.
                 cyclotronColourReset();
               }
-              
+
               if(b_powercell_colour_toggle == true) {
                 // Reset the Power Cell colours.
                 b_powercell_updating = true;
@@ -4195,7 +4204,7 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } 
+                  }
                   else {
                     // Already at 100%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
@@ -4214,7 +4223,7 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } 
+                  }
                   else {
                     // Already at 100%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
@@ -4237,7 +4246,7 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } 
+                  }
                   else {
                     // Already at 100%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
@@ -4265,7 +4274,7 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } 
+                  }
                   else {
                     // Already at 0%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
@@ -4284,7 +4293,7 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } 
+                  }
                   else {
                     // Already at 0%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
@@ -4307,7 +4316,7 @@ void checkWand() {
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
-                  } 
+                  }
                   else {
                     // Already at 0%, indicate as such.
                     stopEffect(S_BEEPS_ALT);
@@ -4406,10 +4415,10 @@ void checkWand() {
                   // Switch to Frutto Power Cell LEDs.
                   i_powercell_leds = FRUTTO_POWERCELL_LED_COUNT;
                   i_powercell_delay_1984 = 60;
-                  i_powercell_delay_2021 = 34;    
+                  i_powercell_delay_2021 = 34;
 
                   playEffect(S_VOICE_POWERCELL_15);
-                  packSerialSend(P_POWERCELL_LEDS_15);          
+                  packSerialSend(P_POWERCELL_LEDS_15);
                 break;
 
                 case FRUTTO_POWERCELL_LED_COUNT:
@@ -4456,7 +4465,7 @@ void checkWand() {
                   i_1984_cyclotron_leds[0] = 1;
                   i_1984_cyclotron_leds[1] = 4;
                   i_1984_cyclotron_leds[2] = 7;
-                  i_1984_cyclotron_leds[3] = 10;  
+                  i_1984_cyclotron_leds[3] = 10;
 
                   playEffect(S_VOICE_CYCLOTRON_12);
                   packSerialSend(P_CYCLOTRON_LEDS_12);
@@ -4485,7 +4494,7 @@ void checkWand() {
             case W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS:
               stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
               stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
-              
+
               if(b_grb_cyclotron == true) {
                 b_grb_cyclotron = false;
                 playEffect(S_VOICE_RGB_INNER_CYCLOTRON);
@@ -4600,7 +4609,7 @@ void checkWand() {
                 packSerialSend(P_POWER_LEVEL_1);
               break;
             }
-            
+
             // Synchronise the firing modes.
             switch(FIRING_MODE) {
               case SLIME:
@@ -4625,22 +4634,22 @@ void checkWand() {
                 packSerialSend(P_PROTON_MODE);
 
                 FIRING_MODE = PROTON;
-                
+
                 if(b_pack_on != true && b_pack_shutting_down != true) {
                   if(b_cyclotron_colour_toggle == true) {
                     // Reset the Cyclotron LED colours.
                     cyclotronColourReset();
                   }
-                  
+
                   if(b_powercell_colour_toggle == true) {
                     // Reset the Power Cell colours.
                     b_powercell_updating = true;
                     powercellDraw();
                   }
                 }
-              break;              
+              break;
             }
-            
+
             // Tell the wand the status of the Proton Pack ribbon cable.
             if(switch_alarm.getState() == LOW) {
               // Ribbon cable is on.
@@ -4649,7 +4658,7 @@ void checkWand() {
             else {
               packSerialSend(P_RIBBON_CABLE_OFF);
             }
-            
+
             // Put the wand into volume sync mode.
             packSerialSend(P_VOLUME_SYNC_MODE);
 
@@ -4775,18 +4784,18 @@ void readEEPROM() {
     // Read our object from the EEPROM.
     objEEPROM obj_eeprom;
     EEPROM.get(i_eepromAddress, obj_eeprom);
-    
+
     if(obj_eeprom.powercell_count > 0 && obj_eeprom.powercell_count != 255) {
       i_powercell_leds = obj_eeprom.powercell_count;
 
       switch(i_powercell_leds) {
-        case 15:
+        case FRUTTO_POWERCELL_LED_COUNT:
           // 15 Power Cell LEDs.
           i_powercell_delay_1984 = 60;
           i_powercell_delay_2021 = 34;
         break;
 
-        case 13:
+        case HASLAB_POWERCELL_LED_COUNT:
         default:
           // 13 Power Cell LEDs.
           i_powercell_delay_1984 = 75;
@@ -4800,8 +4809,7 @@ void readEEPROM() {
 
       switch(i_cyclotron_leds) {
         // For a 40 LED Neopixel ring.
-        case 40:
-          i_2021_delay = 10;
+        case OUTER_CYCLOTRON_LED_MAX:
           i_1984_cyclotron_leds[0] = 0;
           i_1984_cyclotron_leds[1] = 10;
           i_1984_cyclotron_leds[2] = 18;
@@ -4809,8 +4817,7 @@ void readEEPROM() {
         break;
 
         // For Frutto Technology Cyclotron LEDs.
-        case 20:
-          i_2021_delay = 10;
+        case FRUTTO_CYCLOTRON_LED_COUNT:
           i_1984_cyclotron_leds[0] = 2;
           i_1984_cyclotron_leds[1] = 7;
           i_1984_cyclotron_leds[2] = 12;
@@ -4820,13 +4827,14 @@ void readEEPROM() {
         // Default Haslab LEDs.
         case 12:
         default:
-          i_2021_delay = 10;
           i_1984_cyclotron_leds[0] = 1;
           i_1984_cyclotron_leds[1] = 4;
           i_1984_cyclotron_leds[2] = 7;
-          i_1984_cyclotron_leds[3] = 10;          
+          i_1984_cyclotron_leds[3] = 10;
         break;
       }
+
+      i_2021_delay = 10; // Set a consistent delay.
     }
 
     if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {
@@ -4858,7 +4866,7 @@ void readEEPROM() {
       }
       else {
         b_grb_cyclotron = false;
-      }       
+      }
     }
 
     // Update the LED counts for the Proton Pack.
@@ -4947,7 +4955,7 @@ void saveLedEEPROM() {
   // Cyclotron LEDs
   // Inner Cyclotron LEDs
   // GRB / RGB Inner Cyclotron toggle flag
-  
+
   uint8_t i_grb_cyclotron = 1;
 
   if(b_grb_cyclotron == true) {
@@ -4969,7 +4977,7 @@ void saveLedEEPROM() {
 }
 
 // Update the CRC in the EEPROM.
-void updateCRCEEPROM() { 
+void updateCRCEEPROM() {
   EEPROM.put(EEPROM.length() - sizeof(l_crc_size), eepromCRC());
 }
 
