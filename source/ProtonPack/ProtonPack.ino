@@ -1178,7 +1178,7 @@ void cyclotronColourReset() {
 
   // We override the colour changes when using stock Haslab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
-  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT) {
+  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
   }
 
@@ -1341,7 +1341,7 @@ void cyclotronFade() {
 
   // We override the colour changes when using stock Haslab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
-  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT) {
+  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
   }
 
@@ -1853,7 +1853,7 @@ void cyclotron84LightOn(int cLed) {
 
   // We override the colour changes when using stock Haslab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
-  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT) {
+  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
   }
 

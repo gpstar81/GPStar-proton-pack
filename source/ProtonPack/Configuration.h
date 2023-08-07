@@ -351,6 +351,13 @@ bool b_additional_wand_sounds = false;
 */
 const bool b_eeprom = true;
 
+/* 
+ * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the Haslab Cyclotron Lid.
+ * When using 12 LEDs for the Cycloton Lid, the system will default it to always red.
+ * Setting this to true will override it and allow CHSV colours to be applied to Cyclotron LIDs with 12 LEDs.
+*/
+const bool b_cyclotron_haslab_chsv_colour_change = false;
+
 /*
   *****
   ***** INFORMATION FOR DIY builds of the gpstar Proton Packs using an Arduino Mega ********
