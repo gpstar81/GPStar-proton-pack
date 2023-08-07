@@ -1151,7 +1151,7 @@ void powercellOn() {
 }
 
 void powercellOff() {
-  for(int i = 0; i <= cyclotron_led_start - 1; i++) {
+  for(uint8_t i = 0; i <= cyclotron_led_start - 1; i++) {
     pack_leds[i] = getHue(POWERCELL, C_BLACK);
   }
 
@@ -1214,7 +1214,7 @@ void cyclotronControl() {
     b_reset_start_led = false;
     if(b_clockwise == false) {
       if(i_mode_year == 2021) {
-        i_led_cyclotron = cyclotron_led_start + 2; // Start on LED #2 in anti-clockwise mode in 2021 mode.
+        i_led_cyclotron = cyclotron_led_start;
       }
       else {
         i_1984_counter = 1;
@@ -1228,7 +1228,7 @@ void cyclotronControl() {
 
       }
       else {
-        i_led_cyclotron = cyclotron_led_start;
+        i_led_cyclotron = i_pack_num_leds;
       }
     }
   }
@@ -1581,22 +1581,43 @@ void cyclotron2021(uint8_t cDelay) {
         ms_cyclotron_led_fade_in[i_led_cyclotron - cyclotron_led_start].go(i_brightness, cDelay, CIRCULAR_IN);
       }
 
-      i_led_cyclotron++;
+      i_led_cyclotron++; // Incrementing means moving in the natural order of the LED's.
+      switch (i_mode_year) {
+        case 2021:
+          if(i_led_cyclotron > (i_powercell_leds + OUTER_CYCLOTRON_LED_MAX + i_nfilter_jewel_leds) - i_nfilter_jewel_leds - 1) {
+            i_led_cyclotron = cyclotron_led_start;
+          }
+        break;
 
-      if(i_led_cyclotron > i_pack_num_leds - i_nfilter_jewel_leds - 1) {
-        i_led_cyclotron = cyclotron_led_start;
+        case 1984:
+        case 1989:
+          if(i_led_cyclotron > i_pack_num_leds - i_nfilter_jewel_leds - 1) {
+            i_led_cyclotron = cyclotron_led_start;
+          }
+        break;
       }
     }
     else {
       if(i_cyclotron_led_value[i_led_cyclotron - cyclotron_led_start] == 0) {
-       ms_cyclotron_led_fade_in[i_led_cyclotron - cyclotron_led_start].go(0);
+        ms_cyclotron_led_fade_in[i_led_cyclotron - cyclotron_led_start].go(0);
         ms_cyclotron_led_fade_in[i_led_cyclotron - cyclotron_led_start].go(i_brightness, cDelay, CIRCULAR_IN);
       }
 
-      i_led_cyclotron--;
+      i_led_cyclotron--; // Decrementing means moving opposite the natural order of the LED's.
 
-      if(i_led_cyclotron < cyclotron_led_start) {
-        i_led_cyclotron = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+      switch (i_mode_year) {
+        case 2021:
+          if(i_led_cyclotron < cyclotron_led_start) {
+            i_led_cyclotron = (i_powercell_leds + OUTER_CYCLOTRON_LED_MAX + i_nfilter_jewel_leds) - i_nfilter_jewel_leds - 1;
+          }
+        break;
+
+        case 1984:
+        case 1989:
+          if(i_led_cyclotron < cyclotron_led_start) {
+            i_led_cyclotron = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+          }
+        break;
       }
     }
   }
@@ -1881,7 +1902,7 @@ void cyclotron84LightOn(int cLed) {
   }
 }
 
-void cyclotron84LightOff(int cLed) {
+void cyclotron84LightOff(uint8_t cLed) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness); // Calculate desired brightness.
 
   if(b_fade_cyclotron_led != true) {
@@ -1951,7 +1972,6 @@ void cyclotronOverHeating() {
       else if(b_overheat_lights_off == true) {
         if(i_powercell_led > 0) {
           cyclotron2021(i_2021_delay * 10);
-
           vibrationPack(i_vibration_lowest_level);
         }
         else {
@@ -2079,20 +2099,20 @@ void cyclotronNoCable() {
  * Turns off the LEDs in the cyclotron lid only.
 */
 void cyclotronLidLedsOff() {
-  for(int i = cyclotron_led_start; i < i_pack_num_leds - i_nfilter_jewel_leds; i++) {
+  for(uint8_t i = cyclotron_led_start; i < i_pack_num_leds - i_nfilter_jewel_leds; i++) {
     pack_leds[i] = getHue(CYCLOTRON_OUTER, C_BLACK);
   }
 }
 
 void resetCyclotronLeds() {
-  for(int i = cyclotron_led_start; i < i_pack_num_leds; i++) {
+  for(uint8_t i = cyclotron_led_start; i < i_pack_num_leds; i++) {
     pack_leds[i] = getHue(CYCLOTRON_OUTER, C_BLACK);
   }
 
   // Turn off optional n-filter led.
   digitalWrite(i_nfilter_led_pin, LOW);
 
-  for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
+  for(uint8_t i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
       ms_cyclotron_led_fade_out[i].go(0);
       ms_cyclotron_led_fade_in[i].go(0);
 
@@ -2324,14 +2344,14 @@ void ventLight(bool b_on) {
       i_colour_scheme = C_RED;
     }
 
-    for(int i = i_vent_light_start; i < i_pack_num_leds; i++) {
+    for(uint8_t i = i_vent_light_start; i < i_pack_num_leds; i++) {
       pack_leds[i] = getHue(VENT_LIGHT, i_colour_scheme); // Uses full brightness.
     }
 
     digitalWrite(i_nfilter_led_pin, HIGH);
   }
   else {
-    for(int i = i_vent_light_start; i < i_pack_num_leds; i++) {
+    for(uint8_t i = i_vent_light_start; i < i_pack_num_leds; i++) {
       pack_leds[i] = getHue(VENT_LIGHT, C_BLACK);
     }
 
