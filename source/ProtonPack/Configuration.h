@@ -83,7 +83,7 @@ bool b_powercell_colour_toggle = true;
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
 */
 const unsigned int i_1984_delay = 1050;
-unsigned int i_2021_delay = 10; // Universally sets the delay to 10ms regardless of LED count.
+unsigned int i_2021_delay = 10; // Universally sets the Afterlife delay to 10ms regardless of LED count.
 
 /*
  * Power Cell delays in milliseconds.

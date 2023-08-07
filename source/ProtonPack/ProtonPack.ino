@@ -1214,7 +1214,7 @@ void cyclotronControl() {
     b_reset_start_led = false;
     if(b_clockwise == false) {
       if(i_mode_year == 2021) {
-        i_led_cyclotron = cyclotron_led_start;
+        i_led_cyclotron = cyclotron_led_start + 2;
       }
       else {
         i_1984_counter = 1;
@@ -1228,7 +1228,7 @@ void cyclotronControl() {
 
       }
       else {
-        i_led_cyclotron = i_pack_num_leds;
+        i_led_cyclotron = i_pack_num_leds - 1;
       }
     }
   }
