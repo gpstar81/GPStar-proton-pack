@@ -1358,14 +1358,14 @@ void cyclotronFade() {
     i_colour_scheme = C_HASLAB;
   }
 
+  // The 2021 (Afterlife) cyclotron moves in a complete circle, so every LED should be lit as if travelling on that path.
+  // We base this on a 40-increment cycle giving each movement equal time to keep up this appearance of continuous motion.
+  // The "trick" is that we may have less than 40 LED's in the array of pack LED's so we can only update at certain times.
+  // For this we'll use a position indicator when LED's are less than 40, so we know which one needs to be updated.
+  int i_position = -1; // Used to indicate the correct LED offset (negative denotes no change).
+
   switch (i_mode_year) {
     case 2021:
-      // The 2021 (Afterlife) cyclotron moves in a complete circle, so every LED should be lit as if travelling on that path.
-      // We base this on a 40-increment cycle giving each movement equal time to keep up this appearance of continuous motion.
-      // The "trick" is that we may have less than 40 LED's in the array of pack LED's so we can only update at certain times.
-      // For this we'll use a position indicator when LED's are less than 40, so we know which one needs to be updated.
-      int i_position = -1; // Used to indicate the correct LED offset (negative denotes no change).
-
       for(uint8_t i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           i_cyclotron_led_on_status[i] = true;
@@ -1470,8 +1470,10 @@ void cyclotronFade() {
 
     case 1984:
     case 1989:
+    default:
       if(b_fade_cyclotron_led == true) {
-        for(uint8_t i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
+        uint8_t i_max = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
+        for(uint8_t i = 0; i < i_max; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
             i_cyclotron_led_on_status[i] = true;
             i_cyclotron_led_value[i] = ms_cyclotron_led_fade_in[i].update();
