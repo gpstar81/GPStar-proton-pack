@@ -41,12 +41,12 @@ uint8_t i_cyclotron_leds = 12;
 uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 
 // For a 40 LED NeoPixel ring.
-//uint8_t i_cyclotron_leds = 40;
-//uint8_t i_1984_cyclotron_leds[4] = { 0, 10, 18, 28 };
+//const uint8_t i_cyclotron_leds = 40;
+//const uint8_t i_1984_cyclotron_leds[4] = { 0, 10, 18, 28 };
 
 // For a 20 LED Frutto Technology cyclotron.
-//uint8_t i_cyclotron_leds = 20;
-//uint8_t i_1984_cyclotron_leds[4] = { 2, 7, 12, 17 };
+//const uint8_t i_cyclotron_leds = 20;
+//const uint8_t i_1984_cyclotron_leds[4] = { 2, 7, 12, 17 };
 
 /*
  * Power Cell LEDs
@@ -80,10 +80,20 @@ bool b_powercell_colour_toggle = true;
  * Cyclotron Lid LED delays.
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
+ * For a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
+ * For stock Haslab LEDs, 15 for i_2021_delay is good.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
 */
 const unsigned int i_1984_delay = 1050;
-const unsigned int i_2021_delay = 10; // Universally sets the Afterlife delay to 10ms regardless of LED count.
+unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology cyclotron, and 5 for a 40 LED NeoPixel ring.
+
+/*
+  * Afterlife mode (2021) only.
+  * When set to true, using LEDs that are not a ring will simulate a ring rotation for the Cyclotron LEDs in the lid.
+  * For example, for the 12 or 15 LED options, extra LEDs will be simulated to provide a delay/spinning effect. 
+  * The 40 LED ring option is unaffected as it is a true ring.
+*/
+bool b_cyclotron_simulate_ring = true;
 
 /*
  * Power Cell delays in milliseconds.
@@ -242,7 +252,7 @@ const bool b_onboard_amp_enabled = false;
  * If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true.
  * If false, the light stay solid white during overheat.
 */
-const bool b_overheat_strobe = false;
+const bool b_overheat_strobe = true;
 
 /*
  * When the pack is overheating, the cyclotron and powercell lights will ramp off when set to true.

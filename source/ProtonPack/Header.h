@@ -50,7 +50,7 @@
  /* 
  * Total number of LEDs in the Proton Pack
  * PowerCell and Cyclotron Lid LEDs + optional n_filter NeoPixel.
- * 25 LEDs in the stock Haslab kit: 13 in the Powercell and 12 in the Cyclotron lid. 
+ * 25 LEDs in the stock Haslab kit. 13 in the Powercell and 12 in the Cyclotron lid. 
  * 7 additional (32 in total) for a NeoPixel jewel that you can put into the n-filter (optional). 
  * This jewel chains off cyclotron lens #4 in the lid (top left lens).
  */
@@ -69,6 +69,11 @@ uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_
  * This gets updated by the system if the wand changes the LED count in the EEPROM menu system.
 */
 uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
+
+/*
+ * The Haslab Cyclotron Lid has 12 LEDs.
+*/
+#define HASLAB_CYCLOTRON_LED_COUNT 12
 
 /*
  * Proton pack Power Cell and Cyclotron lid led pin.
@@ -152,9 +157,11 @@ bool i_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false,
 rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 rampInt ms_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
 uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-// For the Afterlife cyclotron pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
-int8_t i_cyclotron_12led_position[OUTER_CYCLOTRON_LED_MAX] = { 0, 1, 2, -1, -1, -1, -1, -1, -1, -1, 3, 4, 5, -1, -1, -1, -1, -1, -1, -1, 6, 7, 8, -1, -1, -1, -1, -1, -1, -1, 9, 10, 11, -1, -1, -1, -1, -1, -1, -1 };
-int8_t i_cyclotron_20led_position[OUTER_CYCLOTRON_LED_MAX] = { 0, 1, 2, 3, 4, -1, -1, -1, -1, -1, 5, 6, 7, 8, 9, -1, -1, -1, -1, -1, 10, 11, 12, 13, 14, -1, -1, -1, -1, -1, 15, 16, 17, 18, 19, -1, -1, -1, -1, -1 };
+
+// For the Afterlife cyclotron matrix pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
+const uint8_t i_cyclotron_12led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 0, 0, 0, 0, 0, 0, 0 };
+const uint8_t i_cyclotron_20led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 16, 17, 18, 19, 20, 0, 0, 0, 0, 0 };
+const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40 };
 
 /*
  * Inner cyclotron NeoPixel ring ramp control.
