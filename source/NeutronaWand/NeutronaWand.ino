@@ -524,6 +524,11 @@ void mainLoop() {
               // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
               wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
             }
+
+            // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
+            if(switchMode() == true) {
+              wandSerialSend(W_CYCLOTRON_SIMULATE_RING_TOGGLE);
+            }
           break;
 
           // Intensify: Enable or disable Proton Stream Impact Effects.
@@ -535,7 +540,7 @@ void mainLoop() {
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
             }
 
-            // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
+            // Barrel Wing Button: Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
             if(switchMode() == true) {
               if(b_extra_pack_sounds == true) {
                 b_extra_pack_sounds = false;
@@ -5873,6 +5878,20 @@ void checkPack() {
               stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
 
               playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
+            break;
+
+            case P_CYCLOTRON_SIMULATE_RING_DISABLED:
+              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
+              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
+              
+              playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
+            break;
+
+            case P_CYCLOTRON_SIMULATE_RING_ENABLED:
+              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
+              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
+
+              playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
             break;
 
             case P_PROTON_MODE:

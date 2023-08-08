@@ -203,7 +203,7 @@ To access the EEPROM Configuration Menu, hold the `Intensify Button` down and to
 | <p align="center">5</p> | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROM.<br><br>***The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time the battery power is turn back on.***| Save the current settings to the Proton Pack and Neutron Wand EEPROM. |
 | <p align="center">4</p> | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes to set as your default.<sup>3</sup> | <p align="center">-</p> |
 | <p align="center">3</p> | Overheating | Enable or Disable overheating. | <p align="center">-</p> |
-| <p align="center">2</p> | Cyclotron&nbsp;LED&nbsp;Control | Set from between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. | <p align="center">-</p> |
+| <p align="center">2</p> | Cyclotron&nbsp;LED&nbsp;Control | Set from between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. | Enable or Disable the Cyclotron Lid Ring Simulation for non ring LED setups in Afterlife (2021) mode. |
 | <p align="center">1</p> | Sound Effects | Enable or Disable the Proton Stream impact sound effects. | Enable or disable extra Neutrona Wand sound effects to be played by the Proton Pack. |
 
 <sup>3</sup> Choose between Video Game and Cross the Stream (CTS) operation modes. Cross the Streams modes is like what you see in the films.

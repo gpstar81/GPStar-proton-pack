@@ -35,6 +35,7 @@
  *  i_1984_cyclotron_leds is the middle led aligned in each lens window. (0 is the first LED). Adjust this setting if you use different LED setups and installations.
  *  Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as cyclotron lens #1 and work your way clockwise)
  *
+ *  Any settings saved in the EEPROM menu will overwrite these settings.
 */ 
 // For stock Haslab LEDs
 uint8_t i_cyclotron_leds = 12;
@@ -53,6 +54,7 @@ uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
  * The number of Power Cell leds. Stock Haslab has 13. 
  * If you are installing a Frutto Technology PowerCell which has 15 LEDs, then change this to 15.
  * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
+ * Any settings saved in the EEPROM menu will overwrite these settings.
 */
 uint8_t i_powercell_leds = 13;
 
@@ -83,9 +85,19 @@ bool b_powercell_colour_toggle = true;
  * For a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
  * For stock Haslab LEDs, 15 for i_2021_delay is good.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
+ * Any settings saved in the EEPROM menu will overwrite these settings.
 */
 const unsigned int i_1984_delay = 1050;
-unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology cyclotron, and 5 for a 40 LED NeoPixel ring.
+unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology Cyclotron, and 5 for a 40 LED NeoPixel ring.
+
+/*
+  * Afterlife mode (2021) only.
+  * When set to true, using LEDs that are not a ring will simulate a ring rotation for the Cyclotron LEDs in the lid.
+  * For example, for the 12 or 15 LED options, extra LEDs will be simulated to provide a delay/spinning effect. 
+  * The 40 LED ring option is unaffected as it is a true ring.
+  * This setting will be overriden by the EEPROM settings.
+*/
+bool b_cyclotron_simulate_ring = true;
 
 /*
  * Power Cell delays in milliseconds.
@@ -94,6 +106,7 @@ unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for th
  * For the stock Haslab powercell with 13 leds, 1984 at 75 and 2021 at 40 is a good setting.
  * For a Power Cell with 15 LEDS such as from Frutto Technology, 1984 at 60 and 2021 at 34 is a good setting.
  * If you add more powercell leds, it is suggested to lower the values a little bit.
+ * Any settings saved in the EEPROM menu will overwrite these settings.
 */
 uint8_t i_powercell_delay_1984 = 75;
 uint8_t i_powercell_delay_2021 = 40;
@@ -111,6 +124,7 @@ uint8_t i_inner_cyclotron_num_leds = 35;
 /*
  * If you use GRB (green/red/blue) instead of RGB (red/green/blue) addressable LEDs for your inner cyclotron leds, then set to true.
  * Default is false.
+ * Any settings saved in the EEPROM menu will overwrite these settings.
 */
 bool b_grb_cyclotron = false;
 
@@ -167,7 +181,7 @@ const int MINIMUM_VOLUME = -50;
 const uint8_t VOLUME_MULTIPLIER = 2;
 
 /*
- * Percentage increments of the music volume change..
+ * Percentage increments of the music volume change.
 */
 const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 
@@ -244,7 +258,7 @@ const bool b_onboard_amp_enabled = false;
  * If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true.
  * If false, the light stay solid white during overheat.
 */
-const bool b_overheat_strobe = false;
+const bool b_overheat_strobe = true;
 
 /*
  * When the pack is overheating, the cyclotron and powercell lights will ramp off when set to true.
@@ -357,6 +371,7 @@ const bool b_eeprom = true;
  * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the Haslab Cyclotron Lid.
  * When using 12 LEDs for the Cycloton Lid, the system will default it to always red.
  * Setting this to true will override it and allow CHSV colours to be applied to Cyclotron LIDs with 12 LEDs.
+ * Note that a NeoPixel Jewel will use the CHSV colour space which can make the default Haslab Cyclotron LEDs flicker when the jewel n-filter vent-light strobes.
 */
 const bool b_cyclotron_haslab_chsv_colour_change = false;
 
