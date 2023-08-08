@@ -39,6 +39,7 @@ enum colours {
   C_MINT,
   C_AQUA,
   C_BLUE,
+  C_LIGHT_BLUE,
   C_PURPLE,
   C_REDGREEN,
   C_ORANGEPURPLE,
@@ -52,13 +53,13 @@ int getBrightness(uint8_t i_percent = 100) {
   if(i_percent > 100) {
     i_percent = 100;
   }
-
   return (int) ((255 * i_percent) / 100);
 }
 
 // Special values for colour cycles: current hue (colour) and when to change colour.
-uint8_t i_curr_colour = 0;
-uint8_t i_count = 0;
+// This must match the number of device ENUM entries (though that is rarely changed).
+uint8_t i_curr_colour[4] = { 0, 0, 0, 0 };
+uint8_t i_count[4] = { 0, 0, 0, 0 };
 
 uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) {
   if(b_toggle == true) {
@@ -101,7 +102,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case CYCLOTRON_INNER:
             case VENT_LIGHT:
             default:
-              return C_BLUE;
+              return C_LIGHT_BLUE;
             break;   
           }  
         break;
@@ -120,10 +121,10 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
 
         case VENTING:
           switch(i_device) {
+            case VENT_LIGHT:
             case POWERCELL:
             case CYCLOTRON_OUTER:
             case CYCLOTRON_INNER:
-            case VENT_LIGHT:
             default:
               return C_RED;
             break;   
@@ -167,14 +168,14 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
   }
 }
 
-CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255, uint8_t i_cycle = 2) {
+CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255, uint8_t i_cycle = 2) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
   // Note that for colour cycles, i_cycle indicates how often to change colour.
 
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
   switch(i_colour) {
     case C_HASLAB:
-      return CHSV(255, 255, i_brightness);
+      return CHSV(100, 0, i_brightness); // Just "on", which is white.
     break;
 
     case C_BLACK:
@@ -229,6 +230,10 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       return CHSV(128, i_saturation, i_brightness);
     break;
 
+    case C_LIGHT_BLUE:
+      return CHSV(145, i_saturation, i_brightness);
+    break;
+
     case C_BLUE:
       return CHSV(160, i_saturation, i_brightness);
     break;
@@ -239,62 +244,62 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
     case C_REDGREEN:
       // Alternate between red (0) and green (96).
-      if(i_curr_colour != 0 && i_curr_colour != 96) {
-        i_curr_colour = 0; // Reset if out of range.
+      if(i_curr_colour[i_device] != 0 && i_curr_colour[i_device] != 96) {
+        i_curr_colour[i_device] = 0; // Reset if out of range.
       }
 
-      i_count++;
+      i_count[i_device]++;
 
-      if(i_count % i_cycle == 0) {
-        if(i_curr_colour == 0) {
-          i_curr_colour = 96;
+      if(i_count[i_device] % i_cycle == 0) {
+        if(i_curr_colour[i_device] == 0) {
+          i_curr_colour[i_device] = 96;
         }
         else {
-          i_curr_colour = 0;
+          i_curr_colour[i_device] = 0;
         }
       }
 
-      return CHSV(i_curr_colour, 255, i_brightness);
+      return CHSV(i_curr_colour[i_device], 255, i_brightness);
     break;
 
     case C_ORANGEPURPLE:
       // Alternate between orange (32) and purple (192).
-      if(i_curr_colour != 32 && i_curr_colour != 192) {
-        i_curr_colour = 32; // Reset if out of range.
+      if(i_curr_colour[i_device] != 32 && i_curr_colour[i_device] != 192) {
+        i_curr_colour[i_device] = 32; // Reset if out of range.
       }
 
-      i_count++;
+      i_count[i_device]++;
 
-      if(i_count % i_cycle == 0) {
-        if(i_curr_colour == 32) {
-          i_curr_colour = 192;
+      if(i_count[i_device] % i_cycle == 0) {
+        if(i_curr_colour[i_device] == 32) {
+          i_curr_colour[i_device] = 192;
         } 
         else {
-          i_curr_colour = 32;
+          i_curr_colour[i_device] = 32;
         }
       }
-      return CHSV(i_curr_colour, 255, i_brightness);
+      return CHSV(i_curr_colour[i_device], 255, i_brightness);
     break;
 
     case C_PASTEL:
       // Cycle through all colours (0-255) at half saturation.
-      i_count++;
+      i_count[i_device]++;
 
-      if(i_count % i_cycle == 0) {
-        i_curr_colour = (i_curr_colour + 5) % 255;
+      if(i_count[i_device] % i_cycle == 0) {
+        i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
       }
 
-      return CHSV(i_curr_colour, 128, i_brightness);
+      return CHSV(i_curr_colour[i_device], 128, i_brightness);
     break;
 
     case C_RAINBOW:
       // Cycle through all colours (0-255) at full saturation.
-      i_count++;
-      if(i_count % i_cycle == 0) {
-        i_curr_colour = (i_curr_colour + 5) % 255;
+      i_count[i_device]++;
+      if(i_count[i_device] % i_cycle == 0) {
+        i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
       }
 
-      return CHSV(i_curr_colour, 255, i_brightness);
+      return CHSV(i_curr_colour[i_device], 255, i_brightness);
     break;
 
     default:
@@ -303,24 +308,26 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
   }
 }
 
-CRGB getHueAsRGB(uint8_t i_colour, uint8_t i_brightness = 255, bool b_grb = false) {
+CRGB getHueAsRGB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, bool b_grb = false) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
 
   // Get the initial colour using the HSV scheme.
-  CHSV hsv = getHue(i_colour, i_brightness);
-  CRGB rgb;
+  CHSV hsv = getHue(i_device, i_colour, i_brightness);
 
-  hsv2rgb_rainbow(hsv, rgb); // Convert from HSV to RGB.
+  // Convert from HSV to RGB.
+  CRGB rgb; // RGB Array as { r, g, b }
+  hsv2rgb_rainbow(hsv, rgb);
 
   if(b_grb) {
-    // Swap red/green values.
+    // Swap red/green values before returning.
     return CRGB(rgb[1], rgb[0], rgb[2]);
   } 
   else {
-    return rgb; // Return RGB.
+    return rgb; // Return RGB object.
   } 
 }
 
-CRGB getHueAsGRB(uint8_t i_colour, uint8_t i_brightness = 255) {
-  return getHueAsRGB(i_colour, i_brightness, true);
+CRGB getHueAsGRB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255) {
+  // Forward to getHueAsRGB() with the flag set for GRB color swap.
+  return getHueAsRGB(i_device, i_colour, i_brightness, true);
 }

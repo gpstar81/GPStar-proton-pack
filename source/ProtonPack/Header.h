@@ -404,6 +404,7 @@ struct objEEPROM {
 struct objConfigEEPROM {
   uint8_t stream_effects;
   uint8_t three_led;
+  uint8_t simulate_ring;
 };
 
 /*
