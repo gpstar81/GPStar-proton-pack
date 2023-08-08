@@ -2634,7 +2634,7 @@ void wandFiring() {
 
   switch(FIRING_MODE) {
     case PROTON:
-    case SPECTRAL:
+    default:
       if(i_mode_year == 1989 && b_firing_intensify == true) {
         int8_t i_v_fire_start = i_volume_effects - 10;
 
@@ -2761,7 +2761,7 @@ void wandStoppedFiring() {
   if(b_wand_firing == true) {
     switch(FIRING_MODE) {
       case PROTON:
-      case SPECTRAL:
+      default:
         // Play different firing end stream sound depending on how long we have been firing for.
         if(ms_firing_length_timer.remaining() < 5000) {
           // Short tail end.
@@ -2823,7 +2823,7 @@ void wandStopFiringSounds() {
   // Firing sounds.
   switch(FIRING_MODE) {
     case PROTON:
-    case SPECTRAL:
+    default:
       if(i_mode_year == 1989) {
         stopEffect(S_GB2_FIRE_START);
       }
@@ -3621,6 +3621,27 @@ void checkWand() {
             case W_SPECTRAL_MODE:
               // Proton mode
               FIRING_MODE = SPECTRAL;
+              playEffect(S_CLICK);
+
+              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+                playEffect(S_FIRE_START_SPARK);
+              }
+
+              if(b_cyclotron_colour_toggle == true) {
+                // Reset the Cyclotron LED colours.
+                cyclotronColourReset();
+              }
+
+              if(b_powercell_colour_toggle == true) {
+                // Reset the Power Cell colours.
+                b_powercell_updating = true;
+                powercellDraw();
+              }
+            break;
+
+            case W_HOLIDAY_MODE:
+              // Proton mode
+              FIRING_MODE = HOLIDAY;
               playEffect(S_CLICK);
 
               if(PACK_STATUS == MODE_ON && b_wand_on == true) {
@@ -4924,6 +4945,10 @@ void checkWand() {
 
               case SPECTRAL:
                 packSerialSend(P_SPECTRAL_MODE);
+              break;
+
+              case HOLIDAY:
+                packSerialSend(P_HOLIDAY_MODE);
               break;
 
               case VENTING:

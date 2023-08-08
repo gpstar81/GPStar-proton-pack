@@ -131,6 +131,18 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
           }  
         break;
 
+        case HOLIDAY:
+          switch(i_device) {
+            case POWERCELL:
+            case CYCLOTRON_OUTER:
+            case CYCLOTRON_INNER:
+            case VENT_LIGHT:
+            default:
+              return C_REDGREEN;
+            break;   
+          }  
+        break;
+
         case VENTING:
           switch(i_device) {
             case VENT_LIGHT:

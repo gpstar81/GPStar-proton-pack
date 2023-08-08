@@ -104,9 +104,10 @@ bool b_cross_the_streams = false;
 bool b_cross_the_streams_mix = false;
 
 /*
- * When set to true, allows selection of a "spectral" firing mode after the standard video game modes.
+ * When set to true, allows selection of special firing modes after the standard video game modes.
 */
 bool b_spectral_mode_enabled = true;
+bool b_holiday_mode_enabled = true;
 
 /*
  * When enabled, the Neutrona Wand will vibrate at all times.
