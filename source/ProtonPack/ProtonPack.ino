@@ -86,7 +86,7 @@ void setup() {
 
   // Inner Cyclotron LEDs.
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
-  //FastLED.setMaxPowerInVoltsAndMilliamps(5, 300);  // Limit draw to 500mA at 5v of power. Enabling this can cause some flickering of the LEDs.
+  //FastLED.setMaxPowerInVoltsAndMilliamps(5, 500);  // Limit draw to 500mA at 5v of power. Enabling this can cause some flickering of the LEDs.
 
   // Cyclotron Switch Panel LEDs
   pinMode(cyclotron_sw_plate_led_r1, OUTPUT);

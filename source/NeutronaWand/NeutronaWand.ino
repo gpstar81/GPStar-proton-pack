@@ -6022,7 +6022,7 @@ void checkPack() {
                 stopEffect(S_VOICE_POWERCELL_15);
                 stopEffect(S_VOICE_POWERCELL_13);
 
-                playEffect(S_VOICE_POWERCELL_13);
+                playEffect(S_VOICE_POWERCELL_15);
               #endif
             break;
 
@@ -6031,7 +6031,7 @@ void checkPack() {
                 stopEffect(S_VOICE_POWERCELL_15);
                 stopEffect(S_VOICE_POWERCELL_13);
 
-                playEffect(S_VOICE_POWERCELL_15);
+                playEffect(S_VOICE_POWERCELL_13);
               #endif
             break;
 
