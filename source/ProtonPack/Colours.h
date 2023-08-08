@@ -18,7 +18,7 @@
  */
 
 /**
- * colours are based on the RGB pattern; for GRB the Red/Green values should be switched.
+ * Colours are based on the RGB pattern; for GRB the Red/Green values should be switched.
  * Brightness is based on varying the intensity of each (0-255) using a relative value.
  *
  * However, colours based on Hue use a colour degree, a Saturation, and Value (brightness).
@@ -38,8 +38,8 @@ enum colours {
   C_GREEN,
   C_MINT,
   C_AQUA,
-  C_BLUE,
   C_LIGHT_BLUE,
+  C_BLUE,
   C_PURPLE,
   C_REDGREEN,
   C_ORANGEPURPLE,
@@ -115,6 +115,18 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case VENT_LIGHT:
             default:
               return C_ORANGE;
+            break;   
+          }  
+        break;
+
+        case SPECTRAL:
+          switch(i_device) {
+            case POWERCELL:
+            case CYCLOTRON_OUTER:
+            case CYCLOTRON_INNER:
+            case VENT_LIGHT:
+            default:
+              return C_RAINBOW;
             break;   
           }  
         break;

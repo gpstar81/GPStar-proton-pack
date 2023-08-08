@@ -97,11 +97,16 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 bool b_cross_the_streams = false;
 
 /*
-  * When set to true, to cross the streams you must be holding down both Intensify and the alternate firing button at the same time.
-  * Releasing one or the other button will stop cross the streams but continue firing a regular proton stream.
-  * This can be enabled or disabled from the Neutrona wand sub menu system.
+ * When set to true, to cross the streams you must be holding down both Intensify and the alternate firing button at the same time.
+ * Releasing one or the other button will stop cross the streams but continue firing a regular proton stream.
+ * This can be enabled or disabled from the Neutrona wand sub menu system.
 */
 bool b_cross_the_streams_mix = false;
+
+/*
+ * When set to true, allows selection of a "spectral" firing mode after the standard video game modes.
+*/
+bool b_spectral_mode_enabled = true;
 
 /*
  * When enabled, the Neutrona Wand will vibrate at all times.

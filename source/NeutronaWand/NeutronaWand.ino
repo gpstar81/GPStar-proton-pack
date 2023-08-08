@@ -1117,7 +1117,7 @@ void mainLoop() {
 
   if(ms_firing_lights_end.justFinished()) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      fireStreamEnd(getHue(C_BLACK));
+      fireStreamEnd(getHueAsRGB(C_BLACK));
     #else
       fireStreamEnd(0,0,0);
     #endif
@@ -1758,6 +1758,15 @@ void checkSwitches() {
               FIRING_MODE = MESON;
             }
             else if(FIRING_MODE == MESON) {
+              // Optionally insert the user mode switch, if enabled.
+              if(b_spectral_mode_enabled == true) {
+                FIRING_MODE == SPECTRAL;
+              }
+              else {
+                FIRING_MODE = VENTING;
+              }
+            }
+            else if(FIRING_MODE == SPECTRAL) {
               FIRING_MODE = VENTING;
             }
             else if(FIRING_MODE == VENTING) {
@@ -1812,6 +1821,14 @@ void checkSwitches() {
 
                 // The the pack we are in venting mode.
                 wandSerialSend(W_VENTING_MODE);
+              break;
+
+              case SPECTRAL:
+                WAND_ACTION_STATUS = ACTION_IDLE;
+                wandHeatUp();
+
+                // Tell the pack we are in user mode.
+                wandSerialSend(W_SPECTRAL_MODE);
               break;
 
               case MESON:
@@ -2364,6 +2381,7 @@ void modeFireStartSounds() {
 
   switch(FIRING_MODE) {
     case PROTON:
+    case SPECTRAL:
         switch(i_power_mode) {
           case 1 ... 4:
             if(b_firing_intensify == true) {
@@ -2477,6 +2495,7 @@ void modeFireStart() {
   // Stop all firing sounds first.
   switch(FIRING_MODE) {
     case PROTON:
+    case SPECTRAL:
       if(year_mode == 1989) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
@@ -2581,6 +2600,7 @@ void modeFireStopSounds() {
 
  switch(FIRING_MODE) {
     case PROTON:
+    case SPECTRAL:
       playEffect(S_FIRING_END_GUN);
     break;
 
@@ -2685,6 +2705,7 @@ void modeFireStop() {
   // Stop all other firing sounds.
   switch(FIRING_MODE) {
     case PROTON:
+    case SPECTRAL:
       if(year_mode == 1989) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
@@ -3032,6 +3053,16 @@ void modeFiring() {
       #endif
     break;
 
+    case SPECTRAL:
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        fireStreamStart(getHueAsGRB(C_RAINBOW));
+        fireStream(getHueAsGRB(C_RAINBOW));
+      #else
+        fireStreamStart(200, 200, 20);
+        fireStream(190, 20, 70);
+      #endif
+    break;
+
     case VENTING:
     case SETTINGS:
       // Nothing.
@@ -3063,6 +3094,7 @@ void wandHeatUp() {
 
   switch(FIRING_MODE) {
     case PROTON:
+    case SPECTRAL:
       playEffect(S_FIRE_START_SPARK);
     break;
 
@@ -3124,6 +3156,11 @@ void wandBarrelHeatUp() {
           ms_fast_led.start(i_fast_led_delay);
         break;
 
+        case SPECTRAL:
+          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_RAINBOW, i_heatup_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+
         case VENTING:
         case SETTINGS:
         default:
@@ -3144,9 +3181,14 @@ void wandBarrelHeatUp() {
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
-    
+
         case MESON:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+
+        case SPECTRAL:
+          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
@@ -3185,6 +3227,11 @@ void wandBarrelHeatDown() {
           ms_fast_led.start(i_fast_led_delay);
         break;
 
+        case SPECTRAL:
+          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_RAINBOW, i_heatdown_counter);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+
         case VENTING:
         case SETTINGS:
         default:
@@ -3208,6 +3255,11 @@ void wandBarrelHeatDown() {
     
         case MESON:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+
+        case SPECTRAL:
+          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
@@ -3238,7 +3290,7 @@ void fireStream(int r, int g, int b) {
         case PROTON:
           if(b_firing_cross_streams == true) {
             #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              barrel_leds[i_barrel_light - 1] = getHue(C_WHITE);
+              barrel_leds[i_barrel_light - 1] = getHueAsRGB(C_WHITE);
             #else
               barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
             #endif
@@ -3323,6 +3375,14 @@ void fireStream(int r, int g, int b) {
           #endif
         break;
 
+        case SPECTRAL:
+          #ifdef GPSTAR_NEUTRONA_WAND_PCB
+            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RAINBOW);
+          #else
+            barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
+          #endif
+        break;
+
         case VENTING:
         case SETTINGS:
           // Nothing.
@@ -3360,7 +3420,7 @@ void barrelLightsOff() {
 
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      barrel_leds[i] = getHue(C_BLACK);
+      barrel_leds[i] = getHueAsRGB(C_BLACK);
     #else
       barrel_leds[i] = CRGB(0,0,0);
     #endif
@@ -5248,7 +5308,7 @@ void switchLoops() {
 void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      barrel_leds[i] = getHue(C_BLACK);
+      barrel_leds[i] = getHueAsRGB(C_BLACK);
     #else
       barrel_leds[i] = CRGB(0,0,0);
     #endif
@@ -5290,6 +5350,11 @@ void wandExitMenu() {
     case PROTON:
       // Tell the pack we are in proton mode.
       wandSerialSend(W_PROTON_MODE);
+    break;
+
+    case SPECTRAL:
+      // Tell the pack we are in user mode.
+      wandSerialSend(W_SPECTRAL_MODE);
     break;
 
     case VENTING:
@@ -5926,9 +5991,23 @@ void checkPack() {
               b_cross_the_streams_mix = false;   
             break;
 
+            case P_SPECTRAL_MODE:
+              FIRING_MODE = SPECTRAL;
+              PREV_FIRING_MODE = MESON;
+
+              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              b_cross_the_streams = false;
+              b_cross_the_streams_mix = false;   
+            break;
+
             case P_VENTING_MODE:
               FIRING_MODE = VENTING;
-              PREV_FIRING_MODE = MESON;
+              if(b_spectral_mode_enabled == true) {
+                PREV_FIRING_MODE = SPECTRAL;
+              }
+              else {
+                PREV_FIRING_MODE = MESON;
+              }
 
               // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
               b_cross_the_streams = false;
