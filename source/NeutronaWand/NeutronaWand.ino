@@ -1117,7 +1117,7 @@ void mainLoop() {
 
   if(ms_firing_lights_end.justFinished()) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      fireStreamEnd(getHueAsRGB(C_BLACK));
+      fireStreamEnd(getHueAsGRB(C_BLACK));
     #else
       fireStreamEnd(0,0,0);
     #endif
@@ -1760,7 +1760,7 @@ void checkSwitches() {
             else if(FIRING_MODE == MESON) {
               // Optionally insert the user mode switch, if enabled.
               if(b_spectral_mode_enabled == true) {
-                FIRING_MODE == SPECTRAL;
+                FIRING_MODE = SPECTRAL;
               }
               else {
                 FIRING_MODE = VENTING;
@@ -3058,8 +3058,8 @@ void modeFiring() {
         fireStreamStart(getHueAsGRB(C_RAINBOW));
         fireStream(getHueAsGRB(C_RAINBOW));
       #else
-        fireStreamStart(200, 200, 20);
-        fireStream(190, 20, 70);
+        fireStreamStart(255, 255, 255);
+        fireStream(255, 255, 255);
       #endif
     break;
 
@@ -3290,7 +3290,7 @@ void fireStream(int r, int g, int b) {
         case PROTON:
           if(b_firing_cross_streams == true) {
             #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              barrel_leds[i_barrel_light - 1] = getHueAsRGB(C_WHITE);
+              barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_WHITE);
             #else
               barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
             #endif
@@ -3420,7 +3420,7 @@ void barrelLightsOff() {
 
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      barrel_leds[i] = getHueAsRGB(C_BLACK);
+      barrel_leds[i] = getHueAsGRB(C_BLACK);
     #else
       barrel_leds[i] = CRGB(0,0,0);
     #endif
@@ -5308,7 +5308,7 @@ void switchLoops() {
 void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      barrel_leds[i] = getHueAsRGB(C_BLACK);
+      barrel_leds[i] = getHueAsGRB(C_BLACK);
     #else
       barrel_leds[i] = CRGB(0,0,0);
     #endif
