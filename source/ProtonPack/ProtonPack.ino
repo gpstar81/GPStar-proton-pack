@@ -1666,45 +1666,79 @@ void cyclotron2021(int cDelay) {
     else {
       i_current_ramp_speed = cDelay;
 
-      if(i_cyclotron_multiplier > 1) {
-        cDelay = cDelay / i_cyclotron_multiplier + 6;
+      int t_cDelay = cDelay;
+
+      switch(i_cyclotron_leds) {
+        case OUTER_CYCLOTRON_LED_MAX:
+          if(i_cyclotron_multiplier > 1) {
+            t_cDelay = t_cDelay / i_cyclotron_multiplier + 2;
+          }
+        break;
+
+        case FRUTTO_CYCLOTRON_LED_COUNT:
+          if(i_cyclotron_multiplier > 1) {
+            t_cDelay = t_cDelay - i_cyclotron_multiplier;
+          }          
+        break;
+        
+        case HASLAB_CYCLOTRON_LED_COUNT:
+        default:
+          if(i_cyclotron_multiplier > 1) {
+            switch(i_cyclotron_multiplier) {
+              case 6:
+                t_cDelay = 2;
+              break;
+
+              case 5:
+                t_cDelay = t_cDelay / i_cyclotron_multiplier + 3;
+              break;
+
+              case 4:
+              case 3:
+              case 2:
+              default:
+                t_cDelay = t_cDelay / i_cyclotron_multiplier + 6;
+              break;          
+            }            
+          }
+        break;
       }
 
       if(b_cyclotron_simulate_ring == true) {
         switch(i_cyclotron_leds) {
           case OUTER_CYCLOTRON_LED_MAX:
-            ms_cyclotron.start(cDelay);
+            ms_cyclotron.start(t_cDelay);
           break;
 
           case FRUTTO_CYCLOTRON_LED_COUNT:
             if(i_cyclotron_matrix_led > 0) {
-              ms_cyclotron.start(cDelay);
+              ms_cyclotron.start(t_cDelay);
             }
             else if(i_current_ramp_speed > i_2021_delay) {
-              ms_cyclotron.start(cDelay - i_2021_delay);
+              ms_cyclotron.start(t_cDelay - i_2021_delay);
             }
             else {
-              ms_cyclotron.start(cDelay - cDelay);
+              ms_cyclotron.start(t_cDelay - t_cDelay);
             }
           break;
           
           case HASLAB_CYCLOTRON_LED_COUNT:
           default:
             if(i_cyclotron_matrix_led > 0) {
-              ms_cyclotron.start(cDelay);
+              ms_cyclotron.start(t_cDelay);
             }
             else if(i_current_ramp_speed > i_2021_delay) {
               // This will simulate the fake leds during overheat and ribbon cable alarms.
-              ms_cyclotron.start(cDelay - i_2021_delay);
+              ms_cyclotron.start(t_cDelay - i_2021_delay);
             }
             else {
-              ms_cyclotron.start(cDelay - cDelay);
+              ms_cyclotron.start(t_cDelay - t_cDelay);
             }
           break;
         }
       }
       else {
-        ms_cyclotron.start(cDelay);
+        ms_cyclotron.start(t_cDelay);
       }
     }
 
@@ -1712,13 +1746,30 @@ void cyclotron2021(int cDelay) {
       vibrationPack(i_vibration_level);
     }
 
-    if(i_cyclotron_multiplier > 1) {
-      cDelay = cDelay / i_cyclotron_multiplier + 6;
-    }
-    else {
-      cDelay = cDelay / i_cyclotron_multiplier;
+    switch(i_cyclotron_leds) {
+      case OUTER_CYCLOTRON_LED_MAX:
+      case FRUTTO_CYCLOTRON_LED_COUNT:
+        if(i_cyclotron_multiplier > 1) {
+          cDelay = cDelay - i_cyclotron_multiplier;
+        }
+        else {
+          cDelay = cDelay / i_cyclotron_multiplier;
 
-      cDelay = cDelay * 2;
+          cDelay = cDelay * 3;
+        }
+      break;
+      
+      case HASLAB_CYCLOTRON_LED_COUNT:
+      default:
+        if(i_cyclotron_multiplier > 1) {
+          cDelay - i_cyclotron_multiplier;
+        }
+        else {
+          cDelay = cDelay / i_cyclotron_multiplier;
+
+          cDelay = cDelay * 2;
+        }
+      break;
     }
 
     if(cDelay < 1) {
@@ -1748,7 +1799,7 @@ void cyclotron2021(int cDelay) {
               
               if(i_cyclotron_matrix_led == 0) {
                 for(uint8_t i = i_led_cyclotron; i < OUTER_CYCLOTRON_LED_MAX; i++) {
-                  if(i_cyclotron_12led_matrix[i - cyclotron_led_start] > 0) {
+                  if(i_cyclotron_20led_matrix[i - cyclotron_led_start] > 0) {
                     i_led_cyclotron = i;
                     break;
                   }
@@ -1801,7 +1852,7 @@ void cyclotron2021(int cDelay) {
               
               if(i_cyclotron_matrix_led == 0) {
                 for(uint8_t i = i_led_cyclotron; i > cyclotron_led_start; i--) {
-                  if(i_cyclotron_12led_matrix[i - cyclotron_led_start] > 0) {
+                  if(i_cyclotron_20led_matrix[i - cyclotron_led_start] > 0) {
                     i_led_cyclotron = i;
                     break;
                   }
@@ -5179,6 +5230,24 @@ void readEEPROM() {
         b_cyclotron_simulate_ring = false;
       }
     }
+
+    if(obj_config_eeprom.cyclotron_direction > 0 && obj_config_eeprom.cyclotron_direction != 255) {
+      if(obj_config_eeprom.cyclotron_direction > 1) {
+        b_clockwise = true;
+      }
+      else {
+        b_clockwise = false;
+      }
+    }
+
+    if(obj_config_eeprom.smoke_setting > 0 && obj_config_eeprom.smoke_setting != 255) {
+      if(obj_config_eeprom.smoke_setting > 1) {
+        b_smoke_enabled = true;
+      }
+      else {
+        b_smoke_enabled = false;
+      }
+    }
   }
 }
 
@@ -5202,6 +5271,8 @@ void saveConfigEEPROM() {
   uint8_t i_single_led = 2;
   uint8_t i_proton_stream_effects = 2;
   uint8_t i_simulate_ring = 2;
+  uint8_t i_cyclotron_direction = 2;
+  uint8_t i_smoke_settings = 2;
 
   if(b_cyclotron_single_led != true) {
     i_single_led = 1;
@@ -5215,12 +5286,22 @@ void saveConfigEEPROM() {
     i_simulate_ring = 1;
   }
 
+  if(b_clockwise != true) {
+    i_cyclotron_direction = 1;
+  }
+
+  if(b_smoke_enabled != true) {
+    i_smoke_settings = 1;
+  }
+
   unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
 
   objConfigEEPROM obj_eeprom = {
     i_proton_stream_effects,
     i_single_led,
-    i_simulate_ring
+    i_simulate_ring,
+    i_cyclotron_direction,
+    i_smoke_settings
   };
 
   // Save to the EEPROM.
