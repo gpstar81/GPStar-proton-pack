@@ -1700,7 +1700,6 @@ void cyclotron2021(int cDelay) {
                 t_cDelay = t_cDelay / i_cyclotron_multiplier + 6;
               break;          
             }            
-            //t_cDelay = t_cDelay / i_cyclotron_multiplier + 6;
           }
         break;
       }
@@ -1763,7 +1762,6 @@ void cyclotron2021(int cDelay) {
       case HASLAB_CYCLOTRON_LED_COUNT:
       default:
         if(i_cyclotron_multiplier > 1) {
-          //cDelay = cDelay / i_cyclotron_multiplier + 6;
           cDelay - i_cyclotron_multiplier;
         }
         else {
