@@ -1376,7 +1376,18 @@ void cyclotronFade() {
           i_cyclotron_led_on_status[i] = false;
 
           ms_cyclotron_led_fade_out[i].go(i_new_brightness);
-          ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed, CIRCULAR_OUT);
+
+          switch(i_cyclotron_leds) {
+            case OUTER_CYCLOTRON_LED_MAX:
+            case FRUTTO_CYCLOTRON_LED_COUNT:
+              ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed * 3, CIRCULAR_OUT);
+            break;
+
+            case HASLAB_CYCLOTRON_LED_COUNT:
+            default:
+              ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed * 2, CIRCULAR_OUT);
+            break;
+          }
 
           if(b_cyclotron_simulate_ring == true) {
             switch(i_cyclotron_leds) {
