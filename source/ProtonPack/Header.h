@@ -409,6 +409,8 @@ struct objConfigEEPROM {
   uint8_t stream_effects;
   uint8_t three_led;
   uint8_t simulate_ring;
+  uint8_t cyclotron_direction;
+  uint8_t smoke_setting;
 };
 
 /*

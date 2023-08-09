@@ -499,24 +499,37 @@ void mainLoop() {
           break;
 
           // Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
+          // Barrel Wing Switch: Change the Cyclotron direction.
           case 4:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
 
               toggleWandModes();
             }
+            
+            if(switchMode() == true) {
+              // Tell the Proton Pack to change the cyclotron rotation direction.
+              wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
+            }
           break;
 
           // Intensify: Enable or Disable overheating settings.
+          // Barrel Wing Switch: Enable or disable smoke.
           case 3:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
               
               toggleOverHeating();
             }
+            
+            if(switchMode() == true) {
+              // Enable or disable smoke.
+              wandSerialSend(W_SMOKE_TOGGLE);
+            }
           break;
 
           // Intensify: Enable or disable 3 LEDs for the Cyclotron in 1984/1989 modes.
+          // Barrel Wing Switch: Enable the simulation of a ring for the Cyclotron lid.
           case 2:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -532,6 +545,7 @@ void mainLoop() {
           break;
 
           // Intensify: Enable or disable Proton Stream Impact Effects.
+          // Barrel Wing Switch: Enable or disable extra Neutrona Wand Sounds.
           case 1:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -1758,6 +1772,7 @@ void checkSwitches() {
               FIRING_MODE = MESON;
             }
             else if(FIRING_MODE == MESON) {
+              // Conditional mode advancement
               if(b_spectral_mode_enabled == true) {
                 FIRING_MODE = SPECTRAL;
               }
@@ -1769,6 +1784,7 @@ void checkSwitches() {
               }
             }
             else if(FIRING_MODE == SPECTRAL) {
+              // Conditional mode advancement
               if(b_holiday_mode_enabled == true) {
                 FIRING_MODE = HOLIDAY;
               }

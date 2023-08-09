@@ -209,6 +209,7 @@ uint8_t i_1984_inner_delay = 9;
  * Set to true to have your Cyclotron spin clockwise. (default)
  * This can be controlled by an optional switch on pin 29 and also from the Neutrona wand sub menu system.
  * Set to false to be counter clockwise.
+ * This can be override by whatever value is stored in the EEPROM.
 */
 bool b_clockwise = true;
 
@@ -277,8 +278,8 @@ bool b_overheat_sync_to_fan = false;
 
 /*
  * Enable or disable overall smoke settings.
- * This can be toggled with a switch on PIN 37. This can also be controlled from
-the Neutrona wand sub menu system.
+ * This can be toggled with a switch on PIN 37. This can also be controlled from the Neutrona wand sub menu system.
+ * This can be overridden by whatever value is stored in the EEPROM.
  */
 bool b_smoke_enabled = true;
 

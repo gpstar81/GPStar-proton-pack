@@ -166,7 +166,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       if(i_count % i_cycle == 0) {
         if(i_curr_colour == 32) {
           i_curr_colour = 192;
-        } 
+        }
         else {
           i_curr_colour = 32;
         }
