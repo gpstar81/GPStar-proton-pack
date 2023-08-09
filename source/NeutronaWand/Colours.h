@@ -61,9 +61,11 @@ int getBrightness(uint8_t i_percent = 100) {
 uint8_t i_curr_colour = 0;
 uint8_t i_count = 0;
 
-CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255, uint8_t i_cycle = 2) {
+CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
-  // Note that for colour cycles, i_cycle indicates how often to change colour.
+
+  // For colour cycles, this indicates how often to change colour.
+  uint8_t i_cycle = 2;
 
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
   switch(i_colour) {

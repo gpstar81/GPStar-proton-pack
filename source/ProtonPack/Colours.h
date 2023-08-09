@@ -192,9 +192,19 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
   }
 }
 
-CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255, uint8_t i_cycle = 2) {
+CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
-  // Note that for colour cycles, i_cycle indicates how often to change colour.
+
+  // For colour cycles, i_cycle indicates how often to change colour.
+  // This is device-dependent in order to provide a noticeable change.
+  uint8_t i_cycle = 2;
+
+  switch(i_device){
+    case CYCLOTRON_OUTER:
+    case CYCLOTRON_INNER:
+      i_cycle = 4;
+    break;
+  }
 
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
   switch(i_colour) {
