@@ -302,10 +302,14 @@ bool b_vent_sounds; // A flag for playing smoke and vent sounds.
 bool b_vent_light_on = false; // To know if the light is on or off.
 
 /* 
- *  Wand communication
+ *  Wand Firing Modes + Settings
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, VENTING, SETTINGS };
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
+
+/*
+ *  Wand Status
+ */
 bool b_wand_firing = false;
 bool b_firing_alt = false;
 bool b_firing_intensify = false;

@@ -38,6 +38,7 @@ enum colours {
   C_GREEN,
   C_MINT,
   C_AQUA,
+  C_LIGHT_BLUE,
   C_BLUE,
   C_PURPLE,
   C_REDGREEN,
@@ -47,27 +48,29 @@ enum colours {
   C_HASLAB
 };
 
-int getBrightness(uint8_t i_percent = 100){
+int getBrightness(uint8_t i_percent = 100) {
   // Brightness here is a percentage, to be convered to a range 0-255.
-  if (i_percent > 100) {
+  if(i_percent > 100) {
     i_percent = 100;
   }
-
   return (int) ((255 * i_percent) / 100);
 }
 
 // Special values for colour cycles: current hue (colour) and when to change colour.
+// Unlike the pack, there is no need for tracking across multiple devices (only wand barrel).
 uint8_t i_curr_colour = 0;
 uint8_t i_count = 0;
 
-CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255, uint8_t i_cycle = 2) {
+CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
-  // Note that for colour cycles, i_cycle indicates how often to change colour.
+
+  // For colour cycles, this indicates how often to change colour.
+  uint8_t i_cycle = 2;
 
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
-  switch (i_colour) {
+  switch(i_colour) {
     case C_HASLAB:
-      return CHSV(255, 255, i_brightness);
+      return CHSV(100, 0, i_brightness); // Just "on", which is white.
     break;
 
     case C_BLACK:
@@ -122,6 +125,10 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       return CHSV(128, i_saturation, i_brightness);
     break;
 
+    case C_LIGHT_BLUE:
+      return CHSV(145, i_saturation, i_brightness);
+    break;
+
     case C_BLUE:
       return CHSV(160, i_saturation, i_brightness);
     break;
@@ -141,7 +148,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       if(i_count % i_cycle == 0) {
         if(i_curr_colour == 0) {
           i_curr_colour = 96;
-        } 
+        }
         else {
           i_curr_colour = 0;
         }
@@ -166,13 +173,13 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
           i_curr_colour = 32;
         }
       }
-
       return CHSV(i_curr_colour, 255, i_brightness);
     break;
 
     case C_PASTEL:
       // Cycle through all colours (0-255) at half saturation.
       i_count++;
+
       if(i_count % i_cycle == 0) {
         i_curr_colour = (i_curr_colour + 5) % 255;
       }
@@ -201,19 +208,21 @@ CRGB getHueAsRGB(uint8_t i_colour, uint8_t i_brightness = 255, bool b_grb = fals
 
   // Get the initial colour using the HSV scheme.
   CHSV hsv = getHue(i_colour, i_brightness);
-  CRGB rgb;
 
-  hsv2rgb_rainbow(hsv, rgb); // Convert from HSV to RGB.
+  // Convert from HSV to RGB.
+  CRGB rgb; // RGB Array as { r, g, b }
+  hsv2rgb_rainbow(hsv, rgb);
 
   if(b_grb) {
-    // Swap red/green values.
+    // Swap red/green values before returning.
     return CRGB(rgb[1], rgb[0], rgb[2]);
-  }
+  } 
   else {
-    return rgb; // Return RGB.
+    return rgb; // Return RGB object.
   } 
 }
 
 CRGB getHueAsGRB(uint8_t i_colour, uint8_t i_brightness = 255) {
+  // Forward to getHueAsRGB() with the flag set for GRB color swap.
   return getHueAsRGB(i_colour, i_brightness, true);
 }

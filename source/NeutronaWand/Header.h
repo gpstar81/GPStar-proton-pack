@@ -241,6 +241,13 @@ uint8_t i_heatup_counter = 0;
 uint8_t i_heatdown_counter = 100;
 
 /* 
+ *  Wand Firing Modes + Settings
+ */
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, VENTING, SETTINGS };
+enum FIRING_MODES FIRING_MODE;
+enum FIRING_MODES PREV_FIRING_MODE;
+
+/* 
  *  Firing timers.
  */
 millisDelay ms_firing_lights;
@@ -315,14 +322,6 @@ const unsigned int i_music_next_track_delay = 2000;
 millisDelay ms_settings_blinking;
 millisDelay ms_check_music;
 millisDelay ms_music_next_track;
-
-/* 
- *  Wand firing modes + settings
- *  Proton, Slime, Stasis, Meson, Settings
- */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, VENTING, SETTINGS };
-enum FIRING_MODES FIRING_MODE;
-enum FIRING_MODES PREV_FIRING_MODE;
 
 /*
  * Misc wand settings and flags.
