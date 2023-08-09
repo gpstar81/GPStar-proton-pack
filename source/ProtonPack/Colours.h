@@ -43,6 +43,7 @@ enum colours {
   C_PURPLE,
   C_REDGREEN,
   C_ORANGEPURPLE,
+  C_BLUEFADE,
   C_PASTEL,
   C_RAINBOW,
   C_HASLAB
@@ -67,7 +68,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
         case PROTON:
           switch(i_device) {
             case POWERCELL:
-              return C_BLUE;
+              return C_BLUEFADE;
             break;
 
             case CYCLOTRON_OUTER:
@@ -175,7 +176,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
   else {
     switch(i_device) {
       case POWERCELL:
-        return C_BLUE;
+        return C_BLUEFADE;
       break;
 
       case CYCLOTRON_OUTER:
@@ -201,8 +202,10 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
   switch(i_device){
     case CYCLOTRON_OUTER:
+      i_cycle = 10;
+    break;
     case CYCLOTRON_INNER:
-      i_cycle = 4;
+      i_cycle = 5;
     break;
   }
 
@@ -287,6 +290,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       if(i_count[i_device] % i_cycle == 0) {
         if(i_curr_colour[i_device] == 0) {
           i_curr_colour[i_device] = 96;
+          i_count[i_device] = 0; // Reset counter.
         }
         else {
           i_curr_colour[i_device] = 0;
@@ -307,6 +311,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       if(i_count[i_device] % i_cycle == 0) {
         if(i_curr_colour[i_device] == 32) {
           i_curr_colour[i_device] = 192;
+          i_count[i_device] = 0; // Reset counter.
         } 
         else {
           i_curr_colour[i_device] = 32;
@@ -315,12 +320,26 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
     break;
 
+    case C_BLUEFADE:
+      // Reset if out of range: blue (160) to light blue (146).
+      // This is based on use of the 15-LED RGB Powercell.
+      if(i_count[i_device] < 146 || i_count[i_device] > 160) {
+        i_count[i_device] = 160; // Reset if out of range.
+      }
+
+      // Cycles from dark to light blue (160-145) at full saturation.
+      i_count[i_device]--;
+
+      return CHSV(i_count[i_device], 255, i_brightness);
+    break;
+
     case C_PASTEL:
       // Cycle through all colours (0-255) at half saturation.
       i_count[i_device]++;
 
       if(i_count[i_device] % i_cycle == 0) {
         i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
+        i_count[i_device] = 0; // Reset counter.
       }
 
       return CHSV(i_curr_colour[i_device], 128, i_brightness);
@@ -331,6 +350,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       i_count[i_device]++;
       if(i_count[i_device] % i_cycle == 0) {
         i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
+        i_count[i_device] = 0; // Reset counter.
       }
 
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
