@@ -42,12 +42,12 @@ uint8_t i_cyclotron_leds = 12;
 uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 
 // For a 40 LED NeoPixel ring.
-//const uint8_t i_cyclotron_leds = 40;
-//const uint8_t i_1984_cyclotron_leds[4] = { 0, 10, 18, 28 };
+//uint8_t i_cyclotron_leds = 40;
+//uint8_t i_1984_cyclotron_leds[4] = { 0, 10, 18, 28 };
 
 // For a 20 LED Frutto Technology cyclotron.
-//const uint8_t i_cyclotron_leds = 20;
-//const uint8_t i_1984_cyclotron_leds[4] = { 2, 7, 12, 17 };
+//uint8_t i_cyclotron_leds = 20;
+//uint8_t i_1984_cyclotron_leds[4] = { 2, 7, 12, 17 };
 
 /*
  * Power Cell LEDs
@@ -82,13 +82,13 @@ bool b_powercell_colour_toggle = true;
  * Cyclotron Lid LED delays.
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
- * For a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
+ * For a Frutto Technology 20 LED setup or a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
  * For stock Haslab LEDs, 15 for i_2021_delay is good.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
  * Any settings saved in the EEPROM menu will overwrite these settings.
 */
 const unsigned int i_1984_delay = 1050;
-unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology Cyclotron, and 5 for a 40 LED NeoPixel ring.
+unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology Cyclotron and for a 40 LED NeoPixel ring.
 
 /*
   * Afterlife mode (2021) only.

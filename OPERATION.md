@@ -83,8 +83,16 @@ The following features require the use of both the pack and wand replacement con
 	1. Slime Gun
 	1. Stasis Beam
 	1. Meson Collider
+	1. <sup>1</sup> `Spectral (Rainbow)`
+	1. <sup>2</sup> `Spectral (Holiday)`
 	1. Manual Venting Mode (Manual vent your Proton Pack)
 	1. Special: Setting 6 is a settings menu system (see "Wand Settings Menu System" section below).
+
+<sup>1</sup> Spectral Mode (Rainbow) is a firing mode which gives a RAINBOW effect. If your Proton Pack has RGB LEDs, they will change to match.
+
+<sup>2</sup> Spectral (Holiday) is a firing mode which gives a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.
+
+`Spectral modes are disabled by default but can be enabled from the EEPROM Menu or flashed directly to the Neutrona Wand board.`
 
 **Manual Venting Mode**
 ![](images/OperationNeutrona6.jpg)
@@ -203,9 +211,9 @@ To access the EEPROM Configuration Menu, hold the `Intensify Button` down and to
 | EEPROM&nbsp;Configuration<br>Menu&nbsp;Level | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |----------------|---------|------------------|--------------------|
 | <p align="center">5</p> | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROM.<br><br>***The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time the battery power is turn back on.***| Save the current settings to the Proton Pack and Neutron Wand EEPROM. |
-| <p align="center">4</p> | Firing&nbsp;Mode&nbsp;Selection / Cyclotron Rotation | Cycle through VG/CTS operation modes to set as your default.<sup>3</sup> | Cyclotron rotation direction. Clockwise or counter clockwise. |
+| <p align="center">4</p> | Firing&nbsp;Mode&nbsp;Selection / Spectral Modes | Cycle through VG/CTS operation modes to set as your default.<sup>3</sup> | Enable or Disable the Spectral Modes. |
 | <p align="center">3</p> | Overheating / Smoke | Enable or Disable overheating. | Enable or Disable smoke. |
-| <p align="center">2</p> | Cyclotron&nbsp;LED&nbsp;Control | Set from between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. | Enable or Disable the Cyclotron Lid Ring Simulation for non ring LED setups in Afterlife (2021) mode. |
+| <p align="center">2</p> | Cyclotron&nbsp;LED&nbsp;Control | Cyclotron rotation direction. Clockwise or counter clockwise. | Enable or Disable the Cyclotron Lid Ring Simulation for non ring LED setups in Afterlife (2021) mode. |
 | <p align="center">1</p> | Sound Effects | Enable or Disable the Proton Stream impact sound effects. | Enable or disable extra Neutrona Wand sound effects to be played by the Proton Pack. |
 
 <sup>3</sup> Choose between Video Game and Cross the Stream (CTS) operation modes. Cross the Streams modes is like what you see in the films.
