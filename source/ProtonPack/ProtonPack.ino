@@ -308,6 +308,8 @@ void loop() {
         }
       }
 
+      checkCyclotronAutoSpeed();
+
       // Play a little bit of smoke and n-filter vent lights while firing and other misc sound effects.
       if(b_wand_firing == true) {
         // Mix some impact sound effects.
@@ -597,6 +599,9 @@ void packShutdown() {
   // Turn off the n-filter fan.
   ms_fan_stop_timer.stop();
   fanControl(false);
+
+  // Turn off the cyclotron auto speed timer.
+  ms_cyclotron_auto_speed_timer.stop();
 
   // Reset vent sounds flag.
   b_vent_sounds = true;
@@ -1094,8 +1099,8 @@ void powercellLoop() {
     // Speed up the power cell when the cyclotron speeds up before a overheat.
     unsigned int i_multiplier = 0;
 
-    if(i_cyclotron_multiplier > 1) {
-      switch(i_cyclotron_multiplier) {
+    if(i_powercell_multiplier > 1) {
+      switch(i_powercell_multiplier) {
         case 2:
           if(i_mode_year == 2021) {
             i_multiplier = 5;
@@ -1681,36 +1686,11 @@ void cyclotron2021(int cDelay) {
 
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
-          if(i_cyclotron_multiplier > 1) {
-            t_cDelay = t_cDelay / i_cyclotron_multiplier + 2;
-          }
-        break;
-
         case FRUTTO_CYCLOTRON_LED_COUNT:
-          if(i_cyclotron_multiplier > 1) {
-            t_cDelay = t_cDelay - i_cyclotron_multiplier;
-          }
-        break;
-
         case HASLAB_CYCLOTRON_LED_COUNT:
         default:
           if(i_cyclotron_multiplier > 1) {
-            switch(i_cyclotron_multiplier) {
-              case 6:
-                t_cDelay = 2;
-              break;
-
-              case 5:
-                t_cDelay = t_cDelay / i_cyclotron_multiplier + 3;
-              break;
-
-              case 4:
-              case 3:
-              case 2:
-              default:
-                t_cDelay = t_cDelay / i_cyclotron_multiplier + 6;
-              break;
-            }
+            t_cDelay = t_cDelay - i_cyclotron_multiplier;
           }
         break;
       }
@@ -1773,7 +1753,7 @@ void cyclotron2021(int cDelay) {
       case HASLAB_CYCLOTRON_LED_COUNT:
       default:
         if(i_cyclotron_multiplier > 1) {
-          cDelay - i_cyclotron_multiplier;
+          cDelay = cDelay - i_cyclotron_multiplier;
         }
         else {
           cDelay = cDelay / i_cyclotron_multiplier;
@@ -2660,8 +2640,33 @@ void ventLight(bool b_on) {
   }
 }
 
+// Only for Afterlife (2021) mode.
+void checkCyclotronAutoSpeed() {
+  // No need to start any timers until after any ramping has finished and only in Afterlife (2021) that we do the auto speed increases.
+  if(b_wand_firing == true && b_2021_ramp_up != true && b_2021_ramp_down != true && i_mode_year == 2021) {
+    if(ms_cyclotron_auto_speed_timer.justFinished() && i_cyclotron_multiplier < 6) {
+      // Increase the Cyclotron speed.
+      i_cyclotron_multiplier++;
+
+      // Increase the Cyclotron Switch Panel LEDs speed.
+      i_cyclotron_switch_led_mulitplier++;
+      
+      // Restart the timer.
+      ms_cyclotron_auto_speed_timer.stop();
+      ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
+    }
+  }
+}
+
 void wandFiring() {
   b_wand_firing = true;
+
+  // Reset the Cyclotron auto speed up timers. Only for Afterlife 2021 mode.
+  ms_cyclotron_auto_speed_timer.stop();
+
+  if(i_mode_year == 2021) {
+    ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
+  }
 
   if(b_stream_effects == true) {
     unsigned int i_s_random = random(7,14) * 1000;
@@ -2807,8 +2812,10 @@ void wandFiring() {
 void wandStoppedFiring() {
   // Stop all other firing sounds.
   wandStopFiringSounds();
-
   ms_firing_sound_mix.stop();
+
+  // Stop the auto speed timer.
+  ms_cyclotron_auto_speed_timer.stop();
 
   // Adjust the gain with the Afterlife idling track.
   if(i_mode_year == 2021 && i_wand_power_level < 5) {
@@ -3108,22 +3115,33 @@ void cyclotronSpeedRevert() {
 
   i_cyclotron_multiplier = 1;
   i_cyclotron_switch_led_mulitplier = 1;
+  i_powercell_multiplier = 1;
 }
 
 void cyclotronSpeedIncrease() {
   switch(i_mode_year) {
     case 2021:
     default:
-      i_cyclotron_multiplier++;
+      if(i_cyclotron_multiplier < 9) {
+        i_cyclotron_multiplier++;
+      }
+
+      if(i_cyclotron_switch_led_mulitplier < 9) {
+        i_cyclotron_switch_led_mulitplier++;
+      }
+
+      if(i_powercell_multiplier < 6) {
+        i_powercell_multiplier++;
+      }      
     break;
 
     case 1984:
     case 1989:
       i_cyclotron_multiplier++;
+      i_cyclotron_switch_led_mulitplier++;
+      i_powercell_multiplier++;
     break;
   }
-
-  i_cyclotron_switch_led_mulitplier++;
 }
 
 void adjustVolumeEffectsGain() {
@@ -4134,6 +4152,18 @@ void checkWand() {
               playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
             break;
 
+            case W_SPECTRAL_MODES_ENABLED:
+              stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+              stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+              playEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+            break;
+
+            case W_SPECTRAL_MODES_DISABLED:
+              stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+              stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+              playEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+            break;
+
             case W_VIBRATION_DISABLED:
               // Neutrona Wand vibration disabled.
               stopEffect(S_BEEPS_ALT);
@@ -4858,7 +4888,7 @@ void checkWand() {
                   // Switch to 40 LEDs.
                   i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
 
-                  i_2021_delay = 5;
+                  i_2021_delay = 10;
                   i_1984_cyclotron_leds[0] = 0;
                   i_1984_cyclotron_leds[1] = 10;
                   i_1984_cyclotron_leds[2] = 18;
@@ -5199,7 +5229,7 @@ void readEEPROM() {
       switch(i_cyclotron_leds) {
         // For a 40 LED Neopixel ring.
         case OUTER_CYCLOTRON_LED_MAX:
-          i_2021_delay = 5;
+          i_2021_delay = 10;
           i_1984_cyclotron_leds[0] = 0;
           i_1984_cyclotron_leds[1] = 10;
           i_1984_cyclotron_leds[2] = 18;
@@ -5277,15 +5307,6 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.stream_effects > 0 && obj_config_eeprom.stream_effects != 255) {
-      if(obj_config_eeprom.stream_effects > 1) {
-        b_cyclotron_single_led = true;
-      }
-      else {
-        b_cyclotron_single_led = false;
-      }
-    }
-
     if(obj_config_eeprom.simulate_ring > 0 && obj_config_eeprom.simulate_ring != 255) {
       if(obj_config_eeprom.simulate_ring > 1) {
         b_cyclotron_simulate_ring = true;
@@ -5332,15 +5353,10 @@ void saveConfigEEPROM() {
   // Proton Stream Impact Effects
   // Three LED setting
 
-  uint8_t i_single_led = 2;
   uint8_t i_proton_stream_effects = 2;
   uint8_t i_simulate_ring = 2;
   uint8_t i_cyclotron_direction = 2;
   uint8_t i_smoke_settings = 2;
-
-  if(b_cyclotron_single_led != true) {
-    i_single_led = 1;
-  }
 
   if(b_stream_effects != true) {
     i_proton_stream_effects = 1;
@@ -5362,10 +5378,9 @@ void saveConfigEEPROM() {
 
   objConfigEEPROM obj_eeprom = {
     i_proton_stream_effects,
-    i_single_led,
-    i_simulate_ring,
     i_cyclotron_direction,
-    i_smoke_settings
+    i_simulate_ring,
+    i_smoke_settings,
   };
 
   // Save to the EEPROM.

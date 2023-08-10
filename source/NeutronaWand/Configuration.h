@@ -105,9 +105,14 @@ bool b_cross_the_streams_mix = false;
 
 /*
  * When set to true, allows selection of special firing modes after the standard video game modes.
+ * Nano builds of the wand do not get a full effect of the colours due to memory limitations.
+ * gpstar Neutrona Wand boards will the full effect from the wand.
+ * The Proton Pack needs RGB coloured LEDs to see the effects on the pack side.
+ * Refer to the operational manual for more information regarding these special firing modes.
+ * These settings can be controlled from the EEPROM menus.
 */
-bool b_spectral_mode_enabled = true;
-bool b_holiday_mode_enabled = true;
+bool b_spectral_mode_enabled = false;
+bool b_holiday_mode_enabled = false;
 
 /*
  * When enabled, the Neutrona Wand will vibrate at all times.

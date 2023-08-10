@@ -214,6 +214,8 @@ bool b_28segment_bargraph = false;
     uint8_t cross_the_streams_mix;
     uint8_t overheating;
     uint8_t neutrona_wand_sounds;
+    uint8_t spectral_mode;
+    uint8_t holiday_mode;
   };
 #endif
 

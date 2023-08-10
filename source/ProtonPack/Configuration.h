@@ -82,13 +82,13 @@ bool b_powercell_colour_toggle = true;
  * Cyclotron Lid LED delays.
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
- * For a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
+ * For a Frutto Technology 20 LED setup or a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
  * For stock Haslab LEDs, 15 for i_2021_delay is good.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
  * Any settings saved in the EEPROM menu will overwrite these settings.
 */
 const unsigned int i_1984_delay = 1050;
-unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology Cyclotron, and 5 for a 40 LED NeoPixel ring.
+unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology Cyclotron and for a 40 LED NeoPixel ring.
 
 /*
   * Afterlife mode (2021) only.
@@ -146,7 +146,7 @@ uint8_t i_cyclotron_inner_brightness = 100;
  * 0 = quietest
  * 100 = loudest
 */
-const uint8_t STARTUP_VOLUME = 100;
+const uint8_t STARTUP_VOLUME = 60;
 
 /*
  * You can set the default music volume for your pack here.

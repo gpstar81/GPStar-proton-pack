@@ -109,6 +109,7 @@ unsigned int i_powercell_delay = i_powercell_delay_2021;
 int i_powercell_led = 0;
 millisDelay ms_powercell;
 bool b_powercell_updating = false;
+uint8_t i_powercell_multiplier = 1;
 
 /* 
  *  Cyclotron Inner Switch Panel LEDs control. (optional)
@@ -143,6 +144,8 @@ const unsigned int i_2021_ramp_down_length = 10500;
 const unsigned int i_1984_ramp_down_length = 2500;
 unsigned int i_current_ramp_speed = i_2021_ramp_delay;
 uint8_t i_cyclotron_multiplier = 1;
+millisDelay ms_cyclotron_auto_speed_timer; // A timer that is active while firing only. Used to speed up the cyclotron by small increments based on the power modes in Afterlife (2021) only.
+const unsigned int i_cyclotron_auto_speed_timer_length = 4500;
 bool b_2021_ramp_up = true;
 bool b_2021_ramp_up_start = true;
 bool b_2021_ramp_down_start = false;
@@ -407,9 +410,8 @@ struct objEEPROM {
 */
 struct objConfigEEPROM {
   uint8_t stream_effects;
-  uint8_t three_led;
-  uint8_t simulate_ring;
   uint8_t cyclotron_direction;
+  uint8_t simulate_ring;
   uint8_t smoke_setting;
 };
 

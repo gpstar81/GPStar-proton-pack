@@ -499,7 +499,7 @@ void mainLoop() {
           break;
 
           // Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
-          // Barrel Wing Switch: Change the Cyclotron direction.
+          // Barrel Wing Switch: Enable Spectral and Holiday modes.
           case 4:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -508,8 +508,28 @@ void mainLoop() {
             }
             
             if(switchMode() == true) {
-              // Tell the Proton Pack to change the cyclotron rotation direction.
-              wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
+              if(b_spectral_mode_enabled == false || b_holiday_mode_enabled == false) {
+                // Enable the spectral modes.
+                b_spectral_mode_enabled = true;
+                b_holiday_mode_enabled = true;
+
+                stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+                stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+                playEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+
+                wandSerialSend(W_SPECTRAL_MODES_ENABLED);
+              }
+              else {
+                // Disable the spectral modes.
+                b_spectral_mode_enabled = false;
+                b_holiday_mode_enabled = false;
+
+                stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+                stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+                playEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+                
+                wandSerialSend(W_SPECTRAL_MODES_DISABLED);
+              }
             }
           break;
 
@@ -528,14 +548,14 @@ void mainLoop() {
             }
           break;
 
-          // Intensify: Enable or disable 3 LEDs for the Cyclotron in 1984/1989 modes.
+          // Intensify: Change the Cyclotron direction.
           // Barrel Wing Switch: Enable the simulation of a ring for the Cyclotron lid.
           case 2:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
-                
-              // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
-              wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
+              
+              // Tell the Proton Pack to change the cyclotron rotation direction.
+              wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
 
             // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
@@ -2582,7 +2602,7 @@ void modeFireStart() {
   wandSerialSend(W_FIRING);
 
   ms_overheat_initiate.stop();
-
+  
   // This will only overheat when enabled by using the alt firing when in crossing the streams mode.
   bool b_overheat_flag = true;
 
@@ -2955,43 +2975,6 @@ void modeFiring() {
       case 1989:
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
-    }
-  }
-
-  // Overheat timers.
-  bool b_overheat_flag = true;
-
-  if(b_cross_the_streams == true && b_firing_alt != true) {
-    b_overheat_flag = false;
-  }
-
-  if(b_overheat_flag == true) {
-    // If the user changes the wand power output while firing, turn off the overheat timer.
-    if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {
-      ms_overheat_initiate.stop();
-
-      // Adjust hat light 1 to stay solid.
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        digitalWrite(led_hat_1, HIGH);
-      #endif
-
-      ms_hat_1.stop();
-
-      // Tell the pack to revert back to regular cyclotron speeds.
-      wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
-    }
-    else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {
-      // If the user changes back to power mode that overheats while firing, start up a timer.
-      // This currently works only in power levels 1-4. 5 stays locked when firing.
-      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
-    }
-  }
-  else {
-    if(ms_overheat_initiate.isRunning()) {
-      ms_overheat_initiate.stop();
-
-      // Tell the pack to revert back to regular cyclotron speeds.
-      wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
     }
   }
 
