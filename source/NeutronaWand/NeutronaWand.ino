@@ -4625,7 +4625,7 @@ void bargraphRampUp() {
       case 4:
         vibrationWand(i_vibration_level + 80);
 
-        wandBargraphControl(5);
+        digitalWrite(led_bargraph_5, LOW);
 
         if(i_bargraph_status + 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
@@ -4640,7 +4640,7 @@ void bargraphRampUp() {
       case 5:
         vibrationWand(i_vibration_level + 40);
 
-        wandBargraphControl(4);
+        digitalWrite(led_bargraph_5, HIGH);
 
         if(i_bargraph_status - 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
@@ -4655,7 +4655,7 @@ void bargraphRampUp() {
       case 6:
         vibrationWand(i_vibration_level + 30);
 
-        wandBargraphControl(3);
+        digitalWrite(led_bargraph_4, HIGH);
 
         if(i_bargraph_status - 3 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
@@ -4670,7 +4670,7 @@ void bargraphRampUp() {
       case 7:
         vibrationWand(i_vibration_level + 20);
 
-        wandBargraphControl(2);
+        digitalWrite(led_bargraph_3, HIGH);
 
         if(i_bargraph_status - 5 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
@@ -4685,7 +4685,7 @@ void bargraphRampUp() {
       case 8:
         vibrationWand(i_vibration_level + 10);
 
-        wandBargraphControl(1);
+        digitalWrite(led_bargraph_2, HIGH);
 
         if(i_bargraph_status - 7 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
@@ -4698,7 +4698,7 @@ void bargraphRampUp() {
       break;
 
       case 9:
-        wandBargraphControl(0);
+        digitalWrite(led_bargraph_1, HIGH);
         ms_bargraph.stop();
         i_bargraph_status = 0;
       break;
