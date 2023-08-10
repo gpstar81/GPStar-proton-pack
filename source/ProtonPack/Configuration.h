@@ -146,7 +146,7 @@ uint8_t i_cyclotron_inner_brightness = 100;
  * 0 = quietest
  * 100 = loudest
 */
-const uint8_t STARTUP_VOLUME = 60;
+const uint8_t STARTUP_VOLUME = 100;
 
 /*
  * You can set the default music volume for your pack here.
