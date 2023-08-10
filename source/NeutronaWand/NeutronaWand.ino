@@ -2978,6 +2978,43 @@ void modeFiring() {
     }
   }
 
+  // Overheat timers.
+  bool b_overheat_flag = true;		
+
+  if(b_cross_the_streams == true && b_firing_alt != true) {		
+    b_overheat_flag = false;		
+  }		
+
+  if(b_overheat_flag == true) {		
+    // If the user changes the wand power output while firing, turn off the overheat timer.		
+    if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {		
+      ms_overheat_initiate.stop();		
+
+      // Adjust hat light 1 to stay solid.		
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB		
+        digitalWrite(led_hat_1, HIGH);		
+      #endif		
+
+      ms_hat_1.stop();		
+
+      // Tell the pack to revert back to regular cyclotron speeds.		
+      wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);		
+    }		
+    else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {		
+      // If the user changes back to power mode that overheats while firing, start up a timer.		
+      // This currently works only in power levels 1-4. 5 stays locked when firing.		
+      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);		
+    }		
+  }		
+  else {		
+    if(ms_overheat_initiate.isRunning()) {		
+      ms_overheat_initiate.stop();		
+
+      // Tell the pack to revert back to regular cyclotron speeds.		
+      wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);		
+    }		
+  }		
+
   switch(FIRING_MODE) {
     case PROTON:
       // Shift the stream from red to orange on higher power modes.
