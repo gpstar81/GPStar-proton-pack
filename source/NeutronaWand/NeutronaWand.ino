@@ -6257,6 +6257,8 @@ void wandSerialSend(int i_message) {
     uint8_t i_cross_the_streams_mix = 1;
     uint8_t i_overheating = 1;
     uint8_t i_neutrona_wand_sounds = 1;
+    uint8_t i_spectral = 1;
+    uint8_t i_holiday = 1;
 
     if(b_cross_the_streams == true) {
       i_cross_the_streams = 2;
@@ -6274,12 +6276,19 @@ void wandSerialSend(int i_message) {
       i_neutrona_wand_sounds = 2;
     }
 
+    if(b_spectral_mode_enabled == true || b_holiday_mode_enabled == true) {
+      i_spectral = 2;
+      i_holiday = 2;
+    }
+
     // Write the data to the EEPROM if any of the values have changed.
     objEEPROM obj_eeprom = {
       i_cross_the_streams,
       i_cross_the_streams_mix,
       i_overheating,
-      i_neutrona_wand_sounds
+      i_neutrona_wand_sounds,
+      i_spectral,
+      i_holiday
     };
 
     // Save and update our object in the EEPROM.
@@ -6356,6 +6365,24 @@ void wandSerialSend(int i_message) {
         }
         else {
           b_extra_pack_sounds = false;
+        }
+      }
+
+      if(obj_eeprom.spectral_mode > 0 && obj_eeprom.spectral_mode != 255) {
+        if(obj_eeprom.spectral_mode > 1) {
+          b_spectral_mode_enabled = true;
+        }
+        else {
+          b_spectral_mode_enabled = false;
+        }
+      }
+
+      if(obj_eeprom.holiday_mode > 0 && obj_eeprom.holiday_mode != 255) {
+        if(obj_eeprom.holiday_mode > 1) {
+          b_holiday_mode_enabled = true;
+        }
+        else {
+          b_holiday_mode_enabled = false;
         }
       }
     }
