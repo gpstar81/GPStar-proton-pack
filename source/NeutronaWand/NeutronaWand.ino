@@ -403,24 +403,18 @@ void mainLoop() {
 
               // Tell pack to clear the EEPROM and exit.
               wandSerialSend(W_CLEAR_EEPROM_SETTINGS);
-              wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
 
               stopEffect(S_VOICE_EEPROM_ERASE);
               playEffect(S_VOICE_EEPROM_ERASE);
-
-              clearLEDEEPROM();
 
               wandExitEEPROMMenu();
             }
             else if(switchMode() == true) {
               // Tell the Proton Pack to save the current settings to the EEPROM and exit.
               wandSerialSend(W_SAVE_EEPROM_SETTINGS);
-              wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
-
+              
               stopEffect(S_VOICE_EEPROM_SAVE);
               playEffect(S_VOICE_EEPROM_SAVE);
-
-              saveLEDEEPROM();
 
               wandExitEEPROMMenu();
             }
@@ -512,7 +506,7 @@ void mainLoop() {
             }
             
             if(switchMode() == true) {
-              if(b_spectral_mode_enabled == false || b_holiday_mode_enabled == false || b_spectral_custom_mode_enabled == false) {
+              if(b_spectral_mode_enabled == false || b_holiday_mode_enabled == false) {
                 // Enable the spectral modes.
                 b_spectral_mode_enabled = true;
                 b_holiday_mode_enabled = true;
@@ -978,14 +972,11 @@ void mainLoop() {
           playEffect(S_BEEPS_BARGRAPH);
           
           wandSerialSend(W_EEPROM_MENU);
-          wandSerialSend(W_SPECTRAL_LIGHTS_ON);
 
           i_wand_menu = 5;
 
           WAND_ACTION_STATUS = ACTION_EEPROM_MENU;
           ms_settings_blinking.start(i_settings_blinking_delay);
-
-          wandBarrelSpectralCustomConfigOn();
         }
         else if(WAND_ACTION_STATUS == ACTION_EEPROM_MENU && b_pack_on == true) {
           if(b_no_pack != true) {
@@ -1766,9 +1757,6 @@ void checkSwitches() {
               else if(b_holiday_mode_enabled == true) {
                 FIRING_MODE = HOLIDAY;
               }
-              else if(b_spectral_custom_mode_enabled == true) {
-                FIRING_MODE = SPECTRAL_CUSTOM;
-              }
               else {
                 FIRING_MODE = VENTING;
               }
@@ -1778,23 +1766,12 @@ void checkSwitches() {
               if(b_holiday_mode_enabled == true) {
                 FIRING_MODE = HOLIDAY;
               }
-              else if(b_spectral_custom_mode_enabled == true) {
-                FIRING_MODE = SPECTRAL_CUSTOM;
-              }
               else {
                 FIRING_MODE = VENTING;
               }
             }
             else if(FIRING_MODE == HOLIDAY) {
-              if(b_spectral_custom_mode_enabled == true) {
-                FIRING_MODE = SPECTRAL_CUSTOM;
-              }
-              else {
-                FIRING_MODE = VENTING;
-              }
-            }
-            else if(FIRING_MODE == SPECTRAL_CUSTOM) {
-                FIRING_MODE = VENTING;
+              FIRING_MODE = VENTING;
             }
             else if(FIRING_MODE == VENTING) {
               FIRING_MODE = SETTINGS;
@@ -1864,14 +1841,6 @@ void checkSwitches() {
 
                 // Tell the pack we are in spectral mode.
                 wandSerialSend(W_SPECTRAL_MODE);
-              break;
-
-              case SPECTRAL_CUSTOM:
-                WAND_ACTION_STATUS = ACTION_IDLE;
-                wandHeatUp();
-
-                // Tell the pack we are in spectral mode.
-                wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
               break;
 
               case MESON:
@@ -3069,7 +3038,7 @@ void modeFiring() {
     case SLIME:
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         fireStreamStart(getHueAsGRB(C_GREEN));
-        fireStream(getHueAsGRB(C_WHITE));
+        fireStream(getHueAsGRB(C_MINT));
       #else
         fireStreamStart(0, 255, 45);
         fireStream(20, 200, 45);  
@@ -3079,7 +3048,7 @@ void modeFiring() {
     case STASIS:
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         fireStreamStart(getHueAsGRB(C_BLUE));
-        fireStream(getHueAsGRB(C_WHITE));
+        fireStream(getHueAsGRB(C_AQUA));
       #else
         fireStreamStart(0, 45, 100);
         fireStream(0, 100, 255);  
@@ -3088,8 +3057,8 @@ void modeFiring() {
 
     case MESON:
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        fireStreamStart(getHueAsGRB(C_YELLOW));
-        fireStream(getHueAsGRB(C_RED));
+        fireStreamStart(getHueAsGRB(C_ORANGE));
+        fireStream(getHueAsGRB(C_YELLOW));
       #else
         fireStreamStart(200, 200, 20);
         fireStream(190, 20, 70);
@@ -3113,16 +3082,6 @@ void modeFiring() {
       #else
         fireStreamStart(0, 255, 0);
         fireStream(255, 0, 0);
-      #endif
-    break;
-
-    case SPECTRAL_CUSTOM:
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        fireStreamStart(getHueAsGRB(C_CUSTOM));
-        fireStream(getHueAsGRB(C_WHITE));
-      #else
-        fireStreamStart(100, 100, 100);
-        fireStream(100, 100, 100);
       #endif
     break;
 
@@ -3229,11 +3188,6 @@ void wandBarrelHeatUp() {
           ms_fast_led.start(i_fast_led_delay);
         break;
 
-        case SPECTRAL_CUSTOM:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_CUSTOM, i_heatup_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
         case VENTING:
         case SETTINGS:
         default:
@@ -3267,11 +3221,6 @@ void wandBarrelHeatUp() {
 
         case HOLIDAY:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, i_heatup_counter, 0);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
-        case SPECTRAL_CUSTOM:
-          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
@@ -3320,11 +3269,6 @@ void wandBarrelHeatDown() {
           ms_fast_led.start(i_fast_led_delay);
         break;
 
-        case SPECTRAL_CUSTOM:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_CUSTOM, i_heatdown_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
         case VENTING:
         case SETTINGS:
         default:
@@ -3358,11 +3302,6 @@ void wandBarrelHeatDown() {
 
         case HOLIDAY:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, i_heatdown_counter, 0);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
-        case SPECTRAL_CUSTOM:
-          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
@@ -3480,7 +3419,7 @@ void fireStream(int r, int g, int b) {
 
         case SPECTRAL:
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLACK);
+            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RAINBOW);
           #else
             barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
           #endif
@@ -3488,15 +3427,7 @@ void fireStream(int r, int g, int b) {
 
         case HOLIDAY:
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLACK);
-          #else
-            barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
-          #endif
-        break;
-
-        case SPECTRAL_CUSTOM:
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_CUSTOM);
+            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_REDGREEN);
           #else
             barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
           #endif
@@ -3514,35 +3445,7 @@ void fireStream(int r, int g, int b) {
     if(i_barrel_light == BARREL_NUM_LEDS) {
       i_barrel_light = 0;
 
-      switch(FIRING_MODE) {
-        default:
-          switch(i_power_mode) {
-            case 1:
-              ms_firing_stream_blue.start(d_firing_stream);
-            break;
-
-            case 2:
-              ms_firing_stream_blue.start(d_firing_stream - 15);
-            break;
-
-            case 3:
-              ms_firing_stream_blue.start(d_firing_stream - 30);
-            break;
-
-            case 4:
-              ms_firing_stream_blue.start(d_firing_stream - 45);
-            break;
-
-            case 5:
-              ms_firing_stream_blue.start(d_firing_stream - 60);
-            break;
-
-            default:
-              ms_firing_stream_blue.start(d_firing_stream);
-            break;        
-          }
-        break;
-      }
+      ms_firing_stream_blue.start(d_firing_stream / 2);
     }
     else if(i_barrel_light < BARREL_NUM_LEDS) {
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -3551,37 +3454,9 @@ void fireStream(int r, int g, int b) {
         barrel_leds[i_barrel_light] = CRGB(g,r,b);
       #endif
 
-      switch(FIRING_MODE) {
-        default:
-          switch(i_power_mode) {
-            case 1:
-              ms_firing_stream_blue.start(d_firing_lights + 10);
-            break;
-
-            case 2:
-              ms_firing_stream_blue.start(d_firing_lights + 8);
-            break;
-
-            case 3:
-              ms_firing_stream_blue.start(d_firing_lights + 6);
-            break;
-
-            case 4:
-              ms_firing_stream_blue.start(d_firing_lights + 5);
-            break;
-
-            case 5:
-              ms_firing_stream_blue.start(d_firing_lights + 4);
-            break;
-
-            default:
-              ms_firing_stream_blue.start(d_firing_lights);
-            break;        
-          }
-        break;
-      }
-      
       ms_fast_led.start(i_fast_led_delay);
+
+      ms_firing_stream_blue.start(d_firing_lights);
 
       i_barrel_light++;
     }
@@ -5119,14 +4994,6 @@ int8_t readRotary() {
    return 0;
 }
 
-void wandBarrelSpectralCustomConfigOn() {
-  for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
-    barrel_leds[i] = getHueAsGRB(C_CUSTOM);
-  }
-
-  ms_fast_led.start(i_fast_led_delay);
-}
-
 // Top rotary dial on the wand.
 void checkRotary() {
   static int8_t c,val;            
@@ -5135,6 +5002,7 @@ void checkRotary() {
     c += val;
     switch(WAND_ACTION_STATUS) {
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        case ACTION_EEPROM_MENU:
         case ACTION_CONFIG_EEPROM_MENU:
           // Counter clockwise.
           if(prev_next_code == 0x0b) {
@@ -5157,74 +5025,6 @@ void checkRotary() {
           }
         break;
       #endif
-
-      case ACTION_EEPROM_MENU:
-          // Counter clockwise.
-          if(prev_next_code == 0x0b) {
-            if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && b_switch_mode_pressed == true) {
-              // Change colour of the wand barrel spectral custom colour.
-              if(i_spectral_wand_custom > 1) {
-                i_spectral_wand_custom--;
-              }
-              else {
-                i_spectral_wand_custom = 1;
-              }
-
-              wandBarrelSpectralCustomConfigOn();
-            }
-            else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && b_switch_mode_pressed == true) {
-              // Change colour of the Power Cell Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_DECREASE);
-            }    
-            else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && b_switch_mode_pressed == true) {
-              // Change colour of the Cyclotron Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE);
-            }
-            else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && b_switch_mode_pressed == true) {
-              // Change colour of the Inner Cyclotron Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
-            }               
-            else if(i_wand_menu - 1 < 1) {
-              i_wand_menu = 1;
-            }
-            else {
-              i_wand_menu--;
-            }
-          }
-
-          // Clockwise.
-          if(prev_next_code == 0x07) {
-            if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && b_switch_mode_pressed == true) {
-              // Change colour of the Wand Barrel Spectral custom colour.
-              if(i_spectral_wand_custom < 253) {
-                i_spectral_wand_custom++;
-              }
-              else {
-                i_spectral_wand_custom = 254;
-              }
-
-              wandBarrelSpectralCustomConfigOn();
-            }  
-            else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && b_switch_mode_pressed == true) {
-              // Change colour of the Power Cell Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_INCREASE);
-            }    
-            else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && b_switch_mode_pressed == true) {
-              // Change colour of the Cyclotron Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE);
-            }
-            else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && b_switch_mode_pressed == true) {
-              // Change colour of the Inner Cyclotron Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
-            }                                 
-            else if(i_wand_menu + 1 > 5) {
-              i_wand_menu = 5;
-            }
-            else {
-              i_wand_menu++;
-            }
-          }
-      break;
 
       case ACTION_SETTINGS:
         // Counter clockwise.
@@ -5605,11 +5405,6 @@ void wandExitMenu() {
       wandSerialSend(W_HOLIDAY_MODE);
     break;
 
-    case SPECTRAL_CUSTOM:
-      // Tell the pack we are in spectral mode.
-      wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-    break;
-
     case VENTING:
       // Tell the pakc we are in venting mode.
       wandSerialSend(W_VENTING_MODE);
@@ -5640,7 +5435,6 @@ void wandExitMenu() {
     WAND_ACTION_STATUS = ACTION_IDLE;
 
     wandLightsOff();
-    wandBarrelLightsOff();
   }
 #endif
 
@@ -6448,33 +6242,6 @@ void wandSerialSend(int i_message) {
 }
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
-  void clearLEDEEPROM() {
-    // Clear out the EEPROM data for the configuration settings only.
-    unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
-
-    for(unsigned int i = 0 ; i < sizeof(objLEDEEPROM); i++) {
-      EEPROM.put(i_eepromLEDAddress, 0);
-
-      i_eepromLEDAddress++;
-    }
-
-    updateCRCEEPROM();
-  }
-
-  void saveLEDEEPROM() {
-    unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
-
-    // For now we are just saving the Spectral Custom colour.
-    objLEDEEPROM obj_eeprom = {
-      i_spectral_wand_custom,
-    };
-
-    // Save to the EEPROM.
-    EEPROM.put(i_eepromLEDAddress, obj_eeprom);
-
-    updateCRCEEPROM();
-  }
-
   void clearEEPROM() {
     // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
     for(unsigned int i = 0 ; i < sizeof(objEEPROM); i++) {
@@ -6492,7 +6259,7 @@ void wandSerialSend(int i_message) {
     uint8_t i_neutrona_wand_sounds = 1;
     uint8_t i_spectral = 1;
     uint8_t i_holiday = 1;
-    
+
     if(b_cross_the_streams == true) {
       i_cross_the_streams = 2;
     }
@@ -6523,7 +6290,7 @@ void wandSerialSend(int i_message) {
       i_spectral,
       i_holiday
     };
-    
+
     // Save and update our object in the EEPROM.
     EEPROM.put(i_eepromAddress, obj_eeprom);
 
@@ -6617,15 +6384,6 @@ void wandSerialSend(int i_message) {
         else {
           b_holiday_mode_enabled = false;
         }
-      }
-
-      // Read our led object from the EEPROM.
-      objLEDEEPROM obj_led_eeprom;
-      unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
-
-      EEPROM.get(i_eepromLEDAddress, obj_led_eeprom);
-      if(obj_led_eeprom.barrel_spectral_custom > 0 && obj_led_eeprom.barrel_spectral_custom != 255) {
-        i_spectral_wand_custom = obj_led_eeprom.barrel_spectral_custom;
       }
     }
   }

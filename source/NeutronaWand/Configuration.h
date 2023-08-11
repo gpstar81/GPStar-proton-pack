@@ -113,15 +113,6 @@ bool b_cross_the_streams_mix = false;
 */
 bool b_spectral_mode_enabled = false;
 bool b_holiday_mode_enabled = false;
-bool b_spectral_custom_mode_enabled = false;
-
-/*
- * The CHSV colour value for the Spectral custom mode. 
- * This can be adjusted in the EEPROM LED menu. Any EEPROM settings will overwrite these values.
- * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. So it is possible to mix and match different wands colours to different pack settings.
- * Value range: 0 <--> 360
-*/
-unsigned int i_spectral_wand_custom = 200;
 
 /*
  * When enabled, the Neutrona Wand will vibrate at all times.

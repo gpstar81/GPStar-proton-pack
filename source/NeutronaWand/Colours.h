@@ -45,7 +45,6 @@ enum colours {
   C_ORANGEPURPLE,
   C_PASTEL,
   C_RAINBOW,
-  C_CUSTOM,
   C_HASLAB
 };
 
@@ -72,10 +71,6 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
   switch(i_colour) {
     case C_HASLAB:
       return CHSV(100, 0, i_brightness); // Just "on", which is white.
-    break;
-
-    case C_CUSTOM:
-      return CHSV(i_spectral_wand_custom, i_saturation, i_brightness); // b_spectral_wand_custom is a global variable found in Configuration.h
     break;
 
     case C_BLACK:

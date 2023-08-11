@@ -217,13 +217,6 @@ bool b_28segment_bargraph = false;
     uint8_t spectral_mode;
     uint8_t holiday_mode;
   };
-
-  /*
-  * EEPROM Another data structure object that is saved into the EEPROM memory.
-  */
-  struct objLEDEEPROM {
-    uint8_t barrel_spectral_custom;
-  };  
 #endif
 
 /*
@@ -252,7 +245,7 @@ uint8_t i_heatdown_counter = 100;
 /* 
  *  Wand Firing Modes + Settings
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
 enum FIRING_MODES PREV_FIRING_MODE;
 

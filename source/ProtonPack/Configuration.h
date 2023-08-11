@@ -129,16 +129,6 @@ uint8_t i_inner_cyclotron_num_leds = 35;
 bool b_grb_cyclotron = false;
 
 /*
- * The CHSV colour value for the Spectral custom mode. 
- * This can be adjusted in the EEPROM LED menu. Any EEPROM settings will overwrite these values.
- * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. The Neutrona Wand custom spectral colours are stored on the Neutrona Wand. So it is possible to mix and match different wands colours to different pack settings.
- * Value range: 1 <--> 254
-*/
-unsigned int i_spectral_powercell_custom = 200;
-unsigned int i_spectral_cyclotron_custom = 200;
-unsigned int i_spectral_cyclotron_inner_custom = 200;
-
-/*
  * You can set the default brightness of your Power Cell, Cyclotron or Inner Cyclotron LEDs.
  * Values are in percentages %.
  * 0 = off.
