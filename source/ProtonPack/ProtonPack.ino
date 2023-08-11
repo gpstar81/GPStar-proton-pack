@@ -1166,6 +1166,53 @@ void powercellOff() {
   i_powercell_led = 0;
 }
 
+void spectralLightsOff() {
+  b_spectral_lights_on = false;
+
+  for(int i = 0; i <= cyclotron_led_start - 1; i++) {
+    pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
+  }
+
+  uint8_t i_max = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
+  for(int i = 0; i < i_max; i++) {
+    pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+  }
+
+  for(int i = 0; i < i_inner_cyclotron_num_leds; i++) {
+    if(b_grb_cyclotron == true) {
+      cyclotron_leds[i] = getHueAsGRB(CYCLOTRON_INNER, C_BLACK);
+    }
+    else {
+      cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
+    }
+  }    
+}
+
+void spectralLightsOn() {
+  b_spectral_lights_on = true;
+
+  uint8_t i_colour_scheme = getDeviceColour(POWERCELL, SPECTRAL_CUSTOM, true);
+  for(int i = 0; i <= cyclotron_led_start - 1; i++) {
+    pack_leds[i] = getHueAsRGB(POWERCELL, i_colour_scheme);
+  }
+
+  uint8_t i_max = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
+  i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, SPECTRAL_CUSTOM, true);
+  for(int i = 0; i < i_max; i++) {
+    pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme);
+  }
+
+  i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, SPECTRAL_CUSTOM, true);
+  for(int i = 0; i < i_inner_cyclotron_num_leds; i++) {
+    if(b_grb_cyclotron == true) {
+      cyclotron_leds[i] = getHueAsGRB(CYCLOTRON_INNER, i_colour_scheme);
+    }
+    else {
+      cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, i_colour_scheme);
+    }
+  }  
+}
+
 void powercellDraw(uint8_t i_start) {
   uint8_t i_brightness = getBrightness(i_powercell_brightness); // Calculate desired brightness.
   uint8_t i_colour_scheme = getDeviceColour(POWERCELL, FIRING_MODE, b_powercell_colour_toggle);
@@ -3394,6 +3441,10 @@ void wandHandShake() {
 
       wandExtraSoundsStop();
 
+      if(b_spectral_lights_on == true) {
+        spectralLightsOff();
+      }
+
       // Where are you wand?
       packSerialSend(P_HANDSHAKE);
     }
@@ -3418,6 +3469,10 @@ void wandHandShake() {
     // Turn off overheating if the wand gets disconnected.
     if(b_overheating == true) {
       packOverheatingFinished();
+    }
+
+    if(b_spectral_lights_on == true) {
+      spectralLightsOff();
     }
 
     if(ms_wand_handshake.justFinished()) {
@@ -3722,6 +3777,27 @@ void checkWand() {
             case W_HOLIDAY_MODE:
               // Proton mode
               FIRING_MODE = HOLIDAY;
+              playEffect(S_CLICK);
+
+              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+                playEffect(S_FIRE_START_SPARK);
+              }
+
+              if(b_cyclotron_colour_toggle == true) {
+                // Reset the Cyclotron LED colours.
+                cyclotronColourReset();
+              }
+
+              if(b_powercell_colour_toggle == true) {
+                // Reset the Power Cell colours.
+                b_powercell_updating = true;
+                powercellDraw();
+              }
+            break;
+
+            case W_SPECTRAL_CUSTOM_MODE:
+              // Proton mode
+              FIRING_MODE = SPECTRAL_CUSTOM;
               playEffect(S_CLICK);
 
               if(PACK_STATUS == MODE_ON && b_wand_on == true) {
@@ -4559,6 +4635,80 @@ void checkWand() {
               }
             break;
 
+            case W_SPECTRAL_LIGHTS_ON:
+              spectralLightsOn();
+            break;
+
+            case W_SPECTRAL_LIGHTS_OFF:
+              spectralLightsOff();
+            break;
+
+            case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE:
+              if(i_spectral_cyclotron_inner_custom > 1) {
+                i_spectral_cyclotron_inner_custom--;
+              }
+              else {
+                i_spectral_cyclotron_inner_custom = 1;
+              }
+
+              spectralLightsOn();
+            break;
+
+            case W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE:
+              if(i_spectral_cyclotron_custom > 1) {
+                i_spectral_cyclotron_custom--;
+              }
+              else {
+                i_spectral_cyclotron_custom = 1;
+              }
+
+              spectralLightsOn();
+            break;
+
+            case W_SPECTRAL_POWERCELL_CUSTOM_DECREASE:
+              if(i_spectral_powercell_custom > 1) {
+                i_spectral_powercell_custom--;
+              }
+              else {
+                i_spectral_powercell_custom = 1;
+              }
+
+              spectralLightsOn();
+            break;
+
+            case W_SPECTRAL_POWERCELL_CUSTOM_INCREASE:
+              if(i_spectral_powercell_custom < 253) {
+                i_spectral_powercell_custom++;
+              }
+              else {
+                i_spectral_powercell_custom = 254;
+              }
+
+              spectralLightsOn();
+            break;
+
+            case W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE:
+              if(i_spectral_cyclotron_custom < 253) {
+                i_spectral_cyclotron_custom++;
+              }
+              else {
+                i_spectral_cyclotron_custom = 254;
+              }
+
+              spectralLightsOn();
+            break;
+          
+            case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE:
+              if(i_spectral_cyclotron_inner_custom < 253) {
+                i_spectral_cyclotron_inner_custom++;
+              }
+              else {
+                i_spectral_cyclotron_inner_custom = 254;
+              }
+
+              spectralLightsOn();
+            break;
+
             case W_DIMMING_TOGGLE:
               switch(pack_dim_toggle) {
                 case DIM_CYCLOTRON:
@@ -5043,6 +5193,10 @@ void checkWand() {
                 packSerialSend(P_HOLIDAY_MODE);
               break;
 
+              case SPECTRAL_CUSTOM:
+                packSerialSend(P_SPECTRAL_CUSTOM_MODE);
+              break;
+
               case VENTING:
                 packSerialSend(P_VENTING_MODE);
               break;
@@ -5289,6 +5443,18 @@ void readEEPROM() {
       }
     }
 
+    if(obj_eeprom.powercell_spectral_custom > 0 && obj_eeprom.powercell_spectral_custom != 255) {
+      i_spectral_powercell_custom = obj_eeprom.powercell_spectral_custom;
+    }
+
+    if(obj_eeprom.cyclotron_spectral_custom > 0 && obj_eeprom.cyclotron_spectral_custom != 255) {
+      i_spectral_cyclotron_custom = obj_eeprom.cyclotron_spectral_custom;
+    }
+    
+    if(obj_eeprom.cyclotron_inner_spectral_custom > 0 && obj_eeprom.cyclotron_inner_spectral_custom != 255) {
+      i_spectral_cyclotron_inner_custom = obj_eeprom.cyclotron_inner_spectral_custom;
+    }
+
     // Update the LED counts for the Proton Pack.
     updateProtonPackLEDCounts();
 
@@ -5417,7 +5583,10 @@ void saveLedEEPROM() {
     i_powercell_leds,
     i_cyclotron_leds,
     i_inner_cyclotron_num_leds,
-    i_grb_cyclotron
+    i_grb_cyclotron,
+    i_spectral_powercell_custom,
+    i_spectral_cyclotron_custom,
+    i_spectral_cyclotron_inner_custom
   };
 
   // Save and update our object in the EEPROM.
