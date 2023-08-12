@@ -110,6 +110,7 @@ bool b_cross_the_streams_mix = false;
  * The Proton Pack needs RGB coloured LEDs to see the effects on the pack side.
  * Refer to the operational manual for more information regarding these special firing modes.
  * These settings can be controlled from the EEPROM menus.
+ * Spectral modes are only supported by the gpstar Neutrona Wand board.
 */
 bool b_spectral_mode_enabled = false;
 bool b_holiday_mode_enabled = false;
@@ -120,6 +121,7 @@ bool b_spectral_custom_mode_enabled = false;
  * This can be adjusted in the EEPROM LED menu. Any EEPROM settings will overwrite these values.
  * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. So it is possible to mix and match different wands colours to different pack settings.
  * Value range: 1 <--> 254
+ * Spectral modes are only supported by the gpstar Neutrona Wand board.
 */
 unsigned int i_spectral_wand_custom = 200;
 
