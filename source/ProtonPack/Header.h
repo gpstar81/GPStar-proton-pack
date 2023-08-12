@@ -57,6 +57,7 @@
 // Max amount of LEDs allowed: 15 for the Power Cell and 40 for the Cyclotron lid.
 const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
+const uint8_t i_max_inner_cyclotron_leds = 35;
 
 /*
  * Updated count of all the LEDs plus the n-filter jewel.
@@ -307,7 +308,7 @@ bool b_vent_light_on = false; // To know if the light is on or off.
 /* 
  *  Wand Firing Modes + Settings
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, VENTING, SETTINGS };
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
 
 /*
@@ -388,6 +389,7 @@ unsigned int i_mode_year_tmp = 2021; // Controlled by the Neutrona wand.
 bool b_switch_mode_override = false; // Year mode override flag controlled by the Neutrona wand. This resets when you flip the mode year toggle switch on the pack.
 bool b_pack_on = false;
 bool b_pack_shutting_down = false;
+bool b_spectral_lights_on = false;
 
 /*
  * EEPROM
@@ -403,6 +405,9 @@ struct objEEPROM {
   uint8_t cyclotron_count;
   uint8_t inner_cyclotron_count;
   uint8_t grb_inner_cyclotron;
+  uint8_t powercell_spectral_custom;
+  uint8_t cyclotron_spectral_custom;
+  uint8_t cyclotron_inner_spectral_custom;
 };
 
 /*

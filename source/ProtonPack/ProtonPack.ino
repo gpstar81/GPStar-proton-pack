@@ -197,63 +197,20 @@ void loop() {
       }
 
       if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
-        cyclotronSwitchLEDLoop();
-        powercellLoop();
-        cyclotronControl();
+        // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
+        if(b_spectral_lights_on == true) {
+          packOffReset();
+          spectralLightsOn();
+        }
+        else {
+          cyclotronSwitchLEDLoop();
+          powercellLoop();
+          cyclotronControl();
+        }
       }
       else {
-        powercellOff();
-        cyclotronSwitchLEDOff();
-
-        // Reset the power cell timer.
-        ms_powercell.stop();
-        ms_powercell.start(i_powercell_delay);
-
-        // Reset the cyclotron led switch timer.
-        ms_cyclotron_switch_led.stop();
-        ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
-
-        // Need to reset the cyclotron timers.
-        ms_cyclotron.start(i_2021_delay);
-        ms_cyclotron_ring.start(i_inner_ramp_delay);
-
-        b_overheating = false;
-        b_2021_ramp_down = false;
-        b_2021_ramp_down_start = false;
-        b_reset_start_led = true; // reset the start led of the cyclotron.
-        b_inner_ramp_down = false;
-
-        resetCyclotronLeds();
-        reset2021RampUp();
-
-        // Update Cyclotron LED timer delay and optional cyclotron led switch plate LED timers delays.
-        switch(i_mode_year) {
-          case 2021:
-            i_powercell_delay = i_powercell_delay_2021;
-            i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
-          break;
-
-          case 1984:
-          case 1989:
-            i_powercell_delay = i_powercell_delay_1984;
-            i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base * 4;
-          break;
-        }
-
-        // Vibration motor off.
-        vibrationPack(0);
-        i_vibration_level = 0;
-
-        if(b_pack_shutting_down == true) {
-          b_pack_shutting_down = false;
-
-          clearCyclotronFades();
-        }
-
-        // Tell the wand the alarm is off.
-        if(b_alarm == true) {
-          b_alarm = false;
-          packSerialSend(P_ALARM_OFF);
+        if(b_spectral_lights_on != true) {
+          packOffReset();
         }
       }
 
@@ -266,6 +223,10 @@ void loop() {
     break;
 
     case MODE_ON:
+      if(b_spectral_lights_on == true) {
+        spectralLightsOff();
+      }
+
       if(b_pack_shutting_down == true) {
         b_pack_shutting_down = false;
       }
@@ -605,6 +566,62 @@ void packShutdown() {
 
   // Reset vent sounds flag.
   b_vent_sounds = true;
+}
+
+void packOffReset() {
+  powercellOff();
+  cyclotronSwitchLEDOff();
+
+  // Reset the power cell timer.
+  ms_powercell.stop();
+  ms_powercell.start(i_powercell_delay);
+
+  // Reset the cyclotron led switch timer.
+  ms_cyclotron_switch_led.stop();
+  ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
+
+  // Need to reset the cyclotron timers.
+  ms_cyclotron.start(i_2021_delay);
+  ms_cyclotron_ring.start(i_inner_ramp_delay);
+
+  b_overheating = false;
+  b_2021_ramp_down = false;
+  b_2021_ramp_down_start = false;
+  b_reset_start_led = true; // reset the start led of the cyclotron.
+  b_inner_ramp_down = false;
+
+  resetCyclotronLeds();
+  reset2021RampUp();
+
+  // Update Cyclotron LED timer delay and optional cyclotron led switch plate LED timers delays.
+  switch(i_mode_year) {
+    case 2021:
+      i_powercell_delay = i_powercell_delay_2021;
+      i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
+    break;
+
+    case 1984:
+    case 1989:
+      i_powercell_delay = i_powercell_delay_1984;
+      i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base * 4;
+    break;
+  }
+
+  // Vibration motor off.
+  vibrationPack(0);
+  i_vibration_level = 0;
+
+  if(b_pack_shutting_down == true) {
+    b_pack_shutting_down = false;
+
+    clearCyclotronFades();
+  }
+
+  // Tell the wand the alarm is off.
+  if(b_alarm == true) {
+    b_alarm = false;
+    packSerialSend(P_ALARM_OFF);
+  }  
 }
 
 void checkSwitches() {
@@ -1164,6 +1181,48 @@ void powercellOff() {
   }
 
   i_powercell_led = 0;
+}
+
+void spectralLightsOff() {
+  b_spectral_lights_on = false;
+
+  for(int i = 0; i <= i_max_pack_leds - 1; i++) {
+    pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
+  }
+
+  for(int i = 0; i < i_max_inner_cyclotron_leds; i++) {
+    if(b_grb_cyclotron == true) {
+      cyclotron_leds[i] = getHueAsGRB(CYCLOTRON_INNER, C_BLACK);
+    }
+    else {
+      cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
+    }
+  }    
+}
+
+void spectralLightsOn() {
+  b_spectral_lights_on = true;
+
+  uint8_t i_colour_scheme = getDeviceColour(POWERCELL, SPECTRAL_CUSTOM, true);
+  for(int i = 0; i <= cyclotron_led_start - 1; i++) {
+    pack_leds[i] = getHueAsRGB(POWERCELL, i_colour_scheme);
+  }
+
+  uint8_t i_max = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
+  i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, SPECTRAL_CUSTOM, true);
+  for(int i = 0; i < i_max; i++) {
+    pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme);
+  }
+
+  i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, SPECTRAL_CUSTOM, true);
+  for(int i = 0; i < i_inner_cyclotron_num_leds; i++) {
+    if(b_grb_cyclotron == true) {
+      cyclotron_leds[i] = getHueAsGRB(CYCLOTRON_INNER, i_colour_scheme);
+    }
+    else {
+      cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, i_colour_scheme);
+    }
+  }  
 }
 
 void powercellDraw(uint8_t i_start) {
@@ -3043,6 +3102,11 @@ void cyclotronSwitchPlateLEDs() {
     if(b_cyclotron_lid_on == true) {
       // The cyclotron lid is now off.
       b_cyclotron_lid_on = false;
+
+      // Make sure the inner cyclotron turns on if we are in the EEPROM LED menu.
+      if(b_spectral_lights_on == true) {
+        spectralLightsOn();
+      }
     }
   }
 
@@ -3394,6 +3458,10 @@ void wandHandShake() {
 
       wandExtraSoundsStop();
 
+      if(b_spectral_lights_on == true) {
+        spectralLightsOff();
+      }
+
       // Where are you wand?
       packSerialSend(P_HANDSHAKE);
     }
@@ -3418,6 +3486,10 @@ void wandHandShake() {
     // Turn off overheating if the wand gets disconnected.
     if(b_overheating == true) {
       packOverheatingFinished();
+    }
+
+    if(b_spectral_lights_on == true) {
+      spectralLightsOff();
     }
 
     if(ms_wand_handshake.justFinished()) {
@@ -3722,6 +3794,27 @@ void checkWand() {
             case W_HOLIDAY_MODE:
               // Proton mode
               FIRING_MODE = HOLIDAY;
+              playEffect(S_CLICK);
+
+              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+                playEffect(S_FIRE_START_SPARK);
+              }
+
+              if(b_cyclotron_colour_toggle == true) {
+                // Reset the Cyclotron LED colours.
+                cyclotronColourReset();
+              }
+
+              if(b_powercell_colour_toggle == true) {
+                // Reset the Power Cell colours.
+                b_powercell_updating = true;
+                powercellDraw();
+              }
+            break;
+
+            case W_SPECTRAL_CUSTOM_MODE:
+              // Proton mode
+              FIRING_MODE = SPECTRAL_CUSTOM;
               playEffect(S_CLICK);
 
               if(PACK_STATUS == MODE_ON && b_wand_on == true) {
@@ -4559,6 +4652,80 @@ void checkWand() {
               }
             break;
 
+            case W_SPECTRAL_LIGHTS_ON:
+              spectralLightsOn();
+            break;
+
+            case W_SPECTRAL_LIGHTS_OFF:
+              spectralLightsOff();
+            break;
+
+            case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE:
+              if(i_spectral_cyclotron_inner_custom > 1) {
+                i_spectral_cyclotron_inner_custom--;
+              }
+              else {
+                i_spectral_cyclotron_inner_custom = 1;
+              }
+
+              spectralLightsOn();
+            break;
+
+            case W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE:
+              if(i_spectral_cyclotron_custom > 1) {
+                i_spectral_cyclotron_custom--;
+              }
+              else {
+                i_spectral_cyclotron_custom = 1;
+              }
+
+              spectralLightsOn();
+            break;
+
+            case W_SPECTRAL_POWERCELL_CUSTOM_DECREASE:
+              if(i_spectral_powercell_custom > 1) {
+                i_spectral_powercell_custom--;
+              }
+              else {
+                i_spectral_powercell_custom = 1;
+              }
+
+              spectralLightsOn();
+            break;
+
+            case W_SPECTRAL_POWERCELL_CUSTOM_INCREASE:
+              if(i_spectral_powercell_custom < 253) {
+                i_spectral_powercell_custom++;
+              }
+              else {
+                i_spectral_powercell_custom = 254;
+              }
+
+              spectralLightsOn();
+            break;
+
+            case W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE:
+              if(i_spectral_cyclotron_custom < 253) {
+                i_spectral_cyclotron_custom++;
+              }
+              else {
+                i_spectral_cyclotron_custom = 254;
+              }
+
+              spectralLightsOn();
+            break;
+          
+            case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE:
+              if(i_spectral_cyclotron_inner_custom < 253) {
+                i_spectral_cyclotron_inner_custom++;
+              }
+              else {
+                i_spectral_cyclotron_inner_custom = 254;
+              }
+
+              spectralLightsOn();
+            break;
+
             case W_DIMMING_TOGGLE:
               switch(pack_dim_toggle) {
                 case DIM_CYCLOTRON:
@@ -4817,6 +4984,9 @@ void checkWand() {
               }
 
               updateProtonPackLEDCounts();
+
+              spectralLightsOff();
+              spectralLightsOn();
             break;
 
             case W_TOGGLE_POWERCELL_LEDS:
@@ -4847,6 +5017,9 @@ void checkWand() {
               }
 
               updateProtonPackLEDCounts();
+
+              spectralLightsOff();
+              spectralLightsOn();
             break;
 
             case W_TOGGLE_CYCLOTRON_LEDS:
@@ -4900,6 +5073,9 @@ void checkWand() {
               }
 
               updateProtonPackLEDCounts();
+              
+              spectralLightsOff();
+              spectralLightsOn();
             break;
 
             case W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS:
@@ -4917,6 +5093,10 @@ void checkWand() {
                 playEffect(S_VOICE_GRB_INNER_CYCLOTRON);
 
                 packSerialSend(P_GRB_INNER_CYCLOTRON_LEDS);
+              }
+
+              if(b_spectral_lights_on == true) {
+                spectralLightsOn();
               }
             break;
 
@@ -5041,6 +5221,10 @@ void checkWand() {
 
               case HOLIDAY:
                 packSerialSend(P_HOLIDAY_MODE);
+              break;
+
+              case SPECTRAL_CUSTOM:
+                packSerialSend(P_SPECTRAL_CUSTOM_MODE);
               break;
 
               case VENTING:
@@ -5289,6 +5473,18 @@ void readEEPROM() {
       }
     }
 
+    if(obj_eeprom.powercell_spectral_custom > 0 && obj_eeprom.powercell_spectral_custom != 255) {
+      i_spectral_powercell_custom = obj_eeprom.powercell_spectral_custom;
+    }
+
+    if(obj_eeprom.cyclotron_spectral_custom > 0 && obj_eeprom.cyclotron_spectral_custom != 255) {
+      i_spectral_cyclotron_custom = obj_eeprom.cyclotron_spectral_custom;
+    }
+    
+    if(obj_eeprom.cyclotron_inner_spectral_custom > 0 && obj_eeprom.cyclotron_inner_spectral_custom != 255) {
+      i_spectral_cyclotron_inner_custom = obj_eeprom.cyclotron_inner_spectral_custom;
+    }
+
     // Update the LED counts for the Proton Pack.
     updateProtonPackLEDCounts();
 
@@ -5417,7 +5613,10 @@ void saveLedEEPROM() {
     i_powercell_leds,
     i_cyclotron_leds,
     i_inner_cyclotron_num_leds,
-    i_grb_cyclotron
+    i_grb_cyclotron,
+    i_spectral_powercell_custom,
+    i_spectral_cyclotron_custom,
+    i_spectral_cyclotron_inner_custom
   };
 
   // Save and update our object in the EEPROM.

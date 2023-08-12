@@ -46,6 +46,9 @@ enum colours {
   C_BLUEFADE,
   C_PASTEL,
   C_RAINBOW,
+  C_CUSTOM_POWERCELL,
+  C_CUSTOM_CYCLOTRON,
+  C_CUSTOM_INNER_CYCLOTRON,
   C_HASLAB
 };
 
@@ -144,6 +147,27 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
           }  
         break;
 
+        case SPECTRAL_CUSTOM:
+          switch(i_device) {
+            case POWERCELL:
+              return C_CUSTOM_POWERCELL;
+            break;
+
+            case CYCLOTRON_OUTER:
+              return C_CUSTOM_CYCLOTRON;
+            break;
+
+            case CYCLOTRON_INNER:
+              return C_CUSTOM_INNER_CYCLOTRON;
+            break;
+            
+            case VENT_LIGHT:
+            default:
+              return C_CUSTOM_CYCLOTRON;
+            break;   
+          }  
+        break;
+
         case VENTING:
           switch(i_device) {
             case VENT_LIGHT:
@@ -213,6 +237,18 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
   switch(i_colour) {
     case C_HASLAB:
       return CHSV(100, 0, i_brightness); // Just "on", which is white.
+    break;
+
+    case C_CUSTOM_POWERCELL:
+      return CHSV(i_spectral_powercell_custom, i_saturation, i_brightness); // b_spectral_powercell_custom is a global variable found in Configuration.h
+    break;
+
+    case C_CUSTOM_CYCLOTRON:
+      return CHSV(i_spectral_cyclotron_custom, i_saturation, i_brightness); // b_spectral_cyclotron_custom is a global variable found in Configuration.h
+    break;
+
+    case C_CUSTOM_INNER_CYCLOTRON:
+      return CHSV(i_spectral_cyclotron_inner_custom, i_saturation, i_brightness); // b_spectral_cyclotron_inner_custom is a global variable found in Configuration.h
     break;
 
     case C_BLACK:
