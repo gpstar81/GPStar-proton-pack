@@ -85,6 +85,7 @@ The following features require the use of both the pack and wand replacement con
 	1. Meson Collider
 	1. <sup>1</sup> `Spectral (Rainbow)`
 	1. <sup>2</sup> `Spectral (Holiday)`
+	1. <sup>3</sup> `Spectral (Custom)`
 	1. Manual Venting Mode (Manual vent your Proton Pack)
 	1. Special: Setting 6 is a settings menu system (see "Wand Settings Menu System" section below).
 
@@ -92,7 +93,9 @@ The following features require the use of both the pack and wand replacement con
 
 <sup>2</sup> Spectral (Holiday) is a firing mode which gives a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.
 
-`Spectral modes are disabled by default but can be enabled from the EEPROM Menu or flashed directly to the Neutrona Wand board.`
+<sup>3</sup> Spectral (Custom) is a user defined colour mode. You can independently adjust the Neutrona Wand Barrel, Power Cell, Cyclotron and Inner Cyclotron colours directly from the EEPROM LED Menu ystem. The default colours are purple.
+
+`Spectral modes are disabled by default but can be enabled from the EEPROM Menu or flashed directly to the Neutrona Wand board. They take advantage of RGB coloured LED add-ons if installed.`
 
 **Manual Venting Mode**
 ![](images/OperationNeutrona6.jpg)
@@ -182,7 +185,7 @@ There are two different EEPROM menus that can be accessed to adjust and save con
 
 The EEPOM LED Menu can be used to configure different LED setups for your Proton Pack. All changes can be saved directly to the Proton Pack EEPROM and will be loaded automatically even if you turn off the power to your devices.
 
-To access the EEPROM LED Menu System, hold the `Intensify Button` down and toggle the right hand `Top Toggle` button 5 times. You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM LED Menu System.
+To access the EEPROM LED Menu System, hold the `Intensify Button` down and toggle the right hand `Top Toggle` button 5 times. You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM LED Menu System. The Neutrona Wand barrel and all the Proton Pack LEDs will light up to the default Spectral Custom colours when you enter the EEPROM LED Menu.
 
 `The EEPROM LED Menu System can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
 
@@ -191,10 +194,10 @@ To access the EEPROM LED Menu System, hold the `Intensify Button` down and toggl
 | EEPROM&nbsp;LED<br>Menu&nbsp;Level | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |----------------|---------|------------------|--------------------|
 | <p align="center">5</p> | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack EEPROM.<br><br>***The Proton Pack will instead load the software defined defaults the next time you turn the battery power off.***| Save the current settings to the Proton Pack EEPROM. |
-| <p align="center">4</p> | Cyclotron LED Count Toggle | Toggle between 40, 20 or 12 LEDs for your Cyclotron. | <p align="center">-</p> |
-| <p align="center">3</p> | Power Cell LED Count Toggle | Toggle between 15 or 13 LEDs for your Power Cell. | <p align="center">-</p> |
-| <p align="center">2</p> | Inner Cyclotron LED Count Toggle | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron Cake. | <p align="center">-</p> |
-| <p align="center">1</p> | Inner Cyclotron GRB Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | <p align="center">-</p> |
+| <p align="center">4</p> | Cyclotron LED Count Toggle / Spectral Custom (Barrel) Colour| Toggle between 40, 20 or 12 LEDs for your Cyclotron. | `(Wing Barrel Switch + Top Dial)` Changes the colour hue of the Neutrona Wand barrel for the Spectral Custom mode. |
+| <p align="center">3</p> | Power Cell LED Count Toggle / Spectral Custom (Power Cell) Colour | Toggle between 15 or 13 LEDs for your Power Cell. | `(Wing Barrel Switch + Top Dial)` Changes the colour hue of the Power Cell for the Spectral Custom mode. |
+| <p align="center">2</p> | Inner Cyclotron LED Count Toggle  / Spectral Custom (Cyclotron) Colour | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron Cake. | `(Wing Barrel Switch + Top Dial)` Changes the colour hue of the Cyclotron for the Spectral Custom mode. |
+| <p align="center">1</p> | Inner Cyclotron GRB Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `(Wing Barrel Switch + Top Dial)` Changes the colour hue of the Inner Cyclotron (Cake) for the Spectral Custom mode. |
 
 **EEPROM Configuration Menu**
 
