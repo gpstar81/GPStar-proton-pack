@@ -240,15 +240,39 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
     break;
 
     case C_CUSTOM_POWERCELL:
-      return CHSV(i_spectral_powercell_custom, i_saturation, i_brightness); // b_spectral_powercell_custom is a global variable found in Configuration.h
+      // i_spectral_powercell_custom is a global variable found in Configuration.h
+      if(i_spectral_powercell_custom == 254) {
+        // Upper bound value indicates white as color choice.
+        return CHSV(100, 0, i_brightness);
+      }
+      else {
+        // All other values indicate a value on the hue chart (1-253).
+        return CHSV(i_spectral_powercell_custom, i_saturation, i_brightness);
+      }
     break;
 
     case C_CUSTOM_CYCLOTRON:
-      return CHSV(i_spectral_cyclotron_custom, i_saturation, i_brightness); // b_spectral_cyclotron_custom is a global variable found in Configuration.h
+      // i_spectral_cyclotron_custom is a global variable found in Configuration.h
+      if(i_spectral_cyclotron_custom == 254) {
+        // Upper bound value indicates white as color choice.
+        return CHSV(100, 0, i_brightness);
+      }
+      else {
+        // All other values indicate a value on the hue chart (1-253).
+        return CHSV(i_spectral_cyclotron_custom, i_saturation, i_brightness);
+      }
     break;
 
     case C_CUSTOM_INNER_CYCLOTRON:
-      return CHSV(i_spectral_cyclotron_inner_custom, i_saturation, i_brightness); // b_spectral_cyclotron_inner_custom is a global variable found in Configuration.h
+      // i_spectral_cyclotron_inner_custom is a global variable found in Configuration.h
+      if(i_spectral_cyclotron_inner_custom == 254) {
+        // Upper bound value indicates white as color choice.
+        return CHSV(100, 0, i_brightness);
+      }
+      else {
+        // All other values indicate a value on the hue chart (1-253).
+        return CHSV(i_spectral_cyclotron_inner_custom, i_saturation, i_brightness);
+      }
     break;
 
     case C_BLACK:
