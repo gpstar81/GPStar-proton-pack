@@ -126,6 +126,14 @@ bool b_spectral_custom_mode_enabled = false;
 unsigned int i_spectral_wand_custom = 200;
 
 /*
+ * The CHSV saturation range for the Spectral custom mode. 
+ * This can be adjusted in the EEPROM LED menu. Any EEPROM settings will overwrite these values.
+ * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. The Neutrona Wand custom spectral colours are stored on the Neutrona Wand. So it is possible to mix and match different wands colours to different pack settings.
+ * Value range: 1 <--> 254
+*/
+unsigned int i_spectral_wand_saturation_custom = 254;
+
+/*
  * When enabled, the Neutrona Wand will vibrate at all times.
  * Vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
  * This can be enabled or disabled from the Neutrona wand sub menu system.

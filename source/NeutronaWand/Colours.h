@@ -75,7 +75,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
     break;
 
     case C_CUSTOM:
-      return CHSV(i_spectral_wand_custom, i_saturation, i_brightness); // b_spectral_wand_custom is a global variable found in Configuration.h
+      return CHSV(i_spectral_wand_custom, i_spectral_wand_saturation_custom, i_brightness); // b_spectral_wand_custom is a global variable found in Configuration.h
     break;
 
     case C_BLACK:
