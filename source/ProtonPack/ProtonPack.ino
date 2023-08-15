@@ -4758,11 +4758,11 @@ void checkWand() {
             break;
           
             case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE:
-              if(i_spectral_cyclotron_inner_custom < 254) {
-                i_spectral_cyclotron_inner_custom++;
+              if(i_spectral_cyclotron_inner_custom_saturation < 254) {
+                i_spectral_cyclotron_inner_custom_saturation++;
 
-                if(i_spectral_cyclotron_inner_custom > 253) {
-                  i_spectral_cyclotron_inner_custom = 254;
+                if(i_spectral_cyclotron_inner_custom_saturation > 253) {
+                  i_spectral_cyclotron_inner_custom_saturation = 254;
                 }
               }  
               else if(i_spectral_cyclotron_inner_custom < 253) {
