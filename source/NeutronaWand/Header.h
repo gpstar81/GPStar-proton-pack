@@ -223,6 +223,7 @@ bool b_28segment_bargraph = false;
   */
   struct objLEDEEPROM {
     uint8_t barrel_spectral_custom;
+    uint8_t barrel_spectral_saturation_custom;
   };  
 #endif
 

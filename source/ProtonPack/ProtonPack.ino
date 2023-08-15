@@ -4661,66 +4661,122 @@ void checkWand() {
             break;
 
             case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE:
-              if(i_spectral_cyclotron_inner_custom > 1) {
+              if(i_spectral_cyclotron_inner_custom > 1 && i_spectral_cyclotron_inner_custom_saturation > 253) {
                 i_spectral_cyclotron_inner_custom--;
               }
               else {
                 i_spectral_cyclotron_inner_custom = 1;
+
+                if(i_spectral_cyclotron_inner_custom_saturation > 1) {
+                  i_spectral_cyclotron_inner_custom_saturation--;
+                }
+                else {
+                  i_spectral_cyclotron_inner_custom_saturation = 1;
+                }
               }
 
               spectralLightsOn();
             break;
 
             case W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE:
-              if(i_spectral_cyclotron_custom > 1) {
+              if(i_spectral_cyclotron_custom > 1 && i_spectral_cyclotron_custom_saturation > 253) {
                 i_spectral_cyclotron_custom--;
               }
               else {
                 i_spectral_cyclotron_custom = 1;
+
+                if(i_spectral_cyclotron_custom_saturation > 1) {
+                  i_spectral_cyclotron_custom_saturation--;
+                }
+                else {
+                  i_spectral_cyclotron_custom_saturation = 1;
+                }                
               }
 
               spectralLightsOn();
             break;
 
             case W_SPECTRAL_POWERCELL_CUSTOM_DECREASE:
-              if(i_spectral_powercell_custom > 1) {
+              if(i_spectral_powercell_custom > 1 && i_spectral_powercell_custom_saturation > 253) {
                 i_spectral_powercell_custom--;
               }
               else {
                 i_spectral_powercell_custom = 1;
+
+                if(i_spectral_powercell_custom_saturation > 1) {
+                  i_spectral_powercell_custom_saturation--;
+                }
+                else {
+                  i_spectral_powercell_custom_saturation = 1;
+                }
               }
 
               spectralLightsOn();
             break;
 
             case W_SPECTRAL_POWERCELL_CUSTOM_INCREASE:
-              if(i_spectral_powercell_custom < 253) {
+              if(i_spectral_powercell_custom_saturation < 254) {
+                i_spectral_powercell_custom_saturation++;
+
+                if(i_spectral_powercell_custom_saturation > 253) {
+                  i_spectral_powercell_custom_saturation = 254;
+                }
+              }            
+              else if(i_spectral_powercell_custom < 253) {
                 i_spectral_powercell_custom++;
               }
               else {
-                i_spectral_powercell_custom = 254;
+                i_spectral_powercell_custom = 254;             
               }
 
               spectralLightsOn();
             break;
 
             case W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE:
-              if(i_spectral_cyclotron_custom < 253) {
+              if(i_spectral_cyclotron_custom_saturation < 254) {
+                i_spectral_cyclotron_custom_saturation++;
+
+                if(i_spectral_cyclotron_custom_saturation > 253) {
+                  i_spectral_cyclotron_custom_saturation = 254;
+                }
+              }  
+              else if(i_spectral_cyclotron_custom < 253) {
                 i_spectral_cyclotron_custom++;
               }
               else {
                 i_spectral_cyclotron_custom = 254;
+
+                if(i_spectral_cyclotron_custom_saturation < 253) {
+                  i_spectral_cyclotron_custom_saturation++;
+                }
+                else {
+                  i_spectral_cyclotron_custom_saturation = 254;
+                }
               }
 
               spectralLightsOn();
             break;
           
             case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE:
-              if(i_spectral_cyclotron_inner_custom < 253) {
+              if(i_spectral_cyclotron_inner_custom_saturation < 254) {
+                i_spectral_cyclotron_inner_custom_saturation++;
+
+                if(i_spectral_cyclotron_inner_custom_saturation > 253) {
+                  i_spectral_cyclotron_inner_custom_saturation = 254;
+                }
+              }  
+              else if(i_spectral_cyclotron_inner_custom < 253) {
                 i_spectral_cyclotron_inner_custom++;
               }
               else {
                 i_spectral_cyclotron_inner_custom = 254;
+
+                if(i_spectral_cyclotron_inner_custom_saturation < 253) {
+                  i_spectral_cyclotron_inner_custom_saturation++;
+                }
+                else {
+                  i_spectral_cyclotron_inner_custom_saturation = 254;
+                }
               }
 
               spectralLightsOn();
@@ -5485,6 +5541,18 @@ void readEEPROM() {
       i_spectral_cyclotron_inner_custom = obj_eeprom.cyclotron_inner_spectral_custom;
     }
 
+    if(obj_eeprom.powercell_spectral_saturation_custom > 0 && obj_eeprom.powercell_spectral_saturation_custom != 255) {
+      i_spectral_powercell_custom_saturation = obj_eeprom.powercell_spectral_saturation_custom;
+    }
+
+    if(obj_eeprom.cyclotron_spectral_saturation_custom > 0 && obj_eeprom.cyclotron_spectral_saturation_custom != 255) {
+      i_spectral_cyclotron_custom_saturation = obj_eeprom.cyclotron_spectral_saturation_custom;
+    }
+
+    if(obj_eeprom.cyclotron_inner_spectral_saturation_custom > 0 && obj_eeprom.cyclotron_inner_spectral_saturation_custom != 255) {
+      i_spectral_cyclotron_inner_custom_saturation = obj_eeprom.cyclotron_inner_spectral_saturation_custom;
+    }
+
     // Update the LED counts for the Proton Pack.
     updateProtonPackLEDCounts();
 
@@ -5616,7 +5684,10 @@ void saveLedEEPROM() {
     i_grb_cyclotron,
     i_spectral_powercell_custom,
     i_spectral_cyclotron_custom,
-    i_spectral_cyclotron_inner_custom
+    i_spectral_cyclotron_inner_custom,
+    i_spectral_powercell_custom_saturation,
+    i_spectral_cyclotron_custom_saturation,
+    i_spectral_cyclotron_inner_custom_saturation,
   };
 
   // Save and update our object in the EEPROM.

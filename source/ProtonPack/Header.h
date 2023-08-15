@@ -408,6 +408,9 @@ struct objEEPROM {
   uint8_t powercell_spectral_custom;
   uint8_t cyclotron_spectral_custom;
   uint8_t cyclotron_inner_spectral_custom;
+  uint8_t powercell_spectral_saturation_custom;
+  uint8_t cyclotron_spectral_saturation_custom;
+  uint8_t cyclotron_inner_spectral_saturation_custom;  
 };
 
 /*

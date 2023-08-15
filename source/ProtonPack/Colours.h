@@ -240,15 +240,15 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
     break;
 
     case C_CUSTOM_POWERCELL:
-      return CHSV(i_spectral_powercell_custom, i_saturation, i_brightness); // b_spectral_powercell_custom is a global variable found in Configuration.h
+      return CHSV(i_spectral_powercell_custom, i_spectral_powercell_custom_saturation, i_brightness); // b_spectral_powercell_custom is a global variable found in Configuration.h
     break;
 
     case C_CUSTOM_CYCLOTRON:
-      return CHSV(i_spectral_cyclotron_custom, i_saturation, i_brightness); // b_spectral_cyclotron_custom is a global variable found in Configuration.h
+      return CHSV(i_spectral_cyclotron_custom, i_spectral_cyclotron_custom_saturation, i_brightness); // b_spectral_cyclotron_custom is a global variable found in Configuration.h
     break;
 
     case C_CUSTOM_INNER_CYCLOTRON:
-      return CHSV(i_spectral_cyclotron_inner_custom, i_saturation, i_brightness); // b_spectral_cyclotron_inner_custom is a global variable found in Configuration.h
+      return CHSV(i_spectral_cyclotron_inner_custom, i_spectral_cyclotron_inner_custom_saturation, i_brightness); // b_spectral_cyclotron_inner_custom is a global variable found in Configuration.h
     break;
 
     case C_BLACK:
