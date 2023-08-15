@@ -3124,7 +3124,13 @@ void modeFiring() {
 
       case SPECTRAL_CUSTOM:
         fireStreamStart(getHueAsGRB(C_CUSTOM));
-        fireStream(getHueAsGRB(C_WHITE));
+
+        if(i_spectral_wand_saturation_custom < 254) {
+          fireStream(getHueAsGRB(C_BLUE));
+        }
+        else {
+          fireStream(getHueAsGRB(C_WHITE));
+        }
       break;
     #endif
 
@@ -5129,11 +5135,18 @@ void checkRotary() {
             if(prev_next_code == 0x0b) {
               if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
                 // Change colour of the wand barrel spectral custom colour.
-                if(i_spectral_wand_custom > 1) {
+                if(i_spectral_wand_custom > 1 && i_spectral_wand_saturation_custom > 253) {
                   i_spectral_wand_custom--;
                 }
                 else {
                   i_spectral_wand_custom = 1;
+
+                  if(i_spectral_wand_saturation_custom > 1) {
+                    i_spectral_wand_saturation_custom--;
+                  }
+                  else {
+                    i_spectral_wand_saturation_custom = 1;
+                  }
                 }
 
                 wandBarrelSpectralCustomConfigOn();
@@ -5162,11 +5175,25 @@ void checkRotary() {
             if(prev_next_code == 0x07) {
               if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
                 // Change colour of the Wand Barrel Spectral custom colour.
-                if(i_spectral_wand_custom < 253) {
+                if(i_spectral_wand_saturation_custom < 254) {
+                  i_spectral_wand_saturation_custom++;
+
+                  if(i_spectral_wand_saturation_custom > 253) {
+                    i_spectral_wand_saturation_custom = 254;
+                  }
+                }                  
+                else if(i_spectral_wand_custom < 253 && i_spectral_wand_saturation_custom > 253) {
                   i_spectral_wand_custom++;
                 }
                 else {
                   i_spectral_wand_custom = 254;
+
+                  if(i_spectral_wand_saturation_custom < 253) {
+                    i_spectral_wand_saturation_custom++;
+                  }
+                  else {
+                    i_spectral_wand_saturation_custom = 254;
+                  }  
                 }
 
                 wandBarrelSpectralCustomConfigOn();
@@ -6459,6 +6486,7 @@ void wandSerialSend(int i_message) {
     // For now we are just saving the Spectral Custom colour.
     objLEDEEPROM obj_eeprom = {
       i_spectral_wand_custom,
+      i_spectral_wand_saturation_custom,
     };
 
     // Save to the EEPROM.
@@ -6620,6 +6648,10 @@ void wandSerialSend(int i_message) {
       EEPROM.get(i_eepromLEDAddress, obj_led_eeprom);
       if(obj_led_eeprom.barrel_spectral_custom > 0 && obj_led_eeprom.barrel_spectral_custom != 255) {
         i_spectral_wand_custom = obj_led_eeprom.barrel_spectral_custom;
+      }
+
+      if(obj_led_eeprom.barrel_spectral_saturation_custom > 0 && obj_led_eeprom.barrel_spectral_saturation_custom != 255) {
+        i_spectral_wand_saturation_custom = obj_led_eeprom.barrel_spectral_saturation_custom;
       }
     }
   }
