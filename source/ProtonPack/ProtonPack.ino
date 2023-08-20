@@ -161,6 +161,12 @@ void setup() {
   if(b_eeprom == true) {
     readEEPROM();
   }
+
+  // Auto start the pack if it is in demo light mode.
+  if(b_demo_light_mode == true) {
+    // Turn the pack on.
+    PACK_ACTION_STATUS = ACTION_ACTIVATE;
+  }
 }
 
 void loop() {
