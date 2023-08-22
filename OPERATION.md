@@ -225,6 +225,10 @@ To access the EEPROM Configuration Menu, hold the `Intensify Button` down and to
 
 To modify defaults within the software, please see the [Advanced Configuration](ADVCONFIG.md) guide.
 
+## PDF Operational Guide
+(Direct Download link)
+[gpstar Operational Guide [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstar-Operational-Guide.pdf)
+
 ## Video Demos
 Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube, July 2023)
 [![Haslab Proton Pack Arduino Powered Demo & Features](https://img.youtube.com/vi/ePXz99UawLQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=ePXz99UawLQ)

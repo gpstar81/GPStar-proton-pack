@@ -29,7 +29,7 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Wand PCB](WAND_PCB.md)
 
-1. Wire Kits Installation (Coming Soon)
+1. [Installation Video & Guide](INSTALL_GUIDE.md)
 
 1. [Loading The Audio Files](AUDIO.md)
 
