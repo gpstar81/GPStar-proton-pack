@@ -227,7 +227,7 @@ To modify defaults within the software, please see the [Advanced Configuration](
 
 ## PDF Operational Guide
 (Direct Download link)
-[gpstar Operational Guide [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstar Operational Guide.pdf)
+[gpstar Operational Guide [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstar-Operational-Guide.pdf)
 
 ## Video Demos
 Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube, July 2023)
