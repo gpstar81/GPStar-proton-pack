@@ -2813,17 +2813,27 @@ void wandFiring() {
         break;
 
         case 5:
-            if(i_mode_year == 1989) {
-              playEffect(S_GB2_FIRE_START);
-            }
-            else {
-              playEffect(S_GB1_FIRE_START_HIGH_POWER);
+            switch(i_mode_year) {
+              case 1989:
+                playEffect(S_GB2_FIRE_START);
+              break;
+
+              case 1984:
+                playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
+                playEffect(S_GB1_FIRE_START);
+              break;
+
+              case 2021:
+              default:
+                playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
+              break;
+
             }
 
             if(b_firing_intensify == true) {
               // Reset some sound triggers.
               b_sound_firing_intensify_trigger = true;
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700);
             }
             else {
               b_sound_firing_intensify_trigger = false;
@@ -2833,7 +2843,7 @@ void wandFiring() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              playEffect(S_FIRING_LOOP_GB1, true);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700);
             }
             else {
               b_sound_firing_alt_trigger = false;
@@ -2965,6 +2975,9 @@ void wandStopFiringSounds() {
         stopEffect(S_GB1_FIRE_START);
       }
 
+      if(i_mode_year == 2021) {
+        stopEffect(S_AFTERLIFE_FIRE_START);
+      }
       stopEffect(S_GB1_FIRE_LOOP);
       stopEffect(S_GB2_FIRE_LOOP);
 
@@ -4012,8 +4025,8 @@ void checkWand() {
                       playEffect(S_GB2_FIRE_START);
                     }
                     else {
-                      playEffect(S_GB2_FIRE_LOOP, true);
-                      playEffect(S_GB2_FIRE_START);
+                      playEffect(S_GB1_FIRE_LOOP, true);
+                      playEffect(S_GB1_FIRE_START);
                     }
                   break;
 
@@ -4044,13 +4057,11 @@ void checkWand() {
                     }
                     else {
                       stopEffect(S_GB1_FIRE_LOOP);
-                      stopEffect(S_GB1_FIRE_LOOP);
                       stopEffect(S_GB1_FIRE_START);
                     }
                   break;
 
                   case 5:
-                    stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
                     stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
                   break;
                 }
