@@ -4025,8 +4025,8 @@ void checkWand() {
                       playEffect(S_GB2_FIRE_START);
                     }
                     else {
-                      playEffect(S_GB2_FIRE_LOOP, true);
-                      playEffect(S_GB2_FIRE_START);
+                      playEffect(S_GB1_FIRE_LOOP, true);
+                      playEffect(S_GB1_FIRE_START);
                     }
                   break;
 
@@ -4057,13 +4057,11 @@ void checkWand() {
                     }
                     else {
                       stopEffect(S_GB1_FIRE_LOOP);
-                      stopEffect(S_GB1_FIRE_LOOP);
                       stopEffect(S_GB1_FIRE_START);
                     }
                   break;
 
                   case 5:
-                    stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
                     stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
                   break;
                 }
