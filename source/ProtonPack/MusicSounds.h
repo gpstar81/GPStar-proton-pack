@@ -179,10 +179,11 @@ enum sound_fx {
   S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED,
   S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED,
   S_VOICE_SPECTRAL_MODES_ENABLED,
-  S_VOICE_SPECTRAL_MODES_DISABLED
+  S_VOICE_SPECTRAL_MODES_DISABLED,
+  S_AFTERLIFE_FIRE_START
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
  */
-const unsigned int i_last_effects_track = S_VOICE_SPECTRAL_MODES_DISABLED;
+const unsigned int i_last_effects_track = S_AFTERLIFE_FIRE_START;

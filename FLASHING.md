@@ -39,6 +39,9 @@ No further configuration is needed for this library.
 The WavTrigger library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
 [https://github.com/robertsonics/WAV-Trigger-Arduino-Serial-Library](https://github.com/robertsonics/WAV-Trigger-Arduino-Serial-Library)
 
+## +++ IMPORTANT WHEN FLASHING UPDATES +++
+If you are flashing updates to your existing setup, make sure that both your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository.
+
 ## +++ IMPORTANT +++
 Documented on both the Proton Pack and Neutron Wand code at the top of each file, is instructions on modifying the wavTrigger.h file. **You will need to open the wavTrigger.h file and comment out the neccessary #define required for the Proton Pack and Neutrona Wand.**
 
