@@ -2491,6 +2491,11 @@ void modeFireStartSounds() {
             }
 
             playEffect(S_GB1_FIRE_START_HIGH_POWER);
+
+            if(year_mode == 2021) {
+              // Add a bit of a punch for level 5 in Afterlife mode.
+              playEffect(S_FIRE_SPARKS);
+            }
           break;
         }
     break;
@@ -2569,6 +2574,7 @@ void modeFireStart() {
 
       stopEffect(S_FIRE_START_SPARK);
       stopEffect(S_FIRING_END_GUN);
+      stopEffect(S_FIRE_SPARKS);
 
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         stopEffect(S_FIRE_LOOP_IMPACT);
@@ -2776,6 +2782,7 @@ void modeFireStop() {
       stopEffect(S_GB1_FIRE_START_HIGH_POWER);
       stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
       stopEffect(S_FIRE_START_SPARK);
+      stopEffect(S_FIRE_SPARKS);
 
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         stopEffect(S_FIRE_LOOP_IMPACT);
@@ -2833,6 +2840,11 @@ void modeFiring() {
 
         case 5:
             playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+
+            if(year_mode == 2021) {
+              // Add a bit of a punch for level 5 in Afterlife mode.
+              playEffect(S_FIRE_SPARKS);
+            }
         break;
       }
     }
@@ -2857,14 +2869,13 @@ void modeFiring() {
           }
           else {
             stopEffect(S_GB1_FIRE_LOOP);
-            stopEffect(S_GB1_FIRE_LOOP);
             stopEffect(S_GB1_FIRE_START);
           }
         break;
 
         case 5:
           stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
-          stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+          stopEffect(S_FIRE_SPARKS);
         break;
       }
     }
