@@ -115,14 +115,22 @@ void mainLoop() {
 }
 
 void checkRotary() {
+  // This will eventually do something, such as changing the idle pattern for the bargraph.
 
 }
 
 void checkSwitches() {
+  // Determine the toggle states.
 
+  Serial.print(F("D3 Left -> "));
+  Serial.println(switch_left.getState());
+
+  Serial.print(F("D4 Right -> "));
+  Serial.println(switch_right.getState());
 }
 
 void switchLoops() {
+  // Perform debounce and get button/switch states.
   switch_left.loop();
   switch_right.loop();
 }

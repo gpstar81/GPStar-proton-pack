@@ -34,6 +34,9 @@ millisDelay ms_fast_led;
 /*
  * Barmeter 28 segment bargraph configuration and timers.
  * Part #: BL28Z-3005SA04Y
+ * This will use the following pins for i2c serial communication:
+ * SDA -> A4
+ * SCL -> A5
  */
 HT16K33 ht_bargraph;
 const uint8_t i_bargraph_interval = 4;
