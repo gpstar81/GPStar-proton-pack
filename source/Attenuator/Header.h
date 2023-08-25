@@ -20,42 +20,50 @@
 /*
  * Pin for Addressable LED's.
 */
-#define ATTENUATOR_LED_PIN 12
+#define ATTENUATOR_LED_PIN 10
 #define ATTENUATOR_NUM_LEDS 2
 CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
 
 /*
- * Delay for fastled to update the addressable LEDs. 
+ * Delay for fastled to update the addressable LEDs.
+ * 0.03 ms to update 1 LED, and this device contains 2.
  */
-const uint8_t i_fast_led_delay = 6;
+const uint8_t i_fast_led_delay = 3;
 millisDelay ms_fast_led;
 
 /*
  * Barmeter 28 segment bargraph configuration and timers.
  * Part #: BL28Z-3005SA04Y
-*/
+ */
 HT16K33 ht_bargraph;
-  
+const uint8_t i_bargraph_interval = 4;
+const uint8_t i_bargraph_wait = 180;
+bool b_28segment_bargraph = false;
+bool b_bargraph_up = false;
+millisDelay ms_bargraph;
+uint8_t i_bargraph_status = 0;
+const uint8_t d_bargraph_ramp_interval = 40;
+const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
+const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
+unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+
 // Used to scan the i2c bus and to locate the 28 segment bargraph.
 #define WIRE Wire
 
-/* 
- *  State of the pack.
- */
-enum PACK_STATE { MODE_OFF, MODE_ON };
-enum PACK_STATE PACK_STATUS;
-
 /*
- * Pack action state.
+ * Barmeter 28 segment bargraph mapping.
  */
-enum PACK_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE };
-enum PACK_ACTION_STATE PACK_ACTION_STATUS;
+#ifdef GPSTAR_INVERT_BARGRAPH
+  const uint8_t i_bargraph[28] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
+#else
+  const uint8_t i_bargraph[28] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
+#endif
 
 /* 
  *  Switches
  */
-ezButton switch_left(23);
-ezButton switch_right(25);
+ezButton switch_left(3);
+ezButton switch_right(4);
 
 /*
  * Switch Settings.
@@ -63,16 +71,15 @@ ezButton switch_right(25);
 const uint8_t switch_debounce_time = 50;
 
 /* 
- *  Wand Firing Modes + Settings
+ * Rotary encoder for various uses.
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
-enum FIRING_MODES FIRING_MODE;
+#define r_encoderA 6
+#define r_encoderB 7
 
 /* 
- * Rotary encoder for pattern selection
+ *  Pack Communication
  */
-#define r_encoderA 2
-#define r_encoderB 3
+SerialTransfer packComs;
 
 /*
  * LED Devices.

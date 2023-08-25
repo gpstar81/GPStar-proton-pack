@@ -23,6 +23,7 @@
 #include <ezButton.h>
 #include <ht16k33.h>
 #include <Wire.h>
+#include <SerialTransfer.h>
 
 // Local Files
 #include "Configuration.h"
@@ -32,9 +33,18 @@
 void setup() {
   Serial.begin(9600);
 
-  // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
+  // Enable Serial1 if compiling for the gpstar Neutrona Wand micro controller.
+  #ifdef HAVE_HWSERIAL1
+    Serial1.begin(9600);
+    packComs.begin(Serial1);
+  #else
+    packComs.begin(Serial);
+  #endif
+
+  // RGB LED's for effects (upper/lower).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
 
+  // Debounce the toggle switches.
   switch_left.setDebounceTime(switch_debounce_time);
   switch_right.setDebounceTime(switch_debounce_time);
 
@@ -47,7 +57,6 @@ void setup() {
   WIRE.begin();
 
   byte by_error, by_address;
-  bool b_28segment_bargraph = false;
   unsigned int i_i2c_devices = 0;
 
   // Scan i2c for any devices (28 segment bargraph).
@@ -81,9 +90,26 @@ void loop() {
 
 void mainLoop() {
 
+  switchLoops();
+  checkRotary();
+  checkSwitches();
+
   // Update the device LEDs.
   if(ms_fast_led.justFinished()) {
     FastLED.show();
     ms_fast_led.stop();
   }
+}
+
+void checkRotary() {
+
+}
+
+void checkSwitches() {
+
+}
+
+void switchLoops() {
+  switch_left.loop();
+  switch_right.loop();
 }
