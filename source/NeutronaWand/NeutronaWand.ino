@@ -124,7 +124,7 @@ void setup() {
 
     byte by_error, by_address;
     unsigned int i_i2c_devices = 0;
-    
+
     // Scan i2c for any devices (28 segment bargraph).
     for(by_address = 1; by_address < 127; by_address++ ) {
       WIRE.beginTransmission(by_address);
@@ -141,7 +141,7 @@ void setup() {
     else {
       b_28segment_bargraph = false;
     }
-          
+
     if(b_28segment_bargraph == true) {
       ht_bargraph.begin(0x00);
     }
@@ -229,7 +229,7 @@ void loop() {
 
 void mainLoop() {
   w_trig.update();
-  
+
   checkMusic();
   checkPack();
   switchLoops();
@@ -352,7 +352,7 @@ void mainLoop() {
         // Prepare a few things before ramping the bargraph back up from a full ramp down.
         if(b_overheat_bargraph_blink != true) {
           playEffect(S_BOOTUP);
-          
+
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
               if(year_mode == 2021) {
                 bargraphYearModeUpdate();
@@ -441,7 +441,7 @@ void mainLoop() {
           case 3:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
-              
+
               wandSerialSend(W_TOGGLE_POWERCELL_LEDS);
             }
           break;
@@ -451,7 +451,7 @@ void mainLoop() {
           case 2:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
-                
+
               wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_LEDS);
             }
           break;
@@ -461,7 +461,7 @@ void mainLoop() {
           case 1:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
-              
+
               wandSerialSend(W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS);
             }
           break;
@@ -495,7 +495,7 @@ void mainLoop() {
               // Tell the Proton Pack to save it's current configuration to the EEPROM.
               // Proton Stream Impact Effects / 3 LED mode in 1984/1989
               wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
-              
+
               stopEffect(S_VOICE_EEPROM_SAVE);
               playEffect(S_VOICE_EEPROM_SAVE);
 
@@ -514,7 +514,7 @@ void mainLoop() {
 
               toggleWandModes();
             }
-            
+
             if(switchMode() == true) {
               if(b_spectral_mode_enabled == false || b_holiday_mode_enabled == false || b_spectral_custom_mode_enabled == false) {
                 // Enable the spectral modes.
@@ -537,7 +537,7 @@ void mainLoop() {
                 stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
                 stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
                 playEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
-                
+
                 wandSerialSend(W_SPECTRAL_MODES_DISABLED);
               }
             }
@@ -548,10 +548,10 @@ void mainLoop() {
           case 3:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
-              
+
               toggleOverHeating();
             }
-            
+
             if(switchMode() == true) {
               // Enable or disable smoke.
               wandSerialSend(W_SMOKE_TOGGLE);
@@ -563,7 +563,7 @@ void mainLoop() {
           case 2:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
-              
+
               // Tell the Proton Pack to change the cyclotron rotation direction.
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
@@ -579,7 +579,7 @@ void mainLoop() {
           case 1:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
-              
+
               // Tell the Proton Pack to toggle the Proton Stream impact effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
             }
@@ -606,7 +606,7 @@ void mainLoop() {
       break;
 
     #endif
-    
+
     case ACTION_SETTINGS:
       settingsBlinkingLights();
 
@@ -982,7 +982,7 @@ void mainLoop() {
         if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
           stopEffect(S_BEEPS_BARGRAPH);
           playEffect(S_BEEPS_BARGRAPH);
-          
+
           wandSerialSend(W_EEPROM_MENU);
           wandSerialSend(W_SPECTRAL_LIGHTS_ON);
 
@@ -1002,7 +1002,7 @@ void mainLoop() {
         if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
           stopEffect(S_BEEPS_BARGRAPH);
           playEffect(S_BEEPS_BARGRAPH);
-          
+
           wandSerialSend(W_EEPROM_MENU);
 
           i_wand_menu = 5;
@@ -1215,7 +1215,7 @@ void toggleWandModes() {
     // Turn off crossing the streams mode and switch back to video game mode.
     b_cross_the_streams = false;
     b_cross_the_streams_mix = false;
-    
+
     stopEffect(S_CLICK);
 
     playEffect(S_CLICK);
@@ -1861,7 +1861,7 @@ void checkSwitches() {
                 // The the pack we are in venting mode.
                 wandSerialSend(W_VENTING_MODE);
               break;
-              
+
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
                 case HOLIDAY:
                   WAND_ACTION_STATUS = ACTION_IDLE;
@@ -2100,16 +2100,7 @@ void wandOff() {
     switch_wand.resetCount();
     switch_vent.resetCount();
 
-    switch(year_mode) {
-      case 2021:
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
-      break;
-
-      case 1984:
-      case 1989:
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
-      break;
-    }
+    bargraphYearModeUpdate();
   #endif
 }
 
@@ -2181,7 +2172,7 @@ void modeActivate() {
         case 1989:
           playEffect(S_CLICK);
         break;
-        
+
         case 2021:
         default:
           soundIdleLoop(true);
@@ -2248,7 +2239,7 @@ void soundIdleStart() {
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
-        
+
         if(b_pack_ribbon_cable_on == true) {
           if(b_sound_afterlife_idle_2_fade == true) {
             playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 1);
@@ -2270,7 +2261,7 @@ void soundIdleStart() {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
             }
           }
-          
+
           ms_gun_loop_2.start(1500);
 
           b_sound_idle = true;
@@ -2605,7 +2596,7 @@ void modeFireStart() {
   wandSerialSend(W_FIRING);
 
   ms_overheat_initiate.stop();
-  
+
   // This will only overheat when enabled by using the alt firing when in crossing the streams mode.
   bool b_overheat_flag = true;
 
@@ -2695,7 +2686,7 @@ void modeFireStopSounds() {
   }
 }
 
-void modeFireStop() {  
+void modeFireStop() {
   ms_overheat_initiate.stop();
 
   // Tell the pack the wand stopped firing.
@@ -2708,18 +2699,18 @@ void modeFireStop() {
   b_firing_alt = false;
 
   ms_bargraph_firing.stop();
-  
+
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     ms_bargraph_alt.stop(); // Stop the 1984 24 segment optional bargraph timer.
     b_bargraph_up = false;
   #endif
 
   i_bargraph_status = i_power_mode - 1;
-  
+
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     i_bargraph_status_alt = 0;
     bargraphClearAlt();
-  
+
     switch(year_mode) {
       case 2021:
         i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
@@ -2982,41 +2973,41 @@ void modeFiring() {
   }
 
   // Overheat timers.
-  bool b_overheat_flag = true;		
+  bool b_overheat_flag = true;
 
-  if(b_cross_the_streams == true && b_firing_alt != true) {		
-    b_overheat_flag = false;		
-  }		
+  if(b_cross_the_streams == true && b_firing_alt != true) {
+    b_overheat_flag = false;
+  }
 
-  if(b_overheat_flag == true) {		
-    // If the user changes the wand power output while firing, turn off the overheat timer.		
-    if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {		
-      ms_overheat_initiate.stop();		
+  if(b_overheat_flag == true) {
+    // If the user changes the wand power output while firing, turn off the overheat timer.
+    if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {
+      ms_overheat_initiate.stop();
 
-      // Adjust hat light 1 to stay solid.		
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB		
-        digitalWrite(led_hat_1, HIGH);		
-      #endif		
+      // Adjust hat light 1 to stay solid.
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        digitalWrite(led_hat_1, HIGH);
+      #endif
 
-      ms_hat_1.stop();		
+      ms_hat_1.stop();
 
-      // Tell the pack to revert back to regular cyclotron speeds.		
-      wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);		
-    }		
-    else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {		
-      // If the user changes back to power mode that overheats while firing, start up a timer.		
-      // This currently works only in power levels 1-4. 5 stays locked when firing.		
-      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);		
-    }		
-  }		
-  else {		
-    if(ms_overheat_initiate.isRunning()) {		
-      ms_overheat_initiate.stop();		
+      // Tell the pack to revert back to regular cyclotron speeds.
+      wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
+    }
+    else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {
+      // If the user changes back to power mode that overheats while firing, start up a timer.
+      // This currently works only in power levels 1-4. 5 stays locked when firing.
+      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+    }
+  }
+  else {
+    if(ms_overheat_initiate.isRunning()) {
+      ms_overheat_initiate.stop();
 
-      // Tell the pack to revert back to regular cyclotron speeds.		
-      wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);		
-    }		
-  }		
+      // Tell the pack to revert back to regular cyclotron speeds.
+      wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
+    }
+  }
 
   switch(FIRING_MODE) {
     case PROTON:
@@ -3051,29 +3042,29 @@ void modeFiring() {
           case 1:
             fireStreamStart(255, 20, 0);
           break;
-        
+
           case 2:
             fireStreamStart(255, 30, 0);
           break;
-        
+
           case 3:
             fireStreamStart(255, 40, 0);
           break;
-        
+
           case 4:
             fireStreamStart(255, 60, 0);
           break;
-        
+
           case 5:
             fireStreamStart(255, 70, 0);
           break;
-        
+
           default:
             fireStreamStart(255, 20, 0);
           break;
         #endif
       }
-      
+
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         fireStream(getHueAsGRB(C_BLUE));
       #else
@@ -3087,7 +3078,7 @@ void modeFiring() {
         fireStream(getHueAsGRB(C_WHITE));
       #else
         fireStreamStart(0, 255, 45);
-        fireStream(20, 200, 45);  
+        fireStream(20, 200, 45);
       #endif
     break;
 
@@ -3097,7 +3088,7 @@ void modeFiring() {
         fireStream(getHueAsGRB(C_WHITE));
       #else
         fireStreamStart(0, 45, 100);
-        fireStream(0, 100, 255);  
+        fireStream(0, 100, 255);
       #endif
     break;
 
@@ -3252,12 +3243,12 @@ void wandBarrelHeatUp() {
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
-    
+
         case SLIME:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, 0, 0);
           ms_fast_led.start(i_fast_led_delay);
         break;
-    
+
         case STASIS:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
@@ -3328,17 +3319,17 @@ void wandBarrelHeatDown() {
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
-    
+
         case SLIME:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, 0, 0);
           ms_fast_led.start(i_fast_led_delay);
         break;
-    
+
         case STASIS:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
-    
+
         case MESON:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
           ms_fast_led.start(i_fast_led_delay);
@@ -3508,7 +3499,7 @@ void fireStream(int r, int g, int b) {
 
             default:
               ms_firing_stream_blue.start(d_firing_stream);
-            break;        
+            break;
           }
         break;
       }
@@ -3545,11 +3536,11 @@ void fireStream(int r, int g, int b) {
 
             default:
               ms_firing_stream_blue.start(d_firing_lights);
-            break;        
+            break;
           }
         break;
       }
-      
+
       ms_fast_led.start(i_fast_led_delay);
 
       i_barrel_light++;
@@ -4972,7 +4963,7 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
-  
+
   w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
   w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
   w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
@@ -5100,7 +5091,7 @@ int8_t readRotary() {
 
 // Top rotary dial on the wand.
 void checkRotary() {
-  static int8_t c,val;            
+  static int8_t c,val;
 
   if((val = readRotary())) {
     c += val;
@@ -5154,7 +5145,7 @@ void checkRotary() {
               else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
                 // Change colour of the Power Cell Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_DECREASE);
-              }    
+              }
               else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
                 // Change colour of the Cyclotron Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE);
@@ -5162,7 +5153,7 @@ void checkRotary() {
               else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
                 // Change colour of the Inner Cyclotron Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
-              }               
+              }
               else if(i_wand_menu - 1 < 1) {
                 i_wand_menu = 1;
               }
@@ -5181,7 +5172,7 @@ void checkRotary() {
                   if(i_spectral_wand_saturation_custom > 253) {
                     i_spectral_wand_saturation_custom = 254;
                   }
-                }                  
+                }
                 else if(i_spectral_wand_custom < 253 && i_spectral_wand_saturation_custom > 253) {
                   i_spectral_wand_custom++;
                 }
@@ -5193,15 +5184,15 @@ void checkRotary() {
                   }
                   else {
                     i_spectral_wand_saturation_custom = 254;
-                  }  
+                  }
                 }
 
                 wandBarrelSpectralCustomConfigOn();
-              }  
+              }
               else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
                 // Change colour of the Power Cell Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_INCREASE);
-              }    
+              }
               else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
                 // Change colour of the Cyclotron Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE);
@@ -5209,7 +5200,7 @@ void checkRotary() {
               else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
                 // Change colour of the Inner Cyclotron Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
-              }                                 
+              }
               else if(i_wand_menu + 1 > 5) {
                 i_wand_menu = 5;
               }
@@ -5225,7 +5216,7 @@ void checkRotary() {
         if(prev_next_code == 0x0b) {
           if(i_wand_menu == 4 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
             // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
-            wandSerialSend(W_DIMMING_DECREASE);                
+            wandSerialSend(W_DIMMING_DECREASE);
           }
           else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
             // Lower the sound effects volume.
@@ -5292,7 +5283,7 @@ void checkRotary() {
         if(prev_next_code == 0x07) {
           if(i_wand_menu == 4 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
             // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
-            wandSerialSend(W_DIMMING_INCREASE);             
+            wandSerialSend(W_DIMMING_INCREASE);
           }
           else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
             // Increase sound effects volume.
@@ -5324,7 +5315,7 @@ void checkRotary() {
 
             // Tell pack to increase music volume.
             wandSerialSend(W_VOLUME_MUSIC_INCREASE);
-          }     
+          }
           else if(i_wand_menu + 1 > 5) {
             // We are leaving the sub menu. Only accessible when the Neutrona Wand is powered down.
             if(WAND_STATUS == MODE_OFF) {
@@ -5588,7 +5579,7 @@ void wandExitMenu() {
       // Tell the pack we are in proton mode.
       wandSerialSend(W_PROTON_MODE);
     break;
-    
+
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       case SPECTRAL:
         // Tell the pack we are in spectral mode.
@@ -5628,7 +5619,7 @@ void wandExitMenu() {
     playEffect(S_BEEPS_BARGRAPH);
     switch_wand.resetCount();
     switch_vent.resetCount();
-    
+
     i_wand_menu = 5;
 
     bargraphClearAlt();
@@ -5713,7 +5704,7 @@ void stopAfterLifeSounds() {
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
 
   stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
-  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);  
+  stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 }
 
 void afterLifeRamp1() {
@@ -5823,13 +5814,13 @@ void checkPack() {
                 if(year_mode == 2021) {
                   stopEffect(S_BOOTUP);
                   playEffect(S_BOOTUP);
-                  
+
                   if(switch_vent.getState() == HIGH) {
                     afterLifeRamp1();
                   }
                   else {
                     stopAfterLifeSounds();
-                  }                
+                  }
                 }
               }
             break;
@@ -5857,9 +5848,9 @@ void checkPack() {
                         wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
                         wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
                       }
-                    }  
+                    }
                   break;
-                }                 
+                }
               }
             break;
 
@@ -5885,7 +5876,7 @@ void checkPack() {
 
                 if(WAND_STATUS == MODE_ON) {
                   prepBargraphRampDown();
-                }               
+                }
               }
             break;
 
@@ -6172,7 +6163,7 @@ void checkPack() {
 
               playEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
             break;
-            
+
             case P_INNER_CYCLOTRON_DIMMING:
               stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
               stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
@@ -6198,7 +6189,7 @@ void checkPack() {
             case P_CYCLOTRON_SIMULATE_RING_DISABLED:
               stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
               stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
-              
+
               playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
             break;
 
@@ -6211,7 +6202,7 @@ void checkPack() {
 
             case P_PROTON_MODE:
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = SETTINGS;              
+              PREV_FIRING_MODE = SETTINGS;
             break;
 
             case P_SLIME_MODE:
@@ -6220,16 +6211,16 @@ void checkPack() {
 
               // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
               b_cross_the_streams = false;
-              b_cross_the_streams_mix = false;              
+              b_cross_the_streams_mix = false;
             break;
-            
+
             case P_STASIS_MODE:
               FIRING_MODE = STASIS;
               PREV_FIRING_MODE = SLIME;
 
               // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
               b_cross_the_streams = false;
-              b_cross_the_streams_mix = false;                  
+              b_cross_the_streams_mix = false;
             break;
 
             case P_MESON_MODE:
@@ -6238,9 +6229,9 @@ void checkPack() {
 
               // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
               b_cross_the_streams = false;
-              b_cross_the_streams_mix = false;   
+              b_cross_the_streams_mix = false;
             break;
-            
+
             case P_SPECTRAL_CUSTOM_MODE:
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
                 FIRING_MODE = SPECTRAL_CUSTOM;
@@ -6264,7 +6255,7 @@ void checkPack() {
 
               // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
               b_cross_the_streams = false;
-              b_cross_the_streams_mix = false;   
+              b_cross_the_streams_mix = false;
             break;
 
             case P_HOLIDAY_MODE:
@@ -6279,7 +6270,7 @@ void checkPack() {
 
               // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
               b_cross_the_streams = false;
-              b_cross_the_streams_mix = false;   
+              b_cross_the_streams_mix = false;
             break;
 
             case P_VENTING_MODE:
@@ -6288,7 +6279,7 @@ void checkPack() {
 
               // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
               b_cross_the_streams = false;
-              b_cross_the_streams_mix = false;                 
+              b_cross_the_streams_mix = false;
             break;
 
             case P_SETTINGS_MODE:
@@ -6297,7 +6288,7 @@ void checkPack() {
 
               // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
               b_cross_the_streams = false;
-              b_cross_the_streams_mix = false;                 
+              b_cross_the_streams_mix = false;
             break;
 
             case P_POWER_LEVEL_1:
@@ -6313,12 +6304,12 @@ void checkPack() {
             case P_POWER_LEVEL_3:
               i_power_mode = 3;
               i_power_mode_prev = 2;
-            break;            
+            break;
 
             case P_POWER_LEVEL_4:
               i_power_mode = 4;
               i_power_mode_prev = 3;
-            break;            
+            break;
 
             case P_POWER_LEVEL_5:
               i_power_mode = 5;
@@ -6505,14 +6496,14 @@ void wandSerialSend(int i_message) {
   }
 
   void saveEEPROM() {
-    // (Video Game Modes) + Cross The Streams / Cross The Streams Mix / Over Heating    
+    // (Video Game Modes) + Cross The Streams / Cross The Streams Mix / Over Heating
     uint8_t i_cross_the_streams = 1;
     uint8_t i_cross_the_streams_mix = 1;
     uint8_t i_overheating = 1;
     uint8_t i_neutrona_wand_sounds = 1;
     uint8_t i_spectral = 1;
     uint8_t i_holiday = 1;
-    
+
     if(b_cross_the_streams == true) {
       i_cross_the_streams = 2;
     }
@@ -6543,7 +6534,7 @@ void wandSerialSend(int i_message) {
       i_spectral,
       i_holiday
     };
-    
+
     // Save and update our object in the EEPROM.
     EEPROM.put(i_eepromAddress, obj_eeprom);
 
@@ -6551,7 +6542,7 @@ void wandSerialSend(int i_message) {
   }
 
   // Update the CRC in the EEPROM.
-  void updateCRCEEPROM() { 
+  void updateCRCEEPROM() {
     EEPROM.put(EEPROM.length() - sizeof(l_crc_size), eepromCRC());
   }
 
@@ -6591,7 +6582,7 @@ void wandSerialSend(int i_message) {
         }
         else {
           b_cross_the_streams = false;
-        }       
+        }
       }
 
       if(obj_eeprom.cross_the_streams_mix > 0 && obj_eeprom.cross_the_streams_mix != 255) {
@@ -6600,7 +6591,7 @@ void wandSerialSend(int i_message) {
         }
         else {
           b_cross_the_streams_mix = false;
-        }       
+        }
       }
 
       if(obj_eeprom.overheating > 0 && obj_eeprom.overheating != 255) {
@@ -6609,7 +6600,7 @@ void wandSerialSend(int i_message) {
         }
         else {
           b_overheat_enabled = false;
-        }       
+        }
       }
 
       if(obj_eeprom.neutrona_wand_sounds > 0 && obj_eeprom.neutrona_wand_sounds != 255) {
