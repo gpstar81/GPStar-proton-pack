@@ -81,6 +81,18 @@ const uint8_t switch_debounce_time = 50;
  */
 SerialTransfer packComs;
 
+struct __attribute__((packed)) STRUCT {
+  int s;
+  int i;
+  int e;
+} comStruct;
+
+struct __attribute__((packed)) STRUCTSEND {
+  int s;
+  int i;
+  int e;
+} sendStruct;
+
 /*
  * LED Devices.
  */

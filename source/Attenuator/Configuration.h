@@ -16,3 +16,9 @@
  *   along with this program; if not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+/**
+ * Wait for pack communication or operate in standalone mode.
+ * Set to false for standalone mode, true for pack integration.
+ */
+bool b_wait_for_pack = false;

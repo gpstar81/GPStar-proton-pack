@@ -18,10 +18,8 @@
  */
 
 /**
- * Colours are based on the RGB pattern; for GRB the Red/Green values should be switched.
- * Brightness is based on varying the intensity of each (0-255) using a relative value.
- *
- * However, colours based on Hue use a colour degree, a Saturation, and Value (brightness).
+ * Colours based on Hue use a colour degree, a Saturation, and Value (brightness).
+ * A conversion to RGB values is done to ensure consistent colors across devices.
 */
 
 enum colours {

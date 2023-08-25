@@ -27,6 +27,7 @@
 
 // Local Files
 #include "Configuration.h"
+#include "Communication.h"
 #include "Header.h"
 #include "Colours.h"
 
@@ -79,17 +80,29 @@ void setup() {
   if(b_28segment_bargraph == true) {
     ht_bargraph.begin(0x00);
   }
-
 }
 
 void loop() {
+  if(b_wait_for_pack == true) {
 
+    // Handshake with the pack. Telling the pack that we are here.
+    packSerialSend(W_HANDSHAKE);
+
+    // Synchronise some settings with the pack.
+    checkPack();
+
+    delay(10);
+  }
+  else {
+    mainLoop();
+  }
   mainLoop();
 
 }
 
 void mainLoop() {
-
+  // Monitor for interactions by user.
+  checkPack();
   switchLoops();
   checkRotary();
   checkSwitches();
@@ -112,4 +125,19 @@ void checkSwitches() {
 void switchLoops() {
   switch_left.loop();
   switch_right.loop();
+}
+
+void packSerialSend(int i_message) {
+  sendStruct.i = i_message;
+  sendStruct.s = W_COM_START;
+  sendStruct.e = W_COM_END;
+
+  packComs.sendDatum(sendStruct);
+}
+
+// Pack communication to the device.
+void checkPack() {
+    if(packComs.available()) {
+
+    }
 }
