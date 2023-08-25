@@ -21,8 +21,8 @@
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
-#include <ht16k33.h>
-#include <Wire.h>
+// #include <ht16k33.h>
+// #include <Wire.h>
 #include <SerialTransfer.h>
 
 // Local Files
@@ -53,33 +53,9 @@ void setup() {
   pinMode(r_encoderA, INPUT_PULLUP);
   pinMode(r_encoderB, INPUT_PULLUP);
 
-  // Setup the bargraph.
+  // Setup the bargraph after a brief delay.
   delay(10);
-  WIRE.begin();
-
-  byte by_error, by_address;
-  unsigned int i_i2c_devices = 0;
-
-  // Scan i2c for any devices (28 segment bargraph).
-  for(by_address = 1; by_address < 127; by_address++ ) {
-    WIRE.beginTransmission(by_address);
-    by_error = WIRE.endTransmission();
-
-    if(by_error == 0) {
-      i_i2c_devices++;
-    }
-  }
-
-  if(i_i2c_devices > 0) {
-    b_28segment_bargraph = true;
-  }
-  else {
-    b_28segment_bargraph = false;
-  }
-
-  if(b_28segment_bargraph == true) {
-    ht_bargraph.begin(0x00);
-  }
+  setupBargraph();
 }
 
 void loop() {
@@ -111,6 +87,34 @@ void mainLoop() {
   if(ms_fast_led.justFinished()) {
     FastLED.show();
     ms_fast_led.stop();
+  }
+}
+
+void setupBargraph() {
+  // WIRE.begin();
+
+  byte by_error, by_address;
+  unsigned int i_i2c_devices = 0;
+
+  // Scan i2c for any devices (28 segment bargraph).
+  for(by_address = 1; by_address < 127; by_address++ ) {
+    // WIRE.beginTransmission(by_address);
+    // by_error = WIRE.endTransmission();
+
+    if(by_error == 0) {
+      i_i2c_devices++;
+    }
+  }
+
+  if(i_i2c_devices > 0) {
+    b_28segment_bargraph = true;
+  }
+  else {
+    b_28segment_bargraph = false;
+  }
+
+  if(b_28segment_bargraph == true) {
+    // ht_bargraph.begin(0x00);
   }
 }
 

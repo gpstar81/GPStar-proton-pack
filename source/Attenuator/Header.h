@@ -38,7 +38,7 @@ millisDelay ms_fast_led;
  * SDA -> A4
  * SCL -> A5
  */
-HT16K33 ht_bargraph;
+// HT16K33 ht_bargraph;
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
 bool b_28segment_bargraph = false;
@@ -51,7 +51,7 @@ const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
 unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
 // Used to scan the i2c bus and to locate the 28 segment bargraph.
-#define WIRE Wire
+// #define WIRE Wire
 
 /*
  * Barmeter 28 segment bargraph mapping.
