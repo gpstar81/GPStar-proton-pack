@@ -46,7 +46,9 @@ bool b_bargraph_on = false;
 #define WIRE Wire
 
 /*
- * Barmeter 28 segment bargraph mapping.
+ * Barmeter 28 segment bargraph mapping: allows accessing elements sequentially (0-27)
+ * If the pattern appears inverted from what is expected, flip by using the following:
+ *   #define GPSTAR_INVERT_BARGRAPH
  */
 #ifdef GPSTAR_INVERT_BARGRAPH
   const uint8_t i_bargraph[28] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};

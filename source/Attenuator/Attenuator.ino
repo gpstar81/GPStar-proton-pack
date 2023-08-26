@@ -93,14 +93,10 @@ void mainLoop() {
   if(b_left_toggle == true){
     // Turn the bargraph on (using some pattern).
     bargraphRun();
-    b_bargraph_on = true;
   }
   else {
     // Turn the bargraph off (clear all elements).
-    if(!b_bargraph_on == true){
-      bargraphOff();
-    }
-    b_bargraph_on = false;
+    bargraphOff();
   }
 
   /*
@@ -115,7 +111,7 @@ void mainLoop() {
    *          mode current in use by the wand.
    */ 
   if(b_right_toggle == true){
-    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_ORANGE);
+    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
     // attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RED);
     attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RAINBOW);
     FastLED.show();
@@ -163,14 +159,18 @@ void bargraphRun() {
     for(uint8_t i = 0; i < 28; i++) {
       ht_bargraph.setLedNow(i_bargraph[i]);
     }
+
+    b_bargraph_on = true; // Denote that the device is "on".
   }
 }
 
 void bargraphOff() {
-  if(b_28segment_bargraph == true) {
+  if(b_28segment_bargraph == true && b_bargraph_on == true) {
     for(uint8_t i = 0; i < 28; i++) {
       ht_bargraph.clearLedNow(i_bargraph[i]);
     }
+
+    b_bargraph_on = false; // Denote that the device is "off".
   }
 }
 

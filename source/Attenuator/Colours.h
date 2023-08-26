@@ -27,10 +27,6 @@ enum colours {
   C_WHITE,
   C_PINK,
   C_RED,
-  C_RED2,
-  C_RED3,
-  C_RED4,
-  C_RED5,
   C_ORANGE,
   C_YELLOW,
   C_GREEN,
@@ -39,12 +35,9 @@ enum colours {
   C_LIGHT_BLUE,
   C_BLUE,
   C_PURPLE,
+  C_AMBER_PULSE,
   C_REDGREEN,
-  C_ORANGEPURPLE,
-  C_BLUEFADE,
-  C_PASTEL,
-  C_RAINBOW,
-  C_HASLAB
+  C_RAINBOW
 };
 
 int getBrightness(uint8_t i_percent = 100) {
@@ -65,14 +58,10 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
   // For colour cycles, i_cycle indicates how often to change colour.
   // This is device-dependent in order to provide a noticeable change.
-  uint8_t i_cycle = 3;
+  uint8_t i_cycle = 4;
 
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
   switch(i_colour) {
-    case C_HASLAB:
-      return CHSV(100, 0, i_brightness); // Just "on", which is white.
-    break;
-
     case C_BLACK:
       return CHSV(0, 0, 0); // Overrides brightness.
     break;
@@ -87,22 +76,6 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
     case C_RED:
       return CHSV(0, i_saturation, i_brightness);
-    break;
-
-    case C_RED2:
-      return CHSV(5, i_saturation, i_brightness);
-    break;
-
-    case C_RED3:
-      return CHSV(10, i_saturation, i_brightness);
-    break;
-
-    case C_RED4:
-      return CHSV(15, i_saturation, i_brightness);
-    break;
-
-    case C_RED5:
-      return CHSV(20, i_saturation, i_brightness);
     break;
 
     case C_ORANGE:
@@ -137,6 +110,21 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       return CHSV(192, i_saturation, i_brightness);
     break;
 
+    case C_AMBER_PULSE:
+      // Fade between amber (24) and orange (32).
+      if(i_curr_colour[i_device] < 24 || i_curr_colour[i_device] > 32) {
+        i_curr_colour[i_device] = 24; // Reset if out of range.
+      }
+
+      i_count[i_device]++;
+      if(i_count[i_device] % 32 == 0) {
+        i_curr_colour[i_device] = (i_curr_colour[i_device] + 1) % 32;
+        i_count[i_device] = 24; // Reset counter.
+      }
+
+      return CHSV(i_curr_colour[i_device], 255, i_brightness);
+    break;
+
     case C_REDGREEN:
       // Alternate between red (0) and green (96).
       if(i_curr_colour[i_device] != 0 && i_curr_colour[i_device] != 96) {
@@ -156,50 +144,6 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       }
 
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
-    break;
-
-    case C_ORANGEPURPLE:
-      // Alternate between orange (32) and purple (192).
-      if(i_curr_colour[i_device] != 32 && i_curr_colour[i_device] != 192) {
-        i_curr_colour[i_device] = 32; // Reset if out of range.
-      }
-
-      i_count[i_device]++;
-
-      if(i_count[i_device] % i_cycle == 0) {
-        if(i_curr_colour[i_device] == 32) {
-          i_curr_colour[i_device] = 192;
-          i_count[i_device] = 0; // Reset counter.
-        } 
-        else {
-          i_curr_colour[i_device] = 32;
-        }
-      }
-      return CHSV(i_curr_colour[i_device], 255, i_brightness);
-    break;
-
-    case C_BLUEFADE:
-      // Reset if out of range: blue (160) to light blue (146).
-      if(i_count[i_device] < 146 || i_count[i_device] > 160) {
-        i_count[i_device] = 160; // Reset if out of range.
-      }
-
-      // Cycles from dark to light blue (160-145) at full saturation.
-      i_count[i_device]--;
-
-      return CHSV(i_count[i_device], 255, i_brightness);
-    break;
-
-    case C_PASTEL:
-      // Cycle through all colours (0-255) at half saturation.
-      i_count[i_device]++;
-
-      if(i_count[i_device] % i_cycle == 0) {
-        i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
-        i_count[i_device] = 0; // Reset counter.
-      }
-
-      return CHSV(i_curr_colour[i_device], 128, i_brightness);
     break;
 
     case C_RAINBOW:
