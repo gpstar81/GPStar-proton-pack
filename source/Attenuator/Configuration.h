@@ -17,7 +17,12 @@
  *
  */
 
-/**
+/*
+ * Set true to output serial messages.
+ */
+bool b_debug = true;
+
+/*
  * Wait for pack communication or operate in standalone mode.
  * Set to false for standalone mode, true for pack integration.
  */

@@ -21,8 +21,8 @@
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
-// #include <ht16k33.h>
-// #include <Wire.h>
+#include <ht16k33.h>
+#include <Wire.h>
 #include <SerialTransfer.h>
 
 // Local Files
@@ -83,23 +83,28 @@ void mainLoop() {
   checkRotary();
   checkSwitches();
 
-  // Update the device LEDs.
-  if(ms_fast_led.justFinished()) {
+  if(b_right_toggle == true){
+    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_ORANGE);
+    attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RED);
     FastLED.show();
-    ms_fast_led.stop();
+  }
+  else {
+    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+    attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    FastLED.show();
   }
 }
 
 void setupBargraph() {
-  // WIRE.begin();
+  WIRE.begin();
 
   byte by_error, by_address;
   unsigned int i_i2c_devices = 0;
 
   // Scan i2c for any devices (28 segment bargraph).
   for(by_address = 1; by_address < 127; by_address++ ) {
-    // WIRE.beginTransmission(by_address);
-    // by_error = WIRE.endTransmission();
+    WIRE.beginTransmission(by_address);
+    by_error = WIRE.endTransmission();
 
     if(by_error == 0) {
       i_i2c_devices++;
@@ -112,9 +117,12 @@ void setupBargraph() {
   else {
     b_28segment_bargraph = false;
   }
-
+  
+  Serial.print(F("Bargraph Present -> "));
+  Serial.println(b_28segment_bargraph);
+  
   if(b_28segment_bargraph == true) {
-    // ht_bargraph.begin(0x00);
+    ht_bargraph.begin(0x00);
   }
 }
 
@@ -126,11 +134,37 @@ void checkRotary() {
 void checkSwitches() {
   // Determine the toggle states.
 
-  Serial.print(F("D3 Left -> "));
-  Serial.println(switch_left.getState());
+  if(b_debug == true) {
+    // Serial.print(F("D3 Left -> "));
+    // Serial.println(switch_left.getState());
 
-  Serial.print(F("D4 Right -> "));
-  Serial.println(switch_right.getState());
+    // Serial.print(F("D4 Right -> "));
+    // Serial.println(switch_right.getState());
+  }
+
+  // Set a variable which tells us if the toggle is on or off.
+  if(switch_left.getState() == LOW) {
+    if(b_debug == true && b_left_toggle == false) {
+      Serial.println("left toggle on");
+    }
+
+    b_left_toggle = true;
+  }
+  else {
+    b_left_toggle = false;
+  }
+
+  // Set a variable which tells us if the toggle is on or off.
+  if(switch_right.getState() == LOW) {
+    if(b_debug == true && b_right_toggle == false) {
+      Serial.println("right toggle on");
+    }
+
+    b_right_toggle = true;
+  }
+  else {
+    b_right_toggle = false;
+  }
 }
 
 void switchLoops() {

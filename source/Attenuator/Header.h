@@ -19,7 +19,7 @@
 
 /*
  * Pin for Addressable LED's.
-*/
+ */
 #define ATTENUATOR_LED_PIN 10
 #define ATTENUATOR_NUM_LEDS 2
 CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
@@ -38,7 +38,7 @@ millisDelay ms_fast_led;
  * SDA -> A4
  * SCL -> A5
  */
-// HT16K33 ht_bargraph;
+HT16K33 ht_bargraph;
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
 bool b_28segment_bargraph = false;
@@ -51,7 +51,7 @@ const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
 unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
 // Used to scan the i2c bus and to locate the 28 segment bargraph.
-// #define WIRE Wire
+#define WIRE Wire
 
 /*
  * Barmeter 28 segment bargraph mapping.
@@ -63,13 +63,16 @@ unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 #endif
 
 /* 
- *  Switches
+ * Toggle Switches
+ * Will be pulled LOW (down position) when considered "active".
  */
 ezButton switch_left(3);
 ezButton switch_right(4);
+bool b_left_toggle = false;
+bool b_right_toggle = false;
 
 /*
- * Switch Settings.
+ * Switch Settings
  */
 const uint8_t switch_debounce_time = 50;
 
@@ -97,9 +100,9 @@ struct __attribute__((packed)) STRUCTSEND {
 } sendStruct;
 
 /*
- * LED Devices.
+ * LED Devices
  */
 enum device {
-  UPPER,
-  LOWER
+  UPPER_LED,
+  LOWER_LED
 };
