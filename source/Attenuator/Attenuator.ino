@@ -100,7 +100,6 @@ void mainLoop() {
     if(!b_bargraph_on == true){
       bargraphOff();
     }
-
     b_bargraph_on = false;
   }
 
@@ -162,8 +161,7 @@ void setupBargraph() {
 void bargraphRun() {
   if(b_28segment_bargraph == true) {
     for(uint8_t i = 0; i < 28; i++) {
-      ht_bargraph.setLedNow(i);
-      delay(10);
+      ht_bargraph.setLedNow(i_bargraph[i]);
     }
   }
 }
@@ -171,7 +169,7 @@ void bargraphRun() {
 void bargraphOff() {
   if(b_28segment_bargraph == true) {
     for(uint8_t i = 0; i < 28; i++) {
-      ht_bargraph.clearLedNow(i);
+      ht_bargraph.clearLedNow(i_bargraph[i]);
     }
   }
 }
