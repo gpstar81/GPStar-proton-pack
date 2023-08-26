@@ -83,9 +83,42 @@ void mainLoop() {
   checkRotary();
   checkSwitches();
 
+  /*
+   * The left toggle activates the bargraph display.
+   *
+   * When idle, the user can change the pattern on the device.
+   * When firing, an alternative pattern should be used, such
+   * as the standard animation as used on the wand.
+   */
+  if(b_left_toggle == true){
+    // Turn the bargraph on (using some pattern).
+    bargraphRun();
+    b_bargraph_on = true;
+  }
+  else {
+    // Turn the bargraph off (clear all elements).
+    if(!b_bargraph_on == true){
+      bargraphOff();
+    }
+
+    b_bargraph_on = false;
+  }
+
+  /*
+   * The right toggle activates the LED's on the device.
+   *
+   * Since this device will have a serial connection to the pack,
+   * the light should ideally change colors based on user action.
+   * Example: The upper LED could go from orange/amber to red as
+   *          the pack begins to overheat, and back to yellow after
+   *          the vent cycle reboots the pack.
+   *          The lower LED could change color based on the firing
+   *          mode current in use by the wand.
+   */ 
   if(b_right_toggle == true){
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_ORANGE);
-    attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RED);
+    // attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RED);
+    attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RAINBOW);
     FastLED.show();
   }
   else {
@@ -126,8 +159,25 @@ void setupBargraph() {
   }
 }
 
+void bargraphRun() {
+  if(b_28segment_bargraph == true) {
+    for(uint8_t i = 0; i < 28; i++) {
+      ht_bargraph.setLedNow(i);
+      delay(10);
+    }
+  }
+}
+
+void bargraphOff() {
+  if(b_28segment_bargraph == true) {
+    for(uint8_t i = 0; i < 28; i++) {
+      ht_bargraph.clearLedNow(i);
+    }
+  }
+}
+
 void checkRotary() {
-  // This will eventually do something, such as changing the idle pattern for the bargraph.
+  // This will eventually do something, such as changing the pattern for the bargraph.
 
 }
 

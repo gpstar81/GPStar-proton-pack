@@ -39,16 +39,8 @@ millisDelay ms_fast_led;
  * SCL -> A5
  */
 HT16K33 ht_bargraph;
-const uint8_t i_bargraph_interval = 4;
-const uint8_t i_bargraph_wait = 180;
 bool b_28segment_bargraph = false;
-bool b_bargraph_up = false;
-millisDelay ms_bargraph;
-uint8_t i_bargraph_status = 0;
-const uint8_t d_bargraph_ramp_interval = 40;
-const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
-const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
-unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+bool b_bargraph_on = false;
 
 // Used to scan the i2c bus and to locate the 28 segment bargraph.
 #define WIRE Wire

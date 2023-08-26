@@ -65,7 +65,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
   // For colour cycles, i_cycle indicates how often to change colour.
   // This is device-dependent in order to provide a noticeable change.
-  uint8_t i_cycle = 2;
+  uint8_t i_cycle = 4;
 
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
   switch(i_colour) {
