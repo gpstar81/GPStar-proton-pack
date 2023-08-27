@@ -27,6 +27,7 @@ CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
 /*
  * Delay for fastled to update the addressable LEDs.
  * 0.03 ms to update 1 LED, and this device contains 2.
+ * Just setting to 3 which should be sufficient.
  */
 const uint8_t i_fast_led_delay = 3;
 millisDelay ms_fast_led;

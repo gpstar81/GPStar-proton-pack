@@ -52,9 +52,6 @@ void setup() {
   pinMode(r_encoderA, INPUT_PULLUP);
   pinMode(r_encoderB, INPUT_PULLUP);
 
-  // Start some timers
-  ms_fast_led.start(i_fast_led_delay);
-
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
@@ -83,13 +80,15 @@ void mainLoop() {
   checkSwitches();
 
   /*
-   * The left toggle activates the bargraph display.
+   * The left toggle activates the bargraph display manually.
+   * When paired with the gpstar Proton Pack, the bargraph
+   * will automatically enable and display an animation.
    *
    * When idle, the user can change the pattern on the device.
    * When firing, an alternative pattern should be used, such
    * as the standard animation as used on the wand.
    */
-  if(b_left_toggle == true) {
+  if(b_left_toggle == true || b_pack_on == true) {
     // Turn the bargraph on (using some pattern).
     bargraphRun();
   }
@@ -99,12 +98,12 @@ void mainLoop() {
   }
 
   /*
-   * The right toggle activates the LED's on the device.
+   * The right toggle activates the LED's on the device manually.
    *
    * Since this device will have a serial connection to the pack,
-   * the light should ideally change colors based on user action.
+   * the lights will change colors based on user interactions.
    */ 
-  if(b_right_toggle == true) {
+  if(b_right_toggle == true || b_pack_on == true) {
     // Set upper LED based on overheating state, if available.
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
 
@@ -139,21 +138,20 @@ void mainLoop() {
       break;
     }
     attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
-    ms_fast_led.start(i_fast_led_delay);
+    FastLED.show();
   }
   else {
     // Turn off the LED's by setting to black.
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
     attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
-
-    ms_fast_led.start(i_fast_led_delay);
+    FastLED.show();
   }
 
   // Update the device LEDs.
-  if(ms_fast_led.justFinished()) {
-    FastLED.show();
-    ms_fast_led.stop();
-  }
+  // if(ms_fast_led.justFinished()) {
+  //   FastLED.show();
+  //   ms_fast_led.start(i_fast_led_delay);
+  // }
 }
 
 void checkRotary() {
@@ -175,24 +173,32 @@ void checkSwitches() {
   // Set a variable which tells us if the toggle is on or off.
   if(switch_left.getState() == LOW) {
     if(b_debug == true && b_left_toggle == false) {
-      Serial.println("left toggle on");
+      Serial.println("Left Toggle On");
     }
 
     b_left_toggle = true;
   }
   else {
+    if(b_debug == true && b_left_toggle == true) {
+      Serial.println("Left Toggle Off");
+    }
+
     b_left_toggle = false;
   }
 
   // Set a variable which tells us if the toggle is on or off.
   if(switch_right.getState() == LOW) {
     if(b_debug == true && b_right_toggle == false) {
-      Serial.println("right toggle on");
+      Serial.println("Right Toggle On");
     }
 
     b_right_toggle = true;
   }
   else {
+    if(b_debug == true && b_right_toggle == true) {
+      Serial.println("Right Toggle Off");
+    }
+
     b_right_toggle = false;
   }
 }
@@ -222,11 +228,17 @@ void checkPack() {
         switch(comStruct.i) {
           case P_ON:
             // Pack is on.
+            if(b_debug && b_pack_on == false) {
+              Serial.println("Pack On");
+            }
             b_pack_on = true;
           break;
 
           case P_OFF:
             // Pack is off.
+            if(b_debug && b_pack_on == true) {
+              Serial.println("Pack Off");
+            }
             b_pack_on = false;
           break;
 
@@ -240,11 +252,17 @@ void checkPack() {
 
           case P_ALARM_ON:
             // Alarm is on.
+            if(b_debug && b_pack_alarm == false) {
+              Serial.println("Alarm On");
+            }
             b_pack_alarm = true;
           break;
 
           case P_ALARM_OFF:
             // Alarm is off.
+            if(b_debug && b_pack_alarm == true) {
+              Serial.println("Alarm Off");
+            }
             b_pack_alarm = false;
           break;
 
@@ -254,14 +272,23 @@ void checkPack() {
           break;
 
           case P_YEAR_1984:
+            if(b_debug && i_mode_year != 1984) {
+              Serial.println("Mode 1984");
+            }
             i_mode_year = 1984;
           break;
 
           case P_YEAR_1989:
+            if(b_debug && i_mode_year != 1989) {
+              Serial.println("Mode 1989");
+            }
             i_mode_year = 1989;
           break;
 
           case P_YEAR_AFTERLIFE:
+            if(b_debug && i_mode_year != 2021) {
+              Serial.println("Mode 2021");
+            }
             i_mode_year = 2021;
           break;
 
@@ -326,13 +353,5 @@ void checkPack() {
       comStruct.i = 0;
       comStruct.s = 0;
     }
-  }
-
-  if(b_debug == true) {
-    Serial.print(F("b_pack_on -> "));
-    Serial.println(b_pack_on);
-
-    Serial.print(F("b_sync -> "));
-    Serial.println(b_sync);
   }
 }

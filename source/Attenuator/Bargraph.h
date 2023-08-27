@@ -56,6 +56,7 @@ void bargraphRun() {
   if(b_28segment_bargraph == true) {
     for(uint8_t i = 0; i < 28; i++) {
       ht_bargraph.setLedNow(i_bargraph[i]);
+      //delay(10);
     }
 
     b_bargraph_on = true; // Denote that the device is "on".
@@ -66,6 +67,7 @@ void bargraphOff() {
   if(b_28segment_bargraph == true && b_bargraph_on == true) {
     for(uint8_t i = 0; i < 28; i++) {
       ht_bargraph.clearLedNow(i_bargraph[i]);
+      //delay(10);
     }
 
     b_bargraph_on = false; // Denote that the device is "off".
