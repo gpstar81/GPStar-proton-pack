@@ -89,7 +89,7 @@ void mainLoop() {
    * When firing, an alternative pattern should be used, such
    * as the standard animation as used on the wand.
    */
-  if(b_left_toggle == true){
+  if(b_left_toggle == true) {
     // Turn the bargraph on (using some pattern).
     bargraphRun();
   }
@@ -103,66 +103,49 @@ void mainLoop() {
    *
    * Since this device will have a serial connection to the pack,
    * the light should ideally change colors based on user action.
-   * Example: The upper LED could go from orange/amber to red as
-   *          the pack begins to overheat, and back to yellow after
-   *          the vent cycle reboots the pack.
-   *          The lower LED could change color based on the firing
-   *          mode current in use by the wand.
    */ 
-  if(b_right_toggle == true){
+  if(b_right_toggle == true) {
     // Set upper LED based on overheating state, if available.
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
 
     // Set lower LED based on firing mode, if available.
+    uint8_t i_scheme = C_RED;
     switch(FIRING_MODE) {
-      case PROTON:
-        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RED);
-      break;
-
       case SLIME:
-        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_GREEN);
+        i_scheme = C_GREEN;
       break;
-
       case STASIS:
-        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_LIGHT_BLUE);
+        i_scheme = C_LIGHT_BLUE;
       break;
-
       case MESON:
-        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_ORANGE);
+        i_scheme = C_ORANGE;
       break;
-
       case SPECTRAL:
-        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RAINBOW);
+        i_scheme = C_RAINBOW;
       break;
-
       case HOLIDAY:
-        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_REDGREEN);
+        i_scheme = C_REDGREEN;
       break;
-
       case SPECTRAL_CUSTOM:
-        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RAINBOW);
+        i_scheme = C_RAINBOW;
       break;
-
-      case VENTING:
-        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RED);
-      break;
-
       case SETTINGS:
-        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_WHITE);
+        i_scheme = C_WHITE;
       break;
-
+      case PROTON:
+      case VENTING:
       default:
-        return C_RED;
+        i_scheme = C_RED;
       break;
     }
-
+    attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
     ms_fast_led.start(i_fast_led_delay);
   }
   else {
     // Turn off the LED's by setting to black.
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
     attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
-  }
+
     ms_fast_led.start(i_fast_led_delay);
   }
 
@@ -228,8 +211,8 @@ void packSerialSend(int i_message) {
   packComs.sendDatum(sendStruct);
 }
 
-// Pack communication to the device.
 void checkPack() {
+  // Pack communication to the Attenuator device.
   if(packComs.available()) {
     packComs.rxObj(comStruct);
 
