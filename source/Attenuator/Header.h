@@ -46,11 +46,7 @@ bool b_bargraph_up = false;
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
 uint8_t i_bargraph_status = 0;
-const uint8_t d_bargraph_ramp_interval = 120;
-const uint8_t d_bargraph_ramp_interval_alt = 40;
-const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
-const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
-unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+const uint8_t d_bargraph_ramp_interval = 40;
 millisDelay ms_bargraph;
 millisDelay ms_bargraph_firing;
 

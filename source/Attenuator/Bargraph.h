@@ -66,15 +66,18 @@ void bargraphClear() {
   if(b_28segment_bargraph == true) {
     ht_bargraph.clearAll();
 
-    i_bargraph_status = 0;
-  }
+    i_bargraph_status = 0; // Reset the position/sequence.
 
-  b_bargraph_on = false; // Denote that the device is "off".
+    b_bargraph_on = false; // Denote that the device is "off".
+  }
 }
 
 void bargraphRampFiring() {
-  // Bargraph ramping during firing.
   if(b_28segment_bargraph == true) {
+    int i_ramp_interval = d_bargraph_ramp_interval; // Start with the default value.
+
+    b_bargraph_on = true; // Denote that the device is "on".
+
     // Start ramping up and down from the middle to the top/bottom and back to the middle again.
     switch(i_bargraph_status) {
       case 0:
@@ -319,16 +322,7 @@ void bargraphRampFiring() {
         b_bargraph_up = false;
       break;
     }
-  }
 
-  int i_ramp_interval = d_bargraph_ramp_interval;
-
-  if(b_28segment_bargraph == true) {
-    // Switch to a different ramp speed if using the (Optional) 28 segment barmeter bargraph.
-    i_ramp_interval = d_bargraph_ramp_interval_alt;
-  }
-
-  if(b_28segment_bargraph == true) {
     switch(POWER_LEVEL) {
       case 5:
         ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
@@ -351,8 +345,5 @@ void bargraphRampFiring() {
         ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30
       break;
     }
-  }
-  else {
-    ms_bargraph_firing.start(i_ramp_interval / 2);
   }
 }
