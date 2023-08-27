@@ -90,11 +90,12 @@ void mainLoop() {
    */
   if(b_left_toggle == true || b_pack_on == true) {
     // Turn the bargraph on (using some pattern).
-    bargraphRun();
+    //bargraphAllOn();
+    bargraphRampFiring();
   }
   else {
-    // Turn the bargraph off (clear all elements).
-    bargraphOff();
+    // Clear all bargraph elements.
+    bargraphClear();
   }
 
   /*
