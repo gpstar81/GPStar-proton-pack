@@ -52,13 +52,11 @@ void setupBargraph() {
   }
 }
 
-void bargraphAllOn() {
+void bargraphFull() {
   if(b_28segment_bargraph == true) {
     for(uint8_t i = 0; i < 28; i++) {
       ht_bargraph.setLedNow(i_bargraph[i]);
-    }
-
-    b_bargraph_on = true; // Denote that the device is "on".
+    }    
   }
 }
 
@@ -68,15 +66,163 @@ void bargraphClear() {
 
     i_bargraph_status = 0; // Reset the position/sequence.
 
-    b_bargraph_on = false; // Denote that the device is "off".
+    ms_bargraph.stop();
+    ms_bargraph_firing.stop();
   }
+}
+
+void bargraphRampIdle() {
+  if(b_28segment_bargraph == true) {
+    if(ms_bargraph.justFinished()) {
+      uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.setLedNow(i_bargraph[i_bargraph_status]);
+
+        if(i_bargraph_status > 26) {
+          b_bargraph_up = false;
+
+          i_bargraph_status = 27;
+
+          // A little pause when we reach the top.
+          ms_bargraph.start(i_bargraph_wait / 2);
+        }
+        else {
+          ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier[4]);
+        }
+
+        if(b_bargraph_up == true) {
+          i_bargraph_status++;
+        }
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[i_bargraph_status]);
+
+        if(i_bargraph_status == 0) {
+          i_bargraph_status = 0;
+          b_bargraph_up = true;
+          // A little pause when we reach the bottom.
+          ms_bargraph.start(i_bargraph_wait / 2);
+        }
+        else {
+          i_bargraph_status--;
+
+          ms_bargraph.start(i_bargraph_interval * 3);
+        }
+      }
+    }
+  }
+}
+
+void bargraphRampUp() {
+  if(b_28segment_bargraph == true) {
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      switch(i_bargraph_status) {
+        case 0 ... 27:
+          ht_bargraph.setLedNow(i_bargraph[i_bargraph_status]);
+
+          i_bargraph_status++;
+
+          if(i_bargraph_status == 28) {
+            // A little pause when we reach the top.
+            ms_bargraph.start(i_bargraph_wait / 2);
+          }
+          else {
+            ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+          }
+        break;
+
+        case 28 ... 56:
+          uint8_t i_tmp = i_bargraph_status - 27;
+          i_tmp = 28 - i_tmp;
+
+          ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
+
+          if(i_bargraph_status == 54) {
+            ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
+            ms_bargraph.stop();
+            b_bargraph_up = true;
+            i_bargraph_status = 0;
+          }
+          else {
+            ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+            i_bargraph_status++;
+          }
+        break;
+      }
+    #endif
+  }
+  else {
+    uint8_t t_bargraph_ramp_multiplier = 1;
+
+    switch(i_bargraph_status) {
+      case 0:
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        i_bargraph_status++;
+      break;
+
+      case 1:
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        i_bargraph_status++;
+      break;
+
+      case 2:
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        i_bargraph_status++;
+      break;
+
+      case 3:
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        i_bargraph_status++;
+      break;
+
+      case 4:
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        i_bargraph_status++;
+      break;
+
+      case 5:
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        i_bargraph_status++;
+      break;
+
+      case 6:
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        i_bargraph_status++;
+      break;
+
+      case 7:
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        i_bargraph_status++;
+      break;
+
+      case 8:
+        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        i_bargraph_status++;
+      break;
+
+      case 9:
+        ms_bargraph.stop();
+        i_bargraph_status = 0;
+      break;
+    }
+  }
+}
+
+void prepBargraphRampDown() {
+  i_bargraph_status = 28; // For 28 segment bargraph
+
+  bargraphFull();
+
+  ms_bargraph.start(d_bargraph_ramp_interval);
+
+  // Prepare to make the bargraph ramp down now.
+  bargraphRampUp();
 }
 
 void bargraphRampFiring() {
   if(b_28segment_bargraph == true) {
     int i_ramp_interval = d_bargraph_ramp_interval; // Start with the default value.
-
-    b_bargraph_on = true; // Denote that the device is "on".
 
     // Start ramping up and down from the middle to the top/bottom and back to the middle again.
     switch(i_bargraph_status) {

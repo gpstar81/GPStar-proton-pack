@@ -41,11 +41,10 @@ millisDelay ms_fast_led;
  */
 HT16K33 ht_bargraph;
 bool b_28segment_bargraph = false;
-bool b_bargraph_on = false;
 bool b_bargraph_up = false;
+uint8_t i_bargraph_status = 0;
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
-uint8_t i_bargraph_status = 0;
 const uint8_t d_bargraph_ramp_interval = 40;
 millisDelay ms_bargraph;
 millisDelay ms_bargraph_firing;
@@ -119,6 +118,7 @@ struct __attribute__((packed)) STRUCTSEND {
 bool b_pack_on = false;
 bool b_pack_alarm = false;
 bool b_sync = false;
+bool b_firing = false;
 
 /*
  * LED Devices

@@ -90,8 +90,15 @@ void mainLoop() {
    */
   if(b_left_toggle == true || b_pack_on == true) {
     // Turn the bargraph on (using some pattern).
-    //bargraphAllOn();
-    bargraphRampFiring();
+    if(b_firing == true) {
+      // When firing, use the same animation as the wand.
+      bargraphRampFiring();
+    }
+    else {
+      // When idle, just use the 1984 power ramp up/down.
+      // bargraphFull();
+      bargraphRampUp();
+    }
   }
   else {
     // Clear all bargraph elements.
@@ -106,7 +113,12 @@ void mainLoop() {
    */ 
   if(b_right_toggle == true || b_pack_on == true) {
     // Set upper LED based on overheating state, if available.
-    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
+    if(b_pack_alarm) {
+      attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED);
+    }
+    else {
+      attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
+    }
 
     // Set lower LED based on firing mode, if available.
     uint8_t i_scheme = C_RED;
