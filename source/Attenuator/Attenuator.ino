@@ -30,17 +30,16 @@
 #include "Communication.h"
 #include "Header.h"
 #include "Colours.h"
+#include "Bargraph.h"
 
 void setup() {
   Serial.begin(9600);
 
-  // Enable Serial1 if compiling for the gpstar Neutrona Wand micro controller.
-  #ifdef HAVE_HWSERIAL1
-    Serial1.begin(9600);
-    packComs.begin(Serial1);
-  #else
-    packComs.begin(Serial);
-  #endif
+  // Enable Serial connection for communication with gpstar Proton Pack PCB.
+  packComs.begin(Serial);
+
+  // Bootup into proton mode (default for pack and wand).
+  FIRING_MODE = PROTON;
 
   // RGB LED's for effects (upper/lower).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
@@ -53,6 +52,9 @@ void setup() {
   pinMode(r_encoderA, INPUT_PULLUP);
   pinMode(r_encoderB, INPUT_PULLUP);
 
+  // Start some timers
+  ms_fast_led.start(i_fast_led_delay);
+
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
@@ -60,7 +62,6 @@ void setup() {
 
 void loop() {
   if(b_wait_for_pack == true) {
-
     // Handshake with the pack. Telling the pack that we are here.
     packSerialSend(W_HANDSHAKE);
 
@@ -72,8 +73,6 @@ void loop() {
   else {
     mainLoop();
   }
-  mainLoop();
-
 }
 
 void mainLoop() {
@@ -111,66 +110,66 @@ void mainLoop() {
    *          mode current in use by the wand.
    */ 
   if(b_right_toggle == true){
+    // Set upper LED based on overheating state, if available.
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
-    // attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RED);
-    attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RAINBOW);
-    FastLED.show();
+
+    // Set lower LED based on firing mode, if available.
+    switch(FIRING_MODE) {
+      case PROTON:
+        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RED);
+      break;
+
+      case SLIME:
+        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_GREEN);
+      break;
+
+      case STASIS:
+        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_LIGHT_BLUE);
+      break;
+
+      case MESON:
+        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_ORANGE);
+      break;
+
+      case SPECTRAL:
+        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RAINBOW);
+      break;
+
+      case HOLIDAY:
+        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_REDGREEN);
+      break;
+
+      case SPECTRAL_CUSTOM:
+        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RAINBOW);
+      break;
+
+      case VENTING:
+        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_RED);
+      break;
+
+      case SETTINGS:
+        attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_WHITE);
+      break;
+
+      default:
+        return C_RED;
+      break;
+    }
+
+    ms_fast_led.start(i_fast_led_delay);
   }
   else {
+    // Turn off the LED's by setting to black.
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
     attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+  }
+    ms_fast_led.start(i_fast_led_delay);
+  }
+
+  // Update the device LEDs.
+  if(ms_fast_led.justFinished()) {
     FastLED.show();
-  }
-}
-
-void setupBargraph() {
-  WIRE.begin();
-
-  byte by_error, by_address;
-  unsigned int i_i2c_devices = 0;
-
-  // Scan i2c for any devices (28 segment bargraph).
-  for(by_address = 1; by_address < 127; by_address++ ) {
-    WIRE.beginTransmission(by_address);
-    by_error = WIRE.endTransmission();
-
-    if(by_error == 0) {
-      i_i2c_devices++;
-    }
-  }
-
-  if(i_i2c_devices > 0) {
-    b_28segment_bargraph = true;
-  }
-  else {
-    b_28segment_bargraph = false;
-  }
-  
-  Serial.print(F("Bargraph Present -> "));
-  Serial.println(b_28segment_bargraph);
-  
-  if(b_28segment_bargraph == true) {
-    ht_bargraph.begin(0x00);
-  }
-}
-
-void bargraphRun() {
-  if(b_28segment_bargraph == true) {
-    for(uint8_t i = 0; i < 28; i++) {
-      ht_bargraph.setLedNow(i_bargraph[i]);
-    }
-
-    b_bargraph_on = true; // Denote that the device is "on".
-  }
-}
-
-void bargraphOff() {
-  if(b_28segment_bargraph == true && b_bargraph_on == true) {
-    for(uint8_t i = 0; i < 28; i++) {
-      ht_bargraph.clearLedNow(i_bargraph[i]);
-    }
-
-    b_bargraph_on = false; // Denote that the device is "off".
+    ms_fast_led.stop();
   }
 }
 
@@ -182,13 +181,13 @@ void checkRotary() {
 void checkSwitches() {
   // Determine the toggle states.
 
-  if(b_debug == true) {
-    // Serial.print(F("D3 Left -> "));
-    // Serial.println(switch_left.getState());
+  // if(b_debug == true) {
+  //   Serial.print(F("D3 Left -> "));
+  //   Serial.println(switch_left.getState());
 
-    // Serial.print(F("D4 Right -> "));
-    // Serial.println(switch_right.getState());
-  }
+  //   Serial.print(F("D4 Right -> "));
+  //   Serial.println(switch_right.getState());
+  // }
 
   // Set a variable which tells us if the toggle is on or off.
   if(switch_left.getState() == LOW) {
@@ -231,7 +230,126 @@ void packSerialSend(int i_message) {
 
 // Pack communication to the device.
 void checkPack() {
-    if(packComs.available()) {
+  if(packComs.available()) {
+    packComs.rxObj(comStruct);
 
+    if(!packComs.currentPacketID()) {
+      if(comStruct.i > 0 && comStruct.s == P_COM_START && comStruct.e == P_COM_END) {
+        // Use the passed communication flag to set the proper state for this device.
+        switch(comStruct.i) {
+          case P_ON:
+            // Pack is on.
+            b_pack_on = true;
+          break;
+
+          case P_OFF:
+            // Pack is off.
+            b_pack_on = false;
+          break;
+
+          case P_SYNC_START:
+            b_sync = true;
+          break;
+
+          case P_SYNC_END:
+            b_sync = false;
+          break;
+
+          case P_ALARM_ON:
+            // Alarm is on.
+            b_pack_alarm = true;
+          break;
+
+          case P_ALARM_OFF:
+            // Alarm is off.
+            b_pack_alarm = false;
+          break;
+
+          case P_HANDSHAKE:
+            // The pack is asking us if we are still here. Respond back.
+            packSerialSend(W_HANDSHAKE);
+          break;
+
+          case P_YEAR_1984:
+            i_mode_year = 1984;
+          break;
+
+          case P_YEAR_1989:
+            i_mode_year = 1989;
+          break;
+
+          case P_YEAR_AFTERLIFE:
+            i_mode_year = 2021;
+          break;
+
+          case P_PROTON_MODE:
+            FIRING_MODE = PROTON;
+          break;
+
+          case P_SLIME_MODE:
+            FIRING_MODE = SLIME;
+          break;
+
+          case P_STASIS_MODE:
+            FIRING_MODE = STASIS;
+          break;
+
+          case P_MESON_MODE:
+            FIRING_MODE = MESON;
+          break;
+
+          case P_SPECTRAL_CUSTOM_MODE:
+            FIRING_MODE = SPECTRAL_CUSTOM;
+          break;
+
+          case P_SPECTRAL_MODE:
+            FIRING_MODE = SPECTRAL;
+          break;
+
+          case P_HOLIDAY_MODE:
+            FIRING_MODE = HOLIDAY;
+          break;
+
+          case P_VENTING_MODE:
+            FIRING_MODE = VENTING;
+          break;
+
+          case P_SETTINGS_MODE:
+            FIRING_MODE = SETTINGS;
+          break;
+
+          case P_POWER_LEVEL_1:
+            POWER_LEVEL = LEVEL_1;
+          break;
+
+          case P_POWER_LEVEL_2:
+            POWER_LEVEL = LEVEL_2;
+          break;
+
+          case P_POWER_LEVEL_3:
+            POWER_LEVEL = LEVEL_4;
+          break;
+
+          case P_POWER_LEVEL_4:
+            POWER_LEVEL = LEVEL_4;
+          break;
+
+          case P_POWER_LEVEL_5:
+            POWER_LEVEL = LEVEL_5;
+          break;
+        }
+      }
+
+      comStruct.i = 0;
+      comStruct.s = 0;
     }
+  }
+
+  if(b_debug == true) {
+    Serial.print(F("b_pack_on -> "));
+    Serial.println(b_pack_on);
+
+    Serial.print(F("b_sync -> "));
+    Serial.println(b_sync);
+  }
 }

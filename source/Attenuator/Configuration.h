@@ -26,4 +26,4 @@ bool b_debug = true;
  * Wait for pack communication or operate in standalone mode.
  * Set to false for standalone mode, true for pack integration.
  */
-bool b_wait_for_pack = false;
+bool b_wait_for_pack = true;

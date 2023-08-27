@@ -328,7 +328,16 @@ millisDelay ms_wand_handshake_checking;
 uint8_t i_wand_power_level = 1; // Power level of the wand.
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
 
-SerialTransfer packComs;
+/*
+ *  Attenuator Status
+ */
+bool b_attenuator_connected = false;
+millisDelay ms_attenuator_handshake;
+const unsigned int i_attenuator_handshake_delay = 3000;
+millisDelay ms_attenuator_handshake_checking;
+
+SerialTransfer attenuatorComs;
+SerialTransfer wandComs;
 
 struct __attribute__((packed)) STRUCT {
   int s;

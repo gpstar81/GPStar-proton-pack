@@ -41,8 +41,14 @@
 
 void setup() {
   Serial.begin(9600);
-  Serial2.begin(9600); // Communication to the wand.
-  packComs.begin(Serial2);
+
+  // Communication to the Attenuator.
+  Serial1.begin(9600);
+  attenuatorComs.begin(Serial1);
+
+  // Communication to the Neutrona Wand.
+  Serial2.begin(9600);
+  wandComs.begin(Serial2);
 
   // Setup the Wav Trigger.
   setupWavTrigger();
@@ -121,6 +127,7 @@ void setup() {
   ms_cyclotron.start(i_current_ramp_speed);
   ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
+  ms_attenuator_handshake.start(1);
   ms_wand_handshake.start(1);
   ms_fast_led.start(i_fast_led_delay);
 
@@ -154,8 +161,11 @@ void setup() {
     i_cyclotron_inner_brightness = 100;
   }
 
-  // Tell the wand the pack is here.
-  packSerialSend(P_PACK_BOOTUP);
+  // Tell the Attenuator the pack is here.
+  attenuatorSerialSend(P_PACK_BOOTUP);
+
+  // Tell the Neutrona Wand the pack is here.
+  wandSerialSend(P_PACK_BOOTUP);
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
@@ -177,6 +187,10 @@ void loop() {
 
   wandHandShake();
   checkWand();
+
+  attenuatorHandShake();
+  checkAttenuator();
+
   checkFan();
 
   switch_cyclotron_lid.loop();
@@ -222,7 +236,7 @@ void loop() {
 
       if(b_pack_on == true) {
         // Tell the wand the pack is off, so shut down the wand as well if it is still on.
-        packSerialSend(P_OFF);
+        wandSerialSend(P_OFF);
       }
 
       b_pack_on = false;
@@ -239,7 +253,7 @@ void loop() {
 
       if(b_pack_on == false) {
         // Tell the wand the pack is on.
-        packSerialSend(P_ON);
+        wandSerialSend(P_ON);
       }
 
       b_pack_on = true;
@@ -438,10 +452,10 @@ void checkRibbonCableSwitch() {
   if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
     if(switch_alarm.getState() == LOW) {
       // Ribbon cable is on.
-      packSerialSend(P_RIBBON_CABLE_ON);
+      wandSerialSend(P_RIBBON_CABLE_ON);
     }
     else {
-      packSerialSend(P_RIBBON_CABLE_OFF);
+      wandSerialSend(P_RIBBON_CABLE_OFF);
     }
   }
 }
@@ -464,11 +478,11 @@ void packStartup() {
     packAlarm();
 
     // Tell the wand the pack alarm is off.
-    packSerialSend(P_ALARM_ON);
+    wandSerialSend(P_ALARM_ON);
   }
   else {
     // Tell the wand the pack alarm is off.
-    packSerialSend(P_ALARM_OFF);
+    wandSerialSend(P_ALARM_OFF);
 
     stopEffect(S_PACK_RIBBON_ALARM_1);
     stopEffect(S_ALARM_LOOP);
@@ -626,7 +640,7 @@ void packOffReset() {
   // Tell the wand the alarm is off.
   if(b_alarm == true) {
     b_alarm = false;
-    packSerialSend(P_ALARM_OFF);
+    wandSerialSend(P_ALARM_OFF);
   }  
 }
 
@@ -646,7 +660,7 @@ void checkSwitches() {
       playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
       // Tell wand to play cyclotron counter clockwise voice.
-      packSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
+      wandSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
     }
     else {
       b_clockwise = true;
@@ -661,7 +675,7 @@ void checkSwitches() {
       playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
 
       // Tell wand to play cyclotron clockwise voice.
-      packSerialSend(P_CYCLOTRON_CLOCKWISE);
+      wandSerialSend(P_CYCLOTRON_CLOCKWISE);
     }
   }
 
@@ -680,7 +694,7 @@ void checkSwitches() {
       playEffect(S_VOICE_SMOKE_DISABLED);
 
       // Tell wand to play smoke disabled voice.
-      packSerialSend(P_SMOKE_DISABLED);
+      wandSerialSend(P_SMOKE_DISABLED);
     }
     else {
       b_smoke_enabled = true;
@@ -695,7 +709,7 @@ void checkSwitches() {
       playEffect(S_VOICE_SMOKE_ENABLED);
 
       // Tell wand to play smoke enabled voice.
-      packSerialSend(P_SMOKE_ENABLED);
+      wandSerialSend(P_SMOKE_ENABLED);
     }
   }
 
@@ -708,7 +722,7 @@ void checkSwitches() {
       if(switch_vibration.getState() == LOW) {
         if(b_vibration_enabled == false) {
           // Tell the wand to enable vibration.
-          packSerialSend(P_VIBRATION_ENABLED);
+          wandSerialSend(P_VIBRATION_ENABLED);
 
           b_vibration_enabled = true;
 
@@ -721,7 +735,7 @@ void checkSwitches() {
       else {
         if(b_vibration_enabled == true) {
           // Tell the wand to disable vibration.
-          packSerialSend(P_VIBRATION_DISABLED);
+          wandSerialSend(P_VIBRATION_DISABLED);
 
           b_vibration_enabled = false;
 
@@ -757,7 +771,7 @@ void checkSwitches() {
           if(switch_mode.getState() == LOW) {
             if(i_mode_year == 2021) {
               // Tell the wand to switch to 1984 mode.
-              packSerialSend(P_YEAR_1984);
+              wandSerialSend(P_YEAR_1984);
             }
 
             i_mode_year = 1984;
@@ -766,7 +780,7 @@ void checkSwitches() {
           else {
             if(i_mode_year == 1984) {
               // Tell the wand to switch to 2021 mode.
-              packSerialSend(P_YEAR_AFTERLIFE);
+              wandSerialSend(P_YEAR_AFTERLIFE);
             }
 
             i_mode_year = 2021;
@@ -779,7 +793,7 @@ void checkSwitches() {
             case 1984:
               if(i_mode_year != i_mode_year_tmp) {
                 // Tell the wand to switch to 1984 mode.
-                packSerialSend(P_YEAR_1984);
+                wandSerialSend(P_YEAR_1984);
               }
 
               i_mode_year = 1984;
@@ -789,7 +803,7 @@ void checkSwitches() {
             case 1989:
               if(i_mode_year != i_mode_year_tmp) {
                 // Tell the wand to switch to 1989 mode.
-                packSerialSend(P_YEAR_1989);
+                wandSerialSend(P_YEAR_1989);
               }
 
               i_mode_year = 1989;
@@ -799,7 +813,7 @@ void checkSwitches() {
             case 2021:
               if(i_mode_year != i_mode_year_tmp) {
                 // Tell the wand to switch to 2021 mode.
-                packSerialSend(P_YEAR_AFTERLIFE);
+                wandSerialSend(P_YEAR_AFTERLIFE);
               }
 
               i_mode_year = 2021;
@@ -1310,7 +1324,7 @@ void cyclotronControl() {
       packAlarm();
 
       // Tell the wand the pack alarm is on.
-      packSerialSend(P_ALARM_ON);
+      wandSerialSend(P_ALARM_ON);
     }
 
     // Ribbon cable has been removed.
@@ -3356,7 +3370,7 @@ void checkRotaryEncoder() {
       increaseVolume();
 
       // Tell wand to increase volume.
-      packSerialSend(P_VOLUME_INCREASE);
+      wandSerialSend(P_VOLUME_INCREASE);
 
       ms_volume_check.start(50);
     }
@@ -3367,7 +3381,7 @@ void checkRotaryEncoder() {
       decreaseVolume();
 
       // Tell wand to decrease the volume.
-      packSerialSend(P_VOLUME_DECREASE);
+      wandSerialSend(P_VOLUME_DECREASE);
 
       ms_volume_check.start(50);
     }
@@ -3461,6 +3475,34 @@ void checkFan() {
   }
 }
 
+// Check if the attenuator is still connected.
+void attenuatorHandShake() {
+  if(b_attenuator_connected == true) {
+    if(ms_attenuator_handshake.justFinished()) {
+      ms_attenuator_handshake.start(i_attenuator_handshake_delay);
+
+      b_attenuator_connected = false;
+
+      // Where are you attenuator?
+      attenuatorSerialSend(P_HANDSHAKE);
+    }
+    else if(ms_wand_handshake_checking.justFinished()) {
+      ms_attenuator_handshake.stop();
+
+      // Ask the attenuator if it is still connected.
+      attenuatorSerialSend(P_HANDSHAKE);
+    }
+  }
+  else {
+    if(ms_attenuator_handshake.justFinished()) {
+      // Ask the attenuator if it is connected.
+      attenuatorSerialSend(P_HANDSHAKE);
+
+      ms_attenuator_handshake.start(i_attenuator_handshake_delay / 5);
+    }
+  }
+}
+
 // Check if the wand is still connected.
 void wandHandShake() {
   if(b_wand_connected == true) {
@@ -3482,7 +3524,7 @@ void wandHandShake() {
       }
 
       // Where are you wand?
-      packSerialSend(P_HANDSHAKE);
+      wandSerialSend(P_HANDSHAKE);
     }
     else if(ms_wand_handshake_checking.justFinished()) {
       if(b_diagnostic == true) {
@@ -3493,7 +3535,7 @@ void wandHandShake() {
       ms_wand_handshake_checking.stop();
 
       // Ask the wand if it is still connected.
-      packSerialSend(P_HANDSHAKE);
+      wandSerialSend(P_HANDSHAKE);
     }
   }
   else {
@@ -3513,7 +3555,7 @@ void wandHandShake() {
 
     if(ms_wand_handshake.justFinished()) {
       // Ask the wand if it is connected.
-      packSerialSend(P_HANDSHAKE);
+      wandSerialSend(P_HANDSHAKE);
 
       ms_wand_handshake.start(i_wand_handshake_delay / 5);
     }
@@ -3585,12 +3627,123 @@ void packOverheatingFinished() {
   ms_cyclotron.start(i_2021_delay);
 }
 
+// Incoming messages from the attenuator.
+void checkAttenuator() {
+  if(attenuatorComs.available()) {
+    attenuatorComs.rxObj(comStruct);
+
+    if(!attenuatorComs.currentPacketID()) {
+      if(comStruct.i > 0 && comStruct.s == W_COM_START && comStruct.e == W_COM_END) {
+        // Check if the attenuator is telling us it is here after connecting it to the pack.
+        // Then Synchronise some settings between the pack and the attenuator.
+        if(comStruct.i == W_HANDSHAKE) {
+          attenuatorSerialSend(P_SYNC_START);
+
+          // Tell the attenuator that the pack is here.
+          attenuatorSerialSend(P_HANDSHAKE);
+
+          if(i_mode_year == 1984) {
+            attenuatorSerialSend(P_YEAR_1984);
+          }
+          else if(i_mode_year == 1989) {
+            attenuatorSerialSend(P_YEAR_1989);
+          }
+          else {
+            attenuatorSerialSend(P_YEAR_AFTERLIFE);
+          }
+
+          // Ribbon cable alarm.
+          if(b_alarm == true) {
+            attenuatorSerialSend(P_ALARM_ON);
+          }
+          else {
+            attenuatorSerialSend(P_ALARM_OFF);
+          }
+
+          // Pack status
+          if(PACK_STATUS != MODE_OFF) {
+            attenuatorSerialSend(P_ON);
+          }
+          else {
+            attenuatorSerialSend(P_OFF);
+          }
+
+          // Reset the wand power levels.
+          switch(i_wand_power_level) {
+            case 5:
+              attenuatorSerialSend(P_POWER_LEVEL_5);
+            break;
+
+            case 4:
+              attenuatorSerialSend(P_POWER_LEVEL_4);
+            break;
+
+            case 3:
+              attenuatorSerialSend(P_POWER_LEVEL_3);
+            break;
+
+            case 2:
+              attenuatorSerialSend(P_POWER_LEVEL_2);
+            break;
+
+            case 1:
+            default:
+              attenuatorSerialSend(P_POWER_LEVEL_1);
+            break;
+          }
+
+          // Synchronise the firing modes.
+          switch(FIRING_MODE) {
+            case SLIME:
+              attenuatorSerialSend(P_SLIME_MODE);
+            break;
+
+            case STASIS:
+              attenuatorSerialSend(P_STASIS_MODE);
+            break;
+
+            case MESON:
+              attenuatorSerialSend(P_MESON_MODE);
+            break;
+
+            case SPECTRAL:
+              attenuatorSerialSend(P_SPECTRAL_MODE);
+            break;
+
+            case HOLIDAY:
+              attenuatorSerialSend(P_HOLIDAY_MODE);
+            break;
+
+            case SPECTRAL_CUSTOM:
+              attenuatorSerialSend(P_SPECTRAL_CUSTOM_MODE);
+            break;
+
+            case VENTING:
+              attenuatorSerialSend(P_VENTING_MODE);
+            break;
+
+            case PROTON:
+            case SETTINGS:
+            default:
+              attenuatorSerialSend(P_PROTON_MODE);
+            break;
+          }
+
+          attenuatorSerialSend(P_SYNC_END);
+
+          b_attenuator_connected = true;
+        }
+      }
+    }
+  }
+}
+
 // Incoming messages from the wand.
 void checkWand() {
-  if(packComs.available()) {
-    packComs.rxObj(comStruct);
+  if(wandComs.available()) {
+    wandComs.rxObj(comStruct);
 
-    if(!packComs.currentPacketID()) {
+    if(!wandComs.currentPacketID()) {
       if(comStruct.i > 0 && comStruct.s == W_COM_START && comStruct.e == W_COM_END) {
         if(b_wand_connected == true) {
           switch(comStruct.i) {
@@ -3622,7 +3775,7 @@ void checkWand() {
 
                 b_cyclotron_simulate_ring = false;
 
-                packSerialSend(P_CYCLOTRON_SIMULATE_RING_DISABLED);
+                wandSerialSend(P_CYCLOTRON_SIMULATE_RING_DISABLED);
               }
               else {
                 stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
@@ -3631,7 +3784,7 @@ void checkWand() {
 
                 b_cyclotron_simulate_ring = true;
 
-                packSerialSend(P_CYCLOTRON_SIMULATE_RING_ENABLED);
+                wandSerialSend(P_CYCLOTRON_SIMULATE_RING_ENABLED);
               }
             break;
 
@@ -4199,7 +4352,7 @@ void checkWand() {
                   playEffect(S_VOICE_1989);
 
                   // Tell the wand to play the 1989 sound effect.
-                  packSerialSend(P_MODE_1989);
+                  wandSerialSend(P_MODE_1989);
                 break;
 
                 case 1989:
@@ -4212,7 +4365,7 @@ void checkWand() {
                   playEffect(S_VOICE_AFTERLIFE);
 
                   // Tell the wand to play the 2021 sound effect.
-                  packSerialSend(P_MODE_AFTERLIFE);
+                  wandSerialSend(P_MODE_AFTERLIFE);
                 break;
 
                 case 2021:
@@ -4225,7 +4378,7 @@ void checkWand() {
                   playEffect(S_VOICE_1984);
 
                   // Tell the wand to play the 1984 sound effect.
-                  packSerialSend(P_MODE_1984);
+                  wandSerialSend(P_MODE_1984);
                 break;
               }
 
@@ -4329,7 +4482,7 @@ void checkWand() {
 
                 playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
 
-                packSerialSend(P_PACK_VIBRATION_ENABLED);
+                wandSerialSend(P_PACK_VIBRATION_ENABLED);
 
                 analogWrite(vibration, 150);
                 delay(250);
@@ -4346,7 +4499,7 @@ void checkWand() {
 
                 playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
 
-                packSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
+                wandSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
 
                 analogWrite(vibration, 150);
                 delay(250);
@@ -4363,7 +4516,7 @@ void checkWand() {
 
                 playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
 
-                packSerialSend(P_PACK_VIBRATION_DISABLED);
+                wandSerialSend(P_PACK_VIBRATION_DISABLED);
               }
             break;
 
@@ -4381,7 +4534,7 @@ void checkWand() {
                 playEffect(S_VOICE_SMOKE_DISABLED);
 
                 // Tell the wand to play the smoke disabled voice.
-                packSerialSend(P_SMOKE_DISABLED);
+                wandSerialSend(P_SMOKE_DISABLED);
               }
               else {
                 b_smoke_enabled = true;
@@ -4396,7 +4549,7 @@ void checkWand() {
                 playEffect(S_VOICE_SMOKE_ENABLED);
 
                 // Tell the wand to play the smoke enabled voice.
-                packSerialSend(P_SMOKE_ENABLED);
+                wandSerialSend(P_SMOKE_ENABLED);
               }
             break;
 
@@ -4430,7 +4583,7 @@ void checkWand() {
                 playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
                 // Tell the wand to play the same sound.
-                packSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
+                wandSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
               }
               else {
                 b_clockwise = true;
@@ -4445,7 +4598,7 @@ void checkWand() {
                 playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
 
                 // Tell the wand to play the same sound.
-                packSerialSend(P_CYCLOTRON_CLOCKWISE);
+                wandSerialSend(P_CYCLOTRON_CLOCKWISE);
               }
             break;
 
@@ -4460,7 +4613,7 @@ void checkWand() {
                 playEffect(S_VOICE_THREE_LED);
 
                 // Tell the wand to play the same sound.
-                packSerialSend(P_CYCLOTRON_THREE_LED);
+                wandSerialSend(P_CYCLOTRON_THREE_LED);
               }
               else {
                 b_cyclotron_single_led = true;
@@ -4472,7 +4625,7 @@ void checkWand() {
                 playEffect(S_VOICE_SINGLE_LED);
 
                 // Tell the wand to play the same sound.
-                packSerialSend(P_CYCLOTRON_SINGLE_LED);
+                wandSerialSend(P_CYCLOTRON_SINGLE_LED);
               }
             break;
 
@@ -4491,7 +4644,7 @@ void checkWand() {
                 playEffect(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
 
                 // Tell the wand to play the same sound.
-                packSerialSend(P_VIDEO_GAME_MODE_COLOURS_DISABLED);
+                wandSerialSend(P_VIDEO_GAME_MODE_COLOURS_DISABLED);
               }
               else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle != true) {
                 // PowerCell only.
@@ -4501,7 +4654,7 @@ void checkWand() {
                 playEffect(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
 
                 // Tell the wand to play the same sound.
-                packSerialSend(P_VIDEO_GAME_MODE_POWER_CELL_ENABLED);
+                wandSerialSend(P_VIDEO_GAME_MODE_POWER_CELL_ENABLED);
               }
               else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle == true) {
                 // Cyclotron only.
@@ -4511,7 +4664,7 @@ void checkWand() {
                 playEffect(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
                 // Tell the wand to play the same sound.
-                packSerialSend(P_VIDEO_GAME_MODE_CYCLOTRON_ENABLED);
+                wandSerialSend(P_VIDEO_GAME_MODE_CYCLOTRON_ENABLED);
               }
               else {
                 // Enabled, both Cyclotron and PowerCell video game colours.
@@ -4521,7 +4674,7 @@ void checkWand() {
                 playEffect(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
 
                 // Tell the wand to play the same sound.
-                packSerialSend(P_VIDEO_GAME_MODE_COLOURS_ENABLED);
+                wandSerialSend(P_VIDEO_GAME_MODE_COLOURS_ENABLED);
               }
             break;
 
@@ -4656,7 +4809,7 @@ void checkWand() {
                 stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
                 playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
 
-                packSerialSend(P_PROTON_STREAM_IMPACT_DISABLED);
+                wandSerialSend(P_PROTON_STREAM_IMPACT_DISABLED);
               }
               else {
                 b_stream_effects = true;
@@ -4665,7 +4818,7 @@ void checkWand() {
                 stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
                 playEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
 
-                packSerialSend(P_PROTON_STREAM_IMPACT_ENABLED);
+                wandSerialSend(P_PROTON_STREAM_IMPACT_ENABLED);
               }
             break;
 
@@ -4810,7 +4963,7 @@ void checkWand() {
 
                   playEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
 
-                  packSerialSend(P_INNER_CYCLOTRON_DIMMING);
+                  wandSerialSend(P_INNER_CYCLOTRON_DIMMING);
                 break;
 
                 case DIM_INNER_CYCLOTRON:
@@ -4822,7 +4975,7 @@ void checkWand() {
 
                   playEffect(S_VOICE_POWERCELL_BRIGHTNESS);
 
-                  packSerialSend(P_POWERCELL_DIMMING);
+                  wandSerialSend(P_POWERCELL_DIMMING);
                 break;
 
                 case DIM_POWERCELL:
@@ -4835,7 +4988,7 @@ void checkWand() {
 
                   playEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
 
-                  packSerialSend(P_CYCLOTRON_DIMMING);
+                  wandSerialSend(P_CYCLOTRON_DIMMING);
                 break;
               }
             break;
@@ -4853,7 +5006,7 @@ void checkWand() {
 
                     resetCyclotronLeds();
 
-                    packSerialSend(P_DIMMING);
+                    wandSerialSend(P_DIMMING);
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
@@ -4923,7 +5076,7 @@ void checkWand() {
                     // Reset the Cyclotron.
                     resetCyclotronLeds();
 
-                    packSerialSend(P_DIMMING);
+                    wandSerialSend(P_DIMMING);
 
                     stopEffect(S_BEEPS);
                     playEffect(S_BEEPS);
@@ -5021,7 +5174,7 @@ void checkWand() {
                   i_1984_inner_delay = 12;
 
                   playEffect(S_VOICE_INNER_CYCLOTRON_23);
-                  packSerialSend(P_INNER_CYCLOTRON_LEDS_23);
+                  wandSerialSend(P_INNER_CYCLOTRON_LEDS_23);
                 break;
 
                 case 23:
@@ -5031,7 +5184,7 @@ void checkWand() {
                   i_1984_inner_delay = 12;
 
                   playEffect(S_VOICE_INNER_CYCLOTRON_24);
-                  packSerialSend(P_INNER_CYCLOTRON_LEDS_24);
+                  wandSerialSend(P_INNER_CYCLOTRON_LEDS_24);
                 break;
 
                 case 24:
@@ -5042,7 +5195,7 @@ void checkWand() {
                   i_1984_inner_delay = 9;
 
                   playEffect(S_VOICE_INNER_CYCLOTRON_35);
-                  packSerialSend(P_INNER_CYCLOTRON_LEDS_35);
+                  wandSerialSend(P_INNER_CYCLOTRON_LEDS_35);
                 break;
 
                 case 35:
@@ -5052,7 +5205,7 @@ void checkWand() {
                   i_1984_inner_delay = 15;
 
                   playEffect(S_VOICE_INNER_CYCLOTRON_12);
-                  packSerialSend(P_INNER_CYCLOTRON_LEDS_12);
+                  wandSerialSend(P_INNER_CYCLOTRON_LEDS_12);
                 break;
               }
 
@@ -5074,7 +5227,7 @@ void checkWand() {
                   i_powercell_delay_2021 = 34;
 
                   playEffect(S_VOICE_POWERCELL_15);
-                  packSerialSend(P_POWERCELL_LEDS_15);
+                  wandSerialSend(P_POWERCELL_LEDS_15);
                 break;
 
                 case FRUTTO_POWERCELL_LED_COUNT:
@@ -5085,7 +5238,7 @@ void checkWand() {
                   i_powercell_delay_2021 = 40;
 
                   playEffect(S_VOICE_POWERCELL_13);
-                  packSerialSend(P_POWERCELL_LEDS_13);
+                  wandSerialSend(P_POWERCELL_LEDS_13);
                 break;
               }
 
@@ -5112,7 +5265,7 @@ void checkWand() {
                   i_1984_cyclotron_leds[3] = 17;
 
                   playEffect(S_VOICE_CYCLOTRON_20);
-                  packSerialSend(P_CYCLOTRON_LEDS_20);
+                  wandSerialSend(P_CYCLOTRON_LEDS_20);
                 break;
 
                 case FRUTTO_CYCLOTRON_LED_COUNT:
@@ -5127,7 +5280,7 @@ void checkWand() {
                   i_1984_cyclotron_leds[3] = 10;
 
                   playEffect(S_VOICE_CYCLOTRON_12);
-                  packSerialSend(P_CYCLOTRON_LEDS_12);
+                  wandSerialSend(P_CYCLOTRON_LEDS_12);
                 break;
 
                 case HASLAB_CYCLOTRON_LED_COUNT:
@@ -5141,7 +5294,7 @@ void checkWand() {
                   i_1984_cyclotron_leds[3] = 28;
 
                   playEffect(S_VOICE_CYCLOTRON_40);
-                  packSerialSend(P_CYCLOTRON_LEDS_40);
+                  wandSerialSend(P_CYCLOTRON_LEDS_40);
                 break;
               }
 
@@ -5159,13 +5312,13 @@ void checkWand() {
                 b_grb_cyclotron = false;
                 playEffect(S_VOICE_RGB_INNER_CYCLOTRON);
 
-                packSerialSend(P_RGB_INNER_CYCLOTRON_LEDS);
+                wandSerialSend(P_RGB_INNER_CYCLOTRON_LEDS);
               }
               else {
                 b_grb_cyclotron = true;
                 playEffect(S_VOICE_GRB_INNER_CYCLOTRON);
 
-                packSerialSend(P_GRB_INNER_CYCLOTRON_LEDS);
+                wandSerialSend(P_GRB_INNER_CYCLOTRON_LEDS);
               }
 
               if(b_spectral_lights_on == true) {
@@ -5197,117 +5350,117 @@ void checkWand() {
           // Check if the wand is telling us it is here after connecting it to the pack.
           // Then Synchronise some settings between the pack and the wand.
           if(comStruct.i == W_HANDSHAKE) {
-            packSerialSend(P_SYNC_START);
+            wandSerialSend(P_SYNC_START);
 
             // Tell the wand that the pack is here.
-            packSerialSend(P_HANDSHAKE);
+            wandSerialSend(P_HANDSHAKE);
 
             if(i_mode_year == 1984) {
-              packSerialSend(P_YEAR_1984);
+              wandSerialSend(P_YEAR_1984);
             }
             else if(i_mode_year == 1989) {
-              packSerialSend(P_YEAR_1989);
+              wandSerialSend(P_YEAR_1989);
             }
             else {
-              packSerialSend(P_YEAR_AFTERLIFE);
+              wandSerialSend(P_YEAR_AFTERLIFE);
             }
 
             // Stop any music.
-            packSerialSend(P_MUSIC_STOP);
+            wandSerialSend(P_MUSIC_STOP);
             b_playing_music = false;
             stopMusic();
 
-            packSerialSend(i_current_music_track);
+            wandSerialSend(i_current_music_track);
 
             if(b_repeat_track == true) {
-              packSerialSend(P_MUSIC_REPEAT);
+              wandSerialSend(P_MUSIC_REPEAT);
             }
             else {
-              packSerialSend(P_MUSIC_NO_REPEAT);
+              wandSerialSend(P_MUSIC_NO_REPEAT);
             }
 
             // Vibration enabled or disabled from the Proton Pack toggle switch
             if(b_vibration_enabled == true) {
-              packSerialSend(P_VIBRATION_ENABLED);
+              wandSerialSend(P_VIBRATION_ENABLED);
             }
             else {
-              packSerialSend(P_VIBRATION_DISABLED);
+              wandSerialSend(P_VIBRATION_DISABLED);
             }
 
             // Ribbon cable alarm.
             if(b_alarm == true) {
-              packSerialSend(P_ALARM_ON);
+              wandSerialSend(P_ALARM_ON);
             }
             else {
-              packSerialSend(P_ALARM_OFF);
+              wandSerialSend(P_ALARM_OFF);
             }
 
             // Pack status
             if(PACK_STATUS != MODE_OFF) {
-              packSerialSend(P_ON);
+              wandSerialSend(P_ON);
             }
             else {
-              packSerialSend(P_OFF);
+              wandSerialSend(P_OFF);
             }
 
             // Reset the wand power levels.
             switch(i_wand_power_level) {
               case 5:
-                packSerialSend(P_POWER_LEVEL_5);
+                wandSerialSend(P_POWER_LEVEL_5);
               break;
 
               case 4:
-                packSerialSend(P_POWER_LEVEL_4);
+                wandSerialSend(P_POWER_LEVEL_4);
               break;
 
               case 3:
-                packSerialSend(P_POWER_LEVEL_3);
+                wandSerialSend(P_POWER_LEVEL_3);
               break;
 
               case 2:
-                packSerialSend(P_POWER_LEVEL_2);
+                wandSerialSend(P_POWER_LEVEL_2);
               break;
 
               case 1:
               default:
-                packSerialSend(P_POWER_LEVEL_1);
+                wandSerialSend(P_POWER_LEVEL_1);
               break;
             }
 
             // Synchronise the firing modes.
             switch(FIRING_MODE) {
               case SLIME:
-                packSerialSend(P_SLIME_MODE);
+                wandSerialSend(P_SLIME_MODE);
               break;
 
               case STASIS:
-                packSerialSend(P_STASIS_MODE);
+                wandSerialSend(P_STASIS_MODE);
               break;
 
               case MESON:
-                packSerialSend(P_MESON_MODE);
+                wandSerialSend(P_MESON_MODE);
               break;
 
               case SPECTRAL:
-                packSerialSend(P_SPECTRAL_MODE);
+                wandSerialSend(P_SPECTRAL_MODE);
               break;
 
               case HOLIDAY:
-                packSerialSend(P_HOLIDAY_MODE);
+                wandSerialSend(P_HOLIDAY_MODE);
               break;
 
               case SPECTRAL_CUSTOM:
-                packSerialSend(P_SPECTRAL_CUSTOM_MODE);
+                wandSerialSend(P_SPECTRAL_CUSTOM_MODE);
               break;
 
               case VENTING:
-                packSerialSend(P_VENTING_MODE);
+                wandSerialSend(P_VENTING_MODE);
               break;
 
               case PROTON:
               case SETTINGS:
               default:
-                packSerialSend(P_PROTON_MODE);
+                wandSerialSend(P_PROTON_MODE);
 
                 FIRING_MODE = PROTON;
 
@@ -5329,31 +5482,31 @@ void checkWand() {
             // Tell the wand the status of the Proton Pack ribbon cable.
             if(switch_alarm.getState() == LOW) {
               // Ribbon cable is on.
-              packSerialSend(P_RIBBON_CABLE_ON);
+              wandSerialSend(P_RIBBON_CABLE_ON);
             }
             else {
-              packSerialSend(P_RIBBON_CABLE_OFF);
+              wandSerialSend(P_RIBBON_CABLE_OFF);
             }
 
             // Put the wand into volume sync mode.
-            packSerialSend(P_VOLUME_SYNC_MODE);
+            wandSerialSend(P_VOLUME_SYNC_MODE);
 
             // Sequence here is important. Synchronise the volume settings.
-            packSerialSend(i_volume_percentage);
+            wandSerialSend(i_volume_percentage);
 
-            packSerialSend(i_volume_master_percentage);
+            wandSerialSend(i_volume_master_percentage);
 
-            packSerialSend(i_volume_music_percentage);
+            wandSerialSend(i_volume_music_percentage);
 
             if(i_volume_master == i_volume_abs_min) {
               // Telling the wand to be silent if required.
-              packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
+              wandSerialSend(P_MASTER_AUDIO_SILENT_MODE);
             }
             else {
-              packSerialSend(P_MASTER_AUDIO_NORMAL);
+              wandSerialSend(P_MASTER_AUDIO_NORMAL);
             }
 
-            packSerialSend(P_SYNC_END);
+            wandSerialSend(P_SYNC_END);
 
             b_wand_connected = true;
           }
@@ -5363,12 +5516,20 @@ void checkWand() {
   }
 }
 
-void packSerialSend(int i_message) {
+void attenuatorSerialSend(int i_message) {
   sendStruct.s = P_COM_START;
   sendStruct.i = i_message;
   sendStruct.e = P_COM_END;
 
-  packComs.sendDatum(sendStruct);
+  attenuatorComs.sendDatum(sendStruct);
+}
+
+void wandSerialSend(int i_message) {
+  sendStruct.s = P_COM_START;
+  sendStruct.i = i_message;
+  sendStruct.e = P_COM_END;
+
+  wandComs.sendDatum(sendStruct);
 }
 
 // Update the LED counts for the Proton Pack.

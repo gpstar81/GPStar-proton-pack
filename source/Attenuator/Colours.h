@@ -20,7 +20,7 @@
 /**
  * Colours based on Hue use a colour degree, a Saturation, and Value (brightness).
  * A conversion to RGB values is done to ensure consistent colors across devices.
-*/
+ */
 
 enum colours {
   C_BLACK,

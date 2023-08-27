@@ -96,6 +96,7 @@ void setup() {
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_NUM_LEDS);
 
+  // Set debounce for switches/buttons.
   switch_wand.setDebounceTime(switch_debounce_time);
   switch_intensify.setDebounceTime(switch_debounce_time);
   switch_activate.setDebounceTime(switch_debounce_time);

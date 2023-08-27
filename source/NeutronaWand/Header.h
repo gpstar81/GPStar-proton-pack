@@ -358,7 +358,7 @@ bool b_overheat_bargraph_blink = false;
 
 /*
  * Function prototypes.
-*/
+ */
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
 void stopEffect(int i_track_id);
 void stopMusic();

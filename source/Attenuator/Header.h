@@ -56,6 +56,19 @@ bool b_bargraph_on = false;
   const uint8_t i_bargraph[28] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 #endif
 
+/*
+ * Year Theme
+ */
+unsigned int i_mode_year = 2021; // 1984, 1989, or 2021
+
+/* 
+ *  Wand Firing Modes + Settings
+ */
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
+enum FIRING_MODES FIRING_MODE;
+enum POWER_LEVELS { LEVEL_0, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
+enum POWER_LEVELS POWER_LEVEL;
+
 /* 
  * Toggle Switches
  * Will be pulled LOW (down position) when considered "active".
@@ -77,7 +90,7 @@ const uint8_t switch_debounce_time = 50;
 #define r_encoderB 7
 
 /* 
- *  Pack Communication
+ * Pack Communication
  */
 SerialTransfer packComs;
 
@@ -92,6 +105,13 @@ struct __attribute__((packed)) STRUCTSEND {
   int i;
   int e;
 } sendStruct;
+
+/*
+ * Some pack flags which get transmitted to the attenuator depending on the pack status.
+ */
+bool b_pack_on = false;
+bool b_pack_alarm = false;
+bool b_sync = false;
 
 /*
  * LED Devices
