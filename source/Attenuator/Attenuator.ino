@@ -39,8 +39,7 @@ void setup() {
   packComs.begin(Serial);
 
   // Bootup into proton mode (default for pack and wand).
-  //FIRING_MODE = PROTON;
-  FIRING_MODE = SPECTRAL_CUSTOM;
+  FIRING_MODE = PROTON;
   POWER_LEVEL = LEVEL_5;
 
   // RGB LED's for effects (upper/lower).
