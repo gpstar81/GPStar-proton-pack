@@ -36,6 +36,7 @@ enum colours {
   C_BLUE,
   C_PURPLE,
   C_AMBER_PULSE,
+  C_RED_FADE,
   C_REDGREEN,
   C_RAINBOW,
   C_SPECTRAL_CUSTOM
@@ -51,8 +52,9 @@ int getBrightness(uint8_t i_percent = 100) {
 
 // Special values for colour cycles: current hue (colour) and when to change colour.
 // This must match the number of device ENUM entries (though that is rarely changed).
-uint8_t i_curr_colour[4] = { 0, 0, 0, 0 };
-uint8_t i_count[4] = { 0, 0, 0, 0 };
+uint8_t i_curr_colour[2] = { 0, 0 };
+uint8_t i_curr_bright[2] = { 0, 0 };
+uint8_t i_count[2] = { 0, 0 };
 
 CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
@@ -122,6 +124,18 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
     break;
 
+    case C_RED_FADE:
+      // Cycle the brightness down and up for red colour.
+      i_count[i_device]++;
+      if(i_count[i_device] % 20 == 0) {
+        // Increments brightness by 1 for more gradual fade between cycles.
+        i_curr_bright[i_device] = (i_curr_bright[i_device] + 1) % 255;
+        i_count[i_device] = 0; // Reset counter.
+      }
+
+      return CHSV(0, 255, i_curr_bright[i_device]);
+    break;
+
     case C_REDGREEN:
       // Alternate between red (0) and green (96).
       if(i_curr_colour[i_device] != 0 && i_curr_colour[i_device] != 96) {
@@ -137,7 +151,6 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         }
         else {
           i_curr_colour[i_device] = 0;
-          i_count[i_device] = 0; // Reset counter.
         }
       }
 
@@ -148,7 +161,8 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       // Cycle through all colours (0-255) at full saturation.
       i_count[i_device]++;
       if(i_count[i_device] % 20 == 0) {
-        i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
+        // Increments color by 1 for more gradual fade between cycles.
+        i_curr_colour[i_device] = (i_curr_colour[i_device] + 1) % 255;
         i_count[i_device] = 0; // Reset counter.
       }
 

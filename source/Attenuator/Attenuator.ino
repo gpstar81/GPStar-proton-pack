@@ -110,16 +110,6 @@ void mainLoop() {
     }
   }
 
-  // Handle center-click of the encoder dial.
-  if(encoder_center.isPressed() || encoder_center.isReleased()) {
-    if(encoder_center.getState() == LOW) {
-      // Encoder button pressed
-    }
-    else {
-      // Encoder button released
-    }
-  }
-
   if(b_pack_on == true) {
     if(b_pack_alarm != true) {
       // Turn the bargraph on (using some pattern).
@@ -190,8 +180,8 @@ void mainLoop() {
 }
 
 void controlLEDs() {
-  // Set upper LED based on overheating state, if available.
-  if(b_pack_alarm == true) {      
+  // Set upper LED based on alarm or overheating state, when active.
+  if(b_pack_alarm == true || b_overheating == true) {
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED);
   }
   else {
@@ -421,7 +411,7 @@ void checkPack() {
 
           case A_POWER_LEVEL_3:
             POWER_LEVEL_PREV = POWER_LEVEL;
-            POWER_LEVEL = LEVEL_4;
+            POWER_LEVEL = LEVEL_3;
 
             if(i_mode_year == 2021 && b_28segment_bargraph == true) {
               bargraphPowerCheck2021Alt(false);
