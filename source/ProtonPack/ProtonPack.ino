@@ -3780,8 +3780,24 @@ void checkSerial1() {
               }
             break;
 
-            default:
+            case A_VOLUME_DECREASE:
+              // Turn down overall pack volume.
+              decreaseVolume();
 
+              // Tell wand to decrease the volume.
+              packSerialSend(P_VOLUME_DECREASE);
+            break;
+
+            case A_VOLUME_INCREASE:
+              // Turn up overall pack volume.
+              increaseVolume();
+
+              // Tell wand to increase the volume.
+              packSerialSend(P_VOLUME_INCREASE);
+            break;
+
+            default:
+              // No-op
             break;
           }
         }
