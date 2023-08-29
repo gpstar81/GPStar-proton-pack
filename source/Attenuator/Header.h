@@ -1,6 +1,6 @@
 /**
  *   gpstar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com> & Dustin Grau
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -32,6 +32,9 @@ CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
 const uint8_t i_fast_led_delay = 3;
 millisDelay ms_fast_led;
 
+const unsigned int i_blink_leds = 550;
+millisDelay ms_blink_leds;
+
 /*
  * Barmeter 28 segment bargraph configuration and timers.
  * Part #: BL28Z-3005SA04Y
@@ -46,8 +49,18 @@ uint8_t i_bargraph_status = 0;
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
 const uint8_t d_bargraph_ramp_interval = 40;
+millisDelay ms_bargraph_alt;
 millisDelay ms_bargraph;
 millisDelay ms_bargraph_firing;
+uint8_t i_bargraph_status_alt = 0;
+const uint8_t d_bargraph_ramp_interval_alt = 40;
+const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
+const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
+unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+
+millisDelay ms_settings_blinking;
+const unsigned int i_settings_blinking_delay = 350;
+uint8_t i_speed_multiplier = 1;
 
 #define WIRE Wire
 
@@ -74,15 +87,14 @@ enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CU
 enum FIRING_MODES FIRING_MODE;
 enum POWER_LEVELS { LEVEL_0, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
 enum POWER_LEVELS POWER_LEVEL;
+enum POWER_LEVELS POWER_LEVEL_PREV;
 
 /* 
  * Toggle Switches
  * Will be pulled LOW (down position) when considered "active".
  */
-ezButton switch_left(3);
-ezButton switch_right(4);
-bool b_left_toggle = false;
-bool b_right_toggle = false;
+ezButton switch_left(5);
+ezButton switch_right(6);
 
 /*
  * Switch Settings
@@ -92,8 +104,11 @@ const uint8_t switch_debounce_time = 50;
 /* 
  * Rotary encoder for various uses.
  */
-#define r_encoderA 6
-#define r_encoderB 7
+#define r_encoderA 2
+#define r_encoderB 3
+ezButton encoder_center(4); // For center-press on encoder dial.
+static uint8_t prev_next_code = 0;
+static uint16_t store = 0;
 
 /* 
  * Pack Communication
@@ -117,8 +132,8 @@ struct __attribute__((packed)) STRUCTSEND {
  */
 bool b_pack_on = false;
 bool b_pack_alarm = false;
-bool b_sync = false;
 bool b_firing = false;
+bool b_overheating = false;
 
 /*
  * LED Devices

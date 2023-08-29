@@ -1,6 +1,6 @@
 /**
  *   gpstar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com> & Dustin Grau
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,9 +20,15 @@
 /*
  * Set true to output serial messages.
  */
-bool b_debug = true;
+bool b_debug = false;
 
 /*
  * Wait for pack communication or operate without pack integration.
  */
-bool b_wait_for_pack = false;
+bool b_wait_for_pack = true;
+
+/*
+ * Custom values from pack EEPROM.
+ */
+unsigned int i_spectral_custom = 0;
+unsigned int i_spectral_custom_saturation = 254;
