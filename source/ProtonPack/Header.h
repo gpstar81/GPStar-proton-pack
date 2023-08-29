@@ -339,17 +339,37 @@ millisDelay ms_serial1_handshake_checking;
 SerialTransfer serial1Coms;
 SerialTransfer packComs;
 
+// For wand communication.
 struct __attribute__((packed)) STRUCT {
   int s;
   int i;
   int e;
 } comStruct;
 
+// For wand communication.
 struct __attribute__((packed)) STRUCTSEND {
   int s;
   int i;
   int e;
 } sendStruct;
+
+// For Serial1 add-on communication.
+struct __attribute__((packed)) STRUCTDATAR {
+  int s;
+  int i;
+  int d1; // Data 1
+  int d2; // Data 2
+  int e;
+} dataStructR;
+
+// For Serial1 add-on communication.
+struct __attribute__((packed)) STRUCTDATA {
+  int s;
+  int i;
+  int d1; // Data 1
+  int d2; // Data 2
+  int e;
+} dataStruct;
 
 /*
  * Firing timers

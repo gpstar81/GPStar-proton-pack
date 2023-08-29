@@ -93,8 +93,8 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
  * Toggle Switches
  * Will be pulled LOW (down position) when considered "active".
  */
-ezButton switch_left(5);
-ezButton switch_right(4);
+ezButton switch_left(6);
+ezButton switch_right(5);
 
 /*
  * Switch Settings
@@ -104,11 +104,13 @@ const uint8_t switch_debounce_time = 50;
 /* 
  * Rotary encoder for various uses.
  */
-#define r_encoderA 6
-#define r_encoderB 7
-ezButton encoder_center(8); // For center-press on encoder dial.
-static uint8_t prev_next_code = 0;
-static uint16_t store = 0;
+#define r_encoderA 2
+#define r_encoderB 3
+ezButton encoder_center(4); // For center-press on encoder dial.
+millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
+int i_encoder_pos = 0;
+int i_val_rotary;
+int i_last_val_rotary;
 
 /* 
  * Pack Communication
@@ -118,12 +120,16 @@ SerialTransfer packComs;
 struct __attribute__((packed)) STRUCT {
   int s;
   int i;
+  int d1;
+  int d2;
   int e;
 } comStruct;
 
 struct __attribute__((packed)) STRUCTSEND {
   int s;
   int i;
+  int d1;
+  int d2;
   int e;
 } sendStruct;
 

@@ -26,3 +26,6 @@ bool b_debug = false;
  * Wait for pack communication or operate without pack integration.
  */
 bool b_wait_for_pack = true;
+
+unsigned int i_spectral_custom = 0;
+unsigned int i_spectral_custom_saturation = 254;

@@ -5814,6 +5814,20 @@ void checkPack() {
               b_sync = false;
             break;
 
+            case P_MASTER_AUDIO_SILENT_MODE:
+              i_volume_revert = i_volume_master;
+
+              // The pack is telling us to be silent.
+              i_volume_master = i_volume_abs_min;
+              w_trig.masterGain(i_volume_master);
+            break;
+
+            case P_MASTER_AUDIO_NORMAL:
+              // The pack is telling us to revert the audio to normal.
+              i_volume_master = i_volume_revert;
+              w_trig.masterGain(i_volume_master);
+            break;
+
             case P_RIBBON_CABLE_ON:
               b_pack_ribbon_cable_on = true;
 
@@ -6148,6 +6162,8 @@ void checkPack() {
             break;
 
             case P_MUSIC_STOP:
+              ms_check_music.stop();
+              
               // Stop music
               stopMusic();
             break;
@@ -6433,6 +6449,16 @@ void checkPack() {
 
                 playEffect(S_VOICE_INNER_CYCLOTRON_12);
               #endif
+            break;
+
+            case P_MUSIC_START:
+              if(b_playing_music == true) {
+                  stopMusic();
+              }
+
+              b_playing_music = true;
+              
+              playMusic();
             break;
 
             default:
