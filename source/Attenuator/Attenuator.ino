@@ -40,7 +40,7 @@ void setup() {
 
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
-  POWER_LEVEL = LEVEL_5;
+  POWER_LEVEL = LEVEL_1;
 
   // RGB LED's for effects (upper/lower).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
@@ -237,11 +237,10 @@ void readEncoder() {
 void checkRotaryEncoder() {
   if(i_val_rotary > i_last_val_rotary) {
     if(ms_rotary_debounce.isRunning() != true) {
-
       // Tell wand to increase volume.
       attenuatorSerialSend(A_VOLUME_INCREASE);
 
-      ms_rotary_debounce.start(50);
+      ms_rotary_debounce.start(rotary_debounce_time);
     }
   }
 
@@ -250,7 +249,7 @@ void checkRotaryEncoder() {
       // Tell wand to decrease the volume.
       attenuatorSerialSend(A_VOLUME_DECREASE);
 
-      ms_rotary_debounce.start(50);
+      ms_rotary_debounce.start(rotary_debounce_time);
     }
   }
 

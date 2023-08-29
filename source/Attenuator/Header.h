@@ -97,9 +97,10 @@ ezButton switch_left(5);
 ezButton switch_right(6);
 
 /*
- * Switch Settings
+ * Debounce Settings
  */
 const uint8_t switch_debounce_time = 50;
+const uint8_t rotary_debounce_time = 80;
 
 /* 
  * Rotary encoder for various uses.
