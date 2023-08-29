@@ -1260,6 +1260,8 @@ void spectralLightsOn() {
       cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, i_colour_scheme);
     }
   }
+
+  serial1Send(A_SPECTRAL_COLOUR_DATA);
 }
 
 void powercellDraw(uint8_t i_start) {
@@ -3652,14 +3654,14 @@ void packOverheatingFinished() {
 // Incoming messages from the extra Serial 1 port..
 void checkSerial1() {
   if(serial1Coms.available()) {
-    serial1Coms.rxObj(comStruct);
+    serial1Coms.rxObj(dataStructR);
 
     if(!serial1Coms.currentPacketID()) {
-      if(comStruct.i > 0 && comStruct.s == A_COM_START && comStruct.e == A_COM_END) {
+      if(dataStructR.i > 0 && dataStructR.s == A_COM_START && dataStructR.e == A_COM_END) {
         if(b_serial1_connected != true) {
           // Check if the attenuator is telling us it is here after connecting it to the pack.
           // Then Synchronise some settings between the pack and the attenuator.
-          if(comStruct.i == A_HANDSHAKE) {
+          if(dataStructR.i == A_HANDSHAKE) {
             serial1Send(A_SYNC_START);
 
             // Tell the attenuator that the pack is here.
@@ -3752,13 +3754,15 @@ void checkSerial1() {
               break;
             }
 
+            serial1Send(A_SPECTRAL_COLOUR_DATA);
+
             serial1Send(A_SYNC_END);
 
             b_serial1_connected = true;
           }
         }
         else {
-          switch(comStruct.i) {
+          switch(dataStructR.i) {
             case A_HANDSHAKE:
               // The attenuator is still here.
               ms_serial1_handshake.start(i_serial1_handshake_delay);
@@ -3794,6 +3798,23 @@ void checkSerial1() {
 
               // Tell wand to increase the volume.
               packSerialSend(P_VOLUME_INCREASE);
+            break;
+
+            case A_MUSIC_START_STOP:
+              if(b_playing_music == true) {
+                packSerialSend(P_MUSIC_STOP);
+                stopMusic();
+                b_playing_music = false;
+              }
+              else {
+                if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+                  b_playing_music = true;
+                  playMusic();
+
+                  packSerialSend(i_current_music_track);
+                  packSerialSend(P_MUSIC_START);
+                }
+              }
             break;
 
             default:
@@ -5627,11 +5648,17 @@ void checkWand() {
 }
 
 void serial1Send(int i_message) {
-  sendStruct.s = A_COM_START;
-  sendStruct.i = i_message;
-  sendStruct.e = A_COM_END;
+  dataStruct.s = A_COM_START;
+  dataStruct.i = i_message;
 
-  serial1Coms.sendDatum(sendStruct);
+  if(i_message == A_SPECTRAL_CUSTOM_MODE || i_message == A_SPECTRAL_COLOUR_DATA) {
+    dataStruct.d1 = i_spectral_cyclotron_custom;
+    dataStruct.d2 = i_spectral_cyclotron_custom_saturation;
+  }
+
+  dataStruct.e = A_COM_END;
+
+  serial1Coms.sendDatum(dataStruct);
 }
 
 void packSerialSend(int i_message) {

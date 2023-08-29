@@ -40,7 +40,7 @@ void setup() {
 
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
-  POWER_LEVEL = LEVEL_5;
+  POWER_LEVEL = LEVEL_1;
 
   // RGB LED's for effects (upper/lower).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
@@ -53,6 +53,7 @@ void setup() {
   // Rotary encoder on the top of the attenuator.
   pinMode(r_encoderA, INPUT_PULLUP);
   pinMode(r_encoderB, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
   // Setup the bargraph after a brief delay.
   delay(10);
@@ -81,7 +82,12 @@ void mainLoop() {
   // Monitor for interactions by user.
   checkPack();
   switchLoops();
-  checkRotary();
+  checkRotaryEncoder();
+
+  // For now, use a press of the dial to start/stop the music.
+  if(encoder_center.isReleased()) {
+    attenuatorSerialSend(A_MUSIC_START_STOP);
+  }
 
   /*
    * Left Toggle
@@ -217,54 +223,40 @@ void controlLEDs() {
   attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
 }
 
-int8_t readRotary() {
-  static int8_t rot_enc_table[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
-
-  prev_next_code <<= 2;
-
-  if(digitalRead(r_encoderB)) {
-    prev_next_code |= 0x02;
+void readEncoder() {
+  if(digitalRead(r_encoderA) == digitalRead(r_encoderB)) {
+    i_encoder_pos++;
+  }
+  else {
+    i_encoder_pos--;
   }
 
-  if(digitalRead(r_encoderA)) {
-    prev_next_code |= 0x01;
-  }
-
-  prev_next_code &= 0x0f;
-
-   // If valid then store as 16 bit data.
-   if(rot_enc_table[prev_next_code]) {
-      store <<= 4;
-      store |= prev_next_code;
-
-      if((store&0xff) == 0x2b) {
-        return -1;
-      }
-
-      if((store&0xff) == 0x17) {
-        return 1;
-      }
-   }
-
-   return 0;
+  i_val_rotary = i_encoder_pos / 2.5;
 }
 
-void checkRotary() {
-  // Determine if the rotary dial has been turned.
-  static int8_t c, val;
-
-  if((val = readRotary())) {
-    c += val;
-
-    // Counter clockwise.
-    if(prev_next_code == 0x0b) {
-      attenuatorSerialSend(A_VOLUME_DECREASE);
-    }
-
-    // Clockwise.
-    if(prev_next_code == 0x07) {
+void checkRotaryEncoder() {
+  if(i_val_rotary > i_last_val_rotary) {
+    if(ms_rotary_debounce.isRunning() != true) {
+      // Tell wand to increase volume.
       attenuatorSerialSend(A_VOLUME_INCREASE);
+
+      ms_rotary_debounce.start(rotary_debounce_time);
     }
+  }
+
+  if(i_val_rotary < i_last_val_rotary) {
+    if(ms_rotary_debounce.isRunning() != true) {
+      // Tell wand to decrease the volume.
+      attenuatorSerialSend(A_VOLUME_DECREASE);
+
+      ms_rotary_debounce.start(rotary_debounce_time);
+    }
+  }
+
+  i_last_val_rotary = i_val_rotary;
+
+  if(ms_rotary_debounce.justFinished()) {
+    ms_rotary_debounce.stop();
   }
 }
 
@@ -363,6 +355,24 @@ void checkPack() {
 
           case A_SPECTRAL_CUSTOM_MODE:
             FIRING_MODE = SPECTRAL_CUSTOM;
+
+            if(comStruct.d1 > 0) {
+              i_spectral_custom = comStruct.d1;
+            }
+
+            if(comStruct.d2 > 0) {
+              i_spectral_custom_saturation = comStruct.d2;
+            }
+          break;
+
+          case A_SPECTRAL_COLOUR_DATA:
+            if(comStruct.d1 > 0) {
+              i_spectral_custom = comStruct.d1;
+            }
+
+            if(comStruct.d2 > 0) {
+              i_spectral_custom_saturation = comStruct.d2;
+            }
           break;
 
           case A_SPECTRAL_MODE:
