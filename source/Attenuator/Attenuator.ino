@@ -85,6 +85,7 @@ void mainLoop() {
   switchLoops();
   checkRotaryEncoder();
 
+  // For now, use a press of the dial to start/stop the music.
   if(encoder_center.isReleased()) {
     attenuatorSerialSend(A_MUSIC_START_STOP);
   }
@@ -154,7 +155,8 @@ void mainLoop() {
 
       if(ms_blink_leds.isRunning() == true) {
         if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
-          attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+          // Only blink the lower LED as we will use a fade effect for the upper LED.
+          //attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
           attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
         }
         else {
@@ -182,7 +184,7 @@ void mainLoop() {
 void controlLEDs() {
   // Set upper LED based on alarm or overheating state, when active.
   if(b_pack_alarm == true || b_overheating == true) {
-    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED);
+    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
   }
   else {
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
@@ -218,7 +220,7 @@ void controlLEDs() {
       i_scheme = C_RED;
     break;
   }
-  
+
   attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
 }
 

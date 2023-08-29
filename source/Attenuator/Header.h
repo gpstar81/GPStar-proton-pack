@@ -93,8 +93,8 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
  * Toggle Switches
  * Will be pulled LOW (down position) when considered "active".
  */
-ezButton switch_left(6);
-ezButton switch_right(5);
+ezButton switch_left(5);
+ezButton switch_right(6);
 
 /*
  * Switch Settings
