@@ -30,8 +30,9 @@ This device has it's own BOM which is separate from any other build items relate
 
 This device was designed to allow for certain "real" parts as opposed to being 100% 3D printed. To finish the look of the exterior the following are either required or suggested. These parts may be sourced from any vendor you prefer (in the US most ACE Hardware locations have extensive selections of metrics screws).
 
-* M3x4 Button Head Screws (Qty: 14) - Used for decoration on the sides of the body.
-* M4x4 Button Head Screws (Qty: 4) - Used for decoration on the top of the body.
+* M3x4 Button Hex Head Screws (Qty: 14) - Used for decoration on the sides of the body.
+* M4x4 Fillister Head Slotted Screws (Qty: 4) - Used for decoration on the top of the body.
+* M4x4 Button Hex Head Screws (Qty: 4) - Used to secure the base plate to the body.
 * M4x6 Heat-set Inserts (Qty: 4) - Used to secure the base plate to the body.
 
 Device labels can be obtained or created by any means desired. The sizes [offered by this product on GBFans](https://www.gbfans.com/shop/pack-vinyl-labels/) should be sufficient.
