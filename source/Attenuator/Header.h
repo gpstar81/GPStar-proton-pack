@@ -93,7 +93,7 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
  * Toggle Switches
  * Will be pulled LOW (down position) when considered "active".
  */
-ezButton switch_left(3);
+ezButton switch_left(5);
 ezButton switch_right(4);
 
 /*
@@ -106,6 +106,9 @@ const uint8_t switch_debounce_time = 50;
  */
 #define r_encoderA 6
 #define r_encoderB 7
+ezButton encoder_center(8); // For center-press on encoder dial.
+static uint8_t prev_next_code = 0;
+static uint16_t store = 0;
 
 /* 
  * Pack Communication

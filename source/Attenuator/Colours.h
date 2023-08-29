@@ -56,10 +56,6 @@ uint8_t i_count[4] = { 0, 0, 0, 0 };
 CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
 
-  // For colour cycles, i_cycle indicates how often to change colour.
-  // This is device-dependent in order to provide a noticeable change.
-  uint8_t i_cycle = 4;
-
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
   switch(i_colour) {
     case C_BLACK:
@@ -133,13 +129,14 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
       i_count[i_device]++;
 
-      if(i_count[i_device] % i_cycle == 0) {
+      if(i_count[i_device] % 200 == 0) {
         if(i_curr_colour[i_device] == 0) {
           i_curr_colour[i_device] = 96;
           i_count[i_device] = 0; // Reset counter.
         }
         else {
           i_curr_colour[i_device] = 0;
+          i_count[i_device] = 0; // Reset counter.
         }
       }
 
@@ -149,7 +146,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
     case C_RAINBOW:
       // Cycle through all colours (0-255) at full saturation.
       i_count[i_device]++;
-      if(i_count[i_device] % i_cycle == 0) {
+      if(i_count[i_device] % 20 == 0) {
         i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
         i_count[i_device] = 0; // Reset counter.
       }

@@ -20,9 +20,9 @@
 /*
  * Set true to output serial messages.
  */
-bool b_debug = true;
+bool b_debug = false;
 
 /*
  * Wait for pack communication or operate without pack integration.
  */
-bool b_wait_for_pack = true;
+bool b_wait_for_pack = false;

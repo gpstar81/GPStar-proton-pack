@@ -45,9 +45,10 @@ void setup() {
   // RGB LED's for effects (upper/lower).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
 
-  // Debounce the toggle switches.
+  // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);
   switch_right.setDebounceTime(switch_debounce_time);
+  encoder_center.setDebounceTime(switch_debounce_time);
 
   // Rotary encoder on the top of the attenuator.
   pinMode(r_encoderA, INPUT_PULLUP);
@@ -83,21 +84,33 @@ void mainLoop() {
   checkRotary();
 
   /*
-   * The left toggle activates the bargraph display manually.
-   * When paired with the gpstar Proton Pack, the bargraph
-   * will automatically enable and display an animation.
+   * Left Toggle
+   * When paired with the gpstar Proton Pack, will turn the
+   * pack on or off. When the pack is on the bargraph will
+   * automatically enable and display an animation which
+   * matches the Neutrona Wand bargraph.
    *
-   * When idle, the user can change the pattern on the device.
-   * When firing, an alternative pattern should be used, such
-   * as the standard animation as used on the wand.
+   * TODO: Allow the user to select a bargraph pattern, or
+   * simply control certain pack/wand behavior as desired.
    */
 
+  // Turns the pack on or off (when paired) via left toggle.
   if(switch_left.isPressed() || switch_left.isReleased()) {
     if(switch_left.getState() == LOW) {
       attenuatorSerialSend(A_TURN_PACK_ON);
     }
     else {
       attenuatorSerialSend(A_TURN_PACK_OFF);
+    }
+  }
+
+  // Handle center-click of the encoder dial.
+  if(encoder_center.isPressed() || encoder_center.isReleased()) {
+    if(encoder_center.getState() == LOW) {
+      // Encoder button pressed
+    }
+    else {
+      // Encoder button released
     }
   }
 
@@ -179,8 +192,8 @@ void controlLEDs() {
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
   }
 
-  // Set lower LED based on firing mode, if available.
-  uint8_t i_scheme = C_RED;
+  // Set lower LED based on firing mode.
+  uint8_t i_scheme;
   switch(FIRING_MODE) {
     case SLIME:
       i_scheme = C_GREEN;
@@ -198,7 +211,7 @@ void controlLEDs() {
       i_scheme = C_REDGREEN;
     break;
     case SPECTRAL_CUSTOM:
-      i_scheme = C_RAINBOW;
+      i_scheme = C_RAINBOW; // TODO: Pick up an EEPROM value, but for which device?
     break;
     case SETTINGS:
       i_scheme = C_WHITE;
@@ -213,15 +226,62 @@ void controlLEDs() {
   attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
 }
 
-void checkRotary() {
-  // This will eventually do something.
+int8_t readRotary() {
+  static int8_t rot_enc_table[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
 
+  prev_next_code <<= 2;
+
+  if(digitalRead(r_encoderB)) {
+    prev_next_code |= 0x02;
+  }
+
+  if(digitalRead(r_encoderA)) {
+    prev_next_code |= 0x01;
+  }
+
+  prev_next_code &= 0x0f;
+
+   // If valid then store as 16 bit data.
+   if(rot_enc_table[prev_next_code]) {
+      store <<= 4;
+      store |= prev_next_code;
+
+      if((store&0xff) == 0x2b) {
+        return -1;
+      }
+
+      if((store&0xff) == 0x17) {
+        return 1;
+      }
+   }
+
+   return 0;
+}
+
+void checkRotary() {
+  // Determine if the rotary dial has been turned.
+  static int8_t c, val;            
+
+  if((val = readRotary())) {
+    c += val;
+
+    // Counter clockwise.
+    if(prev_next_code == 0x0b) {
+      attenuatorSerialSend(A_VOLUME_DECREASE);
+    }
+
+    // Clockwise.
+    if(prev_next_code == 0x07) {
+      attenuatorSerialSend(A_VOLUME_INCREASE);
+    }
+  }
 }
 
 void switchLoops() {
   // Perform debounce and get button/switch states.
   switch_left.loop();
   switch_right.loop();
+  encoder_center.loop();
 }
 
 void attenuatorSerialSend(int i_message) {
