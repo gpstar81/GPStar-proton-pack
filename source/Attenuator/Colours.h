@@ -37,7 +37,8 @@ enum colours {
   C_PURPLE,
   C_AMBER_PULSE,
   C_REDGREEN,
-  C_RAINBOW
+  C_RAINBOW,
+  C_SPECTRAL_CUSTOM
 };
 
 int getBrightness(uint8_t i_percent = 100) {
@@ -152,6 +153,10 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       }
 
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
+    break;
+
+    case C_SPECTRAL_CUSTOM:
+      return CHSV(i_spectral_custom, i_spectral_custom_saturation, i_brightness);
     break;
 
     default:
