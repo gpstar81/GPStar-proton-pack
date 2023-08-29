@@ -118,10 +118,10 @@ void mainLoop() {
           bargraphRampFiring();
         }
       }
-      else {  
+      else {
         if(ms_bargraph.justFinished()) {
           bargraphRampUp();
-        } 
+        }
         else if(ms_bargraph.isRunning() != true && b_overheating != true && FIRING_MODE != SETTINGS) {
           // Bargraph idling loop.
           bargraphPowerCheck();
@@ -145,7 +145,7 @@ void mainLoop() {
    *
    * Since this device will have a serial connection to the pack,
    * the lights will change colors based on user interactions.
-   */ 
+   */
   if(switch_right.getState() == LOW) {
     if((b_firing == true && i_speed_multiplier > 1) || b_overheating == true || b_pack_alarm == true) {
       if(ms_blink_leds.justFinished()) {
@@ -407,7 +407,7 @@ void checkPack() {
 
             if(i_mode_year == 2021 && b_28segment_bargraph == true) {
               bargraphPowerCheck2021Alt(false);
-            }            
+            }
           break;
 
           case A_POWER_LEVEL_3:
@@ -425,7 +425,7 @@ void checkPack() {
 
             if(i_mode_year == 2021 && b_28segment_bargraph == true) {
               bargraphPowerCheck2021Alt(false);
-            }            
+            }
           break;
 
           case A_POWER_LEVEL_5:
@@ -452,7 +452,7 @@ void checkPack() {
 
               bargraphFull();
 
-              ms_bargraph.start(d_bargraph_ramp_interval);      
+              ms_bargraph.start(d_bargraph_ramp_interval);
             }
           break;
 
@@ -530,7 +530,7 @@ void checkPack() {
             i_bargraph_status_alt = 0;
             i_bargraph_status = 0; //??
             bargraphClearAlt();
-          
+
             switch(i_mode_year) {
               case 2021:
                 i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;

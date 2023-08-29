@@ -46,7 +46,7 @@ void setup() {
 
   serial1Coms.begin(Serial1);
   packComs.begin(Serial2);
-  
+
   // Setup the Wav Trigger.
   setupWavTrigger();
 
@@ -648,7 +648,7 @@ void packOffReset() {
 
     // Tell any add-on devices that the alarm is off.
     serial1Send(A_ALARM_OFF);
-  }  
+  }
 }
 
 void checkSwitches() {
@@ -783,7 +783,7 @@ void checkSwitches() {
 
             i_mode_year = 1984;
             i_mode_year_tmp = 1984;
-            
+
             serial1Send(A_YEAR_1984);
           }
           else {
@@ -810,7 +810,7 @@ void checkSwitches() {
               i_mode_year = 1984;
               i_mode_year_tmp = 1984;
 
-              serial1Send(A_YEAR_1984);              
+              serial1Send(A_YEAR_1984);
             break;
 
             case 1989:
@@ -1234,7 +1234,7 @@ void spectralLightsOff() {
     else {
       cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
     }
-  }    
+  }
 }
 
 void spectralLightsOn() {
@@ -2751,7 +2751,7 @@ void checkCyclotronAutoSpeed() {
 
       // Increase the Cyclotron Switch Panel LEDs speed.
       i_cyclotron_switch_led_mulitplier++;
-      
+
       // Restart the timer.
       ms_cyclotron_auto_speed_timer.stop();
       ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
@@ -2925,7 +2925,7 @@ void wandStoppedFiring() {
   // Stop all other firing sounds.
   wandStopFiringSounds();
   ms_firing_sound_mix.stop();
-  
+
   serial1Send(A_FIRING_STOPPED);
 
   // Stop the auto speed timer.
@@ -3254,7 +3254,7 @@ void cyclotronSpeedIncrease() {
 
       if(i_powercell_multiplier < 6) {
         i_powercell_multiplier++;
-      }      
+      }
     break;
 
     case 1984:
@@ -3663,7 +3663,7 @@ void checkSerial1() {
           // Then Synchronise some settings between the pack and the attenuator.
           if(dataStructR.i == A_HANDSHAKE) {
             serial1Send(A_SYNC_START);
-           
+
             // Tell the attenuator that the pack is here.
             serial1Send(A_PACK_CONNECTED);
 
@@ -3816,7 +3816,7 @@ void checkSerial1() {
                 }
               }
             break;
-            
+
             default:
               // No-op
             break;
@@ -4087,7 +4087,7 @@ void checkWand() {
                 b_powercell_updating = true;
                 powercellDraw();
               }
-              
+
               serial1Send(A_HOLIDAY_MODE);
             break;
 
@@ -4134,7 +4134,7 @@ void checkWand() {
                 b_powercell_updating = true;
                 powercellDraw();
               }
-              
+
               serial1Send(A_VENTING_MODE);
             break;
 
@@ -4931,7 +4931,7 @@ void checkWand() {
               b_playing_music = true;
               playMusic();
             break;
-            
+
             case W_PROTON_STREAM_IMPACT_TOGGLE:
               if(b_stream_effects == true) {
                 b_stream_effects = false;
@@ -4991,7 +4991,7 @@ void checkWand() {
                 }
                 else {
                   i_spectral_cyclotron_custom_saturation = 1;
-                }                
+                }
               }
 
               spectralLightsOn();
@@ -5022,12 +5022,12 @@ void checkWand() {
                 if(i_spectral_powercell_custom_saturation > 253) {
                   i_spectral_powercell_custom_saturation = 254;
                 }
-              }            
+              }
               else if(i_spectral_powercell_custom < 253) {
                 i_spectral_powercell_custom++;
               }
               else {
-                i_spectral_powercell_custom = 254;             
+                i_spectral_powercell_custom = 254;
               }
 
               spectralLightsOn();
@@ -5040,7 +5040,7 @@ void checkWand() {
                 if(i_spectral_cyclotron_custom_saturation > 253) {
                   i_spectral_cyclotron_custom_saturation = 254;
                 }
-              }  
+              }
               else if(i_spectral_cyclotron_custom < 253) {
                 i_spectral_cyclotron_custom++;
               }
@@ -5057,7 +5057,7 @@ void checkWand() {
 
               spectralLightsOn();
             break;
-          
+
             case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE:
               if(i_spectral_cyclotron_inner_custom_saturation < 254) {
                 i_spectral_cyclotron_inner_custom_saturation++;
@@ -5065,7 +5065,7 @@ void checkWand() {
                 if(i_spectral_cyclotron_inner_custom_saturation > 253) {
                   i_spectral_cyclotron_inner_custom_saturation = 254;
                 }
-              }  
+              }
               else if(i_spectral_cyclotron_inner_custom < 253) {
                 i_spectral_cyclotron_inner_custom++;
               }
@@ -5430,7 +5430,7 @@ void checkWand() {
               }
 
               updateProtonPackLEDCounts();
-              
+
               spectralLightsOff();
               spectralLightsOn();
             break;
@@ -5851,7 +5851,7 @@ void readEEPROM() {
     if(obj_eeprom.cyclotron_spectral_custom > 0 && obj_eeprom.cyclotron_spectral_custom != 255) {
       i_spectral_cyclotron_custom = obj_eeprom.cyclotron_spectral_custom;
     }
-    
+
     if(obj_eeprom.cyclotron_inner_spectral_custom > 0 && obj_eeprom.cyclotron_inner_spectral_custom != 255) {
       i_spectral_cyclotron_inner_custom = obj_eeprom.cyclotron_inner_spectral_custom;
     }
