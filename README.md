@@ -72,11 +72,13 @@ These apply to the normal operation and usage of the equipment regardless of whi
 
 1. [Smoke Effects](SMOKE.md) (Optional add-ons)
 
-1. [Cyclotron Lights](CYCLOTRON.md) (Optional add-ons)
+1. [Cyclotron Lights Upgrades](CYCLOTRON.md) (Optional add-ons)
 
 1. [N-Filter Vent Light](NFILTER.md) (Optional add-on)
 
-1. [Neutrona Wand Bar Graph and Proton Pack Power Cell Upgrades](BARGRAPH.md) (Optional add-ons)
+1. [Power Cell Lights Upgrade](POWERCELL.md) (Optional add-ons)
+
+1. [Neutrona Wand 28 Segment Bar Graph Upgrade](BARGRAPH.md) (Optional add-ons)
 
 1. [Hat Lights](HATS.md) (Optional add-on)
 

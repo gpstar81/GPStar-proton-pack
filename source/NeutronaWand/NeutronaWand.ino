@@ -6162,8 +6162,8 @@ void checkPack() {
             break;
 
             case P_MUSIC_STOP:
-              ms_check_music.stop();
-
+              b_playing_music = false;
+              
               // Stop music
               stopMusic();
             break;

@@ -23,7 +23,9 @@ The stock lights in the Habro pack only supplies 12 addressable LED's which are 
 
 Regardless of solution you will need to split apart the cyclotron lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.
 
-### Frutto Technology 5-LED Replacements
+## Frutto Technology 5-LED Replacements
+### Installation Guide Video
+[![gpstar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://img.youtube.com/vi/LgOT8UspSCI/maxresdefault.jpg)](https://www.youtube.com/watch?v=LgOT8UspSCI)
 
 The stock LED's can be removed by prying out the diffuser lenses, then snipping the 3 black plastic welds used to hold the PCB's in place. Whether pre-soldered or not, the new LED's should be oriented similar to the arcing pattern used by the stock LED's. Hot glue can be used to keep these in place until the diffusers are put back in place.
 ![](images/Frutto_Cyc1.jpg)

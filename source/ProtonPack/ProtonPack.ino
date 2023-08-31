@@ -3784,6 +3784,26 @@ void checkSerial1() {
               }
             break;
 
+            case A_TOGGLE_MUTE:
+              if(i_volume_master == i_volume_abs_min) {
+                i_volume_master = i_volume_revert;
+
+                w_trig.masterGain(i_volume_master); // Reset the master gain.
+
+                packSerialSend(P_MASTER_AUDIO_NORMAL);
+              }
+              else {
+                i_volume_revert = i_volume_master;
+
+                // Set the master volume to silent.
+                i_volume_master = i_volume_abs_min;
+
+                w_trig.masterGain(i_volume_master); // Reset the master gain. 
+
+                packSerialSend(P_MASTER_AUDIO_SILENT_MODE);               
+              }
+            break;
+
             case A_VOLUME_DECREASE:
               // Turn down overall pack volume.
               decreaseVolume();

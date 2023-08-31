@@ -86,7 +86,8 @@ void mainLoop() {
 
   // For now, use a press of the dial to start/stop the music.
   if(encoder_center.isReleased()) {
-    attenuatorSerialSend(A_MUSIC_START_STOP);
+    attenuatorSerialSend(A_MUSIC_START_STOP);    
+    //attenuatorSerialSend(A_TOGGLE_MUTE);    
   }
 
   /*
