@@ -55,6 +55,25 @@ You need to enable `__WT_USE_SERIAL_3__` by uncommenting this line inside the **
 
 ![WavTrigger Serial Class for gpstar PCB boards](images/wt_serial_mega.png)
 
+## Connection to your gpstar Proton Pack and Neutrona wand PCB
+Use the included FTDI to USB programming cable that comes with the gpstar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:
+
+- The ground pin will typically be a black wire, while VCC will typically be red.
+- The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.
+- Any wire labelled CTS will be connected to the 2nd pin labelled GND on the PCB.
+- Be careful to not reverse the connector!
+
+![UART Connection](images/uart_pack.jpg)
+
+## Flashing The Software
+Once your have connected your gpstar Board to your computer via the FTDI to USB cable, you will need to select it from your devices in the Arduino IDE and search for Mega.
+
+![Board Selection](images/flash-gpstar-1.png)
+![Board Selection Mega](images/flash-gpstar-2.png)
+
+Next click on the UPLOAD button (arrow pointing to the right) and wait for it to complete.
+![Board Selection Mega](images/flash-gpstar-3.png)
+
 [Firmware Flashing Instructional Video](https://www.youtube.com/watch?v=J-P8rl3Hzck) (YouTube)
 [![Firmware Flashing Instructional Video](https://img.youtube.com/vi/J-P8rl3Hzck/maxresdefault.jpg)](https://www.youtube.com/watch?v=J-P8rl3Hzck)
 
