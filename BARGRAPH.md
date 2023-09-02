@@ -4,9 +4,13 @@
 
 This guide outlines the **optional** upgrade from the 5-LED stock bargraph to a more animated 28-segment bargraph (BL28Z-3005SA04Y) or the 28 Segment Bargraph and Power Cell from [Frutto Technology](https://fruttotechnology.com).
 
-## Frutto Technology 28 Segment Bargraph and Power Cell Upgrade
-[Frutto Technology Bargraph and Power Cell Installation and Demo Video](https://www.youtube.com/watch?v=CrQuCUjera4) (YouTube)
-[![Frutto Technology Bargraph and Power Cell Installation and Demo Video](https://img.youtube.com/vi/CrQuCUjera4/maxresdefault.jpg)](https://www.youtube.com/watch?v=CrQuCUjera4)
+## Frutto Technology 28 Segment Bargraph Installation Video Guide
+[28 Segment Bargraph Installation Video Guide](https://www.youtube.com/watch?v=2qjIKoDYyFI) (YouTube)
+[![28 Segment Bargraph Installation Video Guide](https://img.youtube.com/vi/2qjIKoDYyFI/maxresdefault.jpg)](https://www.youtube.com/watch?v=2qjIKoDYyFI)
+
+## Frutto Technology 28 Segment Bargraph and Power Cell Overview and Demo
+[Frutto Technology Bargraph and Power Cell Overview and Demo Video](https://www.youtube.com/watch?v=CrQuCUjera4) (YouTube)
+[![Frutto Technology Bargraph and Power Cell Overview and Demo Video](https://img.youtube.com/vi/CrQuCUjera4/maxresdefault.jpg)](https://www.youtube.com/watch?v=CrQuCUjera4)
 
 ## DIY 28 Segment Bargraph
 Additional parts will be required, as well as a more invasive disassembling of the wand.
@@ -74,8 +78,14 @@ If using the Frutto Technology 28 Segment Bargraph, there is a alternative versi
 ![](images/bargraph_mount_1.jpg)
 ![](images/bargraph_mount_2.jpg)
 
-There is an alternative mounting solution which when you cut the original clear plastic away, you can fit the bargraph into the [28_Segment&#95;Bargraph&#95;Mount.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Mount.stl) and [28&#95;Segment&#95;Bargraph&#95;Block.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Block.stl) which uses the stock mounting screw positions.
+There is an alternative mounting solution which when you cut the original clear plastic away and the original barrel wire cover plastic, you can fit the bargraph into the [28_Segment&#95;Bargraph&#95;Mount.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Mount.stl) and [28&#95;Segment&#95;Bargraph&#95;Block.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Block.stl) which uses the stock mounting screw positions.
 ![](images/bargraph_mount_3.jpg)
 ![](images/bargraph_mount_4.jpg)
 ![](images/bargraph_mount_5.jpg)
 ![](images/bargraph_mount_6.jpg)
+
+Also available to download in this respository, or purchase from the [gpstartechnologies.com](https://gpstartechnologies.com) website are 2 versions (short or long depending on how much plastic you remove) of a barrel wire cover, to protect your wires from getting caught on the retractable wand barrel mechanism. This cover screws onto the existing holes that the previous Hasbro board was screwed into, making it easy to remove and to do service inside your wand.
+![](images/BarrelCover3.png)
+![](images/BarrelCover4.png)
+![](images/BarrelCover1.png)
+![](images/BarrelCover2.png)
