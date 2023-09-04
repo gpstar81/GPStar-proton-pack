@@ -251,6 +251,14 @@ void mainLoop() {
             break;
 
             case 2021:
+                if(switchBarrel() == false && b_switch_barrel_extended == false) {
+                  // Plays the "thwoop" barrel extension sound in Afterlife mode.
+                  playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
+                  b_switch_barrel_extended = true;
+                }
+                else if(switchBarrel() == true && b_switch_barrel_extended == true) {
+                  b_switch_barrel_extended = false;
+                }
                 if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
                   // Ready to fire, the hat light LED at the barrel tip lights up in Afterlife mode.
                   if(switchBarrel() != true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
