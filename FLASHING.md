@@ -25,7 +25,6 @@ The following libraries are required to be installed. All but the WavTrigger and
 - **simple ht16k33 library** by lpaseen
 - **SerialTransfer** by PowerBroker2
 - **millisDelay** `See Below`
-- **WavTrigger** `See Below`
 
 ### MillisDelay
 
@@ -34,26 +33,8 @@ The MillisDelay library must be downloaded from the project GitHub page. Downloa
 
 No further configuration is needed for this library.
 
-### WavTrigger
-
-The WavTrigger library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/robertsonics/WAV-Trigger-Arduino-Serial-Library](https://github.com/robertsonics/WAV-Trigger-Arduino-Serial-Library)
-
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 If you are flashing updates to your existing setup, make sure that both your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository.
-
-## +++ IMPORTANT +++
-Documented on both the Proton Pack and Neutron Wand code at the top of each file, is instructions on modifying the wavTrigger.h file. **You will need to open the wavTrigger.h file and comment out the neccessary #define required for the Proton Pack and Neutrona Wand.**
-
-**(see For compiling code on the gpstar Proton Pack and gpstar Neutrona Wand below for more information)**. 
-
-The **wavTrigger.h** file can be located in your `Arduino/Libraries/<wav trigger folder>` (MacOS) or `C:\Arduino\Libraries` (Windows). See the special notes below for compiling the code for the gpstar Proton Pack and Neutrona Wand boards.
-
-## For compiling code for the gpstar Proton Pack PCB and gpstar Neutrona Wand PCB:
-
-You need to enable `__WT_USE_SERIAL_3__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use.
-
-![WavTrigger Serial Class for gpstar PCB boards](images/wt_serial_mega.png)
 
 ## Connection to your gpstar Proton Pack and Neutrona wand PCB
 Use the included FTDI to USB programming cable that comes with the gpstar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:

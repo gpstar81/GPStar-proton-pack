@@ -1,6 +1,6 @@
 /**
  *   gpstar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,13 +17,6 @@
  *
  */
 
-/*
- *  You need to edit wavTrigger.h and make sure you comment out the proper serial port. (Near the top of the wavTrigger.h file).
- *  We are going to use tx/rx #3 on the Mega and on the gpstar Proton Pack micro controller board.
- *  __WT_USE_SERIAL3___
- */
-#include <wavTrigger.h>
-
 // 3rd-Party Libraries
 #include <EEPROM.h>
 #include <millisDelay.h>
@@ -31,6 +24,18 @@
 #include <ezButton.h>
 #include <Ramp.h>
 #include <SerialTransfer.h>
+
+/*
+  ***** IMPORTANT *****
+  * You no longer need to edit and configure the wavTrigger.h anymore.
+  * Please make sure your Wav Trigger devices are running firmware version 1.40 or higher. 
+  * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
+  https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
+
+  * Information on how to update your Wav Trigger devices can be found on the gpstar github repository.
+  https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
+*/
+#include "wavTrigger.h"
 
 // Local Files
 #include "Configuration.h"
@@ -44,8 +49,9 @@ void setup() {
   Serial1.begin(9600); // Add-on serial communication.
   Serial2.begin(9600); // Communication to the wand.
 
-  serial1Coms.begin(Serial1);
-  packComs.begin(Serial2);
+  // Connect the serial ports and turn off debug messages.
+  serial1Coms.begin(Serial1, false);
+  packComs.begin(Serial2, false);
 
   // Setup the Wav Trigger.
   setupWavTrigger();
@@ -164,6 +170,9 @@ void setup() {
   // Tell the wand the pack is here.
   packSerialSend(P_PACK_BOOTUP);
 
+  // Check music timer.
+  ms_check_music.start(i_music_check_delay);
+
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
     readEEPROM();
@@ -179,6 +188,7 @@ void setup() {
 void loop() {
   w_trig.update();
 
+  checkMusic();
   checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
 
@@ -444,6 +454,56 @@ void loop() {
     if(b_powercell_updating == true) {
       b_powercell_updating = false;
     }
+  }
+}
+
+void checkMusic() {
+  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
+    ms_check_music.start(i_music_check_delay);
+    w_trig.trackPlayingStatus(i_current_music_track);
+
+    // Loop through all the tracks if the music is not set to repeat a track.
+    if(b_playing_music == true && b_repeat_track == false) {
+      if(w_trig.currentMusicTrackStatus(i_current_music_track) != true && ms_music_status_check.justFinished() && w_trig.trackCounterReset() != true) {
+        ms_check_music.stop();
+        ms_music_status_check.stop();
+
+        stopMusic();
+
+        // Tell the Neutrona Wand to stop playing music.
+        packSerialSend(P_MUSIC_STOP);
+
+        // Switch to the next track.
+        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+          i_current_music_track = i_music_track_start;
+        }
+        else {
+          i_current_music_track++;
+        }
+
+        // Tell the Neutrona Wand which music track to change to.
+        packSerialSend(i_current_music_track);
+
+        // Start timer to prepare to play music again.
+        ms_music_next_track.start(i_music_next_track_delay);
+      }
+      else {
+        if(ms_music_status_check.justFinished()) {
+          ms_music_status_check.start(i_music_check_delay * 4);
+        }
+      }
+    }
+  }
+
+  // Start playing music again.
+  if(ms_music_next_track.justFinished()) {
+    ms_music_next_track.stop();
+    ms_check_music.start(i_music_check_delay);
+
+    playMusic();
+
+    // Tell the Neutrona Wand to play music.
+    packSerialSend(P_MUSIC_START);
   }
 }
 
@@ -5760,6 +5820,9 @@ void playMusic() {
   w_trig.trackPlayPoly(i_current_music_track, true);
 
   w_trig.update();
+
+  ms_music_status_check.start(i_music_check_delay * 10);
+  w_trig.resetTrackCounter(true);
 }
 
 void stopMusic() {
@@ -6070,7 +6133,7 @@ void setupWavTrigger() {
   w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(false);
+  w_trig.setReporting(true);
 
   // Allow time for the WAV Triggers to respond with the version string and number of tracks.
   delay(350);
