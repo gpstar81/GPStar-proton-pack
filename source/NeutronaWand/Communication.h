@@ -1,6 +1,6 @@
 /**
  *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ enum pack_messages {
   P_CYCLOTRON_CLOCKWISE,
   P_CYCLOTRON_SINGLE_LED,
   P_CYCLOTRON_THREE_LED,
+  P_MUSIC_START,
   P_MUSIC_STOP,
   P_MASTER_AUDIO_SILENT_MODE,
   P_MASTER_AUDIO_NORMAL,

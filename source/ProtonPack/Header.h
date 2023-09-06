@@ -1,6 +1,6 @@
 /**
  *   gpstar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -223,6 +223,15 @@ const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible
 bool b_playing_music = false;
 bool b_repeat_track = false;
 
+/*
+ * Music control and checking.
+*/
+const unsigned int i_music_check_delay = 2000;
+const unsigned int i_music_next_track_delay = 2000;
+millisDelay ms_check_music;
+millisDelay ms_music_next_track;
+millisDelay ms_music_status_check;
+
 /* 
  *  Volume (0 = loudest, -70 = quietest)
  */
@@ -328,19 +337,48 @@ millisDelay ms_wand_handshake_checking;
 uint8_t i_wand_power_level = 1; // Power level of the wand.
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
 
+/*
+ *  Attenuator Status
+ */
+bool b_serial1_connected = false;
+millisDelay ms_serial1_handshake;
+const unsigned int i_serial1_handshake_delay = 3000;
+millisDelay ms_serial1_handshake_checking;
+
+SerialTransfer serial1Coms;
 SerialTransfer packComs;
 
+// For wand communication.
 struct __attribute__((packed)) STRUCT {
   int s;
   int i;
   int e;
 } comStruct;
 
+// For wand communication.
 struct __attribute__((packed)) STRUCTSEND {
   int s;
   int i;
   int e;
 } sendStruct;
+
+// For Serial1 add-on communication.
+struct __attribute__((packed)) STRUCTDATAR {
+  int s;
+  int i;
+  int d1; // Data 1
+  int d2; // Data 2
+  int e;
+} dataStructR;
+
+// For Serial1 add-on communication.
+struct __attribute__((packed)) STRUCTDATA {
+  int s;
+  int i;
+  int d1; // Data 1
+  int d2; // Data 2
+  int e;
+} dataStruct;
 
 /*
  * Firing timers
