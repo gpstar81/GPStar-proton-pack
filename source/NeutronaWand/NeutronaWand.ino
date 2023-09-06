@@ -1,6 +1,6 @@
 /**
  *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,21 +20,6 @@
 #if defined(__AVR_ATmega2560__)
   #define GPSTAR_NEUTRONA_WAND_PCB
 #endif
-
-/*
-  ***** IMPORTANT *****
-  * You need to open and edit the wavTrigger.h file and make sure you un comment out the proper serial port.
-  * This can be found near the top of the wavTrigger.h file after opening it.
-  * All other serial ports will need to be disabled and commented out in the wavTrigger.h file.
-
-  * If you are compiling the code to upload to a Arduino Nano:
-  * IMPORTANT: Do not forget to unplug the TX1/RX1 cables from Serial1 while you are uploading code to your Nano.
-  You want to use: #define __WT_USE_ALTSOFTSERIAL__
-
-  * If you are compiling the code to upload to the gpstar Neutrona Wand micro controller:
-  You want to use: #define __WT_USE_SERIAL3__
-*/
-#include <wavTrigger.h>
 
 // 3rd-Party Libraries
 #include <millisDelay.h>
@@ -60,6 +45,18 @@
 */
 #include <SerialTransfer.h>
 
+/*
+  ***** IMPORTANT *****
+  * You no longer need to edit and configure the wavTrigger.h anymore.
+  * Please make sure your Wav Trigger devices are running firmware version 1.40 or higher. 
+  * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
+  https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
+
+  * Information on how to update your Wav Trigger devices can be found on the gpstar github repository.
+  https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
+*/
+#include "wavTrigger.h"
+
 // Local Files
 #include "Configuration.h"
 #include "MusicSounds.h"
@@ -81,10 +78,10 @@ void setup() {
   #ifdef HAVE_HWSERIAL1
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       Serial1.begin(9600);
-      wandComs.begin(Serial1);
+      wandComs.begin(Serial1, false); // Connect the serial port and turn off debugging.
     #endif
   #else
-    wandComs.begin(Serial);
+    wandComs.begin(Serial, false); // Connect the serial port and turn off debugging.
   #endif
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
@@ -194,9 +191,6 @@ void setup() {
   FIRING_MODE = PROTON;
   PREV_FIRING_MODE = SETTINGS;
 
-  // Check music timer.
-  ms_check_music.start(i_music_check_delay);
-
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     // Load any saved settings stored in the EEPROM memory of the gpstar Neutrona Wand.
     if(b_eeprom == true) {
@@ -230,7 +224,6 @@ void loop() {
 void mainLoop() {
   w_trig.update();
 
-  checkMusic();
   checkPack();
   switchLoops();
   checkRotary();
@@ -242,6 +235,7 @@ void mainLoop() {
 
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
+    default:
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         if(WAND_STATUS == MODE_ON) {
           switch(year_mode) {
@@ -1325,47 +1319,6 @@ void startVentSequence() {
   wandSerialSend(W_OVERHEATING);
 }
 
-void checkMusic() {
-  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
-    ms_check_music.start(i_music_check_delay);
-
-    // Loop through all the tracks if the music is not set to repeat a track.
-    if(b_playing_music == true && b_repeat_track == false) {
-      if(!w_trig.isTrackPlaying(i_current_music_track)) {
-        ms_check_music.stop();
-
-        stopMusic();
-
-        // Tell the pack to stop playing music.
-        wandSerialSend(W_MUSIC_STOP);
-
-        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-          i_current_music_track = i_music_track_start;
-        }
-        else {
-          i_current_music_track++;
-        }
-
-        // Tell the pack which music track to change to.
-        wandSerialSend(i_current_music_track);
-
-        ms_music_next_track.start(i_music_next_track_delay);
-      }
-    }
-  }
-
-  if(ms_music_next_track.justFinished()) {
-    ms_music_next_track.stop();
-
-    playMusic();
-
-    // Tell the pack to play music.
-    wandSerialSend(W_MUSIC_START);
-
-    ms_check_music.start(i_music_check_delay);
-  }
-}
-
 void settingsBlinkingLights() {
   if(ms_settings_blinking.justFinished()) {
      ms_settings_blinking.start(i_settings_blinking_delay);
@@ -1913,6 +1866,7 @@ void checkSwitches() {
               break;
 
               case PROTON:
+              default:
                 WAND_ACTION_STATUS = ACTION_IDLE;
                 wandHeatUp();
 
@@ -3249,6 +3203,7 @@ void wandBarrelHeatUp() {
         break;
       #else
         case PROTON:
+        default:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
@@ -3325,6 +3280,7 @@ void wandBarrelHeatDown() {
         break;
       #else
         case PROTON:
+        default:
           barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
