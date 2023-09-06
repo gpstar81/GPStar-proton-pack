@@ -1,12 +1,10 @@
 # WavTrigger Configuration
 
-The first thing to take care of is updating the firmware on the WavTrigger boards. Sometimes they ship with firmware version 1.28 and 1.34 is required for one feature used during music playback. It is possible to use the WavTriggers without updating the firmware, the only issue you will have is during music playback: when a track ends, the next track will not automatically load and play itself.
+The first thing to take care of is updating the firmware on the WavTrigger boards. They all currently ship with version 1.34, and 1.40 is required for some unique features of the gpstar Proton Pack. Version 1.40 can be found here in the `extras` folder.
 
-`As of July 2023, all Wav Triggers purchased should have the latest firmware already installed.`
+The WavTrigger software updater and instructions [can be found on the Robertsonics website](https://www.robertsonics.com/wav-trigger). To update the firmware, an [FTDI Basic (5V version)](https://www.sparkfun.com/products/9716) from Sparkfun should be used to interface with the WavTrigger.
 
-The WavTrigger firmware and software updater and instructions [can be found on the Robertsonics website](https://www.robertsonics.com/wav-trigger). To update the firmware, an [FTDI Basic (5V version)](https://www.sparkfun.com/products/9716) from Sparkfun should be used to interface with the WavTrigger.
-
-[WAV Trigger Firmware v1.34](https://www.robertsonics.com/s/WAVTrig_134_20200324.zip)
+[WAV Trigger Firmware v1.40](https://github.com/gpstar81/haslab-proton-pack/tree/main/extras)
 
 [WAV Trigger Flasher Utility v2.00 Windows Executable (zip)](https://www.robertsonics.com/s/WTFlasher_20230108_v200.zip)
 
@@ -40,7 +38,7 @@ Note the "5V" pad just below the SPKR connection holes.
 
 ## Connections
 
-Once the firmware is updated to 1.34 and you have confirmed this using the WavTrigger setup utility, there will be connections made to the respective microcontroller boards. Similar to the previous step the RX and TX will go to the respective TX and RX ports on the microcontroller boards. See the setup instructions for the Pack and Wand as necessary. The 5Vin and GND will be connected to the power to each of the pack and wand, respectively. DO NOT use the 5V port on either Mega or Nano to drive this device--you will need to split your power connection to each device to provide sufficient current.
+Once the firmware is updated to 1.40 and you have confirmed this using the WavTrigger setup utility, there will be connections made to the respective microcontroller boards. Similar to the previous step the RX and TX will go to the respective TX and RX ports on the microcontroller boards. See the setup instructions for the Pack and Wand as necessary. The 5Vin and GND will be connected to the power to each of the pack and wand, respectively. DO NOT use the 5V port on either Mega or Nano to drive this device--you will need to split your power connection to each device to provide sufficient current.
 
 NOTE: See below for more information. I used standard breadboard friendly header jumper cables to make the connections from the FTDI basic to the connectors I added to the WavTrigger. Also note that the WavTriggers have both a AUX output and/or 2 pins for audio output. You can use either or to connect to your speakers or amps.
 

@@ -1,6 +1,6 @@
 /**
  *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -328,11 +328,7 @@ bool b_wand_menu_sub = false;
 const unsigned int i_settings_blinking_delay = 350;
 bool b_playing_music = false;
 bool b_repeat_track = false;
-const unsigned int i_music_check_delay = 2000;
-const unsigned int i_music_next_track_delay = 2000;
 millisDelay ms_settings_blinking;
-millisDelay ms_check_music;
-millisDelay ms_music_next_track;
 
 /*
  * Misc wand settings and flags.

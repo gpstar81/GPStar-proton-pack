@@ -108,10 +108,10 @@ You can also reference the PDF document for the [Pack Schematic Minimal](circuit
 | D6 (Green)    | A5    |     | D4    | SW1 (Brown)   |
 | SW6 (White)   | A6    |     | D3    | SW4 (Red)     |
 | SW7 (Orange)  | A7    |     | D2    | SW45 (White)  |
-| +5V (Pack)    | 5V    |     | GND   |               |
+|               | 5V    |     | GND   |               |
 |               | RST   |     | RST   |               |
 | Ground (Pack) | GND   |     | RX0   | TX (to Pack)  |
-|               | VIN   |     | TX1   | RX (to Pack)  |
+| +5V (Pack)    | VIN   |     | TX1   | RX (to Pack)  |
 
 ### Connections by Component
 
@@ -231,8 +231,8 @@ For the SLO-BLO and Front-Left LED which share on 1 pin from the Nano. The spec 
 **Generation 1 (Silver Tip Wands)**
 | WAND-TUBE → Q2 |   |              |   | Nano Pin | Hasbro Ref | Notes                                  |
 |----------------|---|--------------|---|----------|------------|----------------------------------------|
-| <font color="yellow">Yellow</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LED's                | 
-|                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires | 
+| <font color="yellow">Yellow</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LED's                |
+|                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires |
 | <font color="brown">Brown</font>       | → | Ground |    |         | Q2 | Ground to 5 wand LED's               |
 | <font color="red">Red</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LED's      |
 
@@ -240,7 +240,7 @@ For the SLO-BLO and Front-Left LED which share on 1 pin from the Nano. The spec 
 | WAND-TUBE → Q2 |   |              |   | Nano Pin | Hasbro Ref | Notes                                  |
 |----------------|---|--------------|---|----------|------------|----------------------------------------|
 | <font color="blue">Blue</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LED's                |
-|                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires | 
+|                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires |
 | <font color="red">Red</font>       | → | Ground |    |         | Q2 | Ground to 5 wand LED's               |
 | <font color="yellow">Yellow</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LED's      |
 

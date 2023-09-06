@@ -1,6 +1,6 @@
 /**
  *   gpstar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gmail.com>
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,13 +17,6 @@
  *
  */
 
-/*
- *  You need to edit wavTrigger.h and make sure you comment out the proper serial port. (Near the top of the wavTrigger.h file).
- *  We are going to use tx/rx #3 on the Mega and on the gpstar Proton Pack micro controller board.
- *  __WT_USE_SERIAL3___
- */
-#include <wavTrigger.h>
-
 // 3rd-Party Libraries
 #include <EEPROM.h>
 #include <millisDelay.h>
@@ -31,6 +24,18 @@
 #include <ezButton.h>
 #include <Ramp.h>
 #include <SerialTransfer.h>
+
+/*
+  ***** IMPORTANT *****
+  * You no longer need to edit and configure the wavTrigger.h anymore.
+  * Please make sure your Wav Trigger devices are running firmware version 1.40 or higher. 
+  * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
+  https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
+
+  * Information on how to update your Wav Trigger devices can be found on the gpstar github repository.
+  https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
+*/
+#include "wavTrigger.h"
 
 // Local Files
 #include "Configuration.h"
@@ -41,8 +46,12 @@
 
 void setup() {
   Serial.begin(9600);
+  Serial1.begin(9600); // Add-on serial communication.
   Serial2.begin(9600); // Communication to the wand.
-  packComs.begin(Serial2);
+
+  // Connect the serial ports and turn off debug messages.
+  serial1Coms.begin(Serial1, false);
+  packComs.begin(Serial2, false);
 
   // Setup the Wav Trigger.
   setupWavTrigger();
@@ -122,6 +131,7 @@ void setup() {
   ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
   ms_wand_handshake.start(1);
+  ms_serial1_handshake.start(1);
   ms_fast_led.start(i_fast_led_delay);
 
   // Configure the vibration state.
@@ -154,8 +164,14 @@ void setup() {
     i_cyclotron_inner_brightness = 100;
   }
 
+  // Tell the Attenuator the pack is here.
+  serial1Send(A_PACK_BOOTUP);
+
   // Tell the wand the pack is here.
   packSerialSend(P_PACK_BOOTUP);
+
+  // Check music timer.
+  ms_check_music.start(i_music_check_delay);
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
@@ -172,11 +188,16 @@ void setup() {
 void loop() {
   w_trig.update();
 
+  checkMusic();
   checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
 
   wandHandShake();
   checkWand();
+
+  serial1HandShake();
+  checkSerial1();
+
   checkFan();
 
   switch_cyclotron_lid.loop();
@@ -223,6 +244,7 @@ void loop() {
       if(b_pack_on == true) {
         // Tell the wand the pack is off, so shut down the wand as well if it is still on.
         packSerialSend(P_OFF);
+        serial1Send(A_PACK_OFF);
       }
 
       b_pack_on = false;
@@ -240,6 +262,7 @@ void loop() {
       if(b_pack_on == false) {
         // Tell the wand the pack is on.
         packSerialSend(P_ON);
+        serial1Send(A_PACK_ON);
       }
 
       b_pack_on = true;
@@ -434,6 +457,56 @@ void loop() {
   }
 }
 
+void checkMusic() {
+  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
+    ms_check_music.start(i_music_check_delay);
+    w_trig.trackPlayingStatus(i_current_music_track);
+
+    // Loop through all the tracks if the music is not set to repeat a track.
+    if(b_playing_music == true && b_repeat_track == false) {
+      if(w_trig.currentMusicTrackStatus(i_current_music_track) != true && ms_music_status_check.justFinished() && w_trig.trackCounterReset() != true) {
+        ms_check_music.stop();
+        ms_music_status_check.stop();
+
+        stopMusic();
+
+        // Tell the Neutrona Wand to stop playing music.
+        packSerialSend(P_MUSIC_STOP);
+
+        // Switch to the next track.
+        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+          i_current_music_track = i_music_track_start;
+        }
+        else {
+          i_current_music_track++;
+        }
+
+        // Tell the Neutrona Wand which music track to change to.
+        packSerialSend(i_current_music_track);
+
+        // Start timer to prepare to play music again.
+        ms_music_next_track.start(i_music_next_track_delay);
+      }
+      else {
+        if(ms_music_status_check.justFinished()) {
+          ms_music_status_check.start(i_music_check_delay * 4);
+        }
+      }
+    }
+  }
+
+  // Start playing music again.
+  if(ms_music_next_track.justFinished()) {
+    ms_music_next_track.stop();
+    ms_check_music.start(i_music_check_delay);
+
+    playMusic();
+
+    // Tell the Neutrona Wand to play music.
+    packSerialSend(P_MUSIC_START);
+  }
+}
+
 void checkRibbonCableSwitch() {
   if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
     if(switch_alarm.getState() == LOW) {
@@ -465,10 +538,14 @@ void packStartup() {
 
     // Tell the wand the pack alarm is off.
     packSerialSend(P_ALARM_ON);
+    serial1Send(A_ALARM_ON);
   }
   else {
     // Tell the wand the pack alarm is off.
     packSerialSend(P_ALARM_OFF);
+
+    // Tell any add-on devices that the alarm is off.
+    serial1Send(A_ALARM_OFF);
 
     stopEffect(S_PACK_RIBBON_ALARM_1);
     stopEffect(S_ALARM_LOOP);
@@ -623,11 +700,15 @@ void packOffReset() {
     clearCyclotronFades();
   }
 
-  // Tell the wand the alarm is off.
+  // Tell the wand and any add-on devices that the alarm is off.
   if(b_alarm == true) {
     b_alarm = false;
+    // Tell the wand that the alarm is off.
     packSerialSend(P_ALARM_OFF);
-  }  
+
+    // Tell any add-on devices that the alarm is off.
+    serial1Send(A_ALARM_OFF);
+  }
 }
 
 void checkSwitches() {
@@ -762,6 +843,8 @@ void checkSwitches() {
 
             i_mode_year = 1984;
             i_mode_year_tmp = 1984;
+
+            serial1Send(A_YEAR_1984);
           }
           else {
             if(i_mode_year == 1984) {
@@ -771,6 +854,8 @@ void checkSwitches() {
 
             i_mode_year = 2021;
             i_mode_year_tmp = 2021;
+
+            serial1Send(A_YEAR_AFTERLIFE);
           }
         }
         else {
@@ -784,6 +869,8 @@ void checkSwitches() {
 
               i_mode_year = 1984;
               i_mode_year_tmp = 1984;
+
+              serial1Send(A_YEAR_1984);
             break;
 
             case 1989:
@@ -794,6 +881,8 @@ void checkSwitches() {
 
               i_mode_year = 1989;
               i_mode_year_tmp = 1989;
+
+              serial1Send(A_YEAR_1989);
             break;
 
             case 2021:
@@ -804,6 +893,8 @@ void checkSwitches() {
 
               i_mode_year = 2021;
               i_mode_year_tmp = 2021;
+
+              serial1Send(A_YEAR_AFTERLIFE);
             break;
           }
         }
@@ -1203,7 +1294,7 @@ void spectralLightsOff() {
     else {
       cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
     }
-  }    
+  }
 }
 
 void spectralLightsOn() {
@@ -1228,7 +1319,9 @@ void spectralLightsOn() {
     else {
       cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, i_colour_scheme);
     }
-  }  
+  }
+
+  serial1Send(A_SPECTRAL_COLOUR_DATA);
 }
 
 void powercellDraw(uint8_t i_start) {
@@ -1311,6 +1404,9 @@ void cyclotronControl() {
 
       // Tell the wand the pack alarm is on.
       packSerialSend(P_ALARM_ON);
+
+      // Tell any add-on devices that the alarm is on.
+      serial1Send(A_ALARM_ON);
     }
 
     // Ribbon cable has been removed.
@@ -2715,7 +2811,7 @@ void checkCyclotronAutoSpeed() {
 
       // Increase the Cyclotron Switch Panel LEDs speed.
       i_cyclotron_switch_led_mulitplier++;
-      
+
       // Restart the timer.
       ms_cyclotron_auto_speed_timer.stop();
       ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
@@ -2725,6 +2821,7 @@ void checkCyclotronAutoSpeed() {
 
 void wandFiring() {
   b_wand_firing = true;
+  serial1Send(A_FIRING);
 
   // Reset the Cyclotron auto speed up timers. Only for Afterlife 2021 mode.
   ms_cyclotron_auto_speed_timer.stop();
@@ -2888,6 +2985,8 @@ void wandStoppedFiring() {
   // Stop all other firing sounds.
   wandStopFiringSounds();
   ms_firing_sound_mix.stop();
+
+  serial1Send(A_FIRING_STOPPED);
 
   // Stop the auto speed timer.
   ms_cyclotron_auto_speed_timer.stop();
@@ -3215,7 +3314,7 @@ void cyclotronSpeedIncrease() {
 
       if(i_powercell_multiplier < 6) {
         i_powercell_multiplier++;
-      }      
+      }
     break;
 
     case 1984:
@@ -3340,7 +3439,7 @@ void decreaseVolume() {
 }
 
 void readEncoder() {
-  if (digitalRead(encoder_pin_a) == digitalRead(encoder_pin_b)) {
+  if(digitalRead(encoder_pin_a) == digitalRead(encoder_pin_b)) {
     i_encoder_pos++;
   }
   else {
@@ -3458,6 +3557,33 @@ void checkFan() {
   }
   else if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
     fanControl(true);
+  }
+}
+
+// Check if the attenuator is still connected.
+void serial1HandShake() {
+  if(b_serial1_connected == true) {
+    if(ms_serial1_handshake.justFinished()) {
+      ms_serial1_handshake.start(i_serial1_handshake_delay);
+
+      b_serial1_connected = false;
+
+      // Where are you attenuator?
+      serial1Send(A_HANDSHAKE);
+    }
+    else if(ms_serial1_handshake_checking.justFinished()) {
+      ms_serial1_handshake_checking.stop();
+      // Ask the attenuator if it is still connected.
+      serial1Send(A_HANDSHAKE);
+    }
+  }
+  else {
+    if(ms_serial1_handshake.justFinished()) {
+      // Ask the attenuator if it is connected.
+      serial1Send(A_HANDSHAKE);
+
+      ms_serial1_handshake.start(i_serial1_handshake_delay / 5);
+    }
   }
 }
 
@@ -3585,6 +3711,202 @@ void packOverheatingFinished() {
   ms_cyclotron.start(i_2021_delay);
 }
 
+// Incoming messages from the extra Serial 1 port..
+void checkSerial1() {
+  if(serial1Coms.available()) {
+    serial1Coms.rxObj(dataStructR);
+
+    if(!serial1Coms.currentPacketID()) {
+      if(dataStructR.i > 0 && dataStructR.s == A_COM_START && dataStructR.e == A_COM_END) {
+        if(b_serial1_connected != true) {
+          // Check if the attenuator is telling us it is here after connecting it to the pack.
+          // Then Synchronise some settings between the pack and the attenuator.
+          if(dataStructR.i == A_HANDSHAKE) {
+            serial1Send(A_SYNC_START);
+
+            // Tell the attenuator that the pack is here.
+            serial1Send(A_PACK_CONNECTED);
+
+            if(i_mode_year == 1984) {
+              serial1Send(A_YEAR_1984);
+            }
+            else if(i_mode_year == 1989) {
+              serial1Send(A_YEAR_1989);
+            }
+            else {
+              serial1Send(A_YEAR_AFTERLIFE);
+            }
+
+            // Ribbon cable alarm.
+            if(b_alarm == true) {
+              serial1Send(A_ALARM_ON);
+            }
+            else {
+              serial1Send(A_ALARM_OFF);
+            }
+
+            // Pack status
+            if(PACK_STATUS != MODE_OFF) {
+              serial1Send(A_PACK_ON);
+            }
+            else {
+              serial1Send(A_PACK_OFF);
+            }
+
+            // Send the current power level.
+            switch(i_wand_power_level) {
+              case 5:
+                serial1Send(A_POWER_LEVEL_5);
+              break;
+
+              case 4:
+                serial1Send(A_POWER_LEVEL_4);
+              break;
+
+              case 3:
+                serial1Send(A_POWER_LEVEL_3);
+              break;
+
+              case 2:
+                serial1Send(A_POWER_LEVEL_2);
+              break;
+
+              case 1:
+              default:
+                serial1Send(A_POWER_LEVEL_1);
+              break;
+            }
+
+            // Synchronise the firing modes.
+            switch(FIRING_MODE) {
+              case SLIME:
+                serial1Send(A_SLIME_MODE);
+              break;
+
+              case STASIS:
+                serial1Send(A_STASIS_MODE);
+              break;
+
+              case MESON:
+                serial1Send(A_MESON_MODE);
+              break;
+
+              case SPECTRAL:
+                serial1Send(A_SPECTRAL_MODE);
+              break;
+
+              case HOLIDAY:
+                serial1Send(A_HOLIDAY_MODE);
+              break;
+
+              case SPECTRAL_CUSTOM:
+                serial1Send(A_SPECTRAL_CUSTOM_MODE);
+              break;
+
+              case VENTING:
+                serial1Send(A_VENTING_MODE);
+              break;
+
+              case PROTON:
+              case SETTINGS:
+              default:
+                serial1Send(A_PROTON_MODE);
+              break;
+            }
+
+            serial1Send(A_SPECTRAL_COLOUR_DATA);
+
+            serial1Send(A_SYNC_END);
+
+            b_serial1_connected = true;
+          }
+        }
+        else {
+          switch(dataStructR.i) {
+            case A_HANDSHAKE:
+              // The attenuator is still here.
+              ms_serial1_handshake.start(i_serial1_handshake_delay);
+              ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
+              b_serial1_connected = true;
+            break;
+
+            case A_TURN_PACK_ON:
+              // Turn the pack on.
+              if(PACK_STATUS != MODE_ON) {
+                PACK_ACTION_STATUS = ACTION_ACTIVATE;
+              }
+            break;
+
+            case A_TURN_PACK_OFF:
+              // Turn the pack off.
+              if(PACK_STATUS != MODE_OFF) {
+                PACK_ACTION_STATUS = ACTION_OFF;
+              }
+            break;
+
+            case A_TOGGLE_MUTE:
+              if(i_volume_master == i_volume_abs_min) {
+                i_volume_master = i_volume_revert;
+
+                w_trig.masterGain(i_volume_master); // Reset the master gain.
+
+                packSerialSend(P_MASTER_AUDIO_NORMAL);
+              }
+              else {
+                i_volume_revert = i_volume_master;
+
+                // Set the master volume to silent.
+                i_volume_master = i_volume_abs_min;
+
+                w_trig.masterGain(i_volume_master); // Reset the master gain. 
+
+                packSerialSend(P_MASTER_AUDIO_SILENT_MODE);               
+              }
+            break;
+
+            case A_VOLUME_DECREASE:
+              // Turn down overall pack volume.
+              decreaseVolume();
+
+              // Tell wand to decrease the volume.
+              packSerialSend(P_VOLUME_DECREASE);
+            break;
+
+            case A_VOLUME_INCREASE:
+              // Turn up overall pack volume.
+              increaseVolume();
+
+              // Tell wand to increase the volume.
+              packSerialSend(P_VOLUME_INCREASE);
+            break;
+
+            case A_MUSIC_START_STOP:
+              if(b_playing_music == true) {
+                packSerialSend(P_MUSIC_STOP);
+                stopMusic();
+                b_playing_music = false;
+              }
+              else {
+                if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+                  b_playing_music = true;
+                  playMusic();
+
+                  packSerialSend(i_current_music_track);
+                  packSerialSend(P_MUSIC_START);
+                }
+              }
+            break;
+
+            default:
+              // No-op
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
 // Incoming messages from the wand.
 void checkWand() {
   if(packComs.available()) {
@@ -3601,7 +3923,10 @@ void checkWand() {
               // Turn the pack on.
               if(PACK_STATUS != MODE_ON) {
                 PACK_ACTION_STATUS = ACTION_ACTIVATE;
+                serial1Send(A_PACK_ON);
               }
+
+              serial1Send(A_WAND_ON);
             break;
 
             case W_OFF:
@@ -3611,7 +3936,10 @@ void checkWand() {
               // Turn the pack off.
               if(PACK_STATUS != MODE_OFF) {
                 PACK_ACTION_STATUS = ACTION_OFF;
+                serial1Send(A_PACK_OFF);
               }
+
+              serial1Send(A_WAND_OFF);
             break;
 
             case W_CYCLOTRON_SIMULATE_RING_TOGGLE:
@@ -3723,6 +4051,8 @@ void checkWand() {
                 b_powercell_updating = true;
                 powercellDraw();
               }
+
+              serial1Send(A_PROTON_MODE);
             break;
 
             case W_SLIME_MODE:
@@ -3745,6 +4075,8 @@ void checkWand() {
 
                 powercellDraw();
               }
+
+              serial1Send(A_SLIME_MODE);
             break;
 
             case W_STASIS_MODE:
@@ -3766,6 +4098,8 @@ void checkWand() {
                 b_powercell_updating = true;
                 powercellDraw();
               }
+
+              serial1Send(A_STASIS_MODE);
             break;
 
             case W_MESON_MODE:
@@ -3787,6 +4121,8 @@ void checkWand() {
                 b_powercell_updating = true;
                 powercellDraw();
               }
+
+              serial1Send(A_MESON_MODE);
             break;
 
             case W_SPECTRAL_MODE:
@@ -3808,6 +4144,8 @@ void checkWand() {
                 b_powercell_updating = true;
                 powercellDraw();
               }
+
+              serial1Send(A_SPECTRAL_MODE);
             break;
 
             case W_HOLIDAY_MODE:
@@ -3829,6 +4167,8 @@ void checkWand() {
                 b_powercell_updating = true;
                 powercellDraw();
               }
+
+              serial1Send(A_HOLIDAY_MODE);
             break;
 
             case W_SPECTRAL_CUSTOM_MODE:
@@ -3850,6 +4190,8 @@ void checkWand() {
                 b_powercell_updating = true;
                 powercellDraw();
               }
+
+              serial1Send(A_SPECTRAL_CUSTOM_MODE);
             break;
 
             case W_VENTING_MODE:
@@ -3872,6 +4214,8 @@ void checkWand() {
                 b_powercell_updating = true;
                 powercellDraw();
               }
+
+              serial1Send(A_VENTING_MODE);
             break;
 
             case W_SETTINGS_MODE:
@@ -3889,6 +4233,8 @@ void checkWand() {
                 b_powercell_updating = true;
                 powercellDraw();
               }
+
+              serial1Send(A_SETTINGS_MODE);
             break;
 
             case W_OVERHEATING:
@@ -3913,21 +4259,29 @@ void checkWand() {
               if(i_mode_year == 1984 || i_mode_year == 1989) {
                 i_inner_current_ramp_speed = i_inner_ramp_delay;
               }
+
+              serial1Send(A_OVERHEATING);
             break;
 
             case W_OVERHEATING_FINISHED:
               // Overheating finished
               packOverheatingFinished();
+
+              serial1Send(A_OVERHEATING_FINISHED);
             break;
 
             case W_CYCLOTRON_NORMAL_SPEED:
               // Reset cyclotron speed.
               cyclotronSpeedRevert();
+
+              serial1Send(A_CYCLOTRON_NORMAL_SPEED);
             break;
 
             case W_CYCLOTRON_INCREASE_SPEED:
               // Speed up cyclotron.
               cyclotronSpeedIncrease();
+
+              serial1Send(A_CYCLOTRON_INCREASE_SPEED);
             break;
 
             case W_HANDSHAKE:
@@ -3952,6 +4306,8 @@ void checkWand() {
                   ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
                 }
               }
+
+              serial1Send(A_POWER_LEVEL_1);
             break;
 
             case W_POWER_LEVEL_2:
@@ -3964,6 +4320,8 @@ void checkWand() {
                   ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
                 }
               }
+
+              serial1Send(A_POWER_LEVEL_2);
             break;
 
             case W_POWER_LEVEL_3:
@@ -3976,6 +4334,8 @@ void checkWand() {
                   ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
                 }
               }
+
+              serial1Send(A_POWER_LEVEL_3);
             break;
 
             case W_POWER_LEVEL_4:
@@ -3988,6 +4348,8 @@ void checkWand() {
                   ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
                 }
               }
+
+              serial1Send(A_POWER_LEVEL_4);
             break;
 
             case W_POWER_LEVEL_5:
@@ -4000,6 +4362,8 @@ void checkWand() {
                   ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
                 }
               }
+
+              serial1Send(A_POWER_LEVEL_5);
             break;
 
             case W_FIRING_INTENSIFY:
@@ -4707,7 +5071,7 @@ void checkWand() {
                 }
                 else {
                   i_spectral_cyclotron_custom_saturation = 1;
-                }                
+                }
               }
 
               spectralLightsOn();
@@ -4738,12 +5102,12 @@ void checkWand() {
                 if(i_spectral_powercell_custom_saturation > 253) {
                   i_spectral_powercell_custom_saturation = 254;
                 }
-              }            
+              }
               else if(i_spectral_powercell_custom < 253) {
                 i_spectral_powercell_custom++;
               }
               else {
-                i_spectral_powercell_custom = 254;             
+                i_spectral_powercell_custom = 254;
               }
 
               spectralLightsOn();
@@ -4756,7 +5120,7 @@ void checkWand() {
                 if(i_spectral_cyclotron_custom_saturation > 253) {
                   i_spectral_cyclotron_custom_saturation = 254;
                 }
-              }  
+              }
               else if(i_spectral_cyclotron_custom < 253) {
                 i_spectral_cyclotron_custom++;
               }
@@ -4773,7 +5137,7 @@ void checkWand() {
 
               spectralLightsOn();
             break;
-          
+
             case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE:
               if(i_spectral_cyclotron_inner_custom_saturation < 254) {
                 i_spectral_cyclotron_inner_custom_saturation++;
@@ -4781,7 +5145,7 @@ void checkWand() {
                 if(i_spectral_cyclotron_inner_custom_saturation > 253) {
                   i_spectral_cyclotron_inner_custom_saturation = 254;
                 }
-              }  
+              }
               else if(i_spectral_cyclotron_inner_custom < 253) {
                 i_spectral_cyclotron_inner_custom++;
               }
@@ -5146,7 +5510,7 @@ void checkWand() {
               }
 
               updateProtonPackLEDCounts();
-              
+
               spectralLightsOff();
               spectralLightsOn();
             break;
@@ -5363,6 +5727,20 @@ void checkWand() {
   }
 }
 
+void serial1Send(int i_message) {
+  dataStruct.s = A_COM_START;
+  dataStruct.i = i_message;
+
+  if(i_message == A_SPECTRAL_CUSTOM_MODE || i_message == A_SPECTRAL_COLOUR_DATA) {
+    dataStruct.d1 = i_spectral_cyclotron_custom;
+    dataStruct.d2 = i_spectral_cyclotron_custom_saturation;
+  }
+
+  dataStruct.e = A_COM_END;
+
+  serial1Coms.sendDatum(dataStruct);
+}
+
 void packSerialSend(int i_message) {
   sendStruct.s = P_COM_START;
   sendStruct.i = i_message;
@@ -5442,6 +5820,9 @@ void playMusic() {
   w_trig.trackPlayPoly(i_current_music_track, true);
 
   w_trig.update();
+
+  ms_music_status_check.start(i_music_check_delay * 10);
+  w_trig.resetTrackCounter(true);
 }
 
 void stopMusic() {
@@ -5553,7 +5934,7 @@ void readEEPROM() {
     if(obj_eeprom.cyclotron_spectral_custom > 0 && obj_eeprom.cyclotron_spectral_custom != 255) {
       i_spectral_cyclotron_custom = obj_eeprom.cyclotron_spectral_custom;
     }
-    
+
     if(obj_eeprom.cyclotron_inner_spectral_custom > 0 && obj_eeprom.cyclotron_inner_spectral_custom != 255) {
       i_spectral_cyclotron_inner_custom = obj_eeprom.cyclotron_inner_spectral_custom;
     }
@@ -5752,7 +6133,7 @@ void setupWavTrigger() {
   w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(false);
+  w_trig.setReporting(true);
 
   // Allow time for the WAV Triggers to respond with the version string and number of tracks.
   delay(350);
