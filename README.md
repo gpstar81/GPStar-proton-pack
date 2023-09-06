@@ -35,6 +35,8 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Flashing Updates](FLASHING.md)
 
+1. [Troubleshooting](TROUBLESHOOTING.md)
+
 ---
 
 ### DIY Arduino Build Guides
@@ -81,6 +83,8 @@ These apply to the normal operation and usage of the equipment regardless of whi
 1. [Neutrona Wand 28 Segment Bar Graph Upgrade](BARGRAPH.md) (Optional add-ons)
 
 1. [Hat Lights](HATS.md) (Optional add-on)
+
+1. [Pack Attenuator](ATTENUATOR.md) (Optional add-on)
 
 1. [Frequently Asked Questions](FAQ.md)
 

@@ -9,6 +9,13 @@ That was the question posed by Jason Reitman to Adam Savage with regards to the 
 
 This guide demonstrates the build process for replicating the "Pack Attenuator" device created by Adam and Ben which fully integrates into the gpstar electronics kit. The ability to control and receieve feedback from the devices makes this more than just an aesthetic improvement but a truly usable piece of the pack-wand combination.
 
+Credit to [ShapeforgeProps](https://www.etsy.com/shop/ShapeforgeProps) for their excellent reproduction of this device as a 3D print and served as inspiration for taking this to a new level with the gpstar kit.
+
+*Please note that this device is considered experimental and still under development. An electronics and housing kit is in the works which will integrate with the gpstar Proton Pack controller.*
+
+[Attenuator Preview Demonstration](https://www.youtube.com/watch?v=k-u7S7Ctcbc) (YouTube, July 2023).
+[![Attenuator Preview Demonstration Video](https://img.youtube.com/vi/k-u7S7Ctcbc/maxresdefault.jpg)](https://www.youtube.com/watch?v=k-u7S7Ctcbc)
+
 ## Bill of Materials
 
 This device has it's own BOM which is separate from any other build items related to the pack or wand. This shares the same Arduino platform as the other controllers and we'll be using the same type of serial protocol as used between the pack and wand.
@@ -138,7 +145,7 @@ For assembly, the shell contains 4 holes meant to take heat-set inserts which pr
 
 ## Operation
 
-TBD - Will update once functionality is completed.
+TBD - This will be updated once functionality is finalized. Currently the dial is capable of adjusting the master volume for the pack and wand, while the left toggle switch can turn the pack on or off.
 
 ## Arduino Nano Pinout Reference
 
