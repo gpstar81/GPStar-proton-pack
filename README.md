@@ -123,8 +123,8 @@ You should have received a copy of the GNU General Public License along with thi
 This project is made possible by Ghostbusters community makers and volunteers spanning 4 countries over 2 continents.
 
 * Michael Rajotte (aka. "gpstar Technologies") - Director of Operations, Software Architect, Product Designer, 3D Modelling, EU & Worldwide Distribution
-* Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support
 * Jonathan Gunn (aka. "Jonogunn") - Video Instruction Guides, PCB Design, Install Testing, North America Distribution
+* Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support
 * Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution
 
-Thank you to our supporters on GBFans.com and the [Facebook group](https://www.facebook.com/groups/gpstartechnologies).
+Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [Facebook group](https://www.facebook.com/groups/gpstartechnologies). For the curious you can view a [history of this project](HISTORY.md).
