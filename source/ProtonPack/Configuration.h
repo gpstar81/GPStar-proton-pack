@@ -282,8 +282,10 @@ const unsigned int i_1984_fade_in_delay = 210;
 const bool b_onboard_amp_enabled = false;
 
 /*
- * If you want the optional n-filter NeoPixel jewel to strobe during overheat, set to true.
- * If false, the light stay solid white during overheat.
+ * If you want the optional n-filter NeoPixel jewel to strobe during overheat venting.
+ * If false, the light stay solid during overheat venting.
+ * This does not affect the LED-W optional light nor does it affect the jewel during continious firing venting which always strobes.
+ * LED-W always stays soliding during any venting sequences.
 */
 const bool b_overheat_strobe = true;
 

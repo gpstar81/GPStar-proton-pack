@@ -356,7 +356,7 @@ void mainLoop() {
           playEffect(S_BOOTUP);
 
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              if(year_mode == 2021) {
+              if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                 bargraphYearModeUpdate();
               }
               else {
@@ -1780,9 +1780,9 @@ void checkSwitches() {
               #endif
 
               // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
-              // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
+              // 1984/1989 years will go in to a auto ramp and do not need a manual refresh or if b_bargraph_always_ramping is true, which makes it ramp in all modes.
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                if(year_mode == 2021 && b_28segment_bargraph == true) {
+                if(year_mode == 2021 && b_28segment_bargraph == true && b_bargraph_always_ramping != true) {
                   bargraphPowerCheck2021Alt(true);
                 }
               #endif
@@ -2064,7 +2064,12 @@ void wandOff() {
 
     switch(year_mode) {
       case 2021:
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+        if(b_bargraph_always_ramping != true) {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+        }
+        else {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+        }
       break;
 
       case 1984:
@@ -2110,7 +2115,12 @@ void modeActivate() {
     // Ramp up the bargraph.
     switch(year_mode) {
       case 2021:
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+        if(b_bargraph_always_ramping != true) {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+        }
+        else {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
+        }
       break;
 
       case 1984:
@@ -2684,7 +2694,12 @@ void modeFireStop() {
 
     switch(year_mode) {
       case 2021:
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+        if(b_bargraph_always_ramping != true) {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+        }
+        else {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+        }
       break;
 
       case 1984:
@@ -4242,7 +4257,7 @@ void bargraphPowerCheck() {
       if(ms_bargraph_alt.justFinished()) {
         uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
 
-        if(year_mode == 2021) {
+        if(year_mode == 2021 && b_bargraph_always_ramping != true) {
           for(uint8_t i = 0; i <= 4; i++) {
             i_bargraph_multiplier[i] = 10;
           }
@@ -4258,7 +4273,7 @@ void bargraphPowerCheck() {
 
                 i_bargraph_status_alt = 27;
 
-                if(year_mode == 2021) {
+                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4276,7 +4291,7 @@ void bargraphPowerCheck() {
               if(i_bargraph_status_alt > 21) {
                 b_bargraph_up = false;
 
-                if(year_mode == 2021) {
+                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4293,7 +4308,7 @@ void bargraphPowerCheck() {
             case 3:
               if(i_bargraph_status_alt > 16) {
                 b_bargraph_up = false;
-                if(year_mode == 2021) {
+                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4310,7 +4325,7 @@ void bargraphPowerCheck() {
             case 2:
               if(i_bargraph_status_alt > 10) {
                 b_bargraph_up = false;
-                if(year_mode == 2021) {
+                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4327,7 +4342,7 @@ void bargraphPowerCheck() {
             case 1:
               if(i_bargraph_status_alt > 4) {
                 b_bargraph_up = false;
-                if(year_mode == 2021) {
+                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4360,7 +4375,7 @@ void bargraphPowerCheck() {
 
             switch(i_power_mode) {
               case 5:
-                if(year_mode == 2021 && i_bargraph_status_alt < 27) {
+                if(year_mode == 2021 && i_bargraph_status_alt < 27 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4370,7 +4385,7 @@ void bargraphPowerCheck() {
               break;
 
               case 4:
-                if(year_mode == 2021 && i_bargraph_status_alt < 22) {
+                if(year_mode == 2021 && i_bargraph_status_alt < 22 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4380,7 +4395,7 @@ void bargraphPowerCheck() {
               break;
 
               case 3:
-                if(year_mode == 2021 && i_bargraph_status_alt < 17) {
+                if(year_mode == 2021 && i_bargraph_status_alt < 17 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4390,7 +4405,7 @@ void bargraphPowerCheck() {
               break;
 
               case 2:
-                if(year_mode == 2021 && i_bargraph_status_alt < 11) {
+                if(year_mode == 2021 && i_bargraph_status_alt < 11 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4400,7 +4415,7 @@ void bargraphPowerCheck() {
               break;
 
               case 1:
-                if(year_mode == 2021 && i_bargraph_status_alt < 5) {
+                if(year_mode == 2021 && i_bargraph_status_alt < 5 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4492,7 +4507,9 @@ void bargraphRampUp() {
             // Adjust the ramp down speed if necessary.
             switch(year_mode) {
               case 2021:
-                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+                if(b_bargraph_always_ramping != true) {
+                  i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+                }
               break;
 
               case 1984:
@@ -4528,14 +4545,14 @@ void bargraphRampUp() {
             }
           }
           else {
-            if((i_power_mode < 5 && year_mode == 2021) || year_mode == 1984 || year_mode == 1989) {
+            if((i_power_mode < 5 && year_mode == 2021) || year_mode == 1984 || year_mode == 1989 || b_bargraph_always_ramping == true) {
               ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
             }
 
             switch(year_mode) {
               case 1984:
               case 1989:
-                // Bargraph has ramped up and down. In 1984 mode we want to start the ramping.
+                // Bargraph has ramped up and down. In 1984/1989 mode we want to start the ramping.
                 if(i_bargraph_status_alt == 54) {
                   ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
                   ms_bargraph.stop();
@@ -4553,84 +4570,102 @@ void bargraphRampUp() {
               break;
 
               case 2021:
-                switch(i_power_mode) {
-                  case 5:
-                    // Stop any power check in 2021 if we are already in level 5.
-                    ms_bargraph_alt.stop();
-
+                if(b_bargraph_always_ramping == true) {
+                  // Bargraph has ramped up and down. If bargraph overriden to always ramp, lets start the ramping.
+                  if(i_bargraph_status_alt == 54) {
+                    ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
                     ms_bargraph.stop();
-                    b_bargraph_up = false;
-                    i_bargraph_status_alt = 27;
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 0;
                     bargraphYearModeUpdate();
-                    vibrationWand(i_vibration_level + 25);
-                  break;
 
-                  case 4:
-                    if(i_bargraph_status_alt == 31) {
-                      ms_bargraph.stop();
-                      b_bargraph_up = false;
-                      i_bargraph_status_alt = 23;
-                      bargraphYearModeUpdate();
-
-                      vibrationWand(i_vibration_level + 30);
-                    }
-                    else {
-                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                      i_bargraph_status_alt++;
-
-                      vibrationWand(i_vibration_level + 12);
-                    }
-                  break;
-
-                  case 3:
-                    if(i_bargraph_status_alt == 37) {
-                      ms_bargraph.stop();
-                      b_bargraph_up = false;
-                      i_bargraph_status_alt = 17;
-                      bargraphYearModeUpdate();
-
-                      vibrationWand(i_vibration_level + 10);
-                    }
-                    else {
-                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                      i_bargraph_status_alt++;
-
-                      vibrationWand(i_vibration_level + 20);
-                    }
-                  break;
-
-                  case 2:
-                    if(i_bargraph_status_alt == 43) {
-                      ms_bargraph.stop();
-                      b_bargraph_up = false;
-                      i_bargraph_status_alt = 11;
-                      bargraphYearModeUpdate();
-
-                      vibrationWand(i_vibration_level + 5);
-                    }
-                    else {
-                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                      i_bargraph_status_alt++;
-
-                      vibrationWand(i_vibration_level + 10);
-                    }
-                  break;
-
-                  case 1:
                     vibrationWand(i_vibration_level);
+                  }
+                  else {
+                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                    i_bargraph_status_alt++;
+                  }
+                }
+                else {
+                  switch(i_power_mode) {
+                    case 5:
+                      // Stop any power check in 2021 if we are already in level 5.
+                      ms_bargraph_alt.stop();
 
-                    if(i_bargraph_status_alt == 49) {
                       ms_bargraph.stop();
                       b_bargraph_up = false;
-                      i_bargraph_status_alt = 5;
-
+                      i_bargraph_status_alt = 27;
                       bargraphYearModeUpdate();
-                    }
-                    else {
-                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                      i_bargraph_status_alt++;
-                    }
-                  break;
+                      vibrationWand(i_vibration_level + 25);
+                    break;
+
+                    case 4:
+                      if(i_bargraph_status_alt == 31) {
+                        ms_bargraph.stop();
+                        b_bargraph_up = false;
+                        i_bargraph_status_alt = 23;
+                        bargraphYearModeUpdate();
+
+                        vibrationWand(i_vibration_level + 30);
+                      }
+                      else {
+                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                        i_bargraph_status_alt++;
+
+                        vibrationWand(i_vibration_level + 12);
+                      }
+                    break;
+
+                    case 3:
+                      if(i_bargraph_status_alt == 37) {
+                        ms_bargraph.stop();
+                        b_bargraph_up = false;
+                        i_bargraph_status_alt = 17;
+                        bargraphYearModeUpdate();
+
+                        vibrationWand(i_vibration_level + 10);
+                      }
+                      else {
+                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                        i_bargraph_status_alt++;
+
+                        vibrationWand(i_vibration_level + 20);
+                      }
+                    break;
+
+                    case 2:
+                      if(i_bargraph_status_alt == 43) {
+                        ms_bargraph.stop();
+                        b_bargraph_up = false;
+                        i_bargraph_status_alt = 11;
+                        bargraphYearModeUpdate();
+
+                        vibrationWand(i_vibration_level + 5);
+                      }
+                      else {
+                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                        i_bargraph_status_alt++;
+
+                        vibrationWand(i_vibration_level + 10);
+                      }
+                    break;
+
+                    case 1:
+                      vibrationWand(i_vibration_level);
+
+                      if(i_bargraph_status_alt == 49) {
+                        ms_bargraph.stop();
+                        b_bargraph_up = false;
+                        i_bargraph_status_alt = 5;
+
+                        bargraphYearModeUpdate();
+                      }
+                      else {
+                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                        i_bargraph_status_alt++;
+                      }
+                    break;
+                  }
                 }
               break;
             }
@@ -4801,7 +4836,7 @@ void prepBargraphRampUp() {
     // Prepare a few things before ramping the bargraph back up from a full ramp down.
     if(b_overheat_bargraph_blink != true) {
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(year_mode == 2021) {
+        if(year_mode == 2021 && b_bargraph_always_ramping != true) {
           bargraphYearModeUpdate();
         }
         else {
@@ -4812,7 +4847,7 @@ void prepBargraphRampUp() {
       // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
       // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(year_mode == 2021 && b_28segment_bargraph == true) {
+        if(year_mode == 2021 && b_28segment_bargraph == true && b_bargraph_always_ramping != true) {
           bargraphPowerCheck2021Alt(false);
         }
       #endif
@@ -4827,7 +4862,13 @@ void prepBargraphRampUp() {
   void bargraphYearModeUpdate() {
     switch(year_mode) {
       case 2021:
-        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+        if(b_bargraph_always_ramping != true) {
+          i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+        }
+        else {
+          // If the bargraph setting is overriden so we have 1984/1989 constant ramping for afterlife, lets change the setting to match 1984/1989.
+          i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
+        }
       break;
 
       case 1984:

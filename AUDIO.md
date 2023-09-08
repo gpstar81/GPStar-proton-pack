@@ -46,7 +46,7 @@ To add more music, copy stereo wav tracks (16-bit 44khz stereo wav files) onto t
 
 ## Troubleshooting
 
-From the Robertsonics [manual for the WavTrigger](https://static1.squarespace.com/static/62ab6e0d1f3ea036834d4a0b/t/63c331cab98b7f0d1d5fe04b/1673736656985/WT_UserGuide_20230114.pdf):
+[Manual for the WavTrigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/WT_UserGuide_20230602.pdf)
 
 If you have problems, here are a few things to check:
 
@@ -54,7 +54,7 @@ If you have problems, here are a few things to check:
 
 1. If there’s no activity on the status LED whatsoever when you power up the WAV Trigger, check the “Load/Run” switch next to the power connector and make sure it’s in the “Run” position.
 
-1. Once you get the 3 blinks, pressing the on-board button will play the lowest numbered track on the microSD card. Confirm this by observing the status LED turning on to indicate a track is playing. You should hear the track through the stereo jack. If you’re using the on-board audio amp and speaker connection, you won’t hear anything unless you have enabled the amp using the init file.
+1. Once you get the 3 blinks, pressing the on-board button will play the lowest numbered track on the microSD card. Confirm this by observing the status LED turning on to indicate a track is playing. You should hear the track through the stereo jack. If the audio is not working, try plugging in a set of headphones into the 3.5mm audio port and test again. If you’re using the on-board audio amp and speaker connection, you won’t hear anything unless the onboard amp is enabled using the init file or via software.
 
 1. Low quality SD Cards sometimes provide issues such as sounds not playing. Please consider using high quality SD Cards. We recommend the Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.
 

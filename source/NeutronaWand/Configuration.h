@@ -87,6 +87,14 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 */
 #define GPSTAR_INVERT_BARGRAPH
 
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  /*
+    When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
+    When set to false (default), it mimics the action in Afterlife.
+  */
+  bool b_bargraph_always_ramping = false;
+#endif
+
 /*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
  * Pressing this button together at the same time as the Intensify button does a cross the streams firing.
