@@ -5596,6 +5596,9 @@ void checkWand() {
               packSerialSend(P_YEAR_AFTERLIFE);
             }
 
+            // Stop any music. Mainly for when flashing while connected to a computer with a running wand.
+             packSerialSend(P_MUSIC_STOP);
+
             // Sync the current music track.
             // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
             packSerialSend(i_current_music_track);
