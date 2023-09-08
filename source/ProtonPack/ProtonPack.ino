@@ -289,6 +289,7 @@ void loop() {
           ms_cyclotron_ring.start(i_inner_current_ramp_speed);
 
           ventLight(false);
+          ventLightLEDW(false);
 
           b_alarm = false;
 
@@ -398,6 +399,7 @@ void loop() {
             fanControl(true);
           }
 
+          // We are strobing the n-ftiler jewel.
           if(ms_vent_light_off.justFinished()) {
             ms_vent_light_off.stop();
             ms_vent_light_on.start(i_vent_light_delay);
@@ -410,10 +412,14 @@ void loop() {
 
             ventLight(false);
           }
+
+          // The LED-W will not strobe during this venting.
+          ventLightLEDW(true);
         }
         else {
           smokeControl(false);
           ventLight(false);
+          ventLightLEDW(false);
           fanControl(false);
         }
       }
@@ -630,8 +636,9 @@ void packShutdown() {
     playEffect(S_SHUTDOWN);
   }
 
-  // Turn off the vent light if it is on.
+  // Turn off the vent lights if they were on.
   ventLight(false);
+  ventLightLEDW(false);
   ms_vent_light_off.stop();
   ms_vent_light_on.stop();
 
@@ -2464,6 +2471,8 @@ void cyclotronOverHeating() {
         ventLight(true);
       }
     }
+
+    ventLightLEDW(true);
   }
 }
 
@@ -2475,11 +2484,13 @@ void cyclotronNoCable() {
 
       if(ms_alarm.justFinished()) {
         ventLight(false);
+        ventLightLEDW(false);
         ms_alarm.start(i_1984_delay);
       }
       else {
         if(ms_alarm.remaining() < i_1984_delay / 2) {
           ventLight(true);
+          ventLightLEDW(true);
         }
       }
 
@@ -2494,8 +2505,9 @@ void cyclotronNoCable() {
       if(ms_alarm.justFinished()) {
         ms_alarm.start(i_1984_delay / 2);
 
-        // Turn off the n-filter light.
+        // Turn off the n-filter lights.
         ventLight(false);
+        ventLightLEDW(false);
 
         vibrationPack(i_vibration_lowest_level);
       }
@@ -2503,8 +2515,9 @@ void cyclotronNoCable() {
         if(ms_alarm.remaining() < i_1984_delay / 4) {
           vibrationPack(i_vibration_idle_level_1984);
 
-          // Turn on the n-filter light.
+          // Turn on the n-filter lights.
           ventLight(true);
+          ventLightLEDW(true);
         }
       }
     break;
@@ -2742,6 +2755,15 @@ void reset2021RampDown() {
   b_inner_ramp_down = true;
 }
 
+void ventLightLEDW(bool b_on) {
+  if(b_on == true) {
+    digitalWrite(i_nfilter_led_pin, HIGH);
+  }
+  else {
+    digitalWrite(i_nfilter_led_pin, LOW);
+  }
+}
+
 void ventLight(bool b_on) {
   uint8_t i_colour_scheme = getDeviceColour(VENT_LIGHT, FIRING_MODE, true);
   b_vent_light_on = b_on;
@@ -2789,15 +2811,11 @@ void ventLight(bool b_on) {
     for(int i = i_vent_light_start; i < i_pack_num_leds; i++) {
       pack_leds[i] = getHueAsRGB(VENT_LIGHT, i_colour_scheme); // Uses full brightness.
     }
-
-    digitalWrite(i_nfilter_led_pin, HIGH);
   }
   else {
     for(int i = i_vent_light_start; i < i_pack_num_leds; i++) {
       pack_leds[i] = getHueAsRGB(VENT_LIGHT, C_BLACK);
     }
-
-    digitalWrite(i_nfilter_led_pin, LOW);
   }
 }
 
@@ -3047,6 +3065,7 @@ void wandStoppedFiring() {
   ms_vent_light_off.stop();
   ms_vent_light_on.stop();
   ventLight(false);
+  ventLightLEDW(false);
 
   // Reset vent sounds flag.
   b_vent_sounds = true;
@@ -3703,8 +3722,9 @@ void packOverheatingFinished() {
 
   packStartup();
 
-  // Turn off the vent light
+  // Turn off the vent lights
   ventLight(false);
+  ventLightLEDW(false);
   ms_vent_light_off.stop();
   ms_vent_light_on.stop();
 
