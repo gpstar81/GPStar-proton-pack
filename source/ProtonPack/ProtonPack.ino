@@ -5596,11 +5596,8 @@ void checkWand() {
               packSerialSend(P_YEAR_AFTERLIFE);
             }
 
-            // Stop any music.
-            packSerialSend(P_MUSIC_STOP);
-            b_playing_music = false;
-            stopMusic();
-
+            // Sync the current music track.
+            // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
             packSerialSend(i_current_music_track);
 
             if(b_repeat_track == true) {
