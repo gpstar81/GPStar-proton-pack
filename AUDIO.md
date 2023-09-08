@@ -46,7 +46,7 @@ To add more music, copy stereo wav tracks (16-bit 44khz stereo wav files) onto t
 
 ## Troubleshooting
 
-From the Robertsonics [manual for the WavTrigger](https://static1.squarespace.com/static/62ab6e0d1f3ea036834d4a0b/t/63c331cab98b7f0d1d5fe04b/1673736656985/WT_UserGuide_20230114.pdf):
+[Manual for the WavTrigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/WT_UserGuide_20230602.pdf)
 
 If you have problems, here are a few things to check:
 
