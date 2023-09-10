@@ -1933,7 +1933,7 @@ void checkSwitches() {
 
             if(b_firing_intensify != true) {
               i_bsmash++;
-              ms_bsmash.start(i_bsmash_delay);
+              //ms_bsmash.start(i_bsmash_delay);
             }
 
             b_firing_intensify = true;  
@@ -1954,7 +1954,7 @@ void checkSwitches() {
 
               if(b_firing_alt != true) {
                 i_bsmash++;
-                ms_bsmash.start(i_bsmash_delay);
+                //ms_bsmash.start(i_bsmash_delay);
               }
 
               b_firing_alt = true;
@@ -2132,6 +2132,8 @@ void modeError() {
   playEffect(S_BEEPS);
 
   playEffect(S_BEEPS_BARGRAPH);
+
+  b_wand_smash_error = false;
 }
 
 void modeActivate() {

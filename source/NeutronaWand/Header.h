@@ -349,9 +349,9 @@ bool b_pack_ribbon_cable_on = true;
   Button smashing
 */
 millisDelay ms_bsmash;
-unsigned int i_bsmash_delay = 2000;
+unsigned int i_bsmash_delay = 2500;
 uint8_t i_bsmash = 0;
-uint8_t i_bsmash_max = 8;
+uint8_t i_bsmash_max = 5;
 bool b_wand_smash_error = false;
 
 /*
