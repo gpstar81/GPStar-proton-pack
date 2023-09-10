@@ -198,6 +198,8 @@ void setup() {
     }
   #endif
 
+  ms_bsmash.start(i_bsmash_delay);
+
   if(b_no_pack == true || b_debug == true) {
     b_wait_for_pack = false;
     b_pack_on = true;
@@ -233,6 +235,35 @@ void mainLoop() {
     modeFireStopSounds();
   }
 
+  if(WAND_ACTION_STATUS != ACTION_FIRING) {
+    if(ms_bsmash.remaining() < 1) {
+      // Clear counter until user begins firing (post any lock-out period).
+      i_bsmash_count = 0;
+
+      if(b_wand_smash_error == true) {
+        // Return the wand to a normal firing state after lock-out from button smashing.
+        b_wand_smash_error = false;
+        
+        WAND_STATUS = MODE_ON;
+        WAND_ACTION_STATUS = ACTION_IDLE;
+        
+        wandSerialSend(W_ON);
+        postActivation();
+
+        if(year_mode == 2021) {
+          playEffect(P_PACK_BOOTUP);
+        }
+
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          bargraphClearAlt();
+
+          // Re-enable the hat light on top of the gun box
+          digitalWrite(led_hat_2, HIGH);
+        #endif
+      }
+    }
+  }
+
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
     default:
@@ -261,6 +292,7 @@ void mainLoop() {
     break;
 
     case ACTION_OFF:
+      b_wand_smash_error = false;
       wandOff();
     break;
 
@@ -348,7 +380,7 @@ void mainLoop() {
           playEffect(S_BOOTUP);
 
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              if(year_mode == 2021) {
+              if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                 bargraphYearModeUpdate();
               }
               else {
@@ -1697,6 +1729,7 @@ void checkSwitches() {
 
     case MODE_ERROR:
       if(switch_activate.getState() == HIGH) {
+        b_wand_smash_error = false;
         wandOff();
       }
     break;
@@ -1772,9 +1805,9 @@ void checkSwitches() {
               #endif
 
               // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
-              // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
+              // 1984/1989 years will go in to a auto ramp and do not need a manual refresh or if b_bargraph_always_ramping is true, which makes it ramp in all modes.
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                if(year_mode == 2021 && b_28segment_bargraph == true) {
+                if(year_mode == 2021 && b_28segment_bargraph == true && b_bargraph_always_ramping != true) {
                   bargraphPowerCheck2021Alt(true);
                 }
               #endif
@@ -1906,44 +1939,73 @@ void checkSwitches() {
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
-          if(WAND_ACTION_STATUS != ACTION_FIRING) {
-            WAND_ACTION_STATUS = ACTION_FIRING;
-          }
-
-          b_firing_intensify = true;
+        if(i_bsmash_count >= i_bsmash_max) {
+          // User has exceeded "normal" firing rate.
+          b_wand_smash_error = true;
+          modeError();
+          ms_bsmash.start(i_bsmash_cool_down);
         }
-
-        // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
-        if(b_cross_the_streams == true) {
-          if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+        else {
+          if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_FIRING;
             }
 
-            b_firing_alt = true;
+            if(ms_bsmash.remaining() < 1) {
+              // Clear counter/timer until user begins firing.
+              i_bsmash_count = 0;
+              ms_bsmash.start(i_bsmash_delay);
+            }
+
+            if(b_firing_intensify != true) {
+              // Increase count eac time the user presses a firing button.
+              i_bsmash_count++;
+            }
+
+            b_firing_intensify = true;  
           }
-          //else if(switchMode() != true && ms_switch_mode_debounce.remaining() < 1) {
-          else if(b_switch_mode_pressed != true) {
-            if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+
+          // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
+          if(b_cross_the_streams == true) {
+            if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+              if(WAND_ACTION_STATUS != ACTION_FIRING) {
+                WAND_ACTION_STATUS = ACTION_FIRING;
+              }
+
+              if(ms_bsmash.remaining() < 1) {
+                // Clear counter/timer until user begins firing.
+                i_bsmash_count = 0;
+                ms_bsmash.start(i_bsmash_delay);
+              }
+
+              if(b_firing_alt != true) {
+                // Increase count eac time the user presses a firing button.
+                i_bsmash_count++;
+              }
+
+              b_firing_alt = true;
+            }
+            else if(b_switch_mode_pressed != true) {
+              if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+                WAND_ACTION_STATUS = ACTION_IDLE;
+              }
+
+              b_firing_alt = false;
+            }
+          }
+
+          if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
+            if(b_firing_alt != true) {
               WAND_ACTION_STATUS = ACTION_IDLE;
             }
 
-            b_firing_alt = false;
+            b_firing_intensify = false;
           }
-        }
-
-        if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
-          if(b_firing_alt != true) {
-            WAND_ACTION_STATUS = ACTION_IDLE;
-          }
-
-          b_firing_intensify = false;
         }
 
         if(switch_activate.getState() == HIGH) {
           WAND_ACTION_STATUS = ACTION_OFF;
-        }
+        }        
       }
       else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
         if(switch_activate.getState() == HIGH) {
@@ -1955,7 +2017,7 @@ void checkSwitches() {
 }
 
 void wandOff() {
-  if(WAND_ACTION_STATUS != ACTION_ERROR) {
+  if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_smash_error != true) {
     // Tell the pack the wand is turned off.
     wandSerialSend(W_OFF);
   }
@@ -2007,8 +2069,10 @@ void wandOff() {
   soundIdleStop();
   soundIdleLoopStop();
 
-  WAND_STATUS = MODE_OFF;
-  WAND_ACTION_STATUS = ACTION_IDLE;
+  if(b_wand_smash_error != true) {
+    WAND_STATUS = MODE_OFF;
+    WAND_ACTION_STATUS = ACTION_IDLE;
+  }
 
   vibrationOff();
 
@@ -2045,6 +2109,9 @@ void wandOff() {
   ms_settings_blinking.stop();
   ms_hat_1.stop();
   ms_hat_2.stop();
+  
+  // Clear counter until user begins firing.
+  i_bsmash_count = 0;
 
   // Turn off remaining lights.
   wandLightsOff();
@@ -2056,7 +2123,12 @@ void wandOff() {
 
     switch(year_mode) {
       case 2021:
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+        if(b_bargraph_always_ramping != true) {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+        }
+        else {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+        }
       break;
 
       case 1984:
@@ -2067,26 +2139,33 @@ void wandOff() {
   #endif
 }
 
+void modeError() {
+  wandOff();
+
+  WAND_STATUS = MODE_ERROR;
+  WAND_ACTION_STATUS = ACTION_ERROR;
+
+  ms_hat_2.start(i_hat_2_delay);
+
+  // This is used for controlling a bargraph beep in a boot up error.
+  ms_hat_1.start(i_hat_2_delay * 4);
+
+  ms_settings_blinking.start(i_settings_blinking_delay);
+
+  playEffect(S_BEEPS_LOW);
+
+  playEffect(S_BEEPS);
+
+  playEffect(S_BEEPS_BARGRAPH);
+}
+
 void modeActivate() {
   b_sound_afterlife_idle_2_fade = true;
 
   // The wand was started while the top switch was already on. Lets put the wand into a startup error mode.
   if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
-    ms_hat_2.start(i_hat_2_delay);
-
-    // This is used for controlling a bargraph beep in a boot up error.
-    ms_hat_1.start(i_hat_2_delay * 4);
-
-    WAND_STATUS = MODE_ERROR;
-    WAND_ACTION_STATUS = ACTION_ERROR;
-
-    ms_settings_blinking.start(i_settings_blinking_delay);
-
-    playEffect(S_BEEPS_LOW);
-
-    playEffect(S_BEEPS);
-
-    playEffect(S_BEEPS_BARGRAPH);
+    b_wand_smash_error = true;
+    modeError();
   }
   else {
     WAND_STATUS = MODE_ON;
@@ -2096,13 +2175,27 @@ void modeActivate() {
 
     // Tell the pack the wand is turned on.
     wandSerialSend(W_ON);
+
+    // Clear counter until user begins firing.
+    i_bsmash_count = 0;
   }
 
+  b_wand_smash_error = false;
+
+  postActivation(); // Enable lights and bargraph after wand activation.
+}
+
+void postActivation() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     // Ramp up the bargraph.
     switch(year_mode) {
       case 2021:
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+        if(b_bargraph_always_ramping != true) {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+        }
+        else {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
+        }
       break;
 
       case 1984:
@@ -2636,11 +2729,17 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams == true) {
     switch(year_mode) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);      
+
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
@@ -2676,7 +2775,12 @@ void modeFireStop() {
 
     switch(year_mode) {
       case 2021:
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+        if(b_bargraph_always_ramping != true) {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+        }
+        else {
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+        }
       break;
 
       case 1984:
@@ -2863,12 +2967,18 @@ void modeFiring() {
     b_sound_firing_cross_the_streams = true;
 
     switch(year_mode) {
-      case 2021:
+      case 2021:      
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_END);
+        stopEffect(S_CROSS_STREAMS_START);
+        
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
       break;
     }
@@ -2904,11 +3014,17 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
@@ -2925,11 +3041,17 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
@@ -4234,7 +4356,7 @@ void bargraphPowerCheck() {
       if(ms_bargraph_alt.justFinished()) {
         uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
 
-        if(year_mode == 2021) {
+        if(year_mode == 2021 && b_bargraph_always_ramping != true) {
           for(uint8_t i = 0; i <= 4; i++) {
             i_bargraph_multiplier[i] = 10;
           }
@@ -4250,7 +4372,7 @@ void bargraphPowerCheck() {
 
                 i_bargraph_status_alt = 27;
 
-                if(year_mode == 2021) {
+                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4268,7 +4390,7 @@ void bargraphPowerCheck() {
               if(i_bargraph_status_alt > 21) {
                 b_bargraph_up = false;
 
-                if(year_mode == 2021) {
+                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4285,7 +4407,7 @@ void bargraphPowerCheck() {
             case 3:
               if(i_bargraph_status_alt > 16) {
                 b_bargraph_up = false;
-                if(year_mode == 2021) {
+                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4302,7 +4424,7 @@ void bargraphPowerCheck() {
             case 2:
               if(i_bargraph_status_alt > 10) {
                 b_bargraph_up = false;
-                if(year_mode == 2021) {
+                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4319,7 +4441,7 @@ void bargraphPowerCheck() {
             case 1:
               if(i_bargraph_status_alt > 4) {
                 b_bargraph_up = false;
-                if(year_mode == 2021) {
+                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4352,7 +4474,7 @@ void bargraphPowerCheck() {
 
             switch(i_power_mode) {
               case 5:
-                if(year_mode == 2021 && i_bargraph_status_alt < 27) {
+                if(year_mode == 2021 && i_bargraph_status_alt < 27 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4362,7 +4484,7 @@ void bargraphPowerCheck() {
               break;
 
               case 4:
-                if(year_mode == 2021 && i_bargraph_status_alt < 22) {
+                if(year_mode == 2021 && i_bargraph_status_alt < 22 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4372,7 +4494,7 @@ void bargraphPowerCheck() {
               break;
 
               case 3:
-                if(year_mode == 2021 && i_bargraph_status_alt < 17) {
+                if(year_mode == 2021 && i_bargraph_status_alt < 17 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4382,7 +4504,7 @@ void bargraphPowerCheck() {
               break;
 
               case 2:
-                if(year_mode == 2021 && i_bargraph_status_alt < 11) {
+                if(year_mode == 2021 && i_bargraph_status_alt < 11 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4392,7 +4514,7 @@ void bargraphPowerCheck() {
               break;
 
               case 1:
-                if(year_mode == 2021 && i_bargraph_status_alt < 5) {
+                if(year_mode == 2021 && i_bargraph_status_alt < 5 && b_bargraph_always_ramping != true) {
                   // In 2021 mode, we stop when we reach our target.
                   ms_bargraph_alt.stop();
                 }
@@ -4484,7 +4606,9 @@ void bargraphRampUp() {
             // Adjust the ramp down speed if necessary.
             switch(year_mode) {
               case 2021:
-                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+                if(b_bargraph_always_ramping != true) {
+                  i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+                }
               break;
 
               case 1984:
@@ -4520,14 +4644,14 @@ void bargraphRampUp() {
             }
           }
           else {
-            if((i_power_mode < 5 && year_mode == 2021) || year_mode == 1984 || year_mode == 1989) {
+            if((i_power_mode < 5 && year_mode == 2021) || year_mode == 1984 || year_mode == 1989 || b_bargraph_always_ramping == true) {
               ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
             }
 
             switch(year_mode) {
               case 1984:
               case 1989:
-                // Bargraph has ramped up and down. In 1984 mode we want to start the ramping.
+                // Bargraph has ramped up and down. In 1984/1989 mode we want to start the ramping.
                 if(i_bargraph_status_alt == 54) {
                   ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
                   ms_bargraph.stop();
@@ -4545,84 +4669,102 @@ void bargraphRampUp() {
               break;
 
               case 2021:
-                switch(i_power_mode) {
-                  case 5:
-                    // Stop any power check in 2021 if we are already in level 5.
-                    ms_bargraph_alt.stop();
-
+                if(b_bargraph_always_ramping == true) {
+                  // Bargraph has ramped up and down. If bargraph overriden to always ramp, lets start the ramping.
+                  if(i_bargraph_status_alt == 54) {
+                    ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
                     ms_bargraph.stop();
-                    b_bargraph_up = false;
-                    i_bargraph_status_alt = 27;
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 0;
                     bargraphYearModeUpdate();
-                    vibrationWand(i_vibration_level + 25);
-                  break;
 
-                  case 4:
-                    if(i_bargraph_status_alt == 31) {
-                      ms_bargraph.stop();
-                      b_bargraph_up = false;
-                      i_bargraph_status_alt = 23;
-                      bargraphYearModeUpdate();
-
-                      vibrationWand(i_vibration_level + 30);
-                    }
-                    else {
-                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                      i_bargraph_status_alt++;
-
-                      vibrationWand(i_vibration_level + 12);
-                    }
-                  break;
-
-                  case 3:
-                    if(i_bargraph_status_alt == 37) {
-                      ms_bargraph.stop();
-                      b_bargraph_up = false;
-                      i_bargraph_status_alt = 17;
-                      bargraphYearModeUpdate();
-
-                      vibrationWand(i_vibration_level + 10);
-                    }
-                    else {
-                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                      i_bargraph_status_alt++;
-
-                      vibrationWand(i_vibration_level + 20);
-                    }
-                  break;
-
-                  case 2:
-                    if(i_bargraph_status_alt == 43) {
-                      ms_bargraph.stop();
-                      b_bargraph_up = false;
-                      i_bargraph_status_alt = 11;
-                      bargraphYearModeUpdate();
-
-                      vibrationWand(i_vibration_level + 5);
-                    }
-                    else {
-                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                      i_bargraph_status_alt++;
-
-                      vibrationWand(i_vibration_level + 10);
-                    }
-                  break;
-
-                  case 1:
                     vibrationWand(i_vibration_level);
+                  }
+                  else {
+                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                    i_bargraph_status_alt++;
+                  }
+                }
+                else {
+                  switch(i_power_mode) {
+                    case 5:
+                      // Stop any power check in 2021 if we are already in level 5.
+                      ms_bargraph_alt.stop();
 
-                    if(i_bargraph_status_alt == 49) {
                       ms_bargraph.stop();
                       b_bargraph_up = false;
-                      i_bargraph_status_alt = 5;
-
+                      i_bargraph_status_alt = 27;
                       bargraphYearModeUpdate();
-                    }
-                    else {
-                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                      i_bargraph_status_alt++;
-                    }
-                  break;
+                      vibrationWand(i_vibration_level + 25);
+                    break;
+
+                    case 4:
+                      if(i_bargraph_status_alt == 31) {
+                        ms_bargraph.stop();
+                        b_bargraph_up = false;
+                        i_bargraph_status_alt = 23;
+                        bargraphYearModeUpdate();
+
+                        vibrationWand(i_vibration_level + 30);
+                      }
+                      else {
+                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                        i_bargraph_status_alt++;
+
+                        vibrationWand(i_vibration_level + 12);
+                      }
+                    break;
+
+                    case 3:
+                      if(i_bargraph_status_alt == 37) {
+                        ms_bargraph.stop();
+                        b_bargraph_up = false;
+                        i_bargraph_status_alt = 17;
+                        bargraphYearModeUpdate();
+
+                        vibrationWand(i_vibration_level + 10);
+                      }
+                      else {
+                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                        i_bargraph_status_alt++;
+
+                        vibrationWand(i_vibration_level + 20);
+                      }
+                    break;
+
+                    case 2:
+                      if(i_bargraph_status_alt == 43) {
+                        ms_bargraph.stop();
+                        b_bargraph_up = false;
+                        i_bargraph_status_alt = 11;
+                        bargraphYearModeUpdate();
+
+                        vibrationWand(i_vibration_level + 5);
+                      }
+                      else {
+                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                        i_bargraph_status_alt++;
+
+                        vibrationWand(i_vibration_level + 10);
+                      }
+                    break;
+
+                    case 1:
+                      vibrationWand(i_vibration_level);
+
+                      if(i_bargraph_status_alt == 49) {
+                        ms_bargraph.stop();
+                        b_bargraph_up = false;
+                        i_bargraph_status_alt = 5;
+
+                        bargraphYearModeUpdate();
+                      }
+                      else {
+                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                        i_bargraph_status_alt++;
+                      }
+                    break;
+                  }
                 }
               break;
             }
@@ -4793,7 +4935,7 @@ void prepBargraphRampUp() {
     // Prepare a few things before ramping the bargraph back up from a full ramp down.
     if(b_overheat_bargraph_blink != true) {
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(year_mode == 2021) {
+        if(year_mode == 2021 && b_bargraph_always_ramping != true) {
           bargraphYearModeUpdate();
         }
         else {
@@ -4804,7 +4946,7 @@ void prepBargraphRampUp() {
       // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
       // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(year_mode == 2021 && b_28segment_bargraph == true) {
+        if(year_mode == 2021 && b_28segment_bargraph == true && b_bargraph_always_ramping != true) {
           bargraphPowerCheck2021Alt(false);
         }
       #endif
@@ -4819,7 +4961,13 @@ void prepBargraphRampUp() {
   void bargraphYearModeUpdate() {
     switch(year_mode) {
       case 2021:
-        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+        if(b_bargraph_always_ramping != true) {
+          i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+        }
+        else {
+          // If the bargraph setting is overriden so we have 1984/1989 constant ramping for afterlife, lets change the setting to match 1984/1989.
+          i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
+        }
       break;
 
       case 1984:
@@ -5750,9 +5898,11 @@ void checkPack() {
                 // Turn wand off.
                 if(WAND_STATUS != MODE_OFF) {
                   if(WAND_STATUS == MODE_ERROR) {
+                    b_wand_smash_error = false;
                     wandOff();
                   }
                   else {
+                    b_wand_smash_error = false;
                     WAND_ACTION_STATUS = ACTION_OFF;
                   }
                 }
