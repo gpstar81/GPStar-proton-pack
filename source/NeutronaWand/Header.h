@@ -39,13 +39,13 @@ CRGB barrel_leds[BARREL_NUM_LEDS];
 /*
  * Delay for fastled to update the addressable LEDs. 
  * We have up to 5 addressable LEDs in the wand barrel.
- * 0.03 ms to update 1 LED. So 0.15 ms should be ok? Lets bump it up to 3 just in case.
+ * 0.03 ms to update 1 LED. So 0.15 ms should be okay? Let's bump it up to 3 just in case.
  */
 const uint8_t i_fast_led_delay = 3;
 millisDelay ms_fast_led;
 
 /* 
- *  Wav trigger
+ *  WAV Trigger
  */
 wavTrigger w_trig;
 unsigned int i_music_count = 0;
@@ -82,9 +82,9 @@ uint8_t i_vibration_level = i_vibration_level_min;
 uint8_t i_vibration_level_prev = 0;
 
 /*
- * Enable or disable vibration control for the Neutrona wand.
- * When set to false, there will be no vibration enabled for the Neutrona wand. 
- * This is toggled by the proton pack vibration toggle switch.
+ * Enable or disable vibration control for the Neutrona Wand.
+ * When set to false, there will be no vibration enabled for the Neutrona Wand. 
+ * This is toggled by the Proton Pack vibration toggle switch.
 */
 bool b_vibration_enabled = true;
 
@@ -148,7 +148,7 @@ uint8_t i_bargraph_status = 0;
 /*
  * (Optional) Barmeter 28 segment bargraph configuration and timers.
  * Part #: BL28Z-3005SA04Y
-  * Only supported by the gpstar Neutrona Wand micro controller.
+  * Only supported by the gpstar Neutrona Wand microcontroller.
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   HT16K33 ht_bargraph;
@@ -161,7 +161,7 @@ uint8_t i_bargraph_status = 0;
  * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
  * Set to false if you are using the stock Hasbro bargraph.
  * Part #: BL28Z-3005SA04Y
- * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
+ * Only compatible with the gpstar Neutrona Wand board, and not an Arduino Nano.
 */
 bool b_28segment_bargraph = false;
 
@@ -180,7 +180,7 @@ bool b_28segment_bargraph = false;
 /*
  * (Optional) Barmeter 28 segment bargraph mapping.
  * Part #: BL28Z-3005SA04Y
- * Only supported by the gpstar Neutrona Wand micro controller.
+ * Only supported by the gpstar Neutrona Wand microcontroller.
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   #ifdef GPSTAR_INVERT_BARGRAPH
@@ -237,7 +237,7 @@ const uint8_t i_hat_1_delay = 100;
 const unsigned int i_hat_2_delay = 400;
 
 /* 
- *  A timer for controlling the wand beep. in 2021 mode.
+ *  A timer for controlling the wand beep in 2021 mode.
  */
 millisDelay ms_reset_sound_beep;
 const uint8_t i_sound_timer = 50;
@@ -311,7 +311,7 @@ bool b_pack_alarm = false;
 bool b_wait_for_pack = true;
 bool b_volume_sync_wait = false;
 bool b_sync = false;
-uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the cyclotron lights.
+uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
 
 /*
  * Volume sync status with the pack.
@@ -346,6 +346,19 @@ bool b_sound_afterlife_idle_2_fade = true;
 bool b_pack_ribbon_cable_on = true;
 
 /*
+ * Button Mashing Lock-out - Prevents excessive user input via the primary/secondary firing buttons.
+ * This ensures that the user is not exceeding what would be considered "normal" for firing of the wand,
+ * otherwise an error mode will be engaged to provide a cool-down period. This does not apply to any
+ * prolonged firing which would trigger the overheat or venting sequences; only rapid firing bursts.
+ */
+millisDelay ms_bmash;
+unsigned int i_bmash_delay = 3000;     // Time period in which we consider rapid firing
+unsigned int i_bmash_cool_down = 3200; // Time period for the lock-out of user input
+uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts
+uint8_t i_bmash_max = 5;               // Burst count we consider before the lock-out
+bool b_wand_mash_error = false;        // Indicates wand is in a lock-out phase
+
+/*
  * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
  * When false, the bargraph will ramp down instead.
  * Removing this feature eventually....
@@ -367,5 +380,5 @@ void playMusic();
   const uint8_t led_hat_2 = 23; // Hat light at top of the wand body. (Red LED)
   const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
 #else
-  const uint8_t led_slo_blo = 5; // There are 2 LED's attached to this pin when using a Arduino Nano. The slo-blo LED and the orange light on the front of the wand body (front_lef).
+  const uint8_t led_slo_blo = 5; // There are 2 LEDs attached to this pin when using an Arduino Nano. The slo-blo LED and the orange light on the front of the wand body (front_left).
 #endif

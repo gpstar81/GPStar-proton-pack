@@ -47,12 +47,12 @@
 
 /*
   ***** IMPORTANT *****
-  * You no longer need to edit and configure the wavTrigger.h anymore.
-  * Please make sure your Wav Trigger devices are running firmware version 1.40 or higher. 
+  * You no longer need to edit and configure wavTrigger.h anymore.
+  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher. 
   * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
   https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
 
-  * Information on how to update your Wav Trigger devices can be found on the gpstar github repository.
+  * Information on how to update your WAV Trigger devices can be found on the gpstar github repository.
   https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
 */
 #include "wavTrigger.h"
@@ -74,7 +74,7 @@
 void setup() {
   Serial.begin(9600);
 
-  // Enable Serial1 if compiling for the gpstar Neutrona Wand micro controller.
+  // Enable Serial1 if compiling for the gpstar Neutrona Wand microcontroller.
   #ifdef HAVE_HWSERIAL1
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       Serial1.begin(9600);
@@ -87,7 +87,7 @@ void setup() {
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
 
-  // Setup the Wav Trigger.
+  // Setup the WAV Trigger.
   setupWavTrigger();
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
@@ -160,9 +160,9 @@ void setup() {
 
   pinMode(led_slo_blo, OUTPUT);
 
-  // Extra optional items if using them with the gpstar Neutrona Wand micro controller.
+  // Extra optional items if using them with the gpstar Neutrona Wand microcontroller.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand micro controller, it is wired to it's own pin. When using a Arduino Nano, it is linked with led_slo_blo.
+    pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand microcontroller, it is wired to its own pin. When using an Arduino Nano, it is linked with led_slo_blo.
     pinMode(led_hat_1, OUTPUT); // Hat light at front of the wand near the barrel tip.
     pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body.
     pinMode(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
@@ -198,6 +198,8 @@ void setup() {
     }
   #endif
 
+  ms_bmash.start(i_bmash_delay);
+
   if(b_no_pack == true || b_debug == true) {
     b_wait_for_pack = false;
     b_pack_on = true;
@@ -207,7 +209,7 @@ void setup() {
 void loop() {
   if(b_wait_for_pack == true) {
     if(b_volume_sync_wait != true) {
-      // Handshake with the pack. Telling the pack that we are here.
+      // Handshake with the pack telling the pack that we are here.
       wandSerialSend(W_HANDSHAKE);
     }
 
@@ -233,6 +235,35 @@ void mainLoop() {
     modeFireStopSounds();
   }
 
+  if(WAND_ACTION_STATUS != ACTION_FIRING) {
+    if(ms_bmash.remaining() < 1) {
+      // Clear counter until user begins firing (post any lock-out period).
+      i_bmash_count = 0;
+
+      if(b_wand_mash_error == true) {
+        // Return the wand to a normal firing state after lock-out from button mashing.
+        b_wand_mash_error = false;
+        
+        WAND_STATUS = MODE_ON;
+        WAND_ACTION_STATUS = ACTION_IDLE;
+        
+        wandSerialSend(W_ON);
+        postActivation();
+
+        if(year_mode == 2021) {
+          playEffect(P_PACK_BOOTUP);
+        }
+
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          bargraphClearAlt();
+
+          // Re-enable the hat light on top of the gun box
+          digitalWrite(led_hat_2, HIGH);
+        #endif
+      }
+    }
+  }
+
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
     default:
@@ -246,7 +277,7 @@ void mainLoop() {
 
             case 2021:
                 if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-                  // Ready to fire, the hat light LED at the barrel tip lights up in Afterlife mode.
+                  // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
                   if(switchBarrel() != true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
                     digitalWrite(led_hat_1, HIGH);
                   }
@@ -261,12 +292,13 @@ void mainLoop() {
     break;
 
     case ACTION_OFF:
+      b_wand_mash_error = false;
       wandOff();
     break;
 
     case ACTION_FIRING:
       if(FIRING_MODE == VENTING) {
-        // If we are in venting mode, lets trigger a vent sequence.
+        // If we are in venting mode, let's trigger a vent sequence.
         startVentSequence();
       }
       else if(b_pack_on == true && b_pack_alarm == false) {
@@ -388,8 +420,8 @@ void mainLoop() {
         settingsBlinkingLights();
 
         switch(i_wand_menu) {
-          // Intesify: Clear the Proton Pack EEPROM settings and exit.
-          // Mode switch: Save the current settings to the Proton Pack EEPROM and exit.
+          // Intensify: Clear the Proton Pack EEPROM settings and exit.
+          // Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
           case 5:
             // Tell the Proton Pack to clear the EEPROM settings and exit.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
@@ -421,7 +453,7 @@ void mainLoop() {
           break;
 
           // Intensify: Cycle through the different Cyclotron LED counts.
-          // Barrel Wing Switch: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotary();
+          // Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotary();
           case 4:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -430,8 +462,8 @@ void mainLoop() {
             }
           break;
 
-          // Intensify: Cycle through the different Powercell LED counts.
-          // Barrel Wing Switch: Adjust the Power Cell colour hue. <- Controlled by checkRotary();
+          // Intensify: Cycle through the different Power Cell LED counts.
+          // Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotary();
           case 3:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -441,7 +473,7 @@ void mainLoop() {
           break;
 
           // Intensify: Cycle through the different inner Cyclotron LED counts.
-          // Barrel Wing Switch: Adjust the Cyclotron colour hue. <- Controlled by checkRotary();
+          // Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotary();
           case 2:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -451,7 +483,7 @@ void mainLoop() {
           break;
 
           // Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
-          // Barrel Wing Switch: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotary();
+          // Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotary();
           case 1:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -466,14 +498,14 @@ void mainLoop() {
         settingsBlinkingLights();
 
         switch(i_wand_menu) {
-          // Intesify: Clear the Neutrona Wand EEPROM settings and exit.
-          // Barrel Wing Switch: Save the current settings to the Neutrona Wand EEPROM and exit.
+          // Intensify: Clear the Neutrona Wand EEPROM settings and exit.
+          // Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
           case 5:
             // Tell the Neutrona Wand to clear the EEPROM settings and exit.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
 
-              // Tell the Proton Pack to clear it's current configuration from the EEPROM.
+              // Tell the Proton Pack to clear its current configuration from the EEPROM.
               // Proton Stream Impact Effects / 3 LED mode in 1984/1989
               wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
 
@@ -486,7 +518,7 @@ void mainLoop() {
               wandExitEEPROMMenu();
             }
             else if(switchMode() == true) {
-              // Tell the Proton Pack to save it's current configuration to the EEPROM.
+              // Tell the Proton Pack to save its current configuration to the EEPROM.
               // Proton Stream Impact Effects / 3 LED mode in 1984/1989
               wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
 
@@ -501,7 +533,7 @@ void mainLoop() {
           break;
 
           // Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
-          // Barrel Wing Switch: Enable Spectral and Holiday modes.
+          // Barrel Wing Button: Enable Spectral and Holiday modes.
           case 4:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -538,7 +570,7 @@ void mainLoop() {
           break;
 
           // Intensify: Enable or Disable overheating settings.
-          // Barrel Wing Switch: Enable or disable smoke.
+          // Barrel Wing Button: Enable or disable smoke.
           case 3:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -553,12 +585,12 @@ void mainLoop() {
           break;
 
           // Intensify: Change the Cyclotron direction.
-          // Barrel Wing Switch: Enable the simulation of a ring for the Cyclotron lid.
+          // Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
           case 2:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
 
-              // Tell the Proton Pack to change the cyclotron rotation direction.
+              // Tell the Proton Pack to change the Cyclotron rotation direction.
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
 
@@ -569,7 +601,7 @@ void mainLoop() {
           break;
 
           // Intensify: Enable or disable Proton Stream Impact Effects.
-          // Barrel Wing Switch: Enable or disable extra Neutrona Wand Sounds.
+          // Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
           case 1:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -607,7 +639,7 @@ void mainLoop() {
       switch(i_wand_menu) {
         // Top menu: Music track loop setting.
         // Sub menu: Enable or disable crossing the streams / video game modes.
-        // Sub menu: (Mode switch) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs. (when video game mode is selected).
+        // Sub menu: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
         case 5:
         // Music track loop setting.
         if(b_wand_menu_sub != true) {
@@ -646,11 +678,11 @@ void mainLoop() {
         break;
 
         // Top menu: (Intensify + Top dial) Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
-        // Top menu: (Mode Switch) Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
+        // Top menu: (Barrel Wing Button) Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
         // Sub menu: Enable or disable smoke for the Proton Pack.
-        // Sub menu: (Mode switch) -> Enable or disable overheating.
+        // Sub menu: (Barrel Wing Button) -> Enable or disable overheating.
         case 4:
-          // Adjust the Proton Pack / Neutrona wand sound effects volume.
+          // Adjust the Proton Pack / Neutrona Wand sound effects volume.
           if(b_wand_menu_sub != true) {
             // Cycle through the dimming modes in the Proton Pack. (Power Cell, Cyclotron and Inner Cyclotron). Actual control of the dimming is handled in checkRotary().
             if(switchMode() == true) {
@@ -674,18 +706,18 @@ void mainLoop() {
           }
         break;
 
-        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona wand sound effects. (Mode switch + top dial) Adjust Proton Pack / Neutrona Wand music volume.
-        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona wand sound effects. (Mode switch + top dial) Adjust Proton Pack / Neutrona Wand music volume.
-        // Sub menu: Toggle cyclotron rotation direction.
-        // Sub menu: (Mode switch) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
+        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
+        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
+        // Sub menu: Toggle Cyclotron rotation direction.
+        // Sub menu: (Barrel Wing Button) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
         case 3:
           // Top menu code is handled in checkRotary();
-          // Sub menu. Adjust cyclotron settings.
+          // Sub menu. Adjust Cyclotron settings.
           if(b_wand_menu_sub == true) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              // Tell the Proton Pack to change the cyclotron rotation direction.
+              // Tell the Proton Pack to change the Cyclotron rotation direction.
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
 
@@ -698,7 +730,7 @@ void mainLoop() {
 
         // Top menu: Change music tracks.
         // Sub menu: Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
-        // Sub menu: (Mode switch) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
+        // Sub menu: (Barrel Wing Button) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
         case 2:
           // Change music tracks.
           if(b_wand_menu_sub != true) {
@@ -761,7 +793,7 @@ void mainLoop() {
             }
           }
           else {
-            // Enable or disable vibration for the Pack or during firing only.
+            // Enable or disable vibration for the pack or during firing only.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
@@ -827,9 +859,9 @@ void mainLoop() {
         break;
 
         // Top menu: Play music or stop music.
-        // Top menu: (Mode Switch). Mute the Proton Pack and Neutrona Wand.
+        // Top menu: (Barrel Wing Button). Mute the Proton Pack and Neutrona Wand.
         // Sub menu: (Intensify) -> Switch between 1984/1989/Afterlife mode.
-        // Sub Menu: (Mode Switch) -> Enable or disable Proton Stream impact effects.
+        // Sub Menu: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
         case 1:
           // Play or stop the current music track.
           if(b_wand_menu_sub != true) {
@@ -858,7 +890,7 @@ void mainLoop() {
               }
             }
 
-            // Silent the Proton Pack or Neutrona Wand or revert back.
+            // Silence the Proton Pack or Neutrona Wand or revert back.
             if(switchMode() == true) {
               if(i_volume_master == i_volume_abs_min) {
                 wandSerialSend(W_VOLUME_REVERT);
@@ -889,7 +921,7 @@ void mainLoop() {
 
               playEffect(S_BEEPS_BARGRAPH);
 
-              // There is no pack connected, lets change the years.
+              // There is no pack connected; let's change the years.
               if(b_no_pack == true) {
                 if(year_mode == 1984) {
                   year_mode = 1989;
@@ -922,7 +954,7 @@ void mainLoop() {
             }
 
             if(switchMode() == true) {
-              // Tell the Proton Pack to toggle the Proton Stream impact effects.
+              // Tell the Proton Pack to toggle the Proton Stream Impact Effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
             }
           }
@@ -1062,7 +1094,7 @@ void mainLoop() {
         vibrationSetting();
       }
 
-      // Hat light 2 blinking when the Pack ribbon cable has been removed.
+      // Hat light 2 blinking when the pack ribbon cable has been removed.
       if(b_pack_alarm == true) {
         if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -1082,7 +1114,7 @@ void mainLoop() {
       else {
         if(ms_hat_1.isRunning() != true) {
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            // Hat 2 stays solid while the Neutrona Wand is on. It will blink though when about to overheat.
+            // Hat 2 stays solid while the Neutrona Wand is on. It will blink when about to overheat.
             digitalWrite(led_hat_2, HIGH);
           #endif
         }
@@ -1098,7 +1130,7 @@ void mainLoop() {
           if(FIRING_MODE == VENTING) {
             analogWrite(led_slo_blo, 255);
 
-            // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
+            // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
             #ifdef GPSTAR_NEUTRONA_WAND_PCB
               analogWrite(led_front_left, 255);
             #endif
@@ -1111,7 +1143,7 @@ void mainLoop() {
           if(FIRING_MODE == VENTING) {
             analogWrite(led_slo_blo, 0);
 
-            // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
+            // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
             #ifdef GPSTAR_NEUTRONA_WAND_PCB
               analogWrite(led_front_left, 0);
             #endif
@@ -1120,7 +1152,7 @@ void mainLoop() {
       }
 
       if(b_pack_alarm != true) {
-        // Ramp the bargraph up ramp down back to the default power level setting on a fresh start.
+        // Ramp the bargraph up then ramp down back to the default power level setting on a fresh start.
         if(ms_bargraph.justFinished()) {
           bargraphRampUp();
         }
@@ -1164,7 +1196,7 @@ void mainLoop() {
     #endif
   }
 
-  // Check the wing barrel switch button status.
+  // Check the Barrel Wing Button button status.
   switchModePressedReset();
 
   // Update the barrel LEDs.
@@ -1220,7 +1252,7 @@ void toggleWandModes() {
 
     playEffect(S_VOICE_VIDEO_GAME_MODES);
 
-    // Tell the proton pack to reset back to the proton stream.
+    // Tell the Proton Pack to reset back to the proton stream.
     wandSerialSend(W_PROTON_MODE_REVERT);
   }
   else if(b_cross_the_streams == true && b_cross_the_streams_mix != true) {
@@ -1240,7 +1272,7 @@ void toggleWandModes() {
 
     playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
 
-    // Tell the proton pack to reset back to the proton stream.
+    // Tell the Proton Pack to reset back to the proton stream.
     wandSerialSend(W_RESET_PROTON_STREAM_MIX);
   }
   else {
@@ -1258,7 +1290,7 @@ void toggleWandModes() {
 
     playEffect(S_VOICE_CROSS_THE_STREAMS);
 
-    // Tell the proton pack to reset back to the proton stream.
+    // Tell the Proton Pack to reset back to the proton stream.
     wandSerialSend(W_RESET_PROTON_STREAM);
   }
 
@@ -1697,12 +1729,13 @@ void checkSwitches() {
 
     case MODE_ERROR:
       if(switch_activate.getState() == HIGH) {
+        b_wand_mash_error = false;
         wandOff();
       }
     break;
 
     case MODE_ON:
-      // This is for when the mode switch is enabled for video game mode. b_cross_the_streams must not be enabled.
+      // This is for when the Wand Barrel Switch is enabled for video game mode. b_cross_the_streams must not be enabled.
       if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_pack_alarm != true) {
         if(switchMode() == true) {
           // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
@@ -1784,7 +1817,7 @@ void checkSwitches() {
             if(FIRING_MODE != VENTING) {
               analogWrite(led_slo_blo, 255);
 
-              // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
+              // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
                 analogWrite(led_front_left, 255);
               #endif
@@ -1836,7 +1869,7 @@ void checkSwitches() {
                   WAND_ACTION_STATUS = ACTION_IDLE;
                   wandHeatUp();
 
-                  // Tell the pack we are in spectral mode.
+                  // Tell the pack we are in spectral custom mode.
                   wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
                 break;
               #endif
@@ -1906,39 +1939,68 @@ void checkSwitches() {
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
-          if(WAND_ACTION_STATUS != ACTION_FIRING) {
-            WAND_ACTION_STATUS = ACTION_FIRING;
-          }
-
-          b_firing_intensify = true;
+        if(i_bmash_count >= i_bmash_max) {
+          // User has exceeded "normal" firing rate.
+          b_wand_mash_error = true;
+          modeError();
+          ms_bmash.start(i_bmash_cool_down);
         }
-
-        // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
-        if(b_cross_the_streams == true) {
-          if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+        else {
+          if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_FIRING;
             }
 
-            b_firing_alt = true;
+            if(ms_bmash.remaining() < 1) {
+              // Clear counter/timer until user begins firing.
+              i_bmash_count = 0;
+              ms_bmash.start(i_bmash_delay);
+            }
+
+            if(b_firing_intensify != true) {
+              // Increase count eac time the user presses a firing button.
+              i_bmash_count++;
+            }
+
+            b_firing_intensify = true;
           }
-          //else if(switchMode() != true && ms_switch_mode_debounce.remaining() < 1) {
-          else if(b_switch_mode_pressed != true) {
-            if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+
+          // When the Barrel Wing Button is changed to a alternate firing button, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
+          if(b_cross_the_streams == true) {
+            if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+              if(WAND_ACTION_STATUS != ACTION_FIRING) {
+                WAND_ACTION_STATUS = ACTION_FIRING;
+              }
+
+              if(ms_bmash.remaining() < 1) {
+                // Clear counter/timer until user begins firing.
+                i_bmash_count = 0;
+                ms_bmash.start(i_bmash_delay);
+              }
+
+              if(b_firing_alt != true) {
+                // Increase count eac time the user presses a firing button.
+                i_bmash_count++;
+              }
+
+              b_firing_alt = true;
+            }
+            else if(b_switch_mode_pressed != true) {
+              if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+                WAND_ACTION_STATUS = ACTION_IDLE;
+              }
+
+              b_firing_alt = false;
+            }
+          }
+
+          if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
+            if(b_firing_alt != true) {
               WAND_ACTION_STATUS = ACTION_IDLE;
             }
 
-            b_firing_alt = false;
+            b_firing_intensify = false;
           }
-        }
-
-        if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
-          if(b_firing_alt != true) {
-            WAND_ACTION_STATUS = ACTION_IDLE;
-          }
-
-          b_firing_intensify = false;
         }
 
         if(switch_activate.getState() == HIGH) {
@@ -1955,7 +2017,7 @@ void checkSwitches() {
 }
 
 void wandOff() {
-  if(WAND_ACTION_STATUS != ACTION_ERROR) {
+  if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_mash_error != true) {
     // Tell the pack the wand is turned off.
     wandSerialSend(W_OFF);
   }
@@ -2007,8 +2069,10 @@ void wandOff() {
   soundIdleStop();
   soundIdleLoopStop();
 
-  WAND_STATUS = MODE_OFF;
-  WAND_ACTION_STATUS = ACTION_IDLE;
+  if(b_wand_mash_error != true) {
+    WAND_STATUS = MODE_OFF;
+    WAND_ACTION_STATUS = ACTION_IDLE;
+  }
 
   vibrationOff();
 
@@ -2045,6 +2109,9 @@ void wandOff() {
   ms_settings_blinking.stop();
   ms_hat_1.stop();
   ms_hat_2.stop();
+  
+  // Clear counter until user begins firing.
+  i_bmash_count = 0;
 
   // Turn off remaining lights.
   wandLightsOff();
@@ -2072,26 +2139,33 @@ void wandOff() {
   #endif
 }
 
+void modeError() {
+  wandOff();
+
+  WAND_STATUS = MODE_ERROR;
+  WAND_ACTION_STATUS = ACTION_ERROR;
+
+  ms_hat_2.start(i_hat_2_delay);
+
+  // This is used for controlling a bargraph beep in a boot up error.
+  ms_hat_1.start(i_hat_2_delay * 4);
+
+  ms_settings_blinking.start(i_settings_blinking_delay);
+
+  playEffect(S_BEEPS_LOW);
+
+  playEffect(S_BEEPS);
+
+  playEffect(S_BEEPS_BARGRAPH);
+}
+
 void modeActivate() {
   b_sound_afterlife_idle_2_fade = true;
 
-  // The wand was started while the top switch was already on. Lets put the wand into a startup error mode.
+  // The wand was started while the top switch was already on, so let's put the wand into a startup error mode.
   if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
-    ms_hat_2.start(i_hat_2_delay);
-
-    // This is used for controlling a bargraph beep in a boot up error.
-    ms_hat_1.start(i_hat_2_delay * 4);
-
-    WAND_STATUS = MODE_ERROR;
-    WAND_ACTION_STATUS = ACTION_ERROR;
-
-    ms_settings_blinking.start(i_settings_blinking_delay);
-
-    playEffect(S_BEEPS_LOW);
-
-    playEffect(S_BEEPS);
-
-    playEffect(S_BEEPS_BARGRAPH);
+    b_wand_mash_error = true;
+    modeError();
   }
   else {
     WAND_STATUS = MODE_ON;
@@ -2101,8 +2175,17 @@ void modeActivate() {
 
     // Tell the pack the wand is turned on.
     wandSerialSend(W_ON);
+
+    // Clear counter until user begins firing.
+    i_bmash_count = 0;
   }
 
+  b_wand_mash_error = false;
+
+  postActivation(); // Enable lights and bargraph after wand activation.
+}
+
+void postActivation() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     // Ramp up the bargraph.
     switch(year_mode) {
@@ -2130,7 +2213,7 @@ void modeActivate() {
     // Turn on slo-blo light (and front left LED if using a Ardunio Nano).
     analogWrite(led_slo_blo, 255);
 
-    // If using the gpstar neutrona wand micro controller, the front left LED is wired separately, lets turn it on.
+    // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       analogWrite(led_front_left, 255);
     #endif
@@ -2503,12 +2586,12 @@ void modeFireStart() {
     ms_intensify_timer.start(i_intensify_delay);
   }
 
-  // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode.
+  // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode.
   if(b_firing_intensify == true) {
     wandSerialSend(W_FIRING_INTENSIFY);
   }
 
-  // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
+  // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode.
   if(b_firing_alt == true) {
     wandSerialSend(W_FIRING_ALT);
   }
@@ -2578,7 +2661,7 @@ void modeFireStart() {
   }
 
   if(b_overheat_flag == true) {
-    // If in high power mode on the wand, start a overheat timer.
+    // If in high power mode on the wand, start an overheat timer.
     if(b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
       ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
     }
@@ -2646,11 +2729,17 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams == true) {
     switch(year_mode) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
@@ -2720,10 +2809,10 @@ void modeFireStop() {
   i_barrel_light = 0;
   ms_firing_lights_end.start(10);
 
-  // If using optional items on the gpstar Neutrona Wand micro controller.
+  // If using optional items on the gpstar Neutrona Wand microcontroller.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
-    digitalWrite(led_barrel_tip, LOW); // Turn off hat the wand barrel tip LED.
+    digitalWrite(led_barrel_tip, LOW); // Turn off the wand barrel tip LED.
   #endif
 
   ms_hat_1.stop();
@@ -2775,7 +2864,7 @@ void modeFireStop() {
     break;
   }
 
-  // A tiny ramp down delay, helps with the sounds.
+  // A tiny ramp down delay helps with the sounds.
   ms_firing_stop_sound_delay.start(i_fire_stop_sound_delay);
 }
 
@@ -2785,7 +2874,7 @@ void modeFiring() {
     b_sound_firing_intensify_trigger = true;
 
     if(b_cross_the_streams_mix == true) {
-      // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode mix.
+      // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_MIX);
 
       switch(i_power_mode) {
@@ -2806,7 +2895,7 @@ void modeFiring() {
       }
     }
     else {
-      // Tell the Proton Pack that the Neutrona wand is firing in Intensify mode.
+      // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode.
       wandSerialSend(W_FIRING_INTENSIFY);
     }
   }
@@ -2815,7 +2904,7 @@ void modeFiring() {
     b_sound_firing_intensify_trigger = false;
 
     if(b_cross_the_streams_mix == true) {
-      // Tell the Proton Pack that the Neutrona wand is no longer firing in Intensify mode mix.
+      // Tell the Proton Pack that the Neutrona Wand is no longer firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_STOPPED_MIX);
 
       switch(i_power_mode) {
@@ -2838,7 +2927,7 @@ void modeFiring() {
       }
     }
     else {
-      // Tell the Proton Pack that the Neutrona wand is no longer firing in Intensify mode.
+      // Tell the Proton Pack that the Neutrona Wand is no longer firing in Intensify mode.
       wandSerialSend(W_FIRING_INTENSIFY_STOPPED);
     }
   }
@@ -2849,11 +2938,11 @@ void modeFiring() {
     if(b_cross_the_streams_mix == true) {
       playEffect(S_FIRING_LOOP_GB1, true);
 
-      // Tell the Proton Pack that the Neutrona wand is firing in Alt mode mix.
+      // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode mix.
       wandSerialSend(W_FIRING_ALT_MIX);
     }
     else {
-      // Tell the Proton Pack that the Neutrona wand is firing in Alt mode.
+      // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode.
       wandSerialSend(W_FIRING_ALT);
     }
   }
@@ -2864,11 +2953,11 @@ void modeFiring() {
     if(b_cross_the_streams_mix == true) {
       stopEffect(S_FIRING_LOOP_GB1);
 
-      // Tell the Proton Pack that the Neutrona wand is no longer firing in Alt mode mix.
+      // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode mix.
       wandSerialSend(W_FIRING_ALT_STOPPED_MIX);
     }
     else {
-      // Tell the Proton Pack that the Neutrona wand is no longer firing in Alt mode.
+      // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode.
       wandSerialSend(W_FIRING_ALT_STOPPED);
     }
   }
@@ -2879,11 +2968,17 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_END);
+        stopEffect(S_CROSS_STREAMS_START);
+        
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
       break;
     }
@@ -2891,7 +2986,7 @@ void modeFiring() {
     playEffect(S_FIRE_START_SPARK);
 
     if(b_cross_the_streams_mix != true) {
-      // Tell the Proton Pack that the Neutrona wand is crossing the streams mix.
+      // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
       wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX);
 
       playEffect(S_FIRING_LOOP_GB1, true);
@@ -2904,14 +2999,14 @@ void modeFiring() {
       stopEffect(S_GB1_FIRE_LOOP);
     }
     else {
-      // Tell the Proton Pack that the Neutrona wand is crossing the streams.
+      // Tell the Proton Pack that the Neutrona Wand is crossing the streams.
       wandSerialSend(W_FIRING_CROSSING_THE_STREAMS);
     }
   }
 
   if((b_firing_alt != true && b_firing_intensify != true) && b_firing_cross_streams == true && b_cross_the_streams_mix != true) {
     // Can let go of a button and still fires.
-    // Tell the Proton Pack that the Neutrona wand is no longer crossing the streams.
+    // Tell the Proton Pack that the Neutrona Wand is no longer crossing the streams.
     wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED);
 
     b_firing_cross_streams = false;
@@ -2919,11 +3014,17 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
@@ -2932,7 +3033,7 @@ void modeFiring() {
   }
   else if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && b_cross_the_streams_mix == true) {
     // Let go of a button and it reverts back to the other firing mode.
-    // Tell the Proton Pack that the Neutrona wand is no longer crossing the streams.
+    // Tell the Proton Pack that the Neutrona Wand is no longer crossing the streams.
     wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX);
 
     b_firing_cross_streams = false;
@@ -2940,11 +3041,17 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
@@ -2969,7 +3076,7 @@ void modeFiring() {
 
       ms_hat_1.stop();
 
-      // Tell the pack to revert back to regular cyclotron speeds.
+      // Tell the pack to revert back to regular Cyclotron speeds.
       wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
     }
     else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {
@@ -2982,7 +3089,7 @@ void modeFiring() {
     if(ms_overheat_initiate.isRunning()) {
       ms_overheat_initiate.stop();
 
-      // Tell the pack to revert back to regular cyclotron speeds.
+      // Tell the pack to revert back to regular Cyclotron speeds.
       wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
     }
   }
@@ -3606,7 +3713,7 @@ void fireStreamEnd(int r, int g, int b) {
 
 void vibrationWand(uint8_t i_level) {
   if(b_vibration_on == true && b_vibration_enabled == true && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-    // Only vibrate the wand during firing only when enabled. (When enabled by the pack)
+    // Vibrate the wand during firing only when enabled. (When enabled by the pack)
     if(b_vibration_firing == true) {
       if(WAND_ACTION_STATUS == ACTION_FIRING) {
         if(i_level != i_vibration_level_prev) {
@@ -3620,7 +3727,7 @@ void vibrationWand(uint8_t i_level) {
       }
     }
     else {
-      // Wand vibrates, even when idling, etc. (When enabled by the pack)
+      // Wand vibrates even when idling, etc. (When enabled by the pack)
       if(i_level != i_vibration_level_prev) {
         i_vibration_level_prev = i_level;
         analogWrite(vibration, i_level);
@@ -4188,7 +4295,7 @@ void cyclotronSpeedUp(uint8_t i_switch) {
 
     i_cyclotron_speed_up++;
 
-    // Tell the pack to speed up the cyclotron.
+    // Tell the pack to speed up the Cyclotron.
     wandSerialSend(W_CYCLOTRON_INCREASE_SPEED);
   }
 }
@@ -4546,7 +4653,7 @@ void bargraphRampUp() {
               case 1989:
                 // Bargraph has ramped up and down. In 1984/1989 mode we want to start the ramping.
                 if(i_bargraph_status_alt == 54) {
-                  ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
+                  ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continuously.
                   ms_bargraph.stop();
                   b_bargraph_up = true;
                   i_bargraph_status_alt = 0;
@@ -4563,7 +4670,7 @@ void bargraphRampUp() {
 
               case 2021:
                 if(b_bargraph_always_ramping == true) {
-                  // Bargraph has ramped up and down. If bargraph overriden to always ramp, lets start the ramping.
+                  // Bargraph has ramped up and down. If bargraph overridden to always ramp, let's start the ramping.
                   if(i_bargraph_status_alt == 54) {
                     ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
                     ms_bargraph.stop();
@@ -4662,7 +4769,6 @@ void bargraphRampUp() {
               break;
             }
           }
-
         break;
       }
     #endif
@@ -4858,7 +4964,7 @@ void prepBargraphRampUp() {
           i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
         }
         else {
-          // If the bargraph setting is overriden so we have 1984/1989 constant ramping for afterlife, lets change the setting to match 1984/1989.
+          // If the bargraph setting is overridden so we have 1984/1989 constant ramping for Afterlife, let's change the setting to match 1984/1989.
           i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
         }
       break;
@@ -4924,9 +5030,9 @@ void wandLightsOff() {
 
   analogWrite(led_slo_blo, 0);
 
-  // If using the gpstar Neutrona Wand micro controller.
+  // If using the gpstar Neutrona Wand microcontroller.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    analogWrite(led_front_left, 0); // The front left LED is wired separately, lets turn it off.
+    analogWrite(led_front_left, 0); // The front left LED is wired separately; let's turn it off.
 
     digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
     digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
@@ -4949,7 +5055,7 @@ void vibrationOff() {
 }
 
 void adjustVolumeEffectsGain() {
-  // Since adjusting only while in menu mode, only certain effects need to be adjusted on the fly.
+  // Since adjusting only happens while in menu mode, only certain effects need to be adjusted on the fly.
   w_trig.trackGain(S_BEEPS, i_volume_effects);
   w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
   w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
@@ -5036,7 +5142,7 @@ void increaseVolume() {
 
 void decreaseVolume() {
   if(i_volume_master == i_volume_abs_min) {
-    // Can not go any lower.
+    // Cannot go any lower.
   }
   else {
     if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
@@ -5265,7 +5371,7 @@ void checkRotary() {
                 // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
                 analogWrite(led_slo_blo, 255);
 
-                // Play a indication beep to notify we have changed to the sub menu.
+                // Play an indication beep to notify we have changed to the sub menu.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
@@ -5332,7 +5438,7 @@ void checkRotary() {
                 // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
                 analogWrite(led_slo_blo, 0);
 
-                // Play a indication beep to notify we have left the sub menu.
+                // Play an indication beep to notify we have left the sub menu.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
@@ -5415,7 +5521,7 @@ void checkRotary() {
           else if(prev_next_code == 0x07) {
             if(i_power_mode + 1 <= i_power_mode_max && WAND_STATUS == MODE_ON) {
               if(i_power_mode + 1 == i_power_mode_max && WAND_ACTION_STATUS == ACTION_FIRING) {
-                // Do nothing, we not want to go into max power mode if firing in a lower power mode already.
+                // Do nothing, we do not want to go into max power mode if firing in a lower power mode already.
               }
               else {
                 i_power_mode_prev = i_power_mode;
@@ -5598,7 +5704,7 @@ void wandExitMenu() {
       break;
 
       case SPECTRAL_CUSTOM:
-        // Tell the pack we are in spectral mode.
+        // Tell the pack we are in spectral custom mode.
         wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
       break;
     #endif
@@ -5637,7 +5743,7 @@ void wandExitMenu() {
   }
 #endif
 
-// Mode switch is connected to analog input.
+// Barrel Wing Button is connected to analog input.
 // PCB builds is pulled high.
 // Nano builds is pulled low.
 bool switchMode() {
@@ -5666,7 +5772,7 @@ bool switchMode() {
   #endif
 }
 
-// Check if the wing barrel switch is being held down or not.
+// Check if the Barrel Wing Button is being held down or not.
 void switchModePressedReset() {
  #ifdef GPSTAR_NEUTRONA_WAND_PCB
     if(analogRead(switch_mode) > i_switch_mode_value && b_switch_mode_pressed == true && ms_switch_mode_debounce.remaining() < 1) {
@@ -5791,9 +5897,11 @@ void checkPack() {
                 // Turn wand off.
                 if(WAND_STATUS != MODE_OFF) {
                   if(WAND_STATUS == MODE_ERROR) {
+                    b_wand_mash_error = false;
                     wandOff();
                   }
                   else {
+                    b_wand_mash_error = false;
                     WAND_ACTION_STATUS = ACTION_OFF;
                   }
                 }
@@ -6091,7 +6199,7 @@ void checkPack() {
             break;
 
             case P_CYCLOTRON_COUNTER_CLOCKWISE:
-              // Play cyclotron counter clockwise voice.
+              // Play Cyclotron counter clockwise voice.
               stopEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
               stopEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
@@ -6099,7 +6207,7 @@ void checkPack() {
             break;
 
             case P_CYCLOTRON_CLOCKWISE:
-              // Play cyclotron clockwise voice.
+              // Play Cyclotron clockwise voice.
               stopEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
               stopEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
@@ -6231,7 +6339,7 @@ void checkPack() {
               FIRING_MODE = SLIME;
               PREV_FIRING_MODE = PROTON;
 
-              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              // We need to tell the wand to go to Video Game mode if you connect a running pack to a wand configured to be in cross the streams.
               b_cross_the_streams = false;
               b_cross_the_streams_mix = false;
             break;
@@ -6240,7 +6348,7 @@ void checkPack() {
               FIRING_MODE = STASIS;
               PREV_FIRING_MODE = SLIME;
 
-              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              // We need to tell the wand to go to Video Game mode if you connect a running pack to a wand configured to be in cross the streams.
               b_cross_the_streams = false;
               b_cross_the_streams_mix = false;
             break;
@@ -6249,7 +6357,7 @@ void checkPack() {
               FIRING_MODE = MESON;
               PREV_FIRING_MODE = STASIS;
 
-              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              // We need to tell the wand to go to Video Game mode if you connect a running pack to a wand configured to be in cross the streams.
               b_cross_the_streams = false;
               b_cross_the_streams_mix = false;
             break;
@@ -6275,7 +6383,7 @@ void checkPack() {
                 wandSerialSend(W_PROTON_MODE);
               #endif
 
-              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              // We need to tell the wand to go to Video Game mode if you connect a running pack to a wand configured to be in cross the streams.
               b_cross_the_streams = false;
               b_cross_the_streams_mix = false;
             break;
@@ -6290,7 +6398,7 @@ void checkPack() {
                 wandSerialSend(W_PROTON_MODE);
               #endif
 
-              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              // We need to tell the wand to go to Video Game mode if you connect a running pack to a wand configured to be in cross the streams.
               b_cross_the_streams = false;
               b_cross_the_streams_mix = false;
             break;
@@ -6299,7 +6407,7 @@ void checkPack() {
               FIRING_MODE = VENTING;
               PREV_FIRING_MODE = MESON;
 
-              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              // We need to tell the wand to go to Video Game mode if you connect a running pack to a wand configured to be in cross the streams.
               b_cross_the_streams = false;
               b_cross_the_streams_mix = false;
             break;
@@ -6308,7 +6416,7 @@ void checkPack() {
               FIRING_MODE = SETTINGS;
               PREV_FIRING_MODE = VENTING;
 
-              // We need to tell the Wand to go to Video Game mode if you connect a running pack to a wand configured to be in Cross the Streams.
+              // We need to tell the wand to go to Video Game mode if you connect a running pack to a wand configured to be in cross the streams.
               b_cross_the_streams = false;
               b_cross_the_streams_mix = false;
             break;
@@ -6528,7 +6636,7 @@ void wandSerialSend(int i_message) {
   }
 
   void saveEEPROM() {
-    // (Video Game Modes) + Cross The Streams / Cross The Streams Mix / Over Heating
+    // (Video Game Modes) + Cross The Streams / Cross The Streams Mix / Overheating
     uint8_t i_cross_the_streams = 1;
     uint8_t i_cross_the_streams_mix = 1;
     uint8_t i_overheating = 1;
@@ -6664,7 +6772,7 @@ void wandSerialSend(int i_message) {
         }
       }
 
-      // Read our led object from the EEPROM.
+      // Read our LED object from the EEPROM.
       objLEDEEPROM obj_led_eeprom;
       unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
 
@@ -6736,7 +6844,7 @@ void stopMusic() {
 }
 
 void setupWavTrigger() {
-  // If the controller is powering the WAV Trigger, we should wait for the WAV trigger to finish reset before trying to send commands.
+  // If the controller is powering the WAV Trigger, we should wait for the WAV Trigger to finish reset before trying to send commands.
   delay(1000);
 
   // WAV Trigger's startup at 57600
@@ -6745,7 +6853,7 @@ void setupWavTrigger() {
   delay(10);
 
   // Send a stop-all command and reset the sample-rate offset, in case we have
-  //  reset while the WAV Trigger was already playing.
+  // reset while the WAV Trigger was already playing.
   w_trig.stopAllTracks();
   w_trig.samplerateOffset(0); // Reset our sample rate offset
   w_trig.masterGain(i_volume_master); // Reset the master gain db. 0db is default. Range is -70 to 0.
