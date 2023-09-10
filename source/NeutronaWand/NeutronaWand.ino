@@ -247,6 +247,10 @@ void mainLoop() {
         WAND_ACTION_STATUS = ACTION_IDLE;
         wandSerialSend(W_ON);
         postActivation();
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          // Re-enable the hat light on top of the gun box
+          digitalWrite(led_hat_2, HIGH);
+        #endif
       }
     }
   }
