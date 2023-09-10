@@ -241,7 +241,7 @@ void mainLoop() {
       i_bmash_count = 0;
 
       if(b_wand_mash_error == true) {
-        // Return the wand to a normal firing state after lock-out from button smashing.
+        // Return the wand to a normal firing state after lock-out from button mashing.
         b_wand_mash_error = false;
         
         WAND_STATUS = MODE_ON;
