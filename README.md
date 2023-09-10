@@ -1,8 +1,8 @@
 <h1><img src='images/gpstar_logo.png' width=50 align="left"/>gpstar Proton Pack and Neutrona Wand</h1>
 
-<h3>Microcontroller Replacements for the Haslab Spengler Series Proton Pack and Neutrona Wand</h3>
+<h3>Microcontroller Replacements for the HasLab Plasma Series Proton Pack and Neutrona Wand</h3>
 
-This repository outlines the full replacement of the stock microcontrollers which run the Proton Pack and Neutrona Wand while retaining the use and function of all existing controls and lighting in these Haslab products.
+This repository outlines the full replacement of the stock microcontrollers which run the Proton Pack and Neutrona Wand while retaining the use and function of all existing controls and lighting in these HasLab products.
 
 ### Summary
 
@@ -100,7 +100,7 @@ GitHub should automatically display these files with basic formatting, though to
 
 ### "Yes, have some"...music!
 
-Special thanks to Michael Klodzinksi for graciously allowing us to include his version of [Savin' The Day](https://www.youtube.com/watch?v=shJslMSAxE0) as a bundled music file to demo your awesome proton pack mods! Check out his other works at [michaelk.net](https://michaelk.net).
+Special thanks to Michael Klodzinksi for graciously allowing us to include his version of [Savin' The Day](https://www.youtube.com/watch?v=shJslMSAxE0) as a bundled music file to demo your awesome Proton Pack mods! Check out his other works at [michaelk.net](https://michaelk.net).
 
 ## Sound files
 

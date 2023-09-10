@@ -74,7 +74,7 @@
 void setup() {
   Serial.begin(9600);
 
-  // Enable Serial1 if compiling for the gpstar Neutrona Wand micro controller.
+  // Enable Serial1 if compiling for the gpstar Neutrona Wand microcontroller.
   #ifdef HAVE_HWSERIAL1
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       Serial1.begin(9600);
@@ -160,9 +160,9 @@ void setup() {
 
   pinMode(led_slo_blo, OUTPUT);
 
-  // Extra optional items if using them with the gpstar Neutrona Wand micro controller.
+  // Extra optional items if using them with the gpstar Neutrona Wand microcontroller.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand micro controller, it is wired to its own pin. When using an Arduino Nano, it is linked with led_slo_blo.
+    pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand microcontroller, it is wired to its own pin. When using an Arduino Nano, it is linked with led_slo_blo.
     pinMode(led_hat_1, OUTPUT); // Hat light at front of the wand near the barrel tip.
     pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body.
     pinMode(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
@@ -389,7 +389,7 @@ void mainLoop() {
 
         switch(i_wand_menu) {
           // Intensify: Clear the Proton Pack EEPROM settings and exit.
-          // Barrel Wing Switch: Save the current settings to the Proton Pack EEPROM and exit.
+          // Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
           case 5:
             // Tell the Proton Pack to clear the EEPROM settings and exit.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
@@ -421,7 +421,7 @@ void mainLoop() {
           break;
 
           // Intensify: Cycle through the different Cyclotron LED counts.
-          // Barrel Wing Switch: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotary();
+          // Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotary();
           case 4:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -431,7 +431,7 @@ void mainLoop() {
           break;
 
           // Intensify: Cycle through the different Power Cell LED counts.
-          // Barrel Wing Switch: Adjust the Power Cell colour hue. <- Controlled by checkRotary();
+          // Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotary();
           case 3:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -441,7 +441,7 @@ void mainLoop() {
           break;
 
           // Intensify: Cycle through the different inner Cyclotron LED counts.
-          // Barrel Wing Switch: Adjust the Cyclotron colour hue. <- Controlled by checkRotary();
+          // Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotary();
           case 2:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -451,7 +451,7 @@ void mainLoop() {
           break;
 
           // Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
-          // Barrel Wing Switch: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotary();
+          // Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotary();
           case 1:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -467,7 +467,7 @@ void mainLoop() {
 
         switch(i_wand_menu) {
           // Intensify: Clear the Neutrona Wand EEPROM settings and exit.
-          // Barrel Wing Switch: Save the current settings to the Neutrona Wand EEPROM and exit.
+          // Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
           case 5:
             // Tell the Neutrona Wand to clear the EEPROM settings and exit.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
@@ -501,7 +501,7 @@ void mainLoop() {
           break;
 
           // Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
-          // Barrel Wing Switch: Enable Spectral and Holiday modes.
+          // Barrel Wing Button: Enable Spectral and Holiday modes.
           case 4:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -538,7 +538,7 @@ void mainLoop() {
           break;
 
           // Intensify: Enable or Disable overheating settings.
-          // Barrel Wing Switch: Enable or disable smoke.
+          // Barrel Wing Button: Enable or disable smoke.
           case 3:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -553,7 +553,7 @@ void mainLoop() {
           break;
 
           // Intensify: Change the Cyclotron direction.
-          // Barrel Wing Switch: Enable the simulation of a ring for the Cyclotron lid.
+          // Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
           case 2:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -562,14 +562,14 @@ void mainLoop() {
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
 
-            // Barrel Wing Switch: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
+            // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
             if(switchMode() == true) {
               wandSerialSend(W_CYCLOTRON_SIMULATE_RING_TOGGLE);
             }
           break;
 
           // Intensify: Enable or disable Proton Stream Impact Effects.
-          // Barrel Wing Switch: Enable or disable extra Neutrona Wand Sounds.
+          // Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
           case 1:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -578,7 +578,7 @@ void mainLoop() {
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
             }
 
-            // Barrel Wing Switch: Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
+            // Barrel Wing Button: Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
             if(switchMode() == true) {
               if(b_extra_pack_sounds == true) {
                 b_extra_pack_sounds = false;
@@ -607,7 +607,7 @@ void mainLoop() {
       switch(i_wand_menu) {
         // Top menu: Music track loop setting.
         // Sub menu: Enable or disable crossing the streams / video game modes.
-        // Sub menu: (Barrel Wing Switch) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
+        // Sub menu: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
         case 5:
         // Music track loop setting.
         if(b_wand_menu_sub != true) {
@@ -646,9 +646,9 @@ void mainLoop() {
         break;
 
         // Top menu: (Intensify + Top dial) Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
-        // Top menu: (Barrel Wing Switch) Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
+        // Top menu: (Barrel Wing Button) Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
         // Sub menu: Enable or disable smoke for the Proton Pack.
-        // Sub menu: (Barrel Wing Switch) -> Enable or disable overheating.
+        // Sub menu: (Barrel Wing Button) -> Enable or disable overheating.
         case 4:
           // Adjust the Proton Pack / Neutrona Wand sound effects volume.
           if(b_wand_menu_sub != true) {
@@ -674,10 +674,10 @@ void mainLoop() {
           }
         break;
 
-        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Switch + top dial) Adjust Proton Pack / Neutrona Wand music volume.
-        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Switch + top dial) Adjust Proton Pack / Neutrona Wand music volume.
+        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
+        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
         // Sub menu: Toggle Cyclotron rotation direction.
-        // Sub menu: (Barrel Wing Switch) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
+        // Sub menu: (Barrel Wing Button) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
         case 3:
           // Top menu code is handled in checkRotary();
           // Sub menu. Adjust Cyclotron settings.
@@ -698,7 +698,7 @@ void mainLoop() {
 
         // Top menu: Change music tracks.
         // Sub menu: Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
-        // Sub menu: (Barrel Wing Switch) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
+        // Sub menu: (Barrel Wing Button) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
         case 2:
           // Change music tracks.
           if(b_wand_menu_sub != true) {
@@ -827,9 +827,9 @@ void mainLoop() {
         break;
 
         // Top menu: Play music or stop music.
-        // Top menu: (Barrel Wing Switch). Mute the Proton Pack and Neutrona Wand.
+        // Top menu: (Barrel Wing Button). Mute the Proton Pack and Neutrona Wand.
         // Sub menu: (Intensify) -> Switch between 1984/1989/Afterlife mode.
-        // Sub Menu: (Barrel Wing Switch) -> Enable or disable Proton Stream impact effects.
+        // Sub Menu: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
         case 1:
           // Play or stop the current music track.
           if(b_wand_menu_sub != true) {
@@ -1098,7 +1098,7 @@ void mainLoop() {
           if(FIRING_MODE == VENTING) {
             analogWrite(led_slo_blo, 255);
 
-            // If using the gpstar Neutrona Wand micro controller the front left LED is wired separately; let's turn it on.
+            // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
             #ifdef GPSTAR_NEUTRONA_WAND_PCB
               analogWrite(led_front_left, 255);
             #endif
@@ -1111,7 +1111,7 @@ void mainLoop() {
           if(FIRING_MODE == VENTING) {
             analogWrite(led_slo_blo, 0);
 
-            // If using the gpstar Neutrona Wand micro controller the front left LED is wired separately; let's turn it on.
+            // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
             #ifdef GPSTAR_NEUTRONA_WAND_PCB
               analogWrite(led_front_left, 0);
             #endif
@@ -1164,7 +1164,7 @@ void mainLoop() {
     #endif
   }
 
-  // Check the Wing Barrel Switch button status.
+  // Check the Barrel Wing Button button status.
   switchModePressedReset();
 
   // Update the barrel LEDs.
@@ -1784,7 +1784,7 @@ void checkSwitches() {
             if(FIRING_MODE != VENTING) {
               analogWrite(led_slo_blo, 255);
 
-              // If using the gpstar Neutrona Wand micro controller the front left LED is wired separately; let's turn it on.
+              // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
                 analogWrite(led_front_left, 255);
               #endif
@@ -1914,7 +1914,7 @@ void checkSwitches() {
           b_firing_intensify = true;
         }
 
-        // When the Barrel Wing Switch is changed to a alternate firing button, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
+        // When the Barrel Wing Button is changed to a alternate firing button, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
         if(b_cross_the_streams == true) {
           if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
@@ -2130,7 +2130,7 @@ void modeActivate() {
     // Turn on slo-blo light (and front left LED if using a Ardunio Nano).
     analogWrite(led_slo_blo, 255);
 
-    // If using the gpstar Neutrona Wand micro controller the front left LED is wired separately; let's turn it on.
+    // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       analogWrite(led_front_left, 255);
     #endif
@@ -2720,7 +2720,7 @@ void modeFireStop() {
   i_barrel_light = 0;
   ms_firing_lights_end.start(10);
 
-  // If using optional items on the gpstar Neutrona Wand micro controller.
+  // If using optional items on the gpstar Neutrona Wand microcontroller.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
     digitalWrite(led_barrel_tip, LOW); // Turn off the wand barrel tip LED.
@@ -4923,7 +4923,7 @@ void wandLightsOff() {
 
   analogWrite(led_slo_blo, 0);
 
-  // If using the gpstar Neutrona Wand micro controller.
+  // If using the gpstar Neutrona Wand microcontroller.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     analogWrite(led_front_left, 0); // The front left LED is wired separately; let's turn it off.
 
@@ -5636,7 +5636,7 @@ void wandExitMenu() {
   }
 #endif
 
-// Barrel Wing Switch is connected to analog input.
+// Barrel Wing Button is connected to analog input.
 // PCB builds is pulled high.
 // Nano builds is pulled low.
 bool switchMode() {
@@ -5665,7 +5665,7 @@ bool switchMode() {
   #endif
 }
 
-// Check if the Barrel Wing Switch is being held down or not.
+// Check if the Barrel Wing Button is being held down or not.
 void switchModePressedReset() {
  #ifdef GPSTAR_NEUTRONA_WAND_PCB
     if(analogRead(switch_mode) > i_switch_mode_value && b_switch_mode_pressed == true && ms_switch_mode_debounce.remaining() < 1) {

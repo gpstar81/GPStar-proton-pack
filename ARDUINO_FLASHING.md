@@ -25,7 +25,6 @@ The following libraries are required to be installed. All but the WAV Trigger an
 - **simple ht16k33 library** by lpaseen
 - **SerialTransfer** by PowerBroker2
 - **millisDelay** `See Below`
-- **WAV Trigger** `See Below`
 
 ### MillisDelay
 
@@ -34,22 +33,8 @@ The MillisDelay library must be downloaded from the project GitHub page. Downloa
 
 No further configuration is needed for this library.
 
-### WAV Trigger
-
-The WAV Trigger library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/robertsonics/WAV-Trigger-Arduino-Serial-Library](https://github.com/robertsonics/WAV-Trigger-Arduino-Serial-Library)
-
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 If you are flashing updates to your existing setup, make sure that both your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository.
-
-## +++ IMPORTANT +++
-Documented on both the Proton Pack and Neutron Wand code at the top of each file, is instructions on modifying the wavTrigger.h file. **You will need to open the wavTrigger.h file and comment out the neccessary #define required for the Proton Pack or Neutrona Wand**
-
-**(see For compiling code on the Arduino Mega or Nano below for more information)**. 
-
-The **wavTrigger.h** file can be located in your `Arduino/Libraries/<wav trigger folder>` (MacOS) or `C:\Arduino\Libraries` (Windows). See the special notes below for compiling the sketches for each of the Arduino boards.## For compiling code for Arduino Mega:You need to enable `__WT_USE_SERIAL_3__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use. Note that you will need to confirm this value if you switch between compiling for the Arduino Nano.
-
-![WAV Trigger Serial Class for Arduino Mega](images/wt_serial_mega.png)
 
 ### Important information for older DIY gpstar Proton Pack builds
 If you are compiling the code to upload to an Arduino Mega with the original gpstar home built instructions. You want to use disabled GPSTAR&#95;PROTON&#95;PACK&#95;PCB which can be found at the very bottom of the `configuration.h` of the Proton Pack. 
@@ -60,11 +45,7 @@ This is a legacy flag, for people who originally put the Cyclotron Lid detection
 
 ## For compiling code on the Arduino Nano:
 
-You need to enable `__WT_USE_ALTSOFTSERIAL__` by uncommenting this line inside the **wavTrigger.h** file. Be sure to comment out any other serial class option previously in use. Note that you will need to confirm this value if you switch between compiling for the Arduino Mega.
-
 **NOTE: Before uploading to the Arduino Nano, be sure to either disconnect the wand from the pack or otherwise disconnect the TX/RX connections as these will interfere with the USB interface when still connected to the Arduino Mega in the pack.**
-
-![WAV Trigger Serial Class for Arduino Nano](images/wt_serial_nano.png)
 
 ### Important for Arduino Nano builds:
   * You will need to open Packet.h located in your Arduino/Libraries/SerialTransfer folder and on line #34 and change the max packet size to 0x40

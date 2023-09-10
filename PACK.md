@@ -38,9 +38,9 @@ This chart lists only the components in the stock pack which will be reused, whi
 |  |  | <font color="orange">Yellow</font> | RI | Data input; starts on JP3-DI pin and continues from JP3-B0 |
 |  |  | Black | GND |  |
 |  |  | <font color="brown">Brown</font> | GND | Used for detection of the Cyclotron Lid |
-| SW1 | <font color="gray">White</font> | <font color="red">Red</font> | VCC | Main "power" switch under the ion arm, enables all pack operations. |
+| SW1 | <font color="gray">White</font> | <font color="red">Red</font> | VCC | Main "power" switch under the Ion Arm, enables all pack operations. |
 |  |  | Black | GND |  |
-| SW3 | <font color="blue">Blue</font> | <font color="green">Green</font> | SPDT Toggle | Left toggle switch inside the cyclotron: Turns rumble motor on (up) or off (down)  |
+| SW3 | <font color="blue">Blue</font> | <font color="green">Green</font> | SPDT Toggle | Left toggle switch inside the Cyclotron: Turns rumble motor on (up) or off (down)  |
 |  |  | <font color="blue">Blue</font> |  |  |
 | SW4 |  | <font color="green">Green</font> | SPDT Toggle | Right toggle switch inside the cyclotron: Change Cyclotron spin and sound theme between Afterlife/2021 (up) or OG/1984 (down) |
 |  |  | <font color="red">Red</font> |  |  |

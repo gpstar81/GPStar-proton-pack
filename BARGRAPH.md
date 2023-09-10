@@ -1,6 +1,6 @@
 # Wand Bargraph and Power Cell Upgrade
 
-**NOTE: The 28 Segment Bargraph upgrade is only supported with the gpstar Neutrona Wand micro controller**
+**NOTE: The 28 Segment Bargraph upgrade is only supported with the gpstar Neutrona Wand microcontroller**
 
 This guide outlines the **optional** upgrade from the 5-LED stock bargraph to a more animated 28-segment bargraph (BL28Z-3005SA04Y) or the 28 Segment Bargraph and Power Cell from [Frutto Technology](https://fruttotechnology.com).
 
@@ -48,7 +48,7 @@ You will find the Barmeter pin reference below which will connect the bargraph t
 
 ### BARMETER 28 SEGMENT BARGRAPH - BL28Z-3005SA04Y - Pin Layout Reference
 
-The following is Barmeter's internal reference for the numbered pins alone the edge of the bargraph packaging and their internal names. This is for technical reference only--the only concern for connections should be from the bargraph to the HT16K33 board.
+The following is Barmeter's internal reference for the numbered pins along the edge of the bargraph packaging and their internal names. This is for technical reference only--the only concern for connections should be from the bargraph to the HT16K33 board.
 
 | Pin #  | 1  | 2 | 3 | 4 | 5 | 6 | 7  | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 |
 |---------|----|---|---|---|---|---|----|---|---|----|----|----|----|----|----|----|----|----|----|----|----|----|
@@ -58,7 +58,7 @@ The following is Barmeter's internal reference for the numbered pins alone the e
 
 ### Inverted Bargraph Sequences
 
-If your bargraph is inverted or upside down, you can either flip it physically in the wand, or you can set enabled or disable the:
+If your bargraph is inverted or upside down, you can either flip it physically in the wand, or you can comment/uncomment the:
 
 **#define GPSTAR&nbsp;INVERT&nbsp;BARGRAPH** 
 
@@ -66,7 +66,7 @@ setting in the Neutrona Wand Configuration.h, please see the [Advanced Configura
 
 ### Fitment & Installation
 
-The 28-segment bargraph is intended to take the place of the 5-LED + PCB assembly from the stock Haslab equipment. The only means of accessing this is to remove the barrel release assembly and a portion of the plastic base which sits below the stock controller board. This may require some cutting as the center of that piece is glued directly to the wand handle. Once removed, access to the old bargraph is quite easy and takes removal of 2 screws. The circuit board with the LEDs resides under a small black cover and can be removed from the wand once that cover is removed.
+The 28-segment bargraph is intended to take the place of the 5-LED + PCB assembly from the stock Hasbro equipment. The only means of accessing this is to remove the barrel release assembly and a portion of the plastic base which sits below the stock controller board. This may require some cutting as the center of that piece is glued directly to the wand handle. Once removed, access to the old bargraph is quite easy and takes removal of 2 screws. The circuit board with the LEDs resides under a small black cover and can be removed from the wand once that cover is removed.
 
 To fit the new bargraph in place, it needs a suitable holder to keep it in the correct orientation. Thankfully, it can be seen quite well without removing the clear/frosted plastic from the wand housing, though some minor trimming may be necessary at the bottom (when oriented with the rotary encoder facing up) of the bargraph socket. 
 

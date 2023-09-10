@@ -148,7 +148,7 @@ uint8_t i_bargraph_status = 0;
 /*
  * (Optional) Barmeter 28 segment bargraph configuration and timers.
  * Part #: BL28Z-3005SA04Y
-  * Only supported by the gpstar Neutrona Wand micro controller.
+  * Only supported by the gpstar Neutrona Wand microcontroller.
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   HT16K33 ht_bargraph;
@@ -161,7 +161,7 @@ uint8_t i_bargraph_status = 0;
  * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
  * Set to false if you are using the stock Hasbro bargraph.
  * Part #: BL28Z-3005SA04Y
- * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
+ * Only compatible with the gpstar Neutrona Wand board, and not an Arduino Nano.
 */
 bool b_28segment_bargraph = false;
 
@@ -180,7 +180,7 @@ bool b_28segment_bargraph = false;
 /*
  * (Optional) Barmeter 28 segment bargraph mapping.
  * Part #: BL28Z-3005SA04Y
- * Only supported by the gpstar Neutrona Wand micro controller.
+ * Only supported by the gpstar Neutrona Wand microcontroller.
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   #ifdef GPSTAR_INVERT_BARGRAPH
@@ -367,5 +367,5 @@ void playMusic();
   const uint8_t led_hat_2 = 23; // Hat light at top of the wand body. (Red LED)
   const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
 #else
-  const uint8_t led_slo_blo = 5; // There are 2 LEDs attached to this pin when using a Arduino Nano. The slo-blo LED and the orange light on the front of the wand body (front_left).
+  const uint8_t led_slo_blo = 5; // There are 2 LEDs attached to this pin when using an Arduino Nano. The slo-blo LED and the orange light on the front of the wand body (front_left).
 #endif

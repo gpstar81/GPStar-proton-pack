@@ -2,7 +2,7 @@
 
 The first thing to take care of is updating the firmware on the WAV Trigger boards. They all currently ship with version 1.34, and 1.40 is required for some unique features of the gpstar Proton Pack. Version 1.40 can be found here in this respository in the `extras` folder.
 
-The WAV Trigger software updater and instructions [can be found on the Robertsonics website](https://www.robertsonics.com/wav-trigger). To update the firmware, an [FTDI Basic (5V version)](https://www.sparkfun.com/products/9716) from Sparkfun should be used to interface with the WAV Trigger. You may also use any USB-to-serial adaptor, so long as it is a TTL-level device, not RS- 232. **Plugging RS-232 level signals into the WAV Trigger serial interface will damage the WAV Trigger!**
+The WAV Trigger software updater and instructions [can be found on the Robertsonics website](https://www.robertsonics.com/wav-trigger). To update the firmware, an [FTDI Basic (5V version)](https://www.sparkfun.com/products/9716) from Sparkfun should be used to interface with the WAV Trigger. You may also use any USB-to-serial adapter, so long as it is a TTL-level device, not RS- 232. **Plugging RS-232 level signals into the WAV Trigger serial interface will damage the WAV Trigger!**
 
 [WAV Trigger Firmware v1.40](https://github.com/gpstar81/haslab-proton-pack/tree/main/extras)
 
@@ -35,7 +35,7 @@ Only 4 connections between the boards will be required: TX/RX and 5V/Ground.
 
 ![Board Closeup](images/WTFlasher220.png)
 
-**IMPORTANT: Make sure after flashing the firmware to set the small switch on the Wav Trigger back to the RUN position.**
+**IMPORTANT: Make sure after flashing the firmware to set the small switch on the WAV Trigger back to the RUN position.**
 
 Note the "5V" pad just below the SPKR connection holes.
 ![Board Closeup](images/WavTrigger.jpg)
@@ -48,7 +48,7 @@ Once the firmware is updated to 1.40 and you have confirmed this using the WAV T
 
 NOTE: See below for more information. I used standard breadboard friendly header jumper cables to make the connections from the FTDI basic to the connectors I added to the WAV Trigger. Also note that the WAV Triggers have both a AUX output and/or 2 pins for audio output. You can use either or to connect to your speakers or amps.
 
-**IMPORTANT: You will need to solder the 5V pad on the WAV Trigger to enable 5V power from the device. After you do this, NEVER USE the BARREL CONNECTOR for power. We will be using 5V to power the Wav Triggers for both in the Pack and the Wand.**
+**IMPORTANT: You will need to solder the 5V pad on the WAV Trigger to enable 5V power from the device. After you do this, NEVER USE the BARREL CONNECTOR for power. We will be using 5V to power the WAV Triggers for both in the Pack and the Wand.**
 
 ## Loading Audio Files
 

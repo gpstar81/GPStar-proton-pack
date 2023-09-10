@@ -20,12 +20,12 @@
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
  * Change the variables below to alter the behaviour of your Proton Pack.
- * All the default settings below are setup for a stock Haslab Proton Pack lighting kit.
+ * All the default settings below are setup for a stock HasLab Proton Pack lighting kit.
 */
  
  /* 
  *  Cyclotron Lid LEDs.
- *  For the stock Haslab LEDs, there are 12 LEDs in the cyclotron lid.
+ *  For the stock HasLab LEDs, there are 12 LEDs in the cyclotron lid.
  *  Use int i_cyclotron_leds = 12; and i_1984_cyclotron_leds 1, 4, 7, 10.
  *
  *  For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use int i_cyclotron_leds = 40 and i_1984_cyclotron_leds 0, 10, 18, 28.
@@ -37,7 +37,7 @@
  *
  *  Any settings saved in the EEPROM menu will overwrite these settings.
 */ 
-// For stock Haslab LEDs
+// For stock HasLab LEDs
 uint8_t i_cyclotron_leds = 12;
 uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 
@@ -51,7 +51,7 @@ uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 
 /*
  * Power Cell LEDs
- * The number of Power Cell LEDs. Stock Haslab has 13. 
+ * The number of Power Cell LEDs. Stock HasLab has 13. 
  * If you are installing a Frutto Technology Power Cell which has 15 LEDs, then change this to 15.
  * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
  * Any settings saved in the EEPROM menu will overwrite these settings.
@@ -62,7 +62,7 @@ uint8_t i_powercell_leds = 13;
  * Cyclotron Video Game Colour Toggle
  * If you are using Cyclotron Lid LEDs and Inner Cyclotron LEDs with RGB support, such as the Frutto Technology Cyclotron LEDs or NeoPixel Rings etc.
  * You can toggle if you want it to change colours to match the Video Game Modes or stay the default red at all times.
- * Note that this has no effect on the stock Haslab Cyclotron Lid LEDs, which are red only.
+ * Note that this has no effect on the stock HasLab Cyclotron Lid LEDs, which are red only.
  * The default setting is true, which makes the Cyclotron Lid and Inner Cyclotron change colours to match the Video Game Modes.
  * This can be toggled in the Neutrona Wand sub menu system.
 */
@@ -72,7 +72,7 @@ bool b_cyclotron_colour_toggle = true;
  * Power Cell Video Game Colour Toggle
  * If you are using Power Cell LEDs with RGB support, such as the Frutto Technology Power Cells,
  * You can toggle if you want it to change colours to match the Video Game Modes or stay the default blue at all times.
- * Note that this has no effect on the stock Haslab Power Cell LEDs, which are blue only.
+ * Note that this has no effect on the stock HasLab Power Cell LEDs, which are blue only.
  * The default setting is true, which makes the Power Cell change colours to match the Video Game Modes.
  * This can be toggled in the Neutrona Wand sub menu system.
 */
@@ -83,12 +83,12 @@ bool b_powercell_colour_toggle = true;
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
  * For a Frutto Technology 20 LED setup or a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
- * For stock Haslab LEDs, 15 for i_2021_delay is good.
+ * For stock HasLab LEDs, 15 for i_2021_delay is good.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
  * Any settings saved in the EEPROM menu will overwrite these settings.
 */
 const unsigned int i_1984_delay = 1050;
-unsigned int i_2021_delay = 15; // 15 for stock Haslab LEDs. Change to 10 for the Frutto Technology Cyclotron or a 40 LED NeoPixel ring.
+unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for the Frutto Technology Cyclotron or a 40 LED NeoPixel ring.
 
 /*
   * Afterlife mode (2021) only.
@@ -103,7 +103,7 @@ bool b_cyclotron_simulate_ring = true;
  * Power Cell LED delay in milliseconds.
  * 1000 = 1 second.
  * The lower the number the faster the Power Cell lights cycle.
- * For the stock Haslab Power Cell with 13 leds, 1984 at 75 and 2021 at 40 is a good setting.
+ * For the stock HasLab Power Cell with 13 leds, 1984 at 75 and 2021 at 40 is a good setting.
  * For a Power Cell with 15 LEDS such as from Frutto Technology, 1984 at 60 and 2021 at 34 is a good setting.
  * If you add more Power Cell LEDs, it is suggested to lower the values a little bit.
  * Any settings saved in the EEPROM menu will overwrite these settings.
@@ -261,7 +261,7 @@ const bool b_fade_cyclotron_led = true;
 /*
  * When set to true, 1984/1989 will utilise the middle single LED only in each cyclotron lens.
  * When set to false, 3 LEDs from each cyclotron lens will light up instead for 1984/1989 mode.
- * Useful feature for Proton Packs that utiltise 3 LEDs per Cyclotron lens, such as the Haslab Proton Pack.
+ * Useful feature for Proton Packs that utiltise 3 LEDs per Cyclotron lens, such as the HasLab Proton Pack.
  * This can also be toggled from the Neutrona Wand sub menu system.
 */
 bool b_cyclotron_single_led = true;
@@ -397,10 +397,10 @@ bool b_additional_wand_sounds = false;
 const bool b_eeprom = true;
 
 /* 
- * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the Haslab Cyclotron Lid.
+ * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the HasLab Cyclotron Lid.
  * When using 12 LEDs for the Cyclotron Lid, the system will default it to always red.
  * Setting this to true will override it and allow CHSV colours to be applied to Cyclotron Lids with 12 LEDs.
- * Note that a NeoPixel Jewel will use the CHSV colour space which can make the default Haslab Cyclotron LEDs flicker when the jewel N-Filter vent-light strobes.
+ * Note that a NeoPixel Jewel will use the CHSV colour space which can make the default HasLab Cyclotron LEDs flicker when the jewel N-Filter vent-light strobes.
 */
 const bool b_cyclotron_haslab_chsv_colour_change = false;
 
@@ -414,7 +414,7 @@ const bool b_cyclotron_haslab_chsv_colour_change = false;
   * This is a legacy flag, for people who originally put the Cyclotron Lid detection on pin 51 and not pin 43. If your Cyclotron Lid detection is on pin 51, then comment/disable this define.
   * If your home built gpstar Proton Pack was built with pin 43 for the Cyclotron Lid detection, then you can leave this enabled.
 
-  * If you are compiling the code to upload to the gpstar Proton Pack micro controller, or latest gpstar home built instructions, then enable and uncomment it (default).
+  * If you are compiling the code to upload to the gpstar Proton Pack microcontroller, or latest gpstar home built instructions, then enable and uncomment it (default).
   * example: #define GPSTAR_PROTON_PACK_PCB
   * In general, leave this enabled by default as very few people did the pin 51 setup.
 */

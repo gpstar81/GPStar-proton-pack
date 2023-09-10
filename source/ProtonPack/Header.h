@@ -18,7 +18,7 @@
  */
 
 /*
- * The Haslab Power Cell has 13 LEDs.
+ * The HasLab Power Cell has 13 LEDs.
 */
 #define HASLAB_POWERCELL_LED_COUNT 13
 
@@ -28,7 +28,7 @@
 #define FRUTTO_POWERCELL_LED_COUNT 15
 
 /*
- * The Haslab Cyclotron Lid has 12 LEDs.
+ * The HasLab Cyclotron Lid has 12 LEDs.
 */
 #define HASLAB_CYCLOTRON_LED_COUNT 12
 
@@ -50,7 +50,7 @@
  /* 
  * Total number of LEDs in the Proton Pack
  * Power Cell and Cyclotron Lid LEDs + optional N-Filter NeoPixel.
- * 25 LEDs in the stock Haslab kit. 13 in the Power Cell and 12 in the Cyclotron lid. 
+ * 25 LEDs in the stock HasLab kit. 13 in the Power Cell and 12 in the Cyclotron lid. 
  * 7 additional (32 in total) for a NeoPixel jewel that you can put into the N-Filter (optional). 
  * This jewel chains off Cyclotron lens #4 in the lid (top left lens).
  */
@@ -72,7 +72,7 @@ uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_
 uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
 
 /*
- * The Haslab Cyclotron Lid has 12 LEDs.
+ * The HasLab Cyclotron Lid has 12 LEDs.
 */
 #define HASLAB_CYCLOTRON_LED_COUNT 12
 
@@ -208,7 +208,7 @@ ezButton switch_alarm(23); // Ribbon cable removal switch
 ezButton switch_mode(25); // 1984 / 2021 mode toggle switch
 ezButton switch_vibration(27); // Vibration toggle switch
 ezButton switch_cyclotron_direction(29); // Newly added switch for controlling the direction of the Cyclotron lights. Not required. Defaults to clockwise.
-ezButton switch_power(31); // Red power switch under the ion arm.
+ezButton switch_power(31); // Red power switch under the Ion Arm.
 ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
 
 /* 

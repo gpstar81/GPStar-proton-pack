@@ -4,7 +4,7 @@ These are *OPTIONAL* add-on additions for use within the Proton Pack.
 
 ## Cyclotron Lid Lights (Optional)
 
-The stock lights in the Habro pack only supplies 12 addressable LEDs which are red-only. If you wish to be able to change the colors of these lights you will need to replace them with an addressable LED ring or custom LEDs such as those made by [Frutto Technology](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit).
+The stock lights in the HasLab pack only supplies 12 addressable LEDs which are red-only. If you wish to be able to change the colors of these lights you will need to replace them with an addressable LED ring or custom LEDs such as those made by [Frutto Technology](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit).
 
 Regardless of solution you will need to split apart the Cyclotron Lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.
 
@@ -13,7 +13,7 @@ Regardless of solution you will need to split apart the Cyclotron Lid which is s
 [gpstar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://www.youtube.com/watch?v=LgOT8UspSCI) (YouTube)
 [![gpstar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://img.youtube.com/vi/LgOT8UspSCI/maxresdefault.jpg)](https://www.youtube.com/watch?v=LgOT8UspSCI)
 
-The stock LEDs can be removed by prying out the diffuser lenses, then snipping the 3 black plastic welds used to hold the PCB's in place. Whether pre-soldered or not, the new LEDs should be oriented similar to the arcing pattern used by the stock LEDs. Hot glue can be used to keep these in place until the diffusers are put back in place.
+The stock LEDs can be removed by prying out the diffuser lenses, then snipping the 3 black plastic welds used to hold the PCBs in place. Whether pre-soldered or not, the new LEDs should be oriented similar to the arcing pattern used by the stock LEDs. Hot glue can be used to keep these in place until the diffusers are put back in place.
 ![](images/Frutto_Cyc1.jpg)
 
 When replacing the diffuser lenses, keep wires tucked into the available slots to avoid pinching.
@@ -52,9 +52,9 @@ There is a included STL file that you can 3D Print to replace the Cyclotron swit
 
 ## Inner Cyclotron Lights (Optional)
 
-You can run a NeoPixel ring (35 pixel ring recommended) inside a modified inner Cyclotron or any 3D printable one. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. NeoPixel ring size can be toggled in the user editable variables at the top of the proton pack code. 35 Pixel NeoPixel ring is the default setting.
+You can run a NeoPixel ring (35 pixel ring recommended) inside a modified Inner Cyclotron or any 3D printable one. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. NeoPixel ring size can be toggled in the user editable variables at the top of the Proton Pack code. 35 Pixel NeoPixel ring is the default setting.
 ![35 Pixel NeoPixel Ring](images/35NeoPixelRing.jpg)
 
-Included is also a set of STL files if you wish to print a new inner cyclotron. The lid is held down onto the bottom part of this printable Cyclotron with m3x10 hex screws on the outer ring. The inner ring you can use smaller m3x8 hex screws for decoration. Enlarge or drill any holes for wire decoration or feeding wires into the Cyclotron as necessary.
+Included is also a set of STL files if you wish to print a new Inner Cyclotron. The lid is held down onto the bottom part of this printable Cyclotron with M3x10 hex screws on the outer ring. The inner ring you can use smaller m3x8 hex screws for decoration. Enlarge or drill any holes for wire decoration or feeding wires into the Cyclotron as necessary.
 ![3D Cyclotron](images/3DCyclotron.jpg)
 ![3D Cyclotron Draft Print](images/3DCyclotronDraftPrint.jpg)

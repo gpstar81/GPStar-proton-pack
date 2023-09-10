@@ -76,7 +76,7 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 /*
  * When defined, when using the Barmeter 28 segment bargraph, it will invert the sequence.
  * Part #: BL28Z-3005SA04Y
- * Only compatible with the gpstar Neutrona Wand board, and not a Arduino Nano.
+ * Only compatible with the gpstar Neutrona Wand board, and not an Arduino Nano.
  * When using the Frutto Technologies 28 segment bargraph, this should be defined.
  
  * Defined / Enabled:

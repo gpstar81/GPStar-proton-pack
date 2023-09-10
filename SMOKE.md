@@ -17,7 +17,7 @@ Each pin is designed to make use of a transistor to activate pumps, external dev
 
 - For `gpstar Proton Pack PCB boards`, the `SM-1, SM-2, FN-1 and FN-2` connectors provide 5V of power and can power devices such as pumps and fans. However do not connect any device which draws more than 1 Amp of current. Use a relay module (such as [this](https://a.co/d/4BXJ9J1) or [this](https://a.co/d/iEuGPYK)) to drive such devices.
 	- For devices which require a dedicated power source (such as 12V) ALWAYS use a relay module.
-- For DIY Arduino Users: `DO NOT DRAW MORE THAN 40mA FROM A ARDUINO MEGA pin`. Use a transistor setup or relay module as previously noted.
+- For DIY Arduino Users: `DO NOT DRAW MORE THAN 40mA FROM AN ARDUINO MEGA PIN`. Use a transistor setup or relay module as previously noted.
 
 ## Schematic Examples
 
@@ -51,7 +51,7 @@ For this example, I used the following parts:
 - 1 - PN2222 NPN Transitor -> Refer to [Bill of Materials](BOM.md)
 - 100% Pure Vegetable Glycerine for the vape pen to generate smoke
 
-This will be using SMOKE2, which is Pin #35 on the Arduino Mega or the SM-2 connector on the gpstar Proton Pack PCB. In the pack schematic diagrams if you are using a Arduino Mega, refer to SMOKE2 setup on the breadboard for the connection guide in the PACK instructions for more detail instructions. A quick rundown on what happens is, Pin #35 on the Arduino Mega or the SM-2 connector on the gpstar Proton Pack PCB goes high during smoke events, which makes the transistor open and the connected DC pump will then have 5V power which begins to operate. I removed the original battery compartment in the HasLab motherboard, so I have quick access to the vape pen from the battery door on the motherboard when it needs recharging and refilling with more vegetable glycerine.
+This will be using SMOKE2, which is Pin #35 on the Arduino Mega or the SM-2 connector on the gpstar Proton Pack PCB. In the pack schematic diagrams if you are using an Arduino Mega, refer to SMOKE2 setup on the breadboard for the connection guide in the PACK instructions for more detail instructions. A quick rundown on what happens is, Pin #35 on the Arduino Mega or the SM-2 connector on the gpstar Proton Pack PCB goes high during smoke events, which makes the transistor open and the connected DC pump will then have 5V power which begins to operate. I removed the original battery compartment in the HasLab motherboard, so I have quick access to the vape pen from the battery door on the motherboard when it needs recharging and refilling with more vegetable glycerine.
 
 Here are some photos the basic smoke setup. 
 

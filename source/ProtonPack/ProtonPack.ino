@@ -1348,7 +1348,7 @@ void powercellDraw(uint8_t i_start) {
 void cyclotronColourReset() {
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
-  // We override the colour changes when using stock Haslab Cyclotron LEDs, returning full white.
+  // We override the colour changes when using stock HasLab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
   if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
@@ -1499,7 +1499,7 @@ void cyclotronControl() {
 void cyclotronFade() {
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
-  // We override the colour changes when using stock Haslab Cyclotron LEDs.
+  // We override the colour changes when using stock HasLab Cyclotron LEDs.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
   if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
@@ -1576,7 +1576,7 @@ void cyclotronFade() {
 
               case HASLAB_CYCLOTRON_LED_COUNT:
               default:
-                // For stock Haslab LEDs.
+                // For stock HasLab LEDs.
                 pack_leds[i_cyclotron_12led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
               break;
             }
@@ -1604,7 +1604,7 @@ void cyclotronFade() {
 
               case HASLAB_CYCLOTRON_LED_COUNT:
               default:
-                // For stock Haslab LEDs.
+                // For stock HasLab LEDs.
                 pack_leds[i_cyclotron_12led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
             }
@@ -1632,7 +1632,7 @@ void cyclotronFade() {
 
               case HASLAB_CYCLOTRON_LED_COUNT:
               default:
-                // For stock Haslab LEDs.
+                // For stock HasLab LEDs.
                 pack_leds[i_cyclotron_12led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
               break;
             }
@@ -2273,7 +2273,7 @@ void cyclotron84LightOn(int cLed) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness);
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
-  // We override the colour changes when using stock Haslab Cyclotron LEDs, returning full white.
+  // We override the colour changes when using stock HasLab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
   if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
@@ -5501,7 +5501,7 @@ void checkWand() {
 
                 case FRUTTO_CYCLOTRON_LED_COUNT:
                 default:
-                  // Switch to 12 LEDs. Default Haslab.
+                  // Switch to 12 LEDs. Default HasLab.
                   i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
 
                   i_2021_delay = 15;
@@ -5903,7 +5903,7 @@ void readEEPROM() {
           i_1984_cyclotron_leds[3] = 17;
         break;
 
-        // Default Haslab LEDs.
+        // Default HasLab LEDs.
         case HASLAB_CYCLOTRON_LED_COUNT:
         default:
           i_2021_delay = 15;
