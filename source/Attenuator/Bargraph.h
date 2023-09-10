@@ -25,7 +25,7 @@ void bargraphFull() {
   if(b_28segment_bargraph == true) {
     for(uint8_t i = 0; i < 28; i++) {
       ht_bargraph.setLedNow(i_bargraph[i]);
-    }    
+    }
   }
 }
 
@@ -1033,7 +1033,7 @@ void settingsBlinkingLights() {
           }
         }
       }
-    }    
+    }
     /*
     switch(i_wand_menu) {
       case 5:
