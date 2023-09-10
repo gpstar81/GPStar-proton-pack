@@ -198,7 +198,7 @@ void setup() {
     }
   #endif
 
-  ms_bsmash.start(i_bsmash_delay);
+  ms_bmash.start(i_bmash_delay);
 
   if(b_no_pack == true || b_debug == true) {
     b_wait_for_pack = false;
@@ -236,13 +236,13 @@ void mainLoop() {
   }
 
   if(WAND_ACTION_STATUS != ACTION_FIRING) {
-    if(ms_bsmash.remaining() < 1) {
+    if(ms_bmash.remaining() < 1) {
       // Clear counter until user begins firing (post any lock-out period).
-      i_bsmash_count = 0;
+      i_bmash_count = 0;
 
-      if(b_wand_smash_error == true) {
+      if(b_wand_mash_error == true) {
         // Return the wand to a normal firing state after lock-out from button smashing.
-        b_wand_smash_error = false;
+        b_wand_mash_error = false;
         
         WAND_STATUS = MODE_ON;
         WAND_ACTION_STATUS = ACTION_IDLE;
@@ -292,7 +292,7 @@ void mainLoop() {
     break;
 
     case ACTION_OFF:
-      b_wand_smash_error = false;
+      b_wand_mash_error = false;
       wandOff();
     break;
 
@@ -1729,7 +1729,7 @@ void checkSwitches() {
 
     case MODE_ERROR:
       if(switch_activate.getState() == HIGH) {
-        b_wand_smash_error = false;
+        b_wand_mash_error = false;
         wandOff();
       }
     break;
@@ -1939,11 +1939,11 @@ void checkSwitches() {
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-        if(i_bsmash_count >= i_bsmash_max) {
+        if(i_bmash_count >= i_bmash_max) {
           // User has exceeded "normal" firing rate.
-          b_wand_smash_error = true;
+          b_wand_mash_error = true;
           modeError();
-          ms_bsmash.start(i_bsmash_cool_down);
+          ms_bmash.start(i_bmash_cool_down);
         }
         else {
           if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
@@ -1951,35 +1951,36 @@ void checkSwitches() {
               WAND_ACTION_STATUS = ACTION_FIRING;
             }
 
-            if(ms_bsmash.remaining() < 1) {
+            if(ms_bmash.remaining() < 1) {
               // Clear counter/timer until user begins firing.
-              i_bsmash_count = 0;
-              ms_bsmash.start(i_bsmash_delay);
+              i_bmash_count = 0;
+              ms_bmash.start(i_bmash_delay);
             }
 
             if(b_firing_intensify != true) {
               // Increase count eac time the user presses a firing button.
-              i_bsmash_count++;
+              i_bmash_count++;
             }
 
             b_firing_intensify = true;
           }
 
-          // When the Barrel Wing Button is changed to a alternate firing button, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.    if(b_cross_the_streams == true) {
+          // When the Barrel Wing Button is changed to a alternate firing button, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
+          if(b_cross_the_streams == true) {
             if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
               if(WAND_ACTION_STATUS != ACTION_FIRING) {
                 WAND_ACTION_STATUS = ACTION_FIRING;
               }
 
-              if(ms_bsmash.remaining() < 1) {
+              if(ms_bmash.remaining() < 1) {
                 // Clear counter/timer until user begins firing.
-                i_bsmash_count = 0;
-                ms_bsmash.start(i_bsmash_delay);
+                i_bmash_count = 0;
+                ms_bmash.start(i_bmash_delay);
               }
 
               if(b_firing_alt != true) {
                 // Increase count eac time the user presses a firing button.
-                i_bsmash_count++;
+                i_bmash_count++;
               }
 
               b_firing_alt = true;
@@ -2016,7 +2017,7 @@ void checkSwitches() {
 }
 
 void wandOff() {
-  if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_smash_error != true) {
+  if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_mash_error != true) {
     // Tell the pack the wand is turned off.
     wandSerialSend(W_OFF);
   }
@@ -2068,7 +2069,7 @@ void wandOff() {
   soundIdleStop();
   soundIdleLoopStop();
 
-  if(b_wand_smash_error != true) {
+  if(b_wand_mash_error != true) {
     WAND_STATUS = MODE_OFF;
     WAND_ACTION_STATUS = ACTION_IDLE;
   }
@@ -2110,7 +2111,7 @@ void wandOff() {
   ms_hat_2.stop();
   
   // Clear counter until user begins firing.
-  i_bsmash_count = 0;
+  i_bmash_count = 0;
 
   // Turn off remaining lights.
   wandLightsOff();
@@ -2163,7 +2164,7 @@ void modeActivate() {
 
   // The wand was started while the top switch was already on, so let's put the wand into a startup error mode.
   if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
-    b_wand_smash_error = true;
+    b_wand_mash_error = true;
     modeError();
   }
   else {
@@ -2176,10 +2177,10 @@ void modeActivate() {
     wandSerialSend(W_ON);
 
     // Clear counter until user begins firing.
-    i_bsmash_count = 0;
+    i_bmash_count = 0;
   }
 
-  b_wand_smash_error = false;
+  b_wand_mash_error = false;
 
   postActivation(); // Enable lights and bargraph after wand activation.
 }
@@ -5896,11 +5897,11 @@ void checkPack() {
                 // Turn wand off.
                 if(WAND_STATUS != MODE_OFF) {
                   if(WAND_STATUS == MODE_ERROR) {
-                    b_wand_smash_error = false;
+                    b_wand_mash_error = false;
                     wandOff();
                   }
                   else {
-                    b_wand_smash_error = false;
+                    b_wand_mash_error = false;
                     WAND_ACTION_STATUS = ACTION_OFF;
                   }
                 }

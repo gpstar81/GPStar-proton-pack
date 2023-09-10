@@ -4563,7 +4563,7 @@ void checkWand() {
                 case 1984:
                 case 1989:
                   stopEffect(S_CROSS_STREAMS_START);
-                  stopEffect(S_CROSS_STREAMS_END);                
+                  stopEffect(S_CROSS_STREAMS_END);
 
                   playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
                 break;

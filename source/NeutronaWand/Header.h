@@ -346,17 +346,17 @@ bool b_sound_afterlife_idle_2_fade = true;
 bool b_pack_ribbon_cable_on = true;
 
 /*
- * Button Smashing Lock-out - Prevents excessive user input via the primary/secondary firing buttons.
- * This ensures that the user is not exceeting what would be considered "normal" for firing of the wand,
+ * Button Mashing Lock-out - Prevents excessive user input via the primary/secondary firing buttons.
+ * This ensures that the user is not exceeding what would be considered "normal" for firing of the wand,
  * otherwise an error mode will be engaged to provide a cool-down period. This does not apply to any
- * prolonged firing which would trigger the overheat or venting sequences only rapid firing bursts.
+ * prolonged firing which would trigger the overheat or venting sequences; only rapid firing bursts.
  */
-millisDelay ms_bsmash;
-unsigned int i_bsmash_delay = 3000;     // Time period in which we consider rapid firing
-unsigned int i_bsmash_cool_down = 3200; // Time period for the lock-out of user input
-uint8_t i_bsmash_count = 0;             // Current count for rapid firing bursts
-uint8_t i_bsmash_max = 5;               // Burst count we consider before the lock-out
-bool b_wand_smash_error = false;        // Indicates wand is in a lock-out phase
+millisDelay ms_bmash;
+unsigned int i_bmash_delay = 3000;     // Time period in which we consider rapid firing
+unsigned int i_bmash_cool_down = 3200; // Time period for the lock-out of user input
+uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts
+uint8_t i_bmash_max = 5;               // Burst count we consider before the lock-out
+bool b_wand_mash_error = false;        // Indicates wand is in a lock-out phase
 
 /*
  * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
