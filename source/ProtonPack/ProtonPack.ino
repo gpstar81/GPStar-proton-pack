@@ -27,12 +27,12 @@
 
 /*
   ***** IMPORTANT *****
-  * You no longer need to edit and configure the wavTrigger.h anymore.
-  * Please make sure your Wav Trigger devices are running firmware version 1.40 or higher. 
+  * You no longer need to edit and configure wavTrigger.h anymore.
+  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher. 
   * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
   https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
 
-  * Information on how to update your Wav Trigger devices can be found on the gpstar github repository.
+  * Information on how to update your WAV Trigger devices can be found on the gpstar github repository.
   https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
 */
 #include "wavTrigger.h"
@@ -53,7 +53,7 @@ void setup() {
   serial1Coms.begin(Serial1, false);
   packComs.begin(Serial2, false);
 
-  // Setup the Wav Trigger.
+  // Setup the WAV Trigger.
   setupWavTrigger();
 
   // Rotary encoder for volume control.
@@ -69,7 +69,7 @@ void setup() {
   switch_cyclotron_direction.setDebounceTime(50);
   switch_smoke.setDebounceTime(50);
 
-  // Adjust the pwm frequency of the vibration motor.
+  // Adjust the PWM frequency of the vibration motor.
   TCCR5B = (TCCR5B & B11111000) | (B00000100);  // for PWM frequency of 122.55 Hz
 
   // Vibration motor
@@ -78,19 +78,19 @@ void setup() {
   // Smoke motor
   pinMode(smoke_pin, OUTPUT);
 
-  // Fan pin for the n-filter smoke.
+  // Fan pin for the N-Filter smoke.
   pinMode(fan_pin, OUTPUT);
 
   // Second smoke motor (booster tube)
   pinMode(smoke_booster_pin, OUTPUT);
 
-  // A fan pin that goes off at the same time of the booster tube smoke pin.
+  // A fan pin that goes off at the same time as the booster tube smoke pin.
   pinMode(fan_booster_pin, OUTPUT);
 
   // Another optional N-Filter LED.
   pinMode(i_nfilter_led_pin, OUTPUT);
 
-  // Powercell and Cyclotron Lid.
+  // Power Cell and Cyclotron Lid.
   FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, i_max_pack_leds + i_nfilter_jewel_leds);
 
   // Inner Cyclotron LEDs.
@@ -150,7 +150,7 @@ void setup() {
     i_mode_year = 2021;
   }
 
-  // Check some LED brightness settings for various LED's.
+  // Check some LED brightness settings for various LEDs.
   // The datatype used should avoid checks for negative values.
   if(i_powercell_brightness > 100) {
     i_powercell_brightness = 100;
@@ -301,7 +301,7 @@ void loop() {
 
       checkCyclotronAutoSpeed();
 
-      // Play a little bit of smoke and n-filter vent lights while firing and other misc sound effects.
+      // Play a little bit of smoke and N-Filter vent lights while firing and other misc sound effects.
       if(b_wand_firing == true) {
         // Mix some impact sound effects.
         if(ms_firing_sound_mix.justFinished() && FIRING_MODE == PROTON && b_stream_effects == true) {
@@ -399,7 +399,7 @@ void loop() {
             fanControl(true);
           }
 
-          // We are strobing the n-ftiler jewel.
+          // We are strobing the N-Filter jewel.
           if(ms_vent_light_off.justFinished()) {
             ms_vent_light_off.stop();
             ms_vent_light_on.start(i_vent_light_delay);
@@ -647,11 +647,11 @@ void packShutdown() {
   ms_smoke_timer.stop();
   ms_smoke_on.stop();
 
-  // Turn off the n-filter fan.
+  // Turn off the N-Filter fan.
   ms_fan_stop_timer.stop();
   fanControl(false);
 
-  // Turn off the cyclotron auto speed timer.
+  // Turn off the Cyclotron auto speed timer.
   ms_cyclotron_auto_speed_timer.stop();
 
   // Reset vent sounds flag.
@@ -662,28 +662,28 @@ void packOffReset() {
   powercellOff();
   cyclotronSwitchLEDOff();
 
-  // Reset the power cell timer.
+  // Reset the Power Cell timer.
   ms_powercell.stop();
   ms_powercell.start(i_powercell_delay);
 
-  // Reset the cyclotron led switch timer.
+  // Reset the Cyclotron LED switch timer.
   ms_cyclotron_switch_led.stop();
   ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
 
-  // Need to reset the cyclotron timers.
+  // Need to reset the Cyclotron timers.
   ms_cyclotron.start(i_2021_delay);
   ms_cyclotron_ring.start(i_inner_ramp_delay);
 
   b_overheating = false;
   b_2021_ramp_down = false;
   b_2021_ramp_down_start = false;
-  b_reset_start_led = true; // reset the start led of the cyclotron.
+  b_reset_start_led = true; // reset the start LED of the Cyclotron.
   b_inner_ramp_down = false;
 
   resetCyclotronLeds();
   reset2021RampUp();
 
-  // Update Cyclotron LED timer delay and optional cyclotron led switch plate LED timers delays.
+  // Update Cyclotron LED timer delay and optional Cyclotron LED switch plate LED timer delays.
   switch(i_mode_year) {
     case 2021:
       i_powercell_delay = i_powercell_delay_2021;
@@ -733,7 +733,7 @@ void checkSwitches() {
 
       playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
-      // Tell wand to play cyclotron counter clockwise voice.
+      // Tell wand to play Cyclotron counter clockwise voice.
       packSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
     }
     else {
@@ -748,7 +748,7 @@ void checkSwitches() {
 
       playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
 
-      // Tell wand to play cyclotron clockwise voice.
+      // Tell wand to play Cyclotron clockwise voice.
       packSerialSend(P_CYCLOTRON_CLOCKWISE);
     }
   }
@@ -827,7 +827,7 @@ void checkSwitches() {
 
     playEffect(S_BEEPS_BARGRAPH);
 
-    // Turn off the year mode override flag controlled by the Neutrona wand.
+    // Turn off the year mode override flag controlled by the Neutrona Wand.
     b_switch_mode_override = false;
   }
 
@@ -866,7 +866,7 @@ void checkSwitches() {
           }
         }
         else {
-          // If the Neutrona wand sub menu setting told the Proton Pack to change years.
+          // If the Neutrona Wand sub menu setting told the Proton Pack to change years.
           switch(i_mode_year_tmp) {
             case 1984:
               if(i_mode_year != i_mode_year_tmp) {
@@ -1084,7 +1084,7 @@ void cyclotronSwitchLEDLoop() {
       }
     }
     else {
-      // No need to have the inner cyclotron switch plate LED's on when the lid is on.
+      // No need to have the Inner Cyclotron switch plate LEDs on when the lid is on.
      cyclotronSwitchLEDOff();
     }
 
@@ -1124,7 +1124,7 @@ void powercellRampDown() {
  if(ms_powercell.justFinished()) {
     int i_extra_delay = 0;
 
-    // Powercell
+    // Power Cell
     if(i_powercell_led < 0) {
       // Do Nothing.
     }
@@ -1170,7 +1170,7 @@ void powercellLoop() {
   if(ms_powercell.justFinished()) {
     int i_extra_delay = 0;
 
-    // Powercell
+    // Power Cell
     if(i_powercell_led >= i_powercell_leds) {
       powercellOff();
 
@@ -1180,7 +1180,7 @@ void powercellLoop() {
       if(b_powercell_updating != true) {
         powercellDraw(i_powercell_led); // Update starting at a specific LED.
 
-        // Add a small delay to pause the powercell when all powercell LEDs are lit up, to match the 2021 pack.
+        // Add a small delay to pause the Power Cell when all Power Cell LEDs are lit up, to match the 2021 pack.
         if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
           i_extra_delay = 250;
         }
@@ -1217,7 +1217,7 @@ void powercellLoop() {
       i_pc_delay = i_powercell_delay * 5;
     }
 
-    // Speed up the power cell when the cyclotron speeds up before a overheat.
+    // Speed up the Power Cell when the cyclotron speeds up before a overheat.
     unsigned int i_multiplier = 0;
 
     if(i_powercell_multiplier > 1) {
@@ -1335,43 +1335,43 @@ void powercellDraw(uint8_t i_start) {
   uint8_t i_brightness = getBrightness(i_powercell_brightness); // Calculate desired brightness.
   uint8_t i_colour_scheme = getDeviceColour(POWERCELL, FIRING_MODE, b_powercell_colour_toggle);
 
-  // Sets the colour for each powercell LED, subject to colour toggle setting.
+  // Sets the colour for each Power Cell LED, subject to colour toggle setting.
   for(uint8_t i = i_start; i <= i_powercell_led; i++) {
     if(i_powercell_led < i_powercell_leds) {
-      // Note: Always assumed to be RGB for built-in or Frutto LED's.
+      // Note: Always assumed to be RGB for built-in or Frutto LEDs.
       pack_leds[i] = getHueAsRGB(POWERCELL, i_colour_scheme, i_brightness);
     }
   }
 }
 
-// Reset the cyclotron led colours.
+// Reset the Cyclotron LED colours.
 void cyclotronColourReset() {
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
-  // We override the colour changes when using stock Haslab Cyclotron LEDs, returning full white.
+  // We override the colour changes when using stock HasLab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
   if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
   }
 
-  // Accounts for a total # of LED's minus the N-filter jewel and whatever preceeds the cyclotron.
+  // Accounts for a total # of LEDs minus the N-Filter jewel and whatever preceeds the Cyclotron.
   uint8_t i_max = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
   for(int i = 0; i < i_max; i++) {
     if(i_cyclotron_led_on_status[i] == true) {
-      // Note: Always assumed to be RGB for built-in or Frutto LED's.
-      // Sets 0-index <i> plus the position of the first cyclotron LED.
+      // Note: Always assumed to be RGB for built-in or Frutto LEDs.
+      // Sets 0-index <i> plus the position of the first Cyclotron LED.
       pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
     }
   }
 }
 
 void cyclotronControl() {
-  // Only reset the starting led when the pack is first started up.
+  // Only reset the starting LED when the pack is first started up.
   if(b_reset_start_led == true) {
     b_reset_start_led = false;
     if(b_clockwise == false) {
       if(i_mode_year == 2021) {
-        i_led_cyclotron = cyclotron_led_start + 2; // Start on LED #2 in anti-clockwise mode in 2021 mode.
+        i_led_cyclotron = cyclotron_led_start + 2; // Start on LED #2 in counter-clockwise mode in 2021 mode.
       }
       else {
         i_1984_counter = 1;
@@ -1456,7 +1456,7 @@ void cyclotronControl() {
         r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
         r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
 
-        r_inner_ramp.go(i_inner_current_ramp_speed); // Inner cyclotron ramp reset.
+        r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
         r_inner_ramp.go(i_1984_inner_delay, i_1984_ramp_length, CIRCULAR_OUT);
       }
       else {
@@ -1470,7 +1470,7 @@ void cyclotronControl() {
       b_2021_ramp_down_start = false;
 
       r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
-      r_inner_ramp.go(i_inner_current_ramp_speed); // Reset the inner cyclotron ramp.
+      r_inner_ramp.go(i_inner_current_ramp_speed); // Reset the Inner Cyclotron ramp.
 
       if(i_mode_year == 1984 || i_mode_year == 1989) {
         r_2021_ramp.go(i_1984_delay * 1.3, i_1984_ramp_down_length, CIRCULAR_IN);
@@ -1499,7 +1499,7 @@ void cyclotronControl() {
 void cyclotronFade() {
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
-  // We override the colour changes when using stock Haslab Cyclotron LEDs.
+  // We override the colour changes when using stock HasLab Cyclotron LEDs.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
   if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
@@ -1528,7 +1528,7 @@ void cyclotronFade() {
               break;
 
               case FRUTTO_CYCLOTRON_LED_COUNT:
-                // For Frutto Technology 20 LED's.
+                // For Frutto Technology 20 LEDs.
                 pack_leds[i_cyclotron_20led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
 
@@ -1570,13 +1570,13 @@ void cyclotronFade() {
               break;
 
               case FRUTTO_CYCLOTRON_LED_COUNT:
-                // For Frutto Technology 20 LED's.
+                // For Frutto Technology 20 LEDs.
                 pack_leds[i_cyclotron_20led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
               break;
 
               case HASLAB_CYCLOTRON_LED_COUNT:
               default:
-                // For stock Haslab LED's.
+                // For stock HasLab LEDs.
                 pack_leds[i_cyclotron_12led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
               break;
             }
@@ -1598,13 +1598,13 @@ void cyclotronFade() {
               break;
 
               case FRUTTO_CYCLOTRON_LED_COUNT:
-                // For Frutto Technology 20 LED's.
+                // For Frutto Technology 20 LEDs.
                 pack_leds[i_cyclotron_20led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
 
               case HASLAB_CYCLOTRON_LED_COUNT:
               default:
-                // For stock Haslab LED's.
+                // For stock HasLab LEDs.
                 pack_leds[i_cyclotron_12led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
             }
@@ -1626,13 +1626,13 @@ void cyclotronFade() {
               break;
 
               case FRUTTO_CYCLOTRON_LED_COUNT:
-                // For Frutto Technology 20 LED's.
+                // For Frutto Technology 20 LEDs.
                 pack_leds[i_cyclotron_20led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
               break;
 
               case HASLAB_CYCLOTRON_LED_COUNT:
               default:
-                // For stock Haslab LED's.
+                // For stock HasLab LEDs.
                 pack_leds[i_cyclotron_12led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
               break;
             }
@@ -1887,7 +1887,7 @@ void cyclotron2021(int cDelay) {
               ms_cyclotron.start(t_cDelay);
             }
             else if(i_current_ramp_speed > i_2021_delay) {
-              // This will simulate the fake leds during overheat and ribbon cable alarms.
+              // This will simulate the fake LEDs during overheat and ribbon cable alarms.
               ms_cyclotron.start(t_cDelay - i_2021_delay);
             }
             else {
@@ -2131,7 +2131,7 @@ void cyclotron1984Alarm() {
     pack_leds[led3] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
     pack_leds[led4] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
 
-    // Turn on all the other cyclotron LED's if required.
+    // Turn on all the other cyclotron LEDs if required.
     if(b_cyclotron_single_led != true) {
       pack_leds[led1 + 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
 
@@ -2196,7 +2196,7 @@ void cyclotron1984Alarm() {
       ms_cyclotron_led_fade_in[led4 - cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
     }
 
-    // Turn on all the other cyclotron LED's if required.
+    // Turn on all the other cyclotron LEDs if required.
     if(b_cyclotron_single_led != true) {
       if(i_cyclotron_led_value[led1 + 1 - cyclotron_led_start] == 0) {
         ms_cyclotron_led_fade_in[led1 + 1 - cyclotron_led_start].go(0);
@@ -2273,7 +2273,7 @@ void cyclotron84LightOn(int cLed) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness);
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
-  // We override the colour changes when using stock Haslab Cyclotron LEDs, returning full white.
+  // We override the colour changes when using stock HasLab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
   if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
     i_colour_scheme = C_HASLAB;
@@ -2440,7 +2440,7 @@ void cyclotronOverHeating() {
     break;
   }
 
-  // Time the n-filter light to when the fan is running.
+  // Time the N-Filter light to when the fan is running.
   if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
     if(b_overheat_sync_to_fan == true) {
       smokeControl(true);
@@ -2464,7 +2464,7 @@ void cyclotronOverHeating() {
       }
     }
 
-    // For non strobing vent light option.
+    // For non-strobing vent light option.
     if(b_overheat_strobe != true) {
       if(b_vent_light_on != true) {
         // Solid light on if strobe option turned off.
@@ -2505,7 +2505,7 @@ void cyclotronNoCable() {
       if(ms_alarm.justFinished()) {
         ms_alarm.start(i_1984_delay / 2);
 
-        // Turn off the n-filter lights.
+        // Turn off the N-Filter lights.
         ventLight(false);
         ventLightLEDW(false);
 
@@ -2515,7 +2515,7 @@ void cyclotronNoCable() {
         if(ms_alarm.remaining() < i_1984_delay / 4) {
           vibrationPack(i_vibration_idle_level_1984);
 
-          // Turn on the n-filter lights.
+          // Turn on the N-Filter lights.
           ventLight(true);
           ventLightLEDW(true);
         }
@@ -2524,7 +2524,7 @@ void cyclotronNoCable() {
   }
 }
 
-// Turns off the LEDs in the cyclotron lid only.
+// Turns off the LEDs in the Cyclotron Lid only.
 void cyclotronLidLedsOff() {
   uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
 
@@ -2541,7 +2541,7 @@ void cyclotronLidLedsOff() {
         break;
 
         case FRUTTO_CYCLOTRON_LED_COUNT:
-          // For Frutto Technology 20 LED's.
+          // For Frutto Technology 20 LEDs.
           pack_leds[i_cyclotron_20led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
         break;
 
@@ -2565,12 +2565,12 @@ void cyclotronLidLedsOff() {
 }
 
 void resetCyclotronLeds() {
-  // Turn off optional n-filter led.
+  // Turn off optional N-Filter LED.
   digitalWrite(i_nfilter_led_pin, LOW);
 
   cyclotronLidLedsOff();
 
-  // Only reset the start led if the pack is off or just started.
+  // Only reset the start LED if the pack is off or just started.
   if(b_reset_start_led == true) {
     i_led_cyclotron = cyclotron_led_start;
   }
@@ -2582,7 +2582,7 @@ void resetCyclotronLeds() {
     }
   }
 
-  // Tell the inner cyclotron to turn off the leds.
+  // Tell the Inner Cyclotron to turn off the LEDs.
   if(b_cyclotron_lid_on == true) {
     innerCyclotronOff();
   }
@@ -2649,7 +2649,7 @@ void innerCyclotronRing(int cDelay) {
       ms_cyclotron_ring.start(cDelay);
     }
 
-    // Colour control for the inner cyclotron leds.
+    // Colour control for the Inner Cyclotron LEDs.
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, FIRING_MODE, b_cyclotron_colour_toggle);
 
@@ -2743,7 +2743,7 @@ void reset2021RampUp() {
   b_2021_ramp_up = true;
   b_2021_ramp_up_start = true;
 
-  // Inner cyclotron ring.
+  // Inner Cyclotron ring.
   b_inner_ramp_up = true;
 }
 
@@ -2751,7 +2751,7 @@ void reset2021RampDown() {
   b_2021_ramp_down = true;
   b_2021_ramp_down_start = true;
 
-  // Inner cyclotron ring.
+  // Inner Cyclotron ring.
   b_inner_ramp_down = true;
 }
 
@@ -2769,10 +2769,10 @@ void ventLight(bool b_on) {
   b_vent_light_on = b_on;
 
   if(b_on == true) {
-    // If doing firing smoke effects, lets change the light colours.
+    // If doing firing smoke effects, let's change the light colours.
     if(b_wand_firing == true || b_overheating == true) {
       if(FIRING_MODE == PROTON || FIRING_MODE == VENTING) {
-        // Override the N-filter light colours for a proton stream.
+        // Override the N-Filter light colours for a proton stream.
         switch(i_wand_power_level) {
           case 1:
             i_colour_scheme = C_RED;
@@ -2821,7 +2821,7 @@ void ventLight(bool b_on) {
 
 // Only for Afterlife (2021) mode.
 void checkCyclotronAutoSpeed() {
-  // No need to start any timers until after any ramping has finished and only in Afterlife (2021) that we do the auto speed increases.
+  // No need to start any timers until after any ramping has finished; only in Afterlife (2021) do we do the auto speed increases.
   if(b_wand_firing == true && b_2021_ramp_up != true && b_2021_ramp_down != true && i_mode_year == 2021) {
     if(ms_cyclotron_auto_speed_timer.justFinished() && i_cyclotron_multiplier < 6) {
       // Increase the Cyclotron speed.
@@ -2841,7 +2841,7 @@ void wandFiring() {
   b_wand_firing = true;
   serial1Send(A_FIRING);
 
-  // Reset the Cyclotron auto speed up timers. Only for Afterlife 2021 mode.
+  // Reset the Cyclotron auto speed up timers. Only for Afterlife (2021) mode.
   ms_cyclotron_auto_speed_timer.stop();
 
   if(i_mode_year == 2021) {
@@ -3073,7 +3073,7 @@ void wandStoppedFiring() {
   // Turn off any smoke.
   smokeControl(false);
 
-  // Turn off the n-filter fan.
+  // Turn off the N-Filter fan.
   fanControl(false);
 
   ms_firing_length_timer.stop();
@@ -3195,7 +3195,7 @@ void packAlarm() {
   }
 }
 
-// LED's for the 1984/2021 and vibration switches.
+// LEDs for the 1984/2021 and vibration switches.
 void cyclotronSwitchPlateLEDs() {
   if(switch_cyclotron_lid.isReleased()) {
     // Play sounds when lid is removed.
@@ -3224,7 +3224,7 @@ void cyclotronSwitchPlateLEDs() {
 
     playEffect(S_VENT_DRY);
 
-    // Play some spark sounds if the pack is running and the lid is put back on                          .
+    // Play some spark sounds if the pack is running and the lid is put back on.
     if(PACK_STATUS == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
     }
@@ -3232,19 +3232,19 @@ void cyclotronSwitchPlateLEDs() {
 
   if(switch_cyclotron_lid.getState() == LOW) {
     if(b_cyclotron_lid_on != true) {
-      // The cyclotron lid is now on.
+      // The Cyclotron Lid is now on.
       b_cyclotron_lid_on = true;
 
-      // Turn off inner cyclotron LEDs.
+      // Turn off Inner Cyclotron LEDs.
       innerCyclotronOff();
     }
   }
   else {
     if(b_cyclotron_lid_on == true) {
-      // The cyclotron lid is now off.
+      // The Cyclotron Lid is now off.
       b_cyclotron_lid_on = false;
 
-      // Make sure the inner cyclotron turns on if we are in the EEPROM LED menu.
+      // Make sure the Inner Cyclotron turns on if we are in the EEPROM LED menu.
       if(b_spectral_lights_on == true) {
         spectralLightsOn();
       }
@@ -3277,7 +3277,7 @@ void cyclotronSwitchPlateLEDs() {
     }
   }
   else {
-    // Keep the cyclotron switch LED's off when the lid is on.
+    // Keep the Cyclotron switch LEDs off when the lid is on.
     digitalWrite(cyclotron_switch_led_green, LOW);
     digitalWrite(cyclotron_switch_led_yellow, LOW);
   }
@@ -3428,7 +3428,7 @@ void increaseVolume() {
   i_volume_revert = i_volume_master;
 
   if(b_pack_on != true && b_pack_shutting_down != true) {
-    // Provide feedback when the Pack is not running.
+    // Provide feedback when the pack is not running.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
@@ -3438,7 +3438,7 @@ void increaseVolume() {
 
 void decreaseVolume() {
   if(i_volume_master == i_volume_abs_min) {
-    // Can not go any lower.
+    // Cannot go any lower.
   }
   else {
     if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
@@ -3455,7 +3455,7 @@ void decreaseVolume() {
   }
 
   if(b_pack_on != true && b_pack_shutting_down != true) {
-    // Provide feedback when the Pack is not running.
+    // Provide feedback when the pack is not running.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
@@ -3488,7 +3488,7 @@ void checkRotaryEncoder() {
     if(ms_volume_check.isRunning() != true) {
       decreaseVolume();
 
-      // Tell wand to decrease the volume.
+      // Tell wand to decrease volume.
       packSerialSend(P_VOLUME_DECREASE);
 
       ms_volume_check.start(50);
@@ -3502,7 +3502,7 @@ void checkRotaryEncoder() {
   }
 }
 
-// Smoke # 1. N-filter cone outlet.
+// Smoke # 1. N-Filter cone outlet.
 void smokeControl(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
@@ -3524,7 +3524,7 @@ void smokeControl(bool b_smoke_on) {
   }
 }
 
-// Smoke # 2. Good for putting smoke in the Booster Tube.
+// Smoke #2. Good for putting smoke in the Booster Tube.
 // A second fan pin (Fan Booster Tube) is timed to go off at the same time as this, but is not required in my experience.
 void smokeBooster(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
@@ -3550,8 +3550,8 @@ void smokeBooster(bool b_smoke_on) {
 }
 
 // N-Filter Fan.
-// Fan control. You can use this to switch on any device when properly hooked up with a transistor etc
-// A fan is a good idea for the n-filter for example.
+// Fan control. You can use this to switch on any device when properly hooked up with a transistor etc.
+// A fan is a good idea for the N-Filter for example.
 void fanControl(bool b_fan_on) {
   if(b_smoke_enabled == true) {
     if(b_fan_on == true) {
@@ -3583,7 +3583,7 @@ void checkFan() {
   }
 }
 
-// Check if the attenuator is still connected.
+// Check if the Attenuator is still connected.
 void serial1HandShake() {
   if(b_serial1_connected == true) {
     if(ms_serial1_handshake.justFinished()) {
@@ -3591,18 +3591,18 @@ void serial1HandShake() {
 
       b_serial1_connected = false;
 
-      // Where are you attenuator?
+      // Where are you Attenuator?
       serial1Send(A_HANDSHAKE);
     }
     else if(ms_serial1_handshake_checking.justFinished()) {
       ms_serial1_handshake_checking.stop();
-      // Ask the attenuator if it is still connected.
+      // Ask the Attenuator if it is still connected.
       serial1Send(A_HANDSHAKE);
     }
   }
   else {
     if(ms_serial1_handshake.justFinished()) {
-      // Ask the attenuator if it is connected.
+      // Ask the Attenuator if it is connected.
       serial1Send(A_HANDSHAKE);
 
       ms_serial1_handshake.start(i_serial1_handshake_delay / 5);
@@ -3635,7 +3635,7 @@ void wandHandShake() {
     }
     else if(ms_wand_handshake_checking.justFinished()) {
       if(b_diagnostic == true) {
-        // Play a beep sound to know if the wand is connected, while in diagnostic mode.
+        // Play a beep sound to know if the wand is connected while in diagnostic mode.
         playEffect(S_VENT_BEEP, true);
       }
 
@@ -3689,7 +3689,7 @@ void packOverheatingFinished() {
   // Stop the fan.
   ms_fan_stop_timer.stop();
 
-  // Turn off the n-filter fan.
+  // Turn off the N-Filter fan.
   fanControl(false);
 
   // Turn off the smoke.
@@ -3735,7 +3735,7 @@ void packOverheatingFinished() {
   ms_cyclotron.start(i_2021_delay);
 }
 
-// Incoming messages from the extra Serial 1 port..
+// Incoming messages from the extra Serial 1 port.
 void checkSerial1() {
   if(serial1Coms.available()) {
     serial1Coms.rxObj(dataStructR);
@@ -3743,12 +3743,12 @@ void checkSerial1() {
     if(!serial1Coms.currentPacketID()) {
       if(dataStructR.i > 0 && dataStructR.s == A_COM_START && dataStructR.e == A_COM_END) {
         if(b_serial1_connected != true) {
-          // Check if the attenuator is telling us it is here after connecting it to the pack.
-          // Then Synchronise some settings between the pack and the attenuator.
+          // Check if the Attenuator is telling us it is here after connecting it to the pack.
+          // Then synchronise some settings between the pack and the Attenuator.
           if(dataStructR.i == A_HANDSHAKE) {
             serial1Send(A_SYNC_START);
 
-            // Tell the attenuator that the pack is here.
+            // Tell the Attenuator that the pack is here.
             serial1Send(A_PACK_CONNECTED);
 
             if(i_mode_year == 1984) {
@@ -3848,7 +3848,7 @@ void checkSerial1() {
         else {
           switch(dataStructR.i) {
             case A_HANDSHAKE:
-              // The attenuator is still here.
+              // The Attenuator is still here.
               ms_serial1_handshake.start(i_serial1_handshake_delay);
               ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
               b_serial1_connected = true;
@@ -3892,7 +3892,7 @@ void checkSerial1() {
               // Turn down overall pack volume.
               decreaseVolume();
 
-              // Tell wand to decrease the volume.
+              // Tell wand to decrease volume.
               packSerialSend(P_VOLUME_DECREASE);
             break;
 
@@ -3900,7 +3900,7 @@ void checkSerial1() {
               // Turn up overall pack volume.
               increaseVolume();
 
-              // Tell wand to increase the volume.
+              // Tell wand to increase volume.
               packSerialSend(P_VOLUME_INCREASE);
             break;
 
@@ -4279,7 +4279,7 @@ void checkWand() {
               ms_vent_light_off.start(i_vent_light_delay);
               ms_fan_stop_timer.start(i_fan_stop_timer);
 
-              // Reset the inner cyclotron speed.
+              // Reset the Inner Cyclotron speed.
               if(i_mode_year == 1984 || i_mode_year == 1989) {
                 i_inner_current_ramp_speed = i_inner_ramp_delay;
               }
@@ -4295,14 +4295,14 @@ void checkWand() {
             break;
 
             case W_CYCLOTRON_NORMAL_SPEED:
-              // Reset cyclotron speed.
+              // Reset Cyclotron speed.
               cyclotronSpeedRevert();
 
               serial1Send(A_CYCLOTRON_NORMAL_SPEED);
             break;
 
             case W_CYCLOTRON_INCREASE_SPEED:
-              // Speed up cyclotron.
+              // Speed up Cyclotron.
               cyclotronSpeedIncrease();
 
               serial1Send(A_CYCLOTRON_INCREASE_SPEED);
@@ -4563,7 +4563,7 @@ void checkWand() {
                 case 1984:
                 case 1989:
                   stopEffect(S_CROSS_STREAMS_START);
-                  stopEffect(S_CROSS_STREAMS_END);                
+                  stopEffect(S_CROSS_STREAMS_END);
 
                   playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
                 break;
@@ -4623,7 +4623,7 @@ void checkWand() {
 
                   playEffect(S_VOICE_AFTERLIFE);
 
-                  // Tell the wand to play the 2021 sound effect.
+                  // Tell the wand to play the Afterlife sound effect.
                   packSerialSend(P_MODE_AFTERLIFE);
                 break;
 
@@ -4641,12 +4641,12 @@ void checkWand() {
                 break;
               }
 
-              // Turn on the year mode override flag. This resets when you flip the mode year toggle switch on the pack.
+              // Turn on the year mode override flag. This resets when you flip the year mode toggle switch on the pack.
               b_switch_mode_override = true;
             break;
 
             case W_RESET_PROTON_STREAM:
-              // Revert back to Proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
+              // Revert back to proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
               FIRING_MODE = PROTON;
 
               stopEffect(S_CLICK);
@@ -4661,7 +4661,7 @@ void checkWand() {
             break;
 
             case W_RESET_PROTON_STREAM_MIX:
-              // Revert back to Proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
+              // Revert back to proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
               FIRING_MODE = PROTON;
 
               stopEffect(S_CLICK);
@@ -4700,7 +4700,7 @@ void checkWand() {
             break;
 
             case W_VIBRATION_ENABLED:
-              // Neutrona Wand Vibration enabled.
+              // Neutrona Wand vibration enabled.
               stopEffect(S_BEEPS_ALT);
 
               playEffect(S_BEEPS_ALT);
@@ -4734,7 +4734,7 @@ void checkWand() {
                 b_vibration = true;
                 b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
-                // Proton Pack Vibration enabled.
+                // Proton Pack vibration enabled.
                 stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
                 stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
                 stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
@@ -4751,7 +4751,7 @@ void checkWand() {
                 b_vibration_firing = true;
                 b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
-                // Proton Pack Vibration firing enabled.
+                // Proton Pack vibration firing enabled.
                 stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
                 stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
                 stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
@@ -4768,7 +4768,7 @@ void checkWand() {
                 b_vibration_firing = false;
                 b_vibration = false;
 
-                // Proton Pack Vibration disabled.
+                // Proton Pack vibration disabled.
                 stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
                 stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
                 stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
@@ -4813,7 +4813,7 @@ void checkWand() {
             break;
 
             case W_PROTON_MODE_REVERT:
-              // Revert back to Proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
+              // Revert back to proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
               FIRING_MODE = PROTON;
 
               stopEffect(S_CLICK);
@@ -4828,7 +4828,7 @@ void checkWand() {
             break;
 
             case W_CYCLOTRON_DIRECTION_TOGGLE:
-              // Toggle the cyclotron direction.
+              // Toggle the Cyclotron direction.
               if(b_clockwise == true) {
                 b_clockwise = false;
 
@@ -4862,7 +4862,7 @@ void checkWand() {
             break;
 
             case W_CYCLOTRON_LED_TOGGLE:
-              // Toggle single LED or 3 LEDs per cyclotron lens in 1984/1989 modes.
+              // Toggle single LED or 3 LEDs per Cyclotron lens in 1984/1989 modes.
               if(b_cyclotron_single_led == true) {
                 b_cyclotron_single_led = false;
 
@@ -4896,7 +4896,7 @@ void checkWand() {
 
               // Toggle through the various Video Game Colour Modes for the Proton Pack LEDs (if supported).
               if(b_cyclotron_colour_toggle == true && b_powercell_colour_toggle == true) {
-                // Disabled, both Cyclotron and PowerCell video game colours.
+                // Disabled, both Cyclotron and Power Cell video game colours.
                 b_cyclotron_colour_toggle = false;
                 b_powercell_colour_toggle = false;
 
@@ -4906,7 +4906,7 @@ void checkWand() {
                 packSerialSend(P_VIDEO_GAME_MODE_COLOURS_DISABLED);
               }
               else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle != true) {
-                // PowerCell only.
+                // Power Cell only.
                 b_cyclotron_colour_toggle = false;
                 b_powercell_colour_toggle = true;
 
@@ -4926,7 +4926,7 @@ void checkWand() {
                 packSerialSend(P_VIDEO_GAME_MODE_CYCLOTRON_ENABLED);
               }
               else {
-                // Enabled, both Cyclotron and PowerCell video game colours.
+                // Enabled, both Cyclotron and Power Cell video game colours.
                 b_cyclotron_colour_toggle = true;
                 b_powercell_colour_toggle = true;
 
@@ -5306,7 +5306,7 @@ void checkWand() {
                       i_powercell_brightness = i_powercell_brightness + 10;
                     }
 
-                    // Reset the power cell.
+                    // Reset the Power Cell.
                     powercellDraw();
 
                     stopEffect(S_BEEPS);
@@ -5529,7 +5529,7 @@ void checkWand() {
 
                 case FRUTTO_CYCLOTRON_LED_COUNT:
                 default:
-                  // Switch to 12 LEDs. Default Haslab.
+                  // Switch to 12 LEDs. Default HasLab.
                   i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
 
                   i_2021_delay = 15;
@@ -5607,7 +5607,7 @@ void checkWand() {
         }
         else {
           // Check if the wand is telling us it is here after connecting it to the pack.
-          // Then Synchronise some settings between the pack and the wand.
+          // Then synchronise some settings between the pack and the wand.
           if(comStruct.i == W_HANDSHAKE) {
             packSerialSend(P_SYNC_START);
 
@@ -5931,7 +5931,7 @@ void readEEPROM() {
           i_1984_cyclotron_leds[3] = 17;
         break;
 
-        // Default Haslab LEDs.
+        // Default HasLab LEDs.
         case HASLAB_CYCLOTRON_LED_COUNT:
         default:
           i_2021_delay = 15;
@@ -6167,7 +6167,7 @@ unsigned long eepromCRC(void) {
 }
 
 void setupWavTrigger() {
-  // If the controller is powering the WAV Trigger, we should wait for the WAV trigger to finish reset before trying to send commands.
+  // If the controller is powering the WAV Trigger, we should wait for the WAV Trigger to finish reset before trying to send commands.
   delay(1000);
 
   // WAV Trigger's startup at 57600

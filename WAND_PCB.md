@@ -1,6 +1,6 @@
 # Wand PCB Hookup
 
-This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard Haslab connections, or when using the 28-segment bargraph from Frutto Technology.
+This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard HasLab connections, or when using the 28-segment bargraph from Frutto Technology.
 
 ![Standard PCB Connections](images/WandPCB-Standard.png)
 
@@ -21,7 +21,7 @@ Connections for the wand should be made according to the tables below.
 | Label | Pins | Notes |
 |-------|------|-------|
 | 5V-IN | +/\- | Power from Proton Pack. **This MUST be a regulated 5V source!** |
-| Q2 | VCC/D10/GND | Stock connection for addressable barrel LED's |
+| Q2 | VCC/D10/GND | Stock connection for addressable barrel LEDs |
 | SW45/SW4 | GND/D2/GND/D3 | Stock connection for the Intensify button and Activate toggle |
 | SW6 | GND/A6 | Stock connection for the orange wand-end mode/alt switch |
 
@@ -59,11 +59,11 @@ Connections for the wand should be made according to the tables below.
 | Label | Pins | Notes |
 |-------|------|-------|
 | PACK (Serial) | TX1/RX1 | Serial communication to the Proton Pack.<br><br>`Connector type: JST-PH` |
-| AUDIO BOARD | GND/NC/VCC/TX/RX/NC | Communication and Power for the wands's Wav Trigger.<br><br>`Connector type: JST-PH` |
+| AUDIO BOARD | GND/NC/VCC/TX/RX/NC | Communication and Power for the wands's WAV Trigger.<br><br>`Connector type: JST-PH` |
 | ICSP | DO NOT USE! | Programming header for bootloader updates (reserved).<br><br>`Connector type: Header pins` |
 | UART | See Below | Programming header for software updates (optional).<br><br>`Connector type: Header pins` |
 
-For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** chip used for programming the WavTrigger. Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:
+For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** used for programming the WAV Trigger. Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:
 
 - The ground pin will typically be a black wire, while VCC will typically be red.
 - The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.

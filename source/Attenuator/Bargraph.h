@@ -26,7 +26,7 @@ void bargraphFull() {
   if(b_28segment_bargraph == true) {
     for(uint8_t i = 0; i < 28; i++) {
       ht_bargraph.setLedNow(i_bargraph[i]);
-    }    
+    }
   }
 }
 
@@ -187,7 +187,7 @@ void bargraphRampUp() {
             case 1989:
               // Bargraph has ramped up and down. In 1984 mode we want to start the ramping.
               if(i_bargraph_status_alt == 54) {
-                ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
+                ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continuously.
                 ms_bargraph.stop();
                 b_bargraph_up = true;
                 i_bargraph_status_alt = 0;
@@ -1034,7 +1034,7 @@ void settingsBlinkingLights() {
           }
         }
       }
-    }    
+    }
     /*
     switch(i_wand_menu) {
       case 5:

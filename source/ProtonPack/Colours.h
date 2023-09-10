@@ -84,7 +84,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             default:
               return C_WHITE;
             break;   
-          }   
+          }
         break;
 
         case SLIME:
@@ -96,7 +96,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             default:
               return C_GREEN;
             break;   
-          }  
+          }
         break;
 
         case STASIS:
@@ -108,7 +108,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             default:
               return C_LIGHT_BLUE;
             break;   
-          }  
+          }
         break;
 
         case MESON:
@@ -120,7 +120,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             default:
               return C_ORANGE;
             break;   
-          }  
+          }
         break;
 
         case SPECTRAL:
@@ -132,7 +132,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             default:
               return C_RAINBOW;
             break;   
-          }  
+          }
         break;
 
         case HOLIDAY:
@@ -144,7 +144,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             default:
               return C_REDGREEN;
             break;   
-          }  
+          }
         break;
 
         case SPECTRAL_CUSTOM:
@@ -165,7 +165,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             default:
               return C_CUSTOM_CYCLOTRON;
             break;   
-          }  
+          }
         break;
 
         case VENTING:
@@ -177,7 +177,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             default:
               return C_RED;
             break;   
-          }  
+          }
         break;
 
         case SETTINGS:
@@ -189,14 +189,14 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             default:
               return C_WHITE;
             break;   
-          } 
+          }
         break;
 
         default:
           return C_BLUE;
         break;
       }
-  } 
+  }
   else {
     switch(i_device) {
       case POWERCELL:
@@ -348,7 +348,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         if(i_curr_colour[i_device] == 32) {
           i_curr_colour[i_device] = 192;
           i_count[i_device] = 0; // Reset counter.
-        } 
+        }
         else {
           i_curr_colour[i_device] = 32;
         }
@@ -358,7 +358,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
     case C_BLUEFADE:
       // Reset if out of range: blue (160) to light blue (146).
-      // This is based on use of the 15-LED RGB Powercell.
+      // This is based on use of the 15-LED RGB Power Cell.
       if(i_count[i_device] < 146 || i_count[i_device] > 160) {
         i_count[i_device] = 160; // Reset if out of range.
       }
@@ -411,10 +411,10 @@ CRGB getHueAsRGB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255,
   if(b_grb) {
     // Swap red/green values before returning.
     return CRGB(rgb[1], rgb[0], rgb[2]);
-  } 
+  }
   else {
     return rgb; // Return RGB object.
-  } 
+  }
 }
 
 CRGB getHueAsGRB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255) {
