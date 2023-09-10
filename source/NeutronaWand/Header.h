@@ -346,6 +346,15 @@ bool b_sound_afterlife_idle_2_fade = true;
 bool b_pack_ribbon_cable_on = true;
 
 /*
+  Button smashing
+*/
+millisDelay ms_bsmash;
+unsigned int i_bsmash_delay = 2000;
+uint8_t i_bsmash = 0;
+uint8_t i_bsmash_max = 8;
+bool b_wand_smash_error = false;
+
+/*
  * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
  * When false, the bargraph will ramp down instead.
  * Removing this feature eventually....

@@ -198,6 +198,8 @@ void setup() {
     }
   #endif
 
+  ms_bsmash.start(i_bsmash_delay);
+
   if(b_no_pack == true || b_debug == true) {
     b_wait_for_pack = false;
     b_pack_on = true;
@@ -233,6 +235,12 @@ void mainLoop() {
     modeFireStopSounds();
   }
 
+  if(WAND_ACTION_STATUS != ACTION_FIRING) {
+    if(ms_bsmash.remaining() < 1) {
+      i_bsmash = 0;
+    }
+  }
+
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
     default:
@@ -265,6 +273,8 @@ void mainLoop() {
     break;
 
     case ACTION_FIRING:
+
+
       if(FIRING_MODE == VENTING) {
         // If we are in venting mode, lets trigger a vent sequence.
         startVentSequence();
@@ -1906,44 +1916,70 @@ void checkSwitches() {
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-        if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
-          if(WAND_ACTION_STATUS != ACTION_FIRING) {
-            WAND_ACTION_STATUS = ACTION_FIRING;
-          }
-
-          b_firing_intensify = true;
+        if(i_bsmash >= i_bsmash_max) {
+          modeError();
         }
-
-        // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
-        if(b_cross_the_streams == true) {
-          if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+        else {
+          if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_FIRING;
             }
 
-            b_firing_alt = true;
+            if(ms_bsmash.remaining() < 1) {
+              i_bsmash = 0;
+
+              ms_bsmash.start(i_bsmash_delay);
+            }
+
+            if(b_firing_intensify != true) {
+              i_bsmash++;
+              ms_bsmash.start(i_bsmash_delay);
+            }
+
+            b_firing_intensify = true;  
           }
-          //else if(switchMode() != true && ms_switch_mode_debounce.remaining() < 1) {
-          else if(b_switch_mode_pressed != true) {
-            if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+
+          // When the mode switch is changed to a alternate firing button. Video game modes are disabled and the wand menu settings can only be accessed when the Neutrona wand is powered down.
+          if(b_cross_the_streams == true) {
+            if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+              if(WAND_ACTION_STATUS != ACTION_FIRING) {
+                WAND_ACTION_STATUS = ACTION_FIRING;
+              }
+
+              if(ms_bsmash.remaining() < 1) {
+                i_bsmash = 0;
+
+                ms_bsmash.start(i_bsmash_delay);
+              }
+
+              if(b_firing_alt != true) {
+                i_bsmash++;
+                ms_bsmash.start(i_bsmash_delay);
+              }
+
+              b_firing_alt = true;
+            }
+            else if(b_switch_mode_pressed != true) {
+              if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+                WAND_ACTION_STATUS = ACTION_IDLE;
+              }
+
+              b_firing_alt = false;
+            }
+          }
+
+          if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
+            if(b_firing_alt != true) {
               WAND_ACTION_STATUS = ACTION_IDLE;
             }
 
-            b_firing_alt = false;
+            b_firing_intensify = false;
           }
-        }
-
-        if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
-          if(b_firing_alt != true) {
-            WAND_ACTION_STATUS = ACTION_IDLE;
-          }
-
-          b_firing_intensify = false;
         }
 
         if(switch_activate.getState() == HIGH) {
           WAND_ACTION_STATUS = ACTION_OFF;
-        }
+        }        
       }
       else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
         if(switch_activate.getState() == HIGH) {
@@ -1955,7 +1991,7 @@ void checkSwitches() {
 }
 
 void wandOff() {
-  if(WAND_ACTION_STATUS != ACTION_ERROR) {
+  if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_smash_error != true) {
     // Tell the pack the wand is turned off.
     wandSerialSend(W_OFF);
   }
@@ -2007,8 +2043,10 @@ void wandOff() {
   soundIdleStop();
   soundIdleLoopStop();
 
-  WAND_STATUS = MODE_OFF;
-  WAND_ACTION_STATUS = ACTION_IDLE;
+  if(b_wand_smash_error != true) {
+    WAND_STATUS = MODE_OFF;
+    WAND_ACTION_STATUS = ACTION_IDLE;
+  }
 
   vibrationOff();
 
@@ -2045,6 +2083,8 @@ void wandOff() {
   ms_settings_blinking.stop();
   ms_hat_1.stop();
   ms_hat_2.stop();
+  
+  i_bsmash = 0;
 
   // Turn off remaining lights.
   wandLightsOff();
@@ -2072,26 +2112,36 @@ void wandOff() {
   #endif
 }
 
+void modeError() {
+  b_wand_smash_error = true;
+
+  wandOff();
+
+  WAND_STATUS = MODE_ERROR;
+  WAND_ACTION_STATUS = ACTION_ERROR;
+
+  ms_hat_2.start(i_hat_2_delay);
+
+  // This is used for controlling a bargraph beep in a boot up error.
+  ms_hat_1.start(i_hat_2_delay * 4);
+
+  ms_settings_blinking.start(i_settings_blinking_delay);
+
+  playEffect(S_BEEPS_LOW);
+
+  playEffect(S_BEEPS);
+
+  playEffect(S_BEEPS_BARGRAPH);
+}
+
 void modeActivate() {
+  b_wand_smash_error = false;
+
   b_sound_afterlife_idle_2_fade = true;
 
   // The wand was started while the top switch was already on. Lets put the wand into a startup error mode.
   if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
-    ms_hat_2.start(i_hat_2_delay);
-
-    // This is used for controlling a bargraph beep in a boot up error.
-    ms_hat_1.start(i_hat_2_delay * 4);
-
-    WAND_STATUS = MODE_ERROR;
-    WAND_ACTION_STATUS = ACTION_ERROR;
-
-    ms_settings_blinking.start(i_settings_blinking_delay);
-
-    playEffect(S_BEEPS_LOW);
-
-    playEffect(S_BEEPS);
-
-    playEffect(S_BEEPS_BARGRAPH);
+    modeError();
   }
   else {
     WAND_STATUS = MODE_ON;
@@ -2101,6 +2151,8 @@ void modeActivate() {
 
     // Tell the pack the wand is turned on.
     wandSerialSend(W_ON);
+
+    i_bsmash = 0;
   }
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -2646,11 +2698,17 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams == true) {
     switch(year_mode) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);      
+
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
@@ -2878,12 +2936,18 @@ void modeFiring() {
     b_sound_firing_cross_the_streams = true;
 
     switch(year_mode) {
-      case 2021:
+      case 2021:      
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_END);
+        stopEffect(S_CROSS_STREAMS_START);
+        
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
       break;
     }
@@ -2919,11 +2983,17 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }
@@ -2940,11 +3010,17 @@ void modeFiring() {
 
     switch(year_mode) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
     }

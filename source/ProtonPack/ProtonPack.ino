@@ -3133,12 +3133,20 @@ void wandStopFiringSounds() {
   if(b_firing_cross_streams == true) {
     switch(i_mode_year) {
       case 2021:
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+
+        //ms_fast_led.start(i_fast_led_delay);
       break;
 
       case 1984:
       case 1989:
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+
+        //ms_fast_led.start(i_fast_led_delay);
       break;
     }
 
@@ -4492,14 +4500,22 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+
                   playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
                   playEffect(S_FIRE_SPARKS);
                 break;
 
                 case 1984:
                 case 1989:
+                  stopEffect(S_CROSS_STREAMS_END);
+                  stopEffect(S_CROSS_STREAMS_START);
+
                   playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
                   playEffect(S_FIRE_SPARKS);
+
+                  //ms_fast_led.start(i_fast_led_delay);
                 break;
               }
 
@@ -4512,12 +4528,20 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+                  
                   playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
                 break;
 
                 case 1984:
                 case 1989:
+                  stopEffect(S_CROSS_STREAMS_END);
+                  stopEffect(S_CROSS_STREAMS_START);
+          
                   playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+
+                  //ms_fast_led.start(i_fast_led_delay);
                 break;
               }
 
@@ -4538,12 +4562,20 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
                   playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
                 break;
 
                 case 1984:
                 case 1989:
+                  stopEffect(S_CROSS_STREAMS_START);
+                  stopEffect(S_CROSS_STREAMS_END);                
+
                   playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+
+                  //ms_fast_led.start(i_fast_led_delay);
                 break;
               }
 
@@ -4556,12 +4588,20 @@ void checkWand() {
 
               switch(i_mode_year) {
                 case 2021:
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
                   playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
                 break;
 
                 case 1984:
                 case 1989:
+                  stopEffect(S_CROSS_STREAMS_START);
+                  stopEffect(S_CROSS_STREAMS_END);
+
                   playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+
+                  //ms_fast_led.start(i_fast_led_delay);
                 break;
               }
             break;
