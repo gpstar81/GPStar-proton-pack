@@ -100,6 +100,6 @@ To deliver smoke to the N-Filter, air line tubing is used with a quick-connect a
 
 ![](images/NFilterFan.jpg)
 
-One issue encountered is that within the N-Filter portion of the cyclotron lid is a screw post which sits directly over the cone and will block smoke flow. Using a small drill bit, it is possible to slowly drill out 2-3 holes within the plastic screw post which will let smoke enter the top of the N-Filter, and will be vented by the blower fan via the screened holes. The preview below shows how effective the fan can be at pushing the smoke generated.
+One issue encountered is that within the N-Filter portion of the Cyclotron Lid is a screw post which sits directly over the cone and will block smoke flow. Using a small drill bit, it is possible to slowly drill out 2-3 holes within the plastic screw post which will let smoke enter the top of the N-Filter, and will be vented by the blower fan via the screened holes. The preview below shows how effective the fan can be at pushing the smoke generated.
 
 ![](images/NFilterSmoke.gif)

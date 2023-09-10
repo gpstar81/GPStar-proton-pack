@@ -27,7 +27,7 @@ You may wish to refer to this PCB drawing and the following table to help identi
 
 | Name | Socket | Color | Haslab Pin | Notes |
 |------|--------|-------|------------|-------|
-| J3   |        | <font color="brown">Brown</font> | D2 | Bar Graph LED's (5) |
+| J3   |        | <font color="brown">Brown</font> | D2 | Bar Graph LEDs (5) |
 |      |        | <font color="red">Red</font> | D3 |  |
 |      |        | <font color="orange">Orange</font> | D4 |  |
 |      |        | <font color="yellow">Yellow</font> | D5 |  |
@@ -76,11 +76,11 @@ It appears some of the silver tip generation 1 Neutrona Wands and orange tip gen
 |      |        | <font color="yellow">Yellow</font> | Data |  |
 |      |        | <font color="red">Red</font> | Gnd |  |
 
-## WavTrigger Connections
+## WAV Trigger Connections
 
-These are the same connections which are used for the FTDI breakout board to program the WavTrigger. Use pins and sockets for an easy connection should a firmware upgrade be required in the future.
+These are the same connections which are used for the FTDI breakout board to program the WAV Trigger. Use pins and sockets for an easy connection should a firmware upgrade be required in the future.
 
-| WavTrigger | Connection |
+| WAV Trigger | Connection |
 |------------|------------|
 | 5Vin       | +5V        |
 | GND        | Ground     |
@@ -100,8 +100,8 @@ You can also reference the PDF document for the [Pack Schematic Minimal](circuit
 | D8 (Red)      | D13   |     | D12   | D7 (Red)      |
 |               | 3V3   |     | D11   | Motor-NPN     |
 |               | REF   |     | D10   | Q2 (Yellow) or (Red) <br /> <br /> **\*See note above about Barrel LED wire colour differences\*** <br /> Generation 1 Neutrona Wands (silver tip) data line is (Red) while generation 2 Neutrona Wands (orange tip) data line is (Yellow) |
-| SW2 (Red)     | A0    |     | D9    | WavTrigger RX |
-| D2 (Brown)    | A1    |     | D8    | WavTrigger TX |
+| SW2 (Red)     | A0    |     | D9    | WAV Trigger RX |
+| D2 (Brown)    | A1    |     | D8    | WAV Trigger TX |
 | D3 (Red)      | A2    |     | D7    | ROT (Yellow)  |
 | D4 (Orange)   | A3    |     | D6    | ROT (Red)     |
 | D5 (Yellow)   | A4    |     | D5    | D1 & D9 (Red) |
@@ -186,15 +186,15 @@ Considered optional as this can be left out if desired, and without impact to no
 | <font color="brown">Brown</font>   | → | 140 Ω | →  | Pin A1   | D2   |
 
 Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes.
-**Use the appropriate resistor for your replacement LED's based on their forward voltage given a 5V source!**
+**Use the appropriate resistor for your replacement LEDs based on their forward voltage given a 5V source!**
 
-### Wand LED's ###
+### Wand LEDs ###
 
 | VENT LIGHT LED BOARD → D7 & D8  |   |      |    | Nano Pin | Hasbro Ref |                                        |
 |---------------------------------|---|------|----|----------|------------|----------------------------------------|
 | <font color="red">Red</font>    | → | +5V  |    |          | VDD        |                                        |
-| <font color="gray">White</font> | → | 90 Ω | →  | Pin D12  | D7         | Blinking white led on top of the wand  |
-| Black                           | → | 90 Ω | →  | Pin D13  | D8         | White led inside the wand (vent light) |
+| <font color="gray">White</font> | → | 90 Ω | →  | Pin D12  | D7         | Blinking white LED on top of the wand  |
+| Black                           | → | 90 Ω | →  | Pin D13  | D8         | White LED inside the wand (vent light) |
 
 *NPN Bipolar Transistor. Reference Pack page for more info.
 
@@ -224,33 +224,33 @@ For the SLO-BLO and Front-Left LED which share on 1 pin from the Nano. The spec 
 
 ![](images/SloBloAlt.jpg)
 
-## Wand Barrel LED's
+## Wand Barrel LEDs
 
 **\*See note near the top of this page about the Neutrona Wand barrel LED wire colours differences between the silver tip and orange tip Neutrona Wands\***
 
 **Generation 1 (Silver Tip Wands)**
 | WAND-TUBE → Q2 |   |              |   | Nano Pin | Hasbro Ref | Notes                                  |
 |----------------|---|--------------|---|----------|------------|----------------------------------------|
-| <font color="yellow">Yellow</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LED's                |
+| <font color="yellow">Yellow</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LEDs                |
 |                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires |
-| <font color="brown">Brown</font>       | → | Ground |    |         | Q2 | Ground to 5 wand LED's               |
-| <font color="red">Red</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LED's      |
+| <font color="brown">Brown</font>       | → | Ground |    |         | Q2 | Ground to 5 wand LEDs               |
+| <font color="red">Red</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LEDs      |
 
 **Generation 2 (Orange Tip Wands)**
 | WAND-TUBE → Q2 |   |              |   | Nano Pin | Hasbro Ref | Notes                                  |
 |----------------|---|--------------|---|----------|------------|----------------------------------------|
-| <font color="blue">Blue</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LED's                |
+| <font color="blue">Blue</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LEDs                |
 |                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires |
-| <font color="red">Red</font>       | → | Ground |    |         | Q2 | Ground to 5 wand LED's               |
-| <font color="yellow">Yellow</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LED's      |
+| <font color="red">Red</font>       | → | Ground |    |         | Q2 | Ground to 5 wand LEDs               |
+| <font color="yellow">Yellow</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LEDs      |
 
 ## Component Fitment
 
-As noted at the start of this guide the space inside of the gun box for the wand is extremely limited. Creative placement of any protoboards, the Arduino, WavTrigger, and speaker (if upgraded) will be left to each individual. As a matter of advice, placing the WavTrigger under the wand barrel is an advised option with other items "stacked" above and beside the spring-loaded mechanism.
+As noted at the start of this guide the space inside of the gun box for the wand is extremely limited. Creative placement of any protoboards, the Arduino, WAV Trigger, and speaker (if upgraded) will be left to each individual. As a matter of advice, placing the WAV Trigger under the wand barrel is an advised option with other items "stacked" above and beside the spring-loaded mechanism.
 
 ### (See the alternate component fitment section below for more information on the stacking option) ###
 
-For another fitment option, the WavTrigger can also fit in the opposite half of the gun box if the barrel jack is removed--this is to avoid the spring which attaches to the wand barrel.
+For another fitment option, the WAV Trigger can also fit in the opposite half of the gun box if the barrel jack is removed--this is to avoid the spring which attaches to the wand barrel.
 
 ### (See the Audio Output addendum for more information on the opposite half gun box mounting solution)
 [Audio Output Addendum](SOUND.md)

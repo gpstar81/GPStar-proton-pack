@@ -36,7 +36,7 @@ No further configuration is needed for this library.
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 If you are flashing updates to your existing setup, make sure that both your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository.
 
-## Connection to your gpstar Proton Pack and Neutrona wand PCB
+## Connection to your gpstar Proton Pack and Neutrona Wand PCB
 Use the included FTDI to USB programming cable that comes with the gpstar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:
 
 - The ground pin will typically be a black wire, while VCC will typically be red.

@@ -19,7 +19,7 @@ This device has it's own BOM which is separate from any other build items relate
 * [20 AWG 4 Conductor Wire w/ PVC Jacket](https://a.co/d/iglELZR)
 * [1/4 Inch Braided PET Wire Loom](https://a.co/d/b7pm6GU)
 * [PG7 Rubber Strain Relief Connector](https://a.co/d/h1Hxh5T)
-* [Single-Pixel Addressable RGB LED’s](https://a.co/d/90SO4AQ)
+* [Single-Pixel Addressable RGB LEDs](https://a.co/d/90SO4AQ)
 * [SPST Mini Toggle Switches](https://a.co/d/9DoDrgZ)
 * [Rotary Encoder Knob w/ Switch](https://a.co/d/3iBps4P)
 * [28-Segment Bargraph from Frutto Technology](https://fruttotechnology.com/ols/products/preorder-28-segment-bargraph-pcb-for-spengler-neutrona-wand)
@@ -108,7 +108,7 @@ One notable point is the stated part in the BOM also supports a momentary "push"
 | <font color="yellow">Yellow</font> | → | Pin D4 |
 | Black                              | → | GND    |
 
-**Addressable LED's**
+**Addressable LEDs**
 
 | LED'S          |   | Component | Nano Pin |
 |----------------|---|-----------|----------|
@@ -118,7 +118,7 @@ One notable point is the stated part in the BOM also supports a momentary "push"
 
 **Note:** It is advised to place a 100uf capacitor across the positive and negative connections to these devices, just to buffer any current fluctuations.
 
-Addressable LED's have a distinct data flow with solder pads labelled DIN and DOUT. It is crucial to chain these devices starting from the Arduino to an LED's DIN pad first, then the same device's DOUT pad to the next LED's DIN pad, and so on.
+Addressable LEDs have a distinct data flow with solder pads labelled DIN and DOUT. It is crucial to chain these devices starting from the Arduino to an LED's DIN pad first, then the same device's DOUT pad to the next LED's DIN pad, and so on.
 
 ## Bargraph
 

@@ -30,21 +30,21 @@ This chart lists only the components in the stock pack which will be reused, whi
 |---|---|---|---|---|
 | M1 | <font color="green">Green</font> | <font color="red">Red</font> | VCC | Pack vibration motor; cannot be turned on or off when pack is "active", only when in "powered down" state. (This is the only stock item which may be considered optional.) |
 |  |  | Black | GND |  |
-| JP3 | <font color="gray">White</font> | <font color="green">Green</font> | B0 | Power, ground, and data (DI) for Powercell LED's; Contains LED's D1-D13 and returns data signal back to board via the B0 pin. |
+| JP3 | <font color="gray">White</font> | <font color="green">Green</font> | B0 | Power, ground, and data (DI) for Power Cell LEDs; Contains LEDs D1-D13 and returns data signal back to board via the B0 pin. |
 |  |  | Black | GND |  |
-|  |  | <font color="orange">Yellow</font> | DI | Data input; cyclotron LED's continue from B0 as data on RI (unplugging JP3 will stop cycling of cyclotron LED's). |
+|  |  | <font color="orange">Yellow</font> | DI | Data input; Cyclotron LEDs continue from B0 as data on RI (unplugging JP3 will stop cycling of Cyclotron LEDs). |
 |  |  | <font color="red">Red</font> | VCC |  |
-| JP4 | <font color="red">Red</font> | <font color="red">Red | VCC | Power, ground, and data (RI) for Cyclotron; Each "lens" contains 3 LED's for a total of 12. |
+| JP4 | <font color="red">Red</font> | <font color="red">Red | VCC | Power, ground, and data (RI) for Cyclotron; Each "lens" contains 3 LEDs for a total of 12. |
 |  |  | <font color="orange">Yellow</font> | RI | Data input; starts on JP3-DI pin and continues from JP3-B0 |
 |  |  | Black | GND |  |
-|  |  | <font color="brown">Brown</font> | GND | Used for detection of the cyclotron lid |
+|  |  | <font color="brown">Brown</font> | GND | Used for detection of the Cyclotron Lid |
 | SW1 | <font color="gray">White</font> | <font color="red">Red</font> | VCC | Main "power" switch under the ion arm, enables all pack operations. |
 |  |  | Black | GND |  |
 | SW3 | <font color="blue">Blue</font> | <font color="green">Green</font> | SPDT Toggle | Left toggle switch inside the cyclotron: Turns rumble motor on (up) or off (down)  |
 |  |  | <font color="blue">Blue</font> |  |  |
-| SW4 |  | <font color="green">Green</font> | SPDT Toggle | Right toggle switch inside the cyclotron: Change cyclotron spin and sound theme between Afterlife/2021 (up) or OG/1984 (down) |
+| SW4 |  | <font color="green">Green</font> | SPDT Toggle | Right toggle switch inside the cyclotron: Change Cyclotron spin and sound theme between Afterlife/2021 (up) or OG/1984 (down) |
 |  |  | <font color="red">Red</font> |  |  |
-| SW6 | <font color="red">Red</font> | <font color="red">Red</font> | VCC | Sensor on the cyclotron cable, triggers alarm beeps when disconnected |
+| SW6 | <font color="red">Red</font> | <font color="red">Red</font> | VCC | Sensor on the Cyclotron cable, triggers alarm beeps when disconnected |
 |  |  | Black | GND |  |
 
 ![](images/PackController.jpg)
@@ -53,7 +53,7 @@ This chart lists only the components in the stock pack which will be reused, whi
 
 You may choose one of two routes for implementing the new Proton Pack controller:
 
-1. A minimal approach which only focuses on reusing the stock connections and hardware (switches, LED's, motor).
+1. A minimal approach which only focuses on reusing the stock connections and hardware (switches, LEDs, motor).
 	- For this approach, reference the tables below and see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance.
 	- It is possible to forego replacing the microcontroller in the Hasbro wand and instead use a stock wand. This approach will provide power to the wand but no interactivity between the wand and the pack.
 1. Using all stock hardware as above, but with room for additional features, each of which is considered optional.
@@ -76,12 +76,12 @@ Connections from stock JST-XH connectors may be split to maximize use of the sma
 | R ### Ω | Denotes a resistor with given Ohms rating |
 | SW-CYC | Cyclotron Spin Direction Switch |
 | SW-SMOKE | Smoke Switch (enable or disable smoke) |
-| LED-R# | 2x Red LED for cyclotron switch plate (OPTIONAL) |
-| LED-Y# | 2x Yellow LED for cyclotron switch plate (OPTIONAL) |
-| LED-G# | 2x Green LED for cyclotron switch plate (OPTIONAL) |
+| LED-R# | 2x Red LED for Cyclotron switch plate (OPTIONAL) |
+| LED-Y# | 2x Yellow LED for Cyclotron switch plate (OPTIONAL) |
+| LED-G# | 2x Green LED for Cyclotron switch plate (OPTIONAL) |
 | LED-MSW | 1x Green LED for mode year switch (OPTIONAL) |
 | LED-VSW | 1x Yellow LED for vibration switch (OPTIONAL) |
-| NEO-CYC | 8 NeoPixel jewels chained together (OPTIONAL) (56 LED's total) [See Cyclotron Lights](CYCLOTRON.md) |
+| NEO-CYC | 8 NeoPixel jewels chained together (OPTIONAL) (56 LEDs total) [See Cyclotron Lights](CYCLOTRON.md) |
 | SMOKE1 | This is a standard 5V Air/Vacuum pump motor I use. (see below for more info) |
 | SMOKE2 | This is a standard 5V Air/Vacuum pump motor I use. (see below for more info) |
 
@@ -177,35 +177,35 @@ When you see a letter or code in a cells above, it references where component ne
 
 ## Additional Connections to the Arduino MEGA
 
-These are connections which are not covered in the diagram above and can connect directly to the Arduino board. For the WavTrigger these are the same connections which are used for the FTDI breakout board to program the WavTrigger. Use pins and sockets for an easy connection to that device should a firmware upgrade be required in the future.
+These are connections which are not covered in the diagram above and can connect directly to the Arduino board. For the WAV Trigger these are the same connections which are used for the FTDI breakout board to program the WAV Trigger. Use pins and sockets for an easy connection to that device should a firmware upgrade be required in the future.
 
 | Connection → Pin         | Notes |
 |--------------------------|-----------|
-| MEGA&nbsp;TX3&nbsp;→&nbsp;WavTrigger&nbsp;RX | Required for sound |
-| MEGA&nbsp;RX3&nbsp;→&nbsp;WavTrigger&nbsp;TX | Required for sound |
+| MEGA&nbsp;TX3&nbsp;→&nbsp;WAV Trigger&nbsp;RX | Required for sound |
+| MEGA&nbsp;RX3&nbsp;→&nbsp;WAV Trigger&nbsp;TX | Required for sound |
 | MEGA&nbsp;TX2&nbsp;→&nbsp;Wand&nbsp;Nano&nbsp;RX  | Optional if not replacing wand controller |
 | MEGA&nbsp;RX2&nbsp;→&nbsp;Wand&nbsp;Nano&nbsp;TX  | Optional if not replacing wand controller |
-| SW-CYC (Red) → Pin 29    | Optional, switch for cyclotron direction |
+| SW-CYC (Red) → Pin 29    | Optional, switch for Cyclotron direction |
 | SW-SMOKE (Red) → Pin 37  | Optional, switch to enable smoke effects | 
 | FAN-1 → Pin 33           | Optional Feature<br/>Goes 5V high, is timed to go off during over heat sequence. You can hook up any device to this. I used a fan for testing purposes. What you put in this section depends on what device you hook up to the Mega if anything at all.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.**  |
 | SMOKE-2 → Pin 35         | Optional Feature<br/>Goes 5V high, is timed to go off occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and push it out of the booster tube. It is referenced as the smoke&#95;booster in the pack code. See matching colour section in chart above. What you hook up here depends on what device you intend to run.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.** |
-| SMOKE-1 → Pin 39         | Optional Feature<br/>Goes 5V high, is timed to go off during over heat sequence and occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and run it to the n-filter. This is referenced as smoke&#95;pin in the pack code. See matching colour section in chart above. What you hook up here depends on what device you intend to run.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.** |
+| SMOKE-1 → Pin 39         | Optional Feature<br/>Goes 5V high, is timed to go off during over heat sequence and occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and run it to the N-Filter. This is referenced as smoke&#95;pin in the pack code. See matching colour section in chart above. What you hook up here depends on what device you intend to run.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.** |
 | FAN-2 → Pin 38           | Optional Feature (not shown in schematic)<br/>Goes 5V high, is timed to go off at the same time as SMOKE-2.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.**  |
-| N-Filter LED → Pin 46           | Optional Feature (not shown in schematic)<br/>Goes 5V high, is timed to go off at the same time as SMOKE-1 and SMOKE-2. This can be used for another optional LED for the n-filter during overheat or continious firing. If you attach a LED to this pin, use the approriate resistor required for the LED.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.**  |
+| N-Filter LED → Pin 46           | Optional Feature (not shown in schematic)<br/>Goes 5V high, is timed to go off at the same time as SMOKE-1 and SMOKE-2. This can be used for another optional LED for the N-Filter during overheat or continuous firing. If you attach a LED to this pin, use the approriate resistor required for the LED.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.**  |
 
 
-### Cyclotron Panel LED's
+### Cyclotron Panel LEDs
 
 NOTE: If you change LED colours, use an appropriate resistor based on the forward voltage stated for the LED. The resistors referenced here are the minimum required for these particular 5mm LED diodes. You can always go up to the nearest resistor value if you do not have the specified value. For example you may use 150 if do not have any 140’s in your resistor kit, and 100 instead of 90s. Most resistors are  expected to be within 5% of their stated value.
 
 | Connection → Pin         | Notes |
 |--------------------------|-----------|
-| LED-R1 (+) soldered to R 140 Ω → Pin 4 | Optional cyclotron panel light |
-| LED-R2 (+) soldered to R 140 Ω → Pin 5 | Optional cyclotron panel light |
-| LED-Y1 (+) soldered to R 140 Ω → Pin 6 | Optional cyclotron panel light |
-| LED-Y2 (+) soldered to R 140 Ω → Pin 7 | Optional cyclotron panel light |
-| LED-G1 (+) soldered to R 90 Ω → Pin 8 | Optional cyclotron panel light  |
-| LED-G2 (+) soldered to R 90 Ω → Pin 9 | Optional cyclotron panel light |
+| LED-R1 (+) soldered to R 140 Ω → Pin 4 | Optional Cyclotron panel light |
+| LED-R2 (+) soldered to R 140 Ω → Pin 5 | Optional Cyclotron panel light |
+| LED-Y1 (+) soldered to R 140 Ω → Pin 6 | Optional Cyclotron panel light |
+| LED-Y2 (+) soldered to R 140 Ω → Pin 7 | Optional Cyclotron panel light |
+| LED-G1 (+) soldered to R 90 Ω → Pin 8 | Optional Cyclotron panel light  |
+| LED-G2 (+) soldered to R 90 Ω → Pin 9 | Optional Cyclotron panel light |
 | LED-MSW (+) soldered to R 90 Ω → Pin 10 (Resistor set for Green LED) | Optional mode indicator |
 | LED-VSW (+) soldered to R 140 Ω → Pin 11 (Resistor set for Yellow LED) | Optional vibration enabled indicator |
 
@@ -218,7 +218,7 @@ The following are *OPTIONAL* builds for use within the Proton Pack.
 
 ## Component Fitment
 
-Given the large spaces and "compartments" within the pack, finding a place for the protoboard, Arduino, WavTrigger, audio amplifier, and battery should be no problem. Reusing the space from the old controller is ideal for the protoboard and Arduino. Most modders have found that the removal of the case for a Talencell battery allows it to fit under the original battery compartment--just use care that the sides of the batteries are covered with electrical tape and nothing can accidentally damage or short the components which may be exposed. Additionally, it's worth covering the bottom contacts on any circuit boards which are in close proximity to each other just in case shifting occurs while wearing the pack.
+Given the large spaces and "compartments" within the pack, finding a place for the protoboard, Arduino, WAV Trigger, audio amplifier, and battery should be no problem. Reusing the space from the old controller is ideal for the protoboard and Arduino. Most modders have found that the removal of the case for a Talencell battery allows it to fit under the original battery compartment--just use care that the sides of the batteries are covered with electrical tape and nothing can accidentally damage or short the components which may be exposed. Additionally, it's worth covering the bottom contacts on any circuit boards which are in close proximity to each other just in case shifting occurs while wearing the pack.
 
 ![](images/mega.jpg)
 ![](images/mega2.jpg)

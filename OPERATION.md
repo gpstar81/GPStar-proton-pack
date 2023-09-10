@@ -4,28 +4,28 @@
 ### Standard Proton Pack Features
 
 - The switch underneath the ion arm can turn the pack on or off.
-- You can run the pack without the cyclotron lid attached.
+- You can run the pack without the Cyclotron Lid attached.
 - The volume for the pack and wand can be controlled via the Crank Generator knob.
    - Clockwise to raise volume, counter-clockwise to lower it.
-- When the ribbon cable is disconnected it will activate the alarm mode and degraded the cyclotron spin.
+- When the ribbon cable is disconnected it will activate the alarm mode and degraded the Cyclotron spin.
 - The pack can run without a wand, though it can only be activated via the switch under the Ion Arm.
-- Vibration switch in the cyclotron switch plate enables or disables the vibration motors for both the pack and wand.
-- 1984/2021 (Afterlife) year switch in the cyclotron switch plate changes the pack and wand from 1984 (OG) to 2021 (Afterlife) modes.
+- Vibration switch in the Cyclotron switch plate enables or disables the vibration motors for both the pack and wand.
+- 1984/2021 (Afterlife) year switch in the Cyclotron switch plate changes the pack and wand from 1984 (OG) to 2021 (Afterlife) modes.
 - The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
-- Single (centered) LED per cyclotron lens for 1984/1989 modes by default.
-	- This can be toggled back to 3 LED's per cyclotron lens via the wand menu system.
+- Single (centered) LED per Cyclotron lens for 1984/1989 modes by default.
+	- This can be toggled back to 3 LEDs per Cyclotron lens via the wand menu system.
 - The Power Cell, Cyclotron and other lighting on the Proton Pack can have the bightness independently adjusted. **\*see below\***
 
 
 ### Optional Proton Pack Features
 
 - 1989 sound effects mode is available on the pack, it can be accessed from the Wand sub menu system or set with the advanced user configuration settings. **\*see below\***
-- Support for switches for cyclotron direction and to enable or disable smoke effects.
+- Support for switches for Cyclotron direction and to enable or disable smoke effects.
 - Support for smoke effects with dedicated fans for the Booster Tube and N-filter. See [Smoke Effects](SMOKE.md) addendum.
-- Additional Lights available for the cyclotron panel, internal "cake" cyclotron and Power Cell.
+- Additional Lights available for the Cyclotron panel, internal "cake" Cyclotron and Power Cell.
 	- Automatically switches to internal "cake" cyclotron, if implemented (optional).
 	- This supports a 35 LED ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
-- Video game colours supported if using RGB supported LEDs for the Cyclotron Lid, internal "cake" cyclotron and Power Cell.
+- Video game colours supported if using RGB supported LEDs for the Cyclotron Lid, internal "cake" Cyclotron and Power Cell.
 
 ## Neutrona Wand				
 ### Standard Wand Features
@@ -56,8 +56,8 @@
 
 - The top dial on the top of the gun box changes the power mode of the wand, affecting the intensity of the stream effects, indicated by increasing or decreasing the bargraph lights (just as the stock wand did).
    - Clockwise to raise power/volume, counter-clockwise to lower these values.
-- There are 5 wand power levels as based on the original bargraph which has only 5 LED's available:
-	- The wand can be user-configured in the Neutrona Wand code to overheat the pack in any of the power levels. When not set to overheat, you can fire continiously.
+- There are 5 wand power levels as based on the original bargraph which has only 5 LEDs available:
+	- The wand can be user-configured in the Neutrona Wand code to overheat the pack in any of the power levels. When not set to overheat, you can fire continuously.
 	- The pack can also be user configured in the Proton Pack Code to adjust the duration of smoke effects (for each power level), which smoke effects are activated (for each power level), use of overheating smoke effects (for each power level), or whether smoke disabled entirely.
 	Default settings: The wand will fire forever on power levels level 1 through 4 and overheat on power level 5.
 - The pack will emit smoke effects during longer firing (if enabled).
@@ -124,7 +124,7 @@ There are 2 ways to enter the Menu System.
 Use the Top Dial on the top of the wand to navigate up and down through the menu system.
 ![](images/OperationNeutrona8.jpg)
 
-When you are in the settings menu system the bargraph's 5 LED's begin flashing (or 5 distinct segments when using the 28-segment bargraph). All other functions of the wand (such as firing) are temporarily disabled while in the menu system. There are 5 different menu settings, which are indicated by the bargraph LED's/segments 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on menu 1.
+When you are in the settings menu system the bargraph's 5 LEDs begin flashing (or 5 distinct segments when using the 28-segment bargraph). All other functions of the wand (such as firing) are temporarily disabled while in the menu system. There are 5 different menu settings, which are indicated by bargraph LED segments 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on menu 1.
 
 ### Actions
 
@@ -157,18 +157,18 @@ To access the sub level menu, use the `Top Dial` on the top of the wand. When yo
 |----------------|---------|------------------|--------------------|
 | <p align="center">5</p> | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes.<sup>4</sup> |
 | <p align="center">4</p> | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/Disable smoke effects. | Enable/Disable overheating. |
-| <p align="center">3</p> | Cyclotron&nbsp;LED&nbsp;Control | Change cyclotron rotation. | Toggle between 1 (centered) or 3 LED's in the Cyclotron Lid for 1984/1989 modes. |
+| <p align="center">3</p> | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron rotation. | Toggle between 1 (centered) or 3 LEDs in the Cyclotron Lid for 1984/1989 modes. |
 | <p align="center">2</p> | Vibration Settings | Proton Pack Enable/Disable vibration or vibration during firing. | Neutrona Wand Enable/Disable vibration or vibration during firing. |
 | <p align="center">1</p> | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes. | Enable or Disable the Proton Stream impact sound effects. |
 
 <sup>3</sup> Switch between Video Game and Cross the Stream (CTS) operation modes. Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.
 
-<sup>4</sup> Enables/disables the video game colour modes for the Proton Pack's powercell and cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
+<sup>4</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
 
-- Disable all the video game colours (powercell remains blue, cyclotron remains red).
-- Enable only the powercell LED's to change colors (requires RGB powercell such as that offered by Frutto Technology).
-- Enable only the cyclotron LED's to change colors (requires RGB replacement such as a Neopixel ring).
-- Enable both the powercell and cyclotron to use video game colours.
+- Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
+- Enable only the Power Cell LEDs to change colors (requires RGB Power Cell such as that offered by Frutto Technology).
+- Enable only the Cyclotron LEDs to change colors (requires RGB replacement such as a Neopixel ring).
+- Enable both the Power Cell and Cyclotron to use video game colours.
 
 To exit the menu system, navigate to the top menu in **Setting 5** (Slo-blo LED is no longer illuminated) and press the Barrel Wing button button. A small beep will be heard when transitioning between the top and sub menu levels.
 

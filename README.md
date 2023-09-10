@@ -13,7 +13,7 @@ A fully integrated Proton Pack and Neutrona Wand, packed with features and add-o
   - While blasting away with the Proton stream you can still hear all the layers of sound effects that came before...the Pack effects, each Wand toggle effect, Music etc.
 - Wand / Pack communication system
    - By implmenting both the pack and wand controllers with an upgraded hose connection, both devices work seamlessly together. Interactions with the wand have an immediate effect on the pack, and vice-versa.
-   - This functionality includes sound effects, alarm triggers, cyclotron interaction, venting/overheat sequences, and proton stream effects (eg. video game colours and crossing the streams).
+   - This functionality includes sound effects, alarm triggers, Cyclotron interaction, venting/overheat sequences, and proton stream effects (eg. video game colours and crossing the streams).
 
 ## Table of Contents
 
@@ -48,7 +48,7 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Flashing/Uploading the code](ARDUINO_FLASHING.md)
 
-1. [WavTrigger Configuration](WAVTRIGGER.md)
+1. [WAV Trigger Configuration](WAVTRIGGER.md)
 
 1. [Loading The Audio Files](AUDIO.md)
 
