@@ -237,7 +237,17 @@ void mainLoop() {
 
   if(WAND_ACTION_STATUS != ACTION_FIRING) {
     if(ms_bsmash.remaining() < 1) {
-      i_bsmash = 0;
+      // Clear counter until user begins firing (post any lock-out period).
+      i_bsmash_count = 0;
+
+      if(b_wand_smash_error == true) {
+        // Return the wand to a normal firing state after lock-out from button smashing.
+        b_wand_smash_error = false;
+        WAND_STATUS = MODE_ON;
+        WAND_ACTION_STATUS = ACTION_IDLE;
+        wandSerialSend(W_ON);
+        postActivation();
+      }
     }
   }
 
@@ -273,8 +283,6 @@ void mainLoop() {
     break;
 
     case ACTION_FIRING:
-
-
       if(FIRING_MODE == VENTING) {
         // If we are in venting mode, lets trigger a vent sequence.
         startVentSequence();
@@ -1916,8 +1924,11 @@ void checkSwitches() {
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-        if(i_bsmash >= i_bsmash_max) {
+        if(i_bsmash_count >= i_bsmash_max) {
+          // User has exceeded "normal" firing rate.
+          b_wand_smash_error = true;
           modeError();
+          ms_bsmash.start(i_bsmash_cool_down);
         }
         else {
           if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
@@ -1926,14 +1937,14 @@ void checkSwitches() {
             }
 
             if(ms_bsmash.remaining() < 1) {
-              i_bsmash = 0;
-
+              // Clear counter/timer until user begins firing.
+              i_bsmash_count = 0;
               ms_bsmash.start(i_bsmash_delay);
             }
 
             if(b_firing_intensify != true) {
-              i_bsmash++;
-              //ms_bsmash.start(i_bsmash_delay);
+              // Increase count eac time the user presses a firing button.
+              i_bsmash_count++;
             }
 
             b_firing_intensify = true;  
@@ -1947,14 +1958,14 @@ void checkSwitches() {
               }
 
               if(ms_bsmash.remaining() < 1) {
-                i_bsmash = 0;
-
+                // Clear counter/timer until user begins firing.
+                i_bsmash_count = 0;
                 ms_bsmash.start(i_bsmash_delay);
               }
 
               if(b_firing_alt != true) {
-                i_bsmash++;
-                //ms_bsmash.start(i_bsmash_delay);
+                // Increase count eac time the user presses a firing button.
+                i_bsmash_count++;
               }
 
               b_firing_alt = true;
@@ -2084,7 +2095,8 @@ void wandOff() {
   ms_hat_1.stop();
   ms_hat_2.stop();
   
-  i_bsmash = 0;
+  // Clear counter until user begins firing.
+  i_bsmash_count = 0;
 
   // Turn off remaining lights.
   wandLightsOff();
@@ -2113,8 +2125,6 @@ void wandOff() {
 }
 
 void modeError() {
-  b_wand_smash_error = true;
-
   wandOff();
 
   WAND_STATUS = MODE_ERROR;
@@ -2132,8 +2142,6 @@ void modeError() {
   playEffect(S_BEEPS);
 
   playEffect(S_BEEPS_BARGRAPH);
-
-  b_wand_smash_error = false;
 }
 
 void modeActivate() {
@@ -2154,9 +2162,14 @@ void modeActivate() {
     // Tell the pack the wand is turned on.
     wandSerialSend(W_ON);
 
-    i_bsmash = 0;
+    // Clear counter until user begins firing.
+    i_bsmash_count = 0;
   }
 
+  postActivation(); // Enable lights and bargraph after wand activation.
+}
+
+void postActivation() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     // Ramp up the bargraph.
     switch(year_mode) {

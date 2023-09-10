@@ -346,13 +346,17 @@ bool b_sound_afterlife_idle_2_fade = true;
 bool b_pack_ribbon_cable_on = true;
 
 /*
-  Button smashing
-*/
+ * Button Smashing Lock-out - Prevents excessive user input via the primary/secondary firing buttons.
+ * This ensures that the user is not exceeting what would be considered "normal" for firing of the wand,
+ * otherwise an error mode will be engaged to provide a cool-down period. This does not apply to any
+ * prolonged firing which would trigger the overheat or venting sequences only rapid firing bursts.
+ */
 millisDelay ms_bsmash;
-unsigned int i_bsmash_delay = 3000;
-uint8_t i_bsmash = 0;
-uint8_t i_bsmash_max = 5;
-bool b_wand_smash_error = false;
+unsigned int i_bsmash_delay = 3000;     // Time period in which we consider rapid firing
+unsigned int i_bsmash_cool_down = 2000; // Time period for the lock-out of user input
+uint8_t i_bsmash_count = 0;             // Current count for rapid firing bursts
+uint8_t i_bsmash_max = 5;               // Burst count we consider before the lock-out
+bool b_wand_smash_error = false;        // Indicates wand is in a lock-out phase
 
 /*
  * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
