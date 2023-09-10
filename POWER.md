@@ -1,6 +1,6 @@
 # Power Requirements
 
-You will need a suitable power supply to run the pack controller (Arduino Mega), 2 WavTrigger boards, the wand (Arduino Nano), and optionally any audio amplifiers and smoke effects.
+You will need a suitable power supply to run the pack controller (Arduino Mega), 2 WAV Trigger boards, the wand (Arduino Nano), and optionally any audio amplifiers and smoke effects.
 
 ## Voltage
 
@@ -10,8 +10,8 @@ Most components will require 5VDC which is the standard voltage for USB. For thi
 
 There is also the matter of how long you may wish to run your pack. For those who "troop" or will use theirs for events, you need a long runtime which is a factor of the battery's Amp-Hour rating (typically stated in mAh). Some typical power draws from the devices are as follows, which adds up to ~0.6A for the base components minus your audio amp of choice for the pack.
 
-- Pack: 0.14-0.25 A - Measured using the line-out from the WavTrigger to a standalone amplifier
-- Wand: 0.08-0.27 A - Measured using the built-in amplifier on the WavTrigger
+- Pack: 0.14-0.25 A - Measured using the line-out from the WAV Trigger to a standalone amplifier
+- Wand: 0.08-0.27 A - Measured using the built-in amplifier on the WAV Trigger
 
 ## Warning
 

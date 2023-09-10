@@ -7,8 +7,8 @@ In order to deliver both power and data signals to the wand, a new set of cablin
 The following parts are utilized:
 
 * 1 - [CNLINKO 4-Pin Connector](https://a.co/d/8ALa9Gq) - Connector for the pack which uses a square connector roughly the size of the stock connection
-* 1 - [Neutrik NL4FX 4-Pole Locking SpeakON Cable Connector](https://a.co/d/9c7djjo) - This is the connector at the wand end of the hose
-* 1 - [Neutrik NL4MP 4-Pole SpeakON Panel Mount](https://a.co/d/atMuNfz) - This is the socket for the wand itself
+* 1 - [Neutrik NL4FX 4-Pole Locking speakON Cable Connector](https://a.co/d/9c7djjo) - This is the connector at the wand end of the hose
+* 1 - [Neutrik NL4MP 4-Pole speakON Panel Mount](https://a.co/d/atMuNfz) - This is the socket for the wand itself
 
 ### Installation
 
@@ -23,7 +23,7 @@ These connectors have numbered sockets which must follow a certain pattern. The 
 
 ![](images/Wand_CNLINKO.jpg)
 
-The Neutrik connectors have # markings on them and must be matched on each side. Whatever color is used for the corresponding connection to the CNLINKO should be carried forward to the SpeakOn cable connector.
+The Neutrik connectors have # markings on them and must be matched on each side. Whatever color is used for the corresponding connection to the CNLINKO should be carried forward to the speakON cable connector.
 
 * +1 -> 5V Positive
 * -1 -> Ground
@@ -33,15 +33,15 @@ The Neutrik connectors have # markings on them and must be matched on each side.
 The socket for the wand is a panel connector which has 4 screw holes which must be sanded off. This can be done with a belt sander or hand sander. A 3D printed adapter is furnished with kits to allow the socket to be secured using the existing screw base for the original battery pack.
 ![](images/Wand_SpeakON1.jpg)
 
-The SpeakON connector uses a twist-lock mechanism for a secure fit to the panel socket and 3D printed adapter. This can be painted a color of your choice (eg. silver) prior to installation.
+The speakON connector uses a twist-lock mechanism for a secure fit to the panel socket and 3D printed adapter. This can be painted a color of your choice (eg. silver) prior to installation.
 ![](images/Wand_SpeakON2.jpg)
 
-The SpeakON panel connector, like the pack connection, uses a soldered connection to secure the wires. Both connections at each end of the wand will use screw terminals to attach the wiring.
+The speakON panel connector, like the pack connection, uses a soldered connection to secure the wires. Both connections at each end of the wand will use screw terminals to attach the wiring.
 ![](images/Wand_SpeakON3.jpg)
 
 ## DIY Hose Example #2
 
-This approach uses parts which are slightly more accurate to the movie pack, though they may be more difficult to obtain. More work is needed to convert these to Haslab use.
+This approach uses parts which are slightly more accurate to the movie pack, though they may be more difficult to obtain. More work is needed to convert these to HasLab use.
 
 * 1 - [Amphenol MS3106A14S-2P (4 pin)](https://www.mouser.com/ProductDetail/654-MS3106A14S-2P)
 * 1 - [Amphenol MS3102A14S-2S (4 pin)](https://www.mouser.com/ProductDetail/654-MS3102A14S-2S)
@@ -51,15 +51,15 @@ This approach uses parts which are slightly more accurate to the movie pack, tho
 * 1 - [Neutrik NL4FC](https://www.neutrik.com/en/product/nl4fc)
 * 1 - [Neutrik NL4MP-ST](https://www.neutrik.com/en/product/nl4mp-st)
 
-In this example, I use 4 pin Amphenol connectors. The 4 pin version is slightly smaller than the 16s versions, however it does still work. You will need to enlarge the holes on the pack side Amphenol connector. I used the reamer on a swiss knife and slowly enlarged it until all 4 screws can bolt onto the pack. Take your time and go slow. You also need to remove some plastic in the center of the pack hole for the connector to slide on. After feeding the 4 wires running from the Wand to the Pack connector through both ends of the 3/4 inch splitless loom, solder the wires onto the approriate ends on the connector.
+In this example, I use 4 pin Amphenol connectors. The 4 pin version is slightly smaller than the 16s versions, however it does still work. You will need to enlarge the holes on the pack side Amphenol connector. I used the reamer on a swiss knife and slowly enlarged it until all 4 screws can bolt onto the pack. Take your time and go slow. You also need to remove some plastic in the center of the pack hole for the connector to slide on. After feeding the 4 wires running from the wand to the pack connector through both ends of the 3/4 inch splitless loom, solder the wires onto the approriate ends on the connector.
 ![Hose](images/Hose2.jpg)
 ![Hose](images/Hose1.jpg)
 
-On the wand side, this uses a modified Neutrik NAC3FX-W connector. This is a 3 pin connector, but you can take it apart and use the 4 pin internals of the NL4FC which is a 4 pin connector. The NAC3FX-W is discontinued, so if you can not find one, you can just use the NL4FC instead and not have to modify anything. 
+On the wand side, this uses a modified Neutrik NAC3FX-W connector. This is a 3 pin connector, but you can take it apart and use the 4 pin internals of the NL4FC which is a 4 pin connector. The NAC3FX-W is discontinued, so if you cannot find one, you can just use the NL4FC instead and not have to modify anything. 
 
-I use black electrical tape to secure the 3/4 splitless wire loom to the Neutrik connector on the Wand side and the Amphenol connector on the Proton Pack side.
+I use black electrical tape to secure the 3/4 splitless wire loom to the Neutrik connector on the Neutrona Wand side and the Amphenol connector on the Proton Pack side.
 
-Provided in the wand STL folder is a printable connector which threads into the handle of the Hasbro Neutrona Wand. With this connector, you can shave down the square corners of the 4 pin Neutrik NL4MP-ST connector so it is round, and it can slide into the 3d printable connector. I then screw the 3d printable connector into the wand handle and make a mark on the bottom side of it. I remove the connector and make a hole in it. I then use a m3x5 hex socket screw (or which ever set screw you want to use) to secure the Neutrik NL4MP-ST connector into the Neutrona Wand handle.
+Provided in the wand STL folder is a printable connector which threads into the handle of the Hasbro Neutrona Wand. With this connector, you can shave down the square corners of the 4 pin Neutrik NL4MP-ST connector so it is round, and it can slide into the 3D printable connector. I then screw the 3D printable connector into the wand handle and make a mark on the bottom side of it. I remove the connector and make a hole in it. I then use a M3x5 hex socket screw (or which ever set screw you want to use) to secure the Neutrik NL4MP-ST connector into the Neutrona Wand handle.
 
 **READ BELOW IF USING A MODIFIED NAC3FX-W with a NL4FC.**
 

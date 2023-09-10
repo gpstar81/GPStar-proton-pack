@@ -225,10 +225,10 @@ CRGB getHueAsRGB(uint8_t i_colour, uint8_t i_brightness = 255, bool b_grb = fals
   if(b_grb) {
     // Swap red/green values before returning.
     return CRGB(rgb[1], rgb[0], rgb[2]);
-  } 
+  }
   else {
     return rgb; // Return RGB object.
-  } 
+  }
 }
 
 CRGB getHueAsGRB(uint8_t i_colour, uint8_t i_brightness = 255) {

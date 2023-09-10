@@ -1,11 +1,11 @@
 ## Loading The Audio Files
 
-This repository (for somewhat obvious reasons) does not provide music tracks for your project other than a single track which was graciously approved by the independent artist for inclusion. You will need to prepare any music tracks for use by exporting MP3 or AAC audio files as 44.1kHz 16-bit WAV files. This can be done easily using a program such as [Audacity](https://www.audacityteam.org/) to open the music file and export to WAV format. See the instructions below for how to name your files for loading onto the SD cards used by the WavTrigger boards.
+This repository (for somewhat obvious reasons) does not provide music tracks for your project other than a single track which was graciously approved by the independent artist for inclusion. You will need to prepare any music tracks for use by exporting MP3 or AAC audio files as 44.1kHz 16-bit WAV files. This can be done easily using a program such as [Audacity](https://www.audacityteam.org/) to open the music file and export to WAV format. See the instructions below for how to name your files for loading onto the SD cards used by the WAV Trigger boards.
 
 ## Format your SD Card to FAT32
 `Please consider high quality SD Cards. We recommend Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.`
 
-Your SD cards **MUST** be formatted as FAT32 using 32KB block size per the WavTrigger manual. Use a full formatting option for the SD cards not a quick formatting for best results.
+Your SD cards **MUST** be formatted as FAT32 using 32KB block size per the WAV Trigger manual. Use a full formatting option for the SD cards not a quick formatting for best results.
 
 ## SD Cards with capacities larger than 32GB in FAT32.
 
@@ -46,7 +46,7 @@ To add more music, copy stereo wav tracks (16-bit 44khz stereo wav files) onto t
 
 ## Troubleshooting
 
-[Manual for the WavTrigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/WT_UserGuide_20230602.pdf)
+[Manual for the WAV Trigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/WT_UserGuide_20230602.pdf)
 
 If you have problems, here are a few things to check:
 
