@@ -358,7 +358,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
     case C_BLUEFADE:
       // Reset if out of range: blue (160) to light blue (146).
-      // This is based on use of the 15-LED RGB Powercell.
+      // This is based on use of the 15-LED RGB Power Cell.
       if(i_count[i_device] < 146 || i_count[i_device] > 160) {
         i_count[i_device] = 160; // Reset if out of range.
       }

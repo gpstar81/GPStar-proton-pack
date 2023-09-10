@@ -19,7 +19,7 @@
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
- * Change the variables below to alter the behaviour of your Neutrona wand.
+ * Change the variables below to alter the behaviour of your Neutrona Wand.
  */
 
 /*
@@ -98,16 +98,16 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 /*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
  * Pressing this button together at the same time as the Intensify button does a cross the streams firing.
- * You can release one of the two firing buttons and the Neutrona wand will still continue to cross the streams.
+ * You can release one of the two firing buttons and the Neutrona Wand will still continue to cross the streams.
  * The video game firing modes will be disabled when you enable this. 
- * This can be enabled or disabled from the Neutrona wand sub menu system.
+ * This can be enabled or disabled from the Neutrona Wand sub menu system.
 */
 bool b_cross_the_streams = false;
 
 /*
  * When set to true, to cross the streams you must be holding down both Intensify and the alternate firing button at the same time.
  * Releasing one or the other button will stop cross the streams but continue firing a regular proton stream.
- * This can be enabled or disabled from the Neutrona wand sub menu system.
+ * This can be enabled or disabled from the Neutrona Wand sub menu system.
 */
 bool b_cross_the_streams_mix = false;
 
@@ -144,15 +144,15 @@ unsigned int i_spectral_wand_saturation_custom = 254;
 /*
  * When enabled, the Neutrona Wand will vibrate at all times.
  * Vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
- * This can be enabled or disabled from the Neutrona wand sub menu system.
+ * This can be enabled or disabled from the Neutrona Wand sub menu system.
  * Default = true.
 */
 bool b_vibration_on = true;
 
 /*
- * When set to true, when b_vibration_on is set to true, the Neutrona wand will only vibrate during firing.
+ * When set to true, when b_vibration_on is set to true, the Neutrona Wand will only vibrate during firing.
  * Note that vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
- * This can be enabled or disabled from the Neutrona wand sub menu system.
+ * This can be enabled or disabled from the Neutrona Wand sub menu system.
  * Default = true.
 */
 bool b_vibration_firing = true;
@@ -160,12 +160,12 @@ bool b_vibration_firing = true;
 /*
  * Set to true to enable overheating. Overheat settings are defined below.
  * Set to false to disable overheating. This will override any overheat settings below.
- * This can be controle from the Neutrona Wand submenu system.
+ * This can be controlled from the Neutrona Wand submenu system.
 */
 bool b_overheat_enabled = true;
 
 /*
- * Set to true to have your Neutrona wand boot up with errors when the top right switch (beep switch) is on while you are turning on your wand.
+ * Set to true to have your Neutrona Wand boot up with errors when the top right switch (beep switch) is on while you are turning on your wand.
  * When set to false, this will be ignored.
 */
 const bool b_wand_boot_errors = true;

@@ -42,7 +42,7 @@ void setup() {
   FIRING_MODE = PROTON;
   POWER_LEVEL = LEVEL_1;
 
-  // RGB LED's for effects (upper/lower).
+  // RGB LEDs for effects (upper/lower).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
 
   // Debounce the toggle switches and encoder pushbutton.
@@ -50,7 +50,7 @@ void setup() {
   switch_right.setDebounceTime(switch_debounce_time);
   encoder_center.setDebounceTime(switch_debounce_time);
 
-  // Rotary encoder on the top of the attenuator.
+  // Rotary encoder on the top of the Attenuator.
   pinMode(r_encoderA, INPUT_PULLUP);
   pinMode(r_encoderB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
@@ -142,7 +142,7 @@ void mainLoop() {
   }
 
   /*
-   * The right toggle activates the LED's on the device manually.
+   * The right toggle activates the LEDs on the device manually.
    *
    * Since this device will have a serial connection to the pack,
    * the lights will change colors based on user interactions.
@@ -169,7 +169,7 @@ void mainLoop() {
     }
   }
   else {
-    // Turn off the LED's by setting to black.
+    // Turn off the LEDs by setting to black.
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
     attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
   }
@@ -247,7 +247,7 @@ void checkRotaryEncoder() {
 
   if(i_val_rotary < i_last_val_rotary) {
     if(ms_rotary_debounce.isRunning() != true) {
-      // Tell wand to decrease the volume.
+      // Tell wand to decrease volume.
       attenuatorSerialSend(A_VOLUME_DECREASE);
 
       ms_rotary_debounce.start(rotary_debounce_time);
@@ -528,7 +528,7 @@ void checkPack() {
             i_bargraph_status = POWER_LEVEL - 1;
 
             i_bargraph_status_alt = 0;
-            i_bargraph_status = 0; //??
+            i_bargraph_status = 0; // ??
             bargraphClearAlt();
 
             switch(i_mode_year) {
