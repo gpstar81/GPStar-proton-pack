@@ -353,7 +353,7 @@ bool b_pack_ribbon_cable_on = true;
  */
 millisDelay ms_bsmash;
 unsigned int i_bsmash_delay = 3000;     // Time period in which we consider rapid firing
-unsigned int i_bsmash_cool_down = 2000; // Time period for the lock-out of user input
+unsigned int i_bsmash_cool_down = 3200; // Time period for the lock-out of user input
 uint8_t i_bsmash_count = 0;             // Current count for rapid firing bursts
 uint8_t i_bsmash_max = 5;               // Burst count we consider before the lock-out
 bool b_wand_smash_error = false;        // Indicates wand is in a lock-out phase

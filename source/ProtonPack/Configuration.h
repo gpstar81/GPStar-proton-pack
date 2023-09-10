@@ -181,7 +181,7 @@ const uint8_t STARTUP_VOLUME = 100;
  * 0 = quietest
  * 100 = loudest
 */
-const uint8_t STARTUP_VOLUME_MUSIC = 100;
+const uint8_t STARTUP_VOLUME_MUSIC = 40;
 
 /*
  * You can set the default sound effects volume for your pack here.

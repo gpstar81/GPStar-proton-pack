@@ -243,11 +243,20 @@ void mainLoop() {
       if(b_wand_smash_error == true) {
         // Return the wand to a normal firing state after lock-out from button smashing.
         b_wand_smash_error = false;
+        
         WAND_STATUS = MODE_ON;
         WAND_ACTION_STATUS = ACTION_IDLE;
+        
         wandSerialSend(W_ON);
         postActivation();
+
+        if(year_mode == 2021) {
+          playEffect(P_PACK_BOOTUP);
+        }
+
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          bargraphClearAlt();
+
           // Re-enable the hat light on top of the gun box
           digitalWrite(led_hat_2, HIGH);
         #endif
@@ -283,6 +292,7 @@ void mainLoop() {
     break;
 
     case ACTION_OFF:
+      b_wand_smash_error = false;
       wandOff();
     break;
 
@@ -1719,6 +1729,7 @@ void checkSwitches() {
 
     case MODE_ERROR:
       if(switch_activate.getState() == HIGH) {
+        b_wand_smash_error = false;
         wandOff();
       }
     break;
@@ -2149,12 +2160,11 @@ void modeError() {
 }
 
 void modeActivate() {
-  b_wand_smash_error = false;
-
   b_sound_afterlife_idle_2_fade = true;
 
   // The wand was started while the top switch was already on. Lets put the wand into a startup error mode.
   if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
+    b_wand_smash_error = true;
     modeError();
   }
   else {
@@ -2169,6 +2179,8 @@ void modeActivate() {
     // Clear counter until user begins firing.
     i_bsmash_count = 0;
   }
+
+  b_wand_smash_error = false;
 
   postActivation(); // Enable lights and bargraph after wand activation.
 }
@@ -5886,9 +5898,11 @@ void checkPack() {
                 // Turn wand off.
                 if(WAND_STATUS != MODE_OFF) {
                   if(WAND_STATUS == MODE_ERROR) {
+                    b_wand_smash_error = false;
                     wandOff();
                   }
                   else {
+                    b_wand_smash_error = false;
                     WAND_ACTION_STATUS = ACTION_OFF;
                   }
                 }
