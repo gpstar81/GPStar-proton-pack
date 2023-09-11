@@ -42,6 +42,9 @@ void setup() {
   FIRING_MODE = PROTON;
   POWER_LEVEL = LEVEL_5;
 
+  // Begin at menu level one. This affects the behavior of the rotary dial.
+  MENU_LEVEL = MENU_1;
+
   // RGB LEDs for effects (upper/lower).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
 
@@ -112,18 +115,36 @@ void mainLoop() {
 
   switch(CENTER_STATE) {
     case SHORT_PRESS:
-      // A short press should start/stop the music.
-      attenuatorSerialSend(A_MUSIC_START_STOP);
-      break;
+      // Perform action for short press based on current menu level.
+      switch(MENU_LEVEL) {
+        case MENU_1:
+          // A short press should start/stop the music.
+          attenuatorSerialSend(A_MUSIC_START_STOP);
+          break;
+
+        case MENU_2:
+          // A short press should advance to the next track.
+          attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
+          break;
+      }
+    break;
 
     case LONG_PRESS:
       tone(BUZZER_PIN, 784); // G4
       ms_buzzer.start(i_buzz_max);
-      break;
+
+      // Toggle between the menu levels on a long press.
+      if(MENU_LEVEL == MENU_1) {
+        MENU_LEVEL == MENU_2;
+      }
+      else {
+        MENU_LEVEL == MENU_1;
+      }
+    break;
 
     default:
       // aka. NO_ACTION = no-op
-      break;
+    break;
   }
 
   if(ms_buzzer.remaining() < 1) {
@@ -313,8 +334,18 @@ void readEncoder() {
 void checkRotaryEncoder() {
   if(i_val_rotary > i_last_val_rotary) {
     if(ms_rotary_debounce.isRunning() != true) {
-      // Tell wand to increase volume.
-      attenuatorSerialSend(A_VOLUME_INCREASE);
+      // Perform action based on the curent menu level.
+      switch(MENU_LEVEL) {
+        case MENU_1:
+          // Tell pack to increase overall volume.
+          attenuatorSerialSend(A_VOLUME_INCREASE);
+        break;
+
+        case MENU_2:
+          // Tell pack to increase effects volume.
+          attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
+        break;
+      }
 
       ms_rotary_debounce.start(rotary_debounce_time);
     }
@@ -322,8 +353,18 @@ void checkRotaryEncoder() {
 
   if(i_val_rotary < i_last_val_rotary) {
     if(ms_rotary_debounce.isRunning() != true) {
-      // Tell wand to decrease volume.
-      attenuatorSerialSend(A_VOLUME_DECREASE);
+      // Perform action based on the curent menu level.
+      switch(MENU_LEVEL) {
+        case MENU_1:
+          // Tell pack to decrease overall volume.
+          attenuatorSerialSend(A_VOLUME_DECREASE);
+        break;
+
+        case MENU_2:
+          // Tell pack to decrease effects volume.
+          attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
+        break;
+      }
 
       ms_rotary_debounce.start(rotary_debounce_time);
     }

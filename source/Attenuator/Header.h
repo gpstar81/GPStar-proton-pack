@@ -128,6 +128,8 @@ int i_last_val_rotary;
  */
 enum CENTER_STATES { NO_ACTION, SHORT_PRESS, LONG_PRESS };
 enum CENTER_STATES CENTER_STATE;
+enum MENU_LEVELS { MENU_1, MENU_2 };
+enum MENU_LEVELS MENU_LEVEL;
 
 /* 
  * Pack Communication

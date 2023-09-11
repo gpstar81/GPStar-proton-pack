@@ -3903,6 +3903,22 @@ void checkSerial1() {
               packSerialSend(P_VOLUME_INCREASE);
             break;
 
+            case A_VOLUME_SOUND_EFFECTS_DECREASE:
+              // Turn down effects pack volume.
+              decreaseVolumeEffects();
+
+              // Tell wand to decrease effects volume.
+              packSerialSend(P_VOLUME_SOUND_EFFECTS_DECREASE);
+            break;
+
+            case A_VOLUME_SOUND_EFFECTS_INCREASE:
+              // Turn up effects pack volume.
+              increaseVolumeEffects();
+
+              // Tell wand to increase effects volume.
+              packSerialSend(P_VOLUME_SOUND_EFFECTS_INCREASE);
+            break;
+
             case A_MUSIC_START_STOP:
               if(b_playing_music == true) {
                 packSerialSend(P_MUSIC_STOP);
@@ -3918,6 +3934,46 @@ void checkSerial1() {
                   packSerialSend(P_MUSIC_START);
                 }
               }
+            break;
+
+            case A_MUSIC_NEXT_TRACK:
+              // Switch to the next track.
+              if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+                // Start at the first track if already on the last.
+                i_current_music_track = i_music_track_start;
+              }
+              else {
+                i_current_music_track++;
+              }
+
+              if(b_playing_music == true) {
+                // Restart music using current track.
+                stopMusic();
+                playMusic();
+              }
+
+              // Tell the wand which track to play.
+              packSerialSend(i_current_music_track);
+            break;
+
+            case A_MUSIC_PREV_TRACK:
+              // Switch to the previous track.
+              if(i_current_music_track - 1 < i_music_track_start) {
+                // Start at the last track if already on the first.
+                i_current_music_track = i_music_track_start + (i_music_count - 1);
+              }
+              else {
+                i_current_music_track--;
+              }
+
+              if(b_playing_music == true) {
+                // Restart music using current track.
+                stopMusic();
+                playMusic();
+              }
+
+              // Tell the wand which track to play.
+              packSerialSend(i_current_music_track);
             break;
 
             default:
@@ -5591,7 +5647,7 @@ void checkWand() {
 
             default:
               // Music track number to be played.
-              if(comStruct.i >= i_music_track_start) {
+              if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
                 if(b_playing_music == true) {
                   stopMusic();
                   i_current_music_track = comStruct.i;

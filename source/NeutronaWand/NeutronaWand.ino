@@ -769,11 +769,11 @@ void mainLoop() {
                 if(b_playing_music == true) {
                   // Go to the last track to play it.
                   stopMusic();
-                  i_current_music_track = i_music_track_start + (i_music_count -1);
+                  i_current_music_track = i_music_track_start + (i_music_count - 1);
                   playMusic();
                 }
                 else {
-                  i_current_music_track = i_music_track_start + (i_music_count -1);
+                  i_current_music_track = i_music_track_start + (i_music_count - 1);
                 }
               }
               else {
@@ -6049,6 +6049,16 @@ void checkPack() {
               #endif
             break;
 
+            case P_VOLUME_SOUND_EFFECTS_INCREASE:
+              // Increase effects volume.
+              increaseVolumeEffects();
+            break;
+
+            case P_VOLUME_SOUND_EFFECTS_DECREASE:
+              // Decrease effects volume.
+              decreaseVolumeEffects();
+            break;
+
             case P_VOLUME_INCREASE:
               // Increase overall volume.
               increaseVolume();
@@ -6568,7 +6578,7 @@ void checkPack() {
 
             default:
               // Music track number to be played.
-              if(comStruct.i >= i_music_track_start) {
+              if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
                 if(b_playing_music == true) {
                   stopMusic();
                   i_current_music_track = comStruct.i;
