@@ -3571,15 +3571,15 @@ void fanControl(bool b_fan_on) {
   }
 }
 
-// Another optional 5V pin that goes high during overheat sequences.
+// Another optional 5V pin that goes high during overheat/vent sequences.
 void checkFan() {
   if(ms_fan_stop_timer.justFinished()) {
     // Turn off fan when timer has completed.
     fanControl(false);
     ms_fan_stop_timer.stop();
   }
-  else if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < (i_fan_stop_timer / i_fan_start_divisor))) {
-    // Turn on fan about halfway through the timed sequence.
+  else if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < (i_fan_stop_timer * i_fan_start_percent)) {
+    // Turn on fan in the middle of the timed sequence.
     fanControl(true);
   }
 }
@@ -3690,12 +3690,6 @@ void packOverheatingFinished() {
   // Turn off the smoke.
   smokeControl(false);
 
-  // Stop the fan.
-  //ms_fan_stop_timer.stop();
-
-  // Turn off the N-Filter fan.
-  fanControl(false);
-
   // Reset the LEDs before resetting the alarm flag.
   if(i_mode_year == 1984 || i_mode_year == 1989) {
     resetCyclotronLeds();
@@ -3732,6 +3726,10 @@ void packOverheatingFinished() {
   ventLightLEDW(false);
   ms_vent_light_off.stop();
   ms_vent_light_on.stop();
+
+  // Stop the fan(s).
+  ms_fan_stop_timer.stop();
+  fanControl(false);
 
   ms_cyclotron.start(i_2021_delay);
 }
