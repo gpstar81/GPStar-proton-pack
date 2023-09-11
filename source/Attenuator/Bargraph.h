@@ -80,13 +80,13 @@ void bargraphPowerCheck2021Alt(bool b_override) {
 }
 
 void bargraphYearModeUpdate() {
-  switch(i_mode_year) {
-    case 2021:
+  switch(YEAR_MODE) {
+    case YEAR_2021:
       i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
     break;
 
-    case 1984:
-    case 1989:
+    case YEAR_1984:
+    case YEAR_1989:
       i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
     break;
   }
@@ -148,13 +148,13 @@ void bargraphRampUp() {
           ms_bargraph.start(i_bargraph_wait / 2);
 
           // Adjust the ramp down speed if necessary.
-          switch(i_mode_year) {
-            case 2021:
+          switch(YEAR_MODE) {
+            case YEAR_2021:
               i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
             break;
 
-            case 1984:
-            case 1989:
+            case YEAR_1984:
+            case YEAR_1989:
               // No changes.
             break;
           }
@@ -182,13 +182,13 @@ void bargraphRampUp() {
           }
         }
         else {
-          if((POWER_LEVEL < 5 && i_mode_year == 2021) || i_mode_year == 1984 || i_mode_year == 1989) {
+          if((POWER_LEVEL < 5 && YEAR_MODE == YEAR_2021) || YEAR_MODE == YEAR_1984 || YEAR_MODE == YEAR_1989) {
             ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
           }
 
-          switch(i_mode_year) {
-            case 1984:
-            case 1989:
+          switch(YEAR_MODE) {
+            case YEAR_1984:
+            case YEAR_1989:
               // Bargraph has ramped up and down. In 1984 mode we want to start the ramping.
               if(i_bargraph_status_alt == 54) {
                 ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continuously.
@@ -204,7 +204,7 @@ void bargraphRampUp() {
 
             break;
 
-            case 2021:
+            case YEAR_2021:
               switch(POWER_LEVEL) {
                 case 5:
                   // Stop any power check in 2021 if we are already in level 5.
@@ -722,7 +722,7 @@ void bargraphPowerCheck() {
     if(ms_bargraph_alt.justFinished()) {
       uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
 
-      if(i_mode_year == 2021) {
+      if(YEAR_MODE == 2021) {
         for(uint8_t i = 0; i <= 4; i++) {
           i_bargraph_multiplier[i] = 10;
         }
@@ -738,7 +738,7 @@ void bargraphPowerCheck() {
 
               i_bargraph_status_alt = 27;
 
-              if(i_mode_year == 2021) {
+              if(YEAR_MODE == 2021) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -756,7 +756,7 @@ void bargraphPowerCheck() {
             if(i_bargraph_status_alt > 21) {
               b_bargraph_up = false;
 
-              if(i_mode_year == 2021) {
+              if(YEAR_MODE == 2021) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -773,7 +773,7 @@ void bargraphPowerCheck() {
           case 3:
             if(i_bargraph_status_alt > 16) {
               b_bargraph_up = false;
-              if(i_mode_year == 2021) {
+              if(YEAR_MODE == 2021) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -790,7 +790,7 @@ void bargraphPowerCheck() {
           case 2:
             if(i_bargraph_status_alt > 10) {
               b_bargraph_up = false;
-              if(i_mode_year == 2021) {
+              if(YEAR_MODE == 2021) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -807,7 +807,7 @@ void bargraphPowerCheck() {
           case 1:
             if(i_bargraph_status_alt > 4) {
               b_bargraph_up = false;
-              if(i_mode_year == 2021) {
+              if(YEAR_MODE == 2021) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -845,7 +845,7 @@ void bargraphPowerCheck() {
 
           switch(POWER_LEVEL) {
             case 5:
-              if(i_mode_year == 2021 && i_bargraph_status_alt < 27) {
+              if(YEAR_MODE == 2021 && i_bargraph_status_alt < 27) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -855,7 +855,7 @@ void bargraphPowerCheck() {
             break;
 
             case 4:
-              if(i_mode_year == 2021 && i_bargraph_status_alt < 22) {
+              if(YEAR_MODE == 2021 && i_bargraph_status_alt < 22) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -865,7 +865,7 @@ void bargraphPowerCheck() {
             break;
 
             case 3:
-              if(i_mode_year == 2021 && i_bargraph_status_alt < 17) {
+              if(YEAR_MODE == 2021 && i_bargraph_status_alt < 17) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -875,7 +875,7 @@ void bargraphPowerCheck() {
             break;
 
             case 2:
-              if(i_mode_year == 2021 && i_bargraph_status_alt < 11) {
+              if(YEAR_MODE == 2021 && i_bargraph_status_alt < 11) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -885,7 +885,7 @@ void bargraphPowerCheck() {
             break;
 
             case 1:
-              if(i_mode_year == 2021 && i_bargraph_status_alt < 5) {
+              if(YEAR_MODE == 2021 && i_bargraph_status_alt < 5) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -937,7 +937,7 @@ void prepBargraphRampUp() {
 
   // Prepare a few things before ramping the bargraph back up from a full ramp down.
   if(b_overheat_bargraph_blink != true) {
-    if(i_mode_year == 2021) {
+    if(YEAR_MODE == 2021) {
       bargraphYearModeUpdate();
     }
     else {
@@ -946,7 +946,7 @@ void prepBargraphRampUp() {
 
     // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
     // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
-    if(i_mode_year == 2021 && b_28segment_bargraph == true) {
+    if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
       bargraphPowerCheck2021Alt(false);
     }
 

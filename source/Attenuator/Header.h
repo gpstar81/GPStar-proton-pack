@@ -88,8 +88,8 @@ uint8_t i_speed_multiplier = 1;
 /*
  * Barmeter 28 segment bargraph mapping: allows accessing elements sequentially (0-27)
  * If the pattern appears inverted from what is expected, flip by using the following:
- *   #define GPSTAR_INVERT_BARGRAPH
  */
+//#define GPSTAR_INVERT_BARGRAPH
 #ifdef GPSTAR_INVERT_BARGRAPH
   const uint8_t i_bargraph[28] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
 #else
@@ -99,14 +99,15 @@ uint8_t i_speed_multiplier = 1;
 /*
  * Year Theme
  */
-unsigned int i_mode_year = 1984; // 1984, 1989, or 2021 (default: 1984 for power level animation)
+enum YEAR_MODES { YEAR_1984, YEAR_1989, YEAR_2021 };
+enum YEAR_MODES YEAR_MODE;
 
 /* 
  *  Wand Firing Modes + Settings
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
-enum POWER_LEVELS { LEVEL_0, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
+enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
 enum POWER_LEVELS POWER_LEVEL;
 enum POWER_LEVELS POWER_LEVEL_PREV;
 
@@ -131,7 +132,8 @@ const uint8_t rotary_debounce_time = 80;
 ezButton encoder_center(4); // For center-press on encoder dial.
 millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
 millisDelay ms_center_press;
-const unsigned int i_center_long_press_delay = 1000; // When to consider the center dial has a "long" press.
+bool b_center_pressed = false;
+const unsigned int i_center_long_press_delay = 800; // When to consider the center dial has a "long" press.
 int i_encoder_pos = 0;
 int i_val_rotary;
 int i_last_val_rotary;

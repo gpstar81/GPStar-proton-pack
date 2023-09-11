@@ -42,6 +42,9 @@ void setup() {
   FIRING_MODE = PROTON;
   POWER_LEVEL = LEVEL_5;
 
+  // Default to 1984 for power level animation when pack is not connected.
+  YEAR_MODE = YEAR_1984;
+
   // Begin at menu level one. This affects the behavior of the rotary dial.
   MENU_LEVEL = MENU_1;
 
@@ -94,25 +97,16 @@ void mainLoop() {
   // Monitor for interactions by user.
   checkPack();
   switchLoops();
+  checkRotaryPress();
   checkRotaryEncoder();
 
-  // Determine whether the rotary dial (center button) got a short or long press.
-  CENTER_STATE = NO_ACTION;
-  if(encoder_center.isPressed()) {
-    // Start a timer when the rotary dial is pressed.
-    ms_center_press.start(i_center_long_press_delay);
-  }
-  if(encoder_center.isReleased()) {
-    if(ms_center_press.remaining() < 1) {
-      // If the timer has run out it's a long press.
-      CENTER_STATE = LONG_PRESS;
-    }
-    else {
-      // Otherwise consider this a short press.
-      CENTER_STATE = SHORT_PRESS;
-    }
-  }
-
+  /*
+   * Rotary Dial Center Press
+   *
+   * Performs action based on a short or long press of this button.
+   *  Short: Action
+   *  Long: Navigation
+   */
   switch(CENTER_STATE) {
     case SHORT_PRESS:
       // Perform action for short press based on current menu level.
@@ -120,13 +114,13 @@ void mainLoop() {
         case MENU_1:
           // A short press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
-          setVibration(255, 200);
+          setVibration(255, 200); // Only vibrate briefly.
           break;
 
         case MENU_2:
           // A short press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-          setVibration(255, 200);
+          setVibration(255, 200); // Only vibrate briefly.
           break;
       }
     break;
@@ -137,18 +131,17 @@ void mainLoop() {
       switch(MENU_LEVEL) {
         case MENU_1:
           MENU_LEVEL = MENU_2;
-          setVibration(255, 200);
-          buzzOn(784); // G4
+          setVibration(255, 200); // Give a quick nudge.
+          buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1;
-          setVibration(255, 200);
-          buzzOn(440); // A4
+          setVibration(255, 200); // Give a quick nudge.
+          buzzOn(440); // Tone as note A4
         break;
       }
     break;
 
-    NO_ACTION:
     default:
       // No-op
     break;
@@ -156,11 +149,14 @@ void mainLoop() {
 
   /*
    * Left Toggle
-   * When paired with the gpstar Proton Pack, will turn the
-   * pack on or off. When the pack is on the bargraph will
-   * automatically enable and display an animation which
-   * matches the Neutrona Wand bargraph.
    *
+   * When paired with the gpstar Proton Pack controller, will turn the
+   * pack on or off. When the pack is on the bargraph will automatically
+   * enable and display an animation which matches the Neutrona Wand
+   * bargraph (whether stock 5-LED version or 28-segment by Frutto).
+   *
+   * When not paired with the gpstar Proton Pack controller, will turn
+   * on the bargraph which will display some pre-set pattern.
    * TODO: Allow the user to select a bargraph pattern, or
    * simply control certain pack/wand behavior as desired.
    */
@@ -206,10 +202,12 @@ void mainLoop() {
   }
 
   /*
+   * Right Toggle
+   *
    * The right toggle activates the LEDs on the device manually.
    *
-   * Since this device will have a serial connection to the pack,
-   * the lights will change colors based on user interactions.
+   * When paired with the gpstar Proton pack controller, the LEDs
+   * will change colors based on user interactions.
    */
   if(switch_right.getState() == LOW) {
     if((b_firing == true && i_speed_multiplier > 1) || b_overheating == true || b_pack_alarm == true) {
@@ -227,7 +225,7 @@ void mainLoop() {
         else {
           controlLEDs(); // Turn LEDs on using appropriate color scheme.
           setVibration(255, 500); // Set vibration to full power.
-          buzzOn(523); // Emit a tone as note C4
+          buzzOn(523); // Tone as note C4
         }
       }
     }
@@ -296,24 +294,31 @@ void controlLEDs() {
     case SLIME:
       i_scheme = C_GREEN;
     break;
+
     case STASIS:
       i_scheme = C_LIGHT_BLUE;
     break;
+
     case MESON:
       i_scheme = C_ORANGE;
     break;
+
     case SPECTRAL:
       i_scheme = C_RAINBOW;
     break;
+
     case HOLIDAY:
       i_scheme = C_REDGREEN;
     break;
+
     case SPECTRAL_CUSTOM:
       i_scheme = C_SPECTRAL_CUSTOM;
     break;
+
     case SETTINGS:
       i_scheme = C_WHITE;
     break;
+
     case PROTON:
     case VENTING:
     default:
@@ -321,10 +326,12 @@ void controlLEDs() {
     break;
   }
 
+  // Update the lower LED based on the scheme determined above.
   attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
 }
 
 void readEncoder() {
+  // Determines if encoder was turned CW or CCW.
   if(digitalRead(r_encoderA) == digitalRead(r_encoderB)) {
     i_encoder_pos++;
   }
@@ -336,6 +343,7 @@ void readEncoder() {
 }
 
 void checkRotaryEncoder() {
+  // Take action if rotary encoder value was turned CW.
   if(i_val_rotary > i_last_val_rotary) {
     if(ms_rotary_debounce.isRunning() != true) {
       // Perform action based on the curent menu level.
@@ -355,6 +363,7 @@ void checkRotaryEncoder() {
     }
   }
 
+  // Take action if rotary encoder value was turned CCW.
   if(i_val_rotary < i_last_val_rotary) {
     if(ms_rotary_debounce.isRunning() != true) {
       // Perform action based on the curent menu level.
@@ -378,6 +387,32 @@ void checkRotaryEncoder() {
 
   if(ms_rotary_debounce.justFinished()) {
     ms_rotary_debounce.stop();
+  }
+}
+
+void checkRotaryPress() {
+  // Reset on each loop as we need to detect for change.
+  CENTER_STATE = NO_ACTION;
+
+  // Determine whether the rotary dial (center button) got a short or long press.
+  if(encoder_center.isPressed()) {
+    // Start a timer when the rotary dial is pressed.
+    ms_center_press.start(i_center_long_press_delay);
+    b_center_pressed = true;
+  }
+
+  // If released and the timer is still running, then it was a short press.
+  if(encoder_center.isReleased() && ms_center_press.isRunning()) {
+    CENTER_STATE = SHORT_PRESS;
+    b_center_pressed = false;
+    ms_center_press.stop();
+  }
+
+  // If rotary dial was pressed and timer finished, immediately consider
+  // that as a long-press action and clear the pressed state.
+  if(b_center_pressed == true && ms_vibrate.justFinished()) {
+    CENTER_STATE = LONG_PRESS;
+    b_center_pressed = false;
   }
 }
 
@@ -441,19 +476,19 @@ void checkPack() {
           break;
 
           case A_YEAR_1984:
-            i_mode_year = 1984;
+            YEAR_MODE = YEAR_1984;
 
             bargraphYearModeUpdate();
           break;
 
           case A_YEAR_1989:
-            i_mode_year = 1989;
+            YEAR_MODE = YEAR_1989;
 
             bargraphYearModeUpdate();
           break;
 
           case A_YEAR_AFTERLIFE:
-            i_mode_year = 2021;
+            YEAR_MODE = YEAR_2021;
 
             bargraphYearModeUpdate();
           break;
@@ -516,7 +551,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_1;
 
-            if(i_mode_year == 2021 && b_28segment_bargraph == true) {
+            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -525,7 +560,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_2;
 
-            if(i_mode_year == 2021 && b_28segment_bargraph == true) {
+            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -534,7 +569,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_3;
 
-            if(i_mode_year == 2021 && b_28segment_bargraph == true) {
+            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -543,7 +578,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_4;
 
-            if(i_mode_year == 2021 && b_28segment_bargraph == true) {
+            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -552,7 +587,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_5;
 
-            if(i_mode_year == 2021 && b_28segment_bargraph == true) {
+            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -655,13 +690,13 @@ void checkPack() {
             i_bargraph_status = 0; // ??
             bargraphClearAlt();
 
-            switch(i_mode_year) {
-              case 2021:
+            switch(YEAR_MODE) {
+              case YEAR_2021:
                 i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
               break;
 
-              case 1984:
-              case 1989:
+              case YEAR_1984:
+              case YEAR_1989:
                 i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
               break;
             }
