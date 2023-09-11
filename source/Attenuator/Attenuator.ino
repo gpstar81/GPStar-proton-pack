@@ -79,7 +79,7 @@ void setup() {
 }
 
 void loop() {
-  if(b_wait_for_pack == true) {
+  if(b_wait_for_pack) {
     // Handshake with the pack. Telling the pack that we are here.
     attenuatorSerialSend(A_HANDSHAKE);
 
@@ -171,10 +171,16 @@ void mainLoop() {
     }
   }
 
-  if(b_pack_on == true || (switch_left.getState() == LOW && b_wait_for_pack != true)) {
-    if(b_pack_alarm != true) {
+  if(b_pack_on || (switch_left.getState() == LOW && !b_wait_for_pack)) {
+    if(b_pack_alarm) {
+      // This is going to cause the bargraph to ramp down.
+      if(ms_bargraph.justFinished()) {
+        bargraphRampUp();
+      }
+    }
+    else {
       // Turn the bargraph on (using some pattern).
-      if(b_firing == true) {
+      if(b_firing) {
         if(ms_bargraph_firing.justFinished()) {
           bargraphRampFiring();
         }
@@ -183,16 +189,10 @@ void mainLoop() {
         if(ms_bargraph.justFinished()) {
           bargraphRampUp();
         }
-        else if(ms_bargraph.isRunning() != true && b_overheating != true && FIRING_MODE != SETTINGS) {
+        else if(!ms_bargraph.isRunning() && !b_overheating && FIRING_MODE != SETTINGS) {
           // Bargraph idling loop.
           bargraphPowerCheck();
         }
-      }
-    }
-    else {
-      // This is going to cause the bargraph to ramp down.
-      if(ms_bargraph.justFinished()) {
-        bargraphRampUp();
       }
     }
   }
@@ -210,12 +210,12 @@ void mainLoop() {
    * will change colors based on user interactions.
    */
   if(switch_right.getState() == LOW) {
-    if((b_firing == true && i_speed_multiplier > 1) || b_overheating == true || b_pack_alarm == true) {
+    if((b_firing && i_speed_multiplier > 1) || b_overheating || b_pack_alarm) {
       if(ms_blink_leds.justFinished()) {
         ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
       }
 
-      if(ms_blink_leds.isRunning() == true) {
+      if(ms_blink_leds.isRunning()) {
         if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
           // Only blink the lower LED as we will use a fade effect for the upper LED.
           attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
@@ -240,12 +240,12 @@ void mainLoop() {
   }
 
   // Turn off buzzer if timer finished.
-  if(b_buzzer_on == true && ms_buzzer.justFinished()) {
+  if(b_buzzer_on && ms_buzzer.justFinished()) {
     buzzOff();
   }
 
   // Turn off vibration if timer finished.
-  if(b_vibrate_on == true && ms_vibrate.justFinished()) {
+  if(b_vibrate_on && ms_vibrate.justFinished()) {
     setVibration(0, 0);
   }
 
@@ -271,9 +271,9 @@ void buzzOff() {
 void setVibration(uint8_t i_power_level, unsigned int i_duration) {
   // Power should be specified as 0-255
   analogWrite(VIBRATION_PIN, i_power_level);
-  b_vibrate_on = bool(i_power_level > 0);
+  b_vibrate_on = (i_power_level > 0);
 
-  if(b_vibrate_on == true) {
+  if(b_vibrate_on) {
     // Set timer for shorter of given duration or max runtime.
     ms_vibrate.start(min(i_duration, i_vibrate_max));
   }
@@ -281,7 +281,7 @@ void setVibration(uint8_t i_power_level, unsigned int i_duration) {
 
 void controlLEDs() {
   // Set upper LED based on alarm or overheating state, when active.
-  if(b_pack_alarm == true || b_overheating == true) {
+  if(b_pack_alarm || b_overheating) {
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
   }
   else {
@@ -345,7 +345,7 @@ void readEncoder() {
 void checkRotaryEncoder() {
   // Take action if rotary encoder value was turned CW.
   if(i_val_rotary > i_last_val_rotary) {
-    if(ms_rotary_debounce.isRunning() != true) {
+    if(!ms_rotary_debounce.isRunning()) {
       // Perform action based on the curent menu level.
       switch(MENU_LEVEL) {
         case MENU_1:
@@ -365,7 +365,7 @@ void checkRotaryEncoder() {
 
   // Take action if rotary encoder value was turned CCW.
   if(i_val_rotary < i_last_val_rotary) {
-    if(ms_rotary_debounce.isRunning() != true) {
+    if(!ms_rotary_debounce.isRunning()) {
       // Perform action based on the curent menu level.
       switch(MENU_LEVEL) {
         case MENU_1:
@@ -410,7 +410,7 @@ void checkRotaryPress() {
 
   // If rotary dial was pressed and timer finished, immediately consider
   // that as a long-press action and clear the pressed state.
-  if(b_center_pressed == true && ms_vibrate.justFinished()) {
+  if(b_center_pressed && ms_vibrate.justFinished()) {
     CENTER_STATE = LONG_PRESS;
     b_center_pressed = false;
   }
@@ -453,7 +453,7 @@ void checkPack() {
             // Pack is on.
             b_pack_on = true;
 
-            if(b_pack_alarm != true) {
+            if(!b_pack_alarm) {
               bargraphRampUp();
             }
           break;
@@ -551,7 +551,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_1;
 
-            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
+            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -560,7 +560,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_2;
 
-            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
+            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -569,7 +569,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_3;
 
-            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
+            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -578,7 +578,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_4;
 
-            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
+            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -587,7 +587,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_5;
 
-            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph == true) {
+            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -596,7 +596,7 @@ void checkPack() {
             // Alarm is on.
             b_pack_alarm = true;
 
-            if(b_pack_on == true) {
+            if(b_pack_on) {
               ms_blink_leds.start(i_blink_leds);
 
               bargraphFull();
@@ -615,7 +615,7 @@ void checkPack() {
             // Alarm is off.
             b_pack_alarm = false;
 
-            if(b_pack_on == true) {
+            if(b_pack_on) {
               ms_blink_leds.stop();
 
               bargraphYearModeUpdate();
@@ -701,7 +701,7 @@ void checkPack() {
               break;
             }
 
-            if(b_pack_alarm == true) {
+            if(b_pack_alarm) {
               // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
               prepBargraphRampDown();
             }
