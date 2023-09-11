@@ -63,6 +63,10 @@ void setup() {
   delay(10);
   setupBargraph();
 
+  // Turn off any user feedback.
+  noTone(BUZZER_PIN);
+  setVibration(0);
+
   ms_fast_led.start(1);
   ms_bargraph.start(1);
   ms_vibration.start(1);
@@ -115,7 +119,7 @@ void mainLoop() {
     }
   }
 
-  if(b_pack_on == true || b_wait_for_pack != true) {
+  if(b_pack_on == true || (switch_left.getState() == LOW && b_wait_for_pack != true)) {
     if(b_pack_alarm != true) {
       // Turn the bargraph on (using some pattern).
       if(b_firing == true) {
@@ -508,6 +512,8 @@ void checkPack() {
               bargraphClearAlt();
 
               bargraphRampUp();
+
+              setVibration(0); // Stop vibration.
             }
           break;
 
@@ -534,6 +540,8 @@ void checkPack() {
             bargraphClearAlt();
 
             bargraphRampUp();
+
+            setVibration(0); // Stop vibration.
           break;
 
           case A_FIRING:
