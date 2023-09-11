@@ -114,13 +114,13 @@ void mainLoop() {
         case MENU_1:
           // A short press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
-          setVibration(255, 200); // Only vibrate briefly.
+          setVibration(255, 200); // Give a quick nudge.
           break;
 
         case MENU_2:
           // A short press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-          setVibration(255, 200); // Only vibrate briefly.
+          setVibration(255, 200); // Give a quick nudge.
           break;
       }
     break;
