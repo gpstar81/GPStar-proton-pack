@@ -3938,18 +3938,25 @@ void checkSerial1() {
 
             case A_MUSIC_NEXT_TRACK:
               // Switch to the next track.
+              unsigned int i_next_track = i_current_music_track;
               if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
                 // Start at the first track if already on the last.
-                i_current_music_track = i_music_track_start;
+                i_next_track = i_music_track_start;
               }
               else {
-                i_current_music_track++;
+                i_next_track++;
               }
 
               if(b_playing_music == true) {
-                // Restart music using current track.
+                // Stops music using the current track.
                 stopMusic();
+
+                // Advance and begin playing the new track.
+                i_current_music_track = i_next_track;
                 playMusic();
+              }
+              else {
+                i_current_music_track = i_next_track;
               }
 
               // Tell the wand which track to play.
@@ -3958,18 +3965,25 @@ void checkSerial1() {
 
             case A_MUSIC_PREV_TRACK:
               // Switch to the previous track.
+              unsigned int i_prev_track = i_current_music_track;
               if(i_current_music_track - 1 < i_music_track_start) {
                 // Start at the last track if already on the first.
-                i_current_music_track = i_music_track_start + (i_music_count - 1);
+                i_prev_track = i_music_track_start + (i_music_count - 1);
               }
               else {
-                i_current_music_track--;
+                i_prev_track--;
               }
 
               if(b_playing_music == true) {
-                // Restart music using current track.
+                // Stops music using the current track.
                 stopMusic();
+
+                // Advance and begin playing the new track.
+                i_current_music_track = i_prev_track;
                 playMusic();
+              }
+              else {
+                i_current_music_track = i_prev_track;
               }
 
               // Tell the wand which track to play.
