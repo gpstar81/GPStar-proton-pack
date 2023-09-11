@@ -728,7 +728,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[POWER_LEVEL - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[4]);
             }
           break;
 
@@ -746,7 +746,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[POWER_LEVEL - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[3]);
             }
           break;
 
@@ -763,7 +763,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[POWER_LEVEL - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[2]);
             }
           break;
 
@@ -780,7 +780,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[POWER_LEVEL - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[1]);
             }
           break;
 
@@ -797,7 +797,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[POWER_LEVEL - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[0]);
             }
           break;
         }
