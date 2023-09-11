@@ -18,7 +18,7 @@
  */
 
 /*
- * Pin for Addressable LED's.
+ * Pin for Addressable LEDs.
  */
 #define ATTENUATOR_LED_PIN 10
 #define ATTENUATOR_NUM_LEDS 2
