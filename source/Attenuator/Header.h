@@ -20,9 +20,16 @@
 /*
  * Pin for Addressable LEDs.
  */
-#define ATTENUATOR_LED_PIN 10
+#define ATTENUATOR_LED_PIN 9
 #define ATTENUATOR_NUM_LEDS 2
 CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
+
+/*
+ * Pins for user feedback (audio/physical)
+ */
+#define BUZZER_PIN 10
+#define VIBRATION_PIN 11
+millisDelay ms_vibration;
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -78,7 +85,7 @@ uint8_t i_speed_multiplier = 1;
 /*
  * Year Theme
  */
-unsigned int i_mode_year = 2021; // 1984, 1989, or 2021
+unsigned int i_mode_year = 1984; // 1984, 1989, or 2021 (default: 1984 for power level animation)
 
 /* 
  *  Wand Firing Modes + Settings

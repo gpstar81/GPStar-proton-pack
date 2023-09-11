@@ -284,7 +284,8 @@ const uint8_t fan_booster_pin = 38;
  */
 const uint8_t fan_pin = 33;
 millisDelay ms_fan_stop_timer;
-const unsigned int i_fan_stop_timer = 7000;
+const unsigned int i_fan_stop_timer = 8000; // Total time for the fan to be ready/running.
+const unsigned int i_fan_start_divisor = 2; // Time at which the fan will turn on for venting (timer / divisor).
 
 /* 
  * Overheating and smoke timers for smoke_pin. 

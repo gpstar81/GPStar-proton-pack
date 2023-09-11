@@ -3574,11 +3574,12 @@ void fanControl(bool b_fan_on) {
 // Another optional 5V pin that goes high during overheat sequences.
 void checkFan() {
   if(ms_fan_stop_timer.justFinished()) {
-    // Turn off fan.
+    // Turn off fan when timer has completed.
     fanControl(false);
     ms_fan_stop_timer.stop();
   }
-  else if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
+  else if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < (i_fan_stop_timer / i_fan_start_divisor))) {
+    // Turn on fan about halfway through the timed sequence.
     fanControl(true);
   }
 }
@@ -3686,14 +3687,14 @@ void packOverheatingFinished() {
   w_trig.trackGain(S_VENT_DRY, i_volume_effects);
   b_overheating = false;
 
+  // Turn off the smoke.
+  smokeControl(false);
+
   // Stop the fan.
-  ms_fan_stop_timer.stop();
+  //ms_fan_stop_timer.stop();
 
   // Turn off the N-Filter fan.
   fanControl(false);
-
-  // Turn off the smoke.
-  smokeControl(false);
 
   // Reset the LEDs before resetting the alarm flag.
   if(i_mode_year == 1984 || i_mode_year == 1989) {

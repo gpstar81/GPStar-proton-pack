@@ -20,7 +20,7 @@
 /*
  * Wait for pack communication or operate without pack integration.
  */
-bool b_wait_for_pack = true;
+bool b_wait_for_pack = false;
 
 /*
  * Custom values from pack EEPROM.

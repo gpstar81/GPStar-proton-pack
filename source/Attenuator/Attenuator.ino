@@ -38,9 +38,9 @@ void setup() {
   // Enable Serial connection for communication with gpstar Proton Pack PCB.
   packComs.begin(Serial);
 
-  // Bootup into proton mode (default for pack and wand).
+  // Bootup into proton mode (default for pack and wand) at full power.
   FIRING_MODE = PROTON;
-  POWER_LEVEL = LEVEL_1;
+  POWER_LEVEL = LEVEL_5;
 
   // RGB LEDs for effects (upper/lower).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
@@ -55,12 +55,17 @@ void setup() {
   pinMode(r_encoderB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
+  // Feedback devices (piezo buzzer and vibration motor)
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(VIBRATION_PIN, OUTPUT);
+
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
 
   ms_fast_led.start(1);
   ms_bargraph.start(1);
+  ms_vibration.start(1);
 }
 
 void loop() {
@@ -86,8 +91,7 @@ void mainLoop() {
 
   // For now, use a press of the dial to start/stop the music.
   if(encoder_center.isReleased()) {
-    attenuatorSerialSend(A_MUSIC_START_STOP);    
-    //attenuatorSerialSend(A_TOGGLE_MUTE);    
+    attenuatorSerialSend(A_MUSIC_START_STOP);
   }
 
   /*
@@ -111,7 +115,7 @@ void mainLoop() {
     }
   }
 
-  if(b_pack_on == true) {
+  if(b_pack_on == true || b_wait_for_pack != true) {
     if(b_pack_alarm != true) {
       // Turn the bargraph on (using some pattern).
       if(b_firing == true) {
@@ -156,16 +160,20 @@ void mainLoop() {
       if(ms_blink_leds.isRunning() == true) {
         if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
           // Only blink the lower LED as we will use a fade effect for the upper LED.
-          //attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
           attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+          setVibration(0); // Stop vibration.
+          noTone(BUZZER_PIN); // Stop buzzer tone.
         }
         else {
-          controlLEDs();
+          controlLEDs(); // Turn LEDs on using appropriate color scheme.
+          setVibration(255); // Set vibration to full power.
+          tone(BUZZER_PIN, 523); // Emit a tone as note C4
         }
       }
     }
     else {
-      controlLEDs();
+      controlLEDs(); // Turn LEDs on using appropriate color scheme.
+      noTone(BUZZER_PIN); // Stop buzzer tone.
     }
   }
   else {
@@ -179,6 +187,38 @@ void mainLoop() {
     FastLED.show();
     ms_fast_led.start(i_fast_led_delay);
   }
+}
+
+
+void toneTest() {
+  tone(BUZZER_PIN, 440); // A4
+  delay(1000);
+
+  tone(BUZZER_PIN, 494); // B4
+  delay(1000);
+
+  tone(BUZZER_PIN, 523); // C4
+  delay(1000);
+
+  tone(BUZZER_PIN, 587); // D4
+  delay(1000);
+
+  tone(BUZZER_PIN, 659); // E4
+  delay(1000);
+
+  tone(BUZZER_PIN, 698); // F4
+  delay(1000);
+
+  tone(BUZZER_PIN, 784); // G4
+  delay(1000);
+
+  noTone(BUZZER_PIN);
+  delay(1000);
+}
+
+void setVibration(uint8_t i_power_level) {
+  // Power should be specified as 0-255
+  analogWrite(VIBRATION_PIN, i_power_level);
 }
 
 void controlLEDs() {
