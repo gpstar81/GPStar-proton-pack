@@ -68,7 +68,7 @@ void setup() {
 
   // Turn off any user feedback.
   noTone(BUZZER_PIN);
-  setVibration(0);
+  setVibration(0, 0);
 
   // Initialize critical timers.
   ms_fast_led.start(1);
@@ -120,35 +120,38 @@ void mainLoop() {
         case MENU_1:
           // A short press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
+          setVibration(255, 200);
           break;
 
         case MENU_2:
           // A short press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
+          setVibration(255, 200);
           break;
       }
     break;
 
     case LONG_PRESS:
-      tone(BUZZER_PIN, 784); // G4
-      ms_buzzer.start(i_buzz_max);
-
       // Toggle between the menu levels on a long press.
-      if(MENU_LEVEL == MENU_1) {
-        MENU_LEVEL == MENU_2;
-      }
-      else {
-        MENU_LEVEL == MENU_1;
+      // Also provides audio cues as to which menu is in use.
+      switch(MENU_LEVEL) {
+        case MENU_1:
+          MENU_LEVEL = MENU_2;
+          setVibration(255, 200);
+          buzzOn(784); // G4
+        break;
+        case MENU_2:
+          MENU_LEVEL = MENU_1;
+          setVibration(255, 200);
+          buzzOn(440); // A4
+        break;
       }
     break;
 
+    NO_ACTION:
     default:
-      // aka. NO_ACTION = no-op
+      // No-op
     break;
-  }
-
-  if(ms_buzzer.remaining() < 1) {
-    noTone(BUZZER_PIN);
   }
 
   /*
@@ -218,25 +221,34 @@ void mainLoop() {
         if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
           // Only blink the lower LED as we will use a fade effect for the upper LED.
           attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
-          setVibration(0); // Stop vibration.
-          noTone(BUZZER_PIN); // Stop buzzer tone.
+          setVibration(0, 0); // Stop vibration.
+          buzzOff(); // Stop buzzer tone.
         }
         else {
           controlLEDs(); // Turn LEDs on using appropriate color scheme.
-          setVibration(255); // Set vibration to full power.
-          tone(BUZZER_PIN, 523); // Emit a tone as note C4
+          setVibration(255, 500); // Set vibration to full power.
+          buzzOn(523); // Emit a tone as note C4
         }
       }
     }
     else {
       controlLEDs(); // Turn LEDs on using appropriate color scheme.
-      noTone(BUZZER_PIN); // Stop buzzer tone.
     }
   }
   else {
     // Turn off the LEDs by setting to black.
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
     attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+  }
+
+  // Turn off buzzer if timer finished.
+  if(b_buzzer_on == true && ms_buzzer.justFinished()) {
+    buzzOff();
+  }
+
+  // Turn off vibration if timer finished.
+  if(b_vibrate_on == true && ms_vibrate.justFinished()) {
+    setVibration(0, 0);
   }
 
   // Update the device LEDs.
@@ -246,35 +258,27 @@ void mainLoop() {
   }
 }
 
-void toneTest() {
-  tone(BUZZER_PIN, 440); // A4
-  delay(1000);
-
-  tone(BUZZER_PIN, 494); // B4
-  delay(1000);
-
-  tone(BUZZER_PIN, 523); // C4
-  delay(1000);
-
-  tone(BUZZER_PIN, 587); // D4
-  delay(1000);
-
-  tone(BUZZER_PIN, 659); // E4
-  delay(1000);
-
-  tone(BUZZER_PIN, 698); // F4
-  delay(1000);
-
-  tone(BUZZER_PIN, 784); // G4
-  delay(1000);
-
-  noTone(BUZZER_PIN);
-  delay(1000);
+void buzzOn(unsigned int i_freq) {
+  tone(BUZZER_PIN, i_freq);
+  ms_buzzer.start(i_buzz_max);
+  b_buzzer_on = true;
 }
 
-void setVibration(uint8_t i_power_level) {
+void buzzOff() {
+  noTone(BUZZER_PIN);
+  ms_buzzer.stop();
+  b_buzzer_on = false;
+}
+
+void setVibration(uint8_t i_power_level, unsigned int i_duration) {
   // Power should be specified as 0-255
   analogWrite(VIBRATION_PIN, i_power_level);
+  b_vibrate_on = bool(i_power_level > 0);
+
+  if(b_vibrate_on == true) {
+    // Set timer for shorter of given duration or max runtime.
+    ms_vibrate.start(min(i_duration, i_vibrate_max));
+  }
 }
 
 void controlLEDs() {
@@ -585,7 +589,7 @@ void checkPack() {
 
               bargraphRampUp();
 
-              setVibration(0); // Stop vibration.
+              setVibration(0, 0); // Stop vibration.
             }
           break;
 
@@ -613,7 +617,7 @@ void checkPack() {
 
             bargraphRampUp();
 
-            setVibration(0); // Stop vibration.
+            setVibration(0, 0); // Stop vibration.
           break;
 
           case A_FIRING:

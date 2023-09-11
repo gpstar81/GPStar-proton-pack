@@ -26,11 +26,24 @@ CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
 
 /*
  * Pins for user feedback (audio/physical)
+ *
+ * Buzzer Frequencies:
+ * buzzOn(440); // A4
+ * buzzOn(494); // B4
+ * buzzOn(523); // C4
+ * buzzOn(587); // D4
+ * buzzOn(659); // E4
+ * buzzOn(698); // F4
+ * buzzOn(784); // G4
  */
 #define BUZZER_PIN 10
 #define VIBRATION_PIN 11
 millisDelay ms_buzzer;
-const unsigned int i_buzz_max = 800; // Longest duration for a standalone "beep".
+millisDelay ms_vibrate;
+bool b_buzzer_on = false;
+bool b_vibrate_on = false;
+const unsigned int i_buzz_max = 250; // Longest duration for a standalone "beep".
+const unsigned int i_vibrate_max = 2000; // Longest runtime for the vibration motor.
 
 /*
  * Delay for fastled to update the addressable LEDs.

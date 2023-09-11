@@ -69,6 +69,11 @@ void bargraphPowerCheck2021Alt(bool b_override) {
         case 1:
           ms_bargraph_alt.start(i_bargraph_wait / 7);
         break;
+
+        case 0:
+        default:
+          // No-op
+        break;
       }
     }
   }
@@ -262,6 +267,11 @@ void bargraphRampUp() {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
                   }
+                break;
+
+                case 0:
+                default:
+                  // No-op
                 break;
               }
             break;
@@ -665,6 +675,11 @@ void bargraphRampFiring() {
           case 1:
             ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 35
           break;
+
+          case 0:
+          default:
+            // No-op
+          break;
         }
       }
     }
@@ -690,6 +705,11 @@ void bargraphRampFiring() {
 
         case 1:
           ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30
+        break;
+
+        case 0:
+        default:
+          // No-op
         break;
       }
     }
@@ -800,6 +820,11 @@ void bargraphPowerCheck() {
               ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[POWER_LEVEL - 1]);
             }
           break;
+
+          case 0:
+          default:
+            // No-op
+          break;
         }
 
         if(b_bargraph_up == true) {
@@ -867,6 +892,11 @@ void bargraphPowerCheck() {
               else {
                 ms_bargraph_alt.start(i_bargraph_interval * 7);
               }
+            break;
+
+            case 0:
+            default:
+              // No-op
             break;
           }
         }
