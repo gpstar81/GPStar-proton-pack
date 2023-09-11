@@ -42,8 +42,8 @@ millisDelay ms_buzzer;
 millisDelay ms_vibrate;
 bool b_buzzer_on = false;
 bool b_vibrate_on = false;
-const unsigned int i_buzz_max = 250; // Longest duration for a standalone "beep".
-const unsigned int i_vibrate_max = 2000; // Longest runtime for the vibration motor.
+const unsigned int i_buzz_max = 200; // Longest duration for a standalone "beep".
+const unsigned int i_vibrate_max = 1000; // Max runtime for the vibration motor.
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -133,7 +133,7 @@ ezButton encoder_center(4); // For center-press on encoder dial.
 millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
 millisDelay ms_center_press;
 bool b_center_pressed = false;
-const unsigned int i_center_long_press_delay = 800; // When to consider the center dial has a "long" press.
+const unsigned int i_center_long_press_delay = 600; // When to consider the center dial has a "long" press.
 int i_encoder_pos = 0;
 int i_val_rotary;
 int i_last_val_rotary;

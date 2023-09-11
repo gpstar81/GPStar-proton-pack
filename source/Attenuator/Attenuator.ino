@@ -101,53 +101,6 @@ void mainLoop() {
   checkRotaryEncoder();
 
   /*
-   * Rotary Dial Center Press
-   *
-   * Performs action based on a short or long press of this button.
-   *  Short: Action
-   *  Long: Navigation
-   */
-  switch(CENTER_STATE) {
-    case SHORT_PRESS:
-      // Perform action for short press based on current menu level.
-      switch(MENU_LEVEL) {
-        case MENU_1:
-          // A short press should start/stop the music.
-          attenuatorSerialSend(A_MUSIC_START_STOP);
-          setVibration(255, 200); // Give a quick nudge.
-          break;
-
-        case MENU_2:
-          // A short press should advance to the next track.
-          attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-          setVibration(255, 200); // Give a quick nudge.
-          break;
-      }
-    break;
-
-    case LONG_PRESS:
-      // Toggle between the menu levels on a long press.
-      // Also provides audio cues as to which menu is in use.
-      switch(MENU_LEVEL) {
-        case MENU_1:
-          MENU_LEVEL = MENU_2;
-          setVibration(255, 200); // Give a quick nudge.
-          buzzOn(784); // Tone as note G4
-        break;
-        case MENU_2:
-          MENU_LEVEL = MENU_1;
-          setVibration(255, 200); // Give a quick nudge.
-          buzzOn(440); // Tone as note A4
-        break;
-      }
-    break;
-
-    default:
-      // No-op
-    break;
-  }
-
-  /*
    * Left Toggle
    *
    * When paired with the gpstar Proton Pack controller, will turn the
@@ -330,6 +283,79 @@ void controlLEDs() {
   attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
 }
 
+/*
+  * Rotary Dial Center Press
+  *
+  * Performs action based on a short or long press of this button.
+  *  Short: Action
+  *  Long: Navigation
+  */
+void checkRotaryPress() {
+  // Reset on each loop as we need to detect for change.
+  CENTER_STATE = NO_ACTION;
+
+  // Determine whether the rotary dial (center button) got a short or long press.
+  if(encoder_center.isPressed()) {
+    // Start a timer when the rotary dial is pressed.
+    ms_center_press.start(i_center_long_press_delay);
+    b_center_pressed = true;
+  }
+
+  if(b_center_pressed) {
+    if(encoder_center.isReleased() && ms_center_press.remaining() > 0) {
+      // If released and the timer is still running, then it was a short press.
+      CENTER_STATE = SHORT_PRESS;
+      b_center_pressed = false;
+      ms_center_press.stop();
+    }
+    else if(ms_center_press.remaining() < 1) {
+      // Consider a long-press event if the timer is run out before released.
+      CENTER_STATE = LONG_PRESS;
+      b_center_pressed = false;
+    }
+  }
+
+  switch(CENTER_STATE) {
+    case SHORT_PRESS:
+      // Perform action for short press based on current menu level.
+      switch(MENU_LEVEL) {
+        case MENU_1:
+          // A short press should start/stop the music.
+          attenuatorSerialSend(A_MUSIC_START_STOP);
+          setVibration(255, 200); // Give a quick nudge.
+          break;
+
+        case MENU_2:
+          // A short press should advance to the next track.
+          attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
+          setVibration(255, 200); // Give a quick nudge.
+          break;
+      }
+    break;
+
+    case LONG_PRESS:
+      // Toggle between the menu levels on a long press.
+      // Also provides audio cues as to which menu is in use.
+      switch(MENU_LEVEL) {
+        case MENU_1:
+          MENU_LEVEL = MENU_2; // Change menu level.
+          setVibration(255, 200); // Give a quick nudge.
+          buzzOn(784); // Tone as note G4
+        break;
+        case MENU_2:
+          MENU_LEVEL = MENU_1; // Change menu level.
+          setVibration(255, 200); // Give a quick nudge.
+          buzzOn(440); // Tone as note A4
+        break;
+      }
+    break;
+
+    default:
+      // eg. NO_ACTION - No-op
+    break;
+  }
+}
+
 void readEncoder() {
   // Determines if encoder was turned CW or CCW.
   if(digitalRead(r_encoderA) == digitalRead(r_encoderB)) {
@@ -342,6 +368,11 @@ void readEncoder() {
   i_val_rotary = i_encoder_pos / 2.5;
 }
 
+/*
+  * Rotary Dial Rotation
+  *
+  * Performs action based turning the dial.
+  */
 void checkRotaryEncoder() {
   // Take action if rotary encoder value was turned CW.
   if(i_val_rotary > i_last_val_rotary) {
@@ -387,32 +418,6 @@ void checkRotaryEncoder() {
 
   if(ms_rotary_debounce.justFinished()) {
     ms_rotary_debounce.stop();
-  }
-}
-
-void checkRotaryPress() {
-  // Reset on each loop as we need to detect for change.
-  CENTER_STATE = NO_ACTION;
-
-  // Determine whether the rotary dial (center button) got a short or long press.
-  if(encoder_center.isPressed()) {
-    // Start a timer when the rotary dial is pressed.
-    ms_center_press.start(i_center_long_press_delay);
-    b_center_pressed = true;
-  }
-
-  // If released and the timer is still running, then it was a short press.
-  if(encoder_center.isReleased() && ms_center_press.isRunning()) {
-    CENTER_STATE = SHORT_PRESS;
-    b_center_pressed = false;
-    ms_center_press.stop();
-  }
-
-  // If rotary dial was pressed and timer finished, immediately consider
-  // that as a long-press action and clear the pressed state.
-  if(b_center_pressed && ms_vibrate.justFinished()) {
-    CENTER_STATE = LONG_PRESS;
-    b_center_pressed = false;
   }
 }
 
