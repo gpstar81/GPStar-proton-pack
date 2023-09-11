@@ -67,9 +67,9 @@ void setup() {
   noTone(BUZZER_PIN);
   setVibration(0);
 
+  // Initialize critical timers.
   ms_fast_led.start(1);
   ms_bargraph.start(1);
-  ms_vibration.start(1);
 }
 
 void loop() {
@@ -93,9 +93,41 @@ void mainLoop() {
   switchLoops();
   checkRotaryEncoder();
 
-  // For now, use a press of the dial to start/stop the music.
+  // Determine whether the rotary dial (center button) got a short or long press.
+  CENTER_STATE = NO_ACTION;
+  if(encoder_center.isPressed()) {
+    // Start a timer when the rotary dial is pressed.
+    ms_center_press.start(i_center_long_press_delay);
+  }
   if(encoder_center.isReleased()) {
-    attenuatorSerialSend(A_MUSIC_START_STOP);
+    if(ms_center_press.remaining() < 1) {
+      // If the timer has run out it's a long press.
+      CENTER_STATE = LONG_PRESS;
+    }
+    else {
+      // Otherwise consider this a short press.
+      CENTER_STATE = SHORT_PRESS;
+    }
+  }
+
+  switch(CENTER_STATE) {
+    case SHORT_PRESS:
+      // A short press should start/stop the music.
+      attenuatorSerialSend(A_MUSIC_START_STOP);
+      break;
+
+    case LONG_PRESS:
+      tone(BUZZER_PIN, 784); // G4
+      ms_buzzer.start(i_buzz_max);
+      break;
+
+    default:
+      // aka. NO_ACTION = no-op
+      break;
+  }
+
+  if(ms_buzzer.remaining() < 1) {
+    noTone(BUZZER_PIN);
   }
 
   /*
@@ -192,7 +224,6 @@ void mainLoop() {
     ms_fast_led.start(i_fast_led_delay);
   }
 }
-
 
 void toneTest() {
   tone(BUZZER_PIN, 440); // A4

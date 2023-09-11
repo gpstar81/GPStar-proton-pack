@@ -29,7 +29,8 @@ CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
  */
 #define BUZZER_PIN 10
 #define VIBRATION_PIN 11
-millisDelay ms_vibration;
+millisDelay ms_buzzer;
+const unsigned int i_buzz_max = 800; // Longest duration for a standalone "beep".
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -116,9 +117,17 @@ const uint8_t rotary_debounce_time = 80;
 #define r_encoderB 3
 ezButton encoder_center(4); // For center-press on encoder dial.
 millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
+millisDelay ms_center_press;
+const unsigned int i_center_long_press_delay = 1000; // When to consider the center dial has a "long" press.
 int i_encoder_pos = 0;
 int i_val_rotary;
 int i_last_val_rotary;
+
+/*
+ * Define states for the rotary dial center press.
+ */
+enum CENTER_STATES { NO_ACTION, SHORT_PRESS, LONG_PRESS };
+enum CENTER_STATES CENTER_STATE;
 
 /* 
  * Pack Communication
