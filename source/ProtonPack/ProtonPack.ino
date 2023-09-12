@@ -3035,6 +3035,7 @@ void wandFiring() {
   ms_firing_start_sound_delay.start(i_fire_stop_sound_delay);
 
   b_wand_firing = true;
+
   serial1Send(A_FIRING);
 
   // Reset the Cyclotron auto speed up timers. Only for Afterlife (2021) mode.
@@ -3700,6 +3701,7 @@ void wandHandShake() {
       ms_wand_handshake.start(i_wand_handshake_delay);
 
       b_wand_connected = false;
+      b_wand_on = false;
 
       wandExtraSoundsStop();
 
@@ -3723,6 +3725,8 @@ void wandHandShake() {
     }
   }
   else {
+    b_wand_on = false;
+
     if(b_wand_firing == true) {
       wandStoppedFiring();
       cyclotronSpeedRevert();
