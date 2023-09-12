@@ -204,7 +204,7 @@ const int MINIMUM_VOLUME = -50;
 /*
  * Percentage increments of main volume change.
 */
-const uint8_t VOLUME_MULTIPLIER = 2;
+const uint8_t VOLUME_MULTIPLIER = 5;
 
 /*
  * Percentage increments of the music volume change.
