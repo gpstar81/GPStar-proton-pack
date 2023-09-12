@@ -105,6 +105,7 @@ bool b_switch_barrel_extended = false;
  */
 const uint8_t switch_debounce_time = 50;
 millisDelay ms_switch_mode_debounce;
+millisDelay ms_switch_mode_firing;
 millisDelay ms_intensify_timer;
 const unsigned int i_intensify_delay = 400;
 const uint8_t i_switch_mode_value = 200;

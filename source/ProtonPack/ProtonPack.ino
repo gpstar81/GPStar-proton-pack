@@ -17,6 +17,8 @@
  *
  */
 
+#include <util/atomic.h>
+
 // 3rd-Party Libraries
 #include <EEPROM.h>
 #include <millisDelay.h>
@@ -188,10 +190,17 @@ void setup() {
 void loop() {
   w_trig.update();
 
+  if(ms_fast_led_bounce.isRunning() == true) {
+    if(ms_fast_led_bounce.remaining() < 1) {
+      ms_fast_led_bounce.stop();
+      i_firing = 0;
+    }  
+  }
+
   checkMusic();
   checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
-
+  
   wandHandShake();
   checkWand();
 
@@ -453,14 +462,35 @@ void loop() {
 
   // Update the LEDs
   if(ms_fast_led.justFinished()) {
-    //FastLED.delay(3);
     FastLED.show();
     ms_fast_led.start(i_fast_led_delay);
-
+    
     if(b_powercell_updating == true) {
       b_powercell_updating = false;
     }
   }
+}
+
+void resetFastLed() {
+  if(ms_fast_led_bounce.isRunning() != true) {
+    ms_fast_led_bounce.start(i_fast_led_bounce_delay);
+  }
+  else {
+    if(i_firing > 15) {
+      ms_fast_led.start(i_fast_led_delay * 100);
+    }  
+    else {  
+      switch(i_firing) {
+        case 10:
+          ms_fast_led.start(i_fast_led_delay * 40);
+        break;
+
+        default:
+          ms_fast_led.start(i_fast_led_delay);
+        break;
+      }
+    }
+  }  
 }
 
 void checkMusic() {
@@ -2838,6 +2868,8 @@ void checkCyclotronAutoSpeed() {
 }
 
 void wandFiring() {
+  resetFastLed();
+
   b_wand_firing = true;
   serial1Send(A_FIRING);
 
@@ -3082,75 +3114,77 @@ void wandStoppedFiring() {
 }
 
 void wandStopFiringSounds() {
-  // Firing sounds.
-  switch(FIRING_MODE) {
-    case PROTON:
-    default:
-      if(i_mode_year == 1989) {
-        stopEffect(S_GB2_FIRE_START);
-      }
-      else {
-        stopEffect(S_GB1_FIRE_START);
-      }
+  if(b_wand_firing == true) {
+    // Firing sounds.
+    switch(FIRING_MODE) {
+      case PROTON:
+      default:
+        if(i_mode_year == 1989) {
+          stopEffect(S_GB2_FIRE_START);
+        }
+        else {
+          stopEffect(S_GB1_FIRE_START);
+        }
 
-      if(i_mode_year == 2021) {
-        stopEffect(S_AFTERLIFE_FIRE_START);
-      }
-      stopEffect(S_GB1_FIRE_LOOP);
-      stopEffect(S_GB2_FIRE_LOOP);
+        if(i_mode_year == 2021) {
+          stopEffect(S_AFTERLIFE_FIRE_START);
+        }
+        stopEffect(S_GB1_FIRE_LOOP);
+        stopEffect(S_GB2_FIRE_LOOP);
 
-      stopEffect(S_FIRING_LOOP_GB1);
-      stopEffect(S_GB1_FIRE_START_HIGH_POWER);
-      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
-      stopEffect(S_FIRE_START_SPARK);
-      stopEffect(S_FIRE_START);
-    break;
-
-    case SLIME:
-      stopEffect(S_SLIME_START);
-      stopEffect(S_SLIME_LOOP);
-      stopEffect(S_SLIME_END);
-    break;
-
-    case STASIS:
-      stopEffect(S_STASIS_START);
-      stopEffect(S_STASIS_LOOP);
-      stopEffect(S_STASIS_END);
-    break;
-
-    case MESON:
-      stopEffect(S_MESON_START);
-      stopEffect(S_MESON_LOOP);
-      stopEffect(S_MESON_END);
-    break;
-
-    case VENTING:
-    case SETTINGS:
-      // Nothing
-    break;
-  }
-
-  if(b_firing_cross_streams == true) {
-    switch(i_mode_year) {
-      case 2021:
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+        stopEffect(S_FIRING_LOOP_GB1);
+        stopEffect(S_GB1_FIRE_START_HIGH_POWER);
+        stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+        stopEffect(S_FIRE_START_SPARK);
+        stopEffect(S_FIRE_START);
       break;
 
-      case 1984:
-      case 1989:
-        stopEffect(S_CROSS_STREAMS_START);
-        stopEffect(S_CROSS_STREAMS_END);
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+      case SLIME:
+        stopEffect(S_SLIME_START);
+        stopEffect(S_SLIME_LOOP);
+        stopEffect(S_SLIME_END);
+      break;
+
+      case STASIS:
+        stopEffect(S_STASIS_START);
+        stopEffect(S_STASIS_LOOP);
+        stopEffect(S_STASIS_END);
+      break;
+
+      case MESON:
+        stopEffect(S_MESON_START);
+        stopEffect(S_MESON_LOOP);
+        stopEffect(S_MESON_END);
+      break;
+
+      case VENTING:
+      case SETTINGS:
+        // Nothing
       break;
     }
 
-    b_firing_cross_streams = false;
-  }
+    if(b_firing_cross_streams == true) {
+      switch(i_mode_year) {
+        case 2021:
+          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+        break;
 
-  b_sound_firing_intensify_trigger = false;
-  b_sound_firing_alt_trigger = false;
+        case 1984:
+        case 1989:
+          stopEffect(S_CROSS_STREAMS_START);
+          stopEffect(S_CROSS_STREAMS_END);
+          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+        break;
+      }
+
+      b_firing_cross_streams = false;
+    }
+
+    b_sound_firing_intensify_trigger = false;
+    b_sound_firing_alt_trigger = false;
+  }
 }
 
 void packAlarm() {
@@ -4047,11 +4081,13 @@ void checkWand() {
 
             case W_FIRING:
               // Wand is firing.
+              i_firing++;
               wandFiring();
             break;
 
             case W_FIRING_STOPPED:
               // Wand just stopped firing.
+              i_firing++;
               wandStoppedFiring();
               cyclotronSpeedRevert();
             break;
@@ -4397,6 +4433,8 @@ void checkWand() {
               if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
                 b_sound_firing_intensify_trigger = true;
               }
+
+              resetFastLed();
             break;
 
             case W_FIRING_INTENSIFY_MIX:
@@ -4423,20 +4461,22 @@ void checkWand() {
                   break;
                 }
               }
+
+              resetFastLed();
             break;
 
             case W_FIRING_INTENSIFY_STOPPED:
               // Wand no longer firing in intensify mode.
               b_firing_intensify = false;
               b_sound_firing_intensify_trigger = false;
+
+              resetFastLed();
             break;
 
             case W_FIRING_INTENSIFY_STOPPED_MIX:
+              i_firing++;
               // Wand no longer firing in intensify mode.
-              b_firing_intensify = false;
-              b_sound_firing_intensify_trigger = false;
-
-              if(b_firing_cross_streams != true) {
+              if(b_firing_cross_streams != true && b_firing_intensify == true) {
                 switch(i_wand_power_level) {
                   case 1 ... 4:
                     if(i_mode_year == 1989) {
@@ -4454,18 +4494,29 @@ void checkWand() {
                   break;
                 }
               }
+
+              b_firing_intensify = false;
+              b_sound_firing_intensify_trigger = false;
+
+              resetFastLed();
             break;
 
             case W_FIRING_ALT:
+              i_firing++;
+
               // Wand firing in alt mode.
               b_firing_alt = true;
 
               if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
                 b_sound_firing_alt_trigger = true;
               }
+
+              resetFastLed();
             break;
 
             case W_FIRING_ALT_MIX:
+              i_firing++;
+
               // Wand firing in alt mode.
               b_firing_alt = true;
 
@@ -4474,23 +4525,37 @@ void checkWand() {
 
                 playEffect(S_FIRING_LOOP_GB1, true);
               }
+
+              resetFastLed();
             break;
 
             case W_FIRING_ALT_STOPPED:
+              i_firing++;
+
               // Wand no longer firing in alt mode.
               b_firing_alt = false;
               b_sound_firing_alt_trigger = false;
+
+              resetFastLed();
             break;
 
             case W_FIRING_ALT_STOPPED_MIX:
+              i_firing++;
+
               // Wand no longer firing in alt mode mix.
+              if(b_firing_alt == true) {
+                stopEffect(S_FIRING_LOOP_GB1);
+              }
+
               b_firing_alt = false;
               b_sound_firing_alt_trigger = false;
 
-              stopEffect(S_FIRING_LOOP_GB1);
+              resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS:
+              i_firing++;
+
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
 
@@ -4514,9 +4579,13 @@ void checkWand() {
               }
 
               playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
+
+              resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_MIX:
+              i_firing++;
+
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
 
@@ -4546,9 +4615,13 @@ void checkWand() {
 
               stopEffect(S_GB2_FIRE_LOOP);
               stopEffect(S_GB1_FIRE_LOOP);
+
+              resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED:
+              i_firing++;
+
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
 
@@ -4570,9 +4643,13 @@ void checkWand() {
               }
 
               stopEffect(S_FIRING_LOOP_GB1);
+
+              resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX:
+              i_firing++;
+
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
 
@@ -4592,6 +4669,8 @@ void checkWand() {
                   playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
                 break;
               }
+
+              resetFastLed();
             break;
 
             case W_YEAR_MODES_CYCLE:
