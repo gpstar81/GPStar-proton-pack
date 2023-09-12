@@ -61,7 +61,7 @@ const int8_t MINIMUM_VOLUME = -35;
 /*
  * Percentage increments of main volume change.
 */
-const uint8_t VOLUME_MULTIPLIER = 2;
+const uint8_t VOLUME_MULTIPLIER = 5;
 
 /*
  * Percentage increments of the music volume change..
@@ -77,7 +77,6 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
  * When defined, when using the Barmeter 28 segment bargraph, it will invert the sequence.
  * Part #: BL28Z-3005SA04Y
  * Only compatible with the gpstar Neutrona Wand board, and not an Arduino Nano.
- * When using the Frutto Technologies 28 segment bargraph, this should be defined.
  
  * Defined / Enabled:
  #define GPSTAR_INVERT_BARGRAPH
@@ -85,7 +84,7 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
  * NOT Defined / Disabled:
  //#define GPSTAR_INVERT_BARGRAPH
 */
-#define GPSTAR_INVERT_BARGRAPH
+//#define GPSTAR_INVERT_BARGRAPH
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   /*

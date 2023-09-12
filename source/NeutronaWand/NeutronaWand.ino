@@ -1718,6 +1718,10 @@ void checkSwitches() {
     ms_intensify_timer.stop();
   }
 
+  if(ms_switch_mode_firing.justFinished()) {
+    ms_switch_mode_firing.stop();
+  }
+
   switch(WAND_STATUS) {
     case MODE_OFF:
      if(switch_activate.isPressed() && WAND_ACTION_STATUS == ACTION_IDLE) {
@@ -1967,7 +1971,7 @@ void checkSwitches() {
 
           // When the Barrel Wing Button is changed to a alternate firing button, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
           if(b_cross_the_streams == true) {
-            if(switchMode() == true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+            if(switchMode() == true && switch_wand.getState() == LOW && ms_switch_mode_firing.isRunning() != true && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
               if(WAND_ACTION_STATUS != ACTION_FIRING) {
                 WAND_ACTION_STATUS = ACTION_FIRING;
               }
@@ -2584,6 +2588,10 @@ void modeFireStart() {
 
   if(ms_intensify_timer.isRunning() != true) {
     ms_intensify_timer.start(i_intensify_delay);
+  }
+
+  if(ms_switch_mode_firing.isRunning() != true) {
+    ms_switch_mode_firing.start(i_intensify_delay);
   }
 
   // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode.

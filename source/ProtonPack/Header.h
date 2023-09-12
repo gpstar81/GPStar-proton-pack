@@ -102,6 +102,9 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
  */
 const uint8_t i_fast_led_delay = 6;
 millisDelay ms_fast_led;
+millisDelay ms_fast_led_bounce;
+const unsigned int i_fast_led_bounce_delay = 2000;
+uint8_t i_firing = 0; // Used to prevent fastled crashing the pack.
 
 /*
  * Power Cell LEDs control.
