@@ -102,6 +102,9 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
  */
 const uint8_t i_fast_led_delay = 6;
 millisDelay ms_fast_led;
+millisDelay ms_fast_led_bounce;
+const unsigned int i_fast_led_bounce_delay = 2000;
+uint8_t i_firing = 0; // Used to prevent fastled crashing the pack.
 
 /*
  * Power Cell LEDs control.
@@ -471,6 +474,7 @@ void playMusic();
 void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
 void powercellDraw(uint8_t i_start = 0);
 
+bool b_stop = false;
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
 */
