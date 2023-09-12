@@ -3070,51 +3070,53 @@ void wandFiring() {
 }
 
 void modeFireStopSounds() {
-// Adjust the gain with the Afterlife idling track.
-  if(i_mode_year == 2021 && i_wand_power_level < 5) {
-    if(ms_idle_fire_fade.remaining() < 1000) {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
-    }
-    else {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
-    }
-  }
-
-  switch(FIRING_MODE) {
-    case PROTON:
-    default:
-      // Play different firing end stream sound depending on how long we have been firing for.
-      if(ms_firing_length_timer.remaining() < 5000) {
-        // Short tail end.
-        playEffect(S_FIRING_END_GUN);
-      }
-      else if(ms_firing_length_timer.remaining() < 10000) {
-        // Mid tail end.
-        playEffect(S_FIRING_END_MID);
+  if(b_wand_firing == true) {
+    // Adjust the gain with the Afterlife idling track.
+    if(i_mode_year == 2021 && i_wand_power_level < 5) {
+      if(ms_idle_fire_fade.remaining() < 1000) {
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
       }
       else {
-        // Long tail end.
-        playEffect(S_FIRING_END);
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
       }
-    break;
+    }
 
-    case SLIME:
-      playEffect(S_SLIME_END);
-    break;
+    switch(FIRING_MODE) {
+      case PROTON:
+      default:
+        // Play different firing end stream sound depending on how long we have been firing for.
+        if(ms_firing_length_timer.remaining() < 5000) {
+          // Short tail end.
+          playEffect(S_FIRING_END_GUN);
+        }
+        else if(ms_firing_length_timer.remaining() < 10000) {
+          // Mid tail end.
+          playEffect(S_FIRING_END_MID);
+        }
+        else {
+          // Long tail end.
+          playEffect(S_FIRING_END);
+        }
+      break;
 
-    case STASIS:
-      playEffect(S_STASIS_END);
-    break;
+      case SLIME:
+        playEffect(S_SLIME_END);
+      break;
 
-    case MESON:
-      playEffect(S_MESON_END);
-    break;
+      case STASIS:
+        playEffect(S_STASIS_END);
+      break;
 
-    case VENTING:
-    case SETTINGS:
-      // Nothing
-    break;
-  }
+      case MESON:
+        playEffect(S_MESON_END);
+      break;
+
+      case VENTING:
+      case SETTINGS:
+        // Nothing
+      break;
+    }
+  } 
 }
 
 void wandStoppedFiring() {
