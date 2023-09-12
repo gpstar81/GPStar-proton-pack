@@ -431,6 +431,7 @@ bool b_switch_mode_override = false; // Year mode override flag controlled by th
 bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
+bool b_fade_out = false;
 
 /*
  * EEPROM

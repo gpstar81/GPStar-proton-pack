@@ -226,6 +226,7 @@ void loop() {
         b_2021_ramp_up = false;
         b_2021_ramp_up_start = false;
         b_inner_ramp_up = false;
+        b_fade_out = true;
 
         reset2021RampDown();
 
@@ -246,7 +247,26 @@ void loop() {
       }
       else {
         if(b_spectral_lights_on != true) {
-          packOffReset();
+          if(b_fade_out == true) {
+            b_fade_out = false;
+
+            uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
+
+            if(b_cyclotron_simulate_ring == true) {
+              i_cyclotron_leds_total = OUTER_CYCLOTRON_LED_MAX;
+            }
+
+            for(int i = 0; i < i_cyclotron_leds_total; i++) {
+              if(i_cyclotron_led_on_status[i] == false) {
+                b_fade_out = true;
+                cyclotronFade();
+              }
+            }
+          }
+
+          if(b_fade_out != true) {
+            packOffReset();
+          }
         }
       }
 
@@ -275,6 +295,7 @@ void loop() {
       }
 
       b_pack_on = true;
+      b_fade_out = false;
 
       if(b_2021_ramp_down == true) {
         b_2021_ramp_down = false;
