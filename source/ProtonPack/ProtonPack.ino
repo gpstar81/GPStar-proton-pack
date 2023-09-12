@@ -6045,7 +6045,7 @@ void readEEPROM() {
       switch(i_cyclotron_leds) {
         // For a 40 LED Neopixel ring.
         case OUTER_CYCLOTRON_LED_MAX:
-          i_2021_delay = 10;
+          i_2021_delay = 8;
           i_1984_cyclotron_leds[0] = 0;
           i_1984_cyclotron_leds[1] = 10;
           i_1984_cyclotron_leds[2] = 18;
