@@ -17,11 +17,6 @@
  *
  */
 
-// Fully disable interrupts while writing out led data:
-//#define FASTLED_ALLOW_INTERRUPTS 0
-// Or, tweak the re-try attempt:
-#define FASTLED_INTERRUPT_RETRY_COUNT 1
-
 // 3rd-Party Libraries
 #include <EEPROM.h>
 #include <millisDelay.h>
