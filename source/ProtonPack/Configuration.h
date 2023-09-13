@@ -254,7 +254,7 @@ bool b_vibration = true;
 bool b_vibration_firing = true;
 
 /*
- * When set to false, 1984/1989 mode LEDs will fade in and out.
+ * When set to true, 1984/1989 mode LEDs will fade in and out.
 */
 const bool b_fade_cyclotron_led = true;
 

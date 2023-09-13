@@ -78,10 +78,10 @@ void setup() {
   #ifdef HAVE_HWSERIAL1
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       Serial1.begin(9600);
-      wandComs.begin(Serial1, false); // Connect the serial port and turn off debugging.
+      wandComs.begin(Serial1, false);
     #endif
   #else
-    wandComs.begin(Serial, false); // Connect the serial port and turn off debugging.
+    wandComs.begin(Serial, false);
   #endif
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
@@ -1943,6 +1943,10 @@ void checkSwitches() {
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+        if(i_bmash_count >= i_bmash_max) {
+          i_bmash_count = 0;
+        }
+
         if(i_bmash_count >= i_bmash_max) {
           // User has exceeded "normal" firing rate.
           b_wand_mash_error = true;
