@@ -112,8 +112,22 @@ The following 3D models are provided for those able to print components for thei
 - [N-Filter Blower Mount](stl/pack/N-Filter Smoke/N-Filter Cone.stl) - Replaces the stock cone and allows smoke and air to exit
 - [N-Filter Blower Mount](stl/pack/N-Filter Smoke/N-Filter Template.stl) - Used to mark where to cut into the pack for smoke tubing and blower air hole
 
+![](images/NFilterTemplate.jpg)
+
+The template print will help you to identify the correct placement for holes which will allow the silicone tubing and LED power wires to pass through, as well as the port opening for the blower fan. Use with the word TEMPLATE facing up for the proper orientation.
+
 ![](images/NFilterFan.jpg)
 
-One issue encountered is that within the N-Filter portion of the Cyclotron Lid is a screw post which sits directly over the cone and will block smoke flow. Using a small drill bit, it is possible to slowly drill out 2-3 holes within the plastic screw post which will let smoke enter the top of the N-Filter, and will be vented by the blower fan via the screened holes. The preview below shows how effective the fan can be at pushing the smoke generated.
+![](images/NFilterMount.jpg)
+
+Once the holes are drilled you can simply drop the blower mount into the socket. There will be space to access the screw which holds the cone in place, as well as routing the silicone tubing and LED power wires. The blower will be held in place by the other half of the inner cyclotron housing, so it will simply slot into place prior to closing up and reinstalling the cyclotron assembly.
+
+![](images/NFilterCone1.jpg)
+
+![](images/NFilterCone2.jpg)
+
+The LED and wires should be installed first, pushing the LED to the very tip of the cone. Once in place, the silicone tubing can be inserted into the same hole to keep the wires (and LED) in place. Adding some hot glue will keep these in place and prevent smoke from escaping out this hole in the cone. Once those are installed the tubing and wires can be gently pulled from the backside of the N-filter as the cone is pushed into place and secured using the original screw.
 
 ![](images/NFilterSmoke.gif)
+
+Congratulations, you are now ready to test your smoke solution!
