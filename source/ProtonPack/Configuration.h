@@ -219,7 +219,7 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 /*
   * When set to true, various impact and other stream effects will overlap and mix randomly into the Proton Stream for an added experience.
 */
-bool b_stream_effects = false;
+bool b_stream_effects = true;
 
 /*
  * Inner Cyclotron NeoPixel ring speed.
