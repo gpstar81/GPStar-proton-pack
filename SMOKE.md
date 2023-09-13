@@ -71,20 +71,26 @@ Here are some photos the basic smoke setup.
 
 *Provided by JustinDustin*
 
-This also uses a vape pen approach with a 3V mini aquarium pump, and can be run from a 3V relay module. The vape pen (T2 Clearomizer style) uses a 1.8 ohm coil and wants about 3.6-4V to make decent smoke. Meanwhile, the pump doesn't like much above 3V and above 4V is pushing it. Since both run for short bursts you can split the difference and use 3.8V which is about right for decent smoke AND to push everything out of the cartridge, and so far only the coil gets the hottest of all the components.
+This also uses a vape coil approach with a 6V mini air pump, and can be run from a 5V relay module. Alternatively, any smoke kit which offers a combination of vape coil plus air pump which can run on 5V may be substituted. The content below will assume use of a DIY approach and fully examines the creation and fitment of the following components.
 
 - [Kanger T2 Clearomizer Tank (Pack of 5)](https://www.ecigmafia.com/products/kanger-t2-clearomizer-tank-pack-of-5.html) - Note that for many US states the online ordering of vaping supplies may be restricted. This supplier has successfully shipped to Georgia, which is one such restricted state. Be sure to make sure the supplier can ship to your state before ordering!
-- [3V Aquarium Mini Air Pump](https://a.co/d/ghiL09S)
-- [5V Relay Module with Optocoupler](https://a.co/d/iDogKsU)
-- [DC Buck Converter](https://a.co/d/7GAJham)
-- [50mm 5V Blower Fan](https://a.co/d/iaizRpN)
+- [6V Mini Air Pump](https://a.co/d/0gUOvwu) - Sits below the N-filter to push smoke out
+- [5V Relay Module with Optocoupler](https://a.co/d/h0b5SN5) - Must use a HIGH signal to turn the relay on!
+- [2W 1 Ohm Axial Lead Metal Film Resistor](https://a.co/d/6BQW8AU) - Reduces voltage/power to vape coil
+- [DC Buck Converter](https://a.co/d/7GAJham) - For reducing voltate when using the 12V output of the Talentcell
+- [50mm 5V Blower Fan](https://a.co/d/iaizRpN) - Ideal for the small space and limits cutting of the pack
 - [3mm ID Silicone Tubing](https://a.co/d/5PaWppP) - For connecting the vape coil to the air pump
+- [4mm ID Silicone Tubing](https://a.co/d/7qeekAG) - For connecting the vape coil to the N-filter
+- [Push Connect Fitting 6mm ID](https://a.co/d/dLrPN3C) - For connecting silicone tubing to the vape coil
 - [Vegetable Glycerine & Propylene Glycol 70/30](https://a.co/d/5PaWppP) - Safe, non-toxic, and mostly odorless
-- [1/4" (6mm) OD Airline Tubing w/ Connectors](https://a.co/d/6C7jndS) - For delivering the smoke from the vape coil
+
+**Electronics**
 
 For basic instructions on creating the smoke machine itself, you may follow [this video tutorial](https://www.youtube.com/watch?v=uDISX8MMLak) which essentially pairs the clearomizer tank with the air pump and provides the wiring for that module. You can successfully run both devices off of a single pair of shared positive and negative wires.
 
-For the 5V relay, this was paired with a dedicated DC buck converter taking 12V from a Talentcell battery down to 3.8V. A toggle switch (optional) was used completely cut the power to the converter and anything downstream from it. The relay module needs 5V and requires 60mA to activate, and so this can be safely used with the provided smoke pins noted above.
+While the pump will work perfectly well at 5V, the vape coil (T2 Clearomizer style) uses a 1.8 ohm coil and wants about 3.6-4V to make decent smoke, and can potentially draw over 2 Amps of power. The solution here is to add a metal-film resistor to the positive lead on the vape coil to reduce the power demands and prevent it from burning out prematurely.
+
+For the 5V relay, this was paired with a dedicated DC buck converter taking 12V from a Talentcell battery down to 5V. A toggle switch (optional) was used completely cut the power to the converter and anything downstream from it. The relay module needs 5V and requires 60mA to activate, and so this can be safely used with the provided smoke pins noted above.
 
 ![](images/RelayModule.jpg)
 
@@ -96,7 +102,15 @@ The vape coil and air pump should have their positive leads connected together, 
 
 ![](images/RelayPower.jpg)
 
-To deliver smoke to the N-Filter, air line tubing is used with a quick-connect attached to the end of the vape tank and fed to the center of the cone under the filter. The middle of the cone is drilled out to allow the tubing to come up from below--which means drilling a hole into the base under the cone for the tubing plus a small hole for the blower fan. The blower fan is then simply placed vertically under the base of the cone and will help push any smoke out the top of the N-Filter. I used some scrap EVA foam and hot glue to keep the fan in place, oriented vertically under the N-Filter.
+**Installation**
+
+For this phase of the process it does not matter how you generate smoke, only how you allow it to exit the pack. This will make use of the SM-1, FN-1, and LED-W ports on the gpstar PCB controller for the Proton Pack. Silicone air line tubing will be used with a push-connect fitting attached to the end of the vape tank and fed to the center of the cone under the filter. The middle of the cone is drilled out to allow the tubing to come up from below--which means drilling a hole into the base under the cone for the tubing plus a small hole for the blower fan. The blower fan is then simply placed vertically under the base of the cone and will help push any smoke out the top of the N-Filter. I used some scrap EVA foam and hot glue to keep the fan in place, oriented vertically under the N-Filter.
+
+The following 3D models are provided for those able to print components for their pack. These are designed to fit perfectly within the Hasbro equipment and provide a familiar look to the end solution for getting smoke out of your pack.
+
+- [N-Filter Blower Mount](stl/pack/N-Filter Smoke/N-Filter Blower.stl) - Holds the 50mm blower in an upright position
+- [N-Filter Blower Mount](stl/pack/N-Filter Smoke/N-Filter Cone.stl) - Replaces the stock cone and allows smoke and air to exit
+- [N-Filter Blower Mount](stl/pack/N-Filter Smoke/N-Filter Template.stl) - Used to mark where to cut into the pack for smoke tubing and blower air hole
 
 ![](images/NFilterFan.jpg)
 
