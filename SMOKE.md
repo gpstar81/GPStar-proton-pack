@@ -37,11 +37,10 @@ Modification of your pack is unavoidable for proper installation as the areas wh
 
 In both the PCB and DIY approaches each of the smoke and fan pins is designed to make use of a transistor to run connected devices, as most will require more than the recommended 40mA maximum of current through the ATMega controller.
 
-- For `gpstar Proton Pack PCB boards`, the `SM-1, SM-2, FN-1 and FN-2` connectors provide 5V of power and can power devices such as pumps and fans. However do not connect any device which draws more than 500mA of current. Use a relay module (such as [this](https://a.co/d/4BXJ9J1) or [this](https://a.co/d/iEuGPYK)) to drive such devices.
-	- For devices which require a dedicated power source or power source which differs from the 5V required by the Arduino platform (such as 12V) ALWAYS use a relay module.
-	- Most fans or blowers can be safely attached to the Fan1 or Fan2 ports without concern as these require 500mA or less to operate.
-	- The Proton Pack PCB has been tested using up to 2 Amps of current but is **NOT** recommended as some components are pushed to their thermal limits and may fail prematurely under extended use.
-- For DIY Arduino Users: `DO NOT DRAW MORE THAN 40mA FROM AN ARDUINO MEGA PIN`. Use a transistor setup or relay module as previously noted.
+- All connectors provide 5V of power and are intended to trigger or power devices such as pumps and fans.
+- For devices which require a dedicated or non-5V power source **ALWAYS** use a relay module.
+- The Proton Pack PCB has been tested using up to 2 Amps of current but is **NOT** recommended as some components may be pushed to their thermal limits and could potentially fail prematurely under extended use.
+- **Do not connect any device which draws more than 500mA of current.** Most fans/blowers and relays can be safely attached to the Fan1 or Fan2 ports without concern as these require 500mA or less to operate.
 
 ### Powering a Kit
 
