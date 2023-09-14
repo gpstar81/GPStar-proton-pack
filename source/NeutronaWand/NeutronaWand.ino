@@ -1971,10 +1971,6 @@ void checkSwitches() {
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
         if(i_bmash_count >= i_bmash_max) {
-          i_bmash_count = 0;
-        }
-
-        if(i_bmash_count >= i_bmash_max) {
           // User has exceeded "normal" firing rate.
           b_wand_mash_error = true;
           modeError();
