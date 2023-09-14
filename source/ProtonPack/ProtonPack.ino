@@ -574,7 +574,7 @@ bool fadeOutLights() {
 // Various debounce handshakes and debouncing. These are called during firing events which button smashing from a Human can occur. 
 // This gives the system time to settle and not have interrupt issues with the 3 wire LED chipsets which temporarly disable interrupts.
 void firingDebouncing() {
-  if(i_firing < 20) {
+  if(i_firing < i_firing_max * 2) {
     i_firing++;
   }
 
@@ -601,6 +601,8 @@ void resetFastLed() {
   else {
     ms_fast_led_bounce.start(i_fast_led_bounce_delay);
   }
+
+  ms_fast_led.start(i_fast_led_delay);
 }
 
 void debounceChecks() {
@@ -3241,6 +3243,8 @@ void modeFireStopSounds() {
 }
 
 void wandStoppedFiring() {
+  resetFastLed();
+
   modeFireStopSounds();
 
   // A tiny ramp down delay helps with the sounds.
@@ -3363,7 +3367,7 @@ void wandStopFiringSounds() {
         stopEffect(S_CROSS_STREAMS_START);
         stopEffect(S_CROSS_STREAMS_END);
         */
-        
+
         if(i_firing >= i_firing_max / 2) {
           if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) {
             playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
