@@ -172,7 +172,7 @@ const bool b_demo_light_mode = false;
  * 0 = quietest
  * 100 = loudest
 */
-const uint8_t STARTUP_VOLUME = 4;
+const uint8_t STARTUP_VOLUME = 100;
 
 /*
  * You can set the default music volume for your pack here.
