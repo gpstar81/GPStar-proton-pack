@@ -3454,7 +3454,7 @@ void wandStopFiringSounds() {
           }
         }
         else {
-          //playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
         }
       break;
     }
