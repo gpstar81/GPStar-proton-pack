@@ -1924,8 +1924,24 @@ void checkSwitches() {
               analogWrite(led_vent, 0); // 0 = Full Power
             }
             else {
-              // Half power, adjusted by the current power level.
-              analogWrite(led_vent, 120 + int(80 * (1 / i_power_mode)));
+              // Adjust brightness based on the power level.
+              switch(i_power_mode) {
+                case 5:
+                  analogWrite(led_vent, 100);
+                break;
+                case 4:
+                  analogWrite(led_vent, 130);
+                break;
+                case 3:
+                  analogWrite(led_vent, 160);
+                break;
+                case 2:
+                  analogWrite(led_vent, 190);
+                break;
+                case 1:
+                  analogWrite(led_vent, 220);
+                break;
+              }
             }
           #else
             // Vent light and top white light on.
