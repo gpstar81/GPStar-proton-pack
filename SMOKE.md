@@ -1,27 +1,67 @@
 # Smoke Effects
 
-Below are some examples of how to implement smoke into your Proton Pack. There are 4 outputs on the DIY Arduino Mega and gpstar Proton Pack PCB that are configured to go 5V HIGH during smoke effect phases:
+Both the [gpstar Proton Pack PCB](PACK_PCB.md) and [DIY Arduino](PACK.md) approaches can support up to 2 separate smoke options for the N-Filter and Booster Tube to provide atmospheric effects while operating your Ghostbusters equipment. These effects are automatically triggered during certain interactions and typically after pre-set times through use of 4 JST-XH connections configured to provide 5 volts DC during smoke effect phases:
 
-- Smoke1 `SM-1 - gpstar Proton Pack PCB` or `Pin 39 - Arudino Mega` aka. N-Filter Smoke
-- Smoke2 `SM-2 - gpstar Proton Pack PCB` or `Pin 35 - Arduino Mega` aka. Booster Smoke
-- Fan1 `FN-1 - gpstar Proton Pack PCB` or `Pin 33 - Arduino Mega` aka. N-Filter Fan
-- Fan2 `FN-2 - gpstar Proton Pack PCB` or `Pin 50 - Arduino Mega` aka. Booster Fan
+- Smoke1 aka. N-Filter Smoke `SM-1 - gpstar Proton Pack PCB` or `Pin 39 - Arudino Mega`
+- Smoke2 aka. Booster Smoke `SM-2 - gpstar Proton Pack PCB` or `Pin 35 - Arduino Mega`
+- Fan1 aka. N-Filter Fan `FN-1 - gpstar Proton Pack PCB` or `Pin 33 - Arduino Mega`
+- Fan2 aka. Booster Fan `FN-2 - gpstar Proton Pack PCB` or `Pin 50 - Arduino Mega`
+- LED-W aka. N-Filter Light `LED-W - gpstar Proton Pack PCB` or `Pin 46 - Arduino Mega`
 
-**Note: Fan1 is set to go off during overheat sequence only. It is useful for pushing smoke through the N-Filter**
+**Note: Fan1 is set to run during overheat sequence only. It is useful for pushing smoke through the N-Filter**
 
-**Note: Fan2 is set to go off at the same time as Smoke2. This was requested if you want to repurpose Smoke2 from the booster tube for another purpose. For the purpose of smoke in the booster tube, this is not required.**
+**Note: Fan2 is set to run at the same time as Smoke2. This was requested if you want to instead use Smoke2 from the booster tube for another purpose. For the purpose of smoke in the booster tube, Fan2 is not required.**
 
-Each pin is designed to make use of a transistor to activate pumps, external devices, etc.
+## What is a "Smoke Kit"?
 
-**WARNINGS**
+Before proceeding it should be made clear what exactly a "smoke kit" consists of. In simplest term this is a combination of 4 components: a vape coil (atomizer), an air pump, a fan or blower, and a white LED. Traditionally, the vape coil will be paired directly with the air pump as it is dangerous to run a vape coil without proper airflow. The fan and LED may either be separated or combined--there are many community makers of smoke kits with various implementations where components may be bundled differently.
 
-- For `gpstar Proton Pack PCB boards`, the `SM-1, SM-2, FN-1 and FN-2` connectors provide 5V of power and can power devices such as pumps and fans. However do not connect any device which draws more than 1 Amp of current. Use a relay module (such as [this](https://a.co/d/4BXJ9J1) or [this](https://a.co/d/iEuGPYK)) to drive such devices.
-	- For devices which require a dedicated power source (such as 12V) ALWAYS use a relay module.
+For modders who are comfortable with building their own smoke solution we recommend [this guide to creating your own smoke generator](SMOKE_DIY.md). For purposes of integrating and connecting a smoke solution please read the remainder of this guide.
+
+### Common Materials
+
+If not provided with a kit purchased within the community, the following may be necessary to connect your smoke generator to the Proton Pack.
+
+- [5V Relay Module with Optocoupler](https://a.co/d/h0b5SN5) - Must support a HIGH signal to turn the relay on!
+- [6mm OD / 4mm ID Silicone Tubing](https://a.co/d/7qeekAG) - For routing smoke from the vape coil
+
+### Disclaimers
+
+This project does not make any direct endorsements of kits available in the Ghostbusters community. As stated above most kits consist of common components which can be integrated in a few standard ways. All references to kits or makers is for illustrative purposes only as this team has directly confirmed operation with the kit makers. If you have a smoke kit and wish to validate integration, please reach out to the team via the [gpstar Technologies Facebook group](https://www.facebook.com/groups/gpstartechnologies) for assistance.
+
+Most smoke kits utilize a combination of vegetable glycerine (VG) and propylene glycol (PG). Please follow any kit maker's instructions for filling or replacing your smoke fluid. Some ratios work better for the type of smoke desired and may be a personal preference. The most common are either 100% VG or 
+
+### Warnings
+
+Modification of your pack is unavoidable for proper installation as the areas where smoke must be delivered is isolated from the inside of the pack. Please proceed only if you are comfortable with **irreversible modifications**. One such modification is the full removal of the D-Cell battery compartment which allows access through the battery door to the vape coils for easy refilling.
+
+In both the PCB and DIY approaches each of the smoke and fan pins is designed to make use of a transistor to run connected devices, as most will require more than the recommended 40mA maximum of current through the ATMega controller.
+
+- For `gpstar Proton Pack PCB boards`, the `SM-1, SM-2, FN-1 and FN-2` connectors provide 5V of power and can power devices such as pumps and fans. However do not connect any device which draws more than 500mA of current. Use a relay module (such as [this](https://a.co/d/4BXJ9J1) or [this](https://a.co/d/iEuGPYK)) to drive such devices.
+	- For devices which require a dedicated power source or power source which differs from the 5V required by the Arduino platform (such as 12V) ALWAYS use a relay module.
+	- Most fans or blowers can be safely attached to the Fan1 or Fan2 ports without concern as these require 500mA or less to operate.
+	- The Proton Pack PCB has been tested using up to 2 Amps of current but is **NOT** recommended as some components are pushed to their thermal limits and may fail prematurely under extended use.
 - For DIY Arduino Users: `DO NOT DRAW MORE THAN 40mA FROM AN ARDUINO MEGA PIN`. Use a transistor setup or relay module as previously noted.
 
-## Schematic Examples
+### Powering a Kit
 
-The following diagrams demonstrate the connections required for several smoke devices. These have been either directly verified or confirmed as "expected" by their respective makers. Other kits may be used, provided they adhere to the use of a relay for applying power directly to a vape coil device.
+Power should be provided as recommended by either your kit manufacturer. Most kits run on either 5V or 12V sources so this will determine the best way to implement a power connection. Though in most cases kits operate on the principle of "apply power, get smoke" so the only concern is how to turn the 5V (HIGH) signal from the PCB or Arduino into something which can safely run a vape coil and air pump combination. **Enter: The 5V Relay Module.**
+
+For a 5V relay, this device will electrically isolate the power from the PCB or Arduino from the power source running the smoke generator. This is the recommended solution for safely turning on your smoke generator. Remember that most vape coils will draw 1.5 to 2 Amps so your power supply must be able to provide that safely without triggering a safety shutoff.
+
+![](images/RelayModule.jpg)
+
+Most relays work using 3 wires: 2 for power (+/-) to the relay itself, and 1 for the signal to turn the relay on or off. One solution is to use a relay which can accept a HIGH signal to turn on and use the + connection to drive both the relay power and input signal. This arrangement typically uses less than 100mA and can safely connect to the Smoke1 or Smoke2 connectors.
+
+![](images/RelayTrigger.jpg)
+
+Typically the vape coil and air pump will have their positive leads connected together, and the negative leads connected together. The positive from the power source will be connected to the NO (normally-open) terminal on the relay module while the combined positive leads are connected to the COM (common) terminal. The negative leads should connect directly to the power source for the smoke generator.
+
+![](images/RelayPower.jpg)
+
+## Connection Examples
+
+For a more in-depth look at the electrical connections, the following diagrams demonstrate what is required for integrating several smoke kits available from the community. These have been either directly verified or confirmed as "expected" by their respective makers. Other kits or DIY solutions may be used, provided they adhere to the use of a relay for applying power directly to a vape coil device.
 
 ![Built-in Battery](images/Smoke-NoBatt.png)
 
@@ -37,25 +77,9 @@ The following diagrams demonstrate the connections required for several smoke de
 
 ![12V - Dual Battery](images/Smoke-12V-2.png)
 
-## Booster Tube Example
+## Booster Tube Installation
 
-*Provided by gpstar*
-
-For this example, I used the following parts:
-
-- 1 - [Air Pump and Vacuum DC Motor 4.5V](https://www.adafruit.com/product/4699) 
-- 1 - [Vape Pen](https://www.joyetech.com/product/eroll-mac/)
-- [Silicone Tubing for Air Pumps](https://www.adafruit.com/product/4661)
-- 1 - [1n4001 Diode](https://www.adafruit.com/product/755)
-- 1 - 330 ohm Resistor -> Refer to [Bill of Materials](BOM.md)
-- 1 - PN2222 NPN Transitor -> Refer to [Bill of Materials](BOM.md)
-- 100% Pure Vegetable Glycerine for the vape pen to generate smoke
-
-This will be using SMOKE2, which is Pin #35 on the Arduino Mega or the SM-2 connector on the gpstar Proton Pack PCB. In the pack schematic diagrams if you are using an Arduino Mega, refer to SMOKE2 setup on the breadboard for the connection guide in the PACK instructions for more detail instructions. A quick rundown on what happens is, Pin #35 on the Arduino Mega or the SM-2 connector on the gpstar Proton Pack PCB goes high during smoke events, which makes the transistor open and the connected DC pump will then have 5V power which begins to operate. I removed the original battery compartment in the HasLab motherboard, so I have quick access to the vape pen from the battery door on the motherboard when it needs recharging and refilling with more vegetable glycerine.
-
-Here are some photos the basic smoke setup. 
-
-![Booster Smoke Setup](images/SmokeBooster5.jpg)
+For this component a fan is not necessary as the smoke will rise through use of only the air pump device.
 
 ![Booster Tube](images/SmokeBooster1.jpg)
 
@@ -63,48 +87,9 @@ Here are some photos the basic smoke setup.
 
 ![Booster Setup](images/SmokeBooster3.jpg)
 
-![Booster Setup](images/SmokeBooster4.jpg)
-
 ![](images/BoosterSmoke.gif)
 
-## N-Filter Example
-
-*Provided by JustinDustin*
-
-This also uses a vape coil approach with a 6V mini air pump, and can be run from a 5V relay module. Alternatively, any smoke kit which offers a combination of vape coil plus air pump which can run on 5V may be substituted. The content below will assume use of a DIY approach and fully examines the creation and fitment of the following components.
-
-- [Kanger T2 Clearomizer Tank (Pack of 5)](https://www.ecigmafia.com/products/kanger-t2-clearomizer-tank-pack-of-5.html) - Note that for many US states the online ordering of vaping supplies may be restricted. This supplier has successfully shipped to Georgia, which is one such restricted state. Be sure to make sure the supplier can ship to your state before ordering!
-- [6V Mini Air Pump](https://a.co/d/0gUOvwu) - Sits below the N-filter to push smoke out
-- [5V Relay Module with Optocoupler](https://a.co/d/h0b5SN5) - Must use a HIGH signal to turn the relay on!
-- [2W 1 Ohm Axial Lead Metal Film Resistor](https://a.co/d/6BQW8AU) - Reduces voltage/power to vape coil
-- [DC Buck Converter](https://a.co/d/7GAJham) - For reducing voltate when using the 12V output of the Talentcell
-- [50mm 5V Blower Fan](https://a.co/d/iaizRpN) - Ideal for the small space and limits cutting of the pack
-- [3mm ID Silicone Tubing](https://a.co/d/5PaWppP) - For connecting the vape coil to the air pump
-- [4mm ID Silicone Tubing](https://a.co/d/7qeekAG) - For connecting the vape coil to the N-filter
-- [Push Connect Fitting 6mm ID](https://a.co/d/dLrPN3C) - For connecting silicone tubing to the vape coil
-- [Vegetable Glycerine & Propylene Glycol 70/30](https://a.co/d/5PaWppP) - Safe, non-toxic, and mostly odorless
-
-**Electronics**
-
-For basic instructions on creating the smoke machine itself, you may follow [this video tutorial](https://www.youtube.com/watch?v=uDISX8MMLak) which essentially pairs the clearomizer tank with the air pump and provides the wiring for that module. You can successfully run both devices off of a single pair of shared positive and negative wires.
-
-While the pump will work perfectly well at 5V, the vape coil (T2 Clearomizer style) uses a 1.8 ohm coil and wants about 3.6-4V to make decent smoke, and can potentially draw over 2 Amps of power. The solution here is to add a metal-film resistor to the positive lead on the vape coil to reduce the power demands and prevent it from burning out prematurely.
-
-For the 5V relay, this was paired with a dedicated DC buck converter taking 12V from a Talentcell battery down to 5V. A toggle switch (optional) was used completely cut the power to the converter and anything downstream from it. The relay module needs 5V and requires 60mA to activate, and so this can be safely used with the provided smoke pins noted above.
-
-![](images/RelayModule.jpg)
-
-To activate and trigger with only the 2 wires provided by the SMOKE1 pin #39 on the Arduino Mega or SM-1 connector on the gpstar Proton Pack PCB, connect the positive (+) from the smoke pin to both the DC+ and IN terminals of the relay module (a small length of wire can be used as a jumper). Connect the negative (\-) to the DC- terminal. The purpose of this relay is to electrically isolate the power source for the vape coil and air pump, which may require 1 Amp of current (or more) and a voltage which differs from the 5V used by the controller. This allows you to also use a completely separate battery for smoke if you wish, as there is no need for a common ground or other connection to the microcontroller.
-
-![](images/RelayTrigger.jpg)
-
-The vape coil and air pump should have their positive leads connected together, and the negative leads connected together. The positive OUT terminal of the DC buck converter is connected to the NO (normally-open) terminal on the relay module while the combined positive leads are connected to the COM (common) terminal. The negative leads should connect directly to the DC buck converter's negative OUT terminal.
-
-![](images/RelayPower.jpg)
-
-**Installation**
-
-For this phase of the process it does not matter how you generate smoke, only how you allow it to exit the pack. This will make use of the SM-1, FN-1, and LED-W ports on the gpstar PCB controller for the Proton Pack. Silicone air line tubing will be used with a push-connect fitting attached to the end of the vape tank and fed to the center of the cone under the filter. The middle of the cone is drilled out to allow the tubing to come up from below--which means drilling a hole into the base under the cone for the tubing plus a small hole for the blower fan. The blower fan is then simply placed vertically under the base of the cone and will help push any smoke out the top of the N-Filter. I used some scrap EVA foam and hot glue to keep the fan in place, oriented vertically under the N-Filter.
+## N-Filter Installation
 
 The following 3D models are provided for those able to print components for their pack. These are designed to fit perfectly within the Hasbro equipment and provide a familiar look to the end solution for getting smoke out of your pack.
 
@@ -130,4 +115,8 @@ The LED and wires should be installed first, pushing the LED to the very tip of 
 
 ![](images/NFilterSmoke.gif)
 
-Congratulations, you are now ready to test your smoke solution!
+## Testing
+
+Congratulations, you are now ready to test your smoke solution! While in the Video Game mode, use the Barrel Wing Button to select the Venting menu option (after all firing mode options). Put the Neutrona Wand into firing state and press the Intensify button to activate the N-Filter smoke option directly. Alternatively, regardless of mode set your wand to level 5 and throw a proton stream (or activate Cross the Streams) and wait for the smoke effects to kick in.
+
+Remember to activate all smoke options for the pack via the EEPROM menu if you previously changed these.
