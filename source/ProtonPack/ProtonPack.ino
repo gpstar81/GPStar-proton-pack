@@ -17,8 +17,6 @@
  *
  */
 
-#include <util/atomic.h>
-
 // 3rd-Party Libraries
 #include <EEPROM.h>
 #include <millisDelay.h>
@@ -48,10 +46,11 @@
 
 void setup() {
   Serial.begin(9600);
+  
   Serial1.begin(9600); // Add-on serial communication.
   Serial2.begin(9600); // Communication to the wand.
 
-  // Connect the serial ports and turn off debug messages.
+  // Connect the serial ports.
   serial1Coms.begin(Serial1, false);
   packComs.begin(Serial2, false);
 
@@ -133,6 +132,7 @@ void setup() {
   ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
   ms_wand_handshake.start(1);
+
   ms_serial1_handshake.start(1);
   ms_fast_led.start(i_fast_led_delay);
 
@@ -187,16 +187,10 @@ void setup() {
   }
 }
 
-void loop() {
+void loop() {  
+  debounceChecks();
+
   w_trig.update();
-
-  if(ms_fast_led_bounce.isRunning() == true) {
-    if(ms_fast_led_bounce.remaining() < 1) {
-      ms_fast_led_bounce.stop();
-      i_firing = 0;
-    }  
-  }
-
   checkMusic();
   checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
@@ -226,10 +220,13 @@ void loop() {
         b_2021_ramp_up = false;
         b_2021_ramp_up_start = false;
         b_inner_ramp_up = false;
+        b_fade_out = true;
 
         reset2021RampDown();
 
         b_pack_shutting_down = true;
+
+        ms_fadeout.start(1);
       }
 
       if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
@@ -238,14 +235,24 @@ void loop() {
           packOffReset();
           spectralLightsOn();
         }
-        else {
+        else {          
           cyclotronSwitchLEDLoop();
           powercellLoop();
           cyclotronControl();
         }
       }
       else {
-        if(b_spectral_lights_on != true) {
+        if(b_spectral_lights_on != true) { 
+          if(ms_fadeout.justFinished()) {
+            if(fadeOutLights() == true) {
+              ms_fadeout.start(50);
+            }
+            else {
+              ms_fadeout.stop();
+              b_fade_out = false;
+            } 
+          }
+
           packOffReset();
         }
       }
@@ -275,6 +282,8 @@ void loop() {
       }
 
       b_pack_on = true;
+      b_fade_out = false;
+      ms_fadeout.stop();
 
       if(b_2021_ramp_down == true) {
         b_2021_ramp_down = false;
@@ -460,37 +469,159 @@ void loop() {
     break;
   }
 
+  w_trig.update();
+  checkWand();
+  checkSerial1();
+
   // Update the LEDs
   if(ms_fast_led.justFinished()) {
-    FastLED.show();
+    if(i_firing < i_firing_max) {
+      FastLED.show();
+    }
+
     ms_fast_led.start(i_fast_led_delay);
-    
+
     if(b_powercell_updating == true) {
       b_powercell_updating = false;
     }
   }
 }
 
+bool fadeOutLights() {
+  bool b_return = false;
+
+  if(i_mode_year == 2021) {
+    uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
+
+    // We override the colour changes when using stock HasLab Cyclotron LEDs.
+    // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
+    if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
+      i_colour_scheme = C_HASLAB;
+    }
+
+    uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
+
+    if(b_cyclotron_simulate_ring == true) {
+      i_cyclotron_leds_total = OUTER_CYCLOTRON_LED_MAX;
+    }
+
+    for(int i = 0; i < i_cyclotron_leds_total; i++) {
+      int i_curr_brightness = i_cyclotron_led_value[i] - 10;
+      
+      if(i_curr_brightness < 0) {
+        i_curr_brightness = 0;
+      }
+
+      i_cyclotron_led_value[i] = i_curr_brightness;
+      
+      if(i_curr_brightness > 0) {
+        
+        b_return = true;
+
+        if(b_cyclotron_simulate_ring == true) {
+          switch(i_cyclotron_leds) {
+            case OUTER_CYCLOTRON_LED_MAX:
+              // For 40-element LED ring.
+              pack_leds[i_cyclotron_40led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+            break;
+
+            case FRUTTO_CYCLOTRON_LED_COUNT:
+              // For Frutto Technology 20 LEDs.
+              pack_leds[i_cyclotron_20led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+            break;
+
+            case HASLAB_CYCLOTRON_LED_COUNT:
+            default:
+              // For stock HasLab LEDs.
+              pack_leds[i_cyclotron_12led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+            break;
+          }
+        }
+        else {
+          pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+        }
+      }
+      else {
+        if(b_cyclotron_simulate_ring == true) {
+          switch(i_cyclotron_leds) {
+            case OUTER_CYCLOTRON_LED_MAX:
+              // For 40-element LED ring.
+              pack_leds[i_cyclotron_40led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
+            break;
+
+            case FRUTTO_CYCLOTRON_LED_COUNT:
+              // For Frutto Technology 20 LEDs.
+              pack_leds[i_cyclotron_20led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
+            break;
+
+            case HASLAB_CYCLOTRON_LED_COUNT:
+            default:
+              // For stock HasLab LEDs.
+              pack_leds[i_cyclotron_12led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
+            break;
+          }
+        }
+        else {
+          pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
+        }
+      }    
+    }
+  }
+
+  return b_return;
+}
+
+// Various debounce handshakes and debouncing. These are called during firing events which button smashing from a Human can occur. 
+// This gives the system time to settle and not have interrupt issues with the 3 wire LED chipsets which temporarly disable interrupts.
+void firingDebouncing() {
+  if(i_firing < i_firing_max * 2) {
+    i_firing++;
+  }
+
+  if(i_firing >= i_firing_max / 2) {
+    debounceHandShake();
+  }
+}
+
+void debounceHandShake() {
+  packSerialSend(P_HANDSHAKE);
+  while(Serial2.available() == 0) {}
+  checkWand();
+
+  w_trig.update();
+  checkSerial1();
+}
+
 void resetFastLed() {
+  debounceHandShake();
+
   if(ms_fast_led_bounce.isRunning() != true) {
     ms_fast_led_bounce.start(i_fast_led_bounce_delay);
   }
   else {
-    if(i_firing > 15) {
-      ms_fast_led.start(i_fast_led_delay * 100);
-    }  
-    else {  
-      switch(i_firing) {
-        case 10:
-          ms_fast_led.start(i_fast_led_delay * 40);
-        break;
+    ms_fast_led_bounce.start(i_fast_led_bounce_delay);
+  }
 
-        default:
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-      }
-    }
-  }  
+  ms_fast_led.start(i_fast_led_delay);
+}
+
+void debounceChecks() {
+  if(ms_fast_led_bounce.isRunning() == true) {
+    if(ms_fast_led_bounce.remaining() < 1) {
+      ms_fast_led_bounce.stop();
+      i_firing = 0;
+    }  
+  }
+
+  if(ms_firing_start_sound_delay.justFinished()) {
+    // Start firing sounds.
+    modeFireStartSounds();
+  }
+
+  if(ms_firing_stop_sound_delay.justFinished()) {
+    // Stop all other firing sounds.
+    wandStopFiringSounds();
+  }
 }
 
 void checkMusic() {
@@ -634,16 +765,24 @@ void packShutdown() {
 
   stopEffect(S_BEEP_8);
   stopEffect(S_SHUTDOWN);
+  
+  if(i_mode_year == 1989) {
+    stopEffect(S_GB2_PACK_START);
+    stopEffect(S_GB2_PACK_LOOP);
+    stopEffect(S_GB2_PACK_OFF);
+  }
 
-  stopEffect(S_GB2_PACK_START);
-  stopEffect(S_GB2_PACK_LOOP);
-  stopEffect(S_GB2_PACK_OFF);
-  stopEffect(S_PACK_SHUTDOWN);
-  stopEffect(S_PACK_SHUTDOWN_AFTERLIFE);
-  stopEffect(S_IDLE_LOOP);
-  stopEffect(S_BOOTUP);
-  stopEffect(S_AFTERLIFE_PACK_STARTUP);
-  stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+  if(i_mode_year == 1984) {
+    stopEffect(S_PACK_SHUTDOWN);
+    stopEffect(S_IDLE_LOOP);
+    stopEffect(S_BOOTUP);  
+  }
+
+  if(i_mode_year == 2021) {
+    stopEffect(S_PACK_SHUTDOWN_AFTERLIFE);
+    stopEffect(S_AFTERLIFE_PACK_STARTUP);
+    stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP); 
+  }
 
   if(b_alarm != true) {
     switch(i_mode_year) {
@@ -1572,7 +1711,7 @@ void cyclotronFade() {
             pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
           }
         }
-
+      
         int i_new_brightness = getBrightness(i_cyclotron_brightness);
         if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {
           i_cyclotron_led_value[i] = i_new_brightness;
@@ -2556,41 +2695,43 @@ void cyclotronNoCable() {
 
 // Turns off the LEDs in the Cyclotron Lid only.
 void cyclotronLidLedsOff() {
-  uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
+  if(b_fade_out != true) {
+    uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
 
-  if(b_cyclotron_simulate_ring == true) {
-    i_cyclotron_leds_total = OUTER_CYCLOTRON_LED_MAX;
-  }
-
-  for(int i = 0; i < i_cyclotron_leds_total; i++) {
     if(b_cyclotron_simulate_ring == true) {
-      switch(i_cyclotron_leds) {
-        case OUTER_CYCLOTRON_LED_MAX:
-          // For 40-element LED ring.
-          pack_leds[i_cyclotron_40led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-        break;
+      i_cyclotron_leds_total = OUTER_CYCLOTRON_LED_MAX;
+    }
 
-        case FRUTTO_CYCLOTRON_LED_COUNT:
-          // For Frutto Technology 20 LEDs.
-          pack_leds[i_cyclotron_20led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-        break;
+    for(int i = 0; i < i_cyclotron_leds_total; i++) {
+      if(b_cyclotron_simulate_ring == true) {
+        switch(i_cyclotron_leds) {
+          case OUTER_CYCLOTRON_LED_MAX:
+            // For 40-element LED ring.
+            pack_leds[i_cyclotron_40led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+          break;
 
-        case HASLAB_CYCLOTRON_LED_COUNT:
-        default:
-            pack_leds[i_cyclotron_12led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-        break;
+          case FRUTTO_CYCLOTRON_LED_COUNT:
+            // For Frutto Technology 20 LEDs.
+            pack_leds[i_cyclotron_20led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+          break;
+
+          case HASLAB_CYCLOTRON_LED_COUNT:
+          default:
+              pack_leds[i_cyclotron_12led_matrix[i] + cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+          break;
+        }
+      }
+      else {
+        pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
       }
     }
-    else {
-      pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+
+    for(int i = 0; i < i_cyclotron_leds_total; i++) {
+        ms_cyclotron_led_fade_out[i].go(0);
+        ms_cyclotron_led_fade_in[i].go(0);
+
+        i_cyclotron_led_on_status[i] = false;
     }
-  }
-
-  for(int i = 0; i < i_cyclotron_leds_total; i++) {
-      ms_cyclotron_led_fade_out[i].go(0);
-      ms_cyclotron_led_fade_in[i].go(0);
-
-      i_cyclotron_led_on_status[i] = false;
   }
 }
 
@@ -2624,8 +2765,10 @@ void resetCyclotronLeds() {
 }
 
 void clearCyclotronFades() {
-  for(int i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
-    i_cyclotron_led_value[i] = 0;
+  if(b_fade_out != true) {
+    for(int i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
+      i_cyclotron_led_value[i] = 0;
+    }
   }
 }
 
@@ -2867,23 +3010,10 @@ void checkCyclotronAutoSpeed() {
   }
 }
 
-void wandFiring() {
+void modeFireStartSounds() {
   resetFastLed();
 
-  b_wand_firing = true;
-  serial1Send(A_FIRING);
-
-  // Reset the Cyclotron auto speed up timers. Only for Afterlife (2021) mode.
-  ms_cyclotron_auto_speed_timer.stop();
-
-  if(i_mode_year == 2021) {
-    ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
-  }
-
-  if(b_stream_effects == true) {
-    unsigned int i_s_random = random(7,14) * 1000;
-    ms_firing_sound_mix.start(i_s_random);
-  }
+  ms_firing_start_sound_delay.stop();
 
   // Adjust the gain with the Afterlife idling sound effect while firing.
   if(i_mode_year == 2021 && i_wand_power_level < 5) {
@@ -2894,15 +3024,6 @@ void wandFiring() {
       adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
     }
   }
-
-  // Turn off any smoke.
-  smokeControl(false);
-
-  // Start a smoke timer to play a little bit of smoke while firing.
-  ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
-  ms_smoke_on.stop();
-
-  vibrationPack(255);
 
   if(i_mode_year == 1989) {
     playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
@@ -3020,6 +3141,42 @@ void wandFiring() {
     break;
   }
 
+  resetFastLed();
+}
+
+void wandFiring() {
+  resetFastLed();
+  
+  ms_firing_start_sound_delay.start(i_fire_stop_sound_delay);
+
+  // Keep this code for later future updates, when using 4 wire led chipsets, the delay timer above can be avoided.
+  //modeFireStartSounds();
+
+  b_wand_firing = true;
+
+  serial1Send(A_FIRING);
+
+  // Reset the Cyclotron auto speed up timers. Only for Afterlife (2021) mode.
+  ms_cyclotron_auto_speed_timer.stop();
+
+  if(i_mode_year == 2021) {
+    ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
+  }
+
+  if(b_stream_effects == true) {
+    unsigned int i_s_random = random(7,14) * 1000;
+    ms_firing_sound_mix.start(i_s_random);
+  }
+
+  // Turn off any smoke.
+  smokeControl(false);
+
+  // Start a smoke timer to play a little bit of smoke while firing.
+  ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
+  ms_smoke_on.stop();
+
+  vibrationPack(255);
+
   // Reset some vent light timers.
   ms_vent_light_off.stop();
   ms_vent_light_on.stop();
@@ -3031,27 +3188,20 @@ void wandFiring() {
   ms_firing_length_timer.start(i_firing_timer_length);
 }
 
-void wandStoppedFiring() {
-  // Stop all other firing sounds.
-  wandStopFiringSounds();
-  ms_firing_sound_mix.stop();
-
-  serial1Send(A_FIRING_STOPPED);
-
-  // Stop the auto speed timer.
-  ms_cyclotron_auto_speed_timer.stop();
-
-  // Adjust the gain with the Afterlife idling track.
-  if(i_mode_year == 2021 && i_wand_power_level < 5) {
-    if(ms_idle_fire_fade.remaining() < 1000) {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
-    }
-    else {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
-    }
-  }
+void modeFireStopSounds() {
+  resetFastLed();
 
   if(b_wand_firing == true) {
+    // Adjust the gain with the Afterlife idling track.
+    if(i_mode_year == 2021 && i_wand_power_level < 5) {
+      if(ms_idle_fire_fade.remaining() < 1000) {
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
+      }
+      else {
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
+      }
+    }
+
     switch(FIRING_MODE) {
       case PROTON:
       default:
@@ -3087,7 +3237,28 @@ void wandStoppedFiring() {
         // Nothing
       break;
     }
-  }
+  } 
+
+  resetFastLed();
+}
+
+void wandStoppedFiring() {
+  resetFastLed();
+
+  modeFireStopSounds();
+
+  // A tiny ramp down delay helps with the sounds.
+  ms_firing_stop_sound_delay.start(i_fire_stop_sound_delay);
+
+  // Keep this code for later future updates, when using 4 wire led chipsets, the delay timer above can be avoided.
+  //wandStopFiringSounds();
+
+  ms_firing_sound_mix.stop();
+
+  serial1Send(A_FIRING_STOPPED);
+
+  // Stop the auto speed timer.
+  ms_cyclotron_auto_speed_timer.stop();
 
   b_wand_firing = false;
   b_firing_alt = false;
@@ -3114,77 +3285,107 @@ void wandStoppedFiring() {
 }
 
 void wandStopFiringSounds() {
-  if(b_wand_firing == true) {
-    // Firing sounds.
-    switch(FIRING_MODE) {
-      case PROTON:
-      default:
-        if(i_mode_year == 1989) {
-          stopEffect(S_GB2_FIRE_START);
-        }
-        else {
-          stopEffect(S_GB1_FIRE_START);
-        }
+  resetFastLed();
 
-        if(i_mode_year == 2021) {
-          stopEffect(S_AFTERLIFE_FIRE_START);
-        }
-        stopEffect(S_GB1_FIRE_LOOP);
+  ms_firing_stop_sound_delay.stop();
+
+  // Firing sounds.
+  switch(FIRING_MODE) {
+    case PROTON:
+    default:
+      if(i_mode_year == 1989) {
+        stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
-
-        stopEffect(S_FIRING_LOOP_GB1);
-        stopEffect(S_GB1_FIRE_START_HIGH_POWER);
-        stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
-        stopEffect(S_FIRE_START_SPARK);
-        stopEffect(S_FIRE_START);
-      break;
-
-      case SLIME:
-        stopEffect(S_SLIME_START);
-        stopEffect(S_SLIME_LOOP);
-        stopEffect(S_SLIME_END);
-      break;
-
-      case STASIS:
-        stopEffect(S_STASIS_START);
-        stopEffect(S_STASIS_LOOP);
-        stopEffect(S_STASIS_END);
-      break;
-
-      case MESON:
-        stopEffect(S_MESON_START);
-        stopEffect(S_MESON_LOOP);
-        stopEffect(S_MESON_END);
-      break;
-
-      case VENTING:
-      case SETTINGS:
-        // Nothing
-      break;
-    }
-
-    if(b_firing_cross_streams == true) {
-      switch(i_mode_year) {
-        case 2021:
-          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
-        break;
-
-        case 1984:
-        case 1989:
-          stopEffect(S_CROSS_STREAMS_START);
-          stopEffect(S_CROSS_STREAMS_END);
-          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
-        break;
+      }
+      else {
+        stopEffect(S_GB1_FIRE_START);
+        stopEffect(S_GB1_FIRE_LOOP);
       }
 
-      b_firing_cross_streams = false;
+      if(i_mode_year == 2021) {
+        stopEffect(S_AFTERLIFE_FIRE_START);
+      }
+
+      stopEffect(S_FIRING_LOOP_GB1);
+      stopEffect(S_GB1_FIRE_START_HIGH_POWER);
+      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+
+      /*
+      // Keep this code for later future updates, when using 4 wire led chipsets.
+      stopEffect(S_FIRE_START_SPARK);
+      stopEffect(S_FIRE_START);
+      */
+    break;
+
+    case SLIME:
+      stopEffect(S_SLIME_START);
+      stopEffect(S_SLIME_LOOP);
+      stopEffect(S_SLIME_END);
+    break;
+
+    case STASIS:
+      stopEffect(S_STASIS_START);
+      stopEffect(S_STASIS_LOOP);
+      stopEffect(S_STASIS_END);
+    break;
+
+    case MESON:
+      stopEffect(S_MESON_START);
+      stopEffect(S_MESON_LOOP);
+      stopEffect(S_MESON_END);
+    break;
+
+    case VENTING:
+    case SETTINGS:
+      // Nothing
+    break;
+  }
+
+  if(b_firing_cross_streams == true) {
+    switch(i_mode_year) {
+      case 2021:
+        /*
+        // Keep this code for later future updates, when using 4 wire led chipsets.
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+        */
+
+        if(i_firing >= i_firing_max / 2) {
+          if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+          }
+        }
+        else {
+          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+        }
+      break;
+
+      case 1984:
+      case 1989:
+        /*
+        // Keep this code for later future updates, when using 4 wire led chipsets.
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+        */
+
+        if(i_firing >= i_firing_max / 2) {
+          if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) {
+            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+          }
+        }
+        else {
+          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+        }
+      break;
     }
 
-    b_sound_firing_intensify_trigger = false;
-    b_sound_firing_alt_trigger = false;
+    b_firing_cross_streams = false;
   }
+
+  b_sound_firing_intensify_trigger = false;
+  b_sound_firing_alt_trigger = false;
+
+  resetFastLed();
 }
 
 void packAlarm() {
@@ -3195,11 +3396,13 @@ void packAlarm() {
     stopEffect(S_GB2_PACK_START);
     stopEffect(S_GB2_PACK_LOOP);
   }
+  else if(i_mode_year == 1984) {
+    stopEffect(S_IDLE_LOOP);
+    stopEffect(S_BOOTUP);
+  }
   else {
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
     stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
-    stopEffect(S_IDLE_LOOP);
-    stopEffect(S_BOOTUP);
   }
 
   playEffect(S_SHUTDOWN);
@@ -3657,6 +3860,7 @@ void wandHandShake() {
       ms_wand_handshake.start(i_wand_handshake_delay);
 
       b_wand_connected = false;
+      b_wand_on = false;
 
       wandExtraSoundsStop();
 
@@ -3680,6 +3884,8 @@ void wandHandShake() {
     }
   }
   else {
+    b_wand_on = false;
+
     if(b_wand_firing == true) {
       wandStoppedFiring();
       cyclotronSpeedRevert();
@@ -3771,7 +3977,7 @@ void packOverheatingFinished() {
 
 // Incoming messages from the extra Serial 1 port.
 void checkSerial1() {
-  if(serial1Coms.available()) {
+  while(serial1Coms.available() > 0) {
     serial1Coms.rxObj(dataStructR);
 
     if(!serial1Coms.currentPacketID()) {
@@ -3966,8 +4172,8 @@ void checkSerial1() {
 }
 
 // Incoming messages from the wand.
-void checkWand() {
-  if(packComs.available()) {
+void checkWand() {  
+  while(packComs.available() > 0) {
     packComs.rxObj(comStruct);
 
     if(!packComs.currentPacketID()) {
@@ -4081,13 +4287,13 @@ void checkWand() {
 
             case W_FIRING:
               // Wand is firing.
-              i_firing++;
+              firingDebouncing();
               wandFiring();
             break;
 
             case W_FIRING_STOPPED:
               // Wand just stopped firing.
-              i_firing++;
+              firingDebouncing();
               wandStoppedFiring();
               cyclotronSpeedRevert();
             break;
@@ -4438,26 +4644,33 @@ void checkWand() {
             break;
 
             case W_FIRING_INTENSIFY_MIX:
+              resetFastLed();
               // Wand firing in intensify mode.
               b_firing_intensify = true;
 
               if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
                 b_sound_firing_intensify_trigger = true;
-
+                
                 switch(i_wand_power_level) {
                   case 1 ... 4:
                     if(i_mode_year == 1989) {
-                      playEffect(S_GB2_FIRE_LOOP);
-                      playEffect(S_GB2_FIRE_START);
+                      //if(w_trig.isTrackPlaying(S_GB2_FIRE_LOOP) != true) { 
+                        playEffect(S_GB2_FIRE_LOOP);
+                      //}
+                      //playEffect(S_GB2_FIRE_START);
                     }
                     else {
-                      playEffect(S_GB1_FIRE_LOOP, true);
-                      playEffect(S_GB1_FIRE_START);
+                      //if(w_trig.isTrackPlaying(S_GB1_FIRE_LOOP) != true) { 
+                        playEffect(S_GB1_FIRE_LOOP, true);
+                      //}
+                      //playEffect(S_GB1_FIRE_START);
                     }
                   break;
 
                   case 5:
-                    playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+                    //if(w_trig.isTrackPlaying(S_GB1_FIRE_HIGH_POWER_LOOP) != true) { 
+                      playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+                    //}
                   break;
                 }
               }
@@ -4474,26 +4687,30 @@ void checkWand() {
             break;
 
             case W_FIRING_INTENSIFY_STOPPED_MIX:
-              i_firing++;
+              firingDebouncing();
+              /*
+              // Keep this code for later future updates, when using 4 wire led chipsets.
               // Wand no longer firing in intensify mode.
               if(b_firing_cross_streams != true && b_firing_intensify == true) {
+                
                 switch(i_wand_power_level) {
                   case 1 ... 4:
                     if(i_mode_year == 1989) {
-                      stopEffect(S_GB2_FIRE_LOOP);
-                      stopEffect(S_GB2_FIRE_START);
+                      //stopEffect(S_GB2_FIRE_LOOP);
+                      //stopEffect(S_GB2_FIRE_START);
                     }
                     else {
-                      stopEffect(S_GB1_FIRE_LOOP);
-                      stopEffect(S_GB1_FIRE_START);
+                      //stopEffect(S_GB1_FIRE_LOOP);
+                      //stopEffect(S_GB1_FIRE_START);
                     }
                   break;
 
                   case 5:
-                    stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+                    //stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
                   break;
                 }
               }
+              */
 
               b_firing_intensify = false;
               b_sound_firing_intensify_trigger = false;
@@ -4502,7 +4719,8 @@ void checkWand() {
             break;
 
             case W_FIRING_ALT:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // Wand firing in alt mode.
               b_firing_alt = true;
@@ -4515,7 +4733,8 @@ void checkWand() {
             break;
 
             case W_FIRING_ALT_MIX:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // Wand firing in alt mode.
               b_firing_alt = true;
@@ -4523,153 +4742,251 @@ void checkWand() {
               if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
                 b_sound_firing_alt_trigger = true;
 
-                playEffect(S_FIRING_LOOP_GB1, true);
+                if(w_trig.isTrackPlaying(S_FIRING_LOOP_GB1) != true) {
+                  playEffect(S_FIRING_LOOP_GB1, true);
+                }
               }
 
               resetFastLed();
             break;
 
             case W_FIRING_ALT_STOPPED:
-              i_firing++;
+              firingDebouncing();
 
               // Wand no longer firing in alt mode.
               b_firing_alt = false;
               b_sound_firing_alt_trigger = false;
-
               resetFastLed();
             break;
 
             case W_FIRING_ALT_STOPPED_MIX:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // Wand no longer firing in alt mode mix.
               if(b_firing_alt == true) {
-                stopEffect(S_FIRING_LOOP_GB1);
+                if(w_trig.isTrackPlaying(S_FIRING_LOOP_GB1) != true) {
+                  stopEffect(S_FIRING_LOOP_GB1);
+                }
               }
 
               b_firing_alt = false;
               b_sound_firing_alt_trigger = false;
-
               resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
-
+              
               switch(i_mode_year) {
                 case 2021:
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
+                  //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+                  //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+                  //playEffect(S_FIRE_SPARKS);
+                  */
 
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
-                  playEffect(S_FIRE_SPARKS);
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_START) != true) {
+                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
+                    playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                  }
                 break;
 
                 case 1984:
                 case 1989:
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
                   stopEffect(S_CROSS_STREAMS_END);
                   stopEffect(S_CROSS_STREAMS_START);
-
-                  playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
                   playEffect(S_FIRE_SPARKS);
+                  */
+
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_CROSS_STREAMS_START) != true) {
+                      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
+                    playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                  }
                 break;
               }
-
-              playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
-
+              
+              // Keep this code for later future updates, when using 4 wire led chipsets.
+              //playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
               resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_MIX:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
-
+              
               switch(i_mode_year) {
                 case 2021:
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-                  
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
+                  //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+                  //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+                  */
+
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_START) != true) {
+                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
+                    playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                  }
                 break;
 
                 case 1984:
                 case 1989:
-                  stopEffect(S_CROSS_STREAMS_END);
-                  stopEffect(S_CROSS_STREAMS_START);
-          
-                  playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
+                  //stopEffect(S_CROSS_STREAMS_END);
+                  //stopEffect(S_CROSS_STREAMS_START);
+                  */
+
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_CROSS_STREAMS_START) != true) {
+                      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
+                    playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                  }
                 break;
               }
 
+              /*
+              // Keep this code for later future updates, when using 4 wire led chipsets.
               playEffect(S_FIRE_START_SPARK);
               playEffect(S_FIRING_LOOP_GB1, true);
+              */
 
               if(i_wand_power_level != i_wand_power_level_max) {
                 playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
               }
-
-              stopEffect(S_GB2_FIRE_LOOP);
-              stopEffect(S_GB1_FIRE_LOOP);
+              
+              /*
+              // Keep this code for later future updates, when using 4 wire led chipsets.
+              if(i_mode_year == 1989) {
+                stopEffect(S_GB2_FIRE_LOOP);
+              }
+              else { 
+                stopEffect(S_GB1_FIRE_LOOP);
+              }
+              */
 
               resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
 
               switch(i_mode_year) {
                 case 2021:
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
                   stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
                   stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+                  */
 
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
+                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
+                    playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                  }
                 break;
 
                 case 1984:
                 case 1989:
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
                   stopEffect(S_CROSS_STREAMS_START);
                   stopEffect(S_CROSS_STREAMS_END);
+                  */
 
-                  playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) {
+                      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
+                    playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                  }
                 break;
               }
 
-              stopEffect(S_FIRING_LOOP_GB1);
+              // Keep this code for later future updates, when using 4 wire led chipsets.
+              //stopEffect(S_FIRING_LOOP_GB1);
 
               resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
-
+              
               switch(i_mode_year) {
                 case 2021:
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
                   stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
                   stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+                  */
 
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
+                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
+                    playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                  }
                 break;
 
                 case 1984:
                 case 1989:
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
                   stopEffect(S_CROSS_STREAMS_START);
                   stopEffect(S_CROSS_STREAMS_END);
+                  */
 
-                  playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) {
+                      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
+                    playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                  }
                 break;
               }
-
+              
               resetFastLed();
             break;
 
@@ -5994,7 +6311,7 @@ void readEEPROM() {
       switch(i_cyclotron_leds) {
         // For a 40 LED Neopixel ring.
         case OUTER_CYCLOTRON_LED_MAX:
-          i_2021_delay = 10;
+          i_2021_delay = 8;
           i_1984_cyclotron_leds[0] = 0;
           i_1984_cyclotron_leds[1] = 10;
           i_1984_cyclotron_leds[2] = 18;
