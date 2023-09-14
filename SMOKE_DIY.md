@@ -37,4 +37,18 @@ This also uses a vape coil approach with a 6V mini air pump, and can be run from
 
 For basic instructions on creating the smoke machine itself, you may follow [this video tutorial](https://www.youtube.com/watch?v=uDISX8MMLak) which essentially pairs the clearomizer tank with the air pump and provides the wiring for that module. You can successfully run both devices off of a single pair of shared positive and negative wires.
 
+The most intensive portion of assembly is soldering wires to the vape coil. It is necessary to use a Dremel with a small grinding tip to make a hole in the center post for the positive wire to attach. The negative wire can be soldered to the side wall of the T2 tank. A small piece of tubing can be placed over the positive wire and center air hole, while hot glue will keep the wire stable.
+
+![](images/SmokeGen1.jpg)
+
+![](images/SmokeGen2.jpg)
+
+![](images/SmokeGen3.jpg)
+
+![](images/SmokeGen4.jpg)
+
 While the pump will work perfectly well at 5V, the vape coil (T2 Clearomizer style) uses a 1.8 ohm coil and wants about 3.6-4V to make decent smoke, and can potentially draw over 2 Amps of power. The solution here is to add a metal-film resistor to the positive lead on the vape coil to reduce the power demands and prevent it from burning out prematurely.
+
+Once the resistor is attached to the positive lead on the vape coil, and wires are attached to the air pump, simply combine both positive wires to each other and both negative wires to each other. These are now ready to install per the main smoke guide.
+
+![](images/SmokeGenBox.jpg)
