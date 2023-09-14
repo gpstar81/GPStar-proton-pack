@@ -433,12 +433,6 @@ bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
 bool b_fade_out = false;
-const uint8_t i_fire_start_sound_delay = 100; // Delay for starting firing sounds.
-const uint8_t i_fire_stop_sound_delay = 100; // Delay for stopping fire sounds.
-millisDelay ms_firing_start_sound_delay;
-millisDelay ms_firing_start_sound_delay2;
-millisDelay ms_firing_stop_sound_delay;
-millisDelay ms_firing_stop_sound_delay_2;
 millisDelay ms_fadeout;
 
 /*
