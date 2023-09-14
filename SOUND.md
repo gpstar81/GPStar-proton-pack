@@ -8,16 +8,20 @@ Sound is a huge component of this build and the options are relatively open for 
 
 Let's begin with the most restrictive of spaces, the wand. Due to the additional components and wiring to be added, there is little room for options but replacements can be made. The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--essentially more of a tweeter than a full-range speaker. By default, the WAV Trigger to be used in the wand will enable its on-board mono amplifier which is rated for 2W @ 4Ω or 1W @ 8Ω, so it is advised that if you would like better sound you will want a better speaker. Otherwise, you can still use the original Hasbro wand speaker successfully with the on-board amplifier.
 
-There has been success in using [this 40mm speaker](https://a.co/d/93sbe2V) rated for 3W @ 4Ω. While this does not fit in the standard speaker location under the heatsink (its size interferes with the retraction of the wand) it can be mounted within the base of the gun box and offers just enough sound to be heard (indoors at least) and can double as a rumble motor due to being able to reproduce the low-end sounds which the stock speaker cannot. YMMV with any other choice of speaker, though there are many options for 40mm speakers on Amazon.
+There has been success in using [this 40mm speaker](https://a.co/d/93sbe2V) rated for 3W @ 4Ω. While this does not fit in the standard speaker location under the heatsink (its size interferes with the retraction of the wand) it can be mounted within the base of the gun box and offers just enough sound to be heard (indoors at least) and can double as a rumble motor due to being able to reproduce the low-end sounds which the stock speaker cannot. YMMV with any other choice of speaker, though there are many options for 40mm speakers on Amazon and Adafruit.
 
 A potential example of how the WAV Trigger and an upgraded 40mm speaker might be installed into the gun box is shown below. Note that in order to fit these components as shown the barrel connector for power was CAREFULLY removed (as it will not be used), and the screw posts for the wand mount were filed down to ensure they do not interfere with fitment behind the WAV Trigger once mounted on the gun box.
+
+Other users in the community have reported satisfactory results with the Visaton speakers available through DigiKey which are both of identical specs (300 Hz to 20 kHz) and closer in size to the stock speaker:
+
+* [K-36-WP 8ohm](https://www.digikey.com/en/products/detail/visaton-gmbh-co-kg/K-36-WP-8-OHM/9842373)
+* [K-36-MO 8ohm](https://www.digikey.com/en/products/detail/visaton-gmbh-co-kg/K-36-MO-8-OHM/9842375)
 
 Optional Part Shown: [3D Model for Wand - 40mm Speaker Mount](stl/wand/speaker_mount.stl)
 
 ![Wand Audio Example](images/Audio-Wand.jpg)
 
 ### For more wand mounting solutions, refer to the [Wand Setup](WAND.md) page ###
-
 
 ## Pack Audio
 
@@ -48,3 +52,5 @@ Optional Part Shown: [3D Model for Pack - Upper Speaker Mount](stl/pack/Speaker_
 Most amplifier boards will contain their own dedicated volume control (potentiometer) which will adjust output from that device only. The built-in controls for the pack/wand will control the source audio (sound effects vs. music) and the overall volume output for both of the WAV Trigger boards, which will affect the input level to your choice of amplifier and in turn affect the output relative to that device.
 
 **tl;dr:** You should mount your amplifier in a space where you also have access to its volume control so you can adjust the pack to balance with the wand (or make it the domninant audio source) as necessary.
+
+*Under normal operating conditions setting the recommended Drok 15W amplifier to 1/2 power will be sufficient and capable of outputting over 80dB from the suggested pack speakers. Higher volume may also result in faster battery drain with very little improvement in volume.*
