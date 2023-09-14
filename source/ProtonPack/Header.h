@@ -103,7 +103,7 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
 const uint8_t i_fast_led_delay = 6;
 millisDelay ms_fast_led;
 millisDelay ms_fast_led_bounce;
-const unsigned int i_fast_led_bounce_delay = 800;
+const unsigned int i_fast_led_bounce_delay = 200;
 uint8_t i_firing = 0; // Used to prevent fastled crashing the pack.
 const uint8_t i_firing_max = 10;
 
@@ -434,10 +434,6 @@ bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
 bool b_fade_out = false;
-const uint8_t i_fire_start_sound_delay = 10; // Delay for starting firing sounds.
-const uint8_t i_fire_stop_sound_delay = 50; // Delay for stopping fire sounds.
-millisDelay ms_firing_start_sound_delay;
-millisDelay ms_firing_stop_sound_delay;
 millisDelay ms_fadeout;
 
 /*
