@@ -96,11 +96,13 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
 #define HASLAB_POWERCELL_LEDS 13
 
 /*
- * Delay for fastled to update the addressable LEDs. 
- * We have up to 88 addressable LEDs if using NeoPixel jewels in the Inner Cyclotron and N-Filter.
- * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
+ * Delay for fastled to update the addressable LEDs.
+ * We could have up to 90 addressable LEDs if using NeoPixel jewels in the Inner Cyclotron and N-Filter.
+ * Though it's more likely we only use 70 at maximum, and maybe 40 lit at any given time.
+ * 0.03 ms to update 1 LED so 3 ms should be okay, but let's double it 6 just in case.
+ * The refresh rate for a 120Hz display is 8.3ms so make it 10 to add more buffer.
  */
-const uint8_t i_fast_led_delay = 6;
+const uint8_t i_fast_led_delay = 10;
 millisDelay ms_fast_led;
 millisDelay ms_fast_led_bounce;
 const unsigned int i_fast_led_bounce_delay = 2000;

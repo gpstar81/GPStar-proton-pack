@@ -76,7 +76,7 @@ void setup() {
   // Vibration motor
   pinMode(vibration, OUTPUT);
 
-  // Smoke motor
+  // Smoke motor for the N-Filter.
   pinMode(smoke_pin, OUTPUT);
 
   // Fan pin for the N-Filter smoke.
@@ -96,7 +96,7 @@ void setup() {
 
   // Inner Cyclotron LEDs.
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
-  //FastLED.setMaxPowerInVoltsAndMilliamps(5, 500);  // Limit draw to 500mA at 5v of power. Enabling this can cause some flickering of the LEDs.
+  //FastLED.setMaxPowerInVoltsAndMilliamps(5, 800);  // Limit draw to 800mA at 5v of power. Enabling this can cause some flickering of the LEDs.
 
   // Cyclotron Switch Panel LEDs
   pinMode(cyclotron_sw_plate_led_r1, OUTPUT);
@@ -3284,19 +3284,19 @@ void wandStopFiringSounds() {
 
     case SLIME:
       stopEffect(S_SLIME_START);
-      stopEffect(S_SLIME_LOOP);
+      //stopEffect(S_SLIME_LOOP);
       stopEffect(S_SLIME_END);
     break;
 
     case STASIS:
       stopEffect(S_STASIS_START);
-      stopEffect(S_STASIS_LOOP);
+      //stopEffect(S_STASIS_LOOP);
       stopEffect(S_STASIS_END);
     break;
 
     case MESON:
       stopEffect(S_MESON_START);
-      stopEffect(S_MESON_LOOP);
+      //stopEffect(S_MESON_LOOP);
       stopEffect(S_MESON_END);
     break;
 
@@ -3305,6 +3305,11 @@ void wandStopFiringSounds() {
       // Nothing
     break;
   }
+
+  // Make sure certain loop sounds are always stopped.
+  stopEffect(S_SLIME_LOOP);
+  stopEffect(S_STASIS_LOOP);
+  stopEffect(S_MESON_LOOP);
 
   if(b_firing_cross_streams == true) {
     switch(i_mode_year) {

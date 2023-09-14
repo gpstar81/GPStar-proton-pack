@@ -1918,8 +1918,19 @@ void checkSwitches() {
       if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
         // Vent light and first stage of the safety system.
         if(switch_vent.getState() == LOW) {
-          // Vent light and top white light on.
-          digitalWrite(led_vent, LOW);
+          #ifdef FRUTTO_VENT_LIGHT
+            // Vent light and top white light on, power dependent on mode.
+            if(WAND_ACTION_STATUS == ACTION_FIRING) {
+              analogWrite(led_vent, 0); // 0 = Full Power
+            }
+            else {
+              // Half power, adjusted by the current power level.
+              analogWrite(led_vent, 120 + int(80 * ( 1 / i_power_mode)));
+            }
+          #else
+            // Vent light and top white light on.
+            digitalWrite(led_vent, LOW);
+          #endif
 
           soundIdleStart();
 
