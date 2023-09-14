@@ -55,6 +55,9 @@ uint8_t dat;
 		dat = WTSerial.read();
 }
 
+void wavTrigger::serialFlush(void) {
+  WTSerial.flush();
+}
 
 // **************************************************************
 void wavTrigger::update(void) {

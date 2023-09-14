@@ -478,6 +478,9 @@ void loop() {
     if(i_firing < i_firing_max) {
       FastLED.show();
     }
+    else {
+      w_trig.serialFlush();
+    }
 
     ms_fast_led.start(i_fast_led_delay);
 
@@ -602,7 +605,12 @@ void resetFastLed() {
     ms_fast_led_bounce.start(i_fast_led_bounce_delay);
   }
 
-  ms_fast_led.start(i_fast_led_delay);
+  if(i_firing > 1) {
+    ms_fast_led.start(i_fast_led_delay * 3);
+  }
+  else {
+    ms_fast_led.start(i_fast_led_delay * 2);
+  }
 }
 
 void debounceChecks() {
@@ -618,9 +626,19 @@ void debounceChecks() {
     modeFireStartSounds();
   }
 
+  if(ms_firing_start_sound_delay2.justFinished()) {
+    // Start firing sounds.
+    modeFireStartSounds2();
+  }
+
   if(ms_firing_stop_sound_delay.justFinished()) {
     // Stop all other firing sounds.
     wandStopFiringSounds();
+  }
+
+  if(ms_firing_stop_sound_delay_2.justFinished()) {
+    // Stop all other firing sounds.
+    wandStopFiringSounds2();
   }
 }
 
@@ -3010,10 +3028,80 @@ void checkCyclotronAutoSpeed() {
   }
 }
 
+void modeFireStartSounds2() {
+  resetFastLed();
+
+  ms_firing_start_sound_delay2.stop();
+
+  switch(FIRING_MODE) {
+    case PROTON:
+    default:
+      switch(i_wand_power_level) {
+        case 1 ... 4:
+          if(b_firing_alt == true) {
+            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
+
+            if(i_mode_year == 1989) {
+              playEffect(S_GB2_FIRE_START);
+            }
+
+            b_sound_firing_alt_trigger = true;
+          }
+          else {
+            b_sound_firing_alt_trigger = false;
+          }
+        break;
+
+        case 5:
+            if(b_firing_intensify == true) {
+              // Reset some sound triggers.
+              b_sound_firing_intensify_trigger = true;
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700);
+            }
+            else {
+              b_sound_firing_intensify_trigger = false;
+            }
+
+            if(b_firing_alt == true) {
+              // Reset some sound triggers.
+              b_sound_firing_alt_trigger = true;
+
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700);
+            }
+            else {
+              b_sound_firing_alt_trigger = false;
+            }
+        break;
+      }
+    break;
+
+    case SLIME:
+
+    break;
+
+    case STASIS:
+
+    break;
+
+    case MESON:
+
+    break;
+
+    case VENTING:
+    case SETTINGS:
+      // Nothing.
+    break;
+  }
+
+  resetFastLed();
+}
+
 void modeFireStartSounds() {
   resetFastLed();
 
   ms_firing_start_sound_delay.stop();
+
+  ms_firing_start_sound_delay2.start(i_fire_stop_sound_delay);
 
   // Adjust the gain with the Afterlife idling sound effect while firing.
   if(i_mode_year == 2021 && i_wand_power_level < 5) {
@@ -3065,19 +3153,6 @@ void modeFireStartSounds() {
           else {
             b_sound_firing_intensify_trigger = false;
           }
-
-          if(b_firing_alt == true) {
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
-
-            if(i_mode_year == 1989) {
-              playEffect(S_GB2_FIRE_START);
-            }
-
-            b_sound_firing_alt_trigger = true;
-          }
-          else {
-            b_sound_firing_alt_trigger = false;
-          }
         break;
 
         case 5:
@@ -3096,25 +3171,6 @@ void modeFireStartSounds() {
                 playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
               break;
 
-            }
-
-            if(b_firing_intensify == true) {
-              // Reset some sound triggers.
-              b_sound_firing_intensify_trigger = true;
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700);
-            }
-            else {
-              b_sound_firing_intensify_trigger = false;
-            }
-
-            if(b_firing_alt == true) {
-              // Reset some sound triggers.
-              b_sound_firing_alt_trigger = true;
-
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700);
-            }
-            else {
-              b_sound_firing_alt_trigger = false;
             }
         break;
       }
@@ -3284,6 +3340,40 @@ void wandStoppedFiring() {
   ms_smoke_on.stop();
 }
 
+void wandStopFiringSounds2() {
+  resetFastLed();
+  ms_firing_stop_sound_delay_2.stop();
+
+  switch(FIRING_MODE) {
+    case PROTON:
+    default:
+      stopEffect(S_FIRING_LOOP_GB1);
+      stopEffect(S_GB1_FIRE_START_HIGH_POWER);
+      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+
+      /*
+      // Keep this code for later future updates, when using 4 wire led chipsets.
+      stopEffect(S_FIRE_START_SPARK);
+      stopEffect(S_FIRE_START);
+      */
+    break;
+
+    case SLIME:
+    break;
+
+    case STASIS:
+    break;
+
+    case MESON:
+    break;
+
+    case VENTING:
+    case SETTINGS:
+      // Nothing
+    break;
+  }  
+}
+
 void wandStopFiringSounds() {
   resetFastLed();
 
@@ -3305,16 +3395,6 @@ void wandStopFiringSounds() {
       if(i_mode_year == 2021) {
         stopEffect(S_AFTERLIFE_FIRE_START);
       }
-
-      stopEffect(S_FIRING_LOOP_GB1);
-      stopEffect(S_GB1_FIRE_START_HIGH_POWER);
-      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
-
-      /*
-      // Keep this code for later future updates, when using 4 wire led chipsets.
-      stopEffect(S_FIRE_START_SPARK);
-      stopEffect(S_FIRE_START);
-      */
     break;
 
     case SLIME:
@@ -3352,11 +3432,11 @@ void wandStopFiringSounds() {
 
         if(i_firing >= i_firing_max / 2) {
           if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
-            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+            //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
           }
         }
         else {
-          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+          //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
         }
       break;
 
@@ -3374,7 +3454,7 @@ void wandStopFiringSounds() {
           }
         }
         else {
-          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+          //playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
         }
       break;
     }
@@ -3386,6 +3466,8 @@ void wandStopFiringSounds() {
   b_sound_firing_alt_trigger = false;
 
   resetFastLed();
+
+  ms_firing_stop_sound_delay_2.start(i_fire_stop_sound_delay);
 }
 
 void packAlarm() {
