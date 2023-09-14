@@ -188,24 +188,8 @@ void setup() {
 }
 
 void loop() {  
-  if(ms_fast_led_bounce.isRunning() == true) {
-    if(ms_fast_led_bounce.remaining() < 1) {
-      ms_fast_led_bounce.stop();
-      i_firing = 0;
-    }  
-  }
+  debounceChecks();
 
-  
-  if(ms_firing_start_sound_delay.justFinished()) {
-    // Start firing sounds.
-    modeFireStartSounds();
-  }
-
-  if(ms_firing_stop_sound_delay.justFinished()) {
-    // Stop all other firing sounds.
-    wandStopFiringSounds();
-  }
-  
   w_trig.update();
   checkMusic();
   checkRibbonCableSwitch();
@@ -486,15 +470,15 @@ void loop() {
   }
 
   w_trig.update();
-
-  //packSerialSend(P_HANDSHAKE);
-  //while(Serial2.available() == 0) {}
   checkWand();
   checkSerial1();
 
   // Update the LEDs
   if(ms_fast_led.justFinished()) {
-    FastLED.show();
+    if(i_firing < i_firing_max) {
+      FastLED.show();
+    }
+
     ms_fast_led.start(i_fast_led_delay);
 
     if(b_powercell_updating == true) {
@@ -587,25 +571,56 @@ bool fadeOutLights() {
   return b_return;
 }
 
+// Various debounce handshakes and debouncing. These are called during firing events which button smashing from a Human can occur. 
+// This gives the system time to settle and not have interrupt issues with the 3 wire LED chipsets which temporarly disable interrupts.
+void firingDebouncing() {
+  if(i_firing < i_firing_max * 2) {
+    i_firing++;
+  }
+
+  if(i_firing >= i_firing_max / 2) {
+    debounceHandShake();
+  }
+}
+
+void debounceHandShake() {
+  packSerialSend(P_HANDSHAKE);
+  while(Serial2.available() == 0) {}
+  checkWand();
+
+  w_trig.update();
+  checkSerial1();
+}
+
 void resetFastLed() {
+  debounceHandShake();
+
   if(ms_fast_led_bounce.isRunning() != true) {
     ms_fast_led_bounce.start(i_fast_led_bounce_delay);
   }
   else {
-    if(i_firing > 15) {
-      ms_fast_led.start(i_fast_led_delay * 100);
-    }  
-    else {  
-      switch(i_firing) {
-        case 10:
-          ms_fast_led.start(i_fast_led_delay * 40);
-        break;
+    ms_fast_led_bounce.start(i_fast_led_bounce_delay);
+  }
 
-        default:
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-      }
-    }
+  ms_fast_led.start(i_fast_led_delay);
+}
+
+void debounceChecks() {
+  if(ms_fast_led_bounce.isRunning() == true) {
+    if(ms_fast_led_bounce.remaining() < 1) {
+      ms_fast_led_bounce.stop();
+      i_firing = 0;
+    }  
+  }
+
+  if(ms_firing_start_sound_delay.justFinished()) {
+    // Start firing sounds.
+    modeFireStartSounds();
+  }
+
+  if(ms_firing_stop_sound_delay.justFinished()) {
+    // Stop all other firing sounds.
+    wandStopFiringSounds();
   }
 }
 
@@ -2996,6 +3011,8 @@ void checkCyclotronAutoSpeed() {
 }
 
 void modeFireStartSounds() {
+  resetFastLed();
+
   ms_firing_start_sound_delay.stop();
 
   // Adjust the gain with the Afterlife idling sound effect while firing.
@@ -3123,12 +3140,16 @@ void modeFireStartSounds() {
       // Nothing.
     break;
   }
+
+  resetFastLed();
 }
 
 void wandFiring() {
   resetFastLed();
   
   ms_firing_start_sound_delay.start(i_fire_stop_sound_delay);
+
+  // Keep this code for later future updates, when using 4 wire led chipsets, the delay timer above can be avoided.
   //modeFireStartSounds();
 
   b_wand_firing = true;
@@ -3168,6 +3189,8 @@ void wandFiring() {
 }
 
 void modeFireStopSounds() {
+  resetFastLed();
+
   if(b_wand_firing == true) {
     // Adjust the gain with the Afterlife idling track.
     if(i_mode_year == 2021 && i_wand_power_level < 5) {
@@ -3215,13 +3238,19 @@ void modeFireStopSounds() {
       break;
     }
   } 
+
+  resetFastLed();
 }
 
 void wandStoppedFiring() {
+  resetFastLed();
+
   modeFireStopSounds();
 
   // A tiny ramp down delay helps with the sounds.
   ms_firing_stop_sound_delay.start(i_fire_stop_sound_delay);
+
+  // Keep this code for later future updates, when using 4 wire led chipsets, the delay timer above can be avoided.
   //wandStopFiringSounds();
 
   ms_firing_sound_mix.stop();
@@ -3256,6 +3285,8 @@ void wandStoppedFiring() {
 }
 
 void wandStopFiringSounds() {
+  resetFastLed();
+
   ms_firing_stop_sound_delay.stop();
 
   // Firing sounds.
@@ -3278,8 +3309,12 @@ void wandStopFiringSounds() {
       stopEffect(S_FIRING_LOOP_GB1);
       stopEffect(S_GB1_FIRE_START_HIGH_POWER);
       stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
-      //stopEffect(S_FIRE_START_SPARK);
-      //stopEffect(S_FIRE_START);
+
+      /*
+      // Keep this code for later future updates, when using 4 wire led chipsets.
+      stopEffect(S_FIRE_START_SPARK);
+      stopEffect(S_FIRE_START);
+      */
     break;
 
     case SLIME:
@@ -3314,16 +3349,38 @@ void wandStopFiringSounds() {
   if(b_firing_cross_streams == true) {
     switch(i_mode_year) {
       case 2021:
-        //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-        //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+        /*
+        // Keep this code for later future updates, when using 4 wire led chipsets.
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+        */
+
+        if(i_firing >= i_firing_max / 2) {
+          if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+          }
+        }
+        else {
+          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+        }
       break;
 
       case 1984:
       case 1989:
-        //stopEffect(S_CROSS_STREAMS_START);
-        //stopEffect(S_CROSS_STREAMS_END);
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+        /*
+        // Keep this code for later future updates, when using 4 wire led chipsets.
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+        */
+
+        if(i_firing >= i_firing_max / 2) {
+          if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) {
+            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+          }
+        }
+        else {
+          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+        }
       break;
     }
 
@@ -3332,6 +3389,8 @@ void wandStopFiringSounds() {
 
   b_sound_firing_intensify_trigger = false;
   b_sound_firing_alt_trigger = false;
+
+  resetFastLed();
 }
 
 void packAlarm() {
@@ -4302,13 +4361,13 @@ void checkWand() {
 
             case W_FIRING:
               // Wand is firing.
-              i_firing++;
+              firingDebouncing();
               wandFiring();
             break;
 
             case W_FIRING_STOPPED:
               // Wand just stopped firing.
-              i_firing++;
+              firingDebouncing();
               wandStoppedFiring();
               cyclotronSpeedRevert();
             break;
@@ -4659,6 +4718,7 @@ void checkWand() {
             break;
 
             case W_FIRING_INTENSIFY_MIX:
+              resetFastLed();
               // Wand firing in intensify mode.
               b_firing_intensify = true;
 
@@ -4668,23 +4728,23 @@ void checkWand() {
                 switch(i_wand_power_level) {
                   case 1 ... 4:
                     if(i_mode_year == 1989) {
-                      if(w_trig.isTrackPlaying(S_GB2_FIRE_LOOP) != true) { 
+                      //if(w_trig.isTrackPlaying(S_GB2_FIRE_LOOP) != true) { 
                         playEffect(S_GB2_FIRE_LOOP);
-                      }
+                      //}
                       //playEffect(S_GB2_FIRE_START);
                     }
                     else {
-                      if(w_trig.isTrackPlaying(S_GB1_FIRE_LOOP) != true) { 
+                      //if(w_trig.isTrackPlaying(S_GB1_FIRE_LOOP) != true) { 
                         playEffect(S_GB1_FIRE_LOOP, true);
-                      }
+                      //}
                       //playEffect(S_GB1_FIRE_START);
                     }
                   break;
 
                   case 5:
-                    if(w_trig.isTrackPlaying(S_GB1_FIRE_HIGH_POWER_LOOP) != true) { 
+                    //if(w_trig.isTrackPlaying(S_GB1_FIRE_HIGH_POWER_LOOP) != true) { 
                       playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
-                    }
+                    //}
                   break;
                 }
               }
@@ -4701,7 +4761,9 @@ void checkWand() {
             break;
 
             case W_FIRING_INTENSIFY_STOPPED_MIX:
-              i_firing++;
+              firingDebouncing();
+              /*
+              // Keep this code for later future updates, when using 4 wire led chipsets.
               // Wand no longer firing in intensify mode.
               if(b_firing_cross_streams != true && b_firing_intensify == true) {
                 
@@ -4722,6 +4784,7 @@ void checkWand() {
                   break;
                 }
               }
+              */
 
               b_firing_intensify = false;
               b_sound_firing_intensify_trigger = false;
@@ -4730,7 +4793,8 @@ void checkWand() {
             break;
 
             case W_FIRING_ALT:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // Wand firing in alt mode.
               b_firing_alt = true;
@@ -4743,7 +4807,8 @@ void checkWand() {
             break;
 
             case W_FIRING_ALT_MIX:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // Wand firing in alt mode.
               b_firing_alt = true;
@@ -4760,17 +4825,17 @@ void checkWand() {
             break;
 
             case W_FIRING_ALT_STOPPED:
-              i_firing++;
+              firingDebouncing();
 
               // Wand no longer firing in alt mode.
               b_firing_alt = false;
               b_sound_firing_alt_trigger = false;
-
               resetFastLed();
             break;
 
             case W_FIRING_ALT_STOPPED_MIX:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // Wand no longer firing in alt mode mix.
               if(b_firing_alt == true) {
@@ -4781,79 +4846,116 @@ void checkWand() {
 
               b_firing_alt = false;
               b_sound_firing_alt_trigger = false;
-
               resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
               
               switch(i_mode_year) {
                 case 2021:
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
                   //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
                   //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-
-                  //if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_START) != true) {
-                    playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
-                  //}
                   //playEffect(S_FIRE_SPARKS);
+                  */
+
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_START) != true) {
+                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
+                    playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                  }
                 break;
 
                 case 1984:
                 case 1989:
-                  //stopEffect(S_CROSS_STREAMS_END);
-                  //stopEffect(S_CROSS_STREAMS_START);
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
+                  stopEffect(S_CROSS_STREAMS_END);
+                  stopEffect(S_CROSS_STREAMS_START);
+                  playEffect(S_FIRE_SPARKS);
+                  */
 
-                  //if(w_trig.isTrackPlaying(S_CROSS_STREAMS_START) != true) {
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_CROSS_STREAMS_START) != true) {
+                      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
                     playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
-                  //}
-                  //playEffect(S_FIRE_SPARKS);
+                  }
                 break;
               }
               
+              // Keep this code for later future updates, when using 4 wire led chipsets.
               //playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
               resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_MIX:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
               
               switch(i_mode_year) {
                 case 2021:
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
                   //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
                   //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-                  
-                  //if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_START) != true) { 
+                  */
+
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_START) != true) {
+                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
                     playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
-                  //}
+                  }
                 break;
 
                 case 1984:
                 case 1989:
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
                   //stopEffect(S_CROSS_STREAMS_END);
                   //stopEffect(S_CROSS_STREAMS_START);
-                  //if(w_trig.isTrackPlaying(S_CROSS_STREAMS_START) != true) { 
+                  */
+
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_CROSS_STREAMS_START) != true) {
+                      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
                     playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
-                  //}
+                  }
                 break;
               }
 
-              //playEffect(S_FIRE_START_SPARK);
-              //playEffect(S_FIRING_LOOP_GB1, true);
+              /*
+              // Keep this code for later future updates, when using 4 wire led chipsets.
+              playEffect(S_FIRE_START_SPARK);
+              playEffect(S_FIRING_LOOP_GB1, true);
+              */
 
               if(i_wand_power_level != i_wand_power_level_max) {
-                if(w_trig.isTrackPlaying(S_GB1_FIRE_HIGH_POWER_LOOP) != true) { 
-                  playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
-                }
+                playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
               }
               
               /*
+              // Keep this code for later future updates, when using 4 wire led chipsets.
               if(i_mode_year == 1989) {
                 stopEffect(S_GB2_FIRE_LOOP);
               }
@@ -4866,60 +4968,96 @@ void checkWand() {
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
 
               switch(i_mode_year) {
                 case 2021:
-                  //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-                  //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+                  */
 
-                  //if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) { 
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
+                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
                     playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
-                  //}
+                  }
                 break;
 
                 case 1984:
                 case 1989:
-                  //stopEffect(S_CROSS_STREAMS_START);
-                  //stopEffect(S_CROSS_STREAMS_END);
-                  //if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) { 
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
+                  stopEffect(S_CROSS_STREAMS_START);
+                  stopEffect(S_CROSS_STREAMS_END);
+                  */
+
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) {
+                      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
                     playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
-                  //}
+                  }
                 break;
               }
 
+              // Keep this code for later future updates, when using 4 wire led chipsets.
               //stopEffect(S_FIRING_LOOP_GB1);
 
               resetFastLed();
             break;
 
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX:
-              i_firing++;
+              resetFastLed();
+              firingDebouncing();
 
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
               
               switch(i_mode_year) {
                 case 2021:
-                  //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-                  //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+                  */
 
-                  //if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) { 
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
+                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
                     playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
-                  //}
+                  }
                 break;
 
                 case 1984:
                 case 1989:
-                  //stopEffect(S_CROSS_STREAMS_START);
-                  //stopEffect(S_CROSS_STREAMS_END);
+                  /*
+                  // Keep this code for later future updates, when using 4 wire led chipsets.
+                  stopEffect(S_CROSS_STREAMS_START);
+                  stopEffect(S_CROSS_STREAMS_END);
+                  */
 
-                  //if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) { 
+                  if(i_firing >= i_firing_max / 2) {
+                    if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) {
+                      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                    }
+                  }
+                  else {
                     playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
-                  //}
+                  }
                 break;
               }
               
