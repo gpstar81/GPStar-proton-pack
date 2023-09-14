@@ -48,7 +48,7 @@
 /*
   ***** IMPORTANT *****
   * You no longer need to edit and configure wavTrigger.h anymore.
-  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher. 
+  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
   * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
   https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
 
@@ -243,10 +243,10 @@ void mainLoop() {
       if(b_wand_mash_error == true) {
         // Return the wand to a normal firing state after lock-out from button mashing.
         b_wand_mash_error = false;
-        
+
         WAND_STATUS = MODE_ON;
         WAND_ACTION_STATUS = ACTION_IDLE;
-        
+
         wandSerialSend(W_ON);
         postActivation();
 
@@ -1925,7 +1925,7 @@ void checkSwitches() {
             }
             else {
               // Half power, adjusted by the current power level.
-              analogWrite(led_vent, 120 + int(80 * ( 1 / i_power_mode)));
+              analogWrite(led_vent, 120 + int(80 * (1 / i_power_mode)));
             }
           #else
             // Vent light and top white light on.
@@ -2128,7 +2128,7 @@ void wandOff() {
   ms_settings_blinking.stop();
   ms_hat_1.stop();
   ms_hat_2.stop();
-  
+
   // Clear counter until user begins firing.
   i_bmash_count = 0;
 
@@ -3001,7 +3001,7 @@ void modeFiring() {
       case 1989:
         stopEffect(S_CROSS_STREAMS_END);
         stopEffect(S_CROSS_STREAMS_START);
-        
+
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
       break;
     }
@@ -6301,7 +6301,7 @@ void checkPack() {
 
             case P_MUSIC_STOP:
               b_playing_music = false;
-              
+
               // Stop music
               stopMusic();
             break;
@@ -6603,9 +6603,9 @@ void checkPack() {
               // Music track number to be played.
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
                 if(b_playing_music == true) {
-                  stopMusic();
+                  stopMusic(); // Stops current track before change.
                   i_current_music_track = comStruct.i;
-                  playMusic();
+                  playMusic(); // Start playing new track number.
                 }
                 else {
                   i_current_music_track = comStruct.i;

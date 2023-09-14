@@ -28,7 +28,7 @@
 /*
   ***** IMPORTANT *****
   * You no longer need to edit and configure wavTrigger.h anymore.
-  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher. 
+  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
   * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
   https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
 
@@ -46,7 +46,7 @@
 
 void setup() {
   Serial.begin(9600);
-  
+
   Serial1.begin(9600); // Add-on serial communication.
   Serial2.begin(9600); // Communication to the wand.
 
@@ -96,7 +96,7 @@ void setup() {
 
   // Inner Cyclotron LEDs.
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
-  FastLED.setMaxPowerInVoltsAndMilliamps(5, 800);  // Limit draw to 800mA at 5v of power. Enabling this can cause some flickering of the LEDs.
+  //FastLED.setMaxPowerInVoltsAndMilliamps(5, 800);  // Limit draw to 800mA at 5v of power. Enabling this can cause some flickering of the LEDs.
 
   // Cyclotron Switch Panel LEDs
   pinMode(cyclotron_sw_plate_led_r1, OUTPUT);
@@ -187,14 +187,14 @@ void setup() {
   }
 }
 
-void loop() {  
+void loop() {
   debounceChecks();
 
   w_trig.update();
   checkMusic();
   checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
-  
+
   wandHandShake();
   checkWand();
 
@@ -235,14 +235,14 @@ void loop() {
           packOffReset();
           spectralLightsOn();
         }
-        else {          
+        else {
           cyclotronSwitchLEDLoop();
           powercellLoop();
           cyclotronControl();
         }
       }
       else {
-        if(b_spectral_lights_on != true) { 
+        if(b_spectral_lights_on != true) {
           if(ms_fadeout.justFinished()) {
             if(fadeOutLights() == true) {
               ms_fadeout.start(50);
@@ -250,7 +250,7 @@ void loop() {
             else {
               ms_fadeout.stop();
               b_fade_out = false;
-            } 
+            }
           }
 
           packOffReset();
@@ -507,15 +507,15 @@ bool fadeOutLights() {
 
     for(int i = 0; i < i_cyclotron_leds_total; i++) {
       int i_curr_brightness = i_cyclotron_led_value[i] - 10;
-      
+
       if(i_curr_brightness < 0) {
         i_curr_brightness = 0;
       }
 
       i_cyclotron_led_value[i] = i_curr_brightness;
-      
+
       if(i_curr_brightness > 0) {
-        
+
         b_return = true;
 
         if(b_cyclotron_simulate_ring == true) {
@@ -564,14 +564,14 @@ bool fadeOutLights() {
         else {
           pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
         }
-      }    
+      }
     }
   }
 
   return b_return;
 }
 
-// Various debounce handshakes and debouncing. These are called during firing events which button smashing from a Human can occur. 
+// Various debounce handshakes and debouncing. These are called during firing events which button smashing from a Human can occur.
 // This gives the system time to settle and not have interrupt issues with the 3 wire LED chipsets which temporarly disable interrupts.
 void firingDebouncing() {
   if(i_firing < i_firing_max * 2) {
@@ -610,7 +610,7 @@ void debounceChecks() {
     if(ms_fast_led_bounce.remaining() < 1) {
       ms_fast_led_bounce.stop();
       i_firing = 0;
-    }  
+    }
   }
 
   if(ms_firing_start_sound_delay.justFinished()) {
@@ -765,7 +765,7 @@ void packShutdown() {
 
   stopEffect(S_BEEP_8);
   stopEffect(S_SHUTDOWN);
-  
+
   if(i_mode_year == 1989) {
     stopEffect(S_GB2_PACK_START);
     stopEffect(S_GB2_PACK_LOOP);
@@ -775,13 +775,13 @@ void packShutdown() {
   if(i_mode_year == 1984) {
     stopEffect(S_PACK_SHUTDOWN);
     stopEffect(S_IDLE_LOOP);
-    stopEffect(S_BOOTUP);  
+    stopEffect(S_BOOTUP);
   }
 
   if(i_mode_year == 2021) {
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE);
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
-    stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP); 
+    stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
   }
 
   if(b_alarm != true) {
@@ -1711,7 +1711,7 @@ void cyclotronFade() {
             pack_leds[i + cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
           }
         }
-      
+
         int i_new_brightness = getBrightness(i_cyclotron_brightness);
         if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {
           i_cyclotron_led_value[i] = i_new_brightness;
@@ -3146,7 +3146,7 @@ void modeFireStartSounds() {
 
 void wandFiring() {
   resetFastLed();
-  
+
   ms_firing_start_sound_delay.start(i_fire_stop_sound_delay);
 
   // Keep this code for later future updates, when using 4 wire led chipsets, the delay timer above can be avoided.
@@ -3237,7 +3237,7 @@ void modeFireStopSounds() {
         // Nothing
       break;
     }
-  } 
+  }
 
   resetFastLed();
 }
@@ -3319,19 +3319,19 @@ void wandStopFiringSounds() {
 
     case SLIME:
       stopEffect(S_SLIME_START);
-      //stopEffect(S_SLIME_LOOP);
+      stopEffect(S_SLIME_LOOP);
       stopEffect(S_SLIME_END);
     break;
 
     case STASIS:
       stopEffect(S_STASIS_START);
-      //stopEffect(S_STASIS_LOOP);
+      stopEffect(S_STASIS_LOOP);
       stopEffect(S_STASIS_END);
     break;
 
     case MESON:
       stopEffect(S_MESON_START);
-      //stopEffect(S_MESON_LOOP);
+      stopEffect(S_MESON_LOOP);
       stopEffect(S_MESON_END);
     break;
 
@@ -3340,11 +3340,6 @@ void wandStopFiringSounds() {
       // Nothing
     break;
   }
-
-  // Make sure certain loop sounds are always stopped.
-  stopEffect(S_SLIME_LOOP);
-  stopEffect(S_STASIS_LOOP);
-  stopEffect(S_MESON_LOOP);
 
   if(b_firing_cross_streams == true) {
     switch(i_mode_year) {
@@ -3821,7 +3816,7 @@ void checkFan() {
     ms_fan_stop_timer.stop();
   }
   else if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < (i_fan_stop_timer * i_fan_start_percent)) {
-    // Turn on fan in the middle of the timed sequence.
+    // Turn on fan within the timed sequence.
     fanControl(true);
   }
 }
@@ -3935,6 +3930,10 @@ void packOverheatingFinished() {
   // Turn off the smoke.
   smokeControl(false);
 
+  // Stop the N-Filter fan.
+  ms_fan_stop_timer.stop();
+  fanControl(false);
+
   // Reset the LEDs before resetting the alarm flag.
   if(i_mode_year == 1984 || i_mode_year == 1989) {
     resetCyclotronLeds();
@@ -3971,10 +3970,6 @@ void packOverheatingFinished() {
   ventLightLEDW(false);
   ms_vent_light_off.stop();
   ms_vent_light_on.stop();
-
-  // Stop the fan(s).
-  ms_fan_stop_timer.stop();
-  fanControl(false);
 
   ms_cyclotron.start(i_2021_delay);
 }
@@ -4126,14 +4121,14 @@ void checkSerial1() {
                 // Set the master volume to silent.
                 i_volume_master = i_volume_abs_min;
 
-                w_trig.masterGain(i_volume_master); // Reset the master gain. 
+                w_trig.masterGain(i_volume_master); // Reset the master gain.
 
-                packSerialSend(P_MASTER_AUDIO_SILENT_MODE);               
+                packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
               }
             break;
 
             case A_VOLUME_DECREASE:
-              // Turn down overall pack volume.
+              // Decrease overall pack volume.
               decreaseVolume();
 
               // Tell wand to decrease volume.
@@ -4141,7 +4136,7 @@ void checkSerial1() {
             break;
 
             case A_VOLUME_INCREASE:
-              // Turn up overall pack volume.
+              // Increase overall pack volume.
               increaseVolume();
 
               // Tell wand to increase volume.
@@ -4149,7 +4144,7 @@ void checkSerial1() {
             break;
 
             case A_VOLUME_SOUND_EFFECTS_DECREASE:
-              // Turn down effects pack volume.
+              // Decrease pack effects volume.
               decreaseVolumeEffects();
 
               // Tell wand to decrease effects volume.
@@ -4157,7 +4152,7 @@ void checkSerial1() {
             break;
 
             case A_VOLUME_SOUND_EFFECTS_INCREASE:
-              // Turn up effects pack volume.
+              // Increase pack effects volume.
               increaseVolumeEffects();
 
               // Tell wand to increase effects volume.
@@ -4182,7 +4177,7 @@ void checkSerial1() {
             break;
 
             case A_MUSIC_NEXT_TRACK:
-              // Switch to the next track.
+              // Determine the next track.
               unsigned int i_next_track = i_current_music_track;
               if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
                 // Start at the first track if already on the last.
@@ -4192,6 +4187,7 @@ void checkSerial1() {
                 i_next_track++;
               }
 
+              // Switch to the next track.
               if(b_playing_music == true) {
                 // Stops music using the current track.
                 stopMusic();
@@ -4209,7 +4205,7 @@ void checkSerial1() {
             break;
 
             case A_MUSIC_PREV_TRACK:
-              // Switch to the previous track.
+              // Determine the previous track.
               unsigned int i_prev_track = i_current_music_track;
               if(i_current_music_track - 1 < i_music_track_start) {
                 // Start at the last track if already on the first.
@@ -4219,6 +4215,7 @@ void checkSerial1() {
                 i_prev_track--;
               }
 
+              // Switch to the previous track.
               if(b_playing_music == true) {
                 // Stops music using the current track.
                 stopMusic();
@@ -4246,7 +4243,7 @@ void checkSerial1() {
 }
 
 // Incoming messages from the wand.
-void checkWand() {  
+void checkWand() {
   while(packComs.available() > 0) {
     packComs.rxObj(comStruct);
 
@@ -4724,17 +4721,17 @@ void checkWand() {
 
               if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
                 b_sound_firing_intensify_trigger = true;
-                
+
                 switch(i_wand_power_level) {
                   case 1 ... 4:
                     if(i_mode_year == 1989) {
-                      //if(w_trig.isTrackPlaying(S_GB2_FIRE_LOOP) != true) { 
+                      //if(w_trig.isTrackPlaying(S_GB2_FIRE_LOOP) != true) {
                         playEffect(S_GB2_FIRE_LOOP);
                       //}
                       //playEffect(S_GB2_FIRE_START);
                     }
                     else {
-                      //if(w_trig.isTrackPlaying(S_GB1_FIRE_LOOP) != true) { 
+                      //if(w_trig.isTrackPlaying(S_GB1_FIRE_LOOP) != true) {
                         playEffect(S_GB1_FIRE_LOOP, true);
                       //}
                       //playEffect(S_GB1_FIRE_START);
@@ -4742,7 +4739,7 @@ void checkWand() {
                   break;
 
                   case 5:
-                    //if(w_trig.isTrackPlaying(S_GB1_FIRE_HIGH_POWER_LOOP) != true) { 
+                    //if(w_trig.isTrackPlaying(S_GB1_FIRE_HIGH_POWER_LOOP) != true) {
                       playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
                     //}
                   break;
@@ -4766,7 +4763,7 @@ void checkWand() {
               // Keep this code for later future updates, when using 4 wire led chipsets.
               // Wand no longer firing in intensify mode.
               if(b_firing_cross_streams != true && b_firing_intensify == true) {
-                
+
                 switch(i_wand_power_level) {
                   case 1 ... 4:
                     if(i_mode_year == 1989) {
@@ -4855,7 +4852,7 @@ void checkWand() {
 
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
-              
+
               switch(i_mode_year) {
                 case 2021:
                   /*
@@ -4894,7 +4891,7 @@ void checkWand() {
                   }
                 break;
               }
-              
+
               // Keep this code for later future updates, when using 4 wire led chipsets.
               //playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
               resetFastLed();
@@ -4906,7 +4903,7 @@ void checkWand() {
 
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
-              
+
               switch(i_mode_year) {
                 case 2021:
                   /*
@@ -4953,13 +4950,13 @@ void checkWand() {
               if(i_wand_power_level != i_wand_power_level_max) {
                 playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
               }
-              
+
               /*
               // Keep this code for later future updates, when using 4 wire led chipsets.
               if(i_mode_year == 1989) {
                 stopEffect(S_GB2_FIRE_LOOP);
               }
-              else { 
+              else {
                 stopEffect(S_GB1_FIRE_LOOP);
               }
               */
@@ -5023,7 +5020,7 @@ void checkWand() {
 
               // The wand is no longer crossing the streams.
               b_firing_cross_streams = false;
-              
+
               switch(i_mode_year) {
                 case 2021:
                   /*
@@ -5060,7 +5057,7 @@ void checkWand() {
                   }
                 break;
               }
-              
+
               resetFastLed();
             break;
 
@@ -6064,9 +6061,9 @@ void checkWand() {
               // Music track number to be played.
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
                 if(b_playing_music == true) {
-                  stopMusic();
+                  stopMusic(); // Stops current track before change.
                   i_current_music_track = comStruct.i;
-                  playMusic();
+                  playMusic(); // Start playing new track number.
                 }
                 else {
                   i_current_music_track = comStruct.i;
