@@ -8,7 +8,7 @@ This guide is intended to explain the process of creating your own smoke generat
 
 For this solution, the following parts were used:
 
-- [Air Pump/Vacuum DC Motor 4.5V](https://www.adafruit.com/product/4699) 
+- [Air Pump/Vacuum DC Motor 4.5V](https://www.adafruit.com/product/4699)
 - [Vape Pen w/ Battery](https://www.joyetech.com/product/eroll-mac/)
 - 100% Pure Vegetable Glycerine for the vape pen to generate smoke
 
