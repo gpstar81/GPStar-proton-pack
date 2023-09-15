@@ -50,5 +50,12 @@ The most intensive portion of assembly is soldering wires to the vape coil. It i
 While the pump will work perfectly well at 5V, the vape coil (T2 Clearomizer style) uses a 1.8 ohm coil and wants about 3.6-4V to make decent smoke, and can potentially draw over 2 Amps of power. The solution here is to add a metal-film resistor to the positive lead on the vape coil to reduce the power demands and prevent it from burning out prematurely.
 
 Once the resistor is attached to the positive lead on the vape coil, and wires are attached to the air pump, simply combine both positive wires to each other and both negative wires to each other. These are now ready to install per the main smoke guide.
+ See the diagrams below for demonstration of the connections and placement of the resistor.
+
+![DIY - Single Battery](images/Smoke-DIY-1.png)
+
+![DIY - Dual Battery](images/Smoke-DIY-2.png)
+
+Components can be housed in a project box or similar for easy placement within the Proton Pack.
 
 ![](images/SmokeGenBox.jpg)
