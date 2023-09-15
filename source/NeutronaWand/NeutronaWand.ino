@@ -200,6 +200,8 @@ void setup() {
 
   ms_bmash.start(i_bmash_delay);
 
+  ms_firing_debounce.start(i_firing_debounce);
+
   if(b_no_pack == true || b_debug == true) {
     b_wait_for_pack = false;
     b_pack_on = true;
@@ -1977,7 +1979,7 @@ void checkSwitches() {
           ms_bmash.start(i_bmash_cool_down);
         }
         else {
-          if(switch_intensify.getState() == LOW && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+          if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_FIRING;
             }
@@ -1991,6 +1993,8 @@ void checkSwitches() {
             if(b_firing_intensify != true) {
               // Increase count eac time the user presses a firing button.
               i_bmash_count++;
+
+              ms_firing_debounce.start(i_firing_debounce);
             }
 
             b_firing_intensify = true;
@@ -1998,7 +2002,7 @@ void checkSwitches() {
 
           // When the Barrel Wing Button is changed to a alternate firing button, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
           if(b_cross_the_streams == true) {
-            if(switchMode() == true && switch_wand.getState() == LOW && ms_switch_mode_firing.isRunning() != true && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+            if(switchMode() == true && switch_wand.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_switch_mode_firing.isRunning() != true && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
               if(WAND_ACTION_STATUS != ACTION_FIRING) {
                 WAND_ACTION_STATUS = ACTION_FIRING;
               }
@@ -2012,6 +2016,8 @@ void checkSwitches() {
               if(b_firing_alt != true) {
                 // Increase count eac time the user presses a firing button.
                 i_bmash_count++;
+
+                ms_firing_debounce.start(i_firing_debounce);
               }
 
               b_firing_alt = true;
@@ -2021,6 +2027,10 @@ void checkSwitches() {
                 WAND_ACTION_STATUS = ACTION_IDLE;
               }
 
+              if(b_firing_alt == true) {
+                ms_firing_debounce.start(i_firing_debounce);
+              }
+
               b_firing_alt = false;
             }
           }
@@ -2028,6 +2038,10 @@ void checkSwitches() {
           if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
             if(b_firing_alt != true) {
               WAND_ACTION_STATUS = ACTION_IDLE;
+            }
+
+            if(b_firing_intensify == true) {
+              ms_firing_debounce.start(i_firing_debounce);
             }
 
             b_firing_intensify = false;

@@ -35,6 +35,8 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Flashing Updates](FLASHING.md)
 
+1. [Troubleshooting](TROUBLESHOOTING.md)
+
 ---
 
 ### DIY Arduino Build Guides
@@ -78,9 +80,11 @@ These apply to the normal operation and usage of the equipment regardless of whi
 
 1. [Power Cell Lights Upgrade](POWERCELL.md) (Optional add-ons)
 
-1. [Neutrona Wand 28 Segment Bar Graph Upgrade](BARGRAPH.md) (Optional add-ons)
+1. [Neutrona Wand 28 Segment Bar Graph Upgrade](BARGRAPH.md) (Optional add-on)
 
-1. [Hat Lights](HATS.md) (Optional add-on)
+1. [Neutrona Wand Hat Lights](HATS.md) (Optional add-on)
+
+1. [Pack Attenuator](ATTENUATOR.md) (Optional add-on)
 
 1. [Frequently Asked Questions](FAQ.md)
 
@@ -113,3 +117,16 @@ This program is free software: you can redistribute it and/or modify it under th
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+## Acknowledgements
+
+This project is made possible by Ghostbusters community makers and volunteers spanning 4 countries over 2 continents.
+
+* Michael Rajotte (aka. "gpstar Technologies") - Director of Operations, Software Architect, Product Designer, 3D Modelling, EU & Worldwide Distribution
+* Jonathan Gunn (aka. "Jonogunn") - Video Instruction Guides, PCB Design, Install Testing, North America Distribution
+* Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support
+* Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution
+
+Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [Facebook group](https://www.facebook.com/groups/gpstartechnologies).
+
+For those who are curious you can view a condensed [history of this project](HISTORY.md).

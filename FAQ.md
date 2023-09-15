@@ -4,6 +4,12 @@
 
 **A:** Sorry, no.
 
+**Q: Can I help others install kit components or add-ons?**
+
+**A:** Yes, if you are willing to offer your skills whether free or at-cost to assist others that is acceptable.
+
+**Buyers:** Please be aware that anyone performing installation work on behalf of this project is doing so as a free agent and is not associated with gpstar Technologies. This project does not warranty work performed by a 3rd party, only parts produced and shipped via agents of gpstar Technologies or Frutto Technology are warrantied in the case of manufacturing defects.
+
 **Q: Does this replace everything in the pack/wand?**
 
 **A:** This solution focuses on replacement of the microcontrollers which run the pack and wand only. It is not necessary to replace all of the switches and lights unless you truly desire to do so. Although in the case of the wand the toggle switches and every other component are attached with very thin wires, so it may be worth considering temporarily removing some items to solder better (thicker) wires to avoid breakage later.
@@ -30,11 +36,11 @@
 
 **Q: Can I produce and sell kits for others for commerical purposes?**
 
-**A:** Yes, the code is released under a GPLv3 License. Modifications or enhancements which may be useful to the community are encouraged to be contributed back to this original respository.
+**A:** Yes, the code is released under a GPLv3 License. Modifications or enhancements which may be useful to the community are encouraged to be contributed back to [the original respository](https://github.com/gpstar81/haslab-proton-pack).
 
 **Q: I have some cool ideas, can you add some custom bits in the code for me?**
 
-**A:** Feel free to use the discussion section of this repository to talk about them. Anybody can contribute modifications or enhancements back to this repository.
+**A:** Feel free to use the [discussion section of the GitHub repository](https://github.com/gpstar81/haslab-proton-pack/discussions) to talk about them. Anybody can contribute modifications or enhancements back to the repository (by use of a branch or fork) for review and final acceptance into the main branch.
 
 **Q: Help, I fried my stock equipment or components!**
 
