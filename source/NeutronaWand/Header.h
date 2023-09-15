@@ -107,6 +107,8 @@ const uint8_t switch_debounce_time = 50;
 millisDelay ms_switch_mode_debounce;
 millisDelay ms_switch_mode_firing;
 millisDelay ms_intensify_timer;
+millisDelay ms_firing_debounce;
+const unsigned int i_firing_debounce = 500;
 const unsigned int i_intensify_delay = 400;
 const uint8_t i_switch_mode_value = 200;
 const uint8_t i_switch_barrel_value = 100;
