@@ -2932,24 +2932,6 @@ void ventLight(bool b_on) {
   }
 }
 
-// Only for Afterlife (2021) mode.
-void checkCyclotronAutoSpeed() {
-  // No need to start any timers until after any ramping has finished; only in Afterlife (2021) do we do the auto speed increases.
-  if(b_wand_firing == true && b_2021_ramp_up != true && b_2021_ramp_down != true && i_mode_year == 2021) {
-    if(ms_cyclotron_auto_speed_timer.justFinished() && i_cyclotron_multiplier < 6) {
-      // Increase the Cyclotron speed.
-      i_cyclotron_multiplier++;
-
-      // Increase the Cyclotron Switch Panel LEDs speed.
-      i_cyclotron_switch_led_mulitplier++;
-
-      // Restart the timer.
-      ms_cyclotron_auto_speed_timer.stop();
-      ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
-    }
-  }
-}
-
 void modeFireStartSounds() {
   // Adjust the gain with the Afterlife idling sound effect while firing.
   if(i_mode_year == 2021 && i_wand_power_level < 5) {
@@ -3298,6 +3280,24 @@ void wandStopFiringSounds() {
 
   b_sound_firing_intensify_trigger = false;
   b_sound_firing_alt_trigger = false;
+}
+
+// Only for Afterlife (2021) mode.
+void checkCyclotronAutoSpeed() {
+  // No need to start any timers until after any ramping has finished; only in Afterlife (2021) do we do the auto speed increases.
+  if(b_wand_firing == true && b_2021_ramp_up != true && b_2021_ramp_down != true && i_mode_year == 2021) {
+    if(ms_cyclotron_auto_speed_timer.justFinished() && i_cyclotron_multiplier < 6) {
+      // Increase the Cyclotron speed.
+      i_cyclotron_multiplier++;
+
+      // Increase the Cyclotron Switch Panel LEDs speed.
+      i_cyclotron_switch_led_mulitplier++;
+
+      // Restart the timer.
+      ms_cyclotron_auto_speed_timer.stop();
+      ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
+    }
+  }
 }
 
 void packAlarm() {
