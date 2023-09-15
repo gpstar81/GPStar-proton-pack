@@ -145,7 +145,8 @@ public:
   bool currentMusicTrackStatus(int trk);
   bool trackCounterReset(void);
   void resetTrackCounter(bool bReset);
-
+  void serialFlush(void);
+  
 private:
 	void trackControl(int trk, int code);
 	void trackControl(int trk, int code, bool lock);
