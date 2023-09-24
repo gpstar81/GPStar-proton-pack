@@ -1,4 +1,4 @@
-name: build
+name: build0core
 on:
   - push
   - pull_request
@@ -11,12 +11,11 @@ jobs:
         with:
             fqbn: arduino:avr:mega
             sketch-paths: |
-              - source/Attenuator
               - source/NeutronaWand
               - source/ProtonPack
             libraries: |
-              - name: FastLED
               - name: ezButton
+              - name: FastLED
               - name: Ramp
               - name: simple ht16k33 library
               - name: AltSoftSerial
