@@ -4019,12 +4019,12 @@ void checkSerial1() {
               }
             break;
 
-            case A_OVERHEATING_CANCELLED:
-              // Cancel the current overheat sequence.
-              packOverheatingFinished();
+            case A_WARNING_CANCELLED:
+              // Reset Cyclotron speed.
+              cyclotronSpeedRevert();
 
-              // Tell the serial device that overheating was stopped.
-              serial1Send(A_OVERHEATING_FINISHED);
+              // Indicate normalcy to serial device.
+              serial1Send(A_CYCLOTRON_NORMAL_SPEED);
             break;
 
             case A_TOGGLE_MUTE:
@@ -4528,9 +4528,13 @@ void checkWand() {
             break;
 
             case W_CYCLOTRON_NORMAL_SPEED:
+              // Tell wand to reset overheat warning.
+              packSerialSend(W_WARNING_CANCELLED);
+
               // Reset Cyclotron speed.
               cyclotronSpeedRevert();
 
+              // Indicate normalcy to serial device.
               serial1Send(A_CYCLOTRON_NORMAL_SPEED);
             break;
 
@@ -4538,6 +4542,7 @@ void checkWand() {
               // Speed up Cyclotron.
               cyclotronSpeedIncrease();
 
+              // Indicate speed-up to serial device.
               serial1Send(A_CYCLOTRON_INCREASE_SPEED);
             break;
 

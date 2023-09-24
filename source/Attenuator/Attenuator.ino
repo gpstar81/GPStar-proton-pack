@@ -39,12 +39,25 @@ void setup() {
   // Enable Serial connection for communication with gpstar Proton Pack PCB.
   packComs.begin(Serial);
 
-  // Bootup into proton mode (default for pack and wand) at full power.
+  // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
-  POWER_LEVEL = LEVEL_5;
 
-  // Default to 1984 for power level animation when pack is not connected.
-  YEAR_MODE = YEAR_1984;
+  if(!b_wait_for_pack) {
+    // If not waiting for the pack set power level to 5.
+    POWER_LEVEL = LEVEL_5;
+  }
+  else {
+    // When waiting for the pack set power level to 1.
+    POWER_LEVEL = LEVEL_1;
+  }
+
+  // Default to 1984 for power level animation when pack is not connected, otherwise 2021.
+  if(!b_wait_for_pack) {
+    YEAR_MODE = YEAR_1984;
+  }
+  else {
+    YEAR_MODE = YEAR_2021;
+  }
 
   // Begin at menu level one. This affects the behavior of the rotary dial.
   MENU_LEVEL = MENU_1;
@@ -144,7 +157,7 @@ void mainLoop() {
           bargraphRampUp();
         }
         else if(!ms_bargraph.isRunning() && !b_overheating && FIRING_MODE != SETTINGS) {
-          // Bargraph idling loop.
+          // Bargraph idling loop; animates based on year theme and power level.
           bargraphPowerCheck();
         }
       }
@@ -164,6 +177,7 @@ void mainLoop() {
    * will change colors based on user interactions.
    */
   if(switch_right.getState() == LOW) {
+    // If in pre-overheat warning, overheat, or alarm modes...
     if((b_firing && i_speed_multiplier > 1) || b_overheating || b_pack_alarm) {
       if(ms_blink_leds.justFinished()) {
         ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
@@ -234,7 +248,8 @@ void setVibration(uint8_t i_power_level, unsigned int i_duration) {
 }
 
 void controlLEDs() {
-  // Set upper LED based on alarm or overheating state, when active.
+  // Set upper LED based on alarm or overheating state, when connected.
+  // Otherwise, use the standard pattern/color for illumination.
   if(b_pack_alarm || b_overheating) {
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
   }
@@ -242,7 +257,7 @@ void controlLEDs() {
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
   }
 
-  // Set lower LED based on firing mode.
+  // Set lower LED based on the current firing mode.
   uint8_t i_scheme;
   switch(FIRING_MODE) {
     case SLIME:
@@ -378,9 +393,14 @@ void checkRotaryEncoder() {
   // Take action if rotary encoder value was turned CW.
   if(i_val_rotary > i_last_val_rotary) {
     if(!ms_rotary_debounce.isRunning()) {
-      if(b_overheating) {
-        // Tell the pack to cancel the current overheat sequence.
-        attenuatorSerialSend(A_OVERHEATING_CANCELLED);
+      if(b_firing && i_speed_multiplier > 1) {
+        // Tell the pack to cancel the current overheat warning.
+        // Only do so after 5 turns of the dial.
+        i_rotary_count++;
+        if(i_rotary_count % 5 == 0) {
+          attenuatorSerialSend(A_WARNING_CANCELLED);
+          i_rotary_count = 0;
+        }
       }
       else {
         // Perform action based on the curent menu level.
@@ -404,9 +424,14 @@ void checkRotaryEncoder() {
   // Take action if rotary encoder value was turned CCW.
   if(i_val_rotary < i_last_val_rotary) {
     if(!ms_rotary_debounce.isRunning()) {
-      if(b_overheating) {
-        // Tell the pack to cancel the current overheat sequence.
-        attenuatorSerialSend(A_OVERHEATING_CANCELLED);
+      if(b_firing && i_speed_multiplier > 1) {
+        // Tell the pack to cancel the current overheat warning.
+        // Only do so after 5 turns of the dial.
+        i_rotary_count++;
+        if(i_rotary_count % 5 == 0) {
+          attenuatorSerialSend(A_WARNING_CANCELLED);
+          i_rotary_count = 0;
+        }
       }
       else {
         // Perform action based on the curent menu level.

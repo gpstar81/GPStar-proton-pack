@@ -138,6 +138,7 @@ const unsigned int i_center_long_press_delay = 600; // When to consider the cent
 int i_encoder_pos = 0;
 int i_val_rotary;
 int i_last_val_rotary;
+int i_rotary_count = 0;
 
 /*
  * Define states for the rotary dial center press.
