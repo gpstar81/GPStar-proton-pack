@@ -4349,6 +4349,13 @@ void cyclotronSpeedUp(uint8_t i_switch) {
   }
 }
 
+void cyclotronSpeedRevert() {
+  // Stop overheat beeps.
+  stopEffect(S_BEEP_8);
+
+  i_cyclotron_speed_up = 1;
+}
+
 // 2021 mode for optional 28 segment bargraph.
 // Checks if we ramp up or down when changing power levels.
 // Forces the bargraph to redraw itself to the current power level.
@@ -6076,8 +6083,12 @@ void checkPack() {
 
             case P_WARNING_CANCELLED:
               // Pack is telling wand to cancel any overheat warnings.
-              // Simply reset the timer which triggers the overheat.s
-              ms_overheat_initiate.restart();
+              // Simply stop the timer which triggers the overheat.
+              ms_overheat_initiate.stop();
+
+              // Reset the cyclotron speed.
+              cyclotronSpeedRevert();
+              wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
             break;
 
             case P_YEAR_1984:
