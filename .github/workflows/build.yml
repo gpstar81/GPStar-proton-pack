@@ -1,27 +1,24 @@
 name: build
-
 on:
   - push
   - pull_request
-
 jobs:
   compile-sketch:
     runs-on: ubuntu-latest
-
-  steps:
-    - uses: actions/checkout@v2
-    - uses: arduino/compile-sketches@v1
-      with:
-          fqbn: arduino:avr:mega
-          sketch-paths: |
-            - source/Attenuator
-            - source/NeuronaWand
-            - source/ProtonPack
-          libraries: |
-            - name: FastLED
-            - name: ezButton
-            - name: Ramp
-            - name: simple ht16k33 library
-            - name: AltSoftSerial
-            - name: SerialTransfer
-            - name: millisDelay
+    steps:
+      - uses: actions/checkout@v2
+      - uses: arduino/compile-sketches@v1
+        with:
+            fqbn: arduino:avr:mega
+            sketch-paths: |
+              - source/Attenuator
+              - source/NeuronaWand
+              - source/ProtonPack
+            libraries: |
+              - name: FastLED
+              - name: ezButton
+              - name: Ramp
+              - name: simple ht16k33 library
+              - name: AltSoftSerial
+              - name: SerialTransfer
+              - source-url: https://github.com/ansonhe97/millisDelay.git
