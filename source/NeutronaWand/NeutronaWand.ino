@@ -6085,10 +6085,14 @@ void checkPack() {
               // Pack is telling wand to cancel any overheat warnings.
               // Simply stop the timer which triggers the overheat.
               ms_overheat_initiate.stop();
+              ms_overheating.stop();
+              //ms_settings_blinking.stop();
+              ms_hat_1.stop();
+              ms_hat_2.stop();
 
               // Reset the cyclotron speed.
-              cyclotronSpeedRevert();
               wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
+              cyclotronSpeedRevert();
             break;
 
             case P_YEAR_1984:
