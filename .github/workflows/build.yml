@@ -12,7 +12,7 @@ jobs:
             fqbn: arduino:avr:mega
             sketch-paths: |
               - source/Attenuator
-              - source/NeuronaWand
+              - source/NeutronaWand
               - source/ProtonPack
             libraries: |
               - name: FastLED
