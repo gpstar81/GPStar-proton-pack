@@ -1,0 +1,40 @@
+name: compile-test
+on:
+  - push
+  - pull_request
+jobs:
+  compile-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: arduino/compile-sketches@v1
+        with:
+            fqbn: arduino:avr:mega
+            sketch-paths: |
+              - source/NeutronaWand
+              - source/ProtonPack
+            libraries: |
+              - name: ezButton
+              - name: FastLED
+              - name: Ramp
+              - name: simple ht16k33 library
+              - name: AltSoftSerial
+              - name: SerialTransfer
+              - source-url: https://github.com/ansonhe97/millisDelay.git
+  compile-addons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: arduino/compile-sketches@v1
+        with:
+            fqbn: arduino:avr:nano
+            sketch-paths: |
+              - source/Attenuator
+            libraries: |
+              - name: ezButton
+              - name: FastLED
+              - name: Ramp
+              - name: simple ht16k33 library
+              - name: AltSoftSerial
+              - name: SerialTransfer
+              - source-url: https://github.com/ansonhe97/millisDelay.git
