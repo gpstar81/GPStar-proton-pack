@@ -6074,6 +6074,12 @@ void checkPack() {
               }
             break;
 
+            case P_WARNING_CANCELLED:
+              // Pack is telling wand to cancel any overheat warnings.
+              // Simply reset the timer which triggers the overheat.s
+              ms_overheat_initiate.restart();
+            break;
+
             case P_YEAR_1984:
               // 1984 mode.
               year_mode = 1984;
@@ -6617,7 +6623,7 @@ void checkPack() {
 
             case P_MUSIC_START:
               if(b_playing_music == true) {
-                  stopMusic();
+                stopMusic();
               }
 
               b_playing_music = true;

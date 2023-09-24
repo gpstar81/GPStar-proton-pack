@@ -4529,7 +4529,7 @@ void checkWand() {
 
             case W_CYCLOTRON_NORMAL_SPEED:
               // Tell wand to reset overheat warning.
-              packSerialSend(W_WARNING_CANCELLED);
+              packSerialSend(P_WARNING_CANCELLED);
 
               // Reset Cyclotron speed.
               cyclotronSpeedRevert();
