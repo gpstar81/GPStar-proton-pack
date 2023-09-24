@@ -1,4 +1,4 @@
-name: build0core
+name: build-core
 on:
   - push
   - pull_request
