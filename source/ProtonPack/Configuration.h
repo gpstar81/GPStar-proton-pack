@@ -135,7 +135,7 @@ bool b_grb_cyclotron = false;
  * Value range: 1 <--> 254
 */
 uint8_t i_spectral_powercell_custom = 200;
-uuint8_t i_spectral_cyclotron_custom = 200;
+uint8_t i_spectral_cyclotron_custom = 200;
 uint8_t i_spectral_cyclotron_inner_custom = 200;
 
 /*
