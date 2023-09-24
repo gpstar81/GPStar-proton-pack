@@ -1264,7 +1264,7 @@ void setupBargraph() {
   else {
     b_28segment_bargraph = false;
   }
-  
+
   if(b_28segment_bargraph) {
     ht_bargraph.begin(0x00);
 

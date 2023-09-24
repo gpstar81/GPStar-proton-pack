@@ -28,5 +28,5 @@ bool b_wait_for_pack = true;
  *
  * Override as desired if b_wait_for_pack is false.
  */
-unsigned int i_spectral_custom = 0;
-unsigned int i_spectral_custom_saturation = 254;
+uint8_t i_spectral_custom = 0;
+uint8_t i_spectral_custom_saturation = 254;
