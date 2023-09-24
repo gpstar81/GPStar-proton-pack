@@ -4019,6 +4019,14 @@ void checkSerial1() {
               }
             break;
 
+            case A_OVERHEATING_CANCELLED:
+              // Cancel the current overheat sequence.
+              packOverheatingFinished();
+
+              // Tell the serial device that overheating was stopped.
+              serial1Send(A_OVERHEATING_FINISHED);
+            break;
+
             case A_TOGGLE_MUTE:
               if(i_volume_master == i_volume_abs_min) {
                 i_volume_master = i_volume_revert;

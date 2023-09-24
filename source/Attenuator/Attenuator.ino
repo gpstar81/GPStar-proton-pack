@@ -378,17 +378,23 @@ void checkRotaryEncoder() {
   // Take action if rotary encoder value was turned CW.
   if(i_val_rotary > i_last_val_rotary) {
     if(!ms_rotary_debounce.isRunning()) {
-      // Perform action based on the curent menu level.
-      switch(MENU_LEVEL) {
-        case MENU_1:
-          // Tell pack to increase overall volume.
-          attenuatorSerialSend(A_VOLUME_INCREASE);
-        break;
+      if(b_overheating) {
+        // Tell the pack to cancel the current overheat sequence.
+        attenuatorSerialSend(A_OVERHEATING_CANCELLED);
+      }
+      else {
+        // Perform action based on the curent menu level.
+        switch(MENU_LEVEL) {
+          case MENU_1:
+            // Tell pack to increase overall volume.
+            attenuatorSerialSend(A_VOLUME_INCREASE);
+          break;
 
-        case MENU_2:
-          // Tell pack to increase effects volume.
-          attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-        break;
+          case MENU_2:
+            // Tell pack to increase effects volume.
+            attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
+          break;
+        }
       }
 
       ms_rotary_debounce.start(rotary_debounce_time);
@@ -398,23 +404,30 @@ void checkRotaryEncoder() {
   // Take action if rotary encoder value was turned CCW.
   if(i_val_rotary < i_last_val_rotary) {
     if(!ms_rotary_debounce.isRunning()) {
-      // Perform action based on the curent menu level.
-      switch(MENU_LEVEL) {
-        case MENU_1:
-          // Tell pack to decrease overall volume.
-          attenuatorSerialSend(A_VOLUME_DECREASE);
-        break;
+      if(b_overheating) {
+        // Tell the pack to cancel the current overheat sequence.
+        attenuatorSerialSend(A_OVERHEATING_CANCELLED);
+      }
+      else {
+        // Perform action based on the curent menu level.
+        switch(MENU_LEVEL) {
+          case MENU_1:
+            // Tell pack to decrease overall volume.
+            attenuatorSerialSend(A_VOLUME_DECREASE);
+          break;
 
-        case MENU_2:
-          // Tell pack to decrease effects volume.
-          attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-        break;
+          case MENU_2:
+            // Tell pack to decrease effects volume.
+            attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
+          break;
+        }
       }
 
       ms_rotary_debounce.start(rotary_debounce_time);
     }
   }
 
+  // Remember the last rotary value.
   i_last_val_rotary = i_val_rotary;
 
   if(ms_rotary_debounce.justFinished()) {
