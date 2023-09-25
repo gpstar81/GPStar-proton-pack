@@ -164,7 +164,7 @@ void setup() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand microcontroller, it is wired to its own pin. When using an Arduino Nano, it is linked with led_slo_blo.
     pinMode(led_hat_1, OUTPUT); // Hat light at front of the wand near the barrel tip.
-    pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body.
+    pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body (gun box).
     pinMode(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
   #endif
 
@@ -281,10 +281,10 @@ void mainLoop() {
                 if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
                   // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
                   if(switchBarrel() != true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-                    digitalWrite(led_hat_1, HIGH);
+                    digitalWrite(led_hat_1, HIGH); // Turn on hat light 1.
                   }
                   else {
-                    digitalWrite(led_hat_1, LOW);
+                    digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
                   }
                 }
             break;
@@ -316,12 +316,12 @@ void mainLoop() {
         if(ms_hat_1.isRunning()) {
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
             if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
-                digitalWrite(led_hat_1, LOW);
-                digitalWrite(led_hat_2, HIGH);
+                digitalWrite(led_hat_1, LOW); // Off
+                digitalWrite(led_hat_2, HIGH); // On
             }
             else {
-                digitalWrite(led_hat_1, HIGH);
-                digitalWrite(led_hat_2, LOW);
+                digitalWrite(led_hat_1, HIGH); // On
+                digitalWrite(led_hat_2, LOW); // Off
             }
           #endif
 
@@ -6083,14 +6083,19 @@ void checkPack() {
 
             case P_WARNING_CANCELLED:
               // Pack is telling wand to cancel any overheat warnings.
-              // Simply stop the timer which triggers the overheat.
+              // First, stop the timers which trigger the overheat.
               ms_overheat_initiate.stop();
               ms_overheating.stop();
-              //ms_settings_blinking.stop();
               ms_hat_1.stop();
               ms_hat_2.stop();
 
-              // Reset the cyclotron speed.
+              if(b_firing == true) {
+                // Keep both lights on if still firing.
+                digitalWrite(led_hat_1, HIGH);
+                digitalWrite(led_hat_2, HIGH);
+              }
+
+              // Next, reset the cyclotron speed on all devices.
               wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
               cyclotronSpeedRevert();
             break;
