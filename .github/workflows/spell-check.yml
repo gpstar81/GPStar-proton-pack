@@ -1,0 +1,15 @@
+name: spell-check
+on:
+  - push
+  - pull_request
+jobs:
+  spellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Spell Check
+        uses: arduino/actions/libraries/spell-check@master
+        with:
+          ignore-words-list: ci/codespell-ignore-words-list.txt
+          skip-paths: node_modules,package-lock.json

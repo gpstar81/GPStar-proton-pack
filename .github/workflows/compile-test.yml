@@ -10,11 +10,10 @@ jobs:
   compile-core:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: arduino/compile-sketches@v1
         with:
             enable-deltas-report: true
-            enable-warnings-report: true
             fqbn: arduino:avr:mega
             sketch-paths: |
               - source/NeutronaWand
@@ -36,7 +35,7 @@ jobs:
           path: ${{ env.SKETCHES_REPORTS_PATH }}
   report-core:
     needs: compile-core
-    #if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Download sketches reports artifact
@@ -50,11 +49,10 @@ jobs:
   compile-addons:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: arduino/compile-sketches@v1
         with:
             enable-deltas-report: true
-            enable-warnings-report: true
             fqbn: arduino:avr:nano
             sketch-paths: |
               - source/Attenuator
@@ -75,7 +73,7 @@ jobs:
           path: ${{ env.SKETCHES_REPORTS_PATH }}
   report-addons:
     needs: compile-addons
-    #if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Download sketches reports artifact
