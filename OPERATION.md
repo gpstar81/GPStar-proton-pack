@@ -207,7 +207,7 @@ To access the EEPROM Configuration Menu, hold the `Intensify Button` down and to
 
 `The EEPROM Configuration Menu System can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
 
-`Please note whatever settings you have temporarly changed in the regular menus and sub menus will be applied automatically and saved if you exit the EEPROM menu by saving the settings.`
+`Please note whatever settings you have temporarily changed in the regular menus and sub menus will be applied automatically and saved if you exit the EEPROM menu by saving the settings.`
 
 ![](images/OperationNeutrona12.jpg)
 

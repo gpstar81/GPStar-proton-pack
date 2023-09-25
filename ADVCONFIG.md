@@ -81,8 +81,8 @@ Refer to the [Operation Manual](OPERATION.md) for more information on how to ent
 | const unsigned long int i&#95;smoke&#95;on&#95;time&#95;mode&#95;4 | How long you want your smoke pins and fan pin to stay on while continuous firing in **wand power mode 4** after they have been activated.<br><br>`Example: 3500 is 3.5 seconds` | 3500 |
 | const unsigned long int i&#95;smoke&#95;on&#95;time&#95;mode&#95;5 | How long you want your smoke pins and fan pin to stay on while continuous firing in **wand power mode 3** after they have been activated.<br><br>`Example: 3500 is 4 seconds` | 4000 |
 | const bool b&#95;smoke&#95;1&#95;overheat | Set to true to enable smoke 1 pin during the overheat sequence.<br><br>`This can be overridden if b_smoke_enabled is false` | true |
-| const bool b&#95;smoke&#95;2&#95;overheat | Set to true to enable smoke 2 pin during the overheat seqeuence.<br><br>`This can be overridden if b_smoke_enabled is false` | true |
-| const bool b&#95;fan&#95;overheat | Set to true to enable the fan pin during the overheat seqeuence.<br><br>`This can be overridden if b_smoke_enabled is false` | true |
+| const bool b&#95;smoke&#95;2&#95;overheat | Set to true to enable smoke 2 pin during the overheat sequence.<br><br>`This can be overridden if b_smoke_enabled is false` | true |
+| const bool b&#95;fan&#95;overheat | Set to true to enable the fan pin during the overheat sequence.<br><br>`This can be overridden if b_smoke_enabled is false` | true |
 | const bool b&#95;smoke&#95;overheat&#95;mode&#95;1 | Set to true to enable smoke events during the overheat sequence in **wand power mode 1**.<br><br>`This can be overridden if b_smoke&#95;enabled is false or if all 3 of the smoke_1, smoke_2 and fan overheat are set to false`| true |
 | const bool b&#95;smoke&#95;overheat&#95;mode&#95;2 | Set to true to enable smoke events during the overheat sequence in **wand power mode 2**.<br><br>`This can be overridden if b_smoke&#95;enabled is false or if all 3 of the smoke_1, smoke_2 and fan overheat are set to false`| true |
 | const bool b&#95;smoke&#95;overheat&#95;mode&#95;3 | Set to true to enable smoke events during the overheat sequence in **wand power mode 3**.<br><br>`This can be overridden if b_smoke&#95;enabled is false or if all 3 of the smoke_1, smoke_2 and fan overheat are set to false`| true |
@@ -96,9 +96,9 @@ Refer to the [Operation Manual](OPERATION.md) for more information on how to ent
 
 |Variable| Description| Default Setting |
 |--------|------------|-----------------|
-| const int STARTUP&#95;VOLUME | The default master volume of your wand. This will be overidden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. | 100 |
-| const int STARTUP&#95;VOLUME&#95;MUSIC | The default music volume of the Neutrona Wand. This will be overidden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. | 100 |
-| const int STARTUP&#95;VOLUME&#95;EFFECTS | The default sound effects volume of the Neutrona Wand. This will be overidden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. | 100 |
+| const int STARTUP&#95;VOLUME | The default master volume of your wand. This will be overridden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. | 100 |
+| const int STARTUP&#95;VOLUME&#95;MUSIC | The default music volume of the Neutrona Wand. This will be overridden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. | 100 |
+| const int STARTUP&#95;VOLUME&#95;EFFECTS | The default sound effects volume of the Neutrona Wand. This will be overridden if you connect your Neutrona Wand to the Proton Pack. This is a percentage value of between 100% and 0%. 100 = highest, 0 = lowest. | 100 |
 | const int MINIMUM&#95;VOLUME | You can set the minimum lowest volume the Neutona Wand can go. 0 = loudest, and -70 = quietest. If your Proton Pack is overpowering your Neutrona Wand sounds at lower volume levels, increase this number. | -35 |
 | const int VOLUME&#95;MULTIPLIER | Percentage increments of main volume change. | 2 |
 | const int VOLUME&#95;MUSIC&#95;MULTIPLIER | Percentage increments of the music volume change. | 5 |

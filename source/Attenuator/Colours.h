@@ -44,7 +44,7 @@ enum colours {
 };
 
 int getBrightness(uint8_t i_percent = 100) {
-  // Brightness here is a percentage, to be convered to a range 0-255.
+  // Brightness here is a percentage, to be converted to a range 0-255.
   if(i_percent > 100) {
     i_percent = 100;
   }
