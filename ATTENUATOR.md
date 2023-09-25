@@ -125,7 +125,7 @@ One notable point is the stated part in the BOM also supports a momentary "push"
 
 **Note:** It is advised to place a 100uf capacitor across the positive and negative connections to these devices, just to buffer any current fluctuations.
 
-Addressable LEDs have a distinct data flow with solder pads labelled DIN and DOUT. It is crucial to chain these devices starting from the Arduino to an LED's DIN pad first, then the same device's DOUT pad to the next LED's DIN pad, and so on.
+Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `DOUT`. It is crucial to chain these devices starting from the Arduino to an LED's `DIN` pad first, then the same device's `DOUT` pad to the next LED's `DIN` pad, and so on.
 
 ## Bargraph
 
