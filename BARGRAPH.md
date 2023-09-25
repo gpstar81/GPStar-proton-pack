@@ -60,7 +60,7 @@ The following is Barmeter's internal reference for the numbered pins along the e
 
 If your bargraph is inverted or upside down, you can either flip it physically in the wand, or you can comment/uncomment the:
 
-**#define GPSTAR&nbsp;INVERT&nbsp;BARGRAPH** 
+**#define GPSTAR&nbsp;INVERT&nbsp;BARGRAPH**
 
 setting in the Neutrona Wand Configuration.h, please see the [Advanced Configuration](ADVCONFIG.md) guide for more information.
 
@@ -68,7 +68,7 @@ setting in the Neutrona Wand Configuration.h, please see the [Advanced Configura
 
 The 28-segment bargraph is intended to take the place of the 5-LED + PCB assembly from the stock Hasbro equipment. The only means of accessing this is to remove the barrel release assembly and a portion of the plastic base which sits below the stock controller board. This may require some cutting as the center of that piece is glued directly to the wand handle. Once removed, access to the old bargraph is quite easy and takes removal of 2 screws. The circuit board with the LEDs resides under a small black cover and can be removed from the wand once that cover is removed.
 
-To fit the new bargraph in place, it needs a suitable holder to keep it in the correct orientation. Thankfully, it can be seen quite well without removing the clear/frosted plastic from the wand housing, though some minor trimming may be necessary at the bottom (when oriented with the rotary encoder facing up) of the bargraph socket. 
+To fit the new bargraph in place, it needs a suitable holder to keep it in the correct orientation. Thankfully, it can be seen quite well without removing the clear/frosted plastic from the wand housing, though some minor trimming may be necessary at the bottom (when oriented with the rotary encoder facing up) of the bargraph socket.
 
 If you have access to a 3D printer, the file [28_Segment&#95;Bargraph&#95;Insert.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Insert.stl) should fit the bargraph tightly while also slotting into the clear plastic.
 

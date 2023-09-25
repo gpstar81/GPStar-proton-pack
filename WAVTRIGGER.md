@@ -27,7 +27,7 @@ Only 4 connections between the boards will be required: TX/RX and 5V/Ground.
 	- GND from one side to the other.
 1. Plug in the USB cable from your computer to the FTDI board.
 1. Run the WT-Flasher app on your computer, then click on BROWSE and navigate to and select the 1.40 firmware hex file `WAVTrig_20230904_v140.hex` that you downloaded from the extras folder in this repository.
-2. Once connected to your computer, click the RESCAN button and select the device from the drop down USB Serial Port menu. 
+2. Once connected to your computer, click the RESCAN button and select the device from the drop down USB Serial Port menu.
 3. Then click the PROGRAM button. The app should establish communication and begin flashing the new firmware.
 4. After it has finished updating the firmware, disconnect everything and set the black switch back from `LOAD to RUN`.
 

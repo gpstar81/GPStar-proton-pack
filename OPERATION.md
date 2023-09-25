@@ -27,7 +27,7 @@
 	- This supports a 35 LED ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
 - Video game colours supported if using RGB supported LEDs for the Cyclotron Lid, internal "cake" Cyclotron and Power Cell.
 
-## Neutrona Wand				
+## Neutrona Wand
 ### Standard Wand Features
 ![](images/OperationNeutrona2.jpg)
 

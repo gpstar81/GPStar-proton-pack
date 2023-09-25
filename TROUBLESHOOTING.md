@@ -46,10 +46,9 @@ If the red LED illuminates, this indicates the WavTrigger is receiving power and
 * Re-check the connection to the speaker. Polarity should be observed for the best audio quality, though a reversed connection should still support some form of audio playback.
 * Re-flash the latest software to both the pack and wand controllers. These devices must be in agreement for the communication layer to operate correctly.
 * Re-check the Tx/Rx connections to the pack. If these are reversed it will prevent proper communication. Attempt to switch the wires at the pack-side connector which use screw terminals, and retry the Activate switch.
- 
+
 If the red LED does not illuminate, this could mean a connection or data problem.
 
 * Reformat the microSD card as FAT32 using the provided utility and re-copy the audio files to the microSD card.
 * Re-check the connections to the WavTrigger, taking note of the power and Rx/Tx connections. Note that is it normal to see some empty pins/sockets on the connecting wire.
 * Re-check the power connection to the wand. If you have a digital multimeter available, set the device to the DC power measurement and check that the 5V-OUT connection is supplying the expected voltage. Be careful to not short out the pins and mind the polarity.
-receiving
