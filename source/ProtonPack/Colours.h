@@ -53,7 +53,7 @@ enum colours {
 };
 
 int getBrightness(uint8_t i_percent = 100) {
-  // Brightness here is a percentage, to be convered to a range 0-255.
+  // Brightness here is a percentage, to be converted to a range 0-255.
   if(i_percent > 100) {
     i_percent = 100;
   }
@@ -83,7 +83,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case VENT_LIGHT:
             default:
               return C_WHITE;
-            break;   
+            break;
           }
         break;
 
@@ -95,7 +95,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case VENT_LIGHT:
             default:
               return C_GREEN;
-            break;   
+            break;
           }
         break;
 
@@ -107,7 +107,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case VENT_LIGHT:
             default:
               return C_LIGHT_BLUE;
-            break;   
+            break;
           }
         break;
 
@@ -119,7 +119,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case VENT_LIGHT:
             default:
               return C_ORANGE;
-            break;   
+            break;
           }
         break;
 
@@ -131,7 +131,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case VENT_LIGHT:
             default:
               return C_RAINBOW;
-            break;   
+            break;
           }
         break;
 
@@ -143,7 +143,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case VENT_LIGHT:
             default:
               return C_REDGREEN;
-            break;   
+            break;
           }
         break;
 
@@ -160,11 +160,11 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case CYCLOTRON_INNER:
               return C_CUSTOM_INNER_CYCLOTRON;
             break;
-            
+
             case VENT_LIGHT:
             default:
               return C_CUSTOM_CYCLOTRON;
-            break;   
+            break;
           }
         break;
 
@@ -176,7 +176,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case CYCLOTRON_INNER:
             default:
               return C_RED;
-            break;   
+            break;
           }
         break;
 
@@ -188,7 +188,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case VENT_LIGHT:
             default:
               return C_WHITE;
-            break;   
+            break;
           }
         break;
 

@@ -403,7 +403,7 @@ void checkRotaryEncoder() {
         }
       }
       else {
-        // Perform action based on the curent menu level.
+        // Perform action based on the current menu level.
         switch(MENU_LEVEL) {
           case MENU_1:
             // Tell pack to increase overall volume.
@@ -434,7 +434,7 @@ void checkRotaryEncoder() {
         }
       }
       else {
-        // Perform action based on the curent menu level.
+        // Perform action based on the current menu level.
         switch(MENU_LEVEL) {
           case MENU_1:
             // Tell pack to decrease overall volume.

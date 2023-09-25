@@ -29,7 +29,7 @@
  *  Use int i_cyclotron_leds = 12; and i_1984_cyclotron_leds 1, 4, 7, 10.
  *
  *  For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use int i_cyclotron_leds = 40 and i_1984_cyclotron_leds 0, 10, 18, 28.
- *  Adjust as neccesary depending on how you align your NeoPixel ring.
+ *  Adjust as necessary depending on how you align your NeoPixel ring.
  *  You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.  
  *
  *  i_1984_cyclotron_leds is the middle LED aligned in each lens window. (0 is the first LED). Adjust this setting if you use different LED setups and installations.
@@ -95,7 +95,7 @@ unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for th
   * When set to true, using LEDs that are not a ring will simulate a ring rotation for the Cyclotron LEDs in the lid.
   * For example, for the 12 or 15 LED options, extra LEDs will be simulated to provide a delay/spinning effect. 
   * The 40 LED ring option is unaffected as it is a true ring.
-  * This setting will be overriden by the EEPROM settings.
+  * This setting will be overridden by the EEPROM settings.
 */
 bool b_cyclotron_simulate_ring = true;
 
@@ -273,7 +273,7 @@ const unsigned int i_1984_fade_out_delay = 1110;
 const unsigned int i_1984_fade_in_delay = 210;
 
 /*
- * Set to true to enable the onboard amplifer on the WAV Trigger.
+ * Set to true to enable the onboard amplifier on the WAV Trigger.
  * Turning off the onboard amp draws less power.
  * If using the Stereo AUX cable jack, the amp can be disabled to save power.
  * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.

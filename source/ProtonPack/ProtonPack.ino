@@ -1463,7 +1463,7 @@ void cyclotronColourReset() {
     i_colour_scheme = C_HASLAB;
   }
 
-  // Accounts for a total # of LEDs minus the N-Filter jewel and whatever preceeds the Cyclotron.
+  // Accounts for a total # of LEDs minus the N-Filter jewel and whatever precedes the Cyclotron.
   uint8_t i_max = i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start;
   for(int i = 0; i < i_max; i++) {
     if(i_cyclotron_led_on_status[i] == true) {
@@ -6343,7 +6343,7 @@ void readEEPROM() {
     // Update the LED counts for the Proton Pack.
     updateProtonPackLEDCounts();
 
-    // Read our configration object from the EEPROM.
+    // Read our configuration object from the EEPROM.
     objConfigEEPROM obj_config_eeprom;
     unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
 
