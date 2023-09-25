@@ -9,7 +9,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Spell Check
-        uses: arduino/actions/libraries/spell-check@master
+        uses: codespell-project/actions-codespell@v2
         with:
-          ignore-words-list: ci/codespell-ignore-words-list.txt
-          skip-paths: ci,circuits,extras,images,sounds,stl
+          ignore_words_file: .codespellignore
+          skip: ci,circuits,extras,images,sounds,stl
