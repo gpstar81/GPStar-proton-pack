@@ -55,7 +55,7 @@ int getBrightness(uint8_t i_percent = 100) {
 // This must match the number of device ENUM entries (though that is rarely changed).
 uint8_t i_curr_colour[2] = { 0, 0 };
 uint8_t i_curr_bright[2] = { 0, 0 };
-uint8_t i_next_bright[2] = { -1, -1 };
+int i_next_bright[2] = { -1, -1 };
 uint8_t i_count[2] = { 0, 0 };
 
 CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {

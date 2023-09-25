@@ -252,6 +252,7 @@ void bargraphRampUp() {
                 break;
 
                 case 1:
+                default:
                   if(i_bargraph_status_alt == 49) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
@@ -664,6 +665,7 @@ void bargraphRampFiring() {
           break;
 
           case 1:
+          default:
             ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 35
           break;
         }
@@ -690,6 +692,7 @@ void bargraphRampFiring() {
         break;
 
         case 1:
+        default:
           ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30
         break;
       }
@@ -786,6 +789,7 @@ void bargraphPowerCheck() {
           break;
 
           case 1:
+          default:
             if(i_bargraph_status_alt > 4) {
               b_bargraph_up = false;
               if(i_mode_year == 2021) {
@@ -861,6 +865,7 @@ void bargraphPowerCheck() {
             break;
 
             case 1:
+            default:
               if(i_mode_year == 2021 && i_bargraph_status_alt < 5) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
