@@ -80,8 +80,7 @@ const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
 const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
 unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
-millisDelay ms_settings_blinking;
-const unsigned int i_settings_blinking_delay = 350;
+// Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
 uint8_t i_speed_multiplier = 1;
 
 #define WIRE Wire

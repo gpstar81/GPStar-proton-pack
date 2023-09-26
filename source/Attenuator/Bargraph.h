@@ -22,6 +22,50 @@
  * Control patterns displayed by the 28-segment bargraph device.
  */
 
+void bargraphYearModeUpdate() {
+  // Reset the multiplier based on the current year mode.
+  switch(YEAR_MODE) {
+    case YEAR_2021:
+      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+    break;
+
+    case YEAR_1984:
+    case YEAR_1989:
+      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
+    break;
+  }
+}
+
+void setupBargraph() {
+  WIRE.begin();
+
+  byte by_error, by_address;
+  unsigned int i_i2c_devices = 0;
+
+  // Scan i2c for any devices (28 segment bargraph).
+  for(by_address = 1; by_address < 127; by_address++ ) {
+    WIRE.beginTransmission(by_address);
+    by_error = WIRE.endTransmission();
+
+    if(by_error == 0) {
+      i_i2c_devices++;
+    }
+  }
+
+  if(i_i2c_devices > 0) {
+    b_28segment_bargraph = true;
+  }
+  else {
+    b_28segment_bargraph = false;
+  }
+
+  if(b_28segment_bargraph) {
+    ht_bargraph.begin(0x00);
+
+    bargraphYearModeUpdate();
+  }
+}
+
 void bargraphFull() {
   if(b_28segment_bargraph) {
     for(uint8_t i = 0; i < 28; i++) {
@@ -50,6 +94,7 @@ void bargraphPowerCheck2021Alt(bool b_override) {
       else {
         b_bargraph_up = false;
       }
+
       switch(POWER_LEVEL) {
         case LEVEL_5:
           ms_bargraph_alt.start(i_bargraph_wait / 3);
@@ -72,19 +117,6 @@ void bargraphPowerCheck2021Alt(bool b_override) {
         break;
       }
     }
-  }
-}
-
-void bargraphYearModeUpdate() {
-  switch(YEAR_MODE) {
-    case YEAR_2021:
-      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
-    break;
-
-    case YEAR_1984:
-    case YEAR_1989:
-      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
-    break;
   }
 }
 
@@ -118,6 +150,7 @@ void bargraphRampIdle() {
         if(i_bargraph_status == 0) {
           i_bargraph_status = 0;
           b_bargraph_up = true;
+
           // A little pause when we reach the bottom.
           ms_bargraph.start(i_bargraph_wait / 2);
         }
@@ -146,7 +179,7 @@ void bargraphRampUp() {
           // Adjust the ramp down speed if necessary.
           switch(YEAR_MODE) {
             case YEAR_2021:
-              i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+              i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 2;
             break;
 
             case YEAR_1984:
@@ -158,7 +191,7 @@ void bargraphRampUp() {
         else {
           ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
         }
-      break;
+      break; // 0 ... 27
 
       case 28 ... 56:
         uint8_t i_tmp = i_bargraph_status_alt - 27;
@@ -197,8 +230,7 @@ void bargraphRampUp() {
                 ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                 i_bargraph_status_alt++;
               }
-
-            break;
+            break; // YEAR_1984/YEAR_1989
 
             case YEAR_2021:
               switch(POWER_LEVEL) {
@@ -265,10 +297,10 @@ void bargraphRampUp() {
                   }
                 break;
               }
-            break;
+            break; // YEAR_2021
           }
         }
-      break;
+      break; // 28 ... 56
     }
   }
   else {
@@ -908,8 +940,6 @@ void prepBargraphRampDown() {
 void prepBargraphRampUp() {
   bargraphClearAlt();
 
-  ms_settings_blinking.stop();
-
   bool b_overheat_bargraph_blink = false;
 
   // Prepare a few things before ramping the bargraph back up from a full ramp down.
@@ -928,132 +958,5 @@ void prepBargraphRampUp() {
     }
 
     bargraphRampUp();
-  }
-}
-
-void settingsBlinkingLights() {
-  if(ms_settings_blinking.justFinished()) {
-     ms_settings_blinking.start(i_settings_blinking_delay);
-  }
-
-  if(ms_settings_blinking.remaining() < i_settings_blinking_delay / 2) {
-    bool b_solid_five = false;
-    bool b_solid_one = false;
-
-    if(b_28segment_bargraph) {
-      if(b_solid_five) {
-        for(uint8_t i = 0; i < 16; i++) {
-          if(b_solid_one && i < 2) {
-            ht_bargraph.setLedNow(i_bargraph[i]);
-          }
-          else {
-            ht_bargraph.clearLedNow(i_bargraph[i]);
-          }
-        }
-
-        for(uint8_t i = 16; i < 18; i++) {
-          ht_bargraph.setLedNow(i_bargraph[i]);
-        }
-      }
-      else if(b_solid_one) {
-        for(uint8_t i = 0; i < 18; i++) {
-          if(i < 2) {
-            ht_bargraph.setLedNow(i_bargraph[i]);
-          }
-          else {
-            ht_bargraph.clearLedNow(i_bargraph[i]);
-          }
-        }
-      }
-      else {
-        ht_bargraph.clearAll();
-      }
-    }
-  }
-  else {
-    if(b_28segment_bargraph) {
-      // 18 for the 5 level menu system.
-      uint8_t i_leds = 18;
-
-      if(b_overheating || b_pack_alarm) {
-        // All the segments.
-        i_leds = 28;
-      }
-
-      // NOTE: If you draw all 28 segments at once often, you can overflow the serial buffer after around 5 seconds.
-      for(uint8_t i = 0; i < i_leds; i++) {
-        if(b_overheating || b_pack_alarm) {
-          switch(i) {
-            case 3:
-            case 4:
-            case 5:
-            case 9:
-            case 10:
-            case 11:
-            case 15:
-            case 16:
-            case 17:
-            case 21:
-            case 22:
-            case 23:
-            case 27:
-              // Nothing
-            break;
-
-            default:
-              ht_bargraph.setLedNow(i_bargraph[i]);
-            break;
-          }
-        }
-        else {
-          switch(i) {
-            case 2:
-            case 3:
-            case 6:
-            case 7:
-            case 10:
-            case 11:
-            case 14:
-            case 15:
-              // Nothing
-            break;
-
-            default:
-              ht_bargraph.setLedNow(i_bargraph[i]);
-            break;
-          }
-        }
-      }
-    }
-  }
-}
-
-void setupBargraph() {
-  WIRE.begin();
-
-  byte by_error, by_address;
-  unsigned int i_i2c_devices = 0;
-
-  // Scan i2c for any devices (28 segment bargraph).
-  for(by_address = 1; by_address < 127; by_address++ ) {
-    WIRE.beginTransmission(by_address);
-    by_error = WIRE.endTransmission();
-
-    if(by_error == 0) {
-      i_i2c_devices++;
-    }
-  }
-
-  if(i_i2c_devices > 0) {
-    b_28segment_bargraph = true;
-  }
-  else {
-    b_28segment_bargraph = false;
-  }
-
-  if(b_28segment_bargraph) {
-    ht_bargraph.begin(0x00);
-
-    bargraphYearModeUpdate();
   }
 }

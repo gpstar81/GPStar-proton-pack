@@ -85,7 +85,7 @@ void setup() {
 
   // Turn off any user feedback.
   noTone(BUZZER_PIN);
-  setVibration(0, 0);
+  useVibration(0, 0);
 
   // Initialize critical timers.
   ms_fast_led.start(1);
@@ -187,12 +187,12 @@ void mainLoop() {
         if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
           // Only blink the lower LED as we will use a fade effect for the upper LED.
           attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
-          setVibration(0, 0); // Stop vibration.
+          useVibration(0, 0); // Stop vibration.
           buzzOff(); // Stop buzzer tone.
         }
         else {
           controlLEDs(); // Turn LEDs on using appropriate color scheme.
-          setVibration(255, 500); // Set vibration to full power.
+          useVibration(255, 500); // Set vibration to full power.
           buzzOn(523); // Tone as note C4
         }
       }
@@ -214,7 +214,7 @@ void mainLoop() {
 
   // Turn off vibration if timer finished.
   if(b_vibrate_on && ms_vibrate.justFinished()) {
-    setVibration(0, 0);
+    useVibration(0, 0);
   }
 
   // Update the device LEDs.
@@ -236,7 +236,7 @@ void buzzOff() {
   b_buzzer_on = false;
 }
 
-void setVibration(uint8_t i_power_level, unsigned int i_duration) {
+void useVibration(uint8_t i_power_level, unsigned int i_duration) {
   // Power should be specified as 0-255
   analogWrite(VIBRATION_PIN, i_power_level);
   b_vibrate_on = (i_power_level > 0);
@@ -338,13 +338,13 @@ void checkRotaryPress() {
         case MENU_1:
           // A short press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
-          setVibration(255, 200); // Give a quick nudge.
+          useVibration(255, 200); // Give a quick nudge.
           break;
 
         case MENU_2:
           // A short press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-          setVibration(255, 200); // Give a quick nudge.
+          useVibration(255, 200); // Give a quick nudge.
           break;
       }
     break;
@@ -355,12 +355,12 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
-          setVibration(255, 200); // Give a quick nudge.
+          useVibration(255, 200); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
-          setVibration(255, 200); // Give a quick nudge.
+          useVibration(255, 200); // Give a quick nudge.
           buzzOn(440); // Tone as note A4
         break;
       }
@@ -668,7 +668,7 @@ void checkPack() {
 
               bargraphRampUp();
 
-              setVibration(0, 0); // Stop vibration.
+              useVibration(0, 0); // Stop vibration.
             }
           break;
 
@@ -696,7 +696,7 @@ void checkPack() {
 
             bargraphRampUp();
 
-            setVibration(0, 0); // Stop vibration.
+            useVibration(0, 0); // Stop vibration.
           break;
 
           case A_FIRING:
@@ -724,7 +724,7 @@ void checkPack() {
 
             ms_bargraph_firing.stop();
 
-            ms_bargraph_alt.stop(); // Stop the 1984 24 segment optional bargraph timer.
+            ms_bargraph_alt.stop(); // Stop the 1984 28 segment optional bargraph timer.
 
             b_bargraph_up = false;
 
