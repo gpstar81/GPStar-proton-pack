@@ -70,7 +70,7 @@ The following is a diagram of the Arduino Nano pins from left and right, when or
 | Connection    | Nano (L) | USB | Nano (R) | Connection    |
 |---------------|----------|-----|----------|---------------|
 |               | D13      |     | D12      |               |
-| Vib. Motor    | 3V3      |     | D11      | PN2222        |
+| Vib. Motor +  | 3V3      |     | D11      | PN2222        |
 |               | REF      |     | D10      | Piezo Buzzer  |
 |               | A0       |     | D9       | Neopixels (2) |
 |               | A1       |     | D8       |               |
@@ -144,10 +144,10 @@ Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `
 | <font color="red">Red</font> | → | Pin D10 |
 | Black                        | → | GND     |
 
-| VIBRATION MOTOR            | Component | Nano Pin |
-|----------------------------|-----------|----------|
-| <font color="red">Red</font>     | →     | 3V3 |
-| <font color="blue">Blue</font>   | NPN C |     |
+| VIBRATION MOTOR            | Component(s) | Nano Pin |
+|----------------------------|--------------|----------|
+| <font color="red">Red</font>     | →      | 3V3 |
+| <font color="blue">Blue</font>   | NPN C  |     |
 | <font color="green">Green</font> | NPN B → R 270 Ω | Pin D11 |
 | Black                            | NPN E → 1N4001  | GND     |
 
