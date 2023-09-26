@@ -595,7 +595,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_1;
 
-            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
+            if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -604,7 +604,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_2;
 
-            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
+            if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -613,7 +613,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_3;
 
-            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
+            if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -622,7 +622,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_4;
 
-            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
+            if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
               bargraphPowerCheck2021Alt(false);
             }
           break;
@@ -631,7 +631,7 @@ void checkPack() {
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_5;
 
-            if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
+            if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
               bargraphPowerCheck2021Alt(false);
             }
           break;

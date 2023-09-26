@@ -53,13 +53,13 @@ void setupBargraph() {
   }
 
   if(i_i2c_devices > 0) {
-    b_28segment_bargraph = true;
+    b_bargraph_present = true;
   }
   else {
-    b_28segment_bargraph = false;
+    b_bargraph_present = false;
   }
 
-  if(b_28segment_bargraph) {
+  if(b_bargraph_present) {
     ht_bargraph.begin(0x00);
 
     bargraphYearModeUpdate();
@@ -67,15 +67,15 @@ void setupBargraph() {
 }
 
 void bargraphFull() {
-  if(b_28segment_bargraph) {
-    for(uint8_t i = 0; i < 28; i++) {
+  if(b_bargraph_present) {
+    for(uint8_t i = 0; i < i_bargraph_elements; i++) {
       ht_bargraph.setLedNow(i_bargraph[i]);
     }
   }
 }
 
 void bargraphClear() {
-  if(b_28segment_bargraph) {
+  if(b_bargraph_present) {
     ht_bargraph.clearAll();
 
     i_bargraph_status = 0; // Reset the position/sequence.
@@ -121,7 +121,7 @@ void bargraphPowerCheck2021Alt(bool b_override) {
 }
 
 void bargraphRampIdle() {
-  if(b_28segment_bargraph) {
+  if(b_bargraph_present) {
     if(ms_bargraph.justFinished()) {
       uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
 
@@ -165,7 +165,7 @@ void bargraphRampIdle() {
 }
 
 void bargraphRampUp() {
-  if(b_28segment_bargraph) {
+  if(b_bargraph_present) {
     switch(i_bargraph_status_alt) {
       case 0 ... 27:
         ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
@@ -395,7 +395,7 @@ void bargraphRampUp() {
 }
 
 void bargraphRampFiring() {
-  if(b_28segment_bargraph) {
+  if(b_bargraph_present) {
     // Start ramping up and down from the middle to the top/bottom and back to the middle again.
     // With 28 segments that means 14 frames for the animation (0-13).
     switch(i_bargraph_status_alt) {
@@ -646,39 +646,39 @@ void bargraphRampFiring() {
 
   int i_ramp_interval = d_bargraph_ramp_interval;
 
-  if(b_28segment_bargraph) {
+  if(b_bargraph_present) {
     i_ramp_interval = d_bargraph_ramp_interval_alt;
   }
 
   // If in a power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
   if(i_speed_multiplier > 1) {
     if(i_speed_multiplier > 5) {
-      if(b_28segment_bargraph) {
+      if(b_bargraph_present) {
         ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
       }
     }
     else if(i_speed_multiplier > 4) {
-      if(b_28segment_bargraph) {
+      if(b_bargraph_present) {
         ms_bargraph_firing.start(i_ramp_interval / 9);
       }
     }
     else if(i_speed_multiplier > 3) {
-      if(b_28segment_bargraph) {
+      if(b_bargraph_present) {
         ms_bargraph_firing.start(i_ramp_interval / 7);
       }
     }
     else if(i_speed_multiplier > 2) {
-      if(b_28segment_bargraph) {
+      if(b_bargraph_present) {
         ms_bargraph_firing.start(i_ramp_interval / 5);
       }
     }
     else if(i_speed_multiplier > 1) {
-      if(b_28segment_bargraph) {
+      if(b_bargraph_present) {
         ms_bargraph_firing.start(i_ramp_interval / 3);
       }
     }
     else {
-      if(b_28segment_bargraph) {
+      if(b_bargraph_present) {
         switch(POWER_LEVEL) {
           case LEVEL_5:
             ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
@@ -704,7 +704,7 @@ void bargraphRampFiring() {
     }
   }
   else {
-    if(b_28segment_bargraph) {
+    if(b_bargraph_present) {
       switch(POWER_LEVEL) {
         case LEVEL_5:
           ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
@@ -735,7 +735,7 @@ void bargraphPowerCheck() {
   uint8_t i_bargraph_target[5] = { 4, 10, 16, 21, 26 };
 
   // Control for the 28 segment barmeter bargraph.
-  if(b_28segment_bargraph) {
+  if(b_bargraph_present) {
     if(ms_bargraph_alt.justFinished()) {
       uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
 
@@ -916,7 +916,7 @@ void bargraphPowerCheck() {
 }
 
 void bargraphClearAlt() {
-  if(b_28segment_bargraph) {
+  if(b_bargraph_present) {
     ht_bargraph.clearAll();
 
     i_bargraph_status_alt = 0;
@@ -953,7 +953,7 @@ void prepBargraphRampUp() {
 
     // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
     // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
-    if(YEAR_MODE == YEAR_2021 && b_28segment_bargraph) {
+    if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
       bargraphPowerCheck2021Alt(false);
     }
 

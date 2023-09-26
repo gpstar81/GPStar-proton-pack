@@ -65,7 +65,8 @@ millisDelay ms_blink_leds;
  * SCL -> A5
  */
 HT16K33 ht_bargraph;
-bool b_28segment_bargraph = false;
+const uint8_t i_bargraph_elements = 28;
+bool b_bargraph_present = false;
 bool b_bargraph_up = false;
 uint8_t i_bargraph_status = 0;
 const uint8_t i_bargraph_interval = 4;
