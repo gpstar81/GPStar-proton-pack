@@ -19,11 +19,17 @@
  * SCL -> A5
  */
 HT16K33 ht_bargraph;
-const uint8_t i_bargraph_elements = 28;
-bool b_bargraph_present = false;
-int i_bargraph_element = 0;
+const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph.
+uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns.
+bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph.
+int i_bargraph_element = 0; // Indicates current element for adjustment.
+uint8_t i_bargraph_delay = 20; // Base delay for any bargraph refresh.
+
+// Patterns and States
 enum BARGRAPH_PATTERNS { BG_RAMP_UP, BG_RAMP_DOWN, BG_POWER_CHECK, BG_OUTER_INNER, BG_UP_DOWN };
 enum BARGRAPH_PATTERNS BARGRAPH_PATTERN;
+enum BARGRAPH_STATES { BG_UNKNOWN, BG_EMPTY, BG_FULL };
+enum BARGRAPH_STATES BARGRAPH_STATE;
 
 bool b_bargraph_up = false;
 uint8_t i_bargraph_status = 0;

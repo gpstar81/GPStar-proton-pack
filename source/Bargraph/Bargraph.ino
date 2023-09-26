@@ -15,7 +15,7 @@ void setup() {
   setupBargraph();
 
   // Initialize critical timers.
-  ms_bargraph.start(1);
+  ms_bargraph.start(i_bargraph_delay);
 }
 
 void loop() {
@@ -23,9 +23,14 @@ void loop() {
 }
 
 void mainLoop() {
-  BARGRAPH_PATTERN = BG_RAMP_UP; // Set the bargraph pattern
-
-  if(ms_bargraph.justFinished()) {
-    bargraphUpdate();
+  // Set the bargraph pattern.
+  if(BARGRAPH_STATE == BG_EMPTY) {
+    BARGRAPH_PATTERN = BG_RAMP_UP;
   }
+  else {
+    BARGRAPH_PATTERN = BG_RAMP_DOWN;
+  }
+
+  // Update bargraph elements.
+  bargraphUpdate();
 }
