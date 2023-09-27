@@ -30,6 +30,7 @@ void loop() {
 void mainLoop() {
   if(ms_demo.remaining() == 0) {
     incrementDemo();
+    b_bargraph_ramping = false;
   }
 
   runDemo(); // Sets the demo to run on the bargraph.
@@ -55,13 +56,16 @@ void runDemo() {
 
     case 1:
       // Prepare bargraph for next pattern.
-      if(BARGRAPH_STATE == BG_OFF) {
+      if(ms_demo.remaining() == 0) {
         bargraphReset();
-        ms_demo.start(4000);
         i_speed_multiplier = 1;
+        b_bargraph_ramping = true; // Ramp up/down to set power level.
+        ms_demo.start(4000);
+        ms_speed.start(2000);
       }
-      // Ramps bargraph up and down, but must be called on each loop to check values.
-      bargraphPowerCheck(POWER_LEVEL);
+      if(ms_speed.justFinished()) {
+        i_speed_multiplier = 4;
+      }
     break;
 
     case 2:

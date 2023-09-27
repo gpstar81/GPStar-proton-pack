@@ -126,9 +126,6 @@ void bargraphPowerCheck(uint8_t i_level) {
     // When known full, ramp down.
     BARGRAPH_PATTERN = BG_RAMP_DOWN;
   }
-  else if(BARGRAPH_STATE != BG_OFF) {
-    bargraphClear();
-  }
 
   // Ensure bargraph stops at the correct element based on a given power level.
   // Account for uneven division by using the remainder as the base for level 1.
@@ -137,14 +134,22 @@ void bargraphPowerCheck(uint8_t i_level) {
   i_bargraph_sim_max = i_bargraph_base + (i_bargraph_levels * (i_level + 1));
 }
 
+// Performs update on bargraph elements based given a pattern.
 void bargraphUpdate(uint8_t i_delay_divisor) {
   if(i_delay_divisor == 0) {
     i_delay_divisor = 1; // Avoid divide by zero.
   }
+
+  if(b_bargraph_ramping) {
+    // Use the current power level to set some global variables.
+    bargraphPowerCheck(POWER_LEVEL);
+  }
+
   // Set the current delay by dividing the base delay by some value.
   uint8_t i_current_delay = int(i_bargraph_delay / i_delay_divisor);
 
-  // Adjust the delay based on the simulated max vs. actual max.
+  // Adjust the delay based on the number of total elements to be illuminated.
+  // Applies primarily to the BG_POWER_LEVEL pattern for levels 1-4.
   i_current_delay = i_current_delay + (i_bargraph_elements - i_bargraph_sim_max);
 
   // If bargraph is not in an OFF state and timer is off/finished, perform an update of element(s).
