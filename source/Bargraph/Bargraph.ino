@@ -23,13 +23,9 @@ void loop() {
 }
 
 void mainLoop() {
-  // Set the bargraph pattern.
-  if(BARGRAPH_STATE == BG_EMPTY) {
-    BARGRAPH_PATTERN = BG_RAMP_UP;
-  }
-  else {
-    BARGRAPH_PATTERN = BG_RAMP_DOWN;
-  }
+  //bargraphPowerCheck(); // Ramps bargraph up and down.
+  BARGRAPH_PATTERN = BG_OUTER_INNER; // Standard firing pattern.
+  //BARGRAPH_PATTERN = BG_INNER_PULSE; // Modified firing pattern.
 
   // Update bargraph elements.
   bargraphUpdate();

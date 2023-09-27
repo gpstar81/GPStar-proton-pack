@@ -21,26 +21,14 @@
 HT16K33 ht_bargraph;
 const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph.
 uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns.
+uint8_t i_bargraph_step = 0; // Indicates current step for certain patterns.
 bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph.
 int i_bargraph_element = 0; // Indicates current element for adjustment.
 uint8_t i_bargraph_delay = 20; // Base delay for any bargraph refresh.
-
-// Patterns and States
-enum BARGRAPH_PATTERNS { BG_RAMP_UP, BG_RAMP_DOWN, BG_POWER_CHECK, BG_OUTER_INNER, BG_UP_DOWN };
-enum BARGRAPH_PATTERNS BARGRAPH_PATTERN;
-enum BARGRAPH_STATES { BG_UNKNOWN, BG_EMPTY, BG_FULL };
-enum BARGRAPH_STATES BARGRAPH_STATE;
-
-bool b_bargraph_up = false;
-uint8_t i_bargraph_status = 0;
-const uint8_t i_bargraph_interval = 4;
-const uint8_t i_bargraph_wait = 180;
-const uint8_t d_bargraph_ramp_interval = 40;
-millisDelay ms_bargraph_alt;
 millisDelay ms_bargraph;
-millisDelay ms_bargraph_firing;
-uint8_t i_bargraph_status_alt = 0;
-const uint8_t d_bargraph_ramp_interval_alt = 40;
-const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
-const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
-unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+
+// Bargraph Patterns and States
+enum BARGRAPH_PATTERNS { BG_RAMP_UP, BG_RAMP_DOWN, BG_OUTER_INNER, BG_INNER_PULSE };
+enum BARGRAPH_PATTERNS BARGRAPH_PATTERN;
+enum BARGRAPH_STATES { BG_UNKNOWN, BG_EMPTY, BG_FULL, BG_MID };
+enum BARGRAPH_STATES BARGRAPH_STATE;

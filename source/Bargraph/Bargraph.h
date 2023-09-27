@@ -1,3 +1,10 @@
+void bargraphReset() {
+  i_bargraph_element = 0;
+  i_bargraph_step = 0;
+  BARGRAPH_STATE = BG_UNKNOWN;
+  ms_bargraph.stop();
+}
+
 void setupBargraph() {
   WIRE.begin();
 
@@ -25,7 +32,7 @@ void setupBargraph() {
     ht_bargraph.begin(0x00);
   }
 
-  BARGRAPH_STATE = BG_UNKNOWN; // Always initialized to an unknown state.
+  bargraphReset();
 }
 
 void bargraphSetElement(int i_element, bool b_power) {
@@ -56,17 +63,21 @@ void bargraphFull() {
   }
 }
 
-void bargraphReset() {
-  i_bargraph_element = 0;
-  BARGRAPH_STATE = BG_EMPTY;
-  ms_bargraph.stop();
-}
-
 void bargraphClear() {
   if(b_bargraph_present) {
     ht_bargraph.clearAll();
   }
-  bargraphReset();
+  BARGRAPH_STATE = BG_EMPTY;
+}
+
+void bargraphPowerCheck() {
+  // Ramps the bargraph up and down.
+  if(BARGRAPH_STATE == BG_EMPTY) {
+    BARGRAPH_PATTERN = BG_RAMP_UP;
+  }
+  else {
+    BARGRAPH_PATTERN = BG_RAMP_DOWN;
+  }
 }
 
 void bargraphUpdate() {
@@ -121,6 +132,217 @@ void bargraphUpdate() {
           // Reset timer for next iteration.
           ms_bargraph.start(i_bargraph_delay);
         }
+      break;
+
+      case BG_INNER_PULSE:
+      case BG_OUTER_INNER:
+        if(BARGRAPH_STATE != BG_EMPTY && BARGRAPH_STATE != BG_MID) {
+          // Make sure bargraph is empty before starting the pattern.
+          bargraphClear();
+
+          // Prepare to begin on appropriate step.
+          if(BARGRAPH_PATTERN == BG_INNER_PULSE) {
+            i_bargraph_step = i_bargraph_steps - 1;
+          }
+          else {
+            i_bargraph_step = 0;
+          }
+        }
+
+        // Set special values when at either end of the bargraph.
+        if(i_bargraph_step == (i_bargraph_steps - 1)) {
+          BARGRAPH_STATE = BG_MID;
+        }
+        else if(i_bargraph_step == 0) {
+          BARGRAPH_STATE = BG_EMPTY;
+        }
+
+        switch(i_bargraph_step) {
+          case 0:
+            bargraphSetElement(0, 1);
+            bargraphSetElement(27, 1);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(1, 0);
+              bargraphSetElement(26, 0);
+            }
+          break;
+
+          case 1:
+            bargraphSetElement(1, 1);
+            bargraphSetElement(26, 1);
+
+            bargraphSetElement(0, 0);
+            bargraphSetElement(27, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(2, 0);
+              bargraphSetElement(25, 0);
+            }
+          break;
+
+          case 2:
+            bargraphSetElement(2, 1);
+            bargraphSetElement(25, 1);
+
+            bargraphSetElement(1, 0);
+            bargraphSetElement(26, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(3, 0);
+              bargraphSetElement(24, 0);
+            }
+          break;
+
+          case 3:
+            bargraphSetElement(3, 1);
+            bargraphSetElement(24, 1);
+
+            bargraphSetElement(2, 0);
+            bargraphSetElement(25, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(4, 0);
+              bargraphSetElement(23, 0);
+            }
+          break;
+
+          case 4:
+            bargraphSetElement(4, 1);
+            bargraphSetElement(23, 1);
+
+            bargraphSetElement(3, 0);
+            bargraphSetElement(24, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(5, 0);
+              bargraphSetElement(22, 0);
+            }
+          break;
+
+          case 5:
+            bargraphSetElement(5, 1);
+            bargraphSetElement(22, 1);
+
+            bargraphSetElement(4, 0);
+            bargraphSetElement(23, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(6, 0);
+              bargraphSetElement(21, 0);
+            }
+          break;
+
+          case 6:
+            bargraphSetElement(6, 1);
+            bargraphSetElement(21, 1);
+
+            bargraphSetElement(5, 0);
+            bargraphSetElement(22, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(7, 0);
+              bargraphSetElement(20, 0);
+            }
+          break;
+
+          case 7:
+            bargraphSetElement(7, 1);
+            bargraphSetElement(20, 1);
+
+            bargraphSetElement(6, 0);
+            bargraphSetElement(21, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(8, 0);
+              bargraphSetElement(19, 0);
+            }
+          break;
+
+          case 8:
+            bargraphSetElement(8, 1);
+            bargraphSetElement(19, 1);
+
+            bargraphSetElement(7, 0);
+            bargraphSetElement(20, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(9, 0);
+              bargraphSetElement(18, 0);
+            }
+          break;
+
+          case 9:
+            bargraphSetElement(9, 1);
+            bargraphSetElement(18, 1);
+
+            bargraphSetElement(8, 0);
+            bargraphSetElement(19, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(10, 0);
+              bargraphSetElement(17, 0);
+            }
+          break;
+
+          case 10:
+            bargraphSetElement(10, 1);
+            bargraphSetElement(17, 1);
+
+            bargraphSetElement(9, 0);
+            bargraphSetElement(18, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(11, 0);
+              bargraphSetElement(16, 0);
+            }
+          break;
+
+          case 11:
+            bargraphSetElement(11, 1);
+            bargraphSetElement(16, 1);
+
+            bargraphSetElement(10, 0);
+            bargraphSetElement(17, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(12, 0);
+              bargraphSetElement(15, 0);
+            }
+          break;
+
+          case 12:
+            bargraphSetElement(12, 1);
+            bargraphSetElement(15, 1);
+
+            bargraphSetElement(11, 0);
+            bargraphSetElement(16, 0);
+
+            if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+              bargraphSetElement(13, 0);
+              bargraphSetElement(14, 0);
+            }
+          break;
+
+          case 13:
+            bargraphSetElement(13, 1);
+            bargraphSetElement(14, 1);
+
+            bargraphSetElement(12, 0);
+            bargraphSetElement(15, 0);
+          break;
+        }
+
+        if(BARGRAPH_STATE != BG_MID) {
+          // Continue pattern until reaching midpoint.
+          i_bargraph_step++;
+        }
+        else {
+          // Reverse direction at midpoint state.
+          i_bargraph_step--;
+        }
+
+        ms_bargraph.start(i_bargraph_delay);
       break;
     }
   }
