@@ -11,6 +11,8 @@
  * - Ramp Down: Starts full and turns off top to bottom
  * - Outer-Inner: Standard firing sequence, with a single element moving from the top/bottom to middle then back again
  * - Inner Pulse: Pulses elements from the middle of the bargraph outward to the top/bottom and back inward again
+ * - Power Ramp: Uses the power level to ramp up/down to an equivalent position on the display
+ *               The initial pattern will transition to a special ramp-up or ramp-down pattern
  *
  * States
  * - Off: Denotes bargraph is not in use and should not be animated
@@ -19,7 +21,7 @@
  * - Mid: Denotes bargraph pattern reached the middle of the display
  * - Full: Denotes bargraph was last seen as completely full (lit)
  */
-enum BARGRAPH_PATTERNS { BG_RAMP_UP, BG_RAMP_DOWN, BG_OUTER_INNER, BG_INNER_PULSE };
+enum BARGRAPH_PATTERNS { BG_RAMP_UP, BG_RAMP_DOWN, BG_OUTER_INNER, BG_INNER_PULSE, BG_POWER_RAMP, BG_POWER_DOWN, BG_POWER_UP };
 enum BARGRAPH_PATTERNS BARGRAPH_PATTERN;
 enum BARGRAPH_STATES { BG_OFF, BG_ON, BG_EMPTY, BG_MID, BG_FULL };
 enum BARGRAPH_STATES BARGRAPH_STATE;
@@ -120,11 +122,11 @@ void bargraphPowerCheck(uint8_t i_level) {
   // Alternates between ramping up and down.
   if(BARGRAPH_STATE == BG_EMPTY) {
     // When known empty, ramp up.
-    BARGRAPH_PATTERN = BG_RAMP_UP;
+    BARGRAPH_PATTERN = BG_POWER_UP;
   }
   else if(BARGRAPH_STATE == BG_FULL) {
     // When known full, ramp down.
-    BARGRAPH_PATTERN = BG_RAMP_DOWN;
+    BARGRAPH_PATTERN = BG_POWER_DOWN;
   }
 
   // Ensure bargraph stops at the correct element based on a given power level.
@@ -140,8 +142,16 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
     i_delay_divisor = 1; // Avoid divide by zero.
   }
 
-  if(b_bargraph_ramping) {
-    // Use the current power level to set some global variables.
+  if(BARGRAPH_PATTERN == BG_POWER_RAMP ||
+     BARGRAPH_PATTERN == BG_POWER_DOWN ||
+     BARGRAPH_PATTERN == BG_POWER_UP) {
+    if(BARGRAPH_PATTERN == BG_POWER_RAMP){
+      // Set the initial direction for the power ramp (up).
+      BARGRAPH_PATTERN = BG_POWER_UP;
+    }
+
+    // Use the current power level to set some global variables, such as the simulated maximum elements.
+    // This will determine whether to ramp up or down, and must be called prior to the switch statement below.
     bargraphPowerCheck(POWER_LEVEL);
   }
 
@@ -158,6 +168,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
     // Animations should be based on a set pattern and logic here must only affect the bargraph device.
     switch(BARGRAPH_PATTERN) {
       case BG_RAMP_UP:
+      case BG_POWER_UP:
         if(BARGRAPH_STATE != BG_EMPTY) {
           // Make sure bargraph is empty before ramp up.
           bargraphClear();
@@ -169,7 +180,8 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
         // Increment to the next element.
         i_bargraph_element++;
 
-        if(i_bargraph_element >= i_bargraph_sim_max) {
+        if((BARGRAPH_PATTERN == BG_POWER_UP && i_bargraph_element >= i_bargraph_sim_max) ||
+           (BARGRAPH_PATTERN == BG_RAMP_UP && i_bargraph_element >= i_bargraph_elements)) {
           // Note that the bargraph is full;
           BARGRAPH_STATE = BG_FULL;
 
@@ -183,6 +195,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
       break;
 
       case BG_RAMP_DOWN:
+      case BG_POWER_DOWN:
         if(BARGRAPH_STATE != BG_FULL) {
           // Make sure bargraph is full before ramp down.
           bargraphFull();
@@ -222,7 +235,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
           }
         }
 
-        uint8_t i_element_max = i_bargraph_sim_max - 1;
+        uint8_t i_element_max = i_bargraph_elements - 1;
         uint8_t i_step_mid = i_bargraph_steps - 1;
 
         // Set special values when at either end of the bargraph.

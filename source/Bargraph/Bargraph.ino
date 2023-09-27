@@ -30,7 +30,6 @@ void loop() {
 void mainLoop() {
   if(ms_demo.remaining() == 0) {
     incrementDemo();
-    b_bargraph_ramping = false;
   }
 
   runDemo(); // Sets the demo to run on the bargraph.
@@ -58,13 +57,18 @@ void runDemo() {
       // Prepare bargraph for next pattern.
       if(ms_demo.remaining() == 0) {
         bargraphReset();
-        i_speed_multiplier = 1;
-        b_bargraph_ramping = true; // Ramp up/down to set power level.
-        ms_demo.start(4000);
+        i_speed_multiplier = 3;
+        POWER_LEVEL = LEVEL_5;
+        BARGRAPH_PATTERN = BG_POWER_RAMP; // Ramp up/down to set power level.
+        ms_demo.start(6000);
+        ms_power.start(4000);
         ms_speed.start(2000);
       }
+      if(ms_power.justFinished()) {
+        POWER_LEVEL = LEVEL_3;
+      }
       if(ms_speed.justFinished()) {
-        i_speed_multiplier = 4;
+        i_speed_multiplier = 1;
       }
     break;
 
@@ -77,7 +81,7 @@ void runDemo() {
         ms_speed.start(2000);
       }
       if(ms_speed.justFinished()) {
-        i_speed_multiplier = 4;
+        i_speed_multiplier = 3;
       }
     break;
 
@@ -90,7 +94,7 @@ void runDemo() {
         ms_speed.start(2000);
       }
       if(ms_speed.justFinished()) {
-        i_speed_multiplier = 4;
+        i_speed_multiplier = 3;
       }
     break;
 
