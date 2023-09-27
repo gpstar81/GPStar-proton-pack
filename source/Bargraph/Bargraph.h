@@ -3,12 +3,63 @@
  * Patterns should not rely on hard-set values for position, but rather be relative to the min/max elements available.
  */
 
+/***** Helper Functions *****/
+
+void bargraphSetElement(int i_element, bool b_power) {
+  if(i_element < 0) {
+    i_element = 0; // Keep byte value in usable range. 
+  }
+  else if(i_element >= i_bargraph_elements) {
+    // Do not exceed the total addressable elements.
+    i_element = i_bargraph_elements - 1;
+  }
+
+  if(b_bargraph_present) {
+    // This simplifies the process of turning individual elements on or off.
+    // Uses the mapping information which accounts for installation orientation.
+    if(b_power) {
+      ht_bargraph.setLedNow(i_bargraph[i_element]);
+    }
+    else {
+      ht_bargraph.clearLedNow(i_bargraph[i_element]);
+    }
+  }
+}
+
 void bargraphReset() {
+  // Sets the bargraph into a state where it can begin running.
   i_bargraph_element = 0;
   i_bargraph_step = 0;
-  BARGRAPH_STATE = BG_UNKNOWN;
+  BARGRAPH_STATE = BG_ON;
   ms_bargraph.stop();
 }
+
+void bargraphFull() {
+  // Illuminates all elements on the bargraph, marks state as full.
+  if(b_bargraph_present) {
+    for(uint8_t i = 0; i < i_bargraph_elements; i++) {
+      bargraphSetElement(i, 1);
+    }
+  }
+  BARGRAPH_STATE = BG_FULL; // Mark last known state.
+}
+
+void bargraphClear() {
+  // Clears all elements from the bargraph, marks state as empty.
+  if(b_bargraph_present) {
+    ht_bargraph.clearAll();
+  }
+  BARGRAPH_STATE = BG_EMPTY; // Mark last known state.
+}
+
+void bargraphOff() {
+  // Turns off the bargraph and prevents any animations.
+  bargraphClear(); // Only clears elements, marks as empty.
+  bargraphReset(); // Only clears timers, resets variables.
+  BARGRAPH_STATE = BG_OFF;
+}
+
+/***** Core Setup - Declared after helper functions *****/
 
 void setupBargraph() {
   WIRE.begin();
@@ -37,50 +88,19 @@ void setupBargraph() {
     ht_bargraph.begin(0x00);
   }
 
-  bargraphReset();
+  bargraphOff(); // Turn off the bargraph.
 }
 
-void bargraphSetElement(int i_element, bool b_power) {
-  if(i_element < 0) {
-    i_element = 0; // Keep byte value in range. 
-  }
-  if(i_element >= i_bargraph_elements) {
-    // Do not exceed the addressable elements.
-    i_element = i_bargraph_elements - 1;
-  }
-
-  if(b_bargraph_present) {
-    if(b_power) {
-      ht_bargraph.setLedNow(i_bargraph[i_element]);
-    }
-    else {
-      ht_bargraph.clearLedNow(i_bargraph[i_element]);
-    }
-  }
-}
-
-void bargraphFull() {
-  if(b_bargraph_present) {
-    for(uint8_t i = 0; i < i_bargraph_elements; i++) {
-      bargraphSetElement(i, 1);
-    }
-    BARGRAPH_STATE = BG_FULL;
-  }
-}
-
-void bargraphClear() {
-  if(b_bargraph_present) {
-    ht_bargraph.clearAll();
-  }
-  BARGRAPH_STATE = BG_EMPTY;
-}
+/***** Animation Controls *****/
 
 void bargraphPowerCheck(uint8_t i_level) {
   // Alternates between ramping up and down.
   if(BARGRAPH_STATE == BG_EMPTY) {
+    // When known empty, ramp up.
     BARGRAPH_PATTERN = BG_RAMP_UP;
   }
   else {
+    // Otherwise, assume ramp down.
     BARGRAPH_PATTERN = BG_RAMP_DOWN;
   }
 
@@ -101,9 +121,9 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
   // Adjust the delay based on the simulated max vs. actual max.
   i_current_delay = i_current_delay + (i_bargraph_elements - i_bargraph_sim_max);
 
-  // Perform an update of element(s) when timer has completed,
-  // only if bargraph was not explicitly set to an OFF state.
+  // If bargraph is not in an OFF state and timer is off/finished, perform an update of element(s).
   if(BARGRAPH_STATE != BG_OFF && ms_bargraph.remaining() == 0) {
+
     // Animations should be based on a set pattern and logic here must only affect the bargraph device.
     switch(BARGRAPH_PATTERN) {
       case BG_RAMP_UP:

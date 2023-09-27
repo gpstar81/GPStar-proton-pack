@@ -14,25 +14,26 @@ void setup() {
   delay(10);
   setupBargraph();
 
-  // Initialize critical timers.
-  ms_bargraph.start(i_bargraph_delay);
-
   // Set defaults for testing.
   POWER_LEVEL = LEVEL_5;
   i_speed_multiplier = 1;
 }
 
 void loop() {
-  mainLoop();
+  mainLoop(); // Mimic normal pattern for other devices.
 }
 
 void mainLoop() {
-  //BARGRAPH_STATE = BG_OFF; // Completely disables bargraph updates.
+  if(BARGRAPH_STATE == BG_OFF) {
+    bargraphReset(); // Turns on bargraph, enabling animations.
+  }
+  //BARGRAPH_STATE = BG_OFF; // Disables all bargraph animations.
 
   bargraphPowerCheck(POWER_LEVEL); // Ramps bargraph up and down.
   //BARGRAPH_PATTERN = BG_OUTER_INNER; // Standard firing pattern.
   //BARGRAPH_PATTERN = BG_INNER_PULSE; // Modified firing pattern.
 
-  // Update bargraph elements.
+  // Update bargraph elements using some speed modifier.
+  // In reality this multiplier is a divisor to the standard delay.
   bargraphUpdate(i_speed_multiplier);
 }

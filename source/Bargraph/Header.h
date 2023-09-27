@@ -23,16 +23,31 @@ const uint8_t i_bargraph_delay = 12; // Base delay (ms) for any bargraph refresh
 const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph device.
 const uint8_t i_bargraph_levels = 5; // Reflects the count of POWER_LEVELS elements.
 uint8_t i_bargraph_sim_max = i_bargraph_elements; // Simulated maximum for patterns.
-uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns (1/2 Max).
+uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns (1/2 max).
 uint8_t i_bargraph_step = 0; // Indicates current step for certain patterns.
 bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph.
 int i_bargraph_element = 0; // Indicates current LED element for adjustment.
 millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
-// Bargraph Patterns and States
+/*
+ * Bargraph Patterns and States
+ *
+ * Patterns
+ * - Ramp Up: Turns on all elements, from bottom to top
+ * - Ramp Down: Starts full and turns off top to bottom
+ * - Outer-Inner: Standard firing sequence, with a single element moving from the top/bottom to middle then back again
+ * - Inner Pulse: Pulses elements from the middle of the bargraph outward to the top/bottom and back inward again
+ *
+ * States
+ * - Off: Denotes bargraph is not in use and should not be animated
+ * - On: Denotes bargraph may be mid-pattern, but state is unknown
+ * - Empty: Denotes bargraph was last seen as completely empty (dark)
+ * - Mid: Denotes bargraph pattern reached the middle of the display
+ * - Full: Denotes bargraph was last seen as completely full (lit)
+ */
 enum BARGRAPH_PATTERNS { BG_RAMP_UP, BG_RAMP_DOWN, BG_OUTER_INNER, BG_INNER_PULSE };
 enum BARGRAPH_PATTERNS BARGRAPH_PATTERN;
-enum BARGRAPH_STATES { BG_OFF, BG_UNKNOWN, BG_EMPTY, BG_MID, BG_FULL };
+enum BARGRAPH_STATES { BG_OFF, BG_ON, BG_EMPTY, BG_MID, BG_FULL };
 enum BARGRAPH_STATES BARGRAPH_STATE;
 
 // Power levels available (ENUM values should equate to 0-4).
