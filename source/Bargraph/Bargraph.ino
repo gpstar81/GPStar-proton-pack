@@ -23,8 +23,8 @@ void loop() {
 }
 
 void mainLoop() {
-  //bargraphPowerCheck(); // Ramps bargraph up and down.
-  BARGRAPH_PATTERN = BG_OUTER_INNER; // Standard firing pattern.
+  bargraphPowerCheck(); // Ramps bargraph up and down.
+  //BARGRAPH_PATTERN = BG_OUTER_INNER; // Standard firing pattern.
   //BARGRAPH_PATTERN = BG_INNER_PULSE; // Modified firing pattern.
 
   // Update bargraph elements.
