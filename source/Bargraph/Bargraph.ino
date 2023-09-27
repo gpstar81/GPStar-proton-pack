@@ -14,9 +14,13 @@ void setup() {
   delay(10);
   setupBargraph();
 
+
   // Set defaults for testing.
   POWER_LEVEL = LEVEL_5;
   i_speed_multiplier = 1;
+
+  // Start the demo timer.
+  ms_demo.start(1000);
 }
 
 void loop() {
@@ -24,16 +28,84 @@ void loop() {
 }
 
 void mainLoop() {
-  if(BARGRAPH_STATE == BG_OFF) {
-    bargraphReset(); // Turns on bargraph, enabling animations.
+  if(ms_demo.remaining() == 0) {
+    incrementDemo();
   }
-  //BARGRAPH_STATE = BG_OFF; // Disables all bargraph animations.
 
-  bargraphPowerCheck(POWER_LEVEL); // Ramps bargraph up and down.
-  //BARGRAPH_PATTERN = BG_OUTER_INNER; // Standard firing pattern.
-  //BARGRAPH_PATTERN = BG_INNER_PULSE; // Modified firing pattern.
+  runDemo(); // Sets the demo to run on the bargraph.
 
   // Update bargraph elements using some speed modifier.
   // In reality this multiplier is a divisor to the standard delay.
   bargraphUpdate(i_speed_multiplier);
+}
+
+void incrementDemo() {
+  // Increments through values 0-5, resets after that.
+  i_demo = (i_demo + 1) % 6;
+}
+
+void runDemo() {
+  switch(i_demo) {
+    case 0:
+      if(ms_demo.remaining() == 0) {
+        bargraphOff();
+        ms_demo.start(2000);
+      }
+    break;
+
+    case 1:
+      // Prepare bargraph for next pattern.
+      if(BARGRAPH_STATE == BG_OFF) {
+        bargraphReset();
+        ms_demo.start(4000);
+        i_speed_multiplier = 1;
+      }
+      // Ramps bargraph up and down, but must be called on each loop to check values.
+      bargraphPowerCheck(POWER_LEVEL);
+    break;
+
+    case 2:
+      if(ms_demo.remaining() == 0) {
+        bargraphReset();
+        i_speed_multiplier = 1;
+        BARGRAPH_PATTERN = BG_OUTER_INNER; // Standard firing pattern.
+        ms_demo.start(4000);
+        ms_speed.start(2000);
+      }
+      if(ms_speed.justFinished()) {
+        i_speed_multiplier = 4;
+      }
+    break;
+
+    case 3:
+      if(ms_demo.remaining() == 0) {
+        bargraphReset();
+        i_speed_multiplier = 1;
+        BARGRAPH_PATTERN = BG_INNER_PULSE; // Modified firing pattern.
+        ms_demo.start(4000);
+        ms_speed.start(2000);
+      }
+      if(ms_speed.justFinished()) {
+        i_speed_multiplier = 4;
+      }
+    break;
+
+    case 4:
+      if(ms_demo.remaining() == 0) {
+        bargraphReset();
+        i_speed_multiplier = 1;
+        BARGRAPH_PATTERN = BG_RAMP_UP;
+        ms_demo.start(4000);
+      }
+    break;
+
+    case 5:
+      if(ms_demo.remaining() == 0) {
+        bargraphReset();
+        i_speed_multiplier = 1;
+        BARGRAPH_PATTERN = BG_RAMP_DOWN;
+        ms_demo.start(4000);
+      }
+    break;
+  }
 }

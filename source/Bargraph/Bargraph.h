@@ -3,6 +3,27 @@
  * Patterns should not rely on hard-set values for position, but rather be relative to the min/max elements available.
  */
 
+/*
+ * Bargraph Patterns and States
+ *
+ * Patterns
+ * - Ramp Up: Turns on all elements, from bottom to top
+ * - Ramp Down: Starts full and turns off top to bottom
+ * - Outer-Inner: Standard firing sequence, with a single element moving from the top/bottom to middle then back again
+ * - Inner Pulse: Pulses elements from the middle of the bargraph outward to the top/bottom and back inward again
+ *
+ * States
+ * - Off: Denotes bargraph is not in use and should not be animated
+ * - On: Denotes bargraph may be mid-pattern, but state is unknown
+ * - Empty: Denotes bargraph was last seen as completely empty (dark)
+ * - Mid: Denotes bargraph pattern reached the middle of the display
+ * - Full: Denotes bargraph was last seen as completely full (lit)
+ */
+enum BARGRAPH_PATTERNS { BG_RAMP_UP, BG_RAMP_DOWN, BG_OUTER_INNER, BG_INNER_PULSE };
+enum BARGRAPH_PATTERNS BARGRAPH_PATTERN;
+enum BARGRAPH_STATES { BG_OFF, BG_ON, BG_EMPTY, BG_MID, BG_FULL };
+enum BARGRAPH_STATES BARGRAPH_STATE;
+
 /***** Helper Functions *****/
 
 void bargraphSetElement(int i_element, bool b_power) {
@@ -41,6 +62,7 @@ void bargraphFull() {
       bargraphSetElement(i, 1);
     }
   }
+  i_bargraph_element = i_bargraph_elements - 1;
   BARGRAPH_STATE = BG_FULL; // Mark last known state.
 }
 
@@ -49,6 +71,7 @@ void bargraphClear() {
   if(b_bargraph_present) {
     ht_bargraph.clearAll();
   }
+  i_bargraph_element = 0;
   BARGRAPH_STATE = BG_EMPTY; // Mark last known state.
 }
 
@@ -99,9 +122,12 @@ void bargraphPowerCheck(uint8_t i_level) {
     // When known empty, ramp up.
     BARGRAPH_PATTERN = BG_RAMP_UP;
   }
-  else {
-    // Otherwise, assume ramp down.
+  else if(BARGRAPH_STATE == BG_FULL) {
+    // When known full, ramp down.
     BARGRAPH_PATTERN = BG_RAMP_DOWN;
+  }
+  else if(BARGRAPH_STATE != BG_OFF) {
+    bargraphClear();
   }
 
   // Ensure bargraph stops at the correct element based on a given power level.
