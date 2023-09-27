@@ -19,16 +19,26 @@
  * SCL -> A5
  */
 HT16K33 ht_bargraph;
-const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph.
-uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns.
+const uint8_t i_bargraph_delay = 20; // Base delay (ms) for any bargraph refresh.
+const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph device.
+const uint8_t i_bargraph_levels = 5; // Reflects the count of POWER_LEVELS elements.
+uint8_t i_bargraph_sim_max = i_bargraph_elements; // Simulated maximum for patterns.
+uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns (1/2 Max).
 uint8_t i_bargraph_step = 0; // Indicates current step for certain patterns.
 bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph.
-int i_bargraph_element = 0; // Indicates current element for adjustment.
-uint8_t i_bargraph_delay = 20; // Base delay for any bargraph refresh.
-millisDelay ms_bargraph;
+int i_bargraph_element = 0; // Indicates current LED element for adjustment.
+millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
 // Bargraph Patterns and States
 enum BARGRAPH_PATTERNS { BG_RAMP_UP, BG_RAMP_DOWN, BG_OUTER_INNER, BG_INNER_PULSE };
 enum BARGRAPH_PATTERNS BARGRAPH_PATTERN;
-enum BARGRAPH_STATES { BG_UNKNOWN, BG_EMPTY, BG_FULL, BG_MID };
+enum BARGRAPH_STATES { BG_UNKNOWN, BG_OFF, BG_EMPTY, BG_FULL, BG_MID };
 enum BARGRAPH_STATES BARGRAPH_STATE;
+
+// Power levels available (ENUM values shoud equate to 0-4).
+enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
+enum POWER_LEVELS POWER_LEVEL;
+
+// Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
+// Used by other devices to speed up animations by dividing a delay by this value.
+uint8_t i_speed_multiplier = 1;

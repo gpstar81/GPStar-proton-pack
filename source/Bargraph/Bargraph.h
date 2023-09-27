@@ -1,3 +1,8 @@
+/**
+ * Library for testing bargraph animations.
+ * Patterns should not rely on hard-set values for position, but rather be relative to the min/max elements available.
+ */
+
 void bargraphReset() {
   i_bargraph_element = 0;
   i_bargraph_step = 0;
@@ -37,7 +42,7 @@ void setupBargraph() {
 
 void bargraphSetElement(int i_element, bool b_power) {
   if(i_element < 0) {
-    i_element = 0; // Keep value in range. 
+    i_element = 0; // Keep byte value in range. 
   }
   if(i_element >= i_bargraph_elements) {
     // Do not exceed the addressable elements.
@@ -70,19 +75,33 @@ void bargraphClear() {
   BARGRAPH_STATE = BG_EMPTY;
 }
 
-void bargraphPowerCheck() {
-  // Ramps the bargraph up and down.
+void bargraphPowerCheck(uint8_t i_level) {
+  // Alternates between ramping up and down.
   if(BARGRAPH_STATE == BG_EMPTY) {
     BARGRAPH_PATTERN = BG_RAMP_UP;
   }
   else {
     BARGRAPH_PATTERN = BG_RAMP_DOWN;
   }
+
+  // Ensure bargraph stops at the correct element based on a given power level.
+  // Account for uneven division by using the remainder as the base for level 1.
+  uint8_t i_bargraph_base = (i_bargraph_elements % i_bargraph_levels);
+  // Remember, the passed level will be 0-based so we must add 1 for calculations.
+  i_bargraph_sim_max = i_bargraph_base + (i_bargraph_levels * (i_level + 1));
 }
 
-void bargraphUpdate() {
-  // Perform an update of element(s) when timer has completed.
-  if(ms_bargraph.remaining() == 0) {
+void bargraphUpdate(uint8_t i_delay_divisor) {
+  if(i_delay_divisor == 0) {
+    i_delay_divisor = 1; // Avoid divide by zero.
+  }
+  // Set the current delay by dividing the base delay by some value.
+  uint8_t i_current_delay = int(i_bargraph_delay / i_delay_divisor);
+
+  // Perform an update of element(s) when timer has completed,
+  // only if bargraph was not explicitly set to an OFF state.
+  if(BARGRAPH_STATE != BG_OFF && ms_bargraph.remaining() == 0) {
+    // Animations should be based on a set pattern and logic here must only affect the bargraph device.
     switch(BARGRAPH_PATTERN) {
       case BG_RAMP_UP:
         if(BARGRAPH_STATE != BG_EMPTY) {
@@ -90,22 +109,22 @@ void bargraphUpdate() {
           bargraphClear();
         }
 
-        // Update element only when timer is finished.
+        // Turn on only the current element.
         bargraphSetElement(i_bargraph_element, 1);
 
         // Increment to the next element.
         i_bargraph_element++;
 
-        if(i_bargraph_element >= i_bargraph_elements) {
+        if(i_bargraph_element >= i_bargraph_sim_max) {
           // Note that the bargraph is full;
           BARGRAPH_STATE = BG_FULL;
 
           // Set an extra delay at end of sequence.
-          ms_bargraph.start(i_bargraph_delay * 2);
+          ms_bargraph.start(i_current_delay * 2);
         }
         else {
           // Reset timer for next iteration.
-          ms_bargraph.start(i_bargraph_delay);
+          ms_bargraph.start(i_current_delay);
         }
       break;
 
@@ -115,7 +134,7 @@ void bargraphUpdate() {
           bargraphFull();
         }
 
-        // Update element only when timer is finished.
+        // Turn off only the current element.
         bargraphSetElement(i_bargraph_element, 0);
 
         // Decrement to the next element.
@@ -126,11 +145,11 @@ void bargraphUpdate() {
           bargraphClear();
 
           // Set an extra delay at end of sequence.
-          ms_bargraph.start(i_bargraph_delay * 2);
+          ms_bargraph.start(i_current_delay * 2);
         }
         else {
           // Reset timer for next iteration.
-          ms_bargraph.start(i_bargraph_delay);
+          ms_bargraph.start(i_current_delay);
         }
       break;
 
@@ -149,7 +168,7 @@ void bargraphUpdate() {
           }
         }
 
-        uint8_t i_element_max = i_bargraph_elements - 1;
+        uint8_t i_element_max = i_bargraph_sim_max - 1;
         uint8_t i_step_mid = i_bargraph_steps - 1;
 
         // Set special values when at either end of the bargraph.
@@ -182,11 +201,11 @@ void bargraphUpdate() {
           bargraphSetElement(i_bargraph_step, 1);
           bargraphSetElement(i_element_max - i_bargraph_step, 1);
 
-          // Clear the next outer elements from N steps.
+          // Clear the next outer elements at N-1 steps.
           bargraphSetElement(i_bargraph_step - 1, 0);
           bargraphSetElement(i_element_max - (i_bargraph_step - 1), 0);
 
-          // Clear the next inner elements from N steps.
+          // Clear the next inner elements at N+1 steps.
           if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
             bargraphSetElement(i_bargraph_step + 1, 0);
             bargraphSetElement(i_element_max - (i_bargraph_step + 1), 0);
@@ -202,7 +221,8 @@ void bargraphUpdate() {
           i_bargraph_step--;
         }
 
-        ms_bargraph.start(i_bargraph_delay);
+        // Reset timer for next iteration.
+        ms_bargraph.start(i_current_delay);
       break;
     }
   }
