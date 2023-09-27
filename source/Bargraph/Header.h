@@ -19,7 +19,7 @@
  * SCL -> A5
  */
 HT16K33 ht_bargraph;
-const uint8_t i_bargraph_delay = 20; // Base delay (ms) for any bargraph refresh.
+const uint8_t i_bargraph_delay = 12; // Base delay (ms) for any bargraph refresh.
 const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph device.
 const uint8_t i_bargraph_levels = 5; // Reflects the count of POWER_LEVELS elements.
 uint8_t i_bargraph_sim_max = i_bargraph_elements; // Simulated maximum for patterns.
@@ -32,10 +32,10 @@ millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 // Bargraph Patterns and States
 enum BARGRAPH_PATTERNS { BG_RAMP_UP, BG_RAMP_DOWN, BG_OUTER_INNER, BG_INNER_PULSE };
 enum BARGRAPH_PATTERNS BARGRAPH_PATTERN;
-enum BARGRAPH_STATES { BG_UNKNOWN, BG_OFF, BG_EMPTY, BG_FULL, BG_MID };
+enum BARGRAPH_STATES { BG_OFF, BG_UNKNOWN, BG_EMPTY, BG_MID, BG_FULL };
 enum BARGRAPH_STATES BARGRAPH_STATE;
 
-// Power levels available (ENUM values shoud equate to 0-4).
+// Power levels available (ENUM values should equate to 0-4).
 enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
 enum POWER_LEVELS POWER_LEVEL;
 

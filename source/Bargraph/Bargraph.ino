@@ -17,7 +17,9 @@ void setup() {
   // Initialize critical timers.
   ms_bargraph.start(i_bargraph_delay);
 
+  // Set defaults for testing.
   POWER_LEVEL = LEVEL_5;
+  i_speed_multiplier = 1;
 }
 
 void loop() {
@@ -25,6 +27,8 @@ void loop() {
 }
 
 void mainLoop() {
+  //BARGRAPH_STATE = BG_OFF; // Completely disables bargraph updates.
+
   bargraphPowerCheck(POWER_LEVEL); // Ramps bargraph up and down.
   //BARGRAPH_PATTERN = BG_OUTER_INNER; // Standard firing pattern.
   //BARGRAPH_PATTERN = BG_INNER_PULSE; // Modified firing pattern.

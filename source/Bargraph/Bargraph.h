@@ -98,6 +98,9 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
   // Set the current delay by dividing the base delay by some value.
   uint8_t i_current_delay = int(i_bargraph_delay / i_delay_divisor);
 
+  // Adjust the delay based on the simulated max vs. actual max.
+  i_current_delay = i_current_delay + (i_bargraph_elements - i_bargraph_sim_max);
+
   // Perform an update of element(s) when timer has completed,
   // only if bargraph was not explicitly set to an OFF state.
   if(BARGRAPH_STATE != BG_OFF && ms_bargraph.remaining() == 0) {
