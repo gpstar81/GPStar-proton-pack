@@ -177,7 +177,10 @@ void mainLoop() {
       }
 
       if(ms_blink_leds.isRunning()) {
-        BARGRAPH_PATTERN = BG_INNER_PULSE; // Modified firing pattern.
+        if(b_firing && i_speed_multiplier > 1 && !b_overheating) {
+          // Switch to a modified firing pattern for the pre-overheat warning.
+          BARGRAPH_PATTERN = BG_INNER_PULSE;
+        }
 
         if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
           // Only blink the lower LED as we will use a fade effect for the upper LED.
@@ -636,6 +639,7 @@ void checkPack() {
             b_overheating = true;
             ms_blink_leds.start(i_blink_leds);
 
+            bargraphFull();
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
@@ -653,6 +657,7 @@ void checkPack() {
             b_firing = true;
             ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
+            bargraphClear();
             BARGRAPH_PATTERN = BG_OUTER_INNER;
           break;
 
@@ -662,9 +667,9 @@ void checkPack() {
             i_speed_multiplier = 1;
 
             if(b_pack_alarm) {
-              // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
-              bargraphFull();
-              BARGRAPH_PATTERN = BG_RAMP_DOWN;
+              // We are going change the bargraph if the pack alarm happens while we were firing.
+              bargraphClear();
+              BARGRAPH_PATTERN = BG_INNER_PULSE;
             }
             else {
               // We ramp the bargraph back up after finishing firing.
