@@ -19,7 +19,7 @@
  * SCL -> A5
  */
 HT16K33 ht_bargraph;
-const uint8_t i_bargraph_delay = 18; // Base delay (ms) for any bargraph refresh.
+const uint8_t i_bargraph_delay = 12; // Base delay (ms) for any bargraph refresh.
 const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph device.
 const uint8_t i_bargraph_levels = 5; // Reflects the count of POWER_LEVELS elements.
 uint8_t i_bargraph_sim_max = i_bargraph_elements; // Simulated maximum for patterns.

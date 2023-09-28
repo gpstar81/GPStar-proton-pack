@@ -59,7 +59,7 @@ void runDemo() {
         i_speed_multiplier = 3;
         POWER_LEVEL = LEVEL_5;
         BARGRAPH_PATTERN = BG_POWER_RAMP; // Ramp up/down to set power level.
-        ms_demo.start(6000);
+        ms_demo.start(7000);
         ms_power.start(4000);
         ms_speed.start(2000);
       }
@@ -99,19 +99,20 @@ void runDemo() {
 
     case 4:
       if(ms_demo.remaining() == 0) {
+        bargraphClear();
         bargraphReset();
         i_speed_multiplier = 1;
         BARGRAPH_PATTERN = BG_RAMP_UP;
-        ms_demo.start(4000);
+        ms_demo.start(3000);
       }
     break;
 
     case 5:
       if(ms_demo.remaining() == 0) {
-        bargraphReset();
+        bargraphFull();
         i_speed_multiplier = 1;
         BARGRAPH_PATTERN = BG_RAMP_DOWN;
-        ms_demo.start(4000);
+        ms_demo.start(3000);
       }
     break;
   }

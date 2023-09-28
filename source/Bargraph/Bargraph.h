@@ -169,24 +169,25 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
     switch(BARGRAPH_PATTERN) {
       case BG_RAMP_UP:
       case BG_POWER_UP:
-        if(BARGRAPH_STATE != BG_EMPTY) {
-          // Make sure bargraph is empty before ramp up.
-          bargraphClear();
-        }
-
         // Turn on only the current element.
         bargraphSetElement(i_bargraph_element, 1);
 
         // Increment to the next element.
         i_bargraph_element++;
 
-        if((BARGRAPH_PATTERN == BG_POWER_UP && i_bargraph_element >= i_bargraph_sim_max) ||
-           (BARGRAPH_PATTERN == BG_RAMP_UP && i_bargraph_element >= i_bargraph_elements)) {
+        if((BARGRAPH_PATTERN == BG_POWER_UP && i_bargraph_element > i_bargraph_sim_max) ||
+           (BARGRAPH_PATTERN == BG_RAMP_UP && i_bargraph_element > i_bargraph_elements)) {
           // Note that the bargraph is full;
           BARGRAPH_STATE = BG_FULL;
 
-          // Set an extra delay at end of sequence.
-          ms_bargraph.start(i_current_delay * 2);
+          if(BARGRAPH_PATTERN == BG_POWER_UP) {
+            // Set an extra delay at end of sequence, before the ramp-down.
+            ms_bargraph.start(i_current_delay * 2);
+          }
+          else {
+            // If not in the power ramp pattern, bargraph is done.
+            BARGRAPH_STATE = BG_OFF;
+          }
         }
         else {
           // Reset timer for next iteration.
@@ -196,23 +197,24 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
 
       case BG_RAMP_DOWN:
       case BG_POWER_DOWN:
-        if(BARGRAPH_STATE != BG_FULL) {
-          // Make sure bargraph is full before ramp down.
-          bargraphFull();
-        }
-
         // Turn off only the current element.
         bargraphSetElement(i_bargraph_element, 0);
 
         // Decrement to the next element.
         i_bargraph_element--;
 
-        if(i_bargraph_element <= 0) {
+        if(i_bargraph_element < 0) {
           // Make sure bargraph is cleared;
           bargraphClear();
 
-          // Set an extra delay at end of sequence.
-          ms_bargraph.start(i_current_delay * 2);
+          if(BARGRAPH_PATTERN == BG_POWER_DOWN) {
+            // Set an extra delay at end of sequence, before ramp-up.
+            ms_bargraph.start(i_current_delay * 2);
+          }
+          else {
+            // If not in the power ramp pattern, bargraph is done.
+            BARGRAPH_STATE = BG_OFF;
+          }
         }
         else {
           // Reset timer for next iteration.

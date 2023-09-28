@@ -89,7 +89,6 @@ void setup() {
 
   // Initialize critical timers.
   ms_fast_led.start(1);
-  ms_bargraph.start(1);
 }
 
 void loop() {
@@ -139,27 +138,31 @@ void mainLoop() {
   }
 
   if(b_pack_on || (switch_left.getState() == LOW && !b_wait_for_pack)) {
+    if(BARGRAPH_STATE == BG_OFF) {
+      BARGRAPH_STATE = BG_ON;
+    }
+
     if(b_pack_alarm) {
       // This is going to cause the bargraph to ramp down.
-      bargraphReset();
+      if(BARGRAPH_STATE != BG_FULL) {
+        bargraphFull();
+      }
       BARGRAPH_PATTERN = BG_RAMP_DOWN;
     }
     else {
       // Turn the bargraph on (using some pattern).
       if(b_firing) {
-        bargraphReset();
         BARGRAPH_PATTERN = BG_OUTER_INNER; // Standard firing pattern.
       }
       else {
         if(!b_overheating && FIRING_MODE != SETTINGS) {
-          bargraphReset();
           BARGRAPH_PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
         }
       }
     }
   }
   else {
-    // Clear all bargraph elements.
+    // Clear all bargraph elements and turn off the device.
     bargraphOff();
   }
 
@@ -506,6 +509,7 @@ void checkPack() {
             // Pack is off.
             b_pack_on = false;
 
+            bargraphFull();
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
@@ -616,6 +620,7 @@ void checkPack() {
             if(b_pack_on) {
               ms_blink_leds.start(i_blink_leds);
 
+              bargraphFull();
               BARGRAPH_PATTERN = BG_RAMP_DOWN;
             }
           break;
@@ -639,6 +644,7 @@ void checkPack() {
             b_overheating = true;
             ms_blink_leds.start(i_blink_leds);
 
+            bargraphFull();
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
@@ -646,6 +652,7 @@ void checkPack() {
             b_overheating = false;
             ms_blink_leds.stop();
 
+            bargraphClear();
             BARGRAPH_PATTERN = BG_RAMP_UP;
 
             useVibration(0, 0); // Stop vibration.
@@ -655,6 +662,7 @@ void checkPack() {
             b_firing = true;
             ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
+            bargraphReset();
             BARGRAPH_PATTERN = BG_OUTER_INNER;
           break;
 
@@ -665,10 +673,12 @@ void checkPack() {
 
             if(b_pack_alarm) {
               // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
+              bargraphFull();
               BARGRAPH_PATTERN = BG_RAMP_DOWN;
             }
             else {
               // We ramp the bargraph back up after finishing firing.
+              bargraphClear();
               BARGRAPH_PATTERN = BG_POWER_RAMP;
             }
           break;
