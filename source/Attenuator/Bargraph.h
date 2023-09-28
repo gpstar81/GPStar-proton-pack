@@ -20,21 +20,92 @@
 
 /**
  * Control patterns displayed by the 28-segment bargraph device.
+ *
+ * Patterns should not rely on hard-set values for position, but rather be relative to the min/max elements available.
  */
 
-void bargraphYearModeUpdate() {
-  // Reset the multiplier based on the current year mode.
-  switch(YEAR_MODE) {
-    case YEAR_2021:
-      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
-    break;
+/*
+ * Bargraph Patterns and States
+ *
+ * Patterns
+ * - Ramp Up: Turns on all elements, from bottom to top
+ * - Ramp Down: Starts full and turns off top to bottom
+ * - Outer-Inner: Standard firing sequence, with a single element moving from the top/bottom to middle then back again
+ * - Inner Pulse: Pulses elements from the middle of the bargraph outward to the top/bottom and back inward again
+ * - Power Ramp: Uses the power level to ramp up/down to an equivalent position on the display
+ *               The initial pattern will transition to a special ramp-up or ramp-down pattern
+ *
+ * States
+ * - Off: Denotes bargraph is not in use and should not be animated
+ * - On: Denotes bargraph may be mid-pattern, but state is unknown
+ * - Empty: Denotes bargraph was last seen as completely empty (dark)
+ * - Mid: Denotes bargraph pattern reached the middle of the display
+ * - Full: Denotes bargraph was last seen as completely full (lit)
+ */
+enum BARGRAPH_PATTERNS { BG_RAMP_UP, BG_RAMP_DOWN, BG_OUTER_INNER, BG_INNER_PULSE, BG_POWER_RAMP, BG_POWER_DOWN, BG_POWER_UP };
+enum BARGRAPH_PATTERNS BARGRAPH_PATTERN;
+enum BARGRAPH_STATES { BG_OFF, BG_ON, BG_EMPTY, BG_MID, BG_FULL };
+enum BARGRAPH_STATES BARGRAPH_STATE;
 
-    case YEAR_1984:
-    case YEAR_1989:
-      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
-    break;
+/***** Helper Functions *****/
+
+void bargraphSetElement(int i_element, bool b_power) {
+  if(i_element < 0) {
+    i_element = 0; // Keep byte value in usable range. 
+  }
+  else if(i_element >= i_bargraph_elements) {
+    // Do not exceed the total addressable elements.
+    i_element = i_bargraph_elements - 1;
+  }
+
+  if(b_bargraph_present) {
+    // This simplifies the process of turning individual elements on or off.
+    // Uses the mapping information which accounts for installation orientation.
+    if(b_power) {
+      ht_bargraph.setLedNow(i_bargraph[i_element]);
+    }
+    else {
+      ht_bargraph.clearLedNow(i_bargraph[i_element]);
+    }
   }
 }
+
+void bargraphReset() {
+  // Sets the bargraph into a state where it can begin running.
+  i_bargraph_element = 0;
+  i_bargraph_step = 0;
+  BARGRAPH_STATE = BG_ON;
+  ms_bargraph.stop();
+}
+
+void bargraphFull() {
+  // Illuminates all elements on the bargraph, marks state as full.
+  if(b_bargraph_present) {
+    for(uint8_t i = 0; i < i_bargraph_elements; i++) {
+      bargraphSetElement(i, 1);
+    }
+  }
+  i_bargraph_element = i_bargraph_elements - 1;
+  BARGRAPH_STATE = BG_FULL; // Mark last known state.
+}
+
+void bargraphClear() {
+  // Clears all elements from the bargraph, marks state as empty.
+  if(b_bargraph_present) {
+    ht_bargraph.clearAll();
+  }
+  i_bargraph_element = 0;
+  BARGRAPH_STATE = BG_EMPTY; // Mark last known state.
+}
+
+void bargraphOff() {
+  // Turns off the bargraph and prevents any animations.
+  bargraphClear(); // Only clears elements, marks as empty.
+  bargraphReset(); // Only clears timers, resets variables.
+  BARGRAPH_STATE = BG_OFF;
+}
+
+/***** Core Setup - Declared after helper functions *****/
 
 void setupBargraph() {
   WIRE.begin();
@@ -61,902 +132,186 @@ void setupBargraph() {
 
   if(b_bargraph_present) {
     ht_bargraph.begin(0x00);
-
-    bargraphYearModeUpdate();
   }
+
+  bargraphOff(); // Turn off the bargraph.
 }
 
-void bargraphFull() {
-  if(b_bargraph_present) {
-    for(uint8_t i = 0; i < i_bargraph_elements; i++) {
-      ht_bargraph.setLedNow(i_bargraph[i]);
+/***** Animation Controls *****/
+
+void bargraphPowerCheck(uint8_t i_level) {
+  // Alternates between ramping up and down.
+  if(BARGRAPH_STATE == BG_EMPTY) {
+    // When known empty, ramp up.
+    BARGRAPH_PATTERN = BG_POWER_UP;
+  }
+  else if(BARGRAPH_STATE == BG_FULL) {
+    // When known full, ramp down.
+    BARGRAPH_PATTERN = BG_POWER_DOWN;
+  }
+
+  // Ensure bargraph stops at the correct element based on a given power level.
+  // Account for uneven division by using the remainder as the base for level 1.
+  uint8_t i_bargraph_base = (i_bargraph_elements % i_bargraph_levels);
+  // Remember, the passed level will be 0-based so we must add 1 for calculations.
+  i_bargraph_sim_max = i_bargraph_base + (i_bargraph_levels * (i_level + 1));
+}
+
+// Performs update on bargraph elements based given a pattern.
+void bargraphUpdate(uint8_t i_delay_divisor) {
+  if(i_delay_divisor == 0) {
+    i_delay_divisor = 1; // Avoid divide by zero.
+  }
+
+  if(BARGRAPH_PATTERN == BG_POWER_RAMP ||
+     BARGRAPH_PATTERN == BG_POWER_DOWN ||
+     BARGRAPH_PATTERN == BG_POWER_UP) {
+    if(BARGRAPH_PATTERN == BG_POWER_RAMP){
+      // Set the initial direction for the power ramp (up).
+      BARGRAPH_PATTERN = BG_POWER_UP;
     }
+
+    // Use the current power level to set some global variables, such as the simulated maximum elements.
+    // This will determine whether to ramp up or down, and must be called prior to the switch statement below.
+    bargraphPowerCheck(POWER_LEVEL);
   }
-}
 
-void bargraphClear() {
-  if(b_bargraph_present) {
-    ht_bargraph.clearAll();
+  // Set the current delay by dividing the base delay by some value.
+  uint8_t i_current_delay = int(i_bargraph_delay / i_delay_divisor);
 
-    i_bargraph_status = 0; // Reset the position/sequence.
+  // Adjust the delay based on the number of total elements to be illuminated.
+  // Applies primarily to the BG_POWER_LEVEL pattern for levels 1-4.
+  i_current_delay = i_current_delay + (i_bargraph_elements - i_bargraph_sim_max);
 
-    ms_bargraph.stop();
-    ms_bargraph_firing.stop();
-  }
-}
+  // If bargraph is not in an OFF state and timer is off/finished, perform an update of element(s).
+  if(BARGRAPH_STATE != BG_OFF && ms_bargraph.remaining() == 0) {
 
-void bargraphPowerCheck2021Alt(bool b_override) {
-  if((!b_firing && FIRING_MODE != SETTINGS && !b_overheating) || b_override) {
-    if(POWER_LEVEL != POWER_LEVEL_PREV) {
-      if(POWER_LEVEL > POWER_LEVEL_PREV) {
-        b_bargraph_up = true;
-      }
-      else {
-        b_bargraph_up = false;
-      }
+    // Animations should be based on a set pattern and logic here must only affect the bargraph device.
+    switch(BARGRAPH_PATTERN) {
+      case BG_RAMP_UP:
+      case BG_POWER_UP:
+        if(BARGRAPH_STATE != BG_EMPTY) {
+          // Make sure bargraph is empty before ramp up.
+          bargraphClear();
+        }
 
-      switch(POWER_LEVEL) {
-        case LEVEL_5:
-          ms_bargraph_alt.start(i_bargraph_wait / 3);
-        break;
+        // Turn on only the current element.
+        bargraphSetElement(i_bargraph_element, 1);
 
-        case LEVEL_4:
-          ms_bargraph_alt.start(i_bargraph_wait / 4);
-        break;
+        // Increment to the next element.
+        i_bargraph_element++;
 
-        case LEVEL_3:
-          ms_bargraph_alt.start(i_bargraph_wait / 5);
-        break;
+        if((BARGRAPH_PATTERN == BG_POWER_UP && i_bargraph_element >= i_bargraph_sim_max) ||
+           (BARGRAPH_PATTERN == BG_RAMP_UP && i_bargraph_element >= i_bargraph_elements)) {
+          // Note that the bargraph is full;
+          BARGRAPH_STATE = BG_FULL;
 
-        case LEVEL_2:
-          ms_bargraph_alt.start(i_bargraph_wait / 6);
-        break;
-
-        case LEVEL_1:
-          ms_bargraph_alt.start(i_bargraph_wait / 7);
-        break;
-      }
-    }
-  }
-}
-
-void bargraphRampIdle() {
-  if(b_bargraph_present) {
-    if(ms_bargraph.justFinished()) {
-      uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
-
-      if(b_bargraph_up) {
-        ht_bargraph.setLedNow(i_bargraph[i_bargraph_status]);
-
-        if(i_bargraph_status > 26) {
-          b_bargraph_up = false;
-
-          i_bargraph_status = 27;
-
-          // A little pause when we reach the top.
-          ms_bargraph.start(i_bargraph_wait / 2);
+          // Set an extra delay at end of sequence.
+          ms_bargraph.start(i_current_delay * 2);
         }
         else {
-          ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier[4]);
+          // Reset timer for next iteration.
+          ms_bargraph.start(i_current_delay);
+        }
+      break;
+
+      case BG_RAMP_DOWN:
+      case BG_POWER_DOWN:
+        if(BARGRAPH_STATE != BG_FULL) {
+          // Make sure bargraph is full before ramp down.
+          bargraphFull();
         }
 
-        if(b_bargraph_up) {
-          i_bargraph_status++;
-        }
-      }
-      else {
-        ht_bargraph.clearLedNow(i_bargraph[i_bargraph_status]);
+        // Turn off only the current element.
+        bargraphSetElement(i_bargraph_element, 0);
 
-        if(i_bargraph_status == 0) {
-          i_bargraph_status = 0;
-          b_bargraph_up = true;
+        // Decrement to the next element.
+        i_bargraph_element--;
 
-          // A little pause when we reach the bottom.
-          ms_bargraph.start(i_bargraph_wait / 2);
-        }
-        else {
-          i_bargraph_status--;
+        if(i_bargraph_element <= 0) {
+          // Make sure bargraph is cleared;
+          bargraphClear();
 
-          ms_bargraph.start(i_bargraph_interval * 3);
-        }
-      }
-    }
-  }
-}
-
-void bargraphRampUp() {
-  if(b_bargraph_present) {
-    switch(i_bargraph_status_alt) {
-      case 0 ... 27:
-        ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
-
-        i_bargraph_status_alt++;
-
-        if(i_bargraph_status_alt == 28) {
-          // A little pause when we reach the top.
-          ms_bargraph.start(i_bargraph_wait / 2);
-
-          // Adjust the ramp down speed if necessary.
-          switch(YEAR_MODE) {
-            case YEAR_2021:
-              i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 2;
-            break;
-
-            case YEAR_1984:
-            case YEAR_1989:
-              // No changes.
-            break;
-          }
+          // Set an extra delay at end of sequence.
+          ms_bargraph.start(i_current_delay * 2);
         }
         else {
-          ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+          // Reset timer for next iteration.
+          ms_bargraph.start(i_current_delay);
         }
-      break; // 0 ... 27
+      break;
 
-      case 28 ... 56:
-        uint8_t i_tmp = i_bargraph_status_alt - 27;
-        i_tmp = 28 - i_tmp;
+      case BG_INNER_PULSE:
+      case BG_OUTER_INNER:
+        if(BARGRAPH_STATE != BG_EMPTY && BARGRAPH_STATE != BG_MID) {
+          // Make sure bargraph is empty before starting the pattern.
+          bargraphClear();
 
-        if(b_overheating || b_pack_alarm) {
-          if(i_bargraph_status_alt == 56) {
-            ms_bargraph.stop();
-            b_bargraph_up = false;
-            i_bargraph_status_alt = 0;
+          // Prepare to begin on appropriate step.
+          if(BARGRAPH_PATTERN == BG_INNER_PULSE) {
+            i_bargraph_step = i_bargraph_steps - 1;
           }
           else {
-            ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
-
-            ms_bargraph.start(d_bargraph_ramp_interval_alt * 2);
-            i_bargraph_status_alt++;
+            i_bargraph_step = 0;
           }
         }
-        else {
-          if((POWER_LEVEL < 5 && YEAR_MODE == YEAR_2021) || YEAR_MODE == YEAR_1984 || YEAR_MODE == YEAR_1989) {
-            ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
-          }
 
-          switch(YEAR_MODE) {
-            case YEAR_1984:
-            case YEAR_1989:
-              // Bargraph has ramped up and down. In 1984 mode we want to start the ramping.
-              if(i_bargraph_status_alt == 54) {
-                ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continuously.
-                ms_bargraph.stop();
-                b_bargraph_up = true;
-                i_bargraph_status_alt = 0;
-                bargraphYearModeUpdate();
-              }
-              else {
-                ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                i_bargraph_status_alt++;
-              }
-            break; // YEAR_1984/YEAR_1989
+        uint8_t i_element_max = i_bargraph_elements - 1;
+        uint8_t i_step_mid = i_bargraph_steps - 1;
 
-            case YEAR_2021:
-              switch(POWER_LEVEL) {
-                case LEVEL_5:
-                  // Stop any power check in 2021 if we are already in level 5.
-                  ms_bargraph_alt.stop();
+        // Set special values when at either end of the bargraph.
+        if(i_bargraph_step == 0) {
+          BARGRAPH_STATE = BG_EMPTY;
 
-                  ms_bargraph.stop();
-                  b_bargraph_up = false;
-                  i_bargraph_status_alt = 27;
-                  bargraphYearModeUpdate();
-                break;
+          // Illuminate the first and last elements.
+          bargraphSetElement(i_bargraph_step, 1);
+          bargraphSetElement(i_element_max, 1);
 
-                case LEVEL_4:
-                  if(i_bargraph_status_alt == 31) {
-                    ms_bargraph.stop();
-                    b_bargraph_up = false;
-                    i_bargraph_status_alt = 23;
-                    bargraphYearModeUpdate();
-                  }
-                  else {
-                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                    i_bargraph_status_alt++;
-                  }
-                break;
-
-                case LEVEL_3:
-                  if(i_bargraph_status_alt == 37) {
-                    ms_bargraph.stop();
-                    b_bargraph_up = false;
-                    i_bargraph_status_alt = 17;
-                    bargraphYearModeUpdate();
-                  }
-                  else {
-                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                    i_bargraph_status_alt++;
-                  }
-                break;
-
-                case LEVEL_2:
-                  if(i_bargraph_status_alt == 43) {
-                    ms_bargraph.stop();
-                    b_bargraph_up = false;
-                    i_bargraph_status_alt = 11;
-                    bargraphYearModeUpdate();
-                  }
-                  else {
-                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                    i_bargraph_status_alt++;
-                  }
-                break;
-
-                case LEVEL_1:
-                  if(i_bargraph_status_alt == 49) {
-                    ms_bargraph.stop();
-                    b_bargraph_up = false;
-                    i_bargraph_status_alt = 5;
-
-                    bargraphYearModeUpdate();
-                  }
-                  else {
-                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                    i_bargraph_status_alt++;
-                  }
-                break;
-              }
-            break; // YEAR_2021
+          if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+            // Clear the next inner elements.
+            bargraphSetElement(i_bargraph_step + 1, 0);
+            bargraphSetElement(i_element_max - 1, 0);
           }
         }
-      break; // 28 ... 56
-    }
-  }
-  else {
-    uint8_t t_bargraph_ramp_multiplier = 1;
+        else if(i_bargraph_step == i_step_mid) {
+          BARGRAPH_STATE = BG_MID;
 
-    if(b_overheating || b_pack_alarm) {
-      t_bargraph_ramp_multiplier = 2;
-    }
+          // Illuminate the middle elements.
+          bargraphSetElement(i_step_mid, 1);
+          bargraphSetElement(i_step_mid + 1, 1);
 
-    switch(i_bargraph_status) {
-      case 0:
-        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
-        i_bargraph_status++;
-      break;
-
-      case 1:
-        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
-        i_bargraph_status++;
-      break;
-
-      case 2:
-        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
-        i_bargraph_status++;
-      break;
-
-      case 3:
-        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
-        i_bargraph_status++;
-      break;
-
-      case 4:
-        if(i_bargraph_status + 1 == POWER_LEVEL && !b_overheating) {
-          ms_bargraph.stop();
-          i_bargraph_status = 0;
+          // Clear the next middle elements.
+          bargraphSetElement(i_step_mid - 1, 0);
+          bargraphSetElement(i_step_mid + 2, 0);
         }
         else {
-          i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
-        }
-      break;
-
-      case 5:
-        if(i_bargraph_status - 1 == POWER_LEVEL && !b_overheating) {
-          ms_bargraph.stop();
-          i_bargraph_status = 0;
-        }
-        else {
-          i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
-        }
-      break;
-
-      case 6:
-        if(i_bargraph_status - 3 == POWER_LEVEL && !b_overheating) {
-          ms_bargraph.stop();
-          i_bargraph_status = 0;
-        }
-        else {
-          i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
-        }
-      break;
-
-      case 7:
-        if(i_bargraph_status - 5 == POWER_LEVEL && !b_overheating) {
-          ms_bargraph.stop();
-          i_bargraph_status = 0;
-        }
-        else {
-          i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
-        }
-      break;
-
-      case 8:
-        if(i_bargraph_status - 7 == POWER_LEVEL && !b_overheating) {
-          ms_bargraph.stop();
-          i_bargraph_status = 0;
-        }
-        else {
-          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
-          i_bargraph_status++;
-        }
-      break;
-
-      case 9:
-        ms_bargraph.stop();
-        i_bargraph_status = 0;
-      break;
-    }
-  }
-}
-
-void bargraphRampFiring() {
-  if(b_bargraph_present) {
-    // Start ramping up and down from the middle to the top/bottom and back to the middle again.
-    // With 28 segments that means 14 frames for the animation (0-13).
-    switch(i_bargraph_status_alt) {
-      case 0:
-        ht_bargraph.setLedNow(i_bargraph[13]);
-        ht_bargraph.setLedNow(i_bargraph[14]);
-
-        i_bargraph_status_alt++;
-
-        if(b_bargraph_up == false) {
-          ht_bargraph.clearLedNow(i_bargraph[12]);
-          ht_bargraph.clearLedNow(i_bargraph[15]);
-        }
-
-        b_bargraph_up = true;
-      break;
-
-      case 1:
-        ht_bargraph.setLedNow(i_bargraph[12]);
-        ht_bargraph.setLedNow(i_bargraph[15]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[13]);
-          ht_bargraph.clearLedNow(i_bargraph[14]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[11]);
-          ht_bargraph.clearLedNow(i_bargraph[16]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 2:
-        ht_bargraph.setLedNow(i_bargraph[11]);
-        ht_bargraph.setLedNow(i_bargraph[16]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[12]);
-          ht_bargraph.clearLedNow(i_bargraph[15]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[10]);
-          ht_bargraph.clearLedNow(i_bargraph[17]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 3:
-        ht_bargraph.setLedNow(i_bargraph[10]);
-        ht_bargraph.setLedNow(i_bargraph[17]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[11]);
-          ht_bargraph.clearLedNow(i_bargraph[16]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[9]);
-          ht_bargraph.clearLedNow(i_bargraph[18]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 4:
-        ht_bargraph.setLedNow(i_bargraph[9]);
-        ht_bargraph.setLedNow(i_bargraph[18]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[10]);
-          ht_bargraph.clearLedNow(i_bargraph[17]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[8]);
-          ht_bargraph.clearLedNow(i_bargraph[19]);
-
-          i_bargraph_status_alt--;
-        }
-
-      break;
-
-      case 5:
-        ht_bargraph.setLedNow(i_bargraph[8]);
-        ht_bargraph.setLedNow(i_bargraph[19]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[9]);
-          ht_bargraph.clearLedNow(i_bargraph[18]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[7]);
-          ht_bargraph.clearLedNow(i_bargraph[20]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 6:
-        ht_bargraph.setLedNow(i_bargraph[7]);
-        ht_bargraph.setLedNow(i_bargraph[20]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[8]);
-          ht_bargraph.clearLedNow(i_bargraph[19]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[6]);
-          ht_bargraph.clearLedNow(i_bargraph[21]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 7:
-        ht_bargraph.setLedNow(i_bargraph[6]);
-        ht_bargraph.setLedNow(i_bargraph[21]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[7]);
-          ht_bargraph.clearLedNow(i_bargraph[20]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[5]);
-          ht_bargraph.clearLedNow(i_bargraph[22]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 8:
-        ht_bargraph.setLedNow(i_bargraph[5]);
-        ht_bargraph.setLedNow(i_bargraph[22]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[6]);
-          ht_bargraph.clearLedNow(i_bargraph[21]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[4]);
-          ht_bargraph.clearLedNow(i_bargraph[23]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 9:
-        ht_bargraph.setLedNow(i_bargraph[4]);
-        ht_bargraph.setLedNow(i_bargraph[23]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[5]);
-          ht_bargraph.clearLedNow(i_bargraph[22]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[3]);
-          ht_bargraph.clearLedNow(i_bargraph[24]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 10:
-        ht_bargraph.setLedNow(i_bargraph[3]);
-        ht_bargraph.setLedNow(i_bargraph[24]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[4]);
-          ht_bargraph.clearLedNow(i_bargraph[23]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[2]);
-          ht_bargraph.clearLedNow(i_bargraph[25]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 11:
-        ht_bargraph.setLedNow(i_bargraph[2]);
-        ht_bargraph.setLedNow(i_bargraph[25]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[3]);
-          ht_bargraph.clearLedNow(i_bargraph[24]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[1]);
-          ht_bargraph.clearLedNow(i_bargraph[26]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 12:
-        ht_bargraph.setLedNow(i_bargraph[1]);
-        ht_bargraph.setLedNow(i_bargraph[26]);
-
-        if(b_bargraph_up) {
-          ht_bargraph.clearLedNow(i_bargraph[2]);
-          ht_bargraph.clearLedNow(i_bargraph[25]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[0]);
-          ht_bargraph.clearLedNow(i_bargraph[27]);
-
-          i_bargraph_status_alt--;
-        }
-      break;
-
-      case 13:
-        ht_bargraph.setLedNow(i_bargraph[0]);
-        ht_bargraph.setLedNow(i_bargraph[27]);
-
-        ht_bargraph.clearLedNow(i_bargraph[1]);
-        ht_bargraph.clearLedNow(i_bargraph[26]);
-
-        i_bargraph_status_alt--;
-
-        b_bargraph_up = false;
-      break;
-    }
-  }
-
-  int i_ramp_interval = d_bargraph_ramp_interval;
-
-  if(b_bargraph_present) {
-    i_ramp_interval = d_bargraph_ramp_interval_alt;
-  }
-
-  // If in a power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
-  if(i_speed_multiplier > 1) {
-    if(i_speed_multiplier > 5) {
-      if(b_bargraph_present) {
-        ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
-      }
-    }
-    else if(i_speed_multiplier > 4) {
-      if(b_bargraph_present) {
-        ms_bargraph_firing.start(i_ramp_interval / 9);
-      }
-    }
-    else if(i_speed_multiplier > 3) {
-      if(b_bargraph_present) {
-        ms_bargraph_firing.start(i_ramp_interval / 7);
-      }
-    }
-    else if(i_speed_multiplier > 2) {
-      if(b_bargraph_present) {
-        ms_bargraph_firing.start(i_ramp_interval / 5);
-      }
-    }
-    else if(i_speed_multiplier > 1) {
-      if(b_bargraph_present) {
-        ms_bargraph_firing.start(i_ramp_interval / 3);
-      }
-    }
-    else {
-      if(b_bargraph_present) {
-        switch(POWER_LEVEL) {
-          case LEVEL_5:
-            ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
-          break;
-
-          case LEVEL_4:
-            ms_bargraph_firing.start((i_ramp_interval / 2) - 3); // 15
-          break;
-
-          case LEVEL_3:
-            ms_bargraph_firing.start(i_ramp_interval / 2); // 20
-          break;
-
-          case LEVEL_2:
-            ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 30
-          break;
-
-          case LEVEL_1:
-            ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 35
-          break;
-        }
-      }
-    }
-  }
-  else {
-    if(b_bargraph_present) {
-      switch(POWER_LEVEL) {
-        case LEVEL_5:
-          ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
-        break;
-
-        case LEVEL_4:
-          ms_bargraph_firing.start((i_ramp_interval / 2) - 3); // 15
-        break;
-
-        case LEVEL_3:
-          ms_bargraph_firing.start(i_ramp_interval / 2); // 20
-        break;
-
-        case LEVEL_2:
-          ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 25
-        break;
-
-        case LEVEL_1:
-          ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30
-        break;
-      }
-    }
-  }
-}
-
-void bargraphPowerCheck() {
-  // Set the "stop" target element for each of the 5 power levels.
-  uint8_t i_bargraph_target[5] = { 4, 10, 16, 21, 26 };
-
-  // Control for the 28 segment barmeter bargraph.
-  if(b_bargraph_present) {
-    if(ms_bargraph_alt.justFinished()) {
-      uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
-
-      if(YEAR_MODE == YEAR_2021) {
-        for(uint8_t i = 0; i <= 4; i++) {
-          i_bargraph_multiplier[i] = 10;
-        }
-      }
-
-      if(b_bargraph_up) {
-        ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
-
-        switch(POWER_LEVEL) {
-          case LEVEL_5:
-            if(i_bargraph_status_alt > i_bargraph_target[4]) {
-              b_bargraph_up = false;
-
-              i_bargraph_status_alt = i_bargraph_target[4] + 1;
-
-              if(YEAR_MODE == YEAR_2021) {
-                // In 2021 mode, we stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                // A little pause when we reach the top.
-                ms_bargraph_alt.start(i_bargraph_wait / 2);
-              }
-            }
-            else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[4]);
-            }
-          break;
-
-          case LEVEL_4:
-            if(i_bargraph_status_alt > i_bargraph_target[3]) {
-              b_bargraph_up = false;
-
-              if(YEAR_MODE == YEAR_2021) {
-                // In 2021 mode, we stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                // A little pause when we reach the top.
-                ms_bargraph_alt.start(i_bargraph_wait / 2);
-              }
-            }
-            else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[3]);
-            }
-          break;
-
-          case LEVEL_3:
-            if(i_bargraph_status_alt > i_bargraph_target[2]) {
-              b_bargraph_up = false;
-              
-              if(YEAR_MODE == YEAR_2021) {
-                // In 2021 mode, we stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                // A little pause when we reach the top.
-                ms_bargraph_alt.start(i_bargraph_wait / 2);
-              }
-            }
-            else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[2]);
-            }
-          break;
-
-          case LEVEL_2:
-            if(i_bargraph_status_alt > i_bargraph_target[1]) {
-              b_bargraph_up = false;
-
-              if(YEAR_MODE == YEAR_2021) {
-                // In 2021 mode, we stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                // A little pause when we reach the top.
-                ms_bargraph_alt.start(i_bargraph_wait / 2);
-              }
-            }
-            else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[1]);
-            }
-          break;
-
-          case LEVEL_1:
-            if(i_bargraph_status_alt > i_bargraph_target[0]) {
-              b_bargraph_up = false;
-
-              if(YEAR_MODE == YEAR_2021) {
-                // In 2021 mode, we stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                // A little pause when we reach the top.
-                ms_bargraph_alt.start(i_bargraph_wait / 2);
-              }
-            }
-            else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[0]);
-            }
-          break;
-        }
-
-        if(b_bargraph_up) {
-          i_bargraph_status_alt++;
-        }
-      }
-      else {
-        ht_bargraph.clearLedNow(i_bargraph[i_bargraph_status_alt]);
-
-        if(i_bargraph_status_alt == 0) {
-          i_bargraph_status_alt = 0;
-          b_bargraph_up = true;
-          // A little pause when we reach the bottom.
-          ms_bargraph_alt.start(i_bargraph_wait / 2);
-        }
-        else {
-          i_bargraph_status_alt--;
-
-          switch(POWER_LEVEL) {
-            case LEVEL_5:
-              if(YEAR_MODE == YEAR_2021 && i_bargraph_status_alt < i_bargraph_target[4] + 1) {
-                // In 2021 mode, we stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[4]);
-              }
-            break;
-
-            case LEVEL_4:
-              if(YEAR_MODE == YEAR_2021 && i_bargraph_status_alt < i_bargraph_target[3] + 1) {
-                // In 2021 mode, we stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[3]);
-              }
-            break;
-
-            case LEVEL_3:
-              if(YEAR_MODE == YEAR_2021 && i_bargraph_status_alt < i_bargraph_target[2] + 1) {
-                // In 2021 mode, we stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[2]);
-              }
-            break;
-
-            case LEVEL_2:
-              if(YEAR_MODE == YEAR_2021 && i_bargraph_status_alt < i_bargraph_target[1] + 1) {
-                // In 2021 mode, we stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[1]);
-              }
-            break;
-
-            case LEVEL_1:
-              if(YEAR_MODE == YEAR_2021 && i_bargraph_status_alt < i_bargraph_target[0] + 1) {
-                // In 2021 mode, we stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[0]);
-              }
-            break;
+          // Illuminate elements N steps from each end.
+          bargraphSetElement(i_bargraph_step, 1);
+          bargraphSetElement(i_element_max - i_bargraph_step, 1);
+
+          // Clear the next outer elements at N-1 steps.
+          bargraphSetElement(i_bargraph_step - 1, 0);
+          bargraphSetElement(i_element_max - (i_bargraph_step - 1), 0);
+
+          // Clear the next inner elements at N+1 steps.
+          if(BARGRAPH_PATTERN == BG_OUTER_INNER) {
+            bargraphSetElement(i_bargraph_step + 1, 0);
+            bargraphSetElement(i_element_max - (i_bargraph_step + 1), 0);
           }
         }
-      }
+
+        if(BARGRAPH_STATE != BG_MID) {
+          // Continue pattern until reaching midpoint.
+          i_bargraph_step++;
+        }
+        else {
+          // Reverse direction at midpoint state.
+          i_bargraph_step--;
+        }
+
+        // Reset timer for next iteration.
+        ms_bargraph.start(i_current_delay);
+      break;
     }
-  }
-}
-
-void bargraphClearAlt() {
-  if(b_bargraph_present) {
-    ht_bargraph.clearAll();
-
-    i_bargraph_status_alt = 0;
-  }
-}
-
-void prepBargraphRampDown() {
-  // If bargraph is set to ramp down during overheat, we need to set a few things.
-  // Reset some bargraph levels before we ramp the bargraph down.
-  i_bargraph_status_alt = 28; // Max elements available.
-  i_bargraph_status = 0; // Reset the position/sequence.
-
-  bargraphFull(); // Always starts with a full bargraph for the effect.
-
-  ms_bargraph.start(d_bargraph_ramp_interval);
-
-  // Prepare to make the bargraph ramp down now.
-  bargraphRampUp();
-}
-
-void prepBargraphRampUp() {
-  bargraphClearAlt();
-
-  bool b_overheat_bargraph_blink = false;
-
-  // Prepare a few things before ramping the bargraph back up from a full ramp down.
-  if(!b_overheat_bargraph_blink) {
-    if(YEAR_MODE == YEAR_2021) {
-      bargraphYearModeUpdate();
-    }
-    else {
-      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
-    }
-
-    // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
-    // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
-    if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
-      bargraphPowerCheck2021Alt(false);
-    }
-
-    bargraphRampUp();
   }
 }

@@ -65,21 +65,30 @@ millisDelay ms_blink_leds;
  * SCL -> A5
  */
 HT16K33 ht_bargraph;
-const uint8_t i_bargraph_elements = 28;
-bool b_bargraph_present = false;
-bool b_bargraph_up = false;
-uint8_t i_bargraph_status = 0;
-const uint8_t i_bargraph_interval = 4;
-const uint8_t i_bargraph_wait = 180;
-const uint8_t d_bargraph_ramp_interval = 40;
-millisDelay ms_bargraph_alt;
-millisDelay ms_bargraph;
-millisDelay ms_bargraph_firing;
-uint8_t i_bargraph_status_alt = 0;
-const uint8_t d_bargraph_ramp_interval_alt = 40;
-const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
-const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
-unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+const uint8_t i_bargraph_delay = 18; // Base delay (ms) for any bargraph refresh.
+const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph device.
+const uint8_t i_bargraph_levels = 5; // Reflects the count of POWER_LEVELS elements.
+uint8_t i_bargraph_sim_max = i_bargraph_elements; // Simulated maximum for patterns.
+uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns (1/2 max).
+uint8_t i_bargraph_step = 0; // Indicates current step for certain patterns.
+bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph.
+int i_bargraph_element = 0; // Indicates current LED element for adjustment.
+millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
+
+
+// bool b_bargraph_up = false;
+// uint8_t i_bargraph_status = 0;
+// const uint8_t i_bargraph_interval = 4;
+// const uint8_t i_bargraph_wait = 180;
+// const uint8_t d_bargraph_ramp_interval = 40;
+// millisDelay ms_bargraph_alt;
+// millisDelay ms_bargraph;
+// millisDelay ms_bargraph_firing;
+// uint8_t i_bargraph_status_alt = 0;
+// const uint8_t d_bargraph_ramp_interval_alt = 40;
+// const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
+// const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
+// unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
 // Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
 uint8_t i_speed_multiplier = 1;

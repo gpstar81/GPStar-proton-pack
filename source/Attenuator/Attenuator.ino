@@ -141,31 +141,26 @@ void mainLoop() {
   if(b_pack_on || (switch_left.getState() == LOW && !b_wait_for_pack)) {
     if(b_pack_alarm) {
       // This is going to cause the bargraph to ramp down.
-      if(ms_bargraph.justFinished()) {
-        bargraphRampUp();
-      }
+      bargraphReset();
+      BARGRAPH_PATTERN = BG_RAMP_DOWN;
     }
     else {
       // Turn the bargraph on (using some pattern).
       if(b_firing) {
-        if(ms_bargraph_firing.justFinished()) {
-          bargraphRampFiring();
-        }
+        bargraphReset();
+        BARGRAPH_PATTERN = BG_OUTER_INNER; // Standard firing pattern.
       }
       else {
-        if(ms_bargraph.justFinished()) {
-          bargraphRampUp();
-        }
-        else if(!ms_bargraph.isRunning() && !b_overheating && FIRING_MODE != SETTINGS) {
-          // Bargraph idling loop; animates based on year theme and power level.
-          bargraphPowerCheck();
+        if(!b_overheating && FIRING_MODE != SETTINGS) {
+          bargraphReset();
+          BARGRAPH_PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
         }
       }
     }
   }
   else {
     // Clear all bargraph elements.
-    bargraphClear();
+    bargraphOff();
   }
 
   /*
@@ -216,6 +211,10 @@ void mainLoop() {
   if(b_vibrate_on && ms_vibrate.justFinished()) {
     useVibration(0, 0);
   }
+
+  // Update bargraph elements using some speed modifier.
+  // In reality this multiplier is a divisor to the standard delay.
+  bargraphUpdate(i_speed_multiplier);
 
   // Update the device LEDs.
   if(ms_fast_led.justFinished()) {
@@ -498,7 +497,8 @@ void checkPack() {
             b_pack_on = true;
 
             if(!b_pack_alarm) {
-              bargraphRampUp();
+              bargraphReset();
+              BARGRAPH_PATTERN = BG_POWER_RAMP;
             }
           break;
 
@@ -506,8 +506,7 @@ void checkPack() {
             // Pack is off.
             b_pack_on = false;
 
-            i_bargraph_status_alt = 0;
-            i_bargraph_status = 0;
+            BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
           case A_PACK_CONNECTED:
@@ -521,20 +520,14 @@ void checkPack() {
 
           case A_YEAR_1984:
             YEAR_MODE = YEAR_1984;
-
-            bargraphYearModeUpdate();
           break;
 
           case A_YEAR_1989:
             YEAR_MODE = YEAR_1989;
-
-            bargraphYearModeUpdate();
           break;
 
           case A_YEAR_AFTERLIFE:
             YEAR_MODE = YEAR_2021;
-
-            bargraphYearModeUpdate();
           break;
 
           case A_PROTON_MODE:
@@ -594,46 +587,26 @@ void checkPack() {
           case A_POWER_LEVEL_1:
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_1;
-
-            if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
-              bargraphPowerCheck2021Alt(false);
-            }
           break;
 
           case A_POWER_LEVEL_2:
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_2;
-
-            if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
-              bargraphPowerCheck2021Alt(false);
-            }
           break;
 
           case A_POWER_LEVEL_3:
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_3;
-
-            if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
-              bargraphPowerCheck2021Alt(false);
-            }
           break;
 
           case A_POWER_LEVEL_4:
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_4;
-
-            if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
-              bargraphPowerCheck2021Alt(false);
-            }
           break;
 
           case A_POWER_LEVEL_5:
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_5;
-
-            if(YEAR_MODE == YEAR_2021 && b_bargraph_present) {
-              bargraphPowerCheck2021Alt(false);
-            }
           break;
 
           case A_ALARM_ON:
@@ -643,15 +616,7 @@ void checkPack() {
             if(b_pack_on) {
               ms_blink_leds.start(i_blink_leds);
 
-              bargraphFull();
-
-              // Reset some bargraph levels before we ramp the bargraph down.
-              i_bargraph_status_alt = 28;
-              i_bargraph_status = 5;
-
-              bargraphFull();
-
-              ms_bargraph.start(d_bargraph_ramp_interval);
+              BARGRAPH_PATTERN = BG_RAMP_DOWN;
             }
           break;
 
@@ -662,11 +627,8 @@ void checkPack() {
             if(b_pack_on) {
               ms_blink_leds.stop();
 
-              bargraphYearModeUpdate();
-
-              bargraphClearAlt();
-
-              bargraphRampUp();
+              bargraphReset();
+              BARGRAPH_PATTERN = BG_POWER_RAMP;
 
               useVibration(0, 0); // Stop vibration.
             }
@@ -677,24 +639,14 @@ void checkPack() {
             b_overheating = true;
             ms_blink_leds.start(i_blink_leds);
 
-            // Reset some bargraph levels before we ramp the bargraph down.
-            i_bargraph_status_alt = 28;
-            i_bargraph_status = 5;
-
-            bargraphFull();
-
-            ms_bargraph.start(d_bargraph_ramp_interval);
+            BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
           case A_OVERHEATING_FINISHED:
             b_overheating = false;
             ms_blink_leds.stop();
 
-            bargraphYearModeUpdate();
-
-            bargraphClearAlt();
-
-            bargraphRampUp();
+            BARGRAPH_PATTERN = BG_RAMP_UP;
 
             useVibration(0, 0); // Stop vibration.
           break;
@@ -703,18 +655,7 @@ void checkPack() {
             b_firing = true;
             ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
-            bargraphClearAlt();
-
-            ms_bargraph_alt.stop();
-            i_bargraph_status_alt = 0;
-            b_bargraph_up = false;
-
-            i_bargraph_status = 1;
-
-            // Stop any bargraph ramps.
-            ms_bargraph.stop();
-
-            ms_bargraph_firing.start(1);
+            BARGRAPH_PATTERN = BG_OUTER_INNER;
           break;
 
           case A_FIRING_STOPPED:
@@ -722,36 +663,13 @@ void checkPack() {
             ms_blink_leds.stop();
             i_speed_multiplier = 1;
 
-            ms_bargraph_firing.stop();
-
-            ms_bargraph_alt.stop(); // Stop the 1984 28 segment optional bargraph timer.
-
-            b_bargraph_up = false;
-
-            i_bargraph_status = POWER_LEVEL - 1;
-
-            i_bargraph_status_alt = 0;
-            i_bargraph_status = 0; // ??
-            bargraphClearAlt();
-
-            switch(YEAR_MODE) {
-              case YEAR_2021:
-                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
-              break;
-
-              case YEAR_1984:
-              case YEAR_1989:
-                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
-              break;
-            }
-
             if(b_pack_alarm) {
               // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
-              prepBargraphRampDown();
+              BARGRAPH_PATTERN = BG_RAMP_DOWN;
             }
             else {
               // We ramp the bargraph back up after finishing firing.
-              bargraphRampUp();
+              BARGRAPH_PATTERN = BG_POWER_RAMP;
             }
           break;
 

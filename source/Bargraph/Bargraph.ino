@@ -14,7 +14,6 @@ void setup() {
   delay(10);
   setupBargraph();
 
-
   // Set defaults for testing.
   POWER_LEVEL = LEVEL_5;
   i_speed_multiplier = 1;
