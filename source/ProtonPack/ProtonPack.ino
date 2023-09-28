@@ -475,10 +475,10 @@ void loop() {
       modeFireStopSounds();
 
       if(i_firing >= i_firing_max) {
-        ms_fast_led.start(i_fast_led_delay * 100);
+        //ms_fast_led.start(i_fast_led_delay * 100);
       }
       else {
-        ms_fast_led.start(i_fast_led_delay * 15);
+        //ms_fast_led.start(i_fast_led_delay * 15);
       }
     }
     else if(b_trigger_sounds_firing_start == true) {
@@ -488,16 +488,17 @@ void loop() {
       ms_firing_check.start(i_firing_check_delay);
 
       if(i_firing >= i_firing_max) {
-        ms_fast_led.start(i_fast_led_delay * 100);
+        //ms_fast_led.start(i_fast_led_delay * 100);
       }
       else {
-        ms_fast_led.start(i_fast_led_delay * 15);
+        //ms_fast_led.start(i_fast_led_delay * 15);
       }
     }
     else {
       FastLED.show();
-      ms_fast_led.start(i_fast_led_delay);
     }
+
+      ms_fast_led.start(i_fast_led_delay);
 
     if(ms_firing_check.remaining() < 1) {
       i_firing = 0;
@@ -1473,7 +1474,6 @@ void spectralLightsOn() {
 }
 
 void powercellDraw(uint8_t i_start) {
-  /*
   uint8_t i_brightness = getBrightness(i_powercell_brightness); // Calculate desired brightness.
   uint8_t i_colour_scheme = getDeviceColour(POWERCELL, FIRING_MODE, b_powercell_colour_toggle);
 
@@ -1484,18 +1484,6 @@ void powercellDraw(uint8_t i_start) {
       pack_leds[i] = getHueAsRGB(POWERCELL, i_colour_scheme, i_brightness);
     }
   }
-  */
-
-  pack_leds[i_start] = CRGB(0, 0, 255);
-
-  /*
-  for(uint8_t i = i_start; i < i_powercell_led; i++) {
-    if(i_powercell_led < i_powercell_leds) {
-      // Note: Always assumed to be RGB for built-in or Frutto LEDs.
-      pack_leds[i] = CRGB(0, 0, 255);
-    }
-  }
-  */
 }
 
 // Reset the Cyclotron LED colours.
@@ -3345,12 +3333,12 @@ void wandStopFiringSounds() {
         if(i_firing >= i_firing_max / 2) {
           if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
             //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
-            w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+            //w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
           }
         }
         else {
           //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
-          w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
+          //w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
         }
       break;
 
@@ -6573,7 +6561,7 @@ void setupWavTrigger() {
   w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(true);
+  w_trig.setReporting(false);
 
   // Allow time for the WAV Triggers to respond with the version string and number of tracks.
   delay(350);
