@@ -123,8 +123,6 @@ void mainLoop() {
    *
    * When not paired with the gpstar Proton Pack controller, will turn
    * on the bargraph which will display some pre-set pattern.
-   * TODO: Allow the user to select a bargraph pattern, or
-   * simply control certain pack/wand behavior as desired.
    */
 
   // Turns the pack on or off (when paired) via left toggle.
@@ -139,14 +137,11 @@ void mainLoop() {
 
   if(b_pack_on || (switch_left.getState() == LOW && !b_wait_for_pack)) {
     if(BARGRAPH_STATE == BG_OFF) {
-      BARGRAPH_STATE = BG_ON;
+      BARGRAPH_STATE = BG_ON; // Enable bargraph for use.
     }
 
     if(b_pack_alarm) {
       // This is going to cause the bargraph to ramp down.
-      if(BARGRAPH_STATE != BG_FULL) {
-        bargraphFull();
-      }
       BARGRAPH_PATTERN = BG_RAMP_DOWN;
     }
     else {
@@ -182,6 +177,8 @@ void mainLoop() {
       }
 
       if(ms_blink_leds.isRunning()) {
+        BARGRAPH_PATTERN = BG_INNER_PULSE; // Modified firing pattern.
+
         if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
           // Only blink the lower LED as we will use a fade effect for the upper LED.
           attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
@@ -500,7 +497,6 @@ void checkPack() {
             b_pack_on = true;
 
             if(!b_pack_alarm) {
-              bargraphReset();
               BARGRAPH_PATTERN = BG_POWER_RAMP;
             }
           break;
@@ -509,7 +505,6 @@ void checkPack() {
             // Pack is off.
             b_pack_on = false;
 
-            bargraphFull();
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
@@ -619,9 +614,6 @@ void checkPack() {
 
             if(b_pack_on) {
               ms_blink_leds.start(i_blink_leds);
-
-              bargraphFull();
-              BARGRAPH_PATTERN = BG_RAMP_DOWN;
             }
           break;
 
@@ -632,7 +624,7 @@ void checkPack() {
             if(b_pack_on) {
               ms_blink_leds.stop();
 
-              bargraphReset();
+              bargraphClear();
               BARGRAPH_PATTERN = BG_POWER_RAMP;
 
               useVibration(0, 0); // Stop vibration.
@@ -644,7 +636,6 @@ void checkPack() {
             b_overheating = true;
             ms_blink_leds.start(i_blink_leds);
 
-            bargraphFull();
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
@@ -662,7 +653,6 @@ void checkPack() {
             b_firing = true;
             ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
-            bargraphReset();
             BARGRAPH_PATTERN = BG_OUTER_INNER;
           break;
 
