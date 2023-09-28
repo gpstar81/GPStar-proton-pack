@@ -177,7 +177,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
   }
 
   // Set the current delay by dividing the base delay by some value (Min: 2).
-  uint8_t i_current_delay = min(2, int(i_bargraph_delay / i_delay_divisor));
+  uint8_t i_current_delay = max(2, int(i_bargraph_delay / i_delay_divisor));
 
   // Adjust the delay based on the number of total elements to be illuminated.
   // Applies primarily to the BG_POWER_LEVEL pattern for levels 1-4.
@@ -203,7 +203,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
 
           if(BARGRAPH_PATTERN == BG_POWER_UP) {
             // Set an extra delay at end of sequence, before the ramp-down.
-            ms_bargraph.start(i_current_delay * 2);
+            ms_bargraph.start(i_current_delay * 3);
           }
           else {
             // If not in the power ramp pattern, bargraph is done.
@@ -230,7 +230,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
 
           if(BARGRAPH_PATTERN == BG_POWER_DOWN) {
             // Set an extra delay at end of sequence, before ramp-up.
-            ms_bargraph.start(i_current_delay * 2);
+            ms_bargraph.start(i_current_delay * 3);
           }
           else {
             // If not in the power ramp pattern, bargraph is done.
