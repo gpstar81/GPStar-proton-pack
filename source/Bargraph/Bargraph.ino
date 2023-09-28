@@ -56,18 +56,18 @@ void runDemo() {
       // Prepare bargraph for next pattern.
       if(ms_demo.remaining() == 0) {
         bargraphReset();
-        i_speed_multiplier = 3;
+        i_speed_multiplier = 3; // Start with a higher rate of refresh.
         POWER_LEVEL = LEVEL_5;
         BARGRAPH_PATTERN = BG_POWER_RAMP; // Ramp up/down to set power level.
-        ms_demo.start(7000);
-        ms_power.start(4000);
-        ms_speed.start(2000);
+        ms_demo.start(8000); // Time to next demo
+        ms_speed.start(2000); // Time to speed change
+        ms_power.start(5000); // Time to power change
       }
-      if(ms_power.justFinished()) {
-        POWER_LEVEL = LEVEL_3;
+      if(ms_power.remaining() == 0) {
+        POWER_LEVEL = LEVEL_3; // Demonstrate display at a lower power.
       }
-      if(ms_speed.justFinished()) {
-        i_speed_multiplier = 1;
+      if(ms_speed.remaining() == 0) {
+        i_speed_multiplier = 1; // Slow down to the "normal" refresh rate.
       }
     break;
 
@@ -79,7 +79,7 @@ void runDemo() {
         ms_demo.start(4000);
         ms_speed.start(2000);
       }
-      if(ms_speed.justFinished()) {
+      if(ms_speed.remaining() == 0) {
         i_speed_multiplier = 3;
       }
     break;
@@ -88,11 +88,11 @@ void runDemo() {
       if(ms_demo.remaining() == 0) {
         bargraphReset();
         i_speed_multiplier = 1;
-        BARGRAPH_PATTERN = BG_INNER_PULSE; // Modified firing pattern.
+        BARGRAPH_PATTERN = BG_INNER_PULSE; // Modified firing/alert pattern.
         ms_demo.start(4000);
         ms_speed.start(2000);
       }
-      if(ms_speed.justFinished()) {
+      if(ms_speed.remaining() == 0) {
         i_speed_multiplier = 3;
       }
     break;

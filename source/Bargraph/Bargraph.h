@@ -155,8 +155,8 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
     bargraphPowerCheck(POWER_LEVEL);
   }
 
-  // Set the current delay by dividing the base delay by some value.
-  uint8_t i_current_delay = int(i_bargraph_delay / i_delay_divisor);
+  // Set the current delay by dividing the base delay by some value (Min: 2).
+  uint8_t i_current_delay = min(2, int(i_bargraph_delay / i_delay_divisor));
 
   // Adjust the delay based on the number of total elements to be illuminated.
   // Applies primarily to the BG_POWER_LEVEL pattern for levels 1-4.
@@ -190,8 +190,8 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
           }
         }
         else {
-          // Reset timer for next iteration.
-          ms_bargraph.start(i_current_delay);
+          // Reset timer for next iteration, increasing the delay as elements are lit (easing out).
+          ms_bargraph.start(i_current_delay + int(i_bargraph_element / 2));
         }
       break;
 
@@ -290,8 +290,8 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
           i_bargraph_step--;
         }
 
-        // Reset timer for next iteration.
-        ms_bargraph.start(i_current_delay);
+        // Reset timer for next iteration, with slight delay as the steps increase.
+        ms_bargraph.start(i_current_delay + i_bargraph_step);
       break;
     }
   }
