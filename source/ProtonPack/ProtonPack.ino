@@ -6523,6 +6523,7 @@ void setupWavTrigger() {
 
   // Enable track reporting from the WAV Trigger
   w_trig.setReporting(true);
+  //w_trig.setReporting(false); // Potential cause of issues with WT device, setting false to disable and avoid crashing.
 
   // Allow time for the WAV Triggers to respond with the version string and number of tracks.
   delay(350);
