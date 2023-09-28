@@ -104,8 +104,10 @@ const uint8_t i_fast_led_delay = 6;
 millisDelay ms_fast_led;
 millisDelay ms_fast_led_bounce;
 const unsigned int i_fast_led_bounce_delay = 200;
-uint8_t i_firing = 0; // Used to prevent fastled crashing the pack.
+uint8_t i_firing = 0; // Stability checking with button smashing.
 const uint8_t i_firing_max = 10;
+millisDelay ms_firing_check;
+const unsigned int i_firing_check_delay = 3000;
 
 /*
  * Power Cell LEDs control.
@@ -328,14 +330,14 @@ enum FIRING_MODES FIRING_MODE;
 /*
  *  Wand Status
  */
-bool b_wand_firing = false;
-bool b_firing_alt = false;
-bool b_firing_intensify = false;
-bool b_firing_cross_streams = false;
-bool b_sound_firing_intensify_trigger = false;
-bool b_sound_firing_alt_trigger = false;
-bool b_wand_connected = false;
-bool b_wand_on = false;
+volatile bool b_wand_firing = false;
+volatile bool b_firing_alt = false;
+volatile bool b_firing_intensify = false;
+volatile bool b_firing_cross_streams = false;
+volatile bool b_sound_firing_intensify_trigger = false;
+volatile bool b_sound_firing_alt_trigger = false;
+volatile bool b_wand_connected = false;
+volatile bool b_wand_on = false;
 millisDelay ms_wand_handshake;
 const unsigned int i_wand_handshake_delay = 3000;
 millisDelay ms_wand_handshake_checking;
@@ -467,6 +469,9 @@ struct objConfigEEPROM {
   uint8_t simulate_ring;
   uint8_t smoke_setting;
 };
+
+bool b_trigger_sounds_firing_stop = false;
+bool b_trigger_sounds_firing_start = false;
 
 /*
  * Function prototypes.
