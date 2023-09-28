@@ -60,7 +60,7 @@ void setup() {
   // Rotary encoder for volume control.
   pinMode(encoder_pin_a, INPUT_PULLUP);
   pinMode(encoder_pin_b, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(encoder_pin_a), readEncoder, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(encoder_pin_a), readEncoder, CHANGE);
 
   // Configure the various switches on the pack.
   switch_cyclotron_lid.setDebounceTime(50);
@@ -470,9 +470,38 @@ void loop() {
 
   // Update the LEDs
   if(ms_fast_led.justFinished()) {
-    FastLED.show();
+    if(b_trigger_sounds_firing_stop == true) {
+      b_trigger_sounds_firing_stop = false;
+      modeFireStopSounds();
 
-    ms_fast_led.start(i_fast_led_delay);
+      if(i_firing >= i_firing_max) {
+        ms_fast_led.start(i_fast_led_delay * 100);
+      }
+      else {
+        ms_fast_led.start(i_fast_led_delay * 15);
+      }
+    }
+    else if(b_trigger_sounds_firing_start == true) {
+      b_trigger_sounds_firing_start = false;
+      modeFireStartSounds();
+
+      ms_firing_check.start(i_firing_check_delay);
+
+      if(i_firing >= i_firing_max) {
+        ms_fast_led.start(i_fast_led_delay * 100);
+      }
+      else {
+        ms_fast_led.start(i_fast_led_delay * 15);
+      }
+    }
+    else {
+      FastLED.show();
+      ms_fast_led.start(i_fast_led_delay);
+    }
+
+    if(ms_firing_check.remaining() < 1) {
+      i_firing = 0;
+    }
 
     if(b_powercell_updating == true) {
       b_powercell_updating = false;
@@ -788,6 +817,9 @@ void packOffReset() {
   b_2021_ramp_down_start = false;
   b_reset_start_led = true; // reset the start LED of the Cyclotron.
   b_inner_ramp_down = false;
+
+  b_trigger_sounds_firing_start = false;
+  b_trigger_sounds_firing_stop = false;
 
   resetCyclotronLeds();
   reset2021RampUp();
@@ -1441,6 +1473,7 @@ void spectralLightsOn() {
 }
 
 void powercellDraw(uint8_t i_start) {
+  /*
   uint8_t i_brightness = getBrightness(i_powercell_brightness); // Calculate desired brightness.
   uint8_t i_colour_scheme = getDeviceColour(POWERCELL, FIRING_MODE, b_powercell_colour_toggle);
 
@@ -1451,6 +1484,18 @@ void powercellDraw(uint8_t i_start) {
       pack_leds[i] = getHueAsRGB(POWERCELL, i_colour_scheme, i_brightness);
     }
   }
+  */
+
+  pack_leds[i_start] = CRGB(0, 0, 255);
+
+  /*
+  for(uint8_t i = i_start; i < i_powercell_led; i++) {
+    if(i_powercell_led < i_powercell_leds) {
+      // Note: Always assumed to be RGB for built-in or Frutto LEDs.
+      pack_leds[i] = CRGB(0, 0, 255);
+    }
+  }
+  */
 }
 
 // Reset the Cyclotron LED colours.
@@ -2954,18 +2999,20 @@ void modeFireStartSounds() {
   // Adjust the gain with the Afterlife idling sound effect while firing.
   if(i_mode_year == 2021 && i_wand_power_level < 5) {
     if(ms_idle_fire_fade.remaining() < 3000) {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, 100);
+      //adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, 100);
     }
     else {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
+      //adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
     }
   }
 
   if(i_mode_year == 1989) {
-    playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
+    //playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
+    w_trig.trackPlayPoly(S_FIRE_START_SPARK, true);
   }
   else {
-    playEffect(S_FIRE_START_SPARK);
+    //playEffect(S_FIRE_START_SPARK);
+    w_trig.trackPlayPoly(S_FIRE_START_SPARK, true);
   }
 
   switch(FIRING_MODE) {
@@ -2978,22 +3025,30 @@ void modeFireStartSounds() {
           i_v_fire_start = i_volume_abs_min;
         }
 
-        playEffect(S_FIRE_START, false, i_v_fire_start);
+        //playEffect(S_FIRE_START, false, i_v_fire_start);
+        w_trig.trackPlayPoly(S_FIRE_START, true);
       }
       else {
-        playEffect(S_FIRE_START);
+        //playEffect(S_FIRE_START);
+        w_trig.trackPlayPoly(S_FIRE_START, true);
       }
 
       switch(i_wand_power_level) {
         case 1 ... 4:
           if(b_firing_intensify == true) {
             if(i_mode_year == 1989) {
-              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
-              playEffect(S_GB2_FIRE_START);
+              //playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
+              //playEffect(S_GB2_FIRE_START);
+              //w_trig.trackFade(S_GB2_FIRE_LOOP, i_volume_effects, 6500, 0);
+              w_trig.trackPlayPoly(S_GB2_FIRE_LOOP, true);
+              w_trig.trackPlayPoly(S_GB2_FIRE_START, true);
             }
             else {
-              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000);
-              playEffect(S_GB1_FIRE_START);
+              //playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000);
+              //playEffect(S_GB1_FIRE_START);
+              //w_trig.trackFade(S_GB1_FIRE_LOOP, i_volume_effects, 1000, 0);
+              w_trig.trackPlayPoly(S_GB1_FIRE_LOOP, true);
+              w_trig.trackPlayPoly(S_GB1_FIRE_START, true);
             }
 
             b_sound_firing_intensify_trigger = true;
@@ -3003,10 +3058,13 @@ void modeFireStartSounds() {
           }
 
           if(b_firing_alt == true) {
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
+            //playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
+            //w_trig.trackFade(S_FIRING_LOOP_GB1, i_volume_effects, 1000, 0);
+            w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
 
             if(i_mode_year == 1989) {
-              playEffect(S_GB2_FIRE_START);
+              //playEffect(S_GB2_FIRE_START);
+              w_trig.trackPlayPoly(S_GB2_FIRE_START, true);
             }
 
             b_sound_firing_alt_trigger = true;
@@ -3019,24 +3077,30 @@ void modeFireStartSounds() {
         case 5:
           switch(i_mode_year) {
             case 1989:
-              playEffect(S_GB2_FIRE_START);
+              //playEffect(S_GB2_FIRE_START);
+              w_trig.trackPlayPoly(S_GB2_FIRE_START, true);
             break;
 
             case 1984:
-              playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
-              playEffect(S_GB1_FIRE_START);
+              //playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
+              //playEffect(S_GB1_FIRE_START);
+              w_trig.trackPlayPoly(S_GB1_FIRE_START_HIGH_POWER, true);
+              w_trig.trackPlayPoly(S_GB1_FIRE_START, true);
             break;
 
             case 2021:
             default:
-              playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
+              //playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
+              w_trig.trackPlayPoly(S_AFTERLIFE_FIRE_START, true);
             break;
           }
 
           if(b_firing_intensify == true) {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700);
+            //playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700);
+            //w_trig.trackFade(S_GB1_FIRE_HIGH_POWER_LOOP, i_volume_effects, 700, 0);
+            w_trig.trackPlayPoly(S_GB1_FIRE_HIGH_POWER_LOOP, true);
           }
           else {
             b_sound_firing_intensify_trigger = false;
@@ -3046,7 +3110,9 @@ void modeFireStartSounds() {
             // Reset some sound triggers.
             b_sound_firing_alt_trigger = true;
 
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700);
+            //playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700);
+            //w_trig.trackFade(S_FIRING_LOOP_GB1, i_volume_effects, 700, 0);
+            w_trig.trackPlayPoly(S_FIRING_LOOP_GB1, true);
           }
           else {
             b_sound_firing_alt_trigger = false;
@@ -3078,7 +3144,7 @@ void modeFireStartSounds() {
 }
 
 void wandFiring() {
-  modeFireStartSounds();
+  b_trigger_sounds_firing_start = true;
 
   b_wand_firing = true;
 
@@ -3121,10 +3187,10 @@ void modeFireStopSounds() {
     // Adjust the gain with the Afterlife idling track.
     if(i_mode_year == 2021 && i_wand_power_level < 5) {
       if(ms_idle_fire_fade.remaining() < 1000) {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
+        //adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
       }
       else {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
+        //adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
       }
     }
 
@@ -3134,15 +3200,18 @@ void modeFireStopSounds() {
         // Play different firing end stream sound depending on how long we have been firing for.
         if(ms_firing_length_timer.remaining() < 5000) {
           // Short tail end.
-          playEffect(S_FIRING_END_GUN);
+          //playEffect(S_FIRING_END_GUN);
+          w_trig.trackPlayPoly(S_FIRING_END_GUN, true);
         }
         else if(ms_firing_length_timer.remaining() < 10000) {
           // Mid tail end.
-          playEffect(S_FIRING_END_MID);
+          //playEffect(S_FIRING_END_MID);
+          w_trig.trackPlayPoly(S_FIRING_END_MID, true);
         }
         else {
           // Long tail end.
-          playEffect(S_FIRING_END);
+          //playEffect(S_FIRING_END);
+          w_trig.trackPlayPoly(S_FIRING_END, true);
         }
       break;
 
@@ -3169,7 +3238,7 @@ void modeFireStopSounds() {
 }
 
 void wandStoppedFiring() {
-  modeFireStopSounds();
+  b_trigger_sounds_firing_stop = true;
 
   ms_firing_sound_mix.stop();
 
@@ -3208,21 +3277,30 @@ void wandStopFiringSounds() {
     case PROTON:
     default:
       if(i_mode_year == 1989) {
-        stopEffect(S_GB2_FIRE_START);
-        stopEffect(S_GB2_FIRE_LOOP);
+        //stopEffect(S_GB2_FIRE_START);
+        //stopEffect(S_GB2_FIRE_LOOP);
+        //w_trig.trackStop(S_GB2_FIRE_START);
+        w_trig.trackStop(S_GB2_FIRE_LOOP);
       }
       else {
-        stopEffect(S_GB1_FIRE_START);
-        stopEffect(S_GB1_FIRE_LOOP);
+        //stopEffect(S_GB1_FIRE_START);
+        //stopEffect(S_GB1_FIRE_LOOP);
+        //w_trig.trackStop(S_GB1_FIRE_START);
+        w_trig.trackStop(S_GB1_FIRE_LOOP);
       }
 
       if(i_mode_year == 2021) {
-        stopEffect(S_AFTERLIFE_FIRE_START);
+        //stopEffect(S_AFTERLIFE_FIRE_START);
+        //w_trig.trackStop(S_AFTERLIFE_FIRE_START);
       }
 
-      stopEffect(S_FIRING_LOOP_GB1);
-      stopEffect(S_GB1_FIRE_START_HIGH_POWER);
-      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+      //stopEffect(S_FIRING_LOOP_GB1);
+      //stopEffect(S_GB1_FIRE_START_HIGH_POWER);
+      //stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+
+      w_trig.trackStop(S_FIRING_LOOP_GB1);
+      //w_trig.trackStop(S_GB1_FIRE_START_HIGH_POWER);
+      w_trig.trackStop(S_GB1_FIRE_HIGH_POWER_LOOP);
 
       /*
       // Keep this code for later future updates, when using 4 wire led chipsets.
@@ -3266,11 +3344,13 @@ void wandStopFiringSounds() {
 
         if(i_firing >= i_firing_max / 2) {
           if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
-            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+            //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+            w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
           }
         }
         else {
-          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+          //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+          w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
         }
       break;
 
@@ -3284,11 +3364,13 @@ void wandStopFiringSounds() {
 
         if(i_firing >= i_firing_max / 2) {
           if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) {
-            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+            //playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+            w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
           }
         }
         else {
-          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+          //playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+          w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
         }
       break;
     }
@@ -3611,6 +3693,7 @@ void decreaseVolume() {
 }
 
 void readEncoder() {
+  /*
   if(digitalRead(encoder_pin_a) == digitalRead(encoder_pin_b)) {
     i_encoder_pos++;
   }
@@ -3619,6 +3702,7 @@ void readEncoder() {
   }
 
   i_val_rotary = i_encoder_pos / 2.5;
+  */
 }
 
 void checkRotaryEncoder() {
@@ -4547,6 +4631,10 @@ void checkWand() {
             case W_FIRING_INTENSIFY:
               // Wand firing in intensify mode.
               b_firing_intensify = true;
+              
+              if(i_firing < i_firing_max) {
+                i_firing++;
+              }
 
               if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
                 b_sound_firing_intensify_trigger = true;
@@ -4556,6 +4644,10 @@ void checkWand() {
             case W_FIRING_INTENSIFY_MIX:
               // Wand firing in intensify mode.
               b_firing_intensify = true;
+              
+              if(i_firing < i_firing_max) {
+                i_firing++;
+              }
 
               if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
                 b_sound_firing_intensify_trigger = true;
@@ -4583,7 +4675,6 @@ void checkWand() {
                   break;
                 }
               }
-
             break;
 
             case W_FIRING_INTENSIFY_STOPPED:
@@ -4623,6 +4714,10 @@ void checkWand() {
               // Wand firing in alt mode.
               b_firing_alt = true;
 
+              if(i_firing < i_firing_max) {
+                i_firing++;
+              }
+
               if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
                 b_sound_firing_alt_trigger = true;
               }
@@ -4631,6 +4726,10 @@ void checkWand() {
             case W_FIRING_ALT_MIX:
               // Wand firing in alt mode.
               b_firing_alt = true;
+
+              if(i_firing < i_firing_max) {
+                i_firing++;
+              }
 
               if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
                 b_sound_firing_alt_trigger = true;
@@ -4662,7 +4761,11 @@ void checkWand() {
             case W_FIRING_CROSSING_THE_STREAMS:
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
-              
+
+              if(i_firing < i_firing_max) {
+                i_firing++;
+              }
+
               switch(i_mode_year) {
                 case 2021:
                   /*
@@ -4674,11 +4777,13 @@ void checkWand() {
 
                   if(i_firing >= i_firing_max / 2) {
                     if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_START) != true) {
-                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                      //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                      w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
                     }
                   }
                   else {
-                    playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                    //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                    w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
                   }
                 break;
 
@@ -4693,11 +4798,13 @@ void checkWand() {
 
                   if(i_firing >= i_firing_max / 2) {
                     if(w_trig.isTrackPlaying(S_CROSS_STREAMS_START) != true) {
-                      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                      //playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                      w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
                     }
                   }
                   else {
-                    playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                    //playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                    w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
                   }
                 break;
               }
@@ -4710,6 +4817,10 @@ void checkWand() {
               // Wand is crossing the streams.
               b_firing_cross_streams = true;
               
+              if(i_firing < i_firing_max) {
+                i_firing++;
+              }
+
               switch(i_mode_year) {
                 case 2021:
                   /*
@@ -4720,11 +4831,13 @@ void checkWand() {
 
                   if(i_firing >= i_firing_max / 2) {
                     if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_START) != true) {
-                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                      //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                      w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
                     }
                   }
                   else {
-                    playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                    //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+                    w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_START, true);
                   }
                 break;
 
@@ -4738,11 +4851,13 @@ void checkWand() {
 
                   if(i_firing >= i_firing_max / 2) {
                     if(w_trig.isTrackPlaying(S_CROSS_STREAMS_START) != true) {
-                      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                      //playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                      w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
                     }
                   }
                   else {
-                    playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                    //playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+                    w_trig.trackPlayPoly(S_CROSS_STREAMS_START, true);
                   }
                 break;
               }
@@ -4754,7 +4869,8 @@ void checkWand() {
               */
 
               if(i_wand_power_level != i_wand_power_level_max) {
-                playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+                //playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+                w_trig.trackPlayPoly(S_GB1_FIRE_HIGH_POWER_LOOP, true);
               }
               
               /*
@@ -4782,11 +4898,13 @@ void checkWand() {
 
                   if(i_firing >= i_firing_max / 2) {
                     if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
-                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                      //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                      //w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
                     }
                   }
                   else {
-                    playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                    //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                    //w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
                   }
                 break;
 
@@ -4800,11 +4918,13 @@ void checkWand() {
 
                   if(i_firing >= i_firing_max / 2) {
                     if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) {
-                      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                      //playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                      w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
                     }
                   }
                   else {
-                    playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                    //playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
                   }
                 break;
               }
@@ -4827,11 +4947,13 @@ void checkWand() {
 
                   if(i_firing >= i_firing_max / 2) {
                     if(w_trig.isTrackPlaying(S_AFTERLIFE_CROSS_THE_STREAMS_END) != true) {
-                      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                      //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                      w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
                     }
                   }
                   else {
-                    playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                    //playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+                    w_trig.trackPlayPoly(S_AFTERLIFE_CROSS_THE_STREAMS_END, true);
                   }
                 break;
 
@@ -4845,11 +4967,13 @@ void checkWand() {
 
                   if(i_firing >= i_firing_max / 2) {
                     if(w_trig.isTrackPlaying(S_CROSS_STREAMS_END) != true) {
-                      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                      //playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                      w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
                     }
                   }
                   else {
-                    playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                    //playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+                    w_trig.trackPlayPoly(S_CROSS_STREAMS_END, true);
                   }
                 break;
               }
@@ -6068,7 +6192,7 @@ void updateProtonPackLEDCounts() {
 }
 
 // Helper method to play a sound effect using certain defaults.
-void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
+void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {  
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
@@ -6093,6 +6217,7 @@ void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b
   else {
     w_trig.trackLoop(i_track_id, 0);
   }
+  
 }
 
 void stopEffect(int i_track_id) {
@@ -6429,6 +6554,10 @@ unsigned long eepromCRC(void) {
   return crc;
 }
 
+void setupLoopTracks() {
+  w_trig.trackLoop(S_GB1_FIRE_HIGH_POWER_LOOP, 1);
+}
+
 void setupWavTrigger() {
   // If the controller is powering the WAV Trigger, we should wait for the WAV Trigger to finish reset before trying to send commands.
   delay(1000);
@@ -6457,4 +6586,6 @@ void setupWavTrigger() {
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
   }
+
+  setupLoopTracks();
 }
