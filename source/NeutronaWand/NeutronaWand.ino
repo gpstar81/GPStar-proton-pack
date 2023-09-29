@@ -48,7 +48,7 @@
 /*
   ***** IMPORTANT *****
   * You no longer need to edit and configure wavTrigger.h anymore.
-  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher. 
+  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
   * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
   https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
 
@@ -164,7 +164,7 @@ void setup() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand microcontroller, it is wired to its own pin. When using an Arduino Nano, it is linked with led_slo_blo.
     pinMode(led_hat_1, OUTPUT); // Hat light at front of the wand near the barrel tip.
-    pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body.
+    pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body (gun box).
     pinMode(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
   #endif
 
@@ -245,10 +245,10 @@ void mainLoop() {
       if(b_wand_mash_error == true) {
         // Return the wand to a normal firing state after lock-out from button mashing.
         b_wand_mash_error = false;
-        
+
         WAND_STATUS = MODE_ON;
         WAND_ACTION_STATUS = ACTION_IDLE;
-        
+
         wandSerialSend(W_ON);
         postActivation();
 
@@ -771,11 +771,11 @@ void mainLoop() {
                 if(b_playing_music == true) {
                   // Go to the last track to play it.
                   stopMusic();
-                  i_current_music_track = i_music_track_start + (i_music_count -1);
+                  i_current_music_track = i_music_track_start + (i_music_count - 1);
                   playMusic();
                 }
                 else {
-                  i_current_music_track = i_music_track_start + (i_music_count -1);
+                  i_current_music_track = i_music_track_start + (i_music_count - 1);
                 }
               }
               else {
@@ -2127,7 +2127,7 @@ void wandOff() {
   ms_settings_blinking.stop();
   ms_hat_1.stop();
   ms_hat_2.stop();
-  
+
   // Clear counter until user begins firing.
   i_bmash_count = 0;
 
@@ -3000,7 +3000,7 @@ void modeFiring() {
       case 1989:
         stopEffect(S_CROSS_STREAMS_END);
         stopEffect(S_CROSS_STREAMS_START);
-        
+
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
       break;
     }
@@ -4320,6 +4320,13 @@ void cyclotronSpeedUp(uint8_t i_switch) {
     // Tell the pack to speed up the Cyclotron.
     wandSerialSend(W_CYCLOTRON_INCREASE_SPEED);
   }
+}
+
+void cyclotronSpeedRevert() {
+  // Stop overheat beeps.
+  stopEffect(S_BEEP_8);
+
+  i_cyclotron_speed_up = 1;
 }
 
 // 2021 mode for optional 28 segment bargraph.
@@ -6047,6 +6054,25 @@ void checkPack() {
               }
             break;
 
+            case P_WARNING_CANCELLED:
+              // Pack is telling wand to cancel any overheat warnings.
+              // First, stop the timers which trigger the overheat.
+              ms_overheat_initiate.stop();
+              ms_overheating.stop();
+              ms_hat_1.stop();
+              ms_hat_2.stop();
+
+              if(b_firing == true) {
+                // Keep both lights on if still firing.
+                digitalWrite(led_hat_1, HIGH);
+                digitalWrite(led_hat_2, HIGH);
+              }
+
+              // Next, reset the cyclotron speed on all devices.
+              wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
+              cyclotronSpeedRevert();
+            break;
+
             case P_YEAR_1984:
               // 1984 mode.
               year_mode = 1984;
@@ -6069,6 +6095,16 @@ void checkPack() {
               #ifdef GPSTAR_NEUTRONA_WAND_PCB
                 bargraphYearModeUpdate();
               #endif
+            break;
+
+            case P_VOLUME_SOUND_EFFECTS_INCREASE:
+              // Increase effects volume.
+              increaseVolumeEffects();
+            break;
+
+            case P_VOLUME_SOUND_EFFECTS_DECREASE:
+              // Decrease effects volume.
+              decreaseVolumeEffects();
             break;
 
             case P_VOLUME_INCREASE:
@@ -6290,7 +6326,7 @@ void checkPack() {
 
             case P_MUSIC_STOP:
               b_playing_music = false;
-              
+
               // Stop music
               stopMusic();
             break;
@@ -6580,7 +6616,7 @@ void checkPack() {
 
             case P_MUSIC_START:
               if(b_playing_music == true) {
-                  stopMusic();
+                stopMusic();
               }
 
               b_playing_music = true;
@@ -6590,11 +6626,11 @@ void checkPack() {
 
             default:
               // Music track number to be played.
-              if(comStruct.i >= i_music_track_start) {
+              if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
                 if(b_playing_music == true) {
-                  stopMusic();
+                  stopMusic(); // Stops current track before change.
                   i_current_music_track = comStruct.i;
-                  playMusic();
+                  playMusic(); // Start playing new track number.
                 }
                 else {
                   i_current_music_track = comStruct.i;

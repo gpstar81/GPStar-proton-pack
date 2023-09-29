@@ -172,7 +172,7 @@ const bool b_wand_boot_errors = true;
 /*
  * Which power modes do you want to be able to overheat.
  * Set to true to allow the wand and pack to overheat in that mode.
- * Set to false to disable overheating in that power mode. You will be able to continously fire instead.
+ * Set to false to disable overheating in that power mode. You will be able to continuously fire instead.
  */
 const bool b_overheat_mode_1 = false;
 const bool b_overheat_mode_2 = false;
@@ -198,7 +198,7 @@ const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 const bool b_no_pack = false;
 
 /*
- * Set to false to disable the onboard amplifer on the wav trigger. 
+ * Set to false to disable the onboard amplifier on the wav trigger. 
  * Turning off the onboard amp draws less power. 
  * If using the AUX cable jack, the amp can be disabled to save power.
  * If you use the output pins directly on the wav trigger board to your speakers, you will need to enable the onboard amp.

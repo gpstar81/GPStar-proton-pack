@@ -22,21 +22,21 @@
  * Change the variables below to alter the behaviour of your Proton Pack.
  * All the default settings below are setup for a stock HasLab Proton Pack lighting kit.
 */
- 
- /* 
+
+/*
  *  Cyclotron Lid LEDs.
  *  For the stock HasLab LEDs, there are 12 LEDs in the cyclotron lid.
  *  Use int i_cyclotron_leds = 12; and i_1984_cyclotron_leds 1, 4, 7, 10.
  *
  *  For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use int i_cyclotron_leds = 40 and i_1984_cyclotron_leds 0, 10, 18, 28.
- *  Adjust as neccesary depending on how you align your NeoPixel ring.
- *  You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.  
+ *  Adjust as necessary depending on how you align your NeoPixel ring.
+ *  You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.
  *
  *  i_1984_cyclotron_leds is the middle LED aligned in each lens window. (0 is the first LED). Adjust this setting if you use different LED setups and installations.
  *  Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as Cyclotron lens #1 and work your way clockwise)
  *
  *  Any settings saved in the EEPROM menu will overwrite these settings.
-*/ 
+*/
 // For stock HasLab LEDs
 uint8_t i_cyclotron_leds = 12;
 uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
@@ -51,7 +51,7 @@ uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 
 /*
  * Power Cell LEDs
- * The number of Power Cell LEDs. Stock HasLab has 13. 
+ * The number of Power Cell LEDs. Stock HasLab has 13.
  * If you are installing a Frutto Technology Power Cell which has 15 LEDs, then change this to 15.
  * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
  * Any settings saved in the EEPROM menu will overwrite these settings.
@@ -93,9 +93,9 @@ unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for th
 /*
   * Afterlife mode (2021) only.
   * When set to true, using LEDs that are not a ring will simulate a ring rotation for the Cyclotron LEDs in the lid.
-  * For example, for the 12 or 15 LED options, extra LEDs will be simulated to provide a delay/spinning effect. 
+  * For example, for the 12 or 15 LED options, extra LEDs will be simulated to provide a delay/spinning effect.
   * The 40 LED ring option is unaffected as it is a true ring.
-  * This setting will be overriden by the EEPROM settings.
+  * This setting will be overridden by the EEPROM settings.
 */
 bool b_cyclotron_simulate_ring = true;
 
@@ -129,7 +129,7 @@ uint8_t i_inner_cyclotron_num_leds = 35;
 bool b_grb_cyclotron = false;
 
 /*
- * The CHSV colour value for the Spectral Custom mode. 
+ * The CHSV colour value for the Spectral Custom mode.
  * This can be adjusted in the EEPROM LED menu. Any EEPROM settings will overwrite these values.
  * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. The Neutrona Wand custom spectral colours are stored on the Neutrona Wand. So it is possible to mix and match different wands' colours to different pack settings.
  * Value range: 1 <--> 254
@@ -139,7 +139,7 @@ uint8_t i_spectral_cyclotron_custom = 200;
 uint8_t i_spectral_cyclotron_inner_custom = 200;
 
 /*
- * The CHSV saturation range for the Spectral Custom mode. 
+ * The CHSV saturation range for the Spectral Custom mode.
  * This can be adjusted in the EEPROM LED menu. Any EEPROM settings will overwrite these values.
  * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. The Neutrona Wand custom spectral colours are stored on the Neutrona Wand. So it is possible to mix and match different wands' colours to different pack settings.
  * Value range: 1 <--> 254
@@ -193,9 +193,9 @@ const uint8_t STARTUP_VOLUME_MUSIC = 100;
 const uint8_t STARTUP_VOLUME_EFFECTS = 100;
 
 /*
- * Minimum volume that the pack can achieve. 
+ * Minimum volume that the pack can achieve.
  * Values must be from 0 to -70. 0 = the loudest and -70 = the quietest.
- * Volume changes are based on percentages. 
+ * Volume changes are based on percentages.
  * If your pack is overpowering the wand at lower volumes, you can either increase the minimum value in the wand,
  * or decrease the minimum value for the pack.
 */
@@ -230,8 +230,8 @@ bool b_stream_effects = true;
 uint8_t i_2021_inner_delay = 5;
 uint8_t i_1984_inner_delay = 9;
 
-/* 
- * Cyclotron direction 
+/*
+ * Cyclotron direction
  * Set to true to have your Cyclotron spin clockwise. (default)
  * This can be controlled by an optional switch on pin 29 and also from the Neutrona Wand sub menu system.
  * Set to false to be counter clockwise.
@@ -273,7 +273,7 @@ const unsigned int i_1984_fade_out_delay = 1110;
 const unsigned int i_1984_fade_in_delay = 210;
 
 /*
- * Set to true to enable the onboard amplifer on the WAV Trigger.
+ * Set to true to enable the onboard amplifier on the WAV Trigger.
  * Turning off the onboard amp draws less power.
  * If using the Stereo AUX cable jack, the amp can be disabled to save power.
  * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
@@ -315,7 +315,7 @@ bool b_smoke_enabled = true;
  * ****************** ADVANCED USER CONFIGURABLE SMOKE SETTINGS BELOW ************************
  * The default settings work very well. Changing these can produce strange timing effects.
  */
- 
+
 /*
  * Enable or disable smoke during continuous firing.
  * Control which of the 3 pins go high during continuous firing smoke effects.
@@ -349,8 +349,8 @@ const unsigned long int i_smoke_timer_mode_5 = 6000;
 /*
  * How long you want your smoke pins (+ fan) to stay on while firing for each firing power mode. (not overheating venting)
  * When the pins are high (controlled by the i_smoke_timer above), then smoke will be generated if you have smoke machines wired up.
- * Default is 3000 milliseconds (3 seconds). 
- * This does not affect smoke during overheat. 
+ * Default is 3000 milliseconds (3 seconds).
+ * This does not affect smoke during overheat.
  * This only affects how long your smoke stays on after it has been triggered in continuous firing.
 */
 const unsigned long int i_smoke_on_time_mode_1 = 3000;
@@ -396,7 +396,7 @@ bool b_additional_wand_sounds = false;
 */
 const bool b_eeprom = true;
 
-/* 
+/*
  * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the HasLab Cyclotron Lid.
  * When using 12 LEDs for the Cyclotron Lid, the system will default it to always red.
  * Setting this to true will override it and allow CHSV colours to be applied to Cyclotron Lids with 12 LEDs.
@@ -408,9 +408,9 @@ const bool b_cyclotron_haslab_chsv_colour_change = false;
   *****
   ***** INFORMATION FOR DIY builds of the gpstar Proton Packs using an Arduino Mega ********
   *****
-  
+
   * If you are compiling the code to upload to an Arduino Mega with the original gpstar home built instructions, you will want to disable GPSTAR_PROTON_PACK_PCB.
-  * example: //#define GPSTAR_PROTON_PACK_PCB 
+  * example: //#define GPSTAR_PROTON_PACK_PCB
   * This is a legacy flag, for people who originally put the Cyclotron Lid detection on pin 51 and not pin 43. If your Cyclotron Lid detection is on pin 51, then comment/disable this define.
   * If your home built gpstar Proton Pack was built with pin 43 for the Cyclotron Lid detection, then you can leave this enabled.
 

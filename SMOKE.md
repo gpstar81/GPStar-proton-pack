@@ -1,4 +1,4 @@
-  # Smoke Effects
+# Smoke Effects
 
 Both the [gpstar Proton Pack PCB](PACK_PCB.md) and [DIY Arduino](PACK.md) approaches can support up to 2 separate smoke options for the N-Filter and Booster Tube to provide atmospheric effects while operating your Ghostbusters equipment. These effects are automatically triggered during certain interactions and typically after pre-set times through use of 5 JST-XH connections configured to provide DC power during smoke effect phases:
 
@@ -14,7 +14,7 @@ Both the [gpstar Proton Pack PCB](PACK_PCB.md) and [DIY Arduino](PACK.md) approa
 
 ## What is a "Smoke Kit"?
 
-Before proceeding it should be made clear what exactly a "smoke kit" consists of. In simplest term this is a combination of 4 components: a vape coil (atomizer), an air pump, a fan or blower, and a white LED. Traditionally, the vape coil will be paired directly with the air pump as it is dangerous to run a vape coil without proper airflow. The fan and LED may either be separated or combined--there are many community makers of smoke kits with various implementations where components may be bundled differently.
+Before proceeding it should be made clear what exactly a "smoke kit" consists of. In simplest terms this is a combination of 4 components: a vape coil (atomizer), an air pump, a fan or blower, and a white LED. Traditionally, the vape coil will be paired directly with the air pump as it is dangerous to run a vape coil without proper airflow. The fan and LED may either be separated or combined--there are many community makers of smoke kits with various implementations where components may be bundled differently.
 
 For modders who are comfortable with building their own smoke solution we recommend [this guide to creating your own smoke generator](SMOKE_DIY.md). For purposes of integrating and connecting a smoke solution please read the remainder of this guide.
 
@@ -68,13 +68,15 @@ For a more in-depth look at the electrical connections, the following diagrams d
 
 ![DIY - Dual Battery](images/Smoke-DIY-2.png)
 
-![5V - Single Battery](images/Smoke-5V-1.png)
+![5V - Single Battery](images/Smoke-5V-WI-1.png)
 
-![5V - Dual Battery](images/Smoke-5V-2.png)
+![5V - Dual Battery](images/Smoke-5V-WI-2.png)
 
-![12V - Single Battery](images/Smoke-12V-1.png)
+![12V - Single Battery](images/Smoke-12V-CA-1.png)
 
-![12V - Dual Battery](images/Smoke-12V-2.png)
+![12V - Dual Battery](images/Smoke-12V-CA-2.png)
+
+![12V - Dual Battery](images/Smoke-PDTNG.png)
 
 ## Booster Tube Installation
 
