@@ -2,13 +2,18 @@ name: compile-test
 on:
   - push
   - pull_request
+env:
+  # It's convenient to set variables for values used multiple times in the workflow
+  SKETCHES_REPORTS_PATH: sketches-reports
+  SKETCHES_REPORTS_ARTIFACT_NAME: sketches-reports
 jobs:
   compile-core:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: arduino/compile-sketches@v1
         with:
+            enable-deltas-report: true
             fqbn: arduino:avr:mega
             sketch-paths: |
               - source/NeutronaWand
@@ -21,12 +26,33 @@ jobs:
               - name: AltSoftSerial
               - name: SerialTransfer
               - source-url: https://github.com/ansonhe97/millisDelay.git
+            verbose: true
+      # This step is needed to pass the size data to the report job
+      - name: Upload sketches report to workflow artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+  report-core:
+    needs: compile-core
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download sketches reports artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+      - uses: arduino/report-size-deltas@v1
+        with:
+          sketches-reports-source: ${{ env.SKETCHES_REPORTS_PATH }}
   compile-addons:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: arduino/compile-sketches@v1
         with:
+            enable-deltas-report: true
             fqbn: arduino:avr:nano
             sketch-paths: |
               - source/Attenuator
@@ -38,3 +64,23 @@ jobs:
               - name: AltSoftSerial
               - name: SerialTransfer
               - source-url: https://github.com/ansonhe97/millisDelay.git
+            verbose: true
+      # This step is needed to pass the size data to the report job
+      - name: Upload sketches report to workflow artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+  report-addons:
+    needs: compile-addons
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download sketches reports artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+      - uses: arduino/report-size-deltas@v1
+        with:
+          sketches-reports-source: ${{ env.SKETCHES_REPORTS_PATH }}

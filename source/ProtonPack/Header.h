@@ -97,7 +97,7 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
 
 /*
  * Delay for fastled to update the addressable LEDs. 
- * We have up to 88 addressable LEDs if using NeoPixel jewels in the Inner Cyclotron and N-Filter.
+ * We have up to 90 addressable LEDs if using NeoPixel jewels in the Inner Cyclotron and N-Filter.
  * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
  */
 const uint8_t i_fast_led_delay = 6;
@@ -288,7 +288,8 @@ const uint8_t fan_booster_pin = 38;
  */
 const uint8_t fan_pin = 33;
 millisDelay ms_fan_stop_timer;
-const unsigned int i_fan_stop_timer = 7000;
+const unsigned int i_fan_stop_timer = 8000; // Total time for the fan to be ready and/or actually running.
+const float i_fan_start_percent = 0.8; // Time at which the fan will turn on for venting (timer * percent).
 
 /* 
  * Overheating and smoke timers for smoke_pin. 
