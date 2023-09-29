@@ -281,10 +281,10 @@ void mainLoop() {
                 if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
                   // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
                   if(switchBarrel() != true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-                    digitalWrite(led_hat_1, HIGH); // Turn on hat light 1.
+                    digitalWrite(led_hat_1, HIGH);
                   }
                   else {
-                    digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
+                    digitalWrite(led_hat_1, LOW);
                   }
                 }
             break;
@@ -316,12 +316,12 @@ void mainLoop() {
         if(ms_hat_1.isRunning()) {
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
             if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
-                digitalWrite(led_hat_1, LOW); // Off
-                digitalWrite(led_hat_2, HIGH); // On
+                digitalWrite(led_hat_1, LOW);
+                digitalWrite(led_hat_2, HIGH);
             }
             else {
-                digitalWrite(led_hat_1, HIGH); // On
-                digitalWrite(led_hat_2, LOW); // Off
+                digitalWrite(led_hat_1, HIGH);
+                digitalWrite(led_hat_2, LOW);
             }
           #endif
 

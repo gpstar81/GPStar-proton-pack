@@ -23,7 +23,7 @@
  * All the default settings below are setup for a stock HasLab Proton Pack lighting kit.
 */
 
- /*
+/*
  *  Cyclotron Lid LEDs.
  *  For the stock HasLab LEDs, there are 12 LEDs in the cyclotron lid.
  *  Use int i_cyclotron_leds = 12; and i_1984_cyclotron_leds 1, 4, 7, 10.
