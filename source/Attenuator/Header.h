@@ -65,13 +65,13 @@ millisDelay ms_blink_leds;
  * SCL -> A5
  */
 HT16K33 ht_bargraph;
-const uint8_t i_bargraph_delay = 12; // Base delay (ms) for bargraph refresh.
-const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph device.
-const uint8_t i_bargraph_levels = 5; // Reflects the count of POWER_LEVELS elements.
-uint8_t i_bargraph_sim_max = i_bargraph_elements; // Simulated maximum for patterns.
-uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns (1/2 max).
-uint8_t i_bargraph_step = 0; // Indicates current step for certain patterns.
-bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph.
+const uint8_t i_bargraph_delay = 12; // Base delay (ms) for bargraph refresh (this should be a value evenly divisible by 2, 3, or 4).
+const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph device; not likely to change but adjustable just in case.
+const uint8_t i_bargraph_levels = 5; // Reflects the count of POWER_LEVELS elements (the only dependency on other device behavior).
+uint8_t i_bargraph_sim_max = i_bargraph_elements; // Simulated maximum for patterns which may be dependent on other factors.
+uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns (1/2 max) which are bilateral/mirrored.
+uint8_t i_bargraph_step = 0; // Indicates current step for bilateral/mirrored patterns.
+bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph device.
 int i_bargraph_element = 0; // Indicates current LED element for adjustment.
 millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 

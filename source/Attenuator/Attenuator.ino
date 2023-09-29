@@ -139,7 +139,7 @@ void mainLoop() {
   // This supports pack connection or standalone operation.
   if(b_pack_on || (switch_left.getState() == LOW && !b_wait_for_pack)) {
     if(BARGRAPH_STATE == BG_OFF) {
-      BARGRAPH_STATE = BG_ON; // Enable bargraph for use.
+      bargraphReset(); // Enable bargraph for use (resets variables and turns it on).
     }
 
     if(switch_left.getState() == LOW && !b_wait_for_pack){

@@ -19,9 +19,15 @@
  */
 
 /**
- * Control patterns displayed by the 28-segment bargraph device.
+ * Purpose: Control patterns displayed by the 28-segment bargraph device (mostly) independent of external factors.
  *
  * Patterns should not rely on hard-set values for position, but rather be relative to the min/max elements available.
+ * Control of elements should be checked on each main loop of the program, but only updated at designated intervals as
+ * set using a timer. This allows elements to linger in an on or off state for more than a single cycle, and offers
+ * a chance to update timing values for the next iteration/change as necessary. Ideally, just setting a pattern name
+ * should change behavior, though in some cases it may be necessary to clear, reset, or illuminate all elements prior
+ * to the next change of the selected pattern. When possible, that should be done in the main program, not as part of
+ * the pattern itself (though in some cases this is unavoidable or distinctly necessary).
  */
 
 /*
@@ -60,7 +66,7 @@ void bargraphSetElement(int i_element, bool b_power) {
 
   if(b_bargraph_present) {
     // This simplifies the process of turning individual elements on or off.
-    // Uses the mapping information which accounts for installation orientation.
+    // Uses mapping information which accounts for installation orientation.
     if(b_power) {
       ht_bargraph.setLedNow(i_bargraph[i_element]);
     }
@@ -190,26 +196,42 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
     // Animations should be based on a set pattern and logic here must only affect the bargraph device.
     switch(BARGRAPH_PATTERN) {
       case BG_RAMP_UP:
-      case BG_POWER_UP:
+        // This is intended to be a single action, ramping the bargraph up then stopping animations.
+
         // Turn on only the current element.
         bargraphSetElement(i_bargraph_element, 1);
 
         // Increment to the next element.
         i_bargraph_element++;
 
-        if((BARGRAPH_PATTERN == BG_POWER_UP && i_bargraph_element > i_bargraph_sim_max) ||
-           (BARGRAPH_PATTERN == BG_RAMP_UP && i_bargraph_element > i_bargraph_elements)) {
+        if(i_bargraph_element > i_bargraph_elements) {
           // Make note that the bargraph is full;
           BARGRAPH_STATE = BG_FULL;
 
-          if(BARGRAPH_PATTERN == BG_POWER_UP) {
-            // Set an extra delay at end of sequence, before the ramp-down.
-            ms_bargraph.start(i_current_delay * 3);
-          }
-          else {
-            // If not in the power ramp pattern, bargraph is done.
-            BARGRAPH_STATE = BG_OFF;
-          }
+          // Once the ramp up is complete the bargraph should be off.
+          BARGRAPH_STATE = BG_OFF;
+        }
+        else {
+          // Reset timer for next iteration, increasing the delay as elements are lit (easing out).
+          ms_bargraph.start(i_current_delay + int(i_bargraph_element / 2));
+        }
+      break;
+
+      case BG_POWER_UP:
+        // This is part of a continuous animation BG_POWER_RAMP which ramps up then back down.
+
+        // Turn on only the current element.
+        bargraphSetElement(i_bargraph_element, 1);
+
+        // Increment to the next element.
+        i_bargraph_element++;
+
+        if(i_bargraph_element > i_bargraph_sim_max) {
+          // Make note that the bargraph is full;
+          BARGRAPH_STATE = BG_FULL;
+
+          // Set an extra delay at end of sequence, before the ramp-down.
+          ms_bargraph.start(i_current_delay * 3);
         }
         else {
           // Reset timer for next iteration, increasing the delay as elements are lit (easing out).
@@ -218,7 +240,33 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
       break;
 
       case BG_RAMP_DOWN:
+        // This is intended to be a single action, ramping the bargraph down then stopping animations.
+
+        // Turn off only the current element.
+        bargraphSetElement(i_bargraph_element, 0);
+
+        // Add a significant slowdown to this ramp-down.
+        i_current_delay = i_current_delay * 4;
+
+        // Decrement to the next element.
+        i_bargraph_element--;
+
+        if(i_bargraph_element < 0) {
+          // Make sure bargraph is cleared;
+          bargraphClear();
+
+          // Once the ramp up is complete the bargraph should be off.
+          BARGRAPH_STATE = BG_OFF;
+        }
+        else {
+          // Reset timer for next iteration.
+          ms_bargraph.start(i_current_delay);
+        }
+      break;
+
       case BG_POWER_DOWN:
+        // This is part of a continuous animation BG_POWER_RAMP which ramps up then back down.
+
         // Turn off only the current element.
         bargraphSetElement(i_bargraph_element, 0);
 
@@ -234,14 +282,8 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
           // Make sure bargraph is cleared;
           bargraphClear();
 
-          if(BARGRAPH_PATTERN == BG_POWER_DOWN) {
-            // Set an extra delay at end of sequence, before ramp-up.
-            ms_bargraph.start(i_current_delay * 3);
-          }
-          else {
-            // If not in the power ramp pattern, bargraph is done.
-            BARGRAPH_STATE = BG_OFF;
-          }
+          // Set an extra delay at end of sequence, before ramp-up.
+          ms_bargraph.start(i_current_delay * 3);
         }
         else {
           // Reset timer for next iteration.
@@ -255,11 +297,13 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
           // Make sure bargraph is empty before starting the pattern.
           bargraphClear();
 
-          // Prepare to begin on appropriate step.
+          // Prepare to begin on appropriate step for the pattern.
           if(BARGRAPH_PATTERN == BG_INNER_PULSE) {
+            // This pattern begins at the ends and so it must step backwards once it reaches the midpoint.
             i_bargraph_step = i_bargraph_steps - 1;
           }
           else {
+            // All other patterns (read: BG_INNER_PULSE) starts and ends its steps at the midpoint.
             i_bargraph_step = 0;
           }
         }
@@ -269,7 +313,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
 
         // Set special values when at either end of the bargraph.
         if(i_bargraph_step == 0) {
-          // Denote that the bargraph is now empty.
+          // Denote that the bargraph is now empty, meaning it likely has not yet begun or just completed.
           BARGRAPH_STATE = BG_EMPTY;
 
           // Illuminate the first and last elements.
@@ -283,7 +327,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
           }
         }
         else if(i_bargraph_step == i_step_mid) {
-          // Denote that the pattern is at midpoint.
+          // Denote that we are at the midpoint step, which is technically the endpoint for these patterns.
           BARGRAPH_STATE = BG_MID;
 
           // Illuminate the middle elements.
@@ -295,7 +339,9 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
           bargraphSetElement(i_step_mid + 2, 0);
         }
         else {
-          // Illuminate elements N steps from each end.
+          // This covers all steps between the starting point and endpoint for the patterns.
+
+          // Illuminate elements N steps from each end of the device.
           bargraphSetElement(i_bargraph_step, 1);
           bargraphSetElement(i_element_max - i_bargraph_step, 1);
 
@@ -311,7 +357,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
         }
 
         if(BARGRAPH_STATE != BG_MID) {
-          // Continue pattern until it reaches midpoint.
+          // Continue the pattern until it reaches the midpoint.
           i_bargraph_step++;
         }
         else {
