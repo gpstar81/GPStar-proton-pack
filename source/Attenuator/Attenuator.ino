@@ -135,25 +135,15 @@ void mainLoop() {
     }
   }
 
+  // Turn on the bargraph when certain conditions are met.
+  // This supports pack connection or standalone operation.
   if(b_pack_on || (switch_left.getState() == LOW && !b_wait_for_pack)) {
     if(BARGRAPH_STATE == BG_OFF) {
       BARGRAPH_STATE = BG_ON; // Enable bargraph for use.
     }
 
-    if(b_pack_alarm) {
-      // This is going to cause the bargraph to ramp down.
-      BARGRAPH_PATTERN = BG_RAMP_DOWN;
-    }
-    else {
-      // Turn the bargraph on (using some pattern).
-      if(b_firing) {
-        BARGRAPH_PATTERN = BG_OUTER_INNER; // Standard firing pattern.
-      }
-      else {
-        if(!b_overheating && FIRING_MODE != SETTINGS) {
-          BARGRAPH_PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
-        }
-      }
+    if(switch_left.getState() == LOW && !b_wait_for_pack){
+      BARGRAPH_PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
     }
   }
   else {
@@ -499,15 +489,17 @@ void checkPack() {
             // Pack is on.
             b_pack_on = true;
 
-            if(!b_pack_alarm) {
-              BARGRAPH_PATTERN = BG_POWER_RAMP;
-            }
+            BARGRAPH_PATTERN = BG_POWER_RAMP;
           break;
 
           case A_PACK_OFF:
             // Pack is off.
             b_pack_on = false;
 
+            if(BARGRAPH_STATE != BG_OFF) {
+              // If not already off, illuminate fully before ramp down.
+              bargraphFull();
+            }
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
@@ -615,6 +607,9 @@ void checkPack() {
             // Alarm is on.
             b_pack_alarm = true;
 
+            bargraphFull();
+            BARGRAPH_PATTERN = BG_RAMP_DOWN;
+
             if(b_pack_on) {
               ms_blink_leds.start(i_blink_leds);
             }
@@ -648,7 +643,7 @@ void checkPack() {
             ms_blink_leds.stop();
 
             bargraphClear();
-            BARGRAPH_PATTERN = BG_RAMP_UP;
+            BARGRAPH_PATTERN = BG_POWER_RAMP;
 
             useVibration(0, 0); // Stop vibration.
           break;
@@ -667,9 +662,9 @@ void checkPack() {
             i_speed_multiplier = 1;
 
             if(b_pack_alarm) {
-              // We are going change the bargraph if the pack alarm happens while we were firing.
-              bargraphClear();
-              BARGRAPH_PATTERN = BG_INNER_PULSE;
+              // Ramp down if the pack alarm happens while firing.
+              bargraphFull();
+              BARGRAPH_PATTERN = BG_RAMP_DOWN;
             }
             else {
               // We ramp the bargraph back up after finishing firing.
