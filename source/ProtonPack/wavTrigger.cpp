@@ -205,13 +205,13 @@ bool wavTrigger::currentMusicTrackStatus(int trk) {
 
   if(trk == currentMusicTrack) {
     if(currentMusicStatus == true) {
-      Serial.println("playing");
+      //Serial.println("playing");
 
       return true;
     }
   }
   
-  Serial.println("Not playing");
+  //Serial.println("Not playing");
 
   return false;
 }
