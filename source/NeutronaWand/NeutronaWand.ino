@@ -1964,7 +1964,7 @@ void checkSwitches() {
             }
 
             if(b_firing_intensify != true) {
-              // Increase count eac time the user presses a firing button.
+              // Increase count smash time the user presses a firing button.
               i_bmash_count++;
 
               ms_firing_debounce.start(i_firing_debounce);
