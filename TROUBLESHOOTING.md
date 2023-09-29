@@ -18,10 +18,10 @@ Confirm that the battery pack is sufficiently charged, switched to the on state,
 
 Press the test button on the WavTrigger to play the first audio file on the SD card and observe the status LED state.
 
-If the red LED illuminates, this indicates the WavTrigger is recieving power and can play the audio files.
+If the red LED illuminates, this indicates the WavTrigger is receiving power and can play the audio files.
 
 * Re-check the 3.5mm audio cable is connected to the audio amplifier, and that the audio amplifier has power, is connected to at least 1 speaker, and volume has been turned up to at least 30%.
-* If possible, connect the 3.5mm audio cable to a known-good audio source such as a smartphone, Alexa device, or similar to confirm that the amplifier is capable of recieving a signal.
+* If possible, connect the 3.5mm audio cable to a known-good audio source such as a smartphone, Alexa device, or similar to confirm that the amplifier is capable of receiving a signal.
 
 If the red LED does not illuminate, this could mean a connection or data problem.
 
@@ -41,12 +41,12 @@ The wand is expects to communicate with the pack and will only power on when tha
 
 Troubleshooting will be similar to the process used with the pack, though there will not be an external amplifier or audio cable in use. With the wand attached to the pack, press the test button on the WavTrigger to play the first audio file on the SD card and observe the status LED state.
 
-If the red LED illuminates, this indicates the WavTrigger is recieving power and can play the audio files.
+If the red LED illuminates, this indicates the WavTrigger is receiving power and can play the audio files.
 
 * Re-check the connection to the speaker. Polarity should be observed for the best audio quality, though a reversed connection should still support some form of audio playback.
 * Re-flash the latest software to both the pack and wand controllers. These devices must be in agreement for the communication layer to operate correctly.
 * Re-check the Tx/Rx connections to the pack. If these are reversed it will prevent proper communication. Attempt to switch the wires at the pack-side connector which use screw terminals, and retry the Activate switch.
- 
+
 If the red LED does not illuminate, this could mean a connection or data problem.
 
 * Reformat the microSD card as FAT32 using the provided utility and re-copy the audio files to the microSD card.

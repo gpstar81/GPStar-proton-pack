@@ -51,11 +51,11 @@ This approach uses parts which are slightly more accurate to the movie pack, tho
 * 1 - [Neutrik NL4FC](https://www.neutrik.com/en/product/nl4fc)
 * 1 - [Neutrik NL4MP-ST](https://www.neutrik.com/en/product/nl4mp-st)
 
-In this example, I use 4 pin Amphenol connectors. The 4 pin version is slightly smaller than the 16s versions, however it does still work. You will need to enlarge the holes on the pack side Amphenol connector. I used the reamer on a swiss knife and slowly enlarged it until all 4 screws can bolt onto the pack. Take your time and go slow. You also need to remove some plastic in the center of the pack hole for the connector to slide on. After feeding the 4 wires running from the wand to the pack connector through both ends of the 3/4 inch splitless loom, solder the wires onto the approriate ends on the connector.
+In this example, I use 4 pin Amphenol connectors. The 4 pin version is slightly smaller than the 16s versions, however it does still work. You will need to enlarge the holes on the pack side Amphenol connector. I used the reamer on a swiss knife and slowly enlarged it until all 4 screws can bolt onto the pack. Take your time and go slow. You also need to remove some plastic in the center of the pack hole for the connector to slide on. After feeding the 4 wires running from the wand to the pack connector through both ends of the 3/4 inch splitless loom, solder the wires onto the appropriate ends on the connector.
 ![Hose](images/Hose2.jpg)
 ![Hose](images/Hose1.jpg)
 
-On the wand side, this uses a modified Neutrik NAC3FX-W connector. This is a 3 pin connector, but you can take it apart and use the 4 pin internals of the NL4FC which is a 4 pin connector. The NAC3FX-W is discontinued, so if you cannot find one, you can just use the NL4FC instead and not have to modify anything. 
+On the wand side, this uses a modified Neutrik NAC3FX-W connector. This is a 3 pin connector, but you can take it apart and use the 4 pin internals of the NL4FC which is a 4 pin connector. The NAC3FX-W is discontinued, so if you cannot find one, you can just use the NL4FC instead and not have to modify anything.
 
 I use black electrical tape to secure the 3/4 splitless wire loom to the Neutrik connector on the Neutrona Wand side and the Amphenol connector on the Proton Pack side.
 
@@ -63,7 +63,7 @@ Provided in the wand STL folder is a printable connector which threads into the 
 
 **READ BELOW IF USING A MODIFIED NAC3FX-W with a NL4FC.**
 
-If you are using the NAC3FX-W with the NL4FC internals, you will need to slightly modify it. In the photo below, the 3-pin NAC3FX-W internal piece is on the left. On the right is the NL4FC 4-pin internal piece that needs to be modified to work corectly inside the NAC3FX-W shell. You have to grind off some of the indicated plastic on the NL4FC internal piece on the right. Compared to the NAC3FX-W on the left, the tab sits too high, which blocks it from going all the way into the NAC3FX-W shell. A small plastic tab needs to be removed. If you are using the NL4FC shell and not the NAC3FX-W, then you can ignore this.
+If you are using the NAC3FX-W with the NL4FC internals, you will need to slightly modify it. In the photo below, the 3-pin NAC3FX-W internal piece is on the left. On the right is the NL4FC 4-pin internal piece that needs to be modified to work correctly inside the NAC3FX-W shell. You have to grind off some of the indicated plastic on the NL4FC internal piece on the right. Compared to the NAC3FX-W on the left, the tab sits too high, which blocks it from going all the way into the NAC3FX-W shell. A small plastic tab needs to be removed. If you are using the NL4FC shell and not the NAC3FX-W, then you can ignore this.
 
 ![Hose](images/Hose9.jpg)
 ![Hose](images/Hose4.jpg)

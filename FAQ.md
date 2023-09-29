@@ -34,9 +34,9 @@
 
 **A:** In theory yes, with some minor modifications to the code depending on what type of LED setup you are using. This solution was designed primarily with the stock lights and switches in use by the Hasbro products.
 
-**Q: Can I produce and sell kits for others for commerical purposes?**
+**Q: Can I produce and sell kits for others for commercial purposes?**
 
-**A:** Yes, the code is released under a GPLv3 License. Modifications or enhancements which may be useful to the community are encouraged to be contributed back to [the original respository](https://github.com/gpstar81/haslab-proton-pack).
+**A:** Yes, the code is released under a GPLv3 License. Modifications or enhancements which may be useful to the community are encouraged to be contributed back to [the original repository](https://github.com/gpstar81/haslab-proton-pack).
 
 **Q: I have some cool ideas, can you add some custom bits in the code for me?**
 

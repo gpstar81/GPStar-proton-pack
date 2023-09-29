@@ -57,7 +57,7 @@ You may choose one of two routes for implementing the new Proton Pack controller
 	- For this approach, reference the tables below and see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance.
 	- It is possible to forego replacing the microcontroller in the Hasbro wand and instead use a stock wand. This approach will provide power to the wand but no interactivity between the wand and the pack.
 1. Using all stock hardware as above, but with room for additional features, each of which is considered optional.
-	- This will provide full interation with the new controller for the Neutrona Wand.
+	- This will provide full interaction with the new controller for the Neutrona Wand.
 	- Reference the tables below but also see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance.
 
 **Prototyping and Connections**
@@ -145,7 +145,7 @@ To provide smooth power to certain components, it is recommended to place a smal
 |-----------|-----------|-------------|
 | JP3 (<font color="red">Red</font>) | CAP 100uf | JP3 (Black) |
 | JP4 (<font color="red">Red</font>) | CAP 100uf | JP4 (Black) |
-| NEO-CYC (+)                        | CAP 100uf | NEO-CYC (-) | 
+| NEO-CYC (+)                        | CAP 100uf | NEO-CYC (-) |
 
 **Protoboard Diagram Reference and Interpretations:**
 
@@ -186,12 +186,12 @@ These are connections which are not covered in the diagram above and can connect
 | MEGA&nbsp;TX2&nbsp;→&nbsp;Wand&nbsp;Nano&nbsp;RX  | Optional if not replacing wand controller |
 | MEGA&nbsp;RX2&nbsp;→&nbsp;Wand&nbsp;Nano&nbsp;TX  | Optional if not replacing wand controller |
 | SW-CYC (Red) → Pin 29    | Optional, switch for Cyclotron direction |
-| SW-SMOKE (Red) → Pin 37  | Optional, switch to enable smoke effects | 
+| SW-SMOKE (Red) → Pin 37  | Optional, switch to enable smoke effects |
 | FAN-1 → Pin 33           | Optional Feature<br/>Goes 5V high, is timed to go off during over heat sequence. You can hook up any device to this. I used a fan for testing purposes. What you put in this section depends on what device you hook up to the Mega if anything at all.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.**  |
 | SMOKE-2 → Pin 35         | Optional Feature<br/>Goes 5V high, is timed to go off occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and push it out of the booster tube. It is referenced as the smoke&#95;booster in the pack code. See matching colour section in chart above. What you hook up here depends on what device you intend to run.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.** |
 | SMOKE-1 → Pin 39         | Optional Feature<br/>Goes 5V high, is timed to go off during over heat sequence and occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and run it to the N-Filter. This is referenced as smoke&#95;pin in the pack code. See matching colour section in chart above. What you hook up here depends on what device you intend to run.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.** |
 | FAN-2 → Pin 38           | Optional Feature (not shown in schematic)<br/>Goes 5V high, is timed to go off at the same time as SMOKE-2.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.**  |
-| N-Filter LED → Pin 46           | Optional Feature (not shown in schematic)<br/>Goes 5V high, is timed to go off at the same time as SMOKE-1 and SMOKE-2. This can be used for another optional LED for the N-Filter during overheat or continuous firing. If you attach a LED to this pin, use the approriate resistor required for the LED.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.**  |
+| N-Filter LED → Pin 46    | Optional Feature (not shown in schematic)<br/>Goes 5V high, is timed to go off at the same time as SMOKE-1 and SMOKE-2. This can be used for another optional LED for the N-Filter during overheat or continuous firing. If you attach a LED to this pin, use the appropriate resistor required for the LED.<br/>**WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.**  |
 
 
 ### Cyclotron Panel LEDs

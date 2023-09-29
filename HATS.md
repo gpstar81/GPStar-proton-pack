@@ -4,7 +4,7 @@ The hat lights are a special add-on which replace the solid orange plastic dome 
 
 ## Gun Box Hat
 
-This is the easiest of the 2 modifications to make. The orange dome (fake light) can be sanded down with a dremel, then drilled out to accomodate an orange lens. This will drill through the black plastic exterior and a portion of the clear plastic which is part of the vent light and bargraph assembly. Secure the lens using any supplied washer/nut combination.
+This is the easiest of the 2 modifications to make. The orange dome (fake light) can be sanded down with a dremel, then drilled out to accommodate an orange lens. This will drill through the black plastic exterior and a portion of the clear plastic which is part of the vent light and bargraph assembly. Secure the lens using any supplied washer/nut combination.
 ![](images/Hat_Gun1.jpg)
 
 An LED can be hot-glued into the lens socket and attached to the HAT2 socket (JST-PH) on the Wand PCB. Use of a red LED with 2VDC forward voltage and 20mA current is expected.
@@ -12,7 +12,7 @@ An LED can be hot-glued into the lens socket and attached to the HAT2 socket (JS
 
 ## Barrel Wing Hat (+Selector Button)
 
-This is the more complex assembly **as it requires replacing the stock selection switch with a new momentary pushbutton type**, along with drilling out a significant portion of the barrel wing. This solution is suggested to be undertaken if also considering adding the wand-tip strobe LED as the barrel must be signficantly disassembled. Removal of the inner barrel with the LEDs for the wand is crucial, as well as a black plastic sleeve which protects the wiring from the button at the end. **Remove the tape from the white wires inside the barrel before beginning this work as you'll need to remove that later!**
+This is the more complex assembly **as it requires replacing the stock selection switch with a new momentary pushbutton type**, along with drilling out a significant portion of the barrel wing. This solution is suggested to be undertaken if also considering adding the wand-tip strobe LED as the barrel must be significantly disassembled. Removal of the inner barrel with the LEDs for the wand is crucial, as well as a black plastic sleeve which protects the wiring from the button at the end. **Remove the tape from the white wires inside the barrel before beginning this work as you'll need to remove that later!**
 
 Preparation begins with cutting off the top of the fake pushbutton, and removing the barrel wing screws. We won't be able to completely separate it, but we can split it apart just enough to pull out the old circuit board for the selector switch. Both of these spots can be drilled out using no more than a 1/4" (6mm) bit. Just drill through both sides, and it's expected to drill right through the old orange button. You may have to hold the button still with some pliers while you drill.
 ![](images/Hat_Barrel_Top1.jpg)

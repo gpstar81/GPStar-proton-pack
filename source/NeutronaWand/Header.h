@@ -91,7 +91,7 @@ bool b_vibration_enabled = true;
 /* 
  *  Various Switches on the wand.
  */
-ezButton switch_wand(A0); // Contols the beeping. Top right switch on the wand.
+ezButton switch_wand(A0); // Controls the beeping. Top right switch on the wand.
 ezButton switch_intensify(2);
 ezButton switch_activate(3);
 ezButton switch_vent(4); // Turns on the vent light.
