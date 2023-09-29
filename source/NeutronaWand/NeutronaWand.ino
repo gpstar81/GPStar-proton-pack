@@ -6918,7 +6918,7 @@ void setupWavTrigger() {
   w_trig.setAmpPwr(b_onboard_amp_enabled); // Turn on the onboard amp.
 
   // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(true);
+  w_trig.setReporting(false);
 
   // Allow time for the WAV Trigger to respond with the version string and number of tracks.
   delay(350);

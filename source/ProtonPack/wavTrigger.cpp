@@ -82,7 +82,11 @@ uint16_t track;
 			}
 		}
 		else if (rxCount == 2) {
-			if (dat <= MAX_MESSAGE_LEN) {
+      if (dat == SOM1 || dat == SOM2 || dat == EOM) {
+				rxCount = 0;
+				//Serial.print("Bad msg \n");
+      }   
+			else if (dat <= MAX_MESSAGE_LEN) {
 				rxCount++;
 				rxLen = dat - 1;
 			}
@@ -92,12 +96,19 @@ uint16_t track;
 			}
 		}
 		else if ((rxCount > 2) && (rxCount < rxLen)) {
-			rxMessage[rxCount - 3] = dat;
-			rxCount++;
+      if (dat == SOM1 || dat == SOM2 || dat == EOM) {
+				rxCount = 0;
+				//Serial.print("Bad msg \n");
+      }   
+      else {
+        rxMessage[rxCount - 3] = dat;
+        rxCount++;
+      }
 		}
 		else if (rxCount == rxLen) {
-			if (dat == EOM)
+      if (dat == EOM) {
 				rxMsgReady = true;
+      }
 			else {
 				rxCount = 0;
 				//Serial.print("Bad msg 3\n");
@@ -194,13 +205,13 @@ bool wavTrigger::currentMusicTrackStatus(int trk) {
 
   if(trk == currentMusicTrack) {
     if(currentMusicStatus == true) {
-      //Serial.println("playing");
+      Serial.println("playing");
 
       return true;
     }
   }
   
-  //Serial.println("Not playing");
+  Serial.println("Not playing");
 
   return false;
 }
@@ -507,5 +518,3 @@ uint8_t txbuf[6];
 	txbuf[5] = EOM;
 	WTSerial.write(txbuf, 6);
 }
-
-
