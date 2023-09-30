@@ -116,11 +116,13 @@ void mainLoop() {
   /*
    * Left Toggle
    *
+   * Paired:
    * When paired with the gpstar Proton Pack controller, will turn the
    * pack on or off. When the pack is on the bargraph will automatically
    * enable and display an animation which matches the Neutrona Wand
    * bargraph (whether stock 5-LED version or 28-segment by Frutto).
    *
+   * Standalone:
    * When not paired with the gpstar Proton Pack controller, will turn
    * on the bargraph which will display some pre-set pattern.
    */
@@ -141,14 +143,15 @@ void mainLoop() {
     if(BARGRAPH_STATE == BG_OFF) {
       bargraphReset(); // Enable bargraph for use (resets variables and turns it on).
     }
-
     if(switch_left.getState() == LOW && !b_wait_for_pack){
       BARGRAPH_PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
     }
   }
   else {
-    // Clear all bargraph elements and turn off the device.
-    bargraphOff();
+    if(switch_left.getState() == HIGH && !b_wait_for_pack){
+      // Clear all bargraph elements and turn off the device.
+      bargraphOff();
+    }
   }
 
   /*
@@ -205,7 +208,7 @@ void mainLoop() {
     useVibration(0, 0);
   }
 
-  // Update bargraph elements using some speed modifier.
+  // Update bargraph elements, leveraging cyclotron speed modifier.
   // In reality this multiplier is a divisor to the standard delay.
   bargraphUpdate(i_speed_multiplier);
 
@@ -659,7 +662,8 @@ void checkPack() {
           case A_FIRING_STOPPED:
             b_firing = false;
             ms_blink_leds.stop();
-            i_speed_multiplier = 1;
+
+            i_speed_multiplier = 1; // Return to normal speed.
 
             if(b_pack_alarm) {
               // Ramp down if the pack alarm happens while firing.
@@ -679,6 +683,17 @@ void checkPack() {
 
           case A_CYCLOTRON_NORMAL_SPEED:
             i_speed_multiplier = 1;
+
+            if(b_firing) {
+              // Use the "normal" pattern if still firing.
+              bargraphClear();
+              BARGRAPH_PATTERN = BG_OUTER_INNER;
+            }
+            else {
+              // Otherwise go to the standard power ramp.
+              bargraphClear();
+              BARGRAPH_PATTERN = BG_POWER_RAMP;
+            }
           break;
         }
       }
