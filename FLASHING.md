@@ -29,7 +29,7 @@ After connecting your gpstar Proton Pack or Neutrona Wand board to your computer
 
 The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.
 
-[https://github.com/gpstar81/haslab-proton-pack/main/updates/binaries](https://github.com/gpstar81/haslab-proton-pack/main/binaries)
+[https://github.com/gpstar81/haslab-proton-pack/main/binaries](https://github.com/gpstar81/haslab-proton-pack/main/binaries)
 
 `It is recommended to have the Proton Pack and Neutrona Wand on the latest versions of their respective firmware.`
 
