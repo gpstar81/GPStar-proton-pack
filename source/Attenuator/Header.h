@@ -21,9 +21,30 @@
 /*
  * Pin for Addressable LEDs.
  */
-#define ATTENUATOR_LED_PIN 10
+#define ATTENUATOR_LED_PIN 9
 #define ATTENUATOR_NUM_LEDS 2
 CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
+
+/*
+ * Pins for user feedback (audio/physical)
+ *
+ * Buzzer Frequencies:
+ * buzzOn(440); // A4
+ * buzzOn(494); // B4
+ * buzzOn(523); // C4
+ * buzzOn(587); // D4
+ * buzzOn(659); // E4
+ * buzzOn(698); // F4
+ * buzzOn(784); // G4
+ */
+#define BUZZER_PIN 10
+#define VIBRATION_PIN 11
+millisDelay ms_buzzer;
+millisDelay ms_vibrate;
+bool b_buzzer_on = false;
+bool b_vibrate_on = false;
+const unsigned int i_buzz_max = 200; // Longest duration for a standalone "beep".
+const unsigned int i_vibrate_max = 1000; // Max runtime for the vibration motor.
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -44,23 +65,17 @@ millisDelay ms_blink_leds;
  * SCL -> A5
  */
 HT16K33 ht_bargraph;
-bool b_28segment_bargraph = false;
-bool b_bargraph_up = false;
-uint8_t i_bargraph_status = 0;
-const uint8_t i_bargraph_interval = 4;
-const uint8_t i_bargraph_wait = 180;
-const uint8_t d_bargraph_ramp_interval = 40;
-millisDelay ms_bargraph_alt;
-millisDelay ms_bargraph;
-millisDelay ms_bargraph_firing;
-uint8_t i_bargraph_status_alt = 0;
-const uint8_t d_bargraph_ramp_interval_alt = 40;
-const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
-const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
-unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+const uint8_t i_bargraph_delay = 12; // Base delay (ms) for bargraph refresh (this should be a value evenly divisible by 2, 3, or 4).
+const uint8_t i_bargraph_elements = 28; // Maximum elements for bargraph device; not likely to change but adjustable just in case.
+const uint8_t i_bargraph_levels = 5; // Reflects the count of POWER_LEVELS elements (the only dependency on other device behavior).
+uint8_t i_bargraph_sim_max = i_bargraph_elements; // Simulated maximum for patterns which may be dependent on other factors.
+uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns (1/2 max) which are bilateral/mirrored.
+uint8_t i_bargraph_step = 0; // Indicates current step for bilateral/mirrored patterns.
+bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph device.
+int i_bargraph_element = 0; // Indicates current LED element for adjustment.
+millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
-millisDelay ms_settings_blinking;
-const unsigned int i_settings_blinking_delay = 350;
+// Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
 uint8_t i_speed_multiplier = 1;
 
 #define WIRE Wire
@@ -68,8 +83,8 @@ uint8_t i_speed_multiplier = 1;
 /*
  * Barmeter 28 segment bargraph mapping: allows accessing elements sequentially (0-27)
  * If the pattern appears inverted from what is expected, flip by using the following:
- *   #define GPSTAR_INVERT_BARGRAPH
  */
+//#define GPSTAR_INVERT_BARGRAPH
 #ifdef GPSTAR_INVERT_BARGRAPH
   const uint8_t i_bargraph[28] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
 #else
@@ -79,14 +94,15 @@ uint8_t i_speed_multiplier = 1;
 /*
  * Year Theme
  */
-unsigned int i_mode_year = 2021; // 1984, 1989, or 2021
+enum YEAR_MODES { YEAR_1984, YEAR_1989, YEAR_2021 };
+enum YEAR_MODES YEAR_MODE;
 
 /* 
  *  Wand Firing Modes + Settings
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
-enum POWER_LEVELS { LEVEL_0, LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
+enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
 enum POWER_LEVELS POWER_LEVEL;
 enum POWER_LEVELS POWER_LEVEL_PREV;
 
@@ -110,9 +126,21 @@ const uint8_t rotary_debounce_time = 80;
 #define r_encoderB 3
 ezButton encoder_center(4); // For center-press on encoder dial.
 millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
+millisDelay ms_center_press;
+bool b_center_pressed = false;
+const unsigned int i_center_long_press_delay = 600; // When to consider the center dial has a "long" press.
 int i_encoder_pos = 0;
 int i_val_rotary;
 int i_last_val_rotary;
+int i_rotary_count = 0;
+
+/*
+ * Define states for the rotary dial center press.
+ */
+enum CENTER_STATES { NO_ACTION, SHORT_PRESS, LONG_PRESS };
+enum CENTER_STATES CENTER_STATE;
+enum MENU_LEVELS { MENU_1, MENU_2 };
+enum MENU_LEVELS MENU_LEVEL;
 
 /* 
  * Pack Communication

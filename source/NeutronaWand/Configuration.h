@@ -23,6 +23,12 @@
  */
 
 /*
+ * If the Frutto vent light has been installed, uncomment the line below
+ * to enable special brightness controls during idle and firing modes.
+ */
+//#define FRUTTO_VENT_LIGHT
+
+/*
  * You can set the default master startup volume for your wand here.
  * This gets overridden if you connect your wand to the pack.
  * Values are in % of the volume.
