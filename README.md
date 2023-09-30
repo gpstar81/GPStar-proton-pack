@@ -84,7 +84,7 @@ These apply to the normal operation and usage of the equipment regardless of whi
 
 1. [Neutrona Wand Hat Lights](HATS.md) (Optional add-on)
 
-1. [Neutrona Vent Light](VENTLIGHT.md) (Optional add-on)
+1. [Neutrona Wand High Intesity Vent Light](VENTLIGHT.md) (Optional add-on)
 
 1. [Pack Attenuator](ATTENUATOR.md) (Optional add-on)
 
