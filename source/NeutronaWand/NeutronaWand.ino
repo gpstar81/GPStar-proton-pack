@@ -1972,7 +1972,7 @@ void checkSwitches() {
             }
 
             if(b_firing_intensify != true) {
-              // Increase count eac time the user presses a firing button.
+              // Increase count smash time the user presses a firing button.
               i_bmash_count++;
 
               ms_firing_debounce.start(i_firing_debounce);
@@ -6926,7 +6926,7 @@ void setupWavTrigger() {
   w_trig.setAmpPwr(b_onboard_amp_enabled); // Turn on the onboard amp.
 
   // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(true);
+  w_trig.setReporting(false);
 
   // Allow time for the WAV Trigger to respond with the version string and number of tracks.
   delay(350);
