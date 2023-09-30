@@ -35,6 +35,8 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Flashing Updates](FLASHING.md)
 
+1. [Compiling and Uploading](COMPILE_FLASHING.md)
+
 1. [Troubleshooting](TROUBLESHOOTING.md)
 
 ---
@@ -48,7 +50,7 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Power Requirements](POWER.md)
 
-1. [Flashing/Uploading the code](ARDUINO_FLASHING.md)
+1. [Compiling and Uploading the code](ARDUINO_FLASHING.md)
 
 1. [WAV Trigger Configuration](WAVTRIGGER.md)
 
