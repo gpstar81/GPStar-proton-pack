@@ -42,4 +42,4 @@ The latest pre-compiled firmware binaries can be found in the binaries folder of
 ## (Optional) Compiling Source Code and Manually Flashing
 If you prefer to make adjustments to the source code configuration options instead of flashing pre-compiled binaries, refer to the Compiling and Flashing link below.
 
-* [Compiling and Flashing](COMPILE_FLASHING.md)
+* [Compiling and Flashing](COMPILING_FLASHING.md)
