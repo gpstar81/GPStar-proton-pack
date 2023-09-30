@@ -35,8 +35,6 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Flashing Updates](FLASHING.md)
 
-1. [Compiling and Uploading](COMPILE_FLASHING.md)
-
 1. [Troubleshooting](TROUBLESHOOTING.md)
 
 ---
@@ -85,6 +83,8 @@ These apply to the normal operation and usage of the equipment regardless of whi
 1. [Neutrona Wand 28 Segment Bar Graph Upgrade](BARGRAPH.md) (Optional add-on)
 
 1. [Neutrona Wand Hat Lights](HATS.md) (Optional add-on)
+
+1. [Neutrona Vent Light](VENTLIGHT.md) (Optional add-on)
 
 1. [Pack Attenuator](ATTENUATOR.md) (Optional add-on)
 

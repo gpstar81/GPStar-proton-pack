@@ -27,8 +27,19 @@ After connecting your gpstar Proton Pack or Neutrona Wand board to your computer
 (Direct Download link)
 [gpstarFirmwareFlasher (exe)](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstarFirmwareFlasher.exe)
 
+The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.
+
+[https://github.com/gpstar81/haslab-proton-pack/main/updates/binaries](https://github.com/gpstar81/haslab-proton-pack/main/binaries)
+
+`It is recommended to have the Proton Pack and Neutrona Wand on the latest versions of their respective firmware.`
+
 ![gpstar firmware flasher](images/flash-gpstar-1-firmware.png)
 
 1. Select the firmware from the firmware selection box.
 2. Then select the COM port for the connection to your gpstar Board. `If you attempt to flash and your gpstar board can not be found, please select another COM port from the drop down menu and try again.`
 3. Click on the UPLOAD button and wait for it to complete.
+
+## (Optional) Compiling Source Code and Manually Flashing
+If you prefer to make adjustments to the source code configuration options instead of flashing pre-compiled binaries, refer to the Compiling and Flashing link below.
+
+* [Compiling and Flashing](COMPILE_FLASHING.md)
