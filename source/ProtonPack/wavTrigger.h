@@ -121,7 +121,7 @@ public:
   void flush(void);
   void setReporting(bool enable);
   void setAmpPwr(bool enable);
-  bool getVersion(char *pDst, int len);
+  bool getVersion(char *pDst);
   int getNumTracks(void);
   bool isTrackPlaying(int trk);
   void masterGain(int gain);
