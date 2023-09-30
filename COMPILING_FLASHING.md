@@ -3,11 +3,13 @@
 The custom software needed for operation must be compiled and uploaded to your devices. This guide provides the list of required libraries for compilation and outlines the changes needed to support each board.
 
 ## Supported Devices
-###Proton Pack:###
+
+### Proton Pack:
  
 - <img src='images/gpstar_logo.png' width=30 align="left" /> gpstar Proton Pack PCB
 
-###Neutrona Wand:###
+### Neutrona Wand:
+
 - <img src='images/gpstar_logo.png' width=30 align="left" /> gpstar Neutrona Wand PCB
 
 ## Prerequisites
@@ -34,9 +36,11 @@ The MillisDelay library must be downloaded from the project GitHub page. Downloa
 No further configuration is needed for this library.
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
+
 If you are flashing updates to your existing setup, make sure that both your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository.
 
 ## Connection to your gpstar Proton Pack and Neutrona Wand PCB
+
 Use the included FTDI to USB programming cable that comes with the gpstar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
 
 - The ground pin will typically be a black wire, while VCC will typically be red.
@@ -47,6 +51,7 @@ Use the included FTDI to USB programming cable that comes with the gpstar kits o
 ![UART Connection](images/uart_pack.jpg)
 
 ## Compiling and flashing the software
+
 Once your have connected your gpstar Board to your computer via the FTDI to USB cable, you will need to select it from your devices in the Arduino IDE and search for Mega.
 
 ![Board Selection](images/flash-gpstar-1.png)

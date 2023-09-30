@@ -1,10 +1,12 @@
 
 ## Supported Devices
-###Proton Pack:###
+
+### Proton Pack:
  
 - <img src='images/gpstar_logo.png' width=30 align="left" /> gpstar Proton Pack PCB
 
-###Neutrona Wand:###
+### Neutrona Wand:
+
 - <img src='images/gpstar_logo.png' width=30 align="left" /> gpstar Neutrona Wand PCB
 
 
