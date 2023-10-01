@@ -2051,6 +2051,13 @@ void checkSwitches() {
         if(switch_activate.getState() == HIGH) {
           WAND_ACTION_STATUS = ACTION_OFF;
         }
+
+        // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
+        if(b_quick_vent == true) {
+          if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == HIGH && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
+            startVentSequence();
+          }
+        }
       }
       else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
         if(switch_activate.getState() == HIGH) {

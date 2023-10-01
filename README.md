@@ -48,7 +48,7 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Power Requirements](POWER.md)
 
-1. [Flashing/Uploading the code](ARDUINO_FLASHING.md)
+1. [Compiling and Uploading the code](ARDUINO_FLASHING.md)
 
 1. [WAV Trigger Configuration](WAVTRIGGER.md)
 
@@ -83,6 +83,8 @@ These apply to the normal operation and usage of the equipment regardless of whi
 1. [Neutrona Wand 28 Segment Bar Graph Upgrade](BARGRAPH.md) (Optional add-on)
 
 1. [Neutrona Wand Hat Lights](HATS.md) (Optional add-on)
+
+1. [Neutrona Wand High Intensity Vent Light](VENTLIGHT.md) (Optional add-on)
 
 1. [Pack Attenuator](ATTENUATOR.md) (Optional add-on)
 
