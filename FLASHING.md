@@ -33,13 +33,13 @@ The latest pre-compiled firmware binaries can be found in the binaries folder of
 
 [https://github.com/gpstar81/haslab-proton-pack/tree/main/binaries](https://github.com/gpstar81/haslab-proton-pack/tree/main/binaries)
 
-`It is recommended to have the Proton Pack and Neutrona Wand on the latest versions of their respective firmware.`
-
 When downloading the binaries, click on the file then on the **`Download raw file`** button.
 
 ![gpstar firmware flasher](images/flashDownload.png)
 
+**`It is recommended to have the Proton Pack and Neutrona Wand on the latest versions of their respective firmware.`**
 
+### Using the Flashing Software
 ![gpstar firmware flasher](images/flash-gpstar-1-firmware.png)
 
 1. Open the firmware flasher, then select the firmware from the firmware selection box.
