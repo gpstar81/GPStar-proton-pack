@@ -35,10 +35,15 @@ The latest pre-compiled firmware binaries can be found in the binaries folder of
 
 `It is recommended to have the Proton Pack and Neutrona Wand on the latest versions of their respective firmware.`
 
+When downloading the binaries, click on the file then on the **`Download raw file`** button.
+
+![gpstar firmware flasher](images/flashDownload.png)
+
+
 ![gpstar firmware flasher](images/flash-gpstar-1-firmware.png)
 
-1. Select the firmware from the firmware selection box.
-2. Then select the COM port for the connection to your gpstar Board. The Default baud rate of 115200 should already be automatically selected. `If you attempt to flash and your gpstar board can not be found, please select another COM port from the drop down menu and try again.`
+1. Open the firmware flasher, then select the firmware from the firmware selection box.
+2. Then select the COM port for the connection to your gpstar Board. The Default baud rate of 115200 should already be automatically selected. `The COM port # will be different for every user. If you attempt to flash and your gpstar board can not be found, please select another COM port from the drop down menu and try again.`
 3. Click on the UPLOAD button and wait for it to complete.
 
 `Note: If connecting the programming cable for the first time to your computer, it may take Windows a few minutes to setup the USB/TTL drivers automatically before it start working.`
