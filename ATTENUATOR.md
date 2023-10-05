@@ -9,7 +9,7 @@ That was the question posed by Jason Reitman to Adam Savage with regards to the 
 
 This guide demonstrates the build process for replicating the "Pack Attenuator" device created by Adam and Ben which fully integrates into the gpstar electronics kit. The ability to control and receive feedback from the devices makes this more than just an aesthetic improvement but a truly usable piece of the pack-wand combination.
 
-### Potiential Backstory
+### Potential Backstory
 
 The device was rediscovered by Phoebe Spengler from notes in her grandfather’s underground workshop on the “Dirt Farm”. The device was theorized and prototyped but never put into service until now.
 
