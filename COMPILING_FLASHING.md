@@ -30,7 +30,7 @@ The following libraries are required to be installed. All but the MillisDelay li
 
 ### MillisDelay
 
-The MillisDelay library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
+The MillisDelay library must be downloaded from the project GitHub page. Download the code as a zip by clicking on the `CODE button` then `Download Zip`. Then in the IDE go to: `Sketch -> Include Library -> Add .ZIP Library` option to import the downloaded file.
 [https://github.com/ansonhe97/millisDelay](https://github.com/ansonhe97/millisDelay)
 
 No further configuration is needed for this library.
