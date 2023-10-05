@@ -195,6 +195,10 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
 
     // Animations should be based on a set pattern and logic here must only affect the bargraph device.
     switch(BARGRAPH_PATTERN) {
+      case BG_POWER_RAMP:
+      // No-op
+      break;
+      
       case BG_RAMP_UP:
         // This is intended to be a single action, ramping the bargraph up then stopping animations.
 
