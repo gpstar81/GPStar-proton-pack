@@ -113,7 +113,7 @@ bool b_cross_the_streams = false;
  * When set to true, you can manually quick vent your Proton Pack and Neutrona Wand by
  * pressing the intensify button if the top right toggle switch is switched off.
 */
-bool b_quick_vent = false;
+bool b_quick_vent = true;
 
 /*
  * When set to true, to cross the streams you must be holding down both Intensify and the alternate firing button at the same time.
