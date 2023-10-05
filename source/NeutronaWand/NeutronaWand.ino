@@ -324,12 +324,12 @@ void mainLoop() {
         if(ms_hat_1.isRunning()) {
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
             if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
-                digitalWrite(led_hat_1, LOW);
-                digitalWrite(led_hat_2, HIGH);
+              digitalWrite(led_hat_1, LOW);
+              digitalWrite(led_hat_2, HIGH);
             }
             else {
-                digitalWrite(led_hat_1, HIGH);
-                digitalWrite(led_hat_2, LOW);
+              digitalWrite(led_hat_1, HIGH);
+              digitalWrite(led_hat_2, LOW);
             }
           #endif
 
@@ -2059,7 +2059,7 @@ void checkSwitches() {
         if(switch_activate.getState() == HIGH) {
           WAND_ACTION_STATUS = ACTION_OFF;
         }
-
+        
         // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
         if(b_quick_vent == true) {
           if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == HIGH && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
@@ -4141,10 +4141,16 @@ void bargraphRampFiring() {
     #endif
   }
   else {
+    #ifndef GPSTAR_NEUTRONA_WAND_PCB
+      vibrationWand(i_vibration_level + 100);
+    #endif
+    
     // Hasbro bargraph.
     switch(i_bargraph_status) {
       case 1:
-        vibrationWand(i_vibration_level + 110);
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          vibrationWand(i_vibration_level + 110);
+        #endif
 
         digitalWrite(led_bargraph_1, LOW);
         digitalWrite(led_bargraph_2, HIGH);
@@ -4159,7 +4165,9 @@ void bargraphRampFiring() {
       break;
 
       case 2:
-        vibrationWand(i_vibration_level + 112);
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          vibrationWand(i_vibration_level + 112);
+        #endif
 
         digitalWrite(led_bargraph_1, HIGH);
         digitalWrite(led_bargraph_2, LOW);
@@ -4174,7 +4182,9 @@ void bargraphRampFiring() {
       break;
 
       case 3:
-        vibrationWand(i_vibration_level + 115);
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          vibrationWand(i_vibration_level + 115);
+        #endif
 
         digitalWrite(led_bargraph_1, HIGH);
         digitalWrite(led_bargraph_2, HIGH);
@@ -4189,7 +4199,9 @@ void bargraphRampFiring() {
       break;
 
       case 4:
-        vibrationWand(i_vibration_level + 112);
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          vibrationWand(i_vibration_level + 112);
+        #endif
 
         digitalWrite(led_bargraph_1, HIGH);
         digitalWrite(led_bargraph_2, LOW);
@@ -4204,7 +4216,9 @@ void bargraphRampFiring() {
       break;
 
       case 5:
-        vibrationWand(i_vibration_level + 110);
+        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+          vibrationWand(i_vibration_level + 110);
+        #endif
 
         digitalWrite(led_bargraph_1, LOW);
         digitalWrite(led_bargraph_2, HIGH);
@@ -5681,27 +5695,31 @@ void updatePackPowerLevel() {
 void vibrationSetting() {
   if(b_vibration_on == true) {
     if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING) {
-      switch(i_power_mode) {
-        case 1:
-          vibrationWand(i_vibration_level);
-        break;
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        switch(i_power_mode) {
+          case 1:
+            vibrationWand(i_vibration_level);
+          break;
 
-        case 2:
-          vibrationWand(i_vibration_level + 5);
-        break;
+          case 2:
+            vibrationWand(i_vibration_level + 5);
+          break;
 
-        case 3:
-          vibrationWand(i_vibration_level + 10);
-        break;
+          case 3:
+            vibrationWand(i_vibration_level + 10);
+          break;
 
-        case 4:
-          vibrationWand(i_vibration_level + 12);
-        break;
+          case 4:
+            vibrationWand(i_vibration_level + 12);
+          break;
 
-        case 5:
-          vibrationWand(i_vibration_level + 25);
-        break;
-      }
+          case 5:
+            vibrationWand(i_vibration_level + 25);
+          break;
+        }
+      #else
+        vibrationWand(i_vibration_level);
+      #endif
     }
   }
   else {
@@ -6104,12 +6122,14 @@ void checkPack() {
               ms_hat_1.stop();
               ms_hat_2.stop();
 
-              if(b_firing == true) {
-                // Keep both lights on if still firing.
-                digitalWrite(led_hat_1, HIGH);
-                digitalWrite(led_hat_2, HIGH);
-              }
-
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                if(b_firing == true) {
+                  // Keep both lights on if still firing.
+                  digitalWrite(led_hat_1, HIGH);
+                  digitalWrite(led_hat_2, HIGH);
+                }
+              #endif
+              
               // Next, reset the cyclotron speed on all devices.
               wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
               cyclotronSpeedRevert();

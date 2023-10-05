@@ -117,13 +117,20 @@ public:
 	wavTrigger() {;}
 	~wavTrigger() {;}
 	void start(void);
-	void update(void);
-	void flush(void);
+  void update(void);
+  void flush(void);
 	void setReporting(bool enable);
 	void setAmpPwr(bool enable);
-	bool getVersion(char *pDst, int len);
+  #ifdef GPSTAR_PCB
+	  bool getVersion(char *pDst, int len);
+  #endif
+
 	int getNumTracks(void);
+
+  #ifdef GPSTAR_PCB
 	bool isTrackPlaying(int trk);
+  #endif
+
 	void masterGain(int gain);
 	void stopAllTracks(void);
 	void resumeAllInSync(void);
@@ -139,24 +146,38 @@ public:
 	void trackLoop(int trk, bool enable);
 	void trackGain(int trk, int gain);
 	void trackFade(int trk, int gain, int time, bool stopFlag);
-	void samplerateOffset(int offset);
-	void setTriggerBank(int bank);
-	void trackPlayingStatus(int trk);
-  bool currentMusicTrackStatus(int trk);
-  bool trackCounterReset(void);
-  void resetTrackCounter(bool bReset);
+  
+  void samplerateOffset(int offset);
+  
+  #ifdef GPSTAR_PCB
+	  void setTriggerBank(int bank);
+  #endif
+
+  #ifdef GPSTAR_PCB
+    void trackPlayingStatus(int trk);
+    bool currentMusicTrackStatus(int trk);
+    bool trackCounterReset(void);
+    void resetTrackCounter(bool bReset);
+  #endif
 
 private:
 	void trackControl(int trk, int code);
 	void trackControl(int trk, int code, bool lock);
 
-#ifdef __WT_USE_ALTSOFTSERIAL__
-	AltSoftSerial WTSerial;
-#endif
+  #ifdef __WT_USE_ALTSOFTSERIAL__
+    AltSoftSerial WTSerial;
+  #endif
 
-	uint16_t voiceTable[MAX_NUM_VOICES];
+  #ifdef GPSTAR_PCB 
+    uint16_t voiceTable[MAX_NUM_VOICES];
+  #endif
+
 	uint8_t rxMessage[MAX_MESSAGE_LEN];
-	char version[VERSION_STRING_LEN];
+  
+  #ifdef GPSTAR_PCB
+	  char version[VERSION_STRING_LEN];
+  #endif
+
 	uint16_t numTracks;
 	uint8_t numVoices;
 	uint8_t rxCount;
@@ -164,9 +185,12 @@ private:
 	bool rxMsgReady;
 	bool versionRcvd;
 	bool sysinfoRcvd;
-  int currentMusicTrack;
-  bool currentMusicStatus;
-  bool trackCounter;
+
+  #ifdef GPSTAR_PCB
+    int currentMusicTrack;
+    bool currentMusicStatus;
+    bool trackCounter;
+  #endif
 };
 
 #endif
