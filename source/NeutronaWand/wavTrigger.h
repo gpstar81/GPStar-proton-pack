@@ -114,43 +114,43 @@
 class wavTrigger
 {
 public:
-	wavTrigger() {;}
-	~wavTrigger() {;}
-	void start(void);
+  wavTrigger() {;}
+  ~wavTrigger() {;}
+  void start(void);
   void update(void);
   void flush(void);
-	void setReporting(bool enable);
-	void setAmpPwr(bool enable);
+  void setReporting(bool enable);
+  void setAmpPwr(bool enable);
   #ifdef GPSTAR_PCB
-	  bool getVersion(char *pDst);
+    bool getVersion(char *pDst);
   #endif
 
-	int getNumTracks(void);
+  int getNumTracks(void);
 
   #ifdef GPSTAR_PCB
-	  bool isTrackPlaying(int trk);
+    bool isTrackPlaying(int trk);
   #endif
 
-	void masterGain(int gain);
-	void stopAllTracks(void);
-	void resumeAllInSync(void);
-	void trackPlaySolo(int trk);
-	void trackPlaySolo(int trk, bool lock);
-	void trackPlayPoly(int trk);
-	void trackPlayPoly(int trk, bool lock);
-	void trackLoad(int trk);
-	void trackLoad(int trk, bool lock);
-	void trackStop(int trk);
-	void trackPause(int trk);
-	void trackResume(int trk);
-	void trackLoop(int trk, bool enable);
-	void trackGain(int trk, int gain);
-	void trackFade(int trk, int gain, int time, bool stopFlag);
-  
+  void masterGain(int gain);
+  void stopAllTracks(void);
+  void resumeAllInSync(void);
+  void trackPlaySolo(int trk);
+  void trackPlaySolo(int trk, bool lock);
+  void trackPlayPoly(int trk);
+  void trackPlayPoly(int trk, bool lock);
+  void trackLoad(int trk);
+  void trackLoad(int trk, bool lock);
+  void trackStop(int trk);
+  void trackPause(int trk);
+  void trackResume(int trk);
+  void trackLoop(int trk, bool enable);
+  void trackGain(int trk, int gain);
+  void trackFade(int trk, int gain, int time, bool stopFlag);
+
   void samplerateOffset(int offset);
-  
+
   #ifdef GPSTAR_PCB
-	  void setTriggerBank(int bank);
+    void setTriggerBank(int bank);
   #endif
 
   #ifdef GPSTAR_PCB
@@ -161,8 +161,8 @@ public:
   #endif
 
 private:
-	void trackControl(int trk, int code);
-	void trackControl(int trk, int code, bool lock);
+  void trackControl(int trk, int code);
+  void trackControl(int trk, int code, bool lock);
 
   #ifdef __WT_USE_ALTSOFTSERIAL__
     AltSoftSerial WTSerial;
@@ -172,19 +172,19 @@ private:
     uint16_t voiceTable[MAX_NUM_VOICES];
   #endif
 
-	uint8_t rxMessage[MAX_MESSAGE_LEN];
-  
+  uint8_t rxMessage[MAX_MESSAGE_LEN];
+
   #ifdef GPSTAR_PCB
-	  char version[VERSION_STRING_LEN];
+    char version[VERSION_STRING_LEN];
   #endif
 
-	uint16_t numTracks;
-	uint8_t numVoices;
-	uint8_t rxCount;
-	uint8_t rxLen;
-	bool rxMsgReady;
-	bool versionRcvd;
-	bool sysinfoRcvd;
+  uint16_t numTracks;
+  uint8_t numVoices;
+  uint8_t rxCount;
+  uint8_t rxLen;
+  bool rxMsgReady;
+  bool versionRcvd;
+  bool sysinfoRcvd;
 
   #ifdef GPSTAR_PCB
     int currentMusicTrack;
