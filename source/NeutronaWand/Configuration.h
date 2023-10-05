@@ -23,6 +23,12 @@
  */
 
 /*
+ * If the Frutto vent light has been installed, uncomment the line below
+ * to enable special brightness controls during idle and firing modes.
+ */
+//#define FRUTTO_VENT_LIGHT
+
+/*
  * You can set the default master startup volume for your wand here.
  * This gets overridden if you connect your wand to the pack.
  * Values are in % of the volume.
@@ -102,6 +108,11 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
 */
 bool b_cross_the_streams = false;
+
+/*
+  * When set to true, you can manually quick vent your Proton Pack and Neutrona Wand by pressing the intensify button if the top right toggle switch is switched off.
+*/
+bool b_quick_vent = false;
 
 /*
  * When set to true, to cross the streams you must be holding down both Intensify and the alternate firing button at the same time.

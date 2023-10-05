@@ -41,7 +41,26 @@ void setup() {
 
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
-  POWER_LEVEL = LEVEL_1;
+
+  if(!b_wait_for_pack) {
+    // If not waiting for the pack set power level to 5.
+    POWER_LEVEL = LEVEL_5;
+  }
+  else {
+    // When waiting for the pack set power level to 1.
+    POWER_LEVEL = LEVEL_1;
+  }
+
+  // Default to 1984 for power level animation when pack is not connected, otherwise 2021.
+  if(!b_wait_for_pack) {
+    YEAR_MODE = YEAR_1984;
+  }
+  else {
+    YEAR_MODE = YEAR_2021;
+  }
+
+  // Begin at menu level one. This affects the behavior of the rotary dial.
+  MENU_LEVEL = MENU_1;
 
   // RGB LEDs for effects (upper/lower).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
@@ -56,16 +75,24 @@ void setup() {
   pinMode(r_encoderB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
+  // Feedback devices (piezo buzzer and vibration motor)
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(VIBRATION_PIN, OUTPUT);
+
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
 
+  // Turn off any user feedback.
+  noTone(BUZZER_PIN);
+  useVibration(0, 0);
+
+  // Initialize critical timers.
   ms_fast_led.start(1);
-  ms_bargraph.start(1);
 }
 
 void loop() {
-  if(b_wait_for_pack == true) {
+  if(b_wait_for_pack) {
     // Handshake with the pack. Telling the pack that we are here.
     attenuatorSerialSend(A_HANDSHAKE);
 
@@ -83,23 +110,21 @@ void mainLoop() {
   // Monitor for interactions by user.
   checkPack();
   switchLoops();
+  checkRotaryPress();
   checkRotaryEncoder();
-
-  // For now, use a press of the dial to start/stop the music.
-  if(encoder_center.isReleased()) {
-    attenuatorSerialSend(A_MUSIC_START_STOP);    
-    //attenuatorSerialSend(A_TOGGLE_MUTE);    
-  }
 
   /*
    * Left Toggle
-   * When paired with the gpstar Proton Pack, will turn the
-   * pack on or off. When the pack is on the bargraph will
-   * automatically enable and display an animation which
-   * matches the Neutrona Wand bargraph.
    *
-   * TODO: Allow the user to select a bargraph pattern, or
-   * simply control certain pack/wand behavior as desired.
+   * Paired:
+   * When paired with the gpstar Proton Pack controller, will turn the
+   * pack on or off. When the pack is on the bargraph will automatically
+   * enable and display an animation which matches the Neutrona Wand
+   * bargraph (whether stock 5-LED version or 28-segment by Frutto).
+   *
+   * Standalone:
+   * When not paired with the gpstar Proton Pack controller, will turn
+   * on the bargraph which will display some pre-set pattern.
    */
 
   // Turns the pack on or off (when paired) via left toggle.
@@ -112,61 +137,59 @@ void mainLoop() {
     }
   }
 
-  if(b_pack_on == true) {
-    if(b_pack_alarm != true) {
-      // Turn the bargraph on (using some pattern).
-      if(b_firing == true) {
-        if(ms_bargraph_firing.justFinished()) {
-          bargraphRampFiring();
-        }
-      }
-      else {
-        if(ms_bargraph.justFinished()) {
-          bargraphRampUp();
-        }
-        else if(ms_bargraph.isRunning() != true && b_overheating != true && FIRING_MODE != SETTINGS) {
-          // Bargraph idling loop.
-          bargraphPowerCheck();
-        }
-      }
+  // Turn on the bargraph when certain conditions are met.
+  // This supports pack connection or standalone operation.
+  if(b_pack_on || (switch_left.getState() == LOW && !b_wait_for_pack)) {
+    if(BARGRAPH_STATE == BG_OFF) {
+      bargraphReset(); // Enable bargraph for use (resets variables and turns it on).
     }
-    else {
-      // This is going to cause the bargraph to ramp down.
-      if(ms_bargraph.justFinished()) {
-        bargraphRampUp();
-      }
+    if(switch_left.getState() == LOW && !b_wait_for_pack){
+      BARGRAPH_PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
     }
   }
   else {
-    // Clear all bargraph elements.
-    bargraphClear();
+    if(switch_left.getState() == HIGH && !b_wait_for_pack){
+      // Clear all bargraph elements and turn off the device.
+      bargraphOff();
+    }
   }
 
   /*
+   * Right Toggle
+   *
    * The right toggle activates the LEDs on the device manually.
    *
-   * Since this device will have a serial connection to the pack,
-   * the lights will change colors based on user interactions.
+   * When paired with the gpstar Proton pack controller, the LEDs
+   * will change colors based on user interactions.
    */
   if(switch_right.getState() == LOW) {
-    if((b_firing == true && i_speed_multiplier > 1) || b_overheating == true || b_pack_alarm == true) {
+    // If in pre-overheat warning, overheat, or alarm modes...
+    if((b_firing && i_speed_multiplier > 1) || b_overheating || b_pack_alarm) {
       if(ms_blink_leds.justFinished()) {
         ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
       }
 
-      if(ms_blink_leds.isRunning() == true) {
+      if(ms_blink_leds.isRunning()) {
+        if(b_firing && i_speed_multiplier > 1 && !b_overheating) {
+          // Switch to a modified firing pattern for the pre-overheat warning.
+          BARGRAPH_PATTERN = BG_INNER_PULSE;
+        }
+
         if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
           // Only blink the lower LED as we will use a fade effect for the upper LED.
-          //attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
           attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+          useVibration(0, 0); // Stop vibration.
+          buzzOff(); // Stop buzzer tone.
         }
         else {
-          controlLEDs();
+          controlLEDs(); // Turn LEDs on using appropriate color scheme.
+          useVibration(255, 500); // Set vibration to full power.
+          buzzOn(523); // Tone as note C4
         }
       }
     }
     else {
-      controlLEDs();
+      controlLEDs(); // Turn LEDs on using appropriate color scheme.
     }
   }
   else {
@@ -175,6 +198,20 @@ void mainLoop() {
     attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
   }
 
+  // Turn off buzzer if timer finished.
+  if(b_buzzer_on && ms_buzzer.justFinished()) {
+    buzzOff();
+  }
+
+  // Turn off vibration if timer finished.
+  if(b_vibrate_on && ms_vibrate.justFinished()) {
+    useVibration(0, 0);
+  }
+
+  // Update bargraph elements, leveraging cyclotron speed modifier.
+  // In reality this multiplier is a divisor to the standard delay.
+  bargraphUpdate(i_speed_multiplier);
+
   // Update the device LEDs.
   if(ms_fast_led.justFinished()) {
     FastLED.show();
@@ -182,39 +219,70 @@ void mainLoop() {
   }
 }
 
+void buzzOn(unsigned int i_freq) {
+  tone(BUZZER_PIN, i_freq);
+  ms_buzzer.start(i_buzz_max);
+  b_buzzer_on = true;
+}
+
+void buzzOff() {
+  noTone(BUZZER_PIN);
+  ms_buzzer.stop();
+  b_buzzer_on = false;
+}
+
+void useVibration(uint8_t i_power_level, unsigned int i_duration) {
+  // Power should be specified as 0-255
+  analogWrite(VIBRATION_PIN, i_power_level);
+  b_vibrate_on = (i_power_level > 0);
+
+  if(b_vibrate_on) {
+    // Set timer for shorter of given duration or max runtime.
+    ms_vibrate.start(min(i_duration, i_vibrate_max));
+  }
+}
+
 void controlLEDs() {
-  // Set upper LED based on alarm or overheating state, when active.
-  if(b_pack_alarm == true || b_overheating == true) {
+  // Set upper LED based on alarm or overheating state, when connected.
+  // Otherwise, use the standard pattern/color for illumination.
+  if(b_pack_alarm || b_overheating) {
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
   }
   else {
     attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
   }
 
-  // Set lower LED based on firing mode.
+  // Set lower LED based on the current firing mode.
   uint8_t i_scheme;
   switch(FIRING_MODE) {
     case SLIME:
       i_scheme = C_GREEN;
     break;
+
     case STASIS:
       i_scheme = C_LIGHT_BLUE;
     break;
+
     case MESON:
       i_scheme = C_ORANGE;
     break;
+
     case SPECTRAL:
       i_scheme = C_RAINBOW;
     break;
+
     case HOLIDAY:
       i_scheme = C_REDGREEN;
     break;
+
     case SPECTRAL_CUSTOM:
       i_scheme = C_SPECTRAL_CUSTOM;
     break;
+
     case SETTINGS:
       i_scheme = C_WHITE;
     break;
+
     case PROTON:
     case VENTING:
     default:
@@ -222,10 +290,85 @@ void controlLEDs() {
     break;
   }
 
+  // Update the lower LED based on the scheme determined above.
   attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
 }
 
+/*
+  * Rotary Dial Center Press
+  *
+  * Performs action based on a short or long press of this button.
+  *  Short: Action
+  *  Long: Navigation
+  */
+void checkRotaryPress() {
+  // Reset on each loop as we need to detect for change.
+  CENTER_STATE = NO_ACTION;
+
+  // Determine whether the rotary dial (center button) got a short or long press.
+  if(encoder_center.isPressed()) {
+    // Start a timer when the rotary dial is pressed.
+    ms_center_press.start(i_center_long_press_delay);
+    b_center_pressed = true;
+  }
+
+  if(b_center_pressed) {
+    if(encoder_center.isReleased() && ms_center_press.remaining() > 0) {
+      // If released and the timer is still running, then it was a short press.
+      CENTER_STATE = SHORT_PRESS;
+      b_center_pressed = false;
+      ms_center_press.stop();
+    }
+    else if(ms_center_press.remaining() < 1) {
+      // Consider a long-press event if the timer is run out before released.
+      CENTER_STATE = LONG_PRESS;
+      b_center_pressed = false;
+    }
+  }
+
+  switch(CENTER_STATE) {
+    case SHORT_PRESS:
+      // Perform action for short press based on current menu level.
+      switch(MENU_LEVEL) {
+        case MENU_1:
+          // A short press should start/stop the music.
+          attenuatorSerialSend(A_MUSIC_START_STOP);
+          useVibration(255, 200); // Give a quick nudge.
+          break;
+
+        case MENU_2:
+          // A short press should advance to the next track.
+          attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
+          useVibration(255, 200); // Give a quick nudge.
+          break;
+      }
+    break;
+
+    case LONG_PRESS:
+      // Toggle between the menu levels on a long press.
+      // Also provides audio cues as to which menu is in use.
+      switch(MENU_LEVEL) {
+        case MENU_1:
+          MENU_LEVEL = MENU_2; // Change menu level.
+          useVibration(255, 200); // Give a quick nudge.
+          buzzOn(784); // Tone as note G4
+        break;
+        case MENU_2:
+          MENU_LEVEL = MENU_1; // Change menu level.
+          useVibration(255, 200); // Give a quick nudge.
+          buzzOn(440); // Tone as note A4
+        break;
+      }
+    break;
+
+    default:
+      // eg. NO_ACTION - No-op
+    break;
+  }
+}
+
 void readEncoder() {
+  // Determines if encoder was turned CW or CCW.
   if(digitalRead(r_encoderA) == digitalRead(r_encoderB)) {
     i_encoder_pos++;
   }
@@ -236,25 +379,75 @@ void readEncoder() {
   i_val_rotary = i_encoder_pos / 2.5;
 }
 
+/*
+  * Rotary Dial Rotation
+  *
+  * Performs action based turning the dial.
+  */
 void checkRotaryEncoder() {
+  // Take action if rotary encoder value was turned CW.
   if(i_val_rotary > i_last_val_rotary) {
-    if(ms_rotary_debounce.isRunning() != true) {
-      // Tell wand to increase volume.
-      attenuatorSerialSend(A_VOLUME_INCREASE);
+    if(!ms_rotary_debounce.isRunning()) {
+      if(b_firing && i_speed_multiplier > 1) {
+        // Tell the pack to cancel the current overheat warning.
+        // Only do so after 5 turns of the dial.
+        i_rotary_count++;
+        if(i_rotary_count % 5 == 0) {
+          attenuatorSerialSend(A_WARNING_CANCELLED);
+          i_rotary_count = 0;
+        }
+      }
+      else {
+        // Perform action based on the current menu level.
+        switch(MENU_LEVEL) {
+          case MENU_1:
+            // Tell pack to increase overall volume.
+            attenuatorSerialSend(A_VOLUME_INCREASE);
+          break;
+
+          case MENU_2:
+            // Tell pack to increase effects volume.
+            attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
+          break;
+        }
+      }
 
       ms_rotary_debounce.start(rotary_debounce_time);
     }
   }
 
+  // Take action if rotary encoder value was turned CCW.
   if(i_val_rotary < i_last_val_rotary) {
-    if(ms_rotary_debounce.isRunning() != true) {
-      // Tell wand to decrease volume.
-      attenuatorSerialSend(A_VOLUME_DECREASE);
+    if(!ms_rotary_debounce.isRunning()) {
+      if(b_firing && i_speed_multiplier > 1) {
+        // Tell the pack to cancel the current overheat warning.
+        // Only do so after 5 turns of the dial.
+        i_rotary_count++;
+        if(i_rotary_count % 5 == 0) {
+          attenuatorSerialSend(A_WARNING_CANCELLED);
+          i_rotary_count = 0;
+        }
+      }
+      else {
+        // Perform action based on the current menu level.
+        switch(MENU_LEVEL) {
+          case MENU_1:
+            // Tell pack to decrease overall volume.
+            attenuatorSerialSend(A_VOLUME_DECREASE);
+          break;
+
+          case MENU_2:
+            // Tell pack to decrease effects volume.
+            attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
+          break;
+        }
+      }
 
       ms_rotary_debounce.start(rotary_debounce_time);
     }
   }
 
+  // Remember the last rotary value.
   i_last_val_rotary = i_val_rotary;
 
   if(ms_rotary_debounce.justFinished()) {
@@ -299,17 +492,18 @@ void checkPack() {
             // Pack is on.
             b_pack_on = true;
 
-            if(b_pack_alarm != true) {
-              bargraphRampUp();
-            }
+            BARGRAPH_PATTERN = BG_POWER_RAMP;
           break;
 
           case A_PACK_OFF:
             // Pack is off.
             b_pack_on = false;
 
-            i_bargraph_status_alt = 0;
-            i_bargraph_status = 0;
+            if(BARGRAPH_STATE != BG_OFF) {
+              // If not already off, illuminate fully before ramp down.
+              bargraphFull();
+            }
+            BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
           case A_PACK_CONNECTED:
@@ -322,21 +516,15 @@ void checkPack() {
           break;
 
           case A_YEAR_1984:
-            i_mode_year = 1984;
-
-            bargraphYearModeUpdate();
+            YEAR_MODE = YEAR_1984;
           break;
 
           case A_YEAR_1989:
-            i_mode_year = 1989;
-
-            bargraphYearModeUpdate();
+            YEAR_MODE = YEAR_1989;
           break;
 
           case A_YEAR_AFTERLIFE:
-            i_mode_year = 2021;
-
-            bargraphYearModeUpdate();
+            YEAR_MODE = YEAR_2021;
           break;
 
           case A_PROTON_MODE:
@@ -396,64 +584,37 @@ void checkPack() {
           case A_POWER_LEVEL_1:
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_1;
-
-            if(i_mode_year == 2021 && b_28segment_bargraph == true) {
-              bargraphPowerCheck2021Alt(false);
-            }
           break;
 
           case A_POWER_LEVEL_2:
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_2;
-
-            if(i_mode_year == 2021 && b_28segment_bargraph == true) {
-              bargraphPowerCheck2021Alt(false);
-            }
           break;
 
           case A_POWER_LEVEL_3:
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_3;
-
-            if(i_mode_year == 2021 && b_28segment_bargraph == true) {
-              bargraphPowerCheck2021Alt(false);
-            }
           break;
 
           case A_POWER_LEVEL_4:
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_4;
-
-            if(i_mode_year == 2021 && b_28segment_bargraph == true) {
-              bargraphPowerCheck2021Alt(false);
-            }
           break;
 
           case A_POWER_LEVEL_5:
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_5;
-
-            if(i_mode_year == 2021 && b_28segment_bargraph == true) {
-              bargraphPowerCheck2021Alt(false);
-            }
           break;
 
           case A_ALARM_ON:
             // Alarm is on.
             b_pack_alarm = true;
 
-            if(b_pack_on == true) {
+            bargraphFull();
+            BARGRAPH_PATTERN = BG_RAMP_DOWN;
+
+            if(b_pack_on) {
               ms_blink_leds.start(i_blink_leds);
-
-              bargraphFull();
-
-              // Reset some bargraph levels before we ramp the bargraph down.
-              i_bargraph_status_alt = 28;
-              i_bargraph_status = 5;
-
-              bargraphFull();
-
-              ms_bargraph.start(d_bargraph_ramp_interval);
             }
           break;
 
@@ -461,14 +622,13 @@ void checkPack() {
             // Alarm is off.
             b_pack_alarm = false;
 
-            if(b_pack_on == true) {
+            if(b_pack_on) {
               ms_blink_leds.stop();
 
-              bargraphYearModeUpdate();
+              bargraphClear();
+              BARGRAPH_PATTERN = BG_POWER_RAMP;
 
-              bargraphClearAlt();
-
-              bargraphRampUp();
+              useVibration(0, 0); // Stop vibration.
             }
           break;
 
@@ -477,79 +637,43 @@ void checkPack() {
             b_overheating = true;
             ms_blink_leds.start(i_blink_leds);
 
-            // Reset some bargraph levels before we ramp the bargraph down.
-            i_bargraph_status_alt = 28;
-            i_bargraph_status = 5;
-
             bargraphFull();
-
-            ms_bargraph.start(d_bargraph_ramp_interval);
+            BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
           case A_OVERHEATING_FINISHED:
             b_overheating = false;
             ms_blink_leds.stop();
 
-            bargraphYearModeUpdate();
+            bargraphClear();
+            BARGRAPH_PATTERN = BG_POWER_RAMP;
 
-            bargraphClearAlt();
-
-            bargraphRampUp();
+            useVibration(0, 0); // Stop vibration.
           break;
 
           case A_FIRING:
             b_firing = true;
             ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
-            bargraphClearAlt();
-
-            ms_bargraph_alt.stop();
-            i_bargraph_status_alt = 0;
-            b_bargraph_up = false;
-
-            i_bargraph_status = 1;
-
-            // Stop any bargraph ramps.
-            ms_bargraph.stop();
-
-            ms_bargraph_firing.start(1);
+            bargraphClear();
+            BARGRAPH_PATTERN = BG_OUTER_INNER;
           break;
 
           case A_FIRING_STOPPED:
             b_firing = false;
             ms_blink_leds.stop();
-            i_speed_multiplier = 1;
 
-            ms_bargraph_firing.stop();
+            i_speed_multiplier = 1; // Return to normal speed.
 
-            ms_bargraph_alt.stop(); // Stop the 1984 24 segment optional bargraph timer.
-
-            b_bargraph_up = false;
-
-            i_bargraph_status = POWER_LEVEL - 1;
-
-            i_bargraph_status_alt = 0;
-            i_bargraph_status = 0; // ??
-            bargraphClearAlt();
-
-            switch(i_mode_year) {
-              case 2021:
-                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
-              break;
-
-              case 1984:
-              case 1989:
-                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
-              break;
-            }
-
-            if(b_pack_alarm == true) {
-              // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
-              prepBargraphRampDown();
+            if(b_pack_alarm) {
+              // Ramp down if the pack alarm happens while firing.
+              bargraphFull();
+              BARGRAPH_PATTERN = BG_RAMP_DOWN;
             }
             else {
               // We ramp the bargraph back up after finishing firing.
-              bargraphRampUp();
+              bargraphClear();
+              BARGRAPH_PATTERN = BG_POWER_RAMP;
             }
           break;
 
@@ -559,6 +683,17 @@ void checkPack() {
 
           case A_CYCLOTRON_NORMAL_SPEED:
             i_speed_multiplier = 1;
+
+            if(b_firing) {
+              // Use the "normal" pattern if still firing.
+              bargraphClear();
+              BARGRAPH_PATTERN = BG_OUTER_INNER;
+            }
+            else {
+              // Otherwise go to the standard power ramp.
+              bargraphClear();
+              BARGRAPH_PATTERN = BG_POWER_RAMP;
+            }
           break;
         }
       }

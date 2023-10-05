@@ -1920,8 +1920,35 @@ void checkSwitches() {
       if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
         // Vent light and first stage of the safety system.
         if(switch_vent.getState() == LOW) {
-          // Vent light and top white light on.
-          digitalWrite(led_vent, LOW);
+          #ifdef FRUTTO_VENT_LIGHT
+            // Vent light and top white light on, power dependent on mode.
+            if(WAND_ACTION_STATUS == ACTION_FIRING) {
+              analogWrite(led_vent, 0); // 0 = Full Power
+            }
+            else {
+              // Adjust brightness based on the power level.
+              switch(i_power_mode) {
+                case 5:
+                  analogWrite(led_vent, 100);
+                break;
+                case 4:
+                  analogWrite(led_vent, 130);
+                break;
+                case 3:
+                  analogWrite(led_vent, 160);
+                break;
+                case 2:
+                  analogWrite(led_vent, 190);
+                break;
+                case 1:
+                  analogWrite(led_vent, 220);
+                break;
+              }
+            }
+          #else
+            // Vent light and top white light on.
+            digitalWrite(led_vent, LOW);
+          #endif
 
           soundIdleStart();
 
@@ -2023,6 +2050,13 @@ void checkSwitches() {
 
         if(switch_activate.getState() == HIGH) {
           WAND_ACTION_STATUS = ACTION_OFF;
+        }
+
+        // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
+        if(b_quick_vent == true) {
+          if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == HIGH && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
+            startVentSequence();
+          }
         }
       }
       else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {

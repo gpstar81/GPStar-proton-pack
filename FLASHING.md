@@ -1,43 +1,20 @@
-# IDE Setup
-
-The custom software needed for operation must be compiled and uploaded to your devices. This guide provides the list of required libraries for compilation and outlines the changes needed to support each board.
 
 ## Supported Devices
-###Proton Pack:###
+
+### Proton Pack:
  
 - <img src='images/gpstar_logo.png' width=30 align="left" /> gpstar Proton Pack PCB
 
-###Neutrona Wand:###
+### Neutrona Wand:
+
 - <img src='images/gpstar_logo.png' width=30 align="left" /> gpstar Neutrona Wand PCB
 
-## Prerequisites
-
-Download and install the Arduino IDE 2.x or higher. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
-
-[Arduino IDE 2.x](https://www.arduino.cc/en/software)
-
-The following libraries are required to be installed. All but the MillisDelay library can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
-
-- **FastLED** by Daniel Garcia
-- **ezButton** by ArduinoGetStarted.com
-- **Ramp** by Sylvain Garnavault
-- **AltSoftSerial** by Paul Stoffregen
-- **simple ht16k33 library** by lpaseen
-- **SerialTransfer** by PowerBroker2
-- **millisDelay** `See Below`
-
-### MillisDelay
-
-The MillisDelay library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/ansonhe97/millisDelay](https://github.com/ansonhe97/millisDelay)
-
-No further configuration is needed for this library.
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 If you are flashing updates to your existing setup, make sure that both your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository.
 
 ## Connection to your gpstar Proton Pack and Neutrona Wand PCB
-Use the included FTDI to USB programming cable that comes with the gpstar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:
+Use the included FTDI to USB programming cable that comes with the gpstar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
 
 - The ground pin will typically be a black wire, while VCC will typically be red.
 - The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.
@@ -46,18 +23,32 @@ Use the included FTDI to USB programming cable that comes with the gpstar kits o
 
 ![UART Connection](images/uart_pack.jpg)
 
-## Flashing The Software
-Once your have connected your gpstar Board to your computer via the FTDI to USB cable, you will need to select it from your devices in the Arduino IDE and search for Mega.
+## Flashing Updates
+After connecting your gpstar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the gpstar firmware flasher from the extra folder and run the program.
 
-![Board Selection](images/flash-gpstar-1.png)
-![Board Selection Mega](images/flash-gpstar-2.png)
+(Direct Download link)
+[gpstarFirmwareFlasher (exe)](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstarFirmwareFlasher.exe)
 
-Next click on the UPLOAD button (arrow pointing to the right) and wait for it to complete.
-![Board Selection Mega](images/flash-gpstar-3.png)
+The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.
 
-[Firmware Flashing Instructional Video](https://www.youtube.com/watch?v=J-P8rl3Hzck) (YouTube)
-[![Firmware Flashing Instructional Video](https://img.youtube.com/vi/J-P8rl3Hzck/maxresdefault.jpg)](https://www.youtube.com/watch?v=J-P8rl3Hzck)
+[https://github.com/gpstar81/haslab-proton-pack/tree/main/binaries](https://github.com/gpstar81/haslab-proton-pack/tree/main/binaries)
 
-## Advanced User Configurations
+When downloading the binaries, click on the file then on the **`Download raw file`** button.
 
-To modify defaults within the software, please see the [Advanced Configuration](ADVCONFIG.md) guide.
+![gpstar firmware flasher](images/flashDownload.png)
+
+**`It is recommended to have the Proton Pack and Neutrona Wand on the latest versions of their respective firmware.`**
+
+### Using the Flashing Software
+![gpstar firmware flasher](images/flash-gpstar-1-firmware.png)
+
+1. Open the firmware flasher, then select the firmware from the firmware selection box.
+2. Then select the COM port for the connection to your gpstar Board. The Default baud rate of 115200 should already be automatically selected. `The COM port # will be different for every user. If you attempt to flash and your gpstar board can not be found, please select another COM port from the drop down menu and try again.`
+3. Click on the UPLOAD button and wait for it to complete.
+
+`Note: If connecting the programming cable for the first time to your computer, it may take Windows a few minutes to setup the USB/TTL drivers automatically before it start working.`
+
+## (Optional) Compiling Source Code and Manually Flashing
+If you prefer to make adjustments to the source code configuration options instead of flashing pre-compiled binaries, refer to the Compiling and Flashing link below.
+
+* [Compiling and Flashing](COMPILING_FLASHING.md)
