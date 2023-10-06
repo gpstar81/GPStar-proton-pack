@@ -42,15 +42,22 @@ uint8_t txbuf[5];
 // **************************************************************
 void wavTrigger::flush(void) {
 
-int i;
+#ifdef GPSTAR_PCB
+  int i;
+#endif
+
 uint8_t dat;
 
 	rxCount = 0;
 	rxLen = 0;
 	rxMsgReady = false;
+  
+  #ifdef GPSTAR_PCB
 	for (i = 0; i < MAX_NUM_VOICES; i++) {
 	  voiceTable[i] = 0xffff;
 	}
+  #endif
+
 	while(WTSerial.available())
 		dat = WTSerial.read();
 }
@@ -107,62 +114,65 @@ uint16_t track;
 
 		if (rxMsgReady) {
 			switch (rxMessage[0]) {
-				case RSP_TRACK_REPORT_EX:
-					/*
-					rxMessage
-					0 = RSP_TRACK_REPORT_EX -> 133
-					1 = track # lsb
-					2 = track # msb
-					3 = state -> 1 = playing, 0 = not playing
-					*/
+        #ifdef GPSTAR_PCB
+          case RSP_TRACK_REPORT_EX:
+            /*
+            rxMessage
+            0 = RSP_TRACK_REPORT_EX -> 133
+            1 = track # lsb
+            2 = track # msb
+            3 = state -> 1 = playing, 0 = not playing
+            */
 
-					track = rxMessage[2];
-					track = (track << 8) + rxMessage[1];
+            track = rxMessage[2];
+            track = (track << 8) + rxMessage[1];
 
-          currentMusicTrack = track;
+            currentMusicTrack = track;
 
-          if(rxMessage[3] == 0) {
-            currentMusicStatus = false;
-          }
-          else {
-            currentMusicStatus = true;
-          }
+            if(rxMessage[3] == 0) {
+              currentMusicStatus = false;
+            }
+            else {
+              currentMusicStatus = true;
+            }
 
-          resetTrackCounter(false);
-				break;
+            resetTrackCounter(false);
+          break;
 
-				case RSP_TRACK_REPORT:
-					track = rxMessage[2];
-					track = (track << 8) + rxMessage[1] + 1;
-					voice = rxMessage[3];
-					if (voice < MAX_NUM_VOICES) {
-						if (rxMessage[4] == 0) {
-							if (track == voiceTable[voice])
-								voiceTable[voice] = 0xffff;
-						}
-						else
-							voiceTable[voice] = track;
-					}
-					// ==========================
-					//Serial.print("Track ");
-					//Serial.print(track);
-					//if (rxMessage[4] == 0)
-						//Serial.print(" off\n");
-					//else
-						//Serial.print(" on\n");
-					// ==========================
-				break;
+          case RSP_TRACK_REPORT:
+            track = rxMessage[2];
+            track = (track << 8) + rxMessage[1] + 1;
+            voice = rxMessage[3];
+            if (voice < MAX_NUM_VOICES) {
+              if (rxMessage[4] == 0) {
+                if (track == voiceTable[voice])
+                  voiceTable[voice] = 0xffff;
+              }
+              else
+                voiceTable[voice] = track;
+            }
+            // ==========================
+            //Serial.print("Track ");
+            //Serial.print(track);
+            //if (rxMessage[4] == 0)
+              //Serial.print(" off\n");
+            //else
+              //Serial.print(" on\n");
+            // ==========================
+          break;
+        
 
-				case RSP_VERSION_STRING:
-					for (i = 0; i < (VERSION_STRING_LEN - 1); i++)
-						version[i] = rxMessage[i + 1];
-					version[VERSION_STRING_LEN - 1] = 0;
-					versionRcvd = true;
-					// ==========================
-					//Serial.write(version);
-					//Serial.write("\n");
-					// ==========================
-				break;
+          case RSP_VERSION_STRING:
+            for (i = 0; i < (VERSION_STRING_LEN - 1); i++)
+              version[i] = rxMessage[i + 1];
+            version[VERSION_STRING_LEN - 1] = 0;
+            versionRcvd = true;
+            // ==========================
+            //Serial.write(version);
+            //Serial.write("\n");
+            // ==========================
+          break;
+        #endif
 
 				case RSP_SYSTEM_INFO:
 					numVoices = rxMessage[1];
@@ -184,62 +194,64 @@ uint16_t track;
 	} // while (WTSerial.available() > 0)
 }
 
-bool wavTrigger::currentMusicTrackStatus(int trk) {
-  //Serial.print("Track ");
-  //Serial.print(trk);
-  //Serial.print(": ");
+#ifdef GPSTAR_PCB
+  bool wavTrigger::currentMusicTrackStatus(int trk) {
+    //Serial.print("Track ");
+    //Serial.print(trk);
+    //Serial.print(": ");
 
-  if(trk == currentMusicTrack) {
-    if(currentMusicStatus == true) {
-      //Serial.println("playing");
+    if(trk == currentMusicTrack) {
+      if(currentMusicStatus == true) {
+        //Serial.println("playing");
 
-      return true;
+        return true;
+      }
     }
+    
+    //Serial.println("Not playing");
+
+    return false;
   }
-  
-  //Serial.println("Not playing");
 
-  return false;
-}
+  bool wavTrigger::trackCounterReset() {
+    return trackCounter;
+  }
 
-bool wavTrigger::trackCounterReset() {
-  return trackCounter;
-}
+  void wavTrigger::resetTrackCounter(bool bReset) {
+    trackCounter = bReset;
+  }
 
-void wavTrigger::resetTrackCounter(bool bReset) {
-  trackCounter = bReset;
-}
+  // **************************************************************
+  void wavTrigger::trackPlayingStatus(int trk) {
+    //Serial.print("polling for status of track #: ");
+    //Serial.println(trk);  
 
-// **************************************************************
-void wavTrigger::trackPlayingStatus(int trk) {
-	//Serial.print("polling for status of track #: ");
-	//Serial.println(trk);  
+  uint8_t txbuf[7];
 
-uint8_t txbuf[7];
+    txbuf[0] = SOM1;
+    txbuf[1] = SOM2;
+    txbuf[2] = 0x07;
+    txbuf[3] = CMD_GET_TRACK_STATUS;
+    txbuf[4] = (uint8_t)trk;
+    txbuf[5] = (uint8_t)(trk >> 8);
+    txbuf[6] = EOM;
+    WTSerial.write(txbuf, 7);
+  }
 
-	txbuf[0] = SOM1;
-	txbuf[1] = SOM2;
-	txbuf[2] = 0x07;
-	txbuf[3] = CMD_GET_TRACK_STATUS;
-	txbuf[4] = (uint8_t)trk;
-	txbuf[5] = (uint8_t)(trk >> 8);
-	txbuf[6] = EOM;
-	WTSerial.write(txbuf, 7);
-}
+  // **************************************************************
+  bool wavTrigger::isTrackPlaying(int trk) {
 
-// **************************************************************
-bool wavTrigger::isTrackPlaying(int trk) {
+  int i;
+  bool fResult = false;
 
-int i;
-bool fResult = false;
-
-	update();
-	for (i = 0; i < MAX_NUM_VOICES; i++) {
-		if (voiceTable[i] == trk)
-			fResult = true;
-	}
-	return fResult;
-}
+    update();
+    for (i = 0; i < MAX_NUM_VOICES; i++) {
+      if (voiceTable[i] == trk)
+        fResult = true;
+    }
+    return fResult;
+  }
+#endif
 
 // **************************************************************
 void wavTrigger::masterGain(int gain) {
@@ -286,23 +298,25 @@ uint8_t txbuf[6];
 	WTSerial.write(txbuf, 6);
 }
 
-// **************************************************************
-bool wavTrigger::getVersion(char *pDst, int len) {
+#ifdef GPSTAR_PCB
+  // **************************************************************
+  bool wavTrigger::getVersion(char *pDst, int len) {
 
-int i;
+  int i;
 
-	update();
-	if (!versionRcvd) {
-		return false;
-	}
-	for (i = 0; i < (VERSION_STRING_LEN - 1); i++) {
-		if (i >= (len - 1))
-			break;
-		pDst[i] = version[i];
-	}
-	pDst[++i] = 0;
-	return true;
-}
+    update();
+    if (!versionRcvd) {
+      return false;
+    }
+    for (i = 0; i < (VERSION_STRING_LEN - 1); i++) {
+      if (i >= (len - 1))
+        break;
+      pDst[i] = version[i];
+    }
+    pDst[++i] = 0;
+    return true;
+  }
+#endif
 
 // **************************************************************
 int wavTrigger::getNumTracks(void) {
@@ -491,18 +505,19 @@ unsigned short off;
 	WTSerial.write(txbuf, 7);
 }
 
-// **************************************************************
-void wavTrigger::setTriggerBank(int bank) {
+#ifdef GPSTAR_PCB
+  // **************************************************************
+  void wavTrigger::setTriggerBank(int bank) {
 
-uint8_t txbuf[6];
+  uint8_t txbuf[6];
 
-	txbuf[0] = SOM1;
-	txbuf[1] = SOM2;
-	txbuf[2] = 0x06;
-	txbuf[3] = CMD_SET_TRIGGER_BANK;
-	txbuf[4] = (uint8_t)bank;
-	txbuf[5] = EOM;
-	WTSerial.write(txbuf, 6);
-}
-
+    txbuf[0] = SOM1;
+    txbuf[1] = SOM2;
+    txbuf[2] = 0x06;
+    txbuf[3] = CMD_SET_TRIGGER_BANK;
+    txbuf[4] = (uint8_t)bank;
+    txbuf[5] = EOM;
+    WTSerial.write(txbuf, 6);
+  }
+#endif
 
