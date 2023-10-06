@@ -27,10 +27,10 @@ Use the included FTDI to USB programming cable that comes with the gpstar kits o
 After connecting your gpstar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the gpstar firmware flasher from the extra folder and run the program.
 
 **(Windows)**
-[gpstarFirmwareFlasher](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstarFirmwareFlasher.exe)
+[gpstarFirmwareFlasher.exe](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstarFirmwareFlasher.exe)
 
-**(Mac)**
-[GPStar-Firmware-Flasher](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/GPStar-Firmware-Flasher.app)
+**(Mac Intel/M1)**
+[GPStar-Firmware-Flasher.app](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/GPStar-Firmware-Flasher.app)
 
 The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.
 
