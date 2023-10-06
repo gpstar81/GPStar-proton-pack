@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-"$1avrdude" "-C$1avrdude.conf" -v -V -patmega2560 -cwiring "-P$2" -b115200 -D "-Uflash:w:$3:i"
