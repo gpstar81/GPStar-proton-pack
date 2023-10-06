@@ -2,7 +2,7 @@
 ## Supported Devices
 
 ### Proton Pack:
- 
+
 - <img src='images/gpstar_logo.png' width=30 align="left" /> gpstar Proton Pack PCB
 
 ### Neutrona Wand:
@@ -29,7 +29,7 @@ After connecting your gpstar Proton Pack or Neutrona Wand board to your computer
 **(Windows)**
 [gpstarFirmwareFlasher.exe](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstarFirmwareFlasher.exe)
 
-**(Mac Intel/M1)**
+**(MacOS Intel/M1)**
 [GPStar-Firmware-Flasher-Mac.dmg](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/GPStar-Firmware-Flasher-Mac.dmg)
 
 The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.
@@ -43,27 +43,32 @@ When downloading the binaries, click on the file then on the **`Download raw fil
 **`It is recommended to have the Proton Pack and Neutrona Wand on the latest versions of their respective firmware.`**
 
 ## Using the Flashing Software
-### Windows ##
+
+## Windows ##
+
 ![gpstar firmware flasher Windows](images/flash-gpstar-1-firmware.png)
 
 1. Open the firmware flasher, then select the firmware from the firmware selection box then select the firmware from the firmware selection box for the gpstar board you wish to flash.
-2. Then select the PORT for the connection to your gpstar Board. `Microsoft Windows users: The Default baud rate of 115200 should already be automatically selected.` `The PORT will be different for every user and may not look like what you see in the screenshot image. If you attempt to flash and your gpstar board can not be found, please select another PORT from the drop down menu and try again.`
-3. Click on the UPLOAD button and wait for it to complete.
+1. Then select the PORT for the connection to your gpstar Board. `Microsoft Windows users: The Default baud rate of 115200 should already be automatically selected.` `The PORT will be different for every user and may not look like what you see in the screenshot image. If you attempt to flash and your gpstar board can not be found, please select another PORT from the drop down menu and try again.`
+1. Click on the UPLOAD button and wait for it to complete.
 
 `Note: If connecting the programming cable for the first time to your computer, it may take Windows a few minutes to setup the USB/TTL drivers automatically before it start working.`
 
-## Mac ##
+## MacOS ##
+
 ![gpstar firmware flasher Mac](images/flash-gpstar-firmware-mac.png)
 
-1. Open the firmware flasher, then select the firmware from the firmware selection box for the gpstar board you wish to flash. 
-2. Then select the PORT for the connection to your gpstar Board after connecting the gpstar board to your computer with the programming cable. `The PORT will be different for every user and may not look like what you see in the screenshot image.`
-3. Click on the UPLOAD button and wait for it to complete.
+1. Open the firmware flasher by double-clicking the .DMG file. This will mount a new drive for the application.
+1. Go to the mounted drive "GPSTAR-FIRMWARE-FLASHER" and double-click on the GPStar-Firmware-Flasher.app to start the program.
+1. Select the firmware from the firmware selection box for the gpstar board you wish to flash.
+1. Then select the PORT for the connection to your gpstar Board after connecting the gpstar board to your computer with the programming cable. `The PORT will be different for every user and may not look like what you see in the screenshot image.`
+1. Click on the UPLOAD button and wait for it to complete.
 
 ## Flashing Demonstration Example Video ##
 [Flashing Demonstration Video](https://www.youtube.com/watch?v=XBivitW0QFk) (YouTube)
 [![gpstar Proton Pack & Neutrona Wand Flashing Demonstration Video](https://img.youtube.com/vi/XBivitW0QFk/maxresdefault.jpg)](https://www.youtube.com/watch?v=XBivitW0QFk)
 
-## (Optional) Compiling Source Code and Manually Flashing
+## (Optional) Compiling Source Code and Manually Flashing ##
 If you prefer to make adjustments to the source code configuration options instead of flashing pre-compiled binaries, refer to the Compiling and Flashing link below.
 
 * [Compiling and Flashing](COMPILING_FLASHING.md)
