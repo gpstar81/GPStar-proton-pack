@@ -30,7 +30,7 @@ After connecting your gpstar Proton Pack or Neutrona Wand board to your computer
 [gpstarFirmwareFlasher](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstarFirmwareFlasher.exe)
 
 **(Mac)**
-[gpstarFirmwareFlasher](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstarFirmwareFlasher.exe)
+[GPStar-Firmware-Flasher](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/GPStar-Firmware-Flasher.app)
 
 The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.
 
