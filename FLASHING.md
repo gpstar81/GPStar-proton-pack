@@ -59,7 +59,7 @@ When downloading the binaries, click on the file then on the **`Download raw fil
 ![gpstar firmware flasher Mac](images/flash-gpstar-firmware-mac.png)
 
 1. Open the firmware flasher by double-clicking the .DMG file. This will mount a new drive for the application.
-1. Go to the mounted drive "GPSTAR-FIRMWARE-FLASHER" and double-click on the GPStar-Firmware-Flasher.app to start the program.
+1. Go to the mounted drive "GPSTAR-FIRMWARE-FLASHER" and double-click on the `GPStar-Firmware-Flasher.app` to start the program.
 1. Select the firmware from the firmware selection box for the gpstar board you wish to flash.
 1. Then select the PORT for the connection to your gpstar Board after connecting the gpstar board to your computer with the programming cable. `The PORT will be different for every user and may not look like what you see in the screenshot image.`
 1. Click on the UPLOAD button and wait for it to complete.
