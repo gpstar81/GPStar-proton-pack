@@ -253,7 +253,7 @@ void mainLoop() {
         postActivation();
 
         if(year_mode == 2021) {
-          playEffect(P_PACK_BOOTUP);
+          playEffect(S_BOOTUP);
         }
 
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -2398,7 +2398,9 @@ void soundIdleStop() {
     switch(year_mode) {
       case 1984:
       case 1989:
-        playEffect(S_WAND_SHUTDOWN);
+        if(WAND_ACTION_STATUS != ACTION_OFF) {
+            playEffect(S_WAND_SHUTDOWN);
+        }
       break;
 
       case 2021:
