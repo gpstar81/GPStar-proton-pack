@@ -6,7 +6,7 @@
 ## Installation Guide PDF
 
 Direct Download Link:
-[gpstar Proton Pack Kit Installation Manual [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual)
+[gpstar Proton Pack Kit Installation Manual [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V2.pdf)
 
 ## Installation Troubleshooting
 

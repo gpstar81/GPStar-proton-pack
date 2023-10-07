@@ -64,9 +64,9 @@ When downloading the binaries, click on the file then on the **`Download raw fil
 1. Then select the PORT for the connection to your gpstar Board after connecting the gpstar board to your computer with the programming cable. `The PORT will be different for every user and may not look like what you see in the screenshot image.`
 1. Click on the UPLOAD button and wait for it to complete.
 
-## Flashing Demonstration Example Video ##
-[Flashing Demonstration Video](https://www.youtube.com/watch?v=XBivitW0QFk) (YouTube)
-[![gpstar Proton Pack & Neutrona Wand Flashing Demonstration Video](https://img.youtube.com/vi/XBivitW0QFk/maxresdefault.jpg)](https://www.youtube.com/watch?v=XBivitW0QFk)
+## Flashing Update Instruction Video ##
+[Firmware Update Instruction Video](https://www.youtube.com/watch?v=QiQkyFNfUqA) (YouTube)
+[![gpstar Proton Pack & Neutrona Wand Flashing Demonstration Video](https://img.youtube.com/vi/QiQkyFNfUqA/maxresdefault.jpg)](https://www.youtube.com/watch?v=QiQkyFNfUqA)
 
 ## (Optional) Compiling Source Code and Manually Flashing ##
 If you prefer to make adjustments to the source code configuration options instead of flashing pre-compiled binaries, refer to the Compiling and Flashing link below.
