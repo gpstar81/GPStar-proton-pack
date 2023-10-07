@@ -2301,15 +2301,15 @@ void soundIdleLoop(bool fadeIn) {
     break;
 
     case 2:
-      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 3:
-      playEffect(S_IDLE_LOOP_GUN_3, true, i_volume_effects, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 4:
-      playEffect(S_IDLE_LOOP_GUN_4, true, i_volume_effects, fadeIn, 1000);
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
     break;
 
     case 5:
