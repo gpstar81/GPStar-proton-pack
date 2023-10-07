@@ -67,3 +67,19 @@ rm -f ${BINDIR}/*bootloader.hex
 mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/extras/NeutronaWand_QuickVent.hex
 
 sed -i -e 's/b_quick_vent = true/b_quick_vent = false/g' ${SRCDIR}/NeutronaWand/Configuration.h
+
+# Neutrona Wand - Quick Vent + Frutto Vent Light Mod
+sed -i -e 's/b_quick_vent = false/b_quick_vent = true/g' ${SRCDIR}/NeutronaWand/Configuration.h
+sed -i -e 's/\/\/#define FRUTTO_VENT_LIGHT/#define FRUTTO_VENT_LIGHT/g' ${SRCDIR}/NeutronaWand/Configuration.h
+
+arduino-cli compile --output-dir ${BINDIR} -b arduino:avr:mega -e ${SRCDIR}/NeutronaWand/NeutronaWand.ino
+
+rm -f ${BINDIR}/*.bin
+rm -f ${BINDIR}/*.eep
+rm -f ${BINDIR}/*.elf
+rm -f ${BINDIR}/*bootloader.hex
+
+mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/extras/NeutronaWand_QuickVentFruttoVentLight.hex
+
+sed -i -e 's/b_quick_vent = true/b_quick_vent = false/g' ${SRCDIR}/NeutronaWand/Configuration.h
+sed -i -e 's/#define FRUTTO_VENT_LIGHT/\/\/#define FRUTTO_VENT_LIGHT/g' ${SRCDIR}/NeutronaWand/Configuration.h
