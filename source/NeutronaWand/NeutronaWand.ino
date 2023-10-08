@@ -2399,7 +2399,7 @@ void soundIdleStop() {
       case 1984:
       case 1989:
         if(WAND_ACTION_STATUS != ACTION_OFF) {
-            playEffect(S_WAND_SHUTDOWN);
+          playEffect(S_WAND_SHUTDOWN);
         }
       break;
 
