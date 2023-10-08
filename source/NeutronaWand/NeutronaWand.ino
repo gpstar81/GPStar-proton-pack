@@ -3043,7 +3043,7 @@ void modeFiring() {
 
     playEffect(S_FIRE_START_SPARK);
 
-    if(b_cross_the_streams_mix != true) {
+    if(b_cross_the_streams_mix == true) {
       // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
       wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX);
 
