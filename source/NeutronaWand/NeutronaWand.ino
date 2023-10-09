@@ -113,6 +113,8 @@ void setup() {
 
   // Setup the bargraph.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    set28SegmentBargraphOrientation();
+
     bargraphYearModeUpdate();
 
     delay(10);
@@ -206,6 +208,25 @@ void setup() {
     b_wait_for_pack = false;
     b_pack_on = true;
   }
+
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    if(b_gpstar_benchtest_debug == true) {
+      b_wait_for_pack = false;
+      b_pack_on = true;
+      b_cross_the_streams = true;
+      b_cross_the_streams_mix = true;
+      b_spectral_mode_enabled = true;
+      b_holiday_mode_enabled = true;
+      b_spectral_custom_mode_enabled = true;
+
+      b_bargraph_invert = true;
+      b_quick_vent = true;
+      b_wand_boot_errors = false;
+      b_bargraph_always_ramping = false;
+
+      set28SegmentBargraphOrientation();
+    }
+  #endif  
 }
 
 void loop() {
@@ -1920,30 +1941,35 @@ void checkSwitches() {
       if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
         // Vent light and first stage of the safety system.
         if(switch_vent.getState() == LOW) {
-          #ifdef FRUTTO_VENT_LIGHT
-            // Vent light and top white light on, power dependent on mode.
-            if(WAND_ACTION_STATUS == ACTION_FIRING) {
-              analogWrite(led_vent, 0); // 0 = Full Power
+          #ifdef GPSTAR_NEUTRONA_WAND_PCB
+            if(b_vent_light_control == true) {
+              // Vent light and top white light on, power dependent on mode.
+              if(WAND_ACTION_STATUS == ACTION_FIRING) {
+                analogWrite(led_vent, 0); // 0 = Full Power
+              }
+              else {
+                // Adjust brightness based on the power level.
+                switch(i_power_mode) {
+                  case 5:
+                    analogWrite(led_vent, 100);
+                  break;
+                  case 4:
+                    analogWrite(led_vent, 130);
+                  break;
+                  case 3:
+                    analogWrite(led_vent, 160);
+                  break;
+                  case 2:
+                    analogWrite(led_vent, 190);
+                  break;
+                  case 1:
+                    analogWrite(led_vent, 220);
+                  break;
+                }
+              }
             }
             else {
-              // Adjust brightness based on the power level.
-              switch(i_power_mode) {
-                case 5:
-                  analogWrite(led_vent, 100);
-                break;
-                case 4:
-                  analogWrite(led_vent, 130);
-                break;
-                case 3:
-                  analogWrite(led_vent, 160);
-                break;
-                case 2:
-                  analogWrite(led_vent, 190);
-                break;
-                case 1:
-                  analogWrite(led_vent, 220);
-                break;
-              }
+              digitalWrite(led_vent, LOW);
             }
           #else
             // Vent light and top white light on.
@@ -2540,6 +2566,8 @@ void modeFireStartSounds() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
+        playEffect(S_FIRE_START);
+
         switch(i_power_mode) {
           case 1 ... 4:
             if(b_firing_intensify == true) {
@@ -2548,11 +2576,11 @@ void modeFireStartSounds() {
 
               if(year_mode == 1989) {
                 playEffect(S_GB2_FIRE_START);
-                playEffect(S_GB2_FIRE_LOOP, true);
+                playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
               }
               else {
                 playEffect(S_GB1_FIRE_START);
-                playEffect(S_GB1_FIRE_LOOP, true);
+                playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000);
               }
             }
             else {
@@ -2563,8 +2591,11 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              playEffect(S_FIRE_START);
-              playEffect(S_FIRING_LOOP_GB1, true);
+              if(year_mode == 1989) {
+                playEffect(S_GB2_FIRE_START);
+              }
+
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
             }
             else {
               b_sound_firing_alt_trigger = false;
@@ -2572,10 +2603,26 @@ void modeFireStartSounds() {
           break;
 
           case 5:
+            switch(year_mode) {
+              case 1989:
+                playEffect(S_GB2_FIRE_START);
+              break;
+
+              case 1984:
+                playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
+                playEffect(S_GB1_FIRE_START);
+              break;
+
+              case 2021:
+              default:
+                playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
+              break;
+            }
+
             if(b_firing_intensify == true) {
               // Reset some sound triggers.
               b_sound_firing_intensify_trigger = true;
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700);
             }
             else {
               b_sound_firing_intensify_trigger = false;
@@ -2585,13 +2632,13 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              playEffect(S_FIRING_LOOP_GB1, true);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700);
             }
             else {
               b_sound_firing_alt_trigger = false;
             }
 
-            playEffect(S_GB1_FIRE_START_HIGH_POWER);
+            //playEffect(S_GB1_FIRE_START_HIGH_POWER);
           break;
         }
     break;
@@ -4427,6 +4474,22 @@ void cyclotronSpeedRevert() {
       ht_bargraph.clearAll();
 
       i_bargraph_status_alt = 0;
+    }
+  }
+#endif
+
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  // Resets the 28 Segment bargraph orientation.
+  void set28SegmentBargraphOrientation() {
+    if(b_bargraph_invert != true) {
+      for(uint8_t i = 0; i < i_bargraph_segments; i++) {
+        i_bargraph[i] = i_bargraph_normal[i];
+      }
+    }
+    else {
+      for(uint8_t i = 0; i < i_bargraph_segments; i++) {
+        i_bargraph[i] = i_bargraph_invert[i];
+      }
     }
   }
 #endif

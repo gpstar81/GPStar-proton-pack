@@ -23,12 +23,6 @@
  */
 
 /*
- * If the Frutto vent light has been installed, uncomment the line below
- * to enable special brightness controls during idle and firing modes.
- */
-//#define FRUTTO_VENT_LIGHT
-
-/*
  * You can set the default master startup volume for your wand here.
  * This gets overridden if you connect your wand to the pack.
  * Values are in % of the volume.
@@ -82,22 +76,28 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 /*
  * When defined, when using the Barmeter 28 segment bargraph, it will invert the sequence.
  * Part #: BL28Z-3005SA04Y
- * Only compatible with the gpstar Neutrona Wand board, and not an Arduino Nano.
-
- * Defined / Enabled:
- #define GPSTAR_INVERT_BARGRAPH
-
- * NOT Defined / Disabled:
- //#define GPSTAR_INVERT_BARGRAPH
+ * Only compatible with the gpstar Neutrona Wand board.
 */
-//#define GPSTAR_INVERT_BARGRAPH
-
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
-  /*
-    When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
-    When set to false (default), it mimics the action in Afterlife.
-  */
+  bool b_bargraph_invert = true;
+#endif
+
+/*
+ * When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
+ * When set to false (default), it mimics the action in Afterlife.
+ * Only compatible with the gpstar Neutrona Wand board.
+*/
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
   bool b_bargraph_always_ramping = false;
+#endif
+
+/*
+ * If the Frutto vent light has been installed, uncomment the line below
+ * to enable special brightness controls during idle and firing modes.
+ * Only compatible with the gpstar Neutrona Wand board.
+ */
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  bool b_vent_light_control = false;
 #endif
 
 /*
@@ -179,7 +179,7 @@ bool b_overheat_enabled = true;
  * Set to true to have your Neutrona Wand boot up with errors when the top right switch (beep switch) is on while you are turning on your wand.
  * When set to false, this will be ignored.
 */
-const bool b_wand_boot_errors = true;
+bool b_wand_boot_errors = true;
 
 /*
  * Which power modes do you want to be able to overheat.
@@ -239,4 +239,8 @@ const bool b_debug = false;
   * Set to false to ignore reading data from the EEPROM.
   */
   const bool b_eeprom = true;
+#endif
+
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  const bool b_gpstar_benchtest_debug = false;
 #endif
