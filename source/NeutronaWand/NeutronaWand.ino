@@ -211,6 +211,7 @@ void setup() {
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     if(b_gpstar_benchtest_debug == true) {
+      b_no_pack = true;
       b_wait_for_pack = false;
       b_pack_on = true;
       b_cross_the_streams = true;
@@ -528,30 +529,40 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
 
-              // Tell the Proton Pack to clear its current configuration from the EEPROM.
-              // Proton Stream Impact Effects / 3 LED mode in 1984/1989
-              wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
+              if(b_wand_menu_sub != true) {
+                // Tell the Proton Pack to clear its current configuration from the EEPROM.
+                // Proton Stream Impact Effects / 3 LED mode in 1984/1989
+                wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
 
-              stopEffect(S_VOICE_EEPROM_ERASE);
-              playEffect(S_VOICE_EEPROM_ERASE);
+                stopEffect(S_VOICE_EEPROM_ERASE);
+                playEffect(S_VOICE_EEPROM_ERASE);
 
-              // Clear wand EEPROM. (CTS/VGA, Overheating)
-              clearEEPROM();
+                // Clear wand EEPROM. (CTS/VGA, Overheating)
+                clearEEPROM();
 
-              wandExitEEPROMMenu();
+                wandExitEEPROMMenu();
+              }
+              else {
+                // Sub menu.
+              }
             }
             else if(switchMode() == true) {
-              // Tell the Proton Pack to save its current configuration to the EEPROM.
-              // Proton Stream Impact Effects / 3 LED mode in 1984/1989
-              wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
+              if(b_wand_menu_sub != true) {
+                // Tell the Proton Pack to save its current configuration to the EEPROM.
+                // Proton Stream Impact Effects / 3 LED mode in 1984/1989
+                wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
 
-              stopEffect(S_VOICE_EEPROM_SAVE);
-              playEffect(S_VOICE_EEPROM_SAVE);
+                stopEffect(S_VOICE_EEPROM_SAVE);
+                playEffect(S_VOICE_EEPROM_SAVE);
 
-              // Save wand EEPROM. (CTS/VGA, Overheating)
-              saveEEPROM();
+                // Save wand EEPROM. (CTS/VGA, Overheating)
+                saveEEPROM();
 
-              wandExitEEPROMMenu();
+                wandExitEEPROMMenu();
+              }
+              else {
+                // Sub menu.
+              }
             }
           break;
 
@@ -561,34 +572,44 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
 
-              toggleWandModes();
+              if(b_wand_menu_sub != true) {
+                toggleWandModes();
+              }
+              else {
+                // Sub menu.
+              }
             }
 
             if(switchMode() == true) {
-              if(b_spectral_mode_enabled == false || b_holiday_mode_enabled == false || b_spectral_custom_mode_enabled == false) {
-                // Enable the spectral modes.
-                b_spectral_mode_enabled = true;
-                b_holiday_mode_enabled = true;
-                b_spectral_custom_mode_enabled = true;
+              if(b_wand_menu_sub != true) {
+                if(b_spectral_mode_enabled == false || b_holiday_mode_enabled == false || b_spectral_custom_mode_enabled == false) {
+                  // Enable the spectral modes.
+                  b_spectral_mode_enabled = true;
+                  b_holiday_mode_enabled = true;
+                  b_spectral_custom_mode_enabled = true;
 
-                stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
-                stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
-                playEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+                  stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+                  stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+                  playEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
 
-                wandSerialSend(W_SPECTRAL_MODES_ENABLED);
+                  wandSerialSend(W_SPECTRAL_MODES_ENABLED);
+                }
+                else {
+                  // Disable the spectral modes.
+                  b_spectral_mode_enabled = false;
+                  b_holiday_mode_enabled = false;
+                  b_spectral_custom_mode_enabled = false;
+
+                  stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+                  stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+                  playEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+
+                  wandSerialSend(W_SPECTRAL_MODES_DISABLED);
+                }
               }
-              else {
-                // Disable the spectral modes.
-                b_spectral_mode_enabled = false;
-                b_holiday_mode_enabled = false;
-                b_spectral_custom_mode_enabled = false;
-
-                stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
-                stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
-                playEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
-
-                wandSerialSend(W_SPECTRAL_MODES_DISABLED);
-              }
+            }
+            else {
+              // Sub menu.
             }
           break;
 
@@ -598,12 +619,22 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
 
-              toggleOverHeating();
+              if(b_wand_menu_sub != true) {
+                toggleOverHeating();
+              }
+              else {
+                // Sub menu.
+              }
             }
 
             if(switchMode() == true) {
-              // Enable or disable smoke.
-              wandSerialSend(W_SMOKE_TOGGLE);
+              if(b_wand_menu_sub != true) {
+                // Enable or disable smoke.
+                wandSerialSend(W_SMOKE_TOGGLE);
+              }
+              else {
+                // Sub menu.
+              }
             }
           break;
 
@@ -613,13 +644,23 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
 
-              // Tell the Proton Pack to change the Cyclotron rotation direction.
-              wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
+              if(b_wand_menu_sub != true) {
+                // Tell the Proton Pack to change the Cyclotron rotation direction.
+                wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
+              }
+              else {
+                // Sub menu.
+              }
             }
 
             // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
             if(switchMode() == true) {
-              wandSerialSend(W_CYCLOTRON_SIMULATE_RING_TOGGLE);
+              if(b_wand_menu_sub != true) {
+                wandSerialSend(W_CYCLOTRON_SIMULATE_RING_TOGGLE);
+              }
+              else {
+                // Sub menu.
+              }
             }
           break;
 
@@ -629,25 +670,35 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
 
-              // Tell the Proton Pack to toggle the Proton Stream impact effects.
-              wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+              if(b_wand_menu_sub != true) {
+                // Tell the Proton Pack to toggle the Proton Stream impact effects.
+                wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+              }
+              else {
+                // Sub menu.
+              }
             }
 
             // Barrel Wing Button: Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
             if(switchMode() == true) {
-              if(b_extra_pack_sounds == true) {
-                b_extra_pack_sounds = false;
+              if(b_wand_menu_sub != true) {
+                if(b_extra_pack_sounds == true) {
+                  b_extra_pack_sounds = false;
 
-                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+                  playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
 
-                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+                  wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+                }
+                else {
+                  b_extra_pack_sounds = true;
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+
+                  wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+                }
               }
               else {
-                b_extra_pack_sounds = true;
-
-                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
-
-                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+                // Sub menu.
               }
             }
           break;
@@ -5358,7 +5409,23 @@ void checkRotary() {
           // Counter clockwise.
           if(prev_next_code == 0x0b) {
             if(i_wand_menu - 1 < 1) {
-              i_wand_menu = 1;
+              if(b_wand_menu_sub != true) {
+                b_wand_menu_sub = true;
+                i_wand_menu = 5;
+
+                // Turn on the slo blow led to indicate we are in a sub menu.
+                analogWrite(led_slo_blo, 255);
+
+                // Play an indication beep to notify we have changed to the sub menu.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                // Tell the Proton Pack to play a beep during a sub menu to menu level change.
+                wandSerialSend(W_MENU_LEVEL_CHANGE);
+              }
+              else {
+                i_wand_menu = 1;
+              }
             }
             else {
               i_wand_menu--;
@@ -5368,7 +5435,24 @@ void checkRotary() {
           // Clockwise.
           if(prev_next_code == 0x07) {
             if(i_wand_menu + 1 > 5) {
-              i_wand_menu = 5;
+              // We are leaving the sub menu.
+              if(b_wand_menu_sub == true) {
+                b_wand_menu_sub = false;
+                i_wand_menu = 1;
+
+                // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
+                analogWrite(led_slo_blo, 0);
+
+                // Play an indication beep to notify we have left the sub menu.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                // Tell the Proton Pack to play a beep during a submenu to menu level change.
+                wandSerialSend(W_MENU_LEVEL_CHANGE);
+              }
+              else {
+                i_wand_menu = 5;
+              }
             }
             else {
               i_wand_menu++;
