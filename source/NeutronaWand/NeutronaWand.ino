@@ -2622,6 +2622,7 @@ void modeFireStart() {
   // Reset some sound triggers.
   b_sound_firing_intensify_trigger = true;
   b_sound_firing_alt_trigger = true;
+  b_sound_firing_cross_the_streams_mix = false;
   b_sound_firing_cross_the_streams = false;
   b_firing_cross_streams = false;
 
@@ -2757,6 +2758,7 @@ void modeFireStopSounds() {
   b_sound_firing_intensify_trigger = false;
   b_sound_firing_alt_trigger = false;
   b_sound_firing_cross_the_streams = false;
+  b_sound_firing_cross_the_streams_mix = false;
 
   ms_firing_stop_sound_delay.stop();
 
@@ -3049,8 +3051,9 @@ void modeFiring() {
 
       playEffect(S_FIRING_LOOP_GB1, true);
 
-      if(i_power_mode != i_power_mode_max) {
+      if(i_power_mode != i_power_mode_max && b_sound_firing_cross_the_streams_mix != true) {
         playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+        b_sound_firing_cross_the_streams_mix = true;
       }
 
       stopEffect(S_GB2_FIRE_LOOP);
