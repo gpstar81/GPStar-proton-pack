@@ -66,7 +66,11 @@ It is worth noting that the device is meant to attach to the left shoulder strap
 	Height: 115mm
 	Depth: 38mm
 
-## Arduino Nano - Pin Reference
+## Arduino Nano - Standard Pinout Reference
+
+![](images/Arduino-nano-pinout.png)
+
+## Arduino Nano - Pin Connections
 
 The following is a diagram of the Arduino Nano pins from left and right, when oriented with the USB connection facing up (north).
 
@@ -88,7 +92,7 @@ The following is a diagram of the Arduino Nano pins from left and right, when or
 | Ground (Pack) | GND      |     | RX0      | to Pack TX1   |
 | +5V (Pack)    | VIN      |     | TX1      | to Pack RX1   |
 
-When connecting to the pack, the following wiring scheme was used with the 4-pin connector:
+When connecting to the pack, the following wiring scheme was used with the recommended 4-pin connector:
 
 	1 - GND (Black)
 	2 - 5V (Red)
@@ -181,15 +185,13 @@ Ideally, the device should be connected to the gpstar Proton Pack Controller whi
 * Left Toggle: Turns the pack on or off, similar to use of the switch under the Ion Arm
 * Right Toggle: Turns the LED's on the device on or off
 * Main Dial - Long Press: Alternates between two modes of operation
-	* Mode 1 (Default)
+	* Mode 1 (Default) - Indicated by a high buzzer tone
 		* Main Dial - Short Press: Starts or stops the current music track
+ 		* Main Dial - Double Press: Mutes or unmutes all pack/wand audio
 		* Main Dial - Turn CW/CCW: Adjusts the overall volume for pack/wand
-	* Mode 2
+	* Mode 2 - Indicated by a low buzzer tone
 		* Main Dial - Short Press: Advances to the next music track
+ 		* Main Dial - Double Press: Move to the previous music track
 		* Main Dial - Turn CW/CCW: Adjusts the effects volume for pack/wand
 
 Note that during an overheat warning, the device will emit sounds and vibrations in addition to lighting effects as the pack reaches a critical state. At this time the pack operator can turn the primary dial either direction to cancel the current warning. If the warning time is allowed to expire the the pack will enter the vent sequence.
-
-## Arduino Nano Pinout Reference
-
-![](images/Arduino-nano-pinout.png)
