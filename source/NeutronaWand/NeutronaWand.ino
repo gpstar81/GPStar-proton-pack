@@ -679,7 +679,6 @@ void mainLoop() {
               }
             }
 
-            // Barrel Wing Button: Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
             if(switchMode() == true) {
               if(b_wand_menu_sub != true) {
                 if(b_extra_pack_sounds == true) {
@@ -2068,7 +2067,7 @@ void checkSwitches() {
             }
 
             if(b_firing_intensify != true) {
-              // Increase count smash time the user presses a firing button.
+              // Increase count each time the user presses a firing button.
               i_bmash_count++;
 
               ms_firing_debounce.start(i_firing_debounce);
@@ -2091,7 +2090,7 @@ void checkSwitches() {
               }
 
               if(b_firing_alt != true) {
-                // Increase count eac time the user presses a firing button.
+                // Increase count each time the user presses a firing button.
                 i_bmash_count++;
 
                 ms_firing_debounce.start(i_firing_debounce);
@@ -2360,6 +2359,10 @@ void postActivation() {
 
         case 2021:
         default:
+          if(b_no_pack == true) {
+            playEffect(S_BOOTUP);
+          }
+
           soundIdleLoop(true);
 
           if(switch_vent.getState() == HIGH && b_pack_ribbon_cable_on == true) {
