@@ -131,19 +131,19 @@ void mainLoop() {
   if(switch_left.isPressed() || switch_left.isReleased()) {
     if(switch_left.getState() == LOW) {
       attenuatorSerialSend(A_TURN_PACK_ON);
+      b_pack_on = true;
     }
     else {
       attenuatorSerialSend(A_TURN_PACK_OFF);
+      b_pack_on = false;
     }
   }
 
   // Turn on the bargraph when certain conditions are met.
   // This supports pack connection or standalone operation.
-  if(b_pack_on || (switch_left.getState() == LOW && !b_wait_for_pack)) {
-    if(BARGRAPH_STATE == BG_OFF) {
+  if(b_pack_on) {
+    if(BARGRAPH_STATE == BG_OFF && !(b_overheating || b_pack_alarm)) {
       bargraphReset(); // Enable bargraph for use (resets variables and turns it on).
-    }
-    if(switch_left.getState() == LOW && !b_wait_for_pack){
       BARGRAPH_PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
     }
   }
