@@ -126,9 +126,12 @@ const uint8_t rotary_debounce_time = 80;
 #define r_encoderB 3
 ezButton encoder_center(4); // For center-press on encoder dial.
 millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
-millisDelay ms_center_press;
+millisDelay ms_center_double_tap; // Timer for determinine when a double-tap was detected.
+millisDelay ms_center_long_press; // Timer for determining when a long press was detected.
 bool b_center_pressed = false;
+const unsigned int i_center_double_tap_delay = 300; // When to consider the center dial has a "double tap".
 const unsigned int i_center_long_press_delay = 600; // When to consider the center dial has a "long" press.
+int i_press_count = 0;
 int i_encoder_pos = 0;
 int i_val_rotary;
 int i_last_val_rotary;
@@ -137,7 +140,7 @@ int i_rotary_count = 0;
 /*
  * Define states for the rotary dial center press.
  */
-enum CENTER_STATES { NO_ACTION, SHORT_PRESS, LONG_PRESS };
+enum CENTER_STATES { NO_ACTION, SHORT_PRESS, DOUBLE_PRESS, LONG_PRESS };
 enum CENTER_STATES CENTER_STATE;
 enum MENU_LEVELS { MENU_1, MENU_2 };
 enum MENU_LEVELS MENU_LEVEL;
