@@ -4074,6 +4074,7 @@ void checkSerial1() {
             break;
 
             case A_MUSIC_NEXT_TRACK:
+            {
               // Determine the next track.
               unsigned int i_next_track = i_current_music_track;
               if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
@@ -4099,9 +4100,11 @@ void checkSerial1() {
 
               // Tell the wand which track to play.
               packSerialSend(i_current_music_track);
+            }
             break;
 
             case A_MUSIC_PREV_TRACK:
+            {
               // Determine the previous track.
               unsigned int i_prev_track = i_current_music_track;
               if(i_current_music_track - 1 < i_music_track_start) {
@@ -4127,6 +4130,7 @@ void checkSerial1() {
 
               // Tell the wand which track to play.
               packSerialSend(i_current_music_track);
+            }
             break;
 
             default:

@@ -253,7 +253,7 @@ void mainLoop() {
         postActivation();
 
         if(year_mode == 2021) {
-          playEffect(P_PACK_BOOTUP);
+          playEffect(S_BOOTUP);
         }
 
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -2051,7 +2051,7 @@ void checkSwitches() {
         if(switch_activate.getState() == HIGH) {
           WAND_ACTION_STATUS = ACTION_OFF;
         }
-        
+
         // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
         if(b_quick_vent == true) {
           if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == HIGH && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
@@ -2398,7 +2398,9 @@ void soundIdleStop() {
     switch(year_mode) {
       case 1984:
       case 1989:
-        playEffect(S_WAND_SHUTDOWN);
+        if(WAND_ACTION_STATUS != ACTION_OFF) {
+          playEffect(S_WAND_SHUTDOWN);
+        }
       break;
 
       case 2021:
@@ -2620,6 +2622,7 @@ void modeFireStart() {
   // Reset some sound triggers.
   b_sound_firing_intensify_trigger = true;
   b_sound_firing_alt_trigger = true;
+  b_sound_firing_cross_the_streams_mix = false;
   b_sound_firing_cross_the_streams = false;
   b_firing_cross_streams = false;
 
@@ -2755,6 +2758,7 @@ void modeFireStopSounds() {
   b_sound_firing_intensify_trigger = false;
   b_sound_firing_alt_trigger = false;
   b_sound_firing_cross_the_streams = false;
+  b_sound_firing_cross_the_streams_mix = false;
 
   ms_firing_stop_sound_delay.stop();
 
@@ -3041,14 +3045,15 @@ void modeFiring() {
 
     playEffect(S_FIRE_START_SPARK);
 
-    if(b_cross_the_streams_mix != true) {
+    if(b_cross_the_streams_mix == true) {
       // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
       wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX);
 
       playEffect(S_FIRING_LOOP_GB1, true);
 
-      if(i_power_mode != i_power_mode_max) {
+      if(i_power_mode != i_power_mode_max && b_sound_firing_cross_the_streams_mix != true) {
         playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+        b_sound_firing_cross_the_streams_mix = true;
       }
 
       stopEffect(S_GB2_FIRE_LOOP);

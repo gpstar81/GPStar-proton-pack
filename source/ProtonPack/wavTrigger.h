@@ -121,7 +121,7 @@ public:
   void flush(void);
   void setReporting(bool enable);
   void setAmpPwr(bool enable);
-  bool getVersion(char *pDst, int len);
+  bool getVersion(char *pDst);
   int getNumTracks(void);
   bool isTrackPlaying(int trk);
   void masterGain(int gain);
@@ -146,7 +146,7 @@ public:
   bool trackCounterReset(void);
   void resetTrackCounter(bool bReset);
   void serialFlush(void);
-  
+
 private:
   void trackControl(int trk, int code);
   void trackControl(int trk, int code, bool lock);
