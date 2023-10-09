@@ -172,11 +172,6 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
   if(BARGRAPH_PATTERN == BG_POWER_RAMP ||
      BARGRAPH_PATTERN == BG_POWER_DOWN ||
      BARGRAPH_PATTERN == BG_POWER_UP) {
-    if(BARGRAPH_PATTERN == BG_POWER_RAMP){
-      // Set the initial direction for the power ramp (up).
-      BARGRAPH_PATTERN = BG_POWER_UP;
-    }
-
     // Use the current power level to set some global variables, such as the simulated maximum elements.
     // This will determine whether to ramp up or down, and must be called prior to the switch statement below.
     bargraphPowerCheck(POWER_LEVEL);
@@ -195,6 +190,10 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
 
     // Animations should be based on a set pattern and logic here must only affect the bargraph device.
     switch(BARGRAPH_PATTERN) {
+      case BG_POWER_RAMP:
+        BARGRAPH_PATTERN = BG_POWER_UP; // Set the initial direction for the power ramp (up).
+      break;
+
       case BG_RAMP_UP:
         // This is intended to be a single action, ramping the bargraph up then stopping animations.
 

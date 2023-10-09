@@ -307,22 +307,37 @@ void checkRotaryPress() {
 
   // Determine whether the rotary dial (center button) got a short or long press.
   if(encoder_center.isPressed()) {
-    // Start a timer when the rotary dial is pressed.
-    ms_center_press.start(i_center_long_press_delay);
+    // Start all timers when the rotary dial is pressed.
+    ms_center_double_tap.start(i_center_double_tap_delay);
+    ms_center_long_press.start(i_center_long_press_delay);
     b_center_pressed = true;
   }
 
   if(b_center_pressed) {
-    if(encoder_center.isReleased() && ms_center_press.remaining() > 0) {
-      // If released and the timer is still running, then it was a short press.
+    if(encoder_center.isReleased() && i_press_count >= 1) {
+      // If released and we already counted 1 press, this is a "double tap".
+      CENTER_STATE = DOUBLE_PRESS;
+      b_center_pressed = false;
+      i_press_count = 0;
+      ms_center_double_tap.stop();
+    }
+    else if(encoder_center.isReleased() && ms_center_double_tap.remaining() > 0) {
+      // If released and the double-tap timer is still running, then ONLY increment count.
+      i_press_count++;
+    }
+    else if(ms_center_double_tap.remaining() < 1 && i_press_count == 1) {
+      // If the double-tap counter ran out with only a single press, this was a "short" press.
       CENTER_STATE = SHORT_PRESS;
       b_center_pressed = false;
-      ms_center_press.stop();
+      i_press_count = 0;
+      ms_center_double_tap.stop();
+      ms_center_long_press.stop();
     }
-    else if(ms_center_press.remaining() < 1) {
+    else if(ms_center_long_press.remaining() < 1) {
       // Consider a long-press event if the timer is run out before released.
       CENTER_STATE = LONG_PRESS;
       b_center_pressed = false;
+      i_press_count = 0;
     }
   }
 
@@ -331,16 +346,33 @@ void checkRotaryPress() {
       // Perform action for short press based on current menu level.
       switch(MENU_LEVEL) {
         case MENU_1:
-          // A short press should start/stop the music.
+          // A short, single press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
           useVibration(255, 200); // Give a quick nudge.
-          break;
+        break;
 
         case MENU_2:
-          // A short press should advance to the next track.
+          // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
           useVibration(255, 200); // Give a quick nudge.
-          break;
+        break;
+      }
+    break;
+
+    case DOUBLE_PRESS:
+      // Perform action for double tap based on current menu level.
+      switch(MENU_LEVEL) {
+        case MENU_1:
+          // A double press should mute the pack and wand.
+          attenuatorSerialSend(A_TOGGLE_MUTE);
+          useVibration(255, 200); // Give a quick nudge.
+        break;
+
+        case MENU_2:
+          // A double press should move back to the previous track.
+          attenuatorSerialSend(A_MUSIC_PREV_TRACK);
+          useVibration(255, 200); // Give a quick nudge.
+        break;
       }
     break;
 
