@@ -242,5 +242,5 @@ const bool b_debug = false;
 #endif
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
-  const bool b_gpstar_benchtest_debug = false;
+  const bool b_gpstar_benchtest_debug = true;
 #endif

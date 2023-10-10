@@ -194,19 +194,13 @@ uint16_t track;
 
 #ifdef GPSTAR_PCB
   bool wavTrigger::currentMusicTrackStatus(int trk) {
-    //Serial.print("Track ");
-    //Serial.print(trk);
-    //Serial.print(": ");
-
     if(trk == currentMusicTrack) {
       if(currentMusicStatus == true) {
-        //Serial.println("playing");
 
         return true;
       }
     }
     
-    //Serial.println("Not playing");
 
     return false;
   }
@@ -221,8 +215,6 @@ uint16_t track;
 
   // **************************************************************
   void wavTrigger::trackPlayingStatus(int trk) {
-    //Serial.print("polling for status of track #: ");
-    //Serial.println(trk);  
 
   uint8_t txbuf[7];
 
