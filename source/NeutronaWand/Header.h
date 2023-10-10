@@ -64,6 +64,7 @@ int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_perc
 int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
 int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
 int8_t i_volume_revert = i_volume_master;
+
 /* 
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
  * Also controls independent music volume while the pack/wand is off and if music is playing.
@@ -168,6 +169,11 @@ uint8_t i_bargraph_status = 0;
 */
 bool b_28segment_bargraph = false;
 
+/*
+  Flag check for video game mode.
+*/
+bool b_vga_mode = true;
+
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   const uint8_t i_bargraph_interval = 4;
   const uint8_t i_bargraph_wait = 180;
@@ -186,11 +192,10 @@ bool b_28segment_bargraph = false;
  * Only supported by the gpstar Neutrona Wand microcontroller.
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
-  #ifdef GPSTAR_INVERT_BARGRAPH
-    const uint8_t i_bargraph[28] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
-  #else
-    const uint8_t i_bargraph[28] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
-  #endif
+  const uint8_t i_bargraph_segments = 28;
+  uint8_t i_bargraph[i_bargraph_segments] = {};
+  const uint8_t i_bargraph_invert[i_bargraph_segments] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
+  const uint8_t i_bargraph_normal[i_bargraph_segments] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 #endif
 
 /*
@@ -343,6 +348,7 @@ bool b_firing_cross_streams = false;
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_sound_firing_cross_the_streams = false;
+bool b_sound_firing_cross_the_streams_mix = false;
 bool b_sound_idle = false;
 bool b_beeping = false;
 bool b_sound_afterlife_idle_2_fade = true;
