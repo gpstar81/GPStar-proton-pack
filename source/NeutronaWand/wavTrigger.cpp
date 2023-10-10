@@ -46,8 +46,6 @@ void wavTrigger::flush(void) {
   int i;
 #endif
 
-uint8_t dat;
-
 	rxCount = 0;
 	rxLen = 0;
 	rxMsgReady = false;
@@ -59,7 +57,7 @@ uint8_t dat;
   #endif
 
 	while(WTSerial.available())
-		dat = WTSerial.read();
+		WTSerial.read();
 }
 
 
@@ -196,19 +194,13 @@ uint16_t track;
 
 #ifdef GPSTAR_PCB
   bool wavTrigger::currentMusicTrackStatus(int trk) {
-    //Serial.print("Track ");
-    //Serial.print(trk);
-    //Serial.print(": ");
-
     if(trk == currentMusicTrack) {
       if(currentMusicStatus == true) {
-        //Serial.println("playing");
 
         return true;
       }
     }
     
-    //Serial.println("Not playing");
 
     return false;
   }
@@ -223,8 +215,6 @@ uint16_t track;
 
   // **************************************************************
   void wavTrigger::trackPlayingStatus(int trk) {
-    //Serial.print("polling for status of track #: ");
-    //Serial.println(trk);  
 
   uint8_t txbuf[7];
 
@@ -246,7 +236,7 @@ uint16_t track;
 
     update();
     for (i = 0; i < MAX_NUM_VOICES; i++) {
-      if (voiceTable[i] == trk)
+      if (voiceTable[i] == (uint16_t)trk)
         fResult = true;
     }
     return fResult;
@@ -300,7 +290,7 @@ uint8_t txbuf[6];
 
 #ifdef GPSTAR_PCB
   // **************************************************************
-  bool wavTrigger::getVersion(char *pDst, int len) {
+  bool wavTrigger::getVersion(char *pDst) {
 
   int i;
 
@@ -309,11 +299,8 @@ uint8_t txbuf[6];
       return false;
     }
     for (i = 0; i < (VERSION_STRING_LEN - 1); i++) {
-      if (i >= (len - 1))
-        break;
       pDst[i] = version[i];
     }
-    pDst[++i] = 0;
     return true;
   }
 #endif
@@ -520,4 +507,3 @@ unsigned short off;
     WTSerial.write(txbuf, 6);
   }
 #endif
-
