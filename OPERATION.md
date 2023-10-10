@@ -102,14 +102,16 @@ The following features require the use of both the pack and wand replacement con
 
 - When in manual venting mode, the Slo-Blo LED and the Orange LED on the front of the wand body will blink to indicate that you are in the manual venting mode. Press Intensify on the wand to manually vent your Proton Pack. (All the toggle and safety switches on the wand must be activated).
 
-**Alternate Firing Mode: Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)**
+**Alternate Firing Modes: Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)**
 
-- The Barrel Wing Button at the end of the wand acts as a alternate fire mode button--it does not switch stream modes.
-- The overheat features can only be triggered when holding the alternate fire mode button (Barrel Wing Button).
+- The Barrel Wing Button at the end of the wand acts as a alternate fire mode button. When Cross The Streams is enabled, video game modes are disabled.
+	- With Cross The Streams Mix, the Barrel Wing Button retains all its normal functionality unless you are already firing a Proton Stream.
+- The overheat features can only be triggered when holding the alternate fire mode button (Barrel Wing Button) when Cross The Streams mode is enabled.
+	- With Cross The Streams Mix, the overheat features match those of the normal video game modes.
 - Pressing both the Intensify and Barrel Wing Button at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing one of the 2 firing buttons will continue these effects.
-	- During Cross The Streams Mix, you need to hold both the Intensify and Barrel Wing Button at the same time. Releasing one or the other will end crossing the streams but continue firing a regular proton stream. The Proton Pack and Neutrona Wand can still overheat if enabled while crossing the streams in the power level you are at.
+	- With Cross The Streams Mix, you need to hold both the Intensify and Barrel Wing Button at the same time. Releasing the Barrel Wing Button will end crossing the streams but continue firing a regular proton stream, and releasing Intensify will end firing completely.
 
-To enable a Cross The Streams (CTS) mode and alternate firing by default, please see the [Advanced Configuration](ADVCONFIG.md) guide, otherwise these can be accessed from the Wand Settings Menu System.
+To enable Cross The Streams (CTS) or Cross The Streams Mix (CTS Mix) mode by default, please see the [Advanced Configuration](ADVCONFIG.md) guide, otherwise these can be accessed from the Wand Settings Menu System.
 
 ## Wand Settings Menu System
 ![](images/OperationNeutrona9.jpg)
