@@ -126,14 +126,14 @@ millisDelay ms_cyclotron_switch_led;
 /* 
  *  State of the pack.
  */
-enum PACK_STATE { MODE_OFF, MODE_ON };
-enum PACK_STATE PACK_STATUS;
+enum PACK_STATES { MODE_OFF, MODE_ON };
+enum PACK_STATES PACK_STATE;
 
 /*
  * Pack action state.
  */
-enum PACK_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE };
-enum PACK_ACTION_STATE PACK_ACTION_STATUS;
+enum PACK_ACTION_STATES { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE };
+enum PACK_ACTION_STATES PACK_ACTION_STATE;
 
 /*
  * Cyclotron lid LEDs control and lid detection.
