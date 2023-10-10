@@ -116,8 +116,8 @@ bool b_cross_the_streams = false;
 bool b_quick_vent = false;
 
 /*
- * When set to true, to cross the streams you must be holding down both Intensify and the alternate firing button at the same time.
- * Releasing one or the other button will stop cross the streams but continue firing a regular proton stream.
+ * When set to true, to cross the streams you must hold down the Barrel Wing Button while firing a Proton Stream.
+ * Releasing the Barrel Wing Switch returns to Proton Stream, and releasing Intensify stops firing completely.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
 */
 bool b_cross_the_streams_mix = false;
