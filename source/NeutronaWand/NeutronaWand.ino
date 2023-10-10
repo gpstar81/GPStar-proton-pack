@@ -208,13 +208,18 @@ void setup() {
     b_wait_for_pack = false;
     b_pack_on = true;
   }
+  
+  // CTS and CTS mix are separate, so if Configuration.h has both set, unset CTS
+  if(b_cross_the_streams == true && b_cross_the_streams_mix == true) {
+    b_cross_the_streams = false;
+  }
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     if(b_gpstar_benchtest_debug == true) {
       b_no_pack = true;
       b_wait_for_pack = false;
       b_pack_on = true;
-      b_cross_the_streams = true;
+      b_cross_the_streams = false;
       b_cross_the_streams_mix = true;
       b_spectral_mode_enabled = true;
       b_holiday_mode_enabled = true;
@@ -742,7 +747,7 @@ void mainLoop() {
 
           // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
           if(switchMode() == true) {
-            if(b_cross_the_streams != true && b_cross_the_streams_mix != true) {
+            if(b_cross_the_streams != true) {
               // Tell the Proton Pack to cycle through the Video Game Colour toggles.
               wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
             }
@@ -1310,8 +1315,8 @@ void toggleOverHeating() {
 // Controlled the the Wand Sub Menu and Wand EEPROM Menu system.
 void toggleWandModes() {
   // Enable or disable crossing the streams / crossing the streams mix / video game modes.
-  if(b_cross_the_streams == true && b_cross_the_streams_mix == true) {
-    // Turn off crossing the streams mode and switch back to video game mode.
+  if(b_cross_the_streams_mix == true) {
+    // Turn off crossing the streams mix and switch back to video game mode.
     b_cross_the_streams = false;
     b_cross_the_streams_mix = false;
 
@@ -1329,8 +1334,8 @@ void toggleWandModes() {
     wandSerialSend(W_PROTON_MODE_REVERT);
   }
   else if(b_cross_the_streams == true && b_cross_the_streams_mix != true) {
-    // Keep cross the streams on.
-    b_cross_the_streams = true;
+    // Turn regular cross the streams off.
+    b_cross_the_streams = false;
 
     // Turn on cross the streams mix.
     b_cross_the_streams_mix = true;
@@ -2076,7 +2081,7 @@ void checkSwitches() {
             b_firing_intensify = true;
           }
 
-          // When the Barrel Wing Button is changed to a alternate firing button, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
+          // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
           if(b_cross_the_streams == true) {
             if(switchMode() == true && switch_wand.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_switch_mode_firing.isRunning() != true && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
               if(WAND_ACTION_STATUS != ACTION_FIRING) {
@@ -2111,8 +2116,23 @@ void checkSwitches() {
             }
           }
 
+          // In Cross The Streams Mix, the alternate firing switch only works if Intensify is held down and the current firing mode is Proton mode.
+          if(b_cross_the_streams_mix == true) {
+            if(FIRING_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
+              if(switchMode() == true) {
+                b_firing_alt = true;
+              }
+              else if(b_switch_mode_pressed != true) {
+                b_firing_alt = false;
+              }
+            }
+            else if(b_firing_alt == true) {
+              b_firing_alt = false;
+            }
+          }
+
           if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
-            if(b_firing_alt != true) {
+            if(b_firing_alt != true || b_cross_the_streams_mix == true) {
               WAND_ACTION_STATUS = ACTION_IDLE;
             }
 
@@ -3034,7 +3054,7 @@ void modeFiring() {
   if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
     b_sound_firing_intensify_trigger = true;
 
-    if(b_cross_the_streams_mix == true) {
+    if(b_cross_the_streams_mix == true && FIRING_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_MIX);
 
@@ -3064,7 +3084,7 @@ void modeFiring() {
   if(b_firing_intensify != true && b_sound_firing_intensify_trigger == true) {
     b_sound_firing_intensify_trigger = false;
 
-    if(b_cross_the_streams_mix == true) {
+    if(b_cross_the_streams_mix == true && FIRING_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_STOPPED_MIX);
 
