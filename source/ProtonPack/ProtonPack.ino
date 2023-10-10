@@ -183,7 +183,7 @@ void setup() {
   // Auto start the pack if it is in demo light mode.
   if(b_demo_light_mode == true) {
     // Turn the pack on.
-    PACK_ACTION_STATUS = ACTION_ACTIVATE;
+    PACK_ACTION_STATE = ACTION_ACTIVATE;
   }
 }
 
@@ -213,7 +213,7 @@ void loop() {
   checkSwitches();
   checkRotaryEncoder();
 
-  switch (PACK_STATUS) {
+  switch (PACK_STATE) {
     case MODE_OFF:
       if(b_pack_on == true) {
         b_2021_ramp_up = false;
@@ -454,7 +454,7 @@ void loop() {
     break;
    }
 
-  switch(PACK_ACTION_STATUS) {
+  switch(PACK_ACTION_STATE) {
     case ACTION_IDLE:
       // Do nothing.
     break;
@@ -632,8 +632,8 @@ void playVentSounds() {
 }
 
 void packStartup() {
-  PACK_STATUS = MODE_ON;
-  PACK_ACTION_STATUS = ACTION_IDLE;
+  PACK_STATE = MODE_ON;
+  PACK_ACTION_STATE = ACTION_IDLE;
 
   if(b_alarm == true) {
     if(i_mode_year == 1984 || i_mode_year == 1989) {
@@ -680,8 +680,8 @@ void packStartup() {
 }
 
 void packShutdown() {
-  PACK_STATUS = MODE_OFF;
-  PACK_ACTION_STATUS = ACTION_IDLE;
+  PACK_STATE = MODE_OFF;
+  PACK_ACTION_STATE = ACTION_IDLE;
 
   // Stop the firing if the pack is doing it.
   wandStoppedFiring();
@@ -940,11 +940,11 @@ void checkSwitches() {
     b_switch_mode_override = false;
   }
 
-  switch(PACK_STATUS) {
+  switch(PACK_STATE) {
     case MODE_OFF:
       if(switch_power.isPressed() || switch_power.isReleased()) {
         // Turn the pack on.
-        PACK_ACTION_STATUS = ACTION_ACTIVATE;
+        PACK_ACTION_STATE = ACTION_ACTIVATE;
       }
 
       // Year mode. Best to adjust it only when the pack is off.
@@ -1036,7 +1036,7 @@ void checkSwitches() {
     case MODE_ON:
       if(switch_power.isReleased() || switch_power.isPressed()) {
         // Turn the pack off.
-        PACK_ACTION_STATUS = ACTION_OFF;
+        PACK_ACTION_STATE = ACTION_OFF;
       }
     break;
   }
@@ -1499,7 +1499,7 @@ void cyclotronControl() {
     }
   }
 
-  if(switch_alarm.getState() == HIGH && PACK_STATUS != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false) {
+  if(switch_alarm.getState() == HIGH && PACK_STATE != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false) {
     if(b_alarm == false) {
       stopEffect(S_BEEP_8);
 
@@ -2687,7 +2687,7 @@ void resetCyclotronLeds() {
   }
 
   // Keep the fade control fading out a light that is not on during startup.
-  if(PACK_STATUS == MODE_OFF){
+  if(PACK_STATE == MODE_OFF){
     if(b_1984_led_start != true) {
       b_1984_led_start = true;
     }
@@ -2697,7 +2697,7 @@ void resetCyclotronLeds() {
   if(b_cyclotron_lid_on == true) {
     innerCyclotronOff();
   }
-  else if(b_alarm != true || PACK_STATUS == MODE_OFF) {
+  else if(b_alarm != true || PACK_STATE == MODE_OFF) {
     innerCyclotronOff();
   }
 
@@ -3339,7 +3339,7 @@ void cyclotronSwitchPlateLEDs() {
     playEffect(S_VENT_SMOKE);
 
     // Play some spark sounds if the pack is running and the lid is removed.
-    if(PACK_STATUS == MODE_ON) {
+    if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
     }
   }
@@ -3354,7 +3354,7 @@ void cyclotronSwitchPlateLEDs() {
     playEffect(S_VENT_DRY);
 
     // Play some spark sounds if the pack is running and the lid is put back on.
-    if(PACK_STATUS == MODE_ON) {
+    if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
     }
   }
@@ -3868,6 +3868,8 @@ void packOverheatingFinished() {
 
 // Incoming messages from the extra Serial 1 port.
 void checkSerial1() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
   while(serial1Coms.available() > 0) {
     serial1Coms.rxObj(dataStructR);
 
@@ -3903,7 +3905,7 @@ void checkSerial1() {
             }
 
             // Pack status
-            if(PACK_STATUS != MODE_OFF) {
+            if(PACK_STATE != MODE_OFF) {
               serial1Send(A_PACK_ON);
             }
             else {
@@ -3987,15 +3989,15 @@ void checkSerial1() {
 
             case A_TURN_PACK_ON:
               // Turn the pack on.
-              if(PACK_STATUS != MODE_ON) {
-                PACK_ACTION_STATUS = ACTION_ACTIVATE;
+              if(PACK_STATE != MODE_ON) {
+                PACK_ACTION_STATE = ACTION_ACTIVATE;
               }
             break;
 
             case A_TURN_PACK_OFF:
               // Turn the pack off.
-              if(PACK_STATUS != MODE_OFF) {
-                PACK_ACTION_STATUS = ACTION_OFF;
+              if(PACK_STATE != MODE_OFF) {
+                PACK_ACTION_STATE = ACTION_OFF;
               }
             break;
 
@@ -4075,13 +4077,12 @@ void checkSerial1() {
 
             case A_MUSIC_NEXT_TRACK:
               // Determine the next track.
-              unsigned int i_next_track = i_current_music_track;
               if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
                 // Start at the first track if already on the last.
-                i_next_track = i_music_track_start;
+                i_temp_track = i_music_track_start;
               }
               else {
-                i_next_track++;
+                i_temp_track++;
               }
 
               // Switch to the next track.
@@ -4090,11 +4091,11 @@ void checkSerial1() {
                 stopMusic();
 
                 // Advance and begin playing the new track.
-                i_current_music_track = i_next_track;
+                i_current_music_track = i_temp_track;
                 playMusic();
               }
               else {
-                i_current_music_track = i_next_track;
+                i_current_music_track = i_temp_track;
               }
 
               // Tell the wand which track to play.
@@ -4103,13 +4104,12 @@ void checkSerial1() {
 
             case A_MUSIC_PREV_TRACK:
               // Determine the previous track.
-              unsigned int i_prev_track = i_current_music_track;
               if(i_current_music_track - 1 < i_music_track_start) {
                 // Start at the last track if already on the first.
-                i_prev_track = i_music_track_start + (i_music_count - 1);
+                i_temp_track = i_music_track_start + (i_music_count - 1);
               }
               else {
-                i_prev_track--;
+                i_temp_track--;
               }
 
               // Switch to the previous track.
@@ -4118,11 +4118,11 @@ void checkSerial1() {
                 stopMusic();
 
                 // Advance and begin playing the new track.
-                i_current_music_track = i_prev_track;
+                i_current_music_track = i_temp_track;
                 playMusic();
               }
               else {
-                i_current_music_track = i_prev_track;
+                i_current_music_track = i_temp_track;
               }
 
               // Tell the wand which track to play.
@@ -4153,8 +4153,8 @@ void checkWand() {
               b_wand_on = true;
 
               // Turn the pack on.
-              if(PACK_STATUS != MODE_ON) {
-                PACK_ACTION_STATUS = ACTION_ACTIVATE;
+              if(PACK_STATE != MODE_ON) {
+                PACK_ACTION_STATE = ACTION_ACTIVATE;
                 serial1Send(A_PACK_ON);
               }
 
@@ -4166,8 +4166,8 @@ void checkWand() {
               b_wand_on = false;
 
               // Turn the pack off.
-              if(PACK_STATUS != MODE_OFF) {
-                PACK_ACTION_STATUS = ACTION_OFF;
+              if(PACK_STATE != MODE_OFF) {
+                PACK_ACTION_STATE = ACTION_OFF;
                 serial1Send(A_PACK_OFF);
               }
 
@@ -4271,7 +4271,7 @@ void checkWand() {
               FIRING_MODE = PROTON;
               playEffect(S_CLICK);
 
-              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+              if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_FIRE_START_SPARK);
               }
 
@@ -4294,7 +4294,7 @@ void checkWand() {
               FIRING_MODE = SLIME;
               playEffect(S_CLICK);
 
-              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+              if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_PACK_SLIME_OPEN);
               }
 
@@ -4318,7 +4318,7 @@ void checkWand() {
               FIRING_MODE = STASIS;
               playEffect(S_CLICK);
 
-              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+              if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_STASIS_OPEN);
               }
 
@@ -4341,7 +4341,7 @@ void checkWand() {
               FIRING_MODE = MESON;
               playEffect(S_CLICK);
 
-              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+              if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_MESON_OPEN);
               }
 
@@ -4364,7 +4364,7 @@ void checkWand() {
               FIRING_MODE = SPECTRAL;
               playEffect(S_CLICK);
 
-              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+              if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_FIRE_START_SPARK);
               }
 
@@ -4387,7 +4387,7 @@ void checkWand() {
               FIRING_MODE = HOLIDAY;
               playEffect(S_CLICK);
 
-              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+              if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_FIRE_START_SPARK);
               }
 
@@ -4410,7 +4410,7 @@ void checkWand() {
               FIRING_MODE = SPECTRAL_CUSTOM;
               playEffect(S_CLICK);
 
-              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+              if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_FIRE_START_SPARK);
               }
 
@@ -4433,7 +4433,7 @@ void checkWand() {
               FIRING_MODE = VENTING;
               playEffect(S_CLICK);
 
-              if(PACK_STATUS == MODE_ON && b_wand_on == true) {
+              if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_VENT_DRY);
                 playEffect(S_MODE_SWITCH);
               }
@@ -5875,7 +5875,7 @@ void checkWand() {
             }
 
             // Pack status
-            if(PACK_STATUS != MODE_OFF) {
+            if(PACK_STATE != MODE_OFF) {
               packSerialSend(P_ON);
             }
             else {
