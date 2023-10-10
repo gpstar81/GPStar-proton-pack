@@ -64,6 +64,7 @@ int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_perc
 int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
 int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
 int8_t i_volume_revert = i_volume_master;
+
 /* 
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
  * Also controls independent music volume while the pack/wand is off and if music is playing.
@@ -167,6 +168,11 @@ uint8_t i_bargraph_status = 0;
  * Only compatible with the gpstar Neutrona Wand board, and not an Arduino Nano.
 */
 bool b_28segment_bargraph = false;
+
+/*
+  Flag check for video game mode.
+*/
+bool b_vga_mode = true;
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   const uint8_t i_bargraph_interval = 4;

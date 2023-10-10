@@ -110,17 +110,18 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 bool b_cross_the_streams = false;
 
 /*
- * When set to true, you can manually quick vent your Proton Pack and Neutrona Wand by
- * pressing the intensify button if the top right toggle switch is switched off.
-*/
-bool b_quick_vent = false;
-
-/*
+ * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
  * When set to true, to cross the streams you must hold down the Barrel Wing Button while firing a Proton Stream.
  * Releasing the Barrel Wing Switch returns to Proton Stream, and releasing Intensify stops firing completely.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
 */
 bool b_cross_the_streams_mix = false;
+
+/*
+ * When set to true, you can manually quick vent your Proton Pack and Neutrona Wand by
+ * pressing the intensify button if the top right toggle switch is switched off.
+*/
+bool b_quick_vent = false;
 
 /*
  * When set to true, allows selection of special firing modes after the standard video game modes.
@@ -242,5 +243,5 @@ const bool b_debug = false;
 #endif
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
-  const bool b_gpstar_benchtest_debug = true;
+  const bool b_gpstar_benchtest_debug = false;
 #endif

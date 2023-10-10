@@ -35,7 +35,7 @@
 	- The switch under the Proton Pack's Ion Arm does not need to be engaged for this to work.
 - Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects depending on the mode.
 	- The Neutrona Wand will not fire unless these switches are turned on.
-	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn the top toggle switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the advanced user configuration settings by setting **b&#95;wand&#95;boot&#95;errors** to false. **\*see below\***
+	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn the top toggle switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in Neutrona Wand Config EEPROM Sub Menu. **\*see below\***
 
 - Additionally, the lever switch near the gunbox acts as a safety switch and it must be pulled to extend the barrel before firing.
 
@@ -78,7 +78,9 @@ The following features require the use of both the pack and wand replacement con
 **Video Game Mode (Default)**
 ![](images/OperationNeutrona4.jpg)
 
-- The Barrel Wing Button at the end of the Neutrona Wand switches between these available firing modes while the wand is active:
+- Pressing and holding the Barrel Wing Button while you are already throwing a Proton Stream with the Intensify button will Cross the Streams.
+
+- The Barrel Wing Button at the end of the Neutrona Wand switches between these available firing modes while the wand is active and not throwing a stream:
 	1. Proton Stream (Default)
 	1. Slime Blower
 	1. Stasis Stream
@@ -104,7 +106,7 @@ The following features require the use of both the pack and wand replacement con
 
 **Alternate Firing Modes: Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)**
 
-- The Barrel Wing Button at the end of the wand acts as a alternate fire mode button. When Cross The Streams is enabled, video game modes are disabled.
+- The Barrel Wing Button at the end of the wand acts as a alternate fire mode button. When Cross The Streams is enabled, Video Game Modes are disabled and you will only have the Proton Stream.
 	- With Cross The Streams Mix, the Barrel Wing Button retains all its normal functionality unless you are already firing a Proton Stream.
 - The overheat features can only be triggered when holding the alternate fire mode button (Barrel Wing Button) when Cross The Streams mode is enabled.
 	- With Cross The Streams Mix, the overheat features match those of the normal video game modes.
@@ -207,6 +209,8 @@ The EEPROM Configuration Menu can be used to save certain behaviours of your Neu
 
 To access the EEPROM Configuration Menu, hold the `Intensify Button` down and toggle the right hand `Bottom Toggle` button 5 times. You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM Configuration Menu System.
 
+To access the EEPROM Configuration sub level menu, use the `Top Dial` on the top of the wand. When you reach the sub level menu, the Slo-blo LED will light up to indicate this menu state.
+
 `The EEPROM Configuration Menu System can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
 
 `Please note whatever settings you have temporarily changed in the regular menus and sub menus will be applied automatically and saved if you exit the EEPROM menu by saving the settings.`
@@ -222,6 +226,15 @@ To access the EEPROM Configuration Menu, hold the `Intensify Button` down and to
 | <p align="center">1</p> | Sound Effects | Enable or Disable the proton stream impact sound effects. | Enable or disable extra Neutrona Wand sound effects to be played by the Proton Pack. |
 
 <sup>3</sup> Choose between Video Game and Cross the Streams (CTS) operation modes. Cross the Streams modes is like what you see in the films.
+
+
+| EEPROM&nbsp;Sub&nbsp;Level&nbsp;Menu | Purpose | Intensify Button | Barrel Wing Button |
+|----------------|---------|------------------|--------------------|
+| <p align="center">5</p> | Quick&nbsp;Vent / Wand Boot Errors| Enable or Disable the Quick Venting feature. When enabled, you can manually vent your Proton Pack by pressing the Intensify button while the top right toggle switch is switched down. | Enable to disable the Wand boot error mode. When enabled, if you turn on the Neutrona Wnd while the top right toggle is up and activated, the Neutrona Wand enters a error mode. |
+| <p align="center">4</p> | Auto Vent Light Intensity / Startup Volume | Enable or disable the Auto Vent Light Intensity. When enabled, the vent light will adjust the intesity based on the power level of the wand.  | Set the default master volume of system when it boots up. |
+| <p align="center">3</p> | 28 Segment Bargraph Adjustment| Invert or do not invert the 28 Segment Optional bargraph if using one in the Neutrona Wand. | Enable or disable the bargraph to be always ramping. When enabled, Afterlife mode will have the same bargraph effect as 1984/1989. |
+| <p align="center">2</p> | Overheat Lights | Enable or Disable the N-Filter LEDs from strobing during overheating. | Enable or disable the Proton Pack lights to turn off during overheating. When disabled, after ramping down to a slower pace, the lights stay on.
+| <p align="center">1</p> | Default Year&nbsp;Mode / Overheat Sync to Fan | Set your default year mode between 1984/1989/Afterlife/Default. When set, the system will ignore the year mode toggle switch during bootup. However the toggle switch can still be used while the Proton Pack is on. If set to Default, the system picks the year mode based on the position of the year mode toggle switch in the Proton Pack. | Enable or Disable the overheat sync to fan. When enabled, the fan connections in the Proton Pack will only activate at the same time as the smoke connections. When enabled, the fan connections activate slightly after the smoke connections which allows some build of smoke before the fans activate. |
 
 ## Advanced User Configurations
 
