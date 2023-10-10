@@ -229,16 +229,12 @@ void setup() {
       set28SegmentBargraphOrientation();
 
       /*
-      Quick vent / Wand boot errors
-      Vent light / Startup volume 
-      Invert bargraph / Bargraph always ramping
+      Quick vent : Wand boot errors
+      Vent light : Startup volume 
+      Invert bargraph : Bargraph always ramping
+      Overheat strobe : Overheat lights off
+      84/89/afterlife/default : Overheat sync to fan
       
-      
-      Overheat strobe / Overheat lights off
-      
-            84/89/afterlife/default 
-
-      Overheat sync to fan
       */
     }
   #endif  
