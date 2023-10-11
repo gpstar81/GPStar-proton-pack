@@ -78,7 +78,7 @@ The following features require the use of both the pack and wand replacement con
 **Video Game Mode (Default)**
 ![](images/OperationNeutrona4.jpg)
 
-- Pressing and holding the Barrel Wing Button while you are already throwing a Proton Stream with the Intensify button will Cross the Streams.
+- Pressing the Barrel Wing Button while you are already throwing a Proton Stream with the Intensify button will Cross The Streams.
 
 - The Barrel Wing Button at the end of the Neutrona Wand switches between these available firing modes while the wand is active and not throwing a stream:
 	1. Proton Stream (Default)
@@ -107,10 +107,8 @@ The following features require the use of both the pack and wand replacement con
 **Alternate Firing Modes: Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)**
 
 - The Barrel Wing Button at the end of the wand acts as a alternate fire mode button. When Cross The Streams is enabled, Video Game Modes are disabled and you will only have the Proton Stream.
-	- With Cross The Streams Mix, the Barrel Wing Button retains all its normal functionality unless you are already firing a Proton Stream.
 - The overheat features can only be triggered when holding the alternate fire mode button (Barrel Wing Button) when Cross The Streams mode is enabled.
-	- With Cross The Streams Mix, the overheat features match those of the normal video game modes.
-- Pressing both the Intensify and Barrel Wing Button at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing one of the 2 firing buttons will continue these effects.
+- Pressing both the Intensify and Barrel Wing Button at the same time enables the "Cross The Streams" (CTS) audio and visual effects. Releasing one of the 2 firing buttons will continue these effects.
 	- With Cross The Streams Mix, you need to hold both the Intensify and Barrel Wing Button at the same time. Releasing the Barrel Wing Button will end crossing the streams but continue firing a regular proton stream, and releasing Intensify will end firing completely.
 
 To enable Cross The Streams (CTS) or Cross The Streams Mix (CTS Mix) mode by default, please see the [Advanced Configuration](ADVCONFIG.md) guide, otherwise these can be accessed from the Wand Settings Menu System.
