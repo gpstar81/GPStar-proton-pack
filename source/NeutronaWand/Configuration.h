@@ -81,11 +81,9 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 uint8_t i_num_barrel_leds = 5;
 
 /*
- * When defined, when using the Barmeter 28 segment bargraph, it will invert the sequence.
- * Part #: BL28Z-3005SA04Y
- * Only compatible with the gpstar Neutrona Wand board.
+ * When set ti true, the bargraph will invert the sequence.
 */
-bool b_bargraph_invert = true;
+bool b_bargraph_invert = false;
 
 /*
  * When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.

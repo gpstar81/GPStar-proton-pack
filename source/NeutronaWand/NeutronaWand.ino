@@ -113,8 +113,6 @@ void setup() {
 
   // Setup the bargraph.
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    set28SegmentBargraphOrientation();
-
     bargraphYearModeUpdate();
 
     delay(10);
@@ -145,6 +143,7 @@ void setup() {
       ht_bargraph.begin(0x00);
     }
     else {
+      // Original 5 LED Hasbro bargraph.
       pinMode(led_bargraph_1, OUTPUT);
       pinMode(led_bargraph_2, OUTPUT);
       pinMode(led_bargraph_3, OUTPUT);
@@ -152,13 +151,15 @@ void setup() {
       pinMode(led_bargraph_5, OUTPUT);
     }
   #else
-    // Original Hasbro bargraph.
+    // Original 5 LED Hasbro bargraph.
     pinMode(led_bargraph_1, OUTPUT);
     pinMode(led_bargraph_2, OUTPUT);
     pinMode(led_bargraph_3, OUTPUT);
     pinMode(led_bargraph_4, OUTPUT);
     pinMode(led_bargraph_5, OUTPUT);
   #endif
+
+  setBargraphOrientation();
 
   pinMode(led_slo_blo, OUTPUT);
 
@@ -724,7 +725,7 @@ void mainLoop() {
                   wandSerialSend(W_BARGRAPH_INVERTED);              
                 }
 
-                set28SegmentBargraphOrientation();
+                setBargraphOrientation();
               }
             }
 
@@ -997,18 +998,20 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              stopEffect(S_BEEPS_ALT);
-
-              playEffect(S_BEEPS_ALT);
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_BEEPS_ALT);
+                playEffect(S_BEEPS_ALT);
+              #endif
 
               wandSerialSend(W_VIBRATION_CYCLE_TOGGLE);
             }
 
             // Enable or disable vibration or firing vibration only for the wand.
             if(switchMode() == true) {
-              stopEffect(S_BEEPS_ALT);
-
-              playEffect(S_BEEPS_ALT);
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_BEEPS_ALT);
+                playEffect(S_BEEPS_ALT);
+              #endif
 
               if(b_vibration_on != true) {
                 b_vibration_on = true;
@@ -1022,9 +1025,11 @@ void mainLoop() {
 
                 wandSerialSend(W_VIBRATION_ENABLED);
 
-                analogWrite(vibration, 150);
-                delay(250);
-                analogWrite(vibration,0);
+                #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                  analogWrite(vibration, 150);
+                  delay(250);
+                  analogWrite(vibration,0);
+                #endif
               }
               else if(b_vibration_on == true && b_vibration_firing != true) {
                 b_vibration_firing = true;
@@ -1038,9 +1043,11 @@ void mainLoop() {
 
                 wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
-                analogWrite(vibration, 150);
-                delay(250);
-                analogWrite(vibration,0);
+                #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                  analogWrite(vibration, 150);
+                  delay(250);
+                  analogWrite(vibration,0);
+                #endif
               }
               else {
                 b_vibration_on = false;
@@ -1117,9 +1124,11 @@ void mainLoop() {
               // Tell the Proton Pack to cycle through year modes.
               wandSerialSend(W_YEAR_MODES_CYCLE);
 
-              stopEffect(S_BEEPS_BARGRAPH);
+              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+                stopEffect(S_BEEPS_BARGRAPH);
 
-              playEffect(S_BEEPS_BARGRAPH);
+                playEffect(S_BEEPS_BARGRAPH);
+              #endif
 
               // There is no pack connected; let's change the years.
               if(b_no_pack == true) {
@@ -1630,40 +1639,40 @@ void settingsBlinkingLights() {
       }
       else {
         if(b_solid_one == true) {
-          digitalWrite(led_bargraph_1, LOW);
+          digitalWrite(i_bargraph_5_led[1-1], LOW);
         }
         else {
-          digitalWrite(led_bargraph_1, HIGH);
+          digitalWrite(i_bargraph_5_led[1-1], HIGH);
         }
 
-        digitalWrite(led_bargraph_2, HIGH);
-        digitalWrite(led_bargraph_3, HIGH);
-        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(i_bargraph_5_led[2-1], HIGH);
+        digitalWrite(i_bargraph_5_led[3-1], HIGH);
+        digitalWrite(i_bargraph_5_led[4-1], HIGH);
 
         if(b_solid_five == true) {
-          digitalWrite(led_bargraph_5, LOW);
+          digitalWrite(i_bargraph_5_led[5-1], LOW);
         }
         else {
-          digitalWrite(led_bargraph_5, HIGH);
+          digitalWrite(i_bargraph_5_led[5-1], HIGH);
         }
       }
     #else
       if(b_solid_one == true) {
-        digitalWrite(led_bargraph_1, LOW);
+        digitalWrite(i_bargraph_5_led[1-1], LOW);
       }
       else {
-        digitalWrite(led_bargraph_1, HIGH);
+        digitalWrite(i_bargraph_5_led[1-1], HIGH);
       }
 
-      digitalWrite(led_bargraph_2, HIGH);
-      digitalWrite(led_bargraph_3, HIGH);
-      digitalWrite(led_bargraph_4, HIGH);
+      digitalWrite(i_bargraph_5_led[2-1], HIGH);
+      digitalWrite(i_bargraph_5_led[3-1], HIGH);
+      digitalWrite(i_bargraph_5_led[4-1], HIGH);
 
       if(b_solid_five == true) {
-        digitalWrite(led_bargraph_5, LOW);
+        digitalWrite(i_bargraph_5_led[5-1], LOW);
       }
       else {
-        digitalWrite(led_bargraph_5, HIGH);
+        digitalWrite(i_bargraph_5_led[5-1], HIGH);
       }
     #endif
   }
@@ -4410,11 +4419,11 @@ void bargraphRampFiring() {
           vibrationWand(i_vibration_level + 110);
         #endif
 
-        digitalWrite(led_bargraph_1, LOW);
-        digitalWrite(led_bargraph_2, HIGH);
-        digitalWrite(led_bargraph_3, HIGH);
-        digitalWrite(led_bargraph_4, HIGH);
-        digitalWrite(led_bargraph_5, LOW);
+        digitalWrite(i_bargraph_5_led[1-1], LOW);
+        digitalWrite(i_bargraph_5_led[2-1], HIGH);
+        digitalWrite(i_bargraph_5_led[3-1], HIGH);
+        digitalWrite(i_bargraph_5_led[4-1], HIGH);
+        digitalWrite(i_bargraph_5_led[5-1], LOW);
         i_bargraph_status++;
 
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -4427,11 +4436,11 @@ void bargraphRampFiring() {
           vibrationWand(i_vibration_level + 112);
         #endif
 
-        digitalWrite(led_bargraph_1, HIGH);
-        digitalWrite(led_bargraph_2, LOW);
-        digitalWrite(led_bargraph_3, HIGH);
-        digitalWrite(led_bargraph_4, LOW);
-        digitalWrite(led_bargraph_5, HIGH);
+        digitalWrite(i_bargraph_5_led[1-1], HIGH);
+        digitalWrite(i_bargraph_5_led[2-1], LOW);
+        digitalWrite(i_bargraph_5_led[3-1], HIGH);
+        digitalWrite(i_bargraph_5_led[4-1], LOW);
+        digitalWrite(i_bargraph_5_led[5-1], HIGH);
         i_bargraph_status++;
 
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -4444,11 +4453,11 @@ void bargraphRampFiring() {
           vibrationWand(i_vibration_level + 115);
         #endif
 
-        digitalWrite(led_bargraph_1, HIGH);
-        digitalWrite(led_bargraph_2, HIGH);
-        digitalWrite(led_bargraph_3, LOW);
-        digitalWrite(led_bargraph_4, HIGH);
-        digitalWrite(led_bargraph_5, HIGH);
+        digitalWrite(i_bargraph_5_led[1-1], HIGH);
+        digitalWrite(i_bargraph_5_led[2-1], HIGH);
+        digitalWrite(i_bargraph_5_led[3-1], LOW);
+        digitalWrite(i_bargraph_5_led[4-1], HIGH);
+        digitalWrite(i_bargraph_5_led[5-1], HIGH);
         i_bargraph_status++;
 
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -4461,11 +4470,11 @@ void bargraphRampFiring() {
           vibrationWand(i_vibration_level + 112);
         #endif
 
-        digitalWrite(led_bargraph_1, HIGH);
-        digitalWrite(led_bargraph_2, LOW);
-        digitalWrite(led_bargraph_3, HIGH);
-        digitalWrite(led_bargraph_4, LOW);
-        digitalWrite(led_bargraph_5, HIGH);
+        digitalWrite(i_bargraph_5_led[1-1], HIGH);
+        digitalWrite(i_bargraph_5_led[2-1], LOW);
+        digitalWrite(i_bargraph_5_led[3-1], HIGH);
+        digitalWrite(i_bargraph_5_led[4-1], LOW);
+        digitalWrite(i_bargraph_5_led[5-1], HIGH);
         i_bargraph_status++;
 
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -4478,11 +4487,11 @@ void bargraphRampFiring() {
           vibrationWand(i_vibration_level + 110);
         #endif
 
-        digitalWrite(led_bargraph_1, LOW);
-        digitalWrite(led_bargraph_2, HIGH);
-        digitalWrite(led_bargraph_3, HIGH);
-        digitalWrite(led_bargraph_4, HIGH);
-        digitalWrite(led_bargraph_5, LOW);
+        digitalWrite(i_bargraph_5_led[1-1], LOW);
+        digitalWrite(i_bargraph_5_led[2-1], HIGH);
+        digitalWrite(i_bargraph_5_led[3-1], HIGH);
+        digitalWrite(i_bargraph_5_led[4-1], HIGH);
+        digitalWrite(i_bargraph_5_led[5-1], LOW);
         i_bargraph_status = 1;
 
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -4717,21 +4726,32 @@ void cyclotronSpeedRevert() {
   }
 #endif
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  // Resets the 28 Segment bargraph orientation.
-  void set28SegmentBargraphOrientation() {
-    if(b_bargraph_invert != true) {
+void setBargraphOrientation() {
+  if(b_bargraph_invert != true) {
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      // Resets the 28 Segment bargraph orientation.
       for(uint8_t i = 0; i < i_bargraph_segments; i++) {
         i_bargraph[i] = i_bargraph_normal[i];
       }
+    #endif
+
+    for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
+      i_bargraph_5_led[i] = i_bargraph_5_led_normal[i];
     }
-    else {
+  }
+  else {
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      // Resets the 28 Segment bargraph orientation.
       for(uint8_t i = 0; i < i_bargraph_segments; i++) {
         i_bargraph[i] = i_bargraph_invert[i];
       }
+    #endif
+
+    for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
+      i_bargraph_5_led[i] = i_bargraph_5_led_invert[i];
     }
   }
-#endif
+}
 
 void bargraphPowerCheck() {
   // Control for the 28 segment barmeter bargraph.
@@ -5200,7 +5220,7 @@ void bargraphRampUp() {
       case 4:
         vibrationWand(i_vibration_level + 80);
 
-        digitalWrite(led_bargraph_5, LOW);
+        digitalWrite(i_bargraph_5_led[5-1], LOW);
         //wandBargraphControl(4);
 
         if(i_bargraph_status + 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
@@ -5216,7 +5236,7 @@ void bargraphRampUp() {
       case 5:
         vibrationWand(i_vibration_level + 40);
 
-        digitalWrite(led_bargraph_5, HIGH);
+        digitalWrite(i_bargraph_5_led[5-1], HIGH);
         //wandBargraphControl(4);
 
         if(i_bargraph_status - 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
@@ -5232,7 +5252,7 @@ void bargraphRampUp() {
       case 6:
         vibrationWand(i_vibration_level + 30);
 
-        digitalWrite(led_bargraph_4, HIGH);
+        digitalWrite(i_bargraph_5_led[4-1], HIGH);
         //wandBargraphControl(3);
 
         if(i_bargraph_status - 3 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
@@ -5248,7 +5268,7 @@ void bargraphRampUp() {
       case 7:
         vibrationWand(i_vibration_level + 20);
 
-        digitalWrite(led_bargraph_3, HIGH);
+        digitalWrite(i_bargraph_5_led[3-1], HIGH);
         //wandBargraphControl(2);
 
         if(i_bargraph_status - 5 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
@@ -5264,7 +5284,7 @@ void bargraphRampUp() {
       case 8:
         vibrationWand(i_vibration_level + 10);
 
-        digitalWrite(led_bargraph_2, HIGH);
+        digitalWrite(i_bargraph_5_led[2-1], HIGH);
         //wandBargraphControl(1);
 
         if(i_bargraph_status - 7 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
@@ -5278,7 +5298,7 @@ void bargraphRampUp() {
       break;
 
       case 9:
-        digitalWrite(led_bargraph_1, HIGH);
+        digitalWrite(i_bargraph_5_led[1-1], HIGH);
         //wandBargraphControl(4);
 
         ms_bargraph.stop();
@@ -5371,39 +5391,39 @@ void prepBargraphRampUp() {
 void wandBargraphControl(uint8_t i_t_level) {
   if(i_t_level > 4) {
     // On
-    digitalWrite(led_bargraph_5, LOW);
+    digitalWrite(i_bargraph_5_led[5-1], LOW);
   }
   else {
     // Off
-    digitalWrite(led_bargraph_5, HIGH);
+    digitalWrite(i_bargraph_5_led[5-1], HIGH);
   }
 
   if(i_t_level > 3) {
-    digitalWrite(led_bargraph_4, LOW);
+    digitalWrite(i_bargraph_5_led[4-1], LOW);
   }
   else {
-    digitalWrite(led_bargraph_4, HIGH);
+    digitalWrite(i_bargraph_5_led[4-1], HIGH);
   }
 
   if(i_t_level > 2) {
-    digitalWrite(led_bargraph_3, LOW);
+    digitalWrite(i_bargraph_5_led[3-1], LOW);
   }
   else {
-    digitalWrite(led_bargraph_3, HIGH);
+    digitalWrite(i_bargraph_5_led[3-1], HIGH);
   }
 
   if(i_t_level > 1) {
-    digitalWrite(led_bargraph_2, LOW);
+    digitalWrite(i_bargraph_5_led[2-1], LOW);
   }
   else {
-    digitalWrite(led_bargraph_2, HIGH);
+    digitalWrite(i_bargraph_5_led[2-1], HIGH);
   }
 
   if(i_t_level > 0) {
-    digitalWrite(led_bargraph_1, LOW);
+    digitalWrite(i_bargraph_5_led[1-1], LOW);
   }
   else {
-    digitalWrite(led_bargraph_1, HIGH);
+    digitalWrite(i_bargraph_5_led[1-1], HIGH);
   }
 }
 
@@ -7329,7 +7349,7 @@ void wandSerialSend(int i_message) {
           b_bargraph_invert = false;
         }
 
-        set28SegmentBargraphOrientation();
+        setBargraphOrientation();
       }
 
       if(obj_eeprom.bargraph_always_ramping > 0 && obj_eeprom.bargraph_always_ramping != 255) {
