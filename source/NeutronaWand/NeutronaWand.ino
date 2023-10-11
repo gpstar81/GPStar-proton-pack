@@ -230,11 +230,10 @@ void setup() {
 
       /*
       Quick vent : Wand boot errors
-      Vent light : Startup volume 
+      Vent light : 5 / 48 / 60 barrel leds 
       Invert bargraph : Bargraph always ramping
       Overheat strobe : Overheat lights off
       84/89/afterlife/default : Overheat sync to fan
-      
       */
     }
   #endif  
