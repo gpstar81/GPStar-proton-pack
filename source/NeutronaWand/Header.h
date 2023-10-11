@@ -224,6 +224,13 @@ bool b_vga_mode = true;
     uint8_t neutrona_wand_sounds;
     uint8_t spectral_mode;
     uint8_t holiday_mode;
+    
+    uint8_t quick_vent;
+    uint8_t wand_boot_errors;
+    uint8_t vent_light_auto_intensity;
+    uint8_t num_barrel_leds;
+    uint8_t invert_bargraph;
+    uint8_t bargraph_always_ramping;
   };
 
   /*

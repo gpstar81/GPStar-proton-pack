@@ -4819,51 +4819,7 @@ void checkWand() {
             break;
 
             case W_YEAR_MODES_CYCLE:
-              // Toggle between the year modes.
-              stopEffect(S_BEEPS_BARGRAPH);
-
-              playEffect(S_BEEPS_BARGRAPH);
-
-              switch(i_mode_year_tmp) {
-                case 1984:
-                  i_mode_year_tmp = 1989;
-
-                  stopEffect(S_VOICE_AFTERLIFE);
-                  stopEffect(S_VOICE_1984);
-                  stopEffect(S_VOICE_1989);
-
-                  playEffect(S_VOICE_1989);
-
-                  // Tell the wand to play the 1989 sound effect.
-                  packSerialSend(P_MODE_1989);
-                break;
-
-                case 1989:
-                  i_mode_year_tmp = 2021;
-
-                  stopEffect(S_VOICE_AFTERLIFE);
-                  stopEffect(S_VOICE_1984);
-                  stopEffect(S_VOICE_1989);
-
-                  playEffect(S_VOICE_AFTERLIFE);
-
-                  // Tell the wand to play the Afterlife sound effect.
-                  packSerialSend(P_MODE_AFTERLIFE);
-                break;
-
-                case 2021:
-                  i_mode_year_tmp = 1984;
-
-                  stopEffect(S_VOICE_AFTERLIFE);
-                  stopEffect(S_VOICE_1984);
-                  stopEffect(S_VOICE_1989);
-
-                  playEffect(S_VOICE_1984);
-
-                  // Tell the wand to play the 1984 sound effect.
-                  packSerialSend(P_MODE_1984);
-                break;
-              }
+              toggleYearModes();
 
               // Turn on the year mode override flag. This resets when you flip the year mode toggle switch on the pack.
               b_switch_mode_override = true;
@@ -5814,6 +5770,208 @@ void checkWand() {
               playEffect(S_BEEPS_BARGRAPH);
             break;
 
+            case W_QUICK_VENT_DISABLED:
+              stopEffect(S_VOICE_QUICK_VENT_ENABLED);
+              stopEffect(S_VOICE_QUICK_VENT_DISABLED);
+
+              playEffect(S_VOICE_QUICK_VENT_DISABLED);
+            break;            
+
+            case W_QUICK_VENT_ENABLED:
+              stopEffect(S_VOICE_QUICK_VENT_ENABLED);
+              stopEffect(S_VOICE_QUICK_VENT_DISABLED);
+
+              playEffect(S_VOICE_QUICK_VENT_ENABLED);
+            break;    
+
+            case W_BOOTUP_ERRORS_DISABLED:
+              stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+              stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+
+              playEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+            break;    
+            
+            case W_BOOTUP_ERRORS_ENABLED:
+              stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+              stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+
+              playEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+            break;    
+
+            case W_VENT_LIGHT_INTENSITY_ENABLED:
+              stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+              stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+
+              playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+            break;    
+            
+            case W_VENT_LIGHT_INTENSITY_DISABLED:
+              stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+              stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+
+              playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+            break;   
+
+            case W_BARREL_LEDS_48:
+              stopEffect(S_VOICE_BARREL_LED_5);
+              stopEffect(S_VOICE_BARREL_LED_48);
+              stopEffect(S_VOICE_BARREL_LED_60);
+
+              playEffect(S_VOICE_BARREL_LED_48);
+            break;  
+
+            case W_BARREL_LEDS_60:
+              stopEffect(S_VOICE_BARREL_LED_5);
+              stopEffect(S_VOICE_BARREL_LED_48);
+              stopEffect(S_VOICE_BARREL_LED_60);
+              
+              playEffect(S_VOICE_BARREL_LED_60);
+            break;  
+
+            case W_BARREL_LEDS_5:
+              stopEffect(S_VOICE_BARREL_LED_5);
+              stopEffect(S_VOICE_BARREL_LED_48);
+              stopEffect(S_VOICE_BARREL_LED_60);
+              
+              playEffect(S_VOICE_BARREL_LED_5);
+            break;  
+
+            case W_BARGRAPH_INVERTED:
+              stopEffect(S_VOICE_BARGRAPH_INVERTED);
+              stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+
+              playEffect(S_VOICE_BARGRAPH_INVERTED);
+            break; 
+
+            case W_BARGRAPH_NOT_INVERTED:
+              stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+              stopEffect(S_VOICE_BARGRAPH_INVERTED);
+              
+              playEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+            break; 
+
+            case W_BARGRAPH_ALWAYS_RAMPING_DISABLED:
+              stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+              stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
+
+              playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+            break; 
+
+            case W_BARGRAPH_ALWAYS_RAMPING_ENABLED:
+              stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
+              stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+
+              playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
+            break; 
+
+            case W_OVERHEAT_STROBE_TOGGLE:
+              if(b_overheat_strobe == true) {
+                b_overheat_strobe = false;
+
+                stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+
+                packSerialSend(P_OVERHEAT_STROBE_DISABLED);
+              }
+              else {
+                b_overheat_strobe = true;
+
+                stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+
+                packSerialSend(P_OVERHEAT_STROBE_ENABLED);
+              }
+            break;
+
+            case W_OVERHEAT_LIGHTS_OFF_TOGGLE:
+              if(b_overheat_lights_off == true) {
+                b_overheat_lights_off = false;
+
+                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+
+                packSerialSend(P_OVERHEAT_LIGHTS_OFF_DISABLED);                
+              }
+              else {
+                b_overheat_lights_off = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+
+                packSerialSend(P_OVERHEAT_LIGHTS_OFF_ENABLED);                 
+              }
+            break;
+
+            case W_OVERHEAT_SYNC_TO_FAN_TOGGLE:
+              if(b_overheat_sync_to_fan == true) {
+                b_overheat_sync_to_fan = false;
+
+                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+
+                packSerialSend(P_OVERHEAT_SYNC_FAN_DISABLED);         
+              }
+              else {
+                b_overheat_sync_to_fan = true;
+
+                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+
+                packSerialSend(P_OVERHEAT_SYNC_FAN_ENABLED);  
+              }
+            break;
+
+            case W_YEAR_MODES_CYCLE_EEPROM:
+              if(b_switch_mode_override == true) {
+                if(i_mode_year_tmp == 2021) {
+                  b_switch_mode_override = false;
+                  
+                  stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
+                  stopEffect(S_VOICE_AFTERLIFE);
+                  stopEffect(S_VOICE_1984);
+                  stopEffect(S_VOICE_1989);
+                  playEffect(S_VOICE_YEAR_MODE_DEFAULT);
+
+                  packSerialSend(P_YEAR_MODE_DEFAULT);  
+
+                  // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife.
+                  i_year_mode_eeprom = 1;
+                }
+                else {
+                  toggleYearModes();
+                }
+              }
+              else {
+                toggleYearModes();
+
+                // Turn on the year mode override flag. This resets when you flip the year mode toggle switch on the pack.
+                b_switch_mode_override = true;                
+              }
+
+              if(b_switch_mode_override == true) {
+                switch(i_mode_year_tmp) {
+                  case 1984:
+                    i_year_mode_eeprom = 2;
+                  break;
+
+                  case 1989:
+                    i_year_mode_eeprom = 3;
+                  break;
+
+                  case 2021:
+                  default:
+                    i_year_mode_eeprom = 4;
+                  break;
+                }
+              }
+            break;
+        
             default:
               // Music track number to be played.
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
@@ -6029,6 +6187,55 @@ void updateProtonPackLEDCounts() {
   i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
   cyclotron_led_start = i_powercell_leds;
 }
+
+// Adjusts which year mode the Proton Pack and Neutrona Wand are in if switched by the Neutrona Wand.
+void toggleYearModes() {
+  // Toggle between the year modes.
+  stopEffect(S_BEEPS_BARGRAPH);
+
+  playEffect(S_BEEPS_BARGRAPH);
+
+  switch(i_mode_year_tmp) {
+    case 1984:
+      i_mode_year_tmp = 1989;
+
+      stopEffect(S_VOICE_AFTERLIFE);
+      stopEffect(S_VOICE_1984);
+      stopEffect(S_VOICE_1989);
+
+      playEffect(S_VOICE_1989);
+
+      // Tell the wand to play the 1989 sound effect.
+      packSerialSend(P_MODE_1989);
+    break;
+
+    case 1989:
+      i_mode_year_tmp = 2021;
+
+      stopEffect(S_VOICE_AFTERLIFE);
+      stopEffect(S_VOICE_1984);
+      stopEffect(S_VOICE_1989);
+
+      playEffect(S_VOICE_AFTERLIFE);
+
+      // Tell the wand to play the Afterlife sound effect.
+      packSerialSend(P_MODE_AFTERLIFE);
+    break;
+
+    case 2021:
+      i_mode_year_tmp = 1984;
+
+      stopEffect(S_VOICE_AFTERLIFE);
+      stopEffect(S_VOICE_1984);
+      stopEffect(S_VOICE_1989);
+
+      playEffect(S_VOICE_1984);
+
+      // Tell the wand to play the 1984 sound effect.
+      packSerialSend(P_MODE_1984);
+    break;
+  }
+}    
 
 // Helper method to play a sound effect using certain defaults.
 void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
@@ -6269,6 +6476,64 @@ void readEEPROM() {
         b_smoke_enabled = false;
       }
     }
+
+    if(obj_config_eeprom.overheat_strobe > 0 && obj_config_eeprom.overheat_strobe != 255) {
+      if(obj_config_eeprom.overheat_strobe > 1) {
+        b_overheat_strobe = true;
+      }
+      else {
+        b_overheat_strobe = false;
+      }
+    }
+
+    if(obj_config_eeprom.overheat_lights_off > 0 && obj_config_eeprom.overheat_lights_off != 255) {
+      if(obj_config_eeprom.overheat_lights_off > 1) {
+        b_overheat_lights_off = true;
+      }
+      else {
+        b_overheat_lights_off = false;
+      }
+    }
+
+    if(obj_config_eeprom.overheat_sync_to_fan > 0 && obj_config_eeprom.overheat_sync_to_fan != 255) {
+      if(obj_config_eeprom.overheat_sync_to_fan > 1) {
+        b_overheat_sync_to_fan = true;
+      }
+      else {
+        b_overheat_sync_to_fan = false;
+      }
+    }
+
+    if(obj_config_eeprom.year_mode > 0 && obj_config_eeprom.year_mode != 255) {
+      i_year_mode_eeprom = obj_config_eeprom.year_mode;
+
+      if(obj_config_eeprom.year_mode > 1) {
+        // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife.
+        switch(obj_config_eeprom.year_mode) {
+          case 2:
+            i_mode_year = 1984;
+          break;
+
+          case 3:
+            i_mode_year = 1989;
+          break;
+
+          case 4:
+          default:
+            i_mode_year = 2021;
+          break;
+        }
+
+        i_mode_year_tmp = i_mode_year;
+
+        // Set the switch override to true, so the toggle switch in the Proton Pack does not override the year settings during the bootup process.
+        b_switch_mode_override = true; 
+      }
+    }
+    else {
+      // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife.
+      i_year_mode_eeprom = 1;
+    }
   }
 }
 
@@ -6294,6 +6559,10 @@ void saveConfigEEPROM() {
   uint8_t i_cyclotron_direction = 2;
   uint8_t i_smoke_settings = 2;
 
+  uint8_t i_overheat_strobe = 2;
+  uint8_t i_overheat_lights_off = 2;
+  uint8_t i_overheat_sync_to_fan = 2;
+
   if(b_stream_effects != true) {
     i_proton_stream_effects = 1;
   }
@@ -6310,6 +6579,18 @@ void saveConfigEEPROM() {
     i_smoke_settings = 1;
   }
 
+  if(b_overheat_strobe != true) {
+    i_overheat_strobe = 1;
+  }
+
+  if(b_overheat_lights_off != true) {
+    i_overheat_lights_off = 1;
+  }
+
+  if(b_overheat_sync_to_fan != true) {
+    i_overheat_sync_to_fan = 1;
+  }
+
   unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
 
   objConfigEEPROM obj_eeprom = {
@@ -6317,6 +6598,10 @@ void saveConfigEEPROM() {
     i_cyclotron_direction,
     i_simulate_ring,
     i_smoke_settings,
+    i_overheat_strobe,
+    i_overheat_lights_off,
+    i_overheat_sync_to_fan,
+    i_year_mode_eeprom
   };
 
   // Save to the EEPROM.

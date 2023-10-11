@@ -432,6 +432,7 @@ bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
 bool b_fade_out = false;
+uint8_t i_year_mode_eeprom = 1; // 1 = Toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife.
 millisDelay ms_fadeout;
 
 /*
@@ -464,6 +465,10 @@ struct objConfigEEPROM {
   uint8_t cyclotron_direction;
   uint8_t simulate_ring;
   uint8_t smoke_setting;
+  uint8_t overheat_strobe;
+  uint8_t overheat_lights_off;
+  uint8_t overheat_sync_to_fan;
+  uint8_t year_mode;
 };
 
 /*

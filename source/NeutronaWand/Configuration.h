@@ -74,6 +74,13 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
+ * How many LEDs are in your Neutrona Wand Barrel.
+ * Default setting is 5: for the Hasbro Neturona Wand.
+ * Supported options: 5, 48 and 60.
+*/
+uint8_t i_num_barrel_leds = 5;
+
+/*
  * When defined, when using the Barmeter 28 segment bargraph, it will invert the sequence.
  * Part #: BL28Z-3005SA04Y
  * Only compatible with the gpstar Neutrona Wand board.

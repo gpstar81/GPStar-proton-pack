@@ -217,6 +217,7 @@ void setup() {
       b_no_pack = true;
       b_wait_for_pack = false;
       b_pack_on = true;
+      /*
       b_spectral_mode_enabled = true;
       b_holiday_mode_enabled = true;
       b_spectral_custom_mode_enabled = true;
@@ -225,8 +226,9 @@ void setup() {
       b_quick_vent = true;
       b_wand_boot_errors = false;
       b_bargraph_always_ramping = false;
-
+      
       set28SegmentBargraphOrientation();
+      */
 
       /*
       Quick vent : Wand boot errors
@@ -236,7 +238,7 @@ void setup() {
       84/89/afterlife/default : Overheat sync to fan
       */
     }
-  #endif  
+  #endif
 }
 
 void loop() {
@@ -531,8 +533,10 @@ void mainLoop() {
         settingsBlinkingLights();
 
         switch(i_wand_menu) {
-          // Intensify: Clear the Neutrona Wand EEPROM settings and exit.
-          // Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
+          // Top menu: Intensify: Clear the Neutrona Wand EEPROM settings and exit.
+          // Top menu: Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
+          // Sub menu: Intensify: Quick Vent.
+          // Sub menu: Barrel Wing Button: Wand Boot Errors.
           case 5:
             // Tell the Neutrona Wand to clear the EEPROM settings and exit.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
@@ -553,6 +557,24 @@ void mainLoop() {
               }
               else {
                 // Sub menu.
+                if(b_quick_vent == true) {
+                  b_quick_vent = false;
+
+                  stopEffect(S_VOICE_QUICK_VENT_DISABLED);
+                  stopEffect(S_VOICE_QUICK_VENT_ENABLED);
+                  playEffect(S_VOICE_QUICK_VENT_DISABLED);
+
+                  wandSerialSend(W_QUICK_VENT_DISABLED);
+                }
+                else {
+                  b_quick_vent = true;
+
+                  stopEffect(S_VOICE_QUICK_VENT_DISABLED);
+                  stopEffect(S_VOICE_QUICK_VENT_ENABLED);
+                  playEffect(S_VOICE_QUICK_VENT_ENABLED);
+
+                  wandSerialSend(W_QUICK_VENT_ENABLED);              
+                }
               }
             }
             else if(switchMode() == true) {
@@ -571,12 +593,32 @@ void mainLoop() {
               }
               else {
                 // Sub menu.
+                if(b_wand_boot_errors == true) {
+                  b_wand_boot_errors = false;
+
+                  stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+                  stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+                  playEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+
+                  wandSerialSend(W_BOOTUP_ERRORS_DISABLED);
+                }
+                else {
+                  b_wand_boot_errors = true;
+
+                  stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+                  stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+                  playEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+
+                  wandSerialSend(W_BOOTUP_ERRORS_ENABLED);
+                }
               }
             }
           break;
 
-          // Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
-          // Barrel Wing Button: Enable Spectral and Holiday modes.
+          // Top menu: Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
+          // Top menu: Barrel Wing Button: Enable Spectral and Holiday modes.
+          // Sub menu: Intensify: Vent Light Auto Intensity.
+          // Sub menu: Barrel Wing Button: 5 / 48 / 60 barrel LEDs.
           case 4:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -586,6 +628,24 @@ void mainLoop() {
               }
               else {
                 // Sub menu.
+                if(b_vent_light_control == true) {
+                  b_vent_light_control= false;
+
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+                  playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+
+                  wandSerialSend(W_VENT_LIGHT_INTENSITY_DISABLED);
+                }
+                else {
+                  b_vent_light_control = true;
+
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+                  playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+
+                  wandSerialSend(W_VENT_LIGHT_INTENSITY_ENABLED);
+                }
               }
             }
 
@@ -616,14 +676,51 @@ void mainLoop() {
                   wandSerialSend(W_SPECTRAL_MODES_DISABLED);
                 }
               }
-            }
             else {
-              // Sub menu.
+                // Sub menu.
+                switch(i_num_barrel_leds) {
+                  case 5:
+                    i_num_barrel_leds = 48;
+
+                    stopEffect(S_VOICE_BARREL_LED_5);
+                    stopEffect(S_VOICE_BARREL_LED_48);
+                    stopEffect(S_VOICE_BARREL_LED_60);
+                    playEffect(S_VOICE_BARREL_LED_48);
+
+                    wandSerialSend(W_BARREL_LEDS_48);
+                  break;
+
+                  case 48:
+                    i_num_barrel_leds = 60;
+
+                    stopEffect(S_VOICE_BARREL_LED_5);
+                    stopEffect(S_VOICE_BARREL_LED_48);
+                    stopEffect(S_VOICE_BARREL_LED_60);
+                    playEffect(S_VOICE_BARREL_LED_60);
+
+                    wandSerialSend(W_BARREL_LEDS_60);                                  
+                  break;
+
+                  case 60:
+                  default:
+                    i_num_barrel_leds = 5;
+
+                    stopEffect(S_VOICE_BARREL_LED_5);
+                    stopEffect(S_VOICE_BARREL_LED_48);
+                    stopEffect(S_VOICE_BARREL_LED_60);
+                    playEffect(S_VOICE_BARREL_LED_5);
+
+                    wandSerialSend(W_BARREL_LEDS_5);
+                  break;
+                }
+              }              
             }
           break;
 
-          // Intensify: Enable or Disable overheating settings.
-          // Barrel Wing Button: Enable or disable smoke.
+          // Top menu: Intensify: Enable or Disable overheating settings.
+          // Top menu: Barrel Wing Button: Enable or disable smoke.
+          // Sub menu: Intensify: Invert bargraph.
+          // Sub menu: Barrel Wing Button: Bargraph always ramping.
           case 3:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -633,6 +730,24 @@ void mainLoop() {
               }
               else {
                 // Sub menu.
+                if(b_bargraph_invert == true) {
+                  b_bargraph_invert = false;
+
+                  stopEffect(S_VOICE_BARGRAPH_INVERTED);
+                  stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+                  playEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+
+                  wandSerialSend(W_BARGRAPH_NOT_INVERTED);
+                }
+                else {
+                  b_bargraph_invert = true;
+
+                  stopEffect(S_VOICE_BARGRAPH_INVERTED);
+                  stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+                  playEffect(S_VOICE_BARGRAPH_INVERTED);
+
+                  wandSerialSend(W_BARGRAPH_INVERTED);              
+                }
               }
             }
 
@@ -643,12 +758,32 @@ void mainLoop() {
               }
               else {
                 // Sub menu.
+                if(b_bargraph_always_ramping == true) {
+                  b_bargraph_always_ramping = false;
+
+                  stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+                  stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
+                  playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+
+                  wandSerialSend(W_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+                }
+                else {
+                  b_bargraph_always_ramping = true;
+
+                  stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
+                  stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+                  playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
+
+                  wandSerialSend(W_BARGRAPH_ALWAYS_RAMPING_ENABLED);              
+                }
               }
             }
           break;
 
-          // Intensify: Change the Cyclotron direction.
-          // Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
+          // Top menu: Intensify: Change the Cyclotron direction.
+          // Top menu: Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
+          // Sub menu: Intensify: Overheat strobe.
+          // Sub menu: Barrel Wing Button: Overheat lights off.
           case 2:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -659,6 +794,7 @@ void mainLoop() {
               }
               else {
                 // Sub menu.
+                wandSerialSend(W_OVERHEAT_STROBE_TOGGLE);
               }
             }
 
@@ -669,12 +805,15 @@ void mainLoop() {
               }
               else {
                 // Sub menu.
+                wandSerialSend(W_OVERHEAT_LIGHTS_OFF_TOGGLE);
               }
             }
           break;
 
-          // Intensify: Enable or disable Proton Stream Impact Effects.
-          // Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
+          // Top menu: Intensify: Enable or disable Proton Stream Impact Effects.
+          // Top menu: Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
+          // Sub menu: Intensify: 1984 / 1989 / Afterlife / Default (Proton Pack toggle switch) year mode selection.
+          // Sub menu: Barrel Wing Button: Overheat sync to fan.
           case 1:
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay / 2);
@@ -685,6 +824,7 @@ void mainLoop() {
               }
               else {
                 // Sub menu.
+                wandSerialSend(W_YEAR_MODES_CYCLE_EEPROM);
               }
             }
 
@@ -707,6 +847,7 @@ void mainLoop() {
               }
               else {
                 // Sub menu.
+                wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
               }
             }
           break;
@@ -6591,6 +6732,48 @@ void checkPack() {
               playEffect(S_BEEPS);
             break;
 
+            case P_OVERHEAT_STROBE_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+
+              playEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+            break;
+
+            case P_OVERHEAT_STROBE_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+              
+              playEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+            break;
+
+            case P_OVERHEAT_LIGHTS_OFF_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+
+              playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+            break;
+
+            case P_OVERHEAT_LIGHTS_OFF_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+
+              playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+            break;
+
+            case P_OVERHEAT_SYNC_FAN_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+
+              playEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+            break;
+            
+            case P_OVERHEAT_SYNC_FAN_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+              
+              playEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+            break;
+
             case P_POWERCELL_DIMMING:
               stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
               stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
@@ -6857,6 +7040,15 @@ void checkPack() {
               #endif
             break;
 
+            case P_YEAR_MODE_DEFAULT:
+              stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
+              stopEffect(S_VOICE_AFTERLIFE);
+              stopEffect(S_VOICE_1984);
+              stopEffect(S_VOICE_1989);
+
+              playEffect(S_VOICE_YEAR_MODE_DEFAULT);
+            break;
+
             case P_MUSIC_START:
               if(b_playing_music == true) {
                 stopMusic();
@@ -6945,6 +7137,12 @@ void wandSerialSend(int i_message) {
     uint8_t i_spectral = 1;
     uint8_t i_holiday = 1;
 
+    uint8_t i_quick_vent = 1;
+    uint8_t i_wand_boot_errors = 1;
+    uint8_t i_vent_light_auto_intensity = 1;
+    uint8_t i_invert_bargraph = 1;
+    uint8_t i_bargraph_always_ramping = 1;
+
     if(b_cross_the_streams == true) {
       i_cross_the_streams = 2;
     }
@@ -6966,6 +7164,26 @@ void wandSerialSend(int i_message) {
       i_holiday = 2;
     }
 
+    if(b_quick_vent == true) {
+      i_quick_vent = 2;
+    }
+
+    if(b_wand_boot_errors == true) {
+      i_wand_boot_errors = 2;
+    }
+
+    if(b_vent_light_control == true) {
+      i_vent_light_auto_intensity = 2;
+    }
+
+    if(b_bargraph_invert == true) {
+      i_invert_bargraph = 2;
+    }
+
+    if(b_bargraph_always_ramping == true) {
+      i_bargraph_always_ramping = 2;
+    }
+
     // Write the data to the EEPROM if any of the values have changed.
     objEEPROM obj_eeprom = {
       i_cross_the_streams,
@@ -6973,7 +7191,13 @@ void wandSerialSend(int i_message) {
       i_overheating,
       i_neutrona_wand_sounds,
       i_spectral,
-      i_holiday
+      i_holiday,
+      i_quick_vent,
+      i_wand_boot_errors,
+      i_vent_light_auto_intensity,
+      i_num_barrel_leds,
+      i_invert_bargraph,
+      i_bargraph_always_ramping
     };
 
     // Save and update our object in the EEPROM.
@@ -7070,6 +7294,55 @@ void wandSerialSend(int i_message) {
         }
         else {
           b_holiday_mode_enabled = false;
+        }
+      }
+
+      if(obj_eeprom.quick_vent > 0 && obj_eeprom.quick_vent != 255) {
+        if(obj_eeprom.quick_vent > 1) {
+          b_quick_vent = true;
+        }
+        else {
+          b_quick_vent = false;
+        }
+      }
+
+      if(obj_eeprom.wand_boot_errors > 0 && obj_eeprom.wand_boot_errors != 255) {
+        if(obj_eeprom.wand_boot_errors > 1) {
+          b_wand_boot_errors = true;
+        }
+        else {
+          b_wand_boot_errors = false;
+        }
+      }
+
+      if(obj_eeprom.vent_light_auto_intensity > 0 && obj_eeprom.vent_light_auto_intensity != 255) {
+        if(obj_eeprom.vent_light_auto_intensity > 1) {
+          b_vent_light_control = true;
+        }
+        else {
+          b_vent_light_control = false;
+        }
+      }
+
+      if(obj_eeprom.num_barrel_leds > 0 && obj_eeprom.num_barrel_leds != 255) {
+        //i_num_barrel_leds = obj_eeprom.num_barrel_leds; // Keep it disabled for now until new barrel leds are ready.
+      }
+
+      if(obj_eeprom.invert_bargraph > 0 && obj_eeprom.invert_bargraph != 255) {
+        if(obj_eeprom.invert_bargraph > 1) {
+          b_bargraph_invert = true;
+        }
+        else {
+          b_bargraph_invert = false;
+        }
+      }
+
+      if(obj_eeprom.bargraph_always_ramping > 0 && obj_eeprom.bargraph_always_ramping != 255) {
+        if(obj_eeprom.bargraph_always_ramping > 1) {
+          b_bargraph_always_ramping = true;
+        }
+        else {
+          b_bargraph_always_ramping = false;
         }
       }
 
