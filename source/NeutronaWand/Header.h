@@ -175,9 +175,9 @@ uint8_t i_bargraph_status = 0;
 bool b_28segment_bargraph = false;
 
 /*
-  Flag check for video game mode.
+ * Flag check for video game mode.
 */
-bool b_vga_mode = true;
+bool b_vg_mode = true;
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   const uint8_t i_bargraph_interval = 4;

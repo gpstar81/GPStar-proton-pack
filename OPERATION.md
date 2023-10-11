@@ -78,7 +78,7 @@ The following features require the use of both the pack and wand replacement con
 **Video Game Mode (Default)**
 ![](images/OperationNeutrona4.jpg)
 
-- Pressing the Barrel Wing Button while you are already throwing a Proton Stream with the Intensify button will Cross The Streams.
+- Pressing the Barrel Wing Button while you are already throwing a Proton Stream with the Intensify button will initiate "Cross the Streams".
 
 - The Barrel Wing Button at the end of the Neutrona Wand switches between these available firing modes while the wand is active and not throwing a stream:
 	1. Proton Stream (Default)
@@ -225,10 +225,9 @@ To access the EEPROM Configuration sub level menu, use the `Top Dial` on the top
 
 <sup>3</sup> Choose between Video Game and Cross the Streams (CTS) operation modes. Cross the Streams modes is like what you see in the films.
 
-
 | EEPROM&nbsp;Sub&nbsp;Level&nbsp;Menu | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
-| <p align="center">5</p> | Quick&nbsp;Vent / Wand Boot Errors| Enable or Disable the Quick Venting feature. When enabled, you can manually vent your Proton Pack by pressing the Intensify button while the top right toggle switch is switched down. | Enable to disable the Wand boot error mode. When enabled, if you turn on the Neutrona Wnd while the top right toggle is up and activated, the Neutrona Wand enters a error mode. |
+| <p align="center">5</p> | Quick&nbsp;Vent / Wand Boot Errors | Enable or Disable the Quick Venting feature. When enabled, you can manually vent your Proton Pack by pressing the Intensify button while the top right toggle switch is switched down. | Enable to disable the Wand boot error mode. When enabled, if you turn on the Neutrona Wand while the top right toggle is up and activated, the Neutrona Wand enters an error mode and remains locked out until the switches are all turned off. |
 | <p align="center">4</p> | Auto Vent Light Intensity / Barrel LED Count | Enable or disable the Auto Vent Light Intensity. When enabled, the vent light will adjust the intensity based on the power level of the wand. | Set the barrel led count between 5 (default), 48 and 60. |
 | <p align="center">3</p> | Invert Bargraph Adjustment / 28 Segment Bargraph Ramping | Invert or do not invert the bargraph in the Neutrona Wand. | Enable or disable the optional 28 segment bargraph to be always ramping. When enabled, Afterlife mode will have the same bargraph effect as 1984/1989. |
 | <p align="center">2</p> | Overheat Lights | Enable or Disable the N-Filter LEDs from strobing during overheating. | Enable or disable the Proton Pack lights to turn off during overheating. When disabled, after ramping down to a slower pace, the lights stay on.

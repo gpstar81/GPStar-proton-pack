@@ -1453,16 +1453,16 @@ void setVGAMode() {
   b_cross_the_streams = false;
   b_cross_the_streams_mix = false;
 
-  b_vga_mode = true;
+  b_vg_mode = true;
 }
 
 // Checks if VGA mode should be set.
 void vgaModeCheck() {
   if(b_cross_the_streams == true || b_cross_the_streams_mix == true) {
-    b_vga_mode = false;
+    b_vg_mode = false;
   }
   else {
-    b_vga_mode = true;
+    b_vg_mode = true;
   }
 }
 
@@ -1474,7 +1474,7 @@ void toggleWandModes() {
     b_cross_the_streams = false;
     b_cross_the_streams_mix = false;
 
-    b_vga_mode = true;
+    b_vg_mode = true;
 
     stopEffect(S_CLICK);
 
@@ -1496,7 +1496,7 @@ void toggleWandModes() {
     // Turn on cross the streams mix.
     b_cross_the_streams_mix = true;
 
-    b_vga_mode = false;
+    b_vg_mode = false;
 
     stopEffect(S_CLICK);
 
@@ -1516,7 +1516,7 @@ void toggleWandModes() {
     b_cross_the_streams = true;
     b_cross_the_streams_mix = false;
 
-    b_vga_mode = false;
+    b_vg_mode = false;
 
     stopEffect(S_CLICK);
 
@@ -2263,7 +2263,7 @@ void checkSwitches() {
               b_firing_alt = false;
             }
           }
-          else if(b_vga_mode == true) {
+          else if(b_vg_mode == true) {
             if(FIRING_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
               if(switchMode() == true) {
                 b_firing_alt = true;
@@ -2278,7 +2278,7 @@ void checkSwitches() {
           }
 
           if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
-            if(b_firing_alt != true || b_vga_mode == true) {
+            if(b_firing_alt != true || b_vg_mode == true) {
               WAND_ACTION_STATUS = ACTION_IDLE;
             }
 
@@ -3211,7 +3211,7 @@ void modeFiring() {
   if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
     b_sound_firing_intensify_trigger = true;
 
-    if((b_cross_the_streams_mix == true || b_vga_mode == true) && FIRING_MODE == PROTON) {
+    if((b_cross_the_streams_mix == true || b_vg_mode == true) && FIRING_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_MIX);
 
@@ -3241,7 +3241,7 @@ void modeFiring() {
   if(b_firing_intensify != true && b_sound_firing_intensify_trigger == true) {
     b_sound_firing_intensify_trigger = false;
 
-    if((b_cross_the_streams_mix == true || b_vga_mode == true) && FIRING_MODE == PROTON) {
+    if((b_cross_the_streams_mix == true || b_vg_mode == true) && FIRING_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_STOPPED_MIX);
 
@@ -3273,7 +3273,7 @@ void modeFiring() {
   if(b_firing_alt == true && b_sound_firing_alt_trigger != true) {
     b_sound_firing_alt_trigger = true;
 
-    if(b_cross_the_streams_mix == true || b_vga_mode == true) {
+    if(b_cross_the_streams_mix == true || b_vg_mode == true) {
       playEffect(S_FIRING_LOOP_GB1, true);
 
       // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode mix.
@@ -3288,7 +3288,7 @@ void modeFiring() {
   if(b_firing_alt != true && b_sound_firing_alt_trigger == true) {
     b_sound_firing_alt_trigger = false;
 
-    if(b_cross_the_streams_mix == true || b_vga_mode == true) {
+    if(b_cross_the_streams_mix == true || b_vg_mode == true) {
       stopEffect(S_FIRING_LOOP_GB1);
 
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode mix.
@@ -3323,7 +3323,7 @@ void modeFiring() {
 
     playEffect(S_FIRE_START_SPARK);
 
-    if(b_cross_the_streams_mix == true || b_vga_mode == true) {
+    if(b_cross_the_streams_mix == true || b_vg_mode == true) {
       // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
       wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX);
 
@@ -3370,7 +3370,7 @@ void modeFiring() {
 
     stopEffect(S_FIRING_LOOP_GB1);
   }
-  else if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && (b_cross_the_streams_mix == true || b_vga_mode == true)) {
+  else if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && (b_cross_the_streams_mix == true || b_vg_mode == true)) {
     // Let go of a button and it reverts back to the other firing mode.
     // Tell the Proton Pack that the Neutrona Wand is no longer crossing the streams.
     wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX);
