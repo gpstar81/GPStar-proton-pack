@@ -85,9 +85,7 @@ uint8_t i_num_barrel_leds = 5;
  * Part #: BL28Z-3005SA04Y
  * Only compatible with the gpstar Neutrona Wand board.
 */
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  bool b_bargraph_invert = true;
-#endif
+bool b_bargraph_invert = true;
 
 /*
  * When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
@@ -101,11 +99,8 @@ uint8_t i_num_barrel_leds = 5;
 /*
  * If the Frutto vent light has been installed, uncomment the line below
  * to enable special brightness controls during idle and firing modes.
- * Only compatible with the gpstar Neutrona Wand board.
  */
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  bool b_vent_light_control = false;
-#endif
+bool b_vent_light_control = false;
 
 /*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
@@ -234,9 +229,7 @@ bool b_extra_pack_sounds = false;
   const bool b_eeprom = true;
 #endif
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  /*
-    * When set to true, the Neutrona Wand will function without a Proton Pack connected.
-  */
-  const bool b_gpstar_benchtest = false;
-#endif
+/*
+ * When set to true, the Neutrona Wand will function without a Proton Pack connected.
+*/
+const bool b_gpstar_benchtest = false;

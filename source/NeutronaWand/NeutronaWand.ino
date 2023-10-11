@@ -286,15 +286,15 @@ void mainLoop() {
             break;
 
             case 2021:
-                if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-                  // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
-                  if(switchBarrel() != true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-                    digitalWrite(led_hat_1, HIGH);
-                  }
-                  else {
-                    digitalWrite(led_hat_1, LOW);
-                  }
+              if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+                // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
+                if(switchBarrel() != true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                  digitalWrite(led_hat_1, HIGH);
                 }
+                else {
+                  digitalWrite(led_hat_1, LOW);
+                }
+              }
             break;
           }
         }
@@ -2527,36 +2527,44 @@ void postActivation() {
 }
 
 void soundIdleLoop(bool fadeIn) {
-  switch(i_power_mode) {
-    case 1:
-      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
-    break;
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    switch(i_power_mode) {
+      case 1:
+        playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
+      break;
 
-    case 2:
-      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
-    break;
+      case 2:
+        playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
+      break;
 
-    case 3:
-      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
-    break;
+      case 3:
+        playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
+      break;
 
-    case 4:
-      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
-    break;
+      case 4:
+        playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
+      break;
 
-    case 5:
-      playEffect(S_IDLE_LOOP_GUN_5, true, i_volume_effects, fadeIn, 1000);
-    break;
-  }
+      case 5:
+        playEffect(S_IDLE_LOOP_GUN_5, true, i_volume_effects, fadeIn, 1000);
+      break;
+    }
+  #else
+    playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
+  #endif
 }
 
 void soundIdleLoopStop() {
-  stopEffect(S_IDLE_LOOP_GUN);
-  stopEffect(S_IDLE_LOOP_GUN_1);
-  stopEffect(S_IDLE_LOOP_GUN_2);
-  stopEffect(S_IDLE_LOOP_GUN_3);
-  stopEffect(S_IDLE_LOOP_GUN_4);
-  stopEffect(S_IDLE_LOOP_GUN_5);
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    stopEffect(S_IDLE_LOOP_GUN);
+    stopEffect(S_IDLE_LOOP_GUN_1);
+    stopEffect(S_IDLE_LOOP_GUN_2);
+    stopEffect(S_IDLE_LOOP_GUN_3);
+    stopEffect(S_IDLE_LOOP_GUN_4);
+    stopEffect(S_IDLE_LOOP_GUN_5);
+  #else
+    stopEffect(S_IDLE_LOOP_GUN_1);
+  #endif
 }
 
 void soundIdleStart() {
@@ -2659,8 +2667,8 @@ void soundIdleStop() {
             ms_gun_loop_1.start(1660);
             ms_gun_loop_2.stop();
           }
-        break;
         }
+      break;
     }
   }
 
@@ -4496,58 +4504,78 @@ void bargraphRampFiring() {
   // If in a power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
   if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
-      if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
-      }
-      else {
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        if(b_28segment_bargraph == true) {
+          ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
+        }
+        else {
+          ms_bargraph_firing.start(i_ramp_interval / 5);
+        }
+      #else
         ms_bargraph_firing.start(i_ramp_interval / 5);
-      }
+      #endif
 
       cyclotronSpeedUp(6);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 5) {
-      if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / 9);
-      }
-      else {
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        if(b_28segment_bargraph == true) {
+          ms_bargraph_firing.start(i_ramp_interval / 9);
+        }
+        else {
+          ms_bargraph_firing.start(i_ramp_interval / 4);
+        }
+      #else
         ms_bargraph_firing.start(i_ramp_interval / 4);
-      }
+      #endif
 
       cyclotronSpeedUp(5);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 4) {
-      if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / 7);
-      }
-      else {
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        if(b_28segment_bargraph == true) {
+          ms_bargraph_firing.start(i_ramp_interval / 7);
+        }
+        else {
+          ms_bargraph_firing.start(i_ramp_interval / 3.5);
+        }
+      #else
         ms_bargraph_firing.start(i_ramp_interval / 3.5);
-      }
+      #endif
 
       cyclotronSpeedUp(4);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 3) {
-      if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / 5);
-      }
-      else {
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        if(b_28segment_bargraph == true) {
+          ms_bargraph_firing.start(i_ramp_interval / 5);
+        }
+        else {
+          ms_bargraph_firing.start(i_ramp_interval / 3);
+        }
+      #else
         ms_bargraph_firing.start(i_ramp_interval / 3);
-      }
+      #endif
 
       cyclotronSpeedUp(3);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 2) {
-      if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / 3);
-      }
-      else {
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        if(b_28segment_bargraph == true) {
+          ms_bargraph_firing.start(i_ramp_interval / 3);
+        }
+        else {
+          ms_bargraph_firing.start(i_ramp_interval / 2.5);
+        }
+      #else
         ms_bargraph_firing.start(i_ramp_interval / 2.5);
-      }
+      #endif
 
       cyclotronSpeedUp(2);
     }
     else {
-      if(b_28segment_bargraph == true) {
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        if(b_28segment_bargraph == true) {
           switch(i_power_mode) {
             case 5:
               ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
@@ -4569,17 +4597,20 @@ void bargraphRampFiring() {
               ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 35
             break;
           }
-        #endif
-      }
-      else {
+        }
+        else {
+          ms_bargraph_firing.start(i_ramp_interval / 2);
+        }
+      #else
         ms_bargraph_firing.start(i_ramp_interval / 2);
-      }
+      #endif
+
       i_cyclotron_speed_up = 1;
     }
   }
   else {
-    if(b_28segment_bargraph == true) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    #ifdef GPSTAR_NEUTRONA_WAND_PCB
+      if(b_28segment_bargraph == true) {
         switch(i_power_mode) {
           case 5:
             ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
@@ -4601,11 +4632,13 @@ void bargraphRampFiring() {
             ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30
           break;
         }
-      #endif
-    }
-    else {
+      }
+      else {
+        ms_bargraph_firing.start(i_ramp_interval / 2);
+      }
+    #else
       ms_bargraph_firing.start(i_ramp_interval / 2);
-    }
+    #endif
   }
 }
 
@@ -5168,6 +5201,7 @@ void bargraphRampUp() {
         vibrationWand(i_vibration_level + 80);
 
         digitalWrite(led_bargraph_5, LOW);
+        //wandBargraphControl(4);
 
         if(i_bargraph_status + 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
@@ -5183,6 +5217,7 @@ void bargraphRampUp() {
         vibrationWand(i_vibration_level + 40);
 
         digitalWrite(led_bargraph_5, HIGH);
+        //wandBargraphControl(4);
 
         if(i_bargraph_status - 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
@@ -5198,6 +5233,7 @@ void bargraphRampUp() {
         vibrationWand(i_vibration_level + 30);
 
         digitalWrite(led_bargraph_4, HIGH);
+        //wandBargraphControl(3);
 
         if(i_bargraph_status - 3 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
@@ -5213,6 +5249,7 @@ void bargraphRampUp() {
         vibrationWand(i_vibration_level + 20);
 
         digitalWrite(led_bargraph_3, HIGH);
+        //wandBargraphControl(2);
 
         if(i_bargraph_status - 5 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
@@ -5228,6 +5265,7 @@ void bargraphRampUp() {
         vibrationWand(i_vibration_level + 10);
 
         digitalWrite(led_bargraph_2, HIGH);
+        //wandBargraphControl(1);
 
         if(i_bargraph_status - 7 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
@@ -5241,6 +5279,8 @@ void bargraphRampUp() {
 
       case 9:
         digitalWrite(led_bargraph_1, HIGH);
+        //wandBargraphControl(4);
+
         ms_bargraph.stop();
         i_bargraph_status = 0;
       break;
@@ -5427,12 +5467,16 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
 
-  w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_3, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_4, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
+    w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
+    w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
+    w_trig.trackGain(S_IDLE_LOOP_GUN_3, i_volume_effects);
+    w_trig.trackGain(S_IDLE_LOOP_GUN_4, i_volume_effects);
+    w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
+  #else
+    w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
+  #endif
 }
 
 void increaseVolumeEffects() {
@@ -5493,7 +5537,7 @@ void increaseVolume() {
 
 void decreaseVolume() {
   if(i_volume_master == i_volume_abs_min) {
-    // Cannot go any lower.
+    // Can not go any lower.
   }
   else {
     if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
@@ -5961,7 +6005,7 @@ void checkRotary() {
   }
 }
 
-// Tell the pack which power level the wand is at.
+// Tell the pack which power level the Neutrona Wand is set at.
 void updatePackPowerLevel() {
   switch(i_power_mode) {
     case 5:
@@ -6222,11 +6266,11 @@ void afterLifeRamp1() {
 
 // Pack communication to the wand.
 void checkPack() {
-    if(wandComs.available()) {
-      wandComs.rxObj(comStruct);
+  if(wandComs.available()) {
+    wandComs.rxObj(comStruct);
 
-      if(!wandComs.currentPacketID()) {
-        if(comStruct.i > 0 && comStruct.s == P_COM_START && comStruct.e == P_COM_END) {
+    if(!wandComs.currentPacketID()) {
+      if(comStruct.i > 0 && comStruct.s == P_COM_START && comStruct.e == P_COM_END) {
 
         if(b_volume_sync_wait == true) {
           switch(VOLUME_SYNC_WAIT) {
@@ -6697,47 +6741,49 @@ void checkPack() {
               playEffect(S_BEEPS);
             break;
 
-            case P_OVERHEAT_STROBE_DISABLED:
-              stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
-              stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_OVERHEAT_STROBE_DISABLED:
+                stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
 
-              playEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
-            break;
+                playEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+              break;
 
-            case P_OVERHEAT_STROBE_ENABLED:
-              stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
-              stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+              case P_OVERHEAT_STROBE_ENABLED:
+                stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
               
-              playEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
-            break;
+                playEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+              break;
 
-            case P_OVERHEAT_LIGHTS_OFF_DISABLED:
-              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
-              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+              case P_OVERHEAT_LIGHTS_OFF_DISABLED:
+                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
 
-              playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
-            break;
+                playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+              break;
 
-            case P_OVERHEAT_LIGHTS_OFF_ENABLED:
-              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
-              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+              case P_OVERHEAT_LIGHTS_OFF_ENABLED:
+                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
 
-              playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
-            break;
+                playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+              break;
 
-            case P_OVERHEAT_SYNC_FAN_DISABLED:
-              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
-              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+              case P_OVERHEAT_SYNC_FAN_DISABLED:
+                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
 
-              playEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
-            break;
-            
-            case P_OVERHEAT_SYNC_FAN_ENABLED:
-              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
-              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+              break;
               
-              playEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
-            break;
+              case P_OVERHEAT_SYNC_FAN_ENABLED:
+                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+                
+                playEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+              break;
+            #endif
 
             case P_POWERCELL_DIMMING:
               stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
@@ -6777,19 +6823,21 @@ void checkPack() {
               playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
             break;
 
-            case P_CYCLOTRON_SIMULATE_RING_DISABLED:
-              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
-              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_CYCLOTRON_SIMULATE_RING_DISABLED:
+                stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
+                stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
 
-              playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
-            break;
+                playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
+              break;
 
-            case P_CYCLOTRON_SIMULATE_RING_ENABLED:
-              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
-              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
+              case P_CYCLOTRON_SIMULATE_RING_ENABLED:
+                stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
+                stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
 
-              playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
-            break;
+                playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
+              break;
+            #endif
 
             case P_PROTON_MODE:
               FIRING_MODE = PROTON;
@@ -6895,124 +6943,104 @@ void checkPack() {
               i_power_mode_prev = 4;
             break;
 
-            case P_RGB_INNER_CYCLOTRON_LEDS:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+            #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_RGB_INNER_CYCLOTRON_LEDS:
                 stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
                 stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
 
                 playEffect(S_VOICE_RGB_INNER_CYCLOTRON);
-              #endif
-            break;
+              break;
 
-            case P_GRB_INNER_CYCLOTRON_LEDS:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_GRB_INNER_CYCLOTRON_LEDS:
                 stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
                 stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
 
                 playEffect(S_VOICE_GRB_INNER_CYCLOTRON);
-              #endif
-            break;
+              break;
 
-            case P_CYCLOTRON_LEDS_40:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_CYCLOTRON_LEDS_40:
                 stopEffect(S_VOICE_CYCLOTRON_40);
                 stopEffect(S_VOICE_CYCLOTRON_20);
                 stopEffect(S_VOICE_CYCLOTRON_12);
 
                 playEffect(S_VOICE_CYCLOTRON_40);
-              #endif
-            break;
+              break;
 
-            case P_CYCLOTRON_LEDS_20:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_CYCLOTRON_LEDS_20:
                 stopEffect(S_VOICE_CYCLOTRON_40);
                 stopEffect(S_VOICE_CYCLOTRON_20);
                 stopEffect(S_VOICE_CYCLOTRON_12);
 
                 playEffect(S_VOICE_CYCLOTRON_20);
-              #endif
-            break;
+              break;
 
-            case P_CYCLOTRON_LEDS_12:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_CYCLOTRON_LEDS_12:
                 stopEffect(S_VOICE_CYCLOTRON_40);
                 stopEffect(S_VOICE_CYCLOTRON_20);
                 stopEffect(S_VOICE_CYCLOTRON_12);
 
                 playEffect(S_VOICE_CYCLOTRON_12);
-              #endif
-            break;
+              break;
 
-            case P_POWERCELL_LEDS_15:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_POWERCELL_LEDS_15:
                 stopEffect(S_VOICE_POWERCELL_15);
                 stopEffect(S_VOICE_POWERCELL_13);
 
                 playEffect(S_VOICE_POWERCELL_15);
-              #endif
-            break;
+              break;
 
-            case P_POWERCELL_LEDS_13:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_POWERCELL_LEDS_13:
                 stopEffect(S_VOICE_POWERCELL_15);
                 stopEffect(S_VOICE_POWERCELL_13);
 
                 playEffect(S_VOICE_POWERCELL_13);
-              #endif
-            break;
+              break;
 
-            case P_INNER_CYCLOTRON_LEDS_23:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_INNER_CYCLOTRON_LEDS_23:
                 stopEffect(S_VOICE_INNER_CYCLOTRON_35);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_24);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_23);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
                 playEffect(S_VOICE_INNER_CYCLOTRON_23);
-              #endif
-            break;
+              break;
 
-            case P_INNER_CYCLOTRON_LEDS_24:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_INNER_CYCLOTRON_LEDS_24:
                 stopEffect(S_VOICE_INNER_CYCLOTRON_35);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_24);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_23);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
                 playEffect(S_VOICE_INNER_CYCLOTRON_24);
-              #endif
-            break;
+              break;
 
-            case P_INNER_CYCLOTRON_LEDS_35:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_INNER_CYCLOTRON_LEDS_35:
                 stopEffect(S_VOICE_INNER_CYCLOTRON_35);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_24);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_23);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
                 playEffect(S_VOICE_INNER_CYCLOTRON_35);
-              #endif
-            break;
+              break;
 
-            case P_INNER_CYCLOTRON_LEDS_12:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
+              case P_INNER_CYCLOTRON_LEDS_12:
                 stopEffect(S_VOICE_INNER_CYCLOTRON_35);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_24);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_23);
                 stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
                 playEffect(S_VOICE_INNER_CYCLOTRON_12);
-              #endif
-            break;
+              break;
 
-            case P_YEAR_MODE_DEFAULT:
-              stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
-              stopEffect(S_VOICE_AFTERLIFE);
-              stopEffect(S_VOICE_1984);
-              stopEffect(S_VOICE_1989);
+              case P_YEAR_MODE_DEFAULT:
+                stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
+                stopEffect(S_VOICE_AFTERLIFE);
+                stopEffect(S_VOICE_1984);
+                stopEffect(S_VOICE_1989);
 
-              playEffect(S_VOICE_YEAR_MODE_DEFAULT);
-            break;
+                playEffect(S_VOICE_YEAR_MODE_DEFAULT);
+              break;
+            #endif
 
             case P_MUSIC_START:
               if(b_playing_music == true) {

@@ -48,7 +48,7 @@ void setup() {
   Serial.begin(9600);
 
   Serial1.begin(9600); // Add-on serial communication.
-  Serial2.begin(9600); // Communication to the wand.
+  Serial2.begin(9600); // Communication to the Neutrona Wand.
 
   // Connect the serial ports.
   serial1Coms.begin(Serial1, false);
