@@ -212,12 +212,6 @@ const unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
 const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 
 /*
- * Set this to true to be able to use your wand without a Proton Pack connected.
- * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
-*/
-bool b_no_pack = false;
-
-/*
  * Set to false to disable the onboard amplifier on the wav trigger.
  * Turning off the onboard amp draws less power.
  * If using the AUX cable jack, the amp can be disabled to save power.
@@ -233,15 +227,6 @@ const bool b_onboard_amp_enabled = true;
 */
 bool b_extra_pack_sounds = false;
 
-/*
- * Debug testing
- * Set to true to debug some switch readings.
- * Keep your wand unplugged from the pack while this is set to true.
- * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
- * The wand will respond a bit slower as it is streaming serial data back. For debugging the analog switch readings only.
-*/
-const bool b_debug = false;
-
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   /*
   * Set to false to ignore reading data from the EEPROM.
@@ -250,5 +235,8 @@ const bool b_debug = false;
 #endif
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
-  const bool b_gpstar_benchtest_debug = false;
+  /*
+    * When set to true, the Neutrona Wand will function without a Proton Pack connected.
+  */
+  const bool b_gpstar_benchtest = false;
 #endif

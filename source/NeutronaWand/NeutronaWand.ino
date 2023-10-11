@@ -203,40 +203,15 @@ void setup() {
   ms_bmash.start(i_bmash_delay);
 
   ms_firing_debounce.start(i_firing_debounce);
-
-  if(b_no_pack == true || b_debug == true) {
-    b_wait_for_pack = false;
-    b_pack_on = true;
-  }
   
   // Check if we should be in VGA mode or not.
   vgaModeCheck();
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_gpstar_benchtest_debug == true) {
+    if(b_gpstar_benchtest == true) {
       b_no_pack = true;
       b_wait_for_pack = false;
       b_pack_on = true;
-      /*
-      b_spectral_mode_enabled = true;
-      b_holiday_mode_enabled = true;
-      b_spectral_custom_mode_enabled = true;
-
-      b_bargraph_invert = true;
-      b_quick_vent = true;
-      b_wand_boot_errors = false;
-      b_bargraph_always_ramping = false;
-      
-      set28SegmentBargraphOrientation();
-      */
-
-      /*
-      Quick vent : Wand boot errors
-      Vent light : 5 / 48 / 60 barrel leds 
-      Invert bargraph : Bargraph always ramping
-      Overheat strobe : Overheat lights off
-      84/89/afterlife/default : Overheat sync to fan
-      */
     }
   #endif
 }
@@ -748,6 +723,8 @@ void mainLoop() {
 
                   wandSerialSend(W_BARGRAPH_INVERTED);              
                 }
+
+                set28SegmentBargraphOrientation();
               }
             }
 
@@ -1949,18 +1926,6 @@ void settingsBlinkingLights() {
 
 // Change the WAND_STATE here based on switches changing or pressed.
 void checkSwitches() {
-  if(b_debug == true) {
-    #ifndef GPSTAR_NEUTRONA_WAND_PCB
-      Serial.print(F("A6 -> "));
-      Serial.println(analogRead(switch_mode));
-
-      Serial.print(F("\n"));
-
-      Serial.print(F("A7 -> "));
-      Serial.println(analogRead(switch_barrel));
-    #endif
-  }
-
   if(ms_intensify_timer.justFinished()) {
     ms_intensify_timer.stop();
   }
@@ -7335,6 +7300,8 @@ void wandSerialSend(int i_message) {
         else {
           b_bargraph_invert = false;
         }
+
+        set28SegmentBargraphOrientation();
       }
 
       if(obj_eeprom.bargraph_always_ramping > 0 && obj_eeprom.bargraph_always_ramping != 255) {

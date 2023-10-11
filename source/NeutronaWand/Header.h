@@ -382,6 +382,12 @@ bool b_wand_mash_error = false;        // Indicates wand is in a lock-out phase
 bool b_overheat_bargraph_blink = false;
 
 /*
+ * Set this to true to be able to use your wand without a Proton Pack connected.
+ * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
+*/
+bool b_no_pack = false;
+
+/*
  * Function prototypes.
 */
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
