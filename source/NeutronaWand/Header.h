@@ -64,6 +64,7 @@ int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_perc
 int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
 int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
 int8_t i_volume_revert = i_volume_master;
+
 /* 
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
  * Also controls independent music volume while the pack/wand is off and if music is playing.
@@ -123,6 +124,11 @@ const uint8_t led_bargraph_3 = A3;
 const uint8_t led_bargraph_4 = A4;
 const uint8_t led_bargraph_5 = A5;
 
+const uint8_t i_bargraph_segments_5_led = 5;
+uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {};
+const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
+const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
+
 /* 
  *  Idling timers
  */
@@ -168,6 +174,11 @@ uint8_t i_bargraph_status = 0;
 */
 bool b_28segment_bargraph = false;
 
+/*
+ * Flag check for video game mode.
+*/
+bool b_vg_mode = true;
+
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   const uint8_t i_bargraph_interval = 4;
   const uint8_t i_bargraph_wait = 180;
@@ -186,11 +197,10 @@ bool b_28segment_bargraph = false;
  * Only supported by the gpstar Neutrona Wand microcontroller.
 */
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
-  #ifdef GPSTAR_INVERT_BARGRAPH
-    const uint8_t i_bargraph[28] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
-  #else
-    const uint8_t i_bargraph[28] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
-  #endif
+  const uint8_t i_bargraph_segments = 28;
+  uint8_t i_bargraph[i_bargraph_segments] = {};
+  const uint8_t i_bargraph_invert[i_bargraph_segments] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
+  const uint8_t i_bargraph_normal[i_bargraph_segments] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 #endif
 
 /*
@@ -219,6 +229,13 @@ bool b_28segment_bargraph = false;
     uint8_t neutrona_wand_sounds;
     uint8_t spectral_mode;
     uint8_t holiday_mode;
+    
+    uint8_t quick_vent;
+    uint8_t wand_boot_errors;
+    uint8_t vent_light_auto_intensity;
+    uint8_t num_barrel_leds;
+    uint8_t invert_bargraph;
+    uint8_t bargraph_always_ramping;
   };
 
   /*
@@ -343,6 +360,7 @@ bool b_firing_cross_streams = false;
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_sound_firing_cross_the_streams = false;
+bool b_sound_firing_cross_the_streams_mix = false;
 bool b_sound_idle = false;
 bool b_beeping = false;
 bool b_sound_afterlife_idle_2_fade = true;
@@ -367,6 +385,12 @@ bool b_wand_mash_error = false;        // Indicates wand is in a lock-out phase
  * Removing this feature eventually....
 */
 bool b_overheat_bargraph_blink = false;
+
+/*
+ * Set this to true to be able to use your wand without a Proton Pack connected.
+ * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
+*/
+bool b_no_pack = false;
 
 /*
  * Function prototypes.

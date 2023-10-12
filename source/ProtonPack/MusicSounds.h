@@ -1,5 +1,5 @@
 /**
- *   gpstar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
+ *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -180,10 +180,31 @@ enum sound_fx {
   S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED,
   S_VOICE_SPECTRAL_MODES_ENABLED,
   S_VOICE_SPECTRAL_MODES_DISABLED,
-  S_AFTERLIFE_FIRE_START
+  S_AFTERLIFE_FIRE_START,
+  S_VOICE_QUICK_VENT_ENABLED,
+  S_VOICE_QUICK_VENT_DISABLED,
+  S_VOICE_VENT_LIGHT_INTENSITY_ENABLED,
+  S_VOICE_VENT_LIGHT_INTENSITY_DISABLED,
+  S_VOICE_BARGRAPH_INVERTED,
+  S_VOICE_BARGRAPH_NOT_INVERTED,
+  S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED,
+  S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED,
+  S_VOICE_OVERHEAT_STROBE_ENABLED,
+  S_VOICE_OVERHEAT_STROBE_DISABLED,
+  S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED,
+  S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED,
+  S_VOICE_OVERHEAT_FAN_SYNC_ENABLED,
+  S_VOICE_OVERHEAT_FAN_SYNC_DISABLED,
+  S_VOICE_YEAR_MODE_DEFAULT,
+  S_VOICE_VOLUME_RESET,
+  S_VOICE_BARREL_LED_5,
+  S_VOICE_BARREL_LED_48,
+  S_VOICE_BARREL_LED_60,
+  S_VOICE_BOOTUP_ERRORS_ENABLED,
+  S_VOICE_BOOTUP_ERRORS_DISABLED
 };
 
 /*
- * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust volume gain on them.
+ * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_AFTERLIFE_FIRE_START;
+const unsigned int i_last_effects_track = S_VOICE_BOOTUP_ERRORS_DISABLED;

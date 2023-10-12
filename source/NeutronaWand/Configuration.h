@@ -23,12 +23,6 @@
  */
 
 /*
- * If the Frutto vent light has been installed, uncomment the line below
- * to enable special brightness controls during idle and firing modes.
- */
-//#define FRUTTO_VENT_LIGHT
-
-/*
  * You can set the default master startup volume for your wand here.
  * This gets overridden if you connect your wand to the pack.
  * Values are in % of the volume.
@@ -80,25 +74,31 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
- * When defined, when using the Barmeter 28 segment bargraph, it will invert the sequence.
- * Part #: BL28Z-3005SA04Y
- * Only compatible with the gpstar Neutrona Wand board, and not an Arduino Nano.
-
- * Defined / Enabled:
- #define GPSTAR_INVERT_BARGRAPH
-
- * NOT Defined / Disabled:
- //#define GPSTAR_INVERT_BARGRAPH
+ * How many LEDs are in your Neutrona Wand Barrel.
+ * Default setting is 5: for the Hasbro Neturona Wand.
+ * Supported options: 5, 48 and 60.
 */
-//#define GPSTAR_INVERT_BARGRAPH
+uint8_t i_num_barrel_leds = 5;
 
+/*
+ * When set ti true, the bargraph will invert the sequence.
+*/
+bool b_bargraph_invert = false;
+
+/*
+ * When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
+ * When set to false (default), it mimics the action in Afterlife.
+ * Only compatible with the gpstar Neutrona Wand board.
+*/
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
-  /*
-    When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
-    When set to false (default), it mimics the action in Afterlife.
-  */
   bool b_bargraph_always_ramping = false;
 #endif
+
+/*
+ * If the Frutto vent light has been installed, uncomment the line below
+ * to enable special brightness controls during idle and firing modes.
+ */
+bool b_vent_light_control = false;
 
 /*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
@@ -110,17 +110,18 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 bool b_cross_the_streams = false;
 
 /*
+ * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
+ * When set to true, to cross the streams you must hold down the Barrel Wing Button while firing a Proton Stream.
+ * Releasing the Barrel Wing Switch returns to Proton Stream, and releasing Intensify stops firing completely.
+ * This can be enabled or disabled from the Neutrona Wand sub menu system.
+*/
+bool b_cross_the_streams_mix = false;
+
+/*
  * When set to true, you can manually quick vent your Proton Pack and Neutrona Wand by
  * pressing the intensify button if the top right toggle switch is switched off.
 */
 bool b_quick_vent = false;
-
-/*
- * When set to true, to cross the streams you must be holding down both Intensify and the alternate firing button at the same time.
- * Releasing one or the other button will stop cross the streams but continue firing a regular proton stream.
- * This can be enabled or disabled from the Neutrona Wand sub menu system.
-*/
-bool b_cross_the_streams_mix = false;
 
 /*
  * When set to true, allows selection of special firing modes after the standard video game modes.
@@ -179,7 +180,7 @@ bool b_overheat_enabled = true;
  * Set to true to have your Neutrona Wand boot up with errors when the top right switch (beep switch) is on while you are turning on your wand.
  * When set to false, this will be ignored.
 */
-const bool b_wand_boot_errors = true;
+bool b_wand_boot_errors = true;
 
 /*
  * Which power modes do you want to be able to overheat.
@@ -204,12 +205,6 @@ const unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
 const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 
 /*
- * Set this to true to be able to use your wand without a Proton Pack connected.
- * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
-*/
-const bool b_no_pack = false;
-
-/*
  * Set to false to disable the onboard amplifier on the wav trigger.
  * Turning off the onboard amp draws less power.
  * If using the AUX cable jack, the amp can be disabled to save power.
@@ -225,18 +220,14 @@ const bool b_onboard_amp_enabled = true;
 */
 bool b_extra_pack_sounds = false;
 
-/*
- * Debug testing
- * Set to true to debug some switch readings.
- * Keep your wand unplugged from the pack while this is set to true.
- * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
- * The wand will respond a bit slower as it is streaming serial data back. For debugging the analog switch readings only.
-*/
-const bool b_debug = false;
-
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   /*
   * Set to false to ignore reading data from the EEPROM.
   */
   const bool b_eeprom = true;
 #endif
+
+/*
+ * When set to true, the Neutrona Wand will function without a Proton Pack connected.
+*/
+const bool b_gpstar_benchtest = false;
