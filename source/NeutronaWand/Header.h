@@ -30,11 +30,13 @@ enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
 /* 
- *  Barrel LEDs. There are 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
+ *  Barrel LEDs. 
+ *  The Hasbro Neutrona Wand has 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
+ *  Support for up to 60 LEDs. With the options of 48 and 60 from Frutto Technology, with the 48 option coming soon.
  */
+#define BARREL_LEDS_MAX 60 // The maximum number of barrel LEDs supported.
 #define BARREL_LED_PIN 10
-#define BARREL_NUM_LEDS 5
-CRGB barrel_leds[BARREL_NUM_LEDS];
+CRGB barrel_leds[BARREL_LEDS_MAX];
 
 /*
  * Delay for fastled to update the addressable LEDs. 

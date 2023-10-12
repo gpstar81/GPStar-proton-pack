@@ -91,7 +91,7 @@ void setup() {
   setupWavTrigger();
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
-  FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_NUM_LEDS);
+  FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX);
 
   switch_wand.setDebounceTime(switch_debounce_time);
   switch_intensify.setDebounceTime(switch_debounce_time);
@@ -188,8 +188,6 @@ void setup() {
   // Setup the mode switch debounce.
   ms_switch_mode_debounce.start(1);
 
-  i_wand_menu = 5;
-
   // We bootup the wand in the classic proton mode.
   FIRING_MODE = PROTON;
   PREV_FIRING_MODE = SETTINGS;
@@ -205,13 +203,13 @@ void setup() {
 
   ms_firing_debounce.start(i_firing_debounce);
   
-  // Check if we should be in VGA mode or not.
-  vgaModeCheck();
-
   // Sanity check just in case a user forgot to enable CTS while enabling CTS Mix.
   if(b_cross_the_streams_mix == true && b_cross_the_streams != true) {
     b_cross_the_streams = true;
   }
+
+  // Check if we should be in Video game mode or not.
+  vgModeCheck();
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     if(b_gpstar_benchtest == true) {
@@ -661,6 +659,7 @@ void mainLoop() {
                 // Sub menu.
                 switch(i_num_barrel_leds) {
                   case 5:
+                  default:
                     i_num_barrel_leds = 48;
 
                     stopEffect(S_VOICE_BARREL_LED_5);
@@ -671,7 +670,17 @@ void mainLoop() {
                     wandSerialSend(W_BARREL_LEDS_48);
                   break;
 
+                  // 48 LED wand barrel board coming soon.
                   case 48:
+                    i_num_barrel_leds = 5;
+
+                    stopEffect(S_VOICE_BARREL_LED_5);
+                    stopEffect(S_VOICE_BARREL_LED_48);
+                    stopEffect(S_VOICE_BARREL_LED_60);
+                    playEffect(S_VOICE_BARREL_LED_5);
+
+                    wandSerialSend(W_BARREL_LEDS_5);
+                    /*
                     i_num_barrel_leds = 60;
 
                     stopEffect(S_VOICE_BARREL_LED_5);
@@ -679,9 +688,12 @@ void mainLoop() {
                     stopEffect(S_VOICE_BARREL_LED_60);
                     playEffect(S_VOICE_BARREL_LED_60);
 
-                    wandSerialSend(W_BARREL_LEDS_60);                                  
+                    wandSerialSend(W_BARREL_LEDS_60);
+                    */                                  
                   break;
 
+                  /*
+                  // Keep for now, the 60 LED flexi-pcb is not attenable at the moment, but perhaps one day in the future.
                   case 60:
                   default:
                     i_num_barrel_leds = 5;
@@ -693,6 +705,7 @@ void mainLoop() {
 
                     wandSerialSend(W_BARREL_LEDS_5);
                   break;
+                  */
                 }
               }              
             }
@@ -1449,7 +1462,7 @@ void toggleOverHeating() {
 }
 
 // Sets the Neutrona Wand to video game mode.
-void setVGAMode() {
+void setVGMode() {
   b_cross_the_streams = false;
   b_cross_the_streams_mix = false;
 
@@ -1457,7 +1470,7 @@ void setVGAMode() {
 }
 
 // Checks if VGA mode should be set.
-void vgaModeCheck() {
+void vgModeCheck() {
   if(b_cross_the_streams == true || b_cross_the_streams_mix == true) {
     b_vg_mode = false;
   }
@@ -1468,6 +1481,13 @@ void vgaModeCheck() {
 
 // Controlled the the Wand Sub Menu and Wand EEPROM Menu system.
 void toggleWandModes() {
+  stopEffect(S_CLICK);
+  playEffect(S_CLICK);
+
+  stopEffect(S_VOICE_CROSS_THE_STREAMS);
+  stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
+  stopEffect(S_VOICE_VIDEO_GAME_MODES);
+
   // Enable or disable crossing the streams / crossing the streams mix / video game modes.
   if(b_cross_the_streams == true && b_cross_the_streams_mix == true) {
     // Turn off crossing the streams mix and switch back to video game mode.
@@ -1475,14 +1495,6 @@ void toggleWandModes() {
     b_cross_the_streams_mix = false;
 
     b_vg_mode = true;
-
-    stopEffect(S_CLICK);
-
-    playEffect(S_CLICK);
-
-    stopEffect(S_VOICE_CROSS_THE_STREAMS);
-    stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
-    stopEffect(S_VOICE_VIDEO_GAME_MODES);
 
     playEffect(S_VOICE_VIDEO_GAME_MODES);
 
@@ -1498,14 +1510,6 @@ void toggleWandModes() {
 
     b_vg_mode = false;
 
-    stopEffect(S_CLICK);
-
-    playEffect(S_CLICK);
-
-    stopEffect(S_VOICE_VIDEO_GAME_MODES);
-    stopEffect(S_VOICE_CROSS_THE_STREAMS);
-    stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
-
     playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
 
     // Tell the Proton Pack to reset back to the proton stream.
@@ -1517,14 +1521,6 @@ void toggleWandModes() {
     b_cross_the_streams_mix = false;
 
     b_vg_mode = false;
-
-    stopEffect(S_CLICK);
-
-    playEffect(S_CLICK);
-
-    stopEffect(S_VOICE_VIDEO_GAME_MODES);
-    stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
-    stopEffect(S_VOICE_CROSS_THE_STREAMS);
 
     playEffect(S_VOICE_CROSS_THE_STREAMS);
 
@@ -1615,8 +1611,8 @@ void settingsBlinkingLights() {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       if(b_28segment_bargraph == true) {
         if(b_solid_five == true) {
-          for(uint8_t i = 0; i < 16; i++) {
-            if(b_solid_one == true && i < 2) {
+          for(uint8_t i = 0; i < 24; i++) {
+            if(b_solid_one == true && i < 3) {
               ht_bargraph.setLedNow(i_bargraph[i]);
             }
             else {
@@ -1624,13 +1620,15 @@ void settingsBlinkingLights() {
             }
           }
 
-          for(uint8_t i = 16; i < 18; i++) {
+          for(uint8_t i = 24; i < 27; i++) {
             ht_bargraph.setLedNow(i_bargraph[i]);
           }
+
+          ht_bargraph.clearLedNow(i_bargraph[27]);
         }
         else if(b_solid_one == true) {
-          for(uint8_t i = 0; i < 18; i++) {
-            if(i < 2) {
+          for(uint8_t i = 0; i < 28; i++) {
+            if(i < 3) {
               ht_bargraph.setLedNow(i_bargraph[i]);
             }
             else {
@@ -1686,56 +1684,28 @@ void settingsBlinkingLights() {
       case 5:
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           if(b_28segment_bargraph == true) {
-            // 18 for the 5 level menu system.
-            uint8_t i_leds = 18;
-
-            if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
-              // All the segments.
-              i_leds = 28;
-            }
-
             // NOTE: If you draw all 28 segments at once often, you can overflow the serial buffer after around 5 seconds.
-            for(uint8_t i = 0; i < i_leds; i++) {
-              if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
-                switch(i) {
-                  case 3:
-                  case 4:
-                  case 5:
-                  case 9:
-                  case 10:
-                  case 11:
-                  case 15:
-                  case 16:
-                  case 17:
-                  case 21:
-                  case 22:
-                  case 23:
-                  case 27:
-                    // Nothing
-                  break;
+            for(uint8_t i = 0; i < 28; i++) {
+              switch(i) {
+                case 3:
+                case 4:
+                case 5:
+                case 9:
+                case 10:
+                case 11:
+                case 15:
+                case 16:
+                case 17:
+                case 21:
+                case 22:
+                case 23:
+                case 27:
+                  // Nothing
+                break;
 
-                  default:
-                    ht_bargraph.setLedNow(i_bargraph[i]);
-                  break;
-                }
-              }
-              else {
-                switch(i) {
-                  case 2:
-                  case 3:
-                  case 6:
-                  case 7:
-                  case 10:
-                  case 11:
-                  case 14:
-                  case 15:
-                    // Nothing
-                  break;
-
-                  default:
-                    ht_bargraph.setLedNow(i_bargraph[i]);
-                  break;
-                }
+                default:
+                  ht_bargraph.setLedNow(i_bargraph[i]);
+                break;
               }
             }
           }
@@ -1750,45 +1720,27 @@ void settingsBlinkingLights() {
       case 4:
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           if(b_28segment_bargraph == true) {
-            for(uint8_t i = 0; i < 14; i++) {
-              if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
-                switch(i) {
-                  case 3:
-                  case 4:
-                  case 5:
-                  case 9:
-                  case 10:
-                  case 11:
-                  case 15:
-                  case 16:
-                  case 17:
-                  case 21:
-                  case 22:
-                  case 23:
-                  case 27:
-                    // Nothing
-                  break;
+            for(uint8_t i = 0; i < 21; i++) {
+              switch(i) {
+                case 3:
+                case 4:
+                case 5:
+                case 9:
+                case 10:
+                case 11:
+                case 15:
+                case 16:
+                case 17:
+                case 21:
+                case 22:
+                case 23:
+                case 27:
+                  // Nothing
+                break;
 
-                  default:
-                    ht_bargraph.setLedNow(i_bargraph[i]);
-                  break;
-                }
-              }
-              else {
-                switch(i) {
-                  case 2:
-                  case 3:
-                  case 6:
-                  case 7:
-                  case 10:
-                  case 11:
-                    // Nothing
-                  break;
-
-                  default:
-                    ht_bargraph.setLedNow(i_bargraph[i]);
-                  break;
-                }
+                default:
+                  ht_bargraph.setLedNow(i_bargraph[i]);
+                break;
               }
             }
           }
@@ -1803,49 +1755,33 @@ void settingsBlinkingLights() {
       case 3:
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           if(b_28segment_bargraph == true) {
-            for(uint8_t i = 0; i < 10; i++) {
-              if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
-                switch(i) {
-                  case 3:
-                  case 4:
-                  case 5:
-                  case 9:
-                  case 10:
-                  case 11:
-                  case 15:
-                  case 16:
-                  case 17:
-                  case 21:
-                  case 22:
-                  case 23:
-                  case 27:
-                    // Nothing
-                  break;
+            for(uint8_t i = 0; i < 16; i++) {
+              switch(i) {
+                case 3:
+                case 4:
+                case 5:
+                case 9:
+                case 10:
+                case 11:
+                case 15:
+                case 16:
+                case 17:
+                case 21:
+                case 22:
+                case 23:
+                case 27:
+                  // Nothing
+                break;
 
-                  default:
-                    ht_bargraph.setLedNow(i_bargraph[i]);
-                  break;
-                }
-              }
-              else {
-                switch(i) {
-                  case 2:
-                  case 3:
-                  case 6:
-                  case 7:
-                    // Nothing
-                  break;
-
-                  default:
-                    ht_bargraph.setLedNow(i_bargraph[i]);
-                  break;
-                }
+                default:
+                  ht_bargraph.setLedNow(i_bargraph[i]);
+                break;
               }
             }
-            }
-            else {
-              wandBargraphControl(3);
-            }
+          }
+          else {
+            wandBargraphControl(3);
+          }
         #else
           wandBargraphControl(3);
         #endif
@@ -1854,41 +1790,27 @@ void settingsBlinkingLights() {
       case 2:
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           if(b_28segment_bargraph == true) {
-            for(uint8_t i = 0; i < 6; i++) {
-              if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_ERROR) {
-                switch(i) {
-                  case 3:
-                  case 4:
-                  case 5:
-                  case 9:
-                  case 10:
-                  case 11:
-                  case 15:
-                  case 16:
-                  case 17:
-                  case 21:
-                  case 22:
-                  case 23:
-                  case 27:
-                    // Nothing
-                  break;
+            for(uint8_t i = 0; i < 12; i++) {
+              switch(i) {
+                case 3:
+                case 4:
+                case 5:
+                case 9:
+                case 10:
+                case 11:
+                case 15:
+                case 16:
+                case 17:
+                case 21:
+                case 22:
+                case 23:
+                case 27:
+                  // Nothing
+                break;
 
-                  default:
-                    ht_bargraph.setLedNow(i_bargraph[i]);
-                  break;
-                }
-              }
-              else {
-                switch(i) {
-                  case 2:
-                  case 3:
-                    // Nothing
-                  break;
-
-                  default:
-                    ht_bargraph.setLedNow(i_bargraph[i]);
-                  break;
-                }
+                default:
+                  ht_bargraph.setLedNow(i_bargraph[i]);
+                break;
               }
             }
           }
@@ -1903,28 +1825,28 @@ void settingsBlinkingLights() {
       case 1:
         #ifdef GPSTAR_NEUTRONA_WAND_PCB
           if(b_28segment_bargraph == true) {
-            for(uint8_t i = 0; i < 2; i++) {
-                switch(i) {
-                  case 3:
-                  case 4:
-                  case 5:
-                  case 9:
-                  case 10:
-                  case 11:
-                  case 15:
-                  case 16:
-                  case 17:
-                  case 21:
-                  case 22:
-                  case 23:
-                  case 27:
-                    // Nothing
-                  break;
+            for(uint8_t i = 0; i < 6; i++) {
+              switch(i) {
+                case 3:
+                case 4:
+                case 5:
+                case 9:
+                case 10:
+                case 11:
+                case 15:
+                case 16:
+                case 17:
+                case 21:
+                case 22:
+                case 23:
+                case 27:
+                  // Nothing
+                break;
 
-                  default:
-                    ht_bargraph.setLedNow(i_bargraph[i]);
-                  break;
-                }
+                default:
+                  ht_bargraph.setLedNow(i_bargraph[i]);
+                break;
+              }
             }
           }
           else {
@@ -3623,37 +3545,37 @@ void wandBarrelHeatUp() {
     switch(FIRING_MODE) {
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         case PROTON:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_WHITE, i_heatup_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_WHITE, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case SLIME:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_GREEN, i_heatup_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_GREEN, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case STASIS:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_BLUE, i_heatup_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_BLUE, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case MESON:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_ORANGE, i_heatup_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_ORANGE, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case SPECTRAL:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_RAINBOW, i_heatup_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_RAINBOW, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case HOLIDAY:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_REDGREEN, i_heatup_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_REDGREEN, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case SPECTRAL_CUSTOM:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_CUSTOM, i_heatup_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_CUSTOM, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
@@ -3665,22 +3587,22 @@ void wandBarrelHeatUp() {
       #else
         case PROTON:
         default:
-          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
+          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case SLIME:
-          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, 0, 0);
+          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatup_counter, 0, 0);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case STASIS:
-          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatup_counter);
+          barrel_leds[i_num_barrel_leds - 1] = CRGB(0, 0, i_heatup_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case MESON:
-          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
+          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
@@ -3700,37 +3622,37 @@ void wandBarrelHeatDown() {
     switch(FIRING_MODE) {
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         case PROTON:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_WHITE, i_heatdown_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_WHITE, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case SLIME:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_GREEN, i_heatdown_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_GREEN, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case STASIS:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_BLUE, i_heatdown_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_BLUE, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case MESON:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_ORANGE, i_heatdown_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_ORANGE, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case SPECTRAL:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_RAINBOW, i_heatdown_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_RAINBOW, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case HOLIDAY:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_REDGREEN, i_heatdown_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_REDGREEN, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case SPECTRAL_CUSTOM:
-          barrel_leds[BARREL_NUM_LEDS - 1] = getHueAsGRB(C_CUSTOM, i_heatdown_counter);
+          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_CUSTOM, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
@@ -3742,22 +3664,22 @@ void wandBarrelHeatDown() {
       #else
         case PROTON:
         default:
-          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
+          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case SLIME:
-          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, 0, 0);
+          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatdown_counter, 0, 0);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case STASIS:
-          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(0, 0, i_heatdown_counter);
+          barrel_leds[i_num_barrel_leds - 1] = CRGB(0, 0, i_heatdown_counter);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
         case MESON:
-          barrel_leds[BARREL_NUM_LEDS - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
+          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
           ms_fast_led.start(i_fast_led_delay);
         break;
 
@@ -3783,7 +3705,7 @@ void fireStream(CRGB c_colour) {
 void fireStream(int r, int g, int b) {
 #endif
   if(ms_firing_stream_blue.justFinished()) {
-    if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < BARREL_NUM_LEDS) {
+    if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < i_num_barrel_leds) {
       switch(FIRING_MODE) {
         case PROTON:
         default:
@@ -3897,7 +3819,7 @@ void fireStream(int r, int g, int b) {
       ms_fast_led.start(i_fast_led_delay);
     }
 
-    if(i_barrel_light == BARREL_NUM_LEDS) {
+    if(i_barrel_light == i_num_barrel_leds) {
       i_barrel_light = 0;
 
       switch(FIRING_MODE) {
@@ -3930,7 +3852,7 @@ void fireStream(int r, int g, int b) {
         break;
       }
     }
-    else if(i_barrel_light < BARREL_NUM_LEDS) {
+    else if(i_barrel_light < i_num_barrel_leds) {
       #ifdef GPSTAR_NEUTRONA_WAND_PCB
         barrel_leds[i_barrel_light] = c_colour;
       #else
@@ -3979,7 +3901,7 @@ void barrelLightsOff() {
   i_heatup_counter = 0;
   i_heatdown_counter = 100;
 
-  for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
+  for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       barrel_leds[i] = getHueAsGRB(C_BLACK);
     #else
@@ -4001,7 +3923,7 @@ void fireStreamStart(CRGB c_colour) {
 void fireStreamStart(int r, int g, int b) {
 #endif
 
-  if(ms_firing_lights.justFinished() && i_barrel_light < BARREL_NUM_LEDS) {
+  if(ms_firing_lights.justFinished() && i_barrel_light < i_num_barrel_leds) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       barrel_leds[i_barrel_light] = c_colour;
     #else
@@ -4014,7 +3936,7 @@ void fireStreamStart(int r, int g, int b) {
 
     i_barrel_light++;
 
-    if(i_barrel_light == BARREL_NUM_LEDS) {
+    if(i_barrel_light == i_num_barrel_leds) {
       i_barrel_light = 0;
 
       ms_firing_lights.stop();
@@ -4029,7 +3951,7 @@ void fireStreamEnd(CRGB c_colour) {
 void fireStreamEnd(int r, int g, int b) {
 #endif
 
-  if(i_barrel_light < BARREL_NUM_LEDS) {
+  if(i_barrel_light < i_num_barrel_leds) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       barrel_leds[i_barrel_light] = c_colour;
     #else
@@ -4042,7 +3964,7 @@ void fireStreamEnd(int r, int g, int b) {
 
     i_barrel_light++;
 
-    if(i_barrel_light == BARREL_NUM_LEDS) {
+    if(i_barrel_light == i_num_barrel_leds) {
       i_barrel_light = 0;
 
       ms_firing_lights_end.stop();
@@ -5616,7 +5538,7 @@ int8_t readRotary() {
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   void wandBarrelSpectralCustomConfigOn() {
-    for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
+    for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
       barrel_leds[i] = getHueAsGRB(C_CUSTOM);
     }
 
@@ -6106,7 +6028,7 @@ void switchLoops() {
 }
 
 void wandBarrelLightsOff() {
-  for(uint8_t i = 0; i < BARREL_NUM_LEDS; i++) {
+  for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
     #ifdef GPSTAR_NEUTRONA_WAND_PCB
       barrel_leds[i] = getHueAsGRB(C_BLACK);
     #else
@@ -6870,8 +6792,6 @@ void checkPack() {
             case P_PROTON_MODE:
               FIRING_MODE = PROTON;
               PREV_FIRING_MODE = SETTINGS;
-
-              setVGAMode();
             break;
 
             case P_SLIME_MODE:
@@ -6883,14 +6803,14 @@ void checkPack() {
               FIRING_MODE = STASIS;
               PREV_FIRING_MODE = SLIME;
 
-              setVGAMode();
+              setVGMode();
             break;
 
             case P_MESON_MODE:
               FIRING_MODE = MESON;
               PREV_FIRING_MODE = STASIS;
 
-              setVGAMode();
+              setVGMode();
             break;
 
             case P_SPECTRAL_CUSTOM_MODE:
@@ -6903,7 +6823,7 @@ void checkPack() {
                 wandSerialSend(W_PROTON_MODE);
               #endif
 
-              setVGAMode();
+              setVGMode();
             break;
 
             case P_SPECTRAL_MODE:
@@ -6916,7 +6836,7 @@ void checkPack() {
                 wandSerialSend(W_PROTON_MODE);
               #endif
 
-              setVGAMode();
+              setVGMode();
             break;
 
             case P_HOLIDAY_MODE:
@@ -6929,21 +6849,21 @@ void checkPack() {
                 wandSerialSend(W_PROTON_MODE);
               #endif
 
-              setVGAMode();
+              setVGMode();
             break;
 
             case P_VENTING_MODE:
               FIRING_MODE = VENTING;
               PREV_FIRING_MODE = MESON;
 
-              setVGAMode();
+              setVGMode();
             break;
 
             case P_SETTINGS_MODE:
               FIRING_MODE = SETTINGS;
               PREV_FIRING_MODE = VENTING;
 
-              setVGAMode();
+              setVGMode();
             break;
 
             case P_POWER_LEVEL_1:
