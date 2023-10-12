@@ -104,15 +104,15 @@ bool b_vent_light_control = false;
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
  * Pressing this button together at the same time as the Intensify button does a cross the streams firing.
  * You can release one of the two firing buttons and the Neutrona Wand will still continue to cross the streams.
- * The video game firing modes will be disabled when you enable this.
+ * The video game firing modes will be disabled when you enable this, as will access to the sub menu using the mode switch button.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
 */
 bool b_cross_the_streams = false;
 
 /*
- * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
  * When set to true, to cross the streams you must hold down the Barrel Wing Button while firing a Proton Stream.
  * Releasing the Barrel Wing Switch returns to Proton Stream, and releasing Intensify stops firing completely.
+ * b_cross_the_streams must be set to true as well in order to use this function.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
 */
 bool b_cross_the_streams_mix = false;

@@ -208,6 +208,11 @@ void setup() {
   // Check if we should be in VGA mode or not.
   vgaModeCheck();
 
+  // Sanity check just in case a user forgot to enable CTS while enabling CTS Mix.
+  if(b_cross_the_streams_mix == true && b_cross_the_streams != true) {
+    b_cross_the_streams = true;
+  }
+
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
     if(b_gpstar_benchtest == true) {
       b_no_pack = true;
@@ -2385,6 +2390,7 @@ void wandOff() {
   stopEffect(S_STASIS_START);
   stopEffect(S_MESON_START);
 
+  stopEffect(S_WAND_SHUTDOWN);
   playEffect(S_WAND_SHUTDOWN);
 
   // Turn off some timers.
@@ -2648,6 +2654,7 @@ void soundIdleStop() {
       case 1984:
       case 1989:
         if(WAND_ACTION_STATUS != ACTION_OFF) {
+          stopEffect(S_WAND_SHUTDOWN);
           playEffect(S_WAND_SHUTDOWN);
         }
       break;
@@ -2656,6 +2663,7 @@ void soundIdleStop() {
       default:
         if(b_pack_ribbon_cable_on == true) {
           if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+            //stopEffect(S_WAND_SHUTDOWN);
             //playEffect(S_WAND_SHUTDOWN);
 
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 1);
