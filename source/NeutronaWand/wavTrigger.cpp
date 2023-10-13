@@ -22,14 +22,16 @@ uint8_t txbuf[5];
 	WTSerial.begin(57600);
 	flush();
 
-	// Request version string
-	txbuf[0] = SOM1;
-	txbuf[1] = SOM2;
-	txbuf[2] = 0x05;
-	txbuf[3] = CMD_GET_VERSION;
-	txbuf[4] = EOM;
-	WTSerial.write(txbuf, 5);
-
+  #ifdef GPSTAR_PCB
+    // Request version string
+    txbuf[0] = SOM1;
+    txbuf[1] = SOM2;
+    txbuf[2] = 0x05;
+    txbuf[3] = CMD_GET_VERSION;
+    txbuf[4] = EOM;
+    WTSerial.write(txbuf, 5);
+  #endif
+  
 	// Request system info
 	txbuf[0] = SOM1;
 	txbuf[1] = SOM2;
@@ -41,19 +43,18 @@ uint8_t txbuf[5];
 
 // **************************************************************
 void wavTrigger::flush(void) {
-
-#ifdef GPSTAR_PCB
-  int i;
-#endif
+  #ifdef GPSTAR_PCB
+    int i;
+  #endif
 
 	rxCount = 0;
 	rxLen = 0;
 	rxMsgReady = false;
   
   #ifdef GPSTAR_PCB
-	for (i = 0; i < MAX_NUM_VOICES; i++) {
-	  voiceTable[i] = 0xffff;
-	}
+    for (i = 0; i < MAX_NUM_VOICES; i++) {
+      voiceTable[i] = 0xffff;
+    }
   #endif
 
 	while(WTSerial.available())
@@ -63,11 +64,13 @@ void wavTrigger::flush(void) {
 
 // **************************************************************
 void wavTrigger::update(void) {
+  uint8_t dat;
 
-int i;
-uint8_t dat;
-uint8_t voice;
-uint16_t track;
+  #ifdef GPSTAR_PCB
+    int i;
+    uint8_t voice;
+    uint16_t track;
+  #endif
 
 	rxMsgReady = false;
 	while (WTSerial.available() > 0) {
@@ -201,7 +204,6 @@ uint16_t track;
       }
     }
     
-
     return false;
   }
 
@@ -421,18 +423,20 @@ uint8_t txbuf[5];
 	WTSerial.write(txbuf, 5);
 }
 
-// **************************************************************
-void wavTrigger::resumeAllInSync(void) {
+#ifdef GPSTAR_PCB
+  // **************************************************************
+  void wavTrigger::resumeAllInSync(void) {
 
-uint8_t txbuf[5];
+  uint8_t txbuf[5];
 
-	txbuf[0] = SOM1;
-	txbuf[1] = SOM2;
-	txbuf[2] = 0x05;
-	txbuf[3] = CMD_RESUME_ALL_SYNC;
-	txbuf[4] = EOM;
-	WTSerial.write(txbuf, 5);
-}
+    txbuf[0] = SOM1;
+    txbuf[1] = SOM2;
+    txbuf[2] = 0x05;
+    txbuf[3] = CMD_RESUME_ALL_SYNC;
+    txbuf[4] = EOM;
+    WTSerial.write(txbuf, 5);
+  }
+#endif
 
 // **************************************************************
 void wavTrigger::trackGain(int trk, int gain) {

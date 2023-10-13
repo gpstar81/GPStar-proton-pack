@@ -30,11 +30,13 @@ enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
 /* 
- *  Barrel LEDs. There are 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
+ *  Barrel LEDs. 
+ *  The Hasbro Neutrona Wand has 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
+ *  Support for up to 60 LEDs. With the options of 48 and 60 from Frutto Technology, with the 48 option coming soon.
  */
+#define BARREL_LEDS_MAX 60 // The maximum number of barrel LEDs supported.
 #define BARREL_LED_PIN 10
-#define BARREL_NUM_LEDS 5
-CRGB barrel_leds[BARREL_NUM_LEDS];
+CRGB barrel_leds[BARREL_LEDS_MAX];
 
 /*
  * Delay for fastled to update the addressable LEDs. 
@@ -124,6 +126,11 @@ const uint8_t led_bargraph_3 = A3;
 const uint8_t led_bargraph_4 = A4;
 const uint8_t led_bargraph_5 = A5;
 
+const uint8_t i_bargraph_segments_5_led = 5;
+uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {};
+const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
+const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
+
 /* 
  *  Idling timers
  */
@@ -170,9 +177,9 @@ uint8_t i_bargraph_status = 0;
 bool b_28segment_bargraph = false;
 
 /*
-  Flag check for video game mode.
+ * Flag check for video game mode.
 */
-bool b_vga_mode = true;
+bool b_vg_mode = true;
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   const uint8_t i_bargraph_interval = 4;
@@ -224,6 +231,13 @@ bool b_vga_mode = true;
     uint8_t neutrona_wand_sounds;
     uint8_t spectral_mode;
     uint8_t holiday_mode;
+    
+    uint8_t quick_vent;
+    uint8_t wand_boot_errors;
+    uint8_t vent_light_auto_intensity;
+    uint8_t num_barrel_leds;
+    uint8_t invert_bargraph;
+    uint8_t bargraph_always_ramping;
   };
 
   /*
@@ -373,6 +387,12 @@ bool b_wand_mash_error = false;        // Indicates wand is in a lock-out phase
  * Removing this feature eventually....
 */
 bool b_overheat_bargraph_blink = false;
+
+/*
+ * Set this to true to be able to use your wand without a Proton Pack connected.
+ * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
+*/
+bool b_no_pack = false;
 
 /*
  * Function prototypes.

@@ -287,7 +287,7 @@ const bool b_onboard_amp_enabled = false;
  * This does not affect the LED-W optional light nor does it affect the jewel during continuous fire venting which always strobes.
  * LED-W always stays solid during any venting sequences.
 */
-const bool b_overheat_strobe = true;
+bool b_overheat_strobe = true;
 
 /*
  * When the pack is overheating, the Cyclotron and Power Cell lights will ramp off when set to true.

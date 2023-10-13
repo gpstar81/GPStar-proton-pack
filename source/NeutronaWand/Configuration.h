@@ -74,13 +74,16 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
- * When defined, when using the Barmeter 28 segment bargraph, it will invert the sequence.
- * Part #: BL28Z-3005SA04Y
- * Only compatible with the gpstar Neutrona Wand board.
+ * How many LEDs are in your Neutrona Wand Barrel.
+ * Default setting is 5: for the Hasbro Neturona Wand.
+ * Supported options: 5, 48 and 60.
 */
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  bool b_bargraph_invert = true;
-#endif
+uint8_t i_num_barrel_leds = 5;
+
+/*
+ * When set ti true, the bargraph will invert the sequence.
+*/
+bool b_bargraph_invert = false;
 
 /*
  * When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
@@ -94,25 +97,22 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 /*
  * If the Frutto vent light has been installed, uncomment the line below
  * to enable special brightness controls during idle and firing modes.
- * Only compatible with the gpstar Neutrona Wand board.
  */
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  bool b_vent_light_control = false;
-#endif
+bool b_vent_light_control = false;
 
 /*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
  * Pressing this button together at the same time as the Intensify button does a cross the streams firing.
  * You can release one of the two firing buttons and the Neutrona Wand will still continue to cross the streams.
- * The video game firing modes will be disabled when you enable this.
+ * The video game firing modes will be disabled when you enable this, as will access to the sub menu using the mode switch button.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
 */
 bool b_cross_the_streams = false;
 
 /*
- * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
  * When set to true, to cross the streams you must hold down the Barrel Wing Button while firing a Proton Stream.
  * Releasing the Barrel Wing Switch returns to Proton Stream, and releasing Intensify stops firing completely.
+ * b_cross_the_streams must be set to true as well in order to use this function.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
 */
 bool b_cross_the_streams_mix = false;
@@ -205,12 +205,6 @@ const unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
 const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 
 /*
- * Set this to true to be able to use your wand without a Proton Pack connected.
- * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
-*/
-bool b_no_pack = false;
-
-/*
  * Set to false to disable the onboard amplifier on the wav trigger.
  * Turning off the onboard amp draws less power.
  * If using the AUX cable jack, the amp can be disabled to save power.
@@ -226,15 +220,6 @@ const bool b_onboard_amp_enabled = true;
 */
 bool b_extra_pack_sounds = false;
 
-/*
- * Debug testing
- * Set to true to debug some switch readings.
- * Keep your wand unplugged from the pack while this is set to true.
- * It uses the USB port and tx/rx need to be free so serial information can be sent back to the Arduino IDE.
- * The wand will respond a bit slower as it is streaming serial data back. For debugging the analog switch readings only.
-*/
-const bool b_debug = false;
-
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
   /*
   * Set to false to ignore reading data from the EEPROM.
@@ -242,6 +227,7 @@ const bool b_debug = false;
   const bool b_eeprom = true;
 #endif
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  const bool b_gpstar_benchtest_debug = false;
-#endif
+/*
+ * When set to true, the Neutrona Wand will function without a Proton Pack connected.
+*/
+const bool b_gpstar_benchtest = false;

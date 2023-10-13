@@ -133,7 +133,11 @@ public:
 
   void masterGain(int gain);
   void stopAllTracks(void);
-  void resumeAllInSync(void);
+  
+  #ifdef GPSTAR_PCB
+    void resumeAllInSync(void);
+  #endif
+
   void trackPlaySolo(int trk);
   void trackPlaySolo(int trk, bool lock);
   void trackPlayPoly(int trk);
