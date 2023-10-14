@@ -52,3 +52,7 @@ If the red LED does not illuminate, this could mean a connection or data problem
 * Reformat the microSD card as FAT32 using the provided utility and re-copy the audio files to the microSD card.
 * Re-check the connections to the WavTrigger, taking note of the power and Rx/Tx connections. Note that is it normal to see some empty pins/sockets on the connecting wire.
 * Re-check the power connection to the wand. If you have a digital multimeter available, set the device to the DC power measurement and check that the 5V-OUT connection is supplying the expected voltage. Be careful to not short out the pins and mind the polarity.
+
+### Bench Test Mode
+
+If you wish to test (or use) the Neutrona Wand without a Proton Pack, flash the `NeutronaWand-BenchTest.hex` to the device to enable a special mode which will allow the wand to operation without waiting for a response from the pack. This is useful for debugging whether the serial connection is incorrect.
