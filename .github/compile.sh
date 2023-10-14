@@ -5,7 +5,7 @@ SRCDIR="../source"
 
 mkdir -p ${BINDIR}/attenuator
 mkdir -p ${BINDIR}/pack
-mkdir -p ${BINDIR}/wand
+mkdir -p ${BINDIR}/wand/extras
 
 # Proton Pack
 echo "Building Proton Pack Binary..."
@@ -55,7 +55,7 @@ rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*bootloader.hex
 
-mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/NeutronaWand-BenchTest.hex
+mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/extras/NeutronaWand-BenchTest.hex
 
 # Restore flag(s) from compilation
 sed -i -e 's/b_gpstar_benchtest = true/b_gpstar_benchtest = false/g' ${SRCDIR}/NeutronaWand/Configuration.h
