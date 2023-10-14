@@ -55,4 +55,4 @@ If the red LED does not illuminate, this could mean a connection or data problem
 
 ### Bench Test Mode
 
-If you wish to test (or use) the Neutrona Wand without a Proton Pack, flash the `NeutronaWand-BenchTest.hex` to the device to enable a special mode which will allow the wand to operation without waiting for a response from the pack. This is useful for debugging whether the serial connection is incorrect.
+If you wish to test (or use) the Neutrona Wand without a Proton Pack, flash the `binaries/wand/extras/NeutronaWand-BenchTest.hex` to the device to enable a special mode which will allow the wand to operation without waiting for a response from the pack. This is useful for debugging whether the serial connection is incorrect.
