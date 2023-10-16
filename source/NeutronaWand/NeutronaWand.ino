@@ -6125,12 +6125,12 @@ void wandExitMenu() {
   }
 #endif
 
-// Barrel Wing Button is connected to analog input.
-// PCB builds is pulled high.
-// Nano builds is pulled low.
+// Barrel Wing Button is connected to analog pin 6.
+// PCB builds is pulled high as digital input.
+// Nano builds is pulled low as analog input.
 bool switchMode() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(analogRead(switch_mode) < i_switch_mode_value && ms_switch_mode_debounce.remaining() < 1 && b_switch_mode_pressed != true) {
+    if(digitalRead(switch_mode) == LOW && ms_switch_mode_debounce.remaining() < 1 && b_switch_mode_pressed != true) {
       ms_switch_mode_debounce.start(switch_debounce_time * 5);
 
       b_switch_mode_pressed = true;
@@ -6157,7 +6157,7 @@ bool switchMode() {
 // Check if the Barrel Wing Button is being held down or not.
 void switchModePressedReset() {
  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(analogRead(switch_mode) > i_switch_mode_value && b_switch_mode_pressed == true && ms_switch_mode_debounce.remaining() < 1) {
+    if(digitalRead(switch_mode) == HIGH && b_switch_mode_pressed == true && ms_switch_mode_debounce.remaining() < 1) {
       b_switch_mode_pressed = false;
     }
   #else
@@ -6167,12 +6167,12 @@ void switchModePressedReset() {
   #endif
 }
 
-// Barrel safety switch is connected to analog input.
-// PCB builds is pulled high.
-// Nano builds is pulled low.
+// Barrel safety switch is connected to analog pin 7.
+// PCB builds is pulled high as digital input.
+// Nano builds is pulled low as analog input.
 bool switchBarrel() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(analogRead(switch_barrel) < i_switch_barrel_value) {
+    if(digitalRead(switch_barrel) == LOW) {
       return true;
     }
     else {
@@ -6216,7 +6216,7 @@ void afterLifeRamp1() {
 
 // Pack communication to the wand.
 void checkPack() {
-  if(wandComs.available()) {
+  if(wandComs.available() && b_no_pack != true) {
     wandComs.rxObj(comStruct);
 
     if(!wandComs.currentPacketID()) {
@@ -7024,11 +7024,13 @@ void checkPack() {
 }
 
 void wandSerialSend(int i_message) {
-  sendStruct.i = i_message;
-  sendStruct.s = W_COM_START;
-  sendStruct.e = W_COM_END;
+  if(b_no_pack != true) {
+    sendStruct.i = i_message;
+    sendStruct.s = W_COM_START;
+    sendStruct.e = W_COM_END;
 
-  wandComs.sendDatum(sendStruct);
+    wandComs.sendDatum(sendStruct);
+  }
 }
 
 #ifdef GPSTAR_NEUTRONA_WAND_PCB
