@@ -5614,7 +5614,7 @@ void checkRotary() {
         case ACTION_EEPROM_MENU:
             // Counter clockwise.
             if(prev_next_code == 0x0b) {
-              if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
+              if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
                 // Change colour of the wand barrel spectral custom colour.
                 if(i_spectral_wand_custom > 1 && i_spectral_wand_saturation_custom > 253) {
                   i_spectral_wand_custom--;
@@ -5632,15 +5632,15 @@ void checkRotary() {
 
                 wandBarrelSpectralCustomConfigOn();
               }
-              else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
+              else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
                 // Change colour of the Power Cell Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_DECREASE);
               }
-              else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
+              else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
                 // Change colour of the Cyclotron Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE);
               }
-              else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
+              else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
                 // Change colour of the Inner Cyclotron Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
               }
@@ -5654,7 +5654,7 @@ void checkRotary() {
 
             // Clockwise.
             if(prev_next_code == 0x07) {
-              if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
+              if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
                 // Change colour of the Wand Barrel Spectral custom colour.
                 if(i_spectral_wand_saturation_custom < 254) {
                   i_spectral_wand_saturation_custom++;
@@ -5679,15 +5679,15 @@ void checkRotary() {
 
                 wandBarrelSpectralCustomConfigOn();
               }
-              else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
+              else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
                 // Change colour of the Power Cell Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_INCREASE);
               }
-              else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
+              else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
                 // Change colour of the Cyclotron Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE);
               }
-              else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value) {
+              else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
                 // Change colour of the Inner Cyclotron Spectral custom colour.
                 wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
               }
@@ -5716,7 +5716,7 @@ void checkRotary() {
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
           }
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value && b_playing_music == true) {
+            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW && b_playing_music == true) {
           #else
             else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) > i_switch_mode_value && b_playing_music == true) {
           #endif
@@ -5783,7 +5783,7 @@ void checkRotary() {
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
           }
           #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) < i_switch_mode_value && b_playing_music == true) {
+            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW && b_playing_music == true) {
           #else
             else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) > i_switch_mode_value && b_playing_music == true) {
           #endif
