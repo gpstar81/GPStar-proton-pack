@@ -1873,16 +1873,6 @@ void checkSwitches() {
 
   switchBarrel();
 
-  /*
-  // Play the Afterlife Barrel extension sound effect.
-  if(year_mode == 2021) {
-    if(wasBarrelJustExtended() == true) {
-      // Plays the "thwoop" barrel extension sound in Afterlife mode.
-      playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
-    }
-  }
-  */
-
   switch(WAND_STATUS) {
     case MODE_OFF:
      if(switch_activate.isPressed() && WAND_ACTION_STATUS == ACTION_IDLE) {
