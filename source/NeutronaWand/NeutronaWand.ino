@@ -6178,6 +6178,10 @@ void switchBarrel() {
     if(digitalRead(switch_barrel) == LOW && ms_switch_barrel_debounce.remaining() < 1) {
       ms_switch_barrel_debounce.start(switch_debounce_time * 5);
 
+      if(b_switch_barrel_extended == true) {
+        wandSerialSend(W_BARREL_RETRACTED);
+      }
+
       b_switch_barrel_extended = false;
     }
     else if(digitalRead(switch_barrel) == HIGH && ms_switch_barrel_debounce.remaining() < 1) {
@@ -6187,11 +6191,19 @@ void switchBarrel() {
         playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
       }
 
+      if(b_switch_barrel_extended != true) {
+        wandSerialSend(W_BARREL_EXTENDED);
+      }
+
       b_switch_barrel_extended = true;
     }
   #else
     if(analogRead(switch_barrel) > i_switch_barrel_value && ms_switch_barrel_debounce.remaining() < 1) {
       ms_switch_barrel_debounce.start(switch_debounce_time * 5);
+
+      if(b_switch_barrel_extended == true) {
+        wandSerialSend(W_BARREL_RETRACTED);
+      }
 
       b_switch_barrel_extended = false;
     }
@@ -6200,8 +6212,14 @@ void switchBarrel() {
       if(year_mode == 2021 && b_switch_barrel_extended != true) {
         // Plays the "thwoop" barrel extension sound in Afterlife mode.
         playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
+
+        wandSerialSend(W_BARREL_EXTENDED);
       }
 
+      if(b_switch_barrel_extended != true) {
+        wandSerialSend(W_BARREL_EXTENDED);
+      }
+      
       b_switch_barrel_extended = true;  
     }
   #endif
@@ -6318,6 +6336,13 @@ void checkPack() {
 
             case P_SYNC_END:
               b_sync = false;
+
+              switchBarrel();
+
+              // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended. Otherwise the switchBarrel() will tell it if it's retracted during bootup.
+              if(b_switch_barrel_extended == true) {
+                wandSerialSend(W_BARREL_EXTENDED);
+              }
             break;
 
             case P_MASTER_AUDIO_SILENT_MODE:

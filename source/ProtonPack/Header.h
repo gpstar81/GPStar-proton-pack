@@ -212,6 +212,7 @@ ezButton switch_vibration(27); // Vibration toggle switch
 ezButton switch_cyclotron_direction(29); // Newly added switch for controlling the direction of the Cyclotron lights. Not required. Defaults to clockwise.
 ezButton switch_power(31); // Red power switch under the Ion Arm.
 ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
+//bool b_neutrona_wand_barrel_extended = false; // Unused at the moment.
 
 /* 
  *  WAV Trigger

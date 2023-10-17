@@ -713,6 +713,14 @@ void checkPack() {
             i_speed_multiplier++;
           break;
 
+          case A_BARREL_EXTENDED:
+            // Neutrona Wand Barrel is extended.
+          break;
+          
+          case A_BARREL_RETRACTED:
+            // Neutrona Wand Barrel is retracted.
+          break;
+
           case A_CYCLOTRON_NORMAL_SPEED:
             i_speed_multiplier = 1;
 

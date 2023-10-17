@@ -4178,6 +4178,22 @@ void checkWand() {
               serial1Send(A_WAND_OFF);
             break;
 
+            case W_BARREL_EXTENDED:
+              // Unused at the moment.
+              //b_neutrona_wand_barrel_extended = true;
+
+              // Tell the attenuator or any other device on Serial 1 that the Neutrona Wand barrel is extended.
+              serial1Send(A_BARREL_EXTENDED);
+            break;
+
+            case W_BARREL_RETRACTED:
+              // Unused at the moment.
+              //b_neutrona_wand_barrel_extended = false;
+
+              // Tell the attenuator or any other device on Serial 1 that the Neutrona Wand barrel is retracted.
+              serial1Send(A_BARREL_RETRACTED);
+            break;
+
             case W_CYCLOTRON_SIMULATE_RING_TOGGLE:
               if(b_cyclotron_simulate_ring == true) {
                 stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
@@ -6147,9 +6163,9 @@ void checkWand() {
               packSerialSend(P_MASTER_AUDIO_NORMAL);
             }
 
-            packSerialSend(P_SYNC_END);
-
             b_wand_connected = true;
+
+            packSerialSend(P_SYNC_END);
           }
         }
       }
