@@ -6216,8 +6216,6 @@ void switchBarrel() {
       if(year_mode == 2021 && b_switch_barrel_extended != true) {
         // Plays the "thwoop" barrel extension sound in Afterlife mode.
         playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
-
-        wandSerialSend(W_BARREL_EXTENDED);
       }
 
       if(b_switch_barrel_extended != true) {
