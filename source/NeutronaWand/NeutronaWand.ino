@@ -6216,7 +6216,7 @@ bool wasBarrelJustExtended() {
     else {
       return false;
     }
-  #endif  
+  #endif
 }
 
 void stopAfterLifeSounds() {
