@@ -101,11 +101,13 @@ ezButton switch_vent(4); // Turns on the vent light.
 const int switch_mode = A6; // Changes firing modes or to reach the settings menu.
 const int switch_barrel = A7; // Barrel extension/open switch.
 bool b_switch_mode_pressed = false;
+bool b_switch_barrel_extended = false;
 
 /*
  * Some switch settings.
  */
 const uint8_t switch_debounce_time = 50;
+millisDelay ms_switch_barrel_debounce;
 millisDelay ms_switch_mode_debounce;
 millisDelay ms_switch_mode_firing;
 millisDelay ms_intensify_timer;

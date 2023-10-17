@@ -201,10 +201,11 @@ enum sound_fx {
   S_VOICE_BARREL_LED_48,
   S_VOICE_BARREL_LED_60,
   S_VOICE_BOOTUP_ERRORS_ENABLED,
-  S_VOICE_BOOTUP_ERRORS_DISABLED
+  S_VOICE_BOOTUP_ERRORS_DISABLED,
+  S_AFTERLIFE_WAND_BARREL_EXTEND
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_VOICE_BOOTUP_ERRORS_DISABLED;
+const unsigned int i_last_effects_track = S_AFTERLIFE_WAND_BARREL_EXTEND;
