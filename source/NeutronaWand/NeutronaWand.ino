@@ -209,7 +209,7 @@ void setup() {
     b_cross_the_streams = true;
   }
 
-  // Check if we should be in Video game mode or not.
+  // Check if we should be in video game mode or not.
   vgModeCheck();
 
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
@@ -287,17 +287,10 @@ void mainLoop() {
           switch(year_mode) {
             case 1984:
             case 1989:
-              if(wasBarrelJustExtended() == true) {
-                // Do nothing.
-              }
+              // Do nothing.
             break;
 
             case 2021:
-              if(wasBarrelJustExtended() == true) {
-                // Plays the "thwoop" barrel extension sound in Afterlife mode.
-                playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
-              }
-
               if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
                 // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
                 if(b_switch_barrel_extended == true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
@@ -1879,6 +1872,16 @@ void checkSwitches() {
   }
 
   switchBarrel();
+
+  /*
+  // Play the Afterlife Barrel extension sound effect.
+  if(year_mode == 2021) {
+    if(wasBarrelJustExtended() == true) {
+      // Plays the "thwoop" barrel extension sound in Afterlife mode.
+      playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
+    }
+  }
+  */
 
   switch(WAND_STATUS) {
     case MODE_OFF:
@@ -6182,39 +6185,34 @@ void switchModePressedReset() {
 // Nano builds is pulled low as analog input.
 void switchBarrel() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(digitalRead(switch_barrel) == LOW && b_switch_barrel_extended == true && ms_switch_barrel_debounce.remaining() < 1) {
+    if(digitalRead(switch_barrel) == LOW && ms_switch_barrel_debounce.remaining() < 1) {
       ms_switch_barrel_debounce.start(switch_debounce_time * 5);
 
       b_switch_barrel_extended = false;
     }
+    else if(digitalRead(switch_barrel) == HIGH && ms_switch_barrel_debounce.remaining() < 1) {
+      // Play the Afterlife Barrel extension sound effect.
+      if(year_mode == 2021 && b_switch_barrel_extended != true) {
+        // Plays the "thwoop" barrel extension sound in Afterlife mode.
+        playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
+      }
+
+      b_switch_barrel_extended = true;
+    }
   #else
-    if(analogRead(switch_barrel) > i_switch_barrel_value && b_switch_barrel_extended == true && ms_switch_barrel_debounce.remaining() < 1) {
+    if(analogRead(switch_barrel) > i_switch_barrel_value && ms_switch_barrel_debounce.remaining() < 1) {
       ms_switch_barrel_debounce.start(switch_debounce_time * 5);
 
       b_switch_barrel_extended = false;
     }
-  #endif
-}
+    else if(analogRead(switch_barrel) < i_switch_barrel_value && ms_switch_barrel_debounce.remaining() < 1) {
+      // Play the Afterlife Barrel extension sound effect.
+      if(year_mode == 2021 && b_switch_barrel_extended != true) {
+        // Plays the "thwoop" barrel extension sound in Afterlife mode.
+        playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
+      }
 
-// Check if the barrel has just been extended
-bool wasBarrelJustExtended() {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(digitalRead(switch_barrel) == HIGH && b_switch_barrel_extended != true && ms_switch_barrel_debounce.remaining() < 1) {
-      b_switch_barrel_extended = true;
-
-      return true;
-    }
-    else {
-      return false;
-    }
-  #else
-    if(analogRead(switch_barrel) < i_switch_barrel_value && b_switch_barrel_extended != true && ms_switch_barrel_debounce.remaining() < 1) {
-      b_switch_barrel_extended = true;
-
-      return true;
-    }
-    else {
-      return false;
+      b_switch_barrel_extended = true;  
     }
   #endif
 }
@@ -7402,10 +7400,14 @@ void setupWavTrigger() {
 
   delay(10);
 
-  // Send a stop-all command and reset the sample-rate offset, in case we have
-  // reset while the WAV Trigger was already playing.
-  w_trig.stopAllTracks();
-  w_trig.samplerateOffset(0); // Reset our sample rate offset
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    // Stop all tracks.
+    w_trig.stopAllTracks();
+    
+    // Reset the sample-rate offset, in case we have
+    w_trig.samplerateOffset(0); // Reset our sample rate offset
+  #endif
+
   w_trig.masterGain(i_volume_master); // Reset the master gain db. 0db is default. Range is -70 to 0.
   w_trig.setAmpPwr(b_onboard_amp_enabled); // Turn on the onboard amp.
 

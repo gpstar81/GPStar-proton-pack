@@ -101,7 +101,7 @@ ezButton switch_vent(4); // Turns on the vent light.
 const int switch_mode = A6; // Changes firing modes or to reach the settings menu.
 const int switch_barrel = A7; // Barrel extension/open switch.
 bool b_switch_mode_pressed = false;
-bool b_switch_barrel_extended = false;
+bool b_switch_barrel_extended = true; // Set to true for bootup. The Neutrona Wand will adjust as necessary, to prevent the barrel extension sound from playing during bootup when it's not suppose to.
 
 /*
  * Some switch settings.

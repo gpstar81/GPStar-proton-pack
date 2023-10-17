@@ -410,6 +410,7 @@ uint8_t txbuf[9];
 	WTSerial.write(txbuf, 9);
 }
 
+#ifdef GPSTAR_PCB
 // **************************************************************
 void wavTrigger::stopAllTracks(void) {
 
@@ -422,6 +423,7 @@ uint8_t txbuf[5];
 	txbuf[4] = EOM;
 	WTSerial.write(txbuf, 5);
 }
+#endif
 
 #ifdef GPSTAR_PCB
   // **************************************************************
@@ -479,6 +481,7 @@ unsigned short vol;
 	WTSerial.write(txbuf, 12);
 }
 
+#ifdef GPSTAR_PCB
 // **************************************************************
 void wavTrigger::samplerateOffset(int offset) {
 
@@ -495,6 +498,7 @@ unsigned short off;
 	txbuf[6] = EOM;
 	WTSerial.write(txbuf, 7);
 }
+#endif
 
 #ifdef GPSTAR_PCB
   // **************************************************************

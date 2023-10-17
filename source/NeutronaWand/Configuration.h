@@ -81,7 +81,7 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 uint8_t i_num_barrel_leds = 5;
 
 /*
- * When set ti true, the bargraph will invert the sequence.
+ * When set to true, the bargraph will invert the sequence.
 */
 bool b_bargraph_invert = false;
 
@@ -227,7 +227,9 @@ bool b_extra_pack_sounds = false;
   const bool b_eeprom = true;
 #endif
 
-/*
- * When set to true, the Neutrona Wand will function without a Proton Pack connected.
-*/
-const bool b_gpstar_benchtest = false;
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  /*
+  * When set to true, the Neutrona Wand will function without a Proton Pack connected.
+  */
+  const bool b_gpstar_benchtest = false;
+#endif
