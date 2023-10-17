@@ -129,9 +129,13 @@ const uint8_t led_bargraph_4 = A4;
 const uint8_t led_bargraph_5 = A5;
 
 const uint8_t i_bargraph_segments_5_led = 5;
-uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {};
-const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
-const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {};
+  const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
+  const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
+#else
+  const uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
+#endif
 
 /* 
  *  Idling timers

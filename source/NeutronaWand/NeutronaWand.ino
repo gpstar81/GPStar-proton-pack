@@ -159,7 +159,9 @@ void setup() {
     pinMode(led_bargraph_5, OUTPUT);
   #endif
 
-  setBargraphOrientation();
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    setBargraphOrientation();
+  #endif
 
   pinMode(led_slo_blo, OUTPUT);
 
@@ -4659,32 +4661,34 @@ void cyclotronSpeedRevert() {
   }
 #endif
 
-void setBargraphOrientation() {
-  if(b_bargraph_invert != true) {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      // Resets the 28 Segment bargraph orientation.
-      for(uint8_t i = 0; i < i_bargraph_segments; i++) {
-        i_bargraph[i] = i_bargraph_normal[i];
-      }
-    #endif
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  void setBargraphOrientation() {
+    if(b_bargraph_invert != true) {
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        // Resets the 28 Segment bargraph orientation.
+        for(uint8_t i = 0; i < i_bargraph_segments; i++) {
+          i_bargraph[i] = i_bargraph_normal[i];
+        }
+      #endif
 
-    for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
-      i_bargraph_5_led[i] = i_bargraph_5_led_normal[i];
+      for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
+        i_bargraph_5_led[i] = i_bargraph_5_led_normal[i];
+      }
+    }
+    else {
+      #ifdef GPSTAR_NEUTRONA_WAND_PCB
+        // Resets the 28 Segment bargraph orientation.
+        for(uint8_t i = 0; i < i_bargraph_segments; i++) {
+          i_bargraph[i] = i_bargraph_invert[i];
+        }
+      #endif
+
+      for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
+        i_bargraph_5_led[i] = i_bargraph_5_led_invert[i];
+      }
     }
   }
-  else {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      // Resets the 28 Segment bargraph orientation.
-      for(uint8_t i = 0; i < i_bargraph_segments; i++) {
-        i_bargraph[i] = i_bargraph_invert[i];
-      }
-    #endif
-
-    for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
-      i_bargraph_5_led[i] = i_bargraph_5_led_invert[i];
-    }
-  }
-}
+#endif
 
 void bargraphPowerCheck() {
   // Control for the 28 segment barmeter bargraph.

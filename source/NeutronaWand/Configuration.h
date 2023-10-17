@@ -80,10 +80,13 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 */
 uint8_t i_num_barrel_leds = 5;
 
-/*
- * When set to true, the bargraph will invert the sequence.
-*/
-bool b_bargraph_invert = false;
+#ifdef GPSTAR_NEUTRONA_WAND_PCB
+  /*
+  * When set to true, the bargraph will invert the sequence.
+  * Only compatible with the gpstar Neutrona Wand board.
+  */
+  bool b_bargraph_invert = false;
+#endif
 
 /*
  * When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
