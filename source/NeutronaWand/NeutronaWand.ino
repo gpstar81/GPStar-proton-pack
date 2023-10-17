@@ -185,8 +185,9 @@ void setup() {
 
   ms_reset_sound_beep.start(i_sound_timer);
 
-  // Setup the mode switch debounce.
+  // Setup the mode switch and barrel switch debounce.
   ms_switch_mode_debounce.start(1);
+  ms_switch_barrel_debounce.start(1);
 
   // We bootup the wand in the classic proton mode.
   FIRING_MODE = PROTON;
@@ -286,13 +287,20 @@ void mainLoop() {
           switch(year_mode) {
             case 1984:
             case 1989:
-              // Do nothing.
+              if(wasBarrelJustExtended() == true) {
+                // Do nothing.
+              }
             break;
 
             case 2021:
+              if(wasBarrelJustExtended() == true) {
+                // Plays the "thwoop" barrel extension sound in Afterlife mode.
+                playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
+              }
+
               if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
                 // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
-                if(switchBarrel() != true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                if(b_switch_barrel_extended == true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
                   digitalWrite(led_hat_1, HIGH);
                 }
                 else {
@@ -350,7 +358,7 @@ void mainLoop() {
           modeFiring();
 
           // Stop firing if any of the main switches are turned off or the barrel is retracted.
-          if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH || switchBarrel() == true) {
+          if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH || b_switch_barrel_extended != true) {
             modeFireStop();
           }
         }
@@ -1870,6 +1878,8 @@ void checkSwitches() {
     ms_switch_mode_firing.stop();
   }
 
+  switchBarrel();
+
   switch(WAND_STATUS) {
     case MODE_OFF:
      if(switch_activate.isPressed() && WAND_ACTION_STATUS == ACTION_IDLE) {
@@ -2130,7 +2140,7 @@ void checkSwitches() {
           ms_bmash.start(i_bmash_cool_down);
         }
         else {
-          if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+          if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
             if(WAND_ACTION_STATUS != ACTION_FIRING) {
               WAND_ACTION_STATUS = ACTION_FIRING;
             }
@@ -2153,7 +2163,7 @@ void checkSwitches() {
 
           // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
           if(b_cross_the_streams == true) {
-            if(switchMode() == true && switch_wand.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_switch_mode_firing.isRunning() != true && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true) {
+            if(switchMode() == true && switch_wand.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_switch_mode_firing.isRunning() != true && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
               if(WAND_ACTION_STATUS != ACTION_FIRING) {
                 WAND_ACTION_STATUS = ACTION_FIRING;
               }
@@ -2218,7 +2228,7 @@ void checkSwitches() {
 
         // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
         if(b_quick_vent == true) {
-          if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == HIGH && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && switchBarrel() != true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
+          if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == HIGH && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
             startVentSequence();
           }
         }
@@ -6170,22 +6180,43 @@ void switchModePressedReset() {
 // Barrel safety switch is connected to analog pin 7.
 // PCB builds is pulled high as digital input.
 // Nano builds is pulled low as analog input.
-bool switchBarrel() {
+void switchBarrel() {
   #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(digitalRead(switch_barrel) == LOW) {
+    if(digitalRead(switch_barrel) == LOW && b_switch_barrel_extended == true && ms_switch_barrel_debounce.remaining() < 1) {
+      ms_switch_barrel_debounce.start(switch_debounce_time * 5);
+
+      b_switch_barrel_extended = false;
+    }
+  #else
+    if(analogRead(switch_barrel) > i_switch_barrel_value && b_switch_barrel_extended == true && ms_switch_barrel_debounce.remaining() < 1) {
+      ms_switch_barrel_debounce.start(switch_debounce_time * 5);
+
+      b_switch_barrel_extended = false;
+    }
+  #endif
+}
+
+// Check if the barrel has just been extended
+bool wasBarrelJustExtended() {
+  #ifdef GPSTAR_NEUTRONA_WAND_PCB
+    if(digitalRead(switch_barrel) == HIGH && b_switch_barrel_extended != true && ms_switch_barrel_debounce.remaining() < 1) {
+      b_switch_barrel_extended = true;
+
       return true;
     }
     else {
       return false;
     }
   #else
-    if(analogRead(switch_barrel) > i_switch_barrel_value) {
+    if(analogRead(switch_barrel) < i_switch_barrel_value && b_switch_barrel_extended != true && ms_switch_barrel_debounce.remaining() < 1) {
+      b_switch_barrel_extended = true;
+
       return true;
     }
     else {
       return false;
     }
-  #endif
+  #endif  
 }
 
 void stopAfterLifeSounds() {
