@@ -80,22 +80,18 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 */
 uint8_t i_num_barrel_leds = 5;
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  /*
-  * When set to true, the bargraph will invert the sequence.
-  * Only compatible with the gpstar Neutrona Wand board.
-  */
-  bool b_bargraph_invert = false;
-#endif
+/*
+* When set to true, the bargraph will invert the sequence.
+* Only compatible with the gpstar Neutrona Wand board.
+*/
+bool b_bargraph_invert = false;
 
 /*
  * When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
  * When set to false (default), it mimics the action in Afterlife.
  * Only compatible with the gpstar Neutrona Wand board.
 */
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  bool b_bargraph_always_ramping = false;
-#endif
+bool b_bargraph_always_ramping = false;
 
 /*
  * If the Frutto vent light has been installed, uncomment the line below
@@ -217,22 +213,18 @@ const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 const bool b_onboard_amp_enabled = true;
 
 /*
-  * When set to true, the Neutrona Wand will tell the Proton Pack to play the After Life Neutrona Wand ramp sounds:
-  * Only compatible with the gpstar Neutrona Wand board.
-  * The default setting is false.
+ * When set to true, the Neutrona Wand will tell the Proton Pack to play the After Life Neutrona Wand ramp sounds:
+ * Only compatible with the gpstar Neutrona Wand board.
+ * The default setting is false.
 */
 bool b_extra_pack_sounds = false;
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  /*
-  * Set to false to ignore reading data from the EEPROM.
-  */
-  const bool b_eeprom = true;
-#endif
+/*
+ * Set to false to ignore reading data from the EEPROM.
+*/
+const bool b_eeprom = true;
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  /*
-  * When set to true, the Neutrona Wand will function without a Proton Pack connected.
-  */
-  const bool b_gpstar_benchtest = false;
-#endif
+/*
+ * When set to true, the Neutrona Wand will function without a Proton Pack connected.
+*/
+const bool b_gpstar_benchtest = false;

@@ -17,6 +17,12 @@
  *
  */
 
+/*
+  Please note, due to limitations of the ATMega328P, Arduino Nano builds are no longer supported for the Neutrona Wand.
+  The last supported version is 2.1.0
+  https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.1.0
+*/
+
 #if defined(__AVR_ATmega2560__)
   #define GPSTAR_NEUTRONA_WAND_PCB
 #endif
@@ -25,24 +31,10 @@
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
+#include <EEPROM.h>
+#include <ht16k33.h>
+#include <Wire.h>
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  #include <EEPROM.h>
-  #include <ht16k33.h>
-  #include <Wire.h>
-#endif
-
-/*
-  ***** IMPORTANT *****
-  * For Arduino Nano builds, you need to open Packet.h located in your Arduino/Libraries/SerialTransfer folder and on line #34 and change the max packet size to 0x40:
-  * When building for your Mega, you can switch it back to 0xFE
-
-  * Before:
-  const uint8_t MAX_PACKET_SIZE = 0xFE; // Maximum allowed payload bytes per packet
-
-  * After:
-  const uint8_t MAX_PACKET_SIZE = 0x40; // Maximum allowed payload bytes per packet
-*/
 #include <SerialTransfer.h>
 
 /*
@@ -62,24 +54,15 @@
 #include "MusicSounds.h"
 #include "Communication.h"
 #include "Header.h"
-
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  #include "Colours.h"
-#endif
-
-#ifndef GPSTAR_NEUTRONA_WAND_PCB
-  #include <AltSoftSerial.h>
-#endif
+#include "Colours.h"
 
 void setup() {
   Serial.begin(9600);
 
   // Enable Serial1 if compiling for the gpstar Neutrona Wand microcontroller.
   #ifdef HAVE_HWSERIAL1
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      Serial1.begin(9600);
-      wandComs.begin(Serial1, false);
-    #endif
+    Serial1.begin(9600);
+    wandComs.begin(Serial1, false);
   #else
     wandComs.begin(Serial, false);
   #endif
@@ -98,80 +81,63 @@ void setup() {
   switch_activate.setDebounceTime(switch_debounce_time);
   switch_vent.setDebounceTime(switch_debounce_time);
 
-  #ifndef GPSTAR_NEUTRONA_WAND_PCB
-    b_28segment_bargraph = false; // Force Arduino Nano builds to not use the 28 segment bargraph.
-  #endif
+  b_28segment_bargraph = false; // Force Arduino Nano builds to not use the 28 segment bargraph.
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    pinMode(switch_mode, INPUT_PULLUP);
-    pinMode(switch_barrel, INPUT_PULLUP);
-  #endif
+  pinMode(switch_mode, INPUT_PULLUP);
+  pinMode(switch_barrel, INPUT_PULLUP);
 
   // Rotary encoder on the top of the wand.
   pinMode(r_encoderA, INPUT_PULLUP);
   pinMode(r_encoderB, INPUT_PULLUP);
 
   // Setup the bargraph.
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    bargraphYearModeUpdate();
+  bargraphYearModeUpdate();
 
-    delay(10);
+  delay(10);
 
-    WIRE.begin();
+  WIRE.begin();
 
-    byte by_error, by_address;
-    unsigned int i_i2c_devices = 0;
+  byte by_error, by_address;
+  unsigned int i_i2c_devices = 0;
 
-    // Scan i2c for any devices (28 segment bargraph).
-    for(by_address = 1; by_address < 127; by_address++ ) {
-      WIRE.beginTransmission(by_address);
-      by_error = WIRE.endTransmission();
+  // Scan i2c for any devices (28 segment bargraph).
+  for(by_address = 1; by_address < 127; by_address++ ) {
+    WIRE.beginTransmission(by_address);
+    by_error = WIRE.endTransmission();
 
-      if(by_error == 0) {
-        i_i2c_devices++;
-      }
+    if(by_error == 0) {
+      i_i2c_devices++;
     }
+  }
 
-    if(i_i2c_devices > 0) {
-      b_28segment_bargraph = true;
-    }
-    else {
-      b_28segment_bargraph = false;
-    }
+  if(i_i2c_devices > 0) {
+    b_28segment_bargraph = true;
+  }
+  else {
+    b_28segment_bargraph = false;
+  }
 
-    if(b_28segment_bargraph == true) {
-      ht_bargraph.begin(0x00);
-    }
-    else {
-      // Original 5 LED Hasbro bargraph.
-      pinMode(led_bargraph_1, OUTPUT);
-      pinMode(led_bargraph_2, OUTPUT);
-      pinMode(led_bargraph_3, OUTPUT);
-      pinMode(led_bargraph_4, OUTPUT);
-      pinMode(led_bargraph_5, OUTPUT);
-    }
-  #else
+  if(b_28segment_bargraph == true) {
+    ht_bargraph.begin(0x00);
+  }
+  else {
     // Original 5 LED Hasbro bargraph.
     pinMode(led_bargraph_1, OUTPUT);
     pinMode(led_bargraph_2, OUTPUT);
     pinMode(led_bargraph_3, OUTPUT);
     pinMode(led_bargraph_4, OUTPUT);
     pinMode(led_bargraph_5, OUTPUT);
-  #endif
+  }
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    setBargraphOrientation();
-  #endif
+  setBargraphOrientation();
 
   pinMode(led_slo_blo, OUTPUT);
 
   // Extra optional items if using them with the gpstar Neutrona Wand microcontroller.
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand microcontroller, it is wired to its own pin. When using an Arduino Nano, it is linked with led_slo_blo.
-    pinMode(led_hat_1, OUTPUT); // Hat light at front of the wand near the barrel tip.
-    pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body (gun box).
-    pinMode(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
-  #endif
+  pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand microcontroller, it is wired to its own pin. When using an Arduino Nano, it is linked with led_slo_blo.
+  pinMode(led_hat_1, OUTPUT); // Hat light at front of the wand near the barrel tip.
+  pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body (gun box).
+  pinMode(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
 
   pinMode(led_vent, OUTPUT);
   pinMode(led_white, OUTPUT);
@@ -195,12 +161,10 @@ void setup() {
   FIRING_MODE = PROTON;
   PREV_FIRING_MODE = SETTINGS;
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    // Load any saved settings stored in the EEPROM memory of the gpstar Neutrona Wand.
-    if(b_eeprom == true) {
-      readEEPROM();
-    }
-  #endif
+  // Load any saved settings stored in the EEPROM memory of the gpstar Neutrona Wand.
+  if(b_eeprom == true) {
+    readEEPROM();
+  }
 
   ms_bmash.start(i_bmash_delay);
 
@@ -214,13 +178,16 @@ void setup() {
   // Check if we should be in video game mode or not.
   vgModeCheck();
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_gpstar_benchtest == true) {
-      b_no_pack = true;
-      b_wait_for_pack = false;
-      b_pack_on = true;
-    }
-  #endif
+  SYSTEM_MODE = MODE_SUPER_HERO;
+
+  // Start up some timers for MODE_ORIGINAL.
+  ms_slo_blo_blink.start(i_slo_blo_blink_delay);
+
+  if(b_gpstar_benchtest == true) {
+    b_no_pack = true;
+    b_wait_for_pack = false;
+    b_pack_on = true;
+  }
 }
 
 void loop() {
@@ -271,12 +238,10 @@ void mainLoop() {
           playEffect(S_BOOTUP);
         }
 
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          bargraphClearAlt();
+        bargraphClearAlt();
 
-          // Re-enable the hat light on top of the gun box
-          digitalWrite(led_hat_2, HIGH);
-        #endif
+        // Re-enable the hat light on top of the gun box
+        digitalWrite(led_hat_2, HIGH);
       }
     }
   }
@@ -284,28 +249,26 @@ void mainLoop() {
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
     default:
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(WAND_STATUS == MODE_ON) {
-          switch(year_mode) {
-            case 1984:
-            case 1989:
-              // Do nothing.
-            break;
+      if(WAND_STATUS == MODE_ON) {
+        switch(year_mode) {
+          case 1984:
+          case 1989:
+            // Do nothing.
+          break;
 
-            case 2021:
-              if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-                // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
-                if(b_switch_barrel_extended == true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-                  digitalWrite(led_hat_1, HIGH);
-                }
-                else {
-                  digitalWrite(led_hat_1, LOW);
-                }
+          case 2021:
+            if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+              // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
+              if(b_switch_barrel_extended == true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                digitalWrite(led_hat_1, HIGH);
               }
-            break;
-          }
+              else {
+                digitalWrite(led_hat_1, LOW);
+              }
+            }
+          break;
         }
-      #endif
+      }
     break;
 
     case ACTION_OFF:
@@ -329,16 +292,14 @@ void mainLoop() {
         }
 
         if(ms_hat_1.isRunning()) {
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
-              digitalWrite(led_hat_1, LOW);
-              digitalWrite(led_hat_2, HIGH);
-            }
-            else {
-              digitalWrite(led_hat_1, HIGH);
-              digitalWrite(led_hat_2, LOW);
-            }
-          #endif
+          if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
+            digitalWrite(led_hat_1, LOW);
+            digitalWrite(led_hat_2, HIGH);
+          }
+          else {
+            digitalWrite(led_hat_1, HIGH);
+            digitalWrite(led_hat_2, LOW);
+          }
 
           if(ms_hat_1.justFinished()) {
             ms_hat_1.start(i_hat_1_delay);
@@ -375,17 +336,13 @@ void mainLoop() {
       }
 
       if(ms_overheating.justFinished()) {
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          bargraphClearAlt();
-        #endif
+        bargraphClearAlt();
 
         ms_overheating.stop();
         ms_settings_blinking.stop();
 
         // Turn off hat light 2.
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_hat_2, LOW);
-        #endif
+        digitalWrite(led_hat_2, LOW);
 
         WAND_ACTION_STATUS = ACTION_IDLE;
 
@@ -396,14 +353,12 @@ void mainLoop() {
         if(b_overheat_bargraph_blink != true) {
           playEffect(S_BOOTUP);
 
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              if(year_mode == 2021 && b_bargraph_always_ramping != true) {
-                bargraphYearModeUpdate();
-              }
-              else {
-                i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
-              }
-          #endif
+          if(year_mode == 2021 && b_bargraph_always_ramping != true) {
+            bargraphYearModeUpdate();
+          }
+          else {
+            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
+          }
 
           if(switch_vent.getState() == LOW) {
             soundIdleLoop(true);
@@ -432,428 +387,425 @@ void mainLoop() {
       modeActivate();
     break;
 
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      case ACTION_EEPROM_MENU:
-        settingsBlinkingLights();
+    case ACTION_EEPROM_MENU:
+      settingsBlinkingLights();
 
-        switch(i_wand_menu) {
-          // Intensify: Clear the Proton Pack EEPROM settings and exit.
-          // Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
-          case 5:
-            // Tell the Proton Pack to clear the EEPROM settings and exit.
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay / 2);
+      switch(i_wand_menu) {
+        // Intensify: Clear the Proton Pack EEPROM settings and exit.
+        // Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
+        case 5:
+          // Tell the Proton Pack to clear the EEPROM settings and exit.
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
 
-              // Tell pack to clear the EEPROM and exit.
-              wandSerialSend(W_CLEAR_EEPROM_SETTINGS);
-              wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
+            // Tell pack to clear the EEPROM and exit.
+            wandSerialSend(W_CLEAR_EEPROM_SETTINGS);
+            wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
+
+            stopEffect(S_VOICE_EEPROM_ERASE);
+            playEffect(S_VOICE_EEPROM_ERASE);
+
+            clearLEDEEPROM();
+
+            wandExitEEPROMMenu();
+          }
+          else if(switchMode() == true) {
+            // Tell the Proton Pack to save the current settings to the EEPROM and exit.
+            wandSerialSend(W_SAVE_EEPROM_SETTINGS);
+            wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
+
+            stopEffect(S_VOICE_EEPROM_SAVE);
+            playEffect(S_VOICE_EEPROM_SAVE);
+
+            saveLEDEEPROM();
+
+            wandExitEEPROMMenu();
+          }
+        break;
+
+        // Intensify: Cycle through the different Cyclotron LED counts.
+        // Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotary();
+        case 4:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
+          }
+        break;
+
+        // Intensify: Cycle through the different Power Cell LED counts.
+        // Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotary();
+        case 3:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            wandSerialSend(W_TOGGLE_POWERCELL_LEDS);
+          }
+        break;
+
+        // Intensify: Cycle through the different inner Cyclotron LED counts.
+        // Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotary();
+        case 2:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_LEDS);
+          }
+        break;
+
+        // Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
+        // Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotary();
+        case 1:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            wandSerialSend(W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS);
+          }
+        break;
+      }
+    break;
+
+    case ACTION_CONFIG_EEPROM_MENU:
+      settingsBlinkingLights();
+
+      switch(i_wand_menu) {
+        // Top menu: Intensify: Clear the Neutrona Wand EEPROM settings and exit.
+        // Top menu: Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
+        // Sub menu: Intensify: Quick Vent.
+        // Sub menu: Barrel Wing Button: Wand Boot Errors.
+        case 5:
+          // Tell the Neutrona Wand to clear the EEPROM settings and exit.
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            if(b_wand_menu_sub != true) {
+              // Tell the Proton Pack to clear its current configuration from the EEPROM.
+              // Proton Stream Impact Effects / 3 LED mode in 1984/1989
+              wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
 
               stopEffect(S_VOICE_EEPROM_ERASE);
               playEffect(S_VOICE_EEPROM_ERASE);
 
-              clearLEDEEPROM();
+              // Clear wand EEPROM. (CTS/VGA, Overheating)
+              clearEEPROM();
 
               wandExitEEPROMMenu();
             }
-            else if(switchMode() == true) {
-              // Tell the Proton Pack to save the current settings to the EEPROM and exit.
-              wandSerialSend(W_SAVE_EEPROM_SETTINGS);
-              wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
+            else {
+              // Sub menu.
+              if(b_quick_vent == true) {
+                b_quick_vent = false;
+
+                stopEffect(S_VOICE_QUICK_VENT_DISABLED);
+                stopEffect(S_VOICE_QUICK_VENT_ENABLED);
+                playEffect(S_VOICE_QUICK_VENT_DISABLED);
+
+                wandSerialSend(W_QUICK_VENT_DISABLED);
+              }
+              else {
+                b_quick_vent = true;
+
+                stopEffect(S_VOICE_QUICK_VENT_DISABLED);
+                stopEffect(S_VOICE_QUICK_VENT_ENABLED);
+                playEffect(S_VOICE_QUICK_VENT_ENABLED);
+
+                wandSerialSend(W_QUICK_VENT_ENABLED);              
+              }
+            }
+          }
+          else if(switchMode() == true) {
+            if(b_wand_menu_sub != true) {
+              // Tell the Proton Pack to save its current configuration to the EEPROM.
+              // Proton Stream Impact Effects / 3 LED mode in 1984/1989
+              wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
 
               stopEffect(S_VOICE_EEPROM_SAVE);
               playEffect(S_VOICE_EEPROM_SAVE);
 
-              saveLEDEEPROM();
+              // Save wand EEPROM. (CTS/VGA, Overheating)
+              saveEEPROM();
 
               wandExitEEPROMMenu();
             }
-          break;
-
-          // Intensify: Cycle through the different Cyclotron LED counts.
-          // Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotary();
-          case 4:
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay / 2);
-
-              wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
-            }
-          break;
-
-          // Intensify: Cycle through the different Power Cell LED counts.
-          // Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotary();
-          case 3:
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay / 2);
-
-              wandSerialSend(W_TOGGLE_POWERCELL_LEDS);
-            }
-          break;
-
-          // Intensify: Cycle through the different inner Cyclotron LED counts.
-          // Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotary();
-          case 2:
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay / 2);
-
-              wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_LEDS);
-            }
-          break;
-
-          // Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
-          // Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotary();
-          case 1:
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay / 2);
-
-              wandSerialSend(W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS);
-            }
-          break;
-        }
-      break;
-
-      case ACTION_CONFIG_EEPROM_MENU:
-        settingsBlinkingLights();
-
-        switch(i_wand_menu) {
-          // Top menu: Intensify: Clear the Neutrona Wand EEPROM settings and exit.
-          // Top menu: Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
-          // Sub menu: Intensify: Quick Vent.
-          // Sub menu: Barrel Wing Button: Wand Boot Errors.
-          case 5:
-            // Tell the Neutrona Wand to clear the EEPROM settings and exit.
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay / 2);
-
-              if(b_wand_menu_sub != true) {
-                // Tell the Proton Pack to clear its current configuration from the EEPROM.
-                // Proton Stream Impact Effects / 3 LED mode in 1984/1989
-                wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
-
-                stopEffect(S_VOICE_EEPROM_ERASE);
-                playEffect(S_VOICE_EEPROM_ERASE);
-
-                // Clear wand EEPROM. (CTS/VGA, Overheating)
-                clearEEPROM();
-
-                wandExitEEPROMMenu();
-              }
-              else {
-                // Sub menu.
-                if(b_quick_vent == true) {
-                  b_quick_vent = false;
-
-                  stopEffect(S_VOICE_QUICK_VENT_DISABLED);
-                  stopEffect(S_VOICE_QUICK_VENT_ENABLED);
-                  playEffect(S_VOICE_QUICK_VENT_DISABLED);
-
-                  wandSerialSend(W_QUICK_VENT_DISABLED);
-                }
-                else {
-                  b_quick_vent = true;
-
-                  stopEffect(S_VOICE_QUICK_VENT_DISABLED);
-                  stopEffect(S_VOICE_QUICK_VENT_ENABLED);
-                  playEffect(S_VOICE_QUICK_VENT_ENABLED);
-
-                  wandSerialSend(W_QUICK_VENT_ENABLED);              
-                }
-              }
-            }
-            else if(switchMode() == true) {
-              if(b_wand_menu_sub != true) {
-                // Tell the Proton Pack to save its current configuration to the EEPROM.
-                // Proton Stream Impact Effects / 3 LED mode in 1984/1989
-                wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
-
-                stopEffect(S_VOICE_EEPROM_SAVE);
-                playEffect(S_VOICE_EEPROM_SAVE);
-
-                // Save wand EEPROM. (CTS/VGA, Overheating)
-                saveEEPROM();
-
-                wandExitEEPROMMenu();
-              }
-              else {
-                // Sub menu.
-                if(b_wand_boot_errors == true) {
-                  b_wand_boot_errors = false;
-
-                  stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
-                  stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
-                  playEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
-
-                  wandSerialSend(W_BOOTUP_ERRORS_DISABLED);
-                }
-                else {
-                  b_wand_boot_errors = true;
-
-                  stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
-                  stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
-                  playEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
-
-                  wandSerialSend(W_BOOTUP_ERRORS_ENABLED);
-                }
-              }
-            }
-          break;
-
-          // Top menu: Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
-          // Top menu: Barrel Wing Button: Enable Spectral and Holiday modes.
-          // Sub menu: Intensify: Vent Light Auto Intensity.
-          // Sub menu: Barrel Wing Button: 5 / 48 / 60 barrel LEDs.
-          case 4:
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay / 2);
-
-              if(b_wand_menu_sub != true) {
-                toggleWandModes();
-              }
-              else {
-                // Sub menu.
-                if(b_vent_light_control == true) {
-                  b_vent_light_control= false;
-
-                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-                  playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-
-                  wandSerialSend(W_VENT_LIGHT_INTENSITY_DISABLED);
-                }
-                else {
-                  b_vent_light_control = true;
-
-                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-                  playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-
-                  wandSerialSend(W_VENT_LIGHT_INTENSITY_ENABLED);
-                }
-              }
-            }
-
-            if(switchMode() == true) {
-              if(b_wand_menu_sub != true) {
-                if(b_spectral_mode_enabled == false || b_holiday_mode_enabled == false || b_spectral_custom_mode_enabled == false) {
-                  // Enable the spectral modes.
-                  b_spectral_mode_enabled = true;
-                  b_holiday_mode_enabled = true;
-                  b_spectral_custom_mode_enabled = true;
-
-                  stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
-                  stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
-                  playEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
-
-                  wandSerialSend(W_SPECTRAL_MODES_ENABLED);
-                }
-                else {
-                  // Disable the spectral modes.
-                  b_spectral_mode_enabled = false;
-                  b_holiday_mode_enabled = false;
-                  b_spectral_custom_mode_enabled = false;
-
-                  stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
-                  stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
-                  playEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
-
-                  wandSerialSend(W_SPECTRAL_MODES_DISABLED);
-                }
-              }
             else {
-                // Sub menu.
-                switch(i_num_barrel_leds) {
-                  case 5:
-                  default:
-                    i_num_barrel_leds = 48;
+              // Sub menu.
+              if(b_wand_boot_errors == true) {
+                b_wand_boot_errors = false;
 
-                    stopEffect(S_VOICE_BARREL_LED_5);
-                    stopEffect(S_VOICE_BARREL_LED_48);
-                    stopEffect(S_VOICE_BARREL_LED_60);
-                    playEffect(S_VOICE_BARREL_LED_48);
+                stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+                stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+                playEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
 
-                    wandSerialSend(W_BARREL_LEDS_48);
-                  break;
+                wandSerialSend(W_BOOTUP_ERRORS_DISABLED);
+              }
+              else {
+                b_wand_boot_errors = true;
 
-                  // 48 LED wand barrel board coming soon.
-                  case 48:
-                    i_num_barrel_leds = 5;
+                stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+                stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+                playEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
 
-                    stopEffect(S_VOICE_BARREL_LED_5);
-                    stopEffect(S_VOICE_BARREL_LED_48);
-                    stopEffect(S_VOICE_BARREL_LED_60);
-                    playEffect(S_VOICE_BARREL_LED_5);
+                wandSerialSend(W_BOOTUP_ERRORS_ENABLED);
+              }
+            }
+          }
+        break;
 
-                    wandSerialSend(W_BARREL_LEDS_5);
-                    /*
-                    i_num_barrel_leds = 60;
+        // Top menu: Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
+        // Top menu: Barrel Wing Button: Enable Spectral and Holiday modes.
+        // Sub menu: Intensify: Vent Light Auto Intensity.
+        // Sub menu: Barrel Wing Button: 5 / 48 / 60 barrel LEDs.
+        case 4:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
 
-                    stopEffect(S_VOICE_BARREL_LED_5);
-                    stopEffect(S_VOICE_BARREL_LED_48);
-                    stopEffect(S_VOICE_BARREL_LED_60);
-                    playEffect(S_VOICE_BARREL_LED_60);
+            if(b_wand_menu_sub != true) {
+              toggleWandModes();
+            }
+            else {
+              // Sub menu.
+              if(b_vent_light_control == true) {
+                b_vent_light_control= false;
 
-                    wandSerialSend(W_BARREL_LEDS_60);
-                    */                                  
-                  break;
+                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+                playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
 
+                wandSerialSend(W_VENT_LIGHT_INTENSITY_DISABLED);
+              }
+              else {
+                b_vent_light_control = true;
+
+                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+                playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+
+                wandSerialSend(W_VENT_LIGHT_INTENSITY_ENABLED);
+              }
+            }
+          }
+
+          if(switchMode() == true) {
+            if(b_wand_menu_sub != true) {
+              if(b_spectral_mode_enabled == false || b_holiday_mode_enabled == false || b_spectral_custom_mode_enabled == false) {
+                // Enable the spectral modes.
+                b_spectral_mode_enabled = true;
+                b_holiday_mode_enabled = true;
+                b_spectral_custom_mode_enabled = true;
+
+                stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+                stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+                playEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+
+                wandSerialSend(W_SPECTRAL_MODES_ENABLED);
+              }
+              else {
+                // Disable the spectral modes.
+                b_spectral_mode_enabled = false;
+                b_holiday_mode_enabled = false;
+                b_spectral_custom_mode_enabled = false;
+
+                stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+                stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+                playEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+
+                wandSerialSend(W_SPECTRAL_MODES_DISABLED);
+              }
+            }
+          else {
+              // Sub menu.
+              switch(i_num_barrel_leds) {
+                case 5:
+                default:
+                  i_num_barrel_leds = 48;
+
+                  stopEffect(S_VOICE_BARREL_LED_5);
+                  stopEffect(S_VOICE_BARREL_LED_48);
+                  stopEffect(S_VOICE_BARREL_LED_60);
+                  playEffect(S_VOICE_BARREL_LED_48);
+
+                  wandSerialSend(W_BARREL_LEDS_48);
+                break;
+
+                // 48 LED wand barrel board coming soon.
+                case 48:
+                  i_num_barrel_leds = 5;
+
+                  stopEffect(S_VOICE_BARREL_LED_5);
+                  stopEffect(S_VOICE_BARREL_LED_48);
+                  stopEffect(S_VOICE_BARREL_LED_60);
+                  playEffect(S_VOICE_BARREL_LED_5);
+
+                  wandSerialSend(W_BARREL_LEDS_5);
                   /*
-                  // Keep for now, the 60 LED flexi-pcb is not attenable at the moment, but perhaps one day in the future.
-                  case 60:
-                  default:
-                    i_num_barrel_leds = 5;
+                  i_num_barrel_leds = 60;
 
-                    stopEffect(S_VOICE_BARREL_LED_5);
-                    stopEffect(S_VOICE_BARREL_LED_48);
-                    stopEffect(S_VOICE_BARREL_LED_60);
-                    playEffect(S_VOICE_BARREL_LED_5);
+                  stopEffect(S_VOICE_BARREL_LED_5);
+                  stopEffect(S_VOICE_BARREL_LED_48);
+                  stopEffect(S_VOICE_BARREL_LED_60);
+                  playEffect(S_VOICE_BARREL_LED_60);
 
-                    wandSerialSend(W_BARREL_LEDS_5);
-                  break;
-                  */
-                }
-              }              
+                  wandSerialSend(W_BARREL_LEDS_60);
+                  */                                  
+                break;
+
+                /*
+                // Keep for now, the 60 LED flexi-pcb is not attenable at the moment, but perhaps one day in the future.
+                case 60:
+                default:
+                  i_num_barrel_leds = 5;
+
+                  stopEffect(S_VOICE_BARREL_LED_5);
+                  stopEffect(S_VOICE_BARREL_LED_48);
+                  stopEffect(S_VOICE_BARREL_LED_60);
+                  playEffect(S_VOICE_BARREL_LED_5);
+
+                  wandSerialSend(W_BARREL_LEDS_5);
+                break;
+                */
+              }
+            }              
+          }
+        break;
+
+        // Top menu: Intensify: Enable or Disable overheating settings.
+        // Top menu: Barrel Wing Button: Enable or disable smoke.
+        // Sub menu: Intensify: Invert bargraph.
+        // Sub menu: Barrel Wing Button: Bargraph always ramping.
+        case 3:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            if(b_wand_menu_sub != true) {
+              toggleOverHeating();
             }
-          break;
+            else {
+              // Sub menu.
+              if(b_bargraph_invert == true) {
+                b_bargraph_invert = false;
 
-          // Top menu: Intensify: Enable or Disable overheating settings.
-          // Top menu: Barrel Wing Button: Enable or disable smoke.
-          // Sub menu: Intensify: Invert bargraph.
-          // Sub menu: Barrel Wing Button: Bargraph always ramping.
-          case 3:
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay / 2);
+                stopEffect(S_VOICE_BARGRAPH_INVERTED);
+                stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+                playEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
 
-              if(b_wand_menu_sub != true) {
-                toggleOverHeating();
+                wandSerialSend(W_BARGRAPH_NOT_INVERTED);
               }
               else {
-                // Sub menu.
-                if(b_bargraph_invert == true) {
-                  b_bargraph_invert = false;
+                b_bargraph_invert = true;
 
-                  stopEffect(S_VOICE_BARGRAPH_INVERTED);
-                  stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
-                  playEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+                stopEffect(S_VOICE_BARGRAPH_INVERTED);
+                stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+                playEffect(S_VOICE_BARGRAPH_INVERTED);
 
-                  wandSerialSend(W_BARGRAPH_NOT_INVERTED);
-                }
-                else {
-                  b_bargraph_invert = true;
-
-                  stopEffect(S_VOICE_BARGRAPH_INVERTED);
-                  stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
-                  playEffect(S_VOICE_BARGRAPH_INVERTED);
-
-                  wandSerialSend(W_BARGRAPH_INVERTED);              
-                }
-
-                setBargraphOrientation();
+                wandSerialSend(W_BARGRAPH_INVERTED);              
               }
-            }
 
-            if(switchMode() == true) {
-              if(b_wand_menu_sub != true) {
-                // Enable or disable smoke.
-                wandSerialSend(W_SMOKE_TOGGLE);
+              setBargraphOrientation();
+            }
+          }
+
+          if(switchMode() == true) {
+            if(b_wand_menu_sub != true) {
+              // Enable or disable smoke.
+              wandSerialSend(W_SMOKE_TOGGLE);
+            }
+            else {
+              // Sub menu.
+              if(b_bargraph_always_ramping == true) {
+                b_bargraph_always_ramping = false;
+
+                stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+                stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
+                playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+
+                wandSerialSend(W_BARGRAPH_ALWAYS_RAMPING_DISABLED);
               }
               else {
-                // Sub menu.
-                if(b_bargraph_always_ramping == true) {
-                  b_bargraph_always_ramping = false;
+                b_bargraph_always_ramping = true;
 
-                  stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
-                  stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
-                  playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+                stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
+                stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+                playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
 
-                  wandSerialSend(W_BARGRAPH_ALWAYS_RAMPING_DISABLED);
-                }
-                else {
-                  b_bargraph_always_ramping = true;
-
-                  stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
-                  stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
-                  playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
-
-                  wandSerialSend(W_BARGRAPH_ALWAYS_RAMPING_ENABLED);              
-                }
+                wandSerialSend(W_BARGRAPH_ALWAYS_RAMPING_ENABLED);              
               }
             }
-          break;
+          }
+        break;
 
-          // Top menu: Intensify: Change the Cyclotron direction.
-          // Top menu: Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
-          // Sub menu: Intensify: Overheat strobe.
-          // Sub menu: Barrel Wing Button: Overheat lights off.
-          case 2:
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay / 2);
+        // Top menu: Intensify: Change the Cyclotron direction.
+        // Top menu: Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
+        // Sub menu: Intensify: Overheat strobe.
+        // Sub menu: Barrel Wing Button: Overheat lights off.
+        case 2:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
 
-              if(b_wand_menu_sub != true) {
-                // Tell the Proton Pack to change the Cyclotron rotation direction.
-                wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
+            if(b_wand_menu_sub != true) {
+              // Tell the Proton Pack to change the Cyclotron rotation direction.
+              wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
+            }
+            else {
+              // Sub menu.
+              wandSerialSend(W_OVERHEAT_STROBE_TOGGLE);
+            }
+          }
+
+          // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
+          if(switchMode() == true) {
+            if(b_wand_menu_sub != true) {
+              wandSerialSend(W_CYCLOTRON_SIMULATE_RING_TOGGLE);
+            }
+            else {
+              // Sub menu.
+              wandSerialSend(W_OVERHEAT_LIGHTS_OFF_TOGGLE);
+            }
+          }
+        break;
+
+        // Top menu: Intensify: Enable or disable Proton Stream Impact Effects.
+        // Top menu: Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
+        // Sub menu: Intensify: 1984 / 1989 / Afterlife / Default (Proton Pack toggle switch) year mode selection.
+        // Sub menu: Barrel Wing Button: Overheat sync to fan.
+        case 1:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            if(b_wand_menu_sub != true) {
+              // Tell the Proton Pack to toggle the Proton Stream impact effects.
+              wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+            }
+            else {
+              // Sub menu.
+              wandSerialSend(W_YEAR_MODES_CYCLE_EEPROM);
+            }
+          }
+
+          if(switchMode() == true) {
+            if(b_wand_menu_sub != true) {
+              if(b_extra_pack_sounds == true) {
+                b_extra_pack_sounds = false;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
               }
               else {
-                // Sub menu.
-                wandSerialSend(W_OVERHEAT_STROBE_TOGGLE);
+                b_extra_pack_sounds = true;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
               }
             }
-
-            // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
-            if(switchMode() == true) {
-              if(b_wand_menu_sub != true) {
-                wandSerialSend(W_CYCLOTRON_SIMULATE_RING_TOGGLE);
-              }
-              else {
-                // Sub menu.
-                wandSerialSend(W_OVERHEAT_LIGHTS_OFF_TOGGLE);
-              }
+            else {
+              // Sub menu.
+              wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
             }
-          break;
-
-          // Top menu: Intensify: Enable or disable Proton Stream Impact Effects.
-          // Top menu: Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
-          // Sub menu: Intensify: 1984 / 1989 / Afterlife / Default (Proton Pack toggle switch) year mode selection.
-          // Sub menu: Barrel Wing Button: Overheat sync to fan.
-          case 1:
-            if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-              ms_intensify_timer.start(i_intensify_delay / 2);
-
-              if(b_wand_menu_sub != true) {
-                // Tell the Proton Pack to toggle the Proton Stream impact effects.
-                wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
-              }
-              else {
-                // Sub menu.
-                wandSerialSend(W_YEAR_MODES_CYCLE_EEPROM);
-              }
-            }
-
-            if(switchMode() == true) {
-              if(b_wand_menu_sub != true) {
-                if(b_extra_pack_sounds == true) {
-                  b_extra_pack_sounds = false;
-
-                  playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
-
-                  wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
-                }
-                else {
-                  b_extra_pack_sounds = true;
-
-                  playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
-
-                  wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
-                }
-              }
-              else {
-                // Sub menu.
-                wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
-              }
-            }
-          break;
-        }
-      break;
-
-    #endif
+          }
+        break;
+      }
+    break;
 
     case ACTION_SETTINGS:
       settingsBlinkingLights();
@@ -1019,20 +971,16 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                stopEffect(S_BEEPS_ALT);
-                playEffect(S_BEEPS_ALT);
-              #endif
+              stopEffect(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               wandSerialSend(W_VIBRATION_CYCLE_TOGGLE);
             }
 
             // Enable or disable vibration or firing vibration only for the wand.
             if(switchMode() == true) {
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                stopEffect(S_BEEPS_ALT);
-                playEffect(S_BEEPS_ALT);
-              #endif
+              stopEffect(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
 
               if(b_vibration_on != true) {
                 b_vibration_on = true;
@@ -1046,11 +994,9 @@ void mainLoop() {
 
                 wandSerialSend(W_VIBRATION_ENABLED);
 
-                #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                  analogWrite(vibration, 150);
-                  delay(250);
-                  analogWrite(vibration,0);
-                #endif
+                analogWrite(vibration, 150);
+                delay(250);
+                analogWrite(vibration,0);
               }
               else if(b_vibration_on == true && b_vibration_firing != true) {
                 b_vibration_firing = true;
@@ -1064,11 +1010,9 @@ void mainLoop() {
 
                 wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
-                #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                  analogWrite(vibration, 150);
-                  delay(250);
-                  analogWrite(vibration,0);
-                #endif
+                analogWrite(vibration, 150);
+                delay(250);
+                analogWrite(vibration,0);
               }
               else {
                 b_vibration_on = false;
@@ -1145,11 +1089,8 @@ void mainLoop() {
               // Tell the Proton Pack to cycle through year modes.
               wandSerialSend(W_YEAR_MODES_CYCLE);
 
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                stopEffect(S_BEEPS_BARGRAPH);
-
-                playEffect(S_BEEPS_BARGRAPH);
-              #endif
+              stopEffect(S_BEEPS_BARGRAPH);
+              playEffect(S_BEEPS_BARGRAPH);
 
               // There is no pack connected; let's change the years.
               if(b_no_pack == true) {
@@ -1195,9 +1136,7 @@ void mainLoop() {
 
   switch(WAND_STATUS) {
     case MODE_OFF:
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
       if(WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
-      #endif
         if(switchMode() == true || b_pack_alarm == true) {
           if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
             playEffect(S_CLICK);
@@ -1224,54 +1163,50 @@ void mainLoop() {
             wandExitMenu();
           }
         }
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
       }
-      #endif
 
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        // Reset the count of the wand switch
-        if(switch_intensify.getState() == HIGH) {
-          switch_wand.resetCount();
-          switch_vent.resetCount();
+      // Reset the count of the wand switch
+      if(switch_intensify.getState() == HIGH) {
+        switch_wand.resetCount();
+        switch_vent.resetCount();
+      }
+
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
+        stopEffect(S_BEEPS_BARGRAPH);
+        playEffect(S_BEEPS_BARGRAPH);
+
+        wandSerialSend(W_EEPROM_MENU);
+        wandSerialSend(W_SPECTRAL_LIGHTS_ON);
+
+        i_wand_menu = 5;
+
+        WAND_ACTION_STATUS = ACTION_EEPROM_MENU;
+        ms_settings_blinking.start(i_settings_blinking_delay);
+
+        wandBarrelSpectralCustomConfigOn();
+      }
+      else if(WAND_ACTION_STATUS == ACTION_EEPROM_MENU && b_pack_on == true) {
+        if(b_no_pack != true) {
+          wandExitEEPROMMenu();
         }
+      }
 
-        if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
-          stopEffect(S_BEEPS_BARGRAPH);
-          playEffect(S_BEEPS_BARGRAPH);
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
+        stopEffect(S_BEEPS_BARGRAPH);
+        playEffect(S_BEEPS_BARGRAPH);
 
-          wandSerialSend(W_EEPROM_MENU);
-          wandSerialSend(W_SPECTRAL_LIGHTS_ON);
+        wandSerialSend(W_EEPROM_MENU);
 
-          i_wand_menu = 5;
+        i_wand_menu = 5;
 
-          WAND_ACTION_STATUS = ACTION_EEPROM_MENU;
-          ms_settings_blinking.start(i_settings_blinking_delay);
-
-          wandBarrelSpectralCustomConfigOn();
+        WAND_ACTION_STATUS = ACTION_CONFIG_EEPROM_MENU;
+        ms_settings_blinking.start(i_settings_blinking_delay);
+      }
+      else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on == true) {
+        if(b_no_pack != true) {
+          wandExitEEPROMMenu();
         }
-        else if(WAND_ACTION_STATUS == ACTION_EEPROM_MENU && b_pack_on == true) {
-          if(b_no_pack != true) {
-            wandExitEEPROMMenu();
-          }
-        }
-
-        if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
-          stopEffect(S_BEEPS_BARGRAPH);
-          playEffect(S_BEEPS_BARGRAPH);
-
-          wandSerialSend(W_EEPROM_MENU);
-
-          i_wand_menu = 5;
-
-          WAND_ACTION_STATUS = ACTION_CONFIG_EEPROM_MENU;
-          ms_settings_blinking.start(i_settings_blinking_delay);
-        }
-        else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on == true) {
-          if(b_no_pack != true) {
-            wandExitEEPROMMenu();
-          }
-        }
-      #endif
+      }
 
       if(b_pack_alarm == true) {
         if(ms_hat_2.justFinished()) {
@@ -1286,18 +1221,14 @@ void mainLoop() {
 
         analogWrite(led_slo_blo, 0);
 
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_hat_2, LOW);
-          digitalWrite(led_hat_1, LOW);
-          analogWrite(led_front_left, 0);
-        #endif
+        digitalWrite(led_hat_2, LOW);
+        digitalWrite(led_hat_1, LOW);
+        analogWrite(led_front_left, 0);
       }
       else {
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_hat_2, HIGH);
-          digitalWrite(led_hat_1, HIGH);
-          analogWrite(led_front_left, 255);
-        #endif
+        digitalWrite(led_hat_2, HIGH);
+        digitalWrite(led_hat_1, HIGH);
+        analogWrite(led_front_left, 255);
 
         digitalWrite(led_white, LOW);
         analogWrite(led_slo_blo, 255);
@@ -1324,17 +1255,13 @@ void mainLoop() {
         vibrationSetting();
       }
 
-      // Hat light 2 blinking when the pack ribbon cable has been removed.
+      // Hat light 2 blinking when the Proton Pack ribbon cable has been removed.
       if(b_pack_alarm == true) {
         if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            digitalWrite(led_hat_2, LOW);
-          #endif
+          digitalWrite(led_hat_2, LOW);
         }
         else {
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            digitalWrite(led_hat_2, HIGH);
-          #endif
+          digitalWrite(led_hat_2, HIGH);
         }
 
         if(ms_hat_2.justFinished()) {
@@ -1343,10 +1270,8 @@ void mainLoop() {
       }
       else {
         if(ms_hat_1.isRunning() != true) {
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            // Hat 2 stays solid while the Neutrona Wand is on. It will blink when about to overheat.
-            digitalWrite(led_hat_2, HIGH);
-          #endif
+          // Hat 2 stays solid while the Neutrona Wand is on. It will blink when about to overheat.
+          digitalWrite(led_hat_2, HIGH);
         }
       }
 
@@ -1361,9 +1286,7 @@ void mainLoop() {
             analogWrite(led_slo_blo, 255);
 
             // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              analogWrite(led_front_left, 255);
-            #endif
+            analogWrite(led_front_left, 255);
           }
         }
         else {
@@ -1374,9 +1297,7 @@ void mainLoop() {
             analogWrite(led_slo_blo, 0);
 
             // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              analogWrite(led_front_left, 0);
-            #endif
+            analogWrite(led_front_left, 0);
           }
         }
       }
@@ -1419,11 +1340,7 @@ void mainLoop() {
   }
 
   if(ms_firing_lights_end.justFinished()) {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      fireStreamEnd(getHueAsGRB(C_BLACK));
-    #else
-      fireStreamEnd(0,0,0);
-    #endif
+    fireStreamEnd(getHueAsGRB(C_BLACK));
   }
 
   // Check the Barrel Wing Button button status.
@@ -1543,9 +1460,7 @@ void startVentSequence() {
   }
 
   // Turn on hat light 2.
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    digitalWrite(led_hat_2, HIGH);
-  #endif
+  digitalWrite(led_hat_2, HIGH);
 
   delay(100);
 
@@ -1568,10 +1483,7 @@ void startVentSequence() {
     b_beeping = false;
 
     // Reset some bargraph levels before we ramp the bargraph down.
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      i_bargraph_status_alt = 28; // For 28 segment bargraph
-    #endif
-
+    i_bargraph_status_alt = 28; // For 28 segment bargraph
     i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
 
     bargraphFull();
@@ -1611,58 +1523,38 @@ void settingsBlinkingLights() {
       b_solid_one = true;
     }
 
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      if(b_28segment_bargraph == true) {
-        if(b_solid_five == true) {
-          for(uint8_t i = 0; i < 24; i++) {
-            if(b_solid_one == true && i < 3) {
-              ht_bargraph.setLedNow(i_bargraph[i]);
-            }
-            else {
-              ht_bargraph.clearLedNow(i_bargraph[i]);
-            }
-          }
-
-          for(uint8_t i = 24; i < 27; i++) {
+    if(b_28segment_bargraph == true) {
+      if(b_solid_five == true) {
+        for(uint8_t i = 0; i < 24; i++) {
+          if(b_solid_one == true && i < 3) {
             ht_bargraph.setLedNow(i_bargraph[i]);
           }
-
-          ht_bargraph.clearLedNow(i_bargraph[27]);
-        }
-        else if(b_solid_one == true) {
-          for(uint8_t i = 0; i < 28; i++) {
-            if(i < 3) {
-              ht_bargraph.setLedNow(i_bargraph[i]);
-            }
-            else {
-              ht_bargraph.clearLedNow(i_bargraph[i]);
-            }
+          else {
+            ht_bargraph.clearLedNow(i_bargraph[i]);
           }
         }
-        else {
-          ht_bargraph.clearAll();
+
+        for(uint8_t i = 24; i < 27; i++) {
+          ht_bargraph.setLedNow(i_bargraph[i]);
+        }
+
+        ht_bargraph.clearLedNow(i_bargraph[27]);
+      }
+      else if(b_solid_one == true) {
+        for(uint8_t i = 0; i < 28; i++) {
+          if(i < 3) {
+            ht_bargraph.setLedNow(i_bargraph[i]);
+          }
+          else {
+            ht_bargraph.clearLedNow(i_bargraph[i]);
+          }
         }
       }
       else {
-        if(b_solid_one == true) {
-          digitalWrite(i_bargraph_5_led[1-1], LOW);
-        }
-        else {
-          digitalWrite(i_bargraph_5_led[1-1], HIGH);
-        }
-
-        digitalWrite(i_bargraph_5_led[2-1], HIGH);
-        digitalWrite(i_bargraph_5_led[3-1], HIGH);
-        digitalWrite(i_bargraph_5_led[4-1], HIGH);
-
-        if(b_solid_five == true) {
-          digitalWrite(i_bargraph_5_led[5-1], LOW);
-        }
-        else {
-          digitalWrite(i_bargraph_5_led[5-1], HIGH);
-        }
+        ht_bargraph.clearAll();
       }
-    #else
+    }
+    else {
       if(b_solid_one == true) {
         digitalWrite(i_bargraph_5_led[1-1], LOW);
       }
@@ -1680,184 +1572,164 @@ void settingsBlinkingLights() {
       else {
         digitalWrite(i_bargraph_5_led[5-1], HIGH);
       }
-    #endif
+    }
   }
   else {
     switch(i_wand_menu) {
       case 5:
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_28segment_bargraph == true) {
-            // NOTE: If you draw all 28 segments at once often, you can overflow the serial buffer after around 5 seconds.
-            for(uint8_t i = 0; i < 28; i++) {
-              switch(i) {
-                case 3:
-                case 4:
-                case 5:
-                case 9:
-                case 10:
-                case 11:
-                case 15:
-                case 16:
-                case 17:
-                case 21:
-                case 22:
-                case 23:
-                case 27:
-                  // Nothing
-                break;
+        if(b_28segment_bargraph == true) {
+          // NOTE: If you draw all 28 segments at once often, you can overflow the serial buffer after around 5 seconds.
+          for(uint8_t i = 0; i < 28; i++) {
+            switch(i) {
+              case 3:
+              case 4:
+              case 5:
+              case 9:
+              case 10:
+              case 11:
+              case 15:
+              case 16:
+              case 17:
+              case 21:
+              case 22:
+              case 23:
+              case 27:
+                // Nothing
+              break;
 
-                default:
-                  ht_bargraph.setLedNow(i_bargraph[i]);
-                break;
-              }
+              default:
+                ht_bargraph.setLedNow(i_bargraph[i]);
+              break;
             }
           }
-          else {
-            wandBargraphControl(5);
-          }
-        #else
+        }
+        else {
           wandBargraphControl(5);
-        #endif
+        }
       break;
 
       case 4:
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_28segment_bargraph == true) {
-            for(uint8_t i = 0; i < 21; i++) {
-              switch(i) {
-                case 3:
-                case 4:
-                case 5:
-                case 9:
-                case 10:
-                case 11:
-                case 15:
-                case 16:
-                case 17:
-                case 21:
-                case 22:
-                case 23:
-                case 27:
-                  // Nothing
-                break;
+        if(b_28segment_bargraph == true) {
+          for(uint8_t i = 0; i < 21; i++) {
+            switch(i) {
+              case 3:
+              case 4:
+              case 5:
+              case 9:
+              case 10:
+              case 11:
+              case 15:
+              case 16:
+              case 17:
+              case 21:
+              case 22:
+              case 23:
+              case 27:
+                // Nothing
+              break;
 
-                default:
-                  ht_bargraph.setLedNow(i_bargraph[i]);
-                break;
-              }
+              default:
+                ht_bargraph.setLedNow(i_bargraph[i]);
+              break;
             }
           }
-          else {
-            wandBargraphControl(4);
-          }
-        #else
+        }
+        else {
           wandBargraphControl(4);
-        #endif
+        }
       break;
 
       case 3:
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_28segment_bargraph == true) {
-            for(uint8_t i = 0; i < 16; i++) {
-              switch(i) {
-                case 3:
-                case 4:
-                case 5:
-                case 9:
-                case 10:
-                case 11:
-                case 15:
-                case 16:
-                case 17:
-                case 21:
-                case 22:
-                case 23:
-                case 27:
-                  // Nothing
-                break;
+        if(b_28segment_bargraph == true) {
+          for(uint8_t i = 0; i < 16; i++) {
+            switch(i) {
+              case 3:
+              case 4:
+              case 5:
+              case 9:
+              case 10:
+              case 11:
+              case 15:
+              case 16:
+              case 17:
+              case 21:
+              case 22:
+              case 23:
+              case 27:
+                // Nothing
+              break;
 
-                default:
-                  ht_bargraph.setLedNow(i_bargraph[i]);
-                break;
-              }
+              default:
+                ht_bargraph.setLedNow(i_bargraph[i]);
+              break;
             }
           }
-          else {
-            wandBargraphControl(3);
-          }
-        #else
+        }
+        else {
           wandBargraphControl(3);
-        #endif
+        }
       break;
 
       case 2:
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_28segment_bargraph == true) {
-            for(uint8_t i = 0; i < 12; i++) {
-              switch(i) {
-                case 3:
-                case 4:
-                case 5:
-                case 9:
-                case 10:
-                case 11:
-                case 15:
-                case 16:
-                case 17:
-                case 21:
-                case 22:
-                case 23:
-                case 27:
-                  // Nothing
-                break;
+        if(b_28segment_bargraph == true) {
+          for(uint8_t i = 0; i < 12; i++) {
+            switch(i) {
+              case 3:
+              case 4:
+              case 5:
+              case 9:
+              case 10:
+              case 11:
+              case 15:
+              case 16:
+              case 17:
+              case 21:
+              case 22:
+              case 23:
+              case 27:
+                // Nothing
+              break;
 
-                default:
-                  ht_bargraph.setLedNow(i_bargraph[i]);
-                break;
-              }
+              default:
+                ht_bargraph.setLedNow(i_bargraph[i]);
+              break;
             }
           }
-          else {
-            wandBargraphControl(2);
-          }
-        #else
+        }
+        else {
           wandBargraphControl(2);
-        #endif
+        }
       break;
 
       case 1:
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          if(b_28segment_bargraph == true) {
-            for(uint8_t i = 0; i < 6; i++) {
-              switch(i) {
-                case 3:
-                case 4:
-                case 5:
-                case 9:
-                case 10:
-                case 11:
-                case 15:
-                case 16:
-                case 17:
-                case 21:
-                case 22:
-                case 23:
-                case 27:
-                  // Nothing
-                break;
+        if(b_28segment_bargraph == true) {
+          for(uint8_t i = 0; i < 6; i++) {
+            switch(i) {
+              case 3:
+              case 4:
+              case 5:
+              case 9:
+              case 10:
+              case 11:
+              case 15:
+              case 16:
+              case 17:
+              case 21:
+              case 22:
+              case 23:
+              case 27:
+                // Nothing
+              break;
 
-                default:
-                  ht_bargraph.setLedNow(i_bargraph[i]);
-                break;
-              }
+              default:
+                ht_bargraph.setLedNow(i_bargraph[i]);
+              break;
             }
           }
-          else {
-            wandBargraphControl(1);
-          }
-        #else
+        }
+        else {
           wandBargraphControl(1);
-        #endif
+        }
       break;
     }
   }
@@ -1873,367 +1745,206 @@ void checkSwitches() {
     ms_switch_mode_firing.stop();
   }
 
-  switchBarrel();
+  if(ms_slo_blo_blink.justFinished()) {
+    ms_slo_blo_blink.start(i_slo_blo_blink_delay);
+  }
 
+  switchBarrel();
+      
   switch(WAND_STATUS) {
     case MODE_OFF:
-     if(switch_activate.isPressed() && WAND_ACTION_STATUS == ACTION_IDLE) {
-        // Turn wand and pack on.
-        WAND_ACTION_STATUS = ACTION_ACTIVATE;
+      switch(SYSTEM_MODE) {
+        case MODE_ORIGINAL:
+          if(b_pack_ion_arm_switch_on == true) {
+            if(WAND_ACTION_STATUS == ACTION_IDLE) {
+              if(switch_activate.getState() == LOW && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                // Reset the power mode back to what it should be.
+                i_power_mode = i_power_mode_prev;
+
+                // Force to power mode 2 if it is on power mode 1 for MODE_ORIGINAL.
+                if(i_power_mode < 2) {
+                  i_power_mode = 2;
+                }
+
+                updatePackPowerLevel();
+
+                // Turn on the cyclotron of the Proton Pack.
+                modeActivate();
+              }
+              else {
+                // Set the power mode to 1 (0 circle). Record the power mode so we can restore it when we power everything back up.
+                if(i_power_mode != 1) {
+                  i_power_mode_prev = i_power_mode;
+                  i_power_mode = 1;
+
+                  if(b_28segment_bargraph == true) {
+                    bargraphPowerCheck2021Alt(false);
+                  }
+
+                  updatePackPowerLevel();
+                }
+
+                if(switch_vent.getState() == LOW) {
+                  // When the bottom right toggle is on, we start flashing the slo-blo light.
+                  if(ms_slo_blo_blink.remaining() < i_slo_blo_blink_delay / 2) {
+                    analogWrite(led_slo_blo, 0);
+                  }
+                  else {
+                    analogWrite(led_slo_blo, 255);
+                  }
+                }
+                else {
+                  // When the bottom right toggle is off, the slo-blo stays on.
+                  analogWrite(led_slo_blo, 255);
+                }
+
+                if(switch_wand.isPressed() || switch_wand.isReleased() || switch_vent.isPressed() || switch_vent.isReleased()) {
+                  if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                    prepBargraphRampUp();
+                  }
+                }
+                
+                if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                  if(ms_bargraph.justFinished()) {
+                    bargraphRampUp();
+                  }
+                  else if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+                    // Bargraph idling loop.
+                    bargraphPowerCheck();
+                  }
+                }
+                else {
+                  if(b_28segment_bargraph == true) {
+                    bargraphClearAlt();
+                  }
+                  else {
+                    wandBargraphControl(0);
+                  }
+                }
+              }
+            }
+          }
+          else {
+            wandLightsOff();
+          }
+        break;
+        
+        case MODE_SUPER_HERO:
+        default:
+          if(switch_activate.isPressed() && WAND_ACTION_STATUS == ACTION_IDLE) {
+              // Turn wand and pack on.
+              WAND_ACTION_STATUS = ACTION_ACTIVATE;
+            }
+            soundBeepLoopStop();
+        break;
       }
-      soundBeepLoopStop();
     break;
 
     case MODE_ERROR:
-      if(switch_activate.getState() == HIGH) {
-        b_wand_mash_error = false;
-        wandOff();
+      switch(SYSTEM_MODE) {
+        case MODE_ORIGINAL:
+          // Nothing.
+        break;
+        
+        case MODE_SUPER_HERO:
+        default:
+          if(switch_activate.getState() == HIGH) {
+            b_wand_mash_error = false;
+            wandOff();
+          }
+        break;
       }
     break;
 
     case MODE_ON:
-      // This is for when the Wand Barrel Switch is enabled for video game mode. b_cross_the_streams must not be enabled.
-      if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_cross_the_streams_mix != true && b_pack_alarm != true) {
-        if(switchMode() == true) {
-          // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
-          if(i_wand_menu == 5) {
-            // Cycle through the firing modes and setting menu.
-            if(FIRING_MODE == PROTON) {
-              FIRING_MODE = SLIME;
-            }
-            else if(FIRING_MODE == SLIME) {
-              FIRING_MODE = STASIS;
-            }
-            else if(FIRING_MODE == STASIS) {
-              FIRING_MODE = MESON;
-            }
-            else if(FIRING_MODE == MESON) {
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                // Conditional mode advancement
-                if(b_spectral_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL;
-                }
-                else if(b_holiday_mode_enabled == true) {
-                  FIRING_MODE = HOLIDAY;
-                }
-                else if(b_spectral_custom_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL_CUSTOM;
-                }
-                else {
-                  FIRING_MODE = VENTING;
-                }
-              #else
-                FIRING_MODE = VENTING;
-              #endif
-            }
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              else if(FIRING_MODE == SPECTRAL) {
-                // Conditional mode advancement
-                if(b_holiday_mode_enabled == true) {
-                  FIRING_MODE = HOLIDAY;
-                }
-                else if(b_spectral_custom_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL_CUSTOM;
-                }
-                else {
-                  FIRING_MODE = VENTING;
-                }
-              }
-              else if(FIRING_MODE == HOLIDAY) {
-                if(b_spectral_custom_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL_CUSTOM;
-                }
-                else {
-                  FIRING_MODE = VENTING;
-                }
-              }
-              else if(FIRING_MODE == SPECTRAL_CUSTOM) {
-                  FIRING_MODE = VENTING;
-              }
-            #endif
-            else if(FIRING_MODE == VENTING) {
-              FIRING_MODE = SETTINGS;
-            }
-            else {
-              FIRING_MODE = PROTON;
+      switch(SYSTEM_MODE) {
+        case MODE_ORIGINAL:
+          altWingButtonCheck();
 
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                bargraphClearAlt();
-              #endif
-
-              // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
-              // 1984/1989 years will go in to a auto ramp and do not need a manual refresh or if b_bargraph_always_ramping is true, which makes it ramp in all modes.
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                if(year_mode == 2021 && b_28segment_bargraph == true && b_bargraph_always_ramping != true) {
-                  bargraphPowerCheck2021Alt(true);
-                }
-              #endif
-            }
-
-            // Make sure the slo-blo light is turned back on, as entering venting mode will make it blink.
-            if(FIRING_MODE != VENTING) {
-              analogWrite(led_slo_blo, 255);
-
-              // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                analogWrite(led_front_left, 255);
-              #endif
-            }
-
-            playEffect(S_CLICK);
-
-            switch(FIRING_MODE) {
-              case SETTINGS:
-                WAND_ACTION_STATUS = ACTION_SETTINGS;
-                i_wand_menu = 5;
-                ms_settings_blinking.start(i_settings_blinking_delay);
-
-                #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                  // Clear the 28 segment bargraph.
-                  bargraphClearAlt();
-                #endif
-
-                // Tell the pack we are in settings mode.
-                wandSerialSend(W_SETTINGS_MODE);
-              break;
-
-              case VENTING:
-                WAND_ACTION_STATUS = ACTION_IDLE;
-                wandHeatUp();
-
-                // The the pack we are in venting mode.
-                wandSerialSend(W_VENTING_MODE);
-              break;
-
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                case HOLIDAY:
-                  WAND_ACTION_STATUS = ACTION_IDLE;
-                  wandHeatUp();
-
-                  // Tell the pack we are in holiday mode.
-                  wandSerialSend(W_HOLIDAY_MODE);
-                break;
-
-                case SPECTRAL:
-                  WAND_ACTION_STATUS = ACTION_IDLE;
-                  wandHeatUp();
-
-                  // Tell the pack we are in spectral mode.
-                  wandSerialSend(W_SPECTRAL_MODE);
-                break;
-
-                case SPECTRAL_CUSTOM:
-                  WAND_ACTION_STATUS = ACTION_IDLE;
-                  wandHeatUp();
-
-                  // Tell the pack we are in spectral custom mode.
-                  wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-                break;
-              #endif
-
-              case MESON:
-                WAND_ACTION_STATUS = ACTION_IDLE;
-                wandHeatUp();
-
-                // Tell the pack we are in meson mode.
-                wandSerialSend(W_MESON_MODE);
-              break;
-
-              case STASIS:
-                WAND_ACTION_STATUS = ACTION_IDLE;
-                wandHeatUp();
-
-                // Tell the pack we are in stasis mode.
-                wandSerialSend(W_STASIS_MODE);
-              break;
-
-              case SLIME:
-                WAND_ACTION_STATUS = ACTION_IDLE;
-                wandHeatUp();
-
-                // Tell the pack we are in slime mode.
-                wandSerialSend(W_SLIME_MODE);
-              break;
-
-              case PROTON:
-              default:
-                WAND_ACTION_STATUS = ACTION_IDLE;
-                wandHeatUp();
-
-                // Tell the pack we are in proton mode.
-                wandSerialSend(W_PROTON_MODE);
-              break;
-            }
-          }
-        }
-      }
-
-      if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-        // Vent light and first stage of the safety system.
-        if(switch_vent.getState() == LOW) {
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            if(b_vent_light_control == true) {
-              // Vent light and top white light on, power dependent on mode.
-              if(WAND_ACTION_STATUS == ACTION_FIRING) {
-                analogWrite(led_vent, 0); // 0 = Full Power
-              }
-              else {
-                // Adjust brightness based on the power level.
-                switch(i_power_mode) {
-                  case 5:
-                    analogWrite(led_vent, 100);
-                  break;
-                  case 4:
-                    analogWrite(led_vent, 130);
-                  break;
-                  case 3:
-                    analogWrite(led_vent, 160);
-                  break;
-                  case 2:
-                    analogWrite(led_vent, 190);
-                  break;
-                  case 1:
-                    analogWrite(led_vent, 220);
-                  break;
-                }
-              }
-            }
-            else {
-              digitalWrite(led_vent, LOW);
-            }
-          #else
-            // Vent light and top white light on.
-            digitalWrite(led_vent, LOW);
-          #endif
-
-          soundIdleStart();
-
-          if(switch_wand.getState() == LOW) {
-            if(b_beeping != true) {
-              // Beep loop.
-              soundBeepLoop();
-            }
+          // Do we shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
+          if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH) {
+              bargraphYearModeUpdate();
+              // If any of the right toggle switches are turned off, we must turn the cyclotron off and shuts the Neutrona Wand down to a off idle status. MODE_OFF.
+              WAND_ACTION_STATUS = ACTION_OFF;
           }
           else {
-            soundBeepLoopStop();
-          }
-        }
-        else if(switch_vent.getState() == HIGH) {
-          // Vent light and top white light off.
-          digitalWrite(led_vent, HIGH);
-
-          soundBeepLoopStop();
-          soundIdleStop();
-        }
-      }
-
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-        if(i_bmash_count >= i_bmash_max) {
-          // User has exceeded "normal" firing rate.
-          b_wand_mash_error = true;
-          modeError();
-          ms_bmash.start(i_bmash_cool_down);
-        }
-        else {
-          if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
-            if(WAND_ACTION_STATUS != ACTION_FIRING) {
-              WAND_ACTION_STATUS = ACTION_FIRING;
-            }
-
-            if(ms_bmash.remaining() < 1) {
-              // Clear counter/timer until user begins firing.
-              i_bmash_count = 0;
-              ms_bmash.start(i_bmash_delay);
-            }
-
-            if(b_firing_intensify != true) {
-              // Increase count each time the user presses a firing button.
-              i_bmash_count++;
-
-              ms_firing_debounce.start(i_firing_debounce);
-            }
-
-            b_firing_intensify = true;
+            // Determine the light status on the wand and any beeps.
+            wandLightControlCheck();
           }
 
-          // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
-          if(b_cross_the_streams == true) {
-            if(switchMode() == true && switch_wand.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_switch_mode_firing.isRunning() != true && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
-              if(WAND_ACTION_STATUS != ACTION_FIRING) {
-                WAND_ACTION_STATUS = ACTION_FIRING;
-              }
+          // Check if we should fire, or if the wand and pack turn off.
+          fireControlCheck();          
+        break;
 
-              if(ms_bmash.remaining() < 1) {
-                // Clear counter/timer until user begins firing.
-                i_bmash_count = 0;
-                ms_bmash.start(i_bmash_delay);
-              }
+        case MODE_SUPER_HERO:
+        default:
+          altWingButtonCheck();
 
-              if(b_firing_alt != true) {
-                // Increase count each time the user presses a firing button.
-                i_bmash_count++;
-
-                ms_firing_debounce.start(i_firing_debounce);
-              }
-
-              b_firing_alt = true;
-            }
-            else if(b_switch_mode_pressed != true) {
-              if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
-                WAND_ACTION_STATUS = ACTION_IDLE;
-              }
-
-              if(b_firing_alt == true) {
-                ms_firing_debounce.start(i_firing_debounce);
-              }
-
-              b_firing_alt = false;
-            }
-          }
-          else if(b_vg_mode == true) {
-            if(FIRING_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
-              if(switchMode() == true) {
-                b_firing_alt = true;
-
-                if(ms_bmash.remaining() < 1) {
-                  // Clear counter/timer until user begins firing.
-                  i_bmash_count = 0;
-                  ms_bmash.start(i_bmash_delay);
-                }
-              }
-            }
-          }
-
-          if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
-            if(b_firing_alt != true || b_vg_mode == true) {
-              WAND_ACTION_STATUS = ACTION_IDLE;
-            }
-
-            if(b_firing_intensify == true) {
-              ms_firing_debounce.start(i_firing_debounce);
-            }
-
-            b_firing_intensify = false;
-          }
-        }
-
-        if(switch_activate.getState() == HIGH) {
-          WAND_ACTION_STATUS = ACTION_OFF;
-        }
-
-        // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
-        if(b_quick_vent == true) {
-          if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == HIGH && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
-            startVentSequence();
-          }
-        }
-      }
-      else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
-        if(switch_activate.getState() == HIGH) {
-          WAND_ACTION_STATUS = ACTION_OFF;
-        }
+          // Determine the light status on the wand and any beeps.
+          wandLightControlCheck();
+          
+          // Check if we should fire, or if the wand and pack turn off.
+          fireControlCheck();
+        break;
       }
     break;
+  }
+}
+
+// Determine the light status on the wand and any beeps.
+void wandLightControlCheck() {
+  if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+    // Vent light and first stage of the safety system.
+    if(switch_vent.getState() == LOW) {
+      if(b_vent_light_control == true) {
+        // Vent light and top white light on, power dependent on mode.
+        if(WAND_ACTION_STATUS == ACTION_FIRING) {
+          analogWrite(led_vent, 0); // 0 = Full Power
+        }
+        else {
+          // Adjust brightness based on the power level.
+          switch(i_power_mode) {
+            case 5:
+              analogWrite(led_vent, 100);
+            break;
+            case 4:
+              analogWrite(led_vent, 130);
+            break;
+            case 3:
+              analogWrite(led_vent, 160);
+            break;
+            case 2:
+              analogWrite(led_vent, 190);
+            break;
+            case 1:
+              analogWrite(led_vent, 220);
+            break;
+          }
+        }
+      }
+      else {
+        digitalWrite(led_vent, LOW);
+      }
+
+      soundIdleStart();
+
+      if(switch_wand.getState() == LOW) {
+        if(b_beeping != true) {
+          // Beep loop.
+          soundBeepLoop();
+        }
+      }
+      else {
+        soundBeepLoopStop();
+      }
+    }
+    else if(switch_vent.getState() == HIGH) {
+      // Vent light and top white light off.
+      digitalWrite(led_vent, HIGH);
+
+      soundBeepLoopStop();
+      soundIdleStop();
+    }
   }
 }
 
@@ -2321,10 +2032,6 @@ void wandOff() {
   playEffect(S_WAND_SHUTDOWN);
 
   // Turn off some timers.
-  ms_bargraph.stop();
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    ms_bargraph_alt.stop();
-  #endif
   ms_bargraph_firing.stop();
   ms_overheat_initiate.stop();
   ms_overheating.stop();
@@ -2335,30 +2042,330 @@ void wandOff() {
   // Clear counter until user begins firing.
   i_bmash_count = 0;
 
-  // Turn off remaining lights.
-  wandLightsOff();
   barrelLightsOff();
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    switch_wand.resetCount();
-    switch_vent.resetCount();
+  switch(WAND_STATUS) {
+    case MODE_OFF:
+      switch(SYSTEM_MODE) {
+        case MODE_ORIGINAL:
+          // Let the checkSwitches() function in the main loop handle most things.
 
-    switch(year_mode) {
-      case 2021:
-        if(b_bargraph_always_ramping != true) {
-          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+          // Reset the bargraph speeds.
+          if(b_bargraph_always_ramping != true) {
+            ms_bargraph.stop();
+            ms_bargraph_alt.stop();
+
+            bargraphYearModeUpdate();
+          }
+          else {
+            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;          
+          }
+        break;
+
+        case MODE_SUPER_HERO:
+        default:
+          // Turn off additional timers.
+          ms_bargraph.stop();
+          ms_bargraph_alt.stop();
+
+          // Turn off remaining lights.
+          wandLightsOff();
+
+          switch(year_mode) {
+            case 2021:
+              if(b_bargraph_always_ramping != true) {
+                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+              }
+              else {
+                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+              }
+            break;
+
+            case 1984:
+            case 1989:
+              i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+            break;
+          }
+        break;
+      }
+  }
+
+  switch_wand.resetCount();
+  switch_vent.resetCount();
+}
+
+// Called from checkSwitches(); Check if we should fire, or if the wand and pack turn off.
+void fireControlCheck() {
+  // Firing action stuff and shutting cyclotron and the neutrona wand off.
+  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+    if(i_bmash_count >= i_bmash_max) {
+      // User has exceeded "normal" firing rate.
+      b_wand_mash_error = true;
+      modeError();
+      ms_bmash.start(i_bmash_cool_down);
+    }
+    else {
+      if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
+        if(WAND_ACTION_STATUS != ACTION_FIRING) {
+          WAND_ACTION_STATUS = ACTION_FIRING;
+        }
+
+        if(ms_bmash.remaining() < 1) {
+          // Clear counter/timer until user begins firing.
+          i_bmash_count = 0;
+          ms_bmash.start(i_bmash_delay);
+        }
+
+        if(b_firing_intensify != true) {
+          // Increase count each time the user presses a firing button.
+          i_bmash_count++;
+
+          ms_firing_debounce.start(i_firing_debounce);
+        }
+
+        b_firing_intensify = true;
+      }
+
+      // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
+      if(b_cross_the_streams == true) {
+        if(switchMode() == true && switch_wand.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_switch_mode_firing.isRunning() != true && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
+          if(WAND_ACTION_STATUS != ACTION_FIRING) {
+            WAND_ACTION_STATUS = ACTION_FIRING;
+          }
+
+          if(ms_bmash.remaining() < 1) {
+            // Clear counter/timer until user begins firing.
+            i_bmash_count = 0;
+            ms_bmash.start(i_bmash_delay);
+          }
+
+          if(b_firing_alt != true) {
+            // Increase count each time the user presses a firing button.
+            i_bmash_count++;
+
+            ms_firing_debounce.start(i_firing_debounce);
+          }
+
+          b_firing_alt = true;
+        }
+        else if(b_switch_mode_pressed != true) {
+          if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+            WAND_ACTION_STATUS = ACTION_IDLE;
+          }
+
+          if(b_firing_alt == true) {
+            ms_firing_debounce.start(i_firing_debounce);
+          }
+
+          b_firing_alt = false;
+        }
+      }
+      else if(b_vg_mode == true) {
+        if(FIRING_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
+          if(switchMode() == true) {
+            b_firing_alt = true;
+
+            if(ms_bmash.remaining() < 1) {
+              // Clear counter/timer until user begins firing.
+              i_bmash_count = 0;
+              ms_bmash.start(i_bmash_delay);
+            }
+          }
+        }
+      }
+
+      if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
+        if(b_firing_alt != true || b_vg_mode == true) {
+          WAND_ACTION_STATUS = ACTION_IDLE;
+        }
+
+        if(b_firing_intensify == true) {
+          ms_firing_debounce.start(i_firing_debounce);
+        }
+
+        b_firing_intensify = false;
+      }
+    }
+
+    if(switch_activate.getState() == HIGH) {
+      WAND_ACTION_STATUS = ACTION_OFF;
+    }
+
+    // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
+    if(b_quick_vent == true) {
+      if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == HIGH && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
+        startVentSequence();
+      }
+    }
+  }
+  else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+    if(switch_activate.getState() == HIGH) {
+      WAND_ACTION_STATUS = ACTION_OFF;
+    }
+  }
+}
+
+// Called from checkSwitches(); Check if we should fire, or if the wand and pack turn off.
+void altWingButtonCheck() {
+  // This is for when the Wand Barrel Switch is enabled for video game mode. b_cross_the_streams must not be enabled.
+  if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_cross_the_streams_mix != true && b_pack_alarm != true) {
+    if(switchMode() == true) {
+      // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
+      if(i_wand_menu == 5) {
+        // Cycle through the firing modes and setting menu.
+        if(FIRING_MODE == PROTON) {
+          FIRING_MODE = SLIME;
+        }
+        else if(FIRING_MODE == SLIME) {
+          FIRING_MODE = STASIS;
+        }
+        else if(FIRING_MODE == STASIS) {
+          FIRING_MODE = MESON;
+        }
+        else if(FIRING_MODE == MESON) {
+          // Conditional mode advancement
+          if(b_spectral_mode_enabled == true) {
+            FIRING_MODE = SPECTRAL;
+          }
+          else if(b_holiday_mode_enabled == true) {
+            FIRING_MODE = HOLIDAY;
+          }
+          else if(b_spectral_custom_mode_enabled == true) {
+            FIRING_MODE = SPECTRAL_CUSTOM;
+          }
+          else {
+            FIRING_MODE = VENTING;
+          }
+        }
+        else if(FIRING_MODE == SPECTRAL) {
+          // Conditional mode advancement
+          if(b_holiday_mode_enabled == true) {
+            FIRING_MODE = HOLIDAY;
+          }
+          else if(b_spectral_custom_mode_enabled == true) {
+            FIRING_MODE = SPECTRAL_CUSTOM;
+          }
+          else {
+            FIRING_MODE = VENTING;
+          }
+        }
+        else if(FIRING_MODE == HOLIDAY) {
+          if(b_spectral_custom_mode_enabled == true) {
+            FIRING_MODE = SPECTRAL_CUSTOM;
+          }
+          else {
+            FIRING_MODE = VENTING;
+          }
+        }
+        else if(FIRING_MODE == SPECTRAL_CUSTOM) {
+            FIRING_MODE = VENTING;
+        }
+        else if(FIRING_MODE == VENTING) {
+          FIRING_MODE = SETTINGS;
         }
         else {
-          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
-        }
-      break;
+          FIRING_MODE = PROTON;
 
-      case 1984:
-      case 1989:
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
-      break;
+          bargraphClearAlt();
+
+          // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
+          // 1984/1989 years will go in to a auto ramp and do not need a manual refresh or if b_bargraph_always_ramping is true, which makes it ramp in all modes.
+          if(year_mode == 2021 && b_28segment_bargraph == true && b_bargraph_always_ramping != true) {
+            bargraphPowerCheck2021Alt(true);
+          }
+        }
+
+        // Make sure the slo-blo light is turned back on, as entering venting mode will make it blink.
+        if(FIRING_MODE != VENTING) {
+          analogWrite(led_slo_blo, 255);
+
+          // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
+          analogWrite(led_front_left, 255);
+        }
+
+        playEffect(S_CLICK);
+
+        switch(FIRING_MODE) {
+          case SETTINGS:
+            WAND_ACTION_STATUS = ACTION_SETTINGS;
+            i_wand_menu = 5;
+            ms_settings_blinking.start(i_settings_blinking_delay);
+
+            // Clear the 28 segment bargraph.
+            bargraphClearAlt();
+
+            // Tell the pack we are in settings mode.
+            wandSerialSend(W_SETTINGS_MODE);
+          break;
+
+          case VENTING:
+            WAND_ACTION_STATUS = ACTION_IDLE;
+            wandHeatUp();
+
+            // The the pack we are in venting mode.
+            wandSerialSend(W_VENTING_MODE);
+          break;
+
+          case HOLIDAY:
+            WAND_ACTION_STATUS = ACTION_IDLE;
+            wandHeatUp();
+
+            // Tell the pack we are in holiday mode.
+            wandSerialSend(W_HOLIDAY_MODE);
+          break;
+
+          case SPECTRAL:
+            WAND_ACTION_STATUS = ACTION_IDLE;
+            wandHeatUp();
+
+            // Tell the pack we are in spectral mode.
+            wandSerialSend(W_SPECTRAL_MODE);
+          break;
+
+          case SPECTRAL_CUSTOM:
+            WAND_ACTION_STATUS = ACTION_IDLE;
+            wandHeatUp();
+
+            // Tell the pack we are in spectral custom mode.
+            wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
+          break;
+
+          case MESON:
+            WAND_ACTION_STATUS = ACTION_IDLE;
+            wandHeatUp();
+
+            // Tell the pack we are in meson mode.
+            wandSerialSend(W_MESON_MODE);
+          break;
+
+          case STASIS:
+            WAND_ACTION_STATUS = ACTION_IDLE;
+            wandHeatUp();
+
+            // Tell the pack we are in stasis mode.
+            wandSerialSend(W_STASIS_MODE);
+          break;
+
+          case SLIME:
+            WAND_ACTION_STATUS = ACTION_IDLE;
+            wandHeatUp();
+
+            // Tell the pack we are in slime mode.
+            wandSerialSend(W_SLIME_MODE);
+          break;
+
+          case PROTON:
+          default:
+            WAND_ACTION_STATUS = ACTION_IDLE;
+            wandHeatUp();
+
+            // Tell the pack we are in proton mode.
+            wandSerialSend(W_PROTON_MODE);
+          break;
+        }
+      }
     }
-  #endif
+  }
 }
 
 void modeError() {
@@ -2384,61 +2391,107 @@ void modeError() {
 void modeActivate() {
   b_sound_afterlife_idle_2_fade = true;
 
-  // The wand was started while the top switch was already on, so let's put the wand into a startup error mode.
-  if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
-    b_wand_mash_error = true;
-    modeError();
+  switch(SYSTEM_MODE) {
+    case MODE_ORIGINAL:
+      b_wand_mash_error = false;
+      i_bmash_count = 0;
+
+      WAND_STATUS = MODE_ON;
+      WAND_ACTION_STATUS = ACTION_IDLE;
+
+      wandSerialSend(W_ON);
+
+      postActivation();
+    break;
+
+    case MODE_SUPER_HERO:
+    default:
+      // The wand was started while the top switch was already on, so let's put the wand into a startup error mode.
+      if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
+        b_wand_mash_error = true;
+        modeError();
+      }
+      else {
+        WAND_STATUS = MODE_ON;
+
+        // Proper startup. Continue booting up the wand.
+        WAND_ACTION_STATUS = ACTION_IDLE;
+
+        // Tell the pack the wand is turned on.
+        wandSerialSend(W_ON);
+
+        // Clear counter until user begins firing.
+        i_bmash_count = 0;
+      }
+
+      b_wand_mash_error = false;
+
+      postActivation(); // Enable lights and bargraph after wand activation.
+    break;
   }
-  else {
-    WAND_STATUS = MODE_ON;
+}
 
-    // Proper startup. Continue booting up the wand.
-    WAND_ACTION_STATUS = ACTION_IDLE;
+unsigned int yearModeTemp() {
+  unsigned int i_tmp_year_mode = year_mode;
 
-    // Tell the pack the wand is turned on.
-    wandSerialSend(W_ON);
+  switch(SYSTEM_MODE) {
+    case MODE_ORIGINAL:
+      if(b_bargraph_always_ramping != true) {
+        // We are forcing the Neutrona Wand to have a Wand Bargraph work as intended in the original documentation.
+        i_tmp_year_mode = 2021;
+      }
+    break;
 
-    // Clear counter until user begins firing.
-    i_bmash_count = 0;
+    case MODE_SUPER_HERO:
+    default:
+      // No change.
+    break;
   }
 
-  b_wand_mash_error = false;
-
-  postActivation(); // Enable lights and bargraph after wand activation.
+  return i_tmp_year_mode;
 }
 
 void postActivation() {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    // Ramp up the bargraph.
-    switch(year_mode) {
-      case 2021:
-        if(b_bargraph_always_ramping != true) {
-          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
-        }
-        else {
-          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
-        }
-      break;
+  unsigned int i_tmp_year_mode = yearModeTemp();
 
-      case 1984:
-      case 1989:
+  // Ramp up the bargraph.
+  switch(i_tmp_year_mode) {
+    case 2021:
+      if(b_bargraph_always_ramping != true) {
+        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+      }
+      else {
         i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
-      break;
-    }
-  #endif
+      }
+    break;
+
+    case 1984:
+    case 1989:
+      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
+    break;
+  }
 
   if(WAND_STATUS != MODE_ERROR) {
     if(b_pack_alarm != true) {
-      bargraphRampUp();
+      switch(SYSTEM_MODE) {
+        case MODE_ORIGINAL:
+          if(ms_bargraph.isRunning() != true) {
+            // Ramp up the bargraph if required. Usually if everything is turned on via the top right toggle switch.
+            bargraphRampUp();
+          }
+        break;
+
+        case MODE_SUPER_HERO:
+          bargraphRampUp();
+        break;
+      }
     }
 
     // Turn on slo-blo light (and front left LED if using a Ardunio Nano).
     analogWrite(led_slo_blo, 255);
 
     // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      analogWrite(led_front_left, 255);
-    #endif
+    analogWrite(led_front_left, 255);
 
     // Top white light.
     ms_white_light.start(d_white_light_interval);
@@ -2469,44 +2522,36 @@ void postActivation() {
 }
 
 void soundIdleLoop(bool fadeIn) {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    switch(i_power_mode) {
-      case 1:
-        playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
-      break;
+  switch(i_power_mode) {
+    case 1:
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
+    break;
 
-      case 2:
-        playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
-      break;
+    case 2:
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
+    break;
 
-      case 3:
-        playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
-      break;
+    case 3:
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
+    break;
 
-      case 4:
-        playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
-      break;
+    case 4:
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
+    break;
 
-      case 5:
-        playEffect(S_IDLE_LOOP_GUN_5, true, i_volume_effects, fadeIn, 1000);
-      break;
-    }
-  #else
-    playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
-  #endif
+    case 5:
+      playEffect(S_IDLE_LOOP_GUN_5, true, i_volume_effects, fadeIn, 1000);
+    break;
+  }
 }
 
 void soundIdleLoopStop() {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    stopEffect(S_IDLE_LOOP_GUN);
-    stopEffect(S_IDLE_LOOP_GUN_1);
-    stopEffect(S_IDLE_LOOP_GUN_2);
-    stopEffect(S_IDLE_LOOP_GUN_3);
-    stopEffect(S_IDLE_LOOP_GUN_4);
-    stopEffect(S_IDLE_LOOP_GUN_5);
-  #else
-    stopEffect(S_IDLE_LOOP_GUN_1);
-  #endif
+  stopEffect(S_IDLE_LOOP_GUN);
+  stopEffect(S_IDLE_LOOP_GUN_1);
+  stopEffect(S_IDLE_LOOP_GUN_2);
+  stopEffect(S_IDLE_LOOP_GUN_3);
+  stopEffect(S_IDLE_LOOP_GUN_4);
+  stopEffect(S_IDLE_LOOP_GUN_5);
 }
 
 void soundIdleStart() {
@@ -2831,14 +2876,27 @@ void modeFireStart() {
   b_sound_firing_cross_the_streams = false;
   b_firing_cross_streams = false;
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    bargraphClearAlt();
-  #endif
+  switch(SYSTEM_MODE) {
+    case MODE_ORIGINAL:
+      if(b_28segment_bargraph == true && b_bargraph_always_ramping == true) {
+        // Clear the bargraph before we do the animation.
+        bargraphClearAlt();
+      }
+      else {       
+        // Redraw bargraph to the current power level before doing the MODE_ORIGINAL firing animation.
+        bargraphRedraw();
+      }
+    break;
+
+    case MODE_SUPER_HERO:
+    default:
+      // Clear bargraph
+      bargraphClearAlt();
+    break;
+  }
 
   // Turn on hat light 1.
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    digitalWrite(led_hat_1, HIGH);
-  #endif
+  digitalWrite(led_hat_1, HIGH);
 
   ms_hat_1.stop();
 
@@ -2881,9 +2939,7 @@ void modeFireStart() {
       stopEffect(S_FIRE_START_SPARK);
       stopEffect(S_FIRING_END_GUN);
 
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        stopEffect(S_FIRE_LOOP_IMPACT);
-      #endif
+      stopEffect(S_FIRE_LOOP_IMPACT);
     break;
 
     case SLIME:
@@ -2944,18 +3000,14 @@ void modeFireStart() {
   // Stop any bargraph ramps.
   ms_bargraph.stop();
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    ms_bargraph_alt.stop();
-    i_bargraph_status_alt = 0;
-    b_bargraph_up = false;
-  #endif
+  ms_bargraph_alt.stop();
+  i_bargraph_status_alt = 0;
+  b_bargraph_up = false;
 
   i_bargraph_status = 1;
   bargraphRampFiring();
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    ms_impact.start(random(10,15) * 1000);
-  #endif
+  ms_impact.start(random(10,15) * 1000);
 }
 
 void modeFireStopSounds() {
@@ -3027,58 +3079,96 @@ void modeFireStop() {
 
   ms_bargraph_firing.stop();
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    ms_bargraph_alt.stop(); // Stop the 1984 24 segment optional bargraph timer.
-    b_bargraph_up = false;
-  #endif
+  ms_bargraph_alt.stop(); // Stop the 1984 24 segment optional bargraph timer.
+  b_bargraph_up = false;
 
-  i_bargraph_status = i_power_mode - 1;
+  switch(SYSTEM_MODE) {
+    case MODE_ORIGINAL:
+      if(b_pack_alarm == true) {
+        // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
+        prepBargraphRampDown();
+      }
+      else {
+        // Need to restart the regular bargraph timer.
+        i_bargraph_status = i_power_mode - 1;
+        i_bargraph_status_alt = 0;
+        
+        if((b_28segment_bargraph == true && b_bargraph_always_ramping != true) || b_28segment_bargraph != true) {
+          // Reset and redrawll all the proper segments for the bargraph.
+          bargraphRedraw();
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    i_bargraph_status_alt = 0;
-    bargraphClearAlt();
-
-    switch(year_mode) {
-      case 2021:
-        if(b_bargraph_always_ramping != true) {
-          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+          // Restart the bargraph idling loop.
+          bargraphPowerCheck();
         }
         else {
-          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+          bargraphClearAlt();
+
+          switch(year_mode) {
+            case 2021:
+              if(b_bargraph_always_ramping != true) {
+                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+              }
+              else {
+                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+              }
+            break;
+
+            case 1984:
+            case 1989:
+              i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+            break;
+          }
+
+          bargraphRampUp();
         }
-      break;
+      }
+    break;
 
-      case 1984:
-      case 1989:
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
-      break;
-    }
-  #endif
+    case MODE_SUPER_HERO:
+    default:
+      i_bargraph_status = i_power_mode - 1;
 
-  if(b_pack_alarm == true) {
-    // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
-    prepBargraphRampDown();
-  }
-  else {
-    // We ramp the bargraph back up after finishing firing.
-    bargraphRampUp();
+      i_bargraph_status_alt = 0;
+      bargraphClearAlt();
+
+      switch(year_mode) {
+        case 2021:
+          if(b_bargraph_always_ramping != true) {
+            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+          }
+          else {
+            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+          }
+        break;
+
+        case 1984:
+        case 1989:
+          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+        break;
+      }
+
+      if(b_pack_alarm == true) {
+        // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
+        prepBargraphRampDown();
+      }
+      else {
+        // We ramp the bargraph back up after finishing firing.
+        bargraphRampUp();
+      }
+    break;
   }
 
   ms_firing_stream_blue.stop();
   ms_firing_lights.stop();
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    ms_impact.stop();
-  #endif
+  ms_impact.stop();
 
   i_barrel_light = 0;
   ms_firing_lights_end.start(10);
 
   // If using optional items on the gpstar Neutrona Wand microcontroller.
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
-    digitalWrite(led_barrel_tip, LOW); // Turn off the wand barrel tip LED.
-  #endif
+  digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
+  digitalWrite(led_barrel_tip, LOW); // Turn off the wand barrel tip LED.
 
   ms_hat_1.stop();
 
@@ -3100,9 +3190,7 @@ void modeFireStop() {
       stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
       stopEffect(S_FIRE_START_SPARK);
 
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        stopEffect(S_FIRE_LOOP_IMPACT);
-      #endif
+      stopEffect(S_FIRE_LOOP_IMPACT);
     break;
 
     case SLIME:
@@ -3336,9 +3424,7 @@ void modeFiring() {
       ms_overheat_initiate.stop();
 
       // Adjust hat light 1 to stay solid.
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        digitalWrite(led_hat_1, HIGH);
-      #endif
+      digitalWrite(led_hat_1, HIGH);
 
       ms_hat_1.stop();
 
@@ -3365,116 +3451,69 @@ void modeFiring() {
     default:
       // Shift the stream from red to orange on higher power modes.
       switch(i_power_mode) {
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          case 1:
-            fireStreamStart(getHueAsGRB(C_RED));
-          break;
+        case 1:
+          fireStreamStart(getHueAsGRB(C_RED));
+        break;
 
-          case 2:
-            fireStreamStart(getHueAsGRB(C_RED2));
-          break;
+        case 2:
+          fireStreamStart(getHueAsGRB(C_RED2));
+        break;
 
-          case 3:
-            fireStreamStart(getHueAsGRB(C_RED3));
-          break;
+        case 3:
+          fireStreamStart(getHueAsGRB(C_RED3));
+        break;
 
-          case 4:
-            fireStreamStart(getHueAsGRB(C_RED4));
-          break;
+        case 4:
+          fireStreamStart(getHueAsGRB(C_RED4));
+        break;
 
-          case 5:
-            fireStreamStart(getHueAsGRB(C_RED5));
-          break;
+        case 5:
+          fireStreamStart(getHueAsGRB(C_RED5));
+        break;
 
-          default:
-            fireStreamStart(getHueAsGRB(C_RED));
-          break;
-        #else
-          case 1:
-            fireStreamStart(255, 20, 0);
-          break;
-
-          case 2:
-            fireStreamStart(255, 30, 0);
-          break;
-
-          case 3:
-            fireStreamStart(255, 40, 0);
-          break;
-
-          case 4:
-            fireStreamStart(255, 60, 0);
-          break;
-
-          case 5:
-            fireStreamStart(255, 70, 0);
-          break;
-
-          default:
-            fireStreamStart(255, 20, 0);
-          break;
-        #endif
+        default:
+          fireStreamStart(getHueAsGRB(C_RED));
+        break;
       }
 
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        fireStream(getHueAsGRB(C_BLUE));
-      #else
-        fireStream(0, 0, 255);
-      #endif
+      fireStream(getHueAsGRB(C_BLUE));
     break;
 
     case SLIME:
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        fireStreamStart(getHueAsGRB(C_GREEN));
-        fireStream(getHueAsGRB(C_WHITE));
-      #else
-        fireStreamStart(0, 255, 45);
-        fireStream(20, 200, 45);
-      #endif
+      fireStreamStart(getHueAsGRB(C_GREEN));
+      fireStream(getHueAsGRB(C_WHITE));
     break;
 
     case STASIS:
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        fireStreamStart(getHueAsGRB(C_BLUE));
-        fireStream(getHueAsGRB(C_WHITE));
-      #else
-        fireStreamStart(0, 45, 100);
-        fireStream(0, 100, 255);
-      #endif
+      fireStreamStart(getHueAsGRB(C_BLUE));
+      fireStream(getHueAsGRB(C_WHITE));
     break;
 
     case MESON:
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        fireStreamStart(getHueAsGRB(C_YELLOW));
-        fireStream(getHueAsGRB(C_RED));
-      #else
-        fireStreamStart(200, 200, 20);
-        fireStream(190, 20, 70);
-      #endif
+      fireStreamStart(getHueAsGRB(C_YELLOW));
+      fireStream(getHueAsGRB(C_RED));
     break;
 
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      case SPECTRAL:
-        fireStreamStart(getHueAsGRB(C_RAINBOW));
-        fireStream(getHueAsGRB(C_RAINBOW));
-      break;
+    case SPECTRAL:
+      fireStreamStart(getHueAsGRB(C_RAINBOW));
+      fireStream(getHueAsGRB(C_RAINBOW));
+    break;
 
-      case HOLIDAY:
-        fireStreamStart(getHueAsGRB(C_REDGREEN));
-        fireStream(getHueAsGRB(C_REDGREEN));
-      break;
+    case HOLIDAY:
+      fireStreamStart(getHueAsGRB(C_REDGREEN));
+      fireStream(getHueAsGRB(C_REDGREEN));
+    break;
 
-      case SPECTRAL_CUSTOM:
-        fireStreamStart(getHueAsGRB(C_CUSTOM));
+    case SPECTRAL_CUSTOM:
+      fireStreamStart(getHueAsGRB(C_CUSTOM));
 
-        if(i_spectral_wand_saturation_custom < 254) {
-          fireStream(getHueAsGRB(C_BLUE));
-        }
-        else {
-          fireStream(getHueAsGRB(C_WHITE));
-        }
-      break;
-    #endif
+      if(i_spectral_wand_saturation_custom < 254) {
+        fireStream(getHueAsGRB(C_BLUE));
+      }
+      else {
+        fireStream(getHueAsGRB(C_WHITE));
+      }
+    break;
 
     case VENTING:
     case SETTINGS:
@@ -3487,13 +3526,11 @@ void modeFiring() {
     bargraphRampFiring();
   }
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    // Mix some impact sound every 10-15 seconds while firing.
-    if(ms_impact.justFinished()) {
-      playEffect(S_FIRE_LOOP_IMPACT);
-      ms_impact.start(15000);
-    }
-  #endif
+  // Mix some impact sound every 10-15 seconds while firing.
+  if(ms_impact.justFinished()) {
+    playEffect(S_FIRE_LOOP_IMPACT);
+    ms_impact.start(15000);
+  }
 }
 
 void wandHeatUp() {
@@ -3548,73 +3585,46 @@ void wandBarrelHeatUp() {
   }
   else if(ms_wand_heatup_fade.justFinished() && i_heatup_counter <= 100) {
     switch(FIRING_MODE) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        case PROTON:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_WHITE, i_heatup_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case PROTON:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_WHITE, i_heatup_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case SLIME:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_GREEN, i_heatup_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case SLIME:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_GREEN, i_heatup_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case STASIS:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_BLUE, i_heatup_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case STASIS:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_BLUE, i_heatup_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case MESON:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_ORANGE, i_heatup_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case MESON:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_ORANGE, i_heatup_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case SPECTRAL:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_RAINBOW, i_heatup_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case SPECTRAL:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_RAINBOW, i_heatup_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case HOLIDAY:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_REDGREEN, i_heatup_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case HOLIDAY:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_REDGREEN, i_heatup_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case SPECTRAL_CUSTOM:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_CUSTOM, i_heatup_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case SPECTRAL_CUSTOM:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_CUSTOM, i_heatup_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case VENTING:
-        case SETTINGS:
-        default:
-          // nothing
-        break;
-      #else
-        case PROTON:
-        default:
-          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatup_counter, i_heatup_counter, i_heatup_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
-        case SLIME:
-          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatup_counter, 0, 0);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
-        case STASIS:
-          barrel_leds[i_num_barrel_leds - 1] = CRGB(0, 0, i_heatup_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
-        case MESON:
-          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatup_counter, i_heatup_counter, 0);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
-        case SETTINGS:
-          // nothing
-        break;
-      #endif
+      case VENTING:
+      case SETTINGS:
+      default:
+        // nothing
+      break;
     }
 
     i_heatup_counter++;
@@ -3625,73 +3635,46 @@ void wandBarrelHeatUp() {
 void wandBarrelHeatDown() {
   if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
     switch(FIRING_MODE) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        case PROTON:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_WHITE, i_heatdown_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case PROTON:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_WHITE, i_heatdown_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case SLIME:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_GREEN, i_heatdown_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case SLIME:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_GREEN, i_heatdown_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case STASIS:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_BLUE, i_heatdown_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case STASIS:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_BLUE, i_heatdown_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case MESON:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_ORANGE, i_heatdown_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case MESON:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_ORANGE, i_heatdown_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case SPECTRAL:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_RAINBOW, i_heatdown_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case SPECTRAL:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_RAINBOW, i_heatdown_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case HOLIDAY:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_REDGREEN, i_heatdown_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case HOLIDAY:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_REDGREEN, i_heatdown_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case SPECTRAL_CUSTOM:
-          barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_CUSTOM, i_heatdown_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
+      case SPECTRAL_CUSTOM:
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_CUSTOM, i_heatdown_counter);
+        ms_fast_led.start(i_fast_led_delay);
+      break;
 
-        case VENTING:
-        case SETTINGS:
-        default:
-          // Nothing.
-        break;
-      #else
-        case PROTON:
-        default:
-          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, i_heatdown_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
-        case SLIME:
-          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatdown_counter, 0, 0);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
-        case STASIS:
-          barrel_leds[i_num_barrel_leds - 1] = CRGB(0, 0, i_heatdown_counter);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
-        case MESON:
-          barrel_leds[i_num_barrel_leds - 1] = CRGB(i_heatdown_counter, i_heatdown_counter, 0);
-          ms_fast_led.start(i_fast_led_delay);
-        break;
-
-        case SETTINGS:
-          // Nothing.
-        break;
-      #endif
+      case VENTING:
+      case SETTINGS:
+      default:
+        // Nothing.
+      break;
     }
 
     i_heatdown_counter--;
@@ -3704,116 +3687,68 @@ void wandBarrelHeatDown() {
   }
 }
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
 void fireStream(CRGB c_colour) {
-#else
-void fireStream(int r, int g, int b) {
-#endif
   if(ms_firing_stream_blue.justFinished()) {
     if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < i_num_barrel_leds) {
       switch(FIRING_MODE) {
         case PROTON:
         default:
           if(b_firing_cross_streams == true) {
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_WHITE);
-            #else
-              barrel_leds[i_barrel_light - 1] = CRGB(255, 255, 255);
-            #endif
+            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_WHITE);
           }
           else {
             // Shift the stream from red to orange on higher power modes.
             switch(i_power_mode) {
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                case 1:
-                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
-                break;
+              case 1:
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
+              break;
 
-                case 2:
-                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED2);
-                break;
+              case 2:
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED2);
+              break;
 
-                case 3:
-                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED3);
-                break;
+              case 3:
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED3);
+              break;
 
-                case 4:
-                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED4);
-                break;
+              case 4:
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED4);
+              break;
 
-                case 5:
-                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED5);
-                break;
+              case 5:
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED5);
+              break;
 
-                default:
-                  barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
-                break;
-              #else
-                case 1:
-                  barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
-                break;
-
-                case 2:
-                  barrel_leds[i_barrel_light - 1] = CRGB(20, 255, 0);
-                break;
-
-                case 3:
-                  barrel_leds[i_barrel_light - 1] = CRGB(30, 255, 0);
-                break;
-
-                case 4:
-                  barrel_leds[i_barrel_light - 1] = CRGB(40, 255, 0);
-                break;
-
-                case 5:
-                  barrel_leds[i_barrel_light - 1] = CRGB(50, 255, 0);
-                break;
-
-                default:
-                  barrel_leds[i_barrel_light - 1] = CRGB(10, 255, 0);
-                break;
-              #endif
+              default:
+                barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_RED);
+              break;
             }
           }
         break;
 
         case SLIME:
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_GREEN);
-          #else
-            barrel_leds[i_barrel_light - 1] = CRGB(120, 20, 45);
-          #endif
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_GREEN);
         break;
 
         case STASIS:
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLUE);
-          #else
-            barrel_leds[i_barrel_light - 1] = CRGB(15, 50, 155);
-          #endif
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLUE);
         break;
 
         case MESON:
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_ORANGE);
-          #else
-            barrel_leds[i_barrel_light - 1] = CRGB(200, 200, 15);
-          #endif
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_ORANGE);
         break;
 
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          case SPECTRAL:
-            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLACK);
-          break;
+        case SPECTRAL:
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLACK);
+        break;
 
-          case HOLIDAY:
-            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLACK);
-          break;
+        case HOLIDAY:
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLACK);
+        break;
 
-          case SPECTRAL_CUSTOM:
-            barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_CUSTOM);
-          break;
-        #endif
+        case SPECTRAL_CUSTOM:
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_CUSTOM);
+        break;
 
         case VENTING:
         case SETTINGS:
@@ -3858,11 +3793,7 @@ void fireStream(int r, int g, int b) {
       }
     }
     else if(i_barrel_light < i_num_barrel_leds) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        barrel_leds[i_barrel_light] = c_colour;
-      #else
-        barrel_leds[i_barrel_light] = CRGB(g,r,b);
-      #endif
+      barrel_leds[i_barrel_light] = c_colour;
 
       switch(FIRING_MODE) {
         default:
@@ -3907,33 +3838,18 @@ void barrelLightsOff() {
   i_heatdown_counter = 100;
 
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      barrel_leds[i] = getHueAsGRB(C_BLACK);
-    #else
-      barrel_leds[i] = CRGB(0,0,0);
-    #endif
+    barrel_leds[i] = getHueAsGRB(C_BLACK);
   }
 
   // Turn off the wand barrel tip LED.
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    digitalWrite(led_barrel_tip, LOW);
-  #endif
+  digitalWrite(led_barrel_tip, LOW);
 
   ms_fast_led.start(i_fast_led_delay);
 }
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
 void fireStreamStart(CRGB c_colour) {
-#else
-void fireStreamStart(int r, int g, int b) {
-#endif
-
   if(ms_firing_lights.justFinished() && i_barrel_light < i_num_barrel_leds) {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      barrel_leds[i_barrel_light] = c_colour;
-    #else
-      barrel_leds[i_barrel_light] = CRGB(g,r,b);
-    #endif
+    barrel_leds[i_barrel_light] = c_colour;
 
     ms_fast_led.start(i_fast_led_delay);
 
@@ -3950,18 +3866,9 @@ void fireStreamStart(int r, int g, int b) {
   }
 }
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
 void fireStreamEnd(CRGB c_colour) {
-#else
-void fireStreamEnd(int r, int g, int b) {
-#endif
-
   if(i_barrel_light < i_num_barrel_leds) {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      barrel_leds[i_barrel_light] = c_colour;
-    #else
-      barrel_leds[i_barrel_light] = CRGB(g,r,b);
-    #endif
+    barrel_leds[i_barrel_light] = c_colour;
 
     ms_fast_led.start(i_fast_led_delay);
 
@@ -4006,353 +3913,722 @@ void vibrationWand(uint8_t i_level) {
   }
 }
 
+void bargraphRampFiringAnimation() {
+  // Start ramping up and down from the middle to the top/bottom and back to the middle again.
+  switch(i_bargraph_status_alt) {
+    case 0:
+      vibrationWand(i_vibration_level + 110);
+
+      ht_bargraph.setLedNow(i_bargraph[13]);
+      ht_bargraph.setLedNow(i_bargraph[14]);
+
+      i_bargraph_status_alt++;
+
+      if(b_bargraph_up == false) {
+        ht_bargraph.clearLedNow(i_bargraph[12]);
+        ht_bargraph.clearLedNow(i_bargraph[15]);
+      }
+
+      b_bargraph_up = true;
+
+      digitalWrite(led_barrel_tip, HIGH);
+    break;
+
+    case 1:
+      vibrationWand(i_vibration_level + 110);
+
+      ht_bargraph.setLedNow(i_bargraph[12]);
+      ht_bargraph.setLedNow(i_bargraph[15]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[13]);
+        ht_bargraph.clearLedNow(i_bargraph[14]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[11]);
+        ht_bargraph.clearLedNow(i_bargraph[16]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, HIGH);
+    break;
+
+    case 2:
+      vibrationWand(i_vibration_level + 110);
+
+      ht_bargraph.setLedNow(i_bargraph[11]);
+      ht_bargraph.setLedNow(i_bargraph[16]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[12]);
+        ht_bargraph.clearLedNow(i_bargraph[15]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[10]);
+        ht_bargraph.clearLedNow(i_bargraph[17]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, LOW);
+    break;
+
+    case 3:
+      vibrationWand(i_vibration_level + 110);
+
+      ht_bargraph.setLedNow(i_bargraph[10]);
+      ht_bargraph.setLedNow(i_bargraph[17]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[11]);
+        ht_bargraph.clearLedNow(i_bargraph[16]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[9]);
+        ht_bargraph.clearLedNow(i_bargraph[18]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, LOW);
+    break;
+
+    case 4:
+      vibrationWand(i_vibration_level + 110);
+
+      ht_bargraph.setLedNow(i_bargraph[9]);
+      ht_bargraph.setLedNow(i_bargraph[18]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[10]);
+        ht_bargraph.clearLedNow(i_bargraph[17]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[8]);
+        ht_bargraph.clearLedNow(i_bargraph[19]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, HIGH);
+    break;
+
+    case 5:
+      vibrationWand(i_vibration_level + 110);
+
+      ht_bargraph.setLedNow(i_bargraph[8]);
+      ht_bargraph.setLedNow(i_bargraph[19]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[9]);
+        ht_bargraph.clearLedNow(i_bargraph[18]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[7]);
+        ht_bargraph.clearLedNow(i_bargraph[20]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, HIGH);
+    break;
+
+    case 6:
+      vibrationWand(i_vibration_level + 112);
+
+      ht_bargraph.setLedNow(i_bargraph[7]);
+      ht_bargraph.setLedNow(i_bargraph[20]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[8]);
+        ht_bargraph.clearLedNow(i_bargraph[19]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[6]);
+        ht_bargraph.clearLedNow(i_bargraph[21]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, LOW);
+    break;
+
+    case 7:
+      vibrationWand(i_vibration_level + 112);
+
+      ht_bargraph.setLedNow(i_bargraph[6]);
+      ht_bargraph.setLedNow(i_bargraph[21]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[7]);
+        ht_bargraph.clearLedNow(i_bargraph[20]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[5]);
+        ht_bargraph.clearLedNow(i_bargraph[22]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, LOW);
+    break;
+
+    case 8:
+      vibrationWand(i_vibration_level + 112);
+
+      ht_bargraph.setLedNow(i_bargraph[5]);
+      ht_bargraph.setLedNow(i_bargraph[22]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[6]);
+        ht_bargraph.clearLedNow(i_bargraph[21]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[4]);
+        ht_bargraph.clearLedNow(i_bargraph[23]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, HIGH);
+    break;
+
+    case 9:
+      vibrationWand(i_vibration_level + 112);
+
+      ht_bargraph.setLedNow(i_bargraph[4]);
+      ht_bargraph.setLedNow(i_bargraph[23]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[5]);
+        ht_bargraph.clearLedNow(i_bargraph[22]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[3]);
+        ht_bargraph.clearLedNow(i_bargraph[24]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, HIGH);
+    break;
+
+    case 10:
+      vibrationWand(i_vibration_level + 112);
+
+      ht_bargraph.setLedNow(i_bargraph[3]);
+      ht_bargraph.setLedNow(i_bargraph[24]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[4]);
+        ht_bargraph.clearLedNow(i_bargraph[23]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[2]);
+        ht_bargraph.clearLedNow(i_bargraph[25]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, LOW);
+    break;
+
+    case 11:
+      vibrationWand(i_vibration_level + 115);
+
+      ht_bargraph.setLedNow(i_bargraph[2]);
+      ht_bargraph.setLedNow(i_bargraph[25]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[3]);
+        ht_bargraph.clearLedNow(i_bargraph[24]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[1]);
+        ht_bargraph.clearLedNow(i_bargraph[26]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, LOW);
+    break;
+
+    case 12:
+      vibrationWand(i_vibration_level + 115);
+
+      ht_bargraph.setLedNow(i_bargraph[1]);
+      ht_bargraph.setLedNow(i_bargraph[26]);
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.clearLedNow(i_bargraph[2]);
+        ht_bargraph.clearLedNow(i_bargraph[25]);
+
+        i_bargraph_status_alt++;
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[0]);
+        ht_bargraph.clearLedNow(i_bargraph[27]);
+
+        i_bargraph_status_alt--;
+      }
+
+      digitalWrite(led_barrel_tip, HIGH);
+    break;
+
+    case 13:
+      vibrationWand(i_vibration_level + 115);
+
+      ht_bargraph.setLedNow(i_bargraph[0]);
+      ht_bargraph.setLedNow(i_bargraph[27]);
+
+      ht_bargraph.clearLedNow(i_bargraph[1]);
+      ht_bargraph.clearLedNow(i_bargraph[26]);
+
+      i_bargraph_status_alt--;
+
+      b_bargraph_up = false;
+
+      digitalWrite(led_barrel_tip, HIGH);
+    break;
+  }
+}
+
 // Bargraph ramping during firing.
 // Optional barrel LED tip strobing is controlled from here to give it a ramp effect if the Proton Pack and Neutrona Wand are going to overheat.
 void bargraphRampFiring() {
   // (Optional) 28 Segment barmeter bargraph.
   if(b_28segment_bargraph == true) {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    // Start ramping up and down from the middle to the top/bottom and back to the middle again.
-    switch(i_bargraph_status_alt) {
-      case 0:
-        vibrationWand(i_vibration_level + 110);
-
-        ht_bargraph.setLedNow(i_bargraph[13]);
-        ht_bargraph.setLedNow(i_bargraph[14]);
-
-        i_bargraph_status_alt++;
-
-        if(b_bargraph_up == false) {
-          ht_bargraph.clearLedNow(i_bargraph[12]);
-          ht_bargraph.clearLedNow(i_bargraph[15]);
-        }
-
-        b_bargraph_up = true;
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
-      break;
-
-      case 1:
-        vibrationWand(i_vibration_level + 110);
-
-        ht_bargraph.setLedNow(i_bargraph[12]);
-        ht_bargraph.setLedNow(i_bargraph[15]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[13]);
-          ht_bargraph.clearLedNow(i_bargraph[14]);
-
-          i_bargraph_status_alt++;
+    switch(SYSTEM_MODE) {
+      case MODE_ORIGINAL:
+        if(b_bargraph_always_ramping == true) {
+          bargraphRampFiringAnimation();
         }
         else {
-          ht_bargraph.clearLedNow(i_bargraph[11]);
-          ht_bargraph.clearLedNow(i_bargraph[16]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
-      break;
-
-      case 2:
-        vibrationWand(i_vibration_level + 110);
-
-        ht_bargraph.setLedNow(i_bargraph[11]);
-        ht_bargraph.setLedNow(i_bargraph[16]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[12]);
-          ht_bargraph.clearLedNow(i_bargraph[15]);
-
+          /*
+            5: full: 23 - 27  (5 segments)
+            4: 3/4: 17 - 22   (6 segments)
+            3: 1/2: 12 - 16   (5 segments)
+            2: 1/4: 5 - 11    (7 segments)
+            1: none: 0 - 4    (5 segments)
+          */
           i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[10]);
-          ht_bargraph.clearLedNow(i_bargraph[17]);
 
-          i_bargraph_status_alt--;
-        }
+          switch(i_power_mode) {
+            case 5:
+              if(i_cyclotron_speed_up >= 4) {
+                  // Set brightness??
+              }
 
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, LOW);
-        #endif
+              switch(i_bargraph_status_alt) {
+                case 52:
+                  ht_bargraph.clearLedNow(i_bargraph[27]);
+                break;
+
+                case 65:
+                  ht_bargraph.clearLedNow(i_bargraph[26]);
+                break;
+
+                case 80:
+                  ht_bargraph.clearLedNow(i_bargraph[25]);
+                break;
+
+                case 88:
+                  ht_bargraph.setLedNow(i_bargraph[25]);
+                break;
+
+                case 99:
+                  ht_bargraph.setLedNow(i_bargraph[26]);
+                break;
+
+                case 105:
+                  ht_bargraph.setLedNow(i_bargraph[27]);
+                break;
+
+                case 154:
+                  ht_bargraph.clearLedNow(i_bargraph[27]);
+                break;
+
+                case 163:
+                  ht_bargraph.clearLedNow(i_bargraph[26]);
+                break;
+
+                case 172:
+                  ht_bargraph.clearLedNow(i_bargraph[25]);
+                break;
+
+                case 188:
+                  ht_bargraph.clearLedNow(i_bargraph[24]);
+                break;
+
+                case 192:
+                  ht_bargraph.clearLedNow(i_bargraph[23]);
+                break;
+
+                case 199:
+                  ht_bargraph.clearLedNow(i_bargraph[22]);
+                break;
+
+                case 205:
+                  ht_bargraph.setLedNow(i_bargraph[22]);
+                break;
+
+                case 210:
+                  ht_bargraph.setLedNow(i_bargraph[23]);
+                break;
+
+                case 220:
+                  ht_bargraph.setLedNow(i_bargraph[24]);
+                break;
+
+                case 225:
+                  ht_bargraph.setLedNow(i_bargraph[25]);
+                break;
+
+                case 230:
+                  ht_bargraph.clearLedNow(i_bargraph[25]);
+                break;
+
+                case 237:
+                  ht_bargraph.setLedNow(i_bargraph[25]);
+                break;
+
+                case 245:
+                  ht_bargraph.setLedNow(i_bargraph[26]);
+                break;
+
+                case 253:
+                  ht_bargraph.setLedNow(i_bargraph[27]);
+                break;
+
+                case 255:
+                  i_bargraph_status_alt = 153;
+                break;
+              }
+            break;
+
+            case 4:
+              switch(i_bargraph_status_alt) {
+                case 22:
+                  ht_bargraph.setLedNow(i_bargraph[23]);
+                break;
+
+                case 35:
+                  ht_bargraph.setLedNow(i_bargraph[24]);
+                break;
+
+                case 50:
+                  ht_bargraph.setLedNow(i_bargraph[25]);
+                break;
+
+                case 58:
+                  ht_bargraph.clearLedNow(i_bargraph[25]);
+                break;
+
+                case 69:
+                  ht_bargraph.clearLedNow(i_bargraph[24]);
+                break;
+
+                case 75:
+                  ht_bargraph.setLedNow(i_bargraph[24]);
+                break;
+
+                case 124:
+                  ht_bargraph.clearLedNow(i_bargraph[24]);
+                break;
+
+                case 133:
+                  ht_bargraph.clearLedNow(i_bargraph[23]);
+                break;
+
+                case 142:
+                  ht_bargraph.clearLedNow(i_bargraph[22]);
+                break;
+
+                case 158:
+                  ht_bargraph.clearLedNow(i_bargraph[21]);
+                break;
+
+                case 168:
+                  ht_bargraph.clearLedNow(i_bargraph[20]);
+                break;
+
+                case 174:
+                  ht_bargraph.clearLedNow(i_bargraph[19]);
+                break;
+
+                case 180:
+                  ht_bargraph.clearLedNow(i_bargraph[18]);
+                break;
+
+                case 186:
+                  ht_bargraph.setLedNow(i_bargraph[18]);
+                break;
+
+                case 198:
+                  ht_bargraph.setLedNow(i_bargraph[19]);
+                break;
+
+                case 209:
+                  ht_bargraph.setLedNow(i_bargraph[20]);
+                break;
+
+                case 222:
+                  ht_bargraph.clearLedNow(i_bargraph[20]);
+                break;
+
+                case 230:
+                  ht_bargraph.setLedNow(i_bargraph[20]);
+                break;
+
+                case 237:
+                  ht_bargraph.setLedNow(i_bargraph[21]);
+                break;
+
+                case 243:
+                  ht_bargraph.setLedNow(i_bargraph[22]);
+                break;
+
+                case 248:
+                  ht_bargraph.setLedNow(i_bargraph[23]);
+                break;
+
+                case 255:
+                  ht_bargraph.clearLedNow(i_bargraph[23]);
+
+                  i_bargraph_status_alt = 0;
+                break;   
+              }
+            break;
+
+            case 3:
+              switch(i_bargraph_status_alt) {
+                case 22:
+                  ht_bargraph.clearLedNow(i_bargraph[16]);
+                break;
+
+                case 35:
+                  ht_bargraph.clearLedNow(i_bargraph[15]);
+                break;
+
+                case 50:
+                  ht_bargraph.clearLedNow(i_bargraph[14]);
+                break;
+
+                case 58:
+                  ht_bargraph.setLedNow(i_bargraph[14]);
+                break;
+
+                case 69:
+                  ht_bargraph.setLedNow(i_bargraph[15]);
+                break;
+
+                case 75:
+                  ht_bargraph.setLedNow(i_bargraph[16]);
+                break;
+
+                case 124:
+                  ht_bargraph.setLedNow(i_bargraph[17]);
+                break;
+
+                case 133:
+                  ht_bargraph.setLedNow(i_bargraph[18]);
+                break;
+
+                case 142:
+                  ht_bargraph.clearLedNow(i_bargraph[18]);
+                break;
+
+                case 158:
+                  ht_bargraph.clearLedNow(i_bargraph[17]);
+                break;
+
+                case 168:
+                  ht_bargraph.clearLedNow(i_bargraph[16]);
+                break;
+
+                case 174:
+                  ht_bargraph.clearLedNow(i_bargraph[15]);
+                break;
+
+                case 180:
+                  ht_bargraph.clearLedNow(i_bargraph[14]);
+                break;
+
+                case 186:
+                  ht_bargraph.setLedNow(i_bargraph[14]);
+                break;
+
+                case 198:
+                  ht_bargraph.setLedNow(i_bargraph[15]);
+                break;
+
+                case 209:
+                  ht_bargraph.setLedNow(i_bargraph[16]);
+                break;
+
+                case 222:
+                  ht_bargraph.clearLedNow(i_bargraph[16]);
+                break;
+
+                case 230:
+                  ht_bargraph.setLedNow(i_bargraph[16]);
+                break;
+
+                case 237:
+                  ht_bargraph.setLedNow(i_bargraph[17]);
+                break;
+
+                case 243:
+                  ht_bargraph.setLedNow(i_bargraph[18]);
+                break;
+
+                case 248:
+                  ht_bargraph.clearLedNow(i_bargraph[18]);
+                break;
+
+                case 255:
+                  ht_bargraph.clearLedNow(i_bargraph[17]);
+
+                  i_bargraph_status_alt = 123;
+                break;   
+              }       
+            break;
+
+            case 2:
+              switch(i_bargraph_status_alt) {
+                case 22:
+                  ht_bargraph.clearLedNow(i_bargraph[11]);
+                break;
+
+                case 35:
+                  ht_bargraph.clearLedNow(i_bargraph[10]);
+                break;
+
+                case 50:
+                  ht_bargraph.clearLedNow(i_bargraph[9]);
+                break;
+
+                case 58:
+                  ht_bargraph.setLedNow(i_bargraph[9]);
+                break;
+
+                case 69:
+                  ht_bargraph.setLedNow(i_bargraph[10]);
+                break;
+
+                case 75:
+                  ht_bargraph.setLedNow(i_bargraph[11]);
+                break;
+
+                case 124:
+                  ht_bargraph.setLedNow(i_bargraph[12]);
+                break;
+
+                case 133:
+                  ht_bargraph.setLedNow(i_bargraph[13]);
+                break;
+
+                case 142:
+                  ht_bargraph.clearLedNow(i_bargraph[13]);
+                break;
+
+                case 158:
+                  ht_bargraph.clearLedNow(i_bargraph[12]);
+                break;
+
+                case 168:
+                  ht_bargraph.clearLedNow(i_bargraph[11]);
+                break;
+
+                case 174:
+                  ht_bargraph.clearLedNow(i_bargraph[10]);
+                break;
+
+                case 180:
+                  ht_bargraph.clearLedNow(i_bargraph[9]);
+                break;
+
+                case 186:
+                  ht_bargraph.setLedNow(i_bargraph[9]);
+                break;
+
+                case 198:
+                  ht_bargraph.setLedNow(i_bargraph[10]);
+                break;
+
+                case 209:
+                  ht_bargraph.setLedNow(i_bargraph[11]);
+                break;
+
+                case 222:
+                  ht_bargraph.clearLedNow(i_bargraph[11]);
+                break;
+
+                case 230:
+                  ht_bargraph.setLedNow(i_bargraph[11]);
+                break;
+
+                case 237:
+                  ht_bargraph.setLedNow(i_bargraph[12]);
+                break;
+
+                case 243:
+                  ht_bargraph.setLedNow(i_bargraph[13]);
+                break;
+
+                case 248:
+                  ht_bargraph.clearLedNow(i_bargraph[13]);
+                break;
+
+                case 255:
+                  ht_bargraph.clearLedNow(i_bargraph[12]);
+
+                  i_bargraph_status_alt = 0;
+                break;
+              }
+            break;
+
+            case 1:
+              // Nothing.
+            break;
+          }
+        }
       break;
 
-      case 3:
-        vibrationWand(i_vibration_level + 110);
-
-        ht_bargraph.setLedNow(i_bargraph[10]);
-        ht_bargraph.setLedNow(i_bargraph[17]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[11]);
-          ht_bargraph.clearLedNow(i_bargraph[16]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[9]);
-          ht_bargraph.clearLedNow(i_bargraph[18]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, LOW);
-        #endif
-      break;
-
-      case 4:
-        vibrationWand(i_vibration_level + 110);
-
-        ht_bargraph.setLedNow(i_bargraph[9]);
-        ht_bargraph.setLedNow(i_bargraph[18]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[10]);
-          ht_bargraph.clearLedNow(i_bargraph[17]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[8]);
-          ht_bargraph.clearLedNow(i_bargraph[19]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
-      break;
-
-      case 5:
-        vibrationWand(i_vibration_level + 110);
-
-        ht_bargraph.setLedNow(i_bargraph[8]);
-        ht_bargraph.setLedNow(i_bargraph[19]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[9]);
-          ht_bargraph.clearLedNow(i_bargraph[18]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[7]);
-          ht_bargraph.clearLedNow(i_bargraph[20]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
-      break;
-
-      case 6:
-        vibrationWand(i_vibration_level + 112);
-
-        ht_bargraph.setLedNow(i_bargraph[7]);
-        ht_bargraph.setLedNow(i_bargraph[20]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[8]);
-          ht_bargraph.clearLedNow(i_bargraph[19]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[6]);
-          ht_bargraph.clearLedNow(i_bargraph[21]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, LOW);
-        #endif
-      break;
-
-      case 7:
-        vibrationWand(i_vibration_level + 112);
-
-        ht_bargraph.setLedNow(i_bargraph[6]);
-        ht_bargraph.setLedNow(i_bargraph[21]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[7]);
-          ht_bargraph.clearLedNow(i_bargraph[20]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[5]);
-          ht_bargraph.clearLedNow(i_bargraph[22]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, LOW);
-        #endif
-      break;
-
-      case 8:
-        vibrationWand(i_vibration_level + 112);
-
-        ht_bargraph.setLedNow(i_bargraph[5]);
-        ht_bargraph.setLedNow(i_bargraph[22]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[6]);
-          ht_bargraph.clearLedNow(i_bargraph[21]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[4]);
-          ht_bargraph.clearLedNow(i_bargraph[23]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
-      break;
-
-      case 9:
-        vibrationWand(i_vibration_level + 112);
-
-        ht_bargraph.setLedNow(i_bargraph[4]);
-        ht_bargraph.setLedNow(i_bargraph[23]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[5]);
-          ht_bargraph.clearLedNow(i_bargraph[22]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[3]);
-          ht_bargraph.clearLedNow(i_bargraph[24]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
-      break;
-
-      case 10:
-        vibrationWand(i_vibration_level + 112);
-
-        ht_bargraph.setLedNow(i_bargraph[3]);
-        ht_bargraph.setLedNow(i_bargraph[24]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[4]);
-          ht_bargraph.clearLedNow(i_bargraph[23]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[2]);
-          ht_bargraph.clearLedNow(i_bargraph[25]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, LOW);
-        #endif
-      break;
-
-      case 11:
-        vibrationWand(i_vibration_level + 115);
-
-        ht_bargraph.setLedNow(i_bargraph[2]);
-        ht_bargraph.setLedNow(i_bargraph[25]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[3]);
-          ht_bargraph.clearLedNow(i_bargraph[24]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[1]);
-          ht_bargraph.clearLedNow(i_bargraph[26]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, LOW);
-        #endif
-      break;
-
-      case 12:
-        vibrationWand(i_vibration_level + 115);
-
-        ht_bargraph.setLedNow(i_bargraph[1]);
-        ht_bargraph.setLedNow(i_bargraph[26]);
-
-        if(b_bargraph_up == true) {
-          ht_bargraph.clearLedNow(i_bargraph[2]);
-          ht_bargraph.clearLedNow(i_bargraph[25]);
-
-          i_bargraph_status_alt++;
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[0]);
-          ht_bargraph.clearLedNow(i_bargraph[27]);
-
-          i_bargraph_status_alt--;
-        }
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
-      break;
-
-      case 13:
-        vibrationWand(i_vibration_level + 115);
-
-        ht_bargraph.setLedNow(i_bargraph[0]);
-        ht_bargraph.setLedNow(i_bargraph[27]);
-
-        ht_bargraph.clearLedNow(i_bargraph[1]);
-        ht_bargraph.clearLedNow(i_bargraph[26]);
-
-        i_bargraph_status_alt--;
-
-        b_bargraph_up = false;
-
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
+      case MODE_SUPER_HERO:
+      default:
+        bargraphRampFiringAnimation();
       break;
     }
-    #endif
   }
-  else {
-    #ifndef GPSTAR_NEUTRONA_WAND_PCB
-      vibrationWand(i_vibration_level + 100);
-    #endif
-    
+  else {    
     // Hasbro bargraph.
     switch(i_bargraph_status) {
       case 1:
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          vibrationWand(i_vibration_level + 110);
-        #endif
+        vibrationWand(i_vibration_level + 110);
 
         digitalWrite(i_bargraph_5_led[1-1], LOW);
         digitalWrite(i_bargraph_5_led[2-1], HIGH);
@@ -4361,15 +4637,11 @@ void bargraphRampFiring() {
         digitalWrite(i_bargraph_5_led[5-1], LOW);
         i_bargraph_status++;
 
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
+        digitalWrite(led_barrel_tip, HIGH);
       break;
 
       case 2:
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          vibrationWand(i_vibration_level + 112);
-        #endif
+        vibrationWand(i_vibration_level + 112);
 
         digitalWrite(i_bargraph_5_led[1-1], HIGH);
         digitalWrite(i_bargraph_5_led[2-1], LOW);
@@ -4378,15 +4650,11 @@ void bargraphRampFiring() {
         digitalWrite(i_bargraph_5_led[5-1], HIGH);
         i_bargraph_status++;
 
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, LOW);
-        #endif
+        digitalWrite(led_barrel_tip, LOW);
       break;
 
       case 3:
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          vibrationWand(i_vibration_level + 115);
-        #endif
+        vibrationWand(i_vibration_level + 115);
 
         digitalWrite(i_bargraph_5_led[1-1], HIGH);
         digitalWrite(i_bargraph_5_led[2-1], HIGH);
@@ -4395,15 +4663,11 @@ void bargraphRampFiring() {
         digitalWrite(i_bargraph_5_led[5-1], HIGH);
         i_bargraph_status++;
 
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
+        digitalWrite(led_barrel_tip, HIGH);
       break;
 
       case 4:
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          vibrationWand(i_vibration_level + 112);
-        #endif
+        vibrationWand(i_vibration_level + 112);
 
         digitalWrite(i_bargraph_5_led[1-1], HIGH);
         digitalWrite(i_bargraph_5_led[2-1], LOW);
@@ -4412,15 +4676,11 @@ void bargraphRampFiring() {
         digitalWrite(i_bargraph_5_led[5-1], HIGH);
         i_bargraph_status++;
 
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, LOW);
-        #endif
+        digitalWrite(led_barrel_tip, LOW);
       break;
 
       case 5:
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          vibrationWand(i_vibration_level + 110);
-        #endif
+        vibrationWand(i_vibration_level + 110);
 
         digitalWrite(i_bargraph_5_led[1-1], LOW);
         digitalWrite(i_bargraph_5_led[2-1], HIGH);
@@ -4429,131 +4689,71 @@ void bargraphRampFiring() {
         digitalWrite(i_bargraph_5_led[5-1], LOW);
         i_bargraph_status = 1;
 
-        #ifdef GPSTAR_NEUTRONA_WAND_PCB
-          digitalWrite(led_barrel_tip, HIGH);
-        #endif
+        digitalWrite(led_barrel_tip, HIGH);
       break;
     }
   }
 
   int i_ramp_interval = d_bargraph_ramp_interval;
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_28segment_bargraph == true) {
-      // Switch to a different ramp speed if using the (Optional) 28 segment barmeter bargraph.
-      i_ramp_interval = d_bargraph_ramp_interval_alt;
-    }
-  #endif
+  if(b_28segment_bargraph == true) {
+    // Switch to a different ramp speed if using the (Optional) 28 segment barmeter bargraph.
+    i_ramp_interval = d_bargraph_ramp_interval_alt;
+  }
 
   // If in a power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
   if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(b_28segment_bargraph == true) {
-          ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
-        }
-        else {
-          ms_bargraph_firing.start(i_ramp_interval / 5);
-        }
-      #else
+      if(b_28segment_bargraph == true) {
+        ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
+      }
+      else {
         ms_bargraph_firing.start(i_ramp_interval / 5);
-      #endif
+      }
 
       cyclotronSpeedUp(6);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 5) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(b_28segment_bargraph == true) {
-          ms_bargraph_firing.start(i_ramp_interval / 9);
-        }
-        else {
-          ms_bargraph_firing.start(i_ramp_interval / 4);
-        }
-      #else
+      if(b_28segment_bargraph == true) {
+        ms_bargraph_firing.start(i_ramp_interval / 9);
+      }
+      else {
         ms_bargraph_firing.start(i_ramp_interval / 4);
-      #endif
+      }
 
       cyclotronSpeedUp(5);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 4) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(b_28segment_bargraph == true) {
-          ms_bargraph_firing.start(i_ramp_interval / 7);
-        }
-        else {
-          ms_bargraph_firing.start(i_ramp_interval / 3.5);
-        }
-      #else
+      if(b_28segment_bargraph == true) {
+        ms_bargraph_firing.start(i_ramp_interval / 7);
+      }
+      else {
         ms_bargraph_firing.start(i_ramp_interval / 3.5);
-      #endif
+      }
 
       cyclotronSpeedUp(4);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 3) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(b_28segment_bargraph == true) {
-          ms_bargraph_firing.start(i_ramp_interval / 5);
-        }
-        else {
-          ms_bargraph_firing.start(i_ramp_interval / 3);
-        }
-      #else
+      if(b_28segment_bargraph == true) {
+        ms_bargraph_firing.start(i_ramp_interval / 5);
+      }
+      else {
         ms_bargraph_firing.start(i_ramp_interval / 3);
-      #endif
+      }
 
       cyclotronSpeedUp(3);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 2) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(b_28segment_bargraph == true) {
-          ms_bargraph_firing.start(i_ramp_interval / 3);
-        }
-        else {
-          ms_bargraph_firing.start(i_ramp_interval / 2.5);
-        }
-      #else
+      if(b_28segment_bargraph == true) {
+        ms_bargraph_firing.start(i_ramp_interval / 3);
+      }
+      else {
         ms_bargraph_firing.start(i_ramp_interval / 2.5);
-      #endif
+      }
 
       cyclotronSpeedUp(2);
     }
     else {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(b_28segment_bargraph == true) {
-          switch(i_power_mode) {
-            case 5:
-              ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
-            break;
-
-            case 4:
-              ms_bargraph_firing.start((i_ramp_interval / 2) - 3); // 15
-            break;
-
-            case 3:
-              ms_bargraph_firing.start(i_ramp_interval / 2); // 20
-            break;
-
-            case 2:
-              ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 30
-            break;
-
-            case 1:
-              ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 35
-            break;
-          }
-        }
-        else {
-          ms_bargraph_firing.start(i_ramp_interval / 2);
-        }
-      #else
-        ms_bargraph_firing.start(i_ramp_interval / 2);
-      #endif
-
-      i_cyclotron_speed_up = 1;
-    }
-  }
-  else {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
       if(b_28segment_bargraph == true) {
         switch(i_power_mode) {
           case 5:
@@ -4569,20 +4769,48 @@ void bargraphRampFiring() {
           break;
 
           case 2:
-            ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 25
+            ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 30
           break;
 
           case 1:
-            ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30
+            ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 35
           break;
         }
       }
       else {
         ms_bargraph_firing.start(i_ramp_interval / 2);
       }
-    #else
+
+      i_cyclotron_speed_up = 1;
+    }
+  }
+  else {
+    if(b_28segment_bargraph == true) {
+      switch(i_power_mode) {
+        case 5:
+          ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
+        break;
+
+        case 4:
+          ms_bargraph_firing.start((i_ramp_interval / 2) - 3); // 15
+        break;
+
+        case 3:
+          ms_bargraph_firing.start(i_ramp_interval / 2); // 20
+        break;
+
+        case 2:
+          ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 25
+        break;
+
+        case 1:
+          ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30
+        break;
+      }
+    }
+    else {
       ms_bargraph_firing.start(i_ramp_interval / 2);
-    #endif
+    }
   }
 }
 
@@ -4615,259 +4843,357 @@ void cyclotronSpeedRevert() {
 // 2021 mode for optional 28 segment bargraph.
 // Checks if we ramp up or down when changing power levels.
 // Forces the bargraph to redraw itself to the current power level.
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  void bargraphPowerCheck2021Alt(bool b_override) {
-    if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override == true) {
-      if(i_power_mode != i_power_mode_prev || b_override == true) {
-        if(i_power_mode > i_power_mode_prev) {
-          b_bargraph_up = true;
-        }
-        else {
-          b_bargraph_up = false;
-        }
-        switch(i_power_mode) {
-          case 5:
-            ms_bargraph_alt.start(i_bargraph_wait / 3);
-          break;
+void bargraphPowerCheck2021Alt(bool b_override) {
+  if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override == true) {
+    if(i_power_mode != i_power_mode_prev || b_override == true) {
+      if(i_power_mode > i_power_mode_prev) {
+        b_bargraph_up = true;
+      }
+      else {
+        b_bargraph_up = false;
+      }
+      
+      switch(i_power_mode) {
+        case 5:
+          ms_bargraph_alt.start(i_bargraph_wait / 3);
+        break;
 
-          case 4:
-            ms_bargraph_alt.start(i_bargraph_wait / 4);
-          break;
+        case 4:
+          ms_bargraph_alt.start(i_bargraph_wait / 4);
+        break;
 
-          case 3:
-            ms_bargraph_alt.start(i_bargraph_wait / 5);
-          break;
+        case 3:
+          ms_bargraph_alt.start(i_bargraph_wait / 5);
+        break;
 
-          case 2:
-            ms_bargraph_alt.start(i_bargraph_wait / 6);
-          break;
+        case 2:
+          ms_bargraph_alt.start(i_bargraph_wait / 6);
+        break;
 
-          case 1:
-            ms_bargraph_alt.start(i_bargraph_wait / 7);
-          break;
-        }
+        case 1:
+          ms_bargraph_alt.start(i_bargraph_wait / 7);
+        break;
       }
     }
   }
-#endif
+}
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  void bargraphClearAlt() {
-    if(b_28segment_bargraph == true) {
-      ht_bargraph.clearAll();
-
-      i_bargraph_status_alt = 0;
-    }
-  }
-#endif
-
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  void setBargraphOrientation() {
-    if(b_bargraph_invert != true) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        // Resets the 28 Segment bargraph orientation.
-        for(uint8_t i = 0; i < i_bargraph_segments; i++) {
-          i_bargraph[i] = i_bargraph_normal[i];
-        }
-      #endif
-
-      for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
-        i_bargraph_5_led[i] = i_bargraph_5_led_normal[i];
-      }
-    }
-    else {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        // Resets the 28 Segment bargraph orientation.
-        for(uint8_t i = 0; i < i_bargraph_segments; i++) {
-          i_bargraph[i] = i_bargraph_invert[i];
-        }
-      #endif
-
-      for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
-        i_bargraph_5_led[i] = i_bargraph_5_led_invert[i];
-      }
-    }
-  }
-#endif
-
-void bargraphPowerCheck() {
-  // Control for the 28 segment barmeter bargraph.
+void bargraphClearAlt() {
   if(b_28segment_bargraph == true) {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      if(ms_bargraph_alt.justFinished()) {
-        uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
+    ht_bargraph.clearAll();
 
-        if(year_mode == 2021 && b_bargraph_always_ramping != true) {
-          for(uint8_t i = 0; i <= 4; i++) {
-            i_bargraph_multiplier[i] = 10;
+    i_bargraph_status_alt = 0;
+  }
+}
+
+void setBargraphOrientation() {
+  if(b_bargraph_invert != true) {
+    // Resets the 28 Segment bargraph orientation.
+    for(uint8_t i = 0; i < i_bargraph_segments; i++) {
+      i_bargraph[i] = i_bargraph_normal[i];
+    }
+
+    for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
+      i_bargraph_5_led[i] = i_bargraph_5_led_normal[i];
+    }
+  }
+  else {
+    // Resets the 28 Segment bargraph orientation.
+    for(uint8_t i = 0; i < i_bargraph_segments; i++) {
+      i_bargraph[i] = i_bargraph_invert[i];
+    }
+
+    for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
+      i_bargraph_5_led[i] = i_bargraph_5_led_invert[i];
+    }
+  }
+}
+
+// Draw the bargraph to the current power level instantly.
+void bargraphRedraw() {
+  if(b_28segment_bargraph == true) {
+    /*
+      5: full: 23 - 27  (5 segments)
+      4: 3/4: 17 - 22   (6 segments)
+      3: 1/2: 12 - 16   (5 segments)
+      2: 1/4: 5 - 11    (7 segments)
+      1: none: 0 - 4    (5 segments)
+    */
+
+    switch(i_power_mode) {
+      case 1:
+        // Does not get used but keep for now.
+        for(uint8_t i = 0; i <= 27; i++) {
+          if(i <= 4) {
+            ht_bargraph.setLedNow(i_bargraph[i]);
+          }
+          else {
+            ht_bargraph.clearLedNow(i_bargraph[i]);
           }
         }
 
+        i_bargraph_status_alt = 4;
+      break;
+
+      case 2:
+        for(uint8_t i = 0; i <= 27; i++) {
+          if(i <= 11) {
+            ht_bargraph.setLedNow(i_bargraph[i]);
+          }
+          else {
+            ht_bargraph.clearLedNow(i_bargraph[i]);
+          }
+        }
+
+        i_bargraph_status_alt = 11;
+      break;
+
+      case 3:
+        for(uint8_t i = 0; i <= 27; i++) {
+          if(i <= 16) {
+            ht_bargraph.setLedNow(i_bargraph[i]);
+          }
+          else {
+            ht_bargraph.clearLedNow(i_bargraph[i]);
+          }
+        }
+
+        i_bargraph_status_alt = 16;
+      break;
+
+      case 4:
+        for(uint8_t i = 0; i <= 27; i++) {
+          if(i <= 22) {
+            ht_bargraph.setLedNow(i_bargraph[i]);
+          }
+          else {
+            ht_bargraph.clearLedNow(i_bargraph[i]);
+          }
+        }
+
+        i_bargraph_status_alt = 22;
+      break;
+
+      case 5:
+        for(uint8_t i = 0; i <= 27; i++) {
+          ht_bargraph.setLedNow(i_bargraph[i]);
+        }
+
+        i_bargraph_status_alt = 27;
+      break;
+    }
+  }
+  else {
+    // Stock haslab bargraph control.
+    switch(i_power_mode) {
+      case 1:
+        wandBargraphControl(1);
+      break;
+
+      case 2:
+        wandBargraphControl(2);
+      break;
+
+      case 3:
+        wandBargraphControl(3);
+      break;
+
+      case 4:
+        wandBargraphControl(4);
+      break;
+
+      case 5:
+        wandBargraphControl(5);
+      break;
+    }
+  }
+}
+
+void bargraphPowerCheck() {
+  // Control for the 28 segment barmeter bargraph.
+  /*
+    5: full: 23 - 27  (5 segments)
+    4: 3/4: 17 - 22   (6 segments)
+    3: 1/2: 12 - 16   (5 segments)
+    2: 1/4: 5 - 11    (7 segments)
+    1: none: 0 - 4    (5 segments)
+  */
+  if(b_28segment_bargraph == true) {
+    unsigned int i_tmp_year_mode = yearModeTemp();
+
+    if(ms_bargraph_alt.justFinished()) {
+      uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
+
+      if(i_tmp_year_mode == 2021 && b_bargraph_always_ramping != true) {
+        for(uint8_t i = 0; i <= 4; i++) {
+          i_bargraph_multiplier[i] = 10;
+        }
+      }
+
+      if(b_bargraph_up == true) {
+        ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
+
+        switch(i_power_mode) {
+          case 5:
+            if(i_bargraph_status_alt > 27) {
+              b_bargraph_up = false;
+
+              i_bargraph_status_alt = 27;
+
+              if(i_tmp_year_mode == 2021 && b_bargraph_always_ramping != true) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+            }
+          break;
+
+          case 4:
+            if(i_bargraph_status_alt > 21) {
+              b_bargraph_up = false;
+
+              if(i_tmp_year_mode == 2021 && b_bargraph_always_ramping != true) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+            }
+          break;
+
+          case 3:
+            if(i_bargraph_status_alt > 15) {
+              b_bargraph_up = false;
+              if(i_tmp_year_mode == 2021 && b_bargraph_always_ramping != true) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+            }
+          break;
+
+          case 2:
+            if(i_bargraph_status_alt > 10) {
+              b_bargraph_up = false;
+              if(i_tmp_year_mode == 2021 && b_bargraph_always_ramping != true) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+            }
+          break;
+
+          case 1:
+            if(i_bargraph_status_alt > 4) {
+              b_bargraph_up = false;
+              if(i_tmp_year_mode == 2021 && b_bargraph_always_ramping != true) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+            }
+          break;
+        }
+
         if(b_bargraph_up == true) {
-          ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
+          i_bargraph_status_alt++;
+        }
+      }
+      else {
+        ht_bargraph.clearLedNow(i_bargraph[i_bargraph_status_alt]);
+
+        if(i_bargraph_status_alt == 0) {
+          i_bargraph_status_alt = 0;
+          b_bargraph_up = true;
+          // A little pause when we reach the bottom.
+          ms_bargraph_alt.start(i_bargraph_wait / 2);
+        }
+        else {
+          i_bargraph_status_alt--;
 
           switch(i_power_mode) {
             case 5:
-              if(i_bargraph_status_alt > 26) {
-                b_bargraph_up = false;
-
-                i_bargraph_status_alt = 27;
-
-                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
-                  // In 2021 mode, we stop when we reach our target.
-                  ms_bargraph_alt.stop();
-                }
-                else {
-                  // A little pause when we reach the top.
-                  ms_bargraph_alt.start(i_bargraph_wait / 2);
-                }
+              if(i_tmp_year_mode == 2021 && i_bargraph_status_alt < 28 && b_bargraph_always_ramping != true) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
               }
               else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+                ms_bargraph_alt.start(i_bargraph_interval * 3);
               }
             break;
 
             case 4:
-              if(i_bargraph_status_alt > 21) {
-                b_bargraph_up = false;
-
-                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
-                  // In 2021 mode, we stop when we reach our target.
-                  ms_bargraph_alt.stop();
-                }
-                else {
-                  // A little pause when we reach the top.
-                  ms_bargraph_alt.start(i_bargraph_wait / 2);
-                }
+              if(i_tmp_year_mode == 2021 && i_bargraph_status_alt < 23 && b_bargraph_always_ramping != true) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
               }
               else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+                ms_bargraph_alt.start(i_bargraph_interval * 4);
               }
             break;
 
             case 3:
-              if(i_bargraph_status_alt > 16) {
-                b_bargraph_up = false;
-                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
-                  // In 2021 mode, we stop when we reach our target.
-                  ms_bargraph_alt.stop();
-                }
-                else {
-                  // A little pause when we reach the top.
-                  ms_bargraph_alt.start(i_bargraph_wait / 2);
-                }
+              if(i_tmp_year_mode == 2021 && i_bargraph_status_alt < 17 && b_bargraph_always_ramping != true) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
               }
               else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+                ms_bargraph_alt.start(i_bargraph_interval * 5);
               }
             break;
 
             case 2:
-              if(i_bargraph_status_alt > 10) {
-                b_bargraph_up = false;
-                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
-                  // In 2021 mode, we stop when we reach our target.
-                  ms_bargraph_alt.stop();
-                }
-                else {
-                  // A little pause when we reach the top.
-                  ms_bargraph_alt.start(i_bargraph_wait / 2);
-                }
+              if(i_tmp_year_mode == 2021 && i_bargraph_status_alt < 12 && b_bargraph_always_ramping != true) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
               }
               else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+                ms_bargraph_alt.start(i_bargraph_interval * 6);
               }
             break;
 
             case 1:
-              if(i_bargraph_status_alt > 4) {
-                b_bargraph_up = false;
-                if(year_mode == 2021 && b_bargraph_always_ramping != true) {
-                  // In 2021 mode, we stop when we reach our target.
-                  ms_bargraph_alt.stop();
-                }
-                else {
-                  // A little pause when we reach the top.
-                  ms_bargraph_alt.start(i_bargraph_wait / 2);
-                }
+              if(i_tmp_year_mode == 2021 && i_bargraph_status_alt < 5 && b_bargraph_always_ramping != true) {
+                // In 2021 mode, we stop when we reach our target.
+                ms_bargraph_alt.stop();
               }
               else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+                ms_bargraph_alt.start(i_bargraph_interval * 7);
               }
             break;
           }
-
-          if(b_bargraph_up == true) {
-            i_bargraph_status_alt++;
-          }
-        }
-        else {
-          ht_bargraph.clearLedNow(i_bargraph[i_bargraph_status_alt]);
-
-          if(i_bargraph_status_alt == 0) {
-            i_bargraph_status_alt = 0;
-            b_bargraph_up = true;
-            // A little pause when we reach the bottom.
-            ms_bargraph_alt.start(i_bargraph_wait / 2);
-          }
-          else {
-            i_bargraph_status_alt--;
-
-            switch(i_power_mode) {
-              case 5:
-                if(year_mode == 2021 && i_bargraph_status_alt < 27 && b_bargraph_always_ramping != true) {
-                  // In 2021 mode, we stop when we reach our target.
-                  ms_bargraph_alt.stop();
-                }
-                else {
-                  ms_bargraph_alt.start(i_bargraph_interval * 3);
-                }
-              break;
-
-              case 4:
-                if(year_mode == 2021 && i_bargraph_status_alt < 22 && b_bargraph_always_ramping != true) {
-                  // In 2021 mode, we stop when we reach our target.
-                  ms_bargraph_alt.stop();
-                }
-                else {
-                  ms_bargraph_alt.start(i_bargraph_interval * 4);
-                }
-              break;
-
-              case 3:
-                if(year_mode == 2021 && i_bargraph_status_alt < 17 && b_bargraph_always_ramping != true) {
-                  // In 2021 mode, we stop when we reach our target.
-                  ms_bargraph_alt.stop();
-                }
-                else {
-                  ms_bargraph_alt.start(i_bargraph_interval * 5);
-                }
-              break;
-
-              case 2:
-                if(year_mode == 2021 && i_bargraph_status_alt < 11 && b_bargraph_always_ramping != true) {
-                  // In 2021 mode, we stop when we reach our target.
-                  ms_bargraph_alt.stop();
-                }
-                else {
-                  ms_bargraph_alt.start(i_bargraph_interval * 6);
-                }
-              break;
-
-              case 1:
-                if(year_mode == 2021 && i_bargraph_status_alt < 5 && b_bargraph_always_ramping != true) {
-                  // In 2021 mode, we stop when we reach our target.
-                  ms_bargraph_alt.stop();
-                }
-                else {
-                  ms_bargraph_alt.start(i_bargraph_interval * 7);
-                }
-              break;
-            }
-          }
         }
       }
-    #endif
+    }
   }
   else {
     // Stock haslab bargraph control.
@@ -4897,18 +5223,14 @@ void bargraphPowerCheck() {
 
 // Fully lights up the bargraphs.
 void bargraphFull() {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_28segment_bargraph == true) {
-      for(uint8_t i = 0; i < 28; i++) {
-        ht_bargraph.setLedNow(i_bargraph[i]);
-      }
+  if(b_28segment_bargraph == true) {
+    for(uint8_t i = 0; i < 28; i++) {
+      ht_bargraph.setLedNow(i_bargraph[i]);
     }
-    else {
-      wandBargraphControl(5);
-    }
-  #else
+  }
+  else {
     wandBargraphControl(5);
-  #endif
+  }
 }
 
 void bargraphRampUp() {
@@ -4916,85 +5238,112 @@ void bargraphRampUp() {
     i_vibration_level = i_vibration_level_min;
   }
 
+  unsigned int i_tmp_year_mode = yearModeTemp();
+
   if(b_28segment_bargraph == true) {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      switch(i_bargraph_status_alt) {
-        case 0 ... 27:
-          ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
+    /*
+      5: full: 23 - 27	(5 segments)
+      4: 3/4: 17 - 22	(6 segments)
+      3: 1/2: 12 - 16	(5 segments)
+      2: 1/4: 5 - 11	(7 segments)
+      1: none: 0 - 4	(5 segments)
+    */
+    switch(i_bargraph_status_alt) {
+      case 0 ... 27:
+        ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
 
-          if(i_bargraph_status_alt > 22) {
-            vibrationWand(i_vibration_level + 80);
-          }
-          else if(i_bargraph_status_alt > 16) {
-            vibrationWand(i_vibration_level + 40);
-          }
-          else if(i_bargraph_status_alt > 10) {
-            vibrationWand(i_vibration_level + 30);
-          }
-          else if(i_bargraph_status_alt > 4) {
-            vibrationWand(i_vibration_level + 20);
-          }
-          else if(i_bargraph_status_alt > 0) {
-            vibrationWand(i_vibration_level + 10);
-          }
+        if(i_bargraph_status_alt > 22) {
+          vibrationWand(i_vibration_level + 80);
+        }
+        else if(i_bargraph_status_alt > 16) {
+          vibrationWand(i_vibration_level + 40);
+        }
+        else if(i_bargraph_status_alt > 10) {
+          vibrationWand(i_vibration_level + 30);
+        }
+        else if(i_bargraph_status_alt > 4) {
+          vibrationWand(i_vibration_level + 20);
+        }
+        else if(i_bargraph_status_alt > 0) {
+          vibrationWand(i_vibration_level + 10);
+        }
 
-          i_bargraph_status_alt++;
+        i_bargraph_status_alt++;
 
-          if(i_bargraph_status_alt == 28) {
-            // A little pause when we reach the top.
-            ms_bargraph.start(i_bargraph_wait / 2);
+        if(i_bargraph_status_alt == 28) {
+          // A little pause when we reach the top.
+          ms_bargraph.start(i_bargraph_wait / 2);
 
-            // Adjust the ramp down speed if necessary.
-            switch(year_mode) {
-              case 2021:
-                if(b_bargraph_always_ramping != true) {
-                  i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
-                }
-              break;
+          // Adjust the ramp down speed if necessary.
+          switch(i_tmp_year_mode) {
+            case 2021:
+              if(b_bargraph_always_ramping != true) {
+                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+              }
+            break;
 
-              case 1984:
-              case 1989:
-                // No changes.
-              break;
-            }
+            case 1984:
+            case 1989:
+              // No changes.
+            break;
+          }
+        }
+        else {
+          ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+        }
+      break;
+
+      case 28 ... 56:
+        uint8_t i_tmp = i_bargraph_status_alt - 27;
+        i_tmp = 28 - i_tmp;
+
+        if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+          vibrationOff();
+        }
+
+        if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+          if(i_bargraph_status_alt == 56) {
+            ms_bargraph.stop();
+            b_bargraph_up = false;
+            i_bargraph_status_alt = 0;
           }
           else {
-            ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+            ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
+
+            ms_bargraph.start(d_bargraph_ramp_interval_alt * 2);
+            i_bargraph_status_alt++;
           }
-        break;
-
-        case 28 ... 56:
-          uint8_t i_tmp = i_bargraph_status_alt - 27;
-          i_tmp = 28 - i_tmp;
-
-          if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
-            vibrationOff();
+        }
+        else {
+          if((i_power_mode < 5 && i_tmp_year_mode == 2021) || i_tmp_year_mode == 1984 || i_tmp_year_mode == 1989 || b_bargraph_always_ramping == true) {
+            ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
           }
 
-          if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
-            if(i_bargraph_status_alt == 56) {
-              ms_bargraph.stop();
-              b_bargraph_up = false;
-              i_bargraph_status_alt = 0;
-            }
-            else {
-              ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
+          switch(i_tmp_year_mode) {
+            case 1984:
+            case 1989:
+              // Bargraph has ramped up and down. In 1984/1989 mode we want to start the ramping.
+              if(i_bargraph_status_alt == 54) {
+                ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continuously.
+                ms_bargraph.stop();
+                b_bargraph_up = true;
+                i_bargraph_status_alt = 0;
+                bargraphYearModeUpdate();
 
-              ms_bargraph.start(d_bargraph_ramp_interval_alt * 2);
-              i_bargraph_status_alt++;
-            }
-          }
-          else {
-            if((i_power_mode < 5 && year_mode == 2021) || year_mode == 1984 || year_mode == 1989 || b_bargraph_always_ramping == true) {
-              ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
-            }
+                vibrationWand(i_vibration_level);
+              }
+              else {
+                ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                i_bargraph_status_alt++;
+              }
 
-            switch(year_mode) {
-              case 1984:
-              case 1989:
-                // Bargraph has ramped up and down. In 1984/1989 mode we want to start the ramping.
+            break;
+
+            case 2021:
+              if(b_bargraph_always_ramping == true) {
+                // Bargraph has ramped up and down. If bargraph overridden to always ramp, let's start the ramping.
                 if(i_bargraph_status_alt == 54) {
-                  ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continuously.
+                  ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
                   ms_bargraph.stop();
                   b_bargraph_up = true;
                   i_bargraph_status_alt = 0;
@@ -5006,113 +5355,92 @@ void bargraphRampUp() {
                   ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                   i_bargraph_status_alt++;
                 }
+              }
+              else {
+                switch(i_power_mode) {
+                  case 5:
+                    // Stop any power check in 2021 if we are already in level 5.
+                    ms_bargraph_alt.stop();
 
-              break;
-
-              case 2021:
-                if(b_bargraph_always_ramping == true) {
-                  // Bargraph has ramped up and down. If bargraph overridden to always ramp, let's start the ramping.
-                  if(i_bargraph_status_alt == 54) {
-                    ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
                     ms_bargraph.stop();
-                    b_bargraph_up = true;
-                    i_bargraph_status_alt = 0;
+                    b_bargraph_up = false;
+                    i_bargraph_status_alt = 27;
                     bargraphYearModeUpdate();
+                    vibrationWand(i_vibration_level + 25);
+                  break;
 
-                    vibrationWand(i_vibration_level);
-                  }
-                  else {
-                    ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                    i_bargraph_status_alt++;
-                  }
-                }
-                else {
-                  switch(i_power_mode) {
-                    case 5:
-                      // Stop any power check in 2021 if we are already in level 5.
-                      ms_bargraph_alt.stop();
-
+                  case 4:
+                    if(i_bargraph_status_alt == 32) {
                       ms_bargraph.stop();
                       b_bargraph_up = false;
-                      i_bargraph_status_alt = 27;
+                      i_bargraph_status_alt = 22;
                       bargraphYearModeUpdate();
-                      vibrationWand(i_vibration_level + 25);
-                    break;
 
-                    case 4:
-                      if(i_bargraph_status_alt == 31) {
-                        ms_bargraph.stop();
-                        b_bargraph_up = false;
-                        i_bargraph_status_alt = 23;
-                        bargraphYearModeUpdate();
+                      vibrationWand(i_vibration_level + 30);
+                    }
+                    else {
+                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                      i_bargraph_status_alt++;
 
-                        vibrationWand(i_vibration_level + 30);
-                      }
-                      else {
-                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                        i_bargraph_status_alt++;
+                      vibrationWand(i_vibration_level + 12);
+                    }
+                  break;
 
-                        vibrationWand(i_vibration_level + 12);
-                      }
-                    break;
+                  case 3:
+                    if(i_bargraph_status_alt == 38) {
+                      ms_bargraph.stop();
+                      b_bargraph_up = false;
+                      i_bargraph_status_alt = 16;
+                      bargraphYearModeUpdate();
 
-                    case 3:
-                      if(i_bargraph_status_alt == 37) {
-                        ms_bargraph.stop();
-                        b_bargraph_up = false;
-                        i_bargraph_status_alt = 17;
-                        bargraphYearModeUpdate();
+                      vibrationWand(i_vibration_level + 10);
+                    }
+                    else {
+                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                      i_bargraph_status_alt++;
 
-                        vibrationWand(i_vibration_level + 10);
-                      }
-                      else {
-                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                        i_bargraph_status_alt++;
+                      vibrationWand(i_vibration_level + 20);
+                    }
+                  break;
 
-                        vibrationWand(i_vibration_level + 20);
-                      }
-                    break;
+                  case 2:
+                    if(i_bargraph_status_alt == 43) {
+                      ms_bargraph.stop();
+                      b_bargraph_up = false;
+                      i_bargraph_status_alt = 11;
+                      bargraphYearModeUpdate();
 
-                    case 2:
-                      if(i_bargraph_status_alt == 43) {
-                        ms_bargraph.stop();
-                        b_bargraph_up = false;
-                        i_bargraph_status_alt = 11;
-                        bargraphYearModeUpdate();
+                      vibrationWand(i_vibration_level + 5);
+                    }
+                    else {
+                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                      i_bargraph_status_alt++;
 
-                        vibrationWand(i_vibration_level + 5);
-                      }
-                      else {
-                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                        i_bargraph_status_alt++;
+                      vibrationWand(i_vibration_level + 10);
+                    }
+                  break;
 
-                        vibrationWand(i_vibration_level + 10);
-                      }
-                    break;
+                  case 1:
+                    vibrationWand(i_vibration_level);
 
-                    case 1:
-                      vibrationWand(i_vibration_level);
-
-                      if(i_bargraph_status_alt == 49) {
-                        ms_bargraph.stop();
-                        b_bargraph_up = false;
-                        i_bargraph_status_alt = 5;
-
-                        bargraphYearModeUpdate();
-                      }
-                      else {
-                        ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
-                        i_bargraph_status_alt++;
-                      }
-                    break;
-                  }
+                    if(i_bargraph_status_alt == 50) {
+                      ms_bargraph.stop();
+                      b_bargraph_up = false;
+                      i_bargraph_status_alt = 4;
+                      bargraphYearModeUpdate();
+                    }
+                    else {
+                      ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
+                      i_bargraph_status_alt++;
+                    }
+                  break;
                 }
-              break;
-            }
+              }
+            break;
           }
-        break;
-      }
-    #endif
+        }
+      break;
+    }
   }
   else {
     uint8_t t_bargraph_ramp_multiplier = 1;
@@ -5246,7 +5574,7 @@ void bargraphRampUp() {
 }
 
 void prepBargraphRampDown() {
-  if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) {
+  if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE || (WAND_STATUS == MODE_OFF && WAND_ACTION_STATUS == ACTION_IDLE && SYSTEM_MODE == MODE_ORIGINAL)) {
     // If bargraph is set to ramp down during overheat, we need to set a few things.
     soundBeepLoopStop();
     soundIdleStop();
@@ -5256,10 +5584,7 @@ void prepBargraphRampDown() {
     b_beeping = false;
 
     // Reset some bargraph levels before we ramp the bargraph down.
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      i_bargraph_status_alt = 28; // For 28 segment bargraph
-    #endif
-
+    i_bargraph_status_alt = 28; // For 28 segment bargraph
     i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
 
     bargraphFull();
@@ -5271,32 +5596,28 @@ void prepBargraphRampDown() {
   }
 }
 
-void prepBargraphRampUp() {
-  if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      bargraphClearAlt();
-    #endif
+void prepBargraphRampUp() {  
+  if((WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) || (WAND_STATUS == MODE_OFF && WAND_ACTION_STATUS == ACTION_IDLE && SYSTEM_MODE == MODE_ORIGINAL)) {
+    bargraphClearAlt();
 
     ms_settings_blinking.stop();
 
+    unsigned int i_tmp_year_mode = yearModeTemp();
+
     // Prepare a few things before ramping the bargraph back up from a full ramp down.
     if(b_overheat_bargraph_blink != true) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(year_mode == 2021 && b_bargraph_always_ramping != true) {
-          bargraphYearModeUpdate();
-        }
-        else {
-          i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
-        }
-      #endif
+      if(i_tmp_year_mode == 2021 && b_bargraph_always_ramping != true) {
+        bargraphYearModeUpdate();
+      }
+      else {
+        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
+      }
 
       // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
       // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        if(year_mode == 2021 && b_28segment_bargraph == true && b_bargraph_always_ramping != true) {
-          bargraphPowerCheck2021Alt(false);
-        }
-      #endif
+      if(i_tmp_year_mode == 2021 && b_28segment_bargraph == true && b_bargraph_always_ramping != true) {
+        bargraphPowerCheck2021Alt(false);
+      }
 
       updatePackPowerLevel();
       bargraphRampUp();
@@ -5304,26 +5625,26 @@ void prepBargraphRampUp() {
   }
 }
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  void bargraphYearModeUpdate() {
-    switch(year_mode) {
-      case 2021:
-        if(b_bargraph_always_ramping != true) {
-          i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
-        }
-        else {
-          // If the bargraph setting is overridden so we have 1984/1989 constant ramping for Afterlife, let's change the setting to match 1984/1989.
-          i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
-        }
-      break;
+void bargraphYearModeUpdate() {
+  unsigned int i_tmp_year_mode = yearModeTemp();
 
-      case 1984:
-      case 1989:
+  switch(i_tmp_year_mode) {
+    case 2021:
+      if(b_bargraph_always_ramping != true) {
+        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+      }
+      else {
+        // If the bargraph setting is overridden so we have 1984/1989 constant ramping for Afterlife, let's change the setting to match 1984/1989.
         i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
-      break;
-    }
+      }
+    break;
+
+    case 1984:
+    case 1989:
+      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
+    break;
   }
-#endif
+}
 
 void wandBargraphControl(uint8_t i_t_level) {
   if(i_t_level > 4) {
@@ -5365,36 +5686,25 @@ void wandBargraphControl(uint8_t i_t_level) {
 }
 
 void wandLightsOff() {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(b_28segment_bargraph == true) {
-      bargraphClearAlt();
-    }
-    else {
-      wandBargraphControl(0);
-    }
-  #else
+  if(b_28segment_bargraph == true) {
+    bargraphClearAlt();
+  }
+  else {
     wandBargraphControl(0);
-  #endif
+  }
 
   analogWrite(led_slo_blo, 0);
+  analogWrite(led_front_left, 0); // The front left LED is wired separately; let's turn it off.
 
-  // If using the gpstar Neutrona Wand microcontroller.
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    analogWrite(led_front_left, 0); // The front left LED is wired separately; let's turn it off.
-
-    digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
-    digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
-    digitalWrite(led_barrel_tip, LOW); // Turn off the wand barrel tip LED.
-  #endif
+  digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
+  digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
+  digitalWrite(led_barrel_tip, LOW); // Turn off the wand barrel tip LED.
 
   digitalWrite(led_vent, HIGH);
   digitalWrite(led_white, HIGH);
 
   i_bargraph_status = 0;
-
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    i_bargraph_status_alt = 0;
-  #endif
+  i_bargraph_status_alt = 0;
 }
 
 void vibrationOff() {
@@ -5403,7 +5713,7 @@ void vibrationOff() {
 }
 
 void adjustVolumeEffectsGain() {
-  // Since adjusting only happens while in menu mode, only certain effects need to be adjusted on the fly.
+  // Since adjusting only happens while in the menu mode, only certain effects need to be adjusted on the fly.
   w_trig.trackGain(S_BEEPS, i_volume_effects);
   w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
   w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
@@ -5424,16 +5734,12 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
-    w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
-    w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
-    w_trig.trackGain(S_IDLE_LOOP_GUN_3, i_volume_effects);
-    w_trig.trackGain(S_IDLE_LOOP_GUN_4, i_volume_effects);
-    w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
-  #else
-    w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
-  #endif
+  w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_3, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_4, i_volume_effects);
+  w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
 }
 
 void increaseVolumeEffects() {
@@ -5543,15 +5849,13 @@ int8_t readRotary() {
    return 0;
 }
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  void wandBarrelSpectralCustomConfigOn() {
-    for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
-      barrel_leds[i] = getHueAsGRB(C_CUSTOM);
-    }
-
-    ms_fast_led.start(i_fast_led_delay);
+void wandBarrelSpectralCustomConfigOn() {
+  for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
+    barrel_leds[i] = getHueAsGRB(C_CUSTOM);
   }
-#endif
+
+  ms_fast_led.start(i_fast_led_delay);
+}
 
 // Top rotary dial on the wand.
 void checkRotary() {
@@ -5560,28 +5864,96 @@ void checkRotary() {
   if((val = readRotary())) {
     c += val;
     switch(WAND_ACTION_STATUS) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        case ACTION_CONFIG_EEPROM_MENU:
+      case ACTION_CONFIG_EEPROM_MENU:
+        // Counter clockwise.
+        if(prev_next_code == 0x0b) {
+          if(i_wand_menu - 1 < 1) {
+            if(b_wand_menu_sub != true) {
+              b_wand_menu_sub = true;
+              i_wand_menu = 5;
+
+              // Turn on the slo blow led to indicate we are in a sub menu.
+              analogWrite(led_slo_blo, 255);
+
+              // Play an indication beep to notify we have changed to the sub menu.
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+
+              // Tell the Proton Pack to play a beep during a sub menu to menu level change.
+              wandSerialSend(W_MENU_LEVEL_CHANGE);
+            }
+            else {
+              i_wand_menu = 1;
+            }
+          }
+          else {
+            i_wand_menu--;
+          }
+        }
+
+        // Clockwise.
+        if(prev_next_code == 0x07) {
+          if(i_wand_menu + 1 > 5) {
+            // We are leaving the sub menu.
+            if(b_wand_menu_sub == true) {
+              b_wand_menu_sub = false;
+              i_wand_menu = 1;
+
+              // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
+              analogWrite(led_slo_blo, 0);
+
+              // Play an indication beep to notify we have left the sub menu.
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+
+              // Tell the Proton Pack to play a beep during a submenu to menu level change.
+              wandSerialSend(W_MENU_LEVEL_CHANGE);
+            }
+            else {
+              i_wand_menu = 5;
+            }
+          }
+          else {
+            i_wand_menu++;
+          }
+        }
+      break;
+
+      case ACTION_EEPROM_MENU:
           // Counter clockwise.
           if(prev_next_code == 0x0b) {
-            if(i_wand_menu - 1 < 1) {
-              if(b_wand_menu_sub != true) {
-                b_wand_menu_sub = true;
-                i_wand_menu = 5;
-
-                // Turn on the slo blow led to indicate we are in a sub menu.
-                analogWrite(led_slo_blo, 255);
-
-                // Play an indication beep to notify we have changed to the sub menu.
-                stopEffect(S_BEEPS);
-                playEffect(S_BEEPS);
-
-                // Tell the Proton Pack to play a beep during a sub menu to menu level change.
-                wandSerialSend(W_MENU_LEVEL_CHANGE);
+            if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+              // Change colour of the wand barrel spectral custom colour.
+              if(i_spectral_wand_custom > 1 && i_spectral_wand_saturation_custom > 253) {
+                i_spectral_wand_custom--;
               }
               else {
-                i_wand_menu = 1;
+                i_spectral_wand_custom = 1;
+
+                if(i_spectral_wand_saturation_custom > 1) {
+                  i_spectral_wand_saturation_custom--;
+                }
+                else {
+                  i_spectral_wand_saturation_custom = 1;
+                }
               }
+
+              wandBarrelSpectralCustomConfigOn();
+            }
+            else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+              // Change colour of the Power Cell Spectral custom colour.
+              wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_DECREASE);
+            }
+            else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+              // Change colour of the Cyclotron Spectral custom colour.
+              wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE);
+            }
+            else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+              // Change colour of the Inner Cyclotron Spectral custom colour.
+              wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
+            }
+            else if(i_wand_menu - 1 < 1) {
+              i_wand_menu = 1;
             }
             else {
               i_wand_menu--;
@@ -5590,123 +5962,51 @@ void checkRotary() {
 
           // Clockwise.
           if(prev_next_code == 0x07) {
-            if(i_wand_menu + 1 > 5) {
-              // We are leaving the sub menu.
-              if(b_wand_menu_sub == true) {
-                b_wand_menu_sub = false;
-                i_wand_menu = 1;
+            if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+              // Change colour of the Wand Barrel Spectral custom colour.
+              if(i_spectral_wand_saturation_custom < 254) {
+                i_spectral_wand_saturation_custom++;
 
-                // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
-                analogWrite(led_slo_blo, 0);
-
-                // Play an indication beep to notify we have left the sub menu.
-                stopEffect(S_BEEPS);
-                playEffect(S_BEEPS);
-
-                // Tell the Proton Pack to play a beep during a submenu to menu level change.
-                wandSerialSend(W_MENU_LEVEL_CHANGE);
+                if(i_spectral_wand_saturation_custom > 253) {
+                  i_spectral_wand_saturation_custom = 254;
+                }
+              }
+              else if(i_spectral_wand_custom < 253 && i_spectral_wand_saturation_custom > 253) {
+                i_spectral_wand_custom++;
               }
               else {
-                i_wand_menu = 5;
+                i_spectral_wand_custom = 254;
+
+                if(i_spectral_wand_saturation_custom < 253) {
+                  i_spectral_wand_saturation_custom++;
+                }
+                else {
+                  i_spectral_wand_saturation_custom = 254;
+                }
               }
+
+              wandBarrelSpectralCustomConfigOn();
+            }
+            else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+              // Change colour of the Power Cell Spectral custom colour.
+              wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_INCREASE);
+            }
+            else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+              // Change colour of the Cyclotron Spectral custom colour.
+              wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE);
+            }
+            else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+              // Change colour of the Inner Cyclotron Spectral custom colour.
+              wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
+            }
+            else if(i_wand_menu + 1 > 5) {
+              i_wand_menu = 5;
             }
             else {
               i_wand_menu++;
             }
           }
-        break;
-      #endif
-
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        case ACTION_EEPROM_MENU:
-            // Counter clockwise.
-            if(prev_next_code == 0x0b) {
-              if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-                // Change colour of the wand barrel spectral custom colour.
-                if(i_spectral_wand_custom > 1 && i_spectral_wand_saturation_custom > 253) {
-                  i_spectral_wand_custom--;
-                }
-                else {
-                  i_spectral_wand_custom = 1;
-
-                  if(i_spectral_wand_saturation_custom > 1) {
-                    i_spectral_wand_saturation_custom--;
-                  }
-                  else {
-                    i_spectral_wand_saturation_custom = 1;
-                  }
-                }
-
-                wandBarrelSpectralCustomConfigOn();
-              }
-              else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-                // Change colour of the Power Cell Spectral custom colour.
-                wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_DECREASE);
-              }
-              else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-                // Change colour of the Cyclotron Spectral custom colour.
-                wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE);
-              }
-              else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-                // Change colour of the Inner Cyclotron Spectral custom colour.
-                wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
-              }
-              else if(i_wand_menu - 1 < 1) {
-                i_wand_menu = 1;
-              }
-              else {
-                i_wand_menu--;
-              }
-            }
-
-            // Clockwise.
-            if(prev_next_code == 0x07) {
-              if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-                // Change colour of the Wand Barrel Spectral custom colour.
-                if(i_spectral_wand_saturation_custom < 254) {
-                  i_spectral_wand_saturation_custom++;
-
-                  if(i_spectral_wand_saturation_custom > 253) {
-                    i_spectral_wand_saturation_custom = 254;
-                  }
-                }
-                else if(i_spectral_wand_custom < 253 && i_spectral_wand_saturation_custom > 253) {
-                  i_spectral_wand_custom++;
-                }
-                else {
-                  i_spectral_wand_custom = 254;
-
-                  if(i_spectral_wand_saturation_custom < 253) {
-                    i_spectral_wand_saturation_custom++;
-                  }
-                  else {
-                    i_spectral_wand_saturation_custom = 254;
-                  }
-                }
-
-                wandBarrelSpectralCustomConfigOn();
-              }
-              else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-                // Change colour of the Power Cell Spectral custom colour.
-                wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_INCREASE);
-              }
-              else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-                // Change colour of the Cyclotron Spectral custom colour.
-                wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE);
-              }
-              else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-                // Change colour of the Inner Cyclotron Spectral custom colour.
-                wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
-              }
-              else if(i_wand_menu + 1 > 5) {
-                i_wand_menu = 5;
-              }
-              else {
-                i_wand_menu++;
-              }
-            }
-        break;
-      #endif
+      break;
 
       case ACTION_SETTINGS:
         // Counter clockwise.
@@ -5722,11 +6022,7 @@ void checkRotary() {
             // Tell pack to lower the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
           }
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW && b_playing_music == true) {
-          #else
-            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) > i_switch_mode_value && b_playing_music == true) {
-          #endif
+          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW && b_playing_music == true) {
             // Decrease the music volume.
             if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
               i_volume_music_percentage = 0;
@@ -5789,11 +6085,7 @@ void checkRotary() {
             // Tell pack to increase the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
           }
-          #ifdef GPSTAR_NEUTRONA_WAND_PCB
-            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW && b_playing_music == true) {
-          #else
-            else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && analogRead(switch_mode) > i_switch_mode_value && b_playing_music == true) {
-          #endif
+          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW && b_playing_music == true) {
             // Increase music volume.
             if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
               i_volume_music_percentage = 100;
@@ -5851,15 +6143,32 @@ void checkRotary() {
           }
           // Counter clockwise.
           else if(prev_next_code == 0x0b) {
-            if(i_power_mode - 1 >= i_power_mode_min && WAND_STATUS == MODE_ON) {
+            // Check to see the minimal power mode depending on which system mode.
+            uint8_t i_tmp_power_mode_min = i_power_mode_min;
+
+            switch(SYSTEM_MODE) {
+              case MODE_ORIGINAL:
+                i_tmp_power_mode_min = i_power_mode_min + 1;
+              break;
+
+              case MODE_SUPER_HERO:
+              default:
+                i_tmp_power_mode_min = i_power_mode_min;
+              break;
+            }
+
+            if(i_power_mode - 1 >= i_tmp_power_mode_min && WAND_STATUS == MODE_ON) {
               i_power_mode_prev = i_power_mode;
               i_power_mode--;
 
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                if(year_mode == 2021 && b_28segment_bargraph == true) {
-                  bargraphPowerCheck2021Alt(false);
-                }
-              #endif
+              if(year_mode == 2021 && b_28segment_bargraph == true) {
+                bargraphPowerCheck2021Alt(false);
+              }
+
+              // Forces a redraw of the bargraph if firing while changing the power level in the MODE_ORIGINAL.
+              if(b_firing == true && b_28segment_bargraph == true && b_bargraph_always_ramping != true && SYSTEM_MODE == MODE_ORIGINAL) {
+                bargraphRedraw();
+              }
 
               soundBeepLoopStop();
 
@@ -5912,11 +6221,14 @@ void checkRotary() {
                 i_power_mode_prev = i_power_mode;
                 i_power_mode++;
 
-                #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                  if(year_mode == 2021 && b_28segment_bargraph == true) {
-                    bargraphPowerCheck2021Alt(false);
-                  }
-                #endif
+                if(year_mode == 2021 && b_28segment_bargraph == true) {
+                  bargraphPowerCheck2021Alt(false);
+                }
+
+                // Forces a redraw of the bargraph if firing while changing the power level in the MODE_ORIGINAL.
+                if(b_firing == true && b_28segment_bargraph == true && b_bargraph_always_ramping != true && SYSTEM_MODE == MODE_ORIGINAL) {
+                  bargraphRedraw();
+                }
 
                 soundBeepLoopStop();
 
@@ -5995,31 +6307,27 @@ void updatePackPowerLevel() {
 void vibrationSetting() {
   if(b_vibration_on == true) {
     if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING) {
-      #ifdef GPSTAR_NEUTRONA_WAND_PCB
-        switch(i_power_mode) {
-          case 1:
-            vibrationWand(i_vibration_level);
-          break;
+      switch(i_power_mode) {
+        case 1:
+          vibrationWand(i_vibration_level);
+        break;
 
-          case 2:
-            vibrationWand(i_vibration_level + 5);
-          break;
+        case 2:
+          vibrationWand(i_vibration_level + 5);
+        break;
 
-          case 3:
-            vibrationWand(i_vibration_level + 10);
-          break;
+        case 3:
+          vibrationWand(i_vibration_level + 10);
+        break;
 
-          case 4:
-            vibrationWand(i_vibration_level + 12);
-          break;
+        case 4:
+          vibrationWand(i_vibration_level + 12);
+        break;
 
-          case 5:
-            vibrationWand(i_vibration_level + 25);
-          break;
-        }
-      #else
-        vibrationWand(i_vibration_level);
-      #endif
+        case 5:
+          vibrationWand(i_vibration_level + 25);
+        break;
+      }
     }
   }
   else {
@@ -6036,11 +6344,7 @@ void switchLoops() {
 
 void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      barrel_leds[i] = getHueAsGRB(C_BLACK);
-    #else
-      barrel_leds[i] = CRGB(0,0,0);
-    #endif
+    barrel_leds[i] = getHueAsGRB(C_BLACK);
   }
 
   ms_fast_led.start(i_fast_led_delay);
@@ -6056,9 +6360,7 @@ void wandExitMenu() {
     playEffect(S_CLICK);
   }
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    bargraphClearAlt();
-  #endif
+  bargraphClearAlt();
 
   switch(PREV_FIRING_MODE) {
     case MESON:
@@ -6081,22 +6383,20 @@ void wandExitMenu() {
       wandSerialSend(W_PROTON_MODE);
     break;
 
-    #ifdef GPSTAR_NEUTRONA_WAND_PCB
-      case SPECTRAL:
-        // Tell the pack we are in spectral mode.
-        wandSerialSend(W_SPECTRAL_MODE);
-      break;
+    case SPECTRAL:
+      // Tell the pack we are in spectral mode.
+      wandSerialSend(W_SPECTRAL_MODE);
+    break;
 
-      case HOLIDAY:
-        // Tell the pack we are in holiday mode.
-        wandSerialSend(W_HOLIDAY_MODE);
-      break;
+    case HOLIDAY:
+      // Tell the pack we are in holiday mode.
+      wandSerialSend(W_HOLIDAY_MODE);
+    break;
 
-      case SPECTRAL_CUSTOM:
-        // Tell the pack we are in spectral custom mode.
-        wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-      break;
-    #endif
+    case SPECTRAL_CUSTOM:
+      // Tell the pack we are in spectral custom mode.
+      wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
+    break;
 
     case VENTING:
       // Tell the pakc we are in venting mode.
@@ -6114,117 +6414,72 @@ void wandExitMenu() {
   wandLightsOff();
 }
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  // Exit the wand menu EEPROM system while the wand is off.
-  void wandExitEEPROMMenu() {
-    playEffect(S_BEEPS_BARGRAPH);
-    switch_wand.resetCount();
-    switch_vent.resetCount();
+// Exit the wand menu EEPROM system while the wand is off.
+void wandExitEEPROMMenu() {
+  playEffect(S_BEEPS_BARGRAPH);
+  switch_wand.resetCount();
+  switch_vent.resetCount();
 
-    i_wand_menu = 5;
+  i_wand_menu = 5;
 
-    bargraphClearAlt();
+  bargraphClearAlt();
 
-    WAND_ACTION_STATUS = ACTION_IDLE;
+  WAND_ACTION_STATUS = ACTION_IDLE;
 
-    wandLightsOff();
-    wandBarrelLightsOff();
-  }
-#endif
+  wandLightsOff();
+  wandBarrelLightsOff();
+}
 
 // Barrel Wing Button is connected to analog pin 6.
 // PCB builds is pulled high as digital input.
-// Nano builds is pulled low as analog input.
+// At some point, switch this to a ezButton.
 bool switchMode() {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(digitalRead(switch_mode) == LOW && ms_switch_mode_debounce.remaining() < 1 && b_switch_mode_pressed != true) {
-      ms_switch_mode_debounce.start(switch_debounce_time * 5);
+  if(digitalRead(switch_mode) == LOW && ms_switch_mode_debounce.remaining() < 1 && b_switch_mode_pressed != true) {
+    ms_switch_mode_debounce.start(switch_debounce_time * 5);
 
-      b_switch_mode_pressed = true;
+    b_switch_mode_pressed = true;
 
-      return true;
-    }
-    else {
-      return false;
-    }
-  #else
-    if(analogRead(switch_mode) > i_switch_mode_value && ms_switch_mode_debounce.remaining() < 1 && b_switch_mode_pressed != true) {
-      ms_switch_mode_debounce.start(switch_debounce_time * 5);
-
-      b_switch_mode_pressed = true;
-
-      return true;
-    }
-    else {
-      return false;
-    }
-  #endif
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 // Check if the Barrel Wing Button is being held down or not.
+// At some point, switch this to a ezButton.
 void switchModePressedReset() {
- #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(digitalRead(switch_mode) == HIGH && b_switch_mode_pressed == true && ms_switch_mode_debounce.remaining() < 1) {
-      b_switch_mode_pressed = false;
-    }
-  #else
-    if(analogRead(switch_mode) < i_switch_mode_value && b_switch_mode_pressed == true && ms_switch_mode_debounce.remaining() < 1) {
-      b_switch_mode_pressed = false;
-    }
-  #endif
+  if(digitalRead(switch_mode) == HIGH && b_switch_mode_pressed == true && ms_switch_mode_debounce.remaining() < 1) {
+    b_switch_mode_pressed = false;
+  }
 }
 
 // Barrel safety switch is connected to analog pin 7.
 // PCB builds is pulled high as digital input.
-// Nano builds is pulled low as analog input.
+// At some pount, switch this to a ezButton.
 void switchBarrel() {
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    if(digitalRead(switch_barrel) == LOW && ms_switch_barrel_debounce.remaining() < 1) {
-      ms_switch_barrel_debounce.start(switch_debounce_time * 5);
+  if(digitalRead(switch_barrel) == LOW && ms_switch_barrel_debounce.remaining() < 1) {
+    ms_switch_barrel_debounce.start(switch_debounce_time * 5);
 
-      if(b_switch_barrel_extended == true) {
-        wandSerialSend(W_BARREL_RETRACTED);
-      }
-
-      b_switch_barrel_extended = false;
+    if(b_switch_barrel_extended == true) {
+      wandSerialSend(W_BARREL_RETRACTED);
     }
-    else if(digitalRead(switch_barrel) == HIGH && ms_switch_barrel_debounce.remaining() < 1) {
-      // Play the Afterlife Barrel extension sound effect.
-      if(year_mode == 2021 && b_switch_barrel_extended != true) {
-        // Plays the "thwoop" barrel extension sound in Afterlife mode.
-        playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
-      }
 
-      if(b_switch_barrel_extended != true) {
-        wandSerialSend(W_BARREL_EXTENDED);
-      }
-
-      b_switch_barrel_extended = true;
+    b_switch_barrel_extended = false;
+  }
+  else if(digitalRead(switch_barrel) == HIGH && ms_switch_barrel_debounce.remaining() < 1) {
+    // Play the Afterlife Barrel extension sound effect.
+    if(year_mode == 2021 && b_switch_barrel_extended != true) {
+      // Plays the "thwoop" barrel extension sound in Afterlife mode.
+      playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
     }
-  #else
-    if(analogRead(switch_barrel) > i_switch_barrel_value && ms_switch_barrel_debounce.remaining() < 1) {
-      ms_switch_barrel_debounce.start(switch_debounce_time * 5);
 
-      if(b_switch_barrel_extended == true) {
-        wandSerialSend(W_BARREL_RETRACTED);
-      }
-
-      b_switch_barrel_extended = false;
+    if(b_switch_barrel_extended != true) {
+      wandSerialSend(W_BARREL_EXTENDED);
     }
-    else if(analogRead(switch_barrel) < i_switch_barrel_value && ms_switch_barrel_debounce.remaining() < 1) {
-      // Play the Afterlife Barrel extension sound effect.
-      if(year_mode == 2021 && b_switch_barrel_extended != true) {
-        // Plays the "thwoop" barrel extension sound in Afterlife mode.
-        playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
-      }
 
-      if(b_switch_barrel_extended != true) {
-        wandSerialSend(W_BARREL_EXTENDED);
-      }
-      
-      b_switch_barrel_extended = true;  
-    }
-  #endif
+    b_switch_barrel_extended = true;
+  }
 }
 
 void stopAfterLifeSounds() {
@@ -6347,6 +6602,41 @@ void checkPack() {
               }
             break;
 
+            case P_MODE_SUPER_HERO:
+              SYSTEM_MODE = MODE_SUPER_HERO;
+            break;
+
+            case P_MODE_ORIGINAL:
+              SYSTEM_MODE = MODE_ORIGINAL;
+            break;
+
+            case P_MODE_ORIGINAL_RED_SWITCH_ON:
+              b_pack_ion_arm_switch_on = true;
+
+              // Prep the bargraph for MODE_ORIGINAL. This only preps it when the pack switch is turned on and the wand is still off but all the toggle switches are on for the bargraph to settle at the off position. (0 circle).
+              if(WAND_ACTION_STATUS == ACTION_IDLE) {
+                switch(WAND_STATUS) {
+                  case MODE_OFF:
+                    switch(SYSTEM_MODE) {
+                      case MODE_ORIGINAL:
+                        if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && switch_activate.getState() == HIGH) {
+                          prepBargraphRampUp();
+                        }
+                      break;
+
+                      default:
+                        // Do nothing.
+                      break;
+                    }
+                  break;
+                }
+              }
+            break;
+
+            case P_MODE_ORIGINAL_RED_SWITCH_OFF:
+              b_pack_ion_arm_switch_on = false;
+            break;
+
             case P_MASTER_AUDIO_SILENT_MODE:
               i_volume_revert = i_volume_master;
 
@@ -6415,11 +6705,9 @@ void checkPack() {
               b_pack_alarm = true;
 
               if(WAND_STATUS != MODE_ERROR) {
-                #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                  if(WAND_STATUS == MODE_ON) {
-                    digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
-                  }
-                #endif
+                if(WAND_STATUS == MODE_ON) {
+                  digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
+                }
 
                 ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
 
@@ -6437,20 +6725,34 @@ void checkPack() {
             break;
 
             case P_ALARM_OFF:
-              // Alarm is off.
-              b_pack_alarm = false;
-
               if(WAND_STATUS != MODE_ERROR) {
-                #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                  digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
-                #endif
+                digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
 
                 ms_hat_2.stop();
 
                 if(WAND_STATUS == MODE_ON) {
-                  prepBargraphRampUp();
+                  switch(SYSTEM_MODE) {
+                    case MODE_ORIGINAL:
+
+                      if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && switch_activate.getState() == LOW && b_pack_alarm == true) {
+                        b_pack_alarm = false;
+
+                        prepBargraphRampUp();
+                      }                                   
+                    break;
+
+                    case MODE_SUPER_HERO:
+                    default:
+                      b_pack_alarm = false;
+
+                      prepBargraphRampUp();
+                    break;
+                  }
                 }
               }
+
+              // Alarm is off.
+              b_pack_alarm = false;
             break;
 
             case P_WARNING_CANCELLED:
@@ -6461,13 +6763,11 @@ void checkPack() {
               ms_hat_1.stop();
               ms_hat_2.stop();
 
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                if(b_firing == true) {
-                  // Keep both lights on if still firing.
-                  digitalWrite(led_hat_1, HIGH);
-                  digitalWrite(led_hat_2, HIGH);
-                }
-              #endif
+              if(b_firing == true) {
+                // Keep both lights on if still firing.
+                digitalWrite(led_hat_1, HIGH);
+                digitalWrite(led_hat_2, HIGH);
+              }
               
               // Next, reset the cyclotron speed on all devices.
               wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
@@ -6477,25 +6777,19 @@ void checkPack() {
             case P_YEAR_1984:
               // 1984 mode.
               year_mode = 1984;
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                bargraphYearModeUpdate();
-              #endif
+              bargraphYearModeUpdate();
             break;
 
             case P_YEAR_1989:
               // 1984 mode.
               year_mode = 1989;
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                bargraphYearModeUpdate();
-              #endif
+              bargraphYearModeUpdate();
             break;
 
             case P_YEAR_AFTERLIFE:
               // 2021 mode.
               year_mode = 2021;
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                bargraphYearModeUpdate();
-              #endif
+              bargraphYearModeUpdate();
             break;
 
             case P_VOLUME_SOUND_EFFECTS_INCREASE:
@@ -6737,49 +7031,47 @@ void checkPack() {
               playEffect(S_BEEPS);
             break;
 
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              case P_OVERHEAT_STROBE_DISABLED:
-                stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
-                stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+            case P_OVERHEAT_STROBE_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
 
-                playEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
-              break;
+              playEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+            break;
 
-              case P_OVERHEAT_STROBE_ENABLED:
-                stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
-                stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+            case P_OVERHEAT_STROBE_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
+            
+              playEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
+            break;
+
+            case P_OVERHEAT_LIGHTS_OFF_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+
+              playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+            break;
+
+            case P_OVERHEAT_LIGHTS_OFF_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
+
+              playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
+            break;
+
+            case P_OVERHEAT_SYNC_FAN_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+
+              playEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
+            break;
+            
+            case P_OVERHEAT_SYNC_FAN_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
               
-                playEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
-              break;
-
-              case P_OVERHEAT_LIGHTS_OFF_DISABLED:
-                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
-                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
-
-                playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
-              break;
-
-              case P_OVERHEAT_LIGHTS_OFF_ENABLED:
-                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
-                stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
-
-                playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
-              break;
-
-              case P_OVERHEAT_SYNC_FAN_DISABLED:
-                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
-                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
-
-                playEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
-              break;
-              
-              case P_OVERHEAT_SYNC_FAN_ENABLED:
-                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
-                stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
-                
-                playEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
-              break;
-            #endif
+              playEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
+            break;
 
             case P_POWERCELL_DIMMING:
               stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
@@ -6819,21 +7111,19 @@ void checkPack() {
               playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
             break;
 
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              case P_CYCLOTRON_SIMULATE_RING_DISABLED:
-                stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
-                stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
+            case P_CYCLOTRON_SIMULATE_RING_DISABLED:
+              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
+              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
 
-                playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
-              break;
+              playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
+            break;
 
-              case P_CYCLOTRON_SIMULATE_RING_ENABLED:
-                stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
-                stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
+            case P_CYCLOTRON_SIMULATE_RING_ENABLED:
+              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
+              stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
 
-                playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
-              break;
-            #endif
+              playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
+            break;
 
             case P_PROTON_MODE:
               FIRING_MODE = PROTON;
@@ -6860,40 +7150,21 @@ void checkPack() {
             break;
 
             case P_SPECTRAL_CUSTOM_MODE:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                FIRING_MODE = SPECTRAL_CUSTOM;
-                PREV_FIRING_MODE = PROTON;
-              #else
-                FIRING_MODE = PROTON;
-                PREV_FIRING_MODE = SETTINGS;
-                wandSerialSend(W_PROTON_MODE);
-              #endif
-
+              FIRING_MODE = SPECTRAL_CUSTOM;
+              PREV_FIRING_MODE = PROTON;
               setVGMode();
             break;
 
             case P_SPECTRAL_MODE:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                FIRING_MODE = SPECTRAL;
-                PREV_FIRING_MODE = PROTON;
-              #else
-                FIRING_MODE = PROTON;
-                PREV_FIRING_MODE = SETTINGS;
-                wandSerialSend(W_PROTON_MODE);
-              #endif
+              FIRING_MODE = SPECTRAL;
+              PREV_FIRING_MODE = PROTON;
 
               setVGMode();
             break;
 
             case P_HOLIDAY_MODE:
-              #ifdef GPSTAR_NEUTRONA_WAND_PCB
-                FIRING_MODE = HOLIDAY;
-                PREV_FIRING_MODE = PROTON;
-              #else
-                FIRING_MODE = PROTON;
-                PREV_FIRING_MODE = SETTINGS;
-                wandSerialSend(W_PROTON_MODE);
-              #endif
+              FIRING_MODE = HOLIDAY;
+              PREV_FIRING_MODE = PROTON;
 
               setVGMode();
             break;
@@ -6937,104 +7208,102 @@ void checkPack() {
               i_power_mode_prev = 4;
             break;
 
-            #ifdef GPSTAR_NEUTRONA_WAND_PCB
-              case P_RGB_INNER_CYCLOTRON_LEDS:
-                stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
-                stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
+            case P_RGB_INNER_CYCLOTRON_LEDS:
+              stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
+              stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
 
-                playEffect(S_VOICE_RGB_INNER_CYCLOTRON);
-              break;
+              playEffect(S_VOICE_RGB_INNER_CYCLOTRON);
+            break;
 
-              case P_GRB_INNER_CYCLOTRON_LEDS:
-                stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
-                stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
+            case P_GRB_INNER_CYCLOTRON_LEDS:
+              stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
+              stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
 
-                playEffect(S_VOICE_GRB_INNER_CYCLOTRON);
-              break;
+              playEffect(S_VOICE_GRB_INNER_CYCLOTRON);
+            break;
 
-              case P_CYCLOTRON_LEDS_40:
-                stopEffect(S_VOICE_CYCLOTRON_40);
-                stopEffect(S_VOICE_CYCLOTRON_20);
-                stopEffect(S_VOICE_CYCLOTRON_12);
+            case P_CYCLOTRON_LEDS_40:
+              stopEffect(S_VOICE_CYCLOTRON_40);
+              stopEffect(S_VOICE_CYCLOTRON_20);
+              stopEffect(S_VOICE_CYCLOTRON_12);
 
-                playEffect(S_VOICE_CYCLOTRON_40);
-              break;
+              playEffect(S_VOICE_CYCLOTRON_40);
+            break;
 
-              case P_CYCLOTRON_LEDS_20:
-                stopEffect(S_VOICE_CYCLOTRON_40);
-                stopEffect(S_VOICE_CYCLOTRON_20);
-                stopEffect(S_VOICE_CYCLOTRON_12);
+            case P_CYCLOTRON_LEDS_20:
+              stopEffect(S_VOICE_CYCLOTRON_40);
+              stopEffect(S_VOICE_CYCLOTRON_20);
+              stopEffect(S_VOICE_CYCLOTRON_12);
 
-                playEffect(S_VOICE_CYCLOTRON_20);
-              break;
+              playEffect(S_VOICE_CYCLOTRON_20);
+            break;
 
-              case P_CYCLOTRON_LEDS_12:
-                stopEffect(S_VOICE_CYCLOTRON_40);
-                stopEffect(S_VOICE_CYCLOTRON_20);
-                stopEffect(S_VOICE_CYCLOTRON_12);
+            case P_CYCLOTRON_LEDS_12:
+              stopEffect(S_VOICE_CYCLOTRON_40);
+              stopEffect(S_VOICE_CYCLOTRON_20);
+              stopEffect(S_VOICE_CYCLOTRON_12);
 
-                playEffect(S_VOICE_CYCLOTRON_12);
-              break;
+              playEffect(S_VOICE_CYCLOTRON_12);
+            break;
 
-              case P_POWERCELL_LEDS_15:
-                stopEffect(S_VOICE_POWERCELL_15);
-                stopEffect(S_VOICE_POWERCELL_13);
+            case P_POWERCELL_LEDS_15:
+              stopEffect(S_VOICE_POWERCELL_15);
+              stopEffect(S_VOICE_POWERCELL_13);
 
-                playEffect(S_VOICE_POWERCELL_15);
-              break;
+              playEffect(S_VOICE_POWERCELL_15);
+            break;
 
-              case P_POWERCELL_LEDS_13:
-                stopEffect(S_VOICE_POWERCELL_15);
-                stopEffect(S_VOICE_POWERCELL_13);
+            case P_POWERCELL_LEDS_13:
+              stopEffect(S_VOICE_POWERCELL_15);
+              stopEffect(S_VOICE_POWERCELL_13);
 
-                playEffect(S_VOICE_POWERCELL_13);
-              break;
+              playEffect(S_VOICE_POWERCELL_13);
+            break;
 
-              case P_INNER_CYCLOTRON_LEDS_23:
-                stopEffect(S_VOICE_INNER_CYCLOTRON_35);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_24);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_23);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+            case P_INNER_CYCLOTRON_LEDS_23:
+              stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
-                playEffect(S_VOICE_INNER_CYCLOTRON_23);
-              break;
+              playEffect(S_VOICE_INNER_CYCLOTRON_23);
+            break;
 
-              case P_INNER_CYCLOTRON_LEDS_24:
-                stopEffect(S_VOICE_INNER_CYCLOTRON_35);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_24);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_23);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+            case P_INNER_CYCLOTRON_LEDS_24:
+              stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
-                playEffect(S_VOICE_INNER_CYCLOTRON_24);
-              break;
+              playEffect(S_VOICE_INNER_CYCLOTRON_24);
+            break;
 
-              case P_INNER_CYCLOTRON_LEDS_35:
-                stopEffect(S_VOICE_INNER_CYCLOTRON_35);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_24);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_23);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+            case P_INNER_CYCLOTRON_LEDS_35:
+              stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
-                playEffect(S_VOICE_INNER_CYCLOTRON_35);
-              break;
+              playEffect(S_VOICE_INNER_CYCLOTRON_35);
+            break;
 
-              case P_INNER_CYCLOTRON_LEDS_12:
-                stopEffect(S_VOICE_INNER_CYCLOTRON_35);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_24);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_23);
-                stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+            case P_INNER_CYCLOTRON_LEDS_12:
+              stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+              stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
-                playEffect(S_VOICE_INNER_CYCLOTRON_12);
-              break;
+              playEffect(S_VOICE_INNER_CYCLOTRON_12);
+            break;
 
-              case P_YEAR_MODE_DEFAULT:
-                stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
-                stopEffect(S_VOICE_AFTERLIFE);
-                stopEffect(S_VOICE_1984);
-                stopEffect(S_VOICE_1989);
+            case P_YEAR_MODE_DEFAULT:
+              stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
+              stopEffect(S_VOICE_AFTERLIFE);
+              stopEffect(S_VOICE_1984);
+              stopEffect(S_VOICE_1989);
 
-                playEffect(S_VOICE_YEAR_MODE_DEFAULT);
-              break;
-            #endif
+              playEffect(S_VOICE_YEAR_MODE_DEFAULT);
+            break;
 
             case P_MUSIC_START:
               if(b_playing_music == true) {
@@ -7079,279 +7348,277 @@ void wandSerialSend(int i_message) {
   }
 }
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  void clearLEDEEPROM() {
-    // Clear out the EEPROM data for the configuration settings only.
+void clearLEDEEPROM() {
+  // Clear out the EEPROM data for the configuration settings only.
+  unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
+
+  for(unsigned int i = 0 ; i < sizeof(objLEDEEPROM); i++) {
+    EEPROM.put(i_eepromLEDAddress, 0);
+
+    i_eepromLEDAddress++;
+  }
+
+  updateCRCEEPROM();
+}
+
+void saveLEDEEPROM() {
+  unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
+
+  // For now we are just saving the Spectral Custom colour.
+  objLEDEEPROM obj_eeprom = {
+    i_spectral_wand_custom,
+    i_spectral_wand_saturation_custom,
+  };
+
+  // Save to the EEPROM.
+  EEPROM.put(i_eepromLEDAddress, obj_eeprom);
+
+  updateCRCEEPROM();
+}
+
+void clearEEPROM() {
+  // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
+  for(unsigned int i = 0 ; i < sizeof(objEEPROM); i++) {
+    EEPROM.put(i, 0);
+  }
+
+  updateCRCEEPROM();
+}
+
+void saveEEPROM() {
+  // (Video Game Modes) + Cross The Streams / Cross The Streams Mix / Overheating
+  uint8_t i_cross_the_streams = 1;
+  uint8_t i_cross_the_streams_mix = 1;
+  uint8_t i_overheating = 1;
+  uint8_t i_neutrona_wand_sounds = 1;
+  uint8_t i_spectral = 1;
+  uint8_t i_holiday = 1;
+
+  uint8_t i_quick_vent = 1;
+  uint8_t i_wand_boot_errors = 1;
+  uint8_t i_vent_light_auto_intensity = 1;
+  uint8_t i_invert_bargraph = 1;
+  uint8_t i_bargraph_always_ramping = 1;
+
+  if(b_cross_the_streams == true) {
+    i_cross_the_streams = 2;
+  }
+
+  if(b_cross_the_streams_mix == true) {
+    i_cross_the_streams_mix = 2;
+  }
+
+  if(b_overheat_enabled == true) {
+    i_overheating = 2;
+  }
+
+  if(b_extra_pack_sounds == true) {
+    i_neutrona_wand_sounds = 2;
+  }
+
+  if(b_spectral_mode_enabled == true || b_holiday_mode_enabled == true) {
+    i_spectral = 2;
+    i_holiday = 2;
+  }
+
+  if(b_quick_vent == true) {
+    i_quick_vent = 2;
+  }
+
+  if(b_wand_boot_errors == true) {
+    i_wand_boot_errors = 2;
+  }
+
+  if(b_vent_light_control == true) {
+    i_vent_light_auto_intensity = 2;
+  }
+
+  if(b_bargraph_invert == true) {
+    i_invert_bargraph = 2;
+  }
+
+  if(b_bargraph_always_ramping == true) {
+    i_bargraph_always_ramping = 2;
+  }
+
+  // Write the data to the EEPROM if any of the values have changed.
+  objEEPROM obj_eeprom = {
+    i_cross_the_streams,
+    i_cross_the_streams_mix,
+    i_overheating,
+    i_neutrona_wand_sounds,
+    i_spectral,
+    i_holiday,
+    i_quick_vent,
+    i_wand_boot_errors,
+    i_vent_light_auto_intensity,
+    i_num_barrel_leds,
+    i_invert_bargraph,
+    i_bargraph_always_ramping
+  };
+
+  // Save and update our object in the EEPROM.
+  EEPROM.put(i_eepromAddress, obj_eeprom);
+
+  updateCRCEEPROM();
+}
+
+// Update the CRC in the EEPROM.
+void updateCRCEEPROM() {
+  EEPROM.put(EEPROM.length() - sizeof(l_crc_size), eepromCRC());
+}
+
+unsigned long eepromCRC(void) {
+  const unsigned long crc_table[16] = {
+    0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
+    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
+    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
+    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+  };
+
+  unsigned long crc = l_crc_size;
+
+  for(unsigned int index = 0; index < EEPROM.length() - sizeof(crc); ++index) {
+    crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
+    crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
+    crc = ~crc;
+  }
+
+  return crc;
+}
+
+void readEEPROM() {
+  // Get the stored CRC from the EEPROM.
+  unsigned long l_crc_check;
+  EEPROM.get(EEPROM.length() - sizeof(l_crc_size), l_crc_check);
+
+  // Check if the calculated CRC matches the stored CRC value in the EEPROM.
+  if(eepromCRC() == l_crc_check) {
+    // Read our object from the EEPROM.
+    objEEPROM obj_eeprom;
+    EEPROM.get(i_eepromAddress, obj_eeprom);
+
+    if(obj_eeprom.cross_the_streams > 0 && obj_eeprom.cross_the_streams != 255) {
+      if(obj_eeprom.cross_the_streams > 1) {
+        b_cross_the_streams = true;
+      }
+      else {
+        b_cross_the_streams = false;
+      }
+    }
+
+    if(obj_eeprom.cross_the_streams_mix > 0 && obj_eeprom.cross_the_streams_mix != 255) {
+      if(obj_eeprom.cross_the_streams_mix > 1) {
+        b_cross_the_streams_mix = true;
+      }
+      else {
+        b_cross_the_streams_mix = false;
+      }
+    }
+
+    if(obj_eeprom.overheating > 0 && obj_eeprom.overheating != 255) {
+      if(obj_eeprom.overheating > 1) {
+        b_overheat_enabled = true;
+      }
+      else {
+        b_overheat_enabled = false;
+      }
+    }
+
+    if(obj_eeprom.neutrona_wand_sounds > 0 && obj_eeprom.neutrona_wand_sounds != 255) {
+      if(obj_eeprom.neutrona_wand_sounds > 1) {
+        b_extra_pack_sounds = true;
+      }
+      else {
+        b_extra_pack_sounds = false;
+      }
+    }
+
+    if(obj_eeprom.spectral_mode > 0 && obj_eeprom.spectral_mode != 255) {
+      if(obj_eeprom.spectral_mode > 1) {
+        b_spectral_mode_enabled = true;
+        b_spectral_custom_mode_enabled = true;
+      }
+      else {
+        b_spectral_mode_enabled = false;
+        b_spectral_custom_mode_enabled = false;
+      }
+    }
+
+    if(obj_eeprom.holiday_mode > 0 && obj_eeprom.holiday_mode != 255) {
+      if(obj_eeprom.holiday_mode > 1) {
+        b_holiday_mode_enabled = true;
+      }
+      else {
+        b_holiday_mode_enabled = false;
+      }
+    }
+
+    if(obj_eeprom.quick_vent > 0 && obj_eeprom.quick_vent != 255) {
+      if(obj_eeprom.quick_vent > 1) {
+        b_quick_vent = true;
+      }
+      else {
+        b_quick_vent = false;
+      }
+    }
+
+    if(obj_eeprom.wand_boot_errors > 0 && obj_eeprom.wand_boot_errors != 255) {
+      if(obj_eeprom.wand_boot_errors > 1) {
+        b_wand_boot_errors = true;
+      }
+      else {
+        b_wand_boot_errors = false;
+      }
+    }
+
+    if(obj_eeprom.vent_light_auto_intensity > 0 && obj_eeprom.vent_light_auto_intensity != 255) {
+      if(obj_eeprom.vent_light_auto_intensity > 1) {
+        b_vent_light_control = true;
+      }
+      else {
+        b_vent_light_control = false;
+      }
+    }
+
+    if(obj_eeprom.num_barrel_leds > 0 && obj_eeprom.num_barrel_leds != 255) {
+      //i_num_barrel_leds = obj_eeprom.num_barrel_leds; // Keep it disabled for now until new barrel leds are ready.
+    }
+
+    if(obj_eeprom.invert_bargraph > 0 && obj_eeprom.invert_bargraph != 255) {
+      if(obj_eeprom.invert_bargraph > 1) {
+        b_bargraph_invert = true;
+      }
+      else {
+        b_bargraph_invert = false;
+      }
+
+      setBargraphOrientation();
+    }
+
+    if(obj_eeprom.bargraph_always_ramping > 0 && obj_eeprom.bargraph_always_ramping != 255) {
+      if(obj_eeprom.bargraph_always_ramping > 1) {
+        b_bargraph_always_ramping = true;
+      }
+      else {
+        b_bargraph_always_ramping = false;
+      }
+    }
+
+    // Read our LED object from the EEPROM.
+    objLEDEEPROM obj_led_eeprom;
     unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
 
-    for(unsigned int i = 0 ; i < sizeof(objLEDEEPROM); i++) {
-      EEPROM.put(i_eepromLEDAddress, 0);
-
-      i_eepromLEDAddress++;
+    EEPROM.get(i_eepromLEDAddress, obj_led_eeprom);
+    if(obj_led_eeprom.barrel_spectral_custom > 0 && obj_led_eeprom.barrel_spectral_custom != 255) {
+      i_spectral_wand_custom = obj_led_eeprom.barrel_spectral_custom;
     }
 
-    updateCRCEEPROM();
-  }
-
-  void saveLEDEEPROM() {
-    unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
-
-    // For now we are just saving the Spectral Custom colour.
-    objLEDEEPROM obj_eeprom = {
-      i_spectral_wand_custom,
-      i_spectral_wand_saturation_custom,
-    };
-
-    // Save to the EEPROM.
-    EEPROM.put(i_eepromLEDAddress, obj_eeprom);
-
-    updateCRCEEPROM();
-  }
-
-  void clearEEPROM() {
-    // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-    for(unsigned int i = 0 ; i < sizeof(objEEPROM); i++) {
-      EEPROM.put(i, 0);
-    }
-
-    updateCRCEEPROM();
-  }
-
-  void saveEEPROM() {
-    // (Video Game Modes) + Cross The Streams / Cross The Streams Mix / Overheating
-    uint8_t i_cross_the_streams = 1;
-    uint8_t i_cross_the_streams_mix = 1;
-    uint8_t i_overheating = 1;
-    uint8_t i_neutrona_wand_sounds = 1;
-    uint8_t i_spectral = 1;
-    uint8_t i_holiday = 1;
-
-    uint8_t i_quick_vent = 1;
-    uint8_t i_wand_boot_errors = 1;
-    uint8_t i_vent_light_auto_intensity = 1;
-    uint8_t i_invert_bargraph = 1;
-    uint8_t i_bargraph_always_ramping = 1;
-
-    if(b_cross_the_streams == true) {
-      i_cross_the_streams = 2;
-    }
-
-    if(b_cross_the_streams_mix == true) {
-      i_cross_the_streams_mix = 2;
-    }
-
-    if(b_overheat_enabled == true) {
-      i_overheating = 2;
-    }
-
-    if(b_extra_pack_sounds == true) {
-      i_neutrona_wand_sounds = 2;
-    }
-
-    if(b_spectral_mode_enabled == true || b_holiday_mode_enabled == true) {
-      i_spectral = 2;
-      i_holiday = 2;
-    }
-
-    if(b_quick_vent == true) {
-      i_quick_vent = 2;
-    }
-
-    if(b_wand_boot_errors == true) {
-      i_wand_boot_errors = 2;
-    }
-
-    if(b_vent_light_control == true) {
-      i_vent_light_auto_intensity = 2;
-    }
-
-    if(b_bargraph_invert == true) {
-      i_invert_bargraph = 2;
-    }
-
-    if(b_bargraph_always_ramping == true) {
-      i_bargraph_always_ramping = 2;
-    }
-
-    // Write the data to the EEPROM if any of the values have changed.
-    objEEPROM obj_eeprom = {
-      i_cross_the_streams,
-      i_cross_the_streams_mix,
-      i_overheating,
-      i_neutrona_wand_sounds,
-      i_spectral,
-      i_holiday,
-      i_quick_vent,
-      i_wand_boot_errors,
-      i_vent_light_auto_intensity,
-      i_num_barrel_leds,
-      i_invert_bargraph,
-      i_bargraph_always_ramping
-    };
-
-    // Save and update our object in the EEPROM.
-    EEPROM.put(i_eepromAddress, obj_eeprom);
-
-    updateCRCEEPROM();
-  }
-
-  // Update the CRC in the EEPROM.
-  void updateCRCEEPROM() {
-    EEPROM.put(EEPROM.length() - sizeof(l_crc_size), eepromCRC());
-  }
-
-  unsigned long eepromCRC(void) {
-    const unsigned long crc_table[16] = {
-      0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
-      0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-      0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
-      0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
-    };
-
-    unsigned long crc = l_crc_size;
-
-    for(unsigned int index = 0; index < EEPROM.length() - sizeof(crc); ++index) {
-      crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
-      crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
-      crc = ~crc;
-    }
-
-    return crc;
-  }
-
-  void readEEPROM() {
-    // Get the stored CRC from the EEPROM.
-    unsigned long l_crc_check;
-    EEPROM.get(EEPROM.length() - sizeof(l_crc_size), l_crc_check);
-
-    // Check if the calculated CRC matches the stored CRC value in the EEPROM.
-    if(eepromCRC() == l_crc_check) {
-      // Read our object from the EEPROM.
-      objEEPROM obj_eeprom;
-      EEPROM.get(i_eepromAddress, obj_eeprom);
-
-      if(obj_eeprom.cross_the_streams > 0 && obj_eeprom.cross_the_streams != 255) {
-        if(obj_eeprom.cross_the_streams > 1) {
-          b_cross_the_streams = true;
-        }
-        else {
-          b_cross_the_streams = false;
-        }
-      }
-
-      if(obj_eeprom.cross_the_streams_mix > 0 && obj_eeprom.cross_the_streams_mix != 255) {
-        if(obj_eeprom.cross_the_streams_mix > 1) {
-          b_cross_the_streams_mix = true;
-        }
-        else {
-          b_cross_the_streams_mix = false;
-        }
-      }
-
-      if(obj_eeprom.overheating > 0 && obj_eeprom.overheating != 255) {
-        if(obj_eeprom.overheating > 1) {
-          b_overheat_enabled = true;
-        }
-        else {
-          b_overheat_enabled = false;
-        }
-      }
-
-      if(obj_eeprom.neutrona_wand_sounds > 0 && obj_eeprom.neutrona_wand_sounds != 255) {
-        if(obj_eeprom.neutrona_wand_sounds > 1) {
-          b_extra_pack_sounds = true;
-        }
-        else {
-          b_extra_pack_sounds = false;
-        }
-      }
-
-      if(obj_eeprom.spectral_mode > 0 && obj_eeprom.spectral_mode != 255) {
-        if(obj_eeprom.spectral_mode > 1) {
-          b_spectral_mode_enabled = true;
-          b_spectral_custom_mode_enabled = true;
-        }
-        else {
-          b_spectral_mode_enabled = false;
-          b_spectral_custom_mode_enabled = false;
-        }
-      }
-
-      if(obj_eeprom.holiday_mode > 0 && obj_eeprom.holiday_mode != 255) {
-        if(obj_eeprom.holiday_mode > 1) {
-          b_holiday_mode_enabled = true;
-        }
-        else {
-          b_holiday_mode_enabled = false;
-        }
-      }
-
-      if(obj_eeprom.quick_vent > 0 && obj_eeprom.quick_vent != 255) {
-        if(obj_eeprom.quick_vent > 1) {
-          b_quick_vent = true;
-        }
-        else {
-          b_quick_vent = false;
-        }
-      }
-
-      if(obj_eeprom.wand_boot_errors > 0 && obj_eeprom.wand_boot_errors != 255) {
-        if(obj_eeprom.wand_boot_errors > 1) {
-          b_wand_boot_errors = true;
-        }
-        else {
-          b_wand_boot_errors = false;
-        }
-      }
-
-      if(obj_eeprom.vent_light_auto_intensity > 0 && obj_eeprom.vent_light_auto_intensity != 255) {
-        if(obj_eeprom.vent_light_auto_intensity > 1) {
-          b_vent_light_control = true;
-        }
-        else {
-          b_vent_light_control = false;
-        }
-      }
-
-      if(obj_eeprom.num_barrel_leds > 0 && obj_eeprom.num_barrel_leds != 255) {
-        //i_num_barrel_leds = obj_eeprom.num_barrel_leds; // Keep it disabled for now until new barrel leds are ready.
-      }
-
-      if(obj_eeprom.invert_bargraph > 0 && obj_eeprom.invert_bargraph != 255) {
-        if(obj_eeprom.invert_bargraph > 1) {
-          b_bargraph_invert = true;
-        }
-        else {
-          b_bargraph_invert = false;
-        }
-
-        setBargraphOrientation();
-      }
-
-      if(obj_eeprom.bargraph_always_ramping > 0 && obj_eeprom.bargraph_always_ramping != 255) {
-        if(obj_eeprom.bargraph_always_ramping > 1) {
-          b_bargraph_always_ramping = true;
-        }
-        else {
-          b_bargraph_always_ramping = false;
-        }
-      }
-
-      // Read our LED object from the EEPROM.
-      objLEDEEPROM obj_led_eeprom;
-      unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
-
-      EEPROM.get(i_eepromLEDAddress, obj_led_eeprom);
-      if(obj_led_eeprom.barrel_spectral_custom > 0 && obj_led_eeprom.barrel_spectral_custom != 255) {
-        i_spectral_wand_custom = obj_led_eeprom.barrel_spectral_custom;
-      }
-
-      if(obj_led_eeprom.barrel_spectral_saturation_custom > 0 && obj_led_eeprom.barrel_spectral_saturation_custom != 255) {
-        i_spectral_wand_saturation_custom = obj_led_eeprom.barrel_spectral_saturation_custom;
-      }
+    if(obj_led_eeprom.barrel_spectral_saturation_custom > 0 && obj_led_eeprom.barrel_spectral_saturation_custom != 255) {
+      i_spectral_wand_saturation_custom = obj_led_eeprom.barrel_spectral_saturation_custom;
     }
   }
-#endif
+}
 
 // Helper method to play a sound effect using certain defaults.
 void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
@@ -7417,13 +7684,11 @@ void setupWavTrigger() {
 
   delay(10);
 
-  #ifdef GPSTAR_NEUTRONA_WAND_PCB
-    // Stop all tracks.
-    w_trig.stopAllTracks();
+  // Stop all tracks.
+  w_trig.stopAllTracks();
     
-    // Reset the sample-rate offset, in case we have
-    w_trig.samplerateOffset(0); // Reset our sample rate offset
-  #endif
+  // Reset the sample-rate offset, in case we have
+  w_trig.samplerateOffset(0); // Reset our sample rate offset
 
   w_trig.masterGain(i_volume_master); // Reset the master gain db. 0db is default. Range is -70 to 0.
   w_trig.setAmpPwr(b_onboard_amp_enabled); // Turn on the onboard amp.

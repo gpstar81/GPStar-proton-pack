@@ -325,6 +325,15 @@ enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CU
 enum FIRING_MODES FIRING_MODE;
 
 /*
+ * System modes.
+ * Super Hero: A idealised system based on the close up of the Super Hero Proton Pack and Neutrona Wand in the 1984 Rooftop closeup scene and what is shown in Afterlife. (Different toggle switch sequences for turning on the pack and wand)
+ * Original: Based on the original operational manual during production of GB1. (Wand toggle switches must be on before the cyclotron can turn on from the Wand only.)
+ * Super Hero will be the default system mode.
+*/
+enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
+enum SYSTEM_MODES SYSTEM_MODE;
+
+/*
  *  Wand Status
  */
 bool b_wand_firing = false;

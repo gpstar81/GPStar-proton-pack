@@ -27,7 +27,6 @@
 
 /*
   ***** IMPORTANT *****
-  * You no longer need to edit and configure wavTrigger.h anymore.
   * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
   * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
   https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
@@ -175,15 +174,27 @@ void setup() {
   // Check music timer.
   ms_check_music.start(i_music_check_delay);
 
+  // Default mode is the idealised SUPER_HERO.
+  SYSTEM_MODE = MODE_ORIGINAL;
+
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
     readEEPROM();
   }
 
-  // Auto start the pack if it is in demo light mode.
-  if(b_demo_light_mode == true) {
-    // Turn the pack on.
-    PACK_ACTION_STATE = ACTION_ACTIVATE;
+  if(SYSTEM_MODE == MODE_SUPER_HERO) {
+    packSerialSend(P_MODE_SUPER_HERO);
+    serial1Send(A_MODE_SUPER_HERO);
+
+    // Auto start the pack if it is in demo light mode.
+    if(b_demo_light_mode == true) {
+      // Turn the pack on.
+      PACK_ACTION_STATE = ACTION_ACTIVATE;
+    }
+  }
+  else {
+    packSerialSend(P_MODE_ORIGINAL);
+    serial1Send(A_MODE_ORIGINAL);
   }
 }
 
@@ -257,7 +268,24 @@ void loop() {
       }
 
       if(b_pack_on == true) {
-        // Tell the wand the pack is off, so shut down the wand as well if it is still on.
+        switch(SYSTEM_MODE) {
+          case MODE_ORIGINAL:
+            if(switch_power.getState() == HIGH) {
+             // Tell the Neutrona Wand that power to the Proton Pack is off.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              
+              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+            }
+          break;
+
+          case MODE_SUPER_HERO:
+          default:
+            // Do nothing.
+          break;
+        }
+
+        // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
         packSerialSend(P_OFF);
         serial1Send(A_PACK_OFF);
       }
@@ -942,9 +970,33 @@ void checkSwitches() {
 
   switch(PACK_STATE) {
     case MODE_OFF:
-      if(switch_power.isPressed() || switch_power.isReleased()) {
-        // Turn the pack on.
-        PACK_ACTION_STATE = ACTION_ACTIVATE;
+      switch(SYSTEM_MODE) {
+        case MODE_ORIGINAL:
+          if(switch_power.isPressed() || switch_power.isReleased()) {
+            if(switch_power.getState() == LOW) {
+              // Tell the Neutrona Wand that power to the Proton Pack is on.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+              
+              // Tell the Attenuator or any other device that the power to the Proton Pack is on.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
+            }
+            else {
+              // Tell the Neutrona Wand that power to the Proton Pack is off.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              
+              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+            }
+          }
+        break;
+
+        case MODE_SUPER_HERO:
+        default:
+          if(switch_power.isPressed() || switch_power.isReleased()) {
+            // Turn the pack on.
+            PACK_ACTION_STATE = ACTION_ACTIVATE;
+          }
+        break;
       }
 
       // Year mode. Best to adjust it only when the pack is off.
@@ -3975,6 +4027,22 @@ void checkSerial1() {
 
             serial1Send(A_SPECTRAL_COLOUR_DATA);
 
+            if(SYSTEM_MODE == MODE_SUPER_HERO) {
+              serial1Send(A_MODE_SUPER_HERO);
+            }
+            else {
+              serial1Send(A_MODE_ORIGINAL);
+            }
+
+            if(switch_power.getState() == LOW) {             
+              // Tell the Attenuator or any other device that the power to the Proton Pack is on.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
+            }
+            else {
+              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+            }
+
             serial1Send(A_SYNC_END);
           }
         }
@@ -6011,6 +6079,22 @@ void checkWand() {
 
             // Tell the wand that the pack is here.
             packSerialSend(P_HANDSHAKE);
+
+            if(SYSTEM_MODE == MODE_SUPER_HERO) {
+              packSerialSend(P_MODE_SUPER_HERO);
+            }
+            else {
+              packSerialSend(P_MODE_ORIGINAL);
+            }
+
+            if(switch_power.getState() == LOW) {             
+              // Tell the Neutrona Wand that power to the Proton Pack is on.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+            }
+            else {
+              // Tell the Neutrona Wand that power to the Proton Pack is off.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+            }
 
             if(i_mode_year == 1984) {
               packSerialSend(P_YEAR_1984);

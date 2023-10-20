@@ -29,6 +29,27 @@ enum WAND_STATE WAND_STATUS;
 enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
+/*
+ * System modes.
+ * Super Hero: A idealised system based on the close up of the Super Hero Proton Pack and Neutrona Wand in the 1984 Rooftop closeup scene and what is shown in Afterlife. (Different toggle switch sequences for turning on the pack and wand)
+ * Original: Based on the original operational manual during production of GB1. (Wand toggle switches must be on before the cyclotron can turn on from the Wand only.)
+ * Super Hero will be the default system mode.
+*/
+enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
+enum SYSTEM_MODES SYSTEM_MODE;
+
+
+/*
+ * For MODE_ORIGINAL. Let's us know if the Proton Pack Ion Arm switch is on to give power to the Proton Pack and system.
+*/
+bool b_pack_ion_arm_switch_on = false;
+
+/*
+ * For MODE_ORIGINAL. For blinking the slo-blo light when the cyclotron is not on.
+*/
+millisDelay ms_slo_blo_blink;
+const unsigned int i_slo_blo_blink_delay = 500;
+
 /* 
  *  Barrel LEDs. 
  *  The Hasbro Neutrona Wand has 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
@@ -97,7 +118,7 @@ bool b_vibration_enabled = true;
 ezButton switch_wand(A0); // Controls the beeping. Top right switch on the wand.
 ezButton switch_intensify(2);
 ezButton switch_activate(3);
-ezButton switch_vent(4); // Turns on the vent light.
+ezButton switch_vent(4); // Turns on the vent light. Bottom right switch.
 const int switch_mode = A6; // Changes firing modes or to reach the settings menu.
 const int switch_barrel = A7; // Barrel extension/open switch.
 bool b_switch_mode_pressed = false;
@@ -114,8 +135,6 @@ millisDelay ms_intensify_timer;
 millisDelay ms_firing_debounce;
 const unsigned int i_firing_debounce = 50;
 const unsigned int i_intensify_delay = 400;
-const uint8_t i_switch_mode_value = 200;
-const uint8_t i_switch_barrel_value = 100;
 
 /*
  * Wand lights
@@ -129,13 +148,10 @@ const uint8_t led_bargraph_4 = A4;
 const uint8_t led_bargraph_5 = A5;
 
 const uint8_t i_bargraph_segments_5_led = 5;
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {};
-  const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
-  const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
-#else
-  const uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
-#endif
+uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {};
+const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
+const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
+
 
 /* 
  *  Idling timers
@@ -167,12 +183,10 @@ uint8_t i_bargraph_status = 0;
  * Part #: BL28Z-3005SA04Y
   * Only supported by the gpstar Neutrona Wand microcontroller.
 */
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  HT16K33 ht_bargraph;
-  
-  // Used to scan the i2c bus and to locate the 28 segment bargraph.
-  #define WIRE Wire
-#endif
+HT16K33 ht_bargraph;
+
+// Used to scan the i2c bus and to locate the 28 segment bargraph.
+#define WIRE Wire
 
 /*
  * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
@@ -187,73 +201,71 @@ bool b_28segment_bargraph = false;
 */
 bool b_vg_mode = true;
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  const uint8_t i_bargraph_interval = 4;
-  const uint8_t i_bargraph_wait = 180;
-  bool b_bargraph_up = false;
-  millisDelay ms_bargraph_alt;
-  uint8_t i_bargraph_status_alt = 0;
-  const uint8_t d_bargraph_ramp_interval_alt = 40;
-  const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
-  const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
-  unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
-#endif
+const uint8_t i_bargraph_interval = 4;
+const uint8_t i_bargraph_wait = 180;
+bool b_bargraph_up = false;
+millisDelay ms_bargraph_alt;
+uint8_t i_bargraph_status_alt = 0;
+const uint8_t d_bargraph_ramp_interval_alt = 40;
+const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
+const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
+unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
 /*
  * (Optional) Barmeter 28 segment bargraph mapping.
  * Part #: BL28Z-3005SA04Y
- * Only supported by the gpstar Neutrona Wand microcontroller.
+
+ * Segment Layout:
+ * 5: full: 23 - 27  (5 segments)
+ * 4: 3/4: 17 - 22	 (6 segments)
+ * 3: 1/2: 12 - 16	 (5 segments)
+ * 2: 1/4: 5 - 11	   (7 segments)
+ * 1: none: 0 - 4	   (5 segments)
 */
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  const uint8_t i_bargraph_segments = 28;
-  uint8_t i_bargraph[i_bargraph_segments] = {};
-  const uint8_t i_bargraph_invert[i_bargraph_segments] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
-  const uint8_t i_bargraph_normal[i_bargraph_segments] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
-#endif
+const uint8_t i_bargraph_segments = 28;
+uint8_t i_bargraph[i_bargraph_segments] = {};
+const uint8_t i_bargraph_invert[i_bargraph_segments] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
+const uint8_t i_bargraph_normal[i_bargraph_segments] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 
 /*
  * (Optional) Support for the Frutto Technology Video Game Accessories
 */
 /*
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  bool b_overheat_indicators[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false};
-#endif
+bool b_overheat_indicators[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false};
 */
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  /*
-  * EEPROM
-  */
-  unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
-  unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
+/*
+* EEPROM
+*/
+unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
+unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
 
-  /*
-  * EEPROM data structure object that is saved into the EEPROM memory of the Neutrona Wand.
-  */
-  struct objEEPROM {
-    uint8_t cross_the_streams;
-    uint8_t cross_the_streams_mix;
-    uint8_t overheating;
-    uint8_t neutrona_wand_sounds;
-    uint8_t spectral_mode;
-    uint8_t holiday_mode;
-    
-    uint8_t quick_vent;
-    uint8_t wand_boot_errors;
-    uint8_t vent_light_auto_intensity;
-    uint8_t num_barrel_leds;
-    uint8_t invert_bargraph;
-    uint8_t bargraph_always_ramping;
-  };
+/*
+* EEPROM data structure object that is saved into the EEPROM memory of the Neutrona Wand.
+*/
+struct objEEPROM {
+  uint8_t cross_the_streams;
+  uint8_t cross_the_streams_mix;
+  uint8_t overheating;
+  uint8_t neutrona_wand_sounds;
+  uint8_t spectral_mode;
+  uint8_t holiday_mode;
+  
+  uint8_t quick_vent;
+  uint8_t wand_boot_errors;
+  uint8_t vent_light_auto_intensity;
+  uint8_t num_barrel_leds;
+  uint8_t invert_bargraph;
+  uint8_t bargraph_always_ramping;
+};
 
-  /*
-  * EEPROM Another data structure object that is saved into the EEPROM memory.
-  */
-  struct objLEDEEPROM {
-    uint8_t barrel_spectral_custom;
-    uint8_t barrel_spectral_saturation_custom;
-  };  
-#endif
+/*
+* EEPROM Another data structure object that is saved into the EEPROM memory.
+*/
+struct objLEDEEPROM {
+  uint8_t barrel_spectral_custom;
+  uint8_t barrel_spectral_saturation_custom;
+};  
 
 /*
  * Timers for the optional hat lights.
@@ -292,10 +304,7 @@ millisDelay ms_firing_lights;
 millisDelay ms_firing_lights_end;
 millisDelay ms_firing_stream_blue;
 millisDelay ms_firing_stream_orange;
-
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  millisDelay ms_impact; // Mix some impact sounds while firing.
-#endif
+millisDelay ms_impact; // Mix some impact sounds while firing.
 
 millisDelay ms_firing_start_sound_delay;
 millisDelay ms_firing_stop_sound_delay;
@@ -408,12 +417,8 @@ void stopEffect(int i_track_id);
 void stopMusic();
 void playMusic();
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  const uint8_t led_slo_blo = 8;
-  const uint8_t led_front_left = 9;
-  const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
-  const uint8_t led_hat_2 = 23; // Hat light at top of the wand body. (Red LED)
-  const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
-#else
-  const uint8_t led_slo_blo = 5; // There are 2 LEDs attached to this pin when using an Arduino Nano. The slo-blo LED and the orange light on the front of the wand body (front_left).
-#endif
+const uint8_t led_slo_blo = 8;
+const uint8_t led_front_left = 9;
+const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
+const uint8_t led_hat_2 = 23; // Hat light at top of the wand body. (Red LED)
+const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).

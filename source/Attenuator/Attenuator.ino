@@ -547,6 +547,22 @@ void checkPack() {
             attenuatorSerialSend(A_HANDSHAKE);
           break;
 
+          case A_MODE_SUPER_HERO:
+            // The pack and wand are in the superhero mode.
+          break;
+
+          case A_MODE_ORIGINAL:
+            // The pack and wand are in the original mode.
+          break;
+
+          case A_MODE_ORIGINAL_RED_SWITCH_ON:
+            // The proton pack red switch is on and has power (no cyclotron powered up yet).
+          break;
+
+          case A_MODE_ORIGINAL_RED_SWITCH_OFF:
+            // The proton pack red switch is off. This will cause a total system shutdown.
+          break;
+
           case A_YEAR_1984:
             YEAR_MODE = YEAR_1984;
           break;
