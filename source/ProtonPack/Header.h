@@ -353,34 +353,34 @@ SerialTransfer packComs;
 
 // For wand communication.
 struct __attribute__((packed)) STRUCT {
-  int s;
-  int i;
-  int e;
+  uint16_t s;
+  uint16_t i;
+  uint16_t e;
 } comStruct;
 
 // For wand communication.
 struct __attribute__((packed)) STRUCTSEND {
-  int s;
-  int i;
-  int e;
+  uint16_t s;
+  uint16_t i;
+  uint16_t e;
 } sendStruct;
 
 // For Serial1 add-on communication.
 struct __attribute__((packed)) STRUCTDATAR {
-  int s;
-  int i;
-  int d1; // Data 1
-  int d2; // Data 2
-  int e;
+  uint16_t s;
+  uint16_t i;
+  uint16_t d1; // Data 1
+  uint16_t d2; // Data 2
+  uint16_t e;
 } dataStructR;
 
 // For Serial1 add-on communication.
 struct __attribute__((packed)) STRUCTDATA {
-  int s;
-  int i;
-  int d1; // Data 1
-  int d2; // Data 2
-  int e;
+  uint16_t s;
+  uint16_t i;
+  uint16_t d1; // Data 1
+  uint16_t d2; // Data 2
+  uint16_t e;
 } dataStruct;
 
 /*

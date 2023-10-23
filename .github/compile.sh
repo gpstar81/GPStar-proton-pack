@@ -45,7 +45,7 @@ echo "Done."
 
 # Attenuator (ESP32)
 echo "Building Attenuator Binary (ESP32)..."
-arduino-cli compile --output-dir ${BINDIR} -b esp32:esp32:uPesy_wroom -e ${SRCDIR}/Attenuator/Attenuator.ino
+arduino-cli compile --output-dir ${BINDIR} -b esp32:esp32:esp32 -e ${SRCDIR}/Attenuator/Attenuator.ino
 
 # Keep any .bin files
 rm -f ${BINDIR}/*.eep
@@ -53,7 +53,7 @@ rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*.map
 rm -f ${BINDIR}/*bootloader.hex
 
-mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32.hex
+mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32.bin
 echo "Done."
 
 # Neutrona Wand (Bench Test)

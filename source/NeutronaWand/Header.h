@@ -314,15 +314,15 @@ uint8_t i_power_mode_prev = 1;
 SerialTransfer wandComs;
 
 struct __attribute__((packed)) STRUCT {
-  int s;
-  int i;
-  int e;
+  uint16_t s;
+  uint16_t i;
+  uint16_t e;
 } comStruct;
 
 struct __attribute__((packed)) STRUCTSEND {
-  int s;
-  int i;
-  int e;
+  uint16_t s;
+  uint16_t i;
+  uint16_t e;
 } sendStruct;
 
 /*
