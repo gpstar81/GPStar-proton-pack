@@ -181,6 +181,11 @@ enum MENU_LEVELS MENU_LEVEL;
 /* 
  * Pack Communication
  */
+#if defined(__XTENSA__)
+  // ESP32 - Hardware Serial2 Pins
+  #define RXD2 16
+  #define TXD2 17
+#endif
 SerialTransfer packComs;
 
 struct __attribute__((packed)) STRUCT {

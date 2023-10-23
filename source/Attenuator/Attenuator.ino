@@ -37,7 +37,7 @@ void setup() {
   #if defined(__XTENSA__)
     // ESP32
     Serial.begin(115200);
-    Serial2.begin(9600);
+    Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   #else
     // Nano
     Serial.begin(9600);
@@ -89,8 +89,8 @@ void setup() {
   // attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
   // Feedback devices (piezo buzzer and vibration motor)
-  pinMode(BUZZER_PIN, OUTPUT);
-  pinMode(VIBRATION_PIN, OUTPUT);
+  // pinMode(BUZZER_PIN, OUTPUT);
+  // pinMode(VIBRATION_PIN, OUTPUT);
 
   // Setup the bargraph after a brief delay.
   delay(10);
@@ -512,18 +512,18 @@ void attenuatorSerialSend(int i_message) {
   sendStruct.s = A_COM_START;
   sendStruct.e = A_COM_END;
 
-  // packComs.sendDatum(sendStruct);
+  packComs.sendDatum(sendStruct);
 }
 
 void checkPack() {
   // Pack communication to the Attenuator device.
   if(packComs.available()) {
-Serial.print("checkPack: ");
-Serial.print(comStruct.i);
-Serial.print(comStruct.s);
-Serial.println(" ");
     packComs.rxObj(comStruct);
-
+Serial.print("checkPack: ");
+Serial.print(packComs.currentPacketID());
+Serial.print(".");
+Serial.print(comStruct.i);
+Serial.println(" ");
     if(!packComs.currentPacketID()) {
       if(comStruct.i > 0 && comStruct.s == A_COM_START && comStruct.e == A_COM_END) {
         // Use the passed communication flag to set the proper state for this device.
