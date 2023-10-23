@@ -113,9 +113,6 @@ void setup() {
 
 void loop() {
   if(b_wait_for_pack) {
-Serial.print("loop, waiting for pack");
-Serial.print(b_comms_open);
-Serial.println(" ");
     // Handshake with the pack. Telling the pack that we are here.
     attenuatorSerialSend(A_HANDSHAKE);
 
@@ -123,9 +120,12 @@ Serial.println(" ");
     checkPack();
 
     if(b_comms_open) {
+      // Move into the main loop if we got data from the pack.
+      b_wait_for_pack = false;
       mainLoop();
     }
     else {
+      // Pause and try again in a moment.
       delay(10);
     }
   }
@@ -640,7 +640,7 @@ void checkPack() {
           break;
 
           case A_STASIS_MODE:
-            debug("Statis");
+            debug("Stasis");
             FIRING_MODE = STASIS;
           break;
 
