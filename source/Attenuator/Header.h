@@ -43,8 +43,15 @@ CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
  * buzzOn(698); // F4
  * buzzOn(784); // G4
  */
-#define BUZZER_PIN 10
-#define VIBRATION_PIN 11
+#if defined(__XTENSA__)
+  // ESP32
+  #define BUZZER_PIN 18
+  #define VIBRATION_PIN 19
+#else
+  // Nano
+  #define BUZZER_PIN 10
+  #define VIBRATION_PIN 11
+#endif
 millisDelay ms_buzzer;
 millisDelay ms_vibrate;
 bool b_buzzer_on = false;
@@ -120,8 +127,17 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
  * Toggle Switches
  * Will be pulled LOW (down position) when considered "active".
  */
-ezButton switch_left(5);
-ezButton switch_right(6);
+#if defined(__XTENSA__)
+  // ESP32
+  #define LEFT_TOGGLE_PIN 14
+  #define RIGHT_TOGGLE_PIN 15
+#else
+  // Nano
+  #define LEFT_TOGGLE_PIN 5
+  #define RIGHT_TOGGLE_PIN 6
+#endif
+ezButton switch_left(LEFT_TOGGLE_PIN);
+ezButton switch_right(RIGHT_TOGGLE_PIN);
 
 /*
  * Debounce Settings
@@ -132,8 +148,15 @@ const uint8_t rotary_debounce_time = 80;
 /* 
  * Rotary encoder for various uses.
  */
-#define r_encoderA 2
-#define r_encoderB 3
+#if defined(__XTENSA__)
+  // ESP32
+  #define r_encoderA 10
+  #define r_encoderB 11
+#else
+  // Nano
+  #define r_encoderA 2
+  #define r_encoderB 3
+#endif
 ezButton encoder_center(4); // For center-press on encoder dial.
 millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
 millisDelay ms_center_double_tap; // Timer for determinine when a double-tap was detected.

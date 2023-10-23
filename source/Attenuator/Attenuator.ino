@@ -43,8 +43,6 @@ void setup() {
     Serial.begin(9600);
   #endif
 
-  Serial.println("Setup");
-
   // Enable Serial connection for communication with gpstar Proton Pack PCB.
   #if defined(__XTENSA__)
     // ESP32
@@ -86,9 +84,9 @@ void setup() {
   encoder_center.setDebounceTime(switch_debounce_time);
 
   // Rotary encoder on the top of the Attenuator.
-  pinMode(r_encoderA, INPUT_PULLUP);
-  pinMode(r_encoderB, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
+  // pinMode(r_encoderA, INPUT_PULLUP);
+  // pinMode(r_encoderB, INPUT_PULLUP);
+  // attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
   // Feedback devices (piezo buzzer and vibration motor)
   pinMode(BUZZER_PIN, OUTPUT);
@@ -99,7 +97,7 @@ void setup() {
   setupBargraph();
 
   // Turn off any user feedback.
-  noTone(BUZZER_PIN);
+  //noTone(BUZZER_PIN);
   useVibration(0, 0);
 
   // Initialize critical timers.
@@ -107,7 +105,6 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(".");
   if(b_wait_for_pack) {
     // Handshake with the pack. Telling the pack that we are here.
     attenuatorSerialSend(A_HANDSHAKE);
@@ -236,20 +233,20 @@ void mainLoop() {
 }
 
 void buzzOn(unsigned int i_freq) {
-  tone(BUZZER_PIN, i_freq);
+  // tone(BUZZER_PIN, i_freq);
   ms_buzzer.start(i_buzz_max);
   b_buzzer_on = true;
 }
 
 void buzzOff() {
-  noTone(BUZZER_PIN);
+  // noTone(BUZZER_PIN);
   ms_buzzer.stop();
   b_buzzer_on = false;
 }
 
 void useVibration(uint8_t i_power_level, unsigned int i_duration) {
   // Power should be specified as 0-255
-  analogWrite(VIBRATION_PIN, i_power_level);
+  // analogWrite(VIBRATION_PIN, i_power_level);
   b_vibrate_on = (i_power_level > 0);
 
   if(b_vibrate_on) {
@@ -515,12 +512,16 @@ void attenuatorSerialSend(int i_message) {
   sendStruct.s = A_COM_START;
   sendStruct.e = A_COM_END;
 
-  packComs.sendDatum(sendStruct);
+  // packComs.sendDatum(sendStruct);
 }
 
 void checkPack() {
   // Pack communication to the Attenuator device.
   if(packComs.available()) {
+Serial.print("checkPack: ");
+Serial.print(comStruct.i);
+Serial.print(comStruct.s);
+Serial.println(" ");
     packComs.rxObj(comStruct);
 
     if(!packComs.currentPacketID()) {
