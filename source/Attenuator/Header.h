@@ -129,8 +129,8 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
  */
 #if defined(__XTENSA__)
   // ESP32
-  #define LEFT_TOGGLE_PIN 14
-  #define RIGHT_TOGGLE_PIN 15
+  #define LEFT_TOGGLE_PIN 34
+  #define RIGHT_TOGGLE_PIN 35
 #else
   // Nano
   #define LEFT_TOGGLE_PIN 5

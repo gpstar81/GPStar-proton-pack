@@ -89,15 +89,15 @@ void setup() {
   // attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
   // Feedback devices (piezo buzzer and vibration motor)
-  // pinMode(BUZZER_PIN, OUTPUT);
-  // pinMode(VIBRATION_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(VIBRATION_PIN, OUTPUT);
 
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
 
   // Turn off any user feedback.
-  //noTone(BUZZER_PIN);
+  noTone(BUZZER_PIN);
   useVibration(0, 0);
 
   // Initialize critical timers.
@@ -520,8 +520,6 @@ void checkPack() {
   if(packComs.available()) {
     packComs.rxObj(comStruct);
 Serial.print("checkPack: ");
-Serial.print(packComs.currentPacketID());
-Serial.print(".");
 Serial.print(comStruct.i);
 Serial.println(" ");
     if(!packComs.currentPacketID()) {
