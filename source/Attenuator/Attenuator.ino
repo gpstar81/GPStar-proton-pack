@@ -34,17 +34,23 @@
 #include "Bargraph.h"
 
 void setup() {
-  #if defined(ESP32)
+  #if defined(__XTENSA__)
+    // ESP32
     Serial.begin(115200);
     Serial2.begin(9600);
   #else
+    // Nano
     Serial.begin(9600);
   #endif
 
+  Serial.println("Setup");
+
   // Enable Serial connection for communication with gpstar Proton Pack PCB.
-  #if defined(ESP32)
+  #if defined(__XTENSA__)
+    // ESP32
     packComs.begin(Serial2);
   #else
+    // Nano
     packComs.begin(Serial);
   #endif
 
@@ -101,6 +107,7 @@ void setup() {
 }
 
 void loop() {
+  Serial.println(".");
   if(b_wait_for_pack) {
     // Handshake with the pack. Telling the pack that we are here.
     attenuatorSerialSend(A_HANDSHAKE);

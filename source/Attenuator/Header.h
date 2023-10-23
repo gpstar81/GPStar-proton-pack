@@ -21,9 +21,11 @@
 /*
  * Pin for Addressable LEDs.
  */
-#if defined(ESP32)
+#if defined(__XTENSA__)
+  // ESP32
   #define ATTENUATOR_LED_PIN 5
 #else
+  // Nano
   #define ATTENUATOR_LED_PIN 9
 #endif
 #define ATTENUATOR_NUM_LEDS 2
