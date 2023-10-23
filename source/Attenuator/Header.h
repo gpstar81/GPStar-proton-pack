@@ -150,8 +150,8 @@ const uint8_t rotary_debounce_time = 80;
  */
 #if defined(__XTENSA__)
   // ESP32
-  #define r_encoderA 10
-  #define r_encoderB 11
+  #define r_encoderA 32
+  #define r_encoderB 33
 #else
   // Nano
   #define r_encoderA 2

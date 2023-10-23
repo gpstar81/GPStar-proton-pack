@@ -84,13 +84,20 @@ void setup() {
   encoder_center.setDebounceTime(switch_debounce_time);
 
   // Rotary encoder on the top of the Attenuator.
-  // pinMode(r_encoderA, INPUT_PULLUP);
-  // pinMode(r_encoderB, INPUT_PULLUP);
-  // attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
+  pinMode(r_encoderA, INPUT_PULLUP);
+  pinMode(r_encoderB, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
   // Feedback devices (piezo buzzer and vibration motor)
   pinMode(BUZZER_PIN, OUTPUT);
-  pinMode(VIBRATION_PIN, OUTPUT);
+  #if defined(__XTENSA__)
+    // ESP32
+    ledcSetup(1, 500, 8);
+    ledcAttachPin(VIBRATION_PIN, 1);
+  #else
+    // Nano
+    pinMode(VIBRATION_PIN, OUTPUT);
+  #endif
 
   // Setup the bargraph after a brief delay.
   delay(10);
@@ -233,20 +240,26 @@ void mainLoop() {
 }
 
 void buzzOn(unsigned int i_freq) {
-  // tone(BUZZER_PIN, i_freq);
+  tone(BUZZER_PIN, i_freq);
   ms_buzzer.start(i_buzz_max);
   b_buzzer_on = true;
 }
 
 void buzzOff() {
-  // noTone(BUZZER_PIN);
+  noTone(BUZZER_PIN);
   ms_buzzer.stop();
   b_buzzer_on = false;
 }
 
 void useVibration(uint8_t i_power_level, unsigned int i_duration) {
   // Power should be specified as 0-255
-  // analogWrite(VIBRATION_PIN, i_power_level);
+  #if defined(__XTENSA__)
+    // ESP32
+    ledcWrite(1, i_power_level);
+  #else
+    // Nano
+    analogWrite(VIBRATION_PIN, i_power_level);
+  #endif
   b_vibrate_on = (i_power_level > 0);
 
   if(b_vibrate_on) {
