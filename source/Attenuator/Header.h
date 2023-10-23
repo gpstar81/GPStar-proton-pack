@@ -187,6 +187,7 @@ enum MENU_LEVELS MENU_LEVEL;
   #define TXD2 17
 #endif
 SerialTransfer packComs;
+bool b_comms_open = false; // Denotes pack communications have occurred.
 
 struct __attribute__((packed)) STRUCT {
   uint16_t s;

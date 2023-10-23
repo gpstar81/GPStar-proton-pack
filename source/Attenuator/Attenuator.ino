@@ -36,7 +36,7 @@
 void setup() {
   #if defined(__XTENSA__)
     // ESP32
-    Serial.begin(115200);
+    Serial.begin(9600);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   #else
     // Nano
@@ -113,13 +113,21 @@ void setup() {
 
 void loop() {
   if(b_wait_for_pack) {
+Serial.print("loop, waiting for pack");
+Serial.print(b_comms_open);
+Serial.println(" ");
     // Handshake with the pack. Telling the pack that we are here.
     attenuatorSerialSend(A_HANDSHAKE);
 
     // Synchronise some settings with the pack.
     checkPack();
 
-    delay(10);
+    if(b_comms_open) {
+      mainLoop();
+    }
+    else {
+      delay(10);
+    }
   }
   else {
     mainLoop();
@@ -549,6 +557,8 @@ void checkPack() {
 
     if(!packComs.currentPacketID()) {
       if(comStruct.i > 0 && comStruct.s == A_COM_START && comStruct.e == A_COM_END) {
+        b_comms_open = true;
+
         // Use the passed communication flag to set the proper state for this device.
         switch(comStruct.i) {
           case A_SYNC_START:
@@ -592,41 +602,55 @@ void checkPack() {
           break;
 
           case A_HANDSHAKE:
-            debug("Pack Handshake");
+            debug("Handshake");
 
             // The pack is asking us if we are still here. Respond back.
             attenuatorSerialSend(A_HANDSHAKE);
           break;
 
           case A_YEAR_1984:
-            YEAR_MODE = YEAR_1984;
+            if(YEAR_MODE != YEAR_1984) {
+              debug("Mode 1984");
+              YEAR_MODE = YEAR_1984;
+            }
           break;
 
           case A_YEAR_1989:
-            YEAR_MODE = YEAR_1989;
+            if(YEAR_MODE != YEAR_1989) {
+              debug("Mode 1989");
+              YEAR_MODE = YEAR_1989;
+            }
           break;
 
           case A_YEAR_AFTERLIFE:
-            YEAR_MODE = YEAR_2021;
+            if(YEAR_MODE != YEAR_2021) {
+              debug("Mode 2021");
+              YEAR_MODE = YEAR_2021;
+            }
           break;
 
           case A_PROTON_MODE:
+            debug("Proton");
             FIRING_MODE = PROTON;
           break;
 
           case A_SLIME_MODE:
+            debug("Slime");
             FIRING_MODE = SLIME;
           break;
 
           case A_STASIS_MODE:
+            debug("Statis");
             FIRING_MODE = STASIS;
           break;
 
           case A_MESON_MODE:
+            debug("Meson");
             FIRING_MODE = MESON;
           break;
 
           case A_SPECTRAL_CUSTOM_MODE:
+            debug("Spectral Custom");
             FIRING_MODE = SPECTRAL_CUSTOM;
 
             if(comStruct.d1 > 0) {
@@ -639,6 +663,7 @@ void checkPack() {
           break;
 
           case A_SPECTRAL_COLOUR_DATA:
+            debug("Spectral Color Data");
             if(comStruct.d1 > 0) {
               i_spectral_custom = comStruct.d1;
             }
@@ -649,42 +674,51 @@ void checkPack() {
           break;
 
           case A_SPECTRAL_MODE:
+            debug("Spectral");
             FIRING_MODE = SPECTRAL;
           break;
 
           case A_HOLIDAY_MODE:
+            debug("Spectral Holiday");
             FIRING_MODE = HOLIDAY;
           break;
 
           case A_VENTING_MODE:
+            debug("Venting");
             FIRING_MODE = VENTING;
           break;
 
           case A_SETTINGS_MODE:
+            debug("Settings");
             FIRING_MODE = SETTINGS;
           break;
 
           case A_POWER_LEVEL_1:
+            debug("Power Level 1");
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_1;
           break;
 
           case A_POWER_LEVEL_2:
+            debug("Power Level 2");
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_2;
           break;
 
           case A_POWER_LEVEL_3:
+            debug("Power Level 3");
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_3;
           break;
 
           case A_POWER_LEVEL_4:
+            debug("Power Level 4");
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_4;
           break;
 
           case A_POWER_LEVEL_5:
+            debug("Power Level 5");
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_5;
           break;
