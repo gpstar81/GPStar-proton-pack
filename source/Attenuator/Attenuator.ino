@@ -126,6 +126,20 @@ void loop() {
   }
 }
 
+void debug(char *message) {
+  // Write a debug message to the serial console.
+  #if defined(__XTENSA__)
+    // ESP32
+    Serial.println(message);
+  #else
+    // Nano
+    if(!b_wait_for_pack) {
+      // Can only use Serial output if pack not connected.
+      Serial.println(message);
+    }
+  #endif
+}
+
 void mainLoop() {
   // Monitor for interactions by user.
   checkPack();
@@ -532,31 +546,37 @@ void checkPack() {
   // Pack communication to the Attenuator device.
   if(packComs.available()) {
     packComs.rxObj(comStruct);
-Serial.print("checkPack: ");
-Serial.print(comStruct.i);
-Serial.println(" ");
+
     if(!packComs.currentPacketID()) {
       if(comStruct.i > 0 && comStruct.s == A_COM_START && comStruct.e == A_COM_END) {
         // Use the passed communication flag to set the proper state for this device.
         switch(comStruct.i) {
           case A_SYNC_START:
+            debug("Sync Start");
             b_wait_for_pack = true;
             i_speed_multiplier = 1;
           break;
 
           case A_SYNC_END:
+            debug("Sync End");
             b_wait_for_pack = false;
           break;
 
           case A_PACK_ON:
-            // Pack is on.
+          case A_WAND_ON:
+            debug("Pack On");
+
+            // Pack is on (directly or via the wand).
             b_pack_on = true;
 
             BARGRAPH_PATTERN = BG_POWER_RAMP;
           break;
 
           case A_PACK_OFF:
-            // Pack is off.
+          case A_WAND_OFF:
+            debug("Pack Off");
+
+            // Pack is off (directly or via the wand).
             b_pack_on = false;
 
             if(BARGRAPH_STATE != BG_OFF) {
@@ -568,9 +588,12 @@ Serial.println(" ");
 
           case A_PACK_CONNECTED:
             // The Proton Pack is connected.
+            debug("Pack Connected");
           break;
 
           case A_HANDSHAKE:
+            debug("Pack Handshake");
+
             // The pack is asking us if we are still here. Respond back.
             attenuatorSerialSend(A_HANDSHAKE);
           break;
@@ -667,6 +690,8 @@ Serial.println(" ");
           break;
 
           case A_ALARM_ON:
+            debug("Alarm On");
+
             // Alarm is on.
             b_pack_alarm = true;
 
@@ -679,6 +704,8 @@ Serial.println(" ");
           break;
 
           case A_ALARM_OFF:
+            debug("Alarm Off");
+
             // Alarm is off.
             b_pack_alarm = false;
 
@@ -693,6 +720,8 @@ Serial.println(" ");
           break;
 
           case A_OVERHEATING:
+            debug("Overheating");
+
             // Pack is overheating.
             b_overheating = true;
             ms_blink_leds.start(i_blink_leds);
@@ -702,6 +731,9 @@ Serial.println(" ");
           break;
 
           case A_OVERHEATING_FINISHED:
+            debug("Vented");
+
+            // Venting process completed.
             b_overheating = false;
             ms_blink_leds.stop();
 
@@ -712,6 +744,8 @@ Serial.println(" ");
           break;
 
           case A_FIRING:
+            debug("Firing");
+
             b_firing = true;
             ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
@@ -720,6 +754,8 @@ Serial.println(" ");
           break;
 
           case A_FIRING_STOPPED:
+            debug("Idle");
+
             b_firing = false;
             ms_blink_leds.stop();
 
@@ -738,10 +774,14 @@ Serial.println(" ");
           break;
 
           case A_CYCLOTRON_INCREASE_SPEED:
+            debug("Speed Increased");
+
             i_speed_multiplier++;
           break;
 
           case A_CYCLOTRON_NORMAL_SPEED:
+            debug("Speed Reset");
+
             i_speed_multiplier = 1;
 
             if(b_firing) {
