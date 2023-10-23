@@ -21,7 +21,11 @@
 /*
  * Pin for Addressable LEDs.
  */
-#define ATTENUATOR_LED_PIN 9
+#if defined(ESP32)
+  #define ATTENUATOR_LED_PIN 5
+#else
+  #define ATTENUATOR_LED_PIN 9
+#endif
 #define ATTENUATOR_NUM_LEDS 2
 CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
 
@@ -61,8 +65,12 @@ millisDelay ms_blink_leds;
  * Barmeter 28 segment bargraph configuration and timers.
  * Part #: BL28Z-3005SA04Y
  * This will use the following pins for i2c serial communication:
- * SDA -> A4
- * SCL -> A5
+ * Arduino Nano
+ *   SDA -> A4
+ *   SCL -> A5
+ * ESP32
+ *   SDA -> GPIO 21
+ *   SCL -> GPIO 22
  */
 HT16K33 ht_bargraph;
 const uint8_t i_bargraph_delay = 12; // Base delay (ms) for bargraph refresh (this should be a value evenly divisible by 2, 3, or 4).

@@ -34,10 +34,19 @@
 #include "Bargraph.h"
 
 void setup() {
-  Serial.begin(9600);
+  #if defined(ESP32)
+    Serial.begin(115200);
+    Serial2.begin(9600);
+  #else
+    Serial.begin(9600);
+  #endif
 
   // Enable Serial connection for communication with gpstar Proton Pack PCB.
-  packComs.begin(Serial);
+  #if defined(ESP32)
+    packComs.begin(Serial2);
+  #else
+    packComs.begin(Serial);
+  #endif
 
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
