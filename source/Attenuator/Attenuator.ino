@@ -109,8 +109,9 @@ void setup() {
     // ESP32 - Setup WiFi and WebServer
     Serial.println();
     Serial.print("Starting Wireless Access Point: ");
-    char* ap_ssid_suffix = "_1234";
-    bool b_ap_started = WiFi.softAP(ap_ssid_prefix, ap_default_passwd);
+    String macAddr = String(WiFi.macAddress());
+    String ap_ssid_suffix = macAddr.substring(13, 14) + macAddr.substring(16, 17);
+    bool b_ap_started = WiFi.softAP(ap_ssid_prefix + "_" + ap_ssid_suffix, ap_default_passwd);
     delay(100);
     Serial.println(b_ap_started ? "Ready" : "Failed");
 
@@ -119,7 +120,7 @@ void setup() {
       WiFi.softAPConfig(local_ip, gateway, subnet);
       delay(100);
       Serial.print("Device WiFi MAC Address: ");
-      Serial.println(WiFi.macAddress());
+      Serial.println(macAddr);
       Serial.print("Access Point IP Address: ");
       IPAddress IP = WiFi.softAPIP();
       Serial.println(IP);
@@ -127,6 +128,7 @@ void setup() {
 
       // Start the local web server.
       httpServer.on("/", handleRoot);
+      httpServer.on("/data", handleData);
       httpServer.onNotFound(handleNotFound);
       httpServer.begin();
       Serial.println("HTTP Server Started");
@@ -138,8 +140,10 @@ void setup() {
 }
 
 void loop() {
-  // Handle requests by web clients.
-  httpServer.handleClient();
+  #if defined(__XTENSA__)
+    // ESP32 - Handle requests by web clients.
+    httpServer.handleClient();
+  #endif
 
   if(b_wait_for_pack) {
     // Handshake with the pack. Telling the pack that we are here.
@@ -163,7 +167,7 @@ void loop() {
   }
 }
 
-void debug(char* message) {
+void debug(String message) {
   // Write a debug message to the serial console.
   #if defined(__XTENSA__)
     // ESP32

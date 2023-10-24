@@ -24,9 +24,11 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
+#include "index.h" // Web page header file
+
 // Set up the SSID and password for the WiFi access point (AP).
-const char* ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
-char* ap_default_passwd = "555-2368"; // This will be the default password for the AP.
+const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
+String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 
 // Simple networking info
 IPAddress local_ip(192, 168, 1, 2);
@@ -185,7 +187,16 @@ String getRootHTML() {
 void handleRoot() {
   // Used for the root page (/) of the web server.
   Serial.println("Web Root Requested");
-  httpServer.send(200, "text/html", getRootHTML());
+  // httpServer.send(200, "text/html", getRootHTML());
+  String s = MAIN_page; // Read HTML contents from .h file
+  httpServer.send(200, "text/html", s); // Send index page
+}
+
+void handleData() {
+  // Return data for AJAX request by index.
+  int a = 1;
+  String data = String(a);
+  httpServer.send(200, "text/plain", data);
 }
 
 void handleNotFound() {
