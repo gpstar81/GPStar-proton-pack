@@ -37,6 +37,23 @@ IPAddress subnet(255, 255, 255, 0);
 
 WebServer httpServer(80);
 
+String getTheme() {
+  switch(YEAR_MODE) {
+    case YEAR_1984:
+      return "1984";
+    break;
+    case YEAR_1989:
+      return "1989";
+    break;
+    case YEAR_2021:
+      return "Afterlife";
+    break;
+    default:
+      return "Unknown";
+    break;
+  }
+}
+
 String startHTML() {
   // Common header for HTML content from the web server.
   String htmlCode = "<!DOCTYPE html>\n";
@@ -194,9 +211,7 @@ void handleRoot() {
 
 void handleData() {
   // Return data for AJAX request by index.
-  int a = 1;
-  String data = String(a);
-  httpServer.send(200, "text/plain", data);
+  httpServer.send(200, "text/plain", getTheme());
 }
 
 void handleNotFound() {
