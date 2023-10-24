@@ -158,7 +158,7 @@ Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `
 | <font color="green">Green</font> | NPN B → R 270 Ω | Pin D11 |
 | Black                            | NPN E → 1N4001  | GND     |
 
-**Note:** The vibration motor requires use of a transistor as the higher current draw exceeds the maximum 40mA recommended for the Arduino Nano pin.
+**Note:** The vibration motor requires use of a transistor as the higher current draw exceeds the maximum 40mA recommended for the Arduino Nano pin. So we will use an 2N2222/PN2222 or NPN Bipolar Transistor (BJT).
 
 ## Bargraph
 
