@@ -33,25 +33,20 @@
 #include "Colours.h"
 #include "Bargraph.h"
 #if defined(__XTENSA__)
+  // ESP - Include WiFi/Bluetooth
   #include "Wireless.h"
 #endif
 
 void setup() {
+  // Enable Serial connection(s) and communication with gpstar Proton Pack PCB.
   #if defined(__XTENSA__)
-    // ESP32
+    // ESP32 - Serial Console and Device Comms
     Serial.begin(9600);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
-  #else
-    // Nano
-    Serial.begin(9600);
-  #endif
-
-  // Enable Serial connection for communication with gpstar Proton Pack PCB.
-  #if defined(__XTENSA__)
-    // ESP32
     packComs.begin(Serial2);
   #else
     // Nano
+    Serial.begin(9600);
     packComs.begin(Serial);
   #endif
 
@@ -111,7 +106,7 @@ void setup() {
   useVibration(0, 0);
 
   #if defined(__XTENSA__)
-    // ESP32
+    // ESP32 - Setup WiFi and WebServer
     WiFi.softAP(ap_ssid, ap_pswd);
     WiFi.softAPConfig(local_ip, gateway, subnet);
     Serial.println("WiFi AP Started");
