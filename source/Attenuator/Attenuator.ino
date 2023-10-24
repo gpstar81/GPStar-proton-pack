@@ -107,14 +107,30 @@ void setup() {
 
   #if defined(__XTENSA__)
     // ESP32 - Setup WiFi and WebServer
-    WiFi.softAP(ap_ssid, ap_pswd);
-    WiFi.softAPConfig(local_ip, gateway, subnet);
-    Serial.println("WiFi AP Started");
+    Serial.println();
+    Serial.print("Starting Wireless Access Point: ");
+    char* ap_ssid_suffix = "_1234";
+    bool b_ap_started = WiFi.softAP(ap_ssid_prefix, ap_default_passwd);
     delay(100);
-    server.on("/", handleRoot);
-    server.onNotFound(handleNotFound);
-    server.begin();
-    Serial.println("HTTP Server Started");
+    Serial.println(b_ap_started ? "Ready" : "Failed");
+
+    if(b_ap_started) {
+      // Only proceed with AP configuration if started.
+      WiFi.softAPConfig(local_ip, gateway, subnet);
+      delay(100);
+      Serial.print("Device WiFi MAC Address: ");
+      Serial.println(WiFi.macAddress());
+      Serial.print("Access Point IP Address: ");
+      IPAddress IP = WiFi.softAPIP();
+      Serial.println(IP);
+      Serial.println("WiFi AP Started");
+
+      // Start the local web server.
+      httpServer.on("/", handleRoot);
+      httpServer.onNotFound(handleNotFound);
+      httpServer.begin();
+      Serial.println("HTTP Server Started");
+    }
   #endif
 
   // Initialize critical timers.
@@ -122,6 +138,9 @@ void setup() {
 }
 
 void loop() {
+  // Handle requests by web clients.
+  httpServer.handleClient();
+
   if(b_wait_for_pack) {
     // Handshake with the pack. Telling the pack that we are here.
     attenuatorSerialSend(A_HANDSHAKE);
@@ -144,7 +163,7 @@ void loop() {
   }
 }
 
-void debug(char *message) {
+void debug(char* message) {
   // Write a debug message to the serial console.
   #if defined(__XTENSA__)
     // ESP32

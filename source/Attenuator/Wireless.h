@@ -24,16 +24,16 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-// Set up the SSID and password for the WiFi access point
-#define ap_ssid "ProtonPack"
-#define ap_pswd "555-2368"
+// Set up the SSID and password for the WiFi access point (AP).
+const char* ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
+char* ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 
 // Simple networking info
-IPAddress local_ip(192, 168, 1, 1);
+IPAddress local_ip(192, 168, 1, 2);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-WebServer server(80);
+WebServer httpServer(80);
 
 String startHTML() {
   // Common header for HTML content from the web server.
@@ -41,6 +41,7 @@ String startHTML() {
   htmlCode += "<html>\n";
   htmlCode += "<head>\n";
   htmlCode += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
+  htmlCode += "<meta http-equiv=\"refresh\" content=\"2\"/>";
   htmlCode += "<title>Proton Pack Attenuator</title>\n";
   htmlCode += "<style>\n";
   htmlCode += "html { font-family: Open Sans; display: inline-block;, margin: 0px auto; text-align: center; }\n";
@@ -65,21 +66,78 @@ String getRootHTML() {
   String htmlCode = startHTML(); // Start the HTML document
 
   htmlCode += "<h1>Attenuator Control</h1>\n";
-  htmlCode += "<p>Hello World!</p></br>\n";
+
+  htmlCode += "<p><b>Year Theme:</b> ";
   switch(YEAR_MODE) {
     case YEAR_1984:
-      htmlCode += "<p>Year Theme: 1984</p></br>\n";
+      htmlCode += "1984";
     break;
     case YEAR_1989:
-      htmlCode += "<p>Year Theme: 1989</p></br>\n";
+      htmlCode += "1989";
     break;
     case YEAR_2021:
-      htmlCode += "<p>Year Theme: Afterlife</p></br>\n";
+      htmlCode += "Afterlife";
     break;
     default:
-      htmlCode += "<p>Year Theme: Unknown</p></br>\n";
+      htmlCode += "Unknown";
     break;
   }
+  htmlCode += "</p></br>\n";
+
+  htmlCode += "<p><b>Firing Mode:</b> ";
+  switch(FIRING_MODE) {
+    case PROTON:
+      htmlCode += "Proton";
+    break;
+    case SLIME:
+      htmlCode += "Slime";
+    break;
+    case STASIS:
+      htmlCode += "Stasis";
+    break;
+    case MESON:
+      htmlCode += "Meson";
+    break;
+    case SPECTRAL:
+      htmlCode += "Spectral";
+    break;
+    case HOLIDAY:
+      htmlCode += "Holiday";
+    break;
+    case SPECTRAL_CUSTOM:
+      htmlCode += "Custom";
+    break;
+    case VENTING:
+      htmlCode += "Venting";
+    break;
+    case SETTINGS:
+      htmlCode += "Settings";
+    break;
+    default:
+      htmlCode += "Unknown";
+    break;
+  }
+  htmlCode += "</p></br>\n";
+
+  htmlCode += "<p><b>Power Level:</b> ";
+  switch(POWER_LEVEL) {
+    case LEVEL_1:
+      htmlCode += "1";
+    break;
+    case LEVEL_2:
+      htmlCode += "2";
+    break;
+    case LEVEL_3:
+      htmlCode += "3";
+    break;
+    case LEVEL_4:
+      htmlCode += "4";
+    break;
+    case LEVEL_5:
+      htmlCode += "5";
+    break;
+  }
+  htmlCode += "</p></br>\n";
 
   htmlCode += endHTML(); // Close the HTML document
   return htmlCode;
@@ -88,11 +146,11 @@ String getRootHTML() {
 void handleRoot() {
   // Used for the root page (/) of the web server.
   Serial.println("Web Root Requested");
-  server.send(200, "text/html", getRootHTML());
+  httpServer.send(200, "text/html", getRootHTML());
 }
 
 void handleNotFound() {
   // Returned for any invalid URL requested.
   Serial.println("Web Not Found");
-  server.send(404, "text/plain", "Not Found");
+  httpServer.send(404, "text/plain", "Not Found");
 }
