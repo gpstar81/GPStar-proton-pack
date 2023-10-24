@@ -32,6 +32,9 @@
 #include "Header.h"
 #include "Colours.h"
 #include "Bargraph.h"
+#if defined(__XTENSA__)
+  #include "Wireless.h"
+#endif
 
 void setup() {
   #if defined(__XTENSA__)
@@ -106,6 +109,18 @@ void setup() {
   // Turn off any user feedback.
   noTone(BUZZER_PIN);
   useVibration(0, 0);
+
+  #if defined(__XTENSA__)
+    // ESP32
+    WiFi.softAP(ap_ssid, ap_pswd);
+    WiFi.softAPConfig(local_ip, gateway, subnet);
+    Serial.println("WiFi AP Started");
+    delay(100);
+    server.on("/", handleRoot);
+    server.onNotFound(handleNotFound);
+    server.begin();
+    Serial.println("HTTP Server Started");
+  #endif
 
   // Initialize critical timers.
   ms_fast_led.start(1);
