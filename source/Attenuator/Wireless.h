@@ -42,12 +42,21 @@ String startHTML() {
   htmlCode += "<head>\n";
   htmlCode += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
   htmlCode += "<meta http-equiv=\"refresh\" content=\"2\"/>";
-  htmlCode += "<title>Proton Pack Attenuator</title>\n";
+  htmlCode += "<title>Proton Pack</title>\n";
   htmlCode += "<style>\n";
   htmlCode += "html { font-family: Open Sans; display: inline-block;, margin: 0px auto; text-align: center; }\n";
   htmlCode += "body { margin-top: 100px; }\n";
   htmlCode += "h1 { color: #333; margin: 30px auto 30px; }\n";
   htmlCode += "h3 { color: #555; margin-bottom: 50px; }\n";
+  htmlCode += "proton { color: red; }\n";
+  htmlCode += "slime { color: green; }\n";
+  htmlCode += "statis { color: blue; }\n";
+  htmlCode += "meson { color: orange; }\n";
+  htmlCode += "spectral { color: purple; }\n";
+  htmlCode += "holiday { color: purple; }\n";
+  htmlCode += "custom { color: purple; }\n";
+  htmlCode += "venting { color: maroon; }\n";
+  htmlCode += "settings { color: gray; }\n";
   htmlCode += "p { font-size: 18px; color: #888; margin-bottom: 10px; }\n";
   htmlCode += "</style>\n";
   htmlCode += "</head>\n";
@@ -65,9 +74,9 @@ String endHTML() {
 String getRootHTML() {
   String htmlCode = startHTML(); // Start the HTML document
 
-  htmlCode += "<h1>Attenuator Control</h1>\n";
+  htmlCode += "<h1>Equipment Status</h1>\n";
 
-  htmlCode += "<p><b>Year Theme:</b> ";
+  htmlCode += "<p><b>Operating Mode:</b> ";
   switch(YEAR_MODE) {
     case YEAR_1984:
       htmlCode += "1984";
@@ -87,31 +96,31 @@ String getRootHTML() {
   htmlCode += "<p><b>Firing Mode:</b> ";
   switch(FIRING_MODE) {
     case PROTON:
-      htmlCode += "Proton";
+      htmlCode += "<span class=\"proton\">Proton</span>";
     break;
     case SLIME:
-      htmlCode += "Slime";
+      htmlCode += "<span class=\"slime\">Slime</span>";
     break;
     case STASIS:
-      htmlCode += "Stasis";
+      htmlCode += "<span class=\"stasis\">Stasis</span>";
     break;
     case MESON:
-      htmlCode += "Meson";
+      htmlCode += "<span class=\"meson\">Meson</span>";
     break;
     case SPECTRAL:
-      htmlCode += "Spectral";
+      htmlCode += "<span class=\"spectral\">Spectral</span>";
     break;
     case HOLIDAY:
-      htmlCode += "Holiday";
+      htmlCode += "<span class=\"holiday\">Holiday</span>";
     break;
     case SPECTRAL_CUSTOM:
-      htmlCode += "Custom";
+      htmlCode += "<span class=\"custom\">Custom</span>";
     break;
     case VENTING:
-      htmlCode += "Venting";
+      htmlCode += "<span class=\"venting\">Venting</span>";
     break;
     case SETTINGS:
-      htmlCode += "Settings";
+      htmlCode += "<span class=\"settings\">Settings</span>";
     break;
     default:
       htmlCode += "Unknown";
@@ -137,6 +146,36 @@ String getRootHTML() {
       htmlCode += "5";
     break;
   }
+  htmlCode += "</p></br>\n";
+
+  htmlCode += "<p><b>Neutrona Wand State:</b> ";
+  htmlCode += (b_firing ? "Firing" : "Idle");
+  htmlCode += "</p></br>\n";
+
+  htmlCode += "<p><b>Ribbon Cable State:</b> ";
+  htmlCode += (b_pack_alarm ? "Disconnected" : "Connected");
+  htmlCode += "</p></br>\n";
+
+  htmlCode += "<p><b>Cyclotron State:</b> ";
+  switch(i_speed_multiplier) {
+    case 1:
+      htmlCode += "Normal";
+    break;
+    case 2:
+      htmlCode += "Active";
+    break;
+    case 3:
+      htmlCode += "Warning";
+    break;
+    case 4:
+    case 5:
+      htmlCode += "Critical";
+    break;
+  }
+  htmlCode += "</p></br>\n";
+
+  htmlCode += "<p><b>Overheat State:</b> ";
+  htmlCode += (b_overheating ? "Venting" : "Normal");
   htmlCode += "</p></br>\n";
 
   htmlCode += endHTML(); // Close the HTML document
