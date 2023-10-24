@@ -88,20 +88,20 @@ void setup() {
   pinMode(r_encoderB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
+  // Setup the bargraph after a brief delay.
+  delay(10);
+  setupBargraph();
+
   // Feedback devices (piezo buzzer and vibration motor)
   pinMode(BUZZER_PIN, OUTPUT);
   #if defined(__XTENSA__)
     // ESP32
-    ledcSetup(1, 500, 8);
+    ledcSetup(1, 5000, 8);
     ledcAttachPin(VIBRATION_PIN, 1);
   #else
     // Nano
     pinMode(VIBRATION_PIN, OUTPUT);
   #endif
-
-  // Setup the bargraph after a brief delay.
-  delay(10);
-  setupBargraph();
 
   // Turn off any user feedback.
   noTone(BUZZER_PIN);
