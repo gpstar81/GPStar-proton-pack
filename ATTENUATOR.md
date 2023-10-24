@@ -151,14 +151,16 @@ Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `
 | <font color="red">Red</font> | → | Pin D10 |
 | Black                        | → | GND     |
 
-| VIBRATION MOTOR            | Component(s) | Nano Pin |
-|----------------------------|--------------|----------|
-| <font color="red">Red</font>     | →      | 3V3 |
-| <font color="blue">Blue</font>   | NPN C  |     |
-| <font color="green">Green</font> | NPN B → R 270 Ω | Pin D11 |
-| Black                            | NPN E → 1N4001  | GND     |
+| VIBRATION MOTOR            | Component(s) | Component(s) | Nano Pin |
+|----------------------------|--------------|--------------|----------|
+| <font color="red">Red</font>   | 1N4001 (s) | →      | 3V3 |
+| <font color="blue">Blue</font> | 1N4001     | NPN C  |     |
+|                                |            | NPN B  | R 270 Ω → Pin D11 |
+|                                |            | NPN E  | GND |
 
-**Note:** The vibration motor requires use of a transistor as the higher current draw exceeds the maximum 40mA recommended for the Arduino Nano pin. So we will use an 2N2222/PN2222 or NPN Bipolar Transistor (BJT).
+**Note:** The vibration motor (60mA) requires use of a transistor as the higher current draw exceeds the maximum 40mA recommended for the microcontroller's pin. To safely deliver power we will use an 2N2222/2N5551, an NPN Bipolar Transistor (BJT). A diode is recommended as this is a motor and thus could cause a small induction current in reverse when power is removed.
+
+![](images/VibrationMotor.jpg)
 
 ## Bargraph
 
