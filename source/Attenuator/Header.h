@@ -23,7 +23,7 @@
  */
 #if defined(__XTENSA__)
   // ESP32
-  #define ATTENUATOR_LED_PIN 5
+  #define ATTENUATOR_LED_PIN 23
 #else
   // Nano
   #define ATTENUATOR_LED_PIN 9
@@ -131,13 +131,15 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
   // ESP32
   #define LEFT_TOGGLE_PIN 34
   #define RIGHT_TOGGLE_PIN 35
+  ezButton switch_left(LEFT_TOGGLE_PIN, INPUT);
+  ezButton switch_right(RIGHT_TOGGLE_PIN, INPUT);
 #else
   // Nano
   #define LEFT_TOGGLE_PIN 5
   #define RIGHT_TOGGLE_PIN 6
+  ezButton switch_left(LEFT_TOGGLE_PIN, INPUT_PULLUP);
+  ezButton switch_right(RIGHT_TOGGLE_PIN, INPUT_PULLUP);
 #endif
-ezButton switch_left(LEFT_TOGGLE_PIN);
-ezButton switch_right(RIGHT_TOGGLE_PIN);
 
 /*
  * Debounce Settings
@@ -152,12 +154,14 @@ const uint8_t rotary_debounce_time = 80;
   // ESP32
   #define r_encoderA 32
   #define r_encoderB 33
+  #define r_button 4
 #else
   // Nano
   #define r_encoderA 2
   #define r_encoderB 3
+  #define r_button 4
 #endif
-ezButton encoder_center(4); // For center-press on encoder dial.
+ezButton encoder_center(r_button); // For center-press on encoder dial.
 millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
 millisDelay ms_center_double_tap; // Timer for determinine when a double-tap was detected.
 millisDelay ms_center_long_press; // Timer for determining when a long press was detected.
