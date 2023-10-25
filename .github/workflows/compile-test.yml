@@ -75,6 +75,7 @@ jobs:
               - name: simple ht16k33 library
               - name: AltSoftSerial
               - name: SerialTransfer
+              - name: ArduinoJson
               - source-url: https://github.com/ansonhe97/millisDelay.git
             verbose: true
       # This step is needed to pass the size data to the report job

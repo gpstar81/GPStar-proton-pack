@@ -110,8 +110,10 @@ void setup() {
     Serial.println();
     Serial.print("Starting Wireless Access Point: ");
     String macAddr = String(WiFi.macAddress());
-    String ap_ssid_suffix = macAddr.substring(13, 14) + macAddr.substring(16, 17);
-    bool b_ap_started = WiFi.softAP(ap_ssid_prefix + "_" + ap_ssid_suffix, ap_default_passwd);
+    // Create an AP name unique to this device, to avoid stepping on others.
+    String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
+    String ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix;
+    bool b_ap_started = WiFi.softAP(ap_ssid, ap_default_passwd);
     delay(100);
     Serial.println(b_ap_started ? "Ready" : "Failed");
 
@@ -124,7 +126,8 @@ void setup() {
       Serial.print("Access Point IP Address: ");
       IPAddress IP = WiFi.softAPIP();
       Serial.println(IP);
-      Serial.println("WiFi AP Started");
+      Serial.print("WiFi AP Started as ");
+      Serial.println(ap_ssid);
 
       // Start the local web server.
       httpServer.on("/", handleRoot);

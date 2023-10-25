@@ -23,10 +23,11 @@
  */
 #include <WiFi.h>
 #include <WebServer.h>
+#include <ArduinoJson.h>
 
 #include "index.h" // Web page header file
 
-// Set up the SSID and password for the WiFi access point (AP).
+// Set up values for the SSID and password for the WiFi access point (AP).
 const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 
@@ -54,151 +55,77 @@ String getTheme() {
   }
 }
 
-String startHTML() {
-  // Common header for HTML content from the web server.
-  String htmlCode = "<!DOCTYPE html>\n";
-  htmlCode += "<html>\n";
-  htmlCode += "<head>\n";
-  htmlCode += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
-  htmlCode += "<meta http-equiv=\"refresh\" content=\"2\"/>";
-  htmlCode += "<title>Proton Pack</title>\n";
-  htmlCode += "<style>\n";
-  htmlCode += "html { font-family: Open Sans; display: inline-block;, margin: 0px auto; text-align: center; }\n";
-  htmlCode += "body { margin-top: 100px; }\n";
-  htmlCode += "h1 { color: #333; margin: 30px auto 30px; }\n";
-  htmlCode += "h3 { color: #555; margin-bottom: 50px; }\n";
-  htmlCode += "proton { color: red; }\n";
-  htmlCode += "slime { color: green; }\n";
-  htmlCode += "statis { color: blue; }\n";
-  htmlCode += "meson { color: orange; }\n";
-  htmlCode += "spectral { color: purple; }\n";
-  htmlCode += "holiday { color: purple; }\n";
-  htmlCode += "custom { color: purple; }\n";
-  htmlCode += "venting { color: maroon; }\n";
-  htmlCode += "settings { color: gray; }\n";
-  htmlCode += "p { font-size: 18px; color: #888; margin-bottom: 10px; }\n";
-  htmlCode += "</style>\n";
-  htmlCode += "</head>\n";
-  htmlCode += "<body>\n";
-  return htmlCode;
-}
-
-String endHTML() {
-  // Common footer for HTML content from the web server.
-  String htmlCode = "</body>\n";
-  htmlCode += "</html>";
-  return htmlCode;
-}
-
-String getRootHTML() {
-  String htmlCode = startHTML(); // Start the HTML document
-
-  htmlCode += "<h1>Equipment Status</h1>\n";
-
-  htmlCode += "<p><b>Operating Mode:</b> ";
-  switch(YEAR_MODE) {
-    case YEAR_1984:
-      htmlCode += "1984";
-    break;
-    case YEAR_1989:
-      htmlCode += "1989";
-    break;
-    case YEAR_2021:
-      htmlCode += "Afterlife";
-    break;
-    default:
-      htmlCode += "Unknown";
-    break;
-  }
-  htmlCode += "</p></br>\n";
-
-  htmlCode += "<p><b>Firing Mode:</b> ";
+String getMode() {
   switch(FIRING_MODE) {
     case PROTON:
-      htmlCode += "<span class=\"proton\">Proton</span>";
+      return "Proton";
     break;
     case SLIME:
-      htmlCode += "<span class=\"slime\">Slime</span>";
+      return "Slime";
     break;
     case STASIS:
-      htmlCode += "<span class=\"stasis\">Stasis</span>";
+      return "Stasis";
     break;
     case MESON:
-      htmlCode += "<span class=\"meson\">Meson</span>";
+      return "Meson";
     break;
     case SPECTRAL:
-      htmlCode += "<span class=\"spectral\">Spectral</span>";
+      return "Spectral";
     break;
     case HOLIDAY:
-      htmlCode += "<span class=\"holiday\">Holiday</span>";
+      return "Holiday";
     break;
     case SPECTRAL_CUSTOM:
-      htmlCode += "<span class=\"custom\">Custom</span>";
+      return "Custom";
     break;
     case VENTING:
-      htmlCode += "<span class=\"venting\">Venting</span>";
+      return "Venting";
     break;
     case SETTINGS:
-      htmlCode += "<span class=\"settings\">Settings</span>";
+      return "Settings";
     break;
     default:
-      htmlCode += "Unknown";
+      return "Unknown";
     break;
   }
-  htmlCode += "</p></br>\n";
+}
 
-  htmlCode += "<p><b>Power Level:</b> ";
+String getPower() {
   switch(POWER_LEVEL) {
     case LEVEL_1:
-      htmlCode += "1";
+      return "1";
     break;
     case LEVEL_2:
-      htmlCode += "2";
+      return "2";
     break;
     case LEVEL_3:
-      htmlCode += "3";
+      return "3";
     break;
     case LEVEL_4:
-      htmlCode += "4";
+      return "4";
     break;
     case LEVEL_5:
-      htmlCode += "5";
+      return "5";
     break;
   }
-  htmlCode += "</p></br>\n";
+}
 
-  htmlCode += "<p><b>Neutrona Wand State:</b> ";
-  htmlCode += (b_firing ? "Firing" : "Idle");
-  htmlCode += "</p></br>\n";
-
-  htmlCode += "<p><b>Ribbon Cable State:</b> ";
-  htmlCode += (b_pack_alarm ? "Disconnected" : "Connected");
-  htmlCode += "</p></br>\n";
-
-  htmlCode += "<p><b>Cyclotron State:</b> ";
+String getCyclotronState() {
   switch(i_speed_multiplier) {
     case 1:
-      htmlCode += "Normal";
+      return "Normal";
     break;
     case 2:
-      htmlCode += "Active";
+      return "Active";
     break;
     case 3:
-      htmlCode += "Warning";
+      return "Warning";
     break;
     case 4:
     case 5:
-      htmlCode += "Critical";
+      return "Critical";
     break;
   }
-  htmlCode += "</p></br>\n";
-
-  htmlCode += "<p><b>Overheat State:</b> ";
-  htmlCode += (b_overheating ? "Venting" : "Normal");
-  htmlCode += "</p></br>\n";
-
-  htmlCode += endHTML(); // Close the HTML document
-  return htmlCode;
 }
 
 void handleRoot() {
@@ -211,7 +138,18 @@ void handleRoot() {
 
 void handleData() {
   // Return data for AJAX request by index.
-  httpServer.send(200, "text/plain", getTheme());
+  StaticJsonDocument<400> doc;
+  doc["theme"] = getTheme();
+  doc["mode"] = getMode();
+  doc["pack"] = (b_pack_on ? "Powered" : "Idle");
+  doc["power"] = getPower();
+  doc["wand"] = (b_firing ? "Firing" : "Idle");
+  doc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
+  doc["cyclotron"] = getCyclotronState();
+  doc["temperature"] = (b_overheating ? "Venting" : "Normal");
+  String data;
+  serializeJson(doc, data);
+  httpServer.send(200, "application/json", data);
 }
 
 void handleNotFound() {

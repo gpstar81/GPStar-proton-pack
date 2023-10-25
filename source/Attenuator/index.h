@@ -6,18 +6,19 @@ const char MAIN_page[] PROGMEM = R"=====(
   <title>Proton Pack</title>
   <style>
   html { font-family: Open Sans; display: inline-block;, margin: 0px auto; text-align: center; }
-  body { margin-top: 20px; }
-  h1 { color: #333; margin: 20px auto 20px; }
-  h3 { color: #555; margin-bottom: 20px; }
+  body { margin-top: 10px; }
+  h1 { color: #222; margin: 10px auto 10px; }
+  p { font-size: 20px; margin-bottom: 5px; }
   .card{
-    max-width: 400px;
-    min-height: 250px;
-    background: #02b875;
-    padding: 30px;
+    background: #ddd;
     box-sizing: border-box;
-    color: #FFF;
-    margin:20px;
-    box-shadow: 0px 2px 18px -4px rgba(0,0,0,0.75);
+    box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
+    color: #444;
+    margin: 20px 10px 20px 10px;
+    max-width: 400px;
+    min-height: 200px;
+    padding: 20px;
+    text-align: left;
   }
   </style>
 </head>
@@ -25,23 +26,37 @@ const char MAIN_page[] PROGMEM = R"=====(
 
 <h1>Equipment Status</h2><br>
 <div class="card">
-  <h3>Operating Mode: <span id="theme"></span></h3><br/>
+  <p><b>Operating Mode:</b> <span id="theme">...</span></p>
+  <p><b>Firing Mode:</b> <span id="mode">...</span></p>
+  <p><b>Pack State:</b> <span id="pack">...</span></p>
+  <p><b>Power Level:</b> <span id="power">...</span></p>
+  <p><b>Neutrona Wand:</b> <span id="wand">...</span></p>
+  <p><b>Ribbon Cable:</b> <span id="cable">...</span></p>
+  <p><b>Cyclotron State:</b> <span id="cyclotron">...</span></p>
+  <p><b>Overheat State:</b> <span id="temperature">...</span></p>
 </div>
 
 <script>
   setInterval(function() {
-    getData(); // Check for new data every 2 seconds
-  }, 2000);
+    getData(); // Check for new data every X seconds
+  }, 1000);
 
   function getData() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
-        //var jObj = JSON.parse(this.responseText);
-        document.getElementById("theme").innerHTML = this.responseText;
+        var jObj = JSON.parse(this.responseText);
+        document.getElementById("theme").innerHTML = jObj.theme || "...";
+        document.getElementById("mode").innerHTML = jObj.mode || "...";
+        document.getElementById("pack").innerHTML = jObj.pack || "...";
+        document.getElementById("power").innerHTML = jObj.power || "...";
+        document.getElementById("wand").innerHTML = jObj.wand || "...";
+        document.getElementById("cable").innerHTML = jObj.cable || "...";
+        document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
+        document.getElementById("temperature").innerHTML = jObj.temperature || "...";
       }
     };
-    xhttp.open("GET", "readADC", true);
+    xhttp.open("GET", "/data", true);
     xhttp.send();
   }
 </script>
