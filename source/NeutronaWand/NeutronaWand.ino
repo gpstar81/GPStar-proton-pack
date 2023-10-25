@@ -59,13 +59,9 @@
 void setup() {
   Serial.begin(9600);
 
-  // Enable Serial1 if compiling for the gpstar Neutrona Wand microcontroller.
-  #ifdef HAVE_HWSERIAL1
-    Serial1.begin(9600);
-    wandComs.begin(Serial1, false);
-  #else
-    wandComs.begin(Serial, false);
-  #endif
+  // Enable communication to the Proton Pack.
+  Serial1.begin(9600);
+  wandComs.begin(Serial1, false);
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
@@ -2031,6 +2027,11 @@ void wandOff() {
   stopEffect(S_WAND_SHUTDOWN);
   playEffect(S_WAND_SHUTDOWN);
 
+  // Clear counter until user begins firing.
+  i_bmash_count = 0;
+
+  barrelLightsOff();
+
   // Turn off some timers.
   ms_bargraph_firing.stop();
   ms_overheat_initiate.stop();
@@ -2039,21 +2040,16 @@ void wandOff() {
   ms_hat_1.stop();
   ms_hat_2.stop();
 
-  // Clear counter until user begins firing.
-  i_bmash_count = 0;
-
-  barrelLightsOff();
-
   switch(WAND_STATUS) {
     case MODE_OFF:
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
-          // Let the checkSwitches() function in the main loop handle most things.
+          // checkSwitches() function in the main loop is handling the bargraph checks.
 
           // Reset the bargraph speeds.
           if(b_bargraph_always_ramping != true) {
-            ms_bargraph.stop();
-            ms_bargraph_alt.stop();
+            //ms_bargraph.stop();
+            //ms_bargraph_alt.stop();
 
             bargraphYearModeUpdate();
           }
@@ -3094,7 +3090,7 @@ void modeFireStop() {
         i_bargraph_status_alt = 0;
         
         if((b_28segment_bargraph == true && b_bargraph_always_ramping != true) || b_28segment_bargraph != true) {
-          // Reset and redrawll all the proper segments for the bargraph.
+          // Reset and redraw all the proper segments for the bargraph.
           bargraphRedraw();
 
           // Restart the bargraph idling loop.
@@ -5112,6 +5108,9 @@ void bargraphPowerCheck() {
               if(i_tmp_year_mode == 2021 && b_bargraph_always_ramping != true) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
+
+                // Reset and redraw all the proper segments for the bargraph.
+                //bargraphRedraw();
               }
               else {
                 // A little pause when we reach the top.
@@ -5185,6 +5184,9 @@ void bargraphPowerCheck() {
               if(i_tmp_year_mode == 2021 && i_bargraph_status_alt < 5 && b_bargraph_always_ramping != true) {
                 // In 2021 mode, we stop when we reach our target.
                 ms_bargraph_alt.stop();
+
+                // Reset and redraw all the proper segments for the bargraph.
+                //bargraphRedraw();                
               }
               else {
                 ms_bargraph_alt.start(i_bargraph_interval * 7);
@@ -5426,7 +5428,7 @@ void bargraphRampUp() {
                     if(i_bargraph_status_alt == 50) {
                       ms_bargraph.stop();
                       b_bargraph_up = false;
-                      i_bargraph_status_alt = 4;
+                      i_bargraph_status_alt = 5;
                       bargraphYearModeUpdate();
                     }
                     else {

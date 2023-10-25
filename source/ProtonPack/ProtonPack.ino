@@ -175,7 +175,7 @@ void setup() {
   ms_check_music.start(i_music_check_delay);
 
   // Default mode is the idealised SUPER_HERO.
-  SYSTEM_MODE = MODE_ORIGINAL;
+  SYSTEM_MODE = MODE_SUPERHERO;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
