@@ -7,17 +7,17 @@ const char MAIN_page[] PROGMEM = R"=====(
   <style>
   html { font-family: Open Sans; display: inline-block;, margin: 0px auto; text-align: center; }
   body { margin-top: 10px; }
-  h1 { color: #222; margin: 10px auto 10px; }
+  h1 { color: #222; margin: 10px auto; }
   p { font-size: 20px; margin-bottom: 5px; }
   .card{
     background: #ddd;
     box-sizing: border-box;
     box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
     color: #444;
-    margin: 20px 5px 20px 10px;
+    margin: 10px 20px 10px 20px;
     max-width: 400px;
     min-height: 200px;
-    padding: 20px 5px 20px 10px;
+    padding: 10px 20px 10px 20px;
     text-align: left;
   }
   </style>

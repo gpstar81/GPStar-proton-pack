@@ -26,7 +26,7 @@ jobs:
               - name: AltSoftSerial
               - name: SerialTransfer
               - source-url: https://github.com/ansonhe97/millisDelay.git
-            verbose: true
+            verbose: false
       # This step is needed to pass the size data to the report job
       - name: Upload sketches report to workflow artifact
         uses: actions/upload-artifact@v3
@@ -51,7 +51,7 @@ jobs:
               - name: AltSoftSerial
               - name: SerialTransfer
               - source-url: https://github.com/ansonhe97/millisDelay.git
-            verbose: true
+            verbose: false
       # This step is needed to pass the size data to the report job
       - name: Upload sketches report to workflow artifact
         uses: actions/upload-artifact@v3
@@ -77,7 +77,7 @@ jobs:
               - name: SerialTransfer
               - name: ArduinoJson
               - source-url: https://github.com/ansonhe97/millisDelay.git
-            verbose: true
+            verbose: false
       # This step is needed to pass the size data to the report job
       - name: Upload sketches report to workflow artifact
         uses: actions/upload-artifact@v3
