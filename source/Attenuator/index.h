@@ -14,10 +14,10 @@ const char MAIN_page[] PROGMEM = R"=====(
     box-sizing: border-box;
     box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
     color: #444;
-    margin: 20px 10px 20px 10px;
+    margin: 20px 5px 20px 10px;
     max-width: 400px;
     min-height: 200px;
-    padding: 20px;
+    padding: 20px 5px 20px 10px;
     text-align: left;
   }
   </style>
@@ -27,7 +27,7 @@ const char MAIN_page[] PROGMEM = R"=====(
 <h1>Equipment Status</h2><br>
 <div class="card">
   <p><b>Operating Mode:</b> <span id="theme">...</span></p>
-  <p><b>Firing Mode:</b> <span id="mode">...</span></p>
+  <p><b>Device Mode:</b> <span id="mode">...</span></p>
   <p><b>Pack State:</b> <span id="pack">...</span></p>
   <p><b>Power Level:</b> <span id="power">...</span></p>
   <p><b>Neutrona Wand:</b> <span id="wand">...</span></p>

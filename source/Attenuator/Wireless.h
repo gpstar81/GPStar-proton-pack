@@ -91,49 +91,52 @@ String getMode() {
 }
 
 String getPower() {
+  String level;
   switch(POWER_LEVEL) {
     case LEVEL_1:
-      return "1";
+      level = "1";
     break;
     case LEVEL_2:
-      return "2";
+      level = "2";
     break;
     case LEVEL_3:
-      return "3";
+      level = "3";
     break;
     case LEVEL_4:
-      return "4";
+      level = "4";
     break;
     case LEVEL_5:
-      return "5";
+      level = "5";
     break;
   }
+  return level;
 }
 
 String getCyclotronState() {
+  String state;
   switch(i_speed_multiplier) {
     case 1:
-      return "Normal";
+      state = "Normal";
     break;
     case 2:
-      return "Active";
+      state = "Active";
     break;
     case 3:
-      return "Warning";
+      state = "Warning";
     break;
     case 4:
     case 5:
-      return "Critical";
+      state = "Critical";
     break;
   }
+  return state;
 }
 
 void handleRoot() {
   // Used for the root page (/) of the web server.
   Serial.println("Web Root Requested");
-  // httpServer.send(200, "text/html", getRootHTML());
-  String s = MAIN_page; // Read HTML contents from .h file
-  httpServer.send(200, "text/html", s); // Send index page
+  String s = MAIN_page; // Read HTML contents from .h file.
+  httpServer.send(200, "text/html", s); // Send index page.
 }
 
 void handleData() {
@@ -148,7 +151,7 @@ void handleData() {
   doc["cyclotron"] = getCyclotronState();
   doc["temperature"] = (b_overheating ? "Venting" : "Normal");
   String data;
-  serializeJson(doc, data);
+  serializeJson(doc, data); // Serialize to string.
   httpServer.send(200, "application/json", data);
 }
 
