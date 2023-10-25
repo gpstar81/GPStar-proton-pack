@@ -91,45 +91,43 @@ String getMode() {
 }
 
 String getPower() {
-  String level;
   switch(POWER_LEVEL) {
     case LEVEL_1:
-      level = "1";
+      return "1";
     break;
     case LEVEL_2:
-      level = "2";
+      return "2";
     break;
     case LEVEL_3:
-      level = "3";
+      return "3";
     break;
     case LEVEL_4:
-      level = "4";
+      return "4";
     break;
     case LEVEL_5:
-      level = "5";
+      return "5";
+    break;
+    default:
+      return "-";
     break;
   }
-  return level;
 }
 
 String getCyclotronState() {
-  String state;
   switch(i_speed_multiplier) {
     case 1:
-      state = "Normal";
+      return (b_overheating ? "Recovery" : "Normal");
     break;
     case 2:
-      state = "Active";
+      return "Active";
     break;
     case 3:
-      state = "Warning";
+      return "Warning";
     break;
-    case 4:
-    case 5:
-      state = "Critical";
+    default:
+      return "Critical";
     break;
   }
-  return state;
 }
 
 void handleRoot() {
