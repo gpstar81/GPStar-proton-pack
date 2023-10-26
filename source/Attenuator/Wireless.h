@@ -152,20 +152,32 @@ void handleRoot() {
   httpServer.send(200, "text/html", s); // Send index page.
 }
 
-void handleData() {
+void handleStatus() {
   // Return data for AJAX request by index.
-  StaticJsonDocument<400> doc;
-  doc["theme"] = getTheme();
-  doc["mode"] = getMode();
-  doc["pack"] = (b_pack_on ? "Powered" : "Idle");
-  doc["power"] = getPower();
-  doc["wand"] = (b_firing ? "Firing" : "Idle");
-  doc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
-  doc["cyclotron"] = getCyclotronState();
-  doc["temperature"] = (b_overheating ? "Venting" : "Normal");
-  String data;
-  serializeJson(doc, data); // Serialize to string.
-  httpServer.send(200, "application/json", data);
+  StaticJsonDocument<400> json;
+  json["theme"] = getTheme();
+  json["mode"] = getMode();
+  json["pack"] = (b_pack_on ? "Powered" : "Idle");
+  json["power"] = getPower();
+  json["wand"] = (b_firing ? "Firing" : "Idle");
+  json["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
+  json["cyclotron"] = getCyclotronState();
+  json["temperature"] = (b_overheating ? "Venting" : "Normal");
+  String status;
+  serializeJson(json, status); // Serialize to string.
+  httpServer.send(200, "application/json", status);
+}
+
+void handlePackOn() {
+  Serial.println("Pack On");
+  attenuatorSerialSend(A_TURN_PACK_ON);
+  httpServer.send(200, "text/plain", "OK");
+}
+
+void handlePackOff() {
+  Serial.println("Pack Off");
+  attenuatorSerialSend(A_TURN_PACK_OFF);
+  httpServer.send(200, "text/plain", "OK");
 }
 
 void handleToggleMute() {
@@ -216,6 +228,12 @@ void handlePrevMusicTrack() {
   httpServer.send(200, "text/plain", "OK");
 }
 
+void handleCancelWarning() {
+  Serial.println("Cancel Overheat Warning");
+  attenuatorSerialSend(A_WARNING_CANCELLED);
+  httpServer.send(200, "text/plain", "OK");
+}
+
 void handleNotFound() {
   // Returned for any invalid URL requested.
   Serial.println("Web Not Found");
@@ -225,15 +243,18 @@ void handleNotFound() {
 // Define server actions after declaring all functions for URL routing.
 void startWebServer() {
   httpServer.on("/", handleRoot);
-  httpServer.on("/data", handleData);
-  httpServer.on("/mute", handleToggleMute);
-  httpServer.on("/mvu", handleMasterVolumeUp);
-  httpServer.on("/mvd", handleMasterVolumeDown);
-  httpServer.on("/evu", handleEffectsVolumeUp);
-  httpServer.on("/evd", handleEffectsVolumeDown);
-  httpServer.on("/music", handleMusicStartStop);
-  httpServer.on("/next", handleNextMusicTrack);
-  httpServer.on("/prev", handlePrevMusicTrack);
+  httpServer.on("/status", handleStatus);
+  httpServer.on("/pack/on", handlePackOn);
+  httpServer.on("/pack/of", handlePackOff);
+  httpServer.on("/pack/cancel", handleCancelWarning);
+  httpServer.on("/volume/mute", handleToggleMute);
+  httpServer.on("/volume/master/up", handleMasterVolumeUp);
+  httpServer.on("/volume/master/down", handleMasterVolumeDown);
+  httpServer.on("/volume/effects/up", handleEffectsVolumeUp);
+  httpServer.on("/volume/effects/down", handleEffectsVolumeDown);
+  httpServer.on("/music/toggle", handleMusicStartStop);
+  httpServer.on("/music/next", handleNextMusicTrack);
+  httpServer.on("/music/prev", handlePrevMusicTrack);
   httpServer.onNotFound(handleNotFound);
   httpServer.begin();
   Serial.println("HTTP Server Started");
