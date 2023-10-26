@@ -10,8 +10,8 @@ const char MAIN_page[] PROGMEM = R"=====(
     body { margin-top: 10px; }
     h1 { color: #222; margin: 15px; }
     h3 { color: #333; margin: 10px; }
-    p { font-size: 20px; margin-bottom: 5px; }
-    .card{
+    p { font-size: 18px; margin-bottom: 5px; }
+    .card {
       background: #ddd;
       box-sizing: border-box;
       box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
@@ -22,14 +22,18 @@ const char MAIN_page[] PROGMEM = R"=====(
       padding: 10px 20px 10px 20px;
       text-align: left;
     }
+    .info {
+      font-family: courier, courier new, serif;
+    }
     button {
       background-color: #555;
       border-radius: 8px;
       box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
       color: white;
       margin: 5px;
-      padding: 10px 24px;
+      padding: 10px 14px;
       max-width: 100px;
+      text-align: center;
       width: 120px;
     }
     .blue {
@@ -195,21 +199,21 @@ const char MAIN_page[] PROGMEM = R"=====(
 <body>
   <h1>Equipment Status</h1>
   <div class="card">
-    <p><b>Operating Mode:</b> <span id="theme">...</span></p>
-    <p><b>Device Mode:</b> <span id="mode">...</span></p>
-    <p><b>Pack State:</b> <span id="pack">...</span></p>
-    <p><b>Power Level:</b> <span id="power">...</span></p>
-    <p><b>Neutrona Wand:</b> <span id="wand">...</span></p>
-    <p><b>Ribbon Cable:</b> <span id="cable">...</span></p>
-    <p><b>Cyclotron State:</b> <span id="cyclotron">...</span></p>
-    <p><b>Overheat State:</b> <span id="temperature">...</span></p>
+    <p><b>Operating Mode:</b> <span class="info" id="theme">&mdash;</span></p>
+    <p><b>Device Mode:</b> <span class="info" id="mode">&mdash;</span></p>
+    <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
+    <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
+    <p><b>Neutrona Wand:</b> <span class="info" id="wand">&mdash;</span></p>
+    <p><b>Ribbon Cable:</b> <span class="info" id="cable">&mdash;</span></p>
+    <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
+    <p><b>Overheat State:</b> <span class="info" id="temperature">&mdash;</span></p>
   </div>
   <br/>
   <h1>Audio Controls</h1>
   <h3>Master Volume</h3>
-  <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
+  <button type="button" class="blue" onclick="volumeMasterDown()">Down -</button>
   <button type="button" onclick="toggleMute()">Mute/Unmute</button>
-  <button type="button" class="blue" onclick="volumeMasterUp()">Down -</button>
+  <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
   <br/>
   <h3>Music Playback</h3>
   <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
@@ -217,14 +221,16 @@ const char MAIN_page[] PROGMEM = R"=====(
   <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
   <br/>
   <h3>Effects Volume</h3>
-  <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
   <button type="button" class="blue" onclick="volumeEffectsDown()">Down -</button>
+  <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
   <br/>
   <br/>
   <h1>Pack Controls</h1>
-  <button type="button" class="green" onclick="packOn()">Pack On</button>
-  <button type="button" onclick="cancelWarning()">Cancel</button>
   <button type="button" class="red" onclick="packOff()">Pack Off</button>
+  <button type="button" onclick="cancelWarning()">Cancel</button>
+  <button type="button" class="green" onclick="packOn()">Pack On</button>
+  <br/>
+  <br/>
 </body>
 </html>
 )=====";

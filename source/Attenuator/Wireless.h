@@ -245,7 +245,7 @@ void startWebServer() {
   httpServer.on("/", handleRoot);
   httpServer.on("/status", handleStatus);
   httpServer.on("/pack/on", handlePackOn);
-  httpServer.on("/pack/of", handlePackOff);
+  httpServer.on("/pack/off", handlePackOff);
   httpServer.on("/pack/cancel", handleCancelWarning);
   httpServer.on("/volume/mute", handleToggleMute);
   httpServer.on("/volume/master/up", handleMasterVolumeUp);
