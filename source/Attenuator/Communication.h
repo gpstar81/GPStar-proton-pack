@@ -140,3 +140,6 @@ enum api_messages {
   A_TOGGLE_MUTE,
   A_COM_END
 };
+
+// Forward declarations for functions.
+void attenuatorSerialSend(int i_message);

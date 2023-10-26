@@ -36,6 +36,25 @@ const char MAIN_page[] PROGMEM = R"=====(
   <p><b>Overheat State:</b> <span id="temperature">...</span></p>
 </div>
 
+<h1>Audio Controls</h2><br>
+<div class="card">
+  <button type="button" onclick="toggleMute()">Mute/Unmute</button>
+  <br/>
+  <button type="button" onclick="volumeMasterUp()">Master Volume Up</button>
+  <br/>
+  <button type="button" onclick="volumeMasterUp()">Master Volume Down</button>
+  <br/>
+  <button type="button" onclick="volumeEffectsUp()">Effects Volume Up</button>
+  <br/>
+  <button type="button" onclick="volumeEffectsDown()">Effects Volume Down</button>
+  <br/>
+  <button type="button" onclick="toggleMusic()">Start/Stop Music</button>
+  <br/>
+  <button type="button" onclick="musicNext()">Next Music Track</button>
+  <br/>
+  <button type="button" onclick="musicPrev()">Prev Music Track</button>
+</div>
+
 <script>
   setInterval(function() {
     getData(); // Check for new data every X seconds
@@ -57,6 +76,94 @@ const char MAIN_page[] PROGMEM = R"=====(
       }
     };
     xhttp.open("GET", "/data", true);
+    xhttp.send();
+  }
+
+  function toggleMute() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        alert(this.responseText);
+      }
+    };
+    xhttp.open("GET", "/mute", true);
+    xhttp.send();
+  }
+
+  function volumeMasterUp() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        alert(this.responseText);
+      }
+    };
+    xhttp.open("GET", "/mvu", true);
+    xhttp.send();
+  }
+
+  function volumeMasterDown() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        alert(this.responseText);
+      }
+    };
+    xhttp.open("GET", "/mvd", true);
+    xhttp.send();
+  }
+
+  function volumeEffectsUp() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        alert(this.responseText);
+      }
+    };
+    xhttp.open("GET", "/evu", true);
+    xhttp.send();
+  }
+
+  function volumeEffectsDown() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        alert(this.responseText);
+      }
+    };
+    xhttp.open("GET", "/evd", true);
+    xhttp.send();
+  }
+
+  function toggleMusic() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        alert(this.responseText);
+      }
+    };
+    xhttp.open("GET", "/music", true);
+    xhttp.send();
+  }
+
+  function musicNext() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        alert(this.responseText);
+      }
+    };
+    xhttp.open("GET", "/next", true);
+    xhttp.send();
+  }
+
+  function musicPrev() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        alert(this.responseText);
+      }
+    };
+    xhttp.open("GET", "/prev", true);
     xhttp.send();
   }
 </script>

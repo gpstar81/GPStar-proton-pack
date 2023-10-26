@@ -130,11 +130,7 @@ void setup() {
       Serial.println(ap_ssid);
 
       // Start the local web server.
-      httpServer.on("/", handleRoot);
-      httpServer.on("/data", handleData);
-      httpServer.onNotFound(handleNotFound);
-      httpServer.begin();
-      Serial.println("HTTP Server Started");
+      startWebServer();
     }
   #endif
 

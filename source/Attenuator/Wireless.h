@@ -168,8 +168,73 @@ void handleData() {
   httpServer.send(200, "application/json", data);
 }
 
+void handleToggleMute() {
+  Serial.println("Toggle Mute");
+  attenuatorSerialSend(A_TOGGLE_MUTE);
+  httpServer.send(200, "text/plain", "OK");
+}
+
+void handleMasterVolumeUp() {
+  Serial.println("Master Volume Up");
+  attenuatorSerialSend(A_VOLUME_INCREASE);
+  httpServer.send(200, "text/plain", "OK");
+}
+
+void handleMasterVolumeDown() {
+  Serial.println("Master Volume Down");
+  attenuatorSerialSend(A_VOLUME_DECREASE);
+  httpServer.send(200, "text/plain", "OK");
+}
+
+void handleEffectsVolumeUp() {
+  Serial.println("Effects Volume Up");
+  attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
+  httpServer.send(200, "text/plain", "OK");
+}
+
+void handleEffectsVolumeDown() {
+  Serial.println("Effects Volume Down");
+  attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
+  httpServer.send(200, "text/plain", "OK");
+}
+
+void handleMusicStartStop() {
+  Serial.println("Music Start/Stop");
+  attenuatorSerialSend(A_MUSIC_START_STOP);
+  httpServer.send(200, "text/plain", "OK");
+}
+
+void handleNextMusicTrack() {
+  Serial.println("Next Music Track");
+  attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
+  httpServer.send(200, "text/plain", "OK");
+}
+
+void handlePrevMusicTrack() {
+  Serial.println("Prev Music Track");
+  attenuatorSerialSend(A_MUSIC_PREV_TRACK);
+  httpServer.send(200, "text/plain", "OK");
+}
+
 void handleNotFound() {
   // Returned for any invalid URL requested.
   Serial.println("Web Not Found");
   httpServer.send(404, "text/plain", "Not Found");
+}
+
+// Define server actions after declaring all functions for URL routing.
+void startWebServer() {
+  httpServer.on("/", handleRoot);
+  httpServer.on("/data", handleData);
+  httpServer.on("/mute", handleToggleMute);
+  httpServer.on("/mvu", handleMasterVolumeUp);
+  httpServer.on("/mvd", handleMasterVolumeDown);
+  httpServer.on("/evu", handleEffectsVolumeUp);
+  httpServer.on("/evd", handleEffectsVolumeDown);
+  httpServer.on("/music", handleMusicStartStop);
+  httpServer.on("/next", handleNextMusicTrack);
+  httpServer.on("/prev", handlePrevMusicTrack);
+  httpServer.onNotFound(handleNotFound);
+  httpServer.begin();
+  Serial.println("HTTP Server Started");
 }
