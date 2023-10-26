@@ -57,6 +57,7 @@ millisDelay ms_vibrate;
 bool b_buzzer_on = false;
 bool b_vibrate_on = false;
 const unsigned int i_buzz_max = 200; // Longest duration for a standalone "beep".
+const unsigned int i_vibrate_min = 500; // Minimum runtime for physical feedback.
 const unsigned int i_vibrate_max = 1000; // Max runtime for the vibration motor.
 
 /*

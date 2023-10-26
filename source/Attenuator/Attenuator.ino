@@ -40,12 +40,12 @@
 void setup() {
   // Enable Serial connection(s) and communication with gpstar Proton Pack PCB.
   #if defined(__XTENSA__)
-    // ESP32 - Serial Console and Device Comms
+    // ESP32 - Serial Console and Device Comms via Serial2
     Serial.begin(9600);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
     packComs.begin(Serial2);
   #else
-    // Nano
+    // Nano - Utilizes the only Serial connection
     Serial.begin(9600);
     packComs.begin(Serial);
   #endif
@@ -94,8 +94,8 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   #if defined(__XTENSA__)
     // ESP32
-    ledcSetup(1, 5000, 8);
-    ledcAttachPin(VIBRATION_PIN, 1);
+    ledcSetup(0, 5000, 8);
+    ledcAttachPin(VIBRATION_PIN, 0);
   #else
     // Nano
     pinMode(VIBRATION_PIN, OUTPUT);
@@ -107,27 +107,14 @@ void setup() {
 
   #if defined(__XTENSA__)
     // ESP32 - Setup WiFi and WebServer
-    Serial.println();
-    Serial.print("Starting Wireless Access Point: ");
-    String macAddr = String(WiFi.macAddress());
-    // Create an AP name unique to this device, to avoid stepping on others.
-    String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
-    String ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix;
-    bool b_ap_started = WiFi.softAP(ap_ssid, ap_default_passwd);
-    delay(100);
+    bool b_ap_started = startAccessPoint();
     Serial.println(b_ap_started ? "Ready" : "Failed");
 
     if(b_ap_started) {
-      // Only proceed with AP configuration if started.
-      WiFi.softAPConfig(local_ip, gateway, subnet);
-      delay(100);
-      Serial.print("Device WiFi MAC Address: ");
-      Serial.println(macAddr);
-      Serial.print("Access Point IP Address: ");
-      IPAddress IP = WiFi.softAPIP();
-      Serial.println(IP);
-      Serial.print("WiFi AP Started as ");
-      Serial.println(ap_ssid);
+      delay(10); // Allow a small delay before config.
+
+      // Do the AP network configuration.
+      configureNetwork();
 
       // Start the local web server.
       startWebServer();
@@ -257,7 +244,7 @@ void mainLoop() {
         }
         else {
           controlLEDs(); // Turn LEDs on using appropriate color scheme.
-          useVibration(255, 500); // Set vibration to full power.
+          useVibration(255, i_vibrate_max); // Provide physical feedback.
           buzzOn(523); // Tone as note C4
         }
       }
@@ -309,7 +296,7 @@ void useVibration(uint8_t i_power_level, unsigned int i_duration) {
   // Power should be specified as 0-255
   #if defined(__XTENSA__)
     // ESP32
-    ledcWrite(1, i_power_level);
+    ledcWrite(0, i_power_level);
   #else
     // Nano
     analogWrite(VIBRATION_PIN, i_power_level);
@@ -428,13 +415,13 @@ void checkRotaryPress() {
         case MENU_1:
           // A short, single press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
-          useVibration(255, 200); // Give a quick nudge.
+          useVibration(255, i_vibrate_min); // Give a quick nudge.
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-          useVibration(255, 200); // Give a quick nudge.
+          useVibration(255, i_vibrate_min); // Give a quick nudge.
         break;
       }
     break;
@@ -445,13 +432,13 @@ void checkRotaryPress() {
         case MENU_1:
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
-          useVibration(255, 200); // Give a quick nudge.
+          useVibration(255, i_vibrate_min); // Give a quick nudge.
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
-          useVibration(255, 200); // Give a quick nudge.
+          useVibration(255, i_vibrate_min); // Give a quick nudge.
         break;
       }
     break;
@@ -462,12 +449,14 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
-          useVibration(255, 200); // Give a quick nudge.
+          Serial.println("Changed to Menu 2");
+          useVibration(255, i_vibrate_min); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
-          useVibration(255, 200); // Give a quick nudge.
+          Serial.println("Changed to Menu 1");
+          useVibration(255, i_vibrate_min); // Give a quick nudge.
           buzzOn(440); // Tone as note A4
         break;
       }
@@ -840,13 +829,15 @@ void checkPack() {
           break;
 
           case A_CYCLOTRON_INCREASE_SPEED:
-            debug("Speed Increased");
+            debug("Cyclotron Speed Increasing...");
 
             i_speed_multiplier++;
+
+            debug(String(i_speed_multiplier));
           break;
 
           case A_CYCLOTRON_NORMAL_SPEED:
-            debug("Speed Reset");
+            debug("Cyclotron Speed Reset");
 
             i_speed_multiplier = 1;
 

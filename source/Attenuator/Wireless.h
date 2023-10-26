@@ -45,12 +45,9 @@
 // Set up values for the SSID and password for the WiFi access point (AP).
 const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
+String ap_ssid; // Reserved for storing the true SSID for the AP to be set at startup.
 
-// Simple networking info
-IPAddress local_ip(192, 168, 1, 2);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
-
+// Define the web server object globally.
 WebServer httpServer(80);
 
 String getTheme() {
@@ -238,6 +235,36 @@ void handleNotFound() {
   // Returned for any invalid URL requested.
   Serial.println("Web Not Found");
   httpServer.send(404, "text/plain", "Not Found");
+}
+
+boolean startAccessPoint() {
+  // Begin some diagnostic information to console.
+  Serial.println();
+  Serial.print("Starting Wireless Access Point: ");
+  String macAddr = String(WiFi.macAddress());
+  Serial.print("Device WiFi MAC Address: ");
+  Serial.println(macAddr);
+
+  // Create an AP name unique to this device, to avoid stepping on others.
+  String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
+  ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update AP broadcast name.
+  return WiFi.softAP(ap_ssid, ap_default_passwd);
+}
+
+void configureNetwork() {
+  // Simple networking info for the AP.
+  IPAddress local_ip(192, 168, 1, 2);
+  IPAddress gateway(192, 168, 1, 1);
+  IPAddress subnet(255, 255, 255, 0);
+
+  // Set networking info and report to console.
+  WiFi.softAPConfig(local_ip, gateway, subnet);
+  delay(100);
+  Serial.print("Access Point IP Address: ");
+  IPAddress IP = WiFi.softAPIP();
+  Serial.println(IP);
+  Serial.print("WiFi AP Started as ");
+  Serial.println(ap_ssid);
 }
 
 // Define server actions after declaring all functions for URL routing.

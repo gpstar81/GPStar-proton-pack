@@ -157,9 +157,11 @@ Wire colors are suggestions, and meant to help differentiate the components. You
 | <font color="yellow">Yellow</font> | → | →      | → | D5/GPIO34 | Shouldn’t matter which wire goes where |
 
 | Right TOGGLE         |   |        |     | MCU Pin | Notes |
-|---------------------|---|--------|-----|----------|-------|
+|----------------------|---|--------|-----|---------|-------|
 | <font color="green">Green</font> | → | Ground |   |           | Shouldn’t matter which wire goes where |
 | <font color="green">Green</font> | → | →      | → | D6/GPIO35 | Shouldn’t matter which wire goes where |
+
+**Note:** For the ESP32 controller, GPIO pins 34 and 35 are input-only and do not have internal pull-up resistors. In order to get an accurate reading from the state of the switch it is necessary to add a 3.8k Ω resistor between the 3.3V pin and the respective GPIO pin where the toggle switch connects to the controller.
 
 **Encoder**
 
