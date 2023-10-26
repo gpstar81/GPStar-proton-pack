@@ -801,7 +801,8 @@ void checkPack() {
           case A_FIRING:
             debug("Firing");
 
-            b_firing = true;
+            b_firing = true; // Implies the wand is powered on.
+            b_pack_on = true; // Implies the pack is powered on.
             ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
             bargraphClear();

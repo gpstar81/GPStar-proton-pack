@@ -27,11 +27,12 @@ const char MAIN_page[] PROGMEM = R"=====(
     }
     button {
       background-color: #555;
+      border: 2px solid #333;
       border-radius: 8px;
       box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
       color: white;
       margin: 5px;
-      padding: 10px 14px;
+      padding: 12px 14px;
       max-width: 100px;
       text-align: center;
       width: 120px;
@@ -229,6 +230,7 @@ const char MAIN_page[] PROGMEM = R"=====(
   <button type="button" class="red" onclick="packOff()">Pack Off</button>
   <button type="button" onclick="cancelWarning()">Cancel</button>
   <button type="button" class="green" onclick="packOn()">Pack On</button>
+  <br/>
   <br/>
   <br/>
 </body>
