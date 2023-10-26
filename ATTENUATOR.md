@@ -43,8 +43,16 @@ This device has it's own BOM which is separate from any other build items relate
 * [3V 10mm x 2mm Vibration Motor](https://a.co/d/8p7mP9x)
 * [9mm Passive Piezo Buzzer](https://a.co/d/b39ELcm)
 * [28-Segment Bargraph from Frutto Technology](https://fruttotechnology.com/ols/products/preorder-28-segment-bargraph-pcb-for-spengler-neutrona-wand)
-* [Arduino Nano or Similar](https://a.co/d/ev1LPea)
 * [Nano Terminal Adapter IO Shield](https://a.co/d/gnK7aza) (Optional)
+
+The processor for this device may be either an Arduino Nano or an ESP32:
+
+* [Arduino Nano Microcontroller](https://a.co/d/ev1LPea)
+* [Arduino Nano Terminal Adapter](https://a.co/d/7xNKJtO)
+
+or
+
+* [ESP-WROOM-32 Dev Board w/ Shield](https://a.co/d/hDxXluE)
 
 **Decorations**
 
@@ -72,25 +80,26 @@ It is worth noting that the device is meant to attach to the left shoulder strap
 
 ## Arduino Nano - Pin Connections
 
-The following is a diagram of the Arduino Nano pins from left and right, when oriented with the USB connection facing up (north).
+The following is a diagram of the Arduino Nano pins from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above.
 
-| Connection    | Nano (L) | USB | Nano (R) | Connection    |
+| Connection    | Nano (L) |     | Nano (R) | Connection    |
 |---------------|----------|-----|----------|---------------|
-|               | D13      |     | D12      |               |
-| Vib. Motor +  | 3V3      |     | D11      | PN2222        |
-|               | REF      |     | D10      | Piezo Buzzer  |
-|               | A0       |     | D9       | Neopixels (2) |
-|               | A1       |     | D8       |               |
-|               | A2       |     | D7       |               |
-|               | A3       |     | D6       | Right Toggle  |
-| SDA Bargraph  | A4       |     | D5       | Left Toggle   |
-| SCL Bargraph  | A5       |     | D4       | Encoder Post  |
-|               | A6       |     | D3       | Encoder B     |
-|               | A7       |     | D2       | Encoder A     |
-| To Bargraph   | 5V       |     | GND      | Common Ground |
+| to Pack RX1   | TX1      |     | VIN      | +5V (Pack)    |
+| to Pack TX1   | RX0      |     | GND      | Ground (Pack) |
 |               | RST      |     | RST      |               |
-| Ground (Pack) | GND      |     | RX0      | to Pack TX1   |
-| +5V (Pack)    | VIN      |     | TX1      | to Pack RX1   |
+| Common Ground | GND      |     | 5V       | To Bargraph   |
+| Encoder A     | D2       |     | A7       |               |
+| Encoder B     | D3       |     | A6       |               |
+| Encoder Post  | D4       |     | A5       | SCL Bargraph  |
+| Left Toggle   | D5       |     | A4       | SDA Bargraph  |
+| Right Toggle  | D6       |     | A3       |               |
+|               | D7       |     | A2       |               |
+|               | D8       |     | A1       |               |
+| Neopixels (2) | D9       |     | A0       |               |
+| Piezo Buzzer  | D10      |     | REF      |               |
+| PN2222        | D11      |     | 3V3      | Vib. Motor +  |
+|               | D12      |     | D13      |               |
+|               |        | **USB** |        |               |
 
 When connecting to the pack, the following wiring scheme was used with the recommended 4-pin connector:
 
@@ -99,21 +108,58 @@ When connecting to the pack, the following wiring scheme was used with the recom
 	3 - TX1 (White) to Pack RX1
 	4 - RX0 (Yellow) to Pack TX1
 
+## ESP32 - Standard Pinout Reference
+
+![](images/ESP32-pinout.png)
+
+## ESP32 - Pin Connections
+
+The following is a diagram of the ESP32 pins from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above.
+
+| Connection    | ESP32 (L) |     | ESP32 (R) | Connection    |
+|---------------|-----------|-----|-----------|---------------|
+|               | EN        |     | GPIO23    | Neopixels (2) |
+|               | GPIO36    |     | GPIO22    | SCL Bargraph  |
+|               | GPIO39    |     | GPIO1     |               |
+| Left Toggle   | GPIO34    |     | GPIO3     |               |
+| Right Toggle  | GPIO35    |     | GPIO21    | SDA Bargraph  |
+| Encoder A     | GPIO32    |     | GPIO19    | PN2222        |
+| Encoder B     | GPIO33    |     | GPIO18    | Piezo Buzzer  |
+|               | GPIO25    |     | GPIO5     |               |
+|               | GPIO26    |     | GPIO17    | to Pack RX1   |
+|               | GPIO27    |     | GPIO16    | to Pack TX1   |
+|               | GPIO14    |     | GPIO4     | Encoder Post  |
+|               | GPIO12    |     | GPIO2     |               |
+|               | GPIO13    |     | GPIO15    |               |
+| Ground (Pack) | GND       |     | GND       | Common Ground |
+| +5V (Pack)    | VIN       |     | 3.3V      | Vib. Motor +  |
+|               |         | **USB** |         |               |
+
+When connecting to the pack, the following wiring scheme was used with the recommended 4-pin connector:
+
+	1 - GND (Black)
+	2 - 5V (Red)
+	3 - TX2 (White) to Pack RX1
+	4 - RX2 (Yellow) to Pack TX1
+
+**Note:** Bargraph power (+5V) should be split from the VIN terminal.
+
+
 ### Connections by Component
 
-Wire colors are suggestions, and meant to help differentiate the components. You may use your own scheme as desired.
+Wire colors are suggestions, and meant to help differentiate the components. You may use your own scheme as desired. Microcontroller (MCU) pins are labelled using their Nano (D#) or ESP (GPIO#) designations. Common pins will retain a singular name.
 
 **Toggles**
 
-| LEFT TOGGLE         |   |        |     | Nano Pin | Notes |
-|---------------------|---|--------|-----|----------|-------|
-| <font color="yellow">Yellow</font> | → | Ground |   |        | Shouldn’t matter which wire goes where |
-| <font color="yellow">Yellow</font> | → | →      | → | Pin D5 | Shouldn’t matter which wire goes where |
+| LEFT TOGGLE         |   |        |     | MCU Pin | Notes |
+|---------------------|---|--------|-----|---------|-------|
+| <font color="yellow">Yellow</font> | → | Ground |   |           | Shouldn’t matter which wire goes where |
+| <font color="yellow">Yellow</font> | → | →      | → | D5/GPIO34 | Shouldn’t matter which wire goes where |
 
-| Right TOGGLE         |   |        |     | Nano Pin | Notes |
+| Right TOGGLE         |   |        |     | MCU Pin | Notes |
 |---------------------|---|--------|-----|----------|-------|
-| <font color="green">Green</font> | → | Ground |   |        | Shouldn’t matter which wire goes where |
-| <font color="green">Green</font> | → | →      | → | Pin D6 | Shouldn’t matter which wire goes where |
+| <font color="green">Green</font> | → | Ground |   |           | Shouldn’t matter which wire goes where |
+| <font color="green">Green</font> | → | →      | → | D6/GPIO35 | Shouldn’t matter which wire goes where |
 
 **Encoder**
 
@@ -121,24 +167,24 @@ The rotary encoder is similar to that used on the Proton Pack and Neutrona Wand.
 
 One notable point is the stated part in the BOM also supports a momentary "push" action on the center post, so an additional ground and data pin will be used for that ability.
 
-| ROTARY ENCODER (DIAL)      |    | Nano Pin |
-|----------------------------|----|----------|
-| <font color="blue">Blue</font> | → | Pin D2 |
-| Black                          | → | GND    |
-| <font color="blue">Blue</font> | → | Pin D3 |
+| ROTARY ENCODER (DIAL)      |    | MCU Pin |
+|----------------------------|----|---------|
+| <font color="blue">Blue</font> | → | D2/GPIO32 |
+| Black                          | → | GND       |
+| <font color="blue">Blue</font> | → | D3/GPIO33 |
 
-| ROTARY ENCODER (POST)      |    | Nano Pin |
-|----------------------------|----|----------|
-| <font color="yellow">Yellow</font> | → | Pin D4 |
-| Black                              | → | GND    |
+| ROTARY ENCODER (POST)      |    | MCU Pin |
+|----------------------------|----|---------|
+| <font color="yellow">Yellow</font> | → | D4/GPIO4 |
+| Black                              | → | GND      |
 
 **Addressable LEDs**
 
-| LED'S          |   | Component | Nano Pin |
-|----------------|---|-----------|----------|
-| <font color="red">Red</font>    | → | 100uf  | 5V     |
-| <font color="blue">Blue</font>  | → | 470k Ω | Pin D9 |
-| <font color="gray">Black</font> | → | 100uf  | GND    |
+| LED'S          |   | Component | MCU Pin |
+|----------------|---|-----------|---------|
+| <font color="red">Red</font>    | → | 100uf  | 5V/VIN    |
+| <font color="blue">Blue</font>  | → | 470k Ω | D9/GPIO23 |
+| <font color="gray">Black</font> | → | 100uf  | GND       |
 
 **Note:** It is advised to place a 100uf capacitor across the positive and negative connections to these devices, just to buffer any current fluctuations.
 
@@ -146,17 +192,17 @@ Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `
 
 **Physical Feedback**
 
-| PIEZO BUZZER               |    | Nano Pin |
-|----------------------------|----|----------|
-| <font color="red">Red</font> | → | Pin D10 |
-| Black                        | → | GND     |
+| PIEZO BUZZER               |    | MCU Pin |
+|----------------------------|----|---------|
+| <font color="red">Red</font> | → | D10/GPIO18 |
+| Black                        | → | GND        |
 
-| VIBRATION MOTOR            | Component(s) | Component(s) | Nano Pin |
-|----------------------------|--------------|--------------|----------|
-| <font color="red">Red</font>   | 1N4001 (s) | →      | 3V3 |
-| <font color="blue">Blue</font> | 1N4001     | NPN C  |     |
-|                                |            | NPN B  | R 270 Ω → Pin D11 |
-|                                |            | NPN E  | GND |
+| VIBRATION MOTOR            | Component(s) | Component(s) | MCU Pin |
+|----------------------------|--------------|--------------|---------|
+| <font color="red">Red</font>   | 1N4001 (s) | →      | 3V3/3.3V |
+| <font color="blue">Blue</font> | 1N4001     | NPN C  |          |
+|                                |            | NPN B  | R 270 Ω → D11/GPIO19 |
+|                                |            | NPN E  | GND      |
 
 **Note:** The vibration motor (60mA) requires use of a transistor as the higher current draw exceeds the maximum 40mA recommended for the microcontroller's pin. To safely deliver power we will use an 2N2222/2N5551, an NPN Bipolar Transistor (BJT). A diode is recommended as this is a motor and thus could cause a small induction current in reverse when power is removed.
 

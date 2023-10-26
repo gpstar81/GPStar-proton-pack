@@ -19,7 +19,22 @@
  */
 
 /**
- * Wireless Communications for ESP32 - WiFi & Bluetooth
+ * Wireless (WiFi) Communications for ESP32
+ *
+ * This device will use the SoftAP mode to act as a standalone WiFi access point, allowing
+ * direct connections to the device without need for a full wireless network. All address
+ * (IP) assignments will be handled as part of the code here.
+ *
+ * Note that per the Expressif programming guide: "ESP32 has only one 2.4 GHz ISM band RF
+ * module, which is shared by Bluetooth (BT & BLE) and Wi-Fi, so Bluetooth can’t receive
+ * or transmit data while Wi-Fi is receiving or transmitting data and vice versa. Under
+ * such circumstances, ESP32 uses the time-division multiplexing method to receive and
+ * transmit packets."
+ *
+ * Essentially performance suffers when both WiFi and Bluetooth are enabled and so we
+ * must choose which is more useful to the operation of this device. Decision: WiFi.
+ *
+ * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/coexist.html
  */
 #include <WiFi.h>
 #include <WebServer.h>
