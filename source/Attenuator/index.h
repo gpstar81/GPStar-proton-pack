@@ -49,6 +49,15 @@ const char MAIN_page[] PROGMEM = R"=====(
       background-color: #f44336;
       border: 2px solid #d42316;
     }
+    input {
+      border: 2px solid #333;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 18px;
+      margin: 4px 0;
+      padding: 6px 10px;
+      width: 50%;
+    }
   </style>
 
   <script type="application/javascript">
@@ -208,15 +217,18 @@ const char MAIN_page[] PROGMEM = R"=====(
         return;
       }
 
+      var body = JSON.stringify({password: newPass});
+
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          var jObj = JSON.parse(this.responseText);
+          alert(jObj.response);
         }
       };
       xhttp.open("POST", "/password", true);
-      xmlhttp.setRequestHeader("Content-Type", "application/json");
-      xhttp.send(JSON.stringify({"password": newPass}));
+      xhttp.setRequestHeader("Content-Type", "application/json");
+      xhttp.send(body);
     }
   </script>
 </head>
@@ -255,9 +267,10 @@ const char MAIN_page[] PROGMEM = R"=====(
   <button type="button" class="green" onclick="packOn()">Pack On</button>
   <br/>
   <br/>
+  <br/>
   <h1>WiFi Password</h1>
-  Password: <input type="text" id="password" width="100"/><br/>
-  Confirm: <input type="text" id="password2" width="100"/><br/>
+  <b>New AP Password:</b> <input type="text" id="password" width="120"/><br/>
+  <b>Confirm Password:</b> <input type="text" id="password2" width="120"/><br/>
   <button type="button" onclick="updatePassword()">Update</button>
   <br/>
   <br/>

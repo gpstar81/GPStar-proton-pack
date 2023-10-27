@@ -59,7 +59,7 @@ WebServer httpServer(80);
 boolean startAccessPoint() {
   // Begin some diagnostic information to console.
   Serial.println();
-  Serial.print("Starting Wireless Access Point: ");
+  Serial.println("Starting Wireless Access Point");
   String macAddr = String(WiFi.macAddress());
   Serial.print("Device WiFi MAC Address: ");
   Serial.println(macAddr);
@@ -69,9 +69,10 @@ boolean startAccessPoint() {
   //ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update AP broadcast name.
 
   // Prepare to return either stored preferences or a default value for SSID/password.
-  preferences.begin("credentials", false); // Access namespace in read/write mode.
+  preferences.begin("credentials", true); // Access namespace in read-only mode.
   ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
   ap_pass = preferences.getString("password", ap_default_passwd);
+  preferences.end();
 
   // Start the access point using the SSID and password.
   return WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str());
@@ -91,6 +92,8 @@ void configureNetwork() {
   Serial.println(IP);
   Serial.print("WiFi AP Started as ");
   Serial.println(ap_ssid);
+  Serial.print("WiFi AP Password: ");
+  Serial.println(ap_pass);
 }
 
 /*
@@ -296,7 +299,20 @@ void handlePassword() {
   Serial.print("New AP Password: ");
   Serial.println(newPasswd);
 
-  httpServer.send(200, "application/json", "{}");
+  if (newPasswd != "") {
+    preferences.begin("credentials", false); // Access namespace in read/write mode.
+    preferences.putString("ssid", ap_ssid);
+    preferences.putString("password", newPasswd);
+    preferences.end();
+
+    jsonDoc.clear();
+    jsonDoc["response"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
+    String result;
+    serializeJson(jsonDoc, result); // Serialize to string.
+    httpServer.send(200, "application/json", result);
+    delay(100);
+    ESP.restart(); // Reboot device
+  }
 }
 
 void handleNotFound() {
