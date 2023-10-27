@@ -76,6 +76,7 @@ jobs:
   #             - name: AltSoftSerial
   #             - name: SerialTransfer
   #             - name: ArduinoJson
+  #             - name: Preferences
   #             - source-url: https://github.com/ansonhe97/millisDelay.git
   #           verbose: false
   #           cli-compile-flags:

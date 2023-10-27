@@ -36,19 +36,66 @@
  *
  * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/coexist.html
  */
+#include <Preferences.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ArduinoJson.h>
 
-#include "index.h" // Web page header file
+// Web page files (HTML as char[])
+#include "index.h"
+
+// Preferences for SSID and AP password, which will use a "credentials" namespace.
+Preferences preferences;
 
 // Set up values for the SSID and password for the WiFi access point (AP).
 const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for storing the true SSID for the AP to be set at startup.
+String ap_pass; // Reserved for storing the true AP password set by the user.
 
-// Define the web server object globally.
+// Define the web server object globally, answering to TCP port 80.
 WebServer httpServer(80);
+
+boolean startAccessPoint() {
+  // Begin some diagnostic information to console.
+  Serial.println();
+  Serial.print("Starting Wireless Access Point: ");
+  String macAddr = String(WiFi.macAddress());
+  Serial.print("Device WiFi MAC Address: ");
+  Serial.println(macAddr);
+
+  // Create an AP name unique to this device, to avoid stepping on others.
+  String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
+  //ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update AP broadcast name.
+
+  // Prepare to return either stored preferences or a default value for SSID/password.
+  preferences.begin("credentials", false); // Access namespace in read/write mode.
+  ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+  ap_pass = preferences.getString("password", ap_default_passwd);
+
+  // Start the access point using the SSID and password.
+  return WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str());
+}
+
+void configureNetwork() {
+  // Simple networking info for the AP.
+  IPAddress local_ip(192, 168, 1, 2);
+  IPAddress gateway(192, 168, 1, 1);
+  IPAddress subnet(255, 255, 255, 0);
+
+  // Set networking info and report to console.
+  WiFi.softAPConfig(local_ip, gateway, subnet);
+  delay(100);
+  Serial.print("Access Point IP Address: ");
+  IPAddress IP = WiFi.softAPIP();
+  Serial.println(IP);
+  Serial.print("WiFi AP Started as ");
+  Serial.println(ap_ssid);
+}
+
+/*
+ * Text Helper Functions - Converts ENUM values to user-friendly text
+ */
 
 String getTheme() {
   switch(YEAR_MODE) {
@@ -142,93 +189,114 @@ String getCyclotronState() {
   }
 }
 
+/*
+ * Web Handler Functions - Performs actions or returns data for web UI
+ */
+StaticJsonDocument<250> jsonDoc; // Used for processing JSON data.
+
 void handleRoot() {
   // Used for the root page (/) of the web server.
-  Serial.println("Web Root Requested");
+  Serial.println("Web Root HTML Requested");
   String s = MAIN_page; // Read HTML contents from .h file.
   httpServer.send(200, "text/html", s); // Send index page.
 }
 
 void handleStatus() {
-  // Return data for AJAX request by index.
-  StaticJsonDocument<400> json;
-  json["theme"] = getTheme();
-  json["mode"] = getMode();
-  json["pack"] = (b_pack_on ? "Powered" : "Idle");
-  json["power"] = getPower();
-  json["wand"] = (b_firing ? "Firing" : "Idle");
-  json["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
-  json["cyclotron"] = getCyclotronState();
-  json["temperature"] = (b_overheating ? "Venting" : "Normal");
+  // Return data for AJAX requests by the index page.
+  jsonDoc.clear();
+  jsonDoc["theme"] = getTheme();
+  jsonDoc["mode"] = getMode();
+  jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
+  jsonDoc["power"] = getPower();
+  jsonDoc["wand"] = (b_firing ? "Firing" : "Idle");
+  jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
+  jsonDoc["cyclotron"] = getCyclotronState();
+  jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
   String status;
-  serializeJson(json, status); // Serialize to string.
+  serializeJson(jsonDoc, status); // Serialize to string.
   httpServer.send(200, "application/json", status);
 }
 
 void handlePackOn() {
-  Serial.println("Pack On");
+  Serial.println("Turn Pack On");
   attenuatorSerialSend(A_TURN_PACK_ON);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handlePackOff() {
-  Serial.println("Pack Off");
+  Serial.println("Turn Pack Off");
   attenuatorSerialSend(A_TURN_PACK_OFF);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handleToggleMute() {
   Serial.println("Toggle Mute");
   attenuatorSerialSend(A_TOGGLE_MUTE);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handleMasterVolumeUp() {
   Serial.println("Master Volume Up");
   attenuatorSerialSend(A_VOLUME_INCREASE);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handleMasterVolumeDown() {
   Serial.println("Master Volume Down");
   attenuatorSerialSend(A_VOLUME_DECREASE);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handleEffectsVolumeUp() {
   Serial.println("Effects Volume Up");
   attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handleEffectsVolumeDown() {
   Serial.println("Effects Volume Down");
   attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handleMusicStartStop() {
   Serial.println("Music Start/Stop");
   attenuatorSerialSend(A_MUSIC_START_STOP);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handleNextMusicTrack() {
   Serial.println("Next Music Track");
   attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handlePrevMusicTrack() {
   Serial.println("Prev Music Track");
   attenuatorSerialSend(A_MUSIC_PREV_TRACK);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handleCancelWarning() {
   Serial.println("Cancel Overheat Warning");
   attenuatorSerialSend(A_WARNING_CANCELLED);
-  httpServer.send(200, "text/plain", "OK");
+  httpServer.send(200, "application/json", "{}");
+}
+
+void handlePassword() {
+  if (httpServer.hasArg("plain") == false) {
+    Serial.println("No arg 'plain' for body");
+  }
+
+  String body = httpServer.arg("plain");
+  jsonDoc.clear();
+  deserializeJson(jsonDoc, body);
+
+  String newPasswd = jsonDoc["password"];
+  Serial.print("New AP Password: ");
+  Serial.println(newPasswd);
+
+  httpServer.send(200, "application/json", "{}");
 }
 
 void handleNotFound() {
@@ -237,38 +305,8 @@ void handleNotFound() {
   httpServer.send(404, "text/plain", "Not Found");
 }
 
-boolean startAccessPoint() {
-  // Begin some diagnostic information to console.
-  Serial.println();
-  Serial.print("Starting Wireless Access Point: ");
-  String macAddr = String(WiFi.macAddress());
-  Serial.print("Device WiFi MAC Address: ");
-  Serial.println(macAddr);
-
-  // Create an AP name unique to this device, to avoid stepping on others.
-  String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
-  ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update AP broadcast name.
-  return WiFi.softAP(ap_ssid, ap_default_passwd);
-}
-
-void configureNetwork() {
-  // Simple networking info for the AP.
-  IPAddress local_ip(192, 168, 1, 2);
-  IPAddress gateway(192, 168, 1, 1);
-  IPAddress subnet(255, 255, 255, 0);
-
-  // Set networking info and report to console.
-  WiFi.softAPConfig(local_ip, gateway, subnet);
-  delay(100);
-  Serial.print("Access Point IP Address: ");
-  IPAddress IP = WiFi.softAPIP();
-  Serial.println(IP);
-  Serial.print("WiFi AP Started as ");
-  Serial.println(ap_ssid);
-}
-
-// Define server actions after declaring all functions for URL routing.
-void startWebServer() {
+void setupRouting() {
+  // Define the endpoints for the web server.
   httpServer.on("/", handleRoot);
   httpServer.on("/status", handleStatus);
   httpServer.on("/pack/on", handlePackOn);
@@ -282,7 +320,13 @@ void startWebServer() {
   httpServer.on("/music/toggle", handleMusicStartStop);
   httpServer.on("/music/next", handleNextMusicTrack);
   httpServer.on("/music/prev", handlePrevMusicTrack);
+  httpServer.on("/password", HTTP_POST, handlePassword);
   httpServer.onNotFound(handleNotFound);
-  httpServer.begin();
+}
+
+// Define server actions after declaring all functions for URL routing.
+void startWebServer() {
+  setupRouting(); // Set URI's with handlers.
+  httpServer.begin(); // Start the daemon.
   Serial.println("HTTP Server Started");
 }

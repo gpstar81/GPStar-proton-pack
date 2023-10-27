@@ -79,7 +79,7 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/pack/on", true);
@@ -90,7 +90,7 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/pack/off", true);
@@ -101,7 +101,7 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/pack/cancel", true);
@@ -112,7 +112,7 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/volume/mute", true);
@@ -123,7 +123,7 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/volume/master/up", true);
@@ -134,7 +134,7 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/volume/master/down", true);
@@ -145,7 +145,7 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/volume/effects/up", true);
@@ -156,7 +156,7 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/volume/effects/down", true);
@@ -167,7 +167,7 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/music/toggle", true);
@@ -178,7 +178,7 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/music/next", true);
@@ -189,11 +189,34 @@ const char MAIN_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // alert(this.responseText);
+          // var jObj = JSON.parse(this.responseText);
         }
       };
       xhttp.open("GET", "/music/prev", true);
       xhttp.send();
+    }
+
+    function updatePassword() {
+      var newPass = (document.getElementById("password").value || "").trim();
+      var confPW = (document.getElementById("password2").value || "").trim();
+      if (newPass.length < 8) {
+        alert("Your new password must be a minimum of 8 characters.");
+        return;
+      }
+      if (newPass != confPW) {
+        alert("Password and confirmation do not match. Please try again.");
+        return;
+      }
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          // var jObj = JSON.parse(this.responseText);
+        }
+      };
+      xhttp.open("POST", "/password", true);
+      xmlhttp.setRequestHeader("Content-Type", "application/json");
+      xhttp.send(JSON.stringify({"password": newPass}));
     }
   </script>
 </head>
@@ -231,6 +254,11 @@ const char MAIN_page[] PROGMEM = R"=====(
   <button type="button" onclick="cancelWarning()">Cancel</button>
   <button type="button" class="green" onclick="packOn()">Pack On</button>
   <br/>
+  <br/>
+  <h1>WiFi Password</h1>
+  Password: <input type="text" id="password" width="100"/><br/>
+  Confirm: <input type="text" id="password2" width="100"/><br/>
+  <button type="button" onclick="updatePassword()">Update</button>
   <br/>
   <br/>
 </body>
