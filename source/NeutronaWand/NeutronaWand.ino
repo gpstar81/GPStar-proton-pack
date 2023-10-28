@@ -325,7 +325,7 @@ void mainLoop() {
         settingsBlinkingLights();
       }
       else {
-        // Prepare to make the bargraph ramp if set to during overheat.
+        // Prepare to make the bargraph ramp down.
         if(ms_bargraph.justFinished()) {
           bargraphRampUp();
         }
@@ -1477,7 +1477,7 @@ void startVentSequence() {
     b_beeping = false;
 
     // Reset some bargraph levels before we ramp the bargraph down.
-    i_bargraph_status_alt = 27; // For 28 segment bargraph
+    i_bargraph_status_alt = i_bargraph_segments; // For 28 segment bargraph
     i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
 
     bargraphFull();
@@ -1579,7 +1579,7 @@ void settingsBlinkingLights() {
       case 5:
         if(b_28segment_bargraph == true) {
           // NOTE: If you draw all 28 segments at once often, you can overflow the serial buffer after around 5 seconds.
-          for(uint8_t i = 0; i < 28; i++) {
+          for(uint8_t i = 0; i < i_bargraph_segments; i++) {
             switch(i) {
               case 3:
               case 4:
@@ -5165,8 +5165,10 @@ void bargraphPowerCheck() {
       }
 
       if(b_bargraph_up == true) {
-        ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
-        b_bargraph_status[i_bargraph_status_alt] = true;
+        if(i_bargraph_status_alt >= 0 && i_bargraph_status_alt < i_bargraph_segments) {
+          ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
+          b_bargraph_status[i_bargraph_status_alt] = true;
+        }
 
         switch(i_power_mode) {
           case 5:
@@ -5267,8 +5269,10 @@ void bargraphPowerCheck() {
         }
       }
       else {
-        ht_bargraph.clearLedNow(i_bargraph[i_bargraph_status_alt]);
-        b_bargraph_status[i_bargraph_status_alt] = false;
+        if(i_bargraph_status_alt >= 0 && i_bargraph_status_alt < i_bargraph_segments) {
+          ht_bargraph.clearLedNow(i_bargraph[i_bargraph_status_alt]);
+          b_bargraph_status[i_bargraph_status_alt] = false;
+        }
 
         if(i_bargraph_status_alt == 0) {
           i_bargraph_status_alt = 0;
@@ -5391,6 +5395,7 @@ void bargraphRampUp() {
       2: 1/4: 5 - 11	(7 segments)
       1: none: 0 - 4	(5 segments)
     */
+
     switch(i_bargraph_status_alt) {
       case 0 ... 27:
         ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
@@ -5437,27 +5442,27 @@ void bargraphRampUp() {
         }
       break;
 
-      case 28 ... 56:
-        uint8_t i_tmp = i_bargraph_status_alt - 27;
-        i_tmp = 28 - i_tmp;
+      case 28 ... 55:
+        uint8_t i_tmp = i_bargraph_status_alt - (i_bargraph_segments - 1);
+        i_tmp = i_bargraph_segments - i_tmp;
 
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
           vibrationOff();
         }
 
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
-          if(i_bargraph_status_alt == 56) {
-            ms_bargraph.stop();
-            b_bargraph_up = false;
-            i_bargraph_status_alt = 0;
-          }
-          else {
             ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
             b_bargraph_status[i_tmp] = false;
 
-            ms_bargraph.start(d_bargraph_ramp_interval_alt * 2);
-            i_bargraph_status_alt++;
-          }
+            if(i_bargraph_status_alt == 55) {
+              ms_bargraph.stop();
+              b_bargraph_up = false;
+              i_bargraph_status_alt = 0;
+            }
+            else {
+              ms_bargraph.start(d_bargraph_ramp_interval_alt * 2);
+              i_bargraph_status_alt++;
+            }
         }
         else {
           if((i_power_mode < 5 && i_tmp_year_mode == 2021) || i_tmp_year_mode == 1984 || i_tmp_year_mode == 1989 || b_bargraph_always_ramping == true) {
@@ -5469,7 +5474,7 @@ void bargraphRampUp() {
             case 1984:
             case 1989:
               // Bargraph has ramped up and down. In 1984/1989 mode we want to start the ramping.
-              if(i_bargraph_status_alt == 54) {
+              if(i_bargraph_status_alt == 55) {
                 ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continuously.
                 ms_bargraph.stop();
                 b_bargraph_up = true;
@@ -5488,7 +5493,7 @@ void bargraphRampUp() {
             case 2021:
               if(b_bargraph_always_ramping == true) {
                 // Bargraph has ramped up and down. If bargraph overridden to always ramp, let's start the ramping.
-                if(i_bargraph_status_alt == 54) {
+                if(i_bargraph_status_alt == 55) {
                   ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continiuously.
                   ms_bargraph.stop();
                   b_bargraph_up = true;
