@@ -203,6 +203,7 @@ const unsigned long int i_ms_overheat_initiate_mode_3 = 20000;
 const unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
 const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 
+
 /*
  * Set to false to disable the onboard amplifier on the wav trigger.
  * Turning off the onboard amp draws less power.

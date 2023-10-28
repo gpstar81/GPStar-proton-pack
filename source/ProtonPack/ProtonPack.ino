@@ -175,7 +175,7 @@ void setup() {
   ms_check_music.start(i_music_check_delay);
 
   // Default mode is the idealised SUPER_HERO.
-  SYSTEM_MODE = MODE_SUPERHERO;
+  SYSTEM_MODE = MODE_ORIGINAL;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
@@ -3931,8 +3931,6 @@ void checkSerial1() {
           // Check if the Attenuator is telling us it is here after connecting it to the pack.
           // Then synchronise some settings between the pack and the Attenuator.
           if(dataStructR.i == A_HANDSHAKE) {
-            b_serial1_connected = true;
-
             serial1Send(A_SYNC_START);
 
             // Tell the Attenuator that the pack is here.
@@ -4042,6 +4040,8 @@ void checkSerial1() {
               // Tell the Attenuator or any other device that the power to the Proton Pack is off.
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
             }
+
+            b_serial1_connected = true;
 
             serial1Send(A_SYNC_END);
           }
