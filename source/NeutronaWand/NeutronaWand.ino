@@ -6796,6 +6796,14 @@ void checkPack() {
               w_trig.masterGain(i_volume_master);
             break;
 
+            case P_MANUAL_OVERHEAT:
+              if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+                if(b_pack_on == true && b_pack_alarm != true && b_overheat_enabled == true) {
+                  startVentSequence();
+                }
+              }
+            break;
+            
             case P_MASTER_AUDIO_NORMAL:
               // The pack is telling us to revert the audio to normal.
               i_volume_master = i_volume_revert;

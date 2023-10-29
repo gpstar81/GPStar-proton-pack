@@ -4074,6 +4074,11 @@ void checkSerial1() {
               packSerialSend(P_WARNING_CANCELLED);
             break;
 
+            case A_MANUAL_OVERHEAT:
+              // Trigger a manual overheat vent.
+              packSerialSend(P_MANUAL_OVERHEAT);
+            break;
+
             case A_TOGGLE_MUTE:
               if(i_volume_master == i_volume_abs_min) {
                 i_volume_master = i_volume_revert;
