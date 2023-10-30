@@ -341,6 +341,16 @@ void checkRotaryPress() {
     }
   }
 
+  /*
+    See A_MUSIC_PAUSE_RESUME for pausing and resuming music tracks.
+    
+    Music track listing is now synced, the track count can be found with the: i_music_track_count
+    
+    To tell the system to play the track you want, just send the track number to the Proton Pack. Make sure to add 500 to the i_music_track count. 
+    For example:
+
+    attenuatorSerialSend(5 + 500); // This will tell the Proton Pack to play music track #5.
+  */
   switch(CENTER_STATE) {
     case SHORT_PRESS:
       // Perform action for short press based on current menu level.
@@ -536,6 +546,12 @@ void checkPack() {
               bargraphFull();
             }
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
+          break;
+
+          case A_MUSIC_TRACK_COUNT_SYNC:
+            if(comStruct.d1 > 0) {
+              i_music_track_count = comStruct.d1;
+            }
           break;
 
           case A_PACK_CONNECTED:

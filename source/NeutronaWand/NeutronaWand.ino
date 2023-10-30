@@ -1,5 +1,5 @@
 /**
- *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -203,6 +203,7 @@ void loop() {
   }
 }
 
+
 void mainLoop() {
   w_trig.update();
 
@@ -381,6 +382,107 @@ void mainLoop() {
 
     case ACTION_ACTIVATE:
       modeActivate();
+    break;
+
+    case ACTION_EEPROM_MENU_ALT:
+        settingsBlinkingLights();
+
+        /*
+        EEPROM Menu #3
+          EEPROM Menu Alt Memory address starts after the last EEPROM config menu item. When clearing EEPROM config, it will not clear Alt and vice versa.
+
+          How to enter:
+          Hold Intensify and press alt wing button 5 times
+
+          EEPROM Menu #3 Top Menu:
+          Menu 5: Intensify: Erase | Alt button: Save
+          Menu 4: Intensify: Default main system volume + top dial | Alt button: (?? UNUSED ??)
+          Menu 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / Default (based on current mode) | Alt button: Cycle through VG color modes (see operational guide for more details on this).
+          Menu 2: Intensify: Demo Light Mode Enabled | Alt button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
+          Menu 1: Intensify: Toggle between Super Hero and Original Mode. | Alt button: (?? UNUSED ??)
+
+          EEPROM Menu #3 Sub Menu:
+          Menu 5: Intensify: Enable/Disable overheat in power mode #5 | Enable/Disable continuous smoke in power mode #5
+          Menu 4: Intensify: Enable/Disable overheat in power mode #4 | Enable/Disable continuous smoke in power mode #4
+          Menu 3: Intensify: Enable/Disable overheat in power mode #3 | Enable/Disable continuous smoke in power mode #3
+          Menu 2: Intensify: Enable/Disable overheat in power mode #2 | Enable/Disable continuous smoke in power mode #2
+          Menu 1: Intensify: Enable/Disable overheat in power mode #1 | Enable/Disable continuous smoke in power mode #1
+          
+        */
+      
+      /*
+      switch(i_wand_menu) {
+        // Intensify: Clear the Proton Pack EEPROM Alt settings and exit.
+        // Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
+        case 5:
+          // Tell the Proton Pack to clear the EEPROM Alt settings and exit.
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            // Tell pack to clear the EEPROM and exit.
+            wandSerialSend(W_CLEAR_EEPROM_ALT);
+
+            stopEffect(S_VOICE_EEPROM_ERASE);
+            playEffect(S_VOICE_EEPROM_ERASE);
+
+            clearEEPROMAlt();
+
+            wandExitEEPROMMenu();
+          }
+          else if(switchMode() == true) {
+            // Tell the Proton Pack to save the current settings to the EEPROM and exit.
+            wandSerialSend(W_SAVE_EEPROM_ALT);
+
+            stopEffect(S_VOICE_EEPROM_SAVE);
+            playEffect(S_VOICE_EEPROM_SAVE);
+
+            saveEEPROMAlt();
+
+            wandExitEEPROMMenu();
+          }
+        break;
+
+        // Intensify: Cycle through the different Cyclotron LED counts.
+        // Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotary();
+        case 4:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            //wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
+          }
+        break;
+
+        // Intensify: Cycle through the different Power Cell LED counts.
+        // Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotary();
+        case 3:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            //wandSerialSend(W_TOGGLE_POWERCELL_LEDS);
+          }
+        break;
+
+        // Intensify: Cycle through the different inner Cyclotron LED counts.
+        // Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotary();
+        case 2:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            //wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_LEDS);
+          }
+        break;
+
+        // Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
+        // Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotary();
+        case 1:
+          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
+            ms_intensify_timer.start(i_intensify_delay / 2);
+
+            //wandSerialSend(W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS);
+          }
+        break;
+      }
+      */
     break;
 
     case ACTION_EEPROM_MENU:
@@ -4822,7 +4924,7 @@ void bargraphRampFiring() {
   if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
       if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / i_ramp_interval);
+        ms_bargraph_firing.start(i_ramp_interval / 15);
       }
       else {
         ms_bargraph_firing.start(i_ramp_interval / 5);
@@ -7474,6 +7576,14 @@ void checkPack() {
               playMusic();
             break;
 
+            case P_MUSIC_PAUSE:
+              pauseMusic();
+            break;
+
+            case P_MUSIC_RESUME: {
+              resumeMusic();
+            }
+
             default:
               // Music track number to be played.
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
@@ -7830,6 +7940,18 @@ void playMusic() {
 
 void stopMusic() {
   w_trig.trackStop(i_current_music_track);
+
+  w_trig.update();
+}
+
+void pauseMusic() {
+  w_trig.trackPause(i_current_music_track);
+
+  w_trig.update();
+}
+
+void resumeMusic() {
+  w_trig.trackResume(i_current_music_track);
 
   w_trig.update();
 }

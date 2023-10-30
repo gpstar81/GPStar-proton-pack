@@ -138,6 +138,11 @@ int i_last_val_rotary;
 int i_rotary_count = 0;
 
 /*
+ * Music Track listing count.
+*/
+int i_music_track_count = 0;
+
+/*
  * Define states for the rotary dial center press.
  */
 enum CENTER_STATES { NO_ACTION, SHORT_PRESS, DOUBLE_PRESS, LONG_PRESS };

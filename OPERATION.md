@@ -138,7 +138,7 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 |----------------|---------|------------------|--------------------|
 | <p align="center">5</p> | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
 | <p align="center">4</p> | Proton Pack Light Dimming | `(Intensify + Top Dial)` Increases/Decreases the Proton Pack lights brightness. | Toggles between Power Cell, Cyclotron or Inner Cyclotron |
-| <p align="center">3</p> | Sound & Music&nbsp;Volume | `(Intensify + Top Dial)` Increases/Decreases effects volume | `(Intensify + Top Dial)` Increases/Decreases music volume |
+| <p align="center">3</p> | Sound & Music&nbsp;Volume | `(Barrel Wing Button + Top Dial)` Increases/Decreases effects volume | `(Intensify + Top Dial)` Increases/Decreases music volume |
 | <p align="center">2</p> | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
 | <p align="center">1</p> | Play&nbsp;or&nbsp;Stop&nbsp;Music / System Mute | Start/stop playing of music | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3 |
 

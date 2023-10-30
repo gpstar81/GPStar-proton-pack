@@ -1,5 +1,5 @@
 /**
- *   gpstar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -28,10 +28,10 @@
 /*
   ***** IMPORTANT *****
   * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
-  * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
+  * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
   https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
 
-  * Information on how to update your WAV Trigger devices can be found on the gpstar github repository.
+  * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
   https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
 */
 #include "wavTrigger.h"
@@ -4041,6 +4041,8 @@ void checkSerial1() {
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
             }
 
+            serial1Send(A_MUSIC_TRACK_COUNT_SYNC);
+
             b_serial1_connected = true;
 
             serial1Send(A_SYNC_END);
@@ -4148,8 +4150,23 @@ void checkSerial1() {
               }
             break;
 
-            case A_MUSIC_NEXT_TRACK:
-            {
+            case A_MUSIC_PAUSE_RESUME:
+              if(b_playing_music == true) {
+                packSerialSend(P_MUSIC_PAUSE);
+                pauseMusic();
+                b_playing_music = false;
+              }
+              else {
+                if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+                  b_playing_music = true;
+                  resumeMusic();
+
+                  packSerialSend(P_MUSIC_RESUME);
+                }
+              }
+            break;
+
+            case A_MUSIC_NEXT_TRACK: {
               // Determine the next track.
               if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
                 // Start at the first track if already on the last.
@@ -4177,8 +4194,7 @@ void checkSerial1() {
             }
             break;
 
-            case A_MUSIC_PREV_TRACK:
-            {
+            case A_MUSIC_PREV_TRACK: {
               // Determine the previous track.
               if(i_current_music_track - 1 < i_music_track_start) {
                 // Start at the last track if already on the first.
@@ -4207,7 +4223,20 @@ void checkSerial1() {
             break;
 
             default:
-              // No-op
+              // Music track number to be played.
+              if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
+                if(b_playing_music == true) {
+                  stopMusic(); // Stops current track before change.
+                  i_current_music_track = comStruct.i;
+                  playMusic(); // Start playing new track number.
+
+                  // Tell the wand which track to play.
+                  packSerialSend(i_current_music_track);
+                }
+                else {
+                  i_current_music_track = comStruct.i;
+                }
+              }
             break;
           }
         }
@@ -6271,6 +6300,9 @@ void serial1Send(int i_message) {
       dataStruct.d1 = i_spectral_cyclotron_custom;
       dataStruct.d2 = i_spectral_cyclotron_custom_saturation;
     }
+    else if(i_message == A_MUSIC_TRACK_COUNT_SYNC) {
+      dataStruct.d1 = i_music_count;
+    }
 
     dataStruct.e = A_COM_END;
 
@@ -6413,6 +6445,18 @@ void playMusic() {
 
 void stopMusic() {
   w_trig.trackStop(i_current_music_track);
+
+  w_trig.update();
+}
+
+void pauseMusic() {
+  w_trig.trackPause(i_current_music_track);
+
+  w_trig.update();
+}
+
+void resumeMusic() {
+  w_trig.trackResume(i_current_music_track);
 
   w_trig.update();
 }

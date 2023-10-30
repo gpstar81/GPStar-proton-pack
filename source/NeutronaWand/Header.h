@@ -1,5 +1,5 @@
 /**
- *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@ enum WAND_STATE WAND_STATUS;
 /*
  * Various wand action states.
  */
-enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
+enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU, ACTION_EEPROM_MENU_ALT };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
 /*
@@ -40,7 +40,7 @@ enum SYSTEM_MODES SYSTEM_MODE;
 
 
 /*
- * For MODE_ORIGINAL. Let's us know if the Proton Pack Ion Arm switch is on to give power to the Proton Pack and system.
+ * For MODE_ORIGINAL. Let's us know if the Proton Pack Ion Arm switch is on to give power to the Proton Pack and Neutrona Wand.
 */
 bool b_pack_ion_arm_switch_on = false;
 
