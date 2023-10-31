@@ -36,10 +36,11 @@
  *
  * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/coexist.html
  */
+#include <ArduinoJson.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebSrv.h>
 #include <Preferences.h>
 #include <WiFi.h>
-#include <WebServer.h>
-#include <ArduinoJson.h>
 
 // Web page files (HTML as char[])
 #include "index.h"
@@ -53,8 +54,14 @@ String ap_default_passwd = "555-2368"; // This will be the default password for 
 String ap_ssid; // Reserved for storing the true SSID for the AP to be set at startup.
 String ap_pass; // Reserved for storing the true AP password set by the user.
 
-// Define the web server object globally, answering to TCP port 80.
-WebServer httpServer(80);
+// Define an asynchronous web server at TCP port 80.
+AsyncWebServer httpServer(80);
+
+// Define a websocket endpoint for the async web server.
+AsyncWebSocket webSocket("/ws");
+
+// Define a wifi server object globally, answering to TCP port 90.
+WiFiServer wifiServer(90);
 
 boolean startAccessPoint() {
   // Begin some diagnostic information to console.
@@ -94,6 +101,29 @@ void configureNetwork() {
   Serial.println(ap_ssid);
   Serial.print("WiFi AP Password: ");
   Serial.println(ap_pass);
+
+  // Start the wifi server for client connections.
+  wifiServer.begin();
+}
+
+// Create a client object for remote TCP connections.
+WiFiClient RemoteClient;
+millisDelay ms_client;
+
+void checkServerConnections() {
+  if (wifiServer.hasClient()) {
+    // If we are already connected to another computer, 
+    // then reject the new connection. Otherwise accept
+    // the connection. 
+    if (RemoteClient.connected()) {
+      Serial.println("Connection rejected");
+      wifiServer.available().stop();
+    }
+    else {
+      Serial.println("Connection accepted");
+      RemoteClient = wifiServer.available();
+    }
+  }
 }
 
 /*
@@ -197,14 +227,14 @@ String getCyclotronState() {
  */
 StaticJsonDocument<250> jsonDoc; // Used for processing JSON data.
 
-void handleRoot() {
+void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   Serial.println("Web Root HTML Requested");
   String s = MAIN_page; // Read HTML contents from .h file.
-  httpServer.send(200, "text/html", s); // Send index page.
+  request->send(200, "text/html", s); // Send index page.
 }
 
-void handleStatus() {
+void handleStatus(AsyncWebServerRequest *request) {
   // Return data for AJAX requests by the index page.
   jsonDoc.clear();
   jsonDoc["theme"] = getTheme();
@@ -217,125 +247,134 @@ void handleStatus() {
   jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
   String status;
   serializeJson(jsonDoc, status); // Serialize to string.
-  httpServer.send(200, "application/json", status);
+  request->send(200, "application/json", status);
 }
 
-void handlePackOn() {
+void handlePackOn(AsyncWebServerRequest *request) {
   Serial.println("Turn Pack On");
   attenuatorSerialSend(A_TURN_PACK_ON);
-  httpServer.send(200, "application/json", "{}");
+  request->send(200, "application/json", "{}");
 }
 
-void handlePackOff() {
+void handlePackOff(AsyncWebServerRequest *request) {
   Serial.println("Turn Pack Off");
   attenuatorSerialSend(A_TURN_PACK_OFF);
-  httpServer.send(200, "application/json", "{}");
+  request->send(200, "application/json", "{}");
 }
 
-void handleToggleMute() {
-  Serial.println("Toggle Mute");
-  attenuatorSerialSend(A_TOGGLE_MUTE);
-  httpServer.send(200, "application/json", "{}");
-}
-
-void handleMasterVolumeUp() {
-  Serial.println("Master Volume Up");
-  attenuatorSerialSend(A_VOLUME_INCREASE);
-  httpServer.send(200, "application/json", "{}");
-}
-
-void handleMasterVolumeDown() {
-  Serial.println("Master Volume Down");
-  attenuatorSerialSend(A_VOLUME_DECREASE);
-  httpServer.send(200, "application/json", "{}");
-}
-
-void handleEffectsVolumeUp() {
-  Serial.println("Effects Volume Up");
-  attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-  httpServer.send(200, "application/json", "{}");
-}
-
-void handleEffectsVolumeDown() {
-  Serial.println("Effects Volume Down");
-  attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-  httpServer.send(200, "application/json", "{}");
-}
-
-void handleMusicStartStop() {
-  Serial.println("Music Start/Stop");
-  attenuatorSerialSend(A_MUSIC_START_STOP);
-  httpServer.send(200, "application/json", "{}");
-}
-
-void handleNextMusicTrack() {
-  Serial.println("Next Music Track");
-  attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-  httpServer.send(200, "application/json", "{}");
-}
-
-void handlePrevMusicTrack() {
-  Serial.println("Prev Music Track");
-  attenuatorSerialSend(A_MUSIC_PREV_TRACK);
-  httpServer.send(200, "application/json", "{}");
-}
-
-void handleCancelWarning() {
+void handleCancelWarning(AsyncWebServerRequest *request) {
   Serial.println("Cancel Overheat Warning");
   attenuatorSerialSend(A_WARNING_CANCELLED);
-  httpServer.send(200, "application/json", "{}");
+  request->send(200, "application/json", "{}");
 }
 
-void handlePassword() {
-  if (httpServer.hasArg("plain") == false) {
-    Serial.println("No arg 'plain' for body");
-  }
+void handleToggleMute(AsyncWebServerRequest *request) {
+  Serial.println("Toggle Mute");
+  attenuatorSerialSend(A_TOGGLE_MUTE);
+  request->send(200, "application/json", "{}");
+}
 
-  String body = httpServer.arg("plain");
-  jsonDoc.clear();
-  deserializeJson(jsonDoc, body);
+void handleMasterVolumeUp(AsyncWebServerRequest *request) {
+  Serial.println("Master Volume Up");
+  attenuatorSerialSend(A_VOLUME_INCREASE);
+  request->send(200, "application/json", "{}");
+}
 
-  String newPasswd = jsonDoc["password"];
-  Serial.print("New AP Password: ");
-  Serial.println(newPasswd);
+void handleMasterVolumeDown(AsyncWebServerRequest *request) {
+  Serial.println("Master Volume Down");
+  attenuatorSerialSend(A_VOLUME_DECREASE);
+  request->send(200, "application/json", "{}");
+}
 
-  if (newPasswd != "") {
-    preferences.begin("credentials", false); // Access namespace in read/write mode.
-    preferences.putString("ssid", ap_ssid);
-    preferences.putString("password", newPasswd);
-    preferences.end();
+void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
+  Serial.println("Effects Volume Up");
+  attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
+  request->send(200, "application/json", "{}");
+}
 
+void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
+  Serial.println("Effects Volume Down");
+  attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
+  request->send(200, "application/json", "{}");
+}
+
+void handleMusicStartStop(AsyncWebServerRequest *request) {
+  Serial.println("Music Start/Stop");
+  attenuatorSerialSend(A_MUSIC_START_STOP);
+  request->send(200, "application/json", "{}");
+}
+
+void handleNextMusicTrack(AsyncWebServerRequest *request) {
+  Serial.println("Next Music Track");
+  attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
+  request->send(200, "application/json", "{}");
+}
+
+void handlePrevMusicTrack(AsyncWebServerRequest *request) {
+  Serial.println("Prev Music Track");
+  attenuatorSerialSend(A_MUSIC_PREV_TRACK);
+  request->send(200, "application/json", "{}");
+}
+
+void handlePassword(AsyncWebServerRequest *request) {
+  if(request->hasParam("body", true)) {
+    AsyncWebParameter* p = request->getParam("body", true);
+    String body = p->value();
     jsonDoc.clear();
-    jsonDoc["response"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
-    String result;
+    deserializeJson(jsonDoc, body);
+  }
+  else {
+    Serial.println("No body in POST request");
+  }
+
+  String result;
+  jsonDoc.clear();
+  if (jsonDoc.containsKey("password")) {
+    String newPasswd = jsonDoc["password"];
+    Serial.print("New AP Password: ");
+    Serial.println(newPasswd);
+
+    if (newPasswd != "") {
+      preferences.begin("credentials", false); // Access namespace in read/write mode.
+      preferences.putString("ssid", ap_ssid);
+      preferences.putString("password", newPasswd);
+      preferences.end();
+
+      jsonDoc["response"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
+      serializeJson(jsonDoc, result); // Serialize to string.
+      request->send(200, "application/json", result);
+      ESP.restart(); // Reboot device
+    }
+  }
+  else {
+    Serial.println("No password in JSON body");
+    jsonDoc["response"] = "Unable to update password.";
     serializeJson(jsonDoc, result); // Serialize to string.
-    httpServer.send(200, "application/json", result);
-    delay(100);
-    ESP.restart(); // Reboot device
+    request->send(200, "application/json", result);
   }
 }
 
-void handleNotFound() {
+void handleNotFound(AsyncWebServerRequest *request) {
   // Returned for any invalid URL requested.
   Serial.println("Web Not Found");
-  httpServer.send(404, "text/plain", "Not Found");
+  request->send(404, "text/plain", "Not Found");
 }
 
 void setupRouting() {
   // Define the endpoints for the web server.
-  httpServer.on("/", handleRoot);
-  httpServer.on("/status", handleStatus);
-  httpServer.on("/pack/on", handlePackOn);
-  httpServer.on("/pack/off", handlePackOff);
-  httpServer.on("/pack/cancel", handleCancelWarning);
-  httpServer.on("/volume/mute", handleToggleMute);
-  httpServer.on("/volume/master/up", handleMasterVolumeUp);
-  httpServer.on("/volume/master/down", handleMasterVolumeDown);
-  httpServer.on("/volume/effects/up", handleEffectsVolumeUp);
-  httpServer.on("/volume/effects/down", handleEffectsVolumeDown);
-  httpServer.on("/music/toggle", handleMusicStartStop);
-  httpServer.on("/music/next", handleNextMusicTrack);
-  httpServer.on("/music/prev", handlePrevMusicTrack);
+  httpServer.on("/", HTTP_GET, handleRoot);
+  httpServer.on("/status", HTTP_GET, handleStatus);
+  httpServer.on("/pack/on", HTTP_GET, handlePackOn);
+  httpServer.on("/pack/off", HTTP_GET, handlePackOff);
+  httpServer.on("/pack/cancel", HTTP_GET, handleCancelWarning);
+  httpServer.on("/volume/toggle", HTTP_GET, handleToggleMute);
+  httpServer.on("/volume/master/up", HTTP_GET, handleMasterVolumeUp);
+  httpServer.on("/volume/master/down", HTTP_GET, handleMasterVolumeDown);
+  httpServer.on("/volume/effects/up", HTTP_GET, handleEffectsVolumeUp);
+  httpServer.on("/volume/effects/down", HTTP_GET, handleEffectsVolumeDown);
+  httpServer.on("/music/toggle", HTTP_GET, handleMusicStartStop);
+  httpServer.on("/music/next", HTTP_GET, handleNextMusicTrack);
+  httpServer.on("/music/prev", HTTP_GET, handlePrevMusicTrack);
   httpServer.on("/password", HTTP_POST, handlePassword);
   httpServer.onNotFound(handleNotFound);
 }

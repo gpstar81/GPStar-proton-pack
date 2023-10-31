@@ -124,7 +124,7 @@ const char MAIN_page[] PROGMEM = R"=====(
           // var jObj = JSON.parse(this.responseText);
         }
       };
-      xhttp.open("GET", "/volume/mute", true);
+      xhttp.open("GET", "/volume/toggle", true);
       xhttp.send();
     }
 

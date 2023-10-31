@@ -127,8 +127,9 @@ void setup() {
 
 void loop() {
   #if defined(__XTENSA__)
-    // ESP32 - Handle requests by web clients.
-    httpServer.handleClient();
+    // ESP32 - Handle requests by clients.
+    // httpServer.handleClient();
+    // checkServerConnections();
   #endif
 
   if(b_wait_for_pack) {
