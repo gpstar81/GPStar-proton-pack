@@ -61,6 +61,36 @@ const char MAIN_page[] PROGMEM = R"=====(
   </style>
 
   <script type="application/javascript">
+    var gateway = "ws://${window.location.hostname}/ws";
+    var websocket;
+
+    window.addEventListener("load", onLoad);
+
+    function initWebSocket() {
+      console.log("Trying to open a WebSocket connection...");
+      websocket = new WebSocket(gateway);
+      websocket.onopen = onOpen;
+      websocket.onclose = onClose;
+      websocket.onmessage = onMessage;
+    }
+
+    function onOpen(event) {
+      console.log("Connection opened");
+    }
+
+    function onClose(event) {
+      console.log("Connection closed");
+      setTimeout(initWebSocket, 1000);
+    }
+
+    function onMessage(event) {
+      console.log(event);
+    }
+
+    function onLoad(event) {
+      initWebSocket();
+    }
+
     setInterval(function() {
       getStatus(); // Check for new data every X seconds
     }, 1000);

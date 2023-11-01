@@ -110,7 +110,9 @@ void configureNetwork() {
 // Create a client object for remote TCP connections.
 WiFiClient RemoteClient;
 millisDelay ms_client;
+millisDelay ms_websocket;
 const unsigned int i_remoteClientDelay = 2000;
+const unsigned int i_websocketDelay = 500;
 
 void checkServerConnections() {
   if (wifiServer.hasClient()) {
@@ -243,8 +245,7 @@ void handleRoot(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Send index page.
 }
 
-void handleStatus(AsyncWebServerRequest *request) {
-  // Return data for AJAX requests by the index page.
+String getStatus() {
   jsonDoc.clear();
   jsonDoc["theme"] = getTheme();
   jsonDoc["mode"] = getMode();
@@ -256,7 +257,12 @@ void handleStatus(AsyncWebServerRequest *request) {
   jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
   String status;
   serializeJson(jsonDoc, status); // Serialize to string.
-  request->send(200, "application/json", status);
+  return status;
+}
+
+void handleStatus(AsyncWebServerRequest *request) {
+  // Return data for AJAX requests by the index page.
+  request->send(200, "application/json", getStatus());
 }
 
 void handlePackOn(AsyncWebServerRequest *request) {
@@ -349,17 +355,17 @@ void setupRouting() {
 
   // Handle the JSON body for the password change request.
   AsyncCallbackJsonWebHandler *passwordHandler = new AsyncCallbackJsonWebHandler("/password", [](AsyncWebServerRequest *request, JsonVariant &json) {
-    jsonDoc.clear();
+    StaticJsonDocument<256> jsonData;
     if (json.is<JsonObject>()) {
-      jsonDoc = json.as<JsonObject>();
+      jsonData = json.as<JsonObject>();
     }
     else {
       Serial.print("Body was not a JSON object");
     }
 
     String result;
-    if (jsonDoc.containsKey("password")) {
-      String newPasswd = jsonDoc["password"];
+    if (jsonData.containsKey("password")) {
+      String newPasswd = jsonData["password"];
       Serial.print("New AP Password: ");
       Serial.println(newPasswd);
 
@@ -369,18 +375,18 @@ void setupRouting() {
         preferences.putString("password", newPasswd);
         preferences.end();
 
-        jsonDoc.clear();
-        jsonDoc["response"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
-        serializeJson(jsonDoc, result); // Serialize to string.
+        jsonData.clear();
+        jsonData["response"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
+        serializeJson(jsonData, result); // Serialize to string.
         request->send(200, "application/json", result);
         ESP.restart(); // Reboot device
       }
     }
     else {
       Serial.println("No password in JSON body");
-      jsonDoc.clear();
-      jsonDoc["response"] = "Unable to update password.";
-      serializeJson(jsonDoc, result); // Serialize to string.
+      jsonData.clear();
+      jsonData["response"] = "Unable to update password.";
+      serializeJson(jsonData, result); // Serialize to string.
       request->send(200, "application/json", result);
     }
   });
@@ -394,4 +400,9 @@ void startWebServer() {
   setupRouting(); // Set URI's with handlers.
   httpServer.begin(); // Start the daemon.
   Serial.println("HTTP Server Started");
+}
+
+// Send notification to all websocket clients.
+void notifyWSClients() {
+  webSocket.textAll(getStatus());
 }

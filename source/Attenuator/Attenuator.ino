@@ -118,18 +118,28 @@ void setup() {
 
       // Start the local web server.
       startWebServer();
+
+      // Begin timer for remote client events.
+      ms_client.start(i_remoteClientDelay);
+      ms_websocket.start(i_websocketDelay);
     }
   #endif
 
   // Initialize critical timers.
   ms_fast_led.start(1);
-  ms_client.start(i_remoteClientDelay);
 }
 
 void loop() {
   #if defined(__XTENSA__)
     // ESP32 - Handle requests by clients.
     checkServerConnections();
+    webSocket.cleanupClients();
+
+    if (ms_websocket.remaining() < 1) {
+      // Send data and reset the timer.
+      notifyWSClients();
+      ms_websocket.start(i_websocketDelay);
+    }
 
     if (ms_client.remaining() < 1) {
       // Send data and reset the timer.
