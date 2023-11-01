@@ -37,6 +37,7 @@
  * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/coexist.html
  */
 #include <ArduinoJson.h>
+#include <AsyncJson.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebSrv.h>
 #include <Preferences.h>
@@ -225,7 +226,7 @@ String getCyclotronState() {
 /*
  * Web Handler Functions - Performs actions or returns data for web UI
  */
-StaticJsonDocument<250> jsonDoc; // Used for processing JSON data.
+StaticJsonDocument<256> jsonDoc; // Used for processing JSON data.
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
@@ -316,44 +317,6 @@ void handlePrevMusicTrack(AsyncWebServerRequest *request) {
   request->send(200, "application/json", "{}");
 }
 
-void handlePassword(AsyncWebServerRequest *request) {
-  if(request->hasParam("body", true)) {
-    AsyncWebParameter* p = request->getParam("body", true);
-    String body = p->value();
-    jsonDoc.clear();
-    deserializeJson(jsonDoc, body);
-  }
-  else {
-    Serial.println("No body in POST request");
-  }
-
-  String result;
-  jsonDoc.clear();
-  if (jsonDoc.containsKey("password")) {
-    String newPasswd = jsonDoc["password"];
-    Serial.print("New AP Password: ");
-    Serial.println(newPasswd);
-
-    if (newPasswd != "") {
-      preferences.begin("credentials", false); // Access namespace in read/write mode.
-      preferences.putString("ssid", ap_ssid);
-      preferences.putString("password", newPasswd);
-      preferences.end();
-
-      jsonDoc["response"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
-      serializeJson(jsonDoc, result); // Serialize to string.
-      request->send(200, "application/json", result);
-      ESP.restart(); // Reboot device
-    }
-  }
-  else {
-    Serial.println("No password in JSON body");
-    jsonDoc["response"] = "Unable to update password.";
-    serializeJson(jsonDoc, result); // Serialize to string.
-    request->send(200, "application/json", result);
-  }
-}
-
 void handleNotFound(AsyncWebServerRequest *request) {
   // Returned for any invalid URL requested.
   Serial.println("Web Not Found");
@@ -375,7 +338,45 @@ void setupRouting() {
   httpServer.on("/music/toggle", HTTP_GET, handleMusicStartStop);
   httpServer.on("/music/next", HTTP_GET, handleNextMusicTrack);
   httpServer.on("/music/prev", HTTP_GET, handlePrevMusicTrack);
-  httpServer.on("/password", HTTP_POST, handlePassword);
+
+  // Handle the JSON body for the password change request.
+  AsyncCallbackJsonWebHandler *passwordHandler = new AsyncCallbackJsonWebHandler("/password", [](AsyncWebServerRequest *request, JsonVariant &json) {
+    jsonDoc.clear();
+    if (json.is<JsonObject>()) {
+      jsonDoc = json.as<JsonObject>();
+    }
+    else {
+      Serial.print("Body was not a JSON object");
+    }
+
+    String result;
+    jsonDoc.clear();
+    if (data.containsKey("password")) {
+      String newPasswd = data["password"];
+      Serial.print("New AP Password: ");
+      Serial.println(newPasswd);
+
+      if (newPasswd != "") {
+        preferences.begin("credentials", false); // Access namespace in read/write mode.
+        preferences.putString("ssid", ap_ssid);
+        preferences.putString("password", newPasswd);
+        preferences.end();
+
+        jsonDoc["response"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
+        serializeJson(jsonDoc, result); // Serialize to string.
+        request->send(200, "application/json", result);
+        ESP.restart(); // Reboot device
+      }
+    }
+    else {
+      Serial.println("No password in JSON body");
+      jsonDoc["response"] = "Unable to update password.";
+      serializeJson(jsonDoc, result); // Serialize to string.
+      request->send(200, "application/json", result);
+    }
+  });
+  httpServer.addHandler(passwordHandler);
+
   httpServer.onNotFound(handleNotFound);
 }
 
