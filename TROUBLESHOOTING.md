@@ -6,6 +6,22 @@ Regardless of the device, whether pack or wand, there are no built-in LED's on t
 
 ![](images/WavTrigger_Debug.jpg)
 
+### General Guidance
+
+Before continuing, be certain whether the following items have been reviewed:
+
+- The operation switch on the WavTrigger should be set to RUN (not LOAD).
+- Check that the microSD card is fully seated (pushed) into its socket.
+- Check the JST connector on the PCB controller is fully seated into its socket.
+- Verify the connections are intact and solid for GND, 5Vin, Rx, and Tx on the device.
+- Sound files should start with a file having a prefix of `001_`.
+
+**Blinking Patterns:**
+
+- 10x - This indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
+- 3x - This is the normal pattern at initial power-up to indicate the device has initialized without issues.
+- 1x - The WavTrigger will blink once every ~4 seconds when the PCB and device are powered on. This indicates a regular serial connection checking the status of the WavTrigger and is to be expected.
+
 ## Proton Pack
 
 Since all connections to the Proton Pack utilize standard JST-XH connections to the available devices, please re-check any connections for incorrect seating and polarity before continuing. If these are in place then at a minimum you should be able to turn on the pack using the red switch under the ion arm which should cause the Powercell lights to activate. This will be the primary means of validating that the pack controller is enabled.
