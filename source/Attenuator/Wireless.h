@@ -110,6 +110,7 @@ void configureNetwork() {
 // Create a client object for remote TCP connections.
 WiFiClient RemoteClient;
 millisDelay ms_client;
+const unsigned int i_remoteClientDelay = 2000;
 
 void checkServerConnections() {
   if (wifiServer.hasClient()) {
@@ -124,6 +125,13 @@ void checkServerConnections() {
       Serial.println("Connection accepted");
       RemoteClient = wifiServer.available();
     }
+  }
+}
+
+void sendCurrentData() {
+  StaticJsonDocument<256> jsonData;
+  if (RemoteClient.connected() && RemoteClient.available()) { 
+    // RemoteClient.write(buffer, length);
   }
 }
 

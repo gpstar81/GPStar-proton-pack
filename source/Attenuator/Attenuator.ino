@@ -123,13 +123,19 @@ void setup() {
 
   // Initialize critical timers.
   ms_fast_led.start(1);
+  ms_client.start(i_remoteClientDelay);
 }
 
 void loop() {
   #if defined(__XTENSA__)
     // ESP32 - Handle requests by clients.
-    // httpServer.handleClient();
-    // checkServerConnections();
+    checkServerConnections();
+
+    if (ms_client.remaining() < 1) {
+      // Send data and reset the timer.
+      sendCurrentData();
+      ms_client.start(i_remoteClientDelay);
+    }
   #endif
 
   if(b_wait_for_pack) {
