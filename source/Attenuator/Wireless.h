@@ -350,9 +350,8 @@ void setupRouting() {
     }
 
     String result;
-    jsonDoc.clear();
-    if (data.containsKey("password")) {
-      String newPasswd = data["password"];
+    if (jsonDoc.containsKey("password")) {
+      String newPasswd = jsonDoc["password"];
       Serial.print("New AP Password: ");
       Serial.println(newPasswd);
 
@@ -362,6 +361,7 @@ void setupRouting() {
         preferences.putString("password", newPasswd);
         preferences.end();
 
+        jsonDoc.clear();
         jsonDoc["response"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
         serializeJson(jsonDoc, result); // Serialize to string.
         request->send(200, "application/json", result);
@@ -370,6 +370,7 @@ void setupRouting() {
     }
     else {
       Serial.println("No password in JSON body");
+      jsonDoc.clear();
       jsonDoc["response"] = "Unable to update password.";
       serializeJson(jsonDoc, result); // Serialize to string.
       request->send(200, "application/json", result);
