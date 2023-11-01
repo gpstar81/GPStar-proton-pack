@@ -4165,8 +4165,9 @@ void checkSerial1() {
                 }
               }
             break;
-
-            case A_MUSIC_NEXT_TRACK: {
+            
+            case W_MUSIC_NEXT_TRACK:
+            case A_MUSIC_NEXT_TRACK: 
               // Determine the next track.
               if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
                 // Start at the first track if already on the last.
@@ -4176,25 +4177,25 @@ void checkSerial1() {
                 i_temp_track++;
               }
 
+              i_current_music_track = i_temp_track;
+
               // Switch to the next track.
               if(b_playing_music == true) {
                 // Stops music using the current track.
                 stopMusic();
+                packSerialSend(P_MUSIC_STOP);
+
+                // Tell the wand which track to play.
+                packSerialSend(i_current_music_track);
 
                 // Advance and begin playing the new track.
-                i_current_music_track = i_temp_track;
                 playMusic();
+                packSerialSend(P_MUSIC_START);
               }
-              else {
-                i_current_music_track = i_temp_track;
-              }
-
-              // Tell the wand which track to play.
-              packSerialSend(i_current_music_track);
-            }
             break;
 
-            case A_MUSIC_PREV_TRACK: {
+            case W_MUSIC_PREV_TRACK:
+            case A_MUSIC_PREV_TRACK:
               // Determine the previous track.
               if(i_current_music_track - 1 < i_music_track_start) {
                 // Start at the last track if already on the first.
@@ -4204,37 +4205,37 @@ void checkSerial1() {
                 i_temp_track--;
               }
 
+              // Advance and begin playing the new track.
+              i_current_music_track = i_temp_track;
+
               // Switch to the previous track.
               if(b_playing_music == true) {
                 // Stops music using the current track.
                 stopMusic();
+                packSerialSend(P_MUSIC_STOP);
 
-                // Advance and begin playing the new track.
-                i_current_music_track = i_temp_track;
+                // Tell the wand which track to play.
+                packSerialSend(i_current_music_track);
+
                 playMusic();
-              }
-              else {
-                i_current_music_track = i_temp_track;
-              }
 
-              // Tell the wand which track to play.
-              packSerialSend(i_current_music_track);
-            }
+                packSerialSend(P_MUSIC_START);
+              }
             break;
 
             default:
               // Music track number to be played.
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
+                i_current_music_track = comStruct.i;
                 if(b_playing_music == true) {
                   stopMusic(); // Stops current track before change.
-                  i_current_music_track = comStruct.i;
-                  playMusic(); // Start playing new track number.
+                  packSerialSend(P_MUSIC_STOP);
 
                   // Tell the wand which track to play.
                   packSerialSend(i_current_music_track);
-                }
-                else {
-                  i_current_music_track = comStruct.i;
+
+                  playMusic(); // Start playing new track number.
+                  packSerialSend(P_MUSIC_START);
                 }
               }
             break;
@@ -5350,12 +5351,17 @@ void checkWand() {
               // Stop music.
               b_playing_music = false;
               stopMusic();
+
+              packSerialSend(P_MUSIC_STOP); 
             break;
 
             case W_MUSIC_START:
               // Play music.
               b_playing_music = true;
               playMusic();
+
+              packSerialSend(i_current_music_track);
+              packSerialSend(P_MUSIC_START);              
             break;
 
             case W_PROTON_STREAM_IMPACT_TOGGLE:
@@ -6097,6 +6103,10 @@ void checkWand() {
                   stopMusic(); // Stops current track before change.
                   i_current_music_track = comStruct.i;
                   playMusic(); // Start playing new track number.
+
+                  packSerialSend(P_MUSIC_STOP);
+                  packSerialSend(i_current_music_track);
+                  packSerialSend(P_MUSIC_START);   
                 }
                 else {
                   i_current_music_track = comStruct.i;

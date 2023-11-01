@@ -918,14 +918,16 @@ void mainLoop() {
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
-            if(b_repeat_track == false) {
-              // Loop the track.
-              b_repeat_track = true;
-              w_trig.trackLoop(i_current_music_track, 1);
-            }
-            else {
-              b_repeat_track = false;
-              w_trig.trackLoop(i_current_music_track, 0);
+            if(i_music_count > 0) {
+              if(b_repeat_track == false) {
+                // Loop the track.
+                b_repeat_track = true;
+                w_trig.trackLoop(i_current_music_track, 1);
+              }
+              else {
+                b_repeat_track = false;
+                w_trig.trackLoop(i_current_music_track, 0);
+              }
             }
 
             // Tell pack to loop the music track.
@@ -1009,59 +1011,21 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              if(i_current_music_track + 1 > i_music_track_start + (i_music_count - 1)) {
-                if(b_playing_music == true) {
-                  // Go to the first track to play it.
-                  stopMusic();
-                  i_current_music_track = i_music_track_start;
-                  playMusic();
-                }
-                else {
-                  i_current_music_track = i_music_track_start;
-                }
-              }
-              else {
-                // Stop the old track and play the new track if music is currently playing.
-                if(b_playing_music == true) {
-                  stopMusic();
-                  i_current_music_track++;
-                  playMusic();
-                }
-                else {
-                  i_current_music_track++;
-                }
+              if(b_playing_music == true) {
+                stopMusic();
               }
 
-              // Tell the pack which music track to change to.
-              wandSerialSend(i_current_music_track);
+              // Tell the pack to play the next track.
+              wandSerialSend(W_MUSIC_NEXT_TRACK);
             }
 
             if(switchMode() == true) {
-              if(i_current_music_track - 1 < i_music_track_start) {
-                if(b_playing_music == true) {
-                  // Go to the last track to play it.
-                  stopMusic();
-                  i_current_music_track = i_music_track_start + (i_music_count - 1);
-                  playMusic();
-                }
-                else {
-                  i_current_music_track = i_music_track_start + (i_music_count - 1);
-                }
-              }
-              else {
-                // Stop the old track and play the new track if music is currently playing.
-                if(b_playing_music == true) {
-                  stopMusic();
-                  i_current_music_track--;
-                  playMusic();
-                }
-                else {
-                  i_current_music_track--;
-                }
+              if(b_playing_music == true) {
+                stopMusic();
               }
 
-              // Tell the pack which music track to change to.
-              wandSerialSend(i_current_music_track);
+              // Tell the pack to play the next track.
+              wandSerialSend(W_MUSIC_PREV_TRACK);
             }
           }
           else {
@@ -1138,25 +1102,13 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              if(b_playing_music == true) {
-                // Stop music
-                b_playing_music = false;
-
+              if(b_playing_music == true) {              
                 // Tell the pack to stop music.
                 wandSerialSend(W_MUSIC_STOP);
-
-                stopMusic();
               }
               else {
-                if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-                  // Start music.
-                  b_playing_music = true;
-
-                  // Tell the pack to play music.
-                  wandSerialSend(W_MUSIC_START);
-
-                  playMusic();
-                }
+                // Tell the pack to play music.
+                wandSerialSend(W_MUSIC_START);
               }
             }
 
@@ -6290,7 +6242,9 @@ void checkRotary() {
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-            w_trig.trackGain(i_current_music_track, i_volume_music);
+            if(i_music_count > 0) {
+              w_trig.trackGain(i_current_music_track, i_volume_music);
+            }
 
             // Tell pack to lower the music volume.
             wandSerialSend(W_VOLUME_MUSIC_DECREASE);
@@ -6353,7 +6307,9 @@ void checkRotary() {
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-            w_trig.trackGain(i_current_music_track, i_volume_music);
+            if(i_music_count > 0) {
+              w_trig.trackGain(i_current_music_track, i_volume_music);
+            }
 
             // Tell pack to increase music volume.
             wandSerialSend(W_VOLUME_MUSIC_INCREASE);
@@ -6454,7 +6410,9 @@ void checkRotary() {
 
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-              w_trig.trackGain(i_current_music_track, i_volume_music);
+              if(i_music_count > 0) {
+                w_trig.trackGain(i_current_music_track, i_volume_music);
+              }
 
               // Tell pack to lower music volume.
               wandSerialSend(W_VOLUME_MUSIC_DECREASE);
@@ -6515,7 +6473,9 @@ void checkRotary() {
 
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-              w_trig.trackGain(i_current_music_track, i_volume_music);
+              if(i_music_count > 0) {
+                w_trig.trackGain(i_current_music_track, i_volume_music);
+              }
 
               // Tell pack to increase music volume.
               wandSerialSend(W_VOLUME_MUSIC_INCREASE);
@@ -7571,8 +7531,6 @@ void checkPack() {
                 stopMusic();
               }
 
-              b_playing_music = true;
-
               playMusic();
             break;
 
@@ -7586,16 +7544,7 @@ void checkPack() {
 
             default:
               // Music track number to be played.
-              if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
-                if(b_playing_music == true) {
-                  stopMusic(); // Stops current track before change.
-                  i_current_music_track = comStruct.i;
-                  playMusic(); // Start playing new track number.
-                }
-                else {
-                  i_current_music_track = comStruct.i;
-                }
-              }
+              i_current_music_track = comStruct.i;
             break;
           }
         }
@@ -7924,34 +7873,46 @@ void stopEffect(int i_track_id) {
 
 // Helper method to play a music track using certain defaults.
 void playMusic() {
-  // Loop the music track.
-  if(b_repeat_track == true) {
-    w_trig.trackLoop(i_current_music_track, 1);
-  }
-  else {
-    w_trig.trackLoop(i_current_music_track, 0);
-  }
+  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+    b_playing_music = true;
 
-  w_trig.trackGain(i_current_music_track, i_volume_music);
-  w_trig.trackPlayPoly(i_current_music_track, true);
+    // Loop the music track.
+    if(b_repeat_track == true) {
+      w_trig.trackLoop(i_current_music_track, 1);
+    }
+    else {
+      w_trig.trackLoop(i_current_music_track, 0);
+    }
 
-  w_trig.update();
+    w_trig.trackGain(i_current_music_track, i_volume_music);
+    w_trig.trackPlayPoly(i_current_music_track, true);
+
+    w_trig.update();
+  }
 }
 
 void stopMusic() {
-  w_trig.trackStop(i_current_music_track);
+  b_playing_music = false;
+
+  if(i_music_count > 0) {
+    w_trig.trackStop(i_current_music_track);
+  }
 
   w_trig.update();
 }
 
 void pauseMusic() {
-  w_trig.trackPause(i_current_music_track);
+  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+    w_trig.trackPause(i_current_music_track);
+  }
 
   w_trig.update();
 }
 
 void resumeMusic() {
-  w_trig.trackResume(i_current_music_track);
+  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+    w_trig.trackResume(i_current_music_track);
+  }
 
   w_trig.update();
 }
