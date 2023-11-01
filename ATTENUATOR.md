@@ -185,7 +185,7 @@ One notable point is the stated part in the BOM also supports a momentary "push"
 | LED'S          |   | Component | MCU Pin |
 |----------------|---|-----------|---------|
 | <font color="red">Red</font>    | → | 100uf  | 5V/VIN    |
-| <font color="blue">Blue</font>  | → | 470k Ω | D9/GPIO23 |
+| <font color="blue">Blue</font>  | → | 470 Ω | D9/GPIO23 |
 | <font color="gray">Black</font> | → | 100uf  | GND       |
 
 **Note:** It is advised to place a 100uf capacitor across the positive and negative connections to these devices, just to buffer any current fluctuations.
@@ -245,3 +245,7 @@ Ideally, the device should be connected to the gpstar Proton Pack Controller whi
 		* Main Dial - Turn CW/CCW: Adjusts the effects volume for pack/wand
 
 Note that during an overheat warning, the device will emit sounds and vibrations in addition to lighting effects as the pack reaches a critical state. At this time the pack operator can turn the primary dial either direction to cancel the current warning. If the warning time is allowed to expire the the pack will enter the vent sequence.
+
+## WiFi Connectivity
+
+When using the ESP32 controller it is possible to connect to the device via WiFi. The SSID (Network Name) will be broadcast as **"ProtonPack_####"** where "####" is the last 4 hexidecimal values for the MAC address of the WiFi interface. This will differ for each ESP32 device, making each network unique to the attached pack. The default password is **"555-2368"** and can (and should) be changed via the web interface after successfully connecting to the network. The IP address for the device will be hardcoded as "192.168.1.2" with the web interface accessible at "http://192.168.1.2".
