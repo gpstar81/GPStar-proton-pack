@@ -45,6 +45,7 @@
 
 // Web page files (HTML as char[])
 #include "index.h"
+#include "password.h"
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
@@ -250,6 +251,13 @@ void handleRoot(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Send index page.
 }
 
+void handlePassword(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  Serial.println("Password HTML Requested");
+  String s = PSWD_page; // Read HTML contents from .h file.
+  request->send(200, "text/html", s); // Send password page.
+}
+
 String getStatus() {
   jsonDoc.clear();
   jsonDoc["theme"] = getTheme();
@@ -347,7 +355,12 @@ void handleNotFound(AsyncWebServerRequest *request) {
 
 void setupRouting() {
   // Define the endpoints for the web server.
+
+  // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
+  httpServer.on("/password", HTTP_GET, handlePassword);
+
+  // AJAX Handlers
   httpServer.on("/status", HTTP_GET, handleStatus);
   httpServer.on("/pack/on", HTTP_GET, handlePackOn);
   httpServer.on("/pack/off", HTTP_GET, handlePackOff);
@@ -362,7 +375,7 @@ void setupRouting() {
   httpServer.on("/music/prev", HTTP_GET, handlePrevMusicTrack);
 
   // Handle the JSON body for the password change request.
-  AsyncCallbackJsonWebHandler *passwordHandler = new AsyncCallbackJsonWebHandler("/password", [](AsyncWebServerRequest *request, JsonVariant &json) {
+  AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
     StaticJsonDocument<256> jsonData;
     if (json.is<JsonObject>()) {
       jsonData = json.as<JsonObject>();
@@ -399,7 +412,7 @@ void setupRouting() {
       request->send(200, "application/json", result);
     }
   });
-  httpServer.addHandler(passwordHandler);
+  httpServer.addHandler(passwordChangeHandler);
 
   httpServer.onNotFound(handleNotFound);
 }

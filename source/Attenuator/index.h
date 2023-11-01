@@ -245,32 +245,6 @@ const char MAIN_page[] PROGMEM = R"=====(
       xhttp.open("GET", "/music/prev", true);
       xhttp.send();
     }
-
-    function updatePassword() {
-      var newPass = (document.getElementById("password").value || "").trim();
-      var confPW = (document.getElementById("password2").value || "").trim();
-      if (newPass.length < 8) {
-        alert("Your new password must be a minimum of 8 characters.");
-        return;
-      }
-      if (newPass != confPW) {
-        alert("Password and confirmation do not match. Please try again.");
-        return;
-      }
-
-      var body = JSON.stringify({password: newPass});
-
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          var jObj = JSON.parse(this.responseText);
-          alert(jObj.response);
-        }
-      };
-      xhttp.open("POST", "/password", true);
-      xhttp.setRequestHeader("Content-Type", "application/json");
-      xhttp.send(body);
-    }
   </script>
 </head>
 <body>
@@ -309,10 +283,7 @@ const char MAIN_page[] PROGMEM = R"=====(
   <br/>
   <br/>
   <br/>
-  <h1>WiFi Password</h1>
-  <b>New AP Password:</b> <input type="text" id="password" width="120"/><br/>
-  <b>Confirm Password:</b> <input type="text" id="password2" width="120"/><br/>
-  <button type="button" onclick="updatePassword()">Update</button>
+  <a href="/password">Change WiFi Password</a>
   <br/>
   <br/>
 </body>
