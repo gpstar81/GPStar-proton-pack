@@ -61,10 +61,16 @@ const char MAIN_page[] PROGMEM = R"=====(
   </style>
 
   <script type="application/javascript">
-    var gateway = "ws://${window.location.hostname}/ws";
+    var hostname = window.location.hostname;
+    var gateway = "ws://" + hostname + "/ws";
     var websocket;
+    var statusInterval;
 
     window.addEventListener("load", onLoad);
+
+    function onLoad(event) {
+      initWebSocket();
+    }
 
     function initWebSocket() {
       console.log("Trying to open a WebSocket connection...");
@@ -76,38 +82,43 @@ const char MAIN_page[] PROGMEM = R"=====(
 
     function onOpen(event) {
       console.log("Connection opened");
+
+      // Clear the automated status interval timer.
+      clearInterval(statusInterval);
     }
 
     function onClose(event) {
       console.log("Connection closed");
       setTimeout(initWebSocket, 1000);
+
+      // Fallback for when WebSocket is unavailable.
+      statusInterval = setInterval(function() {
+        getStatus(); // Check for status every X seconds
+      }, 1000);
     }
 
     function onMessage(event) {
-      console.log(event);
+      var data = JSON.parse(event.data);
+      updateStatus(data);
     }
 
-    function onLoad(event) {
-      initWebSocket();
+    function updateStatus(jObj) {
+      document.getElementById("theme").innerHTML = jObj.theme || "...";
+      document.getElementById("mode").innerHTML = jObj.mode || "...";
+      document.getElementById("pack").innerHTML = jObj.pack || "...";
+      document.getElementById("power").innerHTML = jObj.power || "...";
+      document.getElementById("wand").innerHTML = jObj.wand || "...";
+      document.getElementById("cable").innerHTML = jObj.cable || "...";
+      document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
+      document.getElementById("temperature").innerHTML = jObj.temperature || "...";
     }
-
-    setInterval(function() {
-      getStatus(); // Check for new data every X seconds
-    }, 1000);
 
     function getStatus() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          var jObj = JSON.parse(this.responseText);
-          document.getElementById("theme").innerHTML = jObj.theme || "...";
-          document.getElementById("mode").innerHTML = jObj.mode || "...";
-          document.getElementById("pack").innerHTML = jObj.pack || "...";
-          document.getElementById("power").innerHTML = jObj.power || "...";
-          document.getElementById("wand").innerHTML = jObj.wand || "...";
-          document.getElementById("cable").innerHTML = jObj.cable || "...";
-          document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
-          document.getElementById("temperature").innerHTML = jObj.temperature || "...";
+          var data = JSON.parse(this.responseText);
+          updateStatus(data);
         }
       };
       xhttp.open("GET", "/status", true);

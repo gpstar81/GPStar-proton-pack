@@ -59,7 +59,8 @@ String ap_pass; // Reserved for storing the true AP password set by the user.
 AsyncWebServer httpServer(80);
 
 // Define a websocket endpoint for the async web server.
-AsyncWebSocket webSocket("/ws");
+AsyncWebSocket ws("/ws");
+AsyncWebSocketClient* wsClient;
 
 // Define a wifi server object globally, answering to TCP port 90.
 WiFiServer wifiServer(90);
@@ -109,10 +110,14 @@ void configureNetwork() {
 
 // Create a client object for remote TCP connections.
 WiFiClient RemoteClient;
+
+// Create timers for server-push events.
 millisDelay ms_client;
+millisDelay ms_cleanup;
 millisDelay ms_websocket;
 const unsigned int i_remoteClientDelay = 2000;
-const unsigned int i_websocketDelay = 500;
+const unsigned int i_websocketCleanup = 5000;
+const unsigned int i_websocketDelay = 200;
 
 void checkServerConnections() {
   if (wifiServer.hasClient()) {
@@ -278,8 +283,11 @@ void handlePackOff(AsyncWebServerRequest *request) {
 }
 
 void handleCancelWarning(AsyncWebServerRequest *request) {
-  Serial.println("Cancel Overheat Warning");
-  attenuatorSerialSend(A_WARNING_CANCELLED);
+  if (i_speed_multiplier > 1) {
+    // Only send command to pack if cyclotron is not "normal".
+    Serial.println("Cancel Overheat Warning");
+    attenuatorSerialSend(A_WARNING_CANCELLED);
+  }
   request->send(200, "application/json", "{}");
 }
 
@@ -333,7 +341,7 @@ void handlePrevMusicTrack(AsyncWebServerRequest *request) {
 
 void handleNotFound(AsyncWebServerRequest *request) {
   // Returned for any invalid URL requested.
-  Serial.println("Web Not Found");
+  Serial.println("Web page not found");
   request->send(404, "text/plain", "Not Found");
 }
 
@@ -379,6 +387,7 @@ void setupRouting() {
         jsonData["response"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
         serializeJson(jsonData, result); // Serialize to string.
         request->send(200, "application/json", result);
+        delay(1000); // Pause to allow response to flow.
         ESP.restart(); // Reboot device
       }
     }
@@ -395,14 +404,30 @@ void setupRouting() {
   httpServer.onNotFound(handleNotFound);
 }
 
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){
+  if(type == WS_EVT_CONNECT){
+    Serial.println("WebSocket Client Connected");
+    wsClient = client;
+  } else if(type == WS_EVT_DISCONNECT){
+    Serial.println("WebSocket Client Disconnected");
+    wsClient = nullptr;
+  }
+}
+
 // Define server actions after declaring all functions for URL routing.
 void startWebServer() {
   setupRouting(); // Set URI's with handlers.
+  ws.onEvent(onWsEvent);
+  httpServer.addHandler(&ws);
   httpServer.begin(); // Start the daemon.
   Serial.println("HTTP Server Started");
 }
 
 // Send notification to all websocket clients.
 void notifyWSClients() {
-  webSocket.textAll(getStatus());
+  // Send latest status if WS client is connected.
+  if(wsClient != nullptr && wsClient->canSend()) {
+    wsClient->text(getStatus());
+  }
+  // ws.textAll(getStatus());
 }

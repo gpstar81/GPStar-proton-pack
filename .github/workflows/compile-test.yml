@@ -77,6 +77,8 @@ jobs:
   #             - name: SerialTransfer
   #             - name: ArduinoJson
   #             - name: Preferences
+  #             - name: ESPAsyncWebSrv
+  #             - name: AsyncTCP
   #             - source-url: https://github.com/ansonhe97/millisDelay.git
   #           verbose: false
   #           cli-compile-flags:

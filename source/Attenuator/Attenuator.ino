@@ -121,6 +121,7 @@ void setup() {
 
       // Begin timer for remote client events.
       ms_client.start(i_remoteClientDelay);
+      ms_cleanup.start(i_websocketCleanup);
       ms_websocket.start(i_websocketDelay);
     }
   #endif
@@ -131,20 +132,25 @@ void setup() {
 
 void loop() {
   #if defined(__XTENSA__)
-    // ESP32 - Handle requests by clients.
+    // ESP32 - Handle requests by TCP/WebSocket clients.
     checkServerConnections();
-    webSocket.cleanupClients();
-
-    if (ms_websocket.remaining() < 1) {
-      // Send data and reset the timer.
-      notifyWSClients();
-      ms_websocket.start(i_websocketDelay);
-    }
 
     if (ms_client.remaining() < 1) {
-      // Send data and reset the timer.
+      // Send client data and reset the timer.
       sendCurrentData();
       ms_client.start(i_remoteClientDelay);
+    }
+
+    if (ms_cleanup.remaining() < 1) {
+      // Clean up any websocket clients (oldest connections).
+      ws.cleanupClients();
+      ms_cleanup.start(i_websocketCleanup);
+    }
+
+    if (ms_websocket.remaining() < 1) {
+      // Send recent equipment status and reset the timer.
+      notifyWSClients();
+      ms_websocket.start(i_websocketDelay);
     }
   #endif
 
