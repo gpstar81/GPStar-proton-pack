@@ -120,9 +120,8 @@ void setup() {
       startWebServer();
 
       // Begin timer for remote client events.
-      ms_client.start(i_remoteClientDelay);
+      ms_clients.start(i_remoteClientDelay);
       ms_cleanup.start(i_websocketCleanup);
-      ms_websocket.start(i_websocketDelay);
     }
   #endif
 
@@ -135,22 +134,16 @@ void loop() {
     // ESP32 - Handle requests by TCP/WebSocket clients.
     checkServerConnections();
 
-    if (ms_client.remaining() < 1) {
+    if (ms_clients.remaining() < 1) {
       // Send client data and reset the timer.
       sendCurrentData();
-      ms_client.start(i_remoteClientDelay);
+      ms_clients.start(i_remoteClientDelay);
     }
 
     if (ms_cleanup.remaining() < 1) {
       // Clean up any websocket clients (oldest connections).
       ws.cleanupClients();
       ms_cleanup.start(i_websocketCleanup);
-    }
-
-    if (ms_websocket.remaining() < 1) {
-      // Send recent equipment status and reset the timer.
-      notifyWSClients();
-      ms_websocket.start(i_websocketDelay);
     }
   #endif
 
@@ -592,6 +585,11 @@ void attenuatorSerialSend(int i_message) {
   sendStruct.e = A_COM_END;
 
   packComs.sendDatum(sendStruct);
+
+  #if defined(__XTENSA__)
+    // ESP - Alert all WebSocket clients after an API call was made.
+    notifyWSClients();
+  #endif
 }
 
 void checkPack() {
@@ -877,6 +875,11 @@ void checkPack() {
             }
           break;
         }
+
+        #if defined(__XTENSA__)
+          // ESP - Alert all WebSocket clients after an API call was received.
+          notifyWSClients();
+        #endif
       }
 
       comStruct.i = 0;

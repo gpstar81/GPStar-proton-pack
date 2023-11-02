@@ -113,12 +113,10 @@ void configureNetwork() {
 WiFiClient RemoteClient;
 
 // Create timers for server-push events.
-millisDelay ms_client;
+millisDelay ms_clients;
 millisDelay ms_cleanup;
-millisDelay ms_websocket;
 const unsigned int i_remoteClientDelay = 2000;
 const unsigned int i_websocketCleanup = 5000;
-const unsigned int i_websocketDelay = 200;
 
 void checkServerConnections() {
   if (wifiServer.hasClient()) {
@@ -139,6 +137,7 @@ void checkServerConnections() {
 void sendCurrentData() {
   StaticJsonDocument<256> jsonData;
   if (RemoteClient.connected() && RemoteClient.available()) { 
+    Serial.println("Client connected and available");
     // RemoteClient.write(buffer, length);
   }
 }
