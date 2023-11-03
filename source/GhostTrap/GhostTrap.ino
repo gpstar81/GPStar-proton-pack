@@ -43,7 +43,7 @@ void setup(){
   // Begin waiting, so we can keep moving in the main loop.
   ms_wifiretry.start(i_wifi_retry_wait);
 
-  //pinMode(TEST_LED_PIN, OUTPUT);
+  pinMode(TEST_LED_PIN, OUTPUT);
 }
 
 void loop(){
@@ -60,11 +60,12 @@ void loop(){
         Serial.println("WiFi Connected");
         Serial.println(WiFi.localIP());
         b_wifi_connected = true;
-        //digitalWrite(TEST_LED_PIN, HIGH);
+        digitalWrite(TEST_LED_PIN, HIGH);
       }
     }
   }
 
+  // When the wifi connection is established, proceed with websocket.
   if (b_wifi_connected) {
     if (!b_socket_config) {
       // Connect to the Attenuator device which is at a known IP address.
@@ -76,7 +77,7 @@ void loop(){
       webSocket.setReconnectInterval(i_websocket_retry_wait);
 
       // Denote that we configured the websocket connection.
-      //b_socket_config = true;
+      b_socket_config = true;
     }
 
     webSocket.loop(); // Keep the socket alive.
