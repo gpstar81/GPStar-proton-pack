@@ -26,6 +26,8 @@ The following libraries are required to be installed. All but the MillisDelay li
 - **SerialTransfer** by PowerBroker2
 - **millisDelay** `See Below`
 
+For reference, the FQBN for builds is "arduino:avr:mega" for the gpstar PCB's while "arduino:avr:nano" would be used for a Nano controller as part of the DIY builds.
+
 ### MillisDelay
 
 The MillisDelay library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.

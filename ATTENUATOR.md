@@ -226,6 +226,34 @@ The dimensions of the project housing allows for easy access into all areas of t
 
 For assembly, the shell contains 4 holes meant to take heat-set inserts which provide metal-threaded junctions for screws to hold on the bottom plate. Because the plat must then be attached to the ALICE pack strap these should be secure but removable in the case of re-flashing software updates to the device.
 
+## Software Requirements
+
+To build or edit the code for this device you must have an ArduinoIDE environment set up similar to what is needed for the pack/wand software. Download and install the Arduino IDE 2.x or higher. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
+
+[Arduino IDE 2.x](https://www.arduino.cc/en/software)
+
+The following libraries are required to be installed. All but the MillisDelay library can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
+
+- **FastLED** by Daniel Garcia
+- **ezButton** by ArduinoGetStarted.com
+- **simple ht16k33 library** by lpaseen
+- **SerialTransfer** by PowerBroker2
+- **ArduinoJSON** by Benoit Blanchon
+- **AsyncTCP** by dvarrel
+- **ESPAsyncTCP** by dvarrel
+- **ESPAsyncWebSrv** by dvarrel
+- **Preferences** by Volodymyr Shymanskyy
+- **millisDelay** `See Below`
+
+To build for the ESP32 controller you will need to use the `Boards Manager` to install the "esp32 by Expressif Systems" package. When selecting a board for compilation and upload, simply use the board "ESP32 Dev Module" for satisfactory results. For reference, the FQBN for builds is "esp32:esp32:esp32".
+
+### MillisDelay
+
+The MillisDelay library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
+[https://github.com/ansonhe97/millisDelay](https://github.com/ansonhe97/millisDelay)
+
+No further configuration is needed for this library.
+
 ## Operation
 
 While not attached to a compatible Proton Pack (read: standalone mode) the device will simply provide some lights and effects. The left toggle switch will turn on the bargraph animations while the right toggle switch will turn on the LED's.
