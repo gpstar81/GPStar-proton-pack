@@ -18,7 +18,7 @@
  *
  */
 
-// Supress warning about SPI hardware pins
+// Suppress warning about SPI hardware pins
 #define FASTLED_INTERNAL
 
 // 3rd-Party Libraries
@@ -39,6 +39,7 @@ void setup(){
   Serial.print("WiFi Password: ");
   Serial.print(ap_pass);
   WiFi.begin(ap_ssid, ap_pass);
+  Serial.println("Waiting for WiFi connection...");
 
   // Begin waiting, so we can keep moving in the main loop.
   ms_wifiretry.start(i_wifi_retry_wait);
@@ -50,16 +51,34 @@ void loop(){
   //digitalWrite(TEST_LED_PIN, HIGH);
 
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Waiting for WiFi connection...");
+    Serial.println("."); // Note that we're still waiting.
     ms_wifiretry.start(i_wifi_retry_wait);
+    b_wifi_connected = false;
+    b_socket_config= false;
   }
   else {
-    Serial.println("WiFi Connected!");
-    Serial.println(WiFi.localIP());
-    b_wifi_connected = true;
+    if (!b_wifi_connected) {
+      // On first connection, output some status indicating as such.
+      Serial.println("WiFi Connected!");
+      Serial.println(WiFi.localIP());
+      b_wifi_connected = true;
+    }
   }
 
   if (b_wifi_connected) {
+    if (!b_socket_config) {
+      // Connect to the Attenuator device which is at a known IP address.
+      webSocket.begin("192.168.1.2", 80, "/ws");
 
+      webSocket.onEvent(webSocketEvent); // WebSocket event handler
+
+      // If connection broken/failed then retry every X seconds.
+      webSocket.setReconnectInterval(i_websocket_retry_wait);
+
+      // Denote that we configured the websocket connection.
+      b_socket_config= true;
+    }
+
+    webSocket.loop(); // Keep the socket alive.
   }
 }

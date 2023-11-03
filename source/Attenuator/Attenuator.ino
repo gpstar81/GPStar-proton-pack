@@ -19,7 +19,7 @@
  */
 
 #if defined(__XTENSA__)
-  // ESP - Supress warning about SPI hardware pins
+  // ESP - Suppress warning about SPI hardware pins
   #define FASTLED_INTERNAL
 #endif
 
