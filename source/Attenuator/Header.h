@@ -56,9 +56,11 @@ millisDelay ms_buzzer;
 millisDelay ms_vibrate;
 bool b_buzzer_on = false;
 bool b_vibrate_on = false;
-const unsigned int i_buzz_max = 200; // Longest duration for a standalone "beep".
-const unsigned int i_vibrate_min = 500; // Minimum runtime for physical feedback.
-const unsigned int i_vibrate_max = 1000; // Max runtime for the vibration motor.
+const uint8_t i_min_power = 0;
+const uint8_t i_max_power = 255;
+const unsigned int i_buzzer_max_time = 250; // Longest duration for a standalone "beep".
+const unsigned int i_vibrate_min_time = 500; // Minimum runtime for vibration motor.
+const unsigned int i_vibrate_max_time = 1500; // Maximum runtime for vibration motor.
 
 /*
  * Delay for fastled to update the addressable LEDs.

@@ -103,7 +103,7 @@ void setup() {
 
   // Turn off any user feedback.
   noTone(BUZZER_PIN);
-  useVibration(0, 0);
+  useVibration(i_min_power, 0);
 
   #if defined(__XTENSA__)
     // ESP32 - Setup WiFi and WebServer
@@ -255,12 +255,12 @@ void mainLoop() {
         if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
           // Only blink the lower LED as we will use a fade effect for the upper LED.
           attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
-          useVibration(0, 0); // Stop vibration.
+          useVibration(i_min_power, 0); // Stop vibration.
           buzzOff(); // Stop buzzer tone.
         }
         else {
           controlLEDs(); // Turn LEDs on using appropriate color scheme.
-          useVibration(255, i_vibrate_max); // Provide physical feedback.
+          useVibration(i_max_power, i_vibrate_max_time); // Provide physical feedback.
           buzzOn(523); // Tone as note C4
         }
       }
@@ -282,14 +282,14 @@ void mainLoop() {
 
   // Turn off vibration if timer finished.
   if(b_vibrate_on && ms_vibrate.justFinished()) {
-    useVibration(0, 0);
+    useVibration(i_min_power, 0);
   }
 
   // Update bargraph elements, leveraging cyclotron speed modifier.
   // In reality this multiplier is a divisor to the standard delay.
   bargraphUpdate(i_speed_multiplier);
 
-  // Update the device LEDs.
+  // Update the device LEDs and restart the timer.
   if(ms_fast_led.justFinished()) {
     FastLED.show();
     ms_fast_led.start(i_fast_led_delay);
@@ -298,7 +298,7 @@ void mainLoop() {
 
 void buzzOn(unsigned int i_freq) {
   tone(BUZZER_PIN, i_freq);
-  ms_buzzer.start(i_buzz_max);
+  ms_buzzer.start(i_buzzer_max_time);
   b_buzzer_on = true;
 }
 
@@ -321,7 +321,7 @@ void useVibration(uint8_t i_power_level, unsigned int i_duration) {
 
   if(b_vibrate_on) {
     // Set timer for shorter of given duration or max runtime.
-    ms_vibrate.start(min(i_duration, i_vibrate_max));
+    ms_vibrate.start(min(i_duration, i_vibrate_max_time));
   }
 }
 
@@ -431,13 +431,13 @@ void checkRotaryPress() {
         case MENU_1:
           // A short, single press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
-          useVibration(255, i_vibrate_min); // Give a quick nudge.
+          useVibration(i_max_power, i_vibrate_min_time); // Give a quick nudge.
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-          useVibration(255, i_vibrate_min); // Give a quick nudge.
+          useVibration(i_max_power, i_vibrate_min_time); // Give a quick nudge.
         break;
       }
     break;
@@ -448,13 +448,13 @@ void checkRotaryPress() {
         case MENU_1:
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
-          useVibration(255, i_vibrate_min); // Give a quick nudge.
+          useVibration(i_max_power, i_vibrate_min_time); // Give a quick nudge.
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
-          useVibration(255, i_vibrate_min); // Give a quick nudge.
+          useVibration(i_max_power, i_vibrate_min_time); // Give a quick nudge.
         break;
       }
     break;
@@ -466,13 +466,13 @@ void checkRotaryPress() {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
           Serial.println("Changed to Menu 2");
-          useVibration(255, i_vibrate_min); // Give a quick nudge.
+          useVibration(i_max_power, i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
           Serial.println("Changed to Menu 1");
-          useVibration(255, i_vibrate_min); // Give a quick nudge.
+          useVibration(i_max_power, i_vibrate_max_time); // Give a long nudge.
           buzzOn(440); // Tone as note A4
         break;
       }
@@ -791,7 +791,7 @@ void checkPack() {
               bargraphClear();
               BARGRAPH_PATTERN = BG_POWER_RAMP;
 
-              useVibration(0, 0); // Stop vibration.
+              useVibration(i_min_power, 0); // Stop vibration.
             }
           break;
 
@@ -816,7 +816,7 @@ void checkPack() {
             bargraphClear();
             BARGRAPH_PATTERN = BG_POWER_RAMP;
 
-            useVibration(0, 0); // Stop vibration.
+            useVibration(i_min_power, 0); // Stop vibration.
           break;
 
           case A_FIRING:
