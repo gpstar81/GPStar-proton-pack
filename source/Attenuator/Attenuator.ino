@@ -615,10 +615,18 @@ void checkPack() {
           break;
 
           case A_PACK_ON:
-          case A_WAND_ON:
             debug("Pack On");
 
-            // Pack is on (directly or via the wand).
+            // Pack is on (directly).
+            b_pack_on = true;
+
+            BARGRAPH_PATTERN = BG_POWER_RAMP;
+          break;
+
+          case A_WAND_ON:
+            debug("Wand On");
+
+            // Pack is on (via wand).
             b_pack_on = true;
 
             BARGRAPH_PATTERN = BG_POWER_RAMP;
