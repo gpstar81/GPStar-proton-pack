@@ -590,11 +590,6 @@ void attenuatorSerialSend(int i_message) {
   sendStruct.e = A_COM_END;
 
   packComs.sendDatum(sendStruct);
-
-  #if defined(__XTENSA__)
-    // ESP - Alert all WebSocket clients after an API call was made.
-    notifyWSClients();
-  #endif
 }
 
 void checkPack() {
@@ -883,7 +878,10 @@ void checkPack() {
 
         #if defined(__XTENSA__)
           // ESP - Alert all WebSocket clients after an API call was received.
-          notifyWSClients();
+          // Excluding the handshake as this is received way too oftens.
+          if (comStruct.i != A_HANDSHAKE) {
+            notifyWSClients();
+          }
         #endif
       }
 
