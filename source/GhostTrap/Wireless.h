@@ -17,11 +17,19 @@
  *   along with this program; if not, see <https://www.gnu.org/licenses/>.
  *
  */
+// Requires library from https://github.com/Links2004/arduinoWebSockets
 #include <ArduinoJson.h>
-// #include <AsyncJson.h>
-// #include <AsyncTCP.h>
-// #include <ESPAsyncTCP.h>
+#include <WebServer.h>
+#include <WebSocketsClient.h>
 #include <WiFi.h>
 
-const char* wifissid = "ProtonPack_1974";
-const char* password = "12345678";
+const char* ap_ssid = "ProtonPack_9174";
+const char* ap_pass = "12345678";
+
+millisDelay ms_wifiretry;
+const unsigned int i_wifi_retry_wait = 500; // How long between attempts to find the wifi network
+bool b_wifi_connected = false; // Denotes connection to wifi network
+
+WebSocketsClient webSocket; // WebSocket client class instance
+
+StaticJsonDocument<256> doc; // Allocate a static JSON document

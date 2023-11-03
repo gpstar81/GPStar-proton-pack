@@ -18,6 +18,9 @@
  *
  */
 
+// Supress warning about SPI hardware pins
+#define FASTLED_INTERNAL
+
 // 3rd-Party Libraries
 #include <FastLED.h>
 #include <millisDelay.h>
@@ -29,17 +32,34 @@
 void setup(){
   Serial.begin(9600);
 
-  WiFi.begin(wifissid, password);
-  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    Serial.printf("WiFi Failed!\n");
-    return;
-  }
-  Serial.printf("WiFi Connected!\n");
-  Serial.println(WiFi.localIP());
+  Serial.println(""); // Blank line.
+
+  Serial.print("WiFi Network: ");
+  Serial.print(ap_ssid);
+  Serial.print("WiFi Password: ");
+  Serial.print(ap_pass);
+  WiFi.begin(ap_ssid, ap_pass);
+
+  // Begin waiting, so we can keep moving in the main loop.
+  ms_wifiretry.start(i_wifi_retry_wait);
 
   pinMode(TEST_LED_PIN, OUTPUT);
 }
 
 void loop(){
   //digitalWrite(TEST_LED_PIN, HIGH);
+
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Waiting for WiFi connection...");
+    ms_wifiretry.start(i_wifi_retry_wait);
+  }
+  else {
+    Serial.println("WiFi Connected!");
+    Serial.println(WiFi.localIP());
+    b_wifi_connected = true;
+  }
+
+  if (b_wifi_connected) {
+
+  }
 }
