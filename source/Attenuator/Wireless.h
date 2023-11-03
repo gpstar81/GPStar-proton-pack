@@ -109,38 +109,9 @@ void configureNetwork() {
   wifiServer.begin();
 }
 
-// Create a client object for remote TCP connections.
-WiFiClient RemoteClient;
-
 // Create timers for server-push events.
-millisDelay ms_clients;
 millisDelay ms_cleanup;
-const unsigned int i_remoteClientDelay = 2000;
 const unsigned int i_websocketCleanup = 5000;
-
-void checkServerConnections() {
-  if (wifiServer.hasClient()) {
-    // If we are already connected to another computer, 
-    // then reject the new connection. Otherwise accept
-    // the connection. 
-    if (RemoteClient.connected()) {
-      Serial.println("Connection rejected");
-      wifiServer.available().stop();
-    }
-    else {
-      Serial.println("Connection accepted");
-      RemoteClient = wifiServer.available();
-    }
-  }
-}
-
-void sendCurrentData() {
-  StaticJsonDocument<256> jsonData;
-  if (RemoteClient.connected() && RemoteClient.available()) { 
-    Serial.println("Client connected and available");
-    // RemoteClient.write(buffer, length);
-  }
-}
 
 /*
  * Text Helper Functions - Converts ENUM values to user-friendly text
@@ -416,7 +387,7 @@ void setupRouting() {
   httpServer.onNotFound(handleNotFound);
 }
 
-void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){
+void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){
   if(type == WS_EVT_CONNECT){
     Serial.println("WebSocket Client Connected");
     wsClient = client;
@@ -429,7 +400,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 // Define server actions after declaring all functions for URL routing.
 void startWebServer() {
   setupRouting(); // Set URI's with handlers.
-  ws.onEvent(onWsEvent);
+  ws.onEvent(onWebSocketEvent);
   httpServer.addHandler(&ws);
   httpServer.begin(); // Start the daemon.
   Serial.println("HTTP Server Started");
