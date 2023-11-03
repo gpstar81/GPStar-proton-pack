@@ -48,29 +48,31 @@ void setup(){
 
 void loop(){
   if (WiFi.status() == WL_CONNECTION_LOST) {
+    Serial.println("WiFi Connection Lost");
+
     // If wifi has dropped, clear some flags.
     b_wifi_connected = false;
     b_socket_config= false;
 
-    // Try to reconnect and check status.
+    // Try to reconnect then check status.
     WiFi.reconnect();
     ms_wifiretry.start(i_wifi_retry_wait);
   }
 
-  if (ms_wifiretry.remaining() < 1) {
-    if (WiFi.status() != WL_CONNECTED) {
+  if (!b_wifi_connected && ms_wifiretry.remaining() < 1) {
+    // Timeout expired, check if we have a connection yet.
+    if (WiFi.status() == WL_CONNECTED) {
+      // On first connection, output some status indicating as such.
+      Serial.println("WiFi Connected");
+      Serial.println(WiFi.localIP());
+      b_wifi_connected = true;
+    }
+    else {
+      // When not connected, could be any number of status possible.
       Serial.println("."); // Note that we're still waiting.
       ms_wifiretry.start(i_wifi_retry_wait);
       b_wifi_connected = false;
       b_socket_config= false;
-    }
-    else {
-      if (!b_wifi_connected) {
-        // On first connection, output some status indicating as such.
-        Serial.println("WiFi Connected");
-        Serial.println(WiFi.localIP());
-        b_wifi_connected = true;
-      }
     }
   }
 
