@@ -47,6 +47,16 @@ void setup(){
 }
 
 void loop(){
+  if (WiFi.status() == WL_CONNECTION_LOST) {
+    // If wifi has dropped, clear some flags.
+    b_wifi_connected = false;
+    b_socket_config= false;
+
+    // Try to reconnect and check status.
+    WiFi.reconnect();
+    ms_wifiretry.start(i_wifi_retry_wait);
+  }
+
   if (ms_wifiretry.remaining() < 1) {
     if (WiFi.status() != WL_CONNECTED) {
       Serial.println("."); // Note that we're still waiting.
@@ -60,13 +70,14 @@ void loop(){
         Serial.println("WiFi Connected");
         Serial.println(WiFi.localIP());
         b_wifi_connected = true;
-        digitalWrite(TEST_LED_PIN, HIGH);
       }
     }
   }
 
   // When the wifi connection is established, proceed with websocket.
   if (b_wifi_connected) {
+    digitalWrite(TEST_LED_PIN, HIGH);
+
     if (!b_socket_config) {
       // Connect to the Attenuator device which is at a known IP address.
       webSocket.begin("192.168.1.2", 80, "/ws");
@@ -81,5 +92,8 @@ void loop(){
     }
 
     webSocket.loop(); // Keep the socket alive.
+  }
+  else {
+    digitalWrite(TEST_LED_PIN, LOW);
   }
 }
