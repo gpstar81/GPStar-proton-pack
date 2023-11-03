@@ -441,5 +441,4 @@ void notifyWSClients() {
   if(wsClient != nullptr && wsClient->canSend()) {
     wsClient->text(getStatus());
   }
-  // ws.textAll(getStatus());
 }

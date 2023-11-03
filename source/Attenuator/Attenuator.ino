@@ -649,7 +649,7 @@ void checkPack() {
           break;
 
           case A_HANDSHAKE:
-            debug("Handshake");
+            //debug("Handshake");
 
             // The pack is asking us if we are still here. Respond back.
             attenuatorSerialSend(A_HANDSHAKE);
