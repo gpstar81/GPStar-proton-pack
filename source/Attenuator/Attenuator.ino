@@ -18,6 +18,11 @@
  *
  */
 
+#if defined(__XTENSA__)
+  // ESP - Supress warning about SPI hardware pins
+  #define FASTLED_INTERNAL
+#endif
+
 // 3rd-Party Libraries
 #include <millisDelay.h>
 #include <FastLED.h>

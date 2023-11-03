@@ -18,28 +18,7 @@
  *
  */
 
-// 3rd-Party Libraries
-#include <FastLED.h>
-#include <millisDelay.h>
-
-// Local Files
-#include "Header.h"
-#include "Wireless.h"
-
-void setup(){
-  Serial.begin(9600);
-
-  WiFi.begin(wifissid, password);
-  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    Serial.printf("WiFi Failed!\n");
-    return;
-  }
-  Serial.printf("WiFi Connected!\n");
-  Serial.println(WiFi.localIP());
-
-  pinMode(TEST_LED_PIN, OUTPUT);
-}
-
-void loop(){
-  //digitalWrite(TEST_LED_PIN, HIGH);
-}
+/*
+ * Pin for test LED.
+ */
+#define TEST_LED_PIN 5
