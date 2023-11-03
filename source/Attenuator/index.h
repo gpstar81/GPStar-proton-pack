@@ -70,6 +70,7 @@ const char MAIN_page[] PROGMEM = R"=====(
 
     function onLoad(event) {
       initWebSocket();
+      getStatus();
     }
 
     function initWebSocket() {
