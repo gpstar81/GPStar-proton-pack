@@ -38,9 +38,10 @@ StaticJsonDocument<256> jsonDoc; // Allocate a static JSON document
 
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
   if (type == WStype_TEXT) {
-    // Deserialize incoming Json String
+    // Deserialize incoming JSON String from remote websocket server.
     DeserializationError error = deserializeJson(jsonDoc, payload); 
-    if (error) { // Print erro msg if incomig String is not JSON formated
+    if (error) {
+      // Print error msg if incomig String is not JSON formatted.
       Serial.print(F("deserializeJson() failed: "));
       Serial.println(error.c_str());
       return;

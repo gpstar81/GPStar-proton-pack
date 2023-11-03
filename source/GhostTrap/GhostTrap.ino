@@ -79,6 +79,6 @@ void loop(){
       b_socket_config= true;
     }
 
-    webSocket.loop(); // Keep the socket alive.
+    //webSocket.loop(); // Keep the socket alive.
   }
 }
