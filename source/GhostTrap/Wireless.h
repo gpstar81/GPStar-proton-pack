@@ -39,7 +39,6 @@ StaticJsonDocument<256> jsonDoc; // Allocate a static JSON document
 void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
   if (type == WStype_CONNECTED) {
     Serial.println("WebSocket Connected");
-    b_socket_config = true; // Record that a connection is established.
   }
 
   if (type == WStype_DISCONNECTED) {
