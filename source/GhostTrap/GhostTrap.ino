@@ -33,35 +33,35 @@ void setup(){
   Serial.begin(9600);
 
   Serial.println(""); // Blank line.
-
   Serial.print("WiFi Network: ");
-  Serial.print(ap_ssid);
+  Serial.println(ap_ssid);
   Serial.print("WiFi Password: ");
-  Serial.print(ap_pass);
+  Serial.println(ap_pass);
   WiFi.begin(ap_ssid, ap_pass);
   Serial.println("Waiting for WiFi connection...");
 
   // Begin waiting, so we can keep moving in the main loop.
   ms_wifiretry.start(i_wifi_retry_wait);
 
-  pinMode(TEST_LED_PIN, OUTPUT);
+  //pinMode(TEST_LED_PIN, OUTPUT);
 }
 
 void loop(){
-  //digitalWrite(TEST_LED_PIN, HIGH);
-
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("."); // Note that we're still waiting.
-    ms_wifiretry.start(i_wifi_retry_wait);
-    b_wifi_connected = false;
-    b_socket_config= false;
-  }
-  else {
-    if (!b_wifi_connected) {
-      // On first connection, output some status indicating as such.
-      Serial.println("WiFi Connected!");
-      Serial.println(WiFi.localIP());
-      b_wifi_connected = true;
+  if (ms_wifiretry.remaining() < 1) {
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("."); // Note that we're still waiting.
+      ms_wifiretry.start(i_wifi_retry_wait);
+      b_wifi_connected = false;
+      b_socket_config= false;
+    }
+    else {
+      if (!b_wifi_connected) {
+        // On first connection, output some status indicating as such.
+        Serial.println("WiFi Connected");
+        Serial.println(WiFi.localIP());
+        b_wifi_connected = true;
+        //digitalWrite(TEST_LED_PIN, HIGH);
+      }
     }
   }
 
@@ -76,9 +76,9 @@ void loop(){
       webSocket.setReconnectInterval(i_websocket_retry_wait);
 
       // Denote that we configured the websocket connection.
-      b_socket_config= true;
+      //b_socket_config = true;
     }
 
-    //webSocket.loop(); // Keep the socket alive.
+    webSocket.loop(); // Keep the socket alive.
   }
 }

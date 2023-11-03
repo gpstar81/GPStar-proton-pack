@@ -27,7 +27,7 @@ const char* ap_ssid = "ProtonPack_9174";
 const char* ap_pass = "12345678";
 
 millisDelay ms_wifiretry;
-const unsigned int i_wifi_retry_wait = 1000; // How long between attempts to find the wifi network
+const unsigned int i_wifi_retry_wait = 500; // How long between attempts to find the wifi network
 const unsigned int i_websocket_retry_wait = 5000; // How long between restoring the websocket
 bool b_wifi_connected = false; // Denotes connection to expected wifi network
 bool b_socket_config = false; // Denotes websocket configuration was performed
@@ -36,7 +36,16 @@ WebSocketsClient webSocket; // WebSocket client class instance
 
 StaticJsonDocument<256> jsonDoc; // Allocate a static JSON document
 
-void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
+void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
+  if (type == WStype_CONNECTED) {
+    Serial.println("WebSocket Connected");
+    b_socket_config = true; // Record that a connection is established.
+  }
+
+  if (type == WStype_DISCONNECTED) {
+    Serial.println("WebSocket Disconnected");
+  }
+
   if (type == WStype_TEXT) {
     // Deserialize incoming JSON String from remote websocket server.
     DeserializationError error = deserializeJson(jsonDoc, payload); 
@@ -44,35 +53,35 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       // Print error msg if incomig String is not JSON formatted.
       Serial.print(F("deserializeJson() failed: "));
       Serial.println(error.c_str());
-      return;
     }
+    else {
+      // Store values as a known datatype (String).
+      String data_theme = jsonDoc["theme"];
+      String data_mode = jsonDoc["mode"];
+      String data_pack = jsonDoc["pack"];
+      String data_power = jsonDoc["power"];
+      String data_wand = jsonDoc["wand"];
+      String data_cable = jsonDoc["cable"];
+      String data_ctron = jsonDoc["cyclotron"];
+      String data_temp = jsonDoc["temperature"];
 
-    // Store values as a known datatype (String).
-    String data_theme = jsonDoc["theme"];
-    String data_mode = jsonDoc["mode"];
-    String data_pack = jsonDoc["pack"];
-    String data_power = jsonDoc["power"];
-    String data_wand = jsonDoc["wand"];
-    String data_cable = jsonDoc["cable"];
-    String data_ctron = jsonDoc["cyclotron"];
-    String data_temp = jsonDoc["temperature"];
-
-    // Output for debug purposes only.
-    Serial.print("Operating Mode: ");
-    Serial.println(data_theme);
-    Serial.print("Device Mode: ");
-    Serial.println(data_mode);
-    Serial.print("Pack State: ");
-    Serial.println(data_pack);
-    Serial.print("Power Level: ");
-    Serial.println(data_power);
-    Serial.print("Neutrona Wand: ");
-    Serial.println(data_wand);
-    Serial.print("Ribbon Cable: ");
-    Serial.println(data_cable);
-    Serial.print("Cyclotron State: ");
-    Serial.println(data_ctron);
-    Serial.print("Overheat State: ");
-    Serial.println(data_temp);
+      // Output for debug purposes only.
+      Serial.print("Operating Mode: ");
+      Serial.println(data_theme);
+      Serial.print("Device Mode: ");
+      Serial.println(data_mode);
+      Serial.print("Pack State: ");
+      Serial.println(data_pack);
+      Serial.print("Power Level: ");
+      Serial.println(data_power);
+      Serial.print("Neutrona Wand: ");
+      Serial.println(data_wand);
+      Serial.print("Ribbon Cable: ");
+      Serial.println(data_cable);
+      Serial.print("Cyclotron State: ");
+      Serial.println(data_ctron);
+      Serial.print("Overheat State: ");
+      Serial.println(data_temp);
+    }
   }
 }
