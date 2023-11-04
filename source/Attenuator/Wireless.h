@@ -61,7 +61,6 @@ AsyncWebServer httpServer(80);
 
 // Define a websocket endpoint for the async web server.
 AsyncWebSocket ws("/ws");
-AsyncWebSocketClient* wsClient;
 
 // Define a wifi server object globally, answering to TCP port 90.
 WiFiServer wifiServer(90);
@@ -387,20 +386,32 @@ void setupRouting() {
   httpServer.onNotFound(handleNotFound);
 }
 
-void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){
-  if(type == WS_EVT_CONNECT){
-    Serial.println("WebSocket Client Connected");
-    wsClient = client;
-  } else if(type == WS_EVT_DISCONNECT){
-    Serial.println("WebSocket Client Disconnected");
-    wsClient = nullptr;
+void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){
+  switch(type) {
+    case WS_EVT_CONNECT:
+      Serial.println("WebSocket Client Connected");
+    break;
+
+    case WS_EVT_DISCONNECT:
+      Serial.println("WebSocket Client Disconnected");
+    break;
+
+    case WS_EVT_DATA:
+      Serial.println("WebSocket Data Received");
+      // Do something when data is received via WebSocket.
+    break;
+
+    case WS_EVT_PONG:
+    case WS_EVT_ERROR:
+      // No-op
+    break;
   }
 }
 
 // Define server actions after declaring all functions for URL routing.
 void startWebServer() {
   setupRouting(); // Set URI's with handlers.
-  ws.onEvent(onWebSocketEvent);
+  ws.onEvent(onWebSocketEventHandler);
   httpServer.addHandler(&ws);
   httpServer.begin(); // Start the daemon.
   Serial.println("HTTP Server Started");
@@ -408,8 +419,6 @@ void startWebServer() {
 
 // Send notification to all websocket clients.
 void notifyWSClients() {
-  // Send latest status if WS client is connected.
-  if(wsClient != nullptr && wsClient->canSend()) {
-    wsClient->text(getStatus());
-  }
+  // Send latest status to all connected clients.
+  ws.textAll(getStatus());
 }

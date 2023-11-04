@@ -877,7 +877,7 @@ void checkPack() {
 
         #if defined(__XTENSA__)
           // ESP - Alert all WebSocket clients after an API call was received.
-          // Excluding the handshake as this is received way too oftens.
+          // This exclused the handshake as this is received way too oftens.
           if (comStruct.i != A_HANDSHAKE) {
             notifyWSClients();
           }
