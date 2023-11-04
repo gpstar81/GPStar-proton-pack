@@ -38,6 +38,33 @@ enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
 
+/*
+ * Bargraph modes.
+ * Super Hero: Mimics the super hero bargraph animations from the Neutrona Wand closeups in 1984 rooftop. This is the default for 1984/1989 and Super Hero Mode.
+ * Original: Mimics the original diagrams and instructions based on production notes and in Afterlife. This is the default for Afterlife and Mode Original.
+*/
+enum BARGRAPH_MODES { BARGRAPH_SUPER_HERO, BARGRAPH_ORIGINAL };
+enum BARGRAPH_MODES BARGRAPH_MODE;
+
+/*
+ * Used for manually toggling between the different bragraph modes and saving to the EEPROM memory.
+*/
+enum BARGRAPH_MODES_EEPROM { BARGRAPH_EEPROM_DEFAULT, BARGRAPH_EEPROM_SUPER_HERO, BARGRAPH_EEPROM_ORIGINAL };
+enum BARGRAPH_MODES_EEPROM BARGRAPH_MODE_EEPROM;
+
+/*
+ * Bargraph Firing Animations.
+ * Animation Super Hero: Mimics the fandom animations of the bargraph scrolling up and down with 2 lines with it merging in the middle. This is the default for 1984/1989 and Super Hero Mode.
+ * Animation Original: Mimics the original diagrams and instructions based on production notes. This is the default for Afterlife and Mode Original.
+*/
+enum BARGRAPH_FIRING_ANIMATIONS { BARGRAPH_ANIMATION_SUPER_HERO, BARGRAPH_ANIMATION_ORIGINAL };
+enum BARGRAPH_FIRING_ANIMATIONS BARGRAPH_FIRING_ANIMATION;
+
+/*
+ * Used for manually toggling between the different bragraph firing animation modes and saving to the EEPROM memory.
+*/
+enum BARGRAPH_EEPROM_FIRING_ANIMATIONS { BARGRAPH_EEPROM_ANIMATION_DEFAULT, BARGRAPH_EEPROM_ANIMATION_SUPER_HERO, BARGRAPH_EEPROM_ANIMATION_ORIGINAL };
+enum BARGRAPH_EEPROM_FIRING_ANIMATIONS BARGRAPH_EEPROM_FIRING_ANIMATION;
 
 /*
  * For MODE_ORIGINAL. Let's us know if the Proton Pack Ion Arm switch is on to give power to the Proton Pack and Neutrona Wand.
@@ -151,7 +178,7 @@ const uint8_t i_bargraph_segments_5_led = 5;
 uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {};
 const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
 const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
-
+bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 
 /* 
  *  Idling timers
@@ -256,7 +283,8 @@ struct objEEPROM {
   uint8_t vent_light_auto_intensity;
   uint8_t num_barrel_leds;
   uint8_t invert_bargraph;
-  uint8_t bargraph_always_ramping;
+  uint8_t bargraph_mode;
+  uint8_t bargraph_firing_animation;
 };
 
 /*

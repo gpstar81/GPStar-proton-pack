@@ -174,7 +174,7 @@ void setup() {
   // Check music timer.
   ms_check_music.start(i_music_check_delay);
 
-  // Default mode is the idealised SUPER_HERO.
+  // Default mode is MODE_SUPER_HERO.
   SYSTEM_MODE = MODE_ORIGINAL;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
@@ -6124,6 +6124,7 @@ void checkWand() {
             // Tell the wand that the pack is here.
             packSerialSend(P_HANDSHAKE);
 
+            // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
             if(SYSTEM_MODE == MODE_SUPER_HERO) {
               packSerialSend(P_MODE_SUPER_HERO);
             }

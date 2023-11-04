@@ -91,7 +91,13 @@ bool b_bargraph_invert = false;
  * When set to false (default), it mimics the action in Afterlife.
  * Only compatible with the gpstar Neutrona Wand board.
 */
-bool b_bargraph_always_ramping = false;
+// bool b_bargraph_always_ramping = false;
+
+/*
+ * When set to true, the bargraph (28 segement or 5 LED Hasbro) will do the original mode animations.
+ * Bargraph always ramping overrides this.
+*/
+// bool b_bargraph_mode_original = false;
 
 /*
  * If the Frutto vent light has been installed, uncomment the line below
