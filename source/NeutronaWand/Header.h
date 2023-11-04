@@ -40,7 +40,7 @@ enum SYSTEM_MODES SYSTEM_MODE;
 
 /*
  * Bargraph modes.
- * Super Hero: Mimics the super hero bargraph animations from the Neutrona Wand closeups in 1984 rooftop. This is the default for 1984/1989 and Super Hero Mode.
+ * Super Hero: Mimics the super hero bargraph animations from the Neutrona Wand closeup in the 1984 rooftop. This is the default for 1984/1989 and Super Hero Mode.
  * Original: Mimics the original diagrams and instructions based on production notes and in Afterlife. This is the default for Afterlife and Mode Original.
 */
 enum BARGRAPH_MODES { BARGRAPH_SUPER_HERO, BARGRAPH_ORIGINAL };

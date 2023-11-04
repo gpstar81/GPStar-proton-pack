@@ -804,7 +804,7 @@ void mainLoop() {
         // Menu Level 2: Intensify: Overheat strobe.
         // Menu Level 2: Barrel Wing Button: Overheat lights off.
         // Menu Level 3: Intensify:
-        // Menu Level 3: Barrel Wing Button:          
+        // Menu Level 3: Barrel Wing Button:
         case 2:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
@@ -1812,6 +1812,7 @@ void checkSwitches() {
                 // Force to power mode 2 if it is on power mode 1 for MODE_ORIGINAL.
                 if(i_power_mode < 2) {
                   i_power_mode = 2;
+                  i_power_mode_prev = 2;
                 }
 
                 updatePackPowerLevel();
@@ -1848,12 +1849,16 @@ void checkSwitches() {
 
                 if(switch_wand.isPressed() || switch_wand.isReleased() || switch_vent.isPressed() || switch_vent.isReleased()) {
                   if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                    if(b_28segment_bargraph == true) {
+                      bargraphPowerCheck2021Alt(false);
+                    }
+
                     prepBargraphRampUp();
                   }
                 }
                 
                 if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-                  analogWrite(led_front_left, 255); // The front right orange LED, turn it on.
+                    analogWrite(led_front_left, 255); // The front right orange LED, turn it on.
 
                   // Turn on the vent lights.
                   if(b_vent_light_control == true) {
@@ -1886,7 +1891,7 @@ void checkSwitches() {
                   // Turn off the Neutrona Wand vent lights.
                   digitalWrite(led_vent, HIGH);
                   digitalWrite(led_white, HIGH);                  
-                }
+                }           
               }
             }
           }
@@ -6003,7 +6008,7 @@ void bargraphRampUp() {
             case BARGRAPH_ORIGINAL:
               switch(i_power_mode) {
                 case 5:
-                  // Stop any power check in 2021 if we are already in level 5.
+                  // Stop any power check if we are already in level 5.
                   ms_bargraph_alt.stop();
 
                   ms_bargraph.stop();
@@ -7328,25 +7333,10 @@ void checkPack() {
 
             case P_MODE_SUPER_HERO:
               SYSTEM_MODE = MODE_SUPER_HERO;
-
-              /*
-              if(b_bargraph_always_ramping == true) {
-                b_bargraph_mode_original = false;
-              }
-              else {
-                b_bargraph_mode_original = true;
-              }
-              */
             break;
 
             case P_MODE_ORIGINAL:
               SYSTEM_MODE = MODE_ORIGINAL;
-
-              /*
-              if(b_bargraph_always_ramping == true) {
-                b_bargraph_mode_original = false;
-              }
-              */
             break;
 
             case P_MODE_ORIGINAL_RED_SWITCH_ON:
