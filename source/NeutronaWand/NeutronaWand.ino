@@ -78,6 +78,7 @@ void setup() {
   BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
   BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_SUPER_HERO;
   BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
+  WAND_MENU_LEVEL = MENU_LEVEL_1;
 
   switch_wand.setDebounceTime(switch_debounce_time);
   switch_intensify.setDebounceTime(switch_debounce_time);
@@ -327,6 +328,19 @@ void mainLoop() {
     case ACTION_OVERHEATING:
       if(b_overheat_bargraph_blink == true) {
         settingsBlinkingLights();
+
+        if(ms_blink_sound_timer_1.justFinished()) {
+          ms_blink_sound_timer_1.start(i_blink_sound_timer);
+
+          playEffect(S_BEEPS_LOW);
+          playEffect(S_BEEPS);
+        }
+
+        if(ms_blink_sound_timer_2.justFinished()) {
+          playEffect(S_BEEPS_BARGRAPH);
+
+          ms_blink_sound_timer_2.start(i_blink_sound_timer * 4);
+        }
       }
       else {
         // Prepare to make the bargraph ramp down.
@@ -351,24 +365,24 @@ void mainLoop() {
 
         // Prepare a few things before ramping the bargraph back up from a full ramp down.
         if(b_overheat_bargraph_blink != true) {
-          playEffect(S_BOOTUP);
-
           if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
             bargraphYearModeUpdate();
           }
           else {
             i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
           }
+        }
 
-          if(switch_vent.getState() == LOW) {
-            soundIdleLoop(true);
-          }
-          else {
-            soundIdleLoop(true);
+        playEffect(S_BOOTUP);
 
-            if(switch_vent.getState() == HIGH && year_mode == 2021) {
-              afterLifeRamp1();
-            }
+        if(switch_vent.getState() == LOW) {
+          soundIdleLoop(true);
+        }
+        else {
+          soundIdleLoop(true);
+
+          if(switch_vent.getState() == HIGH && year_mode == 2021) {
+            afterLifeRamp1();
           }
         }
 
@@ -391,97 +405,51 @@ void mainLoop() {
         settingsBlinkingLights();
 
         /*
-        EEPROM Menu #3
+        EEPROM Menu #3 (Overheat and smoke settings)
           EEPROM Menu Alt Memory address starts after the last EEPROM config menu item. When clearing EEPROM config, it will not clear Alt and vice versa.
 
           How to enter:
           Hold Intensify and press alt wing button 5 times
 
-          EEPROM Menu #3 Top Menu:
+          EEPROM Menu Level 1:
           Menu 5: Intensify: Erase | Alt button: Save
-          Menu 4: Intensify: Default main system volume + top dial | Alt button: (?? UNUSED ??)
-          Menu 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default | Alt button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
-          Menu 2: Intensify: Demo Light Mode Enabled | Alt button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
-          Menu 1: Intensify: Toggle between Super Hero and Original Mode. | Alt button: Toggle (?? UNUSED ??)
+          Menu 4: Intensify: Overheat smoke n-filter time length (increase by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit) | Alt Wing Button:  Overheat smoke n-filter time length (decrease by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit)
+          Menu 4: Intensify: Overheat smoke booster tube connector time length (increase by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit) | Alt Wing Button:  Overheat smoke booster tube connector time length (decrease by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit)
+          Menu 4: Intensify: Overheat fan n-filter time length (increase by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit) | Alt Wing Button:  Overheat fan n-filter time length (decrease by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit)
+          Menu 4: Intensify: Overheat fan booster tube connector time length (increase by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit) | Alt Wing Button:  Overheat fan booster tube connector time length (decrease by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit)
 
-          EEPROM Menu #3 Sub Menu:
-          Menu 5: Intensify: Enable/Disable overheat in power mode #5 | Enable/Disable continuous smoke in power mode #5
-          Menu 4: Intensify: Enable/Disable overheat in power mode #4 | Enable/Disable continuous smoke in power mode #4
-          Menu 3: Intensify: Enable/Disable overheat in power mode #3 | Enable/Disable continuous smoke in power mode #3
-          Menu 2: Intensify: Enable/Disable overheat in power mode #2 | Enable/Disable continuous smoke in power mode #2
-          Menu 1: Intensify: Enable/Disable overheat in power mode #1 | Enable/Disable continuous smoke in power mode #1
+          EEPROM Menu Level 2:
+          Menu 5: Intensify: Enable/Disable overheat in power mode #5 | Alt Wing Button: Enable/Disable continuous smoke in power mode #5
+          Menu 4: Intensify: Enable/Disable overheat in power mode #4 | Alt Wing Button: Enable/Disable continuous smoke in power mode #4
+          Menu 3: Intensify: Enable/Disable overheat in power mode #3 | Alt Wing Button: Enable/Disable continuous smoke in power mode #3
+          Menu 2: Intensify: Enable/Disable overheat in power mode #2 | Alt Wing Button: Enable/Disable continuous smoke in power mode #2
+          Menu 1: Intensify: Enable/Disable overheat in power mode #1 | Alt Wing Button: Enable/Disable continuous smoke in power mode #1
         */
       
       /*
       switch(i_wand_menu) {
-        // Intensify: Clear the Proton Pack EEPROM Alt settings and exit.
+        // Intensify: Clear the Proton Pack EEPROM Overheat/smoke settings and exit.
         // Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
         case 5:
-          // Tell the Proton Pack to clear the EEPROM Alt settings and exit.
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay / 2);
 
-            // Tell pack to clear the EEPROM and exit.
-            wandSerialSend(W_CLEAR_EEPROM_ALT);
-
-            stopEffect(S_VOICE_EEPROM_ERASE);
-            playEffect(S_VOICE_EEPROM_ERASE);
-
-            clearEEPROMAlt();
-
-            wandExitEEPROMMenu();
-          }
-          else if(switchMode() == true) {
-            // Tell the Proton Pack to save the current settings to the EEPROM and exit.
-            wandSerialSend(W_SAVE_EEPROM_ALT);
-
-            stopEffect(S_VOICE_EEPROM_SAVE);
-            playEffect(S_VOICE_EEPROM_SAVE);
-
-            saveEEPROMAlt();
-
-            wandExitEEPROMMenu();
-          }
         break;
 
-        // Intensify: Cycle through the different Cyclotron LED counts.
-        // Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotary();
+
         case 4:
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay / 2);
 
-            //wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
-          }
         break;
 
-        // Intensify: Cycle through the different Power Cell LED counts.
-        // Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotary();
         case 3:
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay / 2);
 
-            //wandSerialSend(W_TOGGLE_POWERCELL_LEDS);
-          }
         break;
 
-        // Intensify: Cycle through the different inner Cyclotron LED counts.
-        // Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotary();
+
         case 2:
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay / 2);
 
-            //wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_LEDS);
-          }
         break;
 
-        // Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
-        // Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotary();
         case 1:
-          if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
-            ms_intensify_timer.start(i_intensify_delay / 2);
 
-            //wandSerialSend(W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS);
-          }
         break;
       }
       */
@@ -566,19 +534,28 @@ void mainLoop() {
     break;
 
     case ACTION_CONFIG_EEPROM_MENU:
+      /*
+        Menu Level 3 - 5: Intensify: Default main system volume + top dial | Alt button: Toggle (?? UNUSED ??)
+        Menu Level 3 - 4: Intensify: Invert Bargraph | Alt button: Toggle Bargraph Overheat Blinking enabled/disabled
+        Menu Level 3 - 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default | Alt button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
+        Menu Level 3 - 2: Intensify: Demo Light Mode Enabled | Alt button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
+        Menu Level 3 - 1: Intensify: Toggle between Super Hero and Original Mode. | Alt button: Toggle (?? UNUSED ??)
+      */
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
-        // Top menu: Intensify: Clear the Neutrona Wand EEPROM settings and exit.
-        // Top menu: Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
-        // Sub menu: Intensify: Quick Vent.
-        // Sub menu: Barrel Wing Button: Wand Boot Errors.
+        // Menu Level 1: Intensify: Clear the Neutrona Wand EEPROM settings and exit.
+        // Menu Level 1: Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
+        // Menu Level 2: Intensify: Quick Vent.
+        // Menu Level 2: Barrel Wing Button: Wand Boot Errors.
+        // Menu Level 3: Intensify: Default main system volume + top dial
+        // Menu Level 3: Barrel Wing Button: UNUSED
         case 5:
           // Tell the Neutrona Wand to clear the EEPROM settings and exit.
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
-            if(b_wand_menu_sub != true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to clear its current configuration from the EEPROM.
               // Proton Stream Impact Effects / 3 LED mode in 1984/1989
               wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
@@ -591,7 +568,7 @@ void mainLoop() {
 
               wandExitEEPROMMenu();
             }
-            else {
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Sub menu.
               if(b_quick_vent == true) {
                 b_quick_vent = false;
@@ -614,7 +591,7 @@ void mainLoop() {
             }
           }
           else if(switchMode() == true) {
-            if(b_wand_menu_sub != true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to save its current configuration to the EEPROM.
               // Proton Stream Impact Effects / 3 LED mode in 1984/1989
               wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
@@ -627,7 +604,7 @@ void mainLoop() {
 
               wandExitEEPROMMenu();
             }
-            else {
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Sub menu.
               if(b_wand_boot_errors == true) {
                 b_wand_boot_errors = false;
@@ -651,19 +628,20 @@ void mainLoop() {
           }
         break;
 
-        // Top menu: Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
-        // Top menu: Barrel Wing Button: Enable Spectral and Holiday modes.
-        // Sub menu: Intensify: Vent Light Auto Intensity.
-        // Sub menu: Barrel Wing Button: 5 / 48 / 60 barrel LEDs.
+        // Menu Level 1: Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
+        // Menu Level 1: Barrel Wing Button: Enable Spectral and Holiday modes.
+        // Menu Level 2: Intensify: Vent Light Auto Intensity.
+        // Menu Level 2: Barrel Wing Button: 5 / 48 / 60 barrel LEDs.
+        // Menu Level 3: Intensify: Invert Bargraph
+        // Menu Level 3: Barrel Wing Button: Toggle Bargraph Overheat Blinking enabled/disabled
         case 4:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
-            if(b_wand_menu_sub != true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               toggleWandModes();
             }
-            else {
-              // Sub menu.
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               if(b_vent_light_control == true) {
                 b_vent_light_control= false;
 
@@ -683,10 +661,32 @@ void mainLoop() {
                 wandSerialSend(W_VENT_LIGHT_INTENSITY_ENABLED);
               }
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              if(b_bargraph_invert == true) {
+                b_bargraph_invert = false;
+
+                stopEffect(S_VOICE_BARGRAPH_INVERTED);
+                stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+                playEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+
+                wandSerialSend(W_BARGRAPH_NOT_INVERTED);
+              }
+              else {
+                b_bargraph_invert = true;
+
+                stopEffect(S_VOICE_BARGRAPH_INVERTED);
+                stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
+                playEffect(S_VOICE_BARGRAPH_INVERTED);
+
+                wandSerialSend(W_BARGRAPH_INVERTED);              
+              }
+
+              setBargraphOrientation();
+            }
           }
 
           if(switchMode() == true) {
-            if(b_wand_menu_sub != true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               if(b_spectral_mode_enabled == false || b_holiday_mode_enabled == false || b_spectral_custom_mode_enabled == false) {
                 // Enable the spectral modes.
                 b_spectral_mode_enabled = true;
@@ -712,8 +712,7 @@ void mainLoop() {
                 wandSerialSend(W_SPECTRAL_MODES_DISABLED);
               }
             }
-          else {
-              // Sub menu.
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               switch(i_num_barrel_leds) {
                 case 5:
                 default:
@@ -764,94 +763,57 @@ void mainLoop() {
                 break;
                 */
               }
-            }              
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              // Toggle Bargraph Overheat Blinking enabled/disabled
+            }          
           }
         break;
 
-        // Top menu: Intensify: Enable or Disable overheating settings.
-        // Top menu: Barrel Wing Button: Enable or disable smoke.
-        // Sub menu: Intensify: Invert bargraph.
-        // Sub menu: Barrel Wing Button: Cycle through VG color modes (see operational guide for more details on this).
+        // Menu Level 1: Intensify: Enable or Disable overheating settings.
+        // Menu Level 1: Barrel Wing Button: Enable or disable smoke.
+        // Menu Level 2: Intensify: UNUSED
+        // Menu Level 2: Barrel Wing Button: Cycle through VG color modes (see operational guide for more details on this).
+        // Menu Level 3: Intensify:
+        // Menu Level 3: Barrel Wing Button:        
         case 3:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
-            if(b_wand_menu_sub != true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               toggleOverHeating();
             }
-            else {
-              // Sub menu.
-              if(b_bargraph_invert == true) {
-                b_bargraph_invert = false;
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
 
-                stopEffect(S_VOICE_BARGRAPH_INVERTED);
-                stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
-                playEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
-
-                wandSerialSend(W_BARGRAPH_NOT_INVERTED);
-              }
-              else {
-                b_bargraph_invert = true;
-
-                stopEffect(S_VOICE_BARGRAPH_INVERTED);
-                stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
-                playEffect(S_VOICE_BARGRAPH_INVERTED);
-
-                wandSerialSend(W_BARGRAPH_INVERTED);              
-              }
-
-              setBargraphOrientation();
             }
           }
 
           if(switchMode() == true) {
-            if(b_wand_menu_sub != true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Enable or disable smoke.
               wandSerialSend(W_SMOKE_TOGGLE);
             }
-            else {
-              /*
-              // Sub menu.
-              if(b_bargraph_always_ramping == true) {
-                b_bargraph_always_ramping = false;
-                
-                BARGRAPH_MODE = BARGRAPH_SUPER_HERO;
-
-                stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
-                stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
-                playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
-
-                wandSerialSend(W_BARGRAPH_ALWAYS_RAMPING_DISABLED);
-              }
-              else {
-                b_bargraph_always_ramping = true;
-
-                BARGRAPH_MODE = BARGRAPH_ALWAYS_RAMPING;
-
-                stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
-                stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
-                playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
-
-                wandSerialSend(W_BARGRAPH_ALWAYS_RAMPING_ENABLED);              
-              }
-              */
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
+                // Unused...
             }
           }
         break;
 
-        // Top menu: Intensify: Change the Cyclotron direction.
-        // Top menu: Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
-        // Sub menu: Intensify: Overheat strobe.
-        // Sub menu: Barrel Wing Button: Overheat lights off.
+        // Menu Level 1: Intensify: Change the Cyclotron direction.
+        // Menu Level 1: Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
+        // Menu Level 2: Intensify: Overheat strobe.
+        // Menu Level 2: Barrel Wing Button: Overheat lights off.
+        // Menu Level 3: Intensify:
+        // Menu Level 3: Barrel Wing Button:          
         case 2:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
-            if(b_wand_menu_sub != true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to change the Cyclotron rotation direction.
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
-            else {
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Sub menu.
               wandSerialSend(W_OVERHEAT_STROBE_TOGGLE);
             }
@@ -859,36 +821,38 @@ void mainLoop() {
 
           // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
           if(switchMode() == true) {
-            if(b_wand_menu_sub != true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               wandSerialSend(W_CYCLOTRON_SIMULATE_RING_TOGGLE);
             }
-            else {
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Sub menu.
               wandSerialSend(W_OVERHEAT_LIGHTS_OFF_TOGGLE);
             }
           }
         break;
 
-        // Top menu: Intensify: Enable or disable Proton Stream Impact Effects.
-        // Top menu: Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
-        // Sub menu: Intensify: 1984 / 1989 / Afterlife / Default (Proton Pack toggle switch) year mode selection.
-        // Sub menu: Barrel Wing Button: Overheat sync to fan.
+        // Menu Level 1: Intensify: Enable or disable Proton Stream Impact Effects.
+        // Menu Level 1: Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
+        // Menu Level 2: Intensify: 1984 / 1989 / Afterlife / Default (Proton Pack toggle switch) year mode selection.
+        // Menu Level 2: Barrel Wing Button: Overheat sync to fan.
+        // Menu Level 3: Intensify:
+        // Menu Level 3: Barrel Wing Button:          
         case 1:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
-            if(b_wand_menu_sub != true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to toggle the Proton Stream impact effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
             }
-            else {
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Sub menu.
               wandSerialSend(W_YEAR_MODES_CYCLE_EEPROM);
             }
           }
 
           if(switchMode() == true) {
-            if(b_wand_menu_sub != true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               if(b_extra_pack_sounds == true) {
                 b_extra_pack_sounds = false;
 
@@ -904,7 +868,7 @@ void mainLoop() {
                 wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
               }
             }
-            else {
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Sub menu.
               wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
             }
@@ -917,12 +881,12 @@ void mainLoop() {
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
-        // Top menu: Music track loop setting.
-        // Sub menu: Enable or disable crossing the streams / video game modes.
-        // Sub menu: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
+        // Menu Level 1: Music track loop setting.
+        // Menu Level 2: Enable or disable crossing the streams / video game modes.
+        // Menu Level 2: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
         case 5:
         // Music track loop setting.
-        if(b_wand_menu_sub != true) {
+        if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
@@ -942,7 +906,7 @@ void mainLoop() {
             wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);
           }
         }
-        else {
+        else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
@@ -959,20 +923,20 @@ void mainLoop() {
         }
         break;
 
-        // Top menu: (Intensify + Top dial) Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
-        // Top menu: (Barrel Wing Button) Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
-        // Sub menu: Enable or disable smoke for the Proton Pack.
-        // Sub menu: (Barrel Wing Button) -> Enable or disable overheating.
+        // Menu Level 1: (Intensify + Top dial) Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
+        // Menu Level 1: (Barrel Wing Button) Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
+        // Menu Level 2: Enable or disable smoke for the Proton Pack.
+        // Menu Level 2: (Barrel Wing Button) -> Enable or disable overheating.
         case 4:
           // Adjust the Proton Pack / Neutrona Wand sound effects volume.
-          if(b_wand_menu_sub != true) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             // Cycle through the dimming modes in the Proton Pack. (Power Cell, Cyclotron and Inner Cyclotron). Actual control of the dimming is handled in checkRotary().
             if(switchMode() == true) {
               // Tell the Proton Pack to change to the next dimming mode.
               wandSerialSend(W_DIMMING_TOGGLE);
             }
           }
-          else {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
             // Enable or disable smoke for the Proton Pack.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
@@ -988,14 +952,13 @@ void mainLoop() {
           }
         break;
 
-        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
-        // Top menu: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
-        // Sub menu: Toggle Cyclotron rotation direction.
-        // Sub menu: (Barrel Wing Button) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
+        // Menu Level 1: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
+        // Menu Level 1: Toggle Cyclotron rotation direction.
+        // Menu Level 2: (Barrel Wing Button) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
         case 3:
           // Top menu code is handled in checkRotary();
           // Sub menu. Adjust Cyclotron settings.
-          if(b_wand_menu_sub == true) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
@@ -1010,12 +973,12 @@ void mainLoop() {
           }
         break;
 
-        // Top menu: Change music tracks.
-        // Sub menu: Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
-        // Sub menu: (Barrel Wing Button) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
+        // Menu Level 1: Change music tracks.
+        // Menu Level 2: Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
+        // Menu Level 2: (Barrel Wing Button) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
         case 2:
           // Change music tracks.
-          if(b_wand_menu_sub != true) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
@@ -1036,7 +999,7 @@ void mainLoop() {
               wandSerialSend(W_MUSIC_PREV_TRACK);
             }
           }
-          else {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
             // Enable or disable vibration for the pack or during firing only.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
@@ -1100,13 +1063,13 @@ void mainLoop() {
           }
         break;
 
-        // Top menu: Play music or stop music.
-        // Top menu: (Barrel Wing Button). Mute the Proton Pack and Neutrona Wand.
-        // Sub menu: (Intensify) -> Switch between 1984/1989/Afterlife mode.
-        // Sub Menu: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
+        // Menu Level 1: Play music or stop music.
+        // Menu Level 1: (Barrel Wing Button). Mute the Proton Pack and Neutrona Wand.
+        // Menu Level 2: (Intensify) -> Switch between 1984/1989/Afterlife mode.
+        // Menu Level 2: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
         case 1:
           // Play or stop the current music track.
-          if(b_wand_menu_sub != true) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
@@ -1139,7 +1102,7 @@ void mainLoop() {
               w_trig.masterGain(i_volume_master); // Reset the master gain.
             }
           }
-          else {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
             // Switch between 1984/1989/Afterlife mode.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
@@ -1160,6 +1123,8 @@ void mainLoop() {
                   stopEffect(S_VOICE_1989);
 
                   playEffect(S_VOICE_1989);
+
+                  bargraphYearModeUpdate();
                 }
                 else if(year_mode == 1989) {
                   year_mode = 2021;
@@ -1169,6 +1134,8 @@ void mainLoop() {
                   stopEffect(S_VOICE_1989);
 
                   playEffect(S_VOICE_AFTERLIFE);
+
+                  bargraphYearModeUpdate();
                 }
                 else if(year_mode == 2021) {
                   year_mode = 1984;
@@ -1178,6 +1145,8 @@ void mainLoop() {
                   stopEffect(S_VOICE_1984);
 
                   playEffect(S_VOICE_1984);
+
+                  bargraphYearModeUpdate();
                 }
               }
             }
@@ -1203,6 +1172,8 @@ void mainLoop() {
             FIRING_MODE = SETTINGS;
 
             WAND_ACTION_STATUS = ACTION_SETTINGS;
+            WAND_MENU_LEVEL == MENU_LEVEL_1;
+
             i_wand_menu = 5;
             ms_settings_blinking.start(i_settings_blinking_delay);
 
@@ -1211,7 +1182,7 @@ void mainLoop() {
           }
           else {
             // Only exit the settings menu when on menu #5 in the top menu.
-            if(i_wand_menu == 5 && b_wand_menu_sub != true && FIRING_MODE == SETTINGS) {
+            if(i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_1 && FIRING_MODE == SETTINGS) {
               wandExitMenu();
             }
           }
@@ -1239,6 +1210,8 @@ void mainLoop() {
         i_wand_menu = 5;
 
         WAND_ACTION_STATUS = ACTION_EEPROM_MENU;
+        WAND_MENU_LEVEL == MENU_LEVEL_1;
+
         ms_settings_blinking.start(i_settings_blinking_delay);
 
         wandBarrelSpectralCustomConfigOn();
@@ -1258,6 +1231,8 @@ void mainLoop() {
         i_wand_menu = 5;
 
         WAND_ACTION_STATUS = ACTION_CONFIG_EEPROM_MENU;
+        WAND_MENU_LEVEL == MENU_LEVEL_1;
+
         ms_settings_blinking.start(i_settings_blinking_delay);
       }
       else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on == true) {
@@ -1525,19 +1500,25 @@ void startVentSequence() {
   // Play overheating sounds.
   ms_overheating.start(i_ms_overheating);
 
+  soundBeepLoopStop();
+  soundIdleStop();
+  soundIdleLoopStop();
+
+  b_sound_idle = false; // REMOVE ??
+  b_beeping = false;
+
   // Blinking bargraph option for overheat.
   if(b_overheat_bargraph_blink == true) {
     ms_settings_blinking.start(i_settings_blinking_delay);
+
+    playEffect(S_BEEPS_LOW);
+    playEffect(S_BEEPS);
+    playEffect(S_BEEPS_BARGRAPH);
+
+    ms_blink_sound_timer_1.start(i_blink_sound_timer);
+    ms_blink_sound_timer_2.start(i_blink_sound_timer * 4);
   }
   else {
-    // If bargraph is set to ramp down during overheat, we need to set a few things.
-    soundBeepLoopStop();
-    soundIdleStop();
-    soundIdleLoopStop();
-
-    b_sound_idle = false; // REMOVE ??
-    b_beeping = false;
-
     // Reset some bargraph levels before we ramp the bargraph down.
     i_bargraph_status_alt = i_bargraph_segments; // For 28 segment bargraph
     i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
@@ -1566,16 +1547,16 @@ void settingsBlinkingLights() {
     bool b_solid_one = false;
 
     // Indicator for looping track setting.
-    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub != true && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && WAND_MENU_LEVEL == MENU_LEVEL_1 && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
       b_solid_five = true;
     }
 
     // Indicator for crossing the streams setting.
-    if((b_cross_the_streams == true || b_cross_the_streams_mix == true) && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && b_wand_menu_sub == true && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+    if((b_cross_the_streams == true || b_cross_the_streams_mix == true) && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && WAND_MENU_LEVEL == MENU_LEVEL_2 && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
       b_solid_five = true;
     }
 
-    if(i_volume_master == i_volume_abs_min && WAND_ACTION_STATUS == ACTION_SETTINGS && b_wand_menu_sub != true) {
+    if(i_volume_master == i_volume_abs_min && WAND_ACTION_STATUS == ACTION_SETTINGS && WAND_MENU_LEVEL == MENU_LEVEL_1) {
       b_solid_one = true;
     }
 
@@ -5590,7 +5571,6 @@ void bargraphRedraw() {
 
     switch(i_power_mode) {
       case 1:
-        // Does not get used but keep for now.
         for(uint8_t i = 0; i < i_bargraph_segments; i++) {
           if(i <= 4) {
             ht_bargraph.setLedNow(i_bargraph[i]);
@@ -5695,7 +5675,7 @@ void bargraphPowerCheck() {
     2: 1/4: 5 - 11    (7 segments)
     1: none: 0 - 4    (5 segments)
   */
-  if(b_28segment_bargraph == true) {
+  if(b_28segment_bargraph == true) {    
     if(ms_bargraph_alt.justFinished()) {
       uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
 
@@ -6586,22 +6566,27 @@ void checkRotary() {
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
           if(i_wand_menu - 1 < 1) {
-            if(b_wand_menu_sub != true) {
-              b_wand_menu_sub = true;
-              i_wand_menu = 5;
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_1:
+                WAND_MENU_LEVEL = MENU_LEVEL_2;
+                i_wand_menu = 5;
 
-              // Turn on the slo blow led to indicate we are in a sub menu.
-              analogWrite(led_slo_blo, 255);
+                // Turn on the slo blow led to indicate we are in a sub menu.
+                analogWrite(led_slo_blo, 255);
 
-              // Play an indication beep to notify we have changed to the sub menu.
-              stopEffect(S_BEEPS);
-              playEffect(S_BEEPS);
+                // Play an indication beep to notify we have changed to the sub menu.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
 
-              // Tell the Proton Pack to play a beep during a sub menu to menu level change.
-              wandSerialSend(W_MENU_LEVEL_CHANGE);
-            }
-            else {
-              i_wand_menu = 1;
+                // Tell the Proton Pack to play a beep during a sub menu to menu level change.
+                wandSerialSend(W_MENU_LEVEL_CHANGE);
+              break;
+
+              case MENU_LEVEL_2:
+              case MENU_LEVEL_3:
+              default:
+                i_wand_menu = 1;
+              break;
             }
           }
           else {
@@ -6612,23 +6597,27 @@ void checkRotary() {
         // Clockwise.
         if(prev_next_code == 0x07) {
           if(i_wand_menu + 1 > 5) {
-            // We are leaving the sub menu.
-            if(b_wand_menu_sub == true) {
-              b_wand_menu_sub = false;
-              i_wand_menu = 1;
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+              case MENU_LEVEL_2:
+                WAND_MENU_LEVEL = MENU_LEVEL_1;
+                i_wand_menu = 1;
 
-              // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
-              analogWrite(led_slo_blo, 0);
+                // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
+                analogWrite(led_slo_blo, 0);
 
-              // Play an indication beep to notify we have left the sub menu.
-              stopEffect(S_BEEPS);
-              playEffect(S_BEEPS);
+                // Play an indication beep to notify we have left the sub menu.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
 
-              // Tell the Proton Pack to play a beep during a submenu to menu level change.
-              wandSerialSend(W_MENU_LEVEL_CHANGE);
-            }
-            else {
-              i_wand_menu = 5;
+                // Tell the Proton Pack to play a beep during a submenu to menu level change.
+                wandSerialSend(W_MENU_LEVEL_CHANGE);              
+              break;
+            
+              case MENU_LEVEL_1:
+              default:
+                i_wand_menu = 5;
+              break;
             }
           }
           else {
@@ -6638,109 +6627,109 @@ void checkRotary() {
       break;
 
       case ACTION_EEPROM_MENU:
-          // Counter clockwise.
-          if(prev_next_code == 0x0b) {
-            if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-              // Change colour of the wand barrel spectral custom colour.
-              if(i_spectral_wand_custom > 1 && i_spectral_wand_saturation_custom > 253) {
-                i_spectral_wand_custom--;
-              }
-              else {
-                i_spectral_wand_custom = 1;
-
-                if(i_spectral_wand_saturation_custom > 1) {
-                  i_spectral_wand_saturation_custom--;
-                }
-                else {
-                  i_spectral_wand_saturation_custom = 1;
-                }
-              }
-
-              wandBarrelSpectralCustomConfigOn();
-            }
-            else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-              // Change colour of the Power Cell Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_DECREASE);
-            }
-            else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-              // Change colour of the Cyclotron Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE);
-            }
-            else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-              // Change colour of the Inner Cyclotron Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
-            }
-            else if(i_wand_menu - 1 < 1) {
-              i_wand_menu = 1;
+        // Counter clockwise.
+        if(prev_next_code == 0x0b) {
+          if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            // Change colour of the wand barrel spectral custom colour.
+            if(i_spectral_wand_custom > 1 && i_spectral_wand_saturation_custom > 253) {
+              i_spectral_wand_custom--;
             }
             else {
-              i_wand_menu--;
-            }
-          }
+              i_spectral_wand_custom = 1;
 
-          // Clockwise.
-          if(prev_next_code == 0x07) {
-            if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-              // Change colour of the Wand Barrel Spectral custom colour.
-              if(i_spectral_wand_saturation_custom < 254) {
+              if(i_spectral_wand_saturation_custom > 1) {
+                i_spectral_wand_saturation_custom--;
+              }
+              else {
+                i_spectral_wand_saturation_custom = 1;
+              }
+            }
+
+            wandBarrelSpectralCustomConfigOn();
+          }
+          else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            // Change colour of the Power Cell Spectral custom colour.
+            wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_DECREASE);
+          }
+          else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            // Change colour of the Cyclotron Spectral custom colour.
+            wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE);
+          }
+          else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            // Change colour of the Inner Cyclotron Spectral custom colour.
+            wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
+          }
+          else if(i_wand_menu - 1 < 1) {
+            i_wand_menu = 1;
+          }
+          else {
+            i_wand_menu--;
+          }
+        }
+
+        // Clockwise.
+        if(prev_next_code == 0x07) {
+          if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            // Change colour of the Wand Barrel Spectral custom colour.
+            if(i_spectral_wand_saturation_custom < 254) {
+              i_spectral_wand_saturation_custom++;
+
+              if(i_spectral_wand_saturation_custom > 253) {
+                i_spectral_wand_saturation_custom = 254;
+              }
+            }
+            else if(i_spectral_wand_custom < 253 && i_spectral_wand_saturation_custom > 253) {
+              i_spectral_wand_custom++;
+            }
+            else {
+              i_spectral_wand_custom = 254;
+
+              if(i_spectral_wand_saturation_custom < 253) {
                 i_spectral_wand_saturation_custom++;
-
-                if(i_spectral_wand_saturation_custom > 253) {
-                  i_spectral_wand_saturation_custom = 254;
-                }
-              }
-              else if(i_spectral_wand_custom < 253 && i_spectral_wand_saturation_custom > 253) {
-                i_spectral_wand_custom++;
               }
               else {
-                i_spectral_wand_custom = 254;
-
-                if(i_spectral_wand_saturation_custom < 253) {
-                  i_spectral_wand_saturation_custom++;
-                }
-                else {
-                  i_spectral_wand_saturation_custom = 254;
-                }
+                i_spectral_wand_saturation_custom = 254;
               }
+            }
 
-              wandBarrelSpectralCustomConfigOn();
-            }
-            else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-              // Change colour of the Power Cell Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_INCREASE);
-            }
-            else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-              // Change colour of the Cyclotron Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE);
-            }
-            else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
-              // Change colour of the Inner Cyclotron Spectral custom colour.
-              wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
-            }
-            else if(i_wand_menu + 1 > 5) {
-              i_wand_menu = 5;
-            }
-            else {
-              i_wand_menu++;
-            }
+            wandBarrelSpectralCustomConfigOn();
           }
+          else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            // Change colour of the Power Cell Spectral custom colour.
+            wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_INCREASE);
+          }
+          else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            // Change colour of the Cyclotron Spectral custom colour.
+            wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE);
+          }
+          else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            // Change colour of the Inner Cyclotron Spectral custom colour.
+            wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
+          }
+          else if(i_wand_menu + 1 > 5) {
+            i_wand_menu = 5;
+          }
+          else {
+            i_wand_menu++;
+          }
+        }
       break;
-
+              
       case ACTION_SETTINGS:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(i_wand_menu == 4 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
+          if(i_wand_menu == 4 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == LOW && switchMode() != true) {
             // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
             wandSerialSend(W_DIMMING_DECREASE);
           }
-          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == LOW && switchMode() != true) {
             // Lower the sound effects volume.
             decreaseVolumeEffects();
 
             // Tell pack to lower the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
           }
-          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW && b_playing_music == true) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW && b_playing_music == true) {
             // Decrease the music volume.
             if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
               i_volume_music_percentage = 0;
@@ -6765,22 +6754,26 @@ void checkRotary() {
           else if(i_wand_menu - 1 < 1) {
             // We are entering the sub menu. Only accessible when the Neutrona Wand is powered down.
             if(WAND_STATUS == MODE_OFF) {
-              if(b_wand_menu_sub != true) {
-                b_wand_menu_sub = true;
-                i_wand_menu = 5;
+              switch(WAND_MENU_LEVEL) {
+                case MENU_LEVEL_1:
+                  WAND_MENU_LEVEL = MENU_LEVEL_2;
+                  i_wand_menu = 5;
 
-                // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
-                analogWrite(led_slo_blo, 255);
+                  // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
+                  analogWrite(led_slo_blo, 255);
 
-                // Play an indication beep to notify we have changed to the sub menu.
-                stopEffect(S_BEEPS);
-                playEffect(S_BEEPS);
+                  // Play an indication beep to notify we have changed to the sub menu.
+                  stopEffect(S_BEEPS);
+                  playEffect(S_BEEPS);
 
-                // Tell the Proton Pack to play a beep during a sub menu to menu level change.
-                wandSerialSend(W_MENU_LEVEL_CHANGE);
-              }
-              else {
-                i_wand_menu = 1;
+                  // Tell the Proton Pack to play a beep during a sub menu to menu level change.
+                  wandSerialSend(W_MENU_LEVEL_CHANGE);
+                break;
+
+                case MENU_LEVEL_2:
+                default:
+                  i_wand_menu = 1;
+                break;
               }
             }
             else {
@@ -6794,18 +6787,18 @@ void checkRotary() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(i_wand_menu == 4 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
+          if(i_wand_menu == 4 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == LOW && switchMode() != true) {
             // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
             wandSerialSend(W_DIMMING_INCREASE);
           }
-          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == LOW && switchMode() != true) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == LOW && switchMode() != true) {
             // Increase sound effects volume.
             increaseVolumeEffects();
 
             // Tell pack to increase the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
           }
-          else if(i_wand_menu == 3 && b_wand_menu_sub != true && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW && b_playing_music == true) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW && b_playing_music == true) {
             // Increase music volume.
             if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
               i_volume_music_percentage = 100;
@@ -6830,22 +6823,27 @@ void checkRotary() {
           else if(i_wand_menu + 1 > 5) {
             // We are leaving the sub menu. Only accessible when the Neutrona Wand is powered down.
             if(WAND_STATUS == MODE_OFF) {
-              if(b_wand_menu_sub == true) {
-                b_wand_menu_sub = false;
-                i_wand_menu = 1;
+              switch(WAND_MENU_LEVEL) {
+                case MENU_LEVEL_2:
+                  WAND_MENU_LEVEL = MENU_LEVEL_1;
 
-                // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
-                analogWrite(led_slo_blo, 0);
+                  i_wand_menu = 1;
 
-                // Play an indication beep to notify we have left the sub menu.
-                stopEffect(S_BEEPS);
-                playEffect(S_BEEPS);
+                  // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
+                  analogWrite(led_slo_blo, 0);
 
-                // Tell the Proton Pack to play a beep during a submenu to menu level change.
-                wandSerialSend(W_MENU_LEVEL_CHANGE);
-              }
-              else {
-                i_wand_menu = 5;
+                  // Play an indication beep to notify we have left the sub menu.
+                  stopEffect(S_BEEPS);
+                  playEffect(S_BEEPS);
+
+                  // Tell the Proton Pack to play a beep during a submenu to menu level change.
+                  wandSerialSend(W_MENU_LEVEL_CHANGE);                  
+                break;
+
+                case MENU_LEVEL_1:
+                default:
+                  i_wand_menu = 5;
+                break;
               }
             }
             else {
@@ -6883,7 +6881,7 @@ void checkRotary() {
               i_power_mode_prev = i_power_mode;
               i_power_mode--;
 
-              if(year_mode == 2021 && b_28segment_bargraph == true) {
+              if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && b_28segment_bargraph == true) {
                 bargraphPowerCheck2021Alt(false);
               }
 
@@ -6945,7 +6943,7 @@ void checkRotary() {
                 i_power_mode_prev = i_power_mode;
                 i_power_mode++;
 
-                if(year_mode == 2021 && b_28segment_bargraph == true) {
+                if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && b_28segment_bargraph == true) {
                   bargraphPowerCheck2021Alt(false);
                 }
 

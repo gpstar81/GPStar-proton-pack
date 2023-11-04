@@ -87,19 +87,6 @@ uint8_t i_num_barrel_leds = 5;
 bool b_bargraph_invert = false;
 
 /*
- * When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
- * When set to false (default), it mimics the action in Afterlife.
- * Only compatible with the gpstar Neutrona Wand board.
-*/
-// bool b_bargraph_always_ramping = false;
-
-/*
- * When set to true, the bargraph (28 segement or 5 LED Hasbro) will do the original mode animations.
- * Bargraph always ramping overrides this.
-*/
-// bool b_bargraph_mode_original = false;
-
-/*
  * If the Frutto vent light has been installed, uncomment the line below
  * to enable special brightness controls during idle and firing modes.
  */
@@ -188,15 +175,21 @@ bool b_overheat_enabled = true;
 bool b_wand_boot_errors = true;
 
 /*
+ * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
+ * When false, the bargraph will ramp down instead.
+*/
+bool b_overheat_bargraph_blink = true;
+
+/*
  * Which power modes do you want to be able to overheat.
  * Set to true to allow the wand and pack to overheat in that mode.
  * Set to false to disable overheating in that power mode. You will be able to continuously fire instead.
  */
-const bool b_overheat_mode_1 = false;
-const bool b_overheat_mode_2 = false;
-const bool b_overheat_mode_3 = false;
-const bool b_overheat_mode_4 = false;
-const bool b_overheat_mode_5 = true;
+bool b_overheat_mode_1 = false;
+bool b_overheat_mode_2 = false;
+bool b_overheat_mode_3 = false;
+bool b_overheat_mode_4 = false;
+bool b_overheat_mode_5 = true;
 
 /*
  * Time in milliseconds for when overheating will initiate if enabled for that power mode.

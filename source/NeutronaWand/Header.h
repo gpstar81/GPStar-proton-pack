@@ -254,12 +254,12 @@ uint8_t i_bargraph[i_bargraph_segments] = {};
 const uint8_t i_bargraph_invert[i_bargraph_segments] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
 const uint8_t i_bargraph_normal[i_bargraph_segments] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 bool b_bargraph_status[i_bargraph_segments] = {};
+
 /*
- * (Optional) Support for the Frutto Technology Video Game Accessories
+ * (Optional) Support for Video Game Accessories (coming soon)
 */
-/*
-bool b_overheat_indicators[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false};
-*/
+// bool b_overheat_indicators[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false};
+
 
 /*
 * EEPROM
@@ -387,8 +387,9 @@ enum VOLUME_SYNC VOLUME_SYNC_WAIT;
 /* 
  *  Wand menu & music
  */
+enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3 };
+enum WAND_MENU_LEVELS WAND_MENU_LEVEL; 
 uint8_t i_wand_menu = 5;
-bool b_wand_menu_sub = false;
 const unsigned int i_settings_blinking_delay = 350;
 bool b_playing_music = false;
 bool b_repeat_track = false;
@@ -424,12 +425,10 @@ uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts
 uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out
 bool b_wand_mash_error = false;        // Indicates wand is in a lock-out phase
 
-/*
- * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
- * When false, the bargraph will ramp down instead.
- * Removing this feature eventually....
-*/
-bool b_overheat_bargraph_blink = false;
+
+millisDelay ms_blink_sound_timer_1;
+millisDelay ms_blink_sound_timer_2;
+const unsigned int i_blink_sound_timer = 400;
 
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
