@@ -1858,7 +1858,7 @@ void checkSwitches() {
                 }
                 
                 if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-                    analogWrite(led_front_left, 255); // The front right orange LED, turn it on.
+                  analogWrite(led_front_left, 255); // The front right orange LED, turn it on.
 
                   // Turn on the vent lights.
                   if(b_vent_light_control == true) {
@@ -7349,6 +7349,10 @@ void checkPack() {
                     switch(SYSTEM_MODE) {
                       case MODE_ORIGINAL:
                         if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && switch_activate.getState() == HIGH) {
+                          if(b_28segment_bargraph == true) {
+                            bargraphPowerCheck2021Alt(false);
+                          }
+                                                    
                           prepBargraphRampUp();
                         }
                       break;
