@@ -28,7 +28,7 @@
   // Nano
   #define ATTENUATOR_LED_PIN 9
 #endif
-#define ATTENUATOR_NUM_LEDS 2
+#define ATTENUATOR_NUM_LEDS 3
 CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
 
 /*
@@ -224,6 +224,7 @@ bool b_overheating = false;
  * LED Devices
  */
 enum device {
+  TOP_LED,
   UPPER_LED,
   LOWER_LED
 };

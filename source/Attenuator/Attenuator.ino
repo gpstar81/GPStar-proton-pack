@@ -78,8 +78,11 @@ void setup() {
   // Begin at menu level one. This affects the behavior of the rotary dial.
   MENU_LEVEL = MENU_1;
 
-  // RGB LEDs for effects (upper/lower).
+  // RGB LEDs for effects (upper/lower) and user status (top).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
+
+  // Change top indicator to green when device is on and ready.
+  attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, C_GREEN, 128);
 
   // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);

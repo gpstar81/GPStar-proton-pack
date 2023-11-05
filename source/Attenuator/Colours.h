@@ -53,10 +53,10 @@ int getBrightness(uint8_t i_percent = 100) {
 
 // Special values for colour cycles: current hue (colour) and when to change colour.
 // This must match the number of device ENUM entries (though that is rarely changed).
-uint8_t i_curr_colour[2] = { 0, 0 };
-uint8_t i_curr_bright[2] = { 0, 0 };
-int i_next_bright[2] = { -1, -1 };
-uint8_t i_count[2] = { 0, 0 };
+uint8_t i_curr_colour[ATTENUATOR_NUM_LEDS] = { 0, 0, 0 };
+uint8_t i_curr_bright[ATTENUATOR_NUM_LEDS] = { 0, 0, 0 };
+int i_next_bright[ATTENUATOR_NUM_LEDS] = { -1, -1, -1 };
+uint8_t i_count[ATTENUATOR_NUM_LEDS] = { 0, 0, 0 };
 
 CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
