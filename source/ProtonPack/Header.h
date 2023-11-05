@@ -286,9 +286,6 @@ const uint8_t fan_booster_pin = 38;
  * Fan for N-Filter smoke
  */
 const uint8_t fan_pin = 33;
-millisDelay ms_fan_stop_timer;
-const unsigned int i_fan_stop_timer = 8000; // Total time for the fan to be ready and/or actually running.
-const float i_fan_start_percent = 0.8; // Time at which the fan will turn on for venting (timer * percent).
 
 /* 
  * Overheating and smoke timers for smoke_pin. 
@@ -302,6 +299,7 @@ const unsigned long int i_smoke_timer[5] = { i_smoke_timer_mode_1, i_smoke_timer
 const unsigned long int i_smoke_on_time[5] = { i_smoke_on_time_mode_1, i_smoke_on_time_mode_2, i_smoke_on_time_mode_3, i_smoke_on_time_mode_4, i_smoke_on_time_mode_5 };
 const bool b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
 const bool b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
+millisDelay ms_overheating_length; // The total length of the when the fans turn on (or smoke if smoke synced to fan)
 
 /*
  * N-Filter LED (White) (Optional)

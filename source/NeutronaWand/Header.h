@@ -26,7 +26,7 @@ enum WAND_STATE WAND_STATUS;
 /*
  * Various wand action states.
  */
-enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU, ACTION_EEPROM_MENU_ALT };
+enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
 /*
@@ -191,9 +191,9 @@ const uint8_t d_white_light_interval = 250;
 /* 
  *  Overheat timers
  */
-millisDelay ms_overheat_initiate;
-millisDelay ms_overheating;
-const unsigned int i_ms_overheating = 6500; // Overheating for 6.5 seconds.
+millisDelay ms_overheat_initiate; 
+millisDelay ms_overheating; // This timer is only used when using the Neutrona Wand without a Proton Pack.
+const unsigned int i_ms_overheating = 6500; // Overheating for 6.5 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
 const bool b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
 const unsigned long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_mode_1, i_ms_overheat_initiate_mode_2, i_ms_overheat_initiate_mode_3, i_ms_overheat_initiate_mode_4, i_ms_overheat_initiate_mode_5 };
 
@@ -387,7 +387,7 @@ enum VOLUME_SYNC VOLUME_SYNC_WAIT;
 /* 
  *  Wand menu & music
  */
-enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3 };
+enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3, MENU_LEVEL_4, MENU_LEVEL_5 };
 enum WAND_MENU_LEVELS WAND_MENU_LEVEL; 
 uint8_t i_wand_menu = 5;
 const unsigned int i_settings_blinking_delay = 350;

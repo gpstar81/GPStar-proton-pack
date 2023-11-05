@@ -211,8 +211,6 @@ void loop() {
   checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
 
-  checkFan();
-
   switch_cyclotron_lid.loop();
   switch_alarm.loop();
   switch_cyclotron_direction.loop();
@@ -442,6 +440,7 @@ void loop() {
             }
 
             fanControl(true);
+            fanBooster(true);
           }
 
           // We are strobing the N-Filter jewel.
@@ -466,6 +465,7 @@ void loop() {
           ventLight(false);
           ventLightLEDW(false);
           fanControl(false);
+          fanBooster(false);
         }
       }
 
@@ -733,6 +733,7 @@ void packShutdown() {
 
   stopEffect(S_BEEP_8);
   stopEffect(S_SHUTDOWN);
+  stopEffect(S_STEAM_LOOP);
 
   if(i_mode_year == 1989) {
     stopEffect(S_GB2_PACK_START);
@@ -784,9 +785,9 @@ void packShutdown() {
   ms_smoke_timer.stop();
   ms_smoke_on.stop();
 
-  // Turn off the N-Filter fan.
-  ms_fan_stop_timer.stop();
+  // Turn off the fans.
   fanControl(false);
+  fanBooster(false);
 
   // Turn off the Cyclotron auto speed timer.
   ms_cyclotron_auto_speed_timer.stop();
@@ -811,6 +812,7 @@ void packOffReset() {
   ms_cyclotron.start(i_2021_delay);
   ms_cyclotron_ring.start(i_inner_ramp_delay);
 
+  ms_overheating_length.stop();
   b_overheating = false;
   b_2021_ramp_down = false;
   b_2021_ramp_down_start = false;
@@ -2539,13 +2541,41 @@ void cyclotronOverHeating() {
   }
 
   if(ms_overheating.justFinished()) {
-    playEffect(S_VENT_SMOKE);
+    playEffect(S_AIR_RELEASE);
+    playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+
+    // Fade in the steam release loop.
+    playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
+
+    switch(i_wand_power_level) {
+      case 1:
+      default:
+        ms_overheating_length.start(i_ms_overheating_length_1);
+      break;
+
+      case 2:
+        ms_overheating_length.start(i_ms_overheating_length_2);
+      break;
+
+      case 3:
+        ms_overheating_length.start(i_ms_overheating_length_3);
+      break;
+
+      case 4:
+        ms_overheating_length.start(i_ms_overheating_length_4);
+      break;
+
+      case 5:
+        ms_overheating_length.start(i_ms_overheating_length_5);
+      break;
+    }
 
     if(b_overheat_sync_to_fan != true) {
       smokeControl(false);
     }
   }
 
+  // The cyclotron lights during the entire overheating sequence
   switch (i_mode_year) {
     case 2021:
       if(b_overheat_lights_off != true) {
@@ -2602,10 +2632,15 @@ void cyclotronOverHeating() {
   }
 
   // Time the N-Filter light to when the fan is running.
-  if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
+  //if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
+  if(ms_overheating_length.isRunning()) {
     if(b_overheat_sync_to_fan == true) {
       smokeControl(true);
     }
+
+    // Turn the fans on.
+    fanControl(true);
+    fanBooster(true);
 
     // For strobing the vent light.
     if(ms_vent_light_off.justFinished()) {
@@ -2635,6 +2670,70 @@ void cyclotronOverHeating() {
 
     ventLightLEDW(true);
   }
+
+  if(ms_overheating_length.justFinished()) {
+    // Tell the Neutrona Wand the overheating is finished.
+    packOverHeatingFinished();
+  }
+}
+
+void packOverHeatingFinished() {
+  packSerialSend(P_OVERHEATING_FINISHED);
+  serial1Send(A_OVERHEATING_FINISHED);
+
+  ms_overheating_length.stop();
+  
+  stopEffect(S_STEAM_LOOP);
+  playEffect(S_VENT_DRY);
+  playEffect(S_STEAM_LOOP_FADE_OUT);
+
+  b_overheating = false;
+
+  // Turn off the smoke.
+  smokeControl(false);
+
+  // Stop the fans.
+  fanControl(false);
+  fanBooster(false);
+
+  // Reset the LEDs before resetting the alarm flag.
+  if(i_mode_year == 1984 || i_mode_year == 1989) {
+    resetCyclotronLeds();
+  }
+
+  b_alarm = false;
+
+  if(b_overheat_lights_off == true) {
+    cyclotronSpeedRevert();
+
+    // Reset the ramp speeds.
+    switch(i_mode_year) {
+      case 1984:
+      case 1989:
+          // Reset the ramp speeds.
+          i_current_ramp_speed = i_1984_delay * 1.3;
+          i_inner_current_ramp_speed = i_inner_ramp_delay;
+      break;
+
+      case 2021:
+        // Reset the ramp speeds.
+        i_current_ramp_speed = i_2021_ramp_delay;
+        i_inner_current_ramp_speed = i_inner_ramp_delay;
+      break;
+    }
+  }
+
+  reset2021RampUp();
+
+  packStartup();
+
+  // Turn off the vent lights
+  ventLight(false);
+  ventLightLEDW(false);
+  ms_vent_light_off.stop();
+  ms_vent_light_on.stop();
+
+  ms_cyclotron.start(i_2021_delay);
 }
 
 void cyclotronNoCable() {
@@ -3246,8 +3345,9 @@ void wandStoppedFiring() {
   // Turn off any smoke.
   smokeControl(false);
 
-  // Turn off the N-Filter fan.
+  // Turn off the fans.
   fanControl(false);
+  fanBooster(false);
 
   ms_firing_length_timer.stop();
   ms_smoke_timer.stop();
@@ -3706,25 +3806,39 @@ void smokeControl(bool b_smoke_on) {
 }
 
 // Smoke #2. Good for putting smoke in the Booster Tube.
-// A second fan pin (Fan Booster Tube) is timed to go off at the same time as this, but is not required in my experience.
 void smokeBooster(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_booster_pin, HIGH);
-        digitalWrite(fan_booster_pin, HIGH);
       }
       else if(b_overheating == true && b_smoke_2_overheat == true && b_wand_firing != true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_booster_pin, HIGH);
-        digitalWrite(fan_booster_pin, HIGH);
       }
       else {
         digitalWrite(smoke_booster_pin, LOW);
-        digitalWrite(fan_booster_pin, LOW);
       }
     }
     else {
       digitalWrite(smoke_booster_pin, LOW);
+    }
+  }
+}
+
+void fanBooster(bool b_fan_on) {
+  if(b_smoke_enabled == true) {
+    if(b_fan_on == true) {
+      if(b_wand_firing == true && b_overheating != true && b_fan_booster_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(fan_booster_pin, HIGH);
+      }
+      else if(b_overheating == true && b_wand_firing != true && b_fan_booster_overheat == true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(fan_booster_pin, HIGH);
+      }
+      else {
+        digitalWrite(fan_booster_pin, LOW);
+      }
+    }
+    else {
       digitalWrite(fan_booster_pin, LOW);
     }
   }
@@ -3749,19 +3863,6 @@ void fanControl(bool b_fan_on) {
     else {
       digitalWrite(fan_pin, LOW);
     }
-  }
-}
-
-// Another optional 5V pin that goes high during overheat/vent sequences.
-void checkFan() {
-  if(ms_fan_stop_timer.justFinished()) {
-    // Turn off fan when timer has completed.
-    fanControl(false);
-    ms_fan_stop_timer.stop();
-  }
-  else if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < (i_fan_stop_timer * i_fan_start_percent)) {
-    // Turn on fan within the timed sequence.
-    fanControl(true);
   }
 }
 
@@ -3837,9 +3938,11 @@ void wandHandShake() {
     }
 
     // Turn off overheating if the wand gets disconnected.
+    /*
     if(b_overheating == true) {
-      packOverheatingFinished();
+      packOverHeatingFinished();
     }
+    */
 
     if(b_spectral_lights_on == true) {
       spectralLightsOff();
@@ -3865,57 +3968,6 @@ void wandExtraSoundsStop() {
 
   stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
-}
-
-void packOverheatingFinished() {
-  w_trig.trackGain(S_VENT_DRY, i_volume_effects);
-  b_overheating = false;
-
-  // Turn off the smoke.
-  smokeControl(false);
-
-  // Stop the N-Filter fan.
-  ms_fan_stop_timer.stop();
-  fanControl(false);
-
-  // Reset the LEDs before resetting the alarm flag.
-  if(i_mode_year == 1984 || i_mode_year == 1989) {
-    resetCyclotronLeds();
-  }
-
-  b_alarm = false;
-
-  if(b_overheat_lights_off == true) {
-    cyclotronSpeedRevert();
-
-    // Reset the ramp speeds.
-    switch(i_mode_year) {
-      case 1984:
-      case 1989:
-          // Reset the ramp speeds.
-          i_current_ramp_speed = i_1984_delay * 1.3;
-          i_inner_current_ramp_speed = i_inner_ramp_delay;
-      break;
-
-      case 2021:
-        // Reset the ramp speeds.
-        i_current_ramp_speed = i_2021_ramp_delay;
-        i_inner_current_ramp_speed = i_inner_ramp_delay;
-      break;
-    }
-  }
-
-  reset2021RampUp();
-
-  packStartup();
-
-  // Turn off the vent lights
-  ventLight(false);
-  ventLightLEDW(false);
-  ms_vent_light_off.stop();
-  ms_vent_light_on.stop();
-
-  ms_cyclotron.start(i_2021_delay);
 }
 
 // Incoming messages from the extra Serial 1 port.
@@ -4608,9 +4660,9 @@ void checkWand() {
               // Reset some vent light timers.
               ms_vent_light_off.stop();
               ms_vent_light_on.stop();
-              ms_fan_stop_timer.stop();
+              //ms_fan_stop_timer.stop();
               ms_vent_light_off.start(i_vent_light_delay);
-              ms_fan_stop_timer.start(i_fan_stop_timer);
+              //ms_fan_stop_timer.start(i_fan_stop_timer);
 
               // Reset the Inner Cyclotron speed.
               if(i_mode_year == 1984 || i_mode_year == 1989) {
@@ -4620,9 +4672,10 @@ void checkWand() {
               serial1Send(A_OVERHEATING);
             break;
 
+            // No longer used.
             case W_OVERHEATING_FINISHED:
               // Overheating finished
-              packOverheatingFinished();
+              packOverHeatingFinished();
 
               serial1Send(A_OVERHEATING_FINISHED);
             break;
@@ -6119,6 +6172,10 @@ void checkWand() {
           // Check if the wand is telling us it is here after connecting it to the pack.
           // Then synchronise some settings between the pack and the wand.
           if(comStruct.i == W_HANDSHAKE) {
+            if(b_overheating == true) {
+              packOverHeatingFinished();
+            }
+
             packSerialSend(P_SYNC_START);
 
             // Tell the wand that the pack is here.

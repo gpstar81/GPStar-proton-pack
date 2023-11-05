@@ -178,7 +178,7 @@ bool b_wand_boot_errors = true;
  * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
  * When false, the bargraph will ramp down instead.
 */
-bool b_overheat_bargraph_blink = true;
+bool b_overheat_bargraph_blink = false;
 
 /*
  * Which power modes do you want to be able to overheat.

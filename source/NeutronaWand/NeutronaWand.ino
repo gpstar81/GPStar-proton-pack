@@ -349,48 +349,13 @@ void mainLoop() {
         }
       }
 
-      if(ms_overheating.justFinished()) {
-        bargraphClearAlt();
-
-        ms_overheating.stop();
-        ms_settings_blinking.stop();
-
-        // Turn off hat light 2.
-        digitalWrite(led_hat_2, LOW);
-
-        WAND_ACTION_STATUS = ACTION_IDLE;
-
-        stopEffect(S_CLICK);
-        stopEffect(S_VENT_DRY);
-
-        // Prepare a few things before ramping the bargraph back up from a full ramp down.
-        if(b_overheat_bargraph_blink != true) {
-          if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-            bargraphYearModeUpdate();
-          }
-          else {
-            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
-          }
+      if(b_no_pack == true) {
+        // Since the pack tells the wand when overheating is finished. If the wand is running with no pack, then the wand needs to calculate when to finish.
+        if(ms_overheating.justFinished()) {
+          overHeatingFinished();
         }
-
-        playEffect(S_BOOTUP);
-
-        if(switch_vent.getState() == LOW) {
-          soundIdleLoop(true);
-        }
-        else {
-          soundIdleLoop(true);
-
-          if(switch_vent.getState() == HIGH && year_mode == 2021) {
-            afterLifeRamp1();
-          }
-        }
-
-        bargraphRampUp();
-
-        // Tell the pack that we finished overheating.
-        wandSerialSend(W_OVERHEATING_FINISHED);
       }
+      
     break;
 
     case ACTION_ERROR:
@@ -399,60 +364,6 @@ void mainLoop() {
 
     case ACTION_ACTIVATE:
       modeActivate();
-    break;
-
-    case ACTION_EEPROM_MENU_ALT:
-        settingsBlinkingLights();
-
-        /*
-        EEPROM Menu #3 (Overheat and smoke settings)
-          EEPROM Menu Alt Memory address starts after the last EEPROM config menu item. When clearing EEPROM config, it will not clear Alt and vice versa.
-
-          How to enter:
-          Hold Intensify and press alt wing button 5 times
-
-          EEPROM Menu Level 1:
-          Menu 5: Intensify: Erase | Alt button: Save
-          Menu 4: Intensify: Overheat smoke n-filter time length (increase by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit) | Alt Wing Button:  Overheat smoke n-filter time length (decrease by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit)
-          Menu 4: Intensify: Overheat smoke booster tube connector time length (increase by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit) | Alt Wing Button:  Overheat smoke booster tube connector time length (decrease by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit)
-          Menu 4: Intensify: Overheat fan n-filter time length (increase by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit) | Alt Wing Button:  Overheat fan n-filter time length (decrease by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit)
-          Menu 4: Intensify: Overheat fan booster tube connector time length (increase by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit) | Alt Wing Button:  Overheat fan booster tube connector time length (decrease by 1 second on each press | changes the length of the overheat -> when this finishes overheat finishes) (set a range limit)
-
-          EEPROM Menu Level 2:
-          Menu 5: Intensify: Enable/Disable overheat in power mode #5 | Alt Wing Button: Enable/Disable continuous smoke in power mode #5
-          Menu 4: Intensify: Enable/Disable overheat in power mode #4 | Alt Wing Button: Enable/Disable continuous smoke in power mode #4
-          Menu 3: Intensify: Enable/Disable overheat in power mode #3 | Alt Wing Button: Enable/Disable continuous smoke in power mode #3
-          Menu 2: Intensify: Enable/Disable overheat in power mode #2 | Alt Wing Button: Enable/Disable continuous smoke in power mode #2
-          Menu 1: Intensify: Enable/Disable overheat in power mode #1 | Alt Wing Button: Enable/Disable continuous smoke in power mode #1
-        */
-      
-      /*
-      switch(i_wand_menu) {
-        // Intensify: Clear the Proton Pack EEPROM Overheat/smoke settings and exit.
-        // Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
-        case 5:
-
-        break;
-
-
-        case 4:
-
-        break;
-
-        case 3:
-
-        break;
-
-
-        case 2:
-
-        break;
-
-        case 1:
-
-        break;
-      }
-      */
     break;
 
     case ACTION_EEPROM_MENU:
@@ -540,6 +451,20 @@ void mainLoop() {
         Menu Level 3 - 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default | Alt button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
         Menu Level 3 - 2: Intensify: Demo Light Mode Enabled | Alt button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
         Menu Level 3 - 1: Intensify: Toggle between Super Hero and Original Mode. | Alt button: Toggle (?? UNUSED ??)
+
+        EEPROM Menu Level 4: (duration ranges from 1 second to 60 seconds)
+        Menu 5: Intensify: Increase overheat duration by 1 second : Power Mode 5 | Alt Wing Button: Decrease overheat duration by 1 second : Power Mode 5
+        Menu 4: Intensify: Increase overheat duration by 1 second : Power Mode 4 | Alt Wing Button: Decrease overheat duration by 1 second : Power Mode 4
+        Menu 3: Intensify: Increase overheat duration by 1 second : Power Mode 3 | Alt Wing Button: Decrease overheat duration by 1 second : Power Mode 3
+        Menu 2: Intensify: Increase overheat duration by 1 second : Power Mode 2 | Alt Wing Button: Decrease overheat duration by 1 second : Power Mode 2
+        Menu 1: Intensify: Increase overheat duration by 1 second : Power Mode 1 | Alt Wing Button: Decrease overheat duration by 1 second : Power Mode 1
+
+        EEPROM Menu Level 5:
+        Menu 5: Intensify: Enable/Disable overheat in power mode #5 | Alt Wing Button: Enable/Disable continuous smoke in power mode #5
+        Menu 4: Intensify: Enable/Disable overheat in power mode #4 | Alt Wing Button: Enable/Disable continuous smoke in power mode #4
+        Menu 3: Intensify: Enable/Disable overheat in power mode #3 | Alt Wing Button: Enable/Disable continuous smoke in power mode #3
+        Menu 2: Intensify: Enable/Disable overheat in power mode #2 | Alt Wing Button: Enable/Disable continuous smoke in power mode #2
+        Menu 1: Intensify: Enable/Disable overheat in power mode #1 | Alt Wing Button: Enable/Disable continuous smoke in power mode #1        
       */
       settingsBlinkingLights();
 
@@ -1384,6 +1309,58 @@ void mainLoop() {
   }
 }
 
+
+/*
+  remove ms_overheating. Have it controlled directly from the pack side.
+  split the overheating sound effects up, have a constant expell sound effect when smoke is blowing on loop until the loop timer is finished.
+*/
+void overHeatingFinished() {
+  bargraphClearAlt();
+
+  // Since the pack tells the wand when overheating is finished. If the wand is running with no pack, then the wand needs to calculate when to finish.
+  if(b_no_pack == true) {
+    ms_overheating.stop();
+  }
+
+  ms_settings_blinking.stop();
+
+  // Turn off hat light 2.
+  digitalWrite(led_hat_2, LOW);
+
+  WAND_ACTION_STATUS = ACTION_IDLE;
+
+  stopEffect(S_CLICK);
+  stopEffect(S_VENT_DRY);
+
+  // Prepare a few things before ramping the bargraph back up from a full ramp down.
+  if(b_overheat_bargraph_blink != true) {
+    if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
+      bargraphYearModeUpdate();
+    }
+    else {
+      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
+    }
+  }
+
+  playEffect(S_BOOTUP);
+
+  if(switch_vent.getState() == LOW) {
+    soundIdleLoop(true);
+  }
+  else {
+    soundIdleLoop(true);
+
+    if(switch_vent.getState() == HIGH && year_mode == 2021) {
+      afterLifeRamp1();
+    }
+  }
+
+  bargraphRampUp();
+
+  // Tell the pack that we finished overheating.
+  //wandSerialSend(W_OVERHEATING_FINISHED);
+}
+
 // Controlled the the Wand Sub Menu and Wand EEPROM Menu system.
 void toggleOverHeating() {
   if(b_overheat_enabled == true) {
@@ -1497,8 +1474,10 @@ void startVentSequence() {
 
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
-  // Play overheating sounds.
-  ms_overheating.start(i_ms_overheating);
+  // Since the pack tells the wand when overheating is finished. If the wand is running with no pack, then the wand needs to calculate when to finish.  
+  if(b_no_pack == true) {
+    ms_overheating.start(i_ms_overheating);
+  }
 
   soundBeepLoopStop();
   soundIdleStop();
@@ -7337,6 +7316,12 @@ void checkPack() {
 
             case P_MODE_ORIGINAL:
               SYSTEM_MODE = MODE_ORIGINAL;
+            break;
+            
+            case P_OVERHEATING_FINISHED:
+              if(WAND_STATUS != MODE_OFF) {
+                overHeatingFinished();
+              }
             break;
 
             case P_MODE_ORIGINAL_RED_SWITCH_ON:
