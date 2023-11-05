@@ -1,4 +1,4 @@
-const char MAIN_page[] PROGMEM = R"=====(
+const char INDEX_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>

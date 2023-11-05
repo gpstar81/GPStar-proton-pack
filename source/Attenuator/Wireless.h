@@ -213,14 +213,14 @@ StaticJsonDocument<256> jsonDoc; // Used for processing JSON data.
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   Serial.println("Web Root HTML Requested");
-  String s = MAIN_page; // Read HTML contents from .h file.
+  String s = INDEX_page; // Read HTML contents from .h file.
   request->send(200, "text/html", s); // Send index page.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   Serial.println("Password HTML Requested");
-  String s = PSWD_page; // Read HTML contents from .h file.
+  String s = PASSWORD_page; // Read HTML contents from .h file.
   request->send(200, "text/html", s); // Send password page.
 }
 

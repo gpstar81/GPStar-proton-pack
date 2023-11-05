@@ -1,4 +1,4 @@
-const char PSWD_page[] PROGMEM = R"=====(
+const char PASSWORD_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
