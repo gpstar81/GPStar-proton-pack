@@ -10,7 +10,7 @@ const char PSWD_page[] PROGMEM = R"=====(
     body { margin-top: 10px; }
     h1 { color: #222; margin: 15px; }
     h3 { color: #333; margin: 10px; }
-    p { font-size: 18px; margin-bottom: 5px; }
+    p { font-size: 18px; margin-bottom: 5px; text-align: left; }
     button {
       background-color: #555;
       border: 2px solid #333;
@@ -79,10 +79,12 @@ const char PSWD_page[] PROGMEM = R"=====(
   <h1>WiFi Password</h1>
   <p>Use this page to update your preferred password for WiFi access. Note that this value is stored in controller's permanent memory,
   and firmware updates will have no effect on resetting this value. After updating, any devices which previously stored the password
-  for the WiFi network will require you to update the new password.</p>
+  for the WiFi network will require you to update to the new password.</p>
   <br/>
   <b>New AP Password:</b> <input type="text" id="password" width="120"/><br/>
   <b>Confirm Password:</b> <input type="text" id="password2" width="120"/><br/>
+  <a href="/">&laquo; Back</a>
+  &nbsp;&nbsp;&nbsp;
   <button type="button" onclick="updatePassword()">Update</button>
   <br/>
   <br/>

@@ -36,7 +36,8 @@ CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
  */
 CRGB c_top_led_color; // Remember the last color for the top indicator LED.
 millisDelay ms_top_blink; // Allows the top LED to blink for a menu state.
-const unsigned int i_top_blink_delay = 1000; // Duration for blink pattern.
+const unsigned int i_top_blink_delay = 800; // Duration for blink pattern.
+uint8_t i_top_led_brightness = 128; // Max brightness for this LED.
 bool b_top_led_off = false; // Controls blinking state for top LED.
 
 /*
@@ -66,7 +67,7 @@ bool b_buzzer_on = false;
 bool b_vibrate_on = false;
 const uint8_t i_min_power = 0;
 const uint8_t i_max_power = 255;
-const unsigned int i_buzzer_max_time = 250; // Longest duration for a standalone "beep".
+const unsigned int i_buzzer_max_time = 300; // Longest duration for a standalone "beep".
 const unsigned int i_vibrate_min_time = 500; // Minimum runtime for vibration motor.
 const unsigned int i_vibrate_max_time = 1500; // Maximum runtime for vibration motor.
 
@@ -75,11 +76,14 @@ const unsigned int i_vibrate_max_time = 1500; // Maximum runtime for vibration m
  * 0.03 ms to update 1 LED, and this device contains 2.
  * Just setting to 3 which should be sufficient.
  */
-const uint8_t i_fast_led_delay = 3;
 millisDelay ms_fast_led;
+const uint8_t i_fast_led_delay = 3;
 
-const unsigned int i_blink_leds = 550;
+/*
+ * For the alarm and venting/overheat, set the blink/buzz/vibrate interval.
+ */
 millisDelay ms_blink_leds;
+const unsigned int i_blink_leds = 600;
 
 /*
  * Barmeter 28 segment bargraph configuration and timers.

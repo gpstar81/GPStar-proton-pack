@@ -386,23 +386,23 @@ void setupRouting() {
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){
   switch(type) {
     case WS_EVT_CONNECT:
-      Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
+      Serial.printf("WebSocket[%s][%u] Connect\n", server->url(), client->id());
       i_ws_client_count++;
     break;
 
     case WS_EVT_DISCONNECT:
-      Serial.printf("ws[%s][%u] disconnect\n", server->url(), client->id());
+      Serial.printf("WebSocket[%s][%u] Disconnect\n", server->url(), client->id());
       if (i_ws_client_count > 0) {
         i_ws_client_count--;
       }
     break;
 
     case WS_EVT_ERROR:
-      Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+      Serial.printf("WebSocket[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
     break;
 
     case WS_EVT_PONG:
-      Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+      Serial.printf("WebSocket[%s][%u] Pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
     break;
 
     case WS_EVT_DATA:

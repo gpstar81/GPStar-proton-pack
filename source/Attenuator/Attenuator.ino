@@ -82,7 +82,7 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
 
   // Change top indicator to green when device is on and ready.
-  c_top_led_color = getHueAsRGB(TOP_LED, C_GREEN, 200);
+  c_top_led_color = getHueAsRGB(TOP_LED, C_GREEN, i_top_led_brightness);
   attenuator_leds[TOP_LED] = c_top_led_color;
 
   // Debounce the toggle switches and encoder pushbutton.
@@ -260,7 +260,7 @@ void mainLoop() {
         }
         else {
           controlLEDs(); // Turn LEDs on using appropriate color scheme.
-          useVibration(i_max_power, i_vibrate_max_time); // Provide physical feedback.
+          useVibration(i_max_power, i_vibrate_min_time); // Provide physical feedback.
           buzzOn(523); // Tone as note C4
         }
       }
@@ -331,11 +331,11 @@ void controlLEDs() {
     // ESP32
     if (i_ws_client_count > 0) {
       // Change to blue when clients are connected remotely.
-      c_top_led_color = getHueAsRGB(TOP_LED, C_BLUE, 200);
+      c_top_led_color = getHueAsRGB(TOP_LED, C_BLUE, i_top_led_brightness);
     }
     else {
       // Return to green if no wireless clients are connected.
-      c_top_led_color = getHueAsRGB(TOP_LED, C_GREEN, 200);
+      c_top_led_color = getHueAsRGB(TOP_LED, C_GREEN, i_top_led_brightness);
     }
   #endif
 
@@ -853,6 +853,8 @@ void checkPack() {
             b_overheating = false;
             ms_blink_leds.stop();
 
+            i_speed_multiplier = 1; // Return to normal speed.
+
             bargraphClear();
             BARGRAPH_PATTERN = BG_POWER_RAMP;
 
@@ -876,7 +878,9 @@ void checkPack() {
             b_firing = false;
             ms_blink_leds.stop();
 
-            i_speed_multiplier = 1; // Return to normal speed.
+            if (!b_overheating) {
+              i_speed_multiplier = 1; // Return to normal speed.
+            }
 
             if(b_pack_alarm) {
               // Ramp down if the pack alarm happens while firing.
