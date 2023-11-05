@@ -35,40 +35,49 @@ This device has it's own BOM which is separate from any other build items relate
 
 * [4 Pin Aviation Connector (to Proton Pack)](https://a.co/d/gPiOSzL)
 * [20 AWG 4 Conductor Wire w/ PVC Jacket](https://a.co/d/iglELZR)
-* [1/4 Inch Braided PET Wire Loom](https://a.co/d/b7pm6GU)
+* [1/4 Inch Braided PET Wire Loom](https://a.co/d/cDQPSk0)
 * [PG7 Rubber Strain Relief Connector](https://a.co/d/h1Hxh5T)
-* [Single-Pixel Addressable RGB LEDs](https://a.co/d/90SO4AQ)
-* [SPST Mini Toggle Switches](https://a.co/d/9DoDrgZ)
+* [Single-Pixel 5V WS2812B RGB Addressable RGB LEDs](https://a.co/d/90SO4AQ) (You will use 3 pixels from this set)
+* [Pre-soldered SPST Mini Toggle Switches](https://a.co/d/8SfEpVH)
 * [Rotary Encoder Knob w/ Switch](https://a.co/d/3iBps4P)
 * [3V 10mm x 2mm Vibration Motor](https://a.co/d/8p7mP9x)
 * [9mm Passive Piezo Buzzer](https://a.co/d/b39ELcm)
 * [28-Segment Bargraph from Frutto Technology](https://fruttotechnology.com/ols/products/preorder-28-segment-bargraph-pcb-for-spengler-neutrona-wand)
-* [Nano Terminal Adapter IO Shield](https://a.co/d/gnK7aza) (Optional)
 
-The processor for this device may be either an Arduino Nano or an ESP32:
+The preferred processor for this device is an ESP32 though you may also use an Arduino Nano. Note that wireless capabilities are only available with the ESP32.
 
-* [Arduino Nano Microcontroller](https://a.co/d/ev1LPea)
-* [Arduino Nano Terminal Adapter](https://a.co/d/7xNKJtO)
+* [ESP-WROOM-32 Dev Board w/ Terminal Shield](https://a.co/d/hDxXluE)
 
 or
 
-* [ESP-WROOM-32 Dev Board w/ Shield](https://a.co/d/hDxXluE)
+* [Arduino Nano Microcontroller](https://a.co/d/ev1LPea)
+* [Arduino Nano Terminal Shield](https://a.co/d/7xNKJtO)
 
 **Decorations**
 
 This device was designed to allow for certain "real" parts as opposed to being 100% 3D printed. To finish the look of the exterior the following are either required or suggested. These parts may be sourced from any vendor you prefer (in the US most ACE Hardware locations have extensive selections of metrics screws).
 
-* M3x4 Button Hex Head Screws (Qty: 14) - Used for decoration on the sides of the body.
-* M4x4 Fillister Head Slotted Screws (Qty: 4) - Used for decoration on the top of the body.
-* M4x4 Button Hex Head Screws (Qty: 4) - Used to secure the base plate to the body.
-* M4x6 Heat-set Inserts (Qty: 4) - Used to secure the base plate to the body.
+* [M3x4 Button Hex Head Screws](https://a.co/d/h5No0N9) (Qty: 14) - Used for decoration on the sides of the body.
+* [M4x4 Fillister Head Slotted Screws](https://a.co/d/es5eXBC) (Qty: 4) - Used for decoration on the top of the body.
+
+The back plate will be attached using either M5 or M4 screws depending on the material used. For screws, your best value is to purchase an assorted set as this cost less than buying a single size of screw.
+
+* [M5x8 Button Hex Head Screws](https://a.co/d/0fcUDN5) (Qty: 4) - Used to secure the base plate to metal body.
+
+or
+
+* [M4x8 Button Hex Head Screws](https://a.co/d/0fcUDN5) (Qty: 4) - Used to secure the base plate to plastic body.
+* [M4x6 Heat-set Inserts](https://a.co/d/dMBuRqA) (Qty: 4) - Used to secure the base plate to a plastic body.
 
 Device labels can be obtained or created by any means desired. The sizes [offered by this product on GBFans](https://www.gbfans.com/shop/pack-vinyl-labels/) should be sufficient.
+
+* [Clear Dome Lens](https://www.digikey.com/en/products/detail/carclo-technical-plastics/10403/2641656)
+* [Clip-in Lens SML_190_CTP](https://www.digikey.com/en/products/detail/visual-communications-company-vcc/SML-190-CTP/4515623)
 
 
 ## Dimensions
 
-It is worth noting that the device is meant to attach to the left shoulder strap of a standard ALICE pack. The width of the strap is typically around 80mm while worn, so this device will fit near perfectly once the strap is pressed against your shoulder/chest.
+It is worth noting that the device is meant to attach to the left shoulder strap of a standard ALICE pack. The width of the strap is typically around 80mm while worn, so this device will fit near perfectly once the strap is pressed against your shoulder/chest. These are the overall dimensions if you wish to approximate the needed space or design your own enclosure. Maintaining these dimensions ensures the components above will fit within the enclosure.
 
 	Width: 80mm
 	Height: 115mm

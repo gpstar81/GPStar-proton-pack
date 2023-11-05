@@ -82,7 +82,8 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
 
   // Change top indicator to green when device is on and ready.
-  attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, C_GREEN, 128);
+  c_top_led_color = getHueAsRGB(TOP_LED, C_GREEN, 200);
+  attenuator_leds[TOP_LED] = c_top_led_color;
 
   // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);
@@ -325,6 +326,43 @@ void useVibration(uint8_t i_power_level, unsigned int i_duration) {
 }
 
 void controlLEDs() {
+  // Update the top LED based on certain system statuses.
+  #if defined(__XTENSA__)
+    // ESP32
+    if (i_ws_client_count > 0) {
+      // Change to blue when clients are connected remotely.
+      c_top_led_color = getHueAsRGB(TOP_LED, C_BLUE, 200);
+    }
+    else {
+      // Return to green if no wireless clients are connected.
+      c_top_led_color = getHueAsRGB(TOP_LED, C_GREEN, 200);
+    }
+  #endif
+
+  switch(MENU_LEVEL) {
+    case MENU_1:
+      // Keep indicator solid.
+      ms_top_blink.stop();
+      b_top_led_off = false;
+      attenuator_leds[TOP_LED] = c_top_led_color;
+    break;
+
+    case MENU_2:
+      // Blink as necessary.
+      if (ms_top_blink.remaining() < 1) {
+        ms_top_blink.start(i_top_blink_delay);
+        b_top_led_off = !b_top_led_off;
+      }
+
+      if (b_top_led_off) {
+        attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, C_BLACK);
+      }
+      else {
+        attenuator_leds[TOP_LED] = c_top_led_color;
+      }
+    break;
+  }
+
   // Set upper LED based on alarm or overheating state, when connected.
   // Otherwise, use the standard pattern/color for illumination.
   if(b_pack_alarm || b_overheating) {
