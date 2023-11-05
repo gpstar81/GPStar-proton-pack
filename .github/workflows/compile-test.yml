@@ -58,33 +58,34 @@ jobs:
         with:
           name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
-  # compile-esp32:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: arduino/compile-sketches@v1
-  #       with:
-  #           enable-deltas-report: true
-  #           fqbn: esp32:esp32:esp32
-  #           sketch-paths: |
-  #             - source/Attenuator
-  #           libraries: |
-  #             - name: ezButton
-  #             - name: FastLED
-  #             - name: Ramp
-  #             - name: simple ht16k33 library
-  #             - name: AltSoftSerial
-  #             - name: SerialTransfer
-  #             - name: ArduinoJson
-  #             - name: Preferences
-  #             - name: ESPAsyncWebSrv
-  #             - name: AsyncTCP
-  #             - source-url: https://github.com/ansonhe97/millisDelay.git
-  #           verbose: false
-  #           cli-compile-flags:
-  #     # This step is needed to pass the size data to the report job
-  #     - name: Upload sketches report to workflow artifact
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
-  #         path: ${{ env.SKETCHES_REPORTS_PATH }}
+  compile-esp32:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/compile-sketches@v1
+        with:
+            enable-deltas-report: true
+            fqbn: esp32:esp32:esp32
+            sketch-paths: |
+              - source/Attenuator
+            libraries: |
+              - name: ezButton
+              - name: FastLED
+              - name: Ramp
+              - name: simple ht16k33 library
+              - name: AltSoftSerial
+              - name: SerialTransfer
+              - name: ArduinoJson
+              - name: Preferences
+              - name: ESPAsyncWebSrv
+              - name: AsyncTCP
+              - source-url: https://github.com/ansonhe97/millisDelay.git
+            verbose: false
+            cli-compile-flags: |
+              - --warnings none
+      # This step is needed to pass the size data to the report job
+      - name: Upload sketches report to workflow artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
