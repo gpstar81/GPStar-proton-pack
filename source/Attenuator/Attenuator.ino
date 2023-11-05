@@ -82,8 +82,8 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
 
   // Change top indicator to red when device is on and ready.
-  c_top_led_color = getHueAsRGB(TOP_LED, C_RED, i_top_led_brightness);
-  attenuator_leds[TOP_LED] = c_top_led_color;
+  i_top_led_color = C_RED;
+  attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
 
   // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);
@@ -326,25 +326,25 @@ void useVibration(uint8_t i_power_level, unsigned int i_duration) {
 }
 
 void controlLEDs() {
-  // Update the top LED based on certain system statuses.
   #if defined(__XTENSA__)
-    // ESP32
+    // ESP32 - Change top LED color based on wireless connections.
     if (i_ws_client_count > 0) {
       // Change to green when clients are connected remotely.
-      c_top_led_color = getHueAsRGB(TOP_LED, C_GREEN, i_top_led_brightness);
+      i_top_led_color = C_GREEN;
     }
     else {
       // Return to red if no wireless clients are connected.
-      c_top_led_color = getHueAsRGB(TOP_LED, C_RED, i_top_led_brightness);
+      i_top_led_color = C_RED;
     }
   #endif
 
+  // Update the top LED based on certain system statuses.
   switch(MENU_LEVEL) {
     case MENU_1:
       // Keep indicator solid.
       ms_top_blink.stop();
       b_top_led_off = false;
-      attenuator_leds[TOP_LED] = c_top_led_color;
+      attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
     break;
 
     case MENU_2:
@@ -355,10 +355,12 @@ void controlLEDs() {
       }
 
       if (b_top_led_off) {
-        attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, C_BLACK);
+        // Not completely dark but very dim (1/10th of the normal brightness).
+        attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, int(i_top_led_brightness / 10));
       }
       else {
-        attenuator_leds[TOP_LED] = c_top_led_color;
+        // Return to normal brightness.
+        attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
       }
     break;
   }

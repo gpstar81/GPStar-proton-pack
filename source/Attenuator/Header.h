@@ -34,9 +34,9 @@ CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
 /*
  * Manage the color and blink pattern for the top LED.
  */
-CRGB c_top_led_color; // Remember the last color for the top indicator LED.
 millisDelay ms_top_blink; // Allows the top LED to blink for a menu state.
 const unsigned int i_top_blink_delay = 800; // Duration for blink pattern.
+uint8_t i_top_led_color; // Remember the last color for the top LED.
 uint8_t i_top_led_brightness = 128; // Max brightness for this LED.
 bool b_top_led_off = false; // Controls blinking state for top LED.
 
