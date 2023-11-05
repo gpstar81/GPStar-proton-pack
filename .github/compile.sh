@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Note: All warnings are set to none to ensure builds run.
+
 BINDIR="../binaries"
 SRCDIR="../source"
 
