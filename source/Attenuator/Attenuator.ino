@@ -81,8 +81,8 @@ void setup() {
   // RGB LEDs for effects (upper/lower) and user status (top).
   FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
 
-  // Change top indicator to green when device is on and ready.
-  c_top_led_color = getHueAsRGB(TOP_LED, C_GREEN, i_top_led_brightness);
+  // Change top indicator to red when device is on and ready.
+  c_top_led_color = getHueAsRGB(TOP_LED, C_RED, i_top_led_brightness);
   attenuator_leds[TOP_LED] = c_top_led_color;
 
   // Debounce the toggle switches and encoder pushbutton.
@@ -330,12 +330,12 @@ void controlLEDs() {
   #if defined(__XTENSA__)
     // ESP32
     if (i_ws_client_count > 0) {
-      // Change to blue when clients are connected remotely.
-      c_top_led_color = getHueAsRGB(TOP_LED, C_BLUE, i_top_led_brightness);
+      // Change to green when clients are connected remotely.
+      c_top_led_color = getHueAsRGB(TOP_LED, C_GREEN, i_top_led_brightness);
     }
     else {
-      // Return to green if no wireless clients are connected.
-      c_top_led_color = getHueAsRGB(TOP_LED, C_GREEN, i_top_led_brightness);
+      // Return to red if no wireless clients are connected.
+      c_top_led_color = getHueAsRGB(TOP_LED, C_RED, i_top_led_brightness);
     }
   #endif
 
