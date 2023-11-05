@@ -44,8 +44,8 @@
 #include <WiFi.h>
 
 // Web page files (HTML as char[])
-#include "index.h"
-#include "password.h"
+#include "Index.h"
+#include "Password.h"
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
