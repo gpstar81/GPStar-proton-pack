@@ -18,10 +18,8 @@
  */
  
 /* 
- *  SD Card sound files in order. If you have no sound, your SD card might be too slow, try a faster one.
- *  File naming 000_ is important as well. For music, it is 500_ and higher.
- *  Also note if you add more sounds to this list, you need to update the i_last_effects_track variable located at the bottom of this file to the last enum definition.
- *  The WAV Trigger uses this to determine how many music tracks there are if any.
+ *  Micro SD Card sound files in order. If you have no sound, your SD card might be too slow, try a faster one.
+ *  File naming 000_ is important. For music, it is 500_ and higher.
  */
 
 enum sound_fx {
@@ -205,10 +203,79 @@ enum sound_fx {
   S_AFTERLIFE_WAND_BARREL_EXTEND,
   S_AIR_RELEASE,
   S_STEAM_LOOP,
-  S_STEAM_LOOP_FADE_OUT
+  S_STEAM_LOOP_FADE_OUT,
+  S_1,
+  S_2,
+  S_3,
+  S_4,
+  S_5,
+  S_6,
+  S_7,
+  S_8,
+  S_9,
+  S_10,
+  S_11,
+  S_12,
+  S_13,
+  S_14,
+  S_15,
+  S_16,
+  S_17,
+  S_18,
+  S_19,
+  S_20,
+  S_21,
+  S_22,
+  S_23,
+  S_24,
+  S_25,
+  S_26,
+  S_27,
+  S_28,
+  S_29,
+  S_30,
+  S_31,
+  S_32,
+  S_33,
+  S_34,
+  S_35,
+  S_36,
+  S_37,
+  S_38,
+  S_39,
+  S_40,
+  S_41,
+  S_42,
+  S_43,
+  S_44,
+  S_45,
+  S_46,
+  S_47,
+  S_48,
+  S_49,
+  S_50,
+  S_51,
+  S_52,
+  S_53,
+  S_54,
+  S_55,
+  S_56,
+  S_57,
+  S_58,
+  S_59,
+  S_60,
+  S_SECOND,
+  S_SECONDS,
+  S_EEPROM_CONFIG_MENU,
+  S_EEPROM_LED_MENU,
+  S_LEVEL_1,
+  S_LEVEL_2,
+  S_LEVEL_3,
+  S_LEVEL_4,
+  S_LEVEL_5
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_STEAM_LOOP_FADE_OUT;
+const unsigned int i_last_effects_track = S_LEVEL_5;

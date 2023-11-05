@@ -1129,7 +1129,10 @@ void mainLoop() {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
-        wandSerialSend(W_EEPROM_MENU);
+        stopEffect(S_EEPROM_LED_MENU);
+        playEffect(S_EEPROM_LED_MENU);
+
+        wandSerialSend(W_EEPROM_LED_MENU);
         wandSerialSend(W_SPECTRAL_LIGHTS_ON);
 
         i_wand_menu = 5;
@@ -1151,7 +1154,10 @@ void mainLoop() {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
-        wandSerialSend(W_EEPROM_MENU);
+        stopEffect(S_EEPROM_CONFIG_MENU);
+        playEffect(S_EEPROM_CONFIG_MENU); 
+
+        wandSerialSend(W_EEPROM_CONFIG_MENU);
 
         i_wand_menu = 5;
 
@@ -1777,7 +1783,7 @@ void checkSwitches() {
   }
 
   switchBarrel();
-      
+  
   switch(WAND_STATUS) {
     case MODE_OFF:
       switch(SYSTEM_MODE) {
@@ -6558,16 +6564,26 @@ void checkRotary() {
                 // Turn on the slo blow led to indicate we are in a sub menu.
                 analogWrite(led_slo_blo, 255);
 
-                // Play an indication beep to notify we have changed to the sub menu.
+                // Play an indication beep to notify we have change menu levels.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
-                // Tell the Proton Pack to play a beep during a sub menu to menu level change.
-                wandSerialSend(W_MENU_LEVEL_CHANGE);
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_2);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_2);
               break;
 
               case MENU_LEVEL_2:
               case MENU_LEVEL_3:
+              case MENU_LEVEL_4:
+              case MENU_LEVEL_5:
               default:
                 i_wand_menu = 1;
               break;
@@ -6590,16 +6606,25 @@ void checkRotary() {
                 // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
                 analogWrite(led_slo_blo, 0);
 
-                // Play an indication beep to notify we have left the sub menu.
+                // Play an indication beep to notify we have change menu levels.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
-                // Tell the Proton Pack to play a beep during a submenu to menu level change.
-                wandSerialSend(W_MENU_LEVEL_CHANGE);              
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_1);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_1);            
               break;
             
               case MENU_LEVEL_1:
               default:
+                // Can not go any further than menu level 1.
                 i_wand_menu = 5;
               break;
             }
@@ -6746,16 +6771,25 @@ void checkRotary() {
                   // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
                   analogWrite(led_slo_blo, 255);
 
-                  // Play an indication beep to notify we have changed to the sub menu.
+                  // Play an indication beep to notify we have change menu levels.
                   stopEffect(S_BEEPS);
                   playEffect(S_BEEPS);
 
-                  // Tell the Proton Pack to play a beep during a sub menu to menu level change.
-                  wandSerialSend(W_MENU_LEVEL_CHANGE);
+                  stopEffect(S_LEVEL_1);
+                  stopEffect(S_LEVEL_2);
+                  stopEffect(S_LEVEL_3);
+                  stopEffect(S_LEVEL_4);
+                  stopEffect(S_LEVEL_5);
+
+                  playEffect(S_LEVEL_2);
+
+                  // Tell the Proton Pack to play some sounds.
+                  wandSerialSend(W_MENU_LEVEL_2);
                 break;
 
                 case MENU_LEVEL_2:
                 default:
+                  // Can not go further than level 2 for this menu.
                   i_wand_menu = 1;
                 break;
               }
@@ -6805,7 +6839,7 @@ void checkRotary() {
             wandSerialSend(W_VOLUME_MUSIC_INCREASE);
           }
           else if(i_wand_menu + 1 > 5) {
-            // We are leaving the sub menu. Only accessible when the Neutrona Wand is powered down.
+            // We are leaving changing menu levels. Only accessible when the Neutrona Wand is powered down.
             if(WAND_STATUS == MODE_OFF) {
               switch(WAND_MENU_LEVEL) {
                 case MENU_LEVEL_2:
@@ -6816,16 +6850,25 @@ void checkRotary() {
                   // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
                   analogWrite(led_slo_blo, 0);
 
-                  // Play an indication beep to notify we have left the sub menu.
+                  // Play an indication beep to notify we have change menu levels.
                   stopEffect(S_BEEPS);
                   playEffect(S_BEEPS);
 
-                  // Tell the Proton Pack to play a beep during a submenu to menu level change.
-                  wandSerialSend(W_MENU_LEVEL_CHANGE);                  
+                  stopEffect(S_LEVEL_1);
+                  stopEffect(S_LEVEL_2);
+                  stopEffect(S_LEVEL_3);
+                  stopEffect(S_LEVEL_4);
+                  stopEffect(S_LEVEL_5);
+
+                  playEffect(S_LEVEL_1);
+
+                  // Tell the Proton Pack to play some sounds.
+                  wandSerialSend(W_MENU_LEVEL_1);              
                 break;
 
                 case MENU_LEVEL_1:
                 default:
+                  // Level 1 is the first menu and nothing above it.
                   i_wand_menu = 5;
                 break;
               }
@@ -7120,6 +7163,14 @@ void wandExitMenu() {
   WAND_ACTION_STATUS = ACTION_IDLE;
 
   wandLightsOff();
+
+  // In original mode, we need to re-initalise the 28 segment bargraph if some switches are already toggled on.
+  if(SYSTEM_MODE == MODE_ORIGINAL && b_28segment_bargraph == true) {
+    if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+      bargraphPowerCheck2021Alt(false);
+      prepBargraphRampUp();
+    }
+  }
 }
 
 // Exit the wand menu EEPROM system while the wand is off.

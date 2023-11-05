@@ -960,10 +960,9 @@ void checkSwitches() {
       }
   }
 
-  // Play sound when the year mode switch is pressed or released.
+  // Play a sound when the year mode switch is pressed or released.
   if(switch_mode.isPressed() || switch_mode.isReleased()) {
     stopEffect(S_BEEPS_BARGRAPH);
-
     playEffect(S_BEEPS_BARGRAPH);
 
     // Turn off the year mode override flag controlled by the Neutrona Wand.
@@ -3972,8 +3971,6 @@ void wandExtraSoundsStop() {
 
 // Incoming messages from the extra Serial 1 port.
 void checkSerial1() {
-  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
-
   while(serial1Coms.available() > 0) {
     serial1Coms.rxObj(dataStructR);
 
@@ -4218,61 +4215,12 @@ void checkSerial1() {
               }
             break;
             
-            case W_MUSIC_NEXT_TRACK:
             case A_MUSIC_NEXT_TRACK: 
-              // Determine the next track.
-              if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-                // Start at the first track if already on the last.
-                i_temp_track = i_music_track_start;
-              }
-              else {
-                i_temp_track++;
-              }
-
-              i_current_music_track = i_temp_track;
-
-              // Switch to the next track.
-              if(b_playing_music == true) {
-                // Stops music using the current track.
-                stopMusic();
-                packSerialSend(P_MUSIC_STOP);
-
-                // Tell the wand which track to play.
-                packSerialSend(i_current_music_track);
-
-                // Advance and begin playing the new track.
-                playMusic();
-                packSerialSend(P_MUSIC_START);
-              }
+              musicNextTrack();
             break;
 
-            case W_MUSIC_PREV_TRACK:
             case A_MUSIC_PREV_TRACK:
-              // Determine the previous track.
-              if(i_current_music_track - 1 < i_music_track_start) {
-                // Start at the last track if already on the first.
-                i_temp_track = i_music_track_start + (i_music_count - 1);
-              }
-              else {
-                i_temp_track--;
-              }
-
-              // Advance and begin playing the new track.
-              i_current_music_track = i_temp_track;
-
-              // Switch to the previous track.
-              if(b_playing_music == true) {
-                // Stops music using the current track.
-                stopMusic();
-                packSerialSend(P_MUSIC_STOP);
-
-                // Tell the wand which track to play.
-                packSerialSend(i_current_music_track);
-
-                playMusic();
-
-                packSerialSend(P_MUSIC_START);
-              }
+              musicPrevTrack();
             break;
 
             default:
@@ -5304,12 +5252,75 @@ void checkWand() {
 
               playEffect(S_VOICE_OVERHEAT_ENABLED);
             break;
-
-            case W_MENU_LEVEL_CHANGE:
-              // Play a beep during a sub menu to menu level change.
+            
+            case W_MENU_LEVEL_1:
+              // Play a beep and other sounds when changing menu levels.
               stopEffect(S_BEEPS);
-
               playEffect(S_BEEPS);
+
+              stopEffect(S_LEVEL_1);
+              stopEffect(S_LEVEL_2);
+              stopEffect(S_LEVEL_3);
+              stopEffect(S_LEVEL_4);
+              stopEffect(S_LEVEL_5);
+
+              playEffect(S_LEVEL_1);
+            break;
+
+            case W_MENU_LEVEL_2:
+              // Play a beep and other sounds when changing menu levels.
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+
+              stopEffect(S_LEVEL_1);
+              stopEffect(S_LEVEL_2);
+              stopEffect(S_LEVEL_3);
+              stopEffect(S_LEVEL_4);
+              stopEffect(S_LEVEL_5);
+
+              playEffect(S_LEVEL_2);
+            break;            
+
+            case W_MENU_LEVEL_3:
+              // Play a beep and other sounds when changing menu levels.
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+
+              stopEffect(S_LEVEL_1);
+              stopEffect(S_LEVEL_2);
+              stopEffect(S_LEVEL_3);
+              stopEffect(S_LEVEL_4);
+              stopEffect(S_LEVEL_5);
+
+              playEffect(S_LEVEL_3);
+            break;
+
+            case W_MENU_LEVEL_4:
+              // Play a beep and other sounds when changing menu levels.
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+
+              stopEffect(S_LEVEL_1);
+              stopEffect(S_LEVEL_2);
+              stopEffect(S_LEVEL_3);
+              stopEffect(S_LEVEL_4);
+              stopEffect(S_LEVEL_5);
+
+              playEffect(S_LEVEL_4);
+            break;
+
+            case W_MENU_LEVEL_5:
+              // Play a beep and other sounds when changing menu levels.
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+
+              stopEffect(S_LEVEL_1);
+              stopEffect(S_LEVEL_2);
+              stopEffect(S_LEVEL_3);
+              stopEffect(S_LEVEL_4);
+              stopEffect(S_LEVEL_5);
+
+              playEffect(S_LEVEL_5);
             break;
 
             case W_VOLUME_MUSIC_DECREASE:
@@ -5942,9 +5953,20 @@ void checkWand() {
               }
             break;
 
-            case W_EEPROM_MENU:
+            case W_EEPROM_LED_MENU:
               stopEffect(S_BEEPS_BARGRAPH);
               playEffect(S_BEEPS_BARGRAPH);
+
+              stopEffect(S_EEPROM_LED_MENU);
+              playEffect(S_EEPROM_LED_MENU);              
+            break;
+
+            case W_EEPROM_CONFIG_MENU:
+              stopEffect(S_BEEPS_BARGRAPH);
+              playEffect(S_BEEPS_BARGRAPH);
+
+              stopEffect(S_EEPROM_CONFIG_MENU);
+              playEffect(S_EEPROM_CONFIG_MENU);              
             break;
 
             case W_QUICK_VENT_DISABLED:
@@ -6149,6 +6171,14 @@ void checkWand() {
               }
             break;
         
+            case W_MUSIC_NEXT_TRACK: 
+              musicNextTrack();
+            break;
+
+            case W_MUSIC_PREV_TRACK:
+              musicPrevTrack();
+            break;
+
             default:
               // Music track number to be played.
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
@@ -6397,7 +6427,6 @@ void updateProtonPackLEDCounts() {
 void toggleYearModes() {
   // Toggle between the year modes.
   stopEffect(S_BEEPS_BARGRAPH);
-
   playEffect(S_BEEPS_BARGRAPH);
 
   switch(i_mode_year_tmp) {
@@ -6527,6 +6556,65 @@ void resumeMusic() {
   w_trig.trackResume(i_current_music_track);
 
   w_trig.update();
+}
+
+void musicNextTrack() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the next track.
+  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+    // Start at the first track if already on the last.
+    i_temp_track = i_music_track_start;
+  }
+  else {
+    i_temp_track++;
+  }
+
+  i_current_music_track = i_temp_track;
+
+  // Switch to the next track.
+  if(b_playing_music == true) {
+    // Stops music using the current track.
+    stopMusic();
+    packSerialSend(P_MUSIC_STOP);
+
+    // Tell the wand which track to play.
+    packSerialSend(i_current_music_track);
+
+    // Advance and begin playing the new track.
+    playMusic();
+    packSerialSend(P_MUSIC_START);
+  }
+}
+
+void musicPrevTrack() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the previous track.
+  if(i_current_music_track - 1 < i_music_track_start) {
+    // Start at the last track if already on the first.
+    i_temp_track = i_music_track_start + (i_music_count - 1);
+  }
+  else {
+    i_temp_track--;
+  }
+
+  // Advance and begin playing the new track.
+  i_current_music_track = i_temp_track;
+
+  // Switch to the previous track.
+  if(b_playing_music == true) {
+    // Stops music using the current track.
+    stopMusic();
+    packSerialSend(P_MUSIC_STOP);
+
+    // Tell the wand which track to play.
+    packSerialSend(i_current_music_track);
+
+    playMusic();
+
+    packSerialSend(P_MUSIC_START);
+  }
 }
 
 void readEEPROM() {
