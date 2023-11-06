@@ -1,5 +1,5 @@
 /**
- *   gpstar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -125,6 +125,14 @@ uint8_t i_speed_multiplier = 1;
 #endif
 
 /*
+ * Arming Sequence
+ */
+enum ARMING_MODES { MODE_SUPERHERO, MODE_ORIGINAL };
+enum ARMING_MODES ARMING_MODE;
+enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
+enum RED_SWITCH_MODES RED_SWITCH_MODE;
+
+/*
  * Year Theme
  */
 enum YEAR_MODES { YEAR_1984, YEAR_1989, YEAR_2021 };
@@ -133,6 +141,8 @@ enum YEAR_MODES YEAR_MODE;
 /* 
  *  Wand Firing Modes + Settings
  */
+enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
+enum BARREL_STATES BARREL_STATE;
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
 enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
@@ -197,6 +207,14 @@ enum CENTER_STATES { NO_ACTION, SHORT_PRESS, DOUBLE_PRESS, LONG_PRESS };
 enum CENTER_STATES CENTER_STATE;
 enum MENU_LEVELS { MENU_1, MENU_2 };
 enum MENU_LEVELS MENU_LEVEL;
+
+/*
+ * Music Track Info
+ */
+const unsigned int i_music_track_offset = 500; // Music tracks always start at index 500.
+unsigned int i_music_track_count = 0; // Count of tracks as returned by the pack.
+unsigned int i_music_track_min = 0; // Min value for music track index (0 = unset).
+unsigned int i_music_track_max = 0; // Max value for music track index (0 = unset).
 
 /* 
  * Pack Communication

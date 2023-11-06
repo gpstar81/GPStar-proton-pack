@@ -1,5 +1,5 @@
 /**
- *   gpstar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -284,6 +284,7 @@ void mainLoop() {
     if(attenuator_leds[LOWER_LED] != CRGB::Black) {
       attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
     }
+    b_blink_blank = false;
   }
 
   // Turn off buzzer if timer finished.
@@ -493,6 +494,17 @@ void checkRotaryPress() {
       i_press_count = 0;
     }
   }
+
+  /*
+    See A_MUSIC_PAUSE_RESUME for pausing and resuming music tracks.
+
+    Music track listing is now synced, the track count can be found with the: i_music_track_count
+
+    To tell the system to play the track you want, just send the track number to the Proton Pack. Make sure to add 500 to the i_music_track count.
+    For example:
+
+    attenuatorSerialSend(5 + 500); // This will tell the Proton Pack to play music track #5.
+  */
 
   switch(CENTER_STATE) {
     case SHORT_PRESS:
@@ -711,6 +723,18 @@ void checkPack() {
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
+          case A_MUSIC_TRACK_COUNT_SYNC:
+            debug("Music Track Sync");
+
+            if(comStruct.d1 > 0) {
+              i_music_track_count = comStruct.d1;
+            }
+            if(i_music_track_count > 0) {
+              i_music_track_min = i_music_track_offset;
+              i_music_track_max = i_music_track_offset + i_music_track_count;
+            }
+          break;
+
           case A_PACK_CONNECTED:
             // The Proton Pack is connected.
             debug("Pack Connected");
@@ -721,6 +745,36 @@ void checkPack() {
 
             // The pack is asking us if we are still here. Respond back.
             attenuatorSerialSend(A_HANDSHAKE);
+          break;
+
+          case A_MODE_SUPER_HERO:
+            if(ARMING_MODE != MODE_SUPERHERO) {
+              debug("Super Hero Sequence");
+              ARMING_MODE = MODE_SUPERHERO;
+            }
+          break;
+
+          case A_MODE_ORIGINAL:
+            if(ARMING_MODE != MODE_ORIGINAL) {
+              debug("Original Sequence");
+              ARMING_MODE = MODE_ORIGINAL;
+            }
+          break;
+
+          case A_MODE_ORIGINAL_RED_SWITCH_ON:
+            // The proton pack red switch is on and has power (cyclotron not powered up yet).
+            if(RED_SWITCH_MODE != SWITCH_ON) {
+              debug("Red Switch On");
+              RED_SWITCH_MODE = SWITCH_ON;
+            }
+          break;
+
+          case A_MODE_ORIGINAL_RED_SWITCH_OFF:
+            // The proton pack red switch is off. This will cause a total system shutdown.
+            if(RED_SWITCH_MODE != SWITCH_ON) {
+              debug("Red Switch Off");
+              RED_SWITCH_MODE = SWITCH_OFF;
+            }
           break;
 
           case A_YEAR_1984:
@@ -933,6 +987,20 @@ void checkPack() {
             i_speed_multiplier++;
 
             debug(String(i_speed_multiplier));
+          break;
+
+          case A_BARREL_EXTENDED:
+            if(BARREL_STATE != BARREL_EXTENDED) {
+              debug("Wand Barrel Extended");
+              BARREL_STATE = BARREL_EXTENDED;
+            }
+          break;
+
+          case A_BARREL_RETRACTED:
+            if(BARREL_STATE != BARREL_RETRACTED) {
+              debug("Wand Barrel Retracted");
+              BARREL_STATE = BARREL_RETRACTED;
+            }
           break;
 
           case A_CYCLOTRON_NORMAL_SPEED:

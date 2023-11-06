@@ -1,5 +1,5 @@
 /**
- *   gpstar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -347,5 +347,14 @@ enum api_messages {
   A_SPECTRAL_COLOUR_DATA,
   A_MUSIC_START_STOP,
   A_TOGGLE_MUTE,
+  A_BARREL_EXTENDED,
+  A_BARREL_RETRACTED,
+  A_MODE_SUPER_HERO,
+  A_MODE_ORIGINAL,
+  A_MODE_ORIGINAL_RED_SWITCH_ON,
+  A_MODE_ORIGINAL_RED_SWITCH_OFF,
+  A_MANUAL_OVERHEAT,
+  A_MUSIC_TRACK_COUNT_SYNC,
+  A_MUSIC_PAUSE_RESUME,
   A_COM_END
 };

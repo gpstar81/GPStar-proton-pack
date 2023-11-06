@@ -1,5 +1,5 @@
 /**
- *   gpstar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -113,6 +113,20 @@ void configureNetwork() {
  * Text Helper Functions - Converts ENUM values to user-friendly text
  */
 
+String getMode() {
+  switch(ARMING_MODE) {
+    case MODE_SUPERHERO:
+      return "Super Hero";
+    break;
+    case MODE_ORIGINAL:
+      return "Original";
+    break;
+    default:
+      return "Unknown";
+    break;
+  }
+}
+
 String getTheme() {
   switch(YEAR_MODE) {
     case YEAR_1984:
@@ -130,7 +144,35 @@ String getTheme() {
   }
 }
 
-String getMode() {
+String getRedSwitch() {
+  switch(RED_SWITCH_MODE) {
+    case SWITCH_ON:
+      return "Ready";
+    break;
+    case SWITCH_OFF:
+      return "Standby";
+    break;
+    default:
+      return "Unknown";
+    break;
+  }
+}
+
+String getSafety() {
+  switch(BARREL_STATE) {
+    case BARREL_RETRACTED:
+      return "Safety On";
+    break;
+    case BARREL_EXTENDED:
+      return "Safety Off";
+    break;
+    default:
+      return "Unknown";
+    break;
+  }
+}
+
+String getWandMode() {
   switch(FIRING_MODE) {
     case PROTON:
       return "Proton";
@@ -226,11 +268,14 @@ void handlePassword(AsyncWebServerRequest *request) {
 
 String getStatus() {
   jsonDoc.clear();
-  jsonDoc["theme"] = getTheme();
   jsonDoc["mode"] = getMode();
+  jsonDoc["theme"] = getTheme();
+  jsonDoc["wand"] = getWandMode();
+  jsonDoc["switch"] = getRedSwitch();
   jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
   jsonDoc["power"] = getPower();
-  jsonDoc["wand"] = (b_firing ? "Firing" : "Idle");
+  jsonDoc["safety"] = getSafety();
+  jsonDoc["firing"] = (b_firing ? "Firing" : "Idle");
   jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
   jsonDoc["cyclotron"] = getCyclotronState();
   jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");

@@ -1,3 +1,23 @@
+/**
+ *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                    & Dustin Grau <dustin.grau@gmail.com>
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
 const char INDEX_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
@@ -104,11 +124,14 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function updateStatus(jObj) {
-      document.getElementById("theme").innerHTML = jObj.theme || "...";
       document.getElementById("mode").innerHTML = jObj.mode || "...";
+      document.getElementById("theme").innerHTML = jObj.theme || "...";
+      document.getElementById("wand").innerHTML = jObj.wand || "...";
+      document.getElementById("switch").innerHTML = jObj.switch || "...";
       document.getElementById("pack").innerHTML = jObj.pack || "...";
       document.getElementById("power").innerHTML = jObj.power || "...";
-      document.getElementById("wand").innerHTML = jObj.wand || "...";
+      document.getElementById("safety").innerHTML = jObj.safety || "...";
+      document.getElementById("firing").innerHTML = jObj.firing || "...";
       document.getElementById("cable").innerHTML = jObj.cable || "...";
       document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
       document.getElementById("temperature").innerHTML = jObj.temperature || "...";
@@ -251,11 +274,14 @@ const char INDEX_page[] PROGMEM = R"=====(
 <body>
   <h1>Equipment Status</h1>
   <div class="card">
+    <p><b>Arming Sequence:</b> <span class="info" id="mode">&mdash;</span></p>
     <p><b>Operating Mode:</b> <span class="info" id="theme">&mdash;</span></p>
-    <p><b>Device Mode:</b> <span class="info" id="mode">&mdash;</span></p>
+    <p><b>Wand Mode:</b> <span class="info" id="wand">&mdash;</span></p>
+    <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
     <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
     <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
-    <p><b>Neutrona Wand:</b> <span class="info" id="wand">&mdash;</span></p>
+    <p><b>Safety State:</b> <span class="info" id="safety">&mdash;</span></p>
+    <p><b>Neutrona Wand:</b> <span class="info" id="firing">&mdash;</span></p>
     <p><b>Ribbon Cable:</b> <span class="info" id="cable">&mdash;</span></p>
     <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
     <p><b>Overheat State:</b> <span class="info" id="temperature">&mdash;</span></p>
