@@ -1833,12 +1833,31 @@ void checkSwitches() {
                 }
 
                 if(switch_wand.isPressed() || switch_wand.isReleased() || switch_vent.isPressed() || switch_vent.isReleased()) {
+                  stopEffect(S_BEEPS_BARGRAPH);
+                  playEffect(S_BEEPS_BARGRAPH);
+                  
                   if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                    stopEffect(S_WAND_HEATDOWN);
+                    stopEffect(S_WAND_HEATUP_ALT);
+                    stopEffect(S_WAND_HEATUP);
+                    playEffect(S_WAND_HEATUP);
+                    playEffect(S_WAND_HEATUP_ALT);
+
                     if(b_28segment_bargraph == true) {
                       bargraphPowerCheck2021Alt(false);
                     }
 
                     prepBargraphRampUp();
+                  }
+                  else if((switch_wand.isPressed() || switch_wand.isReleased()) && switch_vent.getState() == LOW && switch_wand.getState() == HIGH) {
+                    stopEffect(S_WAND_HEATUP_ALT);
+                    stopEffect(S_WAND_HEATUP);
+                    playEffect(S_WAND_HEATDOWN);
+                  }
+                  else if((switch_vent.isPressed() || switch_vent.isReleased()) && switch_wand.getState() == LOW) {
+                    stopEffect(S_WAND_HEATUP_ALT);
+                    stopEffect(S_WAND_HEATUP);
+                    playEffect(S_WAND_HEATDOWN); 
                   }
                 }
                 
@@ -2449,6 +2468,14 @@ void modeActivate() {
 
       WAND_STATUS = MODE_ON;
       WAND_ACTION_STATUS = ACTION_IDLE;
+
+      // If starting up directly from any of the none toggle sequence switches, play the wand heatup sound.
+      if(switch_activate.isPressed() != true && switch_activate.isReleased() != true) {
+        stopEffect(S_WAND_HEATUP_ALT);
+        stopEffect(S_WAND_HEATUP);
+        playEffect(S_WAND_HEATUP);
+        playEffect(S_WAND_HEATUP_ALT);
+      }
 
       wandSerialSend(W_ON);
 
@@ -7165,10 +7192,19 @@ void wandExitMenu() {
   wandLightsOff();
 
   // In original mode, we need to re-initalise the 28 segment bargraph if some switches are already toggled on.
-  if(SYSTEM_MODE == MODE_ORIGINAL && b_28segment_bargraph == true) {
+  if(SYSTEM_MODE == MODE_ORIGINAL) {
     if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-      bargraphPowerCheck2021Alt(false);
-      prepBargraphRampUp();
+      if(b_pack_ion_arm_switch_on == true && b_28segment_bargraph == true) {
+        stopEffect(S_WAND_HEATUP_ALT);
+        stopEffect(S_WAND_HEATUP);
+        playEffect(S_WAND_HEATUP);
+        playEffect(S_WAND_HEATUP_ALT);
+      }
+
+      if(b_28segment_bargraph == true) {
+        bargraphPowerCheck2021Alt(false);
+        prepBargraphRampUp();
+      }
     }
   }
 }
@@ -7385,6 +7421,12 @@ void checkPack() {
                     switch(SYSTEM_MODE) {
                       case MODE_ORIGINAL:
                         if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && switch_activate.getState() == HIGH) {
+                          stopEffect(S_WAND_HEATDOWN);
+                          stopEffect(S_WAND_HEATUP_ALT);
+                          stopEffect(S_WAND_HEATUP);
+                          playEffect(S_WAND_HEATUP);
+                          playEffect(S_WAND_HEATUP_ALT);
+                          
                           if(b_28segment_bargraph == true) {
                             bargraphPowerCheck2021Alt(false);
                           }
@@ -7404,6 +7446,21 @@ void checkPack() {
 
             case P_MODE_ORIGINAL_RED_SWITCH_OFF:
               b_pack_ion_arm_switch_on = false;
+
+              switch(SYSTEM_MODE) {
+                case MODE_ORIGINAL:
+                  if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                    stopEffect(S_WAND_HEATDOWN);
+                    stopEffect(S_WAND_HEATUP_ALT);
+                    stopEffect(S_WAND_HEATUP);
+                    playEffect(S_WAND_HEATDOWN);
+                  }
+                break;
+
+                default:
+                  // Do nothing.
+                break;
+              }
             break;
 
             case P_MASTER_AUDIO_SILENT_MODE:
