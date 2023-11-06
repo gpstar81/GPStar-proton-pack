@@ -1,5 +1,5 @@
 /**
- *   gpstar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -27,12 +27,11 @@
 
 /*
   ***** IMPORTANT *****
-  * You no longer need to edit and configure wavTrigger.h anymore.
   * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
-  * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
+  * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
   https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
 
-  * Information on how to update your WAV Trigger devices can be found on the gpstar github repository.
+  * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
   https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
 */
 #include "wavTrigger.h"
@@ -756,7 +755,7 @@ void packShutdown() {
   ms_smoke_timer.stop();
   ms_smoke_on.stop();
 
-  // Turn off the N-Filter fan.
+  // Turn off the fans.
   ms_fan_stop_timer.stop();
   fanControl(false);
 
@@ -930,10 +929,9 @@ void checkSwitches() {
       }
   }
 
-  // Play sound when the year mode switch is pressed or released.
+  // Play a sound when the year mode switch is pressed or released.
   if(switch_mode.isPressed() || switch_mode.isReleased()) {
     stopEffect(S_BEEPS_BARGRAPH);
-
     playEffect(S_BEEPS_BARGRAPH);
 
     // Turn off the year mode override flag controlled by the Neutrona Wand.
@@ -2494,6 +2492,7 @@ void cyclotronOverHeating() {
     }
   }
 
+  // The cyclotron lights during the entire overheating sequence
   switch (i_mode_year) {
     case 2021:
       if(b_overheat_lights_off != true) {
@@ -3194,7 +3193,7 @@ void wandStoppedFiring() {
   // Turn off any smoke.
   smokeControl(false);
 
-  // Turn off the N-Filter fan.
+  // Turn off the fans.
   fanControl(false);
 
   ms_firing_length_timer.stop();
@@ -3868,8 +3867,6 @@ void packOverheatingFinished() {
 
 // Incoming messages from the extra Serial 1 port.
 void checkSerial1() {
-  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
-
   while(serial1Coms.available() > 0) {
     serial1Coms.rxObj(dataStructR);
 
@@ -3879,8 +3876,6 @@ void checkSerial1() {
           // Check if the Attenuator is telling us it is here after connecting it to the pack.
           // Then synchronise some settings between the pack and the Attenuator.
           if(dataStructR.i == A_HANDSHAKE) {
-            b_serial1_connected = true;
-
             serial1Send(A_SYNC_START);
 
             // Tell the Attenuator that the pack is here.
@@ -3974,6 +3969,10 @@ void checkSerial1() {
             }
 
             serial1Send(A_SPECTRAL_COLOUR_DATA);
+
+            serial1Send(A_MUSIC_TRACK_COUNT_SYNC);
+
+            b_serial1_connected = true;
 
             serial1Send(A_SYNC_END);
           }
@@ -4075,62 +4074,15 @@ void checkSerial1() {
               }
             break;
 
+            case A_MUSIC_PAUSE_RESUME:
+            break;
+
             case A_MUSIC_NEXT_TRACK:
-            {
-              // Determine the next track.
-              if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-                // Start at the first track if already on the last.
-                i_temp_track = i_music_track_start;
-              }
-              else {
-                i_temp_track++;
-              }
-
-              // Switch to the next track.
-              if(b_playing_music == true) {
-                // Stops music using the current track.
-                stopMusic();
-
-                // Advance and begin playing the new track.
-                i_current_music_track = i_temp_track;
-                playMusic();
-              }
-              else {
-                i_current_music_track = i_temp_track;
-              }
-
-              // Tell the wand which track to play.
-              packSerialSend(i_current_music_track);
-            }
+              musicNextTrack();
             break;
 
             case A_MUSIC_PREV_TRACK:
-            {
-              // Determine the previous track.
-              if(i_current_music_track - 1 < i_music_track_start) {
-                // Start at the last track if already on the first.
-                i_temp_track = i_music_track_start + (i_music_count - 1);
-              }
-              else {
-                i_temp_track--;
-              }
-
-              // Switch to the previous track.
-              if(b_playing_music == true) {
-                // Stops music using the current track.
-                stopMusic();
-
-                // Advance and begin playing the new track.
-                i_current_music_track = i_temp_track;
-                playMusic();
-              }
-              else {
-                i_current_music_track = i_temp_track;
-              }
-
-              // Tell the wand which track to play.
-              packSerialSend(i_current_music_track);
-            }
+              musicPrevTrack();
             break;
 
             default:
@@ -4501,6 +4453,7 @@ void checkWand() {
               serial1Send(A_OVERHEATING);
             break;
 
+            // No longer used.
             case W_OVERHEATING_FINISHED:
               // Overheating finished
               packOverheatingFinished();
@@ -4719,7 +4672,7 @@ void checkWand() {
                   stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
                   stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
                   playEffect(S_FIRE_SPARKS);
-                  
+
                   playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
                 break;
 
@@ -4752,7 +4705,7 @@ void checkWand() {
                 case 1989:
                   stopEffect(S_CROSS_STREAMS_END);
                   stopEffect(S_CROSS_STREAMS_START);
-                  
+
                   playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
                 break;
               }
@@ -4780,7 +4733,7 @@ void checkWand() {
                 case 2021:
                   stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
                   stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-                  
+
                   playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
                 break;
 
@@ -4804,7 +4757,7 @@ void checkWand() {
                 case 2021:
                   stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
                   stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-  
+
                   playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
                 break;
 
@@ -4812,7 +4765,7 @@ void checkWand() {
                 case 1989:
                   stopEffect(S_CROSS_STREAMS_START);
                   stopEffect(S_CROSS_STREAMS_END);
-                  
+
                   playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
                 break;
               }
@@ -5775,42 +5728,42 @@ void checkWand() {
               stopEffect(S_VOICE_QUICK_VENT_DISABLED);
 
               playEffect(S_VOICE_QUICK_VENT_DISABLED);
-            break;            
+            break;
 
             case W_QUICK_VENT_ENABLED:
               stopEffect(S_VOICE_QUICK_VENT_ENABLED);
               stopEffect(S_VOICE_QUICK_VENT_DISABLED);
 
               playEffect(S_VOICE_QUICK_VENT_ENABLED);
-            break;    
+            break;
 
             case W_BOOTUP_ERRORS_DISABLED:
               stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
               stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
 
               playEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
-            break;    
-            
+            break;
+
             case W_BOOTUP_ERRORS_ENABLED:
               stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
               stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
 
               playEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
-            break;    
+            break;
 
             case W_VENT_LIGHT_INTENSITY_ENABLED:
               stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
               stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
 
               playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-            break;    
-            
+            break;
+
             case W_VENT_LIGHT_INTENSITY_DISABLED:
               stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
               stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
 
               playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-            break;   
+            break;
 
             case W_BARREL_LEDS_48:
               stopEffect(S_VOICE_BARREL_LED_5);
@@ -5818,51 +5771,51 @@ void checkWand() {
               stopEffect(S_VOICE_BARREL_LED_60);
 
               playEffect(S_VOICE_BARREL_LED_48);
-            break;  
+            break;
 
             case W_BARREL_LEDS_60:
               stopEffect(S_VOICE_BARREL_LED_5);
               stopEffect(S_VOICE_BARREL_LED_48);
               stopEffect(S_VOICE_BARREL_LED_60);
-              
+
               playEffect(S_VOICE_BARREL_LED_60);
-            break;  
+            break;
 
             case W_BARREL_LEDS_5:
               stopEffect(S_VOICE_BARREL_LED_5);
               stopEffect(S_VOICE_BARREL_LED_48);
               stopEffect(S_VOICE_BARREL_LED_60);
-              
+
               playEffect(S_VOICE_BARREL_LED_5);
-            break;  
+            break;
 
             case W_BARGRAPH_INVERTED:
               stopEffect(S_VOICE_BARGRAPH_INVERTED);
               stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
 
               playEffect(S_VOICE_BARGRAPH_INVERTED);
-            break; 
+            break;
 
             case W_BARGRAPH_NOT_INVERTED:
               stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
               stopEffect(S_VOICE_BARGRAPH_INVERTED);
-              
+
               playEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
-            break; 
+            break;
 
             case W_BARGRAPH_ALWAYS_RAMPING_DISABLED:
               stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
               stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
 
               playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
-            break; 
+            break;
 
             case W_BARGRAPH_ALWAYS_RAMPING_ENABLED:
               stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
               stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
 
               playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
-            break; 
+            break;
 
             case W_OVERHEAT_STROBE_TOGGLE:
               if(b_overheat_strobe == true) {
@@ -5893,7 +5846,7 @@ void checkWand() {
                 stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
                 playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
 
-                packSerialSend(P_OVERHEAT_LIGHTS_OFF_DISABLED);                
+                packSerialSend(P_OVERHEAT_LIGHTS_OFF_DISABLED);
               }
               else {
                 b_overheat_lights_off = true;
@@ -5902,7 +5855,7 @@ void checkWand() {
                 stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
                 playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
 
-                packSerialSend(P_OVERHEAT_LIGHTS_OFF_ENABLED);                 
+                packSerialSend(P_OVERHEAT_LIGHTS_OFF_ENABLED);
               }
             break;
 
@@ -5914,7 +5867,7 @@ void checkWand() {
                 stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
                 playEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
 
-                packSerialSend(P_OVERHEAT_SYNC_FAN_DISABLED);         
+                packSerialSend(P_OVERHEAT_SYNC_FAN_DISABLED);
               }
               else {
                 b_overheat_sync_to_fan = true;
@@ -5923,7 +5876,7 @@ void checkWand() {
                 stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
                 playEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
 
-                packSerialSend(P_OVERHEAT_SYNC_FAN_ENABLED);  
+                packSerialSend(P_OVERHEAT_SYNC_FAN_ENABLED);
               }
             break;
 
@@ -5931,14 +5884,14 @@ void checkWand() {
               if(b_switch_mode_override == true) {
                 if(i_mode_year_tmp == 2021) {
                   b_switch_mode_override = false;
-                  
+
                   stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
                   stopEffect(S_VOICE_AFTERLIFE);
                   stopEffect(S_VOICE_1984);
                   stopEffect(S_VOICE_1989);
                   playEffect(S_VOICE_YEAR_MODE_DEFAULT);
 
-                  packSerialSend(P_YEAR_MODE_DEFAULT);  
+                  packSerialSend(P_YEAR_MODE_DEFAULT);
 
                   // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife.
                   i_year_mode_eeprom = 1;
@@ -5951,7 +5904,7 @@ void checkWand() {
                 toggleYearModes();
 
                 // Turn on the year mode override flag. This resets when you flip the year mode toggle switch on the pack.
-                b_switch_mode_override = true;                
+                b_switch_mode_override = true;
               }
 
               if(b_switch_mode_override == true) {
@@ -5971,7 +5924,7 @@ void checkWand() {
                 }
               }
             break;
-        
+
             default:
               // Music track number to be played.
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
@@ -6147,9 +6100,9 @@ void checkWand() {
               packSerialSend(P_MASTER_AUDIO_NORMAL);
             }
 
-            packSerialSend(P_SYNC_END);
-
             b_wand_connected = true;
+
+            packSerialSend(P_SYNC_END);
           }
         }
       }
@@ -6165,6 +6118,9 @@ void serial1Send(int i_message) {
     if(i_message == A_SPECTRAL_CUSTOM_MODE || i_message == A_SPECTRAL_COLOUR_DATA) {
       dataStruct.d1 = i_spectral_cyclotron_custom;
       dataStruct.d2 = i_spectral_cyclotron_custom_saturation;
+    }
+    else if(i_message == A_MUSIC_TRACK_COUNT_SYNC) {
+      dataStruct.d1 = i_music_count;
     }
 
     dataStruct.e = A_COM_END;
@@ -6192,7 +6148,6 @@ void updateProtonPackLEDCounts() {
 void toggleYearModes() {
   // Toggle between the year modes.
   stopEffect(S_BEEPS_BARGRAPH);
-
   playEffect(S_BEEPS_BARGRAPH);
 
   switch(i_mode_year_tmp) {
@@ -6235,7 +6190,7 @@ void toggleYearModes() {
       packSerialSend(P_MODE_1984);
     break;
   }
-}    
+}
 
 // Helper method to play a sound effect using certain defaults.
 void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
@@ -6310,6 +6265,77 @@ void stopMusic() {
   w_trig.trackStop(i_current_music_track);
 
   w_trig.update();
+}
+
+void pauseMusic() {
+  w_trig.trackPause(i_current_music_track);
+
+  w_trig.update();
+}
+
+void resumeMusic() {
+  w_trig.trackResume(i_current_music_track);
+
+  w_trig.update();
+}
+
+void musicNextTrack() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the next track.
+  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+    // Start at the first track if already on the last.
+    i_temp_track = i_music_track_start;
+  }
+  else {
+    i_temp_track++;
+  }
+
+  i_current_music_track = i_temp_track;
+
+  // Switch to the next track.
+  if(b_playing_music == true) {
+    // Stops music using the current track.
+    stopMusic();
+    packSerialSend(P_MUSIC_STOP);
+
+    // Tell the wand which track to play.
+    packSerialSend(i_current_music_track);
+
+    // Advance and begin playing the new track.
+    playMusic();
+    packSerialSend(P_MUSIC_START);
+  }
+}
+
+void musicPrevTrack() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the previous track.
+  if(i_current_music_track - 1 < i_music_track_start) {
+    // Start at the last track if already on the first.
+    i_temp_track = i_music_track_start + (i_music_count - 1);
+  }
+  else {
+    i_temp_track--;
+  }
+
+  // Advance and begin playing the new track.
+  i_current_music_track = i_temp_track;
+
+  // Switch to the previous track.
+  if(b_playing_music == true) {
+    // Stops music using the current track.
+    stopMusic();
+    packSerialSend(P_MUSIC_STOP);
+
+    // Tell the wand which track to play.
+    packSerialSend(i_current_music_track);
+
+    playMusic();
+
+    packSerialSend(P_MUSIC_START);
+  }
 }
 
 void readEEPROM() {
@@ -6527,7 +6553,7 @@ void readEEPROM() {
         i_mode_year_tmp = i_mode_year;
 
         // Set the switch override to true, so the toggle switch in the Proton Pack does not override the year settings during the bootup process.
-        b_switch_mode_override = true; 
+        b_switch_mode_override = true;
       }
     }
     else {
