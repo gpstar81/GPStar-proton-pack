@@ -56,6 +56,11 @@ void setup() {
     packComs.begin(Serial);
   #endif
 
+  // Assume the Super Hero arming mode with Afterlife (default for Haslab).
+  ARMING_MODE = MODE_SUPERHERO;
+  RED_SWITCH_MODE = SWITCH_ON;
+  YEAR_MODE = YEAR_2021;
+
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
 
@@ -66,14 +71,6 @@ void setup() {
   else {
     // When waiting for the pack set power level to 1.
     POWER_LEVEL = LEVEL_1;
-  }
-
-  // Default to 1984 for power level animation when pack is not connected, otherwise 2021.
-  if(!b_wait_for_pack) {
-    YEAR_MODE = YEAR_1984;
-  }
-  else {
-    YEAR_MODE = YEAR_2021;
   }
 
   // Begin at menu level one. This affects the behavior of the rotary dial.
@@ -1023,8 +1020,9 @@ void checkPack() {
 
         #if defined(__XTENSA__)
           // ESP - Alert all WebSocket clients after an API call was received.
-          // This excludes the handshake as this is received way too oftens.
-          if(comStruct.i != A_HANDSHAKE) {
+          // Note: We only perform this action if we have data from the pack.
+          // This excludes the handshake as this is received way too often.
+          if(!b_wait_for_pack && comStruct.i != A_HANDSHAKE) {
             notifyWSClients();
           }
         #endif
