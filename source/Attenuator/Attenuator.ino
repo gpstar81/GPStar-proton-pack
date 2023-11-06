@@ -20,6 +20,7 @@
 
 #if defined(__XTENSA__)
   // ESP - Suppress warning about SPI hardware pins
+  // Define this before including <FastLED.h>
   #define FASTLED_INTERNAL
 #endif
 
@@ -112,7 +113,7 @@ void setup() {
 
   // Turn off any user feedback.
   noTone(BUZZER_PIN);
-  useVibration(i_min_power, 0);
+  vibrateOff();
 
   #if defined(__XTENSA__)
     // ESP32 - Setup WiFi and WebServer
@@ -140,7 +141,7 @@ void setup() {
 void loop() {
   #if defined(__XTENSA__)
     // ESP32 - Manage the WebSocket clients.
-    if (ms_cleanup.remaining() < 1) {
+    if(ms_cleanup.remaining() < 1) {
       // Clean up any websocket clients (oldest connections).
       ws.cleanupClients();
       ms_cleanup.start(i_websocketCleanup);
@@ -155,7 +156,7 @@ void loop() {
     checkPack();
 
     if(b_comms_open) {
-      // Move into the main loop if we got data from the pack.
+      // Move into the main loop only if we got data from the pack.
       b_wait_for_pack = false;
       mainLoop();
     }
@@ -165,19 +166,20 @@ void loop() {
     }
   }
   else {
+    // When not waiting for the pack go directly to the main loop.
     mainLoop();
   }
 }
 
 void debug(String message) {
-  // Write a debug message to the serial console.
+  // Writes a debug message to the serial console.
   #if defined(__XTENSA__)
     // ESP32
     Serial.println(message);
   #else
     // Nano
     if(!b_wait_for_pack) {
-      // Can only use Serial output if pack not connected.
+      // Can only use Serial output if pack is not connected.
       Serial.println(message);
     }
   #endif
@@ -226,8 +228,7 @@ void mainLoop() {
   }
   else {
     if(switch_left.getState() == HIGH && !b_wait_for_pack){
-      // Clear all bargraph elements and turn off the device.
-      bargraphOff();
+      bargraphOff(); // Clear all bargraph elements and turn off the device.
     }
   }
 
@@ -242,8 +243,11 @@ void mainLoop() {
   if(switch_right.getState() == LOW) {
     // If in pre-overheat warning, overheat, or alarm modes...
     if((b_firing && i_speed_multiplier > 1) || b_overheating || b_pack_alarm) {
+      // Sets a timer value proportional to the speed of the cyclotron.
+      unsigned int i_blink_time = int(i_blink_leds / i_speed_multiplier);
+
       if(ms_blink_leds.justFinished()) {
-        ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
+        ms_blink_leds.start(i_blink_time);
       }
 
       if(ms_blink_leds.isRunning()) {
@@ -252,15 +256,17 @@ void mainLoop() {
           BARGRAPH_PATTERN = BG_INNER_PULSE;
         }
 
-        if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
+        if(ms_blink_leds.remaining() < (i_blink_time / 2)) {
           // Only blink the lower LED as we will use a fade effect for the upper LED.
-          attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
-          useVibration(i_min_power, 0); // Stop vibration.
+          if(attenuator_leds[LOWER_LED] != CRGB::Black) {
+            attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+          }
+          vibrateOff(); // Stop vibration.
           buzzOff(); // Stop buzzer tone.
         }
         else {
           controlLEDs(); // Turn LEDs on using appropriate color scheme.
-          useVibration(i_max_power, i_vibrate_min_time); // Provide physical feedback.
+          useVibration(i_vibrate_min_time); // Provide physical feedback.
           buzzOn(523); // Tone as note C4
         }
       }
@@ -271,8 +277,12 @@ void mainLoop() {
   }
   else {
     // Turn off the LEDs by setting to black.
-    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
-    attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    if(attenuator_leds[UPPER_LED] != CRGB::Black) {
+      attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+    }
+    if(attenuator_leds[LOWER_LED] != CRGB::Black) {
+      attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    }
   }
 
   // Turn off buzzer if timer finished.
@@ -282,7 +292,7 @@ void mainLoop() {
 
   // Turn off vibration if timer finished.
   if(b_vibrate_on && ms_vibrate.justFinished()) {
-    useVibration(i_min_power, 0);
+    vibrateOff();
   }
 
   // Update bargraph elements, leveraging cyclotron speed modifier.
@@ -297,8 +307,10 @@ void mainLoop() {
 }
 
 void buzzOn(unsigned int i_freq) {
-  tone(BUZZER_PIN, i_freq);
-  ms_buzzer.start(i_buzzer_max_time);
+  if(!b_buzzer_on) {
+    tone(BUZZER_PIN, i_freq);
+    ms_buzzer.start(i_buzzer_max_time);
+  }
   b_buzzer_on = true;
 }
 
@@ -308,27 +320,38 @@ void buzzOff() {
   b_buzzer_on = false;
 }
 
-void useVibration(uint8_t i_power_level, unsigned int i_duration) {
-  // Power should be specified as 0-255
-  #if defined(__XTENSA__)
-    // ESP32
-    ledcWrite(0, i_power_level);
-  #else
-    // Nano
-    analogWrite(VIBRATION_PIN, i_power_level);
-  #endif
-  b_vibrate_on = (i_power_level > 0);
+void useVibration(unsigned int i_duration) {
+  if(!b_vibrate_on) {
+    #if defined(__XTENSA__)
+      // ESP32
+      ledcWrite(0, i_max_power);
+    #else
+      // Nano
+      analogWrite(VIBRATION_PIN, i_max_power);
+    #endif
 
-  if(b_vibrate_on) {
     // Set timer for shorter of given duration or max runtime.
     ms_vibrate.start(min(i_duration, i_vibrate_max_time));
   }
+  b_vibrate_on = true;
+}
+
+void vibrateOff() {
+  #if defined(__XTENSA__)
+    // ESP32
+    ledcWrite(0, i_min_power);
+  #else
+    // Nano
+    analogWrite(VIBRATION_PIN, i_min_power);
+  #endif
+  ms_vibrate.stop();
+  b_vibrate_on = false;
 }
 
 void controlLEDs() {
   #if defined(__XTENSA__)
     // ESP32 - Change top LED color based on wireless connections.
-    if (i_ws_client_count > 0) {
+    if(i_ws_client_count > 0) {
       // Change to green when clients are connected remotely.
       i_top_led_color = C_GREEN;
     }
@@ -342,24 +365,24 @@ void controlLEDs() {
   switch(MENU_LEVEL) {
     case MENU_1:
       // Keep indicator solid.
-      ms_top_blink.stop();
-      b_top_led_off = false;
+      ms_top_blink.stop(); // Stop the blink timer which won't be used at this menu level.
+      b_top_led_off = false; // Denotes LED is not in an off (blinking) state, but solid.
       attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
     break;
 
     case MENU_2:
-      // Blink as necessary.
-      if (ms_top_blink.remaining() < 1) {
-        ms_top_blink.start(i_top_blink_delay);
-        b_top_led_off = !b_top_led_off;
+      // Blink the LED when in this menu level.
+      if(ms_top_blink.remaining() < 1) {
+        ms_top_blink.start(i_top_blink_delay); // Restart the timer to change state.
+        b_top_led_off = !b_top_led_off; // Whatever the last value, just flip it.
       }
 
-      if (b_top_led_off) {
+      if(b_top_led_off) {
         // Not completely dark but very dim (1/10th of the normal brightness).
         attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, int(i_top_led_brightness / 10));
       }
       else {
-        // Return to normal brightness.
+        // Return to normal brightness for the current top LED color.
         attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
       }
     break;
@@ -470,13 +493,13 @@ void checkRotaryPress() {
         case MENU_1:
           // A short, single press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
-          useVibration(i_max_power, i_vibrate_min_time); // Give a quick nudge.
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-          useVibration(i_max_power, i_vibrate_min_time); // Give a quick nudge.
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
         break;
       }
     break;
@@ -487,13 +510,13 @@ void checkRotaryPress() {
         case MENU_1:
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
-          useVibration(i_max_power, i_vibrate_min_time); // Give a quick nudge.
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
-          useVibration(i_max_power, i_vibrate_min_time); // Give a quick nudge.
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
         break;
       }
     break;
@@ -505,13 +528,13 @@ void checkRotaryPress() {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
           Serial.println("Changed to Menu 2");
-          useVibration(i_max_power, i_vibrate_min_time); // Give a quick nudge.
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
           Serial.println("Changed to Menu 1");
-          useVibration(i_max_power, i_vibrate_max_time); // Give a long nudge.
+          useVibration(i_vibrate_max_time); // Give a long nudge.
           buzzOn(440); // Tone as note A4
         break;
       }
@@ -526,10 +549,10 @@ void checkRotaryPress() {
 void readEncoder() {
   // Determines if encoder was turned CW or CCW.
   if(digitalRead(r_encoderA) == digitalRead(r_encoderB)) {
-    i_encoder_pos++;
+    i_encoder_pos++; // Clockwise
   }
   else {
-    i_encoder_pos--;
+    i_encoder_pos--; // Counter-clockwise
   }
 
   i_val_rotary = i_encoder_pos / 2.5;
@@ -546,7 +569,7 @@ void checkRotaryEncoder() {
     if(!ms_rotary_debounce.isRunning()) {
       if(b_firing && i_speed_multiplier > 1) {
         // Tell the pack to cancel the current overheat warning.
-        // Only do so after 5 turns of the dial.
+        // Only do so after 5 turns of the dial (CW).
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
@@ -577,7 +600,7 @@ void checkRotaryEncoder() {
     if(!ms_rotary_debounce.isRunning()) {
       if(b_firing && i_speed_multiplier > 1) {
         // Tell the pack to cancel the current overheat warning.
-        // Only do so after 5 turns of the dial.
+        // Only do so after 5 turns of the dial (CCW).
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
@@ -833,7 +856,7 @@ void checkPack() {
               bargraphClear();
               BARGRAPH_PATTERN = BG_POWER_RAMP;
 
-              useVibration(i_min_power, 0); // Stop vibration.
+              vibrateOff(); // Stop vibration.
             }
           break;
 
@@ -860,7 +883,7 @@ void checkPack() {
             bargraphClear();
             BARGRAPH_PATTERN = BG_POWER_RAMP;
 
-            useVibration(i_min_power, 0); // Stop vibration.
+            vibrateOff(); // Stop vibration.
           break;
 
           case A_FIRING:
@@ -880,7 +903,7 @@ void checkPack() {
             b_firing = false;
             ms_blink_leds.stop();
 
-            if (!b_overheating) {
+            if(!b_overheating) {
               i_speed_multiplier = 1; // Return to normal speed.
             }
 
@@ -925,7 +948,7 @@ void checkPack() {
         #if defined(__XTENSA__)
           // ESP - Alert all WebSocket clients after an API call was received.
           // This excludes the handshake as this is received way too oftens.
-          if (comStruct.i != A_HANDSHAKE) {
+          if(comStruct.i != A_HANDSHAKE) {
             notifyWSClients();
           }
         #endif

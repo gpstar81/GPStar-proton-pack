@@ -65,6 +65,10 @@ AsyncWebSocket ws("/ws");
 // Track the number of connected WebSocket clients.
 uint8_t i_ws_client_count = 0;
 
+// Create timer for WebSocket cleanup.
+millisDelay ms_cleanup;
+const unsigned int i_websocketCleanup = 5000;
+
 boolean startAccessPoint() {
   // Begin some diagnostic information to console.
   Serial.println();
@@ -104,10 +108,6 @@ void configureNetwork() {
   Serial.print("WiFi AP Password: ");
   Serial.println(ap_pass);
 }
-
-// Create timers for server-push events.
-millisDelay ms_cleanup;
-const unsigned int i_websocketCleanup = 5000;
 
 /*
  * Text Helper Functions - Converts ENUM values to user-friendly text
@@ -257,7 +257,7 @@ void handlePackOff(AsyncWebServerRequest *request) {
 }
 
 void handleCancelWarning(AsyncWebServerRequest *request) {
-  if (i_speed_multiplier > 1) {
+  if(i_speed_multiplier > 1) {
     // Only send command to pack if cyclotron is not "normal".
     Serial.println("Cancel Overheat Warning");
     attenuatorSerialSend(A_WARNING_CANCELLED);
@@ -343,7 +343,7 @@ void setupRouting() {
   // Handle the JSON body for the password change request.
   AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
     StaticJsonDocument<256> jsonData;
-    if (json.is<JsonObject>()) {
+    if(json.is<JsonObject>()) {
       jsonData = json.as<JsonObject>();
     }
     else {
@@ -351,12 +351,12 @@ void setupRouting() {
     }
 
     String result;
-    if (jsonData.containsKey("password")) {
+    if(jsonData.containsKey("password")) {
       String newPasswd = jsonData["password"];
       Serial.print("New AP Password: ");
       Serial.println(newPasswd);
 
-      if (newPasswd != "") {
+      if(newPasswd != "") {
         preferences.begin("credentials", false); // Access namespace in read/write mode.
         preferences.putString("ssid", ap_ssid);
         preferences.putString("password", newPasswd);
@@ -392,7 +392,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
     case WS_EVT_DISCONNECT:
       Serial.printf("WebSocket[%s][%u] Disconnect\n", server->url(), client->id());
-      if (i_ws_client_count > 0) {
+      if(i_ws_client_count > 0) {
         i_ws_client_count--;
       }
     break;
