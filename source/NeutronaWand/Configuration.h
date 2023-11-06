@@ -219,6 +219,11 @@ const bool b_onboard_amp_enabled = true;
 */
 bool b_extra_pack_sounds = false;
 
+/* 
+ * When set to true, the Neutrona Wand plays sound effects with the toggle switches only in MODE_ORIGINAL and not MODE_SUPER_HERO mode.
+*/
+bool b_mode_original_toggle_sounds_enabled = true;
+
 /*
  * Set to false to ignore reading data from the EEPROM.
 */

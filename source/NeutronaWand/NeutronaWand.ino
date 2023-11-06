@@ -474,7 +474,11 @@ void mainLoop() {
         // Menu Level 2: Intensify: Quick Vent.
         // Menu Level 2: Barrel Wing Button: Wand Boot Errors.
         // Menu Level 3: Intensify: Default main system volume + top dial
-        // Menu Level 3: Barrel Wing Button: UNUSED
+        // Menu Level 3: Barrel Wing Button: (?? UNUSED ??)
+        // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 5
+        // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 5
+        // Menu Level 5: Intensify: Enable/Disable overheat in power mode #5
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #5
         case 5:
           // Tell the Neutrona Wand to clear the EEPROM settings and exit.
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
@@ -559,6 +563,10 @@ void mainLoop() {
         // Menu Level 2: Barrel Wing Button: 5 / 48 / 60 barrel LEDs.
         // Menu Level 3: Intensify: Invert Bargraph
         // Menu Level 3: Barrel Wing Button: Toggle Bargraph Overheat Blinking enabled/disabled
+        // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 4
+        // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 4
+        // Menu Level 5: Intensify: Enable/Disable overheat in power mode #4
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #4
         case 4:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
@@ -697,10 +705,14 @@ void mainLoop() {
 
         // Menu Level 1: Intensify: Enable or Disable overheating settings.
         // Menu Level 1: Barrel Wing Button: Enable or disable smoke.
-        // Menu Level 2: Intensify: UNUSED
+        // Menu Level 2: Intensify: Enable/Disable MODE_ORIGINAL toggle switch sound effects.
         // Menu Level 2: Barrel Wing Button: Cycle through VG color modes (see operational guide for more details on this).
-        // Menu Level 3: Intensify:
-        // Menu Level 3: Barrel Wing Button:        
+        // Menu Level 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default
+        // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
+        // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 3
+        // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 3
+        // Menu Level 5: Intensify: Enable/Disable overheat in power mode #3
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #3        
         case 3:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
@@ -709,7 +721,7 @@ void mainLoop() {
               toggleOverHeating();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-
+              // Enable/Disable MODE_ORIGINAL toggle switch sound effects. b_mode_original_toggle_sounds_enabled
             }
           }
 
@@ -719,7 +731,7 @@ void mainLoop() {
               wandSerialSend(W_SMOKE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-                // Unused...
+                // Cycle through VG color modes (see operational guide for more details on this).
             }
           }
         break;
@@ -728,8 +740,12 @@ void mainLoop() {
         // Menu Level 1: Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
         // Menu Level 2: Intensify: Overheat strobe.
         // Menu Level 2: Barrel Wing Button: Overheat lights off.
-        // Menu Level 3: Intensify:
-        // Menu Level 3: Barrel Wing Button:
+        // Menu Level 3: Intensify: Demo Light Mode Enabled
+        // Menu Level 3: Barrel Wing Button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
+        // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 2
+        // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 2
+        // Menu Level 5: Intensify: Enable/Disable overheat in power mode #2
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #2        
         case 2:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
@@ -760,8 +776,12 @@ void mainLoop() {
         // Menu Level 1: Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
         // Menu Level 2: Intensify: 1984 / 1989 / Afterlife / Default (Proton Pack toggle switch) year mode selection.
         // Menu Level 2: Barrel Wing Button: Overheat sync to fan.
-        // Menu Level 3: Intensify:
-        // Menu Level 3: Barrel Wing Button:          
+        // Menu Level 3: Intensify: Toggle between Super Hero and Original Mode.
+        // Menu Level 3: Barrel Wing Button: Toggle (?? UNUSED ??)
+        // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 1
+        // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 1
+        // Menu Level 5: Intensify: Enable/Disable overheat in power mode #1
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #1        
         case 1:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
@@ -1790,6 +1810,7 @@ void checkSwitches() {
         case MODE_ORIGINAL:
           if(b_pack_ion_arm_switch_on == true) {
             if(WAND_ACTION_STATUS == ACTION_IDLE) {
+              // We are going to handle the toggle switch sequence for the MODE_ORIGINAL here.
               if(switch_activate.getState() == LOW && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
                 // Reset the power mode back to what it should be.
                 i_power_mode = i_power_mode_prev;
@@ -1833,15 +1854,24 @@ void checkSwitches() {
                 }
 
                 if(switch_wand.isPressed() || switch_wand.isReleased() || switch_vent.isPressed() || switch_vent.isReleased()) {
-                  stopEffect(S_BEEPS_BARGRAPH);
-                  playEffect(S_BEEPS_BARGRAPH);
+                  if(switch_vent.isPressed() || switch_vent.isReleased()) {
+                    if(switch_vent.getState() == LOW) {
+                      if(b_mode_original_toggle_sounds_enabled == true) {
+                        stopEffect(S_BEEPS_ALT);
+                        stopEffect(S_BEEP_VARIATION);
+                        playEffect(S_BEEPS_ALT);
+                      }
+                    }
+                  }
                   
                   if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-                    stopEffect(S_WAND_HEATDOWN);
-                    stopEffect(S_WAND_HEATUP_ALT);
-                    stopEffect(S_WAND_HEATUP);
-                    playEffect(S_WAND_HEATUP);
-                    playEffect(S_WAND_HEATUP_ALT);
+                    if(b_mode_original_toggle_sounds_enabled == true) {
+                      stopEffect(S_WAND_HEATDOWN);
+                      stopEffect(S_WAND_HEATUP_ALT);
+                      stopEffect(S_WAND_HEATUP);
+                      playEffect(S_WAND_HEATUP);
+                      playEffect(S_WAND_HEATUP_ALT);
+                    }
 
                     if(b_28segment_bargraph == true) {
                       bargraphPowerCheck2021Alt(false);
@@ -1849,12 +1879,12 @@ void checkSwitches() {
 
                     prepBargraphRampUp();
                   }
-                  else if((switch_wand.isPressed() || switch_wand.isReleased()) && switch_vent.getState() == LOW && switch_wand.getState() == HIGH) {
+                  else if((switch_wand.isPressed() || switch_wand.isReleased()) && switch_vent.getState() == LOW && switch_wand.getState() == HIGH && b_mode_original_toggle_sounds_enabled == true) {
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
                     playEffect(S_WAND_HEATDOWN);
                   }
-                  else if((switch_vent.isPressed() || switch_vent.isReleased()) && switch_wand.getState() == LOW) {
+                  else if((switch_vent.isPressed() || switch_vent.isReleased()) && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
                     playEffect(S_WAND_HEATDOWN); 
@@ -2470,7 +2500,7 @@ void modeActivate() {
       WAND_ACTION_STATUS = ACTION_IDLE;
 
       // If starting up directly from any of the none toggle sequence switches, play the wand heatup sound.
-      if(switch_activate.isPressed() != true && switch_activate.isReleased() != true) {
+      if(switch_activate.isPressed() != true && switch_activate.isReleased() != true && b_mode_original_toggle_sounds_enabled == true) {
         stopEffect(S_WAND_HEATUP_ALT);
         stopEffect(S_WAND_HEATUP);
         playEffect(S_WAND_HEATUP);
@@ -7194,7 +7224,7 @@ void wandExitMenu() {
   // In original mode, we need to re-initalise the 28 segment bargraph if some switches are already toggled on.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
     if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-      if(b_pack_ion_arm_switch_on == true && b_28segment_bargraph == true) {
+      if(b_pack_ion_arm_switch_on == true && b_28segment_bargraph == true && b_mode_original_toggle_sounds_enabled == true) {
         stopEffect(S_WAND_HEATUP_ALT);
         stopEffect(S_WAND_HEATUP);
         playEffect(S_WAND_HEATUP);
@@ -7421,11 +7451,13 @@ void checkPack() {
                     switch(SYSTEM_MODE) {
                       case MODE_ORIGINAL:
                         if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && switch_activate.getState() == HIGH) {
-                          stopEffect(S_WAND_HEATDOWN);
-                          stopEffect(S_WAND_HEATUP_ALT);
-                          stopEffect(S_WAND_HEATUP);
-                          playEffect(S_WAND_HEATUP);
-                          playEffect(S_WAND_HEATUP_ALT);
+                          if(b_mode_original_toggle_sounds_enabled == true) {
+                            stopEffect(S_WAND_HEATDOWN);
+                            stopEffect(S_WAND_HEATUP_ALT);
+                            stopEffect(S_WAND_HEATUP);
+                            playEffect(S_WAND_HEATUP);
+                            playEffect(S_WAND_HEATUP_ALT);
+                          }
                           
                           if(b_28segment_bargraph == true) {
                             bargraphPowerCheck2021Alt(false);
@@ -7449,7 +7481,7 @@ void checkPack() {
 
               switch(SYSTEM_MODE) {
                 case MODE_ORIGINAL:
-                  if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                  if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
                     stopEffect(S_WAND_HEATDOWN);
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);

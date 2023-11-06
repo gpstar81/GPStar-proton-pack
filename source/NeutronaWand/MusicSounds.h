@@ -275,10 +275,12 @@ enum sound_fx {
   S_LEVEL_5,
   S_WAND_HEATUP,
   S_WAND_HEATDOWN,
-  S_WAND_HEATUP_ALT
+  S_WAND_HEATUP_ALT,
+  S_BEEP_VIBRATION,
+  S_BEEP_VARIATION
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_WAND_HEATUP_ALT;
+const unsigned int i_last_effects_track = S_BEEP_VARIATION;
