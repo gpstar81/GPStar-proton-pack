@@ -190,7 +190,7 @@ void mainLoop() {
   checkRotaryEncoder();
 
   /*
-   * Left Toggle
+   * Left Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
    *
    * Paired:
    * When paired with the gpstar Proton Pack controller, will turn the
@@ -208,10 +208,12 @@ void mainLoop() {
     if(switch_left.getState() == LOW) {
       attenuatorSerialSend(A_TURN_PACK_ON);
       b_pack_on = true;
+      b_left_toggle_on = true;
     }
     else {
       attenuatorSerialSend(A_TURN_PACK_OFF);
       b_pack_on = false;
+      b_left_toggle_on = false;
     }
   }
 
@@ -230,14 +232,19 @@ void mainLoop() {
   }
 
   /*
-   * Right Toggle
+   * Right Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
    *
    * The right toggle activates the LEDs on the device manually.
    *
    * When paired with the gpstar Proton pack controller, the LEDs
    * will change colors based on user interactions.
+   *
+   * Note that audio and physical feedback will also be disabled
+   * when this switch is in the off position.
    */
   if(switch_right.getState() == LOW) {
+    b_right_toggle_on = true;
+
     // If in pre-overheat warning, overheat, or alarm modes...
     if((b_firing && i_speed_multiplier > 1) || b_overheating || b_pack_alarm) {
       // Sets a timer value proportional to the speed of the cyclotron.
@@ -249,31 +256,34 @@ void mainLoop() {
 
       if(ms_blink_leds.isRunning()) {
         if(b_firing && i_speed_multiplier > 1 && !b_overheating) {
-          // Switch to a modified firing pattern for the pre-overheat warning.
+          // Switch to a modified bargraph pattern for the pre-overheat (venting)
+          // warning while the wand is still firing.
           BARGRAPH_PATTERN = BG_INNER_PULSE;
         }
 
+        // Adjust feedback over 1/2 of the blink time allotted.
         if(ms_blink_leds.remaining() < (i_blink_time / 2)) {
-          // Only blink the lower LED as we will use a fade effect for the upper LED.
+          // Denote that certain LED's should be in the dark phase of blinking.
           b_blink_blank = true;
           vibrateOff(); // Stop vibration.
           buzzOff(); // Stop buzzer tone.
         }
         else {
+          // Denote that certain LED's should be in the lit phase of blinking.
           b_blink_blank = false;
           useVibration(i_vibrate_min_time); // Provide physical feedback.
           buzzOn(523); // Tone as note C4
         }
-
-        controlLEDs(); // Turn LEDs on using appropriate color scheme.
       }
     }
     else {
       b_blink_blank = false;
-      controlLEDs(); // Turn LEDs on using appropriate color scheme.
     }
   }
   else {
+    // Toggle is in the OFF position.
+    b_right_toggle_on = false;
+    b_blink_blank = false;
     // Turn off the LEDs by setting to black.
     if(attenuator_leds[UPPER_LED] != CRGB::Black) {
       attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
@@ -281,8 +291,10 @@ void mainLoop() {
     if(attenuator_leds[LOWER_LED] != CRGB::Black) {
       attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
     }
-    b_blink_blank = false;
   }
+
+  // Update LEDs using appropriate color scheme and environment vars.
+  updateLEDs();
 
   // Turn off buzzer if timer finished.
   if(b_buzzer_on && ms_buzzer.justFinished()) {
@@ -347,7 +359,7 @@ void vibrateOff() {
   b_vibrate_on = false;
 }
 
-void controlLEDs() {
+void updateLEDs() {
   #if defined(__XTENSA__)
     // ESP32 - Change top LED color based on wireless connections.
     if(i_ws_client_count > 0) {
@@ -387,13 +399,20 @@ void controlLEDs() {
     break;
   }
 
-  // Set upper LED based on alarm or overheating state, when connected.
-  // Otherwise, use the standard pattern/color for illumination.
-  if(b_pack_alarm || b_overheating) {
-    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
+  if(b_right_toggle_on) {
+    // Set upper LED based on alarm or overheating state, when connected.
+    // Otherwise, use the standard pattern/color for illumination.
+    if(b_pack_alarm || b_overheating) {
+      attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
+    }
+    else {
+      attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
+    }
   }
   else {
-    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
+    if(attenuator_leds[UPPER_LED] != CRGB::Black) {
+      attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+    }
   }
 
   // Set lower LED based on the current firing mode.
@@ -435,7 +454,8 @@ void controlLEDs() {
   }
 
   // Update the lower LED based on the scheme determined above.
-  if(b_blink_blank) {
+  if(!b_right_toggle_on || b_blink_blank) {
+    // Turn off when right toggle is off or when mid-blink.
     if(attenuator_leds[LOWER_LED] != CRGB::Black) {
       attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
     }
@@ -643,7 +663,7 @@ void checkRotaryEncoder() {
     }
   }
 
-  // Remember the last rotary value.
+  // Remember the last rotary value for comparison later.
   i_last_val_rotary = i_val_rotary;
 
   if(ms_rotary_debounce.justFinished()) {

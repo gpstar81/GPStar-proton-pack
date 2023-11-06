@@ -130,12 +130,12 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       if(i_curr_bright[i_device] <= 1) {
         // Prime for the climb back to full brightness.
         i_curr_bright[i_device] = 1;
-        i_next_bright[i_device] = 2;
+        i_next_bright[i_device] = 3;
       }
       if(i_curr_bright[i_device] >= 254) {
         // Prime for the climb back to full darkness.
         i_curr_bright[i_device] = 254;
-        i_next_bright[i_device] = -2;
+        i_next_bright[i_device] = -3;
       }
 
       // Increments brightness by X steps on each processor loop.

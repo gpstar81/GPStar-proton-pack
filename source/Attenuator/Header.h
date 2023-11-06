@@ -151,7 +151,7 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
 
 /* 
  * Toggle Switches
- * Will be pulled LOW (down position) when considered "active".
+ * Will be pulled LOW (down position) when considered "on".
  */
 #if defined(__XTENSA__)
   // ESP32
@@ -166,6 +166,8 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
   ezButton switch_left(LEFT_TOGGLE_PIN, INPUT_PULLUP);
   ezButton switch_right(RIGHT_TOGGLE_PIN, INPUT_PULLUP);
 #endif
+bool b_left_toggle_on = false;
+bool b_right_toggle_on = false;
 
 /*
  * Debounce Settings
