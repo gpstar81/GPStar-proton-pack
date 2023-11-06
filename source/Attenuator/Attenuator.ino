@@ -258,20 +258,21 @@ void mainLoop() {
 
         if(ms_blink_leds.remaining() < (i_blink_time / 2)) {
           // Only blink the lower LED as we will use a fade effect for the upper LED.
-          if(attenuator_leds[LOWER_LED] != CRGB::Black) {
-            attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
-          }
+          b_blink_blank = true;
           vibrateOff(); // Stop vibration.
           buzzOff(); // Stop buzzer tone.
         }
         else {
-          controlLEDs(); // Turn LEDs on using appropriate color scheme.
+          b_blink_blank = false;
           useVibration(i_vibrate_min_time); // Provide physical feedback.
           buzzOn(523); // Tone as note C4
         }
+
+        controlLEDs(); // Turn LEDs on using appropriate color scheme.
       }
     }
     else {
+      b_blink_blank = false;
       controlLEDs(); // Turn LEDs on using appropriate color scheme.
     }
   }
@@ -436,7 +437,14 @@ void controlLEDs() {
   }
 
   // Update the lower LED based on the scheme determined above.
-  attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
+  if(b_blink_blank) {
+    if(attenuator_leds[LOWER_LED] != CRGB::Black) {
+      attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    }
+  }
+  else {
+    attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
+  }
 }
 
 /*

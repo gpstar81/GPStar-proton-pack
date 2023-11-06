@@ -38,7 +38,7 @@ millisDelay ms_top_blink; // Allows the top LED to blink for a menu state.
 const unsigned int i_top_blink_delay = 800; // Duration for blink pattern.
 uint8_t i_top_led_color; // Remember the last color for the top LED.
 uint8_t i_top_led_brightness = 128; // Max brightness for this LED.
-bool b_top_led_off = false; // Controls blinking state for top LED.
+bool b_top_led_off = false; // Denotes when top LED is mid-blink.
 
 /*
  * Pins for user feedback (audio/physical)
@@ -84,6 +84,7 @@ const uint8_t i_fast_led_delay = 3;
  */
 millisDelay ms_blink_leds;
 const unsigned int i_blink_leds = 600;
+bool b_blink_blank = false; // Denotes when upper/lower LED's are mid-blink.
 
 /*
  * Barmeter 28 segment bargraph configuration and timers.
