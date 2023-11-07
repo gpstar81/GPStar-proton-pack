@@ -158,62 +158,76 @@ When connecting to the pack, the following wiring scheme was used with the recom
 
 Wire colors are suggestions, and meant to help differentiate the components. You may use your own scheme as desired. Microcontroller (MCU) pins are labelled using their Nano (D#) or ESP (GPIO#) designations. Common pins will retain a singular name.
 
-**Toggles**
+**Toggles - Arduino Nano**
 
-| LEFT TOGGLE         |   |        |     | MCU Pin | Notes |
-|---------------------|---|--------|-----|---------|-------|
-| <font color="yellow">Yellow</font> | → | Ground |   |           | Shouldn’t matter which wire goes where |
-| <font color="yellow">Yellow</font> | → | →      | → | D5/GPIO34 | Shouldn’t matter which wire goes where |
+| LEFT TOGGLE                    |   | MCU Pin | Notes |
+|--------------------------------|---|---------|-------|
+| <font color="blue">Blue</font> | → | GND     | Shouldn’t matter which wire goes where |
+| <font color="blue">Blue</font> | → | D5      | Shouldn’t matter which wire goes where |
 
-| Right TOGGLE         |   |        |     | MCU Pin | Notes |
-|----------------------|---|--------|-----|---------|-------|
-| <font color="green">Green</font> | → | Ground |   |           | Shouldn’t matter which wire goes where |
-| <font color="green">Green</font> | → | →      | → | D6/GPIO35 | Shouldn’t matter which wire goes where |
+| Right TOGGLE                     |   | MCU Pin | Notes |
+|----------------------------------|---|---------|-------|
+| <font color="green">Green</font> | → | GND     | Shouldn’t matter which wire goes where |
+| <font color="green">Green</font> | → | D6      | Shouldn’t matter which wire goes where |
 
-**Note:** For the ESP32 controller, GPIO pins 34 and 35 are input-only and do not have internal pull-up resistors. In order to get an accurate reading from the state of the switch it is necessary to add a 3.8k Ω resistor between the 3.3V pin and the respective GPIO pin where the toggle switch connects to the controller.
+**Toggles - ESP32**
 
-**Encoder**
+For the ESP32 controller, GPIO pins 34 and 35 are input-only and do not have internal pull-up resistors. In order to get an accurate reading from the state of the switch it is necessary to add a 3.8k Ω resistor between the 3.3V (3V3) pin and the respective GPIO pin where the toggle switch connects to the controller. This is essentially a wire from the V+ pin to the noted GPIO pin, with the stated resistor on the wire. Both wires for the pull-up resistor and toggle switch will terminate at the same point on the controller.
+
+| LEFT TOGGLE                    |   |        | MCU Pin | Notes |
+|--------------------------------|---|--------|---------|-------|
+| <font color="blue">Blue</font> | → |   →    | GND     | Shouldn’t matter which wire goes where |
+| <font color="blue">Blue</font> | → |   →    | GPIO34  | Shouldn’t matter which wire goes where |
+| <font color="red">Red</font>   | ↑ | 3.8K Ω | 3V3     | External Pull-up Resistor |
+
+| Right TOGGLE                     |   |        | MCU Pin | Notes |
+|----------------------------------|---|--------|---------|-------|
+| <font color="green">Green</font> | → |   →    | GND     | Shouldn’t matter which wire goes where |
+| <font color="green">Green</font> | → |   →    | GPIO35  | Shouldn’t matter which wire goes where |
+| <font color="red">Red</font>     | ↑ | 3.8K Ω | 3V3     | External Pull-up Resistor |
+
+**Rotary Encoder w/ Switch**
 
 The rotary encoder is similar to that used on the Proton Pack and Neutrona Wand. It requires a common ground connection and sends data via the A/B signal wires to indicate which direction it was turned.
 
-One notable point is the stated part in the BOM also supports a momentary "push" action on the center post, so an additional ground and data pin will be used for that ability.
-
-| ROTARY ENCODER (DIAL)      |    | MCU Pin |
-|----------------------------|----|---------|
+| ROTARY ENCODER (DIAL)          |   | MCU Pin   |
+|--------------------------------|---|-----------|
 | <font color="blue">Blue</font> | → | D2/GPIO32 |
 | Black                          | → | GND       |
 | <font color="blue">Blue</font> | → | D3/GPIO33 |
 
-| ROTARY ENCODER (POST)      |    | MCU Pin |
-|----------------------------|----|---------|
-| <font color="yellow">Yellow</font> | → | D4/GPIO4 |
-| Black                              | → | GND      |
+One notable point in the stated part noted in the BOM is that this encoder MUST also support a momentary "push" action on the center post, so an additional ground and data pin will be used for that momentary switch.
+
+| ROTARY ENCODER (POST)            |   | MCU Pin  |
+|----------------------------------|---|----------|
+| <font color="green">Green</font> | → | D4/GPIO4 |
+| Black                            | → | GND      |
 
 **Addressable LEDs**
 
-| LED'S          |   | Component | MCU Pin |
-|----------------|---|-----------|---------|
-| <font color="red">Red</font>    | → | 100uf  | 5V/VIN    |
+| LED'S                           |   | Component | MCU Pin |
+|---------------------------------|---|-----------|---------|
+| <font color="red">Red</font>    | → | 100uf | 5V/VIN    |
 | <font color="blue">Blue</font>  | → | 470 Ω | D9/GPIO23 |
-| <font color="gray">Black</font> | → | 100uf  | GND       |
+| <font color="gray">Black</font> | → | 100uf | GND       |
 
 **Note:** It is advised to place a 100uf capacitor across the positive and negative connections to these devices, just to buffer any current fluctuations.
 
 Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `DOUT`. It is crucial to chain these devices starting from the Arduino to an LED's `DIN` pad first, then the same device's `DOUT` pad to the next LED's `DIN` pad, and so on.
 
-**Physical Feedback**
+**Audio &amp; Physical Feedback**
 
-| PIEZO BUZZER               |    | MCU Pin |
-|----------------------------|----|---------|
+| PIEZO BUZZER                 |   | MCU Pin    |
+|------------------------------|---|------------|
 | <font color="red">Red</font> | → | D10/GPIO18 |
 | Black                        | → | GND        |
 
-| VIBRATION MOTOR            | Component(s) | Component(s) | MCU Pin |
-|----------------------------|--------------|--------------|---------|
-| <font color="red">Red</font>   | 1N4001 (s) | →      | 3V3/3.3V |
-| <font color="blue">Blue</font> | 1N4001     | NPN C  |          |
-|                                |            | NPN B  | R 270 Ω → D11/GPIO19 |
-|                                |            | NPN E  | GND      |
+| VIBRATION MOTOR                | Component(s) | Component(s) | MCU Pin |
+|--------------------------------|--------------|--------------|---------|
+| <font color="red">Red</font>   | 1N4001 (s)   | →     | 3V3/3.3V |
+| <font color="blue">Blue</font> | 1N4001       | NPN C |          |
+|                                |              | NPN B | R 270 Ω → D11/GPIO19 |
+|                                |              | NPN E | GND      |
 
 **Note:** The vibration motor (60mA) requires use of a transistor as the higher current draw exceeds the maximum 40mA recommended for the microcontroller's pin. To safely deliver power we will use an 2N2222/2N5551, an NPN Bipolar Transistor (BJT). A diode is recommended as this is a motor and thus could cause a small induction current in reverse when power is removed.
 
@@ -223,7 +237,14 @@ Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `
 
 This is a separate but critical device and should be a relatively easy connection when using the Frutto Technology packaging which has only 2 ports: 5V/GND and SDA/SCL. Power will be connected to the "5V" on the Arduino and a common ground (GND). F0r the Arduino Nano connect the SDA and SCL to the A4 and A5 pins, respectively. For the ESP32 these are GPIO pins 21 and 22 for SDA and SCL, respectively.
 
-**Note:** For the ESP32 controller, GPIO pins 21 (SDA) and 22 (SCL) do not have internal pull-up resistors. In order to detect attached devices it is necessary to add a 3.8k Ω resistor between the 3.3V pin and the respective GPIO pin where the bargraph connects to the controller.
+**Note:** For the ESP32 controller, GPIO pins 21 (SDA) and 22 (SCL) do not have internal pull-up resistors. In order to detect attached devices it is necessary to add a 3.8k Ω resistor between the 3.3V (3V3) pin and the respective GPIO pin where the bargraph connects to the controller. This is essentially a wire from the V+ pin to the noted GPIO pin, with the stated resistor on the wire. Both wires for the pull-up resistor and data line will terminate at the same point on the controller.
+
+| Bargraph                        |     |   |        | MCU Pin | Notes |
+|---------------------------------|-----|---|--------|---------|-------|
+| <font color="red">Red</font>    |     | ↓ | 3.8K Ω | 3V3    | External Pull-up Resistor     |
+| <font color="gray">White</font> | SDA | → |   →    | GPIO21 | Check wire labels on bargraph |
+| <font color="gray">White</font> | SCL | → |   →    | GPIO22 | Check wire labels on bargraph |
+| <font color="red">Red</font>    |     | ↑ | 3.8K Ω | 3V3    | External Pull-up Resistor     |
 
 ## Pack Connection Cable
 
