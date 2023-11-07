@@ -137,7 +137,7 @@ One notable point is the stated part in the BOM also supports a momentary "push"
 | LED'S          |   | Component | Nano Pin |
 |----------------|---|-----------|----------|
 | <font color="red">Red</font>    | → | 100uf  | 5V     |
-| <font color="blue">Blue</font>  | → | 470k Ω | Pin D9 |
+| <font color="blue">Blue</font>  | → | 470 Ω | Pin D9 |
 | <font color="gray">Black</font> | → | 100uf  | GND    |
 
 **Note:** It is advised to place a 100uf capacitor across the positive and negative connections to these devices, just to buffer any current fluctuations.
