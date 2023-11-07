@@ -1335,86 +1335,6 @@ void mainLoop() {
   }
 }
 
-
-/*
-  remove ms_overheating. Have it controlled directly from the pack side.
-  split the overheating sound effects up, have a constant expell sound effect when smoke is blowing on loop until the loop timer is finished.
-*/
-void overHeatingFinished() {
-  bargraphClearAlt();
-
-  // Since the pack tells the wand when overheating is finished. If the wand is running with no pack, then the wand needs to calculate when to finish.
-  if(b_no_pack == true) {
-    ms_overheating.stop();
-  }
-
-  ms_settings_blinking.stop();
-
-  // Turn off hat light 2.
-  digitalWrite(led_hat_2, LOW);
-
-  WAND_ACTION_STATUS = ACTION_IDLE;
-
-  stopEffect(S_CLICK);
-  stopEffect(S_VENT_DRY);
-
-  // Prepare a few things before ramping the bargraph back up from a full ramp down.
-  if(b_overheat_bargraph_blink != true) {
-    if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-      bargraphYearModeUpdate();
-    }
-    else {
-      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
-    }
-  }
-
-  playEffect(S_BOOTUP);
-
-  if(switch_vent.getState() == LOW) {
-    soundIdleLoop(true);
-  }
-  else {
-    soundIdleLoop(true);
-
-    if(switch_vent.getState() == HIGH && year_mode == 2021) {
-      afterLifeRamp1();
-    }
-  }
-
-  bargraphRampUp();
-
-  // Tell the pack that we finished overheating.
-  //wandSerialSend(W_OVERHEATING_FINISHED);
-}
-
-// Controlled the the Wand Sub Menu and Wand EEPROM Menu system.
-void toggleOverHeating() {
-  if(b_overheat_enabled == true) {
-    b_overheat_enabled = false;
-
-    // Play the overheating disabled voice.
-    stopEffect(S_VOICE_OVERHEAT_DISABLED);
-    stopEffect(S_VOICE_OVERHEAT_ENABLED);
-
-    playEffect(S_VOICE_OVERHEAT_DISABLED);
-
-    // Tell the Proton Pack that overheating is disabled.
-    wandSerialSend(W_OVERHEATING_DISABLED);
-  }
-  else {
-    b_overheat_enabled = true;
-
-    // Play the overheating enabled voice.
-    stopEffect(S_VOICE_OVERHEAT_DISABLED);
-    stopEffect(S_VOICE_OVERHEAT_ENABLED);
-
-    playEffect(S_VOICE_OVERHEAT_ENABLED);
-
-    // Tell the Proton Pack that overheating is enabled.
-    wandSerialSend(W_OVERHEATING_ENABLED);
-  }
-}
-
 // Sets the Neutrona Wand to video game mode.
 void setVGMode() {
   b_cross_the_streams = false;
@@ -1433,7 +1353,7 @@ void vgModeCheck() {
   }
 }
 
-// Controlled the the Wand Sub Menu and Wand EEPROM Menu system.
+// Controlled from the Neutrona Wand EEPROM Menu system.
 void toggleWandModes() {
   stopEffect(S_CLICK);
   playEffect(S_CLICK);
@@ -1486,6 +1406,82 @@ void toggleWandModes() {
   PREV_FIRING_MODE = PROTON;
 }
 
+// Controlled from the the Wand Sub Menu and Wand EEPROM Menu system.
+void toggleOverHeating() {
+  if(b_overheat_enabled == true) {
+    b_overheat_enabled = false;
+
+    // Play the overheating disabled voice.
+    stopEffect(S_VOICE_OVERHEAT_DISABLED);
+    stopEffect(S_VOICE_OVERHEAT_ENABLED);
+
+    playEffect(S_VOICE_OVERHEAT_DISABLED);
+
+    // Tell the Proton Pack that overheating is disabled.
+    wandSerialSend(W_OVERHEATING_DISABLED);
+  }
+  else {
+    b_overheat_enabled = true;
+
+    // Play the overheating enabled voice.
+    stopEffect(S_VOICE_OVERHEAT_DISABLED);
+    stopEffect(S_VOICE_OVERHEAT_ENABLED);
+
+    playEffect(S_VOICE_OVERHEAT_ENABLED);
+
+    // Tell the Proton Pack that overheating is enabled.
+    wandSerialSend(W_OVERHEATING_ENABLED);
+  }
+}
+
+// Overheating starting is signaled by the Neutrona Wand. However the overheating timing sequence itself it handled on the Proton Pack side.
+void overHeatingFinished() {
+  bargraphClearAlt();
+
+  // Since the Proton Pack tells the Neutrona Wand when overheating is finished. If the Neutrona Wand is running with no pack, then it will use it's own timer to calculate when to finish.
+  if(b_no_pack == true) {
+    ms_overheating.stop();
+  }
+
+  ms_settings_blinking.stop();
+
+  // Turn off hat light 2.
+  digitalWrite(led_hat_2, LOW);
+
+  WAND_ACTION_STATUS = ACTION_IDLE;
+
+  stopEffect(S_CLICK);
+  stopEffect(S_VENT_DRY);
+
+  // Prepare a few things before ramping the bargraph back up from a full ramp down.
+  if(b_overheat_bargraph_blink != true) {
+    if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
+      bargraphYearModeUpdate();
+    }
+    else {
+      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
+    }
+  }
+
+  playEffect(S_BOOTUP);
+
+  if(switch_vent.getState() == LOW) {
+    soundIdleLoop(true);
+  }
+  else {
+    soundIdleLoop(true);
+
+    if(switch_vent.getState() == HIGH && year_mode == 2021) {
+      afterLifeRamp1();
+    }
+  }
+
+  bargraphRampUp();
+
+  // Tell the pack that we finished overheating.
+  //wandSerialSend(W_OVERHEATING_FINISHED);
+}
+
 void startVentSequence() {
   ms_overheat_initiate.stop();
 
@@ -1500,7 +1496,7 @@ void startVentSequence() {
 
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
-  // Since the pack tells the wand when overheating is finished. If the wand is running with no pack, then the wand needs to calculate when to finish.  
+  // Since the Proton Pack tells the Neutrona Wand when overheating is finished. If it is running with no Proton Pack, then the Neutrona Wand needs to calculate when to finish.  
   if(b_no_pack == true) {
     ms_overheating.start(i_ms_overheating);
   }
@@ -6618,8 +6614,13 @@ void checkRotary() {
                 WAND_MENU_LEVEL = MENU_LEVEL_2;
                 i_wand_menu = 5;
 
-                // Turn on the slo blow led to indicate we are in a sub menu.
-                analogWrite(led_slo_blo, 255);
+                // Turn on some lights to visually indicate which menu we are in.
+                analogWrite(led_slo_blo, 255); // Level 2
+
+                // Turn off the other lights.
+                digitalWrite(led_vent, HIGH); // Level 3
+                digitalWrite(led_white, HIGH); // Level 4
+                analogWrite(led_front_left, 0); // Level 5
 
                 // Play an indication beep to notify we have change menu levels.
                 stopEffect(S_BEEPS);
@@ -6638,8 +6639,88 @@ void checkRotary() {
               break;
 
               case MENU_LEVEL_2:
+                WAND_MENU_LEVEL = MENU_LEVEL_3;
+                i_wand_menu = 5;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                analogWrite(led_slo_blo, 255); // Level 2
+                digitalWrite(led_vent, LOW); // Level 3
+
+                // Turn off the other lights.
+                digitalWrite(led_white, HIGH); // Level 4
+                analogWrite(led_front_left, 0); // Level 5
+
+                // Play an indication beep to notify we have change menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_3);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_3);
+              break;
+
               case MENU_LEVEL_3:
+                WAND_MENU_LEVEL = MENU_LEVEL_4;
+                i_wand_menu = 5;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                analogWrite(led_slo_blo, 255); // Level 2
+                digitalWrite(led_vent, LOW); // Level 3
+                digitalWrite(led_white, LOW); // Level 4
+
+                // Turn off the other lights.
+                analogWrite(led_front_left, 0); // Level 5
+
+                // Play an indication beep to notify we have change menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_4);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_4);              
+              break;
+
               case MENU_LEVEL_4:
+                WAND_MENU_LEVEL = MENU_LEVEL_5;
+                i_wand_menu = 5;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                analogWrite(led_slo_blo, 255); // Level 2
+                digitalWrite(led_vent, LOW); // Level 3
+                digitalWrite(led_white, LOW); // Level 4
+                analogWrite(led_front_left, 255); // Level 5
+
+                // Play an indication beep to notify we have change menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_5);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_5);   
+              break;
+
+              // Menu 5 the deepest level.
               case MENU_LEVEL_5:
               default:
                 i_wand_menu = 1;
@@ -6655,13 +6736,99 @@ void checkRotary() {
         if(prev_next_code == 0x07) {
           if(i_wand_menu + 1 > 5) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_5:
+                WAND_MENU_LEVEL = MENU_LEVEL_4;
+                i_wand_menu = 1;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                analogWrite(led_slo_blo, 255); // Level 2
+                digitalWrite(led_vent, LOW); // Level 3
+                digitalWrite(led_white, LOW); // Level 4
+
+                // Turn off the other lights.
+                analogWrite(led_front_left, 0); // Level 5
+
+                // Play an indication beep to notify we have change menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_4);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_4); 
+              break;
+
+              case MENU_LEVEL_4:
+                WAND_MENU_LEVEL = MENU_LEVEL_3;
+                i_wand_menu = 1;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                analogWrite(led_slo_blo, 255); // Level 2
+                digitalWrite(led_vent, LOW); // Level 3
+
+                // Turn off the other lights.
+                digitalWrite(led_white, HIGH); // Level 4
+                analogWrite(led_front_left, 0); // Level 5
+
+                // Play an indication beep to notify we have change menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_3);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_3); 
+              break;
+
               case MENU_LEVEL_3:
+                WAND_MENU_LEVEL = MENU_LEVEL_2;
+                i_wand_menu = 1;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                analogWrite(led_slo_blo, 255); // Level 2
+
+                // Turn off the other lights.
+                digitalWrite(led_vent, HIGH); // Level 3
+                digitalWrite(led_white, HIGH); // Level 4
+                analogWrite(led_front_left, 0); // Level 5
+
+                // Play an indication beep to notify we have change menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_2);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_2);    
+              break;
+
               case MENU_LEVEL_2:
                 WAND_MENU_LEVEL = MENU_LEVEL_1;
                 i_wand_menu = 1;
 
-                // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
-                analogWrite(led_slo_blo, 0);
+                // Turn off the other lights.
+                analogWrite(led_slo_blo, 0); // Level 2
+                digitalWrite(led_vent, HIGH); // Level 3
+                digitalWrite(led_white, HIGH); // Level 4
+                analogWrite(led_front_left, 0); // Level 5
 
                 // Play an indication beep to notify we have change menu levels.
                 stopEffect(S_BEEPS);
