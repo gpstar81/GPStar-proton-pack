@@ -108,10 +108,11 @@ bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph devi
 int i_bargraph_element = 0; // Indicates current LED element for adjustment.
 millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
+// Define Wire object for the i2c bus.
+#define WIRE Wire
+
 // Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
 uint8_t i_speed_multiplier = 1;
-
-#define WIRE Wire
 
 /*
  * Barmeter 28 segment bargraph mapping: allows accessing elements sequentially (0-27)

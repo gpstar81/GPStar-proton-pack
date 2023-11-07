@@ -94,7 +94,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
   // Setup the bargraph after a brief delay.
-  delay(10);
+  delay(100);
   setupBargraph();
 
   // Feedback devices (piezo buzzer and vibration motor)

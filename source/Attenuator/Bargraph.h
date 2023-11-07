@@ -125,6 +125,7 @@ void setupBargraph() {
     by_error = WIRE.endTransmission();
 
     if(by_error == 0) {
+      // Device found at address.
       i_i2c_devices++;
     }
   }
