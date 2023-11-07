@@ -1958,7 +1958,7 @@ void cyclotron2021(int cDelay) {
       i_current_ramp_speed = cDelay;
 
       int t_cDelay = cDelay;
-
+      
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
         case FRUTTO_CYCLOTRON_LED_COUNT:
@@ -1966,6 +1966,10 @@ void cyclotron2021(int cDelay) {
         default:
           if(i_cyclotron_multiplier > 1) {
             t_cDelay = t_cDelay - i_cyclotron_multiplier;
+
+            if(t_cDelay < 1) {
+              t_cDelay = 1;
+            }
           }
         break;
       }
@@ -2041,7 +2045,7 @@ void cyclotron2021(int cDelay) {
     if(cDelay < 1) {
       cDelay = 1;
     }
-
+    
     if(b_clockwise == true) {
       if((i_cyclotron_led_value[i_led_cyclotron - cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
         ms_cyclotron_led_fade_in[i_led_cyclotron - cyclotron_led_start].go(0);
