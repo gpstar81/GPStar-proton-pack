@@ -7448,7 +7448,7 @@ void switchModePressedReset() {
 
 // Barrel safety switch is connected to analog pin 7.
 // PCB builds is pulled high as digital input.
-// At some pount, switch this to a ezButton.
+// At some point, switch this to a ezButton.
 void switchBarrel() {
   if(digitalRead(switch_barrel) == LOW && ms_switch_barrel_debounce.remaining() < 1) {
     ms_switch_barrel_debounce.start(switch_debounce_time * 5);
