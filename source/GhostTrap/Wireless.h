@@ -55,31 +55,45 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
     }
     else {
       // Store values as a known datatype (String).
-      String data_theme = jsonDoc["theme"];
       String data_mode = jsonDoc["mode"];
+      String data_theme = jsonDoc["theme"];
+      String data_switch = jsonDoc["switch"];
       String data_pack = jsonDoc["pack"];
       String data_power = jsonDoc["power"];
+      String data_safety = jsonDoc["safety"];
       String data_wand = jsonDoc["wand"];
+      String data_firing = jsonDoc["firing"];
       String data_cable = jsonDoc["cable"];
       String data_ctron = jsonDoc["cyclotron"];
       String data_temp = jsonDoc["temperature"];
 
       // Output for debug purposes only.
-      Serial.print("Operating Mode: ");
+      Serial.print("Arming Mode: ");
+      Serial.print(data_mode);
+      Serial.print(" Operating Mode: ");
       Serial.println(data_theme);
-      Serial.print("Device Mode: ");
-      Serial.println(data_mode);
-      Serial.print("Pack State: ");
+
+      Serial.print("Pack Armed: ");
+      Serial.print(data_switch);
+      Serial.print(" Pack State: ");
       Serial.println(data_pack);
+
       Serial.print("Power Level: ");
-      Serial.println(data_power);
-      Serial.print("Neutrona Wand: ");
-      Serial.println(data_wand);
+      Serial.print(data_power);
+      Serial.print("Safety State: ");
+      Serial.println(data_safety);
+
+      Serial.print("Wand Mode: ");
+      Serial.print(data_wand);
+      Serial.print(" Neutrona Wand: ");
+      Serial.println(data_firing);
+
       Serial.print("Ribbon Cable: ");
       Serial.println(data_cable);
+
       Serial.print("Cyclotron State: ");
-      Serial.println(data_ctron);
-      Serial.print("Overheat State: ");
+      Serial.print(data_ctron);
+      Serial.print(" Overheat State: ");
       Serial.println(data_temp);
     }
   }

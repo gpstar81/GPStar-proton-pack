@@ -1,5 +1,5 @@
 /**
- *   gpstar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -285,9 +285,6 @@ const uint8_t fan_booster_pin = 38;
  * Fan for N-Filter smoke
  */
 const uint8_t fan_pin = 33;
-millisDelay ms_fan_stop_timer;
-const unsigned int i_fan_stop_timer = 8000; // Total time for the fan to be ready and/or actually running.
-const float i_fan_start_percent = 0.8; // Time at which the fan will turn on for venting (timer * percent).
 
 /* 
  * Overheating and smoke timers for smoke_pin. 
@@ -301,6 +298,7 @@ const unsigned long int i_smoke_timer[5] = { i_smoke_timer_mode_1, i_smoke_timer
 const unsigned long int i_smoke_on_time[5] = { i_smoke_on_time_mode_1, i_smoke_on_time_mode_2, i_smoke_on_time_mode_3, i_smoke_on_time_mode_4, i_smoke_on_time_mode_5 };
 const bool b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
 const bool b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
+millisDelay ms_overheating_length; // The total length of the when the fans turn on (or smoke if smoke synced to fan)
 
 /*
  * N-Filter LED (White) (Optional)
@@ -322,6 +320,15 @@ bool b_vent_light_on = false; // To know if the light is on or off.
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
+
+/*
+ * System modes.
+ * Super Hero: A idealised system based on the close up of the Super Hero Proton Pack and Neutrona Wand in the 1984 Rooftop closeup scene and what is shown in Afterlife. (Different toggle switch sequences for turning on the pack and wand)
+ * Original: Based on the original operational manual during production of GB1. (Wand toggle switches must be on before the cyclotron can turn on from the Wand only.)
+ * Super Hero will be the default system mode.
+*/
+enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
+enum SYSTEM_MODES SYSTEM_MODE;
 
 /*
  *  Wand Status

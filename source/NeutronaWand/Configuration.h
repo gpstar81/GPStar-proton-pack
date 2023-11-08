@@ -1,5 +1,5 @@
 /**
- *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -81,18 +81,10 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 uint8_t i_num_barrel_leds = 5;
 
 /*
- * When set ti true, the bargraph will invert the sequence.
+* When set to true, the bargraph will invert the sequence.
+* Only compatible with the gpstar Neutrona Wand board.
 */
 bool b_bargraph_invert = false;
-
-/*
- * When set to true, the 28 segment optional bargraph will always constantly ramp up and down in Afterlife mode (to match 1984/1989) mode.
- * When set to false (default), it mimics the action in Afterlife.
- * Only compatible with the gpstar Neutrona Wand board.
-*/
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  bool b_bargraph_always_ramping = false;
-#endif
 
 /*
  * If the Frutto vent light has been installed, uncomment the line below
@@ -183,15 +175,21 @@ bool b_overheat_enabled = true;
 bool b_wand_boot_errors = true;
 
 /*
+ * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.
+ * When false, the bargraph will ramp down instead.
+*/
+bool b_overheat_bargraph_blink = false;
+
+/*
  * Which power modes do you want to be able to overheat.
  * Set to true to allow the wand and pack to overheat in that mode.
  * Set to false to disable overheating in that power mode. You will be able to continuously fire instead.
  */
-const bool b_overheat_mode_1 = false;
-const bool b_overheat_mode_2 = false;
-const bool b_overheat_mode_3 = false;
-const bool b_overheat_mode_4 = false;
-const bool b_overheat_mode_5 = true;
+bool b_overheat_mode_1 = false;
+bool b_overheat_mode_2 = false;
+bool b_overheat_mode_3 = false;
+bool b_overheat_mode_4 = false;
+bool b_overheat_mode_5 = true;
 
 /*
  * Time in milliseconds for when overheating will initiate if enabled for that power mode.
@@ -214,18 +212,21 @@ const unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 const bool b_onboard_amp_enabled = true;
 
 /*
-  * When set to true, the Neutrona Wand will tell the Proton Pack to play the After Life Neutrona Wand ramp sounds:
-  * Only compatible with the gpstar Neutrona Wand board.
-  * The default setting is false.
+ * When set to true, the Neutrona Wand will tell the Proton Pack to play the After Life Neutrona Wand ramp sounds:
+ * Only compatible with the gpstar Neutrona Wand board.
+ * The default setting is false.
 */
 bool b_extra_pack_sounds = false;
 
-#ifdef GPSTAR_NEUTRONA_WAND_PCB
-  /*
-  * Set to false to ignore reading data from the EEPROM.
-  */
-  const bool b_eeprom = true;
-#endif
+/* 
+ * When set to true, the Neutrona Wand plays sound effects with the toggle switches only in MODE_ORIGINAL and not MODE_SUPER_HERO mode.
+*/
+bool b_mode_original_toggle_sounds_enabled = true;
+
+/*
+ * Set to false to ignore reading data from the EEPROM.
+*/
+const bool b_eeprom = true;
 
 /*
  * When set to true, the Neutrona Wand will function without a Proton Pack connected.

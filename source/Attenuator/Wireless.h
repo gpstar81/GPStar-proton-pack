@@ -270,15 +270,17 @@ String getStatus() {
   jsonDoc.clear();
   jsonDoc["mode"] = getMode();
   jsonDoc["theme"] = getTheme();
-  jsonDoc["wand"] = getWandMode();
   jsonDoc["switch"] = getRedSwitch();
   jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
   jsonDoc["power"] = getPower();
   jsonDoc["safety"] = getSafety();
+  jsonDoc["wand"] = getWandMode();
   jsonDoc["firing"] = (b_firing ? "Firing" : "Idle");
   jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
   jsonDoc["cyclotron"] = getCyclotronState();
   jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
+  jsonDoc["music_start"] = i_music_track_min;
+  jsonDoc["music_end"] = i_music_track_max;
   String status;
   serializeJson(jsonDoc, status); // Serialize to string.
   return status;

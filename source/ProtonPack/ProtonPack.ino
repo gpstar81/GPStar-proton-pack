@@ -174,15 +174,27 @@ void setup() {
   // Check music timer.
   ms_check_music.start(i_music_check_delay);
 
+  // Default mode is MODE_SUPER_HERO.
+  SYSTEM_MODE = MODE_SUPER_HERO;
+
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
     readEEPROM();
   }
 
-  // Auto start the pack if it is in demo light mode.
-  if(b_demo_light_mode == true) {
-    // Turn the pack on.
-    PACK_ACTION_STATE = ACTION_ACTIVATE;
+  if(SYSTEM_MODE == MODE_SUPER_HERO) {
+    packSerialSend(P_MODE_SUPER_HERO);
+    serial1Send(A_MODE_SUPER_HERO);
+
+    // Auto start the pack if it is in demo light mode.
+    if(b_demo_light_mode == true) {
+      // Turn the pack on.
+      PACK_ACTION_STATE = ACTION_ACTIVATE;
+    }
+  }
+  else {
+    packSerialSend(P_MODE_ORIGINAL);
+    serial1Send(A_MODE_ORIGINAL);
   }
 }
 
@@ -198,8 +210,6 @@ void loop() {
   checkMusic();
   checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
-
-  checkFan();
 
   switch_cyclotron_lid.loop();
   switch_alarm.loop();
@@ -256,7 +266,24 @@ void loop() {
       }
 
       if(b_pack_on == true) {
-        // Tell the wand the pack is off, so shut down the wand as well if it is still on.
+        switch(SYSTEM_MODE) {
+          case MODE_ORIGINAL:
+            if(switch_power.getState() == HIGH) {
+             // Tell the Neutrona Wand that power to the Proton Pack is off.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+
+              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+            }
+          break;
+
+          case MODE_SUPER_HERO:
+          default:
+            // Do nothing.
+          break;
+        }
+
+        // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
         packSerialSend(P_OFF);
         serial1Send(A_PACK_OFF);
       }
@@ -413,6 +440,7 @@ void loop() {
             }
 
             fanControl(true);
+            fanBooster(true);
           }
 
           // We are strobing the N-Filter jewel.
@@ -437,6 +465,7 @@ void loop() {
           ventLight(false);
           ventLightLEDW(false);
           fanControl(false);
+          fanBooster(false);
         }
       }
 
@@ -704,6 +733,7 @@ void packShutdown() {
 
   stopEffect(S_BEEP_8);
   stopEffect(S_SHUTDOWN);
+  stopEffect(S_STEAM_LOOP);
 
   if(i_mode_year == 1989) {
     stopEffect(S_GB2_PACK_START);
@@ -756,8 +786,8 @@ void packShutdown() {
   ms_smoke_on.stop();
 
   // Turn off the fans.
-  ms_fan_stop_timer.stop();
   fanControl(false);
+  fanBooster(false);
 
   // Turn off the Cyclotron auto speed timer.
   ms_cyclotron_auto_speed_timer.stop();
@@ -782,6 +812,7 @@ void packOffReset() {
   ms_cyclotron.start(i_2021_delay);
   ms_cyclotron_ring.start(i_inner_ramp_delay);
 
+  ms_overheating_length.stop();
   b_overheating = false;
   b_2021_ramp_down = false;
   b_2021_ramp_down_start = false;
@@ -940,9 +971,33 @@ void checkSwitches() {
 
   switch(PACK_STATE) {
     case MODE_OFF:
-      if(switch_power.isPressed() || switch_power.isReleased()) {
-        // Turn the pack on.
-        PACK_ACTION_STATE = ACTION_ACTIVATE;
+      switch(SYSTEM_MODE) {
+        case MODE_ORIGINAL:
+          if(switch_power.isPressed() || switch_power.isReleased()) {
+            if(switch_power.getState() == LOW) {
+              // Tell the Neutrona Wand that power to the Proton Pack is on.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+
+              // Tell the Attenuator or any other device that the power to the Proton Pack is on.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
+            }
+            else {
+              // Tell the Neutrona Wand that power to the Proton Pack is off.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+
+              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+            }
+          }
+        break;
+
+        case MODE_SUPER_HERO:
+        default:
+          if(switch_power.isPressed() || switch_power.isReleased()) {
+            // Turn the pack on.
+            PACK_ACTION_STATE = ACTION_ACTIVATE;
+          }
+        break;
       }
 
       // Year mode. Best to adjust it only when the pack is off.
@@ -1958,7 +2013,7 @@ void cyclotron2021(int cDelay) {
       i_current_ramp_speed = cDelay;
 
       int t_cDelay = cDelay;
-      
+
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
         case FRUTTO_CYCLOTRON_LED_COUNT:
@@ -2045,7 +2100,7 @@ void cyclotron2021(int cDelay) {
     if(cDelay < 1) {
       cDelay = 1;
     }
-    
+
     if(b_clockwise == true) {
       if((i_cyclotron_led_value[i_led_cyclotron - cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
         ms_cyclotron_led_fade_in[i_led_cyclotron - cyclotron_led_start].go(0);
@@ -2489,7 +2544,34 @@ void cyclotronOverHeating() {
   }
 
   if(ms_overheating.justFinished()) {
-    playEffect(S_VENT_SMOKE);
+    playEffect(S_AIR_RELEASE);
+    playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+
+    // Fade in the steam release loop.
+    playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
+
+    switch(i_wand_power_level) {
+      case 1:
+      default:
+        ms_overheating_length.start(i_ms_overheating_length_1);
+      break;
+
+      case 2:
+        ms_overheating_length.start(i_ms_overheating_length_2);
+      break;
+
+      case 3:
+        ms_overheating_length.start(i_ms_overheating_length_3);
+      break;
+
+      case 4:
+        ms_overheating_length.start(i_ms_overheating_length_4);
+      break;
+
+      case 5:
+        ms_overheating_length.start(i_ms_overheating_length_5);
+      break;
+    }
 
     if(b_overheat_sync_to_fan != true) {
       smokeControl(false);
@@ -2553,10 +2635,15 @@ void cyclotronOverHeating() {
   }
 
   // Time the N-Filter light to when the fan is running.
-  if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
+  //if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
+  if(ms_overheating_length.isRunning()) {
     if(b_overheat_sync_to_fan == true) {
       smokeControl(true);
     }
+
+    // Turn the fans on.
+    fanControl(true);
+    fanBooster(true);
 
     // For strobing the vent light.
     if(ms_vent_light_off.justFinished()) {
@@ -2586,6 +2673,70 @@ void cyclotronOverHeating() {
 
     ventLightLEDW(true);
   }
+
+  if(ms_overheating_length.justFinished()) {
+    // Tell the Neutrona Wand the overheating is finished.
+    packOverHeatingFinished();
+  }
+}
+
+void packOverHeatingFinished() {
+  packSerialSend(P_OVERHEATING_FINISHED);
+  serial1Send(A_OVERHEATING_FINISHED);
+
+  ms_overheating_length.stop();
+
+  stopEffect(S_STEAM_LOOP);
+  playEffect(S_VENT_DRY);
+  playEffect(S_STEAM_LOOP_FADE_OUT);
+
+  b_overheating = false;
+
+  // Turn off the smoke.
+  smokeControl(false);
+
+  // Stop the fans.
+  fanControl(false);
+  fanBooster(false);
+
+  // Reset the LEDs before resetting the alarm flag.
+  if(i_mode_year == 1984 || i_mode_year == 1989) {
+    resetCyclotronLeds();
+  }
+
+  b_alarm = false;
+
+  if(b_overheat_lights_off == true) {
+    cyclotronSpeedRevert();
+
+    // Reset the ramp speeds.
+    switch(i_mode_year) {
+      case 1984:
+      case 1989:
+          // Reset the ramp speeds.
+          i_current_ramp_speed = i_1984_delay * 1.3;
+          i_inner_current_ramp_speed = i_inner_ramp_delay;
+      break;
+
+      case 2021:
+        // Reset the ramp speeds.
+        i_current_ramp_speed = i_2021_ramp_delay;
+        i_inner_current_ramp_speed = i_inner_ramp_delay;
+      break;
+    }
+  }
+
+  reset2021RampUp();
+
+  packStartup();
+
+  // Turn off the vent lights
+  ventLight(false);
+  ventLightLEDW(false);
+  ms_vent_light_off.stop();
+  ms_vent_light_on.stop();
+
+  ms_cyclotron.start(i_2021_delay);
 }
 
 void cyclotronNoCable() {
@@ -3199,6 +3350,7 @@ void wandStoppedFiring() {
 
   // Turn off the fans.
   fanControl(false);
+  fanBooster(false);
 
   ms_firing_length_timer.stop();
   ms_smoke_timer.stop();
@@ -3657,25 +3809,39 @@ void smokeControl(bool b_smoke_on) {
 }
 
 // Smoke #2. Good for putting smoke in the Booster Tube.
-// A second fan pin (Fan Booster Tube) is timed to go off at the same time as this, but is not required in my experience.
 void smokeBooster(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_booster_pin, HIGH);
-        digitalWrite(fan_booster_pin, HIGH);
       }
       else if(b_overheating == true && b_smoke_2_overheat == true && b_wand_firing != true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_booster_pin, HIGH);
-        digitalWrite(fan_booster_pin, HIGH);
       }
       else {
         digitalWrite(smoke_booster_pin, LOW);
-        digitalWrite(fan_booster_pin, LOW);
       }
     }
     else {
       digitalWrite(smoke_booster_pin, LOW);
+    }
+  }
+}
+
+void fanBooster(bool b_fan_on) {
+  if(b_smoke_enabled == true) {
+    if(b_fan_on == true) {
+      if(b_wand_firing == true && b_overheating != true && b_fan_booster_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(fan_booster_pin, HIGH);
+      }
+      else if(b_overheating == true && b_wand_firing != true && b_fan_booster_overheat == true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(fan_booster_pin, HIGH);
+      }
+      else {
+        digitalWrite(fan_booster_pin, LOW);
+      }
+    }
+    else {
       digitalWrite(fan_booster_pin, LOW);
     }
   }
@@ -3700,19 +3866,6 @@ void fanControl(bool b_fan_on) {
     else {
       digitalWrite(fan_pin, LOW);
     }
-  }
-}
-
-// Another optional 5V pin that goes high during overheat/vent sequences.
-void checkFan() {
-  if(ms_fan_stop_timer.justFinished()) {
-    // Turn off fan when timer has completed.
-    fanControl(false);
-    ms_fan_stop_timer.stop();
-  }
-  else if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < (i_fan_stop_timer * i_fan_start_percent)) {
-    // Turn on fan within the timed sequence.
-    fanControl(true);
   }
 }
 
@@ -3788,9 +3941,11 @@ void wandHandShake() {
     }
 
     // Turn off overheating if the wand gets disconnected.
+    /*
     if(b_overheating == true) {
-      packOverheatingFinished();
+      packOverHeatingFinished();
     }
+    */
 
     if(b_spectral_lights_on == true) {
       spectralLightsOff();
@@ -3816,57 +3971,6 @@ void wandExtraSoundsStop() {
 
   stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
-}
-
-void packOverheatingFinished() {
-  w_trig.trackGain(S_VENT_DRY, i_volume_effects);
-  b_overheating = false;
-
-  // Turn off the smoke.
-  smokeControl(false);
-
-  // Stop the N-Filter fan.
-  ms_fan_stop_timer.stop();
-  fanControl(false);
-
-  // Reset the LEDs before resetting the alarm flag.
-  if(i_mode_year == 1984 || i_mode_year == 1989) {
-    resetCyclotronLeds();
-  }
-
-  b_alarm = false;
-
-  if(b_overheat_lights_off == true) {
-    cyclotronSpeedRevert();
-
-    // Reset the ramp speeds.
-    switch(i_mode_year) {
-      case 1984:
-      case 1989:
-          // Reset the ramp speeds.
-          i_current_ramp_speed = i_1984_delay * 1.3;
-          i_inner_current_ramp_speed = i_inner_ramp_delay;
-      break;
-
-      case 2021:
-        // Reset the ramp speeds.
-        i_current_ramp_speed = i_2021_ramp_delay;
-        i_inner_current_ramp_speed = i_inner_ramp_delay;
-      break;
-    }
-  }
-
-  reset2021RampUp();
-
-  packStartup();
-
-  // Turn off the vent lights
-  ventLight(false);
-  ventLightLEDW(false);
-  ms_vent_light_off.stop();
-  ms_vent_light_on.stop();
-
-  ms_cyclotron.start(i_2021_delay);
 }
 
 // Incoming messages from the extra Serial 1 port.
@@ -3974,6 +4078,22 @@ void checkSerial1() {
 
             serial1Send(A_SPECTRAL_COLOUR_DATA);
 
+            if(SYSTEM_MODE == MODE_SUPER_HERO) {
+              serial1Send(A_MODE_SUPER_HERO);
+            }
+            else {
+              serial1Send(A_MODE_ORIGINAL);
+            }
+
+            if(switch_power.getState() == LOW) {
+              // Tell the Attenuator or any other device that the power to the Proton Pack is on.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
+            }
+            else {
+              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+            }
+
             serial1Send(A_MUSIC_TRACK_COUNT_SYNC);
 
             b_serial1_connected = true;
@@ -4007,6 +4127,11 @@ void checkSerial1() {
             case A_WARNING_CANCELLED:
               // Tell wand to reset overheat warning.
               packSerialSend(P_WARNING_CANCELLED);
+            break;
+
+            case A_MANUAL_OVERHEAT:
+              // Trigger a manual overheat vent.
+              packSerialSend(P_MANUAL_OVERHEAT);
             break;
 
             case A_TOGGLE_MUTE:
@@ -4079,6 +4204,19 @@ void checkSerial1() {
             break;
 
             case A_MUSIC_PAUSE_RESUME:
+              if(b_playing_music == true) {
+                packSerialSend(P_MUSIC_PAUSE);
+                pauseMusic();
+                b_playing_music = false;
+              }
+              else {
+                if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+                  b_playing_music = true;
+                  resumeMusic();
+
+                  packSerialSend(P_MUSIC_RESUME);
+                }
+              }
             break;
 
             case A_MUSIC_NEXT_TRACK:
@@ -4090,7 +4228,20 @@ void checkSerial1() {
             break;
 
             default:
-              // No-op
+              // Music track number to be played.
+              if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
+                i_current_music_track = comStruct.i;
+                if(b_playing_music == true) {
+                  stopMusic(); // Stops current track before change.
+                  packSerialSend(P_MUSIC_STOP);
+
+                  // Tell the wand which track to play.
+                  packSerialSend(i_current_music_track);
+
+                  playMusic(); // Start playing new track number.
+                  packSerialSend(P_MUSIC_START);
+                }
+              }
             break;
           }
         }
@@ -4132,6 +4283,22 @@ void checkWand() {
               }
 
               serial1Send(A_WAND_OFF);
+            break;
+
+            case W_BARREL_EXTENDED:
+              // Unused at the moment.
+              //b_neutrona_wand_barrel_extended = true;
+
+              // Tell the attenuator or any other device on Serial 1 that the Neutrona Wand barrel is extended.
+              serial1Send(A_BARREL_EXTENDED);
+            break;
+
+            case W_BARREL_RETRACTED:
+              // Unused at the moment.
+              //b_neutrona_wand_barrel_extended = false;
+
+              // Tell the attenuator or any other device on Serial 1 that the Neutrona Wand barrel is retracted.
+              serial1Send(A_BARREL_RETRACTED);
             break;
 
             case W_CYCLOTRON_SIMULATE_RING_TOGGLE:
@@ -4445,9 +4612,9 @@ void checkWand() {
               // Reset some vent light timers.
               ms_vent_light_off.stop();
               ms_vent_light_on.stop();
-              ms_fan_stop_timer.stop();
+              //ms_fan_stop_timer.stop();
               ms_vent_light_off.start(i_vent_light_delay);
-              ms_fan_stop_timer.start(i_fan_stop_timer);
+              //ms_fan_stop_timer.start(i_fan_stop_timer);
 
               // Reset the Inner Cyclotron speed.
               if(i_mode_year == 1984 || i_mode_year == 1989) {
@@ -4460,7 +4627,7 @@ void checkWand() {
             // No longer used.
             case W_OVERHEATING_FINISHED:
               // Overheating finished
-              packOverheatingFinished();
+              packOverHeatingFinished();
 
               serial1Send(A_OVERHEATING_FINISHED);
             break;
@@ -5090,11 +5257,74 @@ void checkWand() {
               playEffect(S_VOICE_OVERHEAT_ENABLED);
             break;
 
-            case W_MENU_LEVEL_CHANGE:
-              // Play a beep during a sub menu to menu level change.
+            case W_MENU_LEVEL_1:
+              // Play a beep and other sounds when changing menu levels.
               stopEffect(S_BEEPS);
-
               playEffect(S_BEEPS);
+
+              stopEffect(S_LEVEL_1);
+              stopEffect(S_LEVEL_2);
+              stopEffect(S_LEVEL_3);
+              stopEffect(S_LEVEL_4);
+              stopEffect(S_LEVEL_5);
+
+              playEffect(S_LEVEL_1);
+            break;
+
+            case W_MENU_LEVEL_2:
+              // Play a beep and other sounds when changing menu levels.
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+
+              stopEffect(S_LEVEL_1);
+              stopEffect(S_LEVEL_2);
+              stopEffect(S_LEVEL_3);
+              stopEffect(S_LEVEL_4);
+              stopEffect(S_LEVEL_5);
+
+              playEffect(S_LEVEL_2);
+            break;
+
+            case W_MENU_LEVEL_3:
+              // Play a beep and other sounds when changing menu levels.
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+
+              stopEffect(S_LEVEL_1);
+              stopEffect(S_LEVEL_2);
+              stopEffect(S_LEVEL_3);
+              stopEffect(S_LEVEL_4);
+              stopEffect(S_LEVEL_5);
+
+              playEffect(S_LEVEL_3);
+            break;
+
+            case W_MENU_LEVEL_4:
+              // Play a beep and other sounds when changing menu levels.
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+
+              stopEffect(S_LEVEL_1);
+              stopEffect(S_LEVEL_2);
+              stopEffect(S_LEVEL_3);
+              stopEffect(S_LEVEL_4);
+              stopEffect(S_LEVEL_5);
+
+              playEffect(S_LEVEL_4);
+            break;
+
+            case W_MENU_LEVEL_5:
+              // Play a beep and other sounds when changing menu levels.
+              stopEffect(S_BEEPS);
+              playEffect(S_BEEPS);
+
+              stopEffect(S_LEVEL_1);
+              stopEffect(S_LEVEL_2);
+              stopEffect(S_LEVEL_3);
+              stopEffect(S_LEVEL_4);
+              stopEffect(S_LEVEL_5);
+
+              playEffect(S_LEVEL_5);
             break;
 
             case W_VOLUME_MUSIC_DECREASE:
@@ -5189,12 +5419,17 @@ void checkWand() {
               // Stop music.
               b_playing_music = false;
               stopMusic();
+
+              packSerialSend(P_MUSIC_STOP);
             break;
 
             case W_MUSIC_START:
               // Play music.
               b_playing_music = true;
               playMusic();
+
+              packSerialSend(i_current_music_track);
+              packSerialSend(P_MUSIC_START);
             break;
 
             case W_PROTON_STREAM_IMPACT_TOGGLE:
@@ -5722,9 +5957,20 @@ void checkWand() {
               }
             break;
 
-            case W_EEPROM_MENU:
+            case W_EEPROM_LED_MENU:
               stopEffect(S_BEEPS_BARGRAPH);
               playEffect(S_BEEPS_BARGRAPH);
+
+              stopEffect(S_EEPROM_LED_MENU);
+              playEffect(S_EEPROM_LED_MENU);
+            break;
+
+            case W_EEPROM_CONFIG_MENU:
+              stopEffect(S_BEEPS_BARGRAPH);
+              playEffect(S_BEEPS_BARGRAPH);
+
+              stopEffect(S_EEPROM_CONFIG_MENU);
+              playEffect(S_EEPROM_CONFIG_MENU);
             break;
 
             case W_QUICK_VENT_DISABLED:
@@ -5929,6 +6175,14 @@ void checkWand() {
               }
             break;
 
+            case W_MUSIC_NEXT_TRACK:
+              musicNextTrack();
+            break;
+
+            case W_MUSIC_PREV_TRACK:
+              musicPrevTrack();
+            break;
+
             default:
               // Music track number to be played.
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
@@ -5936,6 +6190,10 @@ void checkWand() {
                   stopMusic(); // Stops current track before change.
                   i_current_music_track = comStruct.i;
                   playMusic(); // Start playing new track number.
+
+                  packSerialSend(P_MUSIC_STOP);
+                  packSerialSend(i_current_music_track);
+                  packSerialSend(P_MUSIC_START);
                 }
                 else {
                   i_current_music_track = comStruct.i;
@@ -5948,10 +6206,31 @@ void checkWand() {
           // Check if the wand is telling us it is here after connecting it to the pack.
           // Then synchronise some settings between the pack and the wand.
           if(comStruct.i == W_HANDSHAKE) {
+            if(b_overheating == true) {
+              packOverHeatingFinished();
+            }
+
             packSerialSend(P_SYNC_START);
 
             // Tell the wand that the pack is here.
             packSerialSend(P_HANDSHAKE);
+
+            // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
+            if(SYSTEM_MODE == MODE_SUPER_HERO) {
+              packSerialSend(P_MODE_SUPER_HERO);
+            }
+            else {
+              packSerialSend(P_MODE_ORIGINAL);
+            }
+
+            if(switch_power.getState() == LOW) {
+              // Tell the Neutrona Wand that power to the Proton Pack is on.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+            }
+            else {
+              // Tell the Neutrona Wand that power to the Proton Pack is off.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+            }
 
             if(i_mode_year == 1984) {
               packSerialSend(P_YEAR_1984);

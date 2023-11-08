@@ -123,18 +123,36 @@ const char INDEX_page[] PROGMEM = R"=====(
       updateStatus(data);
     }
 
+    function removeOptions(selectElement) {
+      var i, len = selectElement.options.length - 1;
+      for(i = len; i >= 0; i--) {
+          selectElement.remove(i);
+      }
+    }
+
     function updateStatus(jObj) {
       document.getElementById("mode").innerHTML = jObj.mode || "...";
       document.getElementById("theme").innerHTML = jObj.theme || "...";
-      document.getElementById("wand").innerHTML = jObj.wand || "...";
       document.getElementById("switch").innerHTML = jObj.switch || "...";
       document.getElementById("pack").innerHTML = jObj.pack || "...";
       document.getElementById("power").innerHTML = jObj.power || "...";
       document.getElementById("safety").innerHTML = jObj.safety || "...";
+      document.getElementById("wand").innerHTML = jObj.wand || "...";
       document.getElementById("firing").innerHTML = jObj.firing || "...";
       document.getElementById("cable").innerHTML = jObj.cable || "...";
       document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
       document.getElementById("temperature").innerHTML = jObj.temperature || "...";
+
+      if (jObj.music_start > 0) {
+        var trackList = document.getElementById("tracks");
+        removeOptions(trackList);
+        for (var i = jObj.music_start; i <= jObj.music_end; i++) {
+            var opt = document.createElement("option");
+            opt.value = i;
+            opt.innerHTML = i;
+            trackList.appendChild(opt);
+        }
+      }
     }
 
     function getStatus() {
@@ -274,13 +292,13 @@ const char INDEX_page[] PROGMEM = R"=====(
 <body>
   <h1>Equipment Status</h1>
   <div class="card">
-    <p><b>Arming Sequence:</b> <span class="info" id="mode">&mdash;</span></p>
+    <p><b>Arming Mode:</b> <span class="info" id="mode">&mdash;</span></p>
     <p><b>Operating Mode:</b> <span class="info" id="theme">&mdash;</span></p>
-    <p><b>Wand Mode:</b> <span class="info" id="wand">&mdash;</span></p>
     <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
     <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
     <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
     <p><b>Safety State:</b> <span class="info" id="safety">&mdash;</span></p>
+    <p><b>Wand Mode:</b> <span class="info" id="wand">&mdash;</span></p>
     <p><b>Neutrona Wand:</b> <span class="info" id="firing">&mdash;</span></p>
     <p><b>Ribbon Cable:</b> <span class="info" id="cable">&mdash;</span></p>
     <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
@@ -297,6 +315,8 @@ const char INDEX_page[] PROGMEM = R"=====(
   <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
   <button type="button" class="green" onclick="toggleMusic()">Start/Stop</button>
   <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
+  <br/>
+  Jump to Track: <select id="tracks"></select
   <br/>
   <h3>Effects Volume</h3>
   <button type="button" class="blue" onclick="volumeEffectsDown()">Down -</button>

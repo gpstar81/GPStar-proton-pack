@@ -746,9 +746,10 @@ void checkPack() {
             if(comStruct.d1 > 0) {
               i_music_track_count = comStruct.d1;
             }
+i_music_track_count = 20; // REMOVE ME - DEBUG ONLY!
             if(i_music_track_count > 0) {
               i_music_track_min = i_music_track_offset;
-              i_music_track_max = i_music_track_offset + i_music_track_count;
+              i_music_track_max = i_music_track_offset + i_music_track_count - 1; // @TODO: Confirm if the -1 is necessary here.
             }
           break;
 

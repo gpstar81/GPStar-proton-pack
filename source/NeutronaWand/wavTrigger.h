@@ -121,22 +121,16 @@ public:
   void flush(void);
   void setReporting(bool enable);
   void setAmpPwr(bool enable);
-  #ifdef GPSTAR_PCB
-    bool getVersion(char *pDst);
-  #endif
+  bool getVersion(char *pDst);
 
   int getNumTracks(void);
 
-  #ifdef GPSTAR_PCB
-    bool isTrackPlaying(int trk);
-  #endif
+  bool isTrackPlaying(int trk);
 
   void masterGain(int gain);
   void stopAllTracks(void);
   
-  #ifdef GPSTAR_PCB
-    void resumeAllInSync(void);
-  #endif
+  void resumeAllInSync(void);
 
   void trackPlaySolo(int trk);
   void trackPlaySolo(int trk, bool lock);
@@ -153,16 +147,12 @@ public:
 
   void samplerateOffset(int offset);
 
-  #ifdef GPSTAR_PCB
-    void setTriggerBank(int bank);
-  #endif
+  void setTriggerBank(int bank);
 
-  #ifdef GPSTAR_PCB
-    void trackPlayingStatus(int trk);
-    bool currentMusicTrackStatus(int trk);
-    bool trackCounterReset(void);
-    void resetTrackCounter(bool bReset);
-  #endif
+  void trackPlayingStatus(int trk);
+  bool currentMusicTrackStatus(int trk);
+  bool trackCounterReset(void);
+  void resetTrackCounter(bool bReset);
 
 private:
   void trackControl(int trk, int code);
@@ -172,15 +162,11 @@ private:
     AltSoftSerial WTSerial;
   #endif
 
-  #ifdef GPSTAR_PCB 
-    uint16_t voiceTable[MAX_NUM_VOICES];
-  #endif
+  uint16_t voiceTable[MAX_NUM_VOICES];
 
   uint8_t rxMessage[MAX_MESSAGE_LEN];
 
-  #ifdef GPSTAR_PCB
-    char version[VERSION_STRING_LEN];
-  #endif
+  char version[VERSION_STRING_LEN];
 
   uint16_t numTracks;
   uint8_t numVoices;
@@ -190,11 +176,9 @@ private:
   bool versionRcvd;
   bool sysinfoRcvd;
 
-  #ifdef GPSTAR_PCB
     int currentMusicTrack;
     bool currentMusicStatus;
     bool trackCounter;
-  #endif
 };
 
 #endif

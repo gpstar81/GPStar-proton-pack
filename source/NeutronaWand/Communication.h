@@ -1,5 +1,5 @@
 /**
- *   gpstar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -101,6 +101,14 @@ enum pack_messages {
   P_OVERHEAT_SYNC_FAN_DISABLED,
   P_OVERHEAT_SYNC_FAN_ENABLED,
   P_YEAR_MODE_DEFAULT,
+  P_MODE_SUPER_HERO,
+  P_MODE_ORIGINAL,
+  P_MODE_ORIGINAL_RED_SWITCH_ON,
+  P_MODE_ORIGINAL_RED_SWITCH_OFF,
+  P_MANUAL_OVERHEAT,
+  P_MUSIC_PAUSE,
+  P_MUSIC_RESUME,
+  P_OVERHEATING_FINISHED,
   P_SYNC_START,
   P_SYNC_END,
   P_COM_END,
@@ -169,7 +177,11 @@ enum wand_messages {
   W_MUSIC_START,
   W_VOLUME_DECREASE,
   W_VOLUME_INCREASE,
-  W_MENU_LEVEL_CHANGE,
+  W_MENU_LEVEL_1,
+  W_MENU_LEVEL_2,
+  W_MENU_LEVEL_3,
+  W_MENU_LEVEL_4,
+  W_MENU_LEVEL_5,
   W_VGA_OVERHEAT_LIGHTS,
   W_DIMMING_TOGGLE,
   W_DIMMING_INCREASE,
@@ -181,7 +193,8 @@ enum wand_messages {
   W_TOGGLE_POWERCELL_LEDS,
   W_TOGGLE_INNER_CYCLOTRON_LEDS,
   W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS,
-  W_EEPROM_MENU,
+  W_EEPROM_LED_MENU,
+  W_EEPROM_CONFIG_MENU,
   W_CLEAR_CONFIG_EEPROM_SETTINGS,
   W_SAVE_CONFIG_EEPROM_SETTINGS,
   W_EXTRA_WAND_SOUNDS_STOP,
@@ -224,5 +237,9 @@ enum wand_messages {
   W_OVERHEAT_LIGHTS_OFF_TOGGLE,
   W_OVERHEAT_SYNC_TO_FAN_TOGGLE,
   W_YEAR_MODES_CYCLE_EEPROM,
+  W_BARREL_EXTENDED,
+  W_BARREL_RETRACTED,
+  W_MUSIC_NEXT_TRACK,
+  W_MUSIC_PREV_TRACK,
   W_COM_END
 };

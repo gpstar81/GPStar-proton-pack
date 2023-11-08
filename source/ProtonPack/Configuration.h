@@ -1,5 +1,5 @@
 /**
- *   gpstar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -318,23 +318,24 @@ bool b_smoke_enabled = true;
 
 /*
  * Enable or disable smoke during continuous firing.
- * Control which of the 3 pins go high during continuous firing smoke effects.
+ * Control which of the 4 pins go high during continuous firing smoke effects.
  * This can be overridden if b_smoke_enabled is set to false.
 */
-const bool b_smoke_1_continuous_firing = true;
-const bool b_smoke_2_continuous_firing = true;
-const bool b_fan_continuous_firing = true;
+bool b_smoke_1_continuous_firing = true;
+bool b_smoke_2_continuous_firing = true;
+bool b_fan_continuous_firing = true;
+bool b_fan_booster_continuous_firing = true;
 
 /*
  * Enable or disable smoke in individual wand power modes for continuous firing smoke.
  * Example: if b_smoke_continuous_mode_1 is true, smoke will happen in continuous firing in wand power mode 1. If false, no smoke in mode 1.
  * This is overridden if b_smoke_enabled or can be by the continuous_firing settings above when they are set to false.
 */
-const bool b_smoke_continuous_mode_1 = true;
-const bool b_smoke_continuous_mode_2 = true;
-const bool b_smoke_continuous_mode_3 = true;
-const bool b_smoke_continuous_mode_4 = true;
-const bool b_smoke_continuous_mode_5 = true;
+bool b_smoke_continuous_mode_1 = true;
+bool b_smoke_continuous_mode_2 = true;
+bool b_smoke_continuous_mode_3 = true;
+bool b_smoke_continuous_mode_4 = true;
+bool b_smoke_continuous_mode_5 = true;
 
 /*
  * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power mode (not overheating venting).
@@ -364,9 +365,10 @@ const unsigned long int i_smoke_on_time_mode_5 = 4000;
  * Control which of the 3 pins that go 5V high during overheat.
  * This can be overridden if b_smoke_enabled is set to false.
 */
-const bool b_smoke_1_overheat = true;
-const bool b_smoke_2_overheat = true;
-const bool b_fan_overheat = true;
+bool b_smoke_1_overheat = true;
+bool b_smoke_2_overheat = true;
+bool b_fan_overheat = true;
+bool b_fan_booster_overheat = true;
 
 /*
  * Enable or disable overheat smoke in different wand power modes.
@@ -378,6 +380,18 @@ const bool b_smoke_overheat_mode_2 = true;
 const bool b_smoke_overheat_mode_3 = true;
 const bool b_smoke_overheat_mode_4 = true;
 const bool b_smoke_overheat_mode_5 = true;
+
+/*
+  * This is the length in duration of the overheat sequence when the fan (and smoke if synced to fan) stays on for.
+  * This can be adjusted in 1 second increments via the wand menu system. 
+  * Default setting is for overheat to only happen in power level 5. However this can be adjused on the Neutrona Wand to enable overheating in any power mode.
+  * It is recommended not to go below 2000 milliseconds.
+*/
+unsigned int i_ms_overheating_length_1 = 2000; // Time in milliseconds (2 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 1.
+unsigned int i_ms_overheating_length_2 = 3000; // Time in milliseconds (3 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 2.
+unsigned int i_ms_overheating_length_3 = 4000; // Time in milliseconds (4 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 3.
+unsigned int i_ms_overheating_length_4 = 5000; // Time in milliseconds (5 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 4.
+unsigned int i_ms_overheating_length_5 = 6000; // Time in milliseconds (6 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 5.
 
 /*
  * Set this to true if you want to know if your wand and pack are communicating.
