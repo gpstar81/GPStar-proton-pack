@@ -4730,6 +4730,46 @@ void checkWand() {
               serial1Send(A_POWER_LEVEL_5);
             break;
 
+            case W_OVERHEAT_INCREASE_LEVEL_1:
+              overheatIncrement(1);
+            break;
+
+            case W_OVERHEAT_INCREASE_LEVEL_2:
+              overheatIncrement(2);
+            break;
+
+            case W_OVERHEAT_INCREASE_LEVEL_3:
+              overheatIncrement(3);
+            break;
+
+            case W_OVERHEAT_INCREASE_LEVEL_4:
+              overheatIncrement(4);
+            break;
+
+            case W_OVERHEAT_INCREASE_LEVEL_5:
+              overheatIncrement(5);
+            break;
+
+            case W_OVERHEAT_DECREASE_LEVEL_1:
+              overheatDecrement(1);
+            break;
+
+            case W_OVERHEAT_DECREASE_LEVEL_2:
+              overheatDecrement(2);
+            break;
+
+            case W_OVERHEAT_DECREASE_LEVEL_3:
+              overheatDecrement(3);
+            break;
+
+            case W_OVERHEAT_DECREASE_LEVEL_4:
+              overheatDecrement(4);
+            break;
+
+            case W_OVERHEAT_DECREASE_LEVEL_5:
+              overheatDecrement(5);
+            break;                  
+
             case W_FIRING_INTENSIFY:
               // Wand firing in intensify mode.
               b_firing_intensify = true;
@@ -5889,11 +5929,7 @@ void checkWand() {
                   // Switch to 20 LEDs. Frutto Technology.
                   i_cyclotron_leds = FRUTTO_CYCLOTRON_LED_COUNT;
 
-                  i_2021_delay = 10;
-                  i_1984_cyclotron_leds[0] = 2;
-                  i_1984_cyclotron_leds[1] = 7;
-                  i_1984_cyclotron_leds[2] = 12;
-                  i_1984_cyclotron_leds[3] = 17;
+                  resetCyclotronLEDs();
 
                   playEffect(S_VOICE_CYCLOTRON_20);
                   packSerialSend(P_CYCLOTRON_LEDS_20);
@@ -5904,11 +5940,7 @@ void checkWand() {
                   // Switch to 12 LEDs. Default HasLab.
                   i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
 
-                  i_2021_delay = 15;
-                  i_1984_cyclotron_leds[0] = 1;
-                  i_1984_cyclotron_leds[1] = 4;
-                  i_1984_cyclotron_leds[2] = 7;
-                  i_1984_cyclotron_leds[3] = 10;
+                  resetCyclotronLEDs();
 
                   playEffect(S_VOICE_CYCLOTRON_12);
                   packSerialSend(P_CYCLOTRON_LEDS_12);
@@ -5918,11 +5950,7 @@ void checkWand() {
                   // Switch to 40 LEDs.
                   i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
 
-                  i_2021_delay = 10;
-                  i_1984_cyclotron_leds[0] = 0;
-                  i_1984_cyclotron_leds[1] = 10;
-                  i_1984_cyclotron_leds[2] = 18;
-                  i_1984_cyclotron_leds[3] = 28;
+                  resetCyclotronLEDs();
 
                   playEffect(S_VOICE_CYCLOTRON_40);
                   packSerialSend(P_CYCLOTRON_LEDS_40);
@@ -6420,11 +6448,145 @@ void packSerialSend(int i_message) {
   packComs.sendDatum(sendStruct);
 }
 
+// It is very important that S_1 up to S_60 follow each other in order on the Micro SD Card and sound effects enum.
+void overheatVoiceIndicator(unsigned int i_tmp_length) {  
+  i_tmp_length = i_tmp_length / i_overheat_delay_increment;
+
+  unsigned int i_tmp_sound = (S_1 - 1) + i_tmp_length;
+
+  stopEffect(i_tmp_sound - 1);
+  stopEffect(i_tmp_sound);
+  stopEffect(i_tmp_sound + 1);
+  playEffect(i_tmp_sound);
+}
+
+void overheatIncrement(uint8_t i_tmp_power_level) {
+  switch(i_tmp_power_level) {
+    case 5:
+      if(i_ms_overheating_length_5 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheating_length_5 = i_ms_overheating_length_5 + i_overheat_delay_increment;
+
+        overheatVoiceIndicator(i_ms_overheating_length_5);
+      }
+    break;
+
+    case 4:
+      if(i_ms_overheating_length_4 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheating_length_4 = i_ms_overheating_length_4 + i_overheat_delay_increment;
+
+        overheatVoiceIndicator(i_ms_overheating_length_4);
+      }
+    break;
+
+    case 3:
+      if(i_ms_overheating_length_3 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheating_length_3 = i_ms_overheating_length_3 + i_overheat_delay_increment;
+
+        overheatVoiceIndicator(i_ms_overheating_length_3);
+      }
+    break;
+
+    case 2:
+      if(i_ms_overheating_length_2 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheating_length_2 = i_ms_overheating_length_2 + i_overheat_delay_increment;
+
+        overheatVoiceIndicator(i_ms_overheating_length_2);
+      }
+    break;
+
+    case 1:
+    default:
+      if(i_ms_overheating_length_1 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheating_length_1 = i_ms_overheating_length_1 + i_overheat_delay_increment;
+
+        overheatVoiceIndicator(i_ms_overheating_length_1);
+      }
+    break;
+  }
+}
+
+void overheatDecrement(uint8_t i_tmp_power_level) {
+  switch(i_tmp_power_level) {
+    case 5:
+      if(i_ms_overheating_length_5 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheating_length_5 = i_ms_overheating_length_5 - i_overheat_delay_increment;
+
+        overheatVoiceIndicator(i_ms_overheating_length_5);
+      }
+    break;
+
+    case 4:
+      if(i_ms_overheating_length_4 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheating_length_4 = i_ms_overheating_length_4 - i_overheat_delay_increment;
+
+        overheatVoiceIndicator(i_ms_overheating_length_4);
+      }
+    break;
+
+    case 3:
+      if(i_ms_overheating_length_3 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheating_length_3 = i_ms_overheating_length_3 - i_overheat_delay_increment;
+
+        overheatVoiceIndicator(i_ms_overheating_length_3);
+      }
+    break;
+
+    case 2:
+      if(i_ms_overheating_length_2 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheating_length_2 = i_ms_overheating_length_2 - i_overheat_delay_increment;
+
+        overheatVoiceIndicator(i_ms_overheating_length_2);
+      }
+    break;
+
+    case 1:
+    default:
+      if(i_ms_overheating_length_5 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheating_length_1 = i_ms_overheating_length_1 - i_overheat_delay_increment;
+
+        overheatVoiceIndicator(i_ms_overheating_length_1);
+      }
+    break;
+  }
+}
+
 // Update the LED counts for the Proton Pack.
 void updateProtonPackLEDCounts() {
   i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_leds;
   i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
   cyclotron_led_start = i_powercell_leds;
+}
+
+void resetCyclotronLEDs() {
+  switch(i_cyclotron_leds) {
+    // For a 40 LED Neopixel ring.
+    case OUTER_CYCLOTRON_LED_MAX:
+      i_2021_delay = CYCLOTRON_DELAY_2021_40_LED;
+      i_1984_cyclotron_leds[0] = i_1984_cyclotron_40_leds[0];
+      i_1984_cyclotron_leds[1] = i_1984_cyclotron_40_leds[1];
+      i_1984_cyclotron_leds[2] = i_1984_cyclotron_40_leds[2];
+      i_1984_cyclotron_leds[3] = i_1984_cyclotron_40_leds[3];
+    break;
+
+    // For Frutto Technology Cyclotron LEDs.
+    case FRUTTO_CYCLOTRON_LED_COUNT:
+      i_2021_delay = CYCLOTRON_DELAY_2021_20_LED;
+      i_1984_cyclotron_leds[0] = i_1984_cyclotron_20_leds[0];
+      i_1984_cyclotron_leds[1] = i_1984_cyclotron_20_leds[1];
+      i_1984_cyclotron_leds[2] = i_1984_cyclotron_20_leds[2];
+      i_1984_cyclotron_leds[3] = i_1984_cyclotron_20_leds[3];
+    break;
+
+    // Default HasLab LEDs.
+    case HASLAB_CYCLOTRON_LED_COUNT:
+    default:
+      i_2021_delay = CYCLOTRON_DELAY_2021_12_LED;
+      i_1984_cyclotron_leds[0] = i_1984_cyclotron_12_leds[0];
+      i_1984_cyclotron_leds[1] = i_1984_cyclotron_12_leds[1];
+      i_1984_cyclotron_leds[2] = i_1984_cyclotron_12_leds[2];
+      i_1984_cyclotron_leds[3] = i_1984_cyclotron_12_leds[3];
+    break;  
+  }
 }
 
 // Adjusts which year mode the Proton Pack and Neutrona Wand are in if switched by the Neutrona Wand.
@@ -6653,36 +6815,7 @@ void readEEPROM() {
 
     if(obj_eeprom.cyclotron_count > 0 && obj_eeprom.cyclotron_count != 255) {
       i_cyclotron_leds = obj_eeprom.cyclotron_count;
-
-      switch(i_cyclotron_leds) {
-        // For a 40 LED Neopixel ring.
-        case OUTER_CYCLOTRON_LED_MAX:
-          i_2021_delay = 8;
-          i_1984_cyclotron_leds[0] = 0;
-          i_1984_cyclotron_leds[1] = 10;
-          i_1984_cyclotron_leds[2] = 18;
-          i_1984_cyclotron_leds[3] = 28;
-        break;
-
-        // For Frutto Technology Cyclotron LEDs.
-        case FRUTTO_CYCLOTRON_LED_COUNT:
-          i_2021_delay = 10;
-          i_1984_cyclotron_leds[0] = 2;
-          i_1984_cyclotron_leds[1] = 7;
-          i_1984_cyclotron_leds[2] = 12;
-          i_1984_cyclotron_leds[3] = 17;
-        break;
-
-        // Default HasLab LEDs.
-        case HASLAB_CYCLOTRON_LED_COUNT:
-        default:
-          i_2021_delay = 15;
-          i_1984_cyclotron_leds[0] = 1;
-          i_1984_cyclotron_leds[1] = 4;
-          i_1984_cyclotron_leds[2] = 7;
-          i_1984_cyclotron_leds[3] = 10;
-        break;
-      }
+      resetCyclotronLEDs();
     }
 
     if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {

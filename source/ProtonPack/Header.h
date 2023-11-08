@@ -76,6 +76,12 @@ uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
 */
 #define HASLAB_CYCLOTRON_LED_COUNT 12
 
+// The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in the Configuration.h
+unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for the Frutto Technology Cyclotron or a 40 LED NeoPixel ring.
+
+// The middle centre LED.
+uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
+
 /*
  * Proton Pack Power Cell and Cyclotron lid LED pin.
 */
@@ -300,6 +306,8 @@ const unsigned long int i_smoke_on_time[5] = { i_smoke_on_time_mode_1, i_smoke_o
 const bool b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
 const bool b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
 millisDelay ms_overheating_length; // The total length of the when the fans turn on (or smoke if smoke synced to fan)
+const unsigned int i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
+const unsigned int i_overheat_delay_max = 60000; // The max length a overheat can be.
 
 /*
  * N-Filter LED (White) (Optional)

@@ -518,6 +518,14 @@ void mainLoop() {
                 wandSerialSend(W_QUICK_VENT_ENABLED);              
               }
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_5);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+            }
           }
           else if(switchMode() == true) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -553,6 +561,15 @@ void mainLoop() {
 
                 wandSerialSend(W_BOOTUP_ERRORS_ENABLED);
               }
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_5);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              
             }
           }
         break;
@@ -616,6 +633,12 @@ void mainLoop() {
 
               setBargraphOrientation();
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_4);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+
+            }            
           }
 
           if(switchMode() == true) {
@@ -699,7 +722,13 @@ void mainLoop() {
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               // Toggle Bargraph Overheat Blinking enabled/disabled
-            }          
+            }   
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_4);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              
+            }                    
           }
         break;
 
@@ -723,6 +752,15 @@ void mainLoop() {
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Enable/Disable MODE_ORIGINAL toggle switch sound effects. b_mode_original_toggle_sounds_enabled
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_3);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              
+            }             
           }
 
           if(switchMode() == true) {
@@ -733,6 +771,15 @@ void mainLoop() {
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
                 // Cycle through VG color modes (see operational guide for more details on this).
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_3);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+
+            }              
           }
         break;
 
@@ -758,6 +805,15 @@ void mainLoop() {
               // Sub menu.
               wandSerialSend(W_OVERHEAT_STROBE_TOGGLE);
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_2);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+
+            }              
           }
 
           // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
@@ -769,6 +825,15 @@ void mainLoop() {
               // Sub menu.
               wandSerialSend(W_OVERHEAT_LIGHTS_OFF_TOGGLE);
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_2);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              
+            }             
           }
         break;
 
@@ -794,6 +859,14 @@ void mainLoop() {
               // Sub menu.
               wandSerialSend(W_YEAR_MODES_CYCLE_EEPROM);
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_1);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+            }               
           }
 
           if(switchMode() == true) {
@@ -817,6 +890,15 @@ void mainLoop() {
               // Sub menu.
               wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_1);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+
+            }               
           }
         break;
       }
