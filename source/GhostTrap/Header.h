@@ -33,6 +33,14 @@ enum device {
 };
 
 /*
+ * Delay for fastled to update the addressable LEDs.
+ * 0.03 ms to update 1 LED, and this device contains 2.
+ * Just setting to 3 which should be sufficient.
+ */
+millisDelay ms_fast_led;
+const uint8_t i_fast_led_delay = 3;
+
+/*
  * Pin for test LED.
  */
 #define TEST_LED_PIN 5

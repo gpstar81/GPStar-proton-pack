@@ -41,6 +41,14 @@ enum device {
 };
 
 /*
+ * Delay for fastled to update the addressable LEDs.
+ * 0.03 ms to update 1 LED, and this device contains 2.
+ * Just setting to 3 which should be sufficient.
+ */
+millisDelay ms_fast_led;
+const uint8_t i_fast_led_delay = 3;
+
+/*
  * Manage the color and blink pattern for the top LED.
  */
 millisDelay ms_top_blink; // Allows the top LED to blink for a menu state.
@@ -79,14 +87,6 @@ const uint8_t i_max_power = 255;
 const unsigned int i_buzzer_max_time = 300; // Longest duration for a standalone "beep".
 const unsigned int i_vibrate_min_time = 500; // Minimum runtime for vibration motor.
 const unsigned int i_vibrate_max_time = 1500; // Maximum runtime for vibration motor.
-
-/*
- * Delay for fastled to update the addressable LEDs.
- * 0.03 ms to update 1 LED, and this device contains 2.
- * Just setting to 3 which should be sufficient.
- */
-millisDelay ms_fast_led;
-const uint8_t i_fast_led_delay = 3;
 
 /*
  * For the alarm and venting/overheat, set the blink/buzz/vibrate interval.

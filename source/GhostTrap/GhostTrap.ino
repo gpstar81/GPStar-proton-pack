@@ -48,9 +48,17 @@ void setup(){
   // Setup WiFi connection to controller device
   bool b_wifi_started = startWiFi();
   Serial.println("Waiting for WiFi connection...");
+
+  // Initialize critical timers.
+  ms_fast_led.start(1);
 }
 
 void loop(){
+  if(ms_fast_led.justFinished()) {
+    FastLED.show();
+    ms_fast_led.start(i_fast_led_delay);
+  }
+
   if (WiFi.status() == WL_CONNECTION_LOST) {
     Serial.println("WiFi Connection Lost");
 
