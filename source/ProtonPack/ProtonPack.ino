@@ -5587,6 +5587,82 @@ void checkWand() {
               }
             break;
 
+            case W_CTS_1984:
+              stopEffect(S_VOICE_CTS_1984);
+              stopEffect(S_VOICE_CTS_DEFAULT);
+              stopEffect(S_VOICE_CTS_AFTERLIFE);
+              stopEffect(S_VOICE_CTS_1989);
+              stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+
+              playEffect(S_VOICE_CTS_1984); 
+            break;
+            
+            case W_CTS_1989:
+              stopEffect(S_VOICE_CTS_1989);
+              stopEffect(S_VOICE_CTS_1984);
+              stopEffect(S_VOICE_CTS_DEFAULT);
+              stopEffect(S_VOICE_CTS_AFTERLIFE);
+              stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+
+              playEffect(S_VOICE_CTS_1989); 
+            break;
+
+            case W_CTS_AFTERLIFE:
+              stopEffect(S_VOICE_CTS_AFTERLIFE);
+              stopEffect(S_VOICE_CTS_1984);
+              stopEffect(S_VOICE_CTS_1989);
+              stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+              stopEffect(S_VOICE_CTS_DEFAULT);
+
+              playEffect(S_VOICE_CTS_AFTERLIFE);
+            break;
+            
+            case W_CTS_FROZEN_EMPIRE:
+              stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+              stopEffect(S_VOICE_CTS_DEFAULT);
+              stopEffect(S_VOICE_CTS_AFTERLIFE);
+              stopEffect(S_VOICE_CTS_1984);
+              stopEffect(S_VOICE_CTS_1989);
+
+              playEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+            break;
+
+            case W_CTS_DEFAULT:
+              stopEffect(S_VOICE_CTS_DEFAULT);
+              stopEffect(S_VOICE_CTS_AFTERLIFE);
+              stopEffect(S_VOICE_CTS_1984);
+              stopEffect(S_VOICE_CTS_1989);
+              stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+
+              playEffect(S_VOICE_CTS_DEFAULT);
+            break;
+
+            case W_MODE_TOGGLE:
+              switch(SYSTEM_MODE) {
+                case MODE_ORIGINAL:
+                  SYSTEM_MODE = MODE_SUPER_HERO;
+                  stopEffect(S_VOICE_MODE_SUPER_HERO);
+                  stopEffect(S_VOICE_MODE_ORIGINAL);
+                  playEffect(S_VOICE_MODE_SUPER_HERO);
+
+                  packSerialSend(P_MODE_SUPER_HERO);
+                  serial1Send(A_MODE_SUPER_HERO);
+                break;
+
+                case MODE_SUPER_HERO:
+                default:
+                  SYSTEM_MODE = MODE_ORIGINAL;
+
+                  stopEffect(S_VOICE_MODE_ORIGINAL);
+                  stopEffect(S_VOICE_MODE_SUPER_HERO);
+                  playEffect(S_VOICE_MODE_ORIGINAL);
+
+                  packSerialSend(P_MODE_ORIGINAL);
+                  serial1Send(A_MODE_ORIGINAL);
+                break;
+              }
+            break;
+
             case W_SPECTRAL_LIGHTS_ON:
               spectralLightsOn();
             break;
@@ -6137,6 +6213,89 @@ void checkWand() {
               playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
             break;   
 
+            case W_DEMO_LIGHT_MODE_TOGGLE:
+              if(b_demo_light_mode == true) {
+                b_demo_light_mode = false;
+
+                stopEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
+                stopEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
+
+                playEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
+
+                packSerialSend(P_DEMO_LIGHT_MODE_DISABLED);
+              }
+              else {
+                b_demo_light_mode = true;
+
+                stopEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
+                stopEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
+
+                playEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
+
+                packSerialSend(P_DEMO_LIGHT_MODE_ENABLED);
+              }
+            break;
+
+            case W_OVERHEAT_LEVEL_5_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+              playEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+            break;
+          
+            case W_OVERHEAT_LEVEL_4_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
+              playEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
+            break;
+
+            case W_OVERHEAT_LEVEL_3_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
+              playEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
+            break;
+
+            case W_OVERHEAT_LEVEL_2_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
+              playEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
+            break;
+
+            case W_OVERHEAT_LEVEL_1_ENABLED:
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+              playEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+            break;
+
+            case W_OVERHEAT_LEVEL_5_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+              playEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+            break;
+
+            case W_OVERHEAT_LEVEL_4_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
+              playEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
+            break;
+
+            case W_OVERHEAT_LEVEL_3_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
+              playEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
+            break;
+
+            case W_OVERHEAT_LEVEL_2_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
+              playEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
+            break;
+
+            case W_OVERHEAT_LEVEL_1_DISABLED:
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+              stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+              playEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+            break;
+            
             case W_BARREL_LEDS_48:
               stopEffect(S_VOICE_BARREL_LED_5);
               stopEffect(S_VOICE_BARREL_LED_48);

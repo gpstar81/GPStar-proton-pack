@@ -531,6 +531,24 @@ void mainLoop() {
               wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_5);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              if(b_overheat_mode_5 == true) {
+                b_overheat_mode_5 = false;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_5_DISABLED);
+              }
+              else {
+                b_overheat_mode_5 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_5_ENABLED);
+              }
             }
           }
           else if(switchMode() == true) {
@@ -699,7 +717,24 @@ void mainLoop() {
               wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_4);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              if(b_overheat_mode_4 == true) {
+                b_overheat_mode_4 = false;
 
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_4_DISABLED);
+              }
+              else {
+                b_overheat_mode_4 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_4_ENABLED);
+              }
             }            
           }
 
@@ -894,7 +929,24 @@ void mainLoop() {
               wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_3);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              
+              if(b_overheat_mode_3 == true) {
+                b_overheat_mode_3 = false;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_3_DISABLED);
+              }
+              else {
+                b_overheat_mode_3 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_3_ENABLED);
+              }
             }             
           }
 
@@ -979,13 +1031,30 @@ void mainLoop() {
               wandSerialSend(W_OVERHEAT_STROBE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-
+              wandSerialSend(W_DEMO_LIGHT_MODE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_2);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              if(b_overheat_mode_2 == true) {
+                b_overheat_mode_2 = false;
 
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_2_DISABLED);
+              }
+              else {
+                b_overheat_mode_2 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_2_ENABLED);
+              }
             }              
           }
 
@@ -999,7 +1068,8 @@ void mainLoop() {
               wandSerialSend(W_OVERHEAT_LIGHTS_OFF_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-              
+              // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
+              wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_2);
@@ -1033,13 +1103,76 @@ void mainLoop() {
               wandSerialSend(W_YEAR_MODES_CYCLE_EEPROM);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-              //   WAND_YEAR_CTS = CTS_DEFAULT;
+              switch(WAND_YEAR_CTS) {
+                case CTS_1984:
+                case CTS_1989:
+                  WAND_YEAR_CTS = CTS_AFTERLIFE;
+
+                  stopEffect(S_VOICE_CTS_AFTERLIFE);
+                  stopEffect(S_VOICE_CTS_1984);
+                  //stopEffect(S_VOICE_CTS_1989);
+                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_DEFAULT);
+
+                  playEffect(S_VOICE_CTS_AFTERLIFE);
+
+                  wandSerialSend(W_CTS_AFTERLIFE);
+                break;
+
+                case CTS_AFTERLIFE:
+                case CTS_FROZEN_EMPIRE:
+                  WAND_YEAR_CTS = CTS_DEFAULT;
+
+                  stopEffect(S_VOICE_CTS_DEFAULT);
+                  stopEffect(S_VOICE_CTS_AFTERLIFE);
+                  stopEffect(S_VOICE_CTS_1984);
+                  //stopEffect(S_VOICE_CTS_1989);
+                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+
+                  playEffect(S_VOICE_CTS_DEFAULT);
+
+                  wandSerialSend(W_CTS_DEFAULT);               
+                break;
+
+                case CTS_DEFAULT:
+                default:
+                  WAND_YEAR_CTS = CTS_1984;
+
+                  stopEffect(S_VOICE_CTS_1984);
+                  stopEffect(S_VOICE_CTS_DEFAULT);
+                  stopEffect(S_VOICE_CTS_AFTERLIFE);
+                  //stopEffect(S_VOICE_CTS_1989);
+                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+
+                  playEffect(S_VOICE_CTS_1984); 
+                  
+                  wandSerialSend(W_CTS_1984);                  
+                break;
+              }
 
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_1);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              if(b_overheat_mode_1 == true) {
+                b_overheat_mode_1 = false;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_1_DISABLED);
+              }
+              else {
+                b_overheat_mode_1 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_1_ENABLED);
+              }
             }               
           }
 
@@ -1061,11 +1194,11 @@ void mainLoop() {
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              // Sub menu.
               wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-              
+              // Toggle between Super Hero and Mode Original.
+              wandSerialSend(W_MODE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_1);
@@ -8029,10 +8162,22 @@ void checkPack() {
 
             case P_MODE_SUPER_HERO:
               SYSTEM_MODE = MODE_SUPER_HERO;
+
+              if(b_sync != true) {
+                stopEffect(S_VOICE_MODE_SUPER_HERO);
+                stopEffect(S_VOICE_MODE_ORIGINAL);
+                playEffect(S_VOICE_MODE_SUPER_HERO);
+              }
             break;
 
             case P_MODE_ORIGINAL:
               SYSTEM_MODE = MODE_ORIGINAL;
+
+              if(b_sync != true) {
+                stopEffect(S_VOICE_MODE_ORIGINAL);
+                stopEffect(S_VOICE_MODE_SUPER_HERO);
+                playEffect(S_VOICE_MODE_ORIGINAL);
+              }              
             break;
             
             case P_OVERHEATING_FINISHED:
@@ -8608,6 +8753,20 @@ void checkPack() {
               stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
 
               playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
+            break;
+
+            case P_DEMO_LIGHT_MODE_ENABLED:
+              stopEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
+              stopEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
+
+              playEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
+            break;
+            
+            case P_DEMO_LIGHT_MODE_DISABLED:
+              stopEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
+              stopEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
+
+              playEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
             break;
 
             case P_PROTON_MODE:

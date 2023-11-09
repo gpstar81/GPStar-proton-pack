@@ -170,7 +170,7 @@ uint8_t i_cyclotron_inner_brightness = 100;
   * When set to true, the Proton Pack will turn on automatically when it receives power.
   * If you want your Proton Pack to be silent, change your STARTUP_VOLUME to be 0 and or unplug the power to your amplifier.
 */
-const bool b_demo_light_mode = false;
+bool b_demo_light_mode = false;
 
 /*
  * You can set the default master startup volume for your pack here.
