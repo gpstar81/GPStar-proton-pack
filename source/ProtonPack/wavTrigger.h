@@ -151,9 +151,9 @@ private:
   void trackControl(int trk, int code);
   void trackControl(int trk, int code, bool lock);
 
-#ifdef __WT_USE_ALTSOFTSERIAL__
-  AltSoftSerial WTSerial;
-#endif
+  #ifdef __WT_USE_ALTSOFTSERIAL__
+    AltSoftSerial WTSerial;
+  #endif
 
   uint16_t voiceTable[MAX_NUM_VOICES];
   uint8_t rxMessage[MAX_MESSAGE_LEN];

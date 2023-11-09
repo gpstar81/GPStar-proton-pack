@@ -113,14 +113,22 @@ void setup() {
   // Bootup the pack into Proton mode, the same as the wand.
   FIRING_MODE = PROTON;
 
-  switch(i_mode_year) {
-    case 1984:
-    case 1989:
+  // Set the CTS to not firing.
+  STATUS_CTS = CTS_NOT_FIRING;
+  SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+  SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
+  SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
+
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_1984:
+    case SYSTEM_1989:
       i_current_ramp_speed = i_1984_delay * 1.3;
       i_inner_current_ramp_speed = i_inner_ramp_delay;
     break;
 
-    case 2021:
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
       i_current_ramp_speed = i_2021_ramp_delay;
       i_inner_current_ramp_speed = i_inner_ramp_delay;
     break;
@@ -145,10 +153,10 @@ void setup() {
 
   // Configure the year mode.
   if(switch_mode.getState() == LOW) {
-    i_mode_year = 1984;
+    SYSTEM_YEAR = SYSTEM_1984;
   }
   else {
-    i_mode_year = 2021;
+    SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   }
 
   // Check some LED brightness settings for various LEDs.
@@ -320,7 +328,7 @@ void loop() {
 
       if(switch_alarm.getState() == LOW && b_overheating == false) {
         if(b_alarm == true) {
-          if(i_mode_year == 1984 || i_mode_year == 1989) {
+          if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
             // Reset the LEDs before resetting the alarm flag.
             resetCyclotronLeds();
             ms_cyclotron.start(0);
@@ -511,7 +519,7 @@ void loop() {
 bool fadeOutLights() {
   bool b_return = false;
 
-  if(i_mode_year == 2021) {
+  if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
     // We override the colour changes when using stock HasLab Cyclotron LEDs.
@@ -664,7 +672,7 @@ void packStartup() {
   PACK_ACTION_STATE = ACTION_IDLE;
 
   if(b_alarm == true) {
-    if(i_mode_year == 1984 || i_mode_year == 1989) {
+    if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       ms_cyclotron.start(0);
       ms_alarm.start(0);
     }
@@ -687,18 +695,20 @@ void packStartup() {
     stopEffect(S_RIBBON_CABLE_START);
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE); // This is a long track which may still be playing.
 
-    switch(i_mode_year) {
-      case 1984:
+    switch(SYSTEM_YEAR) {
+      case SYSTEM_1984:
         playEffect(S_BOOTUP);
         playEffect(S_IDLE_LOOP, true, i_volume_effects, true, 2000);
       break;
 
-      case 1989:
+      case SYSTEM_1989:
         playEffect(S_GB2_PACK_START);
         playEffect(S_GB2_PACK_LOOP, true, i_volume_effects, true, 3000);
       break;
 
-      case 2021:
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
+      default:
         playEffect(S_AFTERLIFE_PACK_STARTUP);
         playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
         ms_idle_fire_fade.start(18000);
@@ -714,10 +724,11 @@ void packShutdown() {
   // Stop the firing if the pack is doing it.
   wandStoppedFiring();
 
-  switch(i_mode_year) {
-    case 1984:
-    case 1989:
-    case 2021:
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
       stopEffect(S_PACK_RIBBON_ALARM_1);
       stopEffect(S_ALARM_LOOP);
       stopEffect(S_RIBBON_CABLE_START);
@@ -735,37 +746,39 @@ void packShutdown() {
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
 
-  if(i_mode_year == 1989) {
+  if(SYSTEM_YEAR == SYSTEM_1989) {
     stopEffect(S_GB2_PACK_START);
     stopEffect(S_GB2_PACK_LOOP);
     stopEffect(S_GB2_PACK_OFF);
   }
 
-  if(i_mode_year == 1984) {
+  if(SYSTEM_YEAR == SYSTEM_1984) {
     stopEffect(S_PACK_SHUTDOWN);
     stopEffect(S_IDLE_LOOP);
     stopEffect(S_BOOTUP);
   }
 
-  if(i_mode_year == 2021) {
+  if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE);
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
     stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
   }
 
   if(b_alarm != true) {
-    switch(i_mode_year) {
-      case 1984:
+    switch(SYSTEM_YEAR) {
+      case SYSTEM_1984:
         playEffect(S_SHUTDOWN);
         playEffect(S_PACK_SHUTDOWN);
       break;
 
-      case 1989:
+      case SYSTEM_1989:
         playEffect(S_SHUTDOWN);
         playEffect(S_GB2_PACK_OFF);
       break;
 
-      case 2021:
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
+      default:
         playEffect(S_PACK_SHUTDOWN_AFTERLIFE);
       break;
     }
@@ -823,14 +836,16 @@ void packOffReset() {
   reset2021RampUp();
 
   // Update Cyclotron LED timer delay and optional Cyclotron LED switch plate LED timer delays.
-  switch(i_mode_year) {
-    case 2021:
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
       i_powercell_delay = i_powercell_delay_2021;
       i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
     break;
 
-    case 1984:
-    case 1989:
+    case SYSTEM_1984:
+    case SYSTEM_1989:
       i_powercell_delay = i_powercell_delay_1984;
       i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base * 4;
     break;
@@ -1005,63 +1020,79 @@ void checkSwitches() {
         // If switching manually by the pack toggle switch.
         if(b_switch_mode_override != true) {
           if(switch_mode.getState() == LOW) {
-            if(i_mode_year == 2021) {
+            if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
               // Tell the wand to switch to 1984 mode.
               packSerialSend(P_YEAR_1984);
             }
 
-            i_mode_year = 1984;
-            i_mode_year_tmp = 1984;
+            SYSTEM_YEAR = SYSTEM_1984;
+            SYSTEM_YEAR_TEMP = SYSTEM_1984;
 
             serial1Send(A_YEAR_1984);
           }
           else {
-            if(i_mode_year == 1984) {
-              // Tell the wand to switch to 2021 mode.
+            if(SYSTEM_YEAR == SYSTEM_1984) {
+              // Tell the wand to switch to Afterlife mode.
               packSerialSend(P_YEAR_AFTERLIFE);
             }
 
-            i_mode_year = 2021;
-            i_mode_year_tmp = 2021;
+            SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+            SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
 
             serial1Send(A_YEAR_AFTERLIFE);
           }
         }
         else {
           // If the Neutrona Wand sub menu setting told the Proton Pack to change years.
-          switch(i_mode_year_tmp) {
-            case 1984:
-              if(i_mode_year != i_mode_year_tmp) {
+          switch(SYSTEM_YEAR_TEMP) {
+            case SYSTEM_1984:
+              if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to 1984 mode.
                 packSerialSend(P_YEAR_1984);
               }
 
-              i_mode_year = 1984;
-              i_mode_year_tmp = 1984;
+              SYSTEM_YEAR = SYSTEM_1984;
+              SYSTEM_YEAR_TEMP = SYSTEM_1984;
 
               serial1Send(A_YEAR_1984);
             break;
 
-            case 1989:
-              if(i_mode_year != i_mode_year_tmp) {
+            case SYSTEM_1989:
+              if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to 1989 mode.
                 packSerialSend(P_YEAR_1989);
               }
 
-              i_mode_year = 1989;
-              i_mode_year_tmp = 1989;
+              SYSTEM_YEAR = SYSTEM_1989;
+              SYSTEM_YEAR_TEMP = SYSTEM_1989;
 
               serial1Send(A_YEAR_1989);
             break;
 
-            case 2021:
-              if(i_mode_year != i_mode_year_tmp) {
-                // Tell the wand to switch to 2021 mode.
+            /*
+            case SYSTEM_FROZEN_EMPIRE:
+            default:
+              if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+                // Tell the wand to switch to Frozen Empire mode.
+                packSerialSend(P_YEAR_FROZEN_EMPIRE);
+              }
+
+              SYSTEM_YEAR = SYSTEM_YEAR_FROZEN_EMPIRE;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR_FROZEN_EMPIRE;
+
+              serial1Send(A_YEAR_FROZEN_EMPIRE);
+            break;
+            */
+            
+            case SYSTEM_AFTERLIFE:
+            default:
+              if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+                // Tell the wand to switch to Afterlife mode.
                 packSerialSend(P_YEAR_AFTERLIFE);
               }
 
-              i_mode_year = 2021;
-              i_mode_year_tmp = 2021;
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
 
               serial1Send(A_YEAR_AFTERLIFE);
             break;
@@ -1069,15 +1100,17 @@ void checkSwitches() {
         }
 
         // Reset the ramp speeds.
-        switch(i_mode_year) {
-          case 1984:
-          case 1989:
+        switch(SYSTEM_YEAR) {
+          case SYSTEM_1984:
+          case SYSTEM_1989:
               // Reset the ramp speeds.
               i_current_ramp_speed = i_1984_delay * 1.3;
               i_inner_current_ramp_speed = i_inner_ramp_delay;
           break;
 
-          case 2021:
+          case SYSTEM_AFTERLIFE:
+          case SYSTEM_FROZEN_EMPIRE:
+          default:
             // Reset the ramp speeds.
             i_current_ramp_speed = i_2021_ramp_delay;
             i_inner_current_ramp_speed = i_inner_ramp_delay;
@@ -1253,8 +1286,9 @@ void cyclotronSwitchLEDLoop() {
     // Setup the delays again.
     int i_cyc_led_delay = i_cyclotron_switch_led_delay / i_cyclotron_switch_led_mulitplier;
 
-    switch(i_mode_year) {
-      case 2021:
+    switch(SYSTEM_YEAR) {
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
         if(b_2021_ramp_up == true) {
           i_cyc_led_delay = i_cyclotron_switch_led_delay + (i_2021_ramp_delay - r_2021_ramp.update());
         }
@@ -1263,8 +1297,8 @@ void cyclotronSwitchLEDLoop() {
         }
       break;
 
-      case 1984:
-      case 1989:
+      case SYSTEM_1984:
+      case SYSTEM_1989:
         if(b_2021_ramp_up == true) {
           i_cyc_led_delay = i_cyclotron_switch_led_delay + (r_2021_ramp.update() - i_1984_delay);
         }
@@ -1299,9 +1333,9 @@ void powercellRampDown() {
     // Setup the delays again.
     int i_pc_delay = i_powercell_delay;
 
-    switch(i_mode_year) {
-      case 1984:
-      case 1989:
+    switch(SYSTEM_YEAR) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
         if(b_2021_ramp_up == true) {
           i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
         }
@@ -1310,7 +1344,9 @@ void powercellRampDown() {
         }
       break;
 
-      case 2021:
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
+      default:
         if(b_2021_ramp_up == true) {
           i_pc_delay = i_powercell_delay + r_2021_ramp.update();
         }
@@ -1343,7 +1379,7 @@ void powercellLoop() {
         powercellDraw(i_powercell_led); // Update starting at a specific LED.
 
         // Add a small delay to pause the Power Cell when all Power Cell LEDs are lit up, to match the 2021 pack.
-        if(i_mode_year == 2021 && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && b_alarm != true && i_powercell_led == cyclotron_led_start - 1) {
           i_extra_delay = 250;
         }
 
@@ -1354,9 +1390,9 @@ void powercellLoop() {
     // Setup the delays again.
     int i_pc_delay = i_powercell_delay;
 
-    switch(i_mode_year) {
-      case 1984:
-      case 1989:
+    switch(SYSTEM_YEAR) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
         if(b_2021_ramp_up == true) {
           i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
         }
@@ -1365,7 +1401,8 @@ void powercellLoop() {
         }
       break;
 
-      case 2021:
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
         if(b_2021_ramp_up == true) {
           i_pc_delay = i_powercell_delay + r_2021_ramp.update();
         }
@@ -1385,7 +1422,7 @@ void powercellLoop() {
     if(i_powercell_multiplier > 1) {
       switch(i_powercell_multiplier) {
         case 2:
-          if(i_mode_year == 2021) {
+          if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
             i_multiplier = 5;
           }
           else {
@@ -1394,7 +1431,7 @@ void powercellLoop() {
         break;
 
         case 3:
-          if(i_mode_year == 2021) {
+          if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
             i_multiplier = 10;
           }
           else {
@@ -1403,7 +1440,7 @@ void powercellLoop() {
         break;
 
         case 4:
-          if(i_mode_year == 2021) {
+          if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
             i_multiplier = 15;
           }
           else {
@@ -1412,7 +1449,7 @@ void powercellLoop() {
         break;
 
         case 5:
-          if(i_mode_year == 2021) {
+          if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
             i_multiplier = 25;
           }
           else {
@@ -1421,7 +1458,7 @@ void powercellLoop() {
         break;
 
         case 6:
-          if(i_mode_year == 2021) {
+          if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
             i_multiplier = 30;
           }
           else {
@@ -1532,7 +1569,7 @@ void cyclotronControl() {
   if(b_reset_start_led == true) {
     b_reset_start_led = false;
     if(b_clockwise == false) {
-      if(i_mode_year == 2021) {
+      if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         i_led_cyclotron = cyclotron_led_start + 2; // Start on LED #2 in counter-clockwise mode in 2021 mode.
       }
       else {
@@ -1541,7 +1578,7 @@ void cyclotronControl() {
       }
     }
     else {
-      if(i_mode_year == 1984 || i_mode_year == 1989) {
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
         i_1984_counter = 3;
         i_led_cyclotron = cyclotron_led_start + i_1984_cyclotron_leds[i_1984_counter];
 
@@ -1560,7 +1597,7 @@ void cyclotronControl() {
       b_inner_ramp_up = false;
       b_alarm = true;
 
-      if(i_mode_year == 1984 || i_mode_year == 1989) {
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
         resetCyclotronLeds();
         ms_cyclotron.start(0);
         ms_alarm.start(0);
@@ -1588,7 +1625,7 @@ void cyclotronControl() {
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
 
-      if(i_mode_year == 1984 || i_mode_year == 1989) {
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
         resetCyclotronLeds();
         clearCyclotronFades();
 
@@ -1614,7 +1651,7 @@ void cyclotronControl() {
     if(b_2021_ramp_up_start == true) {
       b_2021_ramp_up_start = false;
 
-      if(i_mode_year == 1984 || i_mode_year == 1989) {
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
         r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
         r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
 
@@ -1634,7 +1671,7 @@ void cyclotronControl() {
       r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
       r_inner_ramp.go(i_inner_current_ramp_speed); // Reset the Inner Cyclotron ramp.
 
-      if(i_mode_year == 1984 || i_mode_year == 1989) {
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
         r_2021_ramp.go(i_1984_delay * 1.3, i_1984_ramp_down_length, CIRCULAR_IN);
 
         r_inner_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN);
@@ -1645,7 +1682,7 @@ void cyclotronControl() {
       }
     }
 
-    if(i_mode_year == 1984 || i_mode_year == 1989) {
+    if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       cyclotron1984(i_current_ramp_speed);
       innerCyclotronRing(i_inner_current_ramp_speed);
     }
@@ -1673,8 +1710,10 @@ void cyclotronFade() {
     i_cyclotron_leds_total = OUTER_CYCLOTRON_LED_MAX;
   }
 
-  switch (i_mode_year) {
-    case 2021:
+  switch (SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
       for(int i = 0; i < i_cyclotron_leds_total; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           i_cyclotron_led_on_status[i] = true;
@@ -1806,8 +1845,8 @@ void cyclotronFade() {
       }
     break;
 
-    case 1984:
-    case 1989:
+    case SYSTEM_1984:
+    case SYSTEM_1989:
       if(b_fade_cyclotron_led == true) {
         for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - cyclotron_led_start; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
@@ -2579,8 +2618,9 @@ void cyclotronOverHeating() {
   }
 
   // The cyclotron lights during the entire overheating sequence
-  switch (i_mode_year) {
-    case 2021:
+  switch (SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
       if(b_overheat_lights_off != true) {
         cyclotron2021(i_2021_delay * 10);
         vibrationPack(i_vibration_lowest_level * 2);
@@ -2599,8 +2639,8 @@ void cyclotronOverHeating() {
       innerCyclotronRing(i_2021_inner_delay * 14);
     break;
 
-    case 1984:
-    case 1989:
+    case SYSTEM_1984:
+    case SYSTEM_1989:
       innerCyclotronRing(i_2021_inner_delay * 14);
 
       if(ms_alarm.justFinished()) {
@@ -2700,7 +2740,7 @@ void packOverHeatingFinished() {
   fanBooster(false);
 
   // Reset the LEDs before resetting the alarm flag.
-  if(i_mode_year == 1984 || i_mode_year == 1989) {
+  if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
     resetCyclotronLeds();
   }
 
@@ -2710,15 +2750,17 @@ void packOverHeatingFinished() {
     cyclotronSpeedRevert();
 
     // Reset the ramp speeds.
-    switch(i_mode_year) {
-      case 1984:
-      case 1989:
+    switch(SYSTEM_YEAR) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
           // Reset the ramp speeds.
           i_current_ramp_speed = i_1984_delay * 1.3;
           i_inner_current_ramp_speed = i_inner_ramp_delay;
       break;
 
-      case 2021:
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
+      default:
         // Reset the ramp speeds.
         i_current_ramp_speed = i_2021_ramp_delay;
         i_inner_current_ramp_speed = i_inner_ramp_delay;
@@ -2740,8 +2782,10 @@ void packOverHeatingFinished() {
 }
 
 void cyclotronNoCable() {
-  switch (i_mode_year) {
-    case 2021:
+  switch (SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
       cyclotron2021(i_2021_delay * 10);
       innerCyclotronRing(i_2021_inner_delay * 14);
 
@@ -2760,8 +2804,8 @@ void cyclotronNoCable() {
       vibrationPack(i_vibration_lowest_level * 3);
     break;
 
-    case 1984:
-    case 1989:
+    case SYSTEM_1984:
+    case SYSTEM_1989:
       innerCyclotronRing(i_2021_inner_delay * 14);
       cyclotron1984(i_1984_delay * 3);
 
@@ -3089,7 +3133,7 @@ void ventLight(bool b_on) {
 // Only for Afterlife (2021) mode.
 void checkCyclotronAutoSpeed() {
   // No need to start any timers until after any ramping has finished; only in Afterlife (2021) do we do the auto speed increases.
-  if(b_wand_firing == true && b_2021_ramp_up != true && b_2021_ramp_down != true && i_mode_year == 2021) {
+  if(b_wand_firing == true && b_2021_ramp_up != true && b_2021_ramp_down != true && (SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
     if(ms_cyclotron_auto_speed_timer.justFinished() && i_cyclotron_multiplier < 6) {
       // Increase the Cyclotron speed.
       i_cyclotron_multiplier++;
@@ -3106,7 +3150,7 @@ void checkCyclotronAutoSpeed() {
 
 void modeFireStartSounds() {
   // Adjust the gain with the Afterlife idling sound effect while firing.
-  if(i_mode_year == 2021 && i_wand_power_level < 5) {
+  if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
     if(ms_idle_fire_fade.remaining() < 3000) {
       adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, 100);
     }
@@ -3115,7 +3159,7 @@ void modeFireStartSounds() {
     }
   }
 
-  if(i_mode_year == 1989) {
+  if(SYSTEM_YEAR == SYSTEM_1989) {
     playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
   }
   else {
@@ -3125,7 +3169,7 @@ void modeFireStartSounds() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(i_mode_year == 1989 && b_firing_intensify == true) {
+      if(SYSTEM_YEAR == SYSTEM_1989 && b_firing_intensify == true) {
         int8_t i_v_fire_start = i_volume_effects - 10;
 
         if(i_v_fire_start < i_volume_abs_min) {
@@ -3141,7 +3185,7 @@ void modeFireStartSounds() {
       switch(i_wand_power_level) {
         case 1 ... 4:
           if(b_firing_intensify == true) {
-            if(i_mode_year == 1989) {
+            if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
               playEffect(S_GB2_FIRE_START);
             }
@@ -3159,7 +3203,7 @@ void modeFireStartSounds() {
           if(b_firing_alt == true) {
             playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
 
-            if(i_mode_year == 1989) {
+            if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START);
             }
 
@@ -3171,17 +3215,18 @@ void modeFireStartSounds() {
         break;
 
         case 5:
-          switch(i_mode_year) {
-            case 1989:
+          switch(SYSTEM_YEAR) {
+            case SYSTEM_1989:
               playEffect(S_GB2_FIRE_START);
             break;
 
-            case 1984:
+            case SYSTEM_1984:
               playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
               playEffect(S_GB1_FIRE_START);
             break;
 
-            case 2021:
+            case SYSTEM_AFTERLIFE:
+            case SYSTEM_FROZEN_EMPIRE:
             default:
               playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
             break;
@@ -3241,7 +3286,7 @@ void wandFiring() {
   // Reset the Cyclotron auto speed up timers. Only for Afterlife (2021) mode.
   ms_cyclotron_auto_speed_timer.stop();
 
-  if(i_mode_year == 2021) {
+  if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
     ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
   }
 
@@ -3273,7 +3318,7 @@ void wandFiring() {
 void modeFireStopSounds() {
   if(b_wand_firing == true) {
     // Adjust the gain with the Afterlife idling track.
-    if(i_mode_year == 2021 && i_wand_power_level < 5) {
+    if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
       if(ms_idle_fire_fade.remaining() < 1000) {
         adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
       }
@@ -3362,7 +3407,7 @@ void wandStopFiringSounds() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(i_mode_year == 1989) {
+      if(SYSTEM_YEAR == SYSTEM_1989) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
       }
@@ -3371,7 +3416,7 @@ void wandStopFiringSounds() {
         stopEffect(S_GB1_FIRE_LOOP);
       }
 
-      if(i_mode_year == 2021) {
+      if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         stopEffect(S_AFTERLIFE_FIRE_START);
       }
 
@@ -3380,7 +3425,7 @@ void wandStopFiringSounds() {
       stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
 
       /*
-      // Keep this code for later future updates, when using 4 wire led chipsets.
+      // Keep this for later.
       stopEffect(S_FIRE_START_SPARK);
       stopEffect(S_FIRE_START);
       */
@@ -3410,25 +3455,28 @@ void wandStopFiringSounds() {
     break;
   }
 
-  if(b_firing_cross_streams == true) {
-    switch(i_mode_year) {
-      case 2021:
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+  switch(STATUS_CTS) {
+    case CTS_FIRING_1984:
+      STATUS_CTS = CTS_NOT_FIRING;
 
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
-      break;
+      stopEffect(S_CROSS_STREAMS_START);
+      stopEffect(S_CROSS_STREAMS_END);
 
-      case 1984:
-      case 1989:
-        stopEffect(S_CROSS_STREAMS_START);
-        stopEffect(S_CROSS_STREAMS_END);
+      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+    break;
 
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
-      break;
-    }
+    case CTS_FIRING_2021:
+      STATUS_CTS = CTS_NOT_FIRING;
 
-    b_firing_cross_streams = false;
+      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+    break;
+
+    case CTS_NOT_FIRING:
+      // Do nothing.
+    break;
   }
 
   b_sound_firing_intensify_trigger = false;
@@ -3439,11 +3487,11 @@ void packAlarm() {
   modeFireStopSounds();
 
   // Pack sounds.
-  if(i_mode_year == 1989) {
+  if(SYSTEM_YEAR == SYSTEM_1989) {
     stopEffect(S_GB2_PACK_START);
     stopEffect(S_GB2_PACK_LOOP);
   }
-  else if(i_mode_year == 1984) {
+  else if(SYSTEM_YEAR == SYSTEM_1984) {
     stopEffect(S_IDLE_LOOP);
     stopEffect(S_BOOTUP);
   }
@@ -3454,7 +3502,7 @@ void packAlarm() {
 
   playEffect(S_SHUTDOWN);
 
-  if(i_mode_year == 1989) {
+  if(SYSTEM_YEAR == SYSTEM_1989) {
     playEffect(S_GB2_PACK_OFF);
   }
   else {
@@ -3462,10 +3510,11 @@ void packAlarm() {
   }
 
   if(b_overheating != true) {
-    switch(i_mode_year) {
-      case 1984:
-      case 1989:
-      case 2021:
+    switch(SYSTEM_YEAR) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
         playEffect(S_PACK_RIBBON_ALARM_1, true);
         playEffect(S_ALARM_LOOP, true);
         playEffect(S_RIBBON_CABLE_START);
@@ -3536,7 +3585,7 @@ void cyclotronSwitchPlateLEDs() {
   }
 
   if(b_cyclotron_lid_on != true) {
-    if(i_mode_year == 1984 || i_mode_year == 1989) {
+    if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
         digitalWrite(cyclotron_switch_led_green, HIGH);
       }
@@ -3608,8 +3657,9 @@ void cyclotronSpeedRevert() {
 }
 
 void cyclotronSpeedIncrease() {
-  switch(i_mode_year) {
-    case 2021:
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
     default:
       if(i_cyclotron_multiplier < 9) {
         i_cyclotron_multiplier++;
@@ -3624,8 +3674,8 @@ void cyclotronSpeedIncrease() {
       }
     break;
 
-    case 1984:
-    case 1989:
+    case SYSTEM_1984:
+    case SYSTEM_1989:
       i_cyclotron_multiplier++;
       i_cyclotron_switch_led_mulitplier++;
       i_powercell_multiplier++;
@@ -3989,13 +4039,18 @@ void checkSerial1() {
             // Tell the Attenuator that the pack is here.
             serial1Send(A_PACK_CONNECTED);
 
-            if(i_mode_year == 1984) {
+            if(SYSTEM_YEAR == SYSTEM_1984) {
               serial1Send(A_YEAR_1984);
             }
-            else if(i_mode_year == 1989) {
+            else if(SYSTEM_YEAR == SYSTEM_1989) {
               serial1Send(A_YEAR_1989);
             }
-            else {
+            /*
+            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              serial1Send(A_YEAR_FROZEN_EMPIRE);
+            }
+            */
+            else if(SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
               serial1Send(A_YEAR_AFTERLIFE);
             }
 
@@ -4299,6 +4354,34 @@ void checkWand() {
 
               // Tell the attenuator or any other device on Serial 1 that the Neutrona Wand barrel is retracted.
               serial1Send(A_BARREL_RETRACTED);
+            break;
+
+            case W_BARGRAPH_OVERHEAT_BLINK_ENABLED:
+              stopEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_ENABLED);
+              stopEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_DISABLED);
+
+              playEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_ENABLED);
+            break;
+
+            case W_BARGRAPH_OVERHEAT_BLINK_DISABLED:
+              stopEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_DISABLED);
+              stopEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_ENABLED);
+
+              playEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_DISABLED);
+            break;
+
+            case W_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED:
+              stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+              stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
+
+              playEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+            break;
+
+            case W_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED:
+              stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
+              stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+
+              playEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
             break;
 
             case W_CYCLOTRON_SIMULATE_RING_TOGGLE:
@@ -4617,7 +4700,7 @@ void checkWand() {
               //ms_fan_stop_timer.start(i_fan_stop_timer);
 
               // Reset the Inner Cyclotron speed.
-              if(i_mode_year == 1984 || i_mode_year == 1989) {
+              if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
                 i_inner_current_ramp_speed = i_inner_ramp_delay;
               }
 
@@ -4788,7 +4871,7 @@ void checkWand() {
 
                 switch(i_wand_power_level) {
                   case 1 ... 4:
-                    if(i_mode_year == 1989) {
+                    if(SYSTEM_YEAR == SYSTEM_1989) {
                       playEffect(S_GB2_FIRE_LOOP);
                       playEffect(S_GB2_FIRE_START);
                     }
@@ -4814,11 +4897,10 @@ void checkWand() {
 
             case W_FIRING_INTENSIFY_STOPPED_MIX:
               // Wand no longer firing in intensify mode.
-              if(b_firing_cross_streams != true && b_firing_intensify == true) {
-
+              if(STATUS_CTS == CTS_NOT_FIRING && b_firing_intensify == true) {
                 switch(i_wand_power_level) {
                   case 1 ... 4:
-                    if(i_mode_year == 1989) {
+                    if(SYSTEM_YEAR == SYSTEM_1989) {
                       stopEffect(S_GB2_FIRE_LOOP);
                       stopEffect(S_GB2_FIRE_START);
                     }
@@ -4874,52 +4956,40 @@ void checkWand() {
               b_sound_firing_alt_trigger = false;
             break;
 
-            case W_FIRING_CROSSING_THE_STREAMS:
+            case W_FIRING_CROSSING_THE_STREAMS_1984:
               // Wand is crossing the streams.
-              b_firing_cross_streams = true;
+              STATUS_CTS = CTS_FIRING_1984;
 
-              switch(i_mode_year) {
-                case 2021:
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-                  playEffect(S_FIRE_SPARKS);
-                  
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
-                break;
+              stopEffect(S_CROSS_STREAMS_END);
+              stopEffect(S_CROSS_STREAMS_START);
+              playEffect(S_FIRE_SPARKS);
 
-                case 1984:
-                case 1989:
-                  stopEffect(S_CROSS_STREAMS_END);
-                  stopEffect(S_CROSS_STREAMS_START);
-                  playEffect(S_FIRE_SPARKS);
-
-                  playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
-                break;
-              }
+              playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
 
               playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
             break;
 
-            case W_FIRING_CROSSING_THE_STREAMS_MIX:
+            case W_FIRING_CROSSING_THE_STREAMS_2021:
               // Wand is crossing the streams.
-              b_firing_cross_streams = true;
+              STATUS_CTS = CTS_FIRING_2021;
 
-              switch(i_mode_year) {
-                case 2021:
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+              playEffect(S_FIRE_SPARKS);
+              
+              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
 
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
-                break;
+              playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
+            break;
 
-                case 1984:
-                case 1989:
-                  stopEffect(S_CROSS_STREAMS_END);
-                  stopEffect(S_CROSS_STREAMS_START);
-                  
-                  playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
-                break;
-              }
+            case W_FIRING_CROSSING_THE_STREAMS_MIX_1984:
+              // Wand is crossing the streams.
+              STATUS_CTS = CTS_FIRING_1984;
+
+              stopEffect(S_CROSS_STREAMS_END);
+              stopEffect(S_CROSS_STREAMS_START);
+              
+              playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
 
               playEffect(S_FIRE_START_SPARK);
               playEffect(S_FIRING_LOOP_GB1, true);
@@ -4928,7 +4998,7 @@ void checkWand() {
                 playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
               }
 
-              if(i_mode_year == 1989) {
+              if(SYSTEM_YEAR == SYSTEM_1989) {
                 stopEffect(S_GB2_FIRE_LOOP);
               }
               else {
@@ -4936,50 +5006,72 @@ void checkWand() {
               }
             break;
 
-            case W_FIRING_CROSSING_THE_STREAMS_STOPPED:
-              // The wand is no longer crossing the streams.
-              b_firing_cross_streams = false;
+            case W_FIRING_CROSSING_THE_STREAMS_MIX_2021:
+              // Wand is crossing the streams.
+              STATUS_CTS = CTS_FIRING_2021;
 
-              switch(i_mode_year) {
-                case 2021:
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-                  
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
-                break;
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
-                case 1984:
-                case 1989:
-                  stopEffect(S_CROSS_STREAMS_START);
-                  stopEffect(S_CROSS_STREAMS_END);
+              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
 
-                  playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
-                break;
+              playEffect(S_FIRE_START_SPARK);
+              playEffect(S_FIRING_LOOP_GB1, true);
+
+              if(i_wand_power_level != i_wand_power_level_max) {
+                playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
               }
+
+              if(SYSTEM_YEAR == SYSTEM_1989) {
+                stopEffect(S_GB2_FIRE_LOOP);
+              }
+              else {
+                stopEffect(S_GB1_FIRE_LOOP);
+              }
+            break;            
+
+            case W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984:
+              // The wand is no longer crossing the streams.
+              STATUS_CTS = CTS_NOT_FIRING;
+
+              stopEffect(S_CROSS_STREAMS_START);
+              stopEffect(S_CROSS_STREAMS_END);
+
+              playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
 
               stopEffect(S_FIRING_LOOP_GB1);
             break;
 
-            case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX:
+            case W_FIRING_CROSSING_THE_STREAMS_STOPPED_2021:
               // The wand is no longer crossing the streams.
-              b_firing_cross_streams = false;
+              STATUS_CTS = CTS_NOT_FIRING;
 
-              switch(i_mode_year) {
-                case 2021:
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-                  stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-  
-                  playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
-                break;
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+              
+              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
 
-                case 1984:
-                case 1989:
-                  stopEffect(S_CROSS_STREAMS_START);
-                  stopEffect(S_CROSS_STREAMS_END);
-                  
-                  playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
-                break;
-              }
+              stopEffect(S_FIRING_LOOP_GB1);
+            break;
+
+            case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_1984:
+              // The wand is no longer crossing the streams.
+              STATUS_CTS = CTS_NOT_FIRING;
+
+              stopEffect(S_CROSS_STREAMS_START);
+              stopEffect(S_CROSS_STREAMS_END);
+              
+              playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+            break;
+
+            case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021:
+              // The wand is no longer crossing the streams.
+              STATUS_CTS = CTS_NOT_FIRING;
+
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
+              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
             break;
 
             case W_YEAR_MODES_CYCLE:
@@ -6081,19 +6173,53 @@ void checkWand() {
               playEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
             break; 
 
-            case W_BARGRAPH_ALWAYS_RAMPING_DISABLED:
-              stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
-              stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
+            case W_DEFAULT_BARGRAPH:
+              stopEffect(S_VOICE_DEFAULT_BARGRAPH);
+              stopEffect(S_VOICE_MODE_ORIGINAL_BARGRAPH);
+              stopEffect(S_VOICE_SUPER_HERO_BARGRAPH);
 
-              playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
-            break; 
+              playEffect(S_VOICE_DEFAULT_BARGRAPH);
+            break;
 
-            case W_BARGRAPH_ALWAYS_RAMPING_ENABLED:
-              stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
-              stopEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_DISABLED);
+            case W_MODE_ORIGINAL_BARGRAPH:
+              stopEffect(S_VOICE_DEFAULT_BARGRAPH);
+              stopEffect(S_VOICE_MODE_ORIGINAL_BARGRAPH);
+              stopEffect(S_VOICE_SUPER_HERO_BARGRAPH);
 
-              playEffect(S_VOICE_BARGRAPH_ALWAYS_RAMPING_ENABLED);
-            break; 
+              playEffect(S_VOICE_MODE_ORIGINAL_BARGRAPH);
+            break;
+
+            case W_SUPER_HERO_BARGRAPH:
+              stopEffect(S_VOICE_DEFAULT_BARGRAPH);
+              stopEffect(S_VOICE_SUPER_HERO_BARGRAPH);
+              stopEffect(S_VOICE_MODE_ORIGINAL_BARGRAPH);
+
+              playEffect(S_VOICE_SUPER_HERO_BARGRAPH);
+            break;
+
+            case W_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH:
+              stopEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
+              stopEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
+              stopEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
+              
+              playEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
+            break;
+
+            case W_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH:
+              stopEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
+              stopEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
+              stopEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
+
+              playEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
+            break;
+
+            case W_DEFAULT_FIRING_ANIMATIONS_BARGRAPH:
+              stopEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
+              stopEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
+              stopEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
+
+              playEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
+            break;
 
             case W_OVERHEAT_STROBE_TOGGLE:
               if(b_overheat_strobe == true) {
@@ -6160,9 +6286,11 @@ void checkWand() {
 
             case W_YEAR_MODES_CYCLE_EEPROM:
               if(b_switch_mode_override == true) {
-                if(i_mode_year_tmp == 2021) {
+                //if(SYSTEM_YEAR_TEMP == SYSTEM_FROZEN_EMPIRE) {
+                if(SYSTEM_YEAR_TEMP == SYSTEM_AFTERLIFE) {
                   b_switch_mode_override = false;
                   
+                  //stopEffect(S_VOICE_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
                   stopEffect(S_VOICE_AFTERLIFE);
                   stopEffect(S_VOICE_1984);
@@ -6171,8 +6299,8 @@ void checkWand() {
 
                   packSerialSend(P_YEAR_MODE_DEFAULT);  
 
-                  // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife.
-                  i_year_mode_eeprom = 1;
+                  // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
+                  SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
                 }
                 else {
                   toggleYearModes();
@@ -6186,18 +6314,22 @@ void checkWand() {
               }
 
               if(b_switch_mode_override == true) {
-                switch(i_mode_year_tmp) {
-                  case 1984:
-                    i_year_mode_eeprom = 2;
+                switch(SYSTEM_YEAR_TEMP) {
+                  case SYSTEM_1984:
+                    SYSTEM_EEPROM_YEAR = SYSTEM_1984;
                   break;
 
-                  case 1989:
-                    i_year_mode_eeprom = 3;
+                  case SYSTEM_1989:
+                    SYSTEM_EEPROM_YEAR = SYSTEM_1989;
                   break;
 
-                  case 2021:
+                  case SYSTEM_FROZEN_EMPIRE:
+                    SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
+                  break;
+
+                  case SYSTEM_AFTERLIFE:
                   default:
-                    i_year_mode_eeprom = 4;
+                    SYSTEM_EEPROM_YEAR = SYSTEM_AFTERLIFE;
                   break;
                 }
               }
@@ -6260,12 +6392,17 @@ void checkWand() {
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
             }
 
-            if(i_mode_year == 1984) {
+            if(SYSTEM_YEAR == SYSTEM_1984) {
               packSerialSend(P_YEAR_1984);
             }
-            else if(i_mode_year == 1989) {
+            else if(SYSTEM_YEAR == SYSTEM_1989) {
               packSerialSend(P_YEAR_1989);
             }
+            /*
+            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              packSerialSend(P_YEAR_FROZEN_EMPIRE);
+            }
+            */
             else {
               packSerialSend(P_YEAR_AFTERLIFE);
             }
@@ -6595,10 +6732,11 @@ void toggleYearModes() {
   stopEffect(S_BEEPS_BARGRAPH);
   playEffect(S_BEEPS_BARGRAPH);
 
-  switch(i_mode_year_tmp) {
-    case 1984:
-      i_mode_year_tmp = 1989;
+  switch(SYSTEM_YEAR_TEMP) {
+    case SYSTEM_1984:
+      SYSTEM_YEAR_TEMP = SYSTEM_1989;
 
+      //stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1984);
       stopEffect(S_VOICE_1989);
@@ -6609,9 +6747,10 @@ void toggleYearModes() {
       packSerialSend(P_MODE_1989);
     break;
 
-    case 1989:
-      i_mode_year_tmp = 2021;
+    case SYSTEM_1989:
+      SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
 
+      //stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1984);
       stopEffect(S_VOICE_1989);
@@ -6622,9 +6761,28 @@ void toggleYearModes() {
       packSerialSend(P_MODE_AFTERLIFE);
     break;
 
-    case 2021:
-      i_mode_year_tmp = 1984;
+    case SYSTEM_AFTERLIFE:
+      SYSTEM_YEAR_TEMP = SYSTEM_1984;
+      //SYSTEM_YEAR_TEMP = SYSTEM_FROZEN_EMPIRE;
 
+      //stopEffect(S_VOICE_FROZEN_EMPIRE);
+      stopEffect(S_VOICE_AFTERLIFE);
+      stopEffect(S_VOICE_1984);
+      stopEffect(S_VOICE_1989);
+
+      playEffect(S_VOICE_1984);
+
+      // Tell the wand to play the 1984 sound effect.
+      packSerialSend(P_MODE_1984);
+
+      //packSerialSend(P_MODE_FROZEN_EMPIRE);
+    break;
+
+    /*
+    case SYSTEM_FROZEN_EMPIRE:
+      SYSTEM_YEAR_TEMP = SYSTEM_FROZEN_EMPIRE;
+
+      stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1984);
       stopEffect(S_VOICE_1989);
@@ -6634,6 +6792,7 @@ void toggleYearModes() {
       // Tell the wand to play the 1984 sound effect.
       packSerialSend(P_MODE_1984);
     break;
+    */
   }
 }    
 
@@ -6947,34 +7106,38 @@ void readEEPROM() {
     }
 
     if(obj_config_eeprom.year_mode > 0 && obj_config_eeprom.year_mode != 255) {
-      i_year_mode_eeprom = obj_config_eeprom.year_mode;
-
       if(obj_config_eeprom.year_mode > 1) {
-        // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife.
+        // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
         switch(obj_config_eeprom.year_mode) {
           case 2:
-            i_mode_year = 1984;
+            SYSTEM_YEAR = SYSTEM_1984;
           break;
 
           case 3:
-            i_mode_year = 1989;
+            SYSTEM_YEAR = SYSTEM_1989;
           break;
 
+          /*
+          case 5:
+            SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+          break;
+          */
           case 4:
           default:
-            i_mode_year = 2021;
+            SYSTEM_YEAR = SYSTEM_AFTERLIFE;
           break;
         }
 
-        i_mode_year_tmp = i_mode_year;
+        SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+        SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
 
         // Set the switch override to true, so the toggle switch in the Proton Pack does not override the year settings during the bootup process.
         b_switch_mode_override = true; 
       }
     }
     else {
-      // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife.
-      i_year_mode_eeprom = 1;
+      // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
+      SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
     }
   }
 }
@@ -7004,6 +7167,7 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_strobe = 2;
   uint8_t i_overheat_lights_off = 2;
   uint8_t i_overheat_sync_to_fan = 2;
+  uint8_t i_year_mode_eeprom = SYSTEM_EEPROM_YEAR;
 
   if(b_stream_effects != true) {
     i_proton_stream_effects = 1;

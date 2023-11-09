@@ -122,16 +122,11 @@ public:
   void setReporting(bool enable);
   void setAmpPwr(bool enable);
   bool getVersion(char *pDst);
-
   int getNumTracks(void);
-
   bool isTrackPlaying(int trk);
-
   void masterGain(int gain);
   void stopAllTracks(void);
-  
   void resumeAllInSync(void);
-
   void trackPlaySolo(int trk);
   void trackPlaySolo(int trk, bool lock);
   void trackPlayPoly(int trk);
@@ -144,15 +139,13 @@ public:
   void trackLoop(int trk, bool enable);
   void trackGain(int trk, int gain);
   void trackFade(int trk, int gain, int time, bool stopFlag);
-
   void samplerateOffset(int offset);
-
   void setTriggerBank(int bank);
-
   void trackPlayingStatus(int trk);
   bool currentMusicTrackStatus(int trk);
   bool trackCounterReset(void);
   void resetTrackCounter(bool bReset);
+  void serialFlush(void);
 
 private:
   void trackControl(int trk, int code);
@@ -163,11 +156,8 @@ private:
   #endif
 
   uint16_t voiceTable[MAX_NUM_VOICES];
-
   uint8_t rxMessage[MAX_MESSAGE_LEN];
-
   char version[VERSION_STRING_LEN];
-
   uint16_t numTracks;
   uint8_t numVoices;
   uint8_t rxCount;
@@ -175,10 +165,9 @@ private:
   bool rxMsgReady;
   bool versionRcvd;
   bool sysinfoRcvd;
-
-    int currentMusicTrack;
-    bool currentMusicStatus;
-    bool trackCounter;
+  int currentMusicTrack;
+  bool currentMusicStatus;
+  bool trackCounter;
 };
 
 #endif

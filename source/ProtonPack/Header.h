@@ -340,12 +340,17 @@ enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
 
 /*
+ * Cross The Streams Status
+*/
+enum STATUS_CROSS_THE_STREAMS { CTS_FIRING_1984, CTS_FIRING_2021, CTS_NOT_FIRING };
+enum STATUS_CROSS_THE_STREAMS STATUS_CTS;
+
+/*
  *  Wand Status
  */
 bool b_wand_firing = false;
 bool b_firing_alt = false;
 bool b_firing_intensify = false;
-bool b_firing_cross_streams = false;
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_wand_connected = false;
@@ -439,16 +444,22 @@ enum device {
 };
 
 /*
+ * The year the Proton Pack operates in.
+ * SYSTEM_EMPTY is just a empty place holder. We need this as we write this data to the EEPROM.
+*/
+enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
+enum SYSTEM_YEARS SYSTEM_YEAR;
+enum SYSTEM_YEARS SYSTEM_YEAR_TEMP;
+enum SYSTEM_YEARS SYSTEM_EEPROM_YEAR;
+
+/*
  * Misc.
  */
-unsigned int i_mode_year = 2021; // 1984, 1989 or 2021
-unsigned int i_mode_year_tmp = 2021; // Controlled by the Neutrona Wand.
 bool b_switch_mode_override = false; // Year mode override flag controlled by the Neutrona Wand. This resets when you flip the mode year toggle switch on the pack.
 bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
 bool b_fade_out = false;
-uint8_t i_year_mode_eeprom = 1; // 1 = Toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife.
 millisDelay ms_fadeout;
 
 /*
