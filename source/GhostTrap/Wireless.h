@@ -101,40 +101,42 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       String data_temp = jsonDoc["temperature"];
 
       // Output for debug purposes only.
-      Serial.print("Arming Mode: ");
-      Serial.print(data_mode);
-      Serial.print(" Operating Mode: ");
-      Serial.println(data_theme);
+      // Serial.print("Arming Mode: ");
+      // Serial.print(data_mode);
+      // Serial.print("| Operating Mode: ");
+      // Serial.println(data_theme);
 
-      Serial.print("Pack Armed: ");
-      Serial.print(data_switch);
-      Serial.print(" Pack State: ");
-      Serial.println(data_pack);
+      // Serial.print("Pack Armed: ");
+      // Serial.print(data_switch);
+      // Serial.print("| Pack State: ");
+      // Serial.println(data_pack);
 
-      Serial.print("Power Level: ");
-      Serial.print(data_power);
-      Serial.print("Safety State: ");
-      Serial.println(data_safety);
+      // Serial.print("Power Level: ");
+      // Serial.print(data_power);
+      // Serial.print("| Safety State: ");
+      // Serial.println(data_safety);
 
-      Serial.print("Wand Mode: ");
-      Serial.print(data_wand);
-      Serial.print(" Neutrona Wand: ");
-      Serial.println(data_firing);
+      // Serial.print("Wand Mode: ");
+      // Serial.print(data_wand);
+      // Serial.print("| Neutrona Wand: ");
+      // Serial.println(data_firing);
 
-      Serial.print("Ribbon Cable: ");
-      Serial.println(data_cable);
+      // Serial.print("Ribbon Cable: ");
+      // Serial.println(data_cable);
 
-      Serial.print("Cyclotron State: ");
-      Serial.print(data_ctron);
-      Serial.print(" Overheat State: ");
-      Serial.println(data_temp);
+      // Serial.print("Cyclotron State: ");
+      // Serial.print(data_ctron);
+      // Serial.print("| Overheat State: ");
+      // Serial.println(data_temp);
 
       // Change LED for testing
       if(data_firing == "Firing") {
+        Serial.println(data_firing);
         device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_RED);
       }
       else {
-        device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_RAINBOW);
+        Serial.println(data_firing);
+        device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_WHITE);
       }
     }
   }

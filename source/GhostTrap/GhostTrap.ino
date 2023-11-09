@@ -38,7 +38,7 @@ void setup(){
   FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
 
   // Set a color indicating we've started up.
-  device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_PURPLE);
+  device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_WHITE);
 
   // Begin waiting, so we can keep moving in the main loop.
   ms_wifiretry.start(i_wifi_retry_wait);
@@ -46,7 +46,7 @@ void setup(){
   pinMode(TEST_LED_PIN, OUTPUT);
 
   // Setup WiFi connection to controller device
-  bool b_wifi_started = startWiFi();
+  startWiFi();
   Serial.println("Waiting for WiFi connection...");
 
   // Initialize critical timers.
@@ -86,7 +86,7 @@ void loop(){
       ms_wifiretry.start(i_wifi_retry_wait);
       b_wifi_connected = false;
       b_socket_config= false;
-      device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_AMBER_PULSE);
+      device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_REDGREEN);
     }
   }
 
