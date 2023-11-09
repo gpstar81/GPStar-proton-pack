@@ -44,7 +44,7 @@ enum SYSTEM_MODES SYSTEM_MODE;
 /*
  * Which year mode the Neutrona Wand is set into, regardless of which year the Proton Pack is in.
  * This affects just various wand beep sound effects, loops and lighting and bargraph.
- * However the bargraph animations can be overriden with BARGRAPH_MODE and BARGRAPH_FIRING_ANIMATION
+ * However the bargraph animations can be overridden with BARGRAPH_MODE and BARGRAPH_FIRING_ANIMATION
  * YEAR_DEFAULT lets the system choose based on the Proton Pack year settings.
 */
 enum WAND_YEAR_MODES { YEAR_DEFAULT, YEAR_1984, YEAR_1989, YEAR_AFTERLIFE, YEAR_FROZEN_EMPIRE };
