@@ -24,26 +24,30 @@
 // 3rd-Party Libraries
 #include <FastLED.h>
 #include <millisDelay.h>
+#include <ezButton.h>
 
 // Local Files
 #include "Header.h"
+#include "Colours.h"
 #include "Wireless.h"
 
 void setup(){
   Serial.begin(9600);
 
-  Serial.println(""); // Blank line.
-  Serial.print("WiFi Network: ");
-  Serial.println(ap_ssid);
-  Serial.print("WiFi Password: ");
-  Serial.println(ap_pass);
-  WiFi.begin(ap_ssid, ap_pass);
-  Serial.println("Waiting for WiFi connection...");
+  // RGB LEDs for testing.
+  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
+
+  // Set a color indicating we've started up.
+  device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_PURPLE);
 
   // Begin waiting, so we can keep moving in the main loop.
   ms_wifiretry.start(i_wifi_retry_wait);
 
   pinMode(TEST_LED_PIN, OUTPUT);
+
+  // Setup WiFi connection to controller device
+  bool b_wifi_started = startWiFi();
+  Serial.println("Waiting for WiFi connection...");
 }
 
 void loop(){
@@ -66,6 +70,7 @@ void loop(){
       Serial.println("WiFi Connected");
       Serial.println(WiFi.localIP());
       b_wifi_connected = true;
+      device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_PURPLE);
     }
     else {
       // When not connected, could be any number of status possible.
@@ -73,6 +78,7 @@ void loop(){
       ms_wifiretry.start(i_wifi_retry_wait);
       b_wifi_connected = false;
       b_socket_config= false;
+      device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_AMBER_PULSE);
     }
   }
 

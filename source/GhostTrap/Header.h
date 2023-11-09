@@ -19,6 +19,20 @@
  */
 
 /*
+ * Pin for Addressable LEDs.
+ */
+#define DEVICE_LED_PIN 23
+#define DEVICE_NUM_LEDS 1
+CRGB device_leds[DEVICE_NUM_LEDS];
+
+/*
+ * LED Devices
+ */
+enum device {
+  PRIMARY_LED
+};
+
+/*
  * Pin for test LED.
  */
 #define TEST_LED_PIN 5

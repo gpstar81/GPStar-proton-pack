@@ -39,8 +39,7 @@ enum colours {
   C_AMBER_PULSE,
   C_RED_FADE,
   C_REDGREEN,
-  C_RAINBOW,
-  C_SPECTRAL_CUSTOM
+  C_RAINBOW
 };
 
 int getBrightness(uint8_t i_percent = 100) {
@@ -53,10 +52,10 @@ int getBrightness(uint8_t i_percent = 100) {
 
 // Special values for colour cycles: current hue (colour) and when to change colour.
 // This must match the number of device ENUM entries (though that is rarely changed).
-uint8_t i_curr_colour[DEVICE_NUM_LEDS] = { 0, 0, 0 };
-uint8_t i_curr_bright[DEVICE_NUM_LEDS] = { 0, 0, 0 };
-int i_next_bright[DEVICE_NUM_LEDS] = { -1, -1, -1 };
-uint8_t i_count[DEVICE_NUM_LEDS] = { 0, 0, 0 };
+uint8_t i_curr_colour[DEVICE_NUM_LEDS] = { 0 };
+uint8_t i_curr_bright[DEVICE_NUM_LEDS] = { 0 };
+int i_next_bright[DEVICE_NUM_LEDS] = { -1 };
+uint8_t i_count[DEVICE_NUM_LEDS] = { 0 };
 
 CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
@@ -180,10 +179,6 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       }
 
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
-    break;
-
-    case C_SPECTRAL_CUSTOM:
-      return CHSV(i_spectral_custom, i_spectral_custom_saturation, i_brightness);
     break;
 
     default:

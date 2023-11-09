@@ -23,13 +23,22 @@
  */
 #if defined(__XTENSA__)
   // ESP32
-  #define ATTENUATOR_LED_PIN 23
+  #define DEVICE_LED_PIN 23
 #else
   // Nano
-  #define ATTENUATOR_LED_PIN 9
+  #define DEVICE_LED_PIN 9
 #endif
-#define ATTENUATOR_NUM_LEDS 3
-CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
+#define DEVICE_NUM_LEDS 3
+CRGB device_leds[DEVICE_NUM_LEDS];
+
+/*
+ * LED Devices
+ */
+enum device {
+  TOP_LED,
+  UPPER_LED,
+  LOWER_LED
+};
 
 /*
  * Manage the color and blink pattern for the top LED.
@@ -253,12 +262,3 @@ bool b_pack_on = false;
 bool b_pack_alarm = false;
 bool b_firing = false;
 bool b_overheating = false;
-
-/*
- * LED Devices
- */
-enum device {
-  TOP_LED,
-  UPPER_LED,
-  LOWER_LED
-};

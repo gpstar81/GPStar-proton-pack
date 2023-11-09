@@ -77,11 +77,11 @@ void setup() {
   MENU_LEVEL = MENU_1;
 
   // RGB LEDs for effects (upper/lower) and user status (top).
-  FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
+  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
 
   // Change top indicator to red when device is on and ready.
   i_top_led_color = C_RED;
-  attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
+  device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
 
   // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);
@@ -285,11 +285,11 @@ void mainLoop() {
     b_right_toggle_on = false;
     b_blink_blank = false;
     // Turn off the LEDs by setting to black.
-    if(attenuator_leds[UPPER_LED] != CRGB::Black) {
-      attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+    if(device_leds[UPPER_LED] != CRGB::Black) {
+      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
     }
-    if(attenuator_leds[LOWER_LED] != CRGB::Black) {
-      attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    if(device_leds[LOWER_LED] != CRGB::Black) {
+      device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
     }
   }
 
@@ -378,7 +378,7 @@ void updateLEDs() {
       // Keep indicator solid.
       ms_top_blink.stop(); // Stop the blink timer which won't be used at this menu level.
       b_top_led_off = false; // Denotes LED is not in an off (blinking) state, but solid.
-      attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
+      device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
     break;
 
     case MENU_2:
@@ -390,11 +390,11 @@ void updateLEDs() {
 
       if(b_top_led_off) {
         // Not completely dark but very dim (1/10th of the normal brightness).
-        attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, int(i_top_led_brightness / 10));
+        device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, int(i_top_led_brightness / 10));
       }
       else {
         // Return to normal brightness for the current top LED color.
-        attenuator_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
+        device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
       }
     break;
   }
@@ -403,15 +403,15 @@ void updateLEDs() {
     // Set upper LED based on alarm or overheating state, when connected.
     // Otherwise, use the standard pattern/color for illumination.
     if(b_pack_alarm || b_overheating) {
-      attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
+      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
     }
     else {
-      attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
+      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
     }
   }
   else {
-    if(attenuator_leds[UPPER_LED] != CRGB::Black) {
-      attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+    if(device_leds[UPPER_LED] != CRGB::Black) {
+      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
     }
   }
 
@@ -456,12 +456,12 @@ void updateLEDs() {
   // Update the lower LED based on the scheme determined above.
   if(!b_right_toggle_on || b_blink_blank) {
     // Turn off when right toggle is off or when mid-blink.
-    if(attenuator_leds[LOWER_LED] != CRGB::Black) {
-      attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    if(device_leds[LOWER_LED] != CRGB::Black) {
+      device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
     }
   }
   else {
-    attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
+    device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
   }
 }
 

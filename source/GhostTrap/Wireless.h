@@ -21,11 +21,19 @@
 #include <ArduinoJson.h>
 #include <WebServer.h>
 #include <WebSocketsClient.h>
+#include <Preferences.h>
 #include <WiFi.h>
 
-const char* ap_ssid = "ProtonPack_9174";
-const char* ap_pass = "12345678";
+// Preferences for SSID and AP password, which will use a "credentials" namespace.
+Preferences preferences;
 
+// Set up values for the SSID and password for the WiFi access point (AP).
+const String ap_default_ssid = "ProtonPack_9174"; // This will be the base of the SSID name.
+String ap_default_passwd = "12345678"; // This will be the default password for the AP.
+String ap_ssid; // Reserved for storing the true SSID for the AP to be set at startup.
+String ap_pass; // Reserved for storing the true AP password set by the user.
+
+// Prepare variables for client connections
 millisDelay ms_wifiretry;
 const unsigned int i_wifi_retry_wait = 500; // How long between attempts to find the wifi network
 const unsigned int i_websocket_retry_wait = 5000; // How long between restoring the websocket
@@ -36,13 +44,38 @@ WebSocketsClient webSocket; // WebSocket client class instance
 
 StaticJsonDocument<256> jsonDoc; // Allocate a static JSON document
 
+boolean startWiFi() {
+  // Begin some diagnostic information to console.
+  Serial.println();
+  Serial.println("Starting Wireless Client");
+  String macAddr = String(WiFi.macAddress());
+  Serial.print("Device WiFi MAC Address: ");
+  Serial.println(macAddr);
+
+  // Prepare to return either stored preferences or a default value for SSID/password.
+  preferences.begin("credentials", true); // Access namespace in read-only mode.
+  ap_ssid = preferences.getString("ssid", ap_default_ssid);
+  ap_pass = preferences.getString("password", ap_default_passwd);
+  preferences.end();
+
+  Serial.print("WiFi Network: ");
+  Serial.println(ap_ssid);
+  Serial.print("WiFi Password: ");
+  Serial.println(ap_pass);
+
+  // Start the access point using the SSID and password.
+  return WiFi.begin(ap_ssid.c_str(), ap_pass.c_str());
+}
+
 void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
   if (type == WStype_CONNECTED) {
     Serial.println("WebSocket Connected");
+    device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_RAINBOW); // TESTING
   }
 
   if (type == WStype_DISCONNECTED) {
     Serial.println("WebSocket Disconnected");
+    device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_PURPLE); // TESTING
   }
 
   if (type == WStype_TEXT) {
@@ -95,6 +128,14 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       Serial.print(data_ctron);
       Serial.print(" Overheat State: ");
       Serial.println(data_temp);
+
+      // Change LED for testing
+      if(data_firing == "Firing") {
+        device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_RED);
+      }
+      else {
+        device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_RAINBOW);
+      }
     }
   }
 }
