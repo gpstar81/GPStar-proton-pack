@@ -572,20 +572,58 @@ void mainLoop() {
               switch(WAND_YEAR_MODE) {
                 case YEAR_1984:
                   WAND_YEAR_MODE = YEAR_1989;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+
+                  playEffect(W_NEUTRONA_WAND_1989_MODE);
                 break;
 
                 case YEAR_1989:
                   WAND_YEAR_MODE = YEAR_AFTERLIFE;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+
+                  wandSerialSend(W_NEUTRONA_WAND_AFTERLIFE_MODE);
                 break;
 
                 case YEAR_AFTERLIFE:
                   WAND_YEAR_MODE = YEAR_DEFAULT;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+
+                  wandSerialSend(W_NEUTRONA_WAND_DEFAULT_MODE);
                 break;
 
                 case YEAR_DEFAULT:
                 case YEAR_FROZEN_EMPIRE:
                 default:
                   WAND_YEAR_MODE = YEAR_1984;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_1984);
+
+                  wandSerialSend(W_NEUTRONA_WAND_1984_MODE);
                 break;
               }
             }

@@ -1289,6 +1289,7 @@ void cyclotronSwitchLEDLoop() {
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
+      default:
         if(b_2021_ramp_up == true) {
           i_cyc_led_delay = i_cyclotron_switch_led_delay + (i_2021_ramp_delay - r_2021_ramp.update());
         }
@@ -1403,6 +1404,7 @@ void powercellLoop() {
 
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
+      default:
         if(b_2021_ramp_up == true) {
           i_pc_delay = i_powercell_delay + r_2021_ramp.update();
         }
@@ -2621,6 +2623,7 @@ void cyclotronOverHeating() {
   switch (SYSTEM_YEAR) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
+    default:
       if(b_overheat_lights_off != true) {
         cyclotron2021(i_2021_delay * 10);
         vibrationPack(i_vibration_lowest_level * 2);
@@ -4449,9 +4452,9 @@ void checkWand() {
               playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 10);
             break;
 
-            case S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT:
-              stopEffect(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
-              playEffect(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 10);
+            case W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT:
+              stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
+              playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 10);
             break;
 
             case W_AFTERLIFE_GUN_RAMP_DOWN_1:
@@ -4465,7 +4468,6 @@ void checkWand() {
 
             case W_FIRING:
               // Wand is firing.
-              //firingDebouncing();
               wandFiring();
             break;
 
@@ -6221,6 +6223,56 @@ void checkWand() {
               playEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
             break;
 
+            case W_NEUTRONA_WAND_1984_MODE:
+              stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+              stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+              stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+
+              playEffect(S_VOICE_NEUTRONA_WAND_1984);
+            break;
+
+            case W_NEUTRONA_WAND_1989_MODE:
+              stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+              stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+              stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+
+              playEffect(S_VOICE_NEUTRONA_WAND_1989);
+            break;
+
+            case W_NEUTRONA_WAND_AFTERLIFE_MODE:
+              stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+              stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+              playEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+            break;
+
+            case W_NEUTRONA_WAND_FROZEN_EMPIRE_MODE:
+              stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+              stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+              stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+
+              playEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+            break;
+
+            case W_NEUTRONA_WAND_DEFAULT_MODE:
+              stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+              stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+              stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+              playEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+            break;
+
             case W_OVERHEAT_STROBE_TOGGLE:
               if(b_overheat_strobe == true) {
                 b_overheat_strobe = false;
@@ -6793,6 +6845,10 @@ void toggleYearModes() {
       packSerialSend(P_MODE_1984);
     break;
     */
+    
+    default:
+      // Nothing.
+    break;
   }
 }    
 

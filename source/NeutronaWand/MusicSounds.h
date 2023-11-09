@@ -292,10 +292,11 @@ enum sound_fx {
   S_VOICE_SUPER_HERO_BARGRAPH,
   S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH,
   S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH,
-  S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH
+  S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH,
+  S_VOICE_NEUTRONA_WAND_DEFAULT_MODE
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH;
+const unsigned int i_last_effects_track = S_VOICE_NEUTRONA_WAND_DEFAULT_MODE;
