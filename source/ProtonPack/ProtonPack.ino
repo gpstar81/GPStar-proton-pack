@@ -6296,6 +6296,111 @@ void checkWand() {
               playEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
             break;
             
+            case W_CONTINUOUS_SMOKE_TOGGLE_5:
+              if(b_smoke_continuous_mode_5 == true) {
+                b_smoke_continuous_mode_5 = false;
+
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_DISABLED);
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_ENABLED);
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_5_DISABLED);
+
+                packSerialSend(P_CONTINUOUS_SMOKE_5_DISABLED);
+              }
+              else {
+                b_smoke_continuous_mode_5 = true;
+
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_ENABLED);
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_DISABLED);
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_5_ENABLED);
+
+                packSerialSend(P_CONTINUOUS_SMOKE_5_ENABLED);
+              }
+            break;
+
+            case W_CONTINUOUS_SMOKE_TOGGLE_4:
+              if(b_smoke_continuous_mode_4 == true) {
+                b_smoke_continuous_mode_4 = false;
+
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_DISABLED);
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_ENABLED);
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_4_DISABLED);
+
+                packSerialSend(P_CONTINUOUS_SMOKE_4_DISABLED);
+              }
+              else {
+                b_smoke_continuous_mode_4 = true;
+
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_ENABLED);
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_DISABLED);
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_4_ENABLED);
+
+                packSerialSend(P_CONTINUOUS_SMOKE_4_ENABLED);
+              }
+            break;
+
+            case W_CONTINUOUS_SMOKE_TOGGLE_3:
+              if(b_smoke_continuous_mode_3 == true) {
+                b_smoke_continuous_mode_3 = false;
+
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_DISABLED);
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_3_DISABLED);
+
+                packSerialSend(P_CONTINUOUS_SMOKE_3_DISABLED);
+              }
+              else {
+                b_smoke_continuous_mode_3 = true;
+
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_DISABLED);
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);       
+
+                packSerialSend(P_CONTINUOUS_SMOKE_3_ENABLED);
+              }
+            break;
+
+            case W_CONTINUOUS_SMOKE_TOGGLE_2:
+              if(b_smoke_continuous_mode_2 == true) {
+                b_smoke_continuous_mode_2 = false;
+
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_DISABLED);
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_2_DISABLED);
+
+                packSerialSend(P_CONTINUOUS_SMOKE_2_DISABLED);
+              }
+              else {
+                b_smoke_continuous_mode_2 = true;
+
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_DISABLED);
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);       
+
+                packSerialSend(P_CONTINUOUS_SMOKE_2_ENABLED);
+              }
+            break;
+
+            case W_CONTINUOUS_SMOKE_TOGGLE_1:
+              if(b_smoke_continuous_mode_1 == true) {
+                b_smoke_continuous_mode_1 = false;
+
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
+
+                packSerialSend(P_CONTINUOUS_SMOKE_1_DISABLED);
+              }
+              else {
+                b_smoke_continuous_mode_1 = true;
+
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);
+                stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);       
+
+                packSerialSend(P_CONTINUOUS_SMOKE_1_ENABLED);
+              }
+            break;
+
             case W_BARREL_LEDS_48:
               stopEffect(S_VOICE_BARREL_LED_5);
               stopEffect(S_VOICE_BARREL_LED_48);
