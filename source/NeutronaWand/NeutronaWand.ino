@@ -503,7 +503,6 @@ void mainLoop() {
               wandExitEEPROMMenu();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              // Sub menu.
               if(b_quick_vent == true) {
                 b_quick_vent = false;
 
@@ -554,7 +553,6 @@ void mainLoop() {
           else if(switchMode() == true) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to save its current configuration to the EEPROM.
-              // Proton Stream Impact Effects / 3 LED mode in 1984/1989
               wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
 
               stopEffect(S_VOICE_EEPROM_SAVE);
@@ -566,7 +564,6 @@ void mainLoop() {
               wandExitEEPROMMenu();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              // Sub menu.
               if(b_wand_boot_errors == true) {
                 b_wand_boot_errors = false;
 
@@ -649,7 +646,7 @@ void mainLoop() {
               wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_5);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-
+              wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_5);
             }
           }
         break;
@@ -842,7 +839,7 @@ void mainLoop() {
               wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_4);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-
+              wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_4);
             }
           }
         break;
@@ -850,7 +847,7 @@ void mainLoop() {
         // Menu Level 1: Intensify: Enable or Disable overheating settings.
         // Menu Level 1: Barrel Wing Button: Enable or disable smoke.
         // Menu Level 2: Intensify: Enable/Disable MODE_ORIGINAL toggle switch sound effects.
-        // Menu Level 2: Barrel Wing Button: Cycle through VG color modes (see operational guide for more details on this). REPLACE THIS WITH SOMETHING ELSE?
+        // Menu Level 2: Barrel Wing Button: Cycle through VG color modes to disable them. (see operational guide for more details on this).
         // Menu Level 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 3
@@ -956,8 +953,8 @@ void mainLoop() {
               wandSerialSend(W_SMOKE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              // Cycle through VG color modes (see operational guide for more details on this).
-              // REPLACE THIS WITH SOMETHING ELSE?
+              // Enable or disable video game colours for the Power Cell, Cyclotron etc.
+              wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
@@ -1003,7 +1000,7 @@ void mainLoop() {
               wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_3);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-
+              wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_3);
             }
           }
         break;
@@ -1075,7 +1072,7 @@ void mainLoop() {
               wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_2);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-
+              wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_2);
             }
           }
         break;
@@ -1204,7 +1201,7 @@ void mainLoop() {
               wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_1);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-
+              wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_1);
             }
           }
         break;
@@ -1520,6 +1517,9 @@ void mainLoop() {
             i_wand_menu = 5;
             ms_settings_blinking.start(i_settings_blinking_delay);
 
+            // Make sure some of the wand lights are off.
+            wandLightsOffMenuSystem();
+
             // Tell the pack we are in settings mode.
             wandSerialSend(W_SETTINGS_MODE);
           }
@@ -1561,6 +1561,9 @@ void mainLoop() {
         ms_settings_blinking.start(i_settings_blinking_delay);
 
         wandBarrelSpectralCustomConfigOn();
+
+        // Make sure some of the wand lights are off.
+        wandLightsOffMenuSystem();
       }
       else if(WAND_ACTION_STATUS == ACTION_EEPROM_MENU && b_pack_on == true) {
         if(b_no_pack != true) {
@@ -1583,6 +1586,9 @@ void mainLoop() {
         WAND_MENU_LEVEL == MENU_LEVEL_1;
 
         ms_settings_blinking.start(i_settings_blinking_delay);
+
+        // Make sure some of the wand lights are off.
+        wandLightsOffMenuSystem();
       }
       else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on == true) {
         if(b_no_pack != true) {
@@ -2324,7 +2330,9 @@ void checkSwitches() {
             }
           }
           else {
-            wandLightsOff();
+            if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_SETTINGS) {
+              wandLightsOff();
+            }
           }
         break;
 
@@ -7010,6 +7018,13 @@ void wandLightsOff() {
   i_bargraph_status_alt = 0;
 }
 
+void wandLightsOffMenuSystem() {
+  // Make sure some of the wand lights are off, specifically for the Menu systems.
+  analogWrite(led_slo_blo, 0);
+  digitalWrite(led_vent, HIGH);
+  digitalWrite(led_white, HIGH);
+  analogWrite(led_front_left, 0);
+}
 void vibrationOff() {
   i_vibration_level_prev = 0;
   analogWrite(vibration, 0);
@@ -8659,6 +8674,66 @@ void checkPack() {
             case P_DIMMING:
               stopEffect(S_BEEPS);
               playEffect(S_BEEPS);
+            break;
+
+            case P_CONTINUOUS_SMOKE_5_ENABLED:
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_ENABLED);
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_DISABLED);
+              playEffect(S_VOICE_CONTINUOUS_SMOKE_5_ENABLED);
+            break;
+
+            case P_CONTINUOUS_SMOKE_4_ENABLED:
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_ENABLED);
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_DISABLED);
+              playEffect(S_VOICE_CONTINUOUS_SMOKE_4_ENABLED);
+            break;
+
+            case P_CONTINUOUS_SMOKE_3_ENABLED:
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_DISABLED);
+              playEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);
+            break;
+
+            case P_CONTINUOUS_SMOKE_2_ENABLED:
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_DISABLED);
+              playEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);
+            break;
+
+            case P_CONTINUOUS_SMOKE_1_ENABLED:
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
+              playEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);
+            break;
+
+            case P_CONTINUOUS_SMOKE_5_DISABLED:
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_DISABLED);
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_ENABLED);
+              playEffect(S_VOICE_CONTINUOUS_SMOKE_5_DISABLED);
+            break;
+
+            case P_CONTINUOUS_SMOKE_4_DISABLED:
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_DISABLED);
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_ENABLED);
+              playEffect(S_VOICE_CONTINUOUS_SMOKE_4_DISABLED);
+            break;
+
+            case P_CONTINUOUS_SMOKE_3_DISABLED:
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_DISABLED);
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);
+              playEffect(S_VOICE_CONTINUOUS_SMOKE_3_DISABLED);
+            break;
+
+            case P_CONTINUOUS_SMOKE_2_DISABLED:
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_DISABLED);
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);
+              playEffect(S_VOICE_CONTINUOUS_SMOKE_2_DISABLED);
+            break;
+
+            case P_CONTINUOUS_SMOKE_1_DISABLED:
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
+              stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);
+              playEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
             break;
 
             case P_OVERHEAT_STROBE_DISABLED:

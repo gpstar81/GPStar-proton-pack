@@ -75,4 +75,6 @@ mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/extras/NeutronaWand-BenchTest.h
 # Restore flag(s) from compilation
 sed -i -e 's/b_gpstar_benchtest = true/b_gpstar_benchtest = false/g' ${SRCDIR}/NeutronaWand/Configuration.h
 
+rm -f ${SRCDIR}/NeutronaWand/*.h-e
+
 echo "Done."
