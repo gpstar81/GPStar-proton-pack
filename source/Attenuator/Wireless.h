@@ -128,15 +128,18 @@ String getMode() {
 }
 
 String getTheme() {
-  switch(YEAR_MODE) {
-    case YEAR_1984:
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_1984:
       return "1984";
     break;
-    case YEAR_1989:
+    case SYSTEM_1989:
       return "1989";
     break;
-    case YEAR_2021:
+    case SYSTEM_AFTERLIFE:
       return "Afterlife";
+    break;
+    case SYSTEM_FROZEN_EMPIRE:
+      return "Frozen Empire";
     break;
     default:
       return "Unknown";

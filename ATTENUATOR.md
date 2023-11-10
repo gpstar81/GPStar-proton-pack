@@ -29,7 +29,7 @@ Credit to [ShapeforgeProps](https://www.etsy.com/shop/ShapeforgeProps) for their
 
 ## Bill of Materials
 
-This device has it's own BOM which is separate from any other build items related to the pack or wand. This shares the same Arduino platform as the other controllers and we'll be using the same type of serial protocol as used between the pack and wand.
+This device has it's own BOM which is separate from any other build items related to the pack or wand. This utilizes the same ArduinoIDE for writing software as the other controllers and we'll be using the same type of serial protocol as used between the pack and wand.
 
 **Core Electronics**
 
@@ -44,7 +44,7 @@ This device has it's own BOM which is separate from any other build items relate
 * [9mm Passive Piezo Buzzer](https://a.co/d/b39ELcm)
 * [28-Segment Bargraph from Frutto Technology](https://fruttotechnology.com/ols/products/preorder-28-segment-bargraph-pcb-for-spengler-neutrona-wand)
 
-The preferred processor for this device is an ESP32 though you may also use an Arduino Nano. Note that wireless capabilities are only available with the ESP32.
+The preferred processor for this device is an ESP32 though you may also use an Arduino Nano though this may be phased out in the future. **Note that wireless capabilities are only available with the ESP32.**
 
 * [ESP-WROOM-32 Dev Board w/ Terminal Shield](https://a.co/d/hDxXluE)
 
@@ -74,7 +74,6 @@ Device labels can be obtained or created by any means desired. The sizes [offere
 * [Clear Dome Lens](https://www.digikey.com/en/products/detail/carclo-technical-plastics/10403/2641656)
 * [Clip-in Lens SML_190_CTP](https://www.digikey.com/en/products/detail/visual-communications-company-vcc/SML-190-CTP/4515623)
 
-
 ## Dimensions
 
 It is worth noting that the device is meant to attach to the left shoulder strap of a standard ALICE pack. The width of the strap is typically around 80mm while worn, so this device will fit near perfectly once the strap is pressed against your shoulder/chest. These are the overall dimensions if you wish to approximate the needed space or design your own enclosure. Maintaining these dimensions ensures the components above will fit within the enclosure.
@@ -83,39 +82,15 @@ It is worth noting that the device is meant to attach to the left shoulder strap
 	Height: 115mm
 	Depth: 38mm
 
-## Arduino Nano - Standard Pinout Reference
+## WiFi Connectivity
 
-![](images/Arduino-nano-pinout.png)
+When using the ESP32 controller it is possible to connect to the device via WiFi. The SSID (Network Name) will be broadcast as **"ProtonPack_####"** where "####" is the last 4 hexadecimal values for the MAC address of the WiFi interface. This will differ for each ESP32 device, making each network unique to the attached pack. The default password is **"555-2368"** and can (and should) be changed via the web interface after successfully connecting to the network. The IP address for the device will be hardcoded as "192.168.1.2" with the web interface accessible at `http://192.168.1.2`.
 
-## Arduino Nano - Pin Connections
+**Security Notice**
 
-The following is a diagram of the Arduino Nano pins from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above.
+Once you have successfully paired with the WiFi network for the Proton pack, you are HIGHLY encouraged to change the default password. This is accessible via a link at the bottom of the main device page as noted above. Follow the prompts to enter and confirm a new password then re-join your pack's WiFi network with the new credentials.
 
-| Connection    | Nano (L) |     | Nano (R) | Connection    |
-|---------------|----------|-----|----------|---------------|
-| to Pack RX1   | TX1      |     | VIN      | +5V (Pack)    |
-| to Pack TX1   | RX0      |     | GND      | Ground (Pack) |
-|               | RST      |     | RST      |               |
-| Common Ground | GND      |     | 5V       | To Bargraph   |
-| Encoder A     | D2       |     | A7       |               |
-| Encoder B     | D3       |     | A6       |               |
-| Encoder Post  | D4       |     | A5       | SCL Bargraph  |
-| Left Toggle   | D5       |     | A4       | SDA Bargraph  |
-| Right Toggle  | D6       |     | A3       |               |
-|               | D7       |     | A2       |               |
-|               | D8       |     | A1       |               |
-| Neopixels (2) | D9       |     | A0       |               |
-| Piezo Buzzer  | D10      |     | REF      |               |
-| PN2222        | D11      |     | 3V3      | Vib. Motor +  |
-|               | D12      |     | D13      |               |
-|               |        | **USB** |        |               |
-
-When connecting to the pack, the following wiring scheme was used with the recommended 4-pin connector:
-
-	1 - GND (Black)
-	2 - 5V (Red)
-	3 - TX1 (White) to Pack RX1
-	4 - RX0 (Yellow) to Pack TX1
+For instructions on using the web interface to control your equipment, please see the [Wireless Operations](WIRELESS_OPERATION.md) guide.
 
 ## ESP32 - Standard Pinout Reference
 
@@ -151,8 +126,41 @@ When connecting to the pack, the following wiring scheme was used with the recom
 	3 - TX2 (White) to Pack RX1
 	4 - RX2 (Yellow) to Pack TX1
 
-**Note:** Bargraph power (+5V) should be split from the VIN terminal.
+**Note:** Bargraph power (+5V) should be split from the VIN terminal which delivers power from the Proton Pack.
 
+## Arduino Nano - Standard Pinout Reference
+
+![](images/Arduino-nano-pinout.png)
+
+## Arduino Nano - Pin Connections
+
+The following is a diagram of the Arduino Nano pins from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above.
+
+| Connection    | Nano (L) |     | Nano (R) | Connection    |
+|---------------|----------|-----|----------|---------------|
+| to Pack RX1   | TX1      |     | VIN      | +5V (Pack)    |
+| to Pack TX1   | RX0      |     | GND      | Ground (Pack) |
+|               | RST      |     | RST      |               |
+| Common Ground | GND      |     | 5V       | To Bargraph   |
+| Encoder A     | D2       |     | A7       |               |
+| Encoder B     | D3       |     | A6       |               |
+| Encoder Post  | D4       |     | A5       | SCL Bargraph  |
+| Left Toggle   | D5       |     | A4       | SDA Bargraph  |
+| Right Toggle  | D6       |     | A3       |               |
+|               | D7       |     | A2       |               |
+|               | D8       |     | A1       |               |
+| Neopixels (2) | D9       |     | A0       |               |
+| Piezo Buzzer  | D10      |     | REF      |               |
+| PN2222        | D11      |     | 3V3      | Vib. Motor +  |
+|               | D12      |     | D13      |               |
+|               |        | **USB** |        |               |
+
+When connecting to the pack, the following wiring scheme was used with the recommended 4-pin connector:
+
+	1 - GND (Black)
+	2 - 5V (Red)
+	3 - TX1 (White) to Pack RX1
+	4 - RX0 (Yellow) to Pack TX1
 
 ### Connections by Component
 
@@ -286,6 +294,15 @@ The MillisDelay library must be downloaded from the project GitHub page. Downloa
 
 No further configuration is needed for this library.
 
+## Firmware Flashing
+
+Separate firmware files exist for the Arduino Nano vs. the ESP32. For the Arduino Nano you may use the same flashing utility as the other gpstar PCB devices. For the ESP32 that will require a different flasher program. Since both the Arduino Nano and ESP development board have their own USB connection it will not be necessary to use a separate UART programming cable.
+
+**For ESP32**
+
+1. Download the [Flash Download Tools](https://www.espressif.com/en/support/download/other-tools) from Espressif Systems (supports Windows only)
+1. Locate the [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) file from the `/binaries/attenuator` directory
+
 ## Operation
 
 While not attached to a compatible Proton Pack (read: standalone mode) the device will simply provide some lights and effects. The left toggle switch will turn on the bargraph animations while the right toggle switch will turn on the LED's.
@@ -305,7 +322,3 @@ Ideally, the device should be connected to the gpstar Proton Pack Controller whi
 		* Main Dial - Turn CW/CCW: Adjusts the effects volume for pack/wand
 
 Note that during an overheat warning, the device will emit sounds and vibrations in addition to lighting effects as the pack reaches a critical state. At this time the pack operator can turn the primary dial either direction to cancel the current warning. If the warning time is allowed to expire the the pack will enter the vent sequence.
-
-## WiFi Connectivity
-
-When using the ESP32 controller it is possible to connect to the device via WiFi. The SSID (Network Name) will be broadcast as **"ProtonPack_####"** where "####" is the last 4 hexadecimal values for the MAC address of the WiFi interface. This will differ for each ESP32 device, making each network unique to the attached pack. The default password is **"555-2368"** and can (and should) be changed via the web interface after successfully connecting to the network. The IP address for the device will be hardcoded as "192.168.1.2" with the web interface accessible at "http://192.168.1.2".

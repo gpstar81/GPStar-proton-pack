@@ -39,15 +39,7 @@
 */
 // For stock HasLab LEDs
 uint8_t i_cyclotron_leds = 12;
-uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 
-// For a 40 LED NeoPixel ring.
-//uint8_t i_cyclotron_leds = 40;
-//uint8_t i_1984_cyclotron_leds[4] = { 0, 10, 18, 28 };
-
-// For a 20 LED Frutto Technology Cyclotron.
-//uint8_t i_cyclotron_leds = 20;
-//uint8_t i_1984_cyclotron_leds[4] = { 2, 7, 12, 17 };
 
 /*
  * Power Cell LEDs
@@ -82,13 +74,28 @@ bool b_powercell_colour_toggle = true;
  * Cyclotron Lid LED delays.
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
- * For a Frutto Technology 20 LED setup or a 40 LED NeoPixel ring, 10 for i_2021_delay is good.
- * For stock HasLab LEDs, 15 for i_2021_delay is good.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
- * Any settings saved in the EEPROM menu will overwrite these settings.
+
+ * CYCLOTRON_DELAY_2021_40_LED is used by the 40 Pixel LED ring.
+ * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology 20 LED setup.
+ * CYCLOTRON_DELAY_2021_12_LED is for the stock Haslab 12 LED setup.
 */
 const unsigned int i_1984_delay = 1050;
-unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for the Frutto Technology Cyclotron or a 40 LED NeoPixel ring.
+#define CYCLOTRON_DELAY_2021_40_LED 7 // For 40 LEDs
+#define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs
+#define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs
+
+/*
+ * This isthe middle LED aligned in each lens window. (0 is the first LED). Adjust this setting if you use different LED setups and installations.
+ * Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as Cyclotron lens #1 and work your way clockwise)
+
+ * i_1984_cyclotron_12_leds is for the stock Haslab 12 LED setup.
+ * i_1984_cyclotron_20_leds is for the 20 LED Frutto Technology Cyclotron.
+ * i_1984_cyclotron_40_leds is for a 40 LED NeoPixel ring.
+*/
+const uint8_t i_1984_cyclotron_12_leds[4] = { 1, 4, 7, 10 };
+const uint8_t i_1984_cyclotron_20_leds[4] = { 2, 7, 12, 17 };
+const uint8_t i_1984_cyclotron_40_leds[4] = { 0, 10, 18, 28 };
 
 /*
   * Afterlife mode (2021) only.
@@ -163,7 +170,7 @@ uint8_t i_cyclotron_inner_brightness = 100;
   * When set to true, the Proton Pack will turn on automatically when it receives power.
   * If you want your Proton Pack to be silent, change your STARTUP_VOLUME to be 0 and or unplug the power to your amplifier.
 */
-const bool b_demo_light_mode = false;
+bool b_demo_light_mode = false;
 
 /*
  * You can set the default master startup volume for your pack here.
@@ -279,7 +286,7 @@ const unsigned int i_1984_fade_in_delay = 210;
  * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The On-board mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
 */
-const bool b_onboard_amp_enabled = false;
+const bool b_onboard_amp_enabled = true;
 
 /*
  * If you want the optional N-Filter NeoPixel jewel to strobe during overheat venting.

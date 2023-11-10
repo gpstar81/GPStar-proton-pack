@@ -72,13 +72,16 @@ void setup() {
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX);
 
-  // Setup default system settings. The year mode will be in 2021 - Afterlife.
+  // Setup default system settings.
   SYSTEM_MODE = MODE_SUPER_HERO;
   BARGRAPH_MODE = BARGRAPH_ORIGINAL;
   BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
   BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_SUPER_HERO;
   BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
   WAND_MENU_LEVEL = MENU_LEVEL_1;
+  WAND_YEAR_MODE = YEAR_DEFAULT;
+  WAND_YEAR_CTS = CTS_DEFAULT;
+  SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
   switch_wand.setDebounceTime(switch_debounce_time);
   switch_intensify.setDebounceTime(switch_debounce_time);
@@ -235,7 +238,7 @@ void mainLoop() {
         wandSerialSend(W_ON);
         postActivation();
 
-        if(year_mode == 2021) {
+        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE) {
           playEffect(S_BOOTUP);
         }
 
@@ -251,13 +254,15 @@ void mainLoop() {
     case ACTION_IDLE:
     default:
       if(WAND_STATUS == MODE_ON) {
-        switch(year_mode) {
-          case 1984:
-          case 1989:
+        switch(getNeutronaWandYearMode()) {
+          case SYSTEM_1984:
+          case SYSTEM_1989:
             // Do nothing.
           break;
 
-          case 2021:
+          case SYSTEM_AFTERLIFE:
+          case SYSTEM_FROZEN_EMPIRE:
+          default:
             if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
               // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
               if(b_switch_barrel_extended == true && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
@@ -474,7 +479,7 @@ void mainLoop() {
         // Menu Level 2: Intensify: Quick Vent.
         // Menu Level 2: Barrel Wing Button: Wand Boot Errors.
         // Menu Level 3: Intensify: Default main system volume + top dial
-        // Menu Level 3: Barrel Wing Button: (?? UNUSED ??)
+        // Menu Level 3: Barrel Wing Button: Set Neutrona Wand to 1984/1989 Mode | Set Neutrona Wand to 2021 Mode | Default (Matches the Proton Pack)
         // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 5
         // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 5
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #5
@@ -518,6 +523,33 @@ void mainLoop() {
                 wandSerialSend(W_QUICK_VENT_ENABLED);
               }
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+                // Main system volume adjustment.
+                // Needs a alternate variable for tracking. When playing effect, make sure it forces to play or plays the sound with the current value for playback?
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_5);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              if(b_overheat_mode_5 == true) {
+                b_overheat_mode_5 = false;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_5_DISABLED);
+              }
+              else {
+                b_overheat_mode_5 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_5_ENABLED);
+              }
+            }
           }
           else if(switchMode() == true) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -553,6 +585,71 @@ void mainLoop() {
 
                 wandSerialSend(W_BOOTUP_ERRORS_ENABLED);
               }
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              switch(WAND_YEAR_MODE) {
+                case YEAR_1984:
+                  WAND_YEAR_MODE = YEAR_1989;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+
+                  playEffect(W_NEUTRONA_WAND_1989_MODE);
+                break;
+
+                case YEAR_1989:
+                  WAND_YEAR_MODE = YEAR_AFTERLIFE;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+
+                  wandSerialSend(W_NEUTRONA_WAND_AFTERLIFE_MODE);
+                break;
+
+                case YEAR_AFTERLIFE:
+                  WAND_YEAR_MODE = YEAR_DEFAULT;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+
+                  wandSerialSend(W_NEUTRONA_WAND_DEFAULT_MODE);
+                break;
+
+                case YEAR_DEFAULT:
+                case YEAR_FROZEN_EMPIRE:
+                default:
+                  WAND_YEAR_MODE = YEAR_1984;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_1984);
+
+                  wandSerialSend(W_NEUTRONA_WAND_1984_MODE);
+                break;
+              }
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_5);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+
             }
           }
         break;
@@ -615,6 +712,29 @@ void mainLoop() {
               }
 
               setBargraphOrientation();
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_4);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              if(b_overheat_mode_4 == true) {
+                b_overheat_mode_4 = false;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_4_DISABLED);
+              }
+              else {
+                b_overheat_mode_4 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_4_ENABLED);
+              }
             }
           }
 
@@ -682,7 +802,7 @@ void mainLoop() {
                 break;
 
                 /*
-                // Keep for now, the 60 LED flexi-pcb is not attenable at the moment, but perhaps one day in the future.
+                // The 60 LED flexi-pcb may come one day in the future.
                 case 60:
                 default:
                   i_num_barrel_leds = 5;
@@ -699,6 +819,30 @@ void mainLoop() {
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               // Toggle Bargraph Overheat Blinking enabled/disabled
+              if(b_overheat_bargraph_blink == true) {
+                b_overheat_bargraph_blink = false;
+
+                stopEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_DISABLED);
+                stopEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_ENABLED);
+                playEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_DISABLED);
+
+                wandSerialSend(W_BARGRAPH_OVERHEAT_BLINK_DISABLED);
+              }
+              else {
+                b_overheat_bargraph_blink = true;
+
+                stopEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_DISABLED);
+                stopEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_ENABLED);
+                playEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_ENABLED);
+
+                wandSerialSend(W_BARGRAPH_OVERHEAT_BLINK_ENABLED);
+              }
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_4);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+
             }
           }
         break;
@@ -706,7 +850,7 @@ void mainLoop() {
         // Menu Level 1: Intensify: Enable or Disable overheating settings.
         // Menu Level 1: Barrel Wing Button: Enable or disable smoke.
         // Menu Level 2: Intensify: Enable/Disable MODE_ORIGINAL toggle switch sound effects.
-        // Menu Level 2: Barrel Wing Button: Cycle through VG color modes (see operational guide for more details on this).
+        // Menu Level 2: Barrel Wing Button: Cycle through VG color modes (see operational guide for more details on this). REPLACE THIS WITH SOMETHING ELSE?
         // Menu Level 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 3
@@ -722,6 +866,87 @@ void mainLoop() {
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Enable/Disable MODE_ORIGINAL toggle switch sound effects. b_mode_original_toggle_sounds_enabled
+              if(b_mode_original_toggle_sounds_enabled == true) {
+                b_mode_original_toggle_sounds_enabled = false;
+
+                stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
+                stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+                playEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
+
+                wandSerialSend(W_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
+              }
+              else {
+                b_mode_original_toggle_sounds_enabled = true;
+
+                stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
+                stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+                playEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+
+                wandSerialSend(W_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+              }
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              switch(BARGRAPH_MODE_EEPROM) {
+                case BARGRAPH_EEPROM_ORIGINAL:
+                  BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_SUPER_HERO;
+
+                  stopEffect(S_VOICE_DEFAULT_BARGRAPH);
+                  stopEffect(S_VOICE_SUPER_HERO_BARGRAPH);
+                  stopEffect(S_VOICE_MODE_ORIGINAL_BARGRAPH);
+                  playEffect(S_VOICE_SUPER_HERO_BARGRAPH);
+
+                  wandSerialSend(W_SUPER_HERO_BARGRAPH);
+                break;
+
+                case BARGRAPH_EEPROM_SUPER_HERO:
+                  BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
+
+                  stopEffect(S_VOICE_DEFAULT_BARGRAPH);
+                  stopEffect(S_VOICE_MODE_ORIGINAL_BARGRAPH);
+                  stopEffect(S_VOICE_SUPER_HERO_BARGRAPH);
+                  playEffect(S_VOICE_DEFAULT_BARGRAPH);
+
+                  wandSerialSend(W_DEFAULT_BARGRAPH);
+                break;
+
+                case BARGRAPH_EEPROM_DEFAULT:
+                default:
+                  BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_ORIGINAL;
+
+                  stopEffect(S_VOICE_DEFAULT_BARGRAPH);
+                  stopEffect(S_VOICE_MODE_ORIGINAL_BARGRAPH);
+                  stopEffect(S_VOICE_SUPER_HERO_BARGRAPH);
+                  playEffect(S_VOICE_MODE_ORIGINAL_BARGRAPH);
+
+                  wandSerialSend(W_MODE_ORIGINAL_BARGRAPH);
+                break;
+              }
+
+              // Reset the bargraph.
+              bargraphYearModeUpdate();
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_3);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              if(b_overheat_mode_3 == true) {
+                b_overheat_mode_3 = false;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_3_DISABLED);
+              }
+              else {
+                b_overheat_mode_3 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_3_ENABLED);
+              }
             }
           }
 
@@ -731,7 +956,54 @@ void mainLoop() {
               wandSerialSend(W_SMOKE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-                // Cycle through VG color modes (see operational guide for more details on this).
+              // Cycle through VG color modes (see operational guide for more details on this).
+              // REPLACE THIS WITH SOMETHING ELSE?
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
+                case BARGRAPH_EEPROM_ORIGINAL:
+                  BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_SUPER_HERO;
+
+                  stopEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
+                  stopEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
+                  stopEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
+                  playEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
+
+                  wandSerialSend(W_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
+                break;
+
+                case BARGRAPH_EEPROM_SUPER_HERO:
+                  BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
+
+                  stopEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
+                  stopEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
+                  stopEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
+                  playEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
+
+                  wandSerialSend(W_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
+                break;
+
+                case BARGRAPH_EEPROM_DEFAULT:
+                default:
+                  BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
+
+                  stopEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
+                  stopEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
+                  stopEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
+                  playEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
+
+                  wandSerialSend(W_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
+                break;
+              }
+
+              // Reset the bargraph.
+              bargraphYearModeUpdate();
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_3);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+
             }
           }
         break;
@@ -758,6 +1030,32 @@ void mainLoop() {
               // Sub menu.
               wandSerialSend(W_OVERHEAT_STROBE_TOGGLE);
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              wandSerialSend(W_DEMO_LIGHT_MODE_TOGGLE);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_2);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              if(b_overheat_mode_2 == true) {
+                b_overheat_mode_2 = false;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_2_DISABLED);
+              }
+              else {
+                b_overheat_mode_2 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_2_ENABLED);
+              }
+            }
           }
 
           // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
@@ -769,6 +1067,16 @@ void mainLoop() {
               // Sub menu.
               wandSerialSend(W_OVERHEAT_LIGHTS_OFF_TOGGLE);
             }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
+              wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_2);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+
+            }
           }
         break;
 
@@ -777,7 +1085,7 @@ void mainLoop() {
         // Menu Level 2: Intensify: 1984 / 1989 / Afterlife / Default (Proton Pack toggle switch) year mode selection.
         // Menu Level 2: Barrel Wing Button: Overheat sync to fan.
         // Menu Level 3: Intensify: Toggle between Super Hero and Original Mode.
-        // Menu Level 3: Barrel Wing Button: Toggle (?? UNUSED ??)
+        // Menu Level 3: Barrel Wing Button: Toggle CTS between: 1984/1989 CTS | 2021 CTS | Default CTS (Based on the year you are in)
         // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 1
         // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 1
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #1
@@ -793,6 +1101,78 @@ void mainLoop() {
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Sub menu.
               wandSerialSend(W_YEAR_MODES_CYCLE_EEPROM);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              switch(WAND_YEAR_CTS) {
+                case CTS_1984:
+                case CTS_1989:
+                  WAND_YEAR_CTS = CTS_AFTERLIFE;
+
+                  stopEffect(S_VOICE_CTS_AFTERLIFE);
+                  stopEffect(S_VOICE_CTS_1984);
+                  //stopEffect(S_VOICE_CTS_1989);
+                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_DEFAULT);
+
+                  playEffect(S_VOICE_CTS_AFTERLIFE);
+
+                  wandSerialSend(W_CTS_AFTERLIFE);
+                break;
+
+                case CTS_AFTERLIFE:
+                case CTS_FROZEN_EMPIRE:
+                  WAND_YEAR_CTS = CTS_DEFAULT;
+
+                  stopEffect(S_VOICE_CTS_DEFAULT);
+                  stopEffect(S_VOICE_CTS_AFTERLIFE);
+                  stopEffect(S_VOICE_CTS_1984);
+                  //stopEffect(S_VOICE_CTS_1989);
+                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+
+                  playEffect(S_VOICE_CTS_DEFAULT);
+
+                  wandSerialSend(W_CTS_DEFAULT);
+                break;
+
+                case CTS_DEFAULT:
+                default:
+                  WAND_YEAR_CTS = CTS_1984;
+
+                  stopEffect(S_VOICE_CTS_1984);
+                  stopEffect(S_VOICE_CTS_DEFAULT);
+                  stopEffect(S_VOICE_CTS_AFTERLIFE);
+                  //stopEffect(S_VOICE_CTS_1989);
+                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+
+                  playEffect(S_VOICE_CTS_1984);
+
+                  wandSerialSend(W_CTS_1984);
+                break;
+              }
+
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_1);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              if(b_overheat_mode_1 == true) {
+                b_overheat_mode_1 = false;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_1_DISABLED);
+              }
+              else {
+                b_overheat_mode_1 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_1_ENABLED);
+              }
             }
           }
 
@@ -814,8 +1194,17 @@ void mainLoop() {
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              // Sub menu.
               wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              // Toggle between Super Hero and Mode Original.
+              wandSerialSend(W_MODE_TOGGLE);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_1);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+
             }
           }
         break;
@@ -1060,38 +1449,47 @@ void mainLoop() {
 
               // There is no pack connected; let's change the years.
               if(b_no_pack == true) {
-                if(year_mode == 1984) {
-                  year_mode = 1989;
+                switch(SYSTEM_YEAR) {
+                  case SYSTEM_1984:
+                    SYSTEM_YEAR = SYSTEM_1989;
 
-                  stopEffect(S_VOICE_AFTERLIFE);
-                  stopEffect(S_VOICE_1984);
-                  stopEffect(S_VOICE_1989);
+                    stopEffect(S_VOICE_FROZEN_EMPIRE);
+                    stopEffect(S_VOICE_AFTERLIFE);
+                    stopEffect(S_VOICE_1984);
+                    stopEffect(S_VOICE_1989);
 
-                  playEffect(S_VOICE_1989);
+                    playEffect(S_VOICE_1989);
 
-                  bargraphYearModeUpdate();
-                }
-                else if(year_mode == 1989) {
-                  year_mode = 2021;
+                    bargraphYearModeUpdate();
+                  break;
 
-                  stopEffect(S_VOICE_AFTERLIFE);
-                  stopEffect(S_VOICE_1984);
-                  stopEffect(S_VOICE_1989);
+                  case SYSTEM_1989:
+                    SYSTEM_YEAR == SYSTEM_AFTERLIFE;
 
-                  playEffect(S_VOICE_AFTERLIFE);
+                    stopEffect(S_VOICE_FROZEN_EMPIRE);
+                    stopEffect(S_VOICE_AFTERLIFE);
+                    stopEffect(S_VOICE_1984);
+                    stopEffect(S_VOICE_1989);
 
-                  bargraphYearModeUpdate();
-                }
-                else if(year_mode == 2021) {
-                  year_mode = 1984;
+                    playEffect(S_VOICE_AFTERLIFE);
 
-                  stopEffect(S_VOICE_AFTERLIFE);
-                  stopEffect(S_VOICE_1989);
-                  stopEffect(S_VOICE_1984);
+                    bargraphYearModeUpdate();
+                  break;
 
-                  playEffect(S_VOICE_1984);
+                  case SYSTEM_AFTERLIFE:
+                  case SYSTEM_FROZEN_EMPIRE:
+                  default:
+                    SYSTEM_YEAR = SYSTEM_1984;
 
-                  bargraphYearModeUpdate();
+                    stopEffect(S_VOICE_FROZEN_EMPIRE);
+                    stopEffect(S_VOICE_AFTERLIFE);
+                    stopEffect(S_VOICE_1989);
+                    stopEffect(S_VOICE_1984);
+
+                    playEffect(S_VOICE_1984);
+
+                    bargraphYearModeUpdate();
+                  break;
                 }
               }
             }
@@ -1294,7 +1692,7 @@ void mainLoop() {
           bargraphPowerCheck();
         }
 
-        if(year_mode == 2021) {
+        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
           if(ms_gun_loop_1.justFinished() && switch_vent.getState() == HIGH) {
             playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - 1);
             b_sound_afterlife_idle_2_fade = false;
@@ -1471,7 +1869,7 @@ void overHeatingFinished() {
   else {
     soundIdleLoop(true);
 
-    if(switch_vent.getState() == HIGH && year_mode == 2021) {
+    if(switch_vent.getState() == HIGH && (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
       afterLifeRamp1();
     }
   }
@@ -2079,13 +2477,14 @@ void wandOff() {
   b_sound_afterlife_idle_2_fade = true;
 
   if(b_pack_ribbon_cable_on == true) {
-    switch(year_mode) {
-      case 1989:
-      case 1984:
+    switch(getNeutronaWandYearMode()) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
         // Nothing for now.
       break;
 
-      case 2021:
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
       default:
         if(WAND_ACTION_STATUS != ACTION_ERROR && b_pack_alarm != true) {
           playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
@@ -2167,8 +2566,10 @@ void wandOff() {
           // Turn off remaining lights.
           wandLightsOff();
 
-          switch(year_mode) {
-            case 2021:
+          switch(getNeutronaWandYearMode()) {
+            case SYSTEM_AFTERLIFE:
+            case SYSTEM_FROZEN_EMPIRE:
+            default:
               if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
                 i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
               }
@@ -2177,8 +2578,8 @@ void wandOff() {
               }
             break;
 
-            case 1984:
-            case 1989:
+            case SYSTEM_1984:
+            case SYSTEM_1989:
               i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
             break;
           }
@@ -2570,13 +2971,14 @@ void postActivation() {
     digitalWrite(led_white, LOW);
 
     if(b_pack_alarm != true) {
-      switch(year_mode) {
-        case 1984:
-        case 1989:
+      switch(getNeutronaWandYearMode()) {
+        case SYSTEM_1984:
+        case SYSTEM_1989:
           playEffect(S_CLICK);
         break;
 
-        case 2021:
+        case SYSTEM_AFTERLIFE:
+        case SYSTEM_FROZEN_EMPIRE:
         default:
           if(b_no_pack == true) {
             playEffect(S_BOOTUP);
@@ -2628,9 +3030,9 @@ void soundIdleLoopStop() {
 
 void soundIdleStart() {
   if(b_sound_idle == false) {
-    switch(year_mode) {
-      case 1984:
-      case 1989:
+    switch(getNeutronaWandYearMode()) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
         playEffect(S_BOOTUP);
 
         soundIdleLoop(true);
@@ -2638,7 +3040,8 @@ void soundIdleStart() {
         b_sound_idle = true;
       break;
 
-      case 2021:
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
       default:
         stopEffect(S_AFTERLIFE_WAND_RAMP_1);
         stopEffect(S_AFTERLIFE_WAND_IDLE_2);
@@ -2679,7 +3082,7 @@ void soundIdleStart() {
     }
   }
 
-  if(year_mode == 2021) {
+  if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
     if(ms_gun_loop_2.justFinished()) {
       playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 1);
 
@@ -2694,16 +3097,17 @@ void soundIdleStart() {
 
 void soundIdleStop() {
   if(b_sound_idle == true) {
-    switch(year_mode) {
-      case 1984:
-      case 1989:
+    switch(getNeutronaWandYearMode()) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
         if(WAND_ACTION_STATUS != ACTION_OFF) {
           stopEffect(S_WAND_SHUTDOWN);
           playEffect(S_WAND_SHUTDOWN);
         }
       break;
 
-      case 2021:
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
       default:
         if(b_pack_ribbon_cable_on == true) {
           if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
@@ -2734,14 +3138,16 @@ void soundIdleStop() {
   }
 
   if(b_sound_idle == true) {
-    switch(year_mode) {
-      case 1984:
-      case 1989:
+    switch(getNeutronaWandYearMode()) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
         stopEffect(S_BOOTUP);
         soundIdleLoopStop();
       break;
 
-      case 2021:
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
+      default:
         stopEffect(S_AFTERLIFE_WAND_RAMP_2);
         stopEffect(S_AFTERLIFE_WAND_IDLE_2);
 
@@ -2775,7 +3181,7 @@ void soundBeepLoop() {
     if(b_beeping == false) {
       switch(i_power_mode) {
         case 1:
-          if(year_mode == 2021) {
+          if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
           }
           else {
@@ -2784,7 +3190,7 @@ void soundBeepLoop() {
         break;
 
         case 2:
-         if(year_mode == 2021) {
+         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
           }
           else {
@@ -2793,7 +3199,7 @@ void soundBeepLoop() {
         break;
 
         case 3:
-         if(year_mode == 2021) {
+         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
           }
           else {
@@ -2802,7 +3208,7 @@ void soundBeepLoop() {
         break;
 
         case 4:
-         if(year_mode == 2021) {
+         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
           }
           else {
@@ -2811,7 +3217,7 @@ void soundBeepLoop() {
         break;
 
         case 5:
-         if(year_mode == 2021) {
+         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
           }
           else {
@@ -2831,7 +3237,7 @@ void modeFireStartSounds() {
   ms_firing_start_sound_delay.stop();
 
   // Some sparks for firing start.
-  if(year_mode == 1989) {
+  if(SYSTEM_YEAR == SYSTEM_1989) {
     playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
   }
   else {
@@ -2849,7 +3255,7 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_intensify_trigger = true;
 
-              if(year_mode == 1989) {
+              if(SYSTEM_YEAR == SYSTEM_1989) {
                 playEffect(S_GB2_FIRE_START);
                 playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
               }
@@ -2866,7 +3272,7 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              if(year_mode == 1989) {
+              if(SYSTEM_YEAR == SYSTEM_1989) {
                 playEffect(S_GB2_FIRE_START);
               }
 
@@ -2878,17 +3284,18 @@ void modeFireStartSounds() {
           break;
 
           case 5:
-            switch(year_mode) {
-              case 1989:
+            switch(SYSTEM_YEAR) {
+              case SYSTEM_1989:
                 playEffect(S_GB2_FIRE_START);
               break;
 
-              case 1984:
+              case SYSTEM_1984:
                 playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
                 playEffect(S_GB1_FIRE_START);
               break;
 
-              case 2021:
+              case SYSTEM_AFTERLIFE:
+              case SYSTEM_FROZEN_EMPIRE:
               default:
                 playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
               break;
@@ -2994,7 +3401,7 @@ void modeFireStart() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(year_mode == 1989) {
+      if(SYSTEM_YEAR == SYSTEM_1989) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
       }
@@ -3118,22 +3525,46 @@ void modeFireStopSounds() {
   }
 
   if(b_firing_cross_streams == true) {
-    switch(year_mode) {
-      case 2021:
+    switch(WAND_YEAR_CTS) {
+      case CTS_AFTERLIFE:
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
       break;
 
-      case 1984:
-      case 1989:
+      case CTS_1984:
+      case CTS_1989:
         stopEffect(S_CROSS_STREAMS_START);
         stopEffect(S_CROSS_STREAMS_END);
 
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
       break;
+
+      case CTS_DEFAULT:
+      case CTS_FROZEN_EMPIRE:
+      default:
+        switch(SYSTEM_YEAR) {
+          case SYSTEM_AFTERLIFE:
+          case SYSTEM_FROZEN_EMPIRE:
+          default:
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+          break;
+
+          case SYSTEM_1984:
+          case SYSTEM_1989:
+            stopEffect(S_CROSS_STREAMS_START);
+            stopEffect(S_CROSS_STREAMS_END);
+
+            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+          break;
+        }
+      break;
     }
+
 
     b_firing_cross_streams = false;
   }
@@ -3225,7 +3656,7 @@ void modeFireStop() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(year_mode == 1989) {
+      if(SYSTEM_YEAR == SYSTEM_1989) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
       }
@@ -3281,7 +3712,7 @@ void modeFiring() {
 
       switch(i_power_mode) {
         case 1 ... 4:
-          if(year_mode == 1989) {
+          if(SYSTEM_YEAR == SYSTEM_1989) {
             playEffect(S_GB2_FIRE_START);
             playEffect(S_GB2_FIRE_LOOP, true);
           }
@@ -3311,7 +3742,7 @@ void modeFiring() {
 
       switch(i_power_mode) {
         case 1 ... 4:
-          if(year_mode == 1989) {
+          if(SYSTEM_YEAR == SYSTEM_1989) {
             stopEffect(S_GB2_FIRE_LOOP);
             stopEffect(S_GB2_FIRE_START);
           }
@@ -3368,29 +3799,85 @@ void modeFiring() {
     b_firing_cross_streams = true;
     b_sound_firing_cross_the_streams = true;
 
-    switch(year_mode) {
-      case 2021:
+    switch(WAND_YEAR_CTS) {
+      case CTS_AFTERLIFE:
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+
+        if(b_cross_the_streams_mix == true) {
+          // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
+          wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_2021);
+        }
+        else {
+          // Tell the Proton Pack that the Neutrona Wand is crossing the streams.
+          wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_2021);
+        }
       break;
 
-      case 1984:
-      case 1989:
+      case CTS_1984:
+      case CTS_1989:
         stopEffect(S_CROSS_STREAMS_END);
         stopEffect(S_CROSS_STREAMS_START);
 
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+
+        if(b_cross_the_streams_mix == true) {
+          // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
+          wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_1984);
+        }
+        else {
+          // Tell the Proton Pack that the Neutrona Wand is crossing the streams.
+          wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_1984);
+        }
+      break;
+
+      case CTS_DEFAULT:
+      case CTS_FROZEN_EMPIRE:
+      default:
+        switch(SYSTEM_YEAR) {
+          case SYSTEM_AFTERLIFE:
+          case SYSTEM_FROZEN_EMPIRE:
+          default:
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+
+            if(b_cross_the_streams_mix == true) {
+              // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
+              wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_2021);
+            }
+            else {
+              // Tell the Proton Pack that the Neutrona Wand is crossing the streams.
+              wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_2021);
+            }
+          break;
+
+          case SYSTEM_1984:
+          case SYSTEM_1989:
+            stopEffect(S_CROSS_STREAMS_END);
+            stopEffect(S_CROSS_STREAMS_START);
+
+            playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+
+            if(b_cross_the_streams_mix == true) {
+              // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
+              wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_1984);
+            }
+            else {
+              // Tell the Proton Pack that the Neutrona Wand is crossing the streams.
+              wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_1984);
+            }
+          break;
+        }
       break;
     }
 
     playEffect(S_FIRE_START_SPARK);
 
     if(b_cross_the_streams_mix == true || b_vg_mode == true) {
-      // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
-      wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX);
-
       playEffect(S_FIRING_LOOP_GB1, true);
 
       if(i_power_mode != i_power_mode_max && b_sound_firing_cross_the_streams_mix != true) {
@@ -3401,34 +3888,58 @@ void modeFiring() {
       stopEffect(S_GB2_FIRE_LOOP);
       stopEffect(S_GB1_FIRE_LOOP);
     }
-    else {
-      // Tell the Proton Pack that the Neutrona Wand is crossing the streams.
-      wandSerialSend(W_FIRING_CROSSING_THE_STREAMS);
-    }
   }
 
   if((b_firing_alt != true && b_firing_intensify != true) && b_firing_cross_streams == true && b_cross_the_streams_mix != true) {
     // Can let go of a button and still fires.
-    // Tell the Proton Pack that the Neutrona Wand is no longer crossing the streams.
-    wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED);
-
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
 
-    switch(year_mode) {
-      case 2021:
+    switch(WAND_YEAR_CTS) {
+      case CTS_AFTERLIFE:
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+
+        wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_2021);
       break;
 
-      case 1984:
-      case 1989:
+      case CTS_1984:
+      case CTS_1989:
         stopEffect(S_CROSS_STREAMS_START);
         stopEffect(S_CROSS_STREAMS_END);
 
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+
+        wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984);
+      break;
+
+      case CTS_DEFAULT:
+      case CTS_FROZEN_EMPIRE:
+      default:
+        switch(SYSTEM_YEAR) {
+          case SYSTEM_AFTERLIFE:
+          case SYSTEM_FROZEN_EMPIRE:
+          default:
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+
+            wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_2021);
+          break;
+
+          case SYSTEM_1984:
+          case SYSTEM_1989:
+            stopEffect(S_CROSS_STREAMS_START);
+            stopEffect(S_CROSS_STREAMS_END);
+
+            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+
+            wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984);
+          break;
+        }
       break;
     }
 
@@ -3436,26 +3947,53 @@ void modeFiring() {
   }
   else if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && (b_cross_the_streams_mix == true || b_vg_mode == true)) {
     // Let go of a button and it reverts back to the other firing mode.
-    // Tell the Proton Pack that the Neutrona Wand is no longer crossing the streams.
-    wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX);
-
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
 
-    switch(year_mode) {
-      case 2021:
+    switch(WAND_YEAR_CTS) {
+      case CTS_AFTERLIFE:
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+
+        wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021);
       break;
 
-      case 1984:
-      case 1989:
+      case CTS_1984:
+      case CTS_1989:
         stopEffect(S_CROSS_STREAMS_START);
         stopEffect(S_CROSS_STREAMS_END);
 
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+
+        wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_1984);
+      break;
+
+      case CTS_DEFAULT:
+      case CTS_FROZEN_EMPIRE:
+        switch(SYSTEM_YEAR) {
+          case SYSTEM_AFTERLIFE:
+          case SYSTEM_FROZEN_EMPIRE:
+          default:
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+
+            wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021);
+          break;
+
+          case SYSTEM_1984:
+          case SYSTEM_1989:
+            stopEffect(S_CROSS_STREAMS_START);
+            stopEffect(S_CROSS_STREAMS_END);
+
+            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+
+            wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_1984);
+          break;
+        }
       break;
     }
   }
@@ -6303,6 +6841,29 @@ void prepBargraphRampUp() {
   }
 }
 
+// Return the year mode that the Neturona Wand is suppose to be in. Or if overridden to be in a different year by the user.
+unsigned int getNeutronaWandYearMode() {
+  switch(WAND_YEAR_MODE) {
+    case YEAR_1984:
+      return SYSTEM_1984;
+    break;
+
+    case YEAR_1989:
+      return SYSTEM_1989;
+    break;
+
+    case YEAR_AFTERLIFE:
+      return SYSTEM_AFTERLIFE;
+    break;
+
+    case YEAR_DEFAULT:
+    case YEAR_FROZEN_EMPIRE:
+    default:
+      return SYSTEM_YEAR;
+    break;
+  }
+}
+
 void bargraphYearModeUpdate() {
   // Set the bargraph settings based on data saved in the EEPROM.
   switch(BARGRAPH_MODE_EEPROM) {
@@ -6323,13 +6884,14 @@ void bargraphYearModeUpdate() {
 
         case MODE_SUPER_HERO:
         default:
-          switch(year_mode) {
-            case 1984:
-            case 1989:
+          switch(getNeutronaWandYearMode()) {
+            case SYSTEM_1984:
+            case SYSTEM_1989:
               BARGRAPH_MODE = BARGRAPH_SUPER_HERO;
             break;
 
-            case 2021:
+            case SYSTEM_AFTERLIFE:
+            case SYSTEM_FROZEN_EMPIRE:
             default:
               BARGRAPH_MODE = BARGRAPH_ORIGINAL;
             break;
@@ -7143,15 +7705,17 @@ void checkRotary() {
 
               soundBeepLoopStop();
 
-              switch(year_mode) {
-                case 1984:
-                case 1989:
+              switch(SYSTEM_YEAR) {
+                case SYSTEM_1984:
+                case SYSTEM_1989:
                   if(switch_vent.getState() == LOW) {
                     soundIdleLoopStop();
                     soundIdleLoop(false);
                   }
                 break;
 
+                case SYSTEM_AFTERLIFE:
+                case SYSTEM_FROZEN_EMPIRE:
                 default:
                     soundIdleLoopStop();
                     soundIdleLoop(false);
@@ -7205,15 +7769,17 @@ void checkRotary() {
 
                 soundBeepLoopStop();
 
-                switch(year_mode) {
-                  case 1984:
-                  case 1989:
+                switch(getNeutronaWandYearMode()) {
+                  case SYSTEM_1984:
+                  case SYSTEM_1989:
                     if(switch_vent.getState() == LOW) {
                       soundIdleLoopStop();
                       soundIdleLoop(false);
                     }
                   break;
 
+                  case SYSTEM_AFTERLIFE:
+                  case SYSTEM_FROZEN_EMPIRE:
                   default:
                       soundIdleLoopStop();
                       soundIdleLoop(false);
@@ -7448,7 +8014,7 @@ void switchModePressedReset() {
 
 // Barrel safety switch is connected to analog pin 7.
 // PCB builds is pulled high as digital input.
-// At some point, switch this to a ezButton.
+// Maybe switch it to a ezButton later??
 void switchBarrel() {
   if(digitalRead(switch_barrel) == LOW && ms_switch_barrel_debounce.remaining() < 1) {
     ms_switch_barrel_debounce.start(switch_debounce_time * 5);
@@ -7461,7 +8027,7 @@ void switchBarrel() {
   }
   else if(digitalRead(switch_barrel) == HIGH && ms_switch_barrel_debounce.remaining() < 1) {
     // Play the Afterlife Barrel extension sound effect.
-    if(year_mode == 2021 && b_switch_barrel_extended != true) {
+    if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_switch_barrel_extended != true) {
       // Plays the "thwoop" barrel extension sound in Afterlife mode.
       playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
     }
@@ -7596,10 +8162,22 @@ void checkPack() {
 
             case P_MODE_SUPER_HERO:
               SYSTEM_MODE = MODE_SUPER_HERO;
+
+              if(b_sync != true) {
+                stopEffect(S_VOICE_MODE_SUPER_HERO);
+                stopEffect(S_VOICE_MODE_ORIGINAL);
+                playEffect(S_VOICE_MODE_SUPER_HERO);
+              }
             break;
 
             case P_MODE_ORIGINAL:
               SYSTEM_MODE = MODE_ORIGINAL;
+
+              if(b_sync != true) {
+                stopEffect(S_VOICE_MODE_ORIGINAL);
+                stopEffect(S_VOICE_MODE_SUPER_HERO);
+                playEffect(S_VOICE_MODE_ORIGINAL);
+              }
             break;
 
             case P_OVERHEATING_FINISHED:
@@ -7690,7 +8268,7 @@ void checkPack() {
               if(WAND_STATUS == MODE_ON && b_pack_alarm != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
                 soundIdleLoop(true);
 
-                if(year_mode == 2021) {
+                if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
                   stopEffect(S_BOOTUP);
                   playEffect(S_BOOTUP);
 
@@ -7708,13 +8286,14 @@ void checkPack() {
               b_pack_ribbon_cable_on = false;
 
               if(WAND_STATUS == MODE_ON && b_pack_alarm == true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-                switch(year_mode) {
-                  case 1989:
-                  case 1984:
+                switch(getNeutronaWandYearMode()) {
+                  case SYSTEM_1984:
+                  case SYSTEM_1989:
                     // Nothing for now.
                   break;
 
-                  case 2021:
+                  case SYSTEM_AFTERLIFE:
+                  case SYSTEM_FROZEN_EMPIRE:
                   default:
                       stopEffect(S_WAND_SHUTDOWN);
                       playEffect(S_WAND_SHUTDOWN);
@@ -7809,19 +8388,24 @@ void checkPack() {
 
             case P_YEAR_1984:
               // 1984 mode.
-              year_mode = 1984;
+              SYSTEM_YEAR = SYSTEM_1984;
               bargraphYearModeUpdate();
             break;
 
             case P_YEAR_1989:
               // 1984 mode.
-              year_mode = 1989;
+              SYSTEM_YEAR = SYSTEM_1989;
               bargraphYearModeUpdate();
             break;
 
             case P_YEAR_AFTERLIFE:
               // 2021 mode.
-              year_mode = 2021;
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              bargraphYearModeUpdate();
+            break;
+
+            case P_YEAR_FROZEN_EMPIRE:
+              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
               bargraphYearModeUpdate();
             break;
 
@@ -7941,8 +8525,19 @@ void checkPack() {
               playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
             break;
 
+            case P_MODE_FROZEN_EMPIRE:
+              // Play Frozen Empire voice.
+              stopEffect(S_VOICE_FROZEN_EMPIRE);
+              stopEffect(S_VOICE_AFTERLIFE);
+              stopEffect(S_VOICE_1989);
+              stopEffect(S_VOICE_1984);
+
+              playEffect(S_VOICE_FROZEN_EMPIRE);
+            break;
+
             case P_MODE_AFTERLIFE:
-              // Play 2021 voice.
+              // Play Afterlife voice.
+              stopEffect(S_VOICE_FROZEN_EMPIRE);
               stopEffect(S_VOICE_AFTERLIFE);
               stopEffect(S_VOICE_1989);
               stopEffect(S_VOICE_1984);
@@ -7952,6 +8547,7 @@ void checkPack() {
 
             case P_MODE_1989:
               // Play 1989 voice.
+              stopEffect(S_VOICE_FROZEN_EMPIRE);
               stopEffect(S_VOICE_AFTERLIFE);
               stopEffect(S_VOICE_1989);
               stopEffect(S_VOICE_1984);
@@ -7961,6 +8557,7 @@ void checkPack() {
 
             case P_MODE_1984:
               // Play 1984 voice.
+              stopEffect(S_VOICE_FROZEN_EMPIRE);
               stopEffect(S_VOICE_AFTERLIFE);
               stopEffect(S_VOICE_1989);
               stopEffect(S_VOICE_1984);
@@ -8158,6 +8755,20 @@ void checkPack() {
               playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
             break;
 
+            case P_DEMO_LIGHT_MODE_ENABLED:
+              stopEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
+              stopEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
+
+              playEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
+            break;
+
+            case P_DEMO_LIGHT_MODE_DISABLED:
+              stopEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
+              stopEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
+
+              playEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
+            break;
+
             case P_PROTON_MODE:
               FIRING_MODE = PROTON;
               PREV_FIRING_MODE = SETTINGS;
@@ -8331,6 +8942,7 @@ void checkPack() {
 
             case P_YEAR_MODE_DEFAULT:
               stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
+              stopEffect(S_VOICE_FROZEN_EMPIRE);
               stopEffect(S_VOICE_AFTERLIFE);
               stopEffect(S_VOICE_1984);
               stopEffect(S_VOICE_1989);

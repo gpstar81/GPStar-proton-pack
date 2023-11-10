@@ -59,7 +59,7 @@ void setup() {
   // Assume the Super Hero arming mode with Afterlife (default for Haslab).
   ARMING_MODE = MODE_SUPERHERO;
   RED_SWITCH_MODE = SWITCH_ON;
-  YEAR_MODE = YEAR_2021;
+  SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
@@ -796,25 +796,32 @@ i_music_track_count = 20; // REMOVE ME - DEBUG ONLY!
           break;
 
           case A_YEAR_1984:
-            if(YEAR_MODE != YEAR_1984) {
+            if(SYSTEM_YEAR != SYSTEM_1984) {
               debug("Mode 1984");
-              YEAR_MODE = YEAR_1984;
+              SYSTEM_YEAR = SYSTEM_1984;
             }
           break;
 
           case A_YEAR_1989:
-            if(YEAR_MODE != YEAR_1989) {
+            if(SYSTEM_YEAR != SYSTEM_1989) {
               debug("Mode 1989");
-              YEAR_MODE = YEAR_1989;
+              SYSTEM_YEAR = SYSTEM_1989;
             }
           break;
 
           case A_YEAR_AFTERLIFE:
-            if(YEAR_MODE != YEAR_2021) {
+            if(SYSTEM_YEAR != SYSTEM_AFTERLIFE) {
               debug("Mode 2021");
-              YEAR_MODE = YEAR_2021;
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
             }
           break;
+
+          // case A_YEAR_FROZEN_EMPIRE:
+          //   if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE) {
+          //     debug("Mode 2024");
+          //     SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+          //   }
+          // break;
 
           case A_PROTON_MODE:
             debug("Proton");

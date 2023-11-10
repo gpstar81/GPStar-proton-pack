@@ -29,6 +29,9 @@ enum WAND_STATE WAND_STATUS;
 enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
+enum SYSTEM_YEARS { SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
+enum SYSTEM_YEARS SYSTEM_YEAR;
+
 /*
  * System modes.
  * Super Hero: A idealised system based on the close up of the Super Hero Proton Pack and Neutrona Wand in the 1984 Rooftop closeup scene and what is shown in Afterlife. (Different toggle switch sequences for turning on the pack and wand)
@@ -37,6 +40,15 @@ enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
+
+/*
+ * Which year mode the Neutrona Wand is set into, regardless of which year the Proton Pack is in.
+ * This affects just various wand beep sound effects, loops and lighting and bargraph.
+ * However the bargraph animations can be overridden with BARGRAPH_MODE and BARGRAPH_FIRING_ANIMATION
+ * YEAR_DEFAULT lets the system choose based on the Proton Pack year settings.
+*/
+enum WAND_YEAR_MODES { YEAR_DEFAULT, YEAR_1984, YEAR_1989, YEAR_AFTERLIFE, YEAR_FROZEN_EMPIRE };
+enum WAND_YEAR_MODES WAND_YEAR_MODE;
 
 /*
  * Bargraph modes.
@@ -48,6 +60,7 @@ enum BARGRAPH_MODES BARGRAPH_MODE;
 
 /*
  * Used for manually toggling between the different bragraph modes and saving to the EEPROM memory.
+ * This is the setting you want to change as the system uses this to configure the BARGRAPH_MODE.
 */
 enum BARGRAPH_MODES_EEPROM { BARGRAPH_EEPROM_DEFAULT, BARGRAPH_EEPROM_SUPER_HERO, BARGRAPH_EEPROM_ORIGINAL };
 enum BARGRAPH_MODES_EEPROM BARGRAPH_MODE_EEPROM;
@@ -62,9 +75,18 @@ enum BARGRAPH_FIRING_ANIMATIONS BARGRAPH_FIRING_ANIMATION;
 
 /*
  * Used for manually toggling between the different bragraph firing animation modes and saving to the EEPROM memory.
+ * This is the setting you want to change as the system uses this to configure the BARGRAPH_FIRING_ANIMATION.
 */
 enum BARGRAPH_EEPROM_FIRING_ANIMATIONS { BARGRAPH_EEPROM_ANIMATION_DEFAULT, BARGRAPH_EEPROM_ANIMATION_SUPER_HERO, BARGRAPH_EEPROM_ANIMATION_ORIGINAL };
 enum BARGRAPH_EEPROM_FIRING_ANIMATIONS BARGRAPH_EEPROM_FIRING_ANIMATION;
+
+/*
+ * Which CTS "Cross The Streams" year mode the Neutrona Wand is set into. The Proton Pack will match this when set.
+ * This affects which CTS "Cross The Streams" is used. The sound effects are different depending on the year.
+ * CTS_DEFAULT lets the system choose based on the year setting of the Proton Pack.
+*/
+enum WAND_YEAR_CTS_SETTING { CTS_DEFAULT, CTS_1984, CTS_1989, CTS_AFTERLIFE, CTS_FROZEN_EMPIRE };
+enum WAND_YEAR_CTS_SETTING WAND_YEAR_CTS;
 
 /*
  * For MODE_ORIGINAL. Let's us know if the Proton Pack Ion Arm switch is on to give power to the Proton Pack and Neutrona Wand.

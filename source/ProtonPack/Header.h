@@ -76,6 +76,12 @@ uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
 */
 #define HASLAB_CYCLOTRON_LED_COUNT 12
 
+// The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in the Configuration.h
+unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for the Frutto Technology Cyclotron or a 40 LED NeoPixel ring.
+
+// The middle centre LED.
+uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
+
 /*
  * Proton Pack Power Cell and Cyclotron lid LED pin.
 */
@@ -212,6 +218,7 @@ ezButton switch_vibration(27); // Vibration toggle switch
 ezButton switch_cyclotron_direction(29); // Newly added switch for controlling the direction of the Cyclotron lights. Not required. Defaults to clockwise.
 ezButton switch_power(31); // Red power switch under the Ion Arm.
 ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
+//bool b_neutrona_wand_barrel_extended = false; // Unused at the moment.
 
 /* 
  *  WAV Trigger
@@ -299,6 +306,8 @@ const unsigned long int i_smoke_on_time[5] = { i_smoke_on_time_mode_1, i_smoke_o
 const bool b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
 const bool b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
 millisDelay ms_overheating_length; // The total length of the when the fans turn on (or smoke if smoke synced to fan)
+const unsigned int i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
+const unsigned int i_overheat_delay_max = 60000; // The max length a overheat can be.
 
 /*
  * N-Filter LED (White) (Optional)
@@ -331,12 +340,17 @@ enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
 
 /*
+ * Cross The Streams Status
+*/
+enum STATUS_CROSS_THE_STREAMS { CTS_FIRING_1984, CTS_FIRING_2021, CTS_NOT_FIRING };
+enum STATUS_CROSS_THE_STREAMS STATUS_CTS;
+
+/*
  *  Wand Status
  */
 bool b_wand_firing = false;
 bool b_firing_alt = false;
 bool b_firing_intensify = false;
-bool b_firing_cross_streams = false;
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_wand_connected = false;
@@ -430,16 +444,22 @@ enum device {
 };
 
 /*
+ * The year the Proton Pack operates in.
+ * SYSTEM_EMPTY is just a empty place holder. We need this as we write this data to the EEPROM.
+*/
+enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
+enum SYSTEM_YEARS SYSTEM_YEAR;
+enum SYSTEM_YEARS SYSTEM_YEAR_TEMP;
+enum SYSTEM_YEARS SYSTEM_EEPROM_YEAR;
+
+/*
  * Misc.
  */
-unsigned int i_mode_year = 2021; // 1984, 1989 or 2021
-unsigned int i_mode_year_tmp = 2021; // Controlled by the Neutrona Wand.
 bool b_switch_mode_override = false; // Year mode override flag controlled by the Neutrona Wand. This resets when you flip the mode year toggle switch on the pack.
 bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
 bool b_fade_out = false;
-uint8_t i_year_mode_eeprom = 1; // 1 = Toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife.
 millisDelay ms_fadeout;
 
 /*
