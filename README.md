@@ -39,32 +39,21 @@ That's alright, this will help you study. Below you will find the various guides
 
 ---
 
-### DIY Arduino Build Guides
+### Serial Expansion Controller
 
-Considered the "legacy" guide to building your own solution using the Arduino platform.
-This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
+These are devices which utilize the available expansion port on the gpstar Proton Pack controller. Both devices are based on the same software which drives the Attenuator device, but can also be used without inputs or other devices to provide a WiFi capability to your Proton Pack. Please read the guides for more specific details.
 
-1. [Bill of Materials](BOM.md)
+Note: As of November 2023 these are DIY devices! Parts for the Wireless Adapter can be ordered 100% from Amazon and can be assembled without soldering. However, the Attenuator will require some minor soldering to make use of all features available.
 
-1. [Power Requirements](POWER.md)
+1. [Wireless Adapter](WIRELESS.md) - Scaled-Down Attenuator
 
-1. [Compiling and Uploading the code](ARDUINO_FLASHING.md)
-
-1. [WAV Trigger Configuration](WAVTRIGGER.md)
-
-1. [Loading The Audio Files](AUDIO.md)
-
-1. [Pack Setup](PACK.md)
-
-1. [Wand Setup](WAND.md)
-
-1. [Hose Connections](HOSE.md)
+1. [Pack Attenuator](ATTENUATOR.md) - Full Device Implementation
 
 ---
 
 ### Addendums
 
-These apply to the normal operation and usage of the equipment regardless of which microcontroller boards you are using.
+These apply to the normal operation and usage of the equipment, as well as add-on items which may be integrated with the gpstar controllers.
 
 1. [Operation Manual](OPERATION.md)
 
@@ -86,9 +75,30 @@ These apply to the normal operation and usage of the equipment regardless of whi
 
 1. [Neutrona Wand High Intensity Vent Light](VENTLIGHT.md) (Optional add-on)
 
-1. [Pack Attenuator](ATTENUATOR.md) (Optional add-on)
-
 1. [Frequently Asked Questions](FAQ.md)
+
+---
+
+### DIY Arduino Build Guides
+
+Considered the "legacy" guide to building your own solution using the Arduino platform.
+This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
+
+1. [Bill of Materials](BOM.md)
+
+1. [Power Requirements](POWER.md)
+
+1. [Compiling and Uploading the code](ARDUINO_FLASHING.md)
+
+1. [WAV Trigger Configuration](WAVTRIGGER.md)
+
+1. [Loading The Audio Files](AUDIO.md)
+
+1. [Pack Setup](PACK.md)
+
+1. [Wand Setup - DEPRECATED](WAND.md)
+
+1. [Hose Connections](HOSE.md)
 
 ## Walkthrough Videos ##
 
