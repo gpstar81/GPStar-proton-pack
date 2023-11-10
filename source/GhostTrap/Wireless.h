@@ -35,8 +35,8 @@ String ap_pass; // Reserved for storing the true AP password set by the user.
 
 // Prepare variables for client connections
 millisDelay ms_wifiretry;
-const unsigned int i_wifi_retry_wait = 500; // How long between attempts to find the wifi network
-const unsigned int i_websocket_retry_wait = 5000; // How long between restoring the websocket
+const unsigned int i_wifi_retry_wait = 1000; // How long between attempts to find the wifi network
+const unsigned int i_websocket_retry_wait = 3000; // How long between restoring the websocket
 bool b_wifi_connected = false; // Denotes connection to expected wifi network
 bool b_socket_config = false; // Denotes websocket configuration was performed
 
