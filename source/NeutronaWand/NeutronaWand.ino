@@ -2330,7 +2330,7 @@ void checkSwitches() {
             }
           }
           else {
-            if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU || WAND_ACTION_STATUS != ACTION_EEPROM_MENU || WAND_ACTION_STATUS != ACTION_SETTINGS) {
+            if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_SETTINGS) {
               wandLightsOff();
             }
           }
