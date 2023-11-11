@@ -5384,7 +5384,7 @@ void checkWand() {
               stopEffect(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
               stopEffect(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
               stopEffect(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
-              stopEffect(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
+              stopEffect(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);          
 
               // Toggle through the various Video Game Colour Modes for the Proton Pack LEDs (if supported).
               if(b_cyclotron_colour_toggle == true && b_powercell_colour_toggle == true) {
@@ -7707,7 +7707,57 @@ void saveConfigEEPROM() {
     i_overheat_sync_to_fan = 1;
   }
 
+
   unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
+
+  if(b_cyclotron_colour_toggle == true && b_powercell_colour_toggle == true) {
+    // Disabled, both Cyclotron and Power Cell video game colours.
+    b_cyclotron_colour_toggle = false;
+    b_powercell_colour_toggle = false;
+  else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle != true) {
+    // Power Cell only.
+    b_cyclotron_colour_toggle = false;
+    b_powercell_colour_toggle = true;
+  else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle == true) {
+    // Cyclotron only.
+    b_cyclotron_colour_toggle = true;
+    b_powercell_colour_toggle = false;
+  else {
+    // Enabled, both Cyclotron and Power Cell video game colours.
+    b_cyclotron_colour_toggle = true;
+    b_powercell_colour_toggle = true;
+  }    
+
+  // 1 = false, 2 = true;
+  uint8_t i_vga_powercell = 1;
+  uint8_t i_vga_cyclotron = 1;
+  uint8_t i_demo_light_mode = 1;
+  uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led. 2 = three leds.
+  uint8_t i_default_system_volume = 101; // 101 will be 0. So Our range will be -1 to -70 (up to -100). 0 Volume (loudest) will be indicated as 101 in the EEPROM.
+
+  if(b_powercell_colour_toggle == true) {
+    i_vga_powercell = 2; // 1 = false, 2 = true;
+  }
+
+  if(b_cyclotron_colour_toggle == true) {
+    i_vga_cyclotron = 2;
+  }
+
+  if(b_demo_light_mode == true) {
+    i_demo_light_mode = 2;
+  }
+
+  if(b_cyclotron_single_led != true) {
+    i_cyclotron_three_led_toggle = 2;
+  }
+
+  // We are only storying positive 8 bit integers into the EEPROM.
+  if(i_volume_master_eeprom < -100) {
+    i_default_system_volume = 100;
+  }
+  else if(i_volume_master_eeprom < 0) {
+    i_default_system_volume = abs(i_volume_master_eeprom);
+  }
 
   objConfigEEPROM obj_eeprom = {
     i_proton_stream_effects,
@@ -7717,7 +7767,25 @@ void saveConfigEEPROM() {
     i_overheat_strobe,
     i_overheat_lights_off,
     i_overheat_sync_to_fan,
-    i_year_mode_eeprom
+    i_year_mode_eeprom,
+
+    i_vga_powercell,
+    i_vga_cyclotron
+    i_demo_light_mode,
+    i_cyclotron_three_leds,
+    i_default_system_volume
+    /*
+    i_overheat_smoke_duration_level_5,
+    i_overheat_smoke_duration_level_4,
+    i_overheat_smoke_duration_level_3,
+    i_overheat_smoke_duration_level_2,
+    i_overheat_smoke_duration_level_1,
+    i_smoke_continuous_mode_5,
+    i_smoke_continuous_mode_4,
+    i_smoke_continuous_mode_3,
+    i_smoke_continuous_mode_2,
+    i_smoke_continuous_mode_1
+    */
   };
 
   // Save to the EEPROM.

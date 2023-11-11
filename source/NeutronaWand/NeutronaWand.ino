@@ -480,7 +480,7 @@ void mainLoop() {
         // Menu Level 2: Barrel Wing Button: Wand Boot Errors.
         // Menu Level 3: Intensify + top dial: Default main system volume.
         // Menu Level 3: Barrel Wing Button: Set Neutrona Wand to 1984/1989 Mode | Set Neutrona Wand to 2021 Mode | Default (Matches the Proton Pack)
-        // Menu Level 4: Intensify + top dial: Adjust overheat duration by 1 second : Power Mode 5
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 5
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 5
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #5
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #5
@@ -525,12 +525,10 @@ void mainLoop() {
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               // Main system volume adjustment.
               // Adjustment is handled in checkRotary();
-
               stopEffect(S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
               playEffect(S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
 
               wandSerialSend(W_SOUND_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
-              // **** SAVED IN PACK EEPROM *****
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Overheat smoke duration level 5.
@@ -543,8 +541,6 @@ void mainLoop() {
               playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
               
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5);
-
-              // **** SAVED IN PACK EEPROM *****
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               if(b_overheat_mode_5 == true) {
@@ -683,7 +679,7 @@ void mainLoop() {
         // Menu Level 2: Barrel Wing Button: 5 / 48 / 60 barrel LEDs.
         // Menu Level 3: Intensify: Invert Bargraph
         // Menu Level 3: Barrel Wing Button: Toggle Bargraph Overheat Blinking enabled/disabled
-        // Menu Level 4: Intensify + top dial: Adjust overheat duration by 1 second : Power Mode 4
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 4
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 4
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #4
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #4
@@ -894,7 +890,7 @@ void mainLoop() {
         // Menu Level 2: Barrel Wing Button: Cycle through VG color modes to disable them. (see operational guide for more details on this).
         // Menu Level 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
-        // Menu Level 4: Intensify + top dial: Adjust overheat duration by 1 second : Power Mode 3
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 3
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 3
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #3
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #3        
@@ -1073,7 +1069,7 @@ void mainLoop() {
         // Menu Level 2: Barrel Wing Button: Overheat lights off.
         // Menu Level 3: Intensify: Demo Light Mode Enabled
         // Menu Level 3: Barrel Wing Button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
-        // Menu Level 4: Intensify + top dial: Adjust overheat duration by 1 second : Power Mode 2
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 2
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 2
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #2
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #2        
@@ -1163,7 +1159,7 @@ void mainLoop() {
         // Menu Level 2: Barrel Wing Button: Overheat sync to fan.
         // Menu Level 3: Intensify: Toggle between Super Hero and Original Mode.
         // Menu Level 3: Barrel Wing Button: Toggle CTS between: 1984/1989 CTS | 2021 CTS | Default CTS (Based on the year you are in)
-        // Menu Level 4: Intensify + top dial: Adjust overheat duration by 1 second : Power Mode 1
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 1
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 1
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #1
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #1        
@@ -7382,7 +7378,7 @@ void overheatTimerDecrement(uint8_t i_tmp_power_level) {
       if(i_ms_overheat_initiate_mode_1 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
         i_ms_overheat_initiate_mode_1 = i_ms_overheat_initiate_mode_1 - i_overheat_delay_increment;
         i_ms_overheat_initiate[0] = i_ms_overheat_initiate_mode_1;
-        
+
         overheatVoiceIndicator(i_ms_overheat_initiate_mode_1);
       }
     break;
