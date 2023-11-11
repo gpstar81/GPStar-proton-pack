@@ -531,12 +531,14 @@ void checkRotaryPress() {
           // A short, single press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
+          debug("Music Start/Stop");
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
+          debug("Next Track");
         break;
       }
     break;
@@ -548,12 +550,14 @@ void checkRotaryPress() {
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
+          debug("Toggle Mute");
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
+          debug("Previous Track");
         break;
       }
     break;
@@ -619,11 +623,13 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to increase overall volume.
             attenuatorSerialSend(A_VOLUME_INCREASE);
+            debug("Increase Master Volume");
           break;
 
           case MENU_2:
             // Tell pack to increase effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
+            debug("Increase Effects Volume");
           break;
         }
       }
@@ -641,6 +647,7 @@ void checkRotaryEncoder() {
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
+          debug("Overheat Cancelled");
           i_rotary_count = 0;
         }
       }
@@ -650,11 +657,13 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to decrease overall volume.
             attenuatorSerialSend(A_VOLUME_DECREASE);
+            debug("Decrease Master Volume");
           break;
 
           case MENU_2:
             // Tell pack to decrease effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
+            debug("Decrease Effects Volume");
           break;
         }
       }

@@ -183,7 +183,7 @@ bool b_right_toggle_on = false;
  * Debounce Settings
  */
 const uint8_t switch_debounce_time = 50;
-const uint8_t rotary_debounce_time = 80;
+const uint8_t rotary_debounce_time = 100;
 
 /* 
  * Rotary encoder for various uses.
