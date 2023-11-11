@@ -198,13 +198,17 @@ For the ESP32 controller, GPIO pins 34 and 35 are input-only and do not have int
 
 The rotary encoder is similar to that used on the Proton Pack and Neutrona Wand. It requires a common ground connection and sends data via the A/B signal wires to indicate which direction it was turned.
 
+**Note: For this connection the post is oriented to the left.**
+
 | ROTARY ENCODER (DIAL)          |   | MCU Pin   |
 |--------------------------------|---|-----------|
-| <font color="blue">Blue</font> | → | D2/GPIO32 |
+| <font color="blue">Blue</font> | → | D2/GPIO33 |
 | Black                          | → | GND       |
-| <font color="blue">Blue</font> | → | D3/GPIO33 |
+| <font color="blue">Blue</font> | → | D3/GPIO32 |
 
 One notable point in the stated part noted in the BOM is that this encoder MUST also support a momentary "push" action on the center post, so an additional ground and data pin will be used for that momentary switch.
+
+**Note: It does not matter which pin on the rotary encoder goes to which MCU pin.**
 
 | ROTARY ENCODER (POST)            |   | MCU Pin  |
 |----------------------------------|---|----------|
