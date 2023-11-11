@@ -292,19 +292,19 @@ To build for the ESP32 controller you will need to use the `Boards Manager` to i
 ### AsyncElegantOTA
 
 The AsyncElegantOTA library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/ayushsharma82/AsyncElegantOTA](https://github.com/ayushsharma82/AsyncElegantOTA)
+[https://github.com/ayushsharma82/AsyncElegantOTA.git](https://github.com/ayushsharma82/AsyncElegantOTA.git)
 
 ### ESPAsyncWebServer
 
 The ESPAsyncWebServer library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/me-no-dev/ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer)
+[https://github.com/me-no-dev/ESPAsyncWebServer.git](https://github.com/me-no-dev/ESPAsyncWebServer.git)
 
 No further configuration is needed for this library.
 
 ### MillisDelay
 
 The MillisDelay library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/ansonhe97/millisDelay](https://github.com/ansonhe97/millisDelay)
+[https://github.com/ansonhe97/millisDelay.git](https://github.com/ansonhe97/millisDelay.git)
 
 No further configuration is needed for this library.
 

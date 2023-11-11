@@ -31,6 +31,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     h1 { color: #222; margin: 15px; }
     h3 { color: #333; margin: 10px; }
     p { font-size: 18px; margin-bottom: 5px; }
+
     .card {
       background: #ddd;
       box-sizing: border-box;
@@ -42,9 +43,11 @@ const char INDEX_page[] PROGMEM = R"=====(
       padding: 10px 20px 10px 20px;
       text-align: left;
     }
+
     .info {
       font-family: courier, courier new, serif;
     }
+
     button {
       background-color: #555;
       border: 2px solid #333;
@@ -57,6 +60,30 @@ const char INDEX_page[] PROGMEM = R"=====(
       text-align: center;
       width: 120px;
     }
+
+    input {
+      border: 2px solid #333;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 18px;
+      margin: 4px 0;
+      padding: 6px 10px;
+      width: 50%;
+    }
+
+    select {
+      background-color: #999;
+      border: 2px solid #333;
+      border-radius: 8px;
+      box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+      color: white;
+      margin: 5px;
+      padding: 12px 14px;
+      max-width: 100px;
+      text-align: center;
+      width: 120px;
+    }
+
     .blue {
       background-color: #008CBA;
       border: 2px solid #006C9A;
@@ -68,15 +95,6 @@ const char INDEX_page[] PROGMEM = R"=====(
     .red {
       background-color: #f44336;
       border: 2px solid #d42316;
-    }
-    input {
-      border: 2px solid #333;
-      border-radius: 4px;
-      box-sizing: border-box;
-      font-size: 18px;
-      margin: 4px 0;
-      padding: 6px 10px;
-      width: 50%;
     }
   </style>
 
@@ -131,26 +149,32 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function updateStatus(jObj) {
-      document.getElementById("mode").innerHTML = jObj.mode || "...";
-      document.getElementById("theme").innerHTML = jObj.theme || "...";
-      document.getElementById("switch").innerHTML = jObj.switch || "...";
-      document.getElementById("pack").innerHTML = jObj.pack || "...";
-      document.getElementById("power").innerHTML = jObj.power || "...";
-      document.getElementById("safety").innerHTML = jObj.safety || "...";
-      document.getElementById("wand").innerHTML = jObj.wand || "...";
-      document.getElementById("firing").innerHTML = jObj.firing || "...";
-      document.getElementById("cable").innerHTML = jObj.cable || "...";
-      document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
-      document.getElementById("temperature").innerHTML = jObj.temperature || "...";
+      if (jObj) {
+        document.getElementById("mode").innerHTML = jObj.mode || "...";
+        document.getElementById("theme").innerHTML = jObj.theme || "...";
+        document.getElementById("switch").innerHTML = jObj.switch || "...";
+        document.getElementById("pack").innerHTML = jObj.pack || "...";
+        document.getElementById("power").innerHTML = jObj.power || "...";
+        document.getElementById("safety").innerHTML = jObj.safety || "...";
+        document.getElementById("wand").innerHTML = jObj.wand || "...";
+        document.getElementById("firing").innerHTML = jObj.firing || "...";
+        document.getElementById("cable").innerHTML = jObj.cable || "...";
+        document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
+        document.getElementById("temperature").innerHTML = jObj.temperature || "...";
 
-      if (jObj.music_start > 0) {
-        var trackList = document.getElementById("tracks");
-        removeOptions(trackList);
-        for (var i = jObj.music_start; i <= jObj.music_end; i++) {
-            var opt = document.createElement("option");
-            opt.value = i;
-            opt.innerHTML = i;
-            trackList.appendChild(opt);
+        // For testing only!
+        jObj.music_start = 500;
+        jObj.music_end = 540;
+
+        if (jObj.music_start > 0) {
+          var trackList = document.getElementById("tracks");
+          removeOptions(trackList);
+          for (var i = jObj.music_start; i <= jObj.music_end; i++) {
+              var opt = document.createElement("option");
+              opt.value = i;
+              opt.innerHTML = i;
+              trackList.appendChild(opt);
+          }
         }
       }
     }
@@ -316,7 +340,8 @@ const char INDEX_page[] PROGMEM = R"=====(
   <button type="button" class="green" onclick="toggleMusic()">Start/Stop</button>
   <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
   <br/>
-  Jump to Track: <select id="tracks"></select
+  <h3>Jump to Music Track</h3>
+  <select id="tracks"></select>
   <br/>
   <h3>Effects Volume</h3>
   <button type="button" class="blue" onclick="volumeEffectsDown()">Down -</button>
