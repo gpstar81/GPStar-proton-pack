@@ -3749,6 +3749,60 @@ void decreaseVolumeEffects() {
   adjustVolumeEffectsGain();
 }
 
+
+void increaseVolumeEEPROM() {
+  if(i_volume_master_eeprom == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master_eeprom) {
+    i_volume_master_eeprom = MINIMUM_VOLUME;
+  }
+
+  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+    i_volume_master_percentage = 100;
+  }
+  else {
+    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
+  }
+
+  i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+  i_volume_revert = i_volume_master_eeprom;
+
+  if(b_pack_on != true && b_pack_shutting_down != true) {
+    // Provide feedback when the pack is not running.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
+  }
+
+  i_volume_master = i_volume_master_eeprom;
+
+  w_trig.masterGain(i_volume_master_eeprom);
+}
+
+void decreaseVolumeEEPROM() {
+  if(i_volume_master_eeprom == i_volume_abs_min) {
+    // Cannot go any lower.
+  }
+  else {
+    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
+      i_volume_master_percentage = 0;
+    }
+    else {
+      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master_eeprom;
+
+    i_volume_master = i_volume_master_eeprom;
+
+    w_trig.masterGain(i_volume_master_eeprom);
+  }
+
+  if(b_pack_on != true && b_pack_shutting_down != true) {
+    // Provide feedback when the pack is not running.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
+  }
+}
+
 void increaseVolume() {
   if(i_volume_master == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master) {
     i_volume_master = MINIMUM_VOLUME;
@@ -5566,6 +5620,128 @@ void checkWand() {
               packSerialSend(P_MUSIC_START);              
             break;
 
+            case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5:
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+            break;
+
+            case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_4:
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+            break;
+
+            case W_VOLUME_DECREASE_EEPROM:             
+              // Decrease the overall default pack volume which is saved into the EEPROM.
+              decreaseVolumeEEPROM();
+
+              // Tell wand to decrease volume.
+              packSerialSend(P_VOLUME_DECREASE);
+            break;
+
+            case W_VOLUME_INCREASE_EEPROM:
+              // Increase the overall default pack volume which is saved into the EEPROM.
+              increaseVolumeEEPROM();
+
+              // Tell wand to increase volume.
+              packSerialSend(P_VOLUME_INCREASE);
+            break;
+
+            case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_3:
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+            break;
+
+            case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_2:
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+            break;
+
+            case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_1:
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+            break;
+
+            case W_SOUND_OVERHEAT_START_TIMER_LEVEL_5:
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
+              playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+            break;
+
+            case W_SOUND_OVERHEAT_START_TIMER_LEVEL_4:
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
+              playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+            break;
+
+            case W_SOUND_OVERHEAT_START_TIMER_LEVEL_3:
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
+              playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+            break;
+
+            case W_SOUND_OVERHEAT_START_TIMER_LEVEL_2:
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
+              playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+            break;
+
+            case W_SOUND_OVERHEAT_START_TIMER_LEVEL_1:
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
+              playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+            break;
+
+            case W_SOUND_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT:
+              stopEffect(S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
+
+              playEffect(S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
+            break;
+
             case W_PROTON_STREAM_IMPACT_TOGGLE:
               if(b_stream_effects == true) {
                 b_stream_effects = false;
@@ -5645,6 +5821,7 @@ void checkWand() {
                   stopEffect(S_VOICE_MODE_ORIGINAL);
                   playEffect(S_VOICE_MODE_SUPER_HERO);
 
+                  packSerialSend(P_SOUND_SUPER_HERO);
                   packSerialSend(P_MODE_SUPER_HERO);
                   serial1Send(A_MODE_SUPER_HERO);
                 break;
@@ -5657,6 +5834,7 @@ void checkWand() {
                   stopEffect(S_VOICE_MODE_SUPER_HERO);
                   playEffect(S_VOICE_MODE_ORIGINAL);
 
+                  packSerialSend(P_SOUND_MODE_ORIGINAL);
                   packSerialSend(P_MODE_ORIGINAL);
                   serial1Send(A_MODE_ORIGINAL);
                 break;
@@ -6869,6 +7047,18 @@ void checkWand() {
             packSerialSend(P_SYNC_END);
           }
         }
+      }
+      else if(comStruct.i > 0 && comStruct.s == W_COM_START && comStruct.e == W_COM_SOUND_NUMBER) {
+        // The Neutrona Wand is telling us to play a # number sound effect only. S_1 through S_60).
+        stopEffect(comStruct.i + 1);
+
+        if(comStruct.i - 1 > 0) {
+          stopEffect(comStruct.i - 1);
+        }
+
+        stopEffect(comStruct.i);
+
+        playEffect(comStruct.i);
       }
     }
   }
