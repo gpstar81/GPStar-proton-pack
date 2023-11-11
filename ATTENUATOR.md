@@ -283,9 +283,23 @@ The following libraries are required to be installed. All but the MillisDelay li
 - **ESPAsyncTCP** by dvarrel
 - **ESPAsyncWebSrv** by dvarrel
 - **Preferences** by Volodymyr Shymanskyy
+- **AsyncElegantOTA** `See Below`
+- **ESPAsyncWebServer** `See Below`
 - **millisDelay** `See Below`
 
 To build for the ESP32 controller you will need to use the `Boards Manager` to install the "esp32 by Expressif Systems" package. When selecting a board for compilation and upload, simply use the board "ESP32 Dev Module" for satisfactory results. For reference, the FQBN for builds is "esp32:esp32:esp32".
+
+### AsyncElegantOTA
+
+The AsyncElegantOTA library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
+[https://github.com/ayushsharma82/AsyncElegantOTA](https://github.com/ayushsharma82/AsyncElegantOTA)
+
+### ESPAsyncWebServer
+
+The ESPAsyncWebServer library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
+[https://github.com/me-no-dev/ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer)
+
+No further configuration is needed for this library.
 
 ### MillisDelay
 

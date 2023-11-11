@@ -19,9 +19,9 @@
  */
 // Requires library from https://github.com/Links2004/arduinoWebSockets
 #include <ArduinoJson.h>
+#include <Preferences.h>
 #include <WebServer.h>
 #include <WebSocketsClient.h>
-#include <Preferences.h>
 #include <WiFi.h>
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.

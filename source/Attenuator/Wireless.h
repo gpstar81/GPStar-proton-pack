@@ -37,9 +37,10 @@
  * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/coexist.html
  */
 #include <ArduinoJson.h>
+#include <AsyncElegantOTA.h>
 #include <AsyncJson.h>
 #include <AsyncTCP.h> 
-#include <ESPAsyncWebSrv.h>
+#include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <WiFi.h>
 
@@ -57,6 +58,7 @@ String ap_ssid; // Reserved for storing the true SSID for the AP to be set at st
 String ap_pass; // Reserved for storing the true AP password set by the user.
 
 // Define an asynchronous web server at TCP port 80.
+// Docs: https://github.com/dvarrel/ESPAsyncWebSrv
 AsyncWebServer httpServer(80);
 
 // Define a websocket endpoint for the async web server.
@@ -69,7 +71,7 @@ uint8_t i_ws_client_count = 0;
 millisDelay ms_cleanup;
 const unsigned int i_websocketCleanup = 5000;
 
-boolean startAccessPoint() {
+boolean startWiFi() {
   // Begin some diagnostic information to console.
   Serial.println();
   Serial.println("Starting Wireless Access Point");
@@ -79,7 +81,6 @@ boolean startAccessPoint() {
 
   // Create an AP name unique to this device, to avoid stepping on others.
   String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
-  //ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update AP broadcast name.
 
   // Prepare to return either stored preferences or a default value for SSID/password.
   preferences.begin("credentials", true); // Access namespace in read-only mode.
@@ -462,13 +463,20 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
   }
 }
 
-// Define server actions after declaring all functions for URL routing.
 void startWebServer() {
-  setupRouting(); // Set URI's with handlers.
+  // Configures URI routing with function handlers.
+  setupRouting();
+
+  // Configure the WebSocket endpoint.
   ws.onEvent(onWebSocketEventHandler);
   httpServer.addHandler(&ws);
-  httpServer.begin(); // Start the daemon.
-  Serial.println("HTTP Server Started");
+  
+  // Configure the OTA firmware endpoints handler.
+  AsyncElegantOTA.begin(&httpServer);
+
+  // Start the web server.
+  httpServer.begin();
+  Serial.println("Async HTTP Server Started");
 }
 
 // Send notification to all websocket clients.

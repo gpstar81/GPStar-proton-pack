@@ -114,7 +114,7 @@ void setup() {
 
   #if defined(__XTENSA__)
     // ESP32 - Setup WiFi and WebServer
-    bool b_ap_started = startAccessPoint();
+    bool b_ap_started = startWiFi();
     Serial.println(b_ap_started ? "Ready" : "Failed");
 
     if(b_ap_started) {

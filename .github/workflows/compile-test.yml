@@ -77,8 +77,9 @@ jobs:
               - name: SerialTransfer
               - name: ArduinoJson
               - name: Preferences
-              - name: ESPAsyncWebSrv
               - name: AsyncTCP
+              - source-url: https://github.com/ayushsharma82/AsyncElegantOTA
+              - source-url: https://github.com/me-no-dev/ESPAsyncWebServer
               - source-url: https://github.com/ansonhe97/millisDelay.git
             verbose: false
             # Need this to ensure any warnings do not impede compilation
