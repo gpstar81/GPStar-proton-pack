@@ -27,10 +27,23 @@ const char PASSWORD_page[] PROGMEM = R"=====(
 
   <style>
     html { font-family: Tahoma, Verdana, Arial; display: inline-block;, margin: 0px auto; text-align: center; }
-    body { margin-top: 10px; }
-    h1 { color: #222; margin: 15px; }
+
+    body { margin-top: 0px; margin-bottom: 20px; }
+
+    h1 {
+        background: #222;
+        color: #eee;
+        margin: 10px;
+        padding: 5px;
+        width: 100%;
+    }
+
     h3 { color: #333; margin: 10px; }
+
+    a { text-decoration: none; }
+
     p { font-size: 18px; margin-bottom: 5px; text-align: left; }
+
     button {
       background-color: #555;
       border: 2px solid #333;
@@ -43,6 +56,17 @@ const char PASSWORD_page[] PROGMEM = R"=====(
       text-align: center;
       width: 120px;
     }
+
+    input {
+      border: 2px solid #333;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 18px;
+      margin: 4px 0;
+      padding: 6px 10px;
+      width: 50%;
+    }
+
     .blue {
       background-color: #008CBA;
       border: 2px solid #006C9A;
@@ -54,15 +78,6 @@ const char PASSWORD_page[] PROGMEM = R"=====(
     .red {
       background-color: #f44336;
       border: 2px solid #d42316;
-    }
-    input {
-      border: 2px solid #333;
-      border-radius: 4px;
-      box-sizing: border-box;
-      font-size: 18px;
-      margin: 4px 0;
-      padding: 6px 10px;
-      width: 50%;
     }
   </style>
 
@@ -100,14 +115,14 @@ const char PASSWORD_page[] PROGMEM = R"=====(
   <p>Use this page to update your preferred password for WiFi access. Note that this value is stored in controller's permanent memory,
   and firmware updates will have no effect on resetting this value. After updating, any devices which previously stored the password
   for the WiFi network will require you to update to the new password.</p>
-  <br/>
-  <b>New AP Password:</b> <input type="text" id="password" width="120"/><br/>
-  <b>Confirm Password:</b> <input type="text" id="password2" width="120"/><br/>
-  <a href="/">&laquo; Back</a>
-  &nbsp;&nbsp;&nbsp;
-  <button type="button" onclick="updatePassword()">Update</button>
-  <br/>
-  <br/>
+
+  <div class="block">
+    <b>New AP Password:</b> <input type="text" id="password" width="120"/><br/>
+    <b>Confirm Password:</b> <input type="text" id="password2" width="120"/><br/>
+    <a href="/">&laquo; Back</a>
+    &nbsp;&nbsp;&nbsp;
+    <button type="button" onclick="updatePassword()">Update</button>
+  </div>
 </body>
 </html>
 )=====";

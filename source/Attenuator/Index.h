@@ -27,17 +27,34 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <style>
     html { font-family: Tahoma, Verdana, Arial; display: inline-block;, margin: 0px auto; text-align: center; }
-    body { margin-top: 10px; }
-    h1 { color: #222; margin: 15px; }
+
+    body { margin-top: 0px; margin-bottom: 20px; }
+
+    h1 {
+        background: #222;
+        color: #eee;
+        margin: 10px;
+        padding: 5px;
+        width: 100%;
+    }
+
     h3 { color: #333; margin: 10px; }
+
+    a { text-decoration: none; }
+
     p { font-size: 18px; margin-bottom: 5px; }
+
+    .block {
+      margin: 10px 20px 30px 20px;
+      padding: 10px 20px 10px 20px;
+    }
 
     .card {
       background: #ddd;
       box-sizing: border-box;
       box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
       color: #444;
-      margin: 10px 20px 10px 20px;
+      margin: 20px 20px 30px 20px;
       max-width: 400px;
       min-height: 200px;
       padding: 10px 20px 10px 20px;
@@ -56,7 +73,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       color: white;
       margin: 5px;
       padding: 12px 14px;
-      max-width: 100px;
+      max-width: 120px;
       text-align: center;
       width: 120px;
     }
@@ -79,9 +96,9 @@ const char INDEX_page[] PROGMEM = R"=====(
       color: white;
       margin: 5px;
       padding: 12px 14px;
-      max-width: 100px;
+      max-width: 260px;
       text-align: center;
-      width: 120px;
+      width: 260px;
     }
 
     .blue {
@@ -328,36 +345,35 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
     <p><b>Overheat State:</b> <span class="info" id="temperature">&mdash;</span></p>
   </div>
-  <br/>
+
   <h1>Audio Controls</h1>
-  <h3>Master Volume</h3>
-  <button type="button" class="blue" onclick="volumeMasterDown()">Down -</button>
-  <button type="button" onclick="toggleMute()">Mute/Unmute</button>
-  <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
-  <br/>
-  <h3>Music Playback</h3>
-  <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
-  <button type="button" class="green" onclick="toggleMusic()">Start/Stop</button>
-  <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
-  <br/>
-  <h3>Jump to Music Track</h3>
-  <select id="tracks"></select>
-  <br/>
-  <h3>Effects Volume</h3>
-  <button type="button" class="blue" onclick="volumeEffectsDown()">Down -</button>
-  <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
-  <br/>
-  <br/>
+  <div class="block">
+    <h3>Master Volume</h3>
+    <button type="button" class="blue" onclick="volumeMasterDown()">Down -</button>
+    <button type="button" onclick="toggleMute()">Mute/Unmute</button>
+    <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
+    <br/>
+    <h3>Music Playback</h3>
+    <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
+    <button type="button" class="green" onclick="toggleMusic()">Start/Stop</button>
+    <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
+    <br/>
+    <h3>Jump to Music Track</h3>
+    <select id="tracks"></select>
+    <br/>
+    <h3>Effects Volume</h3>
+    <button type="button" class="blue" onclick="volumeEffectsDown()">Down -</button>
+    <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
+  </div>
+
   <h1>Pack Controls</h1>
-  <button type="button" class="red" onclick="packOff()">Pack Off</button>
-  <button type="button" onclick="cancelWarning()">Cancel</button>
-  <button type="button" class="green" onclick="packOn()">Pack On</button>
-  <br/>
-  <br/>
-  <br/>
+  <div class="block">
+    <button type="button" class="red" onclick="packOff()">Pack Off</button>
+    <button type="button" onclick="cancelWarning()">Cancel</button>
+    <button type="button" class="green" onclick="packOn()">Pack On</button>
+  </div>
+
   <a href="/password">Change WiFi Password</a>
-  <br/>
-  <br/>
 </body>
 </html>
 )=====";
