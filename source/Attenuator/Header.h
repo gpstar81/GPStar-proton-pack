@@ -113,7 +113,7 @@ const uint8_t i_bargraph_levels = 5; // Reflects the count of POWER_LEVELS eleme
 uint8_t i_bargraph_sim_max = i_bargraph_elements; // Simulated maximum for patterns which may be dependent on other factors.
 uint8_t i_bargraph_steps = i_bargraph_elements / 2; // Steps for patterns (1/2 max) which are bilateral/mirrored.
 uint8_t i_bargraph_step = 0; // Indicates current step for bilateral/mirrored patterns.
-uint8_t i_bargraph_element = 0; // Indicates current LED element for adjustment.
+int i_bargraph_element = 0; // Indicates current LED element for adjustment.
 bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph device.
 millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
