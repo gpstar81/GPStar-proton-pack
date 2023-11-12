@@ -216,7 +216,7 @@ const uint8_t d_white_light_interval = 250;
 millisDelay ms_overheat_initiate; 
 millisDelay ms_overheating; // This timer is only used when using the Neutrona Wand without a Proton Pack.
 const unsigned int i_ms_overheating = 6500; // Overheating for 6.5 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
-const bool b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
+bool b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
 unsigned long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_mode_1, i_ms_overheat_initiate_mode_2, i_ms_overheat_initiate_mode_3, i_ms_overheat_initiate_mode_4, i_ms_overheat_initiate_mode_5 };
 const unsigned int i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
 const unsigned int i_overheat_delay_max = 60000; // The max length a overheat can be.

@@ -204,6 +204,9 @@ void setup() {
     packSerialSend(P_MODE_ORIGINAL);
     serial1Send(A_MODE_ORIGINAL);
   }
+
+  // Reset the master volume. Important to keep this as we startup the system at the lowest volume. Then the EEPROM reads any settings if required, then we reset the volume.
+  w_trig.masterGain(i_volume_master);
 }
 
 void loop() {
@@ -6493,6 +6496,8 @@ void checkWand() {
 
                 packSerialSend(P_CONTINUOUS_SMOKE_5_ENABLED);
               }
+
+              resetContinuousSmoke();
             break;
 
             case W_CONTINUOUS_SMOKE_TOGGLE_4:
@@ -6514,6 +6519,8 @@ void checkWand() {
 
                 packSerialSend(P_CONTINUOUS_SMOKE_4_ENABLED);
               }
+
+              resetContinuousSmoke();
             break;
 
             case W_CONTINUOUS_SMOKE_TOGGLE_3:
@@ -6535,6 +6542,8 @@ void checkWand() {
 
                 packSerialSend(P_CONTINUOUS_SMOKE_3_ENABLED);
               }
+
+              resetContinuousSmoke();
             break;
 
             case W_CONTINUOUS_SMOKE_TOGGLE_2:
@@ -6556,12 +6565,14 @@ void checkWand() {
 
                 packSerialSend(P_CONTINUOUS_SMOKE_2_ENABLED);
               }
+
+              resetContinuousSmoke();
             break;
 
             case W_CONTINUOUS_SMOKE_TOGGLE_1:
               if(b_smoke_continuous_mode_1 == true) {
                 b_smoke_continuous_mode_1 = false;
-
+                b_smoke_continuous_mode[0] = false;
                 stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
                 stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);
                 playEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
@@ -6577,6 +6588,8 @@ void checkWand() {
 
                 packSerialSend(P_CONTINUOUS_SMOKE_1_ENABLED);
               }
+
+              resetContinuousSmoke();
             break;
 
             case W_BARREL_LEDS_48:
@@ -7184,7 +7197,7 @@ void overheatDecrement(uint8_t i_tmp_power_level) {
 
     case 1:
     default:
-      if(i_ms_overheating_length_5 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+      if(i_ms_overheating_length_1 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
         i_ms_overheating_length_1 = i_ms_overheating_length_1 - i_overheat_delay_increment;
 
         overheatVoiceIndicator(i_ms_overheating_length_1);
@@ -7452,6 +7465,14 @@ void musicPrevTrack() {
   }
 }
 
+void resetContinuousSmoke() {
+  b_smoke_continuous_mode[0] = b_smoke_continuous_mode_1;
+  b_smoke_continuous_mode[1] = b_smoke_continuous_mode_2;
+  b_smoke_continuous_mode[2] = b_smoke_continuous_mode_3;
+  b_smoke_continuous_mode[3] = b_smoke_continuous_mode_4;
+  b_smoke_continuous_mode[4] = b_smoke_continuous_mode_5;
+}
+
 void readEEPROM() {
   // Get the stored CRC from the EEPROM.
   unsigned long l_crc_check;
@@ -7649,7 +7670,135 @@ void readEEPROM() {
       // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
       SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
     }
+
+    if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode != 255) {
+      if(obj_config_eeprom.system_mode > 1) {
+        SYSTEM_MODE = MODE_ORIGINAL;
+      }
+      else {
+        SYSTEM_MODE = MODE_SUPER_HERO;
+      }
+    }
+
+    if(obj_config_eeprom.vga_powercell > 0 && obj_config_eeprom.vga_powercell != 255) {
+      if(obj_config_eeprom.vga_powercell > 1) {
+        b_powercell_colour_toggle = true;
+      }
+      else {
+        b_powercell_colour_toggle = false;
+      }
+    }
+
+    if(obj_config_eeprom.vga_cyclotron > 0 && obj_config_eeprom.vga_cyclotron != 255) {
+      if(obj_config_eeprom.vga_cyclotron > 1) {
+        b_cyclotron_colour_toggle = true;
+      }
+      else {
+        b_cyclotron_colour_toggle = false;
+      }
+    }
+
+    if(obj_config_eeprom.demo_light_mode > 0 && obj_config_eeprom.demo_light_mode != 255) {
+      if(obj_config_eeprom.demo_light_mode > 1) {
+        b_demo_light_mode = true;
+      }
+      else {
+        b_demo_light_mode = false;
+      }
+    }
+
+    if(obj_config_eeprom.cyclotron_three_led_toggle > 0 && obj_config_eeprom.cyclotron_three_led_toggle != 255) {
+      if(obj_config_eeprom.cyclotron_three_led_toggle > 1) {
+        b_cyclotron_single_led = false;
+      }
+      else {
+        b_cyclotron_single_led = true;
+      }
+    }
+
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume != 255) {
+      if(obj_config_eeprom.default_system_volume > 100) {
+        // 101 is going to indicate 0, which is full volume.
+        i_volume_master_eeprom = 0;
+        i_volume_master = 0;
+      }
+      else if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 70) {
+        i_volume_master_eeprom = obj_config_eeprom.default_system_volume * -1;
+        i_volume_master = i_volume_master_eeprom;
+      }
+      else {
+        i_volume_master_eeprom = MINIMUM_VOLUME;
+        i_volume_master = MINIMUM_VOLUME;
+      }
+    }
+
+    if(obj_config_eeprom.overheat_smoke_duration_level_5 > 0 && obj_config_eeprom.overheat_smoke_duration_level_5 != 255) {
+      i_ms_overheating_length_5 = obj_config_eeprom.overheat_smoke_duration_level_5 * 1000;
+    }
+
+    if(obj_config_eeprom.overheat_smoke_duration_level_4 > 0 && obj_config_eeprom.overheat_smoke_duration_level_4 != 255) {
+      i_ms_overheating_length_4 = obj_config_eeprom.overheat_smoke_duration_level_4 * 1000;
+    }
+
+    if(obj_config_eeprom.overheat_smoke_duration_level_3 > 0 && obj_config_eeprom.overheat_smoke_duration_level_3 != 255) {
+      i_ms_overheating_length_3 = obj_config_eeprom.overheat_smoke_duration_level_3 * 1000;
+    }
+
+    if(obj_config_eeprom.overheat_smoke_duration_level_2 > 0 && obj_config_eeprom.overheat_smoke_duration_level_2 != 255) {
+      i_ms_overheating_length_2 = obj_config_eeprom.overheat_smoke_duration_level_2 * 1000;
+    }
+
+    if(obj_config_eeprom.overheat_smoke_duration_level_1 > 0 && obj_config_eeprom.overheat_smoke_duration_level_1 != 255) {
+      i_ms_overheating_length_1 = obj_config_eeprom.overheat_smoke_duration_level_1 * 1000;
+    }
+
+    if(obj_config_eeprom.smoke_continuous_mode_5 > 0 && obj_config_eeprom.smoke_continuous_mode_5 != 255) {
+      if(obj_config_eeprom.smoke_continuous_mode_5 > 1) {
+        b_smoke_continuous_mode_5 = true;
+      }
+      else {
+        b_smoke_continuous_mode_5 = false;
+      }
+    }
+
+    if(obj_config_eeprom.smoke_continuous_mode_4 > 0 && obj_config_eeprom.smoke_continuous_mode_4 != 255) {
+      if(obj_config_eeprom.smoke_continuous_mode_4 > 1) {
+        b_smoke_continuous_mode_4 = true;
+      }
+      else {
+        b_smoke_continuous_mode_4 = false;
+      }
+    }
+
+    if(obj_config_eeprom.smoke_continuous_mode_3 > 0 && obj_config_eeprom.smoke_continuous_mode_3 != 255) {
+      if(obj_config_eeprom.smoke_continuous_mode_3 > 1) {
+        b_smoke_continuous_mode_3 = true;
+      }
+      else {
+        b_smoke_continuous_mode_3 = false;
+      }
+    }
+
+    if(obj_config_eeprom.smoke_continuous_mode_2 > 0 && obj_config_eeprom.smoke_continuous_mode_2 != 255) {
+      if(obj_config_eeprom.smoke_continuous_mode_2 > 1) {
+        b_smoke_continuous_mode_2 = true;
+      }
+      else {
+        b_smoke_continuous_mode_2 = false;
+      }
+    }
+
+    if(obj_config_eeprom.smoke_continuous_mode_1 > 0 && obj_config_eeprom.smoke_continuous_mode_1 != 255) {
+      if(obj_config_eeprom.smoke_continuous_mode_1 > 1) {
+        b_smoke_continuous_mode_1 = true;
+      }
+      else {
+        b_smoke_continuous_mode_1 = false;
+      }
+    }
   }
+
+  resetContinuousSmoke();
 }
 
 void clearConfigEEPROM() {
@@ -7666,9 +7815,7 @@ void clearConfigEEPROM() {
 }
 
 void saveConfigEEPROM() {
-  // Proton Stream Impact Effects
-  // Three LED setting
-
+  // 1 = false, 2 = true;
   uint8_t i_proton_stream_effects = 2;
   uint8_t i_simulate_ring = 2;
   uint8_t i_cyclotron_direction = 2;
@@ -7678,6 +7825,24 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_lights_off = 2;
   uint8_t i_overheat_sync_to_fan = 2;
   uint8_t i_year_mode_eeprom = SYSTEM_EEPROM_YEAR;
+  uint8_t i_system_mode = 1;
+
+  uint8_t i_vga_powercell = 1;
+  uint8_t i_vga_cyclotron = 1;
+  uint8_t i_demo_light_mode = 1;
+  uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led. 2 = three leds.
+  uint8_t i_default_system_volume = 101; // 101 will be 0. So Our range will be -1 to -70 (up to -100). 0 Volume (loudest) will be indicated as 101 in the EEPROM.
+  uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
+  uint8_t i_overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;
+  uint8_t i_overheat_smoke_duration_level_3 = i_ms_overheating_length_3 / 1000;
+  uint8_t i_overheat_smoke_duration_level_2 = i_ms_overheating_length_2 / 1000;
+  uint8_t i_overheat_smoke_duration_level_1 = i_ms_overheating_length_1 / 1000;
+
+  uint8_t i_smoke_continuous_mode_5 = 1;
+  uint8_t i_smoke_continuous_mode_4 = 1;
+  uint8_t i_smoke_continuous_mode_3 = 1;
+  uint8_t i_smoke_continuous_mode_2 = 1;
+  uint8_t i_smoke_continuous_mode_1 = 1;
 
   if(b_stream_effects != true) {
     i_proton_stream_effects = 1;
@@ -7707,33 +7872,9 @@ void saveConfigEEPROM() {
     i_overheat_sync_to_fan = 1;
   }
 
-
-  unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
-
-  if(b_cyclotron_colour_toggle == true && b_powercell_colour_toggle == true) {
-    // Disabled, both Cyclotron and Power Cell video game colours.
-    b_cyclotron_colour_toggle = false;
-    b_powercell_colour_toggle = false;
-  else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle != true) {
-    // Power Cell only.
-    b_cyclotron_colour_toggle = false;
-    b_powercell_colour_toggle = true;
-  else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle == true) {
-    // Cyclotron only.
-    b_cyclotron_colour_toggle = true;
-    b_powercell_colour_toggle = false;
-  else {
-    // Enabled, both Cyclotron and Power Cell video game colours.
-    b_cyclotron_colour_toggle = true;
-    b_powercell_colour_toggle = true;
-  }    
-
-  // 1 = false, 2 = true;
-  uint8_t i_vga_powercell = 1;
-  uint8_t i_vga_cyclotron = 1;
-  uint8_t i_demo_light_mode = 1;
-  uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led. 2 = three leds.
-  uint8_t i_default_system_volume = 101; // 101 will be 0. So Our range will be -1 to -70 (up to -100). 0 Volume (loudest) will be indicated as 101 in the EEPROM.
+  if(SYSTEM_MODE == MODE_ORIGINAL) {
+    i_system_mode = 2;
+  }
 
   if(b_powercell_colour_toggle == true) {
     i_vga_powercell = 2; // 1 = false, 2 = true;
@@ -7751,13 +7892,38 @@ void saveConfigEEPROM() {
     i_cyclotron_three_led_toggle = 2;
   }
 
-  // We are only storying positive 8 bit integers into the EEPROM.
+  // We are only storing positive 8 bit integers into the EEPROM.
   if(i_volume_master_eeprom < -100) {
     i_default_system_volume = 100;
   }
   else if(i_volume_master_eeprom < 0) {
     i_default_system_volume = abs(i_volume_master_eeprom);
   }
+  else {
+    i_default_system_volume = 101; // 101 is going to be 0 for the volume.
+  }
+  
+  if(b_smoke_continuous_mode_5 == true) {
+    i_smoke_continuous_mode_5 = 2;
+  }
+
+  if(b_smoke_continuous_mode_4 == true) {
+    i_smoke_continuous_mode_4 = 2;
+  }
+
+  if(b_smoke_continuous_mode_3 == true) {
+    i_smoke_continuous_mode_3 = 2;
+  }
+
+  if(b_smoke_continuous_mode_2 == true) {
+    i_smoke_continuous_mode_2 = 2;
+  }
+
+  if(b_smoke_continuous_mode_1 == true) {
+    i_smoke_continuous_mode_1 = 2;
+  }
+
+  unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
 
   objConfigEEPROM obj_eeprom = {
     i_proton_stream_effects,
@@ -7768,13 +7934,12 @@ void saveConfigEEPROM() {
     i_overheat_lights_off,
     i_overheat_sync_to_fan,
     i_year_mode_eeprom,
-
+    i_system_mode,
     i_vga_powercell,
-    i_vga_cyclotron
+    i_vga_cyclotron,
     i_demo_light_mode,
-    i_cyclotron_three_leds,
-    i_default_system_volume
-    /*
+    i_cyclotron_three_led_toggle,
+    i_default_system_volume,
     i_overheat_smoke_duration_level_5,
     i_overheat_smoke_duration_level_4,
     i_overheat_smoke_duration_level_3,
@@ -7785,7 +7950,6 @@ void saveConfigEEPROM() {
     i_smoke_continuous_mode_3,
     i_smoke_continuous_mode_2,
     i_smoke_continuous_mode_1
-    */
   };
 
   // Save to the EEPROM.
@@ -7872,7 +8036,7 @@ void setupWavTrigger() {
 
   w_trig.stopAllTracks();
   w_trig.samplerateOffset(0); // Reset our sample rate offset
-  w_trig.masterGain(i_volume_master); // Reset the master gain db. Range is -70 to 0.
+  w_trig.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
   w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger

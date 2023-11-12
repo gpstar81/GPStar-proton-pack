@@ -1,7 +1,7 @@
 <h1><img src='images/gpstar_logo.png' width=50 align="left"/>gpstar Proton Pack and Neutrona Wand Operation Manual</h1>
 
 
-### Standard Proton Pack Features
+### Standard Features
 
 - The switch underneath the Ion Arm can turn the pack on or off.
 - You can run the pack without the Cyclotron Lid attached.
@@ -10,28 +10,31 @@
 - When the ribbon cable is disconnected it will activate the alarm mode and degrade the Cyclotron spin.
 - The pack can run without a wand, though it can only be activated via the switch under the Ion Arm.
 - Vibration switch in the Cyclotron switch plate enables or disables the vibration motors for both the pack and wand.
-- 1984/2021 (Afterlife) year switch in the Cyclotron switch plate changes the pack and wand from 1984 (OG) to 2021 (Afterlife) modes.
+- 1984/Afterlife year switch in the Cyclotron switch plate changes the pack and wand from 1984 to Afterlife modes.
 - The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
 - Single (centered) LED per Cyclotron lens for 1984/1989 modes by default.
 	- This can be toggled back to 3 LEDs per Cyclotron lens via the wand menu system.
 - The Power Cell, Cyclotron and other lighting on the Proton Pack can have the brightness independently adjusted. **\*see below\***
+- 1989 sound effects mode is available on the pack, it can be accessed from the Neutrona Wand menu systems or set with the advanced user configuration settings. **\*see below\***
+- Super Hero and Mode Original operation modes.
+- Menu system with the ability to customise various settings for both your Proton Pack and Neutrona Wand.
 
+### Optional Features
 
-### Optional Proton Pack Features
-
-- 1989 sound effects mode is available on the pack, it can be accessed from the Wand sub menu system or set with the advanced user configuration settings. **\*see below\***
 - Support for switches for Cyclotron direction and to enable or disable smoke effects.
 - Support for smoke effects with dedicated fans for the Booster Tube and N-Filter. See [Smoke Effects](SMOKE.md) addendum.
 - Additional Lights available for the Cyclotron panel, internal "cake" Cyclotron and Power Cell.
 	- Automatically switches to internal "cake" Cyclotron, if implemented (optional).
 	- This supports a 35 LED ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
 - Video game colours supported if using RGB supported LEDs for the Cyclotron Lid, internal "cake" Cyclotron and Power Cell.
+- Support for the Attenuator add-on device. See [Attenuator](ATTENUATOR.md) for more information.
 
-## Neutrona Wand
-### Standard Wand Features
+## Super Hero Operation Guide
 ![](images/OperationNeutrona2.jpg)
 
-- Activate toggle on the gun box turns on both the pack and wand, regardless of the theme mode.
+**Super Hero**: This is the default operation mode. The overall power up and toggle switch sequences replicate the 1984 roof top scene and the switch me on scene in Afterlife.
+
+- Activate toggle on the gun box turns on both the pack and wand.
 	- The switch under the Proton Pack's Ion Arm does not need to be engaged for this to work.
 - Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects depending on the mode.
 	- The Neutrona Wand will not fire unless these switches are turned on.
@@ -65,7 +68,10 @@
 - As the top dial is turned, any beeping rate will increase or decrease depending on the theme in use.
 - This dial will be used to navigate the menu system and adjust volume in certain cases (see "Wand Settings Menu System" section).
 
-### Optional Wand Features
+## Mode Original Operation Guide
+**Mode Original**: This mode relects original production documentation from 1984 on how the Proton Pack and Neutrona Wand operate together. This reflects most of the usage, power up scenes and switch toggle sequences you see throughout all the films. Other variation differences are the bargraph animations, wand sound effects and power levels.
+
+## Optional Wand Features
 ![](images/OperationNeutrona7.jpg)
 
 - Support for additional lights such as the wand hat lights and wand barrel end LED strobe. A New Barrel Wing Button can then be added.
