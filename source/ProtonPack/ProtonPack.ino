@@ -7714,14 +7714,17 @@ void saveConfigEEPROM() {
     // Disabled, both Cyclotron and Power Cell video game colours.
     b_cyclotron_colour_toggle = false;
     b_powercell_colour_toggle = false;
+  }
   else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle != true) {
     // Power Cell only.
     b_cyclotron_colour_toggle = false;
     b_powercell_colour_toggle = true;
+  }
   else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle == true) {
     // Cyclotron only.
     b_cyclotron_colour_toggle = true;
     b_powercell_colour_toggle = false;
+  }
   else {
     // Enabled, both Cyclotron and Power Cell video game colours.
     b_cyclotron_colour_toggle = true;
@@ -7770,9 +7773,9 @@ void saveConfigEEPROM() {
     i_year_mode_eeprom,
 
     i_vga_powercell,
-    i_vga_cyclotron
+    i_vga_cyclotron,
     i_demo_light_mode,
-    i_cyclotron_three_leds,
+    //i_cyclotron_three_leds,
     i_default_system_volume
     /*
     i_overheat_smoke_duration_level_5,
