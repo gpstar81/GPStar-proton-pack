@@ -254,7 +254,7 @@ String getCyclotronState() {
 /*
  * Web Handler Functions - Performs actions or returns data for web UI
  */
-StaticJsonDocument<256> jsonDoc; // Used for processing JSON data.
+StaticJsonDocument<512> jsonDoc; // Used for processing JSON data.
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
@@ -283,8 +283,10 @@ String getStatus() {
   jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
   jsonDoc["cyclotron"] = getCyclotronState();
   jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
-  jsonDoc["music_start"] = i_music_track_min;
-  jsonDoc["music_end"] = i_music_track_max;
+  //jsonDoc["music_start"] = i_music_track_min;
+  jsonDoc["music_start"] = 500;
+  //jsonDoc["music_end"] = i_music_track_max;
+  jsonDoc["music_end"] = 540;
   String status;
   serializeJson(jsonDoc, status); // Serialize to string.
   return status;
@@ -358,6 +360,22 @@ void handleNextMusicTrack(AsyncWebServerRequest *request) {
   request->send(200, "application/json", "{}");
 }
 
+void handleSelectMusicTrack(AsyncWebServerRequest *request) {
+  String c_music_track = "";
+  if(request->hasParam("track")) {
+    // Get the parameter "track" if it exists (will be a String).
+    c_music_track = request->getParam("track")->value();
+  }
+
+  Serial.print("Selected Music Track: ");
+  Serial.println(c_music_track);
+  
+  if(c_music_track != "") {
+    attenuatorSerialSend(c_music_track.toInt());
+  }
+  request->send(200, "application/json", "{}");
+}
+
 void handlePrevMusicTrack(AsyncWebServerRequest *request) {
   Serial.println("Prev Music Track");
   attenuatorSerialSend(A_MUSIC_PREV_TRACK);
@@ -389,6 +407,7 @@ void setupRouting() {
   httpServer.on("/volume/effects/down", HTTP_GET, handleEffectsVolumeDown);
   httpServer.on("/music/toggle", HTTP_GET, handleMusicStartStop);
   httpServer.on("/music/next", HTTP_GET, handleNextMusicTrack);
+  httpServer.on("/music/select", HTTP_GET, handleSelectMusicTrack);
   httpServer.on("/music/prev", HTTP_GET, handlePrevMusicTrack);
 
   // Handle the JSON body for the password change request.

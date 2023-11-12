@@ -22,19 +22,26 @@ const char INDEX_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale="1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Proton Pack</title>
 
   <style>
-    html { font-family: Tahoma, Verdana, Arial; display: inline-block;, margin: 0px auto; text-align: center; }
+    html {
+      font-family: Tahoma, Verdana, Arial;
+      display: inline-block;
+      margin: 0px;
+      text-align: center;
+    }
 
-    body { margin-top: 0px; margin-bottom: 20px; }
+    body {
+      margin: 0px 0px 20px 0px;
+    }
 
     h1 {
         background: #222;
         color: #eee;
-        margin: 10px;
-        padding: 5px;
+        margin: 0px;
+        padding: 8px;
         width: 100%;
     }
 
@@ -45,8 +52,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     p { font-size: 18px; margin-bottom: 5px; }
 
     .block {
-      margin: 10px 20px 30px 20px;
-      padding: 10px 20px 10px 20px;
+      margin: 10px 5px 30px 5px;
+      padding: 10px 5px 10px 5px;
     }
 
     .card {
@@ -94,6 +101,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       border-radius: 8px;
       box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
       color: white;
+      height: 40px;
       margin: 5px;
       padding: 12px 14px;
       max-width: 260px;
@@ -178,10 +186,6 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cable").innerHTML = jObj.cable || "...";
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
-
-        // For testing only!
-        jObj.music_start = 500;
-        jObj.music_end = 540;
 
         if (jObj.music_start > 0) {
           var trackList = document.getElementById("tracks");
@@ -318,6 +322,17 @@ const char INDEX_page[] PROGMEM = R"=====(
       xhttp.send();
     }
 
+    function musicSelect(caller) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          // var jObj = JSON.parse(this.responseText);
+        }
+      };
+      xhttp.open("GET", "/music/select?track=" + caller.value, true);
+      xhttp.send();
+    }
+
     function musicPrev() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -349,7 +364,7 @@ const char INDEX_page[] PROGMEM = R"=====(
   <h1>Audio Controls</h1>
   <div class="block">
     <h3>Master Volume</h3>
-    <button type="button" class="blue" onclick="volumeMasterDown()">Down -</button>
+    <button type="button" class="blue" onclick="volumeMasterDown()">- Down</button>
     <button type="button" onclick="toggleMute()">Mute/Unmute</button>
     <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
     <br/>
@@ -358,11 +373,11 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="green" onclick="toggleMusic()">Start/Stop</button>
     <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
     <br/>
-    <h3>Jump to Music Track</h3>
-    <select id="tracks"></select>
+    <h3>Play Music Track</h3>
+    <select id="tracks" onchange="musicSelect(this)"></select>
     <br/>
     <h3>Effects Volume</h3>
-    <button type="button" class="blue" onclick="volumeEffectsDown()">Down -</button>
+    <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
     <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
   </div>
 
@@ -373,7 +388,12 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="green" onclick="packOn()">Pack On</button>
   </div>
 
-  <a href="/password">Change WiFi Password</a>
+  <h1>Administration</h1>
+  <div class="block">
+    <a href="/password">Change WiFi Password</a>
+    &nbsp;&nbsp;&nbsp;
+    <a href="/update">Update Firmware</a>
+  </div>
 </body>
 </html>
 )=====";

@@ -22,19 +22,26 @@ const char PASSWORD_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale="1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>WiFi Password</title>
 
   <style>
-    html { font-family: Tahoma, Verdana, Arial; display: inline-block;, margin: 0px auto; text-align: center; }
+    html {
+      font-family: Tahoma, Verdana, Arial;
+      display: inline-block;
+      margin: 0px;
+      text-align: center;
+    }
 
-    body { margin-top: 0px; margin-bottom: 20px; }
+    body {
+      margin: 0px 0px 20px 0px;
+    }
 
     h1 {
         background: #222;
         color: #eee;
-        margin: 10px;
-        padding: 5px;
+        margin: 0px;
+        padding: 8px;
         width: 100%;
     }
 
@@ -43,6 +50,11 @@ const char PASSWORD_page[] PROGMEM = R"=====(
     a { text-decoration: none; }
 
     p { font-size: 18px; margin-bottom: 5px; text-align: left; }
+
+    .block {
+      margin: 10px 5px 30px 5px;
+      padding: 10px 5px 10px 5px;
+    }
 
     button {
       background-color: #555;
@@ -82,7 +94,6 @@ const char PASSWORD_page[] PROGMEM = R"=====(
   </style>
 
   <script type="application/javascript">
-
     function updatePassword() {
       var newPass = (document.getElementById("password").value || "").trim();
       var confPW = (document.getElementById("password2").value || "").trim();
@@ -111,14 +122,18 @@ const char PASSWORD_page[] PROGMEM = R"=====(
   </script>
 </head>
 <body>
-  <h1>WiFi Password</h1>
-  <p>Use this page to update your preferred password for WiFi access. Note that this value is stored in controller's permanent memory,
-  and firmware updates will have no effect on resetting this value. After updating, any devices which previously stored the password
-  for the WiFi network will require you to update to the new password.</p>
-
+  <h1>Change WiFi Password</h1>
   <div class="block">
-    <b>New AP Password:</b> <input type="text" id="password" width="120"/><br/>
-    <b>Confirm Password:</b> <input type="text" id="password2" width="120"/><br/>
+    <p>
+      Use this page to update your preferred password for WiFi access. Note that this value is stored in controller's permanent memory,
+      and firmware updates will have no effect on resetting this value. After updating, any devices which previously stored the password
+      for the WiFi network will require you to update to the new password.
+    </p>
+    <br/>
+    <b>New AP Password:</b> <input type="text" id="password" width="120"/>
+    <br/>
+    <b>Confirm Password:</b> <input type="text" id="password2" width="120"/>
+    <br/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;&nbsp;
     <button type="button" onclick="updatePassword()">Update</button>
