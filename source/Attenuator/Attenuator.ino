@@ -145,8 +145,6 @@ void loop() {
       ws.cleanupClients();
       ms_cleanup.start(i_websocketCleanup);
     }
-
-    ElegantOTA.loop(); // Handles restart after firmware updates.
   #endif
 
   if(b_wait_for_pack) {
