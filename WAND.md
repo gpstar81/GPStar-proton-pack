@@ -1,5 +1,7 @@
 # Neutrona Wand Setup
 
+**As of November 2023 the last release to support software builds for the Arduino Nano was v2.2.0. Due to memory limitations of this device no further software updates are possible. This guide exists solely for educational/legacy purposes only and is considered deprecated.**
+
 This guide begins with some explanations for common items you will encounter during the upgrade process. Note that it will be necessary to upgrade the hose and conductors between the pack and wand. This exercise is left to individual preferences on connectors and style of replacement, though you will need 4 conductors at a minimum (+5V, Ground, and TX/RX for communications).
 
 The space within the Neutrona Wand is extremely limited, though multiple components must be fit into this space. To maximize what is available, some wires from the original controller (PCB) can be directly soldered onto the Arduino Nano. Where resistors or inline components are required, these may be soldered between the wire and Arduino Nano to reduce need for an additional protoboard. If needed, a [a ¼ protoboard from Adafruit](https://www.adafruit.com/product/1608) or any similar size from another manufacturer will be used.
