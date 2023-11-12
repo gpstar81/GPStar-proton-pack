@@ -270,19 +270,19 @@ To simplify installation it is suggested to create a break-out board for connect
 |--------|-------|-------|-------|-------|-------|---|-------|-------|-------|-------|-------|
 | **1**  |       |       |       |       |       |   |       |       |       |       |       |
 | **2**  |       |       |       |       |       |   |       |       |       |       |       |
-| **3**  | <font color="red">3V3</font> | <font color="red">Z+</font> |  | R&nbsp;3.8K&nbsp;Ω |  |  |  | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO21</font> | Bargraph&nbsp;SDA (JST-PH) |
-| **4**  | | <font color="red">Z+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω |  |  |  | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO22</font> | Bargraph&nbsp;SCL (JST-PH) |
+| **3**  | <font color="red">3V3</font> | <font color="red">Z+</font> |  | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO21</font> | Bargraph&nbsp;SDA (JST-PH) |
+| **4**  | | <font color="red">Z+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO22</font> | Bargraph&nbsp;SCL (JST-PH) |
 | **5**  |       |       |       |       |       |   |       |       |       |       |       |
-| **6**  | <font color="green">GPIO23</font> |  |  | R 470 Ω |  |  |  |  R 470 Ω |  |  | Addressable&nbsp;LED's |
+| **6**  | <font color="green">GPIO23</font> |  |  | R 470 Ω | ↔ | ↔ | ↔ |  R 470 Ω |  |  | Addressable&nbsp;LED's |
 | **7**  |       |       |       |       |       |   |       |       |       |       |       |
-| **8**  |  | <font color="red">X+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω |  |  |  | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO34</font> | <font color="blue">Left Toggle</font> |
-| **9**  |  | <font color="red">X+</font> | <font color="red">W+</font> | R&nbsp;3.8K&nbsp;Ω |  |  |  | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO35</font> | <font color="green">Right Toggle</font> |
+| **8**  |  | <font color="red">X+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO34</font> | <font color="blue">Left Toggle</font> |
+| **9**  |  | <font color="red">X+</font> | <font color="red">W+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO35</font> | <font color="green">Right Toggle</font> |
 | **10** |       |       |       |       |       |   |       |       |       |       |       |
 | **11** |       |       |       |       |       |   | <font color="red">W+</font> | | | 1N4001 (s) | <font color="red">Vib. Motor (+)</font> |
 | **12** |       |       |       |       |       |   |       |       |       | ↕ |       |
 | **13** |       |       |       |       |       |   |       |       |       | ↕ |       |
 | **14** |       |       |       |       |       |   |       |       | NPN&nbsp;C | 1N4001 | <font color="blue">Vib. Motor (-)</font> |
-| **15** | <font color="green">GPIO19</font> |  |  | R 270 Ω |  |  |  | R 270 Ω | NPN&nbsp;B |  |  |
+| **15** | <font color="green">GPIO19</font> |  |  | R 270 Ω | ↔ | ↔ | ↔ | R 270 Ω | NPN&nbsp;B |  |  |
 | **16** | GND (-) | V- | L.&nbsp;Toggle&nbsp;(&dash;) | R.&nbsp;Toggle&nbsp;(&dash;) | W- |  | W- |  | NPN&nbsp;E |  |  |
 | **17** | Buzzer&nbsp;(&dash;) | V- | Rot.&nbsp;Enc.&nbsp;(&dash;) | Enc.&nbsp;Post&nbsp;(&dash;) |  |  |  |  |  |  |  |
 
