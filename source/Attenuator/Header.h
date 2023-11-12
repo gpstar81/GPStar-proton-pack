@@ -244,16 +244,16 @@ bool b_comms_open = false; // Denotes pack communications have occurred.
 struct __attribute__((packed)) STRUCT {
   uint16_t s;
   uint16_t i;
-  uint16_t d1;
-  uint16_t d2;
+  uint16_t d1; // Data 1
+  uint16_t d2; // Data 2
   uint16_t e;
 } comStruct;
 
 struct __attribute__((packed)) STRUCTSEND {
   uint16_t s;
   uint16_t i;
-  uint16_t d1;
-  uint16_t d2;
+  uint16_t d1; // Data 1
+  uint16_t d2; // Data 2
   uint16_t e;
 } sendStruct;
 

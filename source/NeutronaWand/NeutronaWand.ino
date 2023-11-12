@@ -478,10 +478,10 @@ void mainLoop() {
         // Menu Level 1: Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
         // Menu Level 2: Intensify: Quick Vent.
         // Menu Level 2: Barrel Wing Button: Wand Boot Errors.
-        // Menu Level 3: Intensify: Default main system volume + top dial
+        // Menu Level 3: Intensify + top dial: Default main system volume.
         // Menu Level 3: Barrel Wing Button: Set Neutrona Wand to 1984/1989 Mode | Set Neutrona Wand to 2021 Mode | Default (Matches the Proton Pack)
-        // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 5
-        // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 5
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 5
+        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 5
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #5
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #5
         case 5:
@@ -523,11 +523,24 @@ void mainLoop() {
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-                // Main system volume adjustment.
-                // Needs a alternate variable for tracking. When playing effect, make sure it forces to play or plays the sound with the current value for playback?
+              // Main system volume adjustment.
+              // Adjustment is handled in checkRotary();
+              stopEffect(S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
+              playEffect(S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
+
+              wandSerialSend(W_SOUND_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_5);
+              // Overheat smoke duration level 5.
+              // Adjustment is handled in checkRotary();
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+
+              wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               if(b_overheat_mode_5 == true) {
@@ -643,7 +656,16 @@ void mainLoop() {
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_5);
+              // Handled in checkRotary();
+              // The time it takes to overheat in power level 5.
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+
+              wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_5);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_5);
@@ -657,8 +679,8 @@ void mainLoop() {
         // Menu Level 2: Barrel Wing Button: 5 / 48 / 60 barrel LEDs.
         // Menu Level 3: Intensify: Invert Bargraph
         // Menu Level 3: Barrel Wing Button: Toggle Bargraph Overheat Blinking enabled/disabled
-        // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 4
-        // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 4
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 4
+        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 4
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #4
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #4
         case 4:
@@ -711,7 +733,16 @@ void mainLoop() {
               setBargraphOrientation();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_4);
+              // Overheat smoke duration level 4.
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+
+              // Handled in checkRotary();
+              wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_4);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               if(b_overheat_mode_4 == true) {
@@ -836,7 +867,16 @@ void mainLoop() {
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_4);
+              // Handled in checkRotary();
+              // The time it takes to overheat in power level 4.
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+
+              wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_4);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_4);
@@ -850,8 +890,8 @@ void mainLoop() {
         // Menu Level 2: Barrel Wing Button: Cycle through VG color modes to disable them. (see operational guide for more details on this).
         // Menu Level 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
-        // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 3
-        // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 3
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 3
+        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 3
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #3
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #3
         case 3:
@@ -923,7 +963,16 @@ void mainLoop() {
               bargraphYearModeUpdate();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_3);
+              // Overheat smoke duration level .
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+
+              // Handled in checkRotary();
+              wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_3);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               if(b_overheat_mode_3 == true) {
@@ -997,7 +1046,16 @@ void mainLoop() {
               bargraphYearModeUpdate();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_3);
+              // Handled in checkRotary();
+              // The time it takes to overheat in power level 3.
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+
+              wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_3);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_3);
@@ -1011,8 +1069,8 @@ void mainLoop() {
         // Menu Level 2: Barrel Wing Button: Overheat lights off.
         // Menu Level 3: Intensify: Demo Light Mode Enabled
         // Menu Level 3: Barrel Wing Button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
-        // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 2
-        // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 2
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 2
+        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 2
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #2
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #2
         case 2:
@@ -1031,7 +1089,16 @@ void mainLoop() {
               wandSerialSend(W_DEMO_LIGHT_MODE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_2);
+              // Overheat smoke duration level 2.
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+
+              // Handled in checkRotary();
+              wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_2);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               if(b_overheat_mode_2 == true) {
@@ -1069,7 +1136,16 @@ void mainLoop() {
               wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_2);
+              // Handled in checkRotary();
+              // The time it takes to overheat in power level 2.
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+
+              wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_2);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_2);
@@ -1083,8 +1159,8 @@ void mainLoop() {
         // Menu Level 2: Barrel Wing Button: Overheat sync to fan.
         // Menu Level 3: Intensify: Toggle between Super Hero and Original Mode.
         // Menu Level 3: Barrel Wing Button: Toggle CTS between: 1984/1989 CTS | 2021 CTS | Default CTS (Based on the year you are in)
-        // Menu Level 4: Intensify: Increase overheat duration by 1 second : Power Mode 1
-        // Menu Level 4: Barrel Wing Button: Decrease overheat duration by 1 second : Power Mode 1
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 1
+        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 1
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #1
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #1
         case 1:
@@ -1149,7 +1225,16 @@ void mainLoop() {
 
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_1);
+              // Overheat smoke duration level 1.
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+
+              // Handled in checkRotary();
+              wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_1);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               if(b_overheat_mode_1 == true) {
@@ -1198,7 +1283,16 @@ void mainLoop() {
               wandSerialSend(W_MODE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_1);
+              // Handled in checkRotary();
+              // The time it takes to overheat in power level 1.
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
+              wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_1);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_1);
@@ -7025,6 +7119,7 @@ void wandLightsOffMenuSystem() {
   digitalWrite(led_white, HIGH);
   analogWrite(led_front_left, 0);
 }
+
 void vibrationOff() {
   i_vibration_level_prev = 0;
   analogWrite(vibration, 0);
@@ -7175,6 +7270,121 @@ void wandBarrelSpectralCustomConfigOn() {
   ms_fast_led.start(i_fast_led_delay);
 }
 
+// It is very important that S_1 up to S_60 follow each other in order on the Micro SD Card and sound effects enum.
+void overheatVoiceIndicator(unsigned int i_tmp_length) {
+  i_tmp_length = i_tmp_length / i_overheat_delay_increment;
+
+  unsigned int i_tmp_sound = (S_1 - 1) + i_tmp_length;
+
+  stopEffect(i_tmp_sound - 1);
+  stopEffect(i_tmp_sound);
+  stopEffect(i_tmp_sound + 1);
+  playEffect(i_tmp_sound);
+
+  // Tell the Proton Pack to play this sound effect.
+  wandSerialSend(i_tmp_sound, true);
+}
+
+void overheatTimerIncrement(uint8_t i_tmp_power_level) {
+  switch(i_tmp_power_level) {
+    case 5:
+      if(i_ms_overheat_initiate_mode_5 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheat_initiate_mode_5 = i_ms_overheat_initiate_mode_5 + i_overheat_delay_increment;
+        i_ms_overheat_initiate[4] = i_ms_overheat_initiate_mode_5;
+
+        overheatVoiceIndicator(i_ms_overheat_initiate_mode_5);
+      }
+    break;
+
+    case 4:
+      if(i_ms_overheat_initiate_mode_4 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheat_initiate_mode_4 = i_ms_overheat_initiate_mode_4 + i_overheat_delay_increment;
+        i_ms_overheat_initiate[3] = i_ms_overheat_initiate_mode_4;
+
+        overheatVoiceIndicator(i_ms_overheat_initiate_mode_4);
+      }
+    break;
+
+    case 3:
+      if(i_ms_overheat_initiate_mode_3 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheat_initiate_mode_3 = i_ms_overheat_initiate_mode_3 + i_overheat_delay_increment;
+        i_ms_overheat_initiate[2] = i_ms_overheat_initiate_mode_3;
+
+        overheatVoiceIndicator(i_ms_overheat_initiate_mode_3);
+      }
+    break;
+
+    case 2:
+      if(i_ms_overheat_initiate_mode_2 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheat_initiate_mode_2 = i_ms_overheat_initiate_mode_2 + i_overheat_delay_increment;
+        i_ms_overheat_initiate[1] = i_ms_overheat_initiate_mode_2;
+
+        overheatVoiceIndicator(i_ms_overheat_initiate_mode_2);
+      }
+    break;
+
+    case 1:
+    default:
+      if(i_ms_overheat_initiate_mode_1 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheat_initiate_mode_1 = i_ms_overheat_initiate_mode_1 + i_overheat_delay_increment;
+        i_ms_overheat_initiate[0] = i_ms_overheat_initiate_mode_1;
+
+        overheatVoiceIndicator(i_ms_overheat_initiate_mode_1);
+      }
+    break;
+  }
+}
+
+void overheatTimerDecrement(uint8_t i_tmp_power_level) {
+  switch(i_tmp_power_level) {
+    case 5:
+      if(i_ms_overheat_initiate_mode_5 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheat_initiate_mode_5 = i_ms_overheat_initiate_mode_5 - i_overheat_delay_increment;
+        i_ms_overheat_initiate[4] = i_ms_overheat_initiate_mode_5;
+
+        overheatVoiceIndicator(i_ms_overheat_initiate_mode_5);
+      }
+    break;
+
+    case 4:
+      if(i_ms_overheat_initiate_mode_4 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheat_initiate_mode_4 = i_ms_overheat_initiate_mode_4 - i_overheat_delay_increment;
+        i_ms_overheat_initiate[3] = i_ms_overheat_initiate_mode_4;
+
+        overheatVoiceIndicator(i_ms_overheat_initiate_mode_4);
+      }
+    break;
+
+    case 3:
+      if(i_ms_overheat_initiate_mode_3 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheat_initiate_mode_3 = i_ms_overheat_initiate_mode_3 - i_overheat_delay_increment;
+        i_ms_overheat_initiate[2] = i_ms_overheat_initiate_mode_3;
+
+        overheatVoiceIndicator(i_ms_overheat_initiate_mode_3);
+      }
+    break;
+
+    case 2:
+      if(i_ms_overheat_initiate_mode_2 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheat_initiate_mode_2 = i_ms_overheat_initiate_mode_2 - i_overheat_delay_increment;
+        i_ms_overheat_initiate[1] = i_ms_overheat_initiate_mode_2;
+
+        overheatVoiceIndicator(i_ms_overheat_initiate_mode_2);
+      }
+    break;
+
+    case 1:
+    default:
+      if(i_ms_overheat_initiate_mode_1 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheat_initiate_mode_1 = i_ms_overheat_initiate_mode_1 - i_overheat_delay_increment;
+        i_ms_overheat_initiate[0] = i_ms_overheat_initiate_mode_1;
+
+        overheatVoiceIndicator(i_ms_overheat_initiate_mode_1);
+      }
+    break;
+  }
+}
+
 // Top rotary dial on the wand.
 void checkRotary() {
   static int8_t c,val;
@@ -7185,7 +7395,41 @@ void checkRotary() {
       case ACTION_CONFIG_EEPROM_MENU:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(i_wand_menu - 1 < 1) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            // Adjust the default bootup system volume.
+            wandSerialSend(W_VOLUME_DECREASE_EEPROM);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_5);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_4);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_3);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_2);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_1);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            overheatTimerDecrement(5);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            overheatTimerDecrement(4);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            overheatTimerDecrement(3);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            overheatTimerDecrement(2);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            overheatTimerDecrement(1);
+          }
+          else if(i_wand_menu - 1 < 1) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_1:
                 WAND_MENU_LEVEL = MENU_LEVEL_2;
@@ -7311,7 +7555,41 @@ void checkRotary() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(i_wand_menu + 1 > 5) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            // Adjust the default bootup system volume.
+            wandSerialSend(W_VOLUME_INCREASE_EEPROM);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_5);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_4);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_3);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_2);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.getState() == LOW && digitalRead(switch_mode) == HIGH) {
+            wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_1);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            overheatTimerIncrement(5);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            overheatTimerIncrement(4);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            overheatTimerIncrement(3);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            overheatTimerIncrement(2);
+          }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
+            overheatTimerIncrement(1);
+          }
+          else if(i_wand_menu + 1 > 5) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_5:
                 WAND_MENU_LEVEL = MENU_LEVEL_4;
@@ -8175,24 +8453,24 @@ void checkPack() {
               }
             break;
 
+            case P_SOUND_SUPER_HERO:
+              stopEffect(S_VOICE_MODE_SUPER_HERO);
+              stopEffect(S_VOICE_MODE_ORIGINAL);
+              playEffect(S_VOICE_MODE_SUPER_HERO);
+            break;
+
+            case P_SOUND_MODE_ORIGINAL:
+              stopEffect(S_VOICE_MODE_ORIGINAL);
+              stopEffect(S_VOICE_MODE_SUPER_HERO);
+              playEffect(S_VOICE_MODE_ORIGINAL);
+            break;
+
             case P_MODE_SUPER_HERO:
               SYSTEM_MODE = MODE_SUPER_HERO;
-
-              if(b_sync != true) {
-                stopEffect(S_VOICE_MODE_SUPER_HERO);
-                stopEffect(S_VOICE_MODE_ORIGINAL);
-                playEffect(S_VOICE_MODE_SUPER_HERO);
-              }
             break;
 
             case P_MODE_ORIGINAL:
               SYSTEM_MODE = MODE_ORIGINAL;
-
-              if(b_sync != true) {
-                stopEffect(S_VOICE_MODE_ORIGINAL);
-                stopEffect(S_VOICE_MODE_SUPER_HERO);
-                playEffect(S_VOICE_MODE_ORIGINAL);
-              }
             break;
 
             case P_OVERHEATING_FINISHED:
@@ -9055,11 +9333,18 @@ void checkPack() {
   }
 }
 
-void wandSerialSend(int i_message) {
+void wandSerialSend(int i_message, bool b_sound) {
   if(b_no_pack != true) {
     sendStruct.i = i_message;
     sendStruct.s = W_COM_START;
-    sendStruct.e = W_COM_END;
+
+    if(b_sound == true) {
+      // Tell the Proton Pack to play the sound # i_message.
+      sendStruct.e = W_COM_SOUND_NUMBER;
+    }
+    else {
+      sendStruct.e = W_COM_END;
+    }
 
     wandComs.sendDatum(sendStruct);
   }

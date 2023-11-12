@@ -249,6 +249,7 @@ int i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
 int i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
+int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
 int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
 int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
 int8_t i_volume_revert = i_volume_master;
@@ -495,7 +496,26 @@ struct objConfigEEPROM {
   uint8_t overheat_strobe;
   uint8_t overheat_lights_off;
   uint8_t overheat_sync_to_fan;
-  uint8_t year_mode;
+  
+  uint8_t year_mode; // 1984, 1989, After Life, Frozen Empire or the Proton Pack toggle switch default.
+  uint8_t system_mode; // Super Hero or Mode Original.
+  uint8_t vga_powercell; // For disabling or enabling video game colours for the Power Cell.
+  uint8_t vga_cyclotron; // For disabling or enabling video game colours for the Cyclotron.
+  uint8_t demo_light_mode;
+  uint8_t cyclotron_three_led_toggle;
+  uint8_t default_system_volume;
+
+  uint8_t overheat_smoke_duration_level_5;
+  uint8_t overheat_smoke_duration_level_4;
+  uint8_t overheat_smoke_duration_level_3;
+  uint8_t overheat_smoke_duration_level_2;
+  uint8_t overheat_smoke_duration_level_1;
+
+  uint8_t smoke_continuous_mode_5;
+  uint8_t smoke_continuous_mode_4; 
+  uint8_t smoke_continuous_mode_3; 
+  uint8_t smoke_continuous_mode_2; 
+  uint8_t smoke_continuous_mode_1;
 };
 
 /*
