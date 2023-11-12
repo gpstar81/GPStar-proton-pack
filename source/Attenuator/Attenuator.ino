@@ -523,14 +523,18 @@ void checkRotaryPress() {
           //attenuatorSerialSend(A_MUSIC_START_STOP);
           attenuatorSerialSend(A_MUSIC_PAUSE_RESUME);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Music Start/Stop");
+          #if defined(__XTENSA__)
+            debug("Music Start/Stop");
+          #endif
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Next Track");
+          #if defined(__XTENSA__)
+            debug("Next Track");
+          #endif
         break;
       }
     break;
@@ -542,14 +546,18 @@ void checkRotaryPress() {
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Toggle Mute");
+          #if defined(__XTENSA__)
+            debug("Toggle Mute");
+          #endif
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Previous Track");
+          #if defined(__XTENSA__)
+            debug("Previous Track");
+          #endif
         break;
       }
     break;
@@ -615,13 +623,17 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to increase overall volume.
             attenuatorSerialSend(A_VOLUME_INCREASE);
-            debug("Increase Master Volume");
+            #if defined(__XTENSA__)
+              debug("Increase Master Volume");
+            #endif
           break;
 
           case MENU_2:
             // Tell pack to increase effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-            debug("Increase Effects Volume");
+            #if defined(__XTENSA__)
+              debug("Increase Effects Volume");
+            #endif
           break;
         }
       }
@@ -639,7 +651,9 @@ void checkRotaryEncoder() {
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
-          debug("Overheat Cancelled");
+          #if defined(__XTENSA__)
+            debug("Overheat Cancelled");
+          #endif
           i_rotary_count = 0;
         }
       }
@@ -649,13 +663,17 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to decrease overall volume.
             attenuatorSerialSend(A_VOLUME_DECREASE);
-            debug("Decrease Master Volume");
+            #if defined(__XTENSA__)
+              debug("Decrease Master Volume");
+            #endif
           break;
 
           case MENU_2:
             // Tell pack to decrease effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-            debug("Decrease Effects Volume");
+            #if defined(__XTENSA__)
+              debug("Decrease Effects Volume");
+            #endif
           break;
         }
       }
@@ -699,18 +717,24 @@ void checkPack() {
         // Use the passed communication flag to set the proper state for this device.
         switch(comStruct.i) {
           case A_SYNC_START:
-            debug("Sync Start");
+            #if defined(__XTENSA__)
+              debug("Sync Start");
+            #endif
             b_wait_for_pack = true;
             i_speed_multiplier = 1;
           break;
 
           case A_SYNC_END:
-            debug("Sync End");
+            #if defined(__XTENSA__)
+              debug("Sync End");
+            #endif
             b_wait_for_pack = false;
           break;
 
           case A_PACK_ON:
-            debug("Pack On");
+            #if defined(__XTENSA__)
+              debug("Pack On");
+            #endif
 
             // Pack is on (directly).
             b_pack_on = true;
@@ -719,7 +743,9 @@ void checkPack() {
           break;
 
           case A_WAND_ON:
-            debug("Wand On");
+            #if defined(__XTENSA__)
+              debug("Wand On");
+            #endif
 
             // Pack is on (via wand).
             b_pack_on = true;
@@ -729,7 +755,9 @@ void checkPack() {
 
           case A_PACK_OFF:
           case A_WAND_OFF:
-            debug("Pack Off");
+            #if defined(__XTENSA__)
+              debug("Pack Off");
+            #endif
 
             // Pack is off (directly or via the wand).
             b_pack_on = false;
@@ -743,7 +771,9 @@ void checkPack() {
 
           #if defined(__XTENSA__)
             case A_MUSIC_TRACK_COUNT_SYNC:
-              debug("Music Track Sync");
+              #if defined(__XTENSA__)
+                debug("Music Track Sync");
+              #endif
 
               if(comStruct.d1 > 0) {
                 i_music_track_count = comStruct.d1;
@@ -758,7 +788,9 @@ void checkPack() {
 
           case A_PACK_CONNECTED:
             // The Proton Pack is connected.
-            debug("Pack Connected");
+            #if defined(__XTENSA__)
+              debug("Pack Connected");
+            #endif
           break;
 
           case A_HANDSHAKE:
@@ -770,14 +802,18 @@ void checkPack() {
 
           case A_MODE_SUPER_HERO:
             if(ARMING_MODE != MODE_SUPERHERO) {
-              debug("Super Hero Sequence");
+              #if defined(__XTENSA__)
+                debug("Super Hero Sequence");
+              #endif
               ARMING_MODE = MODE_SUPERHERO;
             }
           break;
 
           case A_MODE_ORIGINAL:
             if(ARMING_MODE != MODE_ORIGINAL) {
-              debug("Original Sequence");
+              #if defined(__XTENSA__)
+                debug("Original Sequence");
+              #endif
               ARMING_MODE = MODE_ORIGINAL;
             }
           break;
@@ -785,7 +821,9 @@ void checkPack() {
           case A_MODE_ORIGINAL_RED_SWITCH_ON:
             // The proton pack red switch is on and has power (cyclotron not powered up yet).
             if(RED_SWITCH_MODE != SWITCH_ON) {
-              debug("Red Switch On");
+              #if defined(__XTENSA__)
+                debug("Red Switch On");
+              #endif
               RED_SWITCH_MODE = SWITCH_ON;
             }
           break;
@@ -793,28 +831,36 @@ void checkPack() {
           case A_MODE_ORIGINAL_RED_SWITCH_OFF:
             // The proton pack red switch is off. This will cause a total system shutdown.
             if(RED_SWITCH_MODE != SWITCH_ON) {
-              debug("Red Switch Off");
+              #if defined(__XTENSA__)
+                debug("Red Switch Off");
+              #endif
               RED_SWITCH_MODE = SWITCH_OFF;
             }
           break;
 
           case A_YEAR_1984:
             if(SYSTEM_YEAR != SYSTEM_1984) {
-              debug("Mode 1984");
+              #if defined(__XTENSA__)
+                debug("Mode 1984");
+              #endif
               SYSTEM_YEAR = SYSTEM_1984;
             }
           break;
 
           case A_YEAR_1989:
             if(SYSTEM_YEAR != SYSTEM_1989) {
-              debug("Mode 1989");
+              #if defined(__XTENSA__)
+                debug("Mode 1989");
+              #endif
               SYSTEM_YEAR = SYSTEM_1989;
             }
           break;
 
           case A_YEAR_AFTERLIFE:
             if(SYSTEM_YEAR != SYSTEM_AFTERLIFE) {
-              debug("Mode 2021");
+              #if defined(__XTENSA__)
+                debug("Mode 2021");
+              #endif
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
             }
           break;
@@ -827,27 +873,37 @@ void checkPack() {
           // break;
 
           case A_PROTON_MODE:
-            debug("Proton");
+            #if defined(__XTENSA__)
+              debug("Proton");
+            #endif
             FIRING_MODE = PROTON;
           break;
 
           case A_SLIME_MODE:
-            debug("Slime");
+            #if defined(__XTENSA__)
+              debug("Slime");
+            #endif
             FIRING_MODE = SLIME;
           break;
 
           case A_STASIS_MODE:
-            debug("Stasis");
+            #if defined(__XTENSA__)
+              debug("Stasis");
+            #endif
             FIRING_MODE = STASIS;
           break;
 
           case A_MESON_MODE:
-            debug("Meson");
+            #if defined(__XTENSA__)
+              debug("Meson");
+            #endif
             FIRING_MODE = MESON;
           break;
 
           case A_SPECTRAL_CUSTOM_MODE:
-            debug("Spectral Custom");
+            #if defined(__XTENSA__)
+              debug("Spectral Custom");
+            #endif
             FIRING_MODE = SPECTRAL_CUSTOM;
 
             if(comStruct.d1 > 0) {
@@ -860,7 +916,9 @@ void checkPack() {
           break;
 
           case A_SPECTRAL_COLOUR_DATA:
-            debug("Spectral Color Data");
+            #if defined(__XTENSA__)
+              debug("Spectral Color Data");
+            #endif
             if(comStruct.d1 > 0) {
               i_spectral_custom = comStruct.d1;
             }
@@ -871,57 +929,77 @@ void checkPack() {
           break;
 
           case A_SPECTRAL_MODE:
-            debug("Spectral");
+            #if defined(__XTENSA__)
+              debug("Spectral");
+            #endif
             FIRING_MODE = SPECTRAL;
           break;
 
           case A_HOLIDAY_MODE:
-            debug("Spectral Holiday");
+            #if defined(__XTENSA__)
+              debug("Spectral Holiday");
+            #endif
             FIRING_MODE = HOLIDAY;
           break;
 
           case A_VENTING_MODE:
-            debug("Venting");
+            #if defined(__XTENSA__)
+              debug("Venting");
+            #endif
             FIRING_MODE = VENTING;
           break;
 
           case A_SETTINGS_MODE:
-            debug("Settings");
+            #if defined(__XTENSA__)
+              debug("Settings");
+            #endif
             FIRING_MODE = SETTINGS;
           break;
 
           case A_POWER_LEVEL_1:
-            debug("Power Level 1");
+            #if defined(__XTENSA__)
+              debug("Power Level 1");
+            #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_1;
           break;
 
           case A_POWER_LEVEL_2:
-            debug("Power Level 2");
+            #if defined(__XTENSA__)
+              debug("Power Level 2");
+            #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_2;
           break;
 
           case A_POWER_LEVEL_3:
-            debug("Power Level 3");
+            #if defined(__XTENSA__)
+              debug("Power Level 3");
+            #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_3;
           break;
 
           case A_POWER_LEVEL_4:
-            debug("Power Level 4");
+            #if defined(__XTENSA__)
+              debug("Power Level 4");
+            #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_4;
           break;
 
           case A_POWER_LEVEL_5:
-            debug("Power Level 5");
+            #if defined(__XTENSA__)
+              debug("Power Level 5");
+            #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_5;
           break;
 
           case A_ALARM_ON:
-            debug("Alarm On");
+            #if defined(__XTENSA__)
+              debug("Alarm On");
+            #endif
 
             // Alarm is on.
             b_pack_alarm = true;
@@ -935,7 +1013,9 @@ void checkPack() {
           break;
 
           case A_ALARM_OFF:
-            debug("Alarm Off");
+            #if defined(__XTENSA__)
+              debug("Alarm Off");
+            #endif
 
             // Alarm is off.
             b_pack_alarm = false;
@@ -951,7 +1031,9 @@ void checkPack() {
           break;
 
           case A_OVERHEATING:
-            debug("Overheating");
+            #if defined(__XTENSA__)
+              debug("Overheating");
+            #endif
 
             // Pack is overheating.
             b_overheating = true;
@@ -962,7 +1044,9 @@ void checkPack() {
           break;
 
           case A_OVERHEATING_FINISHED:
-            debug("Vented");
+            #if defined(__XTENSA__)
+              debug("Vented");
+            #endif
 
             // Venting process completed.
             b_overheating = false;
@@ -977,7 +1061,9 @@ void checkPack() {
           break;
 
           case A_FIRING:
-            debug("Firing");
+            #if defined(__XTENSA__)
+              debug("Firing");
+            #endif
 
             b_firing = true; // Implies the wand is powered on.
             b_pack_on = true; // Implies the pack is powered on.
@@ -988,7 +1074,9 @@ void checkPack() {
           break;
 
           case A_FIRING_STOPPED:
-            debug("Idle");
+            #if defined(__XTENSA__)
+              debug("Idle");
+            #endif
 
             b_firing = false;
             ms_blink_leds.stop();
@@ -1010,29 +1098,39 @@ void checkPack() {
           break;
 
           case A_CYCLOTRON_INCREASE_SPEED:
-            debug("Cyclotron Speed Increasing...");
+            #if defined(__XTENSA__)
+              debug("Cyclotron Speed Increasing...");
+            #endif
 
             i_speed_multiplier++;
 
-            debug(String(i_speed_multiplier));
+            #if defined(__XTENSA__)
+              debug(String(i_speed_multiplier));
+            #endif
           break;
 
           case A_BARREL_EXTENDED:
             if(BARREL_STATE != BARREL_EXTENDED) {
-              debug("Wand Barrel Extended");
+              #if defined(__XTENSA__)
+                debug("Wand Barrel Extended");
+              #endif
               BARREL_STATE = BARREL_EXTENDED;
             }
           break;
 
           case A_BARREL_RETRACTED:
             if(BARREL_STATE != BARREL_RETRACTED) {
-              debug("Wand Barrel Retracted");
+              #if defined(__XTENSA__)
+                debug("Wand Barrel Retracted");
+              #endif
               BARREL_STATE = BARREL_RETRACTED;
             }
           break;
 
           case A_CYCLOTRON_NORMAL_SPEED:
-            debug("Cyclotron Speed Reset");
+            #if defined(__XTENSA__)
+              debug("Cyclotron Speed Reset");
+            #endif
 
             i_speed_multiplier = 1;
 
