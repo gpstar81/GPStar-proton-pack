@@ -122,9 +122,11 @@ The following is a diagram of the ESP32 pins from left and right, when oriented 
 When connecting to the pack, the following wiring scheme was used with the recommended 4-pin connector:
 
 	1 - GND (Black)
-	2 - 5V (Red)
+	2 - VIN (Red)
 	3 - TX2 (White) to Pack RX1
 	4 - RX2 (Yellow) to Pack TX1
+
+It is advised to add a 330uF capacitor to the VIN+GND pins to help regulate power which will be shared with the controller, bargraph, and addressable LED's.
 
 **Note:** Bargraph power (+5V) should be split from the VIN terminal which delivers power from the Proton Pack.
 
@@ -158,9 +160,11 @@ The following is a diagram of the Arduino Nano pins from left and right, when or
 When connecting to the pack, the following wiring scheme was used with the recommended 4-pin connector:
 
 	1 - GND (Black)
-	2 - 5V (Red)
+	2 - VIN (Red)
 	3 - TX1 (White) to Pack RX1
 	4 - RX0 (Yellow) to Pack TX1
+
+It is advised to add a 330uF capacitor to the VIN+GND pins to help regulate power which will be shared with the controller, bargraph, and addressable LED's.
 
 ### Connections by Component
 
@@ -220,7 +224,7 @@ One notable point in the stated part noted in the BOM is that this encoder MUST 
 | LED'S                           |   | Component | MCU Pin |
 |---------------------------------|---|-----------|---------|
 | <font color="red">Red</font>    | → | 100uf | 5V/VIN    |
-| <font color="blue">Blue</font>  | → | 470 Ω | D9/GPIO23 |
+| <font color="green">Green</font>  | → | 470 Ω | D9/GPIO23 |
 | <font color="gray">Black</font> | → | 100uf | GND       |
 
 **Note:** It is advised to place a 100uf capacitor across the positive and negative connections to these devices, just to buffer any current fluctuations.
@@ -258,11 +262,37 @@ This is a separate but critical device and should be a relatively easy connectio
 | <font color="gray">White</font> | SCL | → |   →    | GPIO22 | Check wire labels on bargraph |
 | <font color="red">Red</font>    |     | ↑ | 3.8K Ω | 3V3    | External Pull-up Resistor     |
 
+## ESP32 Break-out Board
+
+To simplify installation it is suggested to create a break-out board for connections when using the ESP32 microcontroller. This is due to the need for pull-up resistors on select pins and can be accomplished by using a solderable ½ size protoboard.
+
+|        | **A** | **B** | **C** | **D** | **E** |   | **F** | **G** | **H** | **I** | **J** |
+|--------|-------|-------|-------|-------|-------|---|-------|-------|-------|-------|-------|
+| **1**  |       |       |       |       |       |   |       |       |       |       |       |
+| **2**  |       |       |       |       |       |   |       |       |       |       |       |
+| **3**  | <font color="red">3V3</font> | <font color="red">Z+</font> |  | R&nbsp;3.8K&nbsp;Ω |  |  |  | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO21</font> | Bargraph&nbsp;SDA (JST-PH) |
+| **4**  | | <font color="red">Z+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω |  |  |  | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO22</font> | Bargraph&nbsp;SCL (JST-PH) |
+| **5**  |       |       |       |       |       |   |       |       |       |       |       |
+| **6**  | <font color="green">GPIO23</font> |  |  | R 470 Ω |  |  |  |  R 470 Ω |  |  | Addressable&nbsp;LED's |
+| **7**  |       |       |       |       |       |   |       |       |       |       |       |
+| **8**  |  | <font color="red">X+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω |  |  |  | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO34</font> | <font color="blue">Left Toggle</font> |
+| **9**  |  | <font color="red">X+</font> | <font color="red">W+</font> | R&nbsp;3.8K&nbsp;Ω |  |  |  | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO35</font> | <font color="green">Right Toggle</font> |
+| **10** |       |       |       |       |       |   |       |       |       |       |       |
+| **11** |       |       |       |       |       |   | <font color="red">W+</font> | | | 1N4001 (s) | <font color="red">Vib. Motor (+)</font> |
+| **12** |       |       |       |       |       |   |       |       |       | ↕ |       |
+| **13** |       |       |       |       |       |   |       |       |       | ↕ |       |
+| **14** |       |       |       |       |       |   |       |       | NPN&nbsp;C | 1N4001 | <font color="blue">Vib. Motor (-)</font> |
+| **15** | <font color="green">GPIO19</font> |  |  | R 270 Ω |  |  |  | R 270 Ω | NPN&nbsp;B |  |  |
+| **16** | GND (-) | V- | L.&nbsp;Toggle&nbsp;(&dash;) | R.&nbsp;Toggle&nbsp;(&dash;) | W- |  | W- |  | NPN&nbsp;E |  |  |
+| **17** | Buzzer&nbsp;(&dash;) | V- | Rot.&nbsp;Enc.&nbsp;(&dash;) | Enc.&nbsp;Post&nbsp;(&dash;) |  |  |  |  |  |  |  |
+
 ## Pack Connection Cable
 
-In order to connect to the pack you will need to create a custom cable for the device. This will consist of running the 4-conductor jacketed wire through the braided wire loom, and terminating with the 4-pin connector at one end and passing through the strain relief at the other end. The bare wires can be soldered directly to the Nano or use a Nano terminal shield.
+In order to connect to the pack you will need to create a custom cable for the device. This will consist of running the 4-conductor jacketed wire through the braided wire loom, and terminating with the 4-pin connector at one end and passing through the strain relief at the other end. The bare wires can be soldered directly to the microcontroller or use a terminal shield.
 
 Where the socket for this connection cable is mounted on the pack is up to you--this device is meant to integrate how you think it should. You will be able to use 2 existing JST-XH connections on the gpstar Pack PCB controller: 5V-OUT and TX1/RX1. Please refer to the wiring notes above for how to make this connections. Just remember that TX/RX from the Attenuator will go to RX/TX on the pack (read: the wires flip).
+
+Please see the notes above for the correct pin names for connections based on your choice of microcontroller.
 
 ## Component Fitment
 
