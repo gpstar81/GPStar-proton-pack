@@ -183,7 +183,7 @@ void setup() {
   ms_check_music.start(i_music_check_delay);
 
   // Default mode is MODE_SUPER_HERO.
-  SYSTEM_MODE = MODE_ORIGINAL;
+  SYSTEM_MODE = MODE_SUPER_HERO;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
@@ -282,7 +282,7 @@ void loop() {
             if(switch_power.getState() == HIGH) {
              // Tell the Neutrona Wand that power to the Proton Pack is off.
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-              
+
               // Tell the Attenuator or any other device that the power to the Proton Pack is off.
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
             }
@@ -995,14 +995,14 @@ void checkSwitches() {
             if(switch_power.getState() == LOW) {
               // Tell the Neutrona Wand that power to the Proton Pack is on.
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
-              
+
               // Tell the Attenuator or any other device that the power to the Proton Pack is on.
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
             }
             else {
               // Tell the Neutrona Wand that power to the Proton Pack is off.
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-              
+
               // Tell the Attenuator or any other device that the power to the Proton Pack is off.
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
             }
@@ -1086,7 +1086,7 @@ void checkSwitches() {
               serial1Send(A_YEAR_FROZEN_EMPIRE);
             break;
             */
-            
+
             case SYSTEM_AFTERLIFE:
             default:
               if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
@@ -2057,7 +2057,7 @@ void cyclotron2021(int cDelay) {
       i_current_ramp_speed = cDelay;
 
       int t_cDelay = cDelay;
-      
+
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
         case FRUTTO_CYCLOTRON_LED_COUNT:
@@ -2144,7 +2144,7 @@ void cyclotron2021(int cDelay) {
     if(cDelay < 1) {
       cDelay = 1;
     }
-    
+
     if(b_clockwise == true) {
       if((i_cyclotron_led_value[i_led_cyclotron - cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
         ms_cyclotron_led_fade_in[i_led_cyclotron - cyclotron_led_start].go(0);
@@ -2731,7 +2731,7 @@ void packOverHeatingFinished() {
   serial1Send(A_OVERHEATING_FINISHED);
 
   ms_overheating_length.stop();
-  
+
   stopEffect(S_STEAM_LOOP);
   playEffect(S_VENT_DRY);
   playEffect(S_STEAM_LOOP_FADE_OUT);
@@ -4200,7 +4200,7 @@ void checkSerial1() {
               serial1Send(A_MODE_ORIGINAL);
             }
 
-            if(switch_power.getState() == LOW) {             
+            if(switch_power.getState() == LOW) {
               // Tell the Attenuator or any other device that the power to the Proton Pack is on.
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
             }
@@ -4333,8 +4333,8 @@ void checkSerial1() {
                 }
               }
             break;
-            
-            case A_MUSIC_NEXT_TRACK: 
+
+            case A_MUSIC_NEXT_TRACK:
               musicNextTrack();
             break;
 
@@ -4910,7 +4910,7 @@ void checkWand() {
 
             case W_OVERHEAT_DECREASE_LEVEL_5:
               overheatDecrement(5);
-            break;                  
+            break;
 
             case W_FIRING_INTENSIFY:
               // Wand firing in intensify mode.
@@ -5035,7 +5035,7 @@ void checkWand() {
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
               playEffect(S_FIRE_SPARKS);
-              
+
               playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
 
               playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
@@ -5047,7 +5047,7 @@ void checkWand() {
 
               stopEffect(S_CROSS_STREAMS_END);
               stopEffect(S_CROSS_STREAMS_START);
-              
+
               playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
 
               playEffect(S_FIRE_START_SPARK);
@@ -5087,7 +5087,7 @@ void checkWand() {
               else {
                 stopEffect(S_GB1_FIRE_LOOP);
               }
-            break;            
+            break;
 
             case W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984:
               // The wand is no longer crossing the streams.
@@ -5107,7 +5107,7 @@ void checkWand() {
 
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-              
+
               playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
 
               stopEffect(S_FIRING_LOOP_GB1);
@@ -5119,7 +5119,7 @@ void checkWand() {
 
               stopEffect(S_CROSS_STREAMS_START);
               stopEffect(S_CROSS_STREAMS_END);
-              
+
               playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
             break;
 
@@ -5387,7 +5387,7 @@ void checkWand() {
               stopEffect(S_VOICE_VIDEO_GAME_COLOURS_DISABLED);
               stopEffect(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
               stopEffect(S_VOICE_VIDEO_GAME_COLOURS_POWERCELL_ENABLED);
-              stopEffect(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);          
+              stopEffect(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
               // Toggle through the various Video Game Colour Modes for the Proton Pack LEDs (if supported).
               if(b_cyclotron_colour_toggle == true && b_powercell_colour_toggle == true) {
@@ -5447,7 +5447,7 @@ void checkWand() {
 
               playEffect(S_VOICE_OVERHEAT_ENABLED);
             break;
-            
+
             case W_MENU_LEVEL_1:
               // Play a beep and other sounds when changing menu levels.
               stopEffect(S_BEEPS);
@@ -5474,7 +5474,7 @@ void checkWand() {
               stopEffect(S_LEVEL_5);
 
               playEffect(S_LEVEL_2);
-            break;            
+            break;
 
             case W_MENU_LEVEL_3:
               // Play a beep and other sounds when changing menu levels.
@@ -5611,7 +5611,7 @@ void checkWand() {
               b_playing_music = false;
               stopMusic();
 
-              packSerialSend(P_MUSIC_STOP); 
+              packSerialSend(P_MUSIC_STOP);
             break;
 
             case W_MUSIC_START:
@@ -5620,7 +5620,7 @@ void checkWand() {
               playMusic();
 
               packSerialSend(i_current_music_track);
-              packSerialSend(P_MUSIC_START);              
+              packSerialSend(P_MUSIC_START);
             break;
 
             case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5:
@@ -5643,7 +5643,7 @@ void checkWand() {
               playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
             break;
 
-            case W_VOLUME_DECREASE_EEPROM:             
+            case W_VOLUME_DECREASE_EEPROM:
               // Decrease the overall default pack volume which is saved into the EEPROM.
               decreaseVolumeEEPROM();
 
@@ -5773,9 +5773,9 @@ void checkWand() {
               stopEffect(S_VOICE_CTS_1989);
               stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
 
-              playEffect(S_VOICE_CTS_1984); 
+              playEffect(S_VOICE_CTS_1984);
             break;
-            
+
             case W_CTS_1989:
               stopEffect(S_VOICE_CTS_1989);
               stopEffect(S_VOICE_CTS_1984);
@@ -5783,7 +5783,7 @@ void checkWand() {
               stopEffect(S_VOICE_CTS_AFTERLIFE);
               stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
 
-              playEffect(S_VOICE_CTS_1989); 
+              playEffect(S_VOICE_CTS_1989);
             break;
 
             case W_CTS_AFTERLIFE:
@@ -5795,7 +5795,7 @@ void checkWand() {
 
               playEffect(S_VOICE_CTS_AFTERLIFE);
             break;
-            
+
             case W_CTS_FROZEN_EMPIRE:
               stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
               stopEffect(S_VOICE_CTS_DEFAULT);
@@ -6341,7 +6341,7 @@ void checkWand() {
               playEffect(S_BEEPS_BARGRAPH);
 
               stopEffect(S_EEPROM_LED_MENU);
-              playEffect(S_EEPROM_LED_MENU);              
+              playEffect(S_EEPROM_LED_MENU);
             break;
 
             case W_EEPROM_CONFIG_MENU:
@@ -6349,7 +6349,7 @@ void checkWand() {
               playEffect(S_BEEPS_BARGRAPH);
 
               stopEffect(S_EEPROM_CONFIG_MENU);
-              playEffect(S_EEPROM_CONFIG_MENU);              
+              playEffect(S_EEPROM_CONFIG_MENU);
             break;
 
             case W_QUICK_VENT_DISABLED:
@@ -6357,42 +6357,42 @@ void checkWand() {
               stopEffect(S_VOICE_QUICK_VENT_DISABLED);
 
               playEffect(S_VOICE_QUICK_VENT_DISABLED);
-            break;            
+            break;
 
             case W_QUICK_VENT_ENABLED:
               stopEffect(S_VOICE_QUICK_VENT_ENABLED);
               stopEffect(S_VOICE_QUICK_VENT_DISABLED);
 
               playEffect(S_VOICE_QUICK_VENT_ENABLED);
-            break;    
+            break;
 
             case W_BOOTUP_ERRORS_DISABLED:
               stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
               stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
 
               playEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
-            break;    
-            
+            break;
+
             case W_BOOTUP_ERRORS_ENABLED:
               stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
               stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
 
               playEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
-            break;    
+            break;
 
             case W_VENT_LIGHT_INTENSITY_ENABLED:
               stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
               stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
 
               playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-            break;    
-            
+            break;
+
             case W_VENT_LIGHT_INTENSITY_DISABLED:
               stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
               stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
 
               playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-            break;   
+            break;
 
             case W_DEMO_LIGHT_MODE_TOGGLE:
               if(b_demo_light_mode == true) {
@@ -6422,7 +6422,7 @@ void checkWand() {
               stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
               playEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
             break;
-          
+
             case W_OVERHEAT_LEVEL_4_ENABLED:
               stopEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
               stopEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
@@ -6476,7 +6476,7 @@ void checkWand() {
               stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
               playEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
             break;
-            
+
             case W_CONTINUOUS_SMOKE_TOGGLE_5:
               if(b_smoke_continuous_mode_5 == true) {
                 b_smoke_continuous_mode_5 = false;
@@ -6538,7 +6538,7 @@ void checkWand() {
 
                 stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);
                 stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_DISABLED);
-                playEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);       
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);
 
                 packSerialSend(P_CONTINUOUS_SMOKE_3_ENABLED);
               }
@@ -6561,7 +6561,7 @@ void checkWand() {
 
                 stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);
                 stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_DISABLED);
-                playEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);       
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);
 
                 packSerialSend(P_CONTINUOUS_SMOKE_2_ENABLED);
               }
@@ -6584,7 +6584,7 @@ void checkWand() {
 
                 stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);
                 stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
-                playEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);       
+                playEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);
 
                 packSerialSend(P_CONTINUOUS_SMOKE_1_ENABLED);
               }
@@ -6598,37 +6598,37 @@ void checkWand() {
               stopEffect(S_VOICE_BARREL_LED_60);
 
               playEffect(S_VOICE_BARREL_LED_48);
-            break;  
+            break;
 
             case W_BARREL_LEDS_60:
               stopEffect(S_VOICE_BARREL_LED_5);
               stopEffect(S_VOICE_BARREL_LED_48);
               stopEffect(S_VOICE_BARREL_LED_60);
-              
+
               playEffect(S_VOICE_BARREL_LED_60);
-            break;  
+            break;
 
             case W_BARREL_LEDS_5:
               stopEffect(S_VOICE_BARREL_LED_5);
               stopEffect(S_VOICE_BARREL_LED_48);
               stopEffect(S_VOICE_BARREL_LED_60);
-              
+
               playEffect(S_VOICE_BARREL_LED_5);
-            break;  
+            break;
 
             case W_BARGRAPH_INVERTED:
               stopEffect(S_VOICE_BARGRAPH_INVERTED);
               stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
 
               playEffect(S_VOICE_BARGRAPH_INVERTED);
-            break; 
+            break;
 
             case W_BARGRAPH_NOT_INVERTED:
               stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
               stopEffect(S_VOICE_BARGRAPH_INVERTED);
-              
+
               playEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
-            break; 
+            break;
 
             case W_DEFAULT_BARGRAPH:
               stopEffect(S_VOICE_DEFAULT_BARGRAPH);
@@ -6658,7 +6658,7 @@ void checkWand() {
               stopEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
               stopEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
               stopEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
-              
+
               playEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
             break;
 
@@ -6757,7 +6757,7 @@ void checkWand() {
                 stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
                 playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
 
-                packSerialSend(P_OVERHEAT_LIGHTS_OFF_DISABLED);                
+                packSerialSend(P_OVERHEAT_LIGHTS_OFF_DISABLED);
               }
               else {
                 b_overheat_lights_off = true;
@@ -6766,7 +6766,7 @@ void checkWand() {
                 stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
                 playEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_ENABLED);
 
-                packSerialSend(P_OVERHEAT_LIGHTS_OFF_ENABLED);                 
+                packSerialSend(P_OVERHEAT_LIGHTS_OFF_ENABLED);
               }
             break;
 
@@ -6778,7 +6778,7 @@ void checkWand() {
                 stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
                 playEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
 
-                packSerialSend(P_OVERHEAT_SYNC_FAN_DISABLED);         
+                packSerialSend(P_OVERHEAT_SYNC_FAN_DISABLED);
               }
               else {
                 b_overheat_sync_to_fan = true;
@@ -6787,7 +6787,7 @@ void checkWand() {
                 stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
                 playEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
 
-                packSerialSend(P_OVERHEAT_SYNC_FAN_ENABLED);  
+                packSerialSend(P_OVERHEAT_SYNC_FAN_ENABLED);
               }
             break;
 
@@ -6796,7 +6796,7 @@ void checkWand() {
                 //if(SYSTEM_YEAR_TEMP == SYSTEM_FROZEN_EMPIRE) {
                 if(SYSTEM_YEAR_TEMP == SYSTEM_AFTERLIFE) {
                   b_switch_mode_override = false;
-                  
+
                   //stopEffect(S_VOICE_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
                   stopEffect(S_VOICE_AFTERLIFE);
@@ -6804,7 +6804,7 @@ void checkWand() {
                   stopEffect(S_VOICE_1989);
                   playEffect(S_VOICE_YEAR_MODE_DEFAULT);
 
-                  packSerialSend(P_YEAR_MODE_DEFAULT);  
+                  packSerialSend(P_YEAR_MODE_DEFAULT);
 
                   // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
                   SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
@@ -6817,7 +6817,7 @@ void checkWand() {
                 toggleYearModes();
 
                 // Turn on the year mode override flag. This resets when you flip the year mode toggle switch on the pack.
-                b_switch_mode_override = true;                
+                b_switch_mode_override = true;
               }
 
               if(b_switch_mode_override == true) {
@@ -6841,8 +6841,8 @@ void checkWand() {
                 }
               }
             break;
-        
-            case W_MUSIC_NEXT_TRACK: 
+
+            case W_MUSIC_NEXT_TRACK:
               musicNextTrack();
             break;
 
@@ -6860,7 +6860,7 @@ void checkWand() {
 
                   packSerialSend(P_MUSIC_STOP);
                   packSerialSend(i_current_music_track);
-                  packSerialSend(P_MUSIC_START);   
+                  packSerialSend(P_MUSIC_START);
                 }
                 else {
                   i_current_music_track = comStruct.i;
@@ -6890,7 +6890,7 @@ void checkWand() {
               packSerialSend(P_MODE_ORIGINAL);
             }
 
-            if(switch_power.getState() == LOW) {             
+            if(switch_power.getState() == LOW) {
               // Tell the Neutrona Wand that power to the Proton Pack is on.
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
             }
@@ -7105,7 +7105,7 @@ void packSerialSend(int i_message) {
 }
 
 // It is very important that S_1 up to S_60 follow each other in order on the Micro SD Card and sound effects enum.
-void overheatVoiceIndicator(unsigned int i_tmp_length) {  
+void overheatVoiceIndicator(unsigned int i_tmp_length) {
   i_tmp_length = i_tmp_length / i_overheat_delay_increment;
 
   unsigned int i_tmp_sound = (S_1 - 1) + i_tmp_length;
@@ -7241,7 +7241,7 @@ void resetCyclotronLEDs() {
       i_1984_cyclotron_leds[1] = i_1984_cyclotron_12_leds[1];
       i_1984_cyclotron_leds[2] = i_1984_cyclotron_12_leds[2];
       i_1984_cyclotron_leds[3] = i_1984_cyclotron_12_leds[3];
-    break;  
+    break;
   }
 }
 
@@ -7312,12 +7312,12 @@ void toggleYearModes() {
       packSerialSend(P_MODE_1984);
     break;
     */
-    
+
     default:
       // Nothing.
     break;
   }
-}    
+}
 
 // Helper method to play a sound effect using certain defaults.
 void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
@@ -7663,7 +7663,7 @@ void readEEPROM() {
         SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
 
         // Set the switch override to true, so the toggle switch in the Proton Pack does not override the year settings during the bootup process.
-        b_switch_mode_override = true; 
+        b_switch_mode_override = true;
       }
     }
     else {
@@ -7902,7 +7902,7 @@ void saveConfigEEPROM() {
   else {
     i_default_system_volume = 101; // 101 is going to be 0 for the volume.
   }
-  
+
   if(b_smoke_continuous_mode_5 == true) {
     i_smoke_continuous_mode_5 = 2;
   }

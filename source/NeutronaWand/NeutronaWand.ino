@@ -19,8 +19,8 @@
 
 /*
   Please note, due to limitations of the ATMega328P, Arduino Nano builds are no longer supported for the Neutrona Wand.
-  The last supported version is 2.1.0
-  https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.1.0
+  The last supported version is 2.2.0
+  https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.2.0
 */
 
 #if defined(__AVR_ATmega2560__)
@@ -174,7 +174,7 @@ void setup() {
   ms_bmash.start(i_bmash_delay);
 
   ms_firing_debounce.start(i_firing_debounce);
-  
+
   // Sanity check just in case a user forgot to enable CTS while enabling CTS Mix.
   if(b_cross_the_streams_mix == true && b_cross_the_streams != true) {
     b_cross_the_streams = true;
@@ -360,7 +360,7 @@ void mainLoop() {
           overHeatingFinished();
         }
       }
-      
+
     break;
 
     case ACTION_ERROR:
@@ -498,7 +498,7 @@ void mainLoop() {
                 stopEffect(S_VOICE_QUICK_VENT_ENABLED);
                 playEffect(S_VOICE_QUICK_VENT_ENABLED);
 
-                wandSerialSend(W_QUICK_VENT_ENABLED);              
+                wandSerialSend(W_QUICK_VENT_ENABLED);
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
@@ -518,7 +518,7 @@ void mainLoop() {
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
               playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
-              
+
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
@@ -708,20 +708,20 @@ void mainLoop() {
                 stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);
                 playEffect(S_VOICE_BARGRAPH_INVERTED);
 
-                wandSerialSend(W_BARGRAPH_INVERTED);              
+                wandSerialSend(W_BARGRAPH_INVERTED);
               }
 
               setBargraphOrientation();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              // Overheat smoke duration level 4.    
+              // Overheat smoke duration level 4.
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
               playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
-              
+
               // Handled in checkRotary();
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_4);
             }
@@ -746,7 +746,7 @@ void mainLoop() {
               }
 
               resetOverHeatModes();
-            }            
+            }
           }
 
           if(switchMode() == true) {
@@ -809,7 +809,7 @@ void mainLoop() {
                   playEffect(S_VOICE_BARREL_LED_60);
 
                   wandSerialSend(W_BARREL_LEDS_60);
-                  */                                  
+                  */
                 break;
 
                 /*
@@ -848,7 +848,7 @@ void mainLoop() {
 
                 wandSerialSend(W_BARGRAPH_OVERHEAT_BLINK_ENABLED);
               }
-            }   
+            }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Handled in checkRotary();
               // The time it takes to overheat in power level 4.
@@ -863,7 +863,7 @@ void mainLoop() {
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_4);
-            }                    
+            }
           }
         break;
 
@@ -876,7 +876,7 @@ void mainLoop() {
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 3
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 3
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #3
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #3        
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #3
         case 3:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
@@ -905,11 +905,11 @@ void mainLoop() {
                 wandSerialSend(W_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
               }
             }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {             
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               switch(BARGRAPH_MODE_EEPROM) {
                 case BARGRAPH_EEPROM_ORIGINAL:
                   BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_SUPER_HERO;
-                  
+
                   stopEffect(S_VOICE_DEFAULT_BARGRAPH);
                   stopEffect(S_VOICE_SUPER_HERO_BARGRAPH);
                   stopEffect(S_VOICE_MODE_ORIGINAL_BARGRAPH);
@@ -932,7 +932,7 @@ void mainLoop() {
                 case BARGRAPH_EEPROM_DEFAULT:
                 default:
                   BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_ORIGINAL;
-                  
+
                   stopEffect(S_VOICE_DEFAULT_BARGRAPH);
                   stopEffect(S_VOICE_MODE_ORIGINAL_BARGRAPH);
                   stopEffect(S_VOICE_SUPER_HERO_BARGRAPH);
@@ -946,14 +946,14 @@ void mainLoop() {
               bargraphYearModeUpdate();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              // Overheat smoke duration level .    
+              // Overheat smoke duration level .
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
               playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
-              
+
               // Handled in checkRotary();
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_3);
             }
@@ -978,7 +978,7 @@ void mainLoop() {
               }
 
               resetOverHeatModes();
-            }             
+            }
           }
 
           if(switchMode() == true) {
@@ -994,7 +994,7 @@ void mainLoop() {
               switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
                 case BARGRAPH_EEPROM_ORIGINAL:
                   BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_SUPER_HERO;
-                  
+
                   stopEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
                   stopEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
                   stopEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
@@ -1017,7 +1017,7 @@ void mainLoop() {
                 case BARGRAPH_EEPROM_DEFAULT:
                 default:
                   BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
-                  
+
                   stopEffect(S_VOICE_DEFAULT_FIRING_ANIMATIONS_BARGRAPH);
                   stopEffect(S_VOICE_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
                   stopEffect(S_VOICE_SUPER_HERO_FIRING_ANIMATIONS_BARGRAPH);
@@ -1028,7 +1028,7 @@ void mainLoop() {
               }
 
               // Reset the bargraph.
-              bargraphYearModeUpdate();              
+              bargraphYearModeUpdate();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Handled in checkRotary();
@@ -1044,7 +1044,7 @@ void mainLoop() {
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_3);
-            }              
+            }
           }
         break;
 
@@ -1057,7 +1057,7 @@ void mainLoop() {
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 2
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 2
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #2
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #2        
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #2
         case 2:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
@@ -1074,14 +1074,14 @@ void mainLoop() {
               wandSerialSend(W_DEMO_LIGHT_MODE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              // Overheat smoke duration level 2.    
+              // Overheat smoke duration level 2.
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
               playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
-              
+
               // Handled in checkRotary();
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_2);
             }
@@ -1106,7 +1106,7 @@ void mainLoop() {
               }
 
               resetOverHeatModes();
-            }              
+            }
           }
 
           // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
@@ -1136,7 +1136,7 @@ void mainLoop() {
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_2);
-            }             
+            }
           }
         break;
 
@@ -1149,7 +1149,7 @@ void mainLoop() {
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 1
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 1
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #1
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #1        
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #1
         case 1:
           if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
             ms_intensify_timer.start(i_intensify_delay / 2);
@@ -1167,14 +1167,14 @@ void mainLoop() {
               wandSerialSend(W_MODE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              // Overheat smoke duration level 1.    
+              // Overheat smoke duration level 1.
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
               playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
-              
+
               // Handled in checkRotary();
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_1);
             }
@@ -1198,7 +1198,7 @@ void mainLoop() {
                 wandSerialSend(W_OVERHEAT_LEVEL_1_ENABLED);
               }
 
-              resetOverHeatModes();              
+              resetOverHeatModes();
             }
           }
 
@@ -1251,7 +1251,7 @@ void mainLoop() {
 
                   playEffect(S_VOICE_CTS_DEFAULT);
 
-                  wandSerialSend(W_CTS_DEFAULT);               
+                  wandSerialSend(W_CTS_DEFAULT);
                 break;
 
                 case CTS_DEFAULT:
@@ -1264,9 +1264,9 @@ void mainLoop() {
                   //stopEffect(S_VOICE_CTS_1989);
                   //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
 
-                  playEffect(S_VOICE_CTS_1984); 
-                  
-                  wandSerialSend(W_CTS_1984);                  
+                  playEffect(S_VOICE_CTS_1984);
+
+                  wandSerialSend(W_CTS_1984);
                 break;
               }
             }
@@ -1284,7 +1284,7 @@ void mainLoop() {
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_1);
-            }               
+            }
           }
         break;
       }
@@ -1486,7 +1486,7 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              if(b_playing_music == true) {              
+              if(b_playing_music == true) {
                 // Tell the pack to stop music.
                 wandSerialSend(W_MUSIC_STOP);
               }
@@ -1600,7 +1600,7 @@ void mainLoop() {
             ms_settings_blinking.start(i_settings_blinking_delay);
 
             // Make sure some of the wand lights are off.
-            wandLightsOffMenuSystem();  
+            wandLightsOffMenuSystem();
 
             // Tell the pack we are in settings mode.
             wandSerialSend(W_SETTINGS_MODE);
@@ -1645,7 +1645,7 @@ void mainLoop() {
         wandBarrelSpectralCustomConfigOn();
 
         // Make sure some of the wand lights are off.
-        wandLightsOffMenuSystem();  
+        wandLightsOffMenuSystem();
       }
       else if(WAND_ACTION_STATUS == ACTION_EEPROM_MENU && b_pack_on == true) {
         if(b_no_pack != true) {
@@ -1658,7 +1658,7 @@ void mainLoop() {
         playEffect(S_BEEPS_BARGRAPH);
 
         stopEffect(S_EEPROM_CONFIG_MENU);
-        playEffect(S_EEPROM_CONFIG_MENU); 
+        playEffect(S_EEPROM_CONFIG_MENU);
 
         wandSerialSend(W_EEPROM_CONFIG_MENU);
 
@@ -1670,7 +1670,7 @@ void mainLoop() {
         ms_settings_blinking.start(i_settings_blinking_delay);
 
         // Make sure some of the wand lights are off.
-        wandLightsOffMenuSystem();    
+        wandLightsOffMenuSystem();
       }
       else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on == true) {
         if(b_no_pack != true) {
@@ -1982,7 +1982,7 @@ void startVentSequence() {
 
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
-  // Since the Proton Pack tells the Neutrona Wand when overheating is finished. If it is running with no Proton Pack, then the Neutrona Wand needs to calculate when to finish.  
+  // Since the Proton Pack tells the Neutrona Wand when overheating is finished. If it is running with no Proton Pack, then the Neutrona Wand needs to calculate when to finish.
   if(b_no_pack == true) {
     ms_overheating.start(i_ms_overheating);
   }
@@ -1999,7 +1999,7 @@ void startVentSequence() {
     ms_bargraph.stop();
 
     bargraphClearAlt();
-    
+
     ms_settings_blinking.start(i_settings_blinking_delay);
 
     playEffect(S_BEEPS_LOW);
@@ -2289,7 +2289,7 @@ void checkSwitches() {
   }
 
   switchBarrel();
-  
+
   switch(WAND_STATUS) {
     case MODE_OFF:
       switch(SYSTEM_MODE) {
@@ -2349,7 +2349,7 @@ void checkSwitches() {
                       }
                     }
                   }
-                  
+
                   if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
                     if(b_mode_original_toggle_sounds_enabled == true) {
                       stopEffect(S_WAND_HEATDOWN);
@@ -2373,10 +2373,10 @@ void checkSwitches() {
                   else if((switch_vent.isPressed() || switch_vent.isReleased()) && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
-                    playEffect(S_WAND_HEATDOWN); 
+                    playEffect(S_WAND_HEATDOWN);
                   }
                 }
-                
+
                 if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
                   analogWrite(led_front_left, 255); // The front right orange LED, turn it on.
 
@@ -2407,11 +2407,11 @@ void checkSwitches() {
                   }
 
                   analogWrite(led_front_left, 0); // The front right orange LED, turn it off.
-                  
+
                   // Turn off the Neutrona Wand vent lights.
                   digitalWrite(led_vent, HIGH);
-                  digitalWrite(led_white, HIGH);                  
-                }           
+                  digitalWrite(led_white, HIGH);
+                }
               }
             }
           }
@@ -2421,7 +2421,7 @@ void checkSwitches() {
             }
           }
         break;
-        
+
         case MODE_SUPER_HERO:
         default:
           if(switch_activate.isPressed() && WAND_ACTION_STATUS == ACTION_IDLE) {
@@ -2438,7 +2438,7 @@ void checkSwitches() {
         case MODE_ORIGINAL:
           // Nothing.
         break;
-        
+
         case MODE_SUPER_HERO:
         default:
           if(switch_activate.getState() == HIGH) {
@@ -2466,7 +2466,7 @@ void checkSwitches() {
           }
 
           // Check if we should fire, or if the wand and pack turn off.
-          fireControlCheck();          
+          fireControlCheck();
         break;
 
         case MODE_SUPER_HERO:
@@ -2475,7 +2475,7 @@ void checkSwitches() {
 
           // Determine the light status on the wand and any beeps.
           wandLightControlCheck();
-          
+
           // Check if we should fire, or if the wand and pack turn off.
           fireControlCheck();
         break;
@@ -2647,7 +2647,7 @@ void wandOff() {
             bargraphYearModeUpdate();
           }
           else {
-            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;          
+            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
           }
         break;
 
@@ -3577,7 +3577,7 @@ void modeFireStart() {
 
   // Reset the 28 segment bargraph.
   i_bargraph_status_alt = 0;
-  
+
   b_bargraph_up = false;
 
   bargraphRampFiring();
@@ -3907,7 +3907,7 @@ void modeFiring() {
         else {
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams.
           wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_2021);
-        }        
+        }
       break;
 
       case CTS_1984:
@@ -3924,7 +3924,7 @@ void modeFiring() {
         else {
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams.
           wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_1984);
-        }        
+        }
       break;
 
       case CTS_DEFAULT:
@@ -3946,7 +3946,7 @@ void modeFiring() {
             else {
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams.
               wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_2021);
-            }            
+            }
           break;
 
           case SYSTEM_1984:
@@ -3963,7 +3963,7 @@ void modeFiring() {
             else {
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams.
               wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_1984);
-            }            
+            }
           break;
         }
       break;
@@ -4085,7 +4085,7 @@ void modeFiring() {
 
             playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
 
-            wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_1984);            
+            wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_1984);
           break;
         }
       break;
@@ -4862,7 +4862,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           ht_bargraph.clearLedNow(i_bargraph[23]);
 
           b_bargraph_status[4] = false;
-          b_bargraph_status[23] = false;        
+          b_bargraph_status[23] = false;
 
           i_bargraph_status_alt--;
         }
@@ -5084,7 +5084,7 @@ void bargraphSuperHeroRampFiringAnimation() {
 
         digitalWrite(led_barrel_tip, HIGH);
       break;
-    }    
+    }
   }
 }
 
@@ -5117,11 +5117,11 @@ void bargraphRampFiring() {
 
             case 4:
               i_bargraph_status_alt = random(13, 25);
-            break;   
+            break;
 
             case 3:
               i_bargraph_status_alt = random(9, 19);
-            break; 
+            break;
 
             case 2:
               i_bargraph_status_alt = random(3, 13);
@@ -5131,12 +5131,12 @@ void bargraphRampFiring() {
             default:
               // Not used in MODE_ORIGINAL.
               //i_bargraph_status_alt = random(0, 6);
-            break;              
+            break;
           }
         }
-        
+
         bool b_tmp_down = true;
-        
+
         for(uint8_t i = 0; i < i_bargraph_segments; i++) {
           if(b_bargraph_status[i] != true && i < i_bargraph_status_alt) {
             b_tmp_down = false;
@@ -5222,7 +5222,7 @@ void bargraphRampFiring() {
 
                   break;
                 }
-              }                
+              }
             }
           break;
 
@@ -5303,7 +5303,7 @@ void bargraphRampFiring() {
 
                   break;
                 }
-              }                
+              }
             }
           break;
 
@@ -5384,7 +5384,7 @@ void bargraphRampFiring() {
 
                   break;
                 }
-              }                
+              }
             }
           break;
 
@@ -5453,7 +5453,7 @@ void bargraphRampFiring() {
 
                   break;
                 }
-              }                
+              }
             }
           break;
 
@@ -5523,7 +5523,7 @@ void bargraphRampFiring() {
 
                   break;
                 }
-              }                
+              }
             }
           break;
         }
@@ -5539,11 +5539,11 @@ void bargraphRampFiring() {
 
             case 4:
               i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-            break;   
+            break;
 
             case 3:
               i_bargraph_status = random(1, 4);
-            break; 
+            break;
 
             case 2:
               i_bargraph_status = random(0, 3);
@@ -5552,12 +5552,12 @@ void bargraphRampFiring() {
             case 1:
             default:
               i_bargraph_status = random(0, 2);
-            break;              
+            break;
           }
         }
-        
+
         bool b_tmp_down = true;
-        
+
         for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
           if(b_bargraph_status_5[i] != true && i <= i_bargraph_status) {
             b_tmp_down = false;
@@ -5640,7 +5640,7 @@ void bargraphRampFiring() {
                   wandBargraphControl(i+1);
                   break;
                 }
-              }                
+              }
             }
           break;
 
@@ -5718,7 +5718,7 @@ void bargraphRampFiring() {
                   wandBargraphControl(i+1);
                   break;
                 }
-              }                
+              }
             }
           break;
 
@@ -5796,7 +5796,7 @@ void bargraphRampFiring() {
                   wandBargraphControl(i+1);
                   break;
                 }
-              }                
+              }
             }
           break;
 
@@ -5874,8 +5874,8 @@ void bargraphRampFiring() {
                   wandBargraphControl(i+1);
                   break;
                 }
-              }                
-            }    
+              }
+            }
           break;
 
           case 1:
@@ -5952,14 +5952,14 @@ void bargraphRampFiring() {
                   wandBargraphControl(i+1);
                   break;
                 }
-              }                
-            } 
+              }
+            }
           break;
         }
       }
     break;
   }
-  
+
   int i_ramp_interval = d_bargraph_ramp_interval;
 
   if(b_28segment_bargraph == true) {
@@ -6168,7 +6168,7 @@ void bargraphPowerCheck2021Alt(bool b_override) {
       else {
         b_bargraph_up = false;
       }
-      
+
       switch(i_power_mode) {
         case 5:
           ms_bargraph_alt.start(i_bargraph_wait / 3);
@@ -6268,7 +6268,7 @@ void bargraphRedraw() {
           }
           else {
             ht_bargraph.clearLedNow(i_bargraph[i]);
-            b_bargraph_status[i] = false;            
+            b_bargraph_status[i] = false;
           }
         }
 
@@ -6279,7 +6279,7 @@ void bargraphRedraw() {
         for(uint8_t i = 0; i < i_bargraph_segments; i++) {
           if(i <= 16) {
             ht_bargraph.setLedNow(i_bargraph[i]);
-            b_bargraph_status[i] = true;            
+            b_bargraph_status[i] = true;
           }
           else {
             ht_bargraph.clearLedNow(i_bargraph[i]);
@@ -6350,7 +6350,7 @@ void bargraphPowerCheck() {
     2: 1/4: 5 - 11    (7 segments)
     1: none: 0 - 4    (5 segments)
   */
-  if(b_28segment_bargraph == true) {    
+  if(b_28segment_bargraph == true) {
     if(ms_bargraph_alt.justFinished()) {
       uint8_t i_bargraph_multiplier[5] = { 7, 6, 5, 4, 3 };
 
@@ -6527,7 +6527,7 @@ void bargraphPowerCheck() {
                 ms_bargraph_alt.stop();
 
                 // Reset and redraw all the proper segments for the bargraph.
-                //bargraphRedraw();                
+                //bargraphRedraw();
               }
               else {
                 ms_bargraph_alt.start(i_bargraph_interval * 7);
@@ -6908,7 +6908,7 @@ void prepBargraphRampDown() {
   }
 }
 
-void prepBargraphRampUp() {  
+void prepBargraphRampUp() {
   if((WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) || (WAND_STATUS == MODE_OFF && WAND_ACTION_STATUS == ACTION_IDLE && SYSTEM_MODE == MODE_ORIGINAL)) {
     bargraphClearAlt();
 
@@ -6994,7 +6994,7 @@ void bargraphYearModeUpdate() {
       }
     break;
   }
-  
+
   // Set the bargraph firing animation settings based on data saved in the EEPROM.
   switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
     case BARGRAPH_EEPROM_ANIMATION_SUPER_HERO:
@@ -7109,7 +7109,7 @@ void wandLightsOffMenuSystem() {
   analogWrite(led_slo_blo, 0);
   digitalWrite(led_vent, HIGH);
   digitalWrite(led_white, HIGH);
-  analogWrite(led_front_left, 0);   
+  analogWrite(led_front_left, 0);
 }
 
 void vibrationOff() {
@@ -7263,7 +7263,7 @@ void wandBarrelSpectralCustomConfigOn() {
 }
 
 // It is very important that S_1 up to S_60 follow each other in order on the Micro SD Card and sound effects enum.
-void overheatVoiceIndicator(unsigned int i_tmp_length) {  
+void overheatVoiceIndicator(unsigned int i_tmp_length) {
   i_tmp_length = i_tmp_length / i_overheat_delay_increment;
 
   unsigned int i_tmp_sound = (S_1 - 1) + i_tmp_length;
@@ -7420,7 +7420,7 @@ void checkRotary() {
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
             overheatTimerDecrement(1);
-          }             
+          }
           else if(i_wand_menu - 1 < 1) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_1:
@@ -7504,7 +7504,7 @@ void checkRotary() {
                 playEffect(S_LEVEL_4);
 
                 // Tell the Proton Pack to play some sounds.
-                wandSerialSend(W_MENU_LEVEL_4);              
+                wandSerialSend(W_MENU_LEVEL_4);
               break;
 
               case MENU_LEVEL_4:
@@ -7530,7 +7530,7 @@ void checkRotary() {
                 playEffect(S_LEVEL_5);
 
                 // Tell the Proton Pack to play some sounds.
-                wandSerialSend(W_MENU_LEVEL_5);   
+                wandSerialSend(W_MENU_LEVEL_5);
               break;
 
               // Menu 5 the deepest level.
@@ -7580,7 +7580,7 @@ void checkRotary() {
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
             overheatTimerIncrement(1);
-          }     
+          }
           else if(i_wand_menu + 1 > 5) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_5:
@@ -7608,7 +7608,7 @@ void checkRotary() {
                 playEffect(S_LEVEL_4);
 
                 // Tell the Proton Pack to play some sounds.
-                wandSerialSend(W_MENU_LEVEL_4); 
+                wandSerialSend(W_MENU_LEVEL_4);
               break;
 
               case MENU_LEVEL_4:
@@ -7636,7 +7636,7 @@ void checkRotary() {
                 playEffect(S_LEVEL_3);
 
                 // Tell the Proton Pack to play some sounds.
-                wandSerialSend(W_MENU_LEVEL_3); 
+                wandSerialSend(W_MENU_LEVEL_3);
               break;
 
               case MENU_LEVEL_3:
@@ -7664,7 +7664,7 @@ void checkRotary() {
                 playEffect(S_LEVEL_2);
 
                 // Tell the Proton Pack to play some sounds.
-                wandSerialSend(W_MENU_LEVEL_2);    
+                wandSerialSend(W_MENU_LEVEL_2);
               break;
 
               case MENU_LEVEL_2:
@@ -7690,9 +7690,9 @@ void checkRotary() {
                 playEffect(S_LEVEL_1);
 
                 // Tell the Proton Pack to play some sounds.
-                wandSerialSend(W_MENU_LEVEL_1);            
+                wandSerialSend(W_MENU_LEVEL_1);
               break;
-            
+
               case MENU_LEVEL_1:
               default:
                 // Can not go any further than menu level 1.
@@ -7794,7 +7794,7 @@ void checkRotary() {
           }
         }
       break;
-              
+
       case ACTION_SETTINGS:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
@@ -7934,7 +7934,7 @@ void checkRotary() {
                   playEffect(S_LEVEL_1);
 
                   // Tell the Proton Pack to play some sounds.
-                  wandSerialSend(W_MENU_LEVEL_1);              
+                  wandSerialSend(W_MENU_LEVEL_1);
                 break;
 
                 case MENU_LEVEL_1:
@@ -8462,9 +8462,9 @@ void checkPack() {
             break;
 
             case P_MODE_ORIGINAL:
-              SYSTEM_MODE = MODE_ORIGINAL;          
+              SYSTEM_MODE = MODE_ORIGINAL;
             break;
-            
+
             case P_OVERHEATING_FINISHED:
               if(WAND_STATUS != MODE_OFF) {
                 overHeatingFinished();
@@ -8488,11 +8488,11 @@ void checkPack() {
                             playEffect(S_WAND_HEATUP);
                             playEffect(S_WAND_HEATUP_ALT);
                           }
-                          
+
                           if(b_28segment_bargraph == true) {
                             bargraphPowerCheck2021Alt(false);
                           }
-                                                    
+
                           prepBargraphRampUp();
                         }
                       break;
@@ -8540,7 +8540,7 @@ void checkPack() {
                 }
               }
             break;
-            
+
             case P_MASTER_AUDIO_NORMAL:
               // The pack is telling us to revert the audio to normal.
               i_volume_master = i_volume_revert;
@@ -8635,7 +8635,7 @@ void checkPack() {
                         b_pack_alarm = false;
 
                         prepBargraphRampUp();
-                      }                                   
+                      }
                     break;
 
                     case MODE_SUPER_HERO:
@@ -8665,7 +8665,7 @@ void checkPack() {
                 digitalWrite(led_hat_1, HIGH);
                 digitalWrite(led_hat_2, HIGH);
               }
-              
+
               // Next, reset the cyclotron speed on all devices.
               wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
               cyclotronSpeedRevert();
@@ -9016,7 +9016,7 @@ void checkPack() {
             case P_OVERHEAT_STROBE_ENABLED:
               stopEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
               stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
-            
+
               playEffect(S_VOICE_OVERHEAT_STROBE_ENABLED);
             break;
 
@@ -9040,11 +9040,11 @@ void checkPack() {
 
               playEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
             break;
-            
+
             case P_OVERHEAT_SYNC_FAN_ENABLED:
               stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
               stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);
-              
+
               playEffect(S_VOICE_OVERHEAT_FAN_SYNC_ENABLED);
             break;
 
@@ -9106,7 +9106,7 @@ void checkPack() {
 
               playEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
             break;
-            
+
             case P_DEMO_LIGHT_MODE_DISABLED:
               stopEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
               stopEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
@@ -9276,7 +9276,7 @@ void checkPack() {
               playEffect(S_VOICE_INNER_CYCLOTRON_35);
             break;
 
-            case P_INNER_CYCLOTRON_LEDS_12:          
+            case P_INNER_CYCLOTRON_LEDS_12:
               stopEffect(S_VOICE_INNER_CYCLOTRON_35);
               stopEffect(S_VOICE_INNER_CYCLOTRON_24);
               stopEffect(S_VOICE_INNER_CYCLOTRON_23);
@@ -10029,7 +10029,7 @@ void setupWavTrigger() {
 
   // Stop all tracks.
   w_trig.stopAllTracks();
-    
+
   // Reset the sample-rate offset, in case we have
   w_trig.samplerateOffset(0); // Reset our sample rate offset
 
