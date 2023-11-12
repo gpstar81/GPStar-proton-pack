@@ -450,27 +450,6 @@ void mainLoop() {
     break;
 
     case ACTION_CONFIG_EEPROM_MENU:
-      /*
-        Menu Level 3 - 5: Intensify: Default main system volume + top dial | Alt button: Toggle (?? UNUSED ??)
-        Menu Level 3 - 4: Intensify: Invert Bargraph | Alt button: Toggle Bargraph Overheat Blinking enabled/disabled
-        Menu Level 3 - 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default | Alt button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
-        Menu Level 3 - 2: Intensify: Demo Light Mode Enabled | Alt button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
-        Menu Level 3 - 1: Intensify: Toggle between Super Hero and Original Mode. | Alt button: Toggle (?? UNUSED ??)
-
-        EEPROM Menu Level 4: (duration ranges from 1 second to 60 seconds)
-        Menu 5: Intensify: Increase overheat duration by 1 second : Power Mode 5 | Alt Wing Button: Decrease overheat duration by 1 second : Power Mode 5
-        Menu 4: Intensify: Increase overheat duration by 1 second : Power Mode 4 | Alt Wing Button: Decrease overheat duration by 1 second : Power Mode 4
-        Menu 3: Intensify: Increase overheat duration by 1 second : Power Mode 3 | Alt Wing Button: Decrease overheat duration by 1 second : Power Mode 3
-        Menu 2: Intensify: Increase overheat duration by 1 second : Power Mode 2 | Alt Wing Button: Decrease overheat duration by 1 second : Power Mode 2
-        Menu 1: Intensify: Increase overheat duration by 1 second : Power Mode 1 | Alt Wing Button: Decrease overheat duration by 1 second : Power Mode 1
-
-        EEPROM Menu Level 5:
-        Menu 5: Intensify: Enable/Disable overheat in power mode #5 | Alt Wing Button: Enable/Disable continuous smoke in power mode #5
-        Menu 4: Intensify: Enable/Disable overheat in power mode #4 | Alt Wing Button: Enable/Disable continuous smoke in power mode #4
-        Menu 3: Intensify: Enable/Disable overheat in power mode #3 | Alt Wing Button: Enable/Disable continuous smoke in power mode #3
-        Menu 2: Intensify: Enable/Disable overheat in power mode #2 | Alt Wing Button: Enable/Disable continuous smoke in power mode #2
-        Menu 1: Intensify: Enable/Disable overheat in power mode #1 | Alt Wing Button: Enable/Disable continuous smoke in power mode #1
-      */
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
@@ -561,6 +540,8 @@ void mainLoop() {
 
                 wandSerialSend(W_OVERHEAT_LEVEL_5_ENABLED);
               }
+
+              resetOverHeatModes();
             }
           }
           else if(switchMode() == true) {
@@ -763,6 +744,8 @@ void mainLoop() {
 
                 wandSerialSend(W_OVERHEAT_LEVEL_4_ENABLED);
               }
+
+              resetOverHeatModes();
             }
           }
 
@@ -993,6 +976,8 @@ void mainLoop() {
 
                 wandSerialSend(W_OVERHEAT_LEVEL_3_ENABLED);
               }
+
+              resetOverHeatModes();
             }
           }
 
@@ -1119,6 +1104,8 @@ void mainLoop() {
 
                 wandSerialSend(W_OVERHEAT_LEVEL_2_ENABLED);
               }
+
+              resetOverHeatModes();
             }
           }
 
@@ -1176,6 +1163,66 @@ void mainLoop() {
               wandSerialSend(W_YEAR_MODES_CYCLE_EEPROM);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+              // Toggle between Super Hero and Mode Original.
+              wandSerialSend(W_MODE_TOGGLE);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
+              // Overheat smoke duration level 1.
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+
+              // Handled in checkRotary();
+              wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
+              if(b_overheat_mode_1 == true) {
+                b_overheat_mode_1 = false;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_1_DISABLED);
+              }
+              else {
+                b_overheat_mode_1 = true;
+
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
+                playEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
+
+                wandSerialSend(W_OVERHEAT_LEVEL_1_ENABLED);
+              }
+
+              resetOverHeatModes();
+            }
+          }
+
+          if(switchMode() == true) {
+            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
+              if(b_extra_pack_sounds == true) {
+                b_extra_pack_sounds = false;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+              }
+              else {
+                b_extra_pack_sounds = true;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+              }
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
+              wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
+            }
+            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               switch(WAND_YEAR_CTS) {
                 case CTS_1984:
                 case CTS_1989:
@@ -1222,65 +1269,6 @@ void mainLoop() {
                   wandSerialSend(W_CTS_1984);
                 break;
               }
-
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              // Overheat smoke duration level 1.
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
-              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
-
-              // Handled in checkRotary();
-              wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_1);
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_mode_1 == true) {
-                b_overheat_mode_1 = false;
-
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
-                playEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
-
-                wandSerialSend(W_OVERHEAT_LEVEL_1_DISABLED);
-              }
-              else {
-                b_overheat_mode_1 = true;
-
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
-                playEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
-
-                wandSerialSend(W_OVERHEAT_LEVEL_1_ENABLED);
-              }
-            }
-          }
-
-          if(switchMode() == true) {
-            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              if(b_extra_pack_sounds == true) {
-                b_extra_pack_sounds = false;
-
-                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
-
-                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
-              }
-              else {
-                b_extra_pack_sounds = true;
-
-                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
-
-                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
-              }
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-              // Toggle between Super Hero and Mode Original.
-              wandSerialSend(W_MODE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Handled in checkRotary();
@@ -2008,6 +1996,10 @@ void startVentSequence() {
 
   // Blinking bargraph option for overheat.
   if(b_overheat_bargraph_blink == true) {
+    ms_bargraph.stop();
+
+    bargraphClearAlt();
+
     ms_settings_blinking.start(i_settings_blinking_delay);
 
     playEffect(S_BEEPS_LOW);
@@ -9350,6 +9342,15 @@ void wandSerialSend(int i_message, bool b_sound) {
   }
 }
 
+// Rebuilds the overheat enable array.
+void resetOverHeatModes() {
+  b_overheat_mode[0] = b_overheat_mode_1;
+  b_overheat_mode[1] = b_overheat_mode_2;
+  b_overheat_mode[2] = b_overheat_mode_3;
+  b_overheat_mode[3] = b_overheat_mode_4;
+  b_overheat_mode[4] = b_overheat_mode_5;
+}
+
 void clearLEDEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
   unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
@@ -9402,6 +9403,20 @@ void saveEEPROM() {
   uint8_t i_invert_bargraph = 1;
   uint8_t i_bargraph_mode = 1;
   uint8_t i_bargraph_firing_animation = 1;
+  uint8_t i_bargraph_overheat_blinking = 1;
+  uint8_t i_neutrona_wand_year_mode = 1;
+  uint8_t i_CTS_mode = 1;
+  uint8_t i_mode_original_toggle_switch_sounds = 1;
+  uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_mode_5 / 1000;
+  uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_mode_4 / 1000;
+  uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_mode_3 / 1000;
+  uint8_t i_overheat_start_timer_level_2 = i_ms_overheat_initiate_mode_2 / 1000;
+  uint8_t i_overheat_start_timer_level_1 = i_ms_overheat_initiate_mode_1 / 1000;
+  uint8_t i_overheat_level_5 = 1;
+  uint8_t i_overheat_level_4 = 1;
+  uint8_t i_overheat_level_3 = 1;
+  uint8_t i_overheat_level_2 = 1;
+  uint8_t i_overheat_level_1 = 1;
 
   if(b_cross_the_streams == true) {
     i_cross_the_streams = 2;
@@ -9478,6 +9493,80 @@ void saveEEPROM() {
     break;
   }
 
+  if(b_overheat_bargraph_blink == true) {
+    i_bargraph_overheat_blinking = 2;
+  }
+
+  switch(WAND_YEAR_MODE) {
+    case YEAR_FROZEN_EMPIRE:
+      i_neutrona_wand_year_mode = 5;
+    break;
+
+    case YEAR_AFTERLIFE:
+      i_neutrona_wand_year_mode = 4;
+    break;
+
+    case YEAR_1989:
+      i_neutrona_wand_year_mode = 3;
+    break;
+
+    case YEAR_1984:
+      i_neutrona_wand_year_mode = 2;
+    break;
+
+    case YEAR_DEFAULT:
+    default:
+      i_neutrona_wand_year_mode = 1;
+    break;
+  }
+
+  switch(WAND_YEAR_CTS) {
+    case CTS_FROZEN_EMPIRE:
+      i_CTS_mode = 5;
+    break;
+
+    case CTS_AFTERLIFE:
+      i_CTS_mode = 4;
+    break;
+
+    case CTS_1989:
+      i_CTS_mode = 3;
+    break;
+
+    case CTS_1984:
+      i_CTS_mode = 2;
+    break;
+
+    case CTS_DEFAULT:
+    default:
+      i_CTS_mode = 1;
+    break;
+  }
+
+  if(b_mode_original_toggle_sounds_enabled == true) {
+    i_mode_original_toggle_switch_sounds = 2;
+  }
+
+  if(b_overheat_mode_5 == true) {
+    i_overheat_level_5 = 2;
+  }
+
+  if(b_overheat_mode_4 == true) {
+    i_overheat_level_4 = 2;
+  }
+
+  if(b_overheat_mode_3 == true) {
+    i_overheat_level_3 = 2;
+  }
+
+  if(b_overheat_mode_2 == true) {
+    i_overheat_level_2 = 2;
+  }
+
+  if(b_overheat_mode_1 == true) {
+    i_overheat_level_1 = 2;
+  }
+
   // Write the data to the EEPROM if any of the values have changed.
   objEEPROM obj_eeprom = {
     i_cross_the_streams,
@@ -9492,7 +9581,21 @@ void saveEEPROM() {
     i_num_barrel_leds,
     i_invert_bargraph,
     i_bargraph_mode,
-    i_bargraph_firing_animation
+    i_bargraph_firing_animation,
+    i_bargraph_overheat_blinking,
+    i_neutrona_wand_year_mode,
+    i_CTS_mode,
+    i_mode_original_toggle_switch_sounds,
+    i_overheat_start_timer_level_5,
+    i_overheat_start_timer_level_4,
+    i_overheat_start_timer_level_3,
+    i_overheat_start_timer_level_2,
+    i_overheat_start_timer_level_1,
+    i_overheat_level_5,
+    i_overheat_level_4,
+    i_overheat_level_3,
+    i_overheat_level_2,
+    i_overheat_level_1
   };
 
   // Save and update our object in the EEPROM.
@@ -9653,8 +9756,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.bargraph_mode > 0 && obj_eeprom.bargraph_mode != 255) {
-      switch(obj_eeprom.bargraph_mode) {
+    if(obj_eeprom.bargraph_firing_animation > 0 && obj_eeprom.bargraph_mode != 255) {
+      switch(obj_eeprom.bargraph_firing_animation) {
         case 3:
           BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_ORIGINAL;
           BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
@@ -9672,8 +9775,154 @@ void readEEPROM() {
       }
     }
 
+    if(obj_eeprom.bargraph_overheat_blinking > 0 && obj_eeprom.bargraph_overheat_blinking != 255) {
+      if(obj_eeprom.bargraph_overheat_blinking > 1) {
+        b_overheat_bargraph_blink = true;
+      }
+      else {
+        b_overheat_bargraph_blink = false;
+      }
+    }
+
+    if(obj_eeprom.neutrona_wand_year_mode > 0 && obj_eeprom.neutrona_wand_year_mode != 255) {
+      switch(obj_eeprom.neutrona_wand_year_mode) {
+        case 5:
+          WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+        break;
+
+        case 4:
+          WAND_YEAR_MODE = YEAR_AFTERLIFE;
+        break;
+
+        case 3:
+          WAND_YEAR_MODE = YEAR_1989;
+        break;
+
+        case 2:
+          WAND_YEAR_MODE = YEAR_1984;
+        break;
+
+        case 1:
+        default:
+          WAND_YEAR_MODE = YEAR_DEFAULT;
+        break;
+      }
+    }
+
+    if(obj_eeprom.CTS_mode > 0 && obj_eeprom.CTS_mode != 255) {
+      switch(obj_eeprom.CTS_mode) {
+        case 5:
+          WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
+        break;
+
+        case 4:
+          WAND_YEAR_CTS = CTS_AFTERLIFE;
+        break;
+
+        case 3:
+          WAND_YEAR_CTS = CTS_1989;
+        break;
+
+        case 2:
+          WAND_YEAR_CTS = CTS_1984;
+        break;
+
+        case 1:
+        default:
+          WAND_YEAR_CTS = CTS_DEFAULT;
+        break;
+      }
+    }
+
+    if(obj_eeprom.mode_original_toggle_switch_sounds > 0 && obj_eeprom.mode_original_toggle_switch_sounds != 255) {
+      if(obj_eeprom.mode_original_toggle_switch_sounds > 1) {
+        b_mode_original_toggle_sounds_enabled = true;
+      }
+      else {
+        b_mode_original_toggle_sounds_enabled = false;
+      }
+    }
+
+    if(obj_eeprom.overheat_start_timer_level_5 > 0 && obj_eeprom.overheat_start_timer_level_5 != 255) {
+      i_ms_overheat_initiate_mode_5 = obj_eeprom.overheat_start_timer_level_5 * 1000;
+
+      i_ms_overheat_initiate[4] = i_ms_overheat_initiate_mode_5;
+    }
+
+    if(obj_eeprom.overheat_start_timer_level_4 > 0 && obj_eeprom.overheat_start_timer_level_4 != 255) {
+      i_ms_overheat_initiate_mode_4 = obj_eeprom.overheat_start_timer_level_4 * 1000;
+
+      i_ms_overheat_initiate[3] = i_ms_overheat_initiate_mode_4;
+    }
+
+    if(obj_eeprom.overheat_start_timer_level_3 > 0 && obj_eeprom.overheat_start_timer_level_3 != 255) {
+      i_ms_overheat_initiate_mode_3 = obj_eeprom.overheat_start_timer_level_3 * 1000;
+
+      i_ms_overheat_initiate[2] = i_ms_overheat_initiate_mode_3;
+    }
+
+    if(obj_eeprom.overheat_start_timer_level_2 > 0 && obj_eeprom.overheat_start_timer_level_2 != 255) {
+      i_ms_overheat_initiate_mode_2 = obj_eeprom.overheat_start_timer_level_2 * 1000;
+
+      i_ms_overheat_initiate[1] = i_ms_overheat_initiate_mode_2;
+    }
+
+    if(obj_eeprom.overheat_start_timer_level_1 > 0 && obj_eeprom.overheat_start_timer_level_1 != 255) {
+      i_ms_overheat_initiate_mode_1 = obj_eeprom.overheat_start_timer_level_1 * 1000;
+
+      i_ms_overheat_initiate[0] = i_ms_overheat_initiate_mode_1;
+    }
+
+    if(obj_eeprom.overheat_level_5 > 0 && obj_eeprom.overheat_level_5 != 255) {
+      if(obj_eeprom.overheat_level_5 > 1) {
+        b_overheat_mode_5 = true;
+      }
+      else {
+        b_overheat_mode_5 = false;
+      }
+    }
+
+    if(obj_eeprom.overheat_level_4 > 0 && obj_eeprom.overheat_level_4 != 255) {
+      if(obj_eeprom.overheat_level_4 > 1) {
+        b_overheat_mode_4 = true;
+      }
+      else {
+        b_overheat_mode_4 = false;
+      }
+    }
+
+    if(obj_eeprom.overheat_level_3 > 0 && obj_eeprom.overheat_level_3 != 255) {
+      if(obj_eeprom.overheat_level_3 > 1) {
+        b_overheat_mode_3 = true;
+      }
+      else {
+        b_overheat_mode_3 = false;
+      }
+    }
+
+    if(obj_eeprom.overheat_level_2 > 0 && obj_eeprom.overheat_level_2 != 255) {
+      if(obj_eeprom.overheat_level_2 > 1) {
+        b_overheat_mode_2 = true;
+      }
+      else {
+        b_overheat_mode_2 = false;
+      }
+    }
+
+    if(obj_eeprom.overheat_level_1 > 0 && obj_eeprom.overheat_level_1 != 255) {
+      if(obj_eeprom.overheat_level_1 > 1) {
+        b_overheat_mode_1 = true;
+      }
+      else {
+        b_overheat_mode_1 = false;
+      }
+    }
+
     // Update the bargraph settings again after loading EEPROM setting data for it.
     bargraphYearModeUpdate();
+
+    // Rebuild the over heat enabled modes.
+    resetOverHeatModes();
 
     // Read our LED object from the EEPROM.
     objLEDEEPROM obj_led_eeprom;

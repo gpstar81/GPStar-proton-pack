@@ -344,12 +344,29 @@ No further configuration is needed for this library.
 
 ## Firmware Flashing
 
-Separate firmware files exist for the Arduino Nano vs. the ESP32. For the Arduino Nano you may use the same flashing utility as the other gpstar PCB devices. For the ESP32 that will require a different flasher program. Since both the Arduino Nano and ESP development board have their own USB connection it will not be necessary to use a separate UART programming cable.
+Separate firmware files exist for the Arduino Nano vs. the ESP32. For the Arduino Nano you may use the same flashing utility as the other gpstar PCB devices as outlined in the [FLASHING](FLASHING.md) guide. For the ESP32 that will require a different flasher program. Since both the Arduino Nano and ESP development board have their own USB connection it will not be necessary to use a separate UART programming cable.
 
-**For ESP32**
+### For ESP32
 
-1. Download the [Flash Download Tools](https://www.espressif.com/en/support/download/other-tools) from Espressif Systems (supports Windows only)
-1. Locate the [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) file from the `/binaries/attenuator` directory
+**For Windows:**
+
+1. Download the [Flash Download Tools](https://www.espressif.com/en/support/download/other-tools) from Espressif Systems.
+1. Locate the [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) file from the `/binaries/attenuator` directory.
+1. Use the utility to upload the .bin file to the device via USB.
+
+**For Linux/MacOS:**
+
+1. Download [Python](https://www.python.org/downloads/) and install for your operating system.
+1. From a terminal (command line) environment run the following:
+	* `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
+	* `python get-pip.py` or `python3 get-pip.py`
+	* `pip install esptool`
+1. Locate the [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) file from the `/binaries/attenuator` directory.
+1. Run `esptool.py -p <PORT> Attenuator-ESP32.bin` where `<PORT>` is your ESP32 controller as a serial (USB) device.
+
+### For Arduino Nano
+
+Just as you used the gpstar flashing utility for Windows or MacOS to upload to your Proton Pack or Neutrona Wand, you will do the same for this device. Plug in your device using a standard USB cable and note the serial COM port used. Select the .hex file for the Attenuator and upload to the attached device.
 
 ## Operation
 

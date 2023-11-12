@@ -304,7 +304,7 @@ millisDelay ms_smoke_timer;
 millisDelay ms_smoke_on;
 const unsigned long int i_smoke_timer[5] = { i_smoke_timer_mode_1, i_smoke_timer_mode_2, i_smoke_timer_mode_3, i_smoke_timer_mode_4, i_smoke_timer_mode_5 };
 const unsigned long int i_smoke_on_time[5] = { i_smoke_on_time_mode_1, i_smoke_on_time_mode_2, i_smoke_on_time_mode_3, i_smoke_on_time_mode_4, i_smoke_on_time_mode_5 };
-const bool b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
+bool b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
 const bool b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
 millisDelay ms_overheating_length; // The total length of the when the fans turn on (or smoke if smoke synced to fan)
 const unsigned int i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
@@ -527,11 +527,6 @@ void stopMusic();
 void playMusic();
 void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
 void powercellDraw(uint8_t i_start = 0);
-unsigned long eepromCRC(void);
-void updateCRCEEPROM();
-void clearLedEEPROM();
-void saveLedEEPROM();
-void setupWavTrigger();
 
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
