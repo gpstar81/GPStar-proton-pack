@@ -137,12 +137,16 @@ void setup() {
 
 void loop() {
   #if defined(__XTENSA__)
-    // ESP32 - Manage the WebSocket clients.
+    // ESP32
+
+    // Manage cleanup for old WebSocket clients.
     if(ms_cleanup.remaining() < 1) {
-      // Clean up any websocket clients (oldest connections).
+      // Clean up oldest WebSocket connections.
       ws.cleanupClients();
       ms_cleanup.start(i_websocketCleanup);
     }
+
+    ElegantOTA.loop(); // Handles restart after firmware updates.
   #endif
 
   if(b_wait_for_pack) {
@@ -739,18 +743,20 @@ void checkPack() {
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
-          case A_MUSIC_TRACK_COUNT_SYNC:
-            debug("Music Track Sync");
+          #if defined(__XTENSA__)
+            case A_MUSIC_TRACK_COUNT_SYNC:
+              debug("Music Track Sync");
 
-            if(comStruct.d1 > 0) {
-              i_music_track_count = comStruct.d1;
-            }
+              if(comStruct.d1 > 0) {
+                i_music_track_count = comStruct.d1;
+              }
 
-            if(i_music_track_count > 0) {
-              i_music_track_min = i_music_track_offset;
-              i_music_track_max = i_music_track_offset + i_music_track_count - 1; // @TODO: Confirm if the -1 is necessary here.
-            }
-          break;
+              if(i_music_track_count > 0) {
+                i_music_track_min = i_music_track_offset;
+                i_music_track_max = i_music_track_offset + i_music_track_count - 1; // @TODO: Confirm if the -1 is necessary here.
+              }
+            break;
+          #endif
 
           case A_PACK_CONNECTED:
             // The Proton Pack is connected.
