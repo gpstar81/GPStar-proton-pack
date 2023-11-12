@@ -82,7 +82,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       padding: 12px 14px;
       max-width: 120px;
       text-align: center;
-      width: 120px;
+      width: 100px;
     }
 
     input {
