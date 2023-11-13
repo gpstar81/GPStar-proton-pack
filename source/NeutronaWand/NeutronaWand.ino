@@ -589,7 +589,9 @@ void mainLoop() {
                   stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
 
-                  playEffect(W_NEUTRONA_WAND_1989_MODE);
+                  playEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+                  wandSerialSend(W_NEUTRONA_WAND_1989_MODE);
                 break;
 
                 case YEAR_1989:
@@ -7984,8 +7986,8 @@ void checkRotary() {
                 bargraphPowerCheck2021Alt(false);
               }
 
-              // Forces a redraw of the bargraph if firing while changing the power level in the BARGRAPH_ORIGINAL.
-              if(b_firing == true && b_28segment_bargraph == true && BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
+              // Forces a redraw of the bargraph if firing while changing the power level in the BARGRAPH_ANIMATION_ORIGINAL.
+              if(b_firing == true && b_28segment_bargraph == true && BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
                 bargraphRedraw();
               }
 
@@ -8048,8 +8050,8 @@ void checkRotary() {
                   bargraphPowerCheck2021Alt(false);
                 }
 
-                // Forces a redraw of the bargraph if firing while changing the power level if using BARGRAPH_ORIGINAL.
-                if(b_firing == true && b_28segment_bargraph == true && BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
+                // Forces a redraw of the bargraph if firing while changing the power level if using BARGRAPH_ANIMATION_ORIGINAL.
+                if(b_firing == true && b_28segment_bargraph == true && BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
                   bargraphRedraw();
                 }
 
