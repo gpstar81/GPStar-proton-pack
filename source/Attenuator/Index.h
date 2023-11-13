@@ -187,10 +187,18 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
 
-        if (jObj.music_start > 0) {
+        if (jObj.mode == "Original" && jObj.pack == Powered") {
+          // Cannot turn off pack remotely if in mode Original and currently Powered.
+          document.getElementById("btnPackOff").disabled = true;
+        } else {
+          // Otherwise, this should be allowed.
+          document.getElementById("btnPackOff").disabled = false;
+        }
+
+        if (jObj.musicStart > 0) {
           var trackList = document.getElementById("tracks");
           removeOptions(trackList);
-          for (var i = jObj.music_start; i <= jObj.music_end; i++) {
+          for (var i = jObj.musicStart; i <= jObj.musicEnd; i++) {
               var opt = document.createElement("option");
               opt.value = i;
               opt.innerHTML = i;
@@ -394,8 +402,8 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <h1>Pack Controls</h1>
   <div class="block">
-    <button type="button" class="red" onclick="packOff()">Pack Off</button>
-    <button type="button" class="green" onclick="packOn()">Pack On</button>
+    <button type="button" class="red" onclick="packOff()" id="btnPackOff">Pack Off</button>
+    <button type="button" class="green" onclick="packOn()" id="btnPackOn">Pack On</button>
     <br/>
     <button type="button" class="red" onclick="beginVenting()">Manual Vent</button>
     <button type="button" class="green" onclick="cancelWarning()">Attenuate</button>

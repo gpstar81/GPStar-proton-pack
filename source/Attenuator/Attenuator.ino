@@ -520,8 +520,8 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           // A short, single press should start/stop the music.
-          //attenuatorSerialSend(A_MUSIC_START_STOP);
-          attenuatorSerialSend(A_MUSIC_PAUSE_RESUME);
+          attenuatorSerialSend(A_MUSIC_START_STOP);
+          //attenuatorSerialSend(A_MUSIC_PAUSE_RESUME); // This may have some bugs in it, use with caution.
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           #if defined(__XTENSA__)
             debug("Music Start/Stop");
@@ -780,8 +780,8 @@ void checkPack() {
               }
 
               if(i_music_track_count > 0) {
-                i_music_track_min = i_music_track_offset;
-                i_music_track_max = i_music_track_offset + i_music_track_count - 1; // @TODO: Confirm if the -1 is necessary here.
+                i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
+                i_music_track_max = i_music_track_offset + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
               }
             break;
           #endif
@@ -830,7 +830,7 @@ void checkPack() {
 
           case A_MODE_ORIGINAL_RED_SWITCH_OFF:
             // The proton pack red switch is off. This will cause a total system shutdown.
-            if(RED_SWITCH_MODE != SWITCH_ON) {
+            if(RED_SWITCH_MODE != SWITCH_OFF) {
               #if defined(__XTENSA__)
                 debug("Red Switch Off");
               #endif

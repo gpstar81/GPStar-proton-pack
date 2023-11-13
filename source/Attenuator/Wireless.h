@@ -271,6 +271,7 @@ void handlePassword(AsyncWebServerRequest *request) {
 }
 
 String getStatus() {
+  // Prepare a JSON object with information we have gleamed from the system.
   jsonDoc.clear();
   jsonDoc["mode"] = getMode();
   jsonDoc["theme"] = getTheme();
@@ -283,10 +284,8 @@ String getStatus() {
   jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
   jsonDoc["cyclotron"] = getCyclotronState();
   jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
-  //jsonDoc["music_start"] = i_music_track_min;
-  jsonDoc["music_start"] = 500;
-  //jsonDoc["music_end"] = i_music_track_max;
-  jsonDoc["music_end"] = 540;
+  jsonDoc["musicStart"] = i_music_track_min;
+  jsonDoc["musicEnd"] = i_music_track_max;
   String status;
   serializeJson(jsonDoc, status); // Serialize to string.
   return status;
