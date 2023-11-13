@@ -1,12 +1,12 @@
 # Smoke Effects
 
-Both the [gpstar Proton Pack PCB](PACK_PCB.md) and [DIY Arduino](PACK.md) approaches can support up to 2 separate smoke options for the N-Filter and Booster Tube to provide atmospheric effects while operating your Ghostbusters equipment. These effects are automatically triggered during certain interactions and typically after pre-set times through use of 5 JST-XH connections configured to provide DC power during smoke effect phases:
+Both the [GPStar Proton Pack PCB](PACK_PCB.md) and [DIY Arduino](PACK.md) approaches can support up to 2 separate smoke options for the N-Filter and Booster Tube to provide atmospheric effects while operating your Ghostbusters equipment. These effects are automatically triggered during certain interactions and typically after pre-set times through use of 5 JST-XH connections configured to provide DC power during smoke effect phases:
 
-- Smoke1 aka. N-Filter Smoke `SM-1 - gpstar Proton Pack PCB` or `Pin 39 - Arudino Mega`
-- Smoke2 aka. Booster Smoke `SM-2 - gpstar Proton Pack PCB` or `Pin 35 - Arduino Mega`
-- Fan1 aka. N-Filter Fan `FN-1 - gpstar Proton Pack PCB` or `Pin 33 - Arduino Mega`
-- Fan2 aka. Booster Fan `FN-2 - gpstar Proton Pack PCB` or `Pin 50 - Arduino Mega`
-- LED-W aka. N-Filter Light `LED-W - gpstar Proton Pack PCB` or `Pin 46 - Arduino Mega`
+- Smoke1 aka. N-Filter Smoke `SM-1 - GPStar Proton Pack PCB` or `Pin 39 - Arudino Mega`
+- Smoke2 aka. Booster Smoke `SM-2 - GPStar Proton Pack PCB` or `Pin 35 - Arduino Mega`
+- Fan1 aka. N-Filter Fan `FN-1 - GPStar Proton Pack PCB` or `Pin 33 - Arduino Mega`
+- Fan2 aka. Booster Fan `FN-2 - GPStar Proton Pack PCB` or `Pin 50 - Arduino Mega`
+- LED-W aka. N-Filter Light `LED-W - GPStar Proton Pack PCB` or `Pin 46 - Arduino Mega`
 
 **Note: Fan1 is set to run during overheat sequence only. It is useful for pushing smoke through the N-Filter**
 
@@ -27,7 +27,7 @@ The following may be necessary to connect your smoke generator to the Proton Pac
 
 ### Disclaimers
 
-**This project does not make any direct endorsements of kits available in the Ghostbusters community.** As stated above most kits consist of common components which can be integrated in a few standard ways. All references to kits or makers by name is for illustrative purposes only as this team has directly confirmed operation with the kit makers. If you have a smoke kit and wish to validate integration, please reach out to the team via the [gpstar Technologies Facebook group](https://www.facebook.com/groups/gpstartechnologies) for assistance.
+**This project does not make any direct endorsements of kits available in the Ghostbusters community.** As stated above most kits consist of common components which can be integrated in a few standard ways. All references to kits or makers by name is for illustrative purposes only as this team has directly confirmed operation with the kit makers. If you have a smoke kit and wish to validate integration, please reach out to the team via the [GPStar Technologies Facebook group](https://www.facebook.com/groups/gpstartechnologies) for assistance.
 
 Most smoke kits utilize a combination of vegetable glycerine (VG) and propylene glycol (PG). Please follow any kit maker's instructions for filling or replacing your smoke fluid. Some ratios work better for the type of smoke desired and may be a personal preference. The most common are either 100% VG or a 70/30 mixture, where the latter may create thicker smoke.
 

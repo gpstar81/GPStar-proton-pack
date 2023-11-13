@@ -1,6 +1,6 @@
 # Troubleshooting
 
-If you are experiencing issues during the installation process there are a few ways to get back on track. Use the guides below to help narrow down where you are having an issue and try the suggested remedies. Should you need additional assistance, reach out to the [gpstar Technologies Facebook group](https://www.facebook.com/groups/gpstartechnologies) and either post a question or message one of the group administrators.
+If you are experiencing issues during the installation process there are a few ways to get back on track. Use the guides below to help narrow down where you are having an issue and try the suggested remedies. Should you need additional assistance, reach out to the [GPStar Technologies Facebook group](https://www.facebook.com/groups/gpstartechnologies) and either post a question or message one of the group administrators.
 
 Regardless of the device, whether pack or wand, there are no built-in LED's on the PCB's for diagnostics which can be consulted for status. Though there will be certain devices which should be available once connected which can help narrow down a root cause of the issue. For audio-related issues please refer to the image below which highlights the location of the test button (blue circle) and red status LED (green circle) on the WavTrigger device.
 

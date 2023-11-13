@@ -12,7 +12,7 @@ For those who customise their settings and flash their boards manually, any save
 
 Refer to the [Operation Manual](OPERATION.md) for more information on how to enter the different EEPROM menu systems.
 
-`EEPROM data saving and menu system is only available while using the gpstar Neutrona Wand board with your Neutrona Wand.`
+`EEPROM data saving and menu system is only available while using the GPStar Neutrona Wand board with your Neutrona Wand.`
 
 ***The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, but if you did or wish to disable the EEPROM loading system, refer to*** `const bool b_eeprom` ***in the Proton Pack table below.***
 

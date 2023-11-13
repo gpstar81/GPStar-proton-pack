@@ -1,10 +1,10 @@
 # DIY Smoke Generator
 
-This guide is intended to explain the process of creating your own smoke generator for the Proton Pack. For installation and connections to the gpstar Pack PCB or Arduino Mega please [follow this guide](SMOKE.md).
+This guide is intended to explain the process of creating your own smoke generator for the Proton Pack. For installation and connections to the GPStar Proton Pack PCB or Arduino Mega please [follow this guide](SMOKE.md).
 
 ## Booster Tube Example
 
-*Provided by gpstar*
+*Provided by GPStar*
 
 For this solution, the following parts were used:
 

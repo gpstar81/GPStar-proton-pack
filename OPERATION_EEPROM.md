@@ -1,4 +1,4 @@
-<h1><img src='images/gpstar_logo.png' width=50 align="left"/>gpstar Proton Pack and Neutrona Wand Operation Manual</h1>
+<h1><img src='images/gpstar_logo.png' width=50 align="left"/>GPStar Proton Pack and Neutrona Wand Operation Manual</h1>
 
 # EEPROM Menus
 

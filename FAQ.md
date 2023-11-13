@@ -8,7 +8,7 @@
 
 **A:** Yes, if you are willing to offer your skills whether free or at-cost to assist others that is acceptable.
 
-**Buyers:** Please be aware that anyone performing installation work on behalf of this project is doing so as a free agent and is not associated with gpstar Technologies. This project does not warranty work performed by a 3rd party, only parts produced and shipped via agents of gpstar Technologies or Frutto Technology are warrantied in the case of manufacturing defects.
+**Buyers:** Please be aware that anyone performing installation work on behalf of this project is doing so as a free agent and is not associated with GPStar Technologies. This project does not warranty work performed by a 3rd party, only parts produced and shipped via agents of GPStar Technologies or Frutto Technology are warrantied in the case of manufacturing defects.
 
 **Q: Does this replace everything in the pack/wand?**
 
