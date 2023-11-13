@@ -14,7 +14,9 @@ Before continuing, be certain whether the following items have been reviewed:
 - Check that the microSD card is fully seated (pushed) into its socket.
 - Check the JST connector on the PCB controller is fully seated into its socket.
 - Verify the connections are intact and solid for GND, 5Vin, Rx, and Tx on the device.
-- Sound files should start with a file having a prefix of `001_`.
+- Sound files should start with a file having a prefix of `001_` and increment by 1.
+- Music files should start with a file having a prefix of `500_` and increment by 1.
+- Switch to SanDisk brand media as these SD cards have proven reliable in every use-case.
 
 **Blinking Patterns:**
 
