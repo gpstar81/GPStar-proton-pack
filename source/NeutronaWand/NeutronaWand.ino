@@ -190,6 +190,7 @@ void setup() {
     b_no_pack = true;
     b_wait_for_pack = false;
     b_pack_on = true;
+    b_pack_ion_arm_switch_on = true;
   }
 }
 
@@ -355,7 +356,7 @@ void mainLoop() {
       }
 
       if(b_no_pack == true) {
-        // Since the pack tells the wand when overheating is finished. If the wand is running with no pack, then the wand needs to calculate when to finish.
+        // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
         if(ms_overheating.justFinished()) {
           overHeatingFinished();
         }
@@ -1924,7 +1925,7 @@ void toggleOverHeating() {
 void overHeatingFinished() {
   bargraphClearAlt();
 
-  // Since the Proton Pack tells the Neutrona Wand when overheating is finished. If the Neutrona Wand is running with no pack, then it will use it's own timer to calculate when to finish.
+  // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
   if(b_no_pack == true) {
     ms_overheating.stop();
   }
@@ -1982,7 +1983,7 @@ void startVentSequence() {
 
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
-  // Since the Proton Pack tells the Neutrona Wand when overheating is finished. If it is running with no Proton Pack, then the Neutrona Wand needs to calculate when to finish.
+  // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
   if(b_no_pack == true) {
     ms_overheating.start(i_ms_overheating);
   }
@@ -2990,7 +2991,7 @@ void modeActivate() {
       WAND_STATUS = MODE_ON;
       WAND_ACTION_STATUS = ACTION_IDLE;
 
-      // If starting up directly from any of the none toggle sequence switches, play the wand heatup sound.
+      // If starting up directly from any of the non-toggle-sequence switches, play the wand heatup sound.
       if(switch_activate.isPressed() != true && switch_activate.isReleased() != true && b_mode_original_toggle_sounds_enabled == true) {
         stopEffect(S_WAND_HEATUP_ALT);
         stopEffect(S_WAND_HEATUP);
@@ -7205,7 +7206,7 @@ void increaseVolume() {
 
 void decreaseVolume() {
   if(i_volume_master == i_volume_abs_min) {
-    // Can not go any lower.
+    // Cannot go any lower.
   }
   else {
     if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
@@ -7435,7 +7436,7 @@ void checkRotary() {
                 digitalWrite(led_white, HIGH); // Level 4
                 analogWrite(led_front_left, 0); // Level 5
 
-                // Play an indication beep to notify we have change menu levels.
+                // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
@@ -7463,7 +7464,7 @@ void checkRotary() {
                 digitalWrite(led_white, HIGH); // Level 4
                 analogWrite(led_front_left, 0); // Level 5
 
-                // Play an indication beep to notify we have change menu levels.
+                // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
@@ -7491,7 +7492,7 @@ void checkRotary() {
                 // Turn off the other lights.
                 analogWrite(led_front_left, 0); // Level 5
 
-                // Play an indication beep to notify we have change menu levels.
+                // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
@@ -7517,7 +7518,7 @@ void checkRotary() {
                 digitalWrite(led_white, LOW); // Level 4
                 analogWrite(led_front_left, 255); // Level 5
 
-                // Play an indication beep to notify we have change menu levels.
+                // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
@@ -7595,7 +7596,7 @@ void checkRotary() {
                 // Turn off the other lights.
                 analogWrite(led_front_left, 0); // Level 5
 
-                // Play an indication beep to notify we have change menu levels.
+                // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
@@ -7623,7 +7624,7 @@ void checkRotary() {
                 digitalWrite(led_white, HIGH); // Level 4
                 analogWrite(led_front_left, 0); // Level 5
 
-                // Play an indication beep to notify we have change menu levels.
+                // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
@@ -7651,7 +7652,7 @@ void checkRotary() {
                 digitalWrite(led_white, HIGH); // Level 4
                 analogWrite(led_front_left, 0); // Level 5
 
-                // Play an indication beep to notify we have change menu levels.
+                // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
@@ -7677,7 +7678,7 @@ void checkRotary() {
                 digitalWrite(led_white, HIGH); // Level 4
                 analogWrite(led_front_left, 0); // Level 5
 
-                // Play an indication beep to notify we have change menu levels.
+                // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
                 playEffect(S_BEEPS);
 
@@ -7695,7 +7696,7 @@ void checkRotary() {
 
               case MENU_LEVEL_1:
               default:
-                // Can not go any further than menu level 1.
+                // Cannot go any further than menu level 1.
                 i_wand_menu = 5;
               break;
             }
@@ -7842,7 +7843,7 @@ void checkRotary() {
                   // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
                   analogWrite(led_slo_blo, 255);
 
-                  // Play an indication beep to notify we have change menu levels.
+                  // Play an indication beep to notify we have changed menu levels.
                   stopEffect(S_BEEPS);
                   playEffect(S_BEEPS);
 
@@ -7860,7 +7861,7 @@ void checkRotary() {
 
                 case MENU_LEVEL_2:
                 default:
-                  // Can not go further than level 2 for this menu.
+                  // Cannot go further than level 2 for this menu.
                   i_wand_menu = 1;
                 break;
               }
@@ -7921,7 +7922,7 @@ void checkRotary() {
                   // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
                   analogWrite(led_slo_blo, 0);
 
-                  // Play an indication beep to notify we have change menu levels.
+                  // Play an indication beep to notify we have changed menu levels.
                   stopEffect(S_BEEPS);
                   playEffect(S_BEEPS);
 
@@ -10030,8 +10031,8 @@ void setupWavTrigger() {
   // Stop all tracks.
   w_trig.stopAllTracks();
 
-  // Reset the sample-rate offset, in case we have
-  w_trig.samplerateOffset(0); // Reset our sample rate offset
+  // Reset the sample rate offset, in case we have reset while the WAV Trigger was already playing.
+  w_trig.samplerateOffset(0);
 
   w_trig.masterGain(i_volume_master); // Reset the master gain db. 0db is default. Range is -70 to 0.
   w_trig.setAmpPwr(b_onboard_amp_enabled); // Turn on the onboard amp.

@@ -12,13 +12,18 @@
 - Vibration switch in the Cyclotron switch plate enables or disables the vibration motors for both the pack and wand.
 - 1984/Afterlife year switch in the Cyclotron switch plate changes the pack and wand from 1984 to Afterlife modes.
 - The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
-- The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibrationt settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
+- The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings. **\*see below\***
 - Single (centered) LED per Cyclotron lens for 1984/1989 modes by default.
 	- This can be toggled back to 3 LEDs per Cyclotron lens via the wand menu system.
 - The Power Cell, Cyclotron and other lighting on the Proton Pack can have the brightness independently adjusted. **\*see below\***
 - 1989 sound effects mode is available on the pack, it can be accessed from the Neutrona Wand menu systems or set with the advanced user configuration settings. **\*see below\***
 - Super Hero and Mode Original operation modes.
 - Menu system with the ability to customise various settings for both your Proton Pack and Neutrona Wand.
+- Up to 5 different power levels as indicated on the Neutrona Wand bargraph.
+	- The Neutrona Wand can be configured within the menu system to adjust the overheat settings. When not set to overheat, you can fire continuously.
+	- The Proton Pack can also be configured within the Neutrona Wand menu system to adjust the duration of smoke effects (for each power level), which smoke effects are activated (for each power level), use of overheating smoke effects (for each power level), or whether smoke is disabled entirely.
+	Default settings: The Neutrona Wand will fire forever on power levels level 1 through 4 and overheat on power level 5.
+- The Proton Pack will emit smoke effects during longer firing (Default setting: enabled). This can be configured from the Neutrona Wand menu system.
 
 ### Optional Features
 
@@ -35,14 +40,16 @@
 
 **Super Hero**: This is the default operation mode.
 
-- Activate toggle on the gun box turns on both the pack and wand.
+**Activate Toggle**
+- Activate toggle on the gun box turns on both the Proton Pack and Neutrona wand.
 	- The switch under the Proton Pack's Ion Arm does not need to be engaged for this to work. The switch under the Ion Arm will turn the cyclotron on.
+- The lever switch near the gunbox acts as a safety switch and it must be pulled to extend the barrel before firing.
 - Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects.
 	- The Neutrona Wand will not fire unless these switches are turned on.
 	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn the top toggle switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in Neutrona Wand Config EEPROM Menu. **\*see below\***
-- The lever switch near the gunbox acts as a safety switch and it must be pulled to extend the barrel before firing.
+- While firing, the default bargraph animations slide/split the bargraph in half and scroll up and down simultaneously.
 
-**Right-Hand Toggle Switch Behavior**
+**Right-Hand Toggle Switch Behaviour**
 ![](images/OperationNeutrona3.jpg)
 
 - While in 1984/1989 theme modes:
@@ -52,23 +59,30 @@
 	- Bottom toggle switch turns on the vent light and the wand plays a ramp up sound.
  	- Top toggle switch turns on the looping beeping sounds.
 
-**Top Dial Behavior**
+**Top Dial Behaviour**
 ![](images/OperationNeutrona5.jpg)
 
 - The top dial on the top of the gun box changes the power mode of the wand, affecting the intensity of the stream effects, indicated by increasing or decreasing the bargraph lights (just as the stock wand did).
    - Clockwise to raise power/volume, counter-clockwise to lower these values.
-- There are 5 wand power levels as based on the original bargraph which has only 5 LEDs available:
-	- The wand can be user-configured in the Neutrona Wand code to overheat the pack in any of the power levels. When not set to overheat, you can fire continuously.
-	- The pack can also be user configured in the Proton Pack code to adjust the duration of smoke effects (for each power level), which smoke effects are activated (for each power level), use of overheating smoke effects (for each power level), or whether smoke is disabled entirely.
-	Default settings: The wand will fire forever on power levels level 1 through 4 and overheat on power level 5.
-- The pack will emit smoke effects during longer firing (if enabled).
+- There are 5 wand power levels as based on the original bargraph which has only 5 LEDs available.
 - For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.
-- As the top dial is turned, any beeping rate will increase or decrease depending on the theme in use.
-- This dial will be used to navigate the menu system and adjust volume in certain cases (see "Wand Settings Menu System" section).
+- This dial will be used to navigate the menu systems and adjust volume in certain cases (see "Wand Settings Menu System" section).
 
 ## Mode Original Operation Guide
 **Mode Original**: This mode reflects original production documentation from 1984 on how the Proton Pack and Neutrona Wand operate together. Other variation differences are the bargraph animations, wand sound effects and power levels.
 
+- There are 4 power levels in mode original. When the Neutrona Wand is in stand by mode (see toggle switch behaviours below), the bargraph settles on the first level.
+- The switch under the Ion Arm on the Proton Pack must be switched on. This gives power to the entire system. The slo-blo light on the Neutrona Wand will turn solid red to indicate power to the system.
+- While firing, the default bargraph animations slide the bargraph up and down small increments to indicate the instability and power of the proton stream.
+
+**Right-Hand Toggle Switch Behaviours**
+- The bottom toggle will put the Neutrona Wand into standby mode. The slo-blo LED will begin to blink, and the vent lights will turn on.
+- The top toggle turns on the bargraph. It will ramp up and back down to the lowest level setting.
+
+**Activate Toggle**
+- Activate toggle on the gun box turns on the cyclotron of the Proton Pack. To activate the cyclotron, all the right hand toggle switches on the Neutrona Wand must be activated.
+	- The Cyclotron will not turn on unless all the toggle switches on the Neutrona Wand are activated and the Ion Arm switch on the Pack is in the ON position.
+- The lever switch near the gunbox acts as a safety switch and it must be pulled to extend the barrel before firing.
 
 ## Optional Wand Features
 ![](images/OperationNeutrona7.jpg)
@@ -152,12 +166,12 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 ## Menu Level 2
 
-`Important: The Neutrona Wand sub-menu settings can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
+`Important: The Neutrona Wand Menu Level 2 can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
 
-To access the sub level menu, use the `Top Dial` on the top of the wand. When you reach the sub level menu, the Slo-blo LED will light up to indicate this menu state.
+To access the Menu Level 2, use the `Top Dial` on the top of the wand. When you reach the the next menu level, the Slo-blo LED will light up to indicate this menu state and also audio cues from the system.
 ![](images/OperationNeutrona10.jpg)
 
-| Sub&nbsp;Level&nbsp;Menu | Purpose | Intensify Button | Barrel Wing Button |
+| Menu&nbsp;Level&nbsp;2 | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
 | <p align="center">5</p> | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes.<sup>4</sup> |
 | <p align="center">4</p> | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/Disable smoke effects. | Enable/Disable overheating. |
@@ -195,7 +209,7 @@ To access the EEPROM LED Menu System, hold the `Intensify Button` down and toggl
 
 ![](images/OperationNeutrona11.jpg)
 
-| EEPROM&nbsp;LED<br>Menu&nbsp;Level | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
+| EEPROM&nbsp;LED<br>Menu&nbsp;Level&nbsp;1 | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |----------------|---------|------------------|--------------------|
 | <p align="center">5</p> | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack EEPROM.<br><br>***The Proton Pack will instead load the software defined defaults the next time you turn the battery power off.***| Save the current settings to the Proton Pack EEPROM. |
 | <p align="center">4</p> | Cyclotron LED Count Toggle / Spectral Custom (Barrel) Colour| Toggle between 40, 20 or 12 LEDs for your Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the Neutrona Wand barrel for the Spectral Custom mode. |
@@ -209,7 +223,12 @@ The EEPROM Configuration Menu can be used to save certain behaviours of your Neu
 
 To access the EEPROM Configuration Menu, hold the `Intensify Button` down and toggle the right hand `Bottom Toggle` button 5 times. You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM Configuration Menu System.
 
-To access the EEPROM Configuration sub level menu, use the `Top Dial` on the top of the wand. When you reach the sub level menu, the Slo-blo LED will light up to indicate this menu state.
+To access the EEPROM Configuration menus, use the `Top Dial` on the top of the wand. When you reach the a new menu level, the Slo-blo LED and other lights on the Neutrona Wand will light up to indicate these menu levels, along with audio cues from the system.
+`Menu Level 1 -> No lights`
+`Menu Level 2 -> Slo-Blo`
+`Menu Level 3 -> Slo-Blo and vent light`
+`Menu Level 4 -> Slo-Blo, vent light and top gun box light'
+'Menu Level 5 -> Slo-Blo; vent light, top gun box light and front gun box light`
 
 `The EEPROM Configuration Menu System can only be reached while both the Neutrona Wand and Proton Pack are powered down.`
 
@@ -217,7 +236,7 @@ To access the EEPROM Configuration sub level menu, use the `Top Dial` on the top
 
 ![](images/OperationNeutrona12.jpg)
 
-| EEPROM&nbsp;Configuration<br>Menu&nbsp;Level | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
+| EEPROM&nbsp;Configuration<br>Menu&nbsp;Level&nbsp;1 | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |----------------|---------|------------------|--------------------|
 | <p align="center">5</p> | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROM.<br><br>***The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time the battery power is turn back on.***| Save the current settings to the Proton Pack and Neutrona Wand EEPROM. |
 | <p align="center">4</p> | Firing&nbsp;Mode&nbsp;Selection / Spectral Modes | Cycle through VG/CTS operation modes to set as your default.<sup>3</sup> | Enable or Disable the Spectral Modes. |
@@ -227,13 +246,47 @@ To access the EEPROM Configuration sub level menu, use the `Top Dial` on the top
 
 <sup>3</sup> Choose between Video Game and Cross the Streams (CTS) operation modes. Cross the Streams modes is like what you see in the films.
 
-| EEPROM&nbsp;Sub&nbsp;Level&nbsp;Menu | Purpose | Intensify Button | Barrel Wing Button |
+| EEPROM&nbsp;Configuration<br>Menu&nbsp;Level&nbsp;2 | Purpose | Intensify Button | Barrel Wing Button |
 |----------------|---------|------------------|--------------------|
 | <p align="center">5</p> | Quick&nbsp;Vent / Wand Boot Errors | Enable or Disable the Quick Venting feature. When enabled, you can manually vent your Proton Pack by pressing the Intensify button while the top right toggle switch is switched down. | Enable to disable the Wand boot error mode. When enabled, if you turn on the Neutrona Wand while the top right toggle is up and activated, the Neutrona Wand enters an error mode and remains locked out until the switches are all turned off. |
 | <p align="center">4</p> | Auto Vent Light Intensity / Barrel LED Count | Enable or disable the Auto Vent Light Intensity. When enabled, the vent light will adjust the intensity based on the power level of the wand. | Set the barrel led count between 5 (default), 48 and 60. |
-| <p align="center">3</p> | Invert Bargraph Adjustment / 28 Segment Bargraph Ramping | Invert or do not invert the bargraph in the Neutrona Wand. | Enable or disable the optional 28 segment bargraph to be always ramping. When enabled, Afterlife mode will have the same bargraph effect as 1984/1989. |
+| <p align="center">3</p> | Mode Original Toggle Switch Sounds / VGA Colour Mode Toggles | Enable or disable the toggle switch sound effects for the mode original system mode. | Cycle through VG color modes.<sup>5</sup> |
 | <p align="center">2</p> | Overheat Lights | Enable or Disable the N-Filter LEDs from strobing during overheating. | Enable or disable the Proton Pack lights to turn off during overheating. When disabled, after ramping down to a slower pace, the lights stay on.
 | <p align="center">1</p> | Default Year&nbsp;Mode / Overheat Sync to Fan | Set your default year mode between 1984/1989/Afterlife/Default. When set, the system will ignore the year mode toggle switch during bootup. However the toggle switch can still be used while the Proton Pack is on. If set to Default, the system picks the year mode based on the position of the year mode toggle switch in the Proton Pack. | Enable or Disable the overheat sync to fan. When enabled, the fan connections in the Proton Pack will only activate at the same time as the smoke connections. When disabled, the fan connections activate slightly after the smoke connections which allows some build of smoke before the fans activate. |
+
+<sup>5</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
+
+- Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
+- Enable only the Power Cell LEDs to change colors (requires RGB Power Cell such as that offered by Frutto Technology).
+- Enable only the Cyclotron LEDs to change colors (requires RGB replacement such as a Neopixel ring).
+- Enable both the Power Cell and Cyclotron to use video game colours.
+
+| EEPROM&nbsp;Configuration<br>Menu&nbsp;Level&nbsp;3 | Purpose | Intensify Button | Barrel Wing Button |
+|----------------|---------|------------------|--------------------|
+| <p align="center">5</p> | System Default Volume / Neutrona Wand Year Mode | `Hold the Intensify Button down` while turning the `top dial` to adjust and set the default volume for the system. | Set the year mode your Neutrona Wand operates in. Options are: 1984/1989/Afterlife and System Default. When set to System Default, the Neutrona Wand matches the same year mode as that the Proton Pack is in. |
+| <p align="center">4</p> | Invert Bargraph Adjustment / Bargraph Overheat Blinking | Invert or do not invert the bargraph in the Neutrona Wand. | Enable or disable the bagraph to blink on and off during overheat. When disabled, the bargraph will ramp down and turn off during the overheat sequence before ramping back up when overheating has finished. |
+| <p align="center">3</p> | Bargraph Animations / Bargraph Firing Animations | Toggle between Super Hero / Bargraph Original / System Default as the default idle animations of the bargraph. `System default chooses the default animations based on the year mode and system mode.` | Toggle between Super Hero / Bargraph Original / System Default as the default firing animations of the bargraph. `System default chooses the default animations based on the year mode and system mode.` |
+| <p align="center">2</p> | Demo Light Mode / Cyclotron 3 LED Toggle | Enable or disable the Demo Light mode. When enabled, the Proton Pack and Neutrona Wand will automatically boot up as soon as the system has power. | Toggle between 1 LED or 3 LEDs in each cyclotron lens in 1984/1989 year mode. |
+| <p align="center">1</p> | System&nbsp;Mode / CTS Override | Toggle between the two different system operation modes. Super Hero or Mode Original. | Toggle between the different CTS modes as your default CTS mode. 1984/1989, Afterlife or System Default. System default automatically chooses the CTS mode based on the current year mode of your system. |
+
+| EEPROM&nbsp;Configuration<br>Menu&nbsp;Level&nbsp;4 | Purpose | Intensify Button | Barrel Wing Button |
+|----------------|---------|------------------|--------------------|
+| <p align="center">5</p> | Over Heat Smoke Duration Level 5 / Over Heat Start Timer Level 5 | `Hold the Intensify Button down` while turning the `top dial` to adjust the smoke vent duration during overheat for power level 5. `range: 2 to 60 seconds`. `Default: 6 seconds` | `Hold the Intensify Button down` while turning the `top dial` to adjust the over heat start for power level 5. `range: 2 to 60 seconds`. `Default: 12 seconds` |
+| <p align="center">4</p> | Over Heat Smoke Duration Level 4 / Over Heat Start Timer Level 4 | `Hold the Intensify Button down` while turning the `top dial` to adjust the smoke vent duration during overheat for power level 4. `range: 2 to 60 seconds`. `Default: 5 seconds` | `Hold the Intensify Button down` while turning the `top dial` to adjust the over heat start for power level 4. `range: 2 to 60 seconds`. `Default: 15 seconds` |
+| <p align="center">3</p> | Over Heat Smoke Duration Level 3 / Over Heat Start Timer Level 3 | `Hold the Intensify Button down` while turning the `top dial` to adjust the smoke vent duration during overheat for power level 3. `range: 2 to 60 seconds`. `Default: 4 seconds` | `Hold the Intensify Button down` while turning the `top dial` to adjust the over heat start for power level 3. `range: 2 to 60 seconds`. `Default: 20 seconds` |
+| <p align="center">2</p> | Over Heat Smoke Duration Level 2 / Over Heat Start Timer Level 2 | `Hold the Intensify Button down` while turning the `top dial` to adjust the smoke vent duration during overheat for power level 2. `range: 2 to 60 seconds`. `Default: 3 seconds` | `Hold the Intensify Button down` while turning the `top dial` to adjust the over heat start for power level 2. `range: 2 to 60 seconds`. `Default: 30 seconds` |
+| <p align="center">1</p> | Over Heat Smoke Duration Level 1 / Over Heat Start Timer Level 1 `Default: 2 seconds` | `Hold the Intensify Button down` while turning the `top dial` to adjust the smoke vent duration during overheat for power level 1. `range: 2 to 60 seconds`. | `Hold the Intensify Button down` while turning the `top dial` to adjust the over heat start for power level 1. `range: 2 to 60 seconds`. `Default: 60 seconds` |
+
+### WARNING
+`Running your smoke devices for long periods can damage them. Adjust these settings with caution and at your own risk`
+
+| EEPROM&nbsp;Configuration<br>Menu&nbsp;Level&nbsp;5 | Purpose | Intensify Button | Barrel Wing Button |
+|----------------|---------|------------------|--------------------|
+| <p align="center">5</p> | Over Heat Level 5 / Continuous Smoke Level 5 | Enable or disable over heating in power level 5. `Default: enabled' | Enable or disable continuous firing smoke effects in power level 5. These smoke effects will randomly activate for very short bursts while continuously firing for long periods. 'Default: enabled` |
+| <p align="center">4</p> | Over Heat Level 4 / Continuous Smoke Level 4 | Enable or disable over heating in power level 4. `Default: disabled' | Enable or disable continuous firing smoke effects in power level 4. These smoke effects will randomly activate for very short bursts while continuously firing for long periods. 'Default: enabled` |
+| <p align="center">3</p> | Over Heat Level 3 / Continuous Smoke Level 3 | Enable or disable over heating in power level 3. `Default: disabled' | Enable or disable continuous firing smoke effects in power level 3. These smoke effects will randomly activate for very short bursts while continuously firing for long periods. 'Default: enabled` |
+| <p align="center">2</p> | Over Heat Level 2 / Continuous Smoke Level 2 | Enable or disable over heating in power level 2. `Default: disabled' | Enable or disable continuous firing smoke effects in power level 2. These smoke effects will randomly activate for very short bursts while continuously firing for long periods. 'Default: enabled` |
+| <p align="center">1</p> | Over Heat Level 1 / Continuous Smoke Level 1 | Enable or disable over heating in power level 1. `Default: disabled' | Enable or disable continuous firing smoke effects in power level 1. These smoke effects will randomly activate for very short bursts while continuously firing for long periods. 'Default: enabled` |
 
 ## Advanced User Configurations
 

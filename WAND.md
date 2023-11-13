@@ -35,6 +35,8 @@ You may wish to refer to this PCB drawing and the following table to help identi
 |      |        | <font color="yellow">Yellow</font> | D5 |  |
 |      |        | <font color="green">Green</font> | D6 |  |
 |      |        | <font color="blue">Blue</font> | VDD |  |
+| P6   |        | <font color="red">Red</font> | V4.5 | 4.5V connection from battery compartment |
+| GND  |        | Black | GND | Main power ground |
 | M1   |        | <font color="red">Red</font> | VCC | Wand vibration motor |
 |      |        | Black | GND |  |
 | SW1  |        | <font color="brown">Brown</font> | SPDT Toggle | Lower Right Toggle (Main Power) |
@@ -59,6 +61,8 @@ You may wish to refer to this PCB drawing and the following table to help identi
 | D8   |        | Black | GND | Top Vent LED |
 | D9   |        | <font color="red">Red</font> | VCC | Clippard LED (Top Left) |
 |      |        | <font color="yellow">Yellow</font> | GND |  |
+| LS1  |        | <font color="yellow">Yellow</font> | Speaker + | Wire closest to barrel LED connector is Speaker + |
+|      |        | <font color="yellow">Yellow</font> | Speaker - | Wire furthest from barrel LED connector is Speaker - |
 
 # (Important) Neutrona Wand Barrel LEDs wire colour differences.
 
@@ -69,14 +73,14 @@ It appears some of the silver tip generation 1 Neutrona Wands and orange tip gen
 |------|--------|-------|------------|-------|
 | Q2   | JST-PH | <font color="yellow">Yellow</font> | VCC | Addressable LEDs for wand tip effects (5 total) |
 |      |        | <font color="red">Red</font> | Data |  |
-|      |        | <font color="red">Brown</font> | Gnd |  |
+|      |        | <font color="red">Brown</font> | GND |  |
 
 ## Generation 2 (Orange tip Neutrona Wands)
 | Name | Socket | Color | Hasbro Pin | Notes |
 |------|--------|-------|------------|-------|
 | Q2   | JST-PH | <font color="blue">Blue</font> | VCC | Addressable LEDs for wand tip effects (5 total) |
 |      |        | <font color="yellow">Yellow</font> | Data |  |
-|      |        | <font color="red">Red</font> | Gnd |  |
+|      |        | <font color="red">Red</font> | GND |  |
 
 ## WAV Trigger Connections
 
