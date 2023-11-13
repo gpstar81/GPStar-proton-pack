@@ -318,6 +318,15 @@ void handleCancelWarning(AsyncWebServerRequest *request) {
   request->send(200, "application/json", "{}");
 }
 
+void handleManualVent(AsyncWebServerRequest *request) {
+  if(i_speed_multiplier > 1) {
+    // Only send command to pack if cyclotron is not "normal".
+    Serial.println("Manual Vent Triggered");
+    attenuatorSerialSend(A_MANUAL_OVERHEAT);
+  }
+  request->send(200, "application/json", "{}");
+}
+
 void handleToggleMute(AsyncWebServerRequest *request) {
   Serial.println("Toggle Mute");
   attenuatorSerialSend(A_TOGGLE_MUTE);
@@ -400,6 +409,7 @@ void setupRouting() {
   httpServer.on("/pack/on", HTTP_GET, handlePackOn);
   httpServer.on("/pack/off", HTTP_GET, handlePackOff);
   httpServer.on("/pack/cancel", HTTP_GET, handleCancelWarning);
+  httpServer.on("/pack/vent", HTTP_GET, handleManualVent);
   httpServer.on("/volume/toggle", HTTP_GET, handleToggleMute);
   httpServer.on("/volume/master/up", HTTP_GET, handleMasterVolumeUp);
   httpServer.on("/volume/master/down", HTTP_GET, handleMasterVolumeDown);

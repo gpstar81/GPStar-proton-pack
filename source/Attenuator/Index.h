@@ -245,6 +245,17 @@ const char INDEX_page[] PROGMEM = R"=====(
       xhttp.send();
     }
 
+    function beginVenting() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          // var jObj = JSON.parse(this.responseText);
+        }
+      };
+      xhttp.open("GET", "/pack/vent", true);
+      xhttp.send();
+    }
+
     function toggleMute() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -384,8 +395,10 @@ const char INDEX_page[] PROGMEM = R"=====(
   <h1>Pack Controls</h1>
   <div class="block">
     <button type="button" class="red" onclick="packOff()">Pack Off</button>
-    <button type="button" onclick="cancelWarning()">Cancel</button>
     <button type="button" class="green" onclick="packOn()">Pack On</button>
+    <br/>
+    <button type="button" class="red" onclick="beginVenting()">Manual Vent</button>
+    <button type="button" class="green" onclick="cancelWarning()">Attenuate</button>
   </div>
 
   <h1>Administration</h1>
