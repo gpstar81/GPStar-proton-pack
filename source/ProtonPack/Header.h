@@ -19,42 +19,42 @@
 
 /*
  * The HasLab Power Cell has 13 LEDs.
-*/
+ */
 #define HASLAB_POWERCELL_LED_COUNT 13
 
 /*
  * The Frutto Power Cell has 15 LEDs.
-*/
+ */
 #define FRUTTO_POWERCELL_LED_COUNT 15
 
 /*
  * The HasLab Cyclotron Lid has 12 LEDs.
-*/
+ */
 #define HASLAB_CYCLOTRON_LED_COUNT 12
 
 /*
  * The Frutto Cyclotron Lid has 20 LEDs.
-*/
+ */
 #define FRUTTO_CYCLOTRON_LED_COUNT 20
 
 /*
  * Set the number of steps for the Outer Cyclotron.
-*/
+ */
 #define OUTER_CYCLOTRON_LED_MAX 40
 
 /*
  * The gpstar N-Filter expects 7 LEDs.
-*/
+ */
 #define JEWEL_NFILTER_LED_COUNT 7
 
- /* 
+ /*
  * Total number of LEDs in the Proton Pack
  * Power Cell and Cyclotron Lid LEDs + optional N-Filter NeoPixel.
- * 25 LEDs in the stock HasLab kit. 13 in the Power Cell and 12 in the Cyclotron lid. 
- * 7 additional (32 in total) for a NeoPixel jewel that you can put into the N-Filter (optional). 
+ * 25 LEDs in the stock HasLab kit. 13 in the Power Cell and 12 in the Cyclotron lid.
+ * 7 additional (32 in total) for a NeoPixel jewel that you can put into the N-Filter (optional).
  * This jewel chains off Cyclotron lens #4 in the lid (top left lens).
+ * Max amount of LEDs allowed: 15 for the Power Cell and 40 for the Cyclotron lid.
  */
-// Max amount of LEDs allowed: 15 for the Power Cell and 40 for the Cyclotron lid.
 const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
 const uint8_t i_max_inner_cyclotron_leds = 35;
@@ -62,29 +62,29 @@ const uint8_t i_max_inner_cyclotron_leds = 35;
 /*
  * Updated count of all the LEDs plus the N-Filter jewel.
  * This gets updated by the system if the wand changes the led count in the EEPROM menu system.
-*/
+ */
 uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_leds;
 
 /*
  * Which LED the N-Filter jewel LEDs start.
  * This gets updated by the system if the wand changes the LED count in the EEPROM menu system.
-*/
+ */
 uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
 
 /*
  * The HasLab Cyclotron Lid has 12 LEDs.
-*/
+ */
 #define HASLAB_CYCLOTRON_LED_COUNT 12
 
 // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in the Configuration.h
-unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for the Frutto Technology Cyclotron or a 40 LED NeoPixel ring.
+unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for the Frutto Technology Cyclotron or 7 for a 40 LED NeoPixel ring.
 
 // The middle centre LED.
 uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
 
 /*
  * Proton Pack Power Cell and Cyclotron lid LED pin.
-*/
+ */
 #define PACK_LED_PIN 53
 CRGB pack_leds[i_max_pack_leds + i_nfilter_jewel_leds];
 
@@ -92,8 +92,8 @@ CRGB pack_leds[i_max_pack_leds + i_nfilter_jewel_leds];
  * Inner Cyclotron LEDs (optional).
  * Max number of LEDs supported = 35.
  * Uses pin 13.
+ * Maximum allowed LEDs for the Inner Cyclotron is 35.
  */
- // Maximum allowed LEDs for the Inner Cyclotron is 35.
 #define CYCLOTRON_NUM_LEDS 35
 #define CYCLOTRON_LED_PIN 13
 CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
@@ -102,7 +102,7 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
 #define HASLAB_POWERCELL_LEDS 13
 
 /*
- * Delay for fastled to update the addressable LEDs. 
+ * Delay for fastled to update the addressable LEDs.
  * We have up to 90 addressable LEDs if using NeoPixel jewels in the Inner Cyclotron and N-Filter.
  * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
  */
@@ -120,7 +120,7 @@ millisDelay ms_powercell;
 bool b_powercell_updating = false;
 uint8_t i_powercell_multiplier = 1;
 
-/* 
+/*
  *  Cyclotron Inner Switch Panel LEDs control (optional).
  */
 const uint8_t i_cyclotron_switch_led_delay_base = 150;
@@ -129,8 +129,8 @@ uint8_t i_cyclotron_sw_led = 0;
 uint8_t i_cyclotron_switch_led_mulitplier = 1;
 millisDelay ms_cyclotron_switch_led;
 
-/* 
- *  State of the pack.
+/*
+ * State of the pack.
  */
 enum PACK_STATES { MODE_OFF, MODE_ON };
 enum PACK_STATES PACK_STATE;
@@ -202,15 +202,15 @@ const uint8_t cyclotron_switch_led_yellow = 11; // Vibration on/off switch led.
 millisDelay ms_cyclotron_switch_plate_leds;
 const unsigned int i_cyclotron_switch_plate_leds_delay = 1000;
 
-/* 
+/*
  * Alarm. Used during overheating and/or ribbon cable removal.
  */
 const unsigned int i_alarm_delay = 500;
 bool b_alarm = false;
 millisDelay ms_alarm;
 
-/* 
- *  Switches
+/*
+ * Switches
  */
 ezButton switch_alarm(23); // Ribbon cable removal switch
 ezButton switch_mode(25); // 1984 / 2021 mode toggle switch
@@ -220,8 +220,8 @@ ezButton switch_power(31); // Red power switch under the Ion Arm.
 ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
 //bool b_neutrona_wand_barrel_extended = false; // Unused at the moment.
 
-/* 
- *  WAV Trigger
+/*
+ * WAV Trigger
  */
 wavTrigger w_trig;
 unsigned int i_music_count = 0;
@@ -234,14 +234,14 @@ bool b_repeat_track = false;
 
 /*
  * Music control and checking.
-*/
+ */
 const unsigned int i_music_check_delay = 2000;
 const unsigned int i_music_next_track_delay = 2000;
 millisDelay ms_check_music;
 millisDelay ms_music_next_track;
 millisDelay ms_music_status_check;
 
-/* 
+/*
  *  Volume (0 = loudest, -70 = quietest)
  */
 int i_volume_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
@@ -269,7 +269,7 @@ const int i_vibration_lowest_level = 15;
 /*
  * Enable or disable vibration control for the Proton Pack.
  * Vibration is toggled on and off the toggle switch in the Proton Pack.
-*/
+ */
 bool b_vibration_enabled = true;
 
 /*
@@ -283,10 +283,10 @@ const uint8_t smoke_pin = 39;
 const uint8_t smoke_booster_pin = 35;
 
 /*
- * Fan for the smoke booster tube. 
+ * Fan for the smoke booster tube.
  * This will go off at the same time the smoke booster pin.
  * It is not needed but it was requested by some people who may want to use the smoke booster for another purpose.
-*/
+ */
 const uint8_t fan_booster_pin = 38;
 
 /*
@@ -294,8 +294,8 @@ const uint8_t fan_booster_pin = 38;
  */
 const uint8_t fan_pin = 33;
 
-/* 
- * Overheating and smoke timers for smoke_pin. 
+/*
+ * Overheating and smoke timers for smoke_pin.
  */
 millisDelay ms_overheating;
 const unsigned int i_overheating_delay = 4000;
@@ -313,7 +313,7 @@ const unsigned int i_overheat_delay_max = 60000; // The max length a overheat ca
 /*
  * N-Filter LED (White) (Optional)
  * Use a White LED with a Forward voltage of 3.0-3.2 with up to a 20ma current draw.
-*/
+ */
 const uint8_t i_nfilter_led_pin = 46;
 
 /*
@@ -325,8 +325,8 @@ const uint8_t i_vent_light_delay = 50;
 bool b_vent_sounds; // A flag for playing smoke and vent sounds.
 bool b_vent_light_on = false; // To know if the light is on or off.
 
-/* 
- *  Wand Firing Modes + Settings
+/*
+ * Wand Firing Modes + Settings
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
@@ -336,18 +336,18 @@ enum FIRING_MODES FIRING_MODE;
  * Super Hero: A idealised system based on the close up of the Super Hero Proton Pack and Neutrona Wand in the 1984 Rooftop closeup scene and what is shown in Afterlife. (Different toggle switch sequences for turning on the pack and wand)
  * Original: Based on the original operational manual during production of GB1. (Wand toggle switches must be on before the cyclotron can turn on from the Wand only.)
  * Super Hero will be the default system mode.
-*/
+ */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
 
 /*
  * Cross The Streams Status
-*/
+ */
 enum STATUS_CROSS_THE_STREAMS { CTS_FIRING_1984, CTS_FIRING_2021, CTS_NOT_FIRING };
 enum STATUS_CROSS_THE_STREAMS STATUS_CTS;
 
 /*
- *  Wand Status
+ * Wand Status
  */
 bool b_wand_firing = false;
 bool b_firing_alt = false;
@@ -363,7 +363,7 @@ uint8_t i_wand_power_level = 1; // Power level of the wand.
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
 
 /*
- *  Attenuator Status
+ * Attenuator Status
  */
 bool b_serial1_connected = false;
 millisDelay ms_serial1_handshake;
@@ -414,8 +414,8 @@ millisDelay ms_firing_sound_mix; // Used to play misc sound effects during firin
 int i_last_firing_effect_mix = 0;
 millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound with firing
 
-/* 
- * Rotary encoder for volume control 
+/*
+ * Rotary encoder for volume control
  */
 #define encoder_pin_a 2
 #define encoder_pin_b 3
@@ -447,7 +447,7 @@ enum device {
 /*
  * The year the Proton Pack operates in.
  * SYSTEM_EMPTY is just a empty place holder. We need this as we write this data to the EEPROM.
-*/
+ */
 enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
 enum SYSTEM_YEARS SYSTEM_YEAR;
 enum SYSTEM_YEARS SYSTEM_YEAR_TEMP;
@@ -465,13 +465,13 @@ millisDelay ms_fadeout;
 
 /*
  * EEPROM
-*/
+ */
 unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
 unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
 
 /*
  * EEPROM Data structure object that is saved into the EEPROM memory.
-*/
+ */
 struct objEEPROM {
   uint8_t powercell_count;
   uint8_t cyclotron_count;
@@ -482,12 +482,12 @@ struct objEEPROM {
   uint8_t cyclotron_inner_spectral_custom;
   uint8_t powercell_spectral_saturation_custom;
   uint8_t cyclotron_spectral_saturation_custom;
-  uint8_t cyclotron_inner_spectral_saturation_custom;  
+  uint8_t cyclotron_inner_spectral_saturation_custom;
 };
 
 /*
  * EEPROM Another data structure object that is saved into the EEPROM memory.
-*/
+ */
 struct objConfigEEPROM {
   uint8_t stream_effects;
   uint8_t cyclotron_direction;
@@ -496,7 +496,7 @@ struct objConfigEEPROM {
   uint8_t overheat_strobe;
   uint8_t overheat_lights_off;
   uint8_t overheat_sync_to_fan;
-  
+
   uint8_t year_mode; // 1984, 1989, After Life, Frozen Empire or the Proton Pack toggle switch default.
   uint8_t system_mode; // Super Hero or Mode Original.
   uint8_t vga_powercell; // For disabling or enabling video game colours for the Power Cell.
@@ -512,15 +512,15 @@ struct objConfigEEPROM {
   uint8_t overheat_smoke_duration_level_1;
 
   uint8_t smoke_continuous_mode_5;
-  uint8_t smoke_continuous_mode_4; 
-  uint8_t smoke_continuous_mode_3; 
-  uint8_t smoke_continuous_mode_2; 
+  uint8_t smoke_continuous_mode_4;
+  uint8_t smoke_continuous_mode_3;
+  uint8_t smoke_continuous_mode_2;
   uint8_t smoke_continuous_mode_1;
 };
 
 /*
  * Function prototypes.
-*/
+ */
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
 void stopEffect(int i_track_id);
 void stopMusic();
@@ -530,7 +530,7 @@ void powercellDraw(uint8_t i_start = 0);
 
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
-*/
+ */
 #ifdef GPSTAR_PROTON_PACK_PCB
   ezButton switch_cyclotron_lid(43); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
 #else

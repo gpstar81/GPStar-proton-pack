@@ -57,7 +57,7 @@ enum BARGRAPH_STATES BARGRAPH_STATE;
 
 void bargraphSetElement(int i_element, bool b_power) {
   if(i_element < 0) {
-    i_element = 0; // Keep byte value in usable range. 
+    i_element = 0; // Keep byte value in usable range.
   }
   else if(i_element >= i_bargraph_elements) {
     // Do not exceed the total addressable elements.

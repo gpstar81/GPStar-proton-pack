@@ -343,10 +343,10 @@ void checkRotaryPress() {
 
   /*
     See A_MUSIC_PAUSE_RESUME for pausing and resuming music tracks.
-    
+
     Music track listing is now synced, the track count can be found with the: i_music_track_count
-    
-    To tell the system to play the track you want, just send the track number to the Proton Pack. Make sure to add 500 to the i_music_track count. 
+
+    To tell the system to play the track you want, just send the track number to the Proton Pack. Make sure to add 500 to the i_music_track count.
     For example:
 
     attenuatorSerialSend(5 + 500); // This will tell the Proton Pack to play music track #5.
@@ -748,7 +748,7 @@ void checkPack() {
           case A_BARREL_EXTENDED:
             // Neutrona Wand Barrel is extended.
           break;
-          
+
           case A_BARREL_RETRACTED:
             // Neutrona Wand Barrel is retracted.
           break;

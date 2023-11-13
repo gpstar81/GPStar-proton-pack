@@ -5,7 +5,7 @@ The custom software needed for operation must be compiled and uploaded to your d
 ## Supported Devices
 
 ### Proton Pack:
- 
+
 - <img src='images/gpstar_logo.png' width=30 align="left" /> gpstar Proton Pack PCB
 
 ### Neutrona Wand:
