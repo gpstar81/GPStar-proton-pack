@@ -8490,7 +8490,7 @@ void checkPack() {
                   case MODE_OFF:
                     switch(SYSTEM_MODE) {
                       case MODE_ORIGINAL:
-                        if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && switch_activate.getState() == HIGH) {
+                        if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
                           if(b_mode_original_toggle_sounds_enabled == true) {
                             stopEffect(S_WAND_HEATDOWN);
                             stopEffect(S_WAND_HEATUP_ALT);
