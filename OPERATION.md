@@ -176,34 +176,35 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 ## Menu Level 1
 
-| Menu&nbsp;Level&nbsp;1 | Purpose | Intensify Button | Barrel Wing Button |
-|----------------|---------|------------------|--------------------|
-| <p align="center">5</p> | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
-| <p align="center">4</p> | Proton Pack Light Dimming | `(Intensify + Top Dial)` Increases/Decreases the Proton Pack lights brightness. | Toggles between Power Cell, Cyclotron or Inner Cyclotron |
-| <p align="center">3</p> | Sound & Music Volume | `(Intensify + Top Dial)` Increases/Decreases Music Volume | `(Barrel Wing Button + Top Dial)` Increases/Decreases Effects Volume |
-| <p align="center">2</p> | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
-| <p align="center">1</p> | Play&nbsp;or&nbsp;Stop&nbsp;Music / System Mute | Start/stop playing of music | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3 |
+| Option | Purpose | Intensify Button | Barrel Wing Button |
+|:------:|---------|------------------|--------------------|
+| 5| Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
+| 4 | Proton&nbsp;Pack&nbsp;Light&nbsp;Dimming | `(Intensify + Top Dial)` Increases/Decreases the Proton Pack device LED brightness | Toggles between Power Cell, Cyclotron, or Inner Cyclotron devices |
+| 3 | Music & Effects Volume | `(Intensify + Top Dial)` Increases/Decreases Music Volume | `(Barrel Wing Button + Top Dial)` Increases/Decreases Effects Volume |
+| 2 | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
+| 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music / System Mute | Start/stop playing of music | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3 |
 
 <sup>1</sup> Note that the LED/segment #5 will stay solid when the single-track loop is enabled while in the top menu system; it will blink on/off when looping is disabled.
 
-<sup>2</sup> When you navigate back to the `Setting 5` while in Video Game Mode and press the Barrel Wing Button, the wand will return the proton stream mode (accompanied by an audio cue to indicate this return to firing readiness). When in CTS mode this will exit the menu and allow the wand to be powered on. Note that music will continue to play (and advance/loop) even when the pack and wand are turned off.
+<sup>2</sup> When you navigate back to the `Option 5` while in Video Game Mode and press the Barrel Wing Button, the wand will return the proton stream mode (accompanied by an audio cue to indicate this return to firing readiness). When in CTS mode this will exit the menu and allow the wand to be powered on. Note that music will continue to play (and advance/loop) even when the pack and wand are turned off.
 
 <sup>3</sup> Note that the LED/segment #1 will stay solid when the Proton Pack and Neutrona Wand volume is muted.
 
 ## Menu Level 2
 
-**Important:** The Neutrona Wand Menu Level 2 can only be reached while Cyclotron is turned off in Proton Pack.
+📝 **Note:** The Neutrona Wand Menu Level 2 can only be reached while Cyclotron is turned off in Proton Pack.
 
-To access the Menu Level 2, use the `Top Dial` on the top of the wand. When you reach the the next menu level, the Slo-Blo LED will light up to indicate this menu state and also audio cues from the system.
+To access the Menu Level 2, use the `Top Dial` on the top of the wand to move down and past option 1 on Menu Level 1. When you reach the the next menu level, the Slo-Blo LED will light up to indicate this menu state and also audio cues from the system.
+
 ![](images/OperationNeutrona10.jpg)
 
-| Menu&nbsp;Level&nbsp;2 | Purpose | Intensify Button | Barrel Wing Button |
-|----------------|---------|------------------|--------------------|
-| <p align="center">5</p> | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes.<sup>4</sup> |
-| <p align="center">4</p> | Smoke&nbsp;Settings&nbsp;/&nbsp;Overheating| Enable/Disable smoke effects. | Enable/Disable overheating. |
-| <p align="center">3</p> | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron rotation. | Toggle between 1 (centered) or 3 LEDs in the Cyclotron Lid for 1984/1989 modes. |
-| <p align="center">2</p> | Vibration Settings | Proton Pack Enable/Disable vibration or vibration during firing. | Neutrona Wand Enable/Disable vibration or vibration during firing. |
-| <p align="center">1</p> | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes. | Enable or Disable the Proton Stream impact sound effects. |
+| Option | Purpose | Intensify Button | Barrel Wing Button |
+|:------:|---------|------------------|--------------------|
+| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes <sup>4</sup> |
+| 4 | Smoke/Overheat&nbsp;Toggles | Enable/Disable Smoke Effects | Enable/Disable Overheating |
+| 3 | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron Rotation | Toggle between 1 (centered) or 3 LEDs in the Cyclotron Lid for 1984/1989 modes |
+| 2 | Vibration Settings | Enable/Disable Proton Pack vibration or vibration during firing | Enable/Disable Neutrona Wand vibration or vibration during firing |
+| 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes | Enable/Disable the Proton Stream impact sound effects |
 
 <sup>3</sup> Switch between Video Game and Cross the Streams (CTS) operation modes. Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.
 
@@ -214,7 +215,7 @@ To access the Menu Level 2, use the `Top Dial` on the top of the wand. When you 
 - Enable only the Cyclotron LEDs to change colors (requires RGB replacement such as a Neopixel ring).
 - Enable both the Power Cell and Cyclotron to use video game colours.
 
-To exit the menu system, navigate to the top menu in **Setting 5** (Slo-blo LED is no longer illuminated) and press the Barrel Wing Button. A small beep will be heard when transitioning between the top and sub menu levels.
+To exit the menu system, navigate to the top menu in `Option 5` (Slo-blo LED is no longer illuminated) and press the Barrel Wing Button. A small beep will be heard when transitioning between the top and sub menu levels.
 
 **Tip:** When music is playing while the pack and wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily access the independent music volume control.
 
