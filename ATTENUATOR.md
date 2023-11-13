@@ -7,7 +7,7 @@ That was the question posed by Jason Reitman to Adam Savage with regards to the 
 ![](images/Savage-Attenuator.jpg)
 *Still image of Adam's creation.*
 
-This guide demonstrates the build process for replicating the "Pack Attenuator" device created by Adam and Ben which fully integrates into the gpstar electronics kit. The ability to control and receive feedback from the devices makes this more than just an aesthetic improvement but a truly usable piece of the pack-wand combination.
+This guide demonstrates the build process for replicating the "Pack Attenuator" device created by Adam and Ben which fully integrates into the GPStar electronics kit. The ability to control and receive feedback from the devices makes this more than just an aesthetic improvement but a truly usable piece of the pack-wand combination.
 
 ### Potential Backstory
 
@@ -17,9 +17,9 @@ The attenuator device alters the magnetic field to maintain a correct “rate of
 
 ### Special Notes
 
-Credit to [ShapeforgeProps](https://www.etsy.com/shop/ShapeforgeProps) for their excellent reproduction of this device as a 3D print and served as inspiration for taking this to a new level with the gpstar kit.
+Credit to [ShapeforgeProps](https://www.etsy.com/shop/ShapeforgeProps) for their excellent reproduction of this device as a 3D print and served as inspiration for taking this to a new level with the GPStar kit.
 
-*Please note that this device is considered experimental and still under development. An electronics and housing kit is in the works which will integrate with the gpstar Proton Pack controller.*
+*Please note that this device is considered experimental and still under development. An electronics and housing kit is in the works which will integrate with the GPStar Proton Pack controller.*
 
 [Attenuator Preview Demonstration](https://www.youtube.com/watch?v=k-u7S7Ctcbc) (YouTube, August 2023).
 [![Attenuator Preview Demonstration Video](https://img.youtube.com/vi/k-u7S7Ctcbc/maxresdefault.jpg)](https://www.youtube.com/watch?v=k-u7S7Ctcbc)
@@ -372,7 +372,7 @@ Just as you used the gpstar flashing utility for Windows or MacOS to upload to y
 
 While not attached to a compatible Proton Pack (read: standalone mode) the device will simply provide some lights and effects. The left toggle switch will turn on the bargraph animations while the right toggle switch will turn on the LED's.
 
-Ideally, the device should be connected to the gpstar Proton Pack Controller which will allow it to provide some extended functionality. Under normal use the main dial will allow adjusting the overall volume, starting/stopping music tracks, navigating to the next track, and adjusting the effects volume.
+Ideally, the device should be connected to the GPStar Proton Pack Controller which will allow it to provide some extended functionality. Under normal use the main dial will allow adjusting the overall volume, starting/stopping music tracks, navigating to the next track, and adjusting the effects volume.
 
 * Left Toggle: Turns the pack on or off, similar to use of the switch under the Ion Arm
 * Right Toggle: Turns the LED's on the device on or off

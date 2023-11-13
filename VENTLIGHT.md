@@ -1,6 +1,6 @@
 # Frutto Technology High Intensity Vent Lights
 
-A brighter high intensity vent light from Frutto Technology can be installed very easily with the gpstar Neutrona Wand PCB with no soldering required.
+A brighter high intensity vent light from Frutto Technology can be installed very easily with the GPStar Neutrona Wand PCB with no soldering required.
 
 ## Installation
 

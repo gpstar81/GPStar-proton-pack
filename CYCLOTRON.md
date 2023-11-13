@@ -10,8 +10,8 @@ Regardless of solution you will need to split apart the Cyclotron Lid which is s
 
 ## Frutto Technology 5-LED Replacements
 ### Installation Guide Video
-[gpstar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://www.youtube.com/watch?v=LgOT8UspSCI) (YouTube)
-[![gpstar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://img.youtube.com/vi/LgOT8UspSCI/maxresdefault.jpg)](https://www.youtube.com/watch?v=LgOT8UspSCI)
+[GPStar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://www.youtube.com/watch?v=LgOT8UspSCI) (YouTube)
+[![GPStar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://img.youtube.com/vi/LgOT8UspSCI/maxresdefault.jpg)](https://www.youtube.com/watch?v=LgOT8UspSCI)
 
 The stock LEDs can be removed by prying out the diffuser lenses, then snipping the 3 black plastic welds used to hold the PCBs in place. Whether pre-soldered or not, the new LEDs should be oriented similar to the arcing pattern used by the stock LEDs. Hot glue can be used to keep these in place until the diffusers are put back in place.
 ![](images/Frutto_Cyc1.jpg)

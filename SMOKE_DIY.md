@@ -4,7 +4,7 @@ This guide is intended to explain the process of creating your own smoke generat
 
 ## Booster Tube Example
 
-*Provided by gpstar*
+*Provided by GPStar*
 
 For this solution, the following parts were used:
 
