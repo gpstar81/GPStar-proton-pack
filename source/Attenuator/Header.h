@@ -1,5 +1,5 @@
 /**
- *   gpstar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -156,19 +156,19 @@ enum MENU_LEVELS MENU_LEVEL;
 SerialTransfer packComs;
 
 struct __attribute__((packed)) STRUCT {
-  int s;
-  int i;
-  int d1;
-  int d2;
-  int e;
+  uint16_t s;
+  uint16_t i;
+  uint16_t d1; // Data 1
+  uint16_t d2; // Data 2
+  uint16_t e;
 } comStruct;
 
 struct __attribute__((packed)) STRUCTSEND {
-  int s;
-  int i;
-  int d1;
-  int d2;
-  int e;
+  uint16_t s;
+  uint16_t i;
+  uint16_t d1; // Data 1
+  uint16_t d2; // Data 2
+  uint16_t e;
 } sendStruct;
 
 /*
