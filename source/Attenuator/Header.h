@@ -97,8 +97,8 @@ uint8_t i_speed_multiplier = 1;
 enum YEAR_MODES { YEAR_1984, YEAR_1989, YEAR_2021 };
 enum YEAR_MODES YEAR_MODE;
 
-/* 
- *  Wand Firing Modes + Settings
+/*
+ * Wand Firing Modes + Settings
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
@@ -106,7 +106,7 @@ enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
 enum POWER_LEVELS POWER_LEVEL;
 enum POWER_LEVELS POWER_LEVEL_PREV;
 
-/* 
+/*
  * Toggle Switches
  * Will be pulled LOW (down position) when considered "active".
  */
@@ -119,7 +119,7 @@ ezButton switch_right(6);
 const uint8_t switch_debounce_time = 50;
 const uint8_t rotary_debounce_time = 80;
 
-/* 
+/*
  * Rotary encoder for various uses.
  */
 #define r_encoderA 2
@@ -139,7 +139,7 @@ int i_rotary_count = 0;
 
 /*
  * Music Track listing count.
-*/
+ */
 int i_music_track_count = 0;
 
 /*
@@ -150,7 +150,7 @@ enum CENTER_STATES CENTER_STATE;
 enum MENU_LEVELS { MENU_1, MENU_2 };
 enum MENU_LEVELS MENU_LEVEL;
 
-/* 
+/*
  * Pack Communication
  */
 SerialTransfer packComs;

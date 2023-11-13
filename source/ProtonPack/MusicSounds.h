@@ -16,14 +16,14 @@
  *   along with this program; if not, see <https://www.gnu.org/licenses/>.
  *
  */
- 
-/* 
- *  Micro SD Card sound files in order. If you have no sound, your SD card might be too slow, try a faster one.
- *  File naming 000_ is important. For music, it is 500_ and higher.
+
+/*
+ * Micro SD Card sound files in order. If you have no sound, your SD card might be too slow, try a faster one.
+ * File naming 000_ is important. For music, it is 500_ and higher.
  */
 
 enum sound_fx {
-  S_EMPTY, 
+  S_EMPTY,
   S_BOOTUP,
   S_SHUTDOWN,
   S_IDLE_LOOP,
@@ -312,7 +312,7 @@ enum sound_fx {
   S_VOICE_OVERHEAT_LEVEL_4_DISABLED,
   S_VOICE_OVERHEAT_LEVEL_3_DISABLED,
   S_VOICE_OVERHEAT_LEVEL_2_DISABLED,
-  S_VOICE_OVERHEAT_LEVEL_1_DISABLED,  
+  S_VOICE_OVERHEAT_LEVEL_1_DISABLED,
   S_VOICE_CONTINUOUS_SMOKE_5_ENABLED,
   S_VOICE_CONTINUOUS_SMOKE_4_ENABLED,
   S_VOICE_CONTINUOUS_SMOKE_3_ENABLED,
