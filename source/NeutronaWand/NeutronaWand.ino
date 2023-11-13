@@ -1602,6 +1602,9 @@ void mainLoop() {
             i_wand_menu = 5;
             ms_settings_blinking.start(i_settings_blinking_delay);
 
+            ms_bargraph.stop();
+            bargraphClearAlt();
+
             // Make sure some of the wand lights are off.
             wandLightsOffMenuSystem();
 
@@ -2298,6 +2301,10 @@ void checkSwitches() {
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
           if(b_pack_ion_arm_switch_on == true) {
+            // Keep the hat lights turned off.
+            digitalWrite(led_hat_1, LOW);
+            digitalWrite(led_hat_2, LOW);
+
             if(WAND_ACTION_STATUS == ACTION_IDLE) {
               // We are going to handle the toggle switch sequence for the MODE_ORIGINAL here.
               if(switch_activate.getState() == LOW && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
@@ -8483,7 +8490,7 @@ void checkPack() {
                   case MODE_OFF:
                     switch(SYSTEM_MODE) {
                       case MODE_ORIGINAL:
-                        if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && switch_activate.getState() == HIGH) {
+                        if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
                           if(b_mode_original_toggle_sounds_enabled == true) {
                             stopEffect(S_WAND_HEATDOWN);
                             stopEffect(S_WAND_HEATUP_ALT);
