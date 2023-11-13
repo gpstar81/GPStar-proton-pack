@@ -149,16 +149,23 @@ String getTheme() {
 }
 
 String getRedSwitch() {
-  switch(RED_SWITCH_MODE) {
-    case SWITCH_ON:
-      return "Ready";
-    break;
-    case SWITCH_OFF:
-      return "Standby";
-    break;
-    default:
-      return "Unknown";
-    break;
+  if(ARMING_MODE == MODE_ORIGINAL) {
+    // Switch state only matters for mode "Original".
+    switch(RED_SWITCH_MODE) {
+      case SWITCH_ON:
+        return "Ready";
+      break;
+      case SWITCH_OFF:
+        return "Standby";
+      break;
+      default:
+        return "Unknown";
+      break;
+    }
+  }
+  else {
+    // Otherwise, just "ready".
+    return "Ready";
   }
 }
 
@@ -318,11 +325,8 @@ void handleCancelWarning(AsyncWebServerRequest *request) {
 }
 
 void handleManualVent(AsyncWebServerRequest *request) {
-  if(i_speed_multiplier > 1) {
-    // Only send command to pack if cyclotron is not "normal".
-    Serial.println("Manual Vent Triggered");
-    attenuatorSerialSend(A_MANUAL_OVERHEAT);
-  }
+  Serial.println("Manual Vent Triggered");
+  attenuatorSerialSend(A_MANUAL_OVERHEAT);
   request->send(200, "application/json", "{}");
 }
 
@@ -368,6 +372,12 @@ void handleNextMusicTrack(AsyncWebServerRequest *request) {
   request->send(200, "application/json", "{}");
 }
 
+void handlePrevMusicTrack(AsyncWebServerRequest *request) {
+  Serial.println("Prev Music Track");
+  attenuatorSerialSend(A_MUSIC_PREV_TRACK);
+  request->send(200, "application/json", "{}");
+}
+
 void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   String c_music_track = "";
   if(request->hasParam("track")) {
@@ -381,12 +391,6 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   if(c_music_track != "") {
     attenuatorSerialSend(c_music_track.toInt());
   }
-  request->send(200, "application/json", "{}");
-}
-
-void handlePrevMusicTrack(AsyncWebServerRequest *request) {
-  Serial.println("Prev Music Track");
-  attenuatorSerialSend(A_MUSIC_PREV_TRACK);
   request->send(200, "application/json", "{}");
 }
 

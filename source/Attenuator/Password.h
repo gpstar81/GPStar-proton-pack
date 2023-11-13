@@ -22,7 +22,7 @@ const char PASSWORD_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WiFi Password</title>
 
   <style>
@@ -66,6 +66,7 @@ const char PASSWORD_page[] PROGMEM = R"=====(
       padding: 12px 14px;
       max-width: 100px;
       text-align: center;
+      touch-action: manipulation;
       width: 120px;
     }
 
@@ -79,17 +80,21 @@ const char PASSWORD_page[] PROGMEM = R"=====(
       width: 50%;
     }
 
-    .blue {
-      background-color: #008CBA;
-      border: 2px solid #006C9A;
+    .red {
+      background-color: #f44336;
+      border: 2px solid #d42316;
+    }
+    .orange {
+      background-color: #ffac1c;
+      border: 2px solid #dd9a0a;
     }
     .green {
       background-color: #4CAF50;
       border: 2px solid #2C8F30;
     }
-    .red {
-      background-color: #f44336;
-      border: 2px solid #d42316;
+    .blue {
+      background-color: #008CBA;
+      border: 2px solid #006C9A;
     }
   </style>
 
@@ -125,9 +130,9 @@ const char PASSWORD_page[] PROGMEM = R"=====(
   <h1>Change WiFi Password</h1>
   <div class="block">
     <p>
-      Use this page to update your preferred password for WiFi access. Note that this value is stored in controller's permanent memory,
-      and firmware updates will have no effect on resetting this value. After updating, any devices which previously stored the password
-      for the WiFi network will require you to update to the new password.
+      Change your preferred password for WiFi access to this device. Note that this value is stored in controller's permanent memory,
+      and restoring/upgrading firmware will have no effect on resetting this value. After updating, any devices which previously stored
+      the password for the WiFi network will require you to update to the new password.
     </p>
     <br/>
     <b>New AP Password:</b> <input type="text" id="password" width="120"/>
@@ -136,7 +141,7 @@ const char PASSWORD_page[] PROGMEM = R"=====(
     <br/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;&nbsp;
-    <button type="button" onclick="updatePassword()">Update</button>
+    <button type="button" class="green" onclick="updatePassword()">Update</button>
   </div>
 </body>
 </html>

@@ -58,7 +58,7 @@ void setup() {
 
   // Assume the Super Hero arming mode with Afterlife (default for Haslab).
   ARMING_MODE = MODE_SUPERHERO;
-  RED_SWITCH_MODE = SWITCH_ON;
+  RED_SWITCH_MODE = SWITCH_OFF;
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
   // Bootup into proton mode (default for pack and wand).
@@ -174,7 +174,8 @@ void debug(String message) {
   // Writes a debug message to the serial console.
   #if defined(__XTENSA__)
     // ESP32
-    Serial.println(message);
+    Serial.println(message); // Print to serial console.
+    ws.textAll(message); // Send a copy to the WebSocket.
   #else
     // Nano
     if(!b_wait_for_pack) {
@@ -1152,7 +1153,7 @@ void checkPack() {
           // Note: We only perform this action if we have data from the pack.
           // This excludes the handshake as this is received way too often.
           if(!b_wait_for_pack && comStruct.i != A_HANDSHAKE) {
-            notifyWSClients();
+            notifyWSClients(); // Send latest status to the WebSocket.
           }
         #endif
       }

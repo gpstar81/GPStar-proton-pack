@@ -22,7 +22,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Proton Pack</title>
 
   <style>
@@ -61,7 +61,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       box-sizing: border-box;
       box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
       color: #444;
-      margin: 20px 20px 30px 20px;
+      margin: 20px auto;
       max-width: 400px;
       min-height: 200px;
       padding: 10px 20px 10px 20px;
@@ -82,6 +82,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       padding: 12px 14px;
       max-width: 120px;
       text-align: center;
+      touch-action: manipulation;
       width: 100px;
     }
 
@@ -106,20 +107,25 @@ const char INDEX_page[] PROGMEM = R"=====(
       padding: 12px 14px;
       max-width: 260px;
       text-align: center;
+      touch-action: manipulation;
       width: 260px;
     }
 
-    .blue {
-      background-color: #008CBA;
-      border: 2px solid #006C9A;
+    .red {
+      background-color: #f44336;
+      border: 2px solid #d42316;
+    }
+    .orange {
+      background-color: #ffac1c;
+      border: 2px solid #dd9a0a;
     }
     .green {
       background-color: #4CAF50;
       border: 2px solid #2C8F30;
     }
-    .red {
-      background-color: #f44336;
-      border: 2px solid #d42316;
+    .blue {
+      background-color: #008CBA;
+      border: 2px solid #006C9A;
     }
   </style>
 
@@ -161,9 +167,23 @@ const char INDEX_page[] PROGMEM = R"=====(
       }, 1000);
     }
 
+    function isJsonString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
+
     function onMessage(event) {
-      var data = JSON.parse(event.data);
-      updateStatus(data);
+      if (isJsonString(event.data)) {
+        // If JSON, use as status update.
+        updateStatus(JSON.parse(event.data));
+      } else {
+        // Anything else gets sent to console.
+        console.log(event.data);
+      }
     }
 
     function removeOptions(selectElement) {
@@ -187,7 +207,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
 
-        if (jObj.mode == "Original" && jObj.pack == Powered") {
+        if (jObj.mode == "Original" && jObj.pack == "Powered") {
           // Cannot turn off pack remotely if in mode Original and currently Powered.
           document.getElementById("btnPackOff").disabled = true;
         } else {
@@ -384,7 +404,7 @@ const char INDEX_page[] PROGMEM = R"=====(
   <div class="block">
     <h3>Master Volume</h3>
     <button type="button" class="blue" onclick="volumeMasterDown()">- Down</button>
-    <button type="button" onclick="toggleMute()">Mute/Unmute</button>
+    <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
     <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
     <br/>
     <h3>Music Playback</h3>
@@ -397,16 +417,20 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <h3>Effects Volume</h3>
     <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
+    &nbsp;&nbsp;
     <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
   </div>
 
   <h1>Pack Controls</h1>
   <div class="block">
     <button type="button" class="red" onclick="packOff()" id="btnPackOff">Pack Off</button>
+    &nbsp;&nbsp;
     <button type="button" class="green" onclick="packOn()" id="btnPackOn">Pack On</button>
     <br/>
-    <button type="button" class="red" onclick="beginVenting()">Manual Vent</button>
-    <button type="button" class="green" onclick="cancelWarning()">Attenuate</button>
+    <br/>
+    <button type="button" class="orange" onclick="beginVenting()">Vent</button>
+    &nbsp;&nbsp;
+    <button type="button" class="blue" onclick="cancelWarning()">Attenuate</button>
   </div>
 
   <h1>Administration</h1>
