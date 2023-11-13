@@ -7717,19 +7717,10 @@ void readEEPROM() {
     }
 
     if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume != 255) {
-      if(obj_config_eeprom.default_system_volume > 100) {
-        // 101 is going to indicate 0, which is full volume.
-        i_volume_master_eeprom = 0;
-        i_volume_master = 0;
-      }
-      else if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 70) {
-        i_volume_master_eeprom = obj_config_eeprom.default_system_volume * -1;
-        i_volume_master = i_volume_master_eeprom;
-      }
-      else {
-        i_volume_master_eeprom = MINIMUM_VOLUME;
-        i_volume_master = MINIMUM_VOLUME;
-      }
+      i_volume_master_percentage = obj_config_eeprom.default_system_volume;
+      i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+      i_volume_revert = i_volume_master_eeprom;
+      i_volume_master = i_volume_master_eeprom;
     }
 
     if(obj_config_eeprom.overheat_smoke_duration_level_5 > 0 && obj_config_eeprom.overheat_smoke_duration_level_5 != 255) {
@@ -7831,7 +7822,7 @@ void saveConfigEEPROM() {
   uint8_t i_vga_cyclotron = 1;
   uint8_t i_demo_light_mode = 1;
   uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led. 2 = three leds.
-  uint8_t i_default_system_volume = 101; // 101 will be 0. So Our range will be -1 to -70 (up to -100). 0 Volume (loudest) will be indicated as 101 in the EEPROM.
+  uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
   uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
   uint8_t i_overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;
   uint8_t i_overheat_smoke_duration_level_3 = i_ms_overheating_length_3 / 1000;
@@ -7892,15 +7883,8 @@ void saveConfigEEPROM() {
     i_cyclotron_three_led_toggle = 2;
   }
 
-  // We are only storing positive 8 bit integers into the EEPROM.
-  if(i_volume_master_eeprom < -100) {
-    i_default_system_volume = 100;
-  }
-  else if(i_volume_master_eeprom < 0) {
-    i_default_system_volume = abs(i_volume_master_eeprom);
-  }
-  else {
-    i_default_system_volume = 101; // 101 is going to be 0 for the volume.
+  if(i_volume_master_percentage > 0 && i_volume_master_percentage < 255) {
+    i_default_system_volume = i_volume_master_percentage;
   }
 
   if(b_smoke_continuous_mode_5 == true) {
