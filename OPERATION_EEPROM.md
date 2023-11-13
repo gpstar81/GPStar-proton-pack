@@ -20,11 +20,11 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
-| 5 | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack EEPROM.<br><br>***The Proton Pack will instead load the software defined defaults the next time you turn the battery power off.***| Save the current settings to the Proton Pack EEPROM. |
-| 4 | Cyclotron LED Count Toggle / Spectral Custom (Barrel) Colour| Toggle between 40, 20 or 12 LEDs for your Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the Neutrona Wand barrel for the Spectral Custom mode. |
-| <p align="center">3</p> | Power Cell LED Count Toggle / Spectral Custom (Power Cell) Colour | Toggle between 15 or 13 LEDs for your Power Cell. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the Power Cell for the Spectral Custom mode. |
-| <p align="center">2</p> | Inner Cyclotron LED Count Toggle  / Spectral Custom (Cyclotron) Colour | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron Cake. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the Cyclotron for the Spectral Custom mode. |
-| <p align="center">1</p> | Inner Cyclotron GRB Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the Inner Cyclotron (Cake) for the Spectral Custom mode. |
+| 5 | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack EEPROM.<br/><br/>**The Proton Pack will instead load the software defined defaults the next time you turn the battery power off.** | Save the current settings to the Proton Pack EEPROM. |
+| 4 | Cyclotron LED Count Toggle / Spectral Custom (Barrel) Colour| Toggle between 40, 20 or 12 LEDs for your Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Neutrona Wand barrel** for the Spectral Custom mode. |
+| 3 | Power Cell LED Count Toggle / Spectral Custom (Power Cell) Colour | Toggle between 15 or 13 LEDs for your Power Cell. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Power Cell** for the Spectral Custom mode. |
+| 2 | Inner Cyclotron LED Count Toggle  / Spectral Custom (Cyclotron) Colour | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron Cake. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Cyclotron Lid** for the Spectral Custom mode. |
+| 1 | Inner Cyclotron GRB Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Inner Cyclotron (Cake)** for the Spectral Custom mode. |
 
 ## EEPROM Configuration Menu
 
@@ -32,13 +32,13 @@ The EEPROM Configuration Menu can be used to save certain behaviours of your Neu
 
 To access the EEPROM Configuration Menu, hold down the `Intensify Button` and toggle the right hand `Bottom Toggle` button 5 times (up and down). You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM Configuration Menu System.
 
-To access the EEPROM Configuration menus, use the `Top Dial` on the top of the wand. When you reach the a new menu level, the Slo-blo LED and other lights on the Neutrona Wand will light up to indicate these menu levels, along with audio cues from the system.
+To access the EEPROM Configuration menus, use the `Top Dial` on the top of the wand. When you reach the a new menu level, the Slo-blo LED and other lights on the Neutrona Wand will illuminate to indicate these menu levels, along with audio cues from the system.
 
-	Menu Level 1 -> No lights
-	Menu Level 2 -> Slo-Blo
-	Menu Level 3 -> Slo-Blo and vent light
-	Menu Level 4 -> Slo-Blo, vent light, and top gun box light
-	Menu Level 5 -> Slo-Blo; vent light, top gun box light, and front gun box light
+	Menu Level 1 -> No additional wand lights will be illuminated
+	Menu Level 2 -> Slo-Blo illuminated
+	Menu Level 3 -> Slo-Blo and vent light illuminated
+	Menu Level 4 -> Slo-Blo, vent light, and top gun box light illuminated
+	Menu Level 5 -> Slo-Blo; vent light, top gun box light, and front gun box light illuminated
 
 📝 **Note:** The EEPROM Configuration Menu System can only be reached while both the Neutrona Wand and Proton Pack are powered down.
 
@@ -51,10 +51,10 @@ Please note whatever settings you have temporarily changed in the regular menus 
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
 | 5 | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROM.<br><br>***The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time the battery power is turn back on.***| Save the current settings to the Proton Pack and Neutrona Wand EEPROM. |
-| 5 | Firing&nbsp;Mode&nbsp;Selection / Spectral Modes | Cycle through VG/CTS operation modes to set as your default.<sup>3</sup> | Enable/Disable the Spectral Modes. |
-| <p align="center">3</p> | Overheating / Smoke | Enable/Disable overheating. | Enable/Disable smoke. |
-| <p align="center">2</p> | Cyclotron&nbsp;LED&nbsp;Control | Cyclotron rotation direction. Clockwise or counter clockwise. | Enable/Disable the Cyclotron Lid Ring Simulation for non ring LED setups in Afterlife (2021) mode. |
-| <p align="center">1</p> | Sound Effects | Enable/Disable the proton stream impact sound effects. | Enable/Disable extra Neutrona Wand sound effects to be played by the Proton Pack. |
+| 4 | Firing&nbsp;Mode&nbsp;Selection / Spectral Modes | Cycle through VG/CTS operation modes to set as your default.<sup>3</sup> | Enable/Disable the Spectral Modes. |
+| 3 | Overheating / Smoke | Enable/Disable Overheating Ability | Enable/Disable Smoke Effects |
+| 2 | Cyclotron&nbsp;LED&nbsp;Control | Cyclotron rotation direction. Clockwise or counter clockwise. | Enable/Disable the Cyclotron Lid Ring Simulation in Afterlife (2021) mode.<br/>ONLY applies to use of the 12 or 20 LED hardware options. |
+| 1 | Sound Effects | Enable/Disable the proton stream impact sound effects. | Enable/Disable extra Neutrona Wand sound effects to be played by the Proton Pack. |
 
 <sup>3</sup> Choose between Video Game and Cross the Streams (CTS) operation modes. Cross the Streams modes is like what you see in the films.
 
@@ -79,11 +79,11 @@ Please note whatever settings you have temporarily changed in the regular menus 
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
-| 5 | System Default Volume / Neutrona Wand Year Mode | Hold the `Intensify Button` down while turning the `top dial` to adjust and set the default volume for the system. | Set the year mode your Neutrona Wand operates in. Options are: 1984/1989/Afterlife and System Default. When set to System Default, the Neutrona Wand matches the same year mode as that the Proton Pack is in. |
-| 4 | Invert&nbsp;Bargraph / Bargraph&nbsp;Overheat&nbsp;Blinking | Invert or do not invert the bargraph in the Neutrona Wand (depending on installation). | Enable/Disable the bagraph to blink on and off during overheat. When disabled, the bargraph will ramp down and turn off during the overheat sequence before ramping back up when overheating has finished. |
-| 3 | Bargraph Animations / Bargraph Firing Animations | Toggle between Super Hero / Bargraph Original / System Default as the default idle animations of the bargraph.<br/>**System Default** chooses the default animations based on the year mode and system mode. | Toggle between Super Hero / Bargraph Original / System Default as the default firing animations of the bargraph.<br/>**System Default** chooses the default animations based on the year mode and system mode. |
+| 5 | System Default Volume / Neutrona Wand Year Mode | Hold the `Intensify Button` down while turning the `top dial` to adjust and set the default volume for the system. (Uses audio beeps for indication of volume.) | Set the year mode your Neutrona Wand operates in. Options are: 1984/1989/Afterlife and System Default. When set to System Default, the Neutrona Wand matches the same year mode as that the Proton Pack is in. |
+| 4 | Invert&nbsp;Bargraph / Bargraph&nbsp;Overheat&nbsp;Blinking | Toggles inverting of the bargraph in the Neutrona Wand (depending on installation orientation). | Enable/Disable the bagraph to blink on and off during overheat. When disabled, the bargraph will ramp down and turn off during the overheat sequence before ramping back up when overheating has finished. |
+| 3 | Bargraph Animations / Bargraph Firing Animations | Toggle between animation modes as default for the idle bargraph: **Super Hero**, **Bargraph Original**, or **System Default**<br/>**System Default** chooses the default animation based on the year mode and system mode. | Toggle between animation modes as default for the bargraph when firing: **Super Hero**, **Bargraph Original**, or **System Default**<br/>**System Default** chooses the default animation based on the year mode and system mode. |
 | 2 | Demo Light Mode / Cyclotron 3 LED Toggle | Enable/Disable the Demo Light mode. When enabled, the Proton Pack and Neutrona Wand will automatically boot up as soon as the system has power. | Toggle between 1 LED or 3 LEDs in each cyclotron lens in 1984/1989 year mode. |
-| 1 | System&nbsp;Mode / CTS&nbsp;Override | Toggle between the two different system operation modes. Super Hero or Mode Original. | Toggle between the different CTS modes as your default CTS mode. 1984/1989, Afterlife, or System Default. System Default automatically chooses the CTS mode based on the current year mode of your system. |
+| 1 | System&nbsp;Mode / CTS&nbsp;Override | Toggle between the available system operation modes:<br/>**Super Hero** or **Mode Original** | Toggle between options for default CTS mode: **1984**, **1989**, **Afterlife**, or **System Default**<br/>System Default automatically chooses the CTS mode based on the current year mode of your system. |
 
 **EEPROM Configuration Menu Level 4**
 
@@ -91,11 +91,11 @@ Adjust the vent smoke duration during overheat events and overheat start delay f
 
 | Option | Purpose | `Intensify Button + Top Dial` | `Barrel Wing Button + Top Dial` |
 |:------:|---------|------------------|--------------------|
-| 5 | Power&nbsp;Level&nbsp;5 | Smoke vent duration during overheat `Range: 2 to 60 seconds` `Default: 6 seconds` | Overheat start delay `Range: 2 to 60 seconds` `Default: 12 seconds` |
-| 4 | Power&nbsp;Level&nbsp;4 | Smoke vent duration during overheat `Range: 2 to 60 seconds` `Default: 5 seconds` | Overheat start delay `Range: 2 to 60 seconds` `Default: 15 seconds` |
-| 3 | Power&nbsp;Level&nbsp;3 | Smoke vent duration during overheat `Range: 2 to 60 seconds` `Default: 4 seconds` | Overheat start delay `Range: 2 to 60 seconds` `Default: 20 seconds` |
-| 2 | Power&nbsp;Level&nbsp;2 | Smoke vent duration during overheat `Range: 2 to 60 seconds` `Default: 3 seconds` | Overheat start delay `Range: 2 to 60 seconds` `Default: 30 seconds` |
-| 1 | Power&nbsp;Level&nbsp;1 | Smoke vent duration during overheat `Range: 2 to 60 seconds` `Default: 2 seconds` | Overheat start delay `Range: 2 to 60 seconds` `Default: 60 seconds` |
+| 5 | Power&nbsp;Level&nbsp;5 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 6 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 12 seconds` |
+| 4 | Power&nbsp;Level&nbsp;4 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 5 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 15 seconds` |
+| 3 | Power&nbsp;Level&nbsp;3 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 4 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 20 seconds` |
+| 2 | Power&nbsp;Level&nbsp;2 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 3 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 30 seconds` |
+| 1 | Power&nbsp;Level&nbsp;1 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 2 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 60 seconds` |
 
 **EEPROM Configuration Menu Level 5**
 
@@ -107,11 +107,11 @@ Toggles overheating ability and continuous smoke effects during firing for each 
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
-| 5 | Power&nbsp;Level&nbsp;5 | Enable/Disable Overheating `Default: enabled` | Enable/Disable continuous firing smoke effects  `Default: enabled` |
-| 4 | Power&nbsp;Level&nbsp;4 | Enable/Disable Overheating `Default: disabled` | Enable/Disable continuous firing smoke effects `Default: enabled` |
-| 3 | Power&nbsp;Level&nbsp;3 | Enable/Disable Overheating `Default: disabled` | Enable/Disable continuous firing smoke effects `Default: enabled` |
-| 2 | Power&nbsp;Level&nbsp;2 | Enable/Disable Overheating `Default: disabled` | Enable/Disable continuous firing smoke effects `Default: enabled` |
-| 1 | Power&nbsp;Level&nbsp;1 | Enable/Disable Overheating `Default: disabled` | Enable/Disable continuous firing smoke effects `Default: enabled` |
+| 5 | Power&nbsp;Level&nbsp;5 | Enable/Disable Overheating<br/>`Default: enabled` | Enable/Disable continuous firing smoke effects<br/>`Default: enabled` |
+| 4 | Power&nbsp;Level&nbsp;4 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable continuous firing smoke effects<br/>`Default: enabled` |
+| 3 | Power&nbsp;Level&nbsp;3 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable continuous firing smoke effects<br/>`Default: enabled` |
+| 2 | Power&nbsp;Level&nbsp;2 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable continuous firing smoke effects<br/>`Default: enabled` |
+| 1 | Power&nbsp;Level&nbsp;1 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable continuous firing smoke effects<br/>`Default: enabled` |
 
 # Advanced User Configurations
 
