@@ -123,7 +123,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 <sup>3</sup> Spectral (Custom) is a user defined colour mode. You can independently adjust the Neutrona Wand Barrel, Power Cell, Cyclotron and Inner Cyclotron colours directly from the EEPROM LED Menu ystem. The default colours are purple.
 
-**Note:** Spectral modes are disabled by default but can be enabled from the EEPROM Menu or flashed directly to the Neutrona Wand board. They take advantage of RGB coloured LED add-ons if installed.
+📝 **Note:** Spectral modes are disabled by default but can be enabled from the EEPROM Menu or flashed directly to the Neutrona Wand board. They take advantage of RGB coloured LED add-ons if installed.
 
 **Manual Venting Mode**
 

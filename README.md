@@ -39,34 +39,13 @@ That's alright, this will help you study. Below you will find the various guides
 
 ---
 
-### DIY Arduino Build Guides
-
-Considered the "legacy" guide to building your own solution using the Arduino platform.
-This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
-
-1. [Bill of Materials](BOM.md)
-
-1. [Power Requirements](POWER.md)
-
-1. [Compiling and Uploading the code](ARDUINO_FLASHING.md)
-
-1. [WAV Trigger Configuration](WAVTRIGGER.md)
-
-1. [Loading The Audio Files](AUDIO.md)
-
-1. [Pack Setup](PACK.md)
-
-1. [Wand Setup](WAND.md)
-
-1. [Hose Connections](HOSE.md)
-
----
-
 ### Addendums
 
 These apply to the normal operation and usage of the equipment regardless of which microcontroller boards you are using.
 
 1. [Operation Manual](OPERATION.md)
+
+1. [EEPROM Menu System](OPERATION_EEPROM.md)
 
 1. [Advanced Configuration](ADVCONFIG.md)
 
@@ -89,6 +68,35 @@ These apply to the normal operation and usage of the equipment regardless of whi
 1. [Pack Attenuator](ATTENUATOR.md) (Optional add-on)
 
 1. [Frequently Asked Questions](FAQ.md)
+
+---
+
+### Legacy DIY Arduino Build Guides
+
+Considered the "legacy" guide to building your own solution using Arduino microcontrollers.
+This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
+
+⚠️ **ATTENTION:**  Due to memory constraints on the ATMega328P chipset used in the Arduino Nano boards for the DIY Neutrona Wand builds, the last supported version for DIY builders is Release 2.2.0
+
+📝 **NOTE:** Please note that DIY Proton Pack builds are still supported in all future releases as long as you use a GPStar Neutrona Wand board in your Neutrona Wand.
+
+1. [Bill of Materials](BOM.md)
+
+1. [Power Requirements](POWER.md)
+
+1. [Compiling and Uploading the code](ARDUINO_FLASHING.md)
+
+1. [WAV Trigger Configuration](WAVTRIGGER.md)
+
+1. [Loading The Audio Files](AUDIO.md)
+
+1. [Pack Setup](PACK.md)
+
+1. [Wand Setup](WAND.md)
+
+1. [Hose Connections](HOSE.md)
+
+---
 
 ## Walkthrough Videos ##
 
