@@ -149,7 +149,7 @@ void loop() {
 
   if(b_wait_for_pack) {
     // Handshake with the pack. Telling the pack that we are here.
-    attenuatorSerialSend(A_HANDSHAKE);
+    attenuatorSerialSend(A_SYNC_START);
 
     // Synchronise some settings with the pack.
     checkPack();
@@ -1166,6 +1166,10 @@ void checkPack() {
               bargraphClear();
               BARGRAPH_PATTERN = BG_POWER_RAMP;
             }
+          break;
+
+          default:
+            // Nothing.
           break;
         }
 
