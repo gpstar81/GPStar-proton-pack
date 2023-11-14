@@ -7418,13 +7418,13 @@ void musicNextTrack() {
     i_temp_track++;
   }
 
-  i_current_music_track = i_temp_track;
-
   // Switch to the next track.
   if(b_playing_music == true) {
     // Stops music using the current track.
     stopMusic();
     packSerialSend(P_MUSIC_STOP);
+
+    i_current_music_track = i_temp_track;
 
     // Tell the wand which track to play.
     packSerialSend(i_current_music_track);
@@ -7432,6 +7432,12 @@ void musicNextTrack() {
     // Advance and begin playing the new track.
     playMusic();
     packSerialSend(P_MUSIC_START);
+  }
+  else {
+    i_current_music_track = i_temp_track;
+
+    // Tell the Neutrona Wand which track we switched to.
+    packSerialSend(i_current_music_track);
   }
 }
 
@@ -7447,14 +7453,14 @@ void musicPrevTrack() {
     i_temp_track--;
   }
 
-  // Advance and begin playing the new track.
-  i_current_music_track = i_temp_track;
-
   // Switch to the previous track.
   if(b_playing_music == true) {
     // Stops music using the current track.
     stopMusic();
     packSerialSend(P_MUSIC_STOP);
+
+    // Advance and begin playing the new track.
+    i_current_music_track = i_temp_track;
 
     // Tell the wand which track to play.
     packSerialSend(i_current_music_track);
@@ -7462,6 +7468,12 @@ void musicPrevTrack() {
     playMusic();
 
     packSerialSend(P_MUSIC_START);
+  }
+  else {
+    i_current_music_track = i_temp_track;
+
+    // Tell the Neutrona Wand which track we switched to.
+    packSerialSend(i_current_music_track);
   }
 }
 
@@ -8009,6 +8021,7 @@ unsigned long eepromCRC(void) {
   return crc;
 }
 
+
 void setupWavTrigger() {
   // If the controller is powering the WAV Trigger, we should wait for the WAV Trigger to finish reset before trying to send commands.
   delay(1000);
@@ -8020,7 +8033,7 @@ void setupWavTrigger() {
 
   w_trig.stopAllTracks();
   w_trig.samplerateOffset(0); // Reset our sample rate offset
-  w_trig.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
+  w_trig.masterGain(-30); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
   w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger
@@ -8033,7 +8046,7 @@ void setupWavTrigger() {
 
   // Build the music track count.
   i_music_count = w_num_tracks - i_last_effects_track;
-
+  
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
   }
