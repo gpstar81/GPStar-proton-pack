@@ -21,7 +21,7 @@
 /*
  * Pin for Addressable LEDs.
  */
-#define ATTENUATOR_LED_PIN 13
+#define ATTENUATOR_LED_PIN 9
 #define ATTENUATOR_NUM_LEDS 2
 CRGB attenuator_leds[ATTENUATOR_NUM_LEDS];
 
