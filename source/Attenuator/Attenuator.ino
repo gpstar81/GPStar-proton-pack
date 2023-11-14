@@ -750,18 +750,34 @@ void checkPack() {
 
             // Pack is on (via wand).
             b_pack_on = true;
+            b_wand_on = true;
 
             BARGRAPH_PATTERN = BG_POWER_RAMP;
           break;
 
           case A_PACK_OFF:
-          case A_WAND_OFF:
             #if defined(__XTENSA__)
               debug("Pack Off");
             #endif
 
             // Pack is off (directly or via the wand).
             b_pack_on = false;
+
+            if(BARGRAPH_STATE != BG_OFF) {
+              // If not already off, illuminate fully before ramp down.
+              bargraphFull();
+            }
+            BARGRAPH_PATTERN = BG_RAMP_DOWN;
+          break;
+
+          case A_WAND_OFF:
+            #if defined(__XTENSA__)
+              debug("Wand Off");
+            #endif
+
+            // Pack is off (directly or via the wand).
+            b_pack_on = false;
+            b_wand_on = false;
 
             if(BARGRAPH_STATE != BG_OFF) {
               // If not already off, illuminate fully before ramp down.
@@ -1068,6 +1084,7 @@ void checkPack() {
 
             b_firing = true; // Implies the wand is powered on.
             b_pack_on = true; // Implies the pack is powered on.
+            b_wand_on = true; // Implies the wand is powered on.
             ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
             bargraphClear();

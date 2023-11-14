@@ -286,7 +286,8 @@ String getStatus() {
   jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
   jsonDoc["power"] = getPower();
   jsonDoc["safety"] = getSafety();
-  jsonDoc["wand"] = getWandMode();
+  jsonDoc["wand"] = (b_wand_on ? "Powered" : "Idle");
+  jsonDoc["wandMode"] = getWandMode();
   jsonDoc["firing"] = (b_firing ? "Firing" : "Idle");
   jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
   jsonDoc["cyclotron"] = getCyclotronState();
@@ -304,13 +305,13 @@ void handleStatus(AsyncWebServerRequest *request) {
 }
 
 void handlePackOn(AsyncWebServerRequest *request) {
-  Serial.println("Turn Pack On");
+  debug("Turn Pack On");
   attenuatorSerialSend(A_TURN_PACK_ON);
   request->send(200, "application/json", "{}");
 }
 
 void handlePackOff(AsyncWebServerRequest *request) {
-  Serial.println("Turn Pack Off");
+  debug("Turn Pack Off");
   attenuatorSerialSend(A_TURN_PACK_OFF);
   request->send(200, "application/json", "{}");
 }
@@ -318,62 +319,62 @@ void handlePackOff(AsyncWebServerRequest *request) {
 void handleCancelWarning(AsyncWebServerRequest *request) {
   if(i_speed_multiplier > 1) {
     // Only send command to pack if cyclotron is not "normal".
-    Serial.println("Cancel Overheat Warning");
+    debug("Cancel Overheat Warning");
     attenuatorSerialSend(A_WARNING_CANCELLED);
   }
   request->send(200, "application/json", "{}");
 }
 
 void handleManualVent(AsyncWebServerRequest *request) {
-  Serial.println("Manual Vent Triggered");
+  debug("Manual Vent Triggered");
   attenuatorSerialSend(A_MANUAL_OVERHEAT);
   request->send(200, "application/json", "{}");
 }
 
 void handleToggleMute(AsyncWebServerRequest *request) {
-  Serial.println("Toggle Mute");
+  debug("Toggle Mute");
   attenuatorSerialSend(A_TOGGLE_MUTE);
   request->send(200, "application/json", "{}");
 }
 
 void handleMasterVolumeUp(AsyncWebServerRequest *request) {
-  Serial.println("Master Volume Up");
+  debug("Master Volume Up");
   attenuatorSerialSend(A_VOLUME_INCREASE);
   request->send(200, "application/json", "{}");
 }
 
 void handleMasterVolumeDown(AsyncWebServerRequest *request) {
-  Serial.println("Master Volume Down");
+  debug("Master Volume Down");
   attenuatorSerialSend(A_VOLUME_DECREASE);
   request->send(200, "application/json", "{}");
 }
 
 void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
-  Serial.println("Effects Volume Up");
+  debug("Effects Volume Up");
   attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
   request->send(200, "application/json", "{}");
 }
 
 void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
-  Serial.println("Effects Volume Down");
+  debug("Effects Volume Down");
   attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
   request->send(200, "application/json", "{}");
 }
 
 void handleMusicStartStop(AsyncWebServerRequest *request) {
-  Serial.println("Music Start/Stop");
+  debug("Music Start/Stop");
   attenuatorSerialSend(A_MUSIC_START_STOP);
   request->send(200, "application/json", "{}");
 }
 
 void handleNextMusicTrack(AsyncWebServerRequest *request) {
-  Serial.println("Next Music Track");
+  debug("Next Music Track");
   attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
   request->send(200, "application/json", "{}");
 }
 
 void handlePrevMusicTrack(AsyncWebServerRequest *request) {
-  Serial.println("Prev Music Track");
+  debug("Prev Music Track");
   attenuatorSerialSend(A_MUSIC_PREV_TRACK);
   request->send(200, "application/json", "{}");
 }
@@ -396,7 +397,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
 
 void handleNotFound(AsyncWebServerRequest *request) {
   // Returned for any invalid URL requested.
-  Serial.println("Web page not found");
+  debug("Web page not found");
   request->send(404, "text/plain", "Not Found");
 }
 

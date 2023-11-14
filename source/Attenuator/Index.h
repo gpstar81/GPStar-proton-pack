@@ -86,6 +86,13 @@ const char INDEX_page[] PROGMEM = R"=====(
       width: 100px;
     }
 
+    button:disabled,
+    button[disabled] {
+      border: 1px solid #999999 !important;
+      background-color: #cccccc !important;
+      color: #555 !important;
+    }
+
     input {
       border: 2px solid #333;
       border-radius: 4px;
@@ -202,17 +209,26 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("power").innerHTML = jObj.power || "...";
         document.getElementById("safety").innerHTML = jObj.safety || "...";
         document.getElementById("wand").innerHTML = jObj.wand || "...";
+        document.getElementById("wandMode").innerHTML = jObj.wandMode || "...";
         document.getElementById("firing").innerHTML = jObj.firing || "...";
         document.getElementById("cable").innerHTML = jObj.cable || "...";
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
 
         if (jObj.mode == "Original" && jObj.pack == "Powered") {
-          // Cannot turn off pack remotely if in mode Original and currently Powered.
+          // Cannot turn off pack remotely if in mode Original and pack is Powered.
           document.getElementById("btnPackOff").disabled = true;
         } else {
           // Otherwise, this should be allowed.
           document.getElementById("btnPackOff").disabled = false;
+        }
+
+        if (jObj.mode == "Super Hero" && jObj.wand == "Powered") {
+          // Can only use manual vent if mode Super Hero and wand is Powered.
+          document.getElementById("btnVent").disabled = false;
+        } else {
+          // Otherwise, this should NOT be allowed.
+          document.getElementById("btnVent").disabled = true;
         }
 
         if (jObj.musicStart > 0) {
@@ -387,13 +403,14 @@ const char INDEX_page[] PROGMEM = R"=====(
 <body>
   <h1>Equipment Status</h1>
   <div class="card">
-    <p><b>Arming Mode:</b> <span class="info" id="mode">&mdash;</span></p>
+    <p><b>System Mode:</b> <span class="info" id="mode">&mdash;</span></p>
     <p><b>Operating Mode:</b> <span class="info" id="theme">&mdash;</span></p>
     <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
     <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
     <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
     <p><b>Safety State:</b> <span class="info" id="safety">&mdash;</span></p>
-    <p><b>Wand Mode:</b> <span class="info" id="wand">&mdash;</span></p>
+    <p><b>Wand State:</b> <span class="info" id="wand">&mdash;</span></p>
+    <p><b>Wand Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
     <p><b>Neutrona Wand:</b> <span class="info" id="firing">&mdash;</span></p>
     <p><b>Ribbon Cable:</b> <span class="info" id="cable">&mdash;</span></p>
     <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
@@ -428,7 +445,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="green" onclick="packOn()" id="btnPackOn">Pack On</button>
     <br/>
     <br/>
-    <button type="button" class="orange" onclick="beginVenting()">Vent</button>
+    <button type="button" class="orange" onclick="beginVenting()" id="btnVent">Vent</button>
     &nbsp;&nbsp;
     <button type="button" class="blue" onclick="cancelWarning()">Attenuate</button>
   </div>
