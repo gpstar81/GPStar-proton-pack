@@ -4090,133 +4090,7 @@ void checkSerial1() {
 
     if(!serial1Coms.currentPacketID()) {
       if(dataStructR.i > 0 && dataStructR.s == A_COM_START && dataStructR.e == A_COM_END) {
-        if(b_serial1_connected != true) {
-          // Check if the Attenuator is telling us it is here after connecting it to the pack.
-          // Then synchronise some settings between the pack and the Attenuator.
-          if(dataStructR.i == A_HANDSHAKE) {
-            serial1Send(A_SYNC_START);
-
-            // Tell the Attenuator that the pack is here.
-            serial1Send(A_PACK_CONNECTED);
-
-            if(SYSTEM_YEAR == SYSTEM_1984) {
-              serial1Send(A_YEAR_1984);
-            }
-            else if(SYSTEM_YEAR == SYSTEM_1989) {
-              serial1Send(A_YEAR_1989);
-            }
-            /*
-            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              serial1Send(A_YEAR_FROZEN_EMPIRE);
-            }
-            */
-            else if(SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
-              serial1Send(A_YEAR_AFTERLIFE);
-            }
-
-            // Ribbon cable alarm.
-            if(b_alarm == true) {
-              serial1Send(A_ALARM_ON);
-            }
-            else {
-              serial1Send(A_ALARM_OFF);
-            }
-
-            // Pack status
-            if(PACK_STATE != MODE_OFF) {
-              serial1Send(A_PACK_ON);
-            }
-            else {
-              serial1Send(A_PACK_OFF);
-            }
-
-            // Send the current power level.
-            switch(i_wand_power_level) {
-              case 5:
-                serial1Send(A_POWER_LEVEL_5);
-              break;
-
-              case 4:
-                serial1Send(A_POWER_LEVEL_4);
-              break;
-
-              case 3:
-                serial1Send(A_POWER_LEVEL_3);
-              break;
-
-              case 2:
-                serial1Send(A_POWER_LEVEL_2);
-              break;
-
-              case 1:
-              default:
-                serial1Send(A_POWER_LEVEL_1);
-              break;
-            }
-
-            // Synchronise the firing modes.
-            switch(FIRING_MODE) {
-              case SLIME:
-                serial1Send(A_SLIME_MODE);
-              break;
-
-              case STASIS:
-                serial1Send(A_STASIS_MODE);
-              break;
-
-              case MESON:
-                serial1Send(A_MESON_MODE);
-              break;
-
-              case SPECTRAL:
-                serial1Send(A_SPECTRAL_MODE);
-              break;
-
-              case HOLIDAY:
-                serial1Send(A_HOLIDAY_MODE);
-              break;
-
-              case SPECTRAL_CUSTOM:
-                serial1Send(A_SPECTRAL_CUSTOM_MODE);
-              break;
-
-              case VENTING:
-                serial1Send(A_VENTING_MODE);
-              break;
-
-              case PROTON:
-              case SETTINGS:
-              default:
-                serial1Send(A_PROTON_MODE);
-              break;
-            }
-
-            serial1Send(A_SPECTRAL_COLOUR_DATA);
-
-            if(SYSTEM_MODE == MODE_SUPER_HERO) {
-              serial1Send(A_MODE_SUPER_HERO);
-            }
-            else {
-              serial1Send(A_MODE_ORIGINAL);
-            }
-
-            if(switch_power.getState() == LOW) {
-              // Tell the Attenuator or any other device that the power to the Proton Pack is on.
-              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
-            }
-            else {
-              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
-            }
-
-            serial1Send(A_MUSIC_TRACK_COUNT_SYNC);
-
-            b_serial1_connected = true;
-
-            serial1Send(A_SYNC_END);
-          }
-        }
-        else {
+        if(b_serial1_connected == true) {
           switch(dataStructR.i) {
             case A_HANDSHAKE:
               // The Attenuator is still here.
@@ -4342,6 +4216,14 @@ void checkSerial1() {
               musicPrevTrack();
             break;
 
+            case A_SYNC_START:
+              b_serial1_connected = false;
+            break;
+
+            case A_SYNC_END:
+              b_serial1_connected = false;
+            break;
+
             default:
               // Music track number to be played.
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
@@ -4358,6 +4240,132 @@ void checkSerial1() {
                 }
               }
             break;
+          }          
+        }
+        else {
+          // Check if the Attenuator is telling us it is here after connecting it to the pack.
+          // Then synchronise some settings between the pack and the Attenuator.
+          if(dataStructR.i == A_SYNC_START) {
+            serial1Send(A_SYNC_START);
+
+            // Tell the Attenuator that the pack is here.
+            serial1Send(A_PACK_CONNECTED);
+
+            if(SYSTEM_YEAR == SYSTEM_1984) {
+              serial1Send(A_YEAR_1984);
+            }
+            else if(SYSTEM_YEAR == SYSTEM_1989) {
+              serial1Send(A_YEAR_1989);
+            }
+            /*
+            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              serial1Send(A_YEAR_FROZEN_EMPIRE);
+            }
+            */
+            else if(SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
+              serial1Send(A_YEAR_AFTERLIFE);
+            }
+
+            // Ribbon cable alarm.
+            if(b_alarm == true) {
+              serial1Send(A_ALARM_ON);
+            }
+            else {
+              serial1Send(A_ALARM_OFF);
+            }
+
+            // Pack status
+            if(PACK_STATE != MODE_OFF) {
+              serial1Send(A_PACK_ON);
+            }
+            else {
+              serial1Send(A_PACK_OFF);
+            }
+
+            // Send the current power level.
+            switch(i_wand_power_level) {
+              case 5:
+                serial1Send(A_POWER_LEVEL_5);
+              break;
+
+              case 4:
+                serial1Send(A_POWER_LEVEL_4);
+              break;
+
+              case 3:
+                serial1Send(A_POWER_LEVEL_3);
+              break;
+
+              case 2:
+                serial1Send(A_POWER_LEVEL_2);
+              break;
+
+              case 1:
+              default:
+                serial1Send(A_POWER_LEVEL_1);
+              break;
+            }
+
+            // Synchronise the firing modes.
+            switch(FIRING_MODE) {
+              case SLIME:
+                serial1Send(A_SLIME_MODE);
+              break;
+
+              case STASIS:
+                serial1Send(A_STASIS_MODE);
+              break;
+
+              case MESON:
+                serial1Send(A_MESON_MODE);
+              break;
+
+              case SPECTRAL:
+                serial1Send(A_SPECTRAL_MODE);
+              break;
+
+              case HOLIDAY:
+                serial1Send(A_HOLIDAY_MODE);
+              break;
+
+              case SPECTRAL_CUSTOM:
+                serial1Send(A_SPECTRAL_CUSTOM_MODE);
+              break;
+
+              case VENTING:
+                serial1Send(A_VENTING_MODE);
+              break;
+
+              case PROTON:
+              case SETTINGS:
+              default:
+                serial1Send(A_PROTON_MODE);
+              break;
+            }
+
+            serial1Send(A_SPECTRAL_COLOUR_DATA);
+
+            if(SYSTEM_MODE == MODE_SUPER_HERO) {
+              serial1Send(A_MODE_SUPER_HERO);
+            }
+            else {
+              serial1Send(A_MODE_ORIGINAL);
+            }
+
+            if(switch_power.getState() == LOW) {
+              // Tell the Attenuator or any other device that the power to the Proton Pack is on.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
+            }
+            else {
+              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+            }
+
+            serial1Send(A_MUSIC_TRACK_COUNT_SYNC);
+
+            b_serial1_connected = true;
+
+            serial1Send(A_SYNC_END);
           }
         }
       }
@@ -7078,22 +7086,20 @@ void checkWand() {
 }
 
 void serial1Send(int i_message) {
-  if(b_serial1_connected == true || i_message == A_HANDSHAKE) {
-    dataStruct.s = A_COM_START;
-    dataStruct.i = i_message;
+  dataStruct.s = A_COM_START;
+  dataStruct.i = i_message;
 
-    if(i_message == A_SPECTRAL_CUSTOM_MODE || i_message == A_SPECTRAL_COLOUR_DATA) {
-      dataStruct.d1 = i_spectral_cyclotron_custom;
-      dataStruct.d2 = i_spectral_cyclotron_custom_saturation;
-    }
-    else if(i_message == A_MUSIC_TRACK_COUNT_SYNC) {
-      dataStruct.d1 = i_music_count;
-    }
-
-    dataStruct.e = A_COM_END;
-
-    serial1Coms.sendDatum(dataStruct);
+  if(i_message == A_SPECTRAL_CUSTOM_MODE || i_message == A_SPECTRAL_COLOUR_DATA) {
+    dataStruct.d1 = i_spectral_cyclotron_custom;
+    dataStruct.d2 = i_spectral_cyclotron_custom_saturation;
   }
+  else if(i_message == A_MUSIC_TRACK_COUNT_SYNC) {
+    dataStruct.d1 = i_music_count;
+  }
+
+  dataStruct.e = A_COM_END;
+
+  serial1Coms.sendDatum(dataStruct);
 }
 
 void packSerialSend(int i_message) {

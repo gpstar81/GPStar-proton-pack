@@ -33,11 +33,22 @@
 #include "Colours.h"
 #include "Bargraph.h"
 
+/*
+// Used for Serial debugging on a ATMega328P
+// TX = 9
+// RX = 8
+#include <AltSoftSerial.h>
+AltSoftSerial altSerial;
+*/
+
 void setup() {
   Serial.begin(9600);
+  //altSerial.begin(9600);
 
   // Enable Serial connection for communication with gpstar Proton Pack PCB.
   packComs.begin(Serial);
+  //packComs.begin(altSerial);
+
 
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
@@ -92,9 +103,9 @@ void setup() {
 }
 
 void loop() {
-  if(b_wait_for_pack) {
+  if(b_wait_for_pack == true) {
     // Handshake with the pack. Telling the pack that we are here.
-    attenuatorSerialSend(A_HANDSHAKE);
+    attenuatorSerialSend(A_SYNC_START);
 
     // Synchronise some settings with the pack.
     checkPack();
@@ -516,13 +527,11 @@ void checkPack() {
   // Pack communication to the Attenuator device.
   if(packComs.available()) {
     packComs.rxObj(comStruct);
-
     if(!packComs.currentPacketID()) {
       if(comStruct.i > 0 && comStruct.s == A_COM_START && comStruct.e == A_COM_END) {
         // Use the passed communication flag to set the proper state for this device.
         switch(comStruct.i) {
           case A_SYNC_START:
-            b_wait_for_pack = true;
             i_speed_multiplier = 1;
           break;
 
@@ -766,6 +775,10 @@ void checkPack() {
               bargraphClear();
               BARGRAPH_PATTERN = BG_POWER_RAMP;
             }
+          break;
+
+          default:
+            // Nothing.
           break;
         }
       }
