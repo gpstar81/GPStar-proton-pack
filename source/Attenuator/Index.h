@@ -141,6 +141,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     var gateway = "ws://" + hostname + "/ws";
     var websocket;
     var statusInterval;
+    var musicTrackMax = 0;
 
     window.addEventListener("load", onLoad);
 
@@ -231,7 +232,9 @@ const char INDEX_page[] PROGMEM = R"=====(
           document.getElementById("btnVent").disabled = true;
         }
 
-        if (jObj.musicStart > 0) {
+        if (jObj.musicStart > 0 && jObj.musicEnd > jObj.musicStart && musicTrackMax != jObj.musicEnd) {
+          // Proceed if we have a starting track and valid end track.
+          musicTrackMax = jObj.musicEnd;
           var trackList = document.getElementById("tracks");
           removeOptions(trackList);
           for (var i = jObj.musicStart; i <= jObj.musicEnd; i++) {
