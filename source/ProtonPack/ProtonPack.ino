@@ -7418,13 +7418,13 @@ void musicNextTrack() {
     i_temp_track++;
   }
 
-  i_current_music_track = i_temp_track;
-
   // Switch to the next track.
   if(b_playing_music == true) {
     // Stops music using the current track.
     stopMusic();
     packSerialSend(P_MUSIC_STOP);
+
+    i_current_music_track = i_temp_track;
 
     // Tell the wand which track to play.
     packSerialSend(i_current_music_track);
@@ -7432,6 +7432,12 @@ void musicNextTrack() {
     // Advance and begin playing the new track.
     playMusic();
     packSerialSend(P_MUSIC_START);
+  }
+  else {
+    i_current_music_track = i_temp_track;
+
+    // Tell the Neutrona Wand which track we switched to.
+    packSerialSend(i_current_music_track);
   }
 }
 
@@ -7447,14 +7453,14 @@ void musicPrevTrack() {
     i_temp_track--;
   }
 
-  // Advance and begin playing the new track.
-  i_current_music_track = i_temp_track;
-
   // Switch to the previous track.
   if(b_playing_music == true) {
     // Stops music using the current track.
     stopMusic();
     packSerialSend(P_MUSIC_STOP);
+
+    // Advance and begin playing the new track.
+    i_current_music_track = i_temp_track;
 
     // Tell the wand which track to play.
     packSerialSend(i_current_music_track);
@@ -7462,6 +7468,12 @@ void musicPrevTrack() {
     playMusic();
 
     packSerialSend(P_MUSIC_START);
+  }
+  else {
+    i_current_music_track = i_temp_track;
+
+    // Tell the Neutrona Wand which track we switched to.
+    packSerialSend(i_current_music_track);
   }
 }
 
@@ -8008,6 +8020,7 @@ unsigned long eepromCRC(void) {
 
   return crc;
 }
+
 
 void setupWavTrigger() {
   // If the controller is powering the WAV Trigger, we should wait for the WAV Trigger to finish reset before trying to send commands.
