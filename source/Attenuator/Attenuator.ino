@@ -569,13 +569,17 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
-          Serial.println("Changed to Menu 2");
+          #if defined(__XTENSA__)
+            debug("Changed to Menu 2");
+          #endif
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
-          Serial.println("Changed to Menu 1");
+          #if defined(__XTENSA__)
+            debug("Changed to Menu 1");
+          #endif
           useVibration(i_vibrate_max_time); // Give a long nudge.
           buzzOn(440); // Tone as note A4
         break;

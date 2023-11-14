@@ -404,17 +404,19 @@ const char INDEX_page[] PROGMEM = R"=====(
   <h1>Equipment Status</h1>
   <div class="card">
     <p><b>System Mode:</b> <span class="info" id="mode">&mdash;</span></p>
-    <p><b>Operating Mode:</b> <span class="info" id="theme">&mdash;</span></p>
-    <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
+    <p><b>Theme Mode:</b> <span class="info" id="theme">&mdash;</span></p>
+    <br/>
     <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
-    <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
-    <p><b>Safety State:</b> <span class="info" id="safety">&mdash;</span></p>
-    <p><b>Wand State:</b> <span class="info" id="wand">&mdash;</span></p>
-    <p><b>Wand Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
-    <p><b>Neutrona Wand:</b> <span class="info" id="firing">&mdash;</span></p>
+    <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
     <p><b>Ribbon Cable:</b> <span class="info" id="cable">&mdash;</span></p>
     <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
     <p><b>Overheat State:</b> <span class="info" id="temperature">&mdash;</span></p>
+    <br/>
+    <p><b>Wand State:</b> <span class="info" id="wand">&mdash;</span></p>
+    <p><b>Wand Armed:</b> <span class="info" id="safety">&mdash;</span></p>
+    <p><b>Wand Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
+    <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
+    <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
   </div>
 
   <h1>Audio Controls</h1>
