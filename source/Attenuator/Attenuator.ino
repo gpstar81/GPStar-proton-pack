@@ -87,13 +87,13 @@ void setup() {
   pinMode(r_encoderB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
-  // Feedback devices (piezo buzzer and vibration motor)
-  pinMode(BUZZER_PIN, OUTPUT);
-  pinMode(VIBRATION_PIN, OUTPUT);
-
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
+
+  // Feedback devices (piezo buzzer and vibration motor)
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(VIBRATION_PIN, OUTPUT);
 
   // Turn off any user feedback.
   noTone(BUZZER_PIN);
@@ -123,7 +123,7 @@ void mainLoop() {
   checkRotaryEncoder();
 
   /*
-   * Left Toggle
+   * Left Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
    *
    * Paired:
    * When paired with the gpstar Proton Pack controller, will turn the
@@ -164,7 +164,7 @@ void mainLoop() {
   }
 
   /*
-   * Right Toggle
+   * Right Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
    *
    * The right toggle activates the LEDs on the device manually.
    *
@@ -421,10 +421,10 @@ void checkRotaryPress() {
 void readEncoder() {
   // Determines if encoder was turned CW or CCW.
   if(digitalRead(r_encoderA) == digitalRead(r_encoderB)) {
-    i_encoder_pos++;
+    i_encoder_pos++; // Clockwise
   }
   else {
-    i_encoder_pos--;
+    i_encoder_pos--; // Counter-clockwise
   }
 
   i_val_rotary = i_encoder_pos / 2.5;
@@ -441,7 +441,7 @@ void checkRotaryEncoder() {
     if(!ms_rotary_debounce.isRunning()) {
       if(b_firing && i_speed_multiplier > 1) {
         // Tell the pack to cancel the current overheat warning.
-        // Only do so after 5 turns of the dial.
+        // Only do so after 5 turns of the dial (CW).
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
@@ -472,7 +472,7 @@ void checkRotaryEncoder() {
     if(!ms_rotary_debounce.isRunning()) {
       if(b_firing && i_speed_multiplier > 1) {
         // Tell the pack to cancel the current overheat warning.
-        // Only do so after 5 turns of the dial.
+        // Only do so after 5 turns of the dial (CCW).
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
@@ -498,7 +498,7 @@ void checkRotaryEncoder() {
     }
   }
 
-  // Remember the last rotary value.
+  // Remember the last rotary value for comparison later.
   i_last_val_rotary = i_val_rotary;
 
   if(ms_rotary_debounce.justFinished()) {
@@ -525,6 +525,7 @@ void checkPack() {
   // Pack communication to the Attenuator device.
   if(packComs.available()) {
     packComs.rxObj(comStruct);
+
     if(!packComs.currentPacketID()) {
       if(comStruct.i > 0 && comStruct.s == A_COM_START && comStruct.e == A_COM_END) {
         // Use the passed communication flag to set the proper state for this device.
@@ -540,6 +541,7 @@ void checkPack() {
           break;
 
           case A_PACK_ON:
+          case A_WAND_ON:
             // Pack is on.
             b_pack_on = true;
 
@@ -547,6 +549,7 @@ void checkPack() {
           break;
 
           case A_PACK_OFF:
+          case A_WAND_OFF:
             // Pack is off.
             b_pack_on = false;
 

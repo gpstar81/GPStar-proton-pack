@@ -84,7 +84,7 @@ uint16_t track;
       if (dat == SOM1 || dat == SOM2 || dat == EOM) {
         rxCount = 0;
         //Serial.print("Bad msg \n");
-      }   
+      }
       else if (dat <= MAX_MESSAGE_LEN) {
         rxCount++;
         rxLen = dat - 1;
@@ -98,7 +98,7 @@ uint16_t track;
       if (dat == SOM1 || dat == SOM2 || dat == EOM) {
         rxCount = 0;
         //Serial.print("Bad msg \n");
-      }   
+      }
       else {
         rxMessage[rxCount - 3] = dat;
         rxCount++;
@@ -211,7 +211,7 @@ bool wavTrigger::currentMusicTrackStatus(int trk) {
       return true;
     }
   }
-  
+
   //Serial.println("Not playing");
 
   return false;
@@ -325,37 +325,37 @@ int wavTrigger::getNumTracks(void) {
 
 // **************************************************************
 void wavTrigger::trackPlaySolo(int trk) {
-  
+
   trackControl(trk, TRK_PLAY_SOLO);
 }
 
 // **************************************************************
 void wavTrigger::trackPlaySolo(int trk, bool lock) {
-  
+
   trackControl(trk, TRK_PLAY_SOLO, lock);
 }
 
 // **************************************************************
 void wavTrigger::trackPlayPoly(int trk) {
-  
+
   trackControl(trk, TRK_PLAY_POLY);
 }
 
 // **************************************************************
 void wavTrigger::trackPlayPoly(int trk, bool lock) {
-  
+
   trackControl(trk, TRK_PLAY_POLY, lock);
 }
 
 // **************************************************************
 void wavTrigger::trackLoad(int trk) {
-  
+
   trackControl(trk, TRK_LOAD);
 }
 
 // **************************************************************
 void wavTrigger::trackLoad(int trk, bool lock) {
-  
+
   trackControl(trk, TRK_LOAD, lock);
 }
 
@@ -379,7 +379,7 @@ void wavTrigger::trackResume(int trk) {
 
 // **************************************************************
 void wavTrigger::trackLoop(int trk, bool enable) {
- 
+
   if (enable)
     trackControl(trk, TRK_LOOP_ON);
   else
@@ -388,7 +388,7 @@ void wavTrigger::trackLoop(int trk, bool enable) {
 
 // **************************************************************
 void wavTrigger::trackControl(int trk, int code) {
-  
+
 uint8_t txbuf[8];
 
   txbuf[0] = SOM1;
@@ -404,7 +404,7 @@ uint8_t txbuf[8];
 
 // **************************************************************
 void wavTrigger::trackControl(int trk, int code, bool lock) {
-  
+
 uint8_t txbuf[9];
 
   txbuf[0] = SOM1;

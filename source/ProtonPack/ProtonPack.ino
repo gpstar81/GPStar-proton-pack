@@ -3986,7 +3986,7 @@ void serial1HandShake() {
       ms_serial1_handshake.start(i_serial1_handshake_delay);
 
       b_serial1_connected = false;
-     
+
       // Where are you Attenuator?
       serial1Send(A_HANDSHAKE);
     }
@@ -4240,7 +4240,7 @@ void checkSerial1() {
                 }
               }
             break;
-          }          
+          }
         }
         else {
           // Check if the Attenuator is telling us it is here after connecting it to the pack.
@@ -8058,7 +8058,7 @@ void setupWavTrigger() {
 
   // Build the music track count.
   i_music_count = w_num_tracks - i_last_effects_track;
-  
+
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
   }

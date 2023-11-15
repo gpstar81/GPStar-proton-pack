@@ -9997,7 +9997,7 @@ void playMusic() {
 
     w_trig.trackGain(i_current_music_track, i_volume_music);
     w_trig.trackPlayPoly(i_current_music_track, true);
-  
+
     w_trig.update();
   }
 }
