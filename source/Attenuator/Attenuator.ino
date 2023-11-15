@@ -1,5 +1,5 @@
 /**
- *   gpstar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -32,12 +32,25 @@
 #include "Header.h"
 #include "Colours.h"
 #include "Bargraph.h"
+/**
+ * Used for Serial debugging on a ATMega328P
+ * TX = 9
+ * RX = 8
+ *
+ * Must change the MAX_PACKET_SIZE in Packet.h from 0xFE to 0x90
+ */
+/*
+#include <AltSoftSerial.h>
+AltSoftSerial altSerial;
+*/
 
 void setup() {
   Serial.begin(9600);
+  //altSerial.begin(9600);
 
-  // Enable Serial connection for communication with gpstar Proton Pack PCB.
+  // Enable Serial connection for communication with GPStar Proton Pack PCB.
   packComs.begin(Serial);
+  //packComs.begin(altSerial);
 
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
@@ -75,13 +88,13 @@ void setup() {
   pinMode(r_encoderB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
-  // Feedback devices (piezo buzzer and vibration motor)
-  pinMode(BUZZER_PIN, OUTPUT);
-  pinMode(VIBRATION_PIN, OUTPUT);
-
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
+
+  // Feedback devices (piezo buzzer and vibration motor)
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(VIBRATION_PIN, OUTPUT);
 
   // Turn off any user feedback.
   noTone(BUZZER_PIN);
@@ -92,11 +105,8 @@ void setup() {
 }
 
 void loop() {
-  if(b_wait_for_pack) {
-    // Handshake with the pack. Telling the pack that we are here.
-    attenuatorSerialSend(A_HANDSHAKE);
-
-    // Synchronise some settings with the pack.
+  if(b_wait_for_pack == true) {
+    // Wait for communication from the pack.
     checkPack();
 
     delay(10);
@@ -114,7 +124,7 @@ void mainLoop() {
   checkRotaryEncoder();
 
   /*
-   * Left Toggle
+   * Left Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
    *
    * Paired:
    * When paired with the gpstar Proton Pack controller, will turn the
@@ -155,7 +165,7 @@ void mainLoop() {
   }
 
   /*
-   * Right Toggle
+   * Right Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
    *
    * The right toggle activates the LEDs on the device manually.
    *
@@ -341,6 +351,16 @@ void checkRotaryPress() {
     }
   }
 
+  /*
+    See A_MUSIC_PAUSE_RESUME for pausing and resuming music tracks.
+
+    Music track listing is now synced, the track count can be found with the: i_music_track_count
+
+    To tell the system to play the track you want, just send the track number to the Proton Pack. Make sure to add 500 to the i_music_track count.
+    For example:
+
+    attenuatorSerialSend(5 + 500); // This will tell the Proton Pack to play music track #5.
+  */
   switch(CENTER_STATE) {
     case SHORT_PRESS:
       // Perform action for short press based on current menu level.
@@ -402,10 +422,10 @@ void checkRotaryPress() {
 void readEncoder() {
   // Determines if encoder was turned CW or CCW.
   if(digitalRead(r_encoderA) == digitalRead(r_encoderB)) {
-    i_encoder_pos++;
+    i_encoder_pos++; // Clockwise
   }
   else {
-    i_encoder_pos--;
+    i_encoder_pos--; // Counter-clockwise
   }
 
   i_val_rotary = i_encoder_pos / 2.5;
@@ -422,7 +442,7 @@ void checkRotaryEncoder() {
     if(!ms_rotary_debounce.isRunning()) {
       if(b_firing && i_speed_multiplier > 1) {
         // Tell the pack to cancel the current overheat warning.
-        // Only do so after 5 turns of the dial.
+        // Only do so after 5 turns of the dial (CW).
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
@@ -453,7 +473,7 @@ void checkRotaryEncoder() {
     if(!ms_rotary_debounce.isRunning()) {
       if(b_firing && i_speed_multiplier > 1) {
         // Tell the pack to cancel the current overheat warning.
-        // Only do so after 5 turns of the dial.
+        // Only do so after 5 turns of the dial (CCW).
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
@@ -479,7 +499,7 @@ void checkRotaryEncoder() {
     }
   }
 
-  // Remember the last rotary value.
+  // Remember the last rotary value for comparison later.
   i_last_val_rotary = i_val_rotary;
 
   if(ms_rotary_debounce.justFinished()) {
@@ -512,15 +532,17 @@ void checkPack() {
         // Use the passed communication flag to set the proper state for this device.
         switch(comStruct.i) {
           case A_SYNC_START:
-            b_wait_for_pack = true;
             i_speed_multiplier = 1;
+            b_a_sync_start = true;
           break;
 
           case A_SYNC_END:
             b_wait_for_pack = false;
+            b_a_sync_start = false;
           break;
 
           case A_PACK_ON:
+          case A_WAND_ON:
             // Pack is on.
             b_pack_on = true;
 
@@ -528,6 +550,7 @@ void checkPack() {
           break;
 
           case A_PACK_OFF:
+          case A_WAND_OFF:
             // Pack is off.
             b_pack_on = false;
 
@@ -538,13 +561,41 @@ void checkPack() {
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
+          case A_MUSIC_TRACK_COUNT_SYNC:
+            if(comStruct.d1 > 0) {
+              i_music_track_count = comStruct.d1;
+            }
+          break;
+
           case A_PACK_CONNECTED:
             // The Proton Pack is connected.
           break;
 
           case A_HANDSHAKE:
-            // The pack is asking us if we are still here. Respond back.
-            attenuatorSerialSend(A_HANDSHAKE);
+            if(b_wait_for_pack == true && b_a_sync_start != true) {
+              b_a_sync_start = true;
+              attenuatorSerialSend(A_SYNC_START);
+            }
+            else if(b_a_sync_start != true) {
+              // The pack is asking us if we are still here. Respond back.
+              attenuatorSerialSend(A_HANDSHAKE);
+            }
+          break;
+
+          case A_MODE_SUPER_HERO:
+            // The pack and wand are in the superhero mode.
+          break;
+
+          case A_MODE_ORIGINAL:
+            // The pack and wand are in the original mode.
+          break;
+
+          case A_MODE_ORIGINAL_RED_SWITCH_ON:
+            // The proton pack red switch is on and has power (no cyclotron powered up yet).
+          break;
+
+          case A_MODE_ORIGINAL_RED_SWITCH_OFF:
+            // The proton pack red switch is off. This will cause a total system shutdown.
           break;
 
           case A_YEAR_1984:
@@ -713,6 +764,14 @@ void checkPack() {
             i_speed_multiplier++;
           break;
 
+          case A_BARREL_EXTENDED:
+            // Neutrona Wand Barrel is extended.
+          break;
+
+          case A_BARREL_RETRACTED:
+            // Neutrona Wand Barrel is retracted.
+          break;
+
           case A_CYCLOTRON_NORMAL_SPEED:
             i_speed_multiplier = 1;
 
@@ -726,6 +785,10 @@ void checkPack() {
               bargraphClear();
               BARGRAPH_PATTERN = BG_POWER_RAMP;
             }
+          break;
+
+          default:
+            // Nothing.
           break;
         }
       }

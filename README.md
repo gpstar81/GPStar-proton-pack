@@ -1,4 +1,4 @@
-<h1><img src='images/gpstar_logo.png' width=50 align="left"/>gpstar Proton Pack and Neutrona Wand</h1>
+<h1><img src='images/gpstar_logo.png' width=50 align="left"/>GPStar Proton Pack and Neutrona Wand</h1>
 
 <h3>Microcontroller Replacements for the HasLab Plasma Series Proton Pack and Neutrona Wand</h3>
 
@@ -23,7 +23,7 @@ That's alright, this will help you study. Below you will find the various guides
 
 ---
 
-<img src='images/gpstar_logo.png' width=50 align="left"/><h3>gpstar Proton Pack and Neutrona Wand PCB Guide</h3>This guide is intended for completing the connections and installation for the gpstar Proton Pack and Neutrona Wand PCB boards.
+<img src='images/gpstar_logo.png' width=50 align="left"/><h3>GPStar Proton Pack and Neutrona Wand PCB Guide</h3>This guide is intended for completing the connections and installation for the GPStar Proton Pack and Neutrona Wand PCB boards.
 
 1. [Pack PCB](PACK_PCB.md)
 
@@ -39,34 +39,13 @@ That's alright, this will help you study. Below you will find the various guides
 
 ---
 
-### DIY Arduino Build Guides
-
-Considered the "legacy" guide to building your own solution using the Arduino platform.
-This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
-
-1. [Bill of Materials](BOM.md)
-
-1. [Power Requirements](POWER.md)
-
-1. [Compiling and Uploading the code](ARDUINO_FLASHING.md)
-
-1. [WAV Trigger Configuration](WAVTRIGGER.md)
-
-1. [Loading The Audio Files](AUDIO.md)
-
-1. [Pack Setup](PACK.md)
-
-1. [Wand Setup](WAND.md)
-
-1. [Hose Connections](HOSE.md)
-
----
-
 ### Addendums
 
 These apply to the normal operation and usage of the equipment regardless of which microcontroller boards you are using.
 
 1. [Operation Manual](OPERATION.md)
+
+1. [EEPROM Menu System](OPERATION_EEPROM.md)
 
 1. [Advanced Configuration](ADVCONFIG.md)
 
@@ -90,6 +69,35 @@ These apply to the normal operation and usage of the equipment regardless of whi
 
 1. [Frequently Asked Questions](FAQ.md)
 
+---
+
+### Legacy DIY Arduino Build Guides
+
+Considered the "legacy" guide to building your own solution using Arduino microcontrollers.
+This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
+
+⚠️ **ATTENTION:**  Due to memory constraints on the ATMega328P chipset used in the Arduino Nano boards for the DIY Neutrona Wand builds, the last supported version for DIY builders is Release 2.2.0
+
+📝 **NOTE:** Please note that DIY Proton Pack builds are still supported in all future releases as long as you use a GPStar Neutrona Wand board in your Neutrona Wand.
+
+1. [Bill of Materials](BOM.md)
+
+1. [Power Requirements](POWER.md)
+
+1. [Compiling and Uploading the code](ARDUINO_FLASHING.md)
+
+1. [WAV Trigger Configuration](WAVTRIGGER.md)
+
+1. [Loading The Audio Files](AUDIO.md)
+
+1. [Pack Setup](PACK.md)
+
+1. [Wand Setup](WAND.md)
+
+1. [Hose Connections](HOSE.md)
+
+---
+
 ## Walkthrough Videos ##
 
 *"You know, it just occurred to me that we really haven't had a successful test of this equipment." -Ray Stantz*
@@ -97,7 +105,7 @@ These apply to the normal operation and usage of the equipment regardless of whi
 Except that we have! Here is a [Walkthrough Video Contributed by JustinDustin](https://www.youtube.com/watch?v=mnfljGd5-uU) (YouTube, March 2023) showcasing several of the stock features in a converted pack/wand combination. Several optional features were implemented as part of this build using the Arduino platform.
 [![Haslab Proton Pack Arduino Powered Walkthrough Video](https://img.youtube.com/vi/mnfljGd5-uU/maxresdefault.jpg)](https://www.youtube.com/watch?v=mnfljGd5-uU)
 
-Additionally, this video covers several new updates in the months since, using the new gpstar controllers, as the [Optional Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube, July 2023).
+Additionally, this video covers several new updates in the months since, using the new GPStar controllers, as the [Optional Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube, July 2023).
 [![Optional Features and Menu Walkthrough Video](https://img.youtube.com/vi/ePXz99UawLQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=mnfljGd5-uU)
 
 ## Viewing MD Files
@@ -124,7 +132,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 This project is made possible by Ghostbusters community makers and volunteers spanning 4 countries over 2 continents.
 
-* Michael Rajotte (aka. "gpstar Technologies") - Director of Operations, Software Architect, Product Designer, 3D Modelling, EU & Worldwide Distribution
+* Michael Rajotte (aka. "GPStar Technologies") - Director of Operations, Software Architect, Product Designer, 3D Modelling, EU & Worldwide Distribution
 * Jonathan Gunn (aka. "Jonogunn") - Video Instruction Guides, PCB Design, Install Testing, North America Distribution
 * Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support
 * Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution

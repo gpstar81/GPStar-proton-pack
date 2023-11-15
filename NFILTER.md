@@ -1,6 +1,6 @@
 # N-Filter Vent Light
 
-Written in the code is support for chaining 1 NeoPixel Jewel off the last LED in the Cyclotron Lid (see photos below) (**NOTE: This can be chained off any addressable LEDs, for example if you add a NeoPixel ring in your Cyclotron Lid**). This NeoPixel jewel is timed to go off during overheating or anytime the pack is activating the smoke pins. 
+Written in the code is support for chaining 1 NeoPixel Jewel off the last LED in the Cyclotron Lid (see photos below) (**NOTE: This can be chained off any addressable LEDs, for example if you add a NeoPixel ring in your Cyclotron Lid**). This NeoPixel jewel is timed to go off during overheating or anytime the pack is activating the smoke pins.
 
 To access the Cyclotron LED, you will have to take apart the Cyclotron Lid. There are several plastic tabs that are glued. When taking apart the lid, you will end up either breaking the tabs or the glue bonds. KEEP THIS IN MIND IF YOU DO THIS MOD.
 

@@ -1,5 +1,5 @@
 /**
- *   gpstar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -45,6 +45,7 @@ bool b_buzzer_on = false;
 bool b_vibrate_on = false;
 const unsigned int i_buzz_max = 200; // Longest duration for a standalone "beep".
 const unsigned int i_vibrate_max = 1000; // Max runtime for the vibration motor.
+bool b_a_sync_start = false;
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -75,10 +76,11 @@ bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph devi
 int i_bargraph_element = 0; // Indicates current LED element for adjustment.
 millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
+// Define Wire object for the i2c bus.
+#define WIRE Wire
+
 // Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
 uint8_t i_speed_multiplier = 1;
-
-#define WIRE Wire
 
 /*
  * Barmeter 28 segment bargraph mapping: allows accessing elements sequentially (0-27)
@@ -97,8 +99,8 @@ uint8_t i_speed_multiplier = 1;
 enum YEAR_MODES { YEAR_1984, YEAR_1989, YEAR_2021 };
 enum YEAR_MODES YEAR_MODE;
 
-/* 
- *  Wand Firing Modes + Settings
+/*
+ * Wand Firing Modes + Settings
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
@@ -106,7 +108,7 @@ enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
 enum POWER_LEVELS POWER_LEVEL;
 enum POWER_LEVELS POWER_LEVEL_PREV;
 
-/* 
+/*
  * Toggle Switches
  * Will be pulled LOW (down position) when considered "active".
  */
@@ -117,9 +119,9 @@ ezButton switch_right(6);
  * Debounce Settings
  */
 const uint8_t switch_debounce_time = 50;
-const uint8_t rotary_debounce_time = 80;
+const uint8_t rotary_debounce_time = 100;
 
-/* 
+/*
  * Rotary encoder for various uses.
  */
 #define r_encoderA 2
@@ -138,6 +140,11 @@ int i_last_val_rotary;
 int i_rotary_count = 0;
 
 /*
+ * Music Track listing count.
+ */
+int i_music_track_count = 0;
+
+/*
  * Define states for the rotary dial center press.
  */
 enum CENTER_STATES { NO_ACTION, SHORT_PRESS, DOUBLE_PRESS, LONG_PRESS };
@@ -145,25 +152,25 @@ enum CENTER_STATES CENTER_STATE;
 enum MENU_LEVELS { MENU_1, MENU_2 };
 enum MENU_LEVELS MENU_LEVEL;
 
-/* 
+/*
  * Pack Communication
  */
 SerialTransfer packComs;
 
 struct __attribute__((packed)) STRUCT {
-  int s;
-  int i;
-  int d1;
-  int d2;
-  int e;
+  uint16_t s;
+  uint16_t i;
+  uint16_t d1; // Data 1
+  uint16_t d2; // Data 2
+  uint16_t e;
 } comStruct;
 
 struct __attribute__((packed)) STRUCTSEND {
-  int s;
-  int i;
-  int d1;
-  int d2;
-  int e;
+  uint16_t s;
+  uint16_t i;
+  uint16_t d1; // Data 1
+  uint16_t d2; // Data 2
+  uint16_t e;
 } sendStruct;
 
 /*

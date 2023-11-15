@@ -1,5 +1,7 @@
 # Neutrona Wand Setup
 
+**As of November 2023 the last release to support software builds for the Arduino Nano was v2.2.0. Due to memory limitations of this device no further software updates are possible. This guide exists solely for educational/legacy purposes only and is considered deprecated.**
+
 This guide begins with some explanations for common items you will encounter during the upgrade process. Note that it will be necessary to upgrade the hose and conductors between the pack and wand. This exercise is left to individual preferences on connectors and style of replacement, though you will need 4 conductors at a minimum (+5V, Ground, and TX/RX for communications).
 
 The space within the Neutrona Wand is extremely limited, though multiple components must be fit into this space. To maximize what is available, some wires from the original controller (PCB) can be directly soldered onto the Arduino Nano. Where resistors or inline components are required, these may be soldered between the wire and Arduino Nano to reduce need for an additional protoboard. If needed, a [a ¼ protoboard from Adafruit](https://www.adafruit.com/product/1608) or any similar size from another manufacturer will be used.
@@ -33,6 +35,8 @@ You may wish to refer to this PCB drawing and the following table to help identi
 |      |        | <font color="yellow">Yellow</font> | D5 |  |
 |      |        | <font color="green">Green</font> | D6 |  |
 |      |        | <font color="blue">Blue</font> | VDD |  |
+| P6   |        | <font color="red">Red</font> | V4.5 | 4.5V connection from battery compartment |
+| GND  |        | Black | GND | Main power ground |
 | M1   |        | <font color="red">Red</font> | VCC | Wand vibration motor |
 |      |        | Black | GND |  |
 | SW1  |        | <font color="brown">Brown</font> | SPDT Toggle | Lower Right Toggle (Main Power) |
@@ -57,6 +61,8 @@ You may wish to refer to this PCB drawing and the following table to help identi
 | D8   |        | Black | GND | Top Vent LED |
 | D9   |        | <font color="red">Red</font> | VCC | Clippard LED (Top Left) |
 |      |        | <font color="yellow">Yellow</font> | GND |  |
+| LS1  |        | <font color="yellow">Yellow</font> | Speaker + | Wire closest to barrel LED connector is Speaker + |
+|      |        | <font color="yellow">Yellow</font> | Speaker - | Wire furthest from barrel LED connector is Speaker - |
 
 # (Important) Neutrona Wand Barrel LEDs wire colour differences.
 
@@ -67,14 +73,14 @@ It appears some of the silver tip generation 1 Neutrona Wands and orange tip gen
 |------|--------|-------|------------|-------|
 | Q2   | JST-PH | <font color="yellow">Yellow</font> | VCC | Addressable LEDs for wand tip effects (5 total) |
 |      |        | <font color="red">Red</font> | Data |  |
-|      |        | <font color="red">Brown</font> | Gnd |  |
+|      |        | <font color="red">Brown</font> | GND |  |
 
 ## Generation 2 (Orange tip Neutrona Wands)
 | Name | Socket | Color | Hasbro Pin | Notes |
 |------|--------|-------|------------|-------|
 | Q2   | JST-PH | <font color="blue">Blue</font> | VCC | Addressable LEDs for wand tip effects (5 total) |
 |      |        | <font color="yellow">Yellow</font> | Data |  |
-|      |        | <font color="red">Red</font> | Gnd |  |
+|      |        | <font color="red">Red</font> | GND |  |
 
 ## WAV Trigger Connections
 

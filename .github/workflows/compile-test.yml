@@ -7,7 +7,7 @@ env:
   SKETCHES_REPORTS_PATH: sketches-reports
   SKETCHES_REPORTS_ARTIFACT_NAME: sketches-reports
 jobs:
-  compile-core:
+  compile-mega:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,14 +26,14 @@ jobs:
               - name: AltSoftSerial
               - name: SerialTransfer
               - source-url: https://github.com/ansonhe97/millisDelay.git
-            verbose: true
+            verbose: false
       # This step is needed to pass the size data to the report job
       - name: Upload sketches report to workflow artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
-  compile-addons:
+  compile-nano:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
               - name: AltSoftSerial
               - name: SerialTransfer
               - source-url: https://github.com/ansonhe97/millisDelay.git
-            verbose: true
+            verbose: false
       # This step is needed to pass the size data to the report job
       - name: Upload sketches report to workflow artifact
         uses: actions/upload-artifact@v3
