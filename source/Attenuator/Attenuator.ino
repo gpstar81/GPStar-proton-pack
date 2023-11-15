@@ -46,7 +46,7 @@
 void setup() {
   // Enable Serial connection(s) and communication with gpstar Proton Pack PCB.
   #if defined(__XTENSA__)
-    // ESP32 - Serial Console and Device Comms via Serial2
+    // ESP - Serial Console and Device Comms via Serial2
     Serial.begin(9600);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
     packComs.begin(Serial2);
@@ -114,7 +114,7 @@ void setup() {
   vibrateOff();
 
   #if defined(__XTENSA__)
-    // ESP32 - Setup WiFi and WebServer
+    // ESP - Setup WiFi and WebServer
     bool b_ap_started = startWiFi();
     Serial.println(b_ap_started ? "Ready" : "Failed");
 
@@ -138,9 +138,7 @@ void setup() {
 
 void loop() {
   #if defined(__XTENSA__)
-    // ESP32
-
-    // Manage cleanup for old WebSocket clients.
+    // ESP - Manage cleanup for old WebSocket clients.
     if(ms_cleanup.remaining() < 1) {
       // Clean up oldest WebSocket connections.
       ws.cleanupClients();
@@ -158,7 +156,10 @@ void loop() {
     if(b_comms_open) {
       // Move into the main loop only if we got data from the pack.
       b_wait_for_pack = false; // Indicate we are no longer waiting.
-      digitalWrite(BUILT_IN_LED, HIGH); // Illuminate built-in LED.
+      #if defined(__XTENSA__)
+        // ESP - Illuminate built-in LED.
+        digitalWrite(BUILT_IN_LED, HIGH);
+      #endif
       mainLoop();
     }
     else {
@@ -366,7 +367,7 @@ void vibrateOff() {
 
 void updateLEDs() {
   #if defined(__XTENSA__)
-    // ESP32 - Change top LED color based on wireless connections.
+    // ESP - Change top LED color based on wireless connections.
     if(i_ws_client_count > 0) {
       // Change to green when clients are connected remotely.
       i_top_led_color = C_GREEN;

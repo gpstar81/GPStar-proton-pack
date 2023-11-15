@@ -46,12 +46,11 @@ This device has it's own BOM which is separate from any other build items relate
 
 The preferred processor for this device is an ESP32 though you may also use an Arduino Nano though this may be phased out in the future. **Note that wireless capabilities are only available with the ESP32.**
 
-* [ESP-WROOM-32 Dev Board w/ Terminal Shield](https://a.co/d/hDxXluE)
+* [ESP-WROOM-32 Dev Board w/ Terminal Shield](https://a.co/d/hDxXluE) or [ESP-WROOM-32 Dev Board w/out Headers](https://a.co/d/62ywBNo)
 
 or
 
-* [Arduino Nano Microcontroller](https://a.co/d/ev1LPea)
-* [Arduino Nano Terminal Shield](https://a.co/d/7xNKJtO)
+* [Arduino Nano Microcontroller](https://a.co/d/ev1LPea) plus [Arduino Nano Terminal Shield](https://a.co/d/7xNKJtO)
 
 **Decorations**
 
