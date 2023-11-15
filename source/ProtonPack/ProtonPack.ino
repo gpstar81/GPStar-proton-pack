@@ -7108,7 +7108,7 @@ void serial1Send(int i_message) {
   serial1Coms.sendDatum(dataStruct);
 }
 
-void packSerialSend(uint16_t i_message) {
+void packSerialSend(int i_message) {
   sendStruct.s = P_COM_START;
   sendStruct.i = i_message;
   sendStruct.e = P_COM_END;
