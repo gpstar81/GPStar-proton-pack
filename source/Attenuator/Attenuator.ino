@@ -32,12 +32,13 @@
 #include "Header.h"
 #include "Colours.h"
 #include "Bargraph.h"
-
-/*
-// Used for Serial debugging on a ATMega328P
-// TX = 9
-// RX = 8
-*/
+/**
+ * Used for Serial debugging on a ATMega328P
+ * TX = 9
+ * RX = 8
+ *
+ * Must change the MAX_PACKET_SIZE in Packet.h from 0xFE to 0x90
+ */
 /*
 #include <AltSoftSerial.h>
 AltSoftSerial altSerial;
