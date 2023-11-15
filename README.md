@@ -39,13 +39,23 @@ That's alright, this will help you study. Below you will find the various guides
 
 ---
 
+### Serial Expansion Controller
+
+These are devices which utilize the available expansion port on the gpstar Proton Pack controller. Both devices are based on the same software which drives the Attenuator device, but can also be used without inputs or other devices to provide a WiFi capability to your Proton Pack. Please read the guides for more specific details.
+
+Note: As of November 2023 these are DIY devices! Parts for the Wireless Adapter can be ordered 100% from Amazon and can be assembled without soldering. However, the Attenuator will require some minor soldering to make use of all features available.
+
+1. [Wireless Adapter](WIRELESS.md) - Scaled-Down Attenuator
+
+1. [Pack Attenuator](ATTENUATOR.md) - Full Device Implementation
+
+---
+
 ### Addendums
 
-These apply to the normal operation and usage of the equipment regardless of which microcontroller boards you are using.
+These apply to the normal operation and usage of the equipment, as well as add-on items which may be integrated with the gpstar controllers.
 
 1. [Operation Manual](OPERATION.md)
-
-1. [EEPROM Menu System](OPERATION_EEPROM.md)
 
 1. [Advanced Configuration](ADVCONFIG.md)
 
@@ -65,20 +75,14 @@ These apply to the normal operation and usage of the equipment regardless of whi
 
 1. [Neutrona Wand High Intensity Vent Light](VENTLIGHT.md) (Optional add-on)
 
-1. [Pack Attenuator](ATTENUATOR.md) (Optional add-on)
-
 1. [Frequently Asked Questions](FAQ.md)
 
 ---
 
-### Legacy DIY Arduino Build Guides
+### DIY Arduino Build Guides
 
-Considered the "legacy" guide to building your own solution using Arduino microcontrollers.
+Considered the "legacy" guide to building your own solution using the Arduino platform.
 This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
-
-⚠️ **ATTENTION:**  Due to memory constraints on the ATMega328P chipset used in the Arduino Nano boards for the DIY Neutrona Wand builds, the last supported version for DIY builders is Release 2.2.0
-
-📝 **NOTE:** Please note that DIY Proton Pack builds are still supported in all future releases as long as you use a GPStar Neutrona Wand board in your Neutrona Wand.
 
 1. [Bill of Materials](BOM.md)
 
@@ -92,11 +96,9 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Pack Setup](PACK.md)
 
-1. [Wand Setup](WAND.md)
+1. [Wand Setup - DEPRECATED](WAND.md)
 
 1. [Hose Connections](HOSE.md)
-
----
 
 ## Walkthrough Videos ##
 

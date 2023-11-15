@@ -58,3 +58,39 @@ jobs:
         with:
           name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
+  compile-esp32:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/compile-sketches@v1
+        with:
+            enable-deltas-report: true
+            fqbn: esp32:esp32:esp32
+            sketch-paths: |
+              - source/Attenuator
+            libraries: |
+              - name: ezButton
+              - name: FastLED
+              - name: Ramp
+              - name: simple ht16k33 library
+              - name: AltSoftSerial
+              - name: SerialTransfer
+              - name: ArduinoJson
+              - name: Preferences
+              - name: AsyncTCP
+              - source-url: https://github.com/ayushsharma82/AsyncElegantOTA.git
+              - source-url: https://github.com/me-no-dev/ESPAsyncWebServer.git
+              - source-url: https://github.com/ansonhe97/millisDelay.git
+            verbose: false
+            # Need this to ensure any warnings do not impede compilation
+            cli-compile-flags: |
+              - --warnings
+              - none
+              - --log-level
+              - error
+      # This step is needed to pass the size data to the report job
+      - name: Upload sketches report to workflow artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          path: ${{ env.SKETCHES_REPORTS_PATH }}

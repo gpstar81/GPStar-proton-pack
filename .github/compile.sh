@@ -45,6 +45,19 @@ rm -f ${BINDIR}/*bootloader.hex
 mv ${BINDIR}/Attenuator.ino.hex ${BINDIR}/attenuator/Attenuator-Nano.hex
 echo "Done."
 
+# Attenuator (ESP32)
+echo "Building Attenuator Binary (ESP32)..."
+arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --warnings none --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
+
+# Keep any .bin files
+rm -f ${BINDIR}/*.eep
+rm -f ${BINDIR}/*.elf
+rm -f ${BINDIR}/*.map
+rm -f ${BINDIR}/*bootloader.hex
+
+mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32.bin
+echo "Done."
+
 # Neutrona Wand (Bench Test)
 echo "Building Neutrona Wand (Bench Test) Binary..."
 arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --warnings none --export-binaries ${SRCDIR}/NeutronaWand/NeutronaWand.ino

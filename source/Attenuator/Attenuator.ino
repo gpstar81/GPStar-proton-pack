@@ -18,6 +18,12 @@
  *
  */
 
+#if defined(__XTENSA__)
+  // ESP - Suppress warning about SPI hardware pins
+  // Define this before including <FastLED.h>
+  #define FASTLED_INTERNAL
+#endif
+
 // 3rd-Party Libraries
 #include <millisDelay.h>
 #include <FastLED.h>
@@ -32,25 +38,29 @@
 #include "Header.h"
 #include "Colours.h"
 #include "Bargraph.h"
-/**
- * Used for Serial debugging on a ATMega328P
- * TX = 9
- * RX = 8
- *
- * Must change the MAX_PACKET_SIZE in Packet.h from 0xFE to 0x90
- */
-/*
-#include <AltSoftSerial.h>
-AltSoftSerial altSerial;
-*/
+#if defined(__XTENSA__)
+  // ESP - Include WiFi/Bluetooth
+  #include "Wireless.h"
+#endif
 
 void setup() {
-  Serial.begin(9600);
-  //altSerial.begin(9600);
+  // Enable Serial connection(s) and communication with GPStar Proton Pack PCB.
+  #if defined(__XTENSA__)
+    // ESP - Serial Console for messages and Device Comms via Serial2
+    Serial.begin(9600);
+    Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
+    packComs.begin(Serial2);
+    pinMode(BUILT_IN_LED, OUTPUT);
+  #else
+    // Nano - Utilizes the only Serial connection
+    Serial.begin(9600);
+    packComs.begin(Serial);
+  #endif
 
-  // Enable Serial connection for communication with GPStar Proton Pack PCB.
-  packComs.begin(Serial);
-  //packComs.begin(altSerial);
+  // Assume the Super Hero arming mode with Afterlife (default for Haslab).
+  ARMING_MODE = MODE_SUPERHERO;
+  RED_SWITCH_MODE = SWITCH_OFF;
+  SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
@@ -64,19 +74,15 @@ void setup() {
     POWER_LEVEL = LEVEL_1;
   }
 
-  // Default to 1984 for power level animation when pack is not connected, otherwise 2021.
-  if(!b_wait_for_pack) {
-    YEAR_MODE = YEAR_1984;
-  }
-  else {
-    YEAR_MODE = YEAR_2021;
-  }
-
   // Begin at menu level one. This affects the behavior of the rotary dial.
   MENU_LEVEL = MENU_1;
 
-  // RGB LEDs for effects (upper/lower).
-  FastLED.addLeds<NEOPIXEL, ATTENUATOR_LED_PIN>(attenuator_leds, ATTENUATOR_NUM_LEDS);
+  // RGB LEDs for effects (upper/lower) and user status (top).
+  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
+
+  // Change top indicator to red when device is on and ready.
+  i_top_led_color = C_RED;
+  device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
 
   // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);
@@ -89,31 +95,92 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
   // Setup the bargraph after a brief delay.
-  delay(10);
+  delay(100);
   setupBargraph();
 
   // Feedback devices (piezo buzzer and vibration motor)
   pinMode(BUZZER_PIN, OUTPUT);
-  pinMode(VIBRATION_PIN, OUTPUT);
+  #if defined(__XTENSA__)
+    // ESP32
+    ledcSetup(0, 5000, 8);
+    ledcAttachPin(VIBRATION_PIN, 0);
+  #else
+    // Nano
+    pinMode(VIBRATION_PIN, OUTPUT);
+  #endif
 
   // Turn off any user feedback.
   noTone(BUZZER_PIN);
-  useVibration(0, 0);
+  vibrateOff();
+
+  #if defined(__XTENSA__)
+    // ESP - Setup WiFi and WebServer
+    bool b_ap_started = startWiFi();
+    Serial.println(b_ap_started ? "Ready" : "Failed");
+
+    if(b_ap_started) {
+      delay(10); // Allow a small delay before config.
+
+      // Do the AP network configuration.
+      configureNetwork();
+
+      // Start the local web server.
+      startWebServer();
+
+      // Begin timer for remote client events.
+      ms_cleanup.start(i_websocketCleanup);
+    }
+  #endif
 
   // Initialize critical timers.
   ms_fast_led.start(1);
 }
 
 void loop() {
-  if(b_wait_for_pack == true) {
-    // Wait for communication from the pack.
+  #if defined(__XTENSA__)
+    // ESP - Manage cleanup for old WebSocket clients.
+    if(ms_cleanup.remaining() < 1) {
+      // Clean up oldest WebSocket connections.
+      ws.cleanupClients();
+      ms_cleanup.start(i_websocketCleanup);
+    }
+  #endif
+
+  if(b_wait_for_pack) {
+    // Wait and synchronise some settings with the pack.
     checkPack();
 
-    delay(10);
+    if(!b_wait_for_pack) {
+      // Indicate that we are no longer waiting on the pack.
+      #if defined(__XTENSA__)
+        // ESP - Illuminate built-in LED.
+        digitalWrite(BUILT_IN_LED, HIGH);
+      #endif
+    }
+    else {
+      // Pause and try again in a moment.
+      delay(10);
+    }
   }
   else {
+    // When not waiting for the pack go directly to the main loop.
     mainLoop();
   }
+}
+
+void debug(String message) {
+  // Writes a debug message to the serial console.
+  #if defined(__XTENSA__)
+    // ESP32
+    Serial.println(message); // Print to serial console.
+    ws.textAll(message); // Send a copy to the WebSocket.
+  #else
+    // Nano
+    if(!b_wait_for_pack) {
+      // Can only use Serial output if pack is not connected.
+      Serial.println(message);
+    }
+  #endif
 }
 
 void mainLoop() {
@@ -142,10 +209,12 @@ void mainLoop() {
     if(switch_left.getState() == LOW) {
       attenuatorSerialSend(A_TURN_PACK_ON);
       b_pack_on = true;
+      b_left_toggle_on = true;
     }
     else {
       attenuatorSerialSend(A_TURN_PACK_OFF);
       b_pack_on = false;
+      b_left_toggle_on = false;
     }
   }
 
@@ -159,8 +228,7 @@ void mainLoop() {
   }
   else {
     if(switch_left.getState() == HIGH && !b_wait_for_pack){
-      // Clear all bargraph elements and turn off the device.
-      bargraphOff();
+      bargraphOff(); // Clear all bargraph elements and turn off the device.
     }
   }
 
@@ -171,42 +239,63 @@ void mainLoop() {
    *
    * When paired with the gpstar Proton pack controller, the LEDs
    * will change colors based on user interactions.
+   *
+   * Note that audio and physical feedback will also be disabled
+   * when this switch is in the off position.
    */
   if(switch_right.getState() == LOW) {
+    b_right_toggle_on = true;
+
     // If in pre-overheat warning, overheat, or alarm modes...
     if((b_firing && i_speed_multiplier > 1) || b_overheating || b_pack_alarm) {
+      // Sets a timer value proportional to the speed of the cyclotron.
+      unsigned int i_blink_time = int(i_blink_leds / i_speed_multiplier);
+
       if(ms_blink_leds.justFinished()) {
-        ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
+        ms_blink_leds.start(i_blink_time);
       }
 
       if(ms_blink_leds.isRunning()) {
         if(b_firing && i_speed_multiplier > 1 && !b_overheating) {
-          // Switch to a modified firing pattern for the pre-overheat warning.
+          // Switch to a modified bargraph pattern for the pre-overheat (venting)
+          // warning while the wand is still firing.
           BARGRAPH_PATTERN = BG_INNER_PULSE;
         }
 
-        if(ms_blink_leds.remaining() < (i_blink_leds / i_speed_multiplier) / 2) {
-          // Only blink the lower LED as we will use a fade effect for the upper LED.
-          attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
-          useVibration(0, 0); // Stop vibration.
+        // Adjust feedback over 1/2 of the blink time allotted.
+        if(ms_blink_leds.remaining() < (i_blink_time / 2)) {
+          // Denote that certain LED's should be in the dark phase of blinking.
+          b_blink_blank = true;
+          vibrateOff(); // Stop vibration.
           buzzOff(); // Stop buzzer tone.
         }
         else {
-          controlLEDs(); // Turn LEDs on using appropriate color scheme.
-          useVibration(255, 500); // Set vibration to full power.
+          // Denote that certain LED's should be in the lit phase of blinking.
+          b_blink_blank = false;
+          useVibration(i_vibrate_min_time); // Provide physical feedback.
           buzzOn(523); // Tone as note C4
         }
       }
     }
     else {
-      controlLEDs(); // Turn LEDs on using appropriate color scheme.
+      b_blink_blank = false;
     }
   }
   else {
+    // Toggle is in the OFF position.
+    b_right_toggle_on = false;
+    b_blink_blank = false;
     // Turn off the LEDs by setting to black.
-    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
-    attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    if(device_leds[UPPER_LED] != CRGB::Black) {
+      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+    }
+    if(device_leds[LOWER_LED] != CRGB::Black) {
+      device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    }
   }
+
+  // Update LEDs using appropriate color scheme and environment vars.
+  updateLEDs();
 
   // Turn off buzzer if timer finished.
   if(b_buzzer_on && ms_buzzer.justFinished()) {
@@ -215,14 +304,14 @@ void mainLoop() {
 
   // Turn off vibration if timer finished.
   if(b_vibrate_on && ms_vibrate.justFinished()) {
-    useVibration(0, 0);
+    vibrateOff();
   }
 
   // Update bargraph elements, leveraging cyclotron speed modifier.
   // In reality this multiplier is a divisor to the standard delay.
   bargraphUpdate(i_speed_multiplier);
 
-  // Update the device LEDs.
+  // Update the device LEDs and restart the timer.
   if(ms_fast_led.justFinished()) {
     FastLED.show();
     ms_fast_led.start(i_fast_led_delay);
@@ -230,8 +319,10 @@ void mainLoop() {
 }
 
 void buzzOn(unsigned int i_freq) {
-  tone(BUZZER_PIN, i_freq);
-  ms_buzzer.start(i_buzz_max);
+  if(!b_buzzer_on) {
+    tone(BUZZER_PIN, i_freq);
+    ms_buzzer.start(i_buzzer_max_time);
+  }
   b_buzzer_on = true;
 }
 
@@ -241,25 +332,88 @@ void buzzOff() {
   b_buzzer_on = false;
 }
 
-void useVibration(uint8_t i_power_level, unsigned int i_duration) {
-  // Power should be specified as 0-255
-  analogWrite(VIBRATION_PIN, i_power_level);
-  b_vibrate_on = (i_power_level > 0);
+void useVibration(unsigned int i_duration) {
+  if(!b_vibrate_on) {
+    #if defined(__XTENSA__)
+      // ESP32
+      ledcWrite(0, i_max_power);
+    #else
+      // Nano
+      analogWrite(VIBRATION_PIN, i_max_power);
+    #endif
 
-  if(b_vibrate_on) {
     // Set timer for shorter of given duration or max runtime.
-    ms_vibrate.start(min(i_duration, i_vibrate_max));
+    ms_vibrate.start(min(i_duration, i_vibrate_max_time));
   }
+  b_vibrate_on = true;
 }
 
-void controlLEDs() {
-  // Set upper LED based on alarm or overheating state, when connected.
-  // Otherwise, use the standard pattern/color for illumination.
-  if(b_pack_alarm || b_overheating) {
-    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
+void vibrateOff() {
+  #if defined(__XTENSA__)
+    // ESP32
+    ledcWrite(0, i_min_power);
+  #else
+    // Nano
+    analogWrite(VIBRATION_PIN, i_min_power);
+  #endif
+  ms_vibrate.stop();
+  b_vibrate_on = false;
+}
+
+void updateLEDs() {
+  #if defined(__XTENSA__)
+    // ESP - Change top LED color based on wireless connections.
+    if(i_ws_client_count > 0) {
+      // Change to green when clients are connected remotely.
+      i_top_led_color = C_GREEN;
+    }
+    else {
+      // Return to red if no wireless clients are connected.
+      i_top_led_color = C_RED;
+    }
+  #endif
+
+  // Update the top LED based on certain system statuses.
+  switch(MENU_LEVEL) {
+    case MENU_1:
+      // Keep indicator solid.
+      ms_top_blink.stop(); // Stop the blink timer which won't be used at this menu level.
+      b_top_led_off = false; // Denotes LED is not in an off (blinking) state, but solid.
+      device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
+    break;
+
+    case MENU_2:
+      // Blink the LED when in this menu level.
+      if(ms_top_blink.remaining() < 1) {
+        ms_top_blink.start(i_top_blink_delay); // Restart the timer to change state.
+        b_top_led_off = !b_top_led_off; // Whatever the last value, just flip it.
+      }
+
+      if(b_top_led_off) {
+        // Not completely dark but very dim (1/10th of the normal brightness).
+        device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, int(i_top_led_brightness / 10));
+      }
+      else {
+        // Return to normal brightness for the current top LED color.
+        device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
+      }
+    break;
+  }
+
+  if(b_right_toggle_on) {
+    // Set upper LED based on alarm or overheating state, when connected.
+    // Otherwise, use the standard pattern/color for illumination.
+    if(b_pack_alarm || b_overheating) {
+      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
+    }
+    else {
+      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
+    }
   }
   else {
-    attenuator_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
+    if(device_leds[UPPER_LED] != CRGB::Black) {
+      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+    }
   }
 
   // Set lower LED based on the current firing mode.
@@ -301,7 +455,15 @@ void controlLEDs() {
   }
 
   // Update the lower LED based on the scheme determined above.
-  attenuator_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
+  if(!b_right_toggle_on || b_blink_blank) {
+    // Turn off when right toggle is off or when mid-blink.
+    if(device_leds[LOWER_LED] != CRGB::Black) {
+      device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    }
+  }
+  else {
+    device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
+  }
 }
 
 /*
@@ -351,16 +513,6 @@ void checkRotaryPress() {
     }
   }
 
-  /*
-    See A_MUSIC_PAUSE_RESUME for pausing and resuming music tracks.
-
-    Music track listing is now synced, the track count can be found with the: i_music_track_count
-
-    To tell the system to play the track you want, just send the track number to the Proton Pack. Make sure to add 500 to the i_music_track count.
-    For example:
-
-    attenuatorSerialSend(5 + 500); // This will tell the Proton Pack to play music track #5.
-  */
   switch(CENTER_STATE) {
     case SHORT_PRESS:
       // Perform action for short press based on current menu level.
@@ -368,13 +520,20 @@ void checkRotaryPress() {
         case MENU_1:
           // A short, single press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
-          useVibration(255, 200); // Give a quick nudge.
+          //attenuatorSerialSend(A_MUSIC_PAUSE_RESUME); // This may have some bugs in it, use with caution.
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
+          #if defined(__XTENSA__)
+            debug("Music Start/Stop");
+          #endif
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-          useVibration(255, 200); // Give a quick nudge.
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
+          #if defined(__XTENSA__)
+            debug("Next Track");
+          #endif
         break;
       }
     break;
@@ -385,13 +544,19 @@ void checkRotaryPress() {
         case MENU_1:
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
-          useVibration(255, 200); // Give a quick nudge.
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
+          #if defined(__XTENSA__)
+            debug("Toggle Mute");
+          #endif
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
-          useVibration(255, 200); // Give a quick nudge.
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
+          #if defined(__XTENSA__)
+            debug("Previous Track");
+          #endif
         break;
       }
     break;
@@ -402,12 +567,18 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
-          useVibration(255, 200); // Give a quick nudge.
+          #if defined(__XTENSA__)
+            debug("Changed to Menu 2");
+          #endif
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
-          useVibration(255, 200); // Give a quick nudge.
+          #if defined(__XTENSA__)
+            debug("Changed to Menu 1");
+          #endif
+          useVibration(i_vibrate_max_time); // Give a long nudge.
           buzzOn(440); // Tone as note A4
         break;
       }
@@ -455,11 +626,17 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to increase overall volume.
             attenuatorSerialSend(A_VOLUME_INCREASE);
+            #if defined(__XTENSA__)
+              debug("Increase Master Volume");
+            #endif
           break;
 
           case MENU_2:
             // Tell pack to increase effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
+            #if defined(__XTENSA__)
+              debug("Increase Effects Volume");
+            #endif
           break;
         }
       }
@@ -477,6 +654,9 @@ void checkRotaryEncoder() {
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
+          #if defined(__XTENSA__)
+            debug("Overheat Cancelled");
+          #endif
           i_rotary_count = 0;
         }
       }
@@ -486,11 +666,17 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to decrease overall volume.
             attenuatorSerialSend(A_VOLUME_DECREASE);
+            #if defined(__XTENSA__)
+              debug("Decrease Master Volume");
+            #endif
           break;
 
           case MENU_2:
             // Tell pack to decrease effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
+            #if defined(__XTENSA__)
+              debug("Decrease Effects Volume");
+            #endif
           break;
         }
       }
@@ -532,26 +718,51 @@ void checkPack() {
         // Use the passed communication flag to set the proper state for this device.
         switch(comStruct.i) {
           case A_SYNC_START:
+            #if defined(__XTENSA__)
+              debug("Sync Start");
+            #endif
+
             i_speed_multiplier = 1;
             b_a_sync_start = true;
           break;
 
           case A_SYNC_END:
+            #if defined(__XTENSA__)
+              debug("Sync End");
+            #endif
             b_wait_for_pack = false;
             b_a_sync_start = false;
           break;
 
           case A_PACK_ON:
-          case A_WAND_ON:
-            // Pack is on.
+            #if defined(__XTENSA__)
+              debug("Pack On");
+            #endif
+
+            // Pack is on (directly).
             b_pack_on = true;
 
             BARGRAPH_PATTERN = BG_POWER_RAMP;
           break;
 
+          case A_WAND_ON:
+            #if defined(__XTENSA__)
+              debug("Wand On");
+            #endif
+
+            // Pack is on (via wand).
+            b_pack_on = true;
+            b_wand_on = true;
+
+            BARGRAPH_PATTERN = BG_POWER_RAMP;
+          break;
+
           case A_PACK_OFF:
-          case A_WAND_OFF:
-            // Pack is off.
+            #if defined(__XTENSA__)
+              debug("Pack Off");
+            #endif
+
+            // Pack is off (directly or via the wand).
             b_pack_on = false;
 
             if(BARGRAPH_STATE != BG_OFF) {
@@ -561,17 +772,51 @@ void checkPack() {
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
+          case A_WAND_OFF:
+            #if defined(__XTENSA__)
+              debug("Wand Off");
+            #endif
+
+            // Pack is off (directly or via the wand).
+            b_pack_on = false;
+            b_wand_on = false;
+
+            if(BARGRAPH_STATE != BG_OFF) {
+              // If not already off, illuminate fully before ramp down.
+              bargraphFull();
+            }
+            BARGRAPH_PATTERN = BG_RAMP_DOWN;
+          break;
+
           case A_MUSIC_TRACK_COUNT_SYNC:
+          #if defined(__XTENSA__)
+            debug("Music Track Sync");
+
             if(comStruct.d1 > 0) {
               i_music_track_count = comStruct.d1;
             }
+
+            debug("Track Count: " + String(i_music_track_count));
+
+            if(i_music_track_count > 0) {
+              i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
+              i_music_track_max = i_music_track_offset + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
+            }
+          #endif
           break;
 
           case A_PACK_CONNECTED:
             // The Proton Pack is connected.
+            #if defined(__XTENSA__)
+              debug("Pack Connected");
+            #endif
           break;
 
           case A_HANDSHAKE:
+            #if defined(__XTENSA__)
+              // debug("Handshake");
+            #endif
+
             if(b_wait_for_pack == true && b_a_sync_start != true) {
               b_a_sync_start = true;
               attenuatorSerialSend(A_SYNC_START);
@@ -583,50 +828,113 @@ void checkPack() {
           break;
 
           case A_MODE_SUPER_HERO:
-            // The pack and wand are in the superhero mode.
+            if(ARMING_MODE != MODE_SUPERHERO) {
+              #if defined(__XTENSA__)
+                debug("Super Hero Sequence");
+              #endif
+              ARMING_MODE = MODE_SUPERHERO;
+            }
           break;
 
           case A_MODE_ORIGINAL:
-            // The pack and wand are in the original mode.
+            if(ARMING_MODE != MODE_ORIGINAL) {
+              #if defined(__XTENSA__)
+                debug("Original Sequence");
+              #endif
+              ARMING_MODE = MODE_ORIGINAL;
+            }
           break;
 
           case A_MODE_ORIGINAL_RED_SWITCH_ON:
-            // The proton pack red switch is on and has power (no cyclotron powered up yet).
+            // The proton pack red switch is on and has power (cyclotron not powered up yet).
+            if(RED_SWITCH_MODE != SWITCH_ON) {
+              #if defined(__XTENSA__)
+                debug("Red Switch On");
+              #endif
+              RED_SWITCH_MODE = SWITCH_ON;
+            }
           break;
 
           case A_MODE_ORIGINAL_RED_SWITCH_OFF:
             // The proton pack red switch is off. This will cause a total system shutdown.
+            if(RED_SWITCH_MODE != SWITCH_OFF) {
+              #if defined(__XTENSA__)
+                debug("Red Switch Off");
+              #endif
+              RED_SWITCH_MODE = SWITCH_OFF;
+            }
           break;
 
           case A_YEAR_1984:
-            YEAR_MODE = YEAR_1984;
+            if(SYSTEM_YEAR != SYSTEM_1984) {
+              #if defined(__XTENSA__)
+                debug("Mode 1984");
+              #endif
+              SYSTEM_YEAR = SYSTEM_1984;
+            }
           break;
 
           case A_YEAR_1989:
-            YEAR_MODE = YEAR_1989;
+            if(SYSTEM_YEAR != SYSTEM_1989) {
+              #if defined(__XTENSA__)
+                debug("Mode 1989");
+              #endif
+              SYSTEM_YEAR = SYSTEM_1989;
+            }
           break;
 
           case A_YEAR_AFTERLIFE:
-            YEAR_MODE = YEAR_2021;
+            if(SYSTEM_YEAR != SYSTEM_AFTERLIFE) {
+              #if defined(__XTENSA__)
+                debug("Mode 2021");
+              #endif
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+            }
           break;
 
+/*
+          case A_YEAR_FROZEN_EMPIRE:
+            if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE) {
+              #if defined(__XTENSA__)
+                debug("Mode 2024");
+              #endif
+              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+            }
+          break;
+*/
+
           case A_PROTON_MODE:
+            #if defined(__XTENSA__)
+              debug("Proton");
+            #endif
             FIRING_MODE = PROTON;
           break;
 
           case A_SLIME_MODE:
+            #if defined(__XTENSA__)
+              debug("Slime");
+            #endif
             FIRING_MODE = SLIME;
           break;
 
           case A_STASIS_MODE:
+            #if defined(__XTENSA__)
+              debug("Stasis");
+            #endif
             FIRING_MODE = STASIS;
           break;
 
           case A_MESON_MODE:
+            #if defined(__XTENSA__)
+              debug("Meson");
+            #endif
             FIRING_MODE = MESON;
           break;
 
           case A_SPECTRAL_CUSTOM_MODE:
+            #if defined(__XTENSA__)
+              debug("Spectral Custom");
+            #endif
             FIRING_MODE = SPECTRAL_CUSTOM;
 
             if(comStruct.d1 > 0) {
@@ -639,6 +947,9 @@ void checkPack() {
           break;
 
           case A_SPECTRAL_COLOUR_DATA:
+            #if defined(__XTENSA__)
+              debug("Spectral Color Data");
+            #endif
             if(comStruct.d1 > 0) {
               i_spectral_custom = comStruct.d1;
             }
@@ -649,47 +960,78 @@ void checkPack() {
           break;
 
           case A_SPECTRAL_MODE:
+            #if defined(__XTENSA__)
+              debug("Spectral");
+            #endif
             FIRING_MODE = SPECTRAL;
           break;
 
           case A_HOLIDAY_MODE:
+            #if defined(__XTENSA__)
+              debug("Spectral Holiday");
+            #endif
             FIRING_MODE = HOLIDAY;
           break;
 
           case A_VENTING_MODE:
+            #if defined(__XTENSA__)
+              debug("Venting");
+            #endif
             FIRING_MODE = VENTING;
           break;
 
           case A_SETTINGS_MODE:
+            #if defined(__XTENSA__)
+              debug("Settings");
+            #endif
             FIRING_MODE = SETTINGS;
           break;
 
           case A_POWER_LEVEL_1:
+            #if defined(__XTENSA__)
+              debug("Power Level 1");
+            #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_1;
           break;
 
           case A_POWER_LEVEL_2:
+            #if defined(__XTENSA__)
+              debug("Power Level 2");
+            #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_2;
           break;
 
           case A_POWER_LEVEL_3:
+            #if defined(__XTENSA__)
+              debug("Power Level 3");
+            #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_3;
           break;
 
           case A_POWER_LEVEL_4:
+            #if defined(__XTENSA__)
+              debug("Power Level 4");
+            #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_4;
           break;
 
           case A_POWER_LEVEL_5:
+            #if defined(__XTENSA__)
+              debug("Power Level 5");
+            #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_5;
           break;
 
           case A_ALARM_ON:
+            #if defined(__XTENSA__)
+              debug("Alarm On");
+            #endif
+
             // Alarm is on.
             b_pack_alarm = true;
 
@@ -702,6 +1044,10 @@ void checkPack() {
           break;
 
           case A_ALARM_OFF:
+            #if defined(__XTENSA__)
+              debug("Alarm Off");
+            #endif
+
             // Alarm is off.
             b_pack_alarm = false;
 
@@ -711,11 +1057,15 @@ void checkPack() {
               bargraphClear();
               BARGRAPH_PATTERN = BG_POWER_RAMP;
 
-              useVibration(0, 0); // Stop vibration.
+              vibrateOff(); // Stop vibration.
             }
           break;
 
           case A_OVERHEATING:
+            #if defined(__XTENSA__)
+              debug("Overheating");
+            #endif
+
             // Pack is overheating.
             b_overheating = true;
             ms_blink_leds.start(i_blink_leds);
@@ -725,17 +1075,30 @@ void checkPack() {
           break;
 
           case A_OVERHEATING_FINISHED:
+            #if defined(__XTENSA__)
+              debug("Vented");
+            #endif
+
+            // Venting process completed.
             b_overheating = false;
             ms_blink_leds.stop();
+
+            i_speed_multiplier = 1; // Return to normal speed.
 
             bargraphClear();
             BARGRAPH_PATTERN = BG_POWER_RAMP;
 
-            useVibration(0, 0); // Stop vibration.
+            vibrateOff(); // Stop vibration.
           break;
 
           case A_FIRING:
-            b_firing = true;
+            #if defined(__XTENSA__)
+              debug("Firing");
+            #endif
+
+            b_firing = true; // Implies the wand is powered on.
+            b_pack_on = true; // Implies the pack is powered on.
+            b_wand_on = true; // Implies the wand is powered on.
             ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
             bargraphClear();
@@ -743,10 +1106,16 @@ void checkPack() {
           break;
 
           case A_FIRING_STOPPED:
+            #if defined(__XTENSA__)
+              debug("Idle");
+            #endif
+
             b_firing = false;
             ms_blink_leds.stop();
 
-            i_speed_multiplier = 1; // Return to normal speed.
+            if(!b_overheating) {
+              i_speed_multiplier = 1; // Return to normal speed.
+            }
 
             if(b_pack_alarm) {
               // Ramp down if the pack alarm happens while firing.
@@ -761,18 +1130,42 @@ void checkPack() {
           break;
 
           case A_CYCLOTRON_INCREASE_SPEED:
+            #if defined(__XTENSA__)
+              debug("Cyclotron Speed Increasing...");
+            #endif
+
             i_speed_multiplier++;
+
+            #if defined(__XTENSA__)
+              debug(String(i_speed_multiplier));
+            #endif
           break;
 
           case A_BARREL_EXTENDED:
-            // Neutrona Wand Barrel is extended.
+            if(BARREL_STATE != BARREL_EXTENDED) {
+              #if defined(__XTENSA__)
+                debug("Wand Barrel Extended");
+              #endif
+
+              BARREL_STATE = BARREL_EXTENDED;
+            }
           break;
 
           case A_BARREL_RETRACTED:
-            // Neutrona Wand Barrel is retracted.
+            if(BARREL_STATE != BARREL_RETRACTED) {
+              #if defined(__XTENSA__)
+                debug("Wand Barrel Retracted");
+              #endif
+
+              BARREL_STATE = BARREL_RETRACTED;
+            }
           break;
 
           case A_CYCLOTRON_NORMAL_SPEED:
+            #if defined(__XTENSA__)
+              debug("Cyclotron Speed Reset");
+            #endif
+
             i_speed_multiplier = 1;
 
             if(b_firing) {
@@ -791,6 +1184,15 @@ void checkPack() {
             // Nothing.
           break;
         }
+
+        #if defined(__XTENSA__)
+          // ESP - Alert all WebSocket clients after an API call was received.
+          // Note: We only perform this action if we have data from the pack.
+          // This excludes the handshake as this is received way too often.
+          if(!b_wait_for_pack && comStruct.i != A_HANDSHAKE) {
+            notifyWSClients(); // Send latest status to the WebSocket.
+          }
+        #endif
       }
 
       comStruct.i = 0;
