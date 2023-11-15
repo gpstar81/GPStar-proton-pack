@@ -3986,12 +3986,13 @@ void serial1HandShake() {
       ms_serial1_handshake.start(i_serial1_handshake_delay);
 
       b_serial1_connected = false;
-
+     
       // Where are you Attenuator?
       serial1Send(A_HANDSHAKE);
     }
     else if(ms_serial1_handshake_checking.justFinished()) {
       ms_serial1_handshake_checking.stop();
+
       // Ask the Attenuator if it is still connected.
       serial1Send(A_HANDSHAKE);
     }
@@ -4096,7 +4097,6 @@ void checkSerial1() {
               // The Attenuator is still here.
               ms_serial1_handshake.start(i_serial1_handshake_delay);
               ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
-              b_serial1_connected = true;
             break;
 
             case A_TURN_PACK_ON:
@@ -4217,11 +4217,11 @@ void checkSerial1() {
             break;
 
             case A_SYNC_START:
-              b_serial1_connected = false;
+              //b_serial1_connected = false;
             break;
 
             case A_SYNC_END:
-              b_serial1_connected = false;
+              //b_serial1_connected = false;
             break;
 
             default:
@@ -4245,7 +4245,9 @@ void checkSerial1() {
         else {
           // Check if the Attenuator is telling us it is here after connecting it to the pack.
           // Then synchronise some settings between the pack and the Attenuator.
-          if(dataStructR.i == A_SYNC_START) {
+          if(dataStructR.i == A_SYNC_START && b_serial_1_syncing != true) {
+            b_serial_1_syncing = true;
+
             serial1Send(A_SYNC_START);
 
             // Tell the Attenuator that the pack is here.
@@ -4364,6 +4366,10 @@ void checkSerial1() {
             serial1Send(A_MUSIC_TRACK_COUNT_SYNC);
 
             b_serial1_connected = true;
+            b_serial_1_syncing = false;
+
+            ms_serial1_handshake.start(i_serial1_handshake_delay);
+            ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
 
             serial1Send(A_SYNC_END);
           }
@@ -7102,7 +7108,7 @@ void serial1Send(int i_message) {
   serial1Coms.sendDatum(dataStruct);
 }
 
-void packSerialSend(int i_message) {
+void packSerialSend(uint16_t i_message) {
   sendStruct.s = P_COM_START;
   sendStruct.i = i_message;
   sendStruct.e = P_COM_END;

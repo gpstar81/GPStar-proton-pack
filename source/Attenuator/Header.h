@@ -45,6 +45,7 @@ bool b_buzzer_on = false;
 bool b_vibrate_on = false;
 const unsigned int i_buzz_max = 200; // Longest duration for a standalone "beep".
 const unsigned int i_vibrate_max = 1000; // Max runtime for the vibration motor.
+bool b_a_sync_start = false;
 
 /*
  * Delay for fastled to update the addressable LEDs.

@@ -37,6 +37,8 @@
 // Used for Serial debugging on a ATMega328P
 // TX = 9
 // RX = 8
+*/
+/*
 #include <AltSoftSerial.h>
 AltSoftSerial altSerial;
 */
@@ -45,10 +47,9 @@ void setup() {
   Serial.begin(9600);
   //altSerial.begin(9600);
 
-  // Enable Serial connection for communication with gpstar Proton Pack PCB.
+  // Enable Serial connection for communication with GPStar Proton Pack PCB.
   packComs.begin(Serial);
   //packComs.begin(altSerial);
-
 
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
@@ -104,10 +105,7 @@ void setup() {
 
 void loop() {
   if(b_wait_for_pack == true) {
-    // Handshake with the pack. Telling the pack that we are here.
-    attenuatorSerialSend(A_SYNC_START);
-
-    // Synchronise some settings with the pack.
+    // Wait for communication from the pack.
     checkPack();
 
     delay(10);
@@ -533,10 +531,12 @@ void checkPack() {
         switch(comStruct.i) {
           case A_SYNC_START:
             i_speed_multiplier = 1;
+            b_a_sync_start = true;
           break;
 
           case A_SYNC_END:
             b_wait_for_pack = false;
+            b_a_sync_start = false;
           break;
 
           case A_PACK_ON:
@@ -568,8 +568,14 @@ void checkPack() {
           break;
 
           case A_HANDSHAKE:
-            // The pack is asking us if we are still here. Respond back.
-            attenuatorSerialSend(A_HANDSHAKE);
+            if(b_wait_for_pack == true && b_a_sync_start != true) {
+              b_a_sync_start = true;
+              attenuatorSerialSend(A_SYNC_START);
+            }
+            else if(b_a_sync_start != true) {
+              // The pack is asking us if we are still here. Respond back.
+              attenuatorSerialSend(A_HANDSHAKE);
+            }
           break;
 
           case A_MODE_SUPER_HERO:
