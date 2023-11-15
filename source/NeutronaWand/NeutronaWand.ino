@@ -1546,7 +1546,7 @@ void mainLoop() {
                   break;
 
                   case SYSTEM_1989:
-                    SYSTEM_YEAR == SYSTEM_AFTERLIFE;
+                    SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
@@ -1597,7 +1597,7 @@ void mainLoop() {
             FIRING_MODE = SETTINGS;
 
             WAND_ACTION_STATUS = ACTION_SETTINGS;
-            WAND_MENU_LEVEL == MENU_LEVEL_1;
+            WAND_MENU_LEVEL = MENU_LEVEL_1;
 
             i_wand_menu = 5;
             ms_settings_blinking.start(i_settings_blinking_delay);
@@ -1644,7 +1644,7 @@ void mainLoop() {
         i_wand_menu = 5;
 
         WAND_ACTION_STATUS = ACTION_EEPROM_MENU;
-        WAND_MENU_LEVEL == MENU_LEVEL_1;
+        WAND_MENU_LEVEL = MENU_LEVEL_1;
 
         ms_settings_blinking.start(i_settings_blinking_delay);
 
@@ -1671,7 +1671,7 @@ void mainLoop() {
         i_wand_menu = 5;
 
         WAND_ACTION_STATUS = ACTION_CONFIG_EEPROM_MENU;
-        WAND_MENU_LEVEL == MENU_LEVEL_1;
+        WAND_MENU_LEVEL = MENU_LEVEL_1;
 
         ms_settings_blinking.start(i_settings_blinking_delay);
 
@@ -2689,6 +2689,9 @@ void wandOff() {
           }
         break;
       }
+    default:
+    // Do nothing if we aren't MODE_OFF
+    break;
   }
 
   switch_wand.resetCount();
@@ -6371,7 +6374,7 @@ void bargraphPowerCheck() {
       }
 
       if(b_bargraph_up == true) {
-        if(i_bargraph_status_alt >= 0 && i_bargraph_status_alt < i_bargraph_segments) {
+        if(i_bargraph_status_alt < i_bargraph_segments) {
           ht_bargraph.setLedNow(i_bargraph[i_bargraph_status_alt]);
           b_bargraph_status[i_bargraph_status_alt] = true;
         }
@@ -6475,7 +6478,7 @@ void bargraphPowerCheck() {
         }
       }
       else {
-        if(i_bargraph_status_alt >= 0 && i_bargraph_status_alt < i_bargraph_segments) {
+        if(i_bargraph_status_alt < i_bargraph_segments) {
           ht_bargraph.clearLedNow(i_bargraph[i_bargraph_status_alt]);
           b_bargraph_status[i_bargraph_status_alt] = false;
         }
@@ -6896,7 +6899,7 @@ void bargraphRampUp() {
 }
 
 void prepBargraphRampDown() {
-  if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE || (WAND_STATUS == MODE_OFF && WAND_ACTION_STATUS == ACTION_IDLE && SYSTEM_MODE == MODE_ORIGINAL)) {
+  if((WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) || (WAND_STATUS == MODE_OFF && WAND_ACTION_STATUS == ACTION_IDLE && SYSTEM_MODE == MODE_ORIGINAL)) {
     // If bargraph is set to ramp down during overheat, we need to set a few things.
     soundBeepLoopStop();
     soundIdleStop();
@@ -8512,6 +8515,10 @@ void checkPack() {
                       break;
                     }
                   break;
+
+                  default:
+                  // Do nothing if we aren't MODE_OFF
+                  break;
                 }
               }
             break;
@@ -9317,9 +9324,9 @@ void checkPack() {
               pauseMusic();
             break;
 
-            case P_MUSIC_RESUME: {
+            case P_MUSIC_RESUME:
               resumeMusic();
-            }
+            break;
 
             default:
               // Music track number to be played.
