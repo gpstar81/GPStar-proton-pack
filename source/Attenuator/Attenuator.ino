@@ -42,27 +42,15 @@
   // ESP - Include WiFi/Bluetooth
   #include "Wireless.h"
 #endif
-#if defined(__AVR_ATmega328P__)
-  // Used for Serial debugging on a ATMega328P
-  // TX = 9
-  // RX = 8
-  #include <AltSoftSerial.h>
-  AltSoftSerial altSerial;
-#endif
 
 void setup() {
   // Enable Serial connection(s) and communication with GPStar Proton Pack PCB.
   #if defined(__XTENSA__)
-    // ESP - Serial Console and Device Comms via Serial2
+    // ESP - Serial Console for messages and Device Comms via Serial2
     Serial.begin(9600);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
     packComs.begin(Serial2);
     pinMode(BUILT_IN_LED, OUTPUT);
-  #elif defined(__AVR_ATmega328P__)
-    // Mega - Utilizes the AltSoftSerial Serial connection
-    Serial.begin(9600);
-    altSerial.begin(9600);
-    packComs.begin(altSerial);
   #else
     // Nano - Utilizes the only Serial connection
     Serial.begin(9600);
