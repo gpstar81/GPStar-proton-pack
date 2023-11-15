@@ -369,6 +369,7 @@ bool b_serial1_connected = false;
 millisDelay ms_serial1_handshake;
 const unsigned int i_serial1_handshake_delay = 3000;
 millisDelay ms_serial1_handshake_checking;
+bool b_serial_1_syncing = false;
 
 SerialTransfer serial1Coms;
 SerialTransfer packComs;

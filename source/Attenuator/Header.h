@@ -136,7 +136,7 @@ uint8_t i_speed_multiplier = 1;
 #endif
 
 /*
- * Arming Sequence
+ * System Mode
  */
 enum ARMING_MODES { MODE_SUPERHERO, MODE_ORIGINAL };
 enum ARMING_MODES ARMING_MODE;
@@ -149,8 +149,8 @@ enum RED_SWITCH_MODES RED_SWITCH_MODE;
 enum SYSTEM_YEARS { SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
 enum SYSTEM_YEARS SYSTEM_YEAR;
 
-/* 
- *  Wand Firing Modes + Settings
+/*
+ * Wand Firing Modes + Settings
  */
 enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
 enum BARREL_STATES BARREL_STATE;
@@ -160,7 +160,7 @@ enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
 enum POWER_LEVELS POWER_LEVEL;
 enum POWER_LEVELS POWER_LEVEL_PREV;
 
-/* 
+/*
  * Toggle Switches
  * Will be pulled LOW (down position) when considered "on".
  */
@@ -186,7 +186,7 @@ bool b_right_toggle_on = false;
 const uint8_t switch_debounce_time = 50;
 const uint8_t rotary_debounce_time = 100;
 
-/* 
+/*
  * Rotary encoder for various uses.
  */
 #if defined(__XTENSA__)
@@ -240,7 +240,7 @@ enum MENU_LEVELS MENU_LEVEL;
   #define TXD2 17
 #endif
 SerialTransfer packComs;
-bool b_comms_open = false; // Denotes pack communications have occurred.
+bool b_a_sync_start = false; // Denotes pack communications have begun.
 
 struct __attribute__((packed)) STRUCT {
   uint16_t s;
@@ -268,4 +268,5 @@ bool b_firing = false;
 bool b_overheating = false;
 
 // Forward declarations.
+void attenuatorSerialSend(int i_message);
 void debug(String message);

@@ -149,6 +149,3 @@ enum api_messages {
   A_MUSIC_PAUSE_RESUME,
   A_COM_END
 };
-
-// Forward declarations for functions.
-void attenuatorSerialSend(int i_message);

@@ -42,15 +42,27 @@
   // ESP - Include WiFi/Bluetooth
   #include "Wireless.h"
 #endif
+#if defined(__AVR_ATmega328P__)
+  // Used for Serial debugging on a ATMega328P
+  // TX = 9
+  // RX = 8
+  #include <AltSoftSerial.h>
+  AltSoftSerial altSerial;
+#endif
 
 void setup() {
-  // Enable Serial connection(s) and communication with gpstar Proton Pack PCB.
+  // Enable Serial connection(s) and communication with GPStar Proton Pack PCB.
   #if defined(__XTENSA__)
     // ESP - Serial Console and Device Comms via Serial2
     Serial.begin(9600);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
     packComs.begin(Serial2);
     pinMode(BUILT_IN_LED, OUTPUT);
+  #elif defined(__AVR_ATmega328P__)
+    // Mega - Utilizes the AltSoftSerial Serial connection
+    Serial.begin(9600);
+    altSerial.begin(9600);
+    packComs.begin(altSerial);
   #else
     // Nano - Utilizes the only Serial connection
     Serial.begin(9600);
@@ -147,20 +159,15 @@ void loop() {
   #endif
 
   if(b_wait_for_pack) {
-    // Handshake with the pack. Telling the pack that we are here.
-    attenuatorSerialSend(A_SYNC_START);
-
-    // Synchronise some settings with the pack.
+    // Wait and synchronise some settings with the pack.
     checkPack();
 
-    if(b_comms_open) {
-      // Move into the main loop only if we got data from the pack.
-      b_wait_for_pack = false; // Indicate we are no longer waiting.
+    if(!b_wait_for_pack) {
+      // Indicate that we are no longer waiting on the pack.
       #if defined(__XTENSA__)
         // ESP - Illuminate built-in LED.
         digitalWrite(BUILT_IN_LED, HIGH);
       #endif
-      mainLoop();
     }
     else {
       // Pause and try again in a moment.
@@ -720,16 +727,15 @@ void checkPack() {
 
     if(!packComs.currentPacketID()) {
       if(comStruct.i > 0 && comStruct.s == A_COM_START && comStruct.e == A_COM_END) {
-        b_comms_open = true;
-
         // Use the passed communication flag to set the proper state for this device.
         switch(comStruct.i) {
           case A_SYNC_START:
             #if defined(__XTENSA__)
               debug("Sync Start");
             #endif
-            b_wait_for_pack = true;
+
             i_speed_multiplier = 1;
+            b_a_sync_start = true;
           break;
 
           case A_SYNC_END:
@@ -737,6 +743,7 @@ void checkPack() {
               debug("Sync End");
             #endif
             b_wait_for_pack = false;
+            b_a_sync_start = false;
           break;
 
           case A_PACK_ON:
@@ -793,26 +800,22 @@ void checkPack() {
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
+          case A_MUSIC_TRACK_COUNT_SYNC:
           #if defined(__XTENSA__)
-            case A_MUSIC_TRACK_COUNT_SYNC:
-              #if defined(__XTENSA__)
-                debug("Music Track Sync");
-              #endif
+            debug("Music Track Sync");
 
-              if(comStruct.d1 > 0) {
-                i_music_track_count = comStruct.d1;
-              }
+            if(comStruct.d1 > 0) {
+              i_music_track_count = comStruct.d1;
+            }
 
-              #if defined(__XTENSA__)
-                debug("Track Count: " + String(i_music_track_count));
-              #endif
+            debug("Track Count: " + String(i_music_track_count));
 
-              if(i_music_track_count > 0) {
-                i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
-                i_music_track_max = i_music_track_offset + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
-              }
-            break;
+            if(i_music_track_count > 0) {
+              i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
+              i_music_track_max = i_music_track_offset + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
+            }
           #endif
+          break;
 
           case A_PACK_CONNECTED:
             // The Proton Pack is connected.
@@ -822,10 +825,18 @@ void checkPack() {
           break;
 
           case A_HANDSHAKE:
-            //debug("Handshake");
+            #if defined(__XTENSA__)
+              // debug("Handshake");
+            #endif
 
-            // The pack is asking us if we are still here. Respond back.
-            attenuatorSerialSend(A_HANDSHAKE);
+            if(b_wait_for_pack == true && b_a_sync_start != true) {
+              b_a_sync_start = true;
+              attenuatorSerialSend(A_SYNC_START);
+            }
+            else if(b_a_sync_start != true) {
+              // The pack is asking us if we are still here. Respond back.
+              attenuatorSerialSend(A_HANDSHAKE);
+            }
           break;
 
           case A_MODE_SUPER_HERO:
@@ -893,12 +904,16 @@ void checkPack() {
             }
           break;
 
-          // case A_YEAR_FROZEN_EMPIRE:
-          //   if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE) {
-          //     debug("Mode 2024");
-          //     SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-          //   }
-          // break;
+/*
+          case A_YEAR_FROZEN_EMPIRE:
+            if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE) {
+              #if defined(__XTENSA__)
+                debug("Mode 2024");
+              #endif
+              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+            }
+          break;
+*/
 
           case A_PROTON_MODE:
             #if defined(__XTENSA__)
@@ -1143,6 +1158,7 @@ void checkPack() {
               #if defined(__XTENSA__)
                 debug("Wand Barrel Extended");
               #endif
+
               BARREL_STATE = BARREL_EXTENDED;
             }
           break;
@@ -1152,6 +1168,7 @@ void checkPack() {
               #if defined(__XTENSA__)
                 debug("Wand Barrel Retracted");
               #endif
+
               BARREL_STATE = BARREL_RETRACTED;
             }
           break;
