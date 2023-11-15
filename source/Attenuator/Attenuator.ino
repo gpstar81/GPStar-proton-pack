@@ -50,6 +50,7 @@ void setup() {
     Serial.begin(9600);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
     packComs.begin(Serial2);
+    pinMode(BUILT_IN_LED, OUTPUT);
   #else
     // Nano - Utilizes the only Serial connection
     Serial.begin(9600);
@@ -156,7 +157,8 @@ void loop() {
 
     if(b_comms_open) {
       // Move into the main loop only if we got data from the pack.
-      b_wait_for_pack = false;
+      b_wait_for_pack = false; // Indicate we are no longer waiting.
+      digitalWrite(BUILT_IN_LED, HIGH); // Illuminate built-in LED.
       mainLoop();
     }
     else {
@@ -799,6 +801,10 @@ void checkPack() {
               if(comStruct.d1 > 0) {
                 i_music_track_count = comStruct.d1;
               }
+
+              #if defined(__XTENSA__)
+                debug("Track Count: " + String(i_music_track_count));
+              #endif
 
               if(i_music_track_count > 0) {
                 i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)

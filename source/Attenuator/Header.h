@@ -24,6 +24,7 @@
 #if defined(__XTENSA__)
   // ESP32
   #define DEVICE_LED_PIN 23
+  #define BUILT_IN_LED 2
 #else
   // Nano
   #define DEVICE_LED_PIN 9
