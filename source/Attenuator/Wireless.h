@@ -37,9 +37,9 @@
  * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/coexist.html
  */
 #include <ArduinoJson.h>
-#include <AsyncElegantOTA.h>
 #include <AsyncJson.h>
-#include <AsyncTCP.h> 
+#include <AsyncTCP.h>
+#include <ElegantOTA.h>
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <WiFi.h>
@@ -504,7 +504,8 @@ void startWebServer() {
   httpServer.addHandler(&ws);
   
   // Configure the OTA firmware endpoints handler.
-  AsyncElegantOTA.begin(&httpServer);
+  //AsyncElegantOTA.begin(&httpServer);
+  ElegantOTA.begin(&httpServer);
 
   // Start the web server.
   httpServer.begin();
