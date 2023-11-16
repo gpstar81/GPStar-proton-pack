@@ -386,8 +386,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
     c_music_track = request->getParam("track")->value();
   }
 
-  Serial.print("Selected Music Track: ");
-  Serial.println(c_music_track);
+  debug("Selected Music Track: " + c_music_track);
   
   if(c_music_track != "") {
     attenuatorSerialSend(c_music_track.toInt());
@@ -455,7 +454,7 @@ void setupRouting() {
       }
     }
     else {
-      Serial.println("No password in JSON body");
+      debug("No password in JSON body");
       jsonData.clear();
       jsonData["response"] = "Unable to update password.";
       serializeJson(jsonData, result); // Serialize to string.
