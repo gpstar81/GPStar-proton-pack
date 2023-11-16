@@ -58,7 +58,7 @@ The following is Barmeter's internal reference for the numbered pins along the e
 
 ### Inverted Bargraph Sequences
 
-If your bargraph is inverted or upside down, you can either flip it physically in the wand, or you can invert / de-invert it from within the EEPROM Configuration Menu System. Please see the [EEPROM Menu System](OPERATION_EEPROM.md.md) guide for more information.
+If your bargraph is inverted or upside down, you can either flip it physically in the wand, or you can invert / de-invert it from within the EEPROM Configuration Menu System. Please see the [EEPROM Menu System](OPERATION_EEPROM.md) guide for more information.
 
 ### Fitment & Installation
 
