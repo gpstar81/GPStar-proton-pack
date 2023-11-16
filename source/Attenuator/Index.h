@@ -216,8 +216,8 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
 
-        if (jObj.mode == "Original" && jObj.pack == "Powered") {
-          // Cannot turn off pack remotely if in mode Original and pack is Powered.
+        if (jObj.mode == "Original" && jObj.pack == "Powered" && jObj.wand == "Powered") {
+          // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
           document.getElementById("btnPackOff").disabled = true;
         } else {
           // Otherwise, this should be allowed.
@@ -230,6 +230,14 @@ const char INDEX_page[] PROGMEM = R"=====(
         } else {
           // Otherwise, this should NOT be allowed.
           document.getElementById("btnVent").disabled = true;
+        }
+
+        if (jObj.cyclotron == "Warning" || jObj.cyclotron == "Critical") {
+          // Can only attenuate if cyclotron is in certain states.
+          document.getElementById("btnAttenuate").disabled = false;
+        } else {
+          // Otherwise, this should NOT be allowed.
+          document.getElementById("btnAttenuate").disabled = true;
         }
 
         if (jObj.musicStart > 0 && jObj.musicEnd > jObj.musicStart && musicTrackMax != jObj.musicEnd) {
@@ -452,7 +460,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <button type="button" class="orange" onclick="beginVenting()" id="btnVent">Vent</button>
     &nbsp;&nbsp;
-    <button type="button" class="blue" onclick="cancelWarning()">Attenuate</button>
+    <button type="button" class="blue" onclick="cancelWarning()" id="btnAttenuate">Attenuate</button>
   </div>
 
   <h1>Administration</h1>

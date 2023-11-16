@@ -37,9 +37,9 @@
  * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/coexist.html
  */
 #include <ArduinoJson.h>
-#include <AsyncElegantOTA.h>
 #include <AsyncJson.h>
-#include <AsyncTCP.h> 
+#include <AsyncTCP.h>
+#include <ElegantOTA.h>
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <WiFi.h>
@@ -386,8 +386,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
     c_music_track = request->getParam("track")->value();
   }
 
-  Serial.print("Selected Music Track: ");
-  Serial.println(c_music_track);
+  debug("Selected Music Track: " + c_music_track);
   
   if(c_music_track != "") {
     attenuatorSerialSend(c_music_track.toInt());
@@ -455,7 +454,7 @@ void setupRouting() {
       }
     }
     else {
-      Serial.println("No password in JSON body");
+      debug("No password in JSON body");
       jsonData.clear();
       jsonData["response"] = "Unable to update password.";
       serializeJson(jsonData, result); // Serialize to string.
@@ -505,7 +504,8 @@ void startWebServer() {
   httpServer.addHandler(&ws);
   
   // Configure the OTA firmware endpoints handler.
-  AsyncElegantOTA.begin(&httpServer);
+  //AsyncElegantOTA.begin(&httpServer);
+  ElegantOTA.begin(&httpServer);
 
   // Start the web server.
   httpServer.begin();
