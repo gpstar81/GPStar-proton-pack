@@ -78,7 +78,7 @@ jobs:
               - name: ArduinoJson
               - name: Preferences
               - name: AsyncTCP
-              - name: ElegantOTA
+              - source-url: https://github.com/DustinGrau/ElegantOTA.git
               - source-url: https://github.com/me-no-dev/ESPAsyncWebServer.git
               - source-url: https://github.com/ansonhe97/millisDelay.git
             verbose: false
