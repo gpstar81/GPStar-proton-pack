@@ -137,6 +137,9 @@ This project is made possible by Ghostbusters community makers and volunteers sp
 * Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support
 * Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution
 
+### Special Thanks
+* Emre Sahare (GBFans: One Time) - For the original prop mode "Mode Original" operation deciphering.
+
 Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [Facebook group](https://www.facebook.com/groups/gpstartechnologies).
 
 For those who are curious you can view a condensed [history of this project](HISTORY.md).
