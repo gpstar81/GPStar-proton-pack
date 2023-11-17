@@ -115,10 +115,7 @@ void setup() {
 
   #if defined(__XTENSA__)
     // ESP - Setup WiFi and WebServer
-    bool b_ap_started = startWiFi();
-    Serial.println(b_ap_started ? "AP Ready" : "AP Failed");
-
-    if(b_ap_started) {
+    if(startWiFi()) {
       delay(10); // Allow a small delay before config.
 
       // Do the AP network configuration.
@@ -174,13 +171,19 @@ void debug(String message) {
   // Writes a debug message to the serial console.
   #if defined(__XTENSA__)
     // ESP32
-    Serial.println(message); // Print to serial console.
-    ws.textAll(message); // Send a copy to the WebSocket.
+    #if defined(DEBUG_SEND_TO_CONSOLE)
+      Serial.println(message); // Print to serial console.
+    #endif
+    #if defined(DEBUG_SEND_TO_WEBSOCKET)
+      ws.textAll(message); // Send a copy to the WebSocket.
+    #endif
   #else
     // Nano
     if(!b_wait_for_pack) {
       // Can only use Serial output if pack is not connected.
-      Serial.println(message);
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        Serial.println(message);
+      #endif
     }
   #endif
 }
