@@ -343,7 +343,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
     <br/>
     <h3>Play Music Track</h3>
-    <select id="tracks" onchange="musicSelect(this)"></select>
+    <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
     <br/>
     <h3>Effects Volume</h3>
     <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>

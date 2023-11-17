@@ -4201,9 +4201,8 @@ void checkSerial1() {
               else {
                 if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
                   b_playing_music = true;
-                  resumeMusic();
-
                   packSerialSend(P_MUSIC_RESUME);
+                  resumeMusic();
                 }
               }
             break;

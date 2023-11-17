@@ -97,18 +97,52 @@ input {
 }
 
 select {
-  background-color: #999;
+  appearance: none;
+  /* safari */
+  -webkit-appearance: none;
+  /* other styles for aesthetics */
+  background-color: #888;
   border: 2px solid #333;
   border-radius: 8px;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
   color: white;
+  cursor: pointer;
+  font-size: 1.15rem;
   height: 40px;
   margin: 5px;
-  padding: 12px 14px;
+  padding: 0.675em 6em 0.675em 1em;
   max-width: 260px;
+  min-width: 260px;
   text-align: center;
   touch-action: manipulation;
   width: 260px;
+}
+
+.custom-select {
+  position: relative;
+}
+
+.custom-select::before,
+.custom-select::after {
+  --size: 0.3rem;
+  content: "";
+  right: 1rem;
+  pointer-events: none;
+  position: absolute;
+}
+
+.custom-select::before {
+  border-left: var(--size) solid transparent;
+  border-right: var(--size) solid transparent;
+  border-bottom: var(--size) solid black;
+  top: 40%;
+}
+
+.custom-select::after {
+  border-left: var(--size) solid transparent;
+  border-right: var(--size) solid transparent;
+  border-top: var(--size) solid black;
+  top: 55%;
 }
 
 .red {
