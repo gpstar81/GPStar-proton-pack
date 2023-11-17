@@ -44,10 +44,10 @@
 #include <Preferences.h>
 #include <WiFi.h>
 
-// Web page files (HTML as char[])
-#include "Index.h"
-#include "Password.h"
-#include "Style.h"
+// Web page files (defines all text as char[] variable)
+#include "Index.h" // INDEX_page
+#include "Password.h" // PASSWORD_page
+#include "Style.h" // STYLE_page
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
@@ -59,7 +59,7 @@ String ap_ssid; // Reserved for storing the true SSID for the AP to be set at st
 String ap_pass; // Reserved for storing the true AP password set by the user.
 
 // Define an asynchronous web server at TCP port 80.
-// Docs: https://github.com/dvarrel/ESPAsyncWebSrv
+// Docs: https://github.com/me-no-dev/ESPAsyncWebServer
 AsyncWebServer httpServer(80);
 
 // Define a websocket endpoint for the async web server.
@@ -399,8 +399,13 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
 
   debug("Selected Music Track: " + c_music_track);
   
-  if(c_music_track != "") {
-    attenuatorSerialSend(c_music_track.toInt());
+  if(c_music_track.toInt() != 0) {
+    uint16_t i_music_track = c_music_track.toInt();
+    debug("Converted music track ID: " + String(i_music_track));
+    attenuatorSerialSend(i_music_track);
+  }
+  else {
+    debug("Integer conversion for track number failed.");
   }
   request->send(200, "application/json", "{}");
 }
@@ -509,7 +514,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
 void onOTAStart() {
   // Log when OTA has started
-  Serial.println("OTA update started");
+  debug("OTA update started");
 }
 
 void onOTAProgress(size_t current, size_t final) {
@@ -523,9 +528,9 @@ void onOTAProgress(size_t current, size_t final) {
 void onOTAEnd(bool success) {
   // Log when OTA has finished
   if (success) {
-    Serial.println("OTA update finished successfully!");
+    debug("OTA update finished successfully!");
   } else {
-    Serial.println("There was an error during OTA update!");
+    debug("There was an error during OTA update!");
   }
 }
 
@@ -537,7 +542,7 @@ void startWebServer() {
   ws.onEvent(onWebSocketEventHandler);
   httpServer.addHandler(&ws);
   
-  // Configure the OTA firmware endpoints handler.
+  // Configure the OTA firmware endpoint handler.
   ElegantOTA.begin(&httpServer);
 
   // ElegantOTA callbacks

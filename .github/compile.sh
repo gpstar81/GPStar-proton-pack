@@ -9,6 +9,8 @@ mkdir -p ${BINDIR}/attenuator
 mkdir -p ${BINDIR}/pack
 mkdir -p ${BINDIR}/wand/extras
 
+echo ""
+
 # Proton Pack
 echo "Building Proton Pack Binary..."
 arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --warnings none --export-binaries ${SRCDIR}/ProtonPack/ProtonPack.ino
@@ -20,6 +22,7 @@ rm -f ${BINDIR}/*bootloader.hex
 
 mv ${BINDIR}/ProtonPack.ino.hex ${BINDIR}/pack/ProtonPack.hex
 echo "Done."
+echo ""
 
 # Neutrona Wand
 echo "Building Neutrona Wand Binary..."
@@ -32,6 +35,7 @@ rm -f ${BINDIR}/*bootloader.hex
 
 mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/NeutronaWand.hex
 echo "Done."
+echo ""
 
 # Attenuator (Arduino)
 echo "Building Attenuator Binary (Arduino)..."
@@ -44,6 +48,7 @@ rm -f ${BINDIR}/*bootloader.hex
 
 mv ${BINDIR}/Attenuator.ino.hex ${BINDIR}/attenuator/Attenuator-Nano.hex
 echo "Done."
+echo ""
 
 # Attenuator (ESP32)
 echo "Building Attenuator Binary (ESP32)..."
@@ -57,6 +62,7 @@ rm -f ${BINDIR}/*bootloader.hex
 
 mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32.bin
 echo "Done."
+echo ""
 
 # Neutrona Wand (Bench Test)
 echo "Building Neutrona Wand (Bench Test) Binary..."
@@ -78,3 +84,4 @@ sed -i -e 's/b_gpstar_benchtest = true/b_gpstar_benchtest = false/g' ${SRCDIR}/N
 rm -f ${SRCDIR}/NeutronaWand/*.h-e
 
 echo "Done."
+echo ""
