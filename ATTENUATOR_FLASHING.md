@@ -6,7 +6,7 @@ For the Arduino Nano you may use the same flashing utility as the other gpstar P
 
 ## For ESP32
 
-This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the build-in WiFi access point provided by the controller.
+This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller.
 
 1. Power up your Proton Pack and device,
 1. Open the WiFi preferences on your computer and look for the SSID which begins "ProtonPack_".
