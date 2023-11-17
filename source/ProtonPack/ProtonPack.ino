@@ -4226,6 +4226,8 @@ void checkSerial1() {
 
             default:
               // Music track number to be played.
+Serial.println("Music Track Selection");
+Serial.println(comStruct.i);
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
                 i_current_music_track = comStruct.i;
                 if(b_playing_music == true) {

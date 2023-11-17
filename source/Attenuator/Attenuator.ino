@@ -524,8 +524,8 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           // A short, single press should start/stop the music.
-          //attenuatorSerialSend(A_MUSIC_START_STOP);
-          attenuatorSerialSend(A_MUSIC_PAUSE_RESUME);
+          attenuatorSerialSend(A_MUSIC_START_STOP);
+          //attenuatorSerialSend(A_MUSIC_PAUSE_RESUME); // Needs more work.
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           #if defined(__XTENSA__)
             debug("Music Start/Stop");

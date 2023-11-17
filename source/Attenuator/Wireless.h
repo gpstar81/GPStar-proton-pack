@@ -390,6 +390,7 @@ void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
 void handleMusicStartStop(AsyncWebServerRequest *request) {
   debug("Music Start/Stop");
   attenuatorSerialSend(A_MUSIC_START_STOP);
+  //attenuatorSerialSend(A_MUSIC_PAUSE_RESUME); // Needs more work.
   request->send(200, "application/json", "{}");
 }
 
@@ -411,16 +412,14 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
     // Get the parameter "track" if it exists (will be a String).
     c_music_track = request->getParam("track")->value();
   }
-
-  debug("Selected Music Track: " + c_music_track);
   
-  if(c_music_track.toInt() != 0) {
+  if(c_music_track.toInt() != 0 && c_music_track.toInt() >= i_music_track_min) {
     uint16_t i_music_track = c_music_track.toInt();
-    debug("Converted music track ID: " + String(i_music_track));
+    debug("Selected Music Track: " + String(i_music_track));
     attenuatorSerialSend(i_music_track);
   }
   else {
-    debug("Integer conversion for track number failed.");
+    debug("Invalid track number supplied");
   }
   request->send(200, "application/json", "{}");
 }
