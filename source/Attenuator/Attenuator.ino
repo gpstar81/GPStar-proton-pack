@@ -47,7 +47,7 @@ void setup() {
   // Enable Serial connection(s) and communication with GPStar Proton Pack PCB.
   #if defined(__XTENSA__)
     // ESP - Serial Console for messages and Device Comms via Serial2
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
     packComs.begin(Serial2);
     pinMode(BUILT_IN_LED, OUTPUT);
@@ -116,7 +116,7 @@ void setup() {
   #if defined(__XTENSA__)
     // ESP - Setup WiFi and WebServer
     bool b_ap_started = startWiFi();
-    Serial.println(b_ap_started ? "Ready" : "Failed");
+    Serial.println(b_ap_started ? "AP Ready" : "AP Failed");
 
     if(b_ap_started) {
       delay(10); // Allow a small delay before config.

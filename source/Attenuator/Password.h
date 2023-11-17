@@ -25,78 +25,8 @@ const char PASSWORD_page[] PROGMEM = R"=====(
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WiFi Password</title>
 
-  <style>
-    html {
-      font-family: Tahoma, Verdana, Arial;
-      display: inline-block;
-      margin: 0px;
-      text-align: center;
-    }
-
-    body {
-      margin: 0px 0px 20px 0px;
-    }
-
-    h1 {
-        background: #222;
-        color: #eee;
-        margin: 0px;
-        padding: 8px;
-        width: 100%;
-    }
-
-    h3 { color: #333; margin: 10px; }
-
-    a { text-decoration: none; }
-
-    p { font-size: 18px; margin-bottom: 5px; text-align: left; }
-
-    .block {
-      margin: 10px 5px 30px 5px;
-      padding: 10px 5px 10px 5px;
-    }
-
-    button {
-      background-color: #555;
-      border: 2px solid #333;
-      border-radius: 8px;
-      box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
-      color: white;
-      margin: 5px;
-      padding: 12px 14px;
-      max-width: 100px;
-      text-align: center;
-      touch-action: manipulation;
-      width: 120px;
-    }
-
-    input {
-      border: 2px solid #333;
-      border-radius: 4px;
-      box-sizing: border-box;
-      font-size: 18px;
-      margin: 4px 0;
-      padding: 6px 10px;
-      width: 50%;
-    }
-
-    .red {
-      background-color: #f44336;
-      border: 2px solid #d42316;
-    }
-    .orange {
-      background-color: #ffac1c;
-      border: 2px solid #dd9a0a;
-    }
-    .green {
-      background-color: #4CAF50;
-      border: 2px solid #2C8F30;
-    }
-    .blue {
-      background-color: #008CBA;
-      border: 2px solid #006C9A;
-    }
-  </style>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <link rel="stylesheet" href="/style.css">
 
   <script type="application/javascript">
     function updatePassword() {

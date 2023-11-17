@@ -47,6 +47,7 @@
 // Web page files (HTML as char[])
 #include "Index.h"
 #include "Password.h"
+#include "Style.h"
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
@@ -66,6 +67,9 @@ AsyncWebSocket ws("/ws");
 
 // Track the number of connected WebSocket clients.
 uint8_t i_ws_client_count = 0;
+
+// Track time to refresh progress for OTA updates.
+unsigned long i_progress_millis = 0;
 
 // Create timer for WebSocket cleanup.
 millisDelay ms_cleanup;
@@ -266,15 +270,22 @@ StaticJsonDocument<512> jsonDoc; // Used for processing JSON data.
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   Serial.println("Web Root HTML Requested");
-  String s = INDEX_page; // Read HTML contents from .h file.
-  request->send(200, "text/html", s); // Send index page.
+  String s = INDEX_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   Serial.println("Password HTML Requested");
-  String s = PASSWORD_page; // Read HTML contents from .h file.
-  request->send(200, "text/html", s); // Send password page.
+  String s = PASSWORD_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
+}
+
+void handleStyle(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  Serial.println("Main StyleSheet Requested");
+  String s = STYLE_page; // Read CSS page into String.
+  request->send(200, "text/css", s); // Serve page content.
 }
 
 String getStatus() {
@@ -406,6 +417,7 @@ void setupRouting() {
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/password", HTTP_GET, handlePassword);
+  httpServer.on("/style.css", HTTP_GET, handleStyle);
 
   // AJAX Handlers
   httpServer.on("/status", HTTP_GET, handleStatus);
@@ -495,6 +507,28 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
   }
 }
 
+void onOTAStart() {
+  // Log when OTA has started
+  Serial.println("OTA update started");
+}
+
+void onOTAProgress(size_t current, size_t final) {
+  // Log every 1 second
+  if (millis() - i_progress_millis > 1000) {
+    i_progress_millis = millis();
+    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success) {
+  // Log when OTA has finished
+  if (success) {
+    Serial.println("OTA update finished successfully!");
+  } else {
+    Serial.println("There was an error during OTA update!");
+  }
+}
+
 void startWebServer() {
   // Configures URI routing with function handlers.
   setupRouting();
@@ -504,8 +538,12 @@ void startWebServer() {
   httpServer.addHandler(&ws);
   
   // Configure the OTA firmware endpoints handler.
-  //AsyncElegantOTA.begin(&httpServer);
   ElegantOTA.begin(&httpServer);
+
+  // ElegantOTA callbacks
+  ElegantOTA.onStart(onOTAStart);
+  ElegantOTA.onProgress(onOTAProgress);
+  ElegantOTA.onEnd(onOTAEnd);
 
   // Start the web server.
   httpServer.begin();
