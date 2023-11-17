@@ -47,7 +47,7 @@ void setup() {
   // Enable Serial connection(s) and communication with GPStar Proton Pack PCB.
   #if defined(__XTENSA__)
     // ESP - Serial Console for messages and Device Comms via Serial2
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
     packComs.begin(Serial2);
     pinMode(BUILT_IN_LED, OUTPUT);
@@ -115,10 +115,7 @@ void setup() {
 
   #if defined(__XTENSA__)
     // ESP - Setup WiFi and WebServer
-    bool b_ap_started = startWiFi();
-    Serial.println(b_ap_started ? "Ready" : "Failed");
-
-    if(b_ap_started) {
+    if(startWiFi()) {
       delay(10); // Allow a small delay before config.
 
       // Do the AP network configuration.
@@ -174,13 +171,19 @@ void debug(String message) {
   // Writes a debug message to the serial console.
   #if defined(__XTENSA__)
     // ESP32
-    Serial.println(message); // Print to serial console.
-    ws.textAll(message); // Send a copy to the WebSocket.
+    #if defined(DEBUG_SEND_TO_CONSOLE)
+      Serial.println(message); // Print to serial console.
+    #endif
+    #if defined(DEBUG_SEND_TO_WEBSOCKET)
+      ws.textAll(message); // Send a copy to the WebSocket.
+    #endif
   #else
     // Nano
     if(!b_wait_for_pack) {
       // Can only use Serial output if pack is not connected.
-      Serial.println(message);
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        Serial.println(message);
+      #endif
     }
   #endif
 }
@@ -522,7 +525,7 @@ void checkRotaryPress() {
         case MENU_1:
           // A short, single press should start/stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
-          //attenuatorSerialSend(A_MUSIC_PAUSE_RESUME); // This may have some bugs in it, use with caution.
+          //attenuatorSerialSend(A_MUSIC_PAUSE_RESUME); // Needs more work.
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           #if defined(__XTENSA__)
             debug("Music Start/Stop");
@@ -702,7 +705,7 @@ void switchLoops() {
   encoder_center.loop();
 }
 
-void attenuatorSerialSend(int i_message) {
+void attenuatorSerialSend(uint16_t i_message) {
   sendStruct.i = i_message;
   sendStruct.s = A_COM_START;
   sendStruct.e = A_COM_END;

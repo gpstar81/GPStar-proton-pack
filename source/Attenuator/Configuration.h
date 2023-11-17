@@ -19,6 +19,26 @@
  */
 
 /*
+ * Debugging options for ESP32 only.
+ * Control debug messages for various actions during normal operation.
+ * Uncomment the desired line(s) to output messages when and where you
+ * expect to see them. Using the console should be reserved for active
+ * debugging, while the websocket will help with confirming operations
+ * while using the device (post-setup for wireless).
+ */
+//#define DEBUG_WIRELESS_SETUP
+//#define DEBUG_SEND_TO_CONSOLE
+#define DEBUG_SEND_TO_WEBSOCKET
+
+/*
+ * Force the use of default SSID and password for wireless capabilities.
+ * Uncomment and upload to device, then perform a reset of your password
+ * to a new and known value. When completed, flash the latest version of
+ * the software which has this line commented out.
+ */
+//#define RESET_AP_SETTINGS
+
+/*
  * Wait for pack communication or operate without pack integration.
  */
 bool b_wait_for_pack = true;

@@ -4226,17 +4226,25 @@ void checkSerial1() {
 
             default:
               // Music track number to be played.
-              if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
-                i_current_music_track = comStruct.i;
+              if(i_music_count > 0 && dataStructR.i >= i_music_track_start) {
                 if(b_playing_music == true) {
                   stopMusic(); // Stops current track before change.
                   packSerialSend(P_MUSIC_STOP);
+
+                  // Only update after the music is stopped.
+                  i_current_music_track = dataStructR.i;
 
                   // Tell the wand which track to play.
                   packSerialSend(i_current_music_track);
 
                   playMusic(); // Start playing new track number.
                   packSerialSend(P_MUSIC_START);
+                }
+                else {
+                  i_current_music_track = dataStructR.i;
+
+                  // Tell the wand which track to play.
+                  packSerialSend(i_current_music_track);
                 }
               }
             break;

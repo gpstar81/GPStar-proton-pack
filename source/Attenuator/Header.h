@@ -268,5 +268,5 @@ bool b_firing = false;
 bool b_overheating = false;
 
 // Forward declarations.
-void attenuatorSerialSend(int i_message);
+void attenuatorSerialSend(uint16_t i_message);
 void debug(String message);

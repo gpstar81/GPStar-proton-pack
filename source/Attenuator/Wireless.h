@@ -44,9 +44,10 @@
 #include <Preferences.h>
 #include <WiFi.h>
 
-// Web page files (HTML as char[])
-#include "Index.h"
-#include "Password.h"
+// Web page files (defines all text as char[] variable)
+#include "Index.h" // INDEX_page
+#include "Password.h" // PASSWORD_page
+#include "Style.h" // STYLE_page
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
@@ -58,7 +59,7 @@ String ap_ssid; // Reserved for storing the true SSID for the AP to be set at st
 String ap_pass; // Reserved for storing the true AP password set by the user.
 
 // Define an asynchronous web server at TCP port 80.
-// Docs: https://github.com/dvarrel/ESPAsyncWebSrv
+// Docs: https://github.com/me-no-dev/ESPAsyncWebServer
 AsyncWebServer httpServer(80);
 
 // Define a websocket endpoint for the async web server.
@@ -67,29 +68,47 @@ AsyncWebSocket ws("/ws");
 // Track the number of connected WebSocket clients.
 uint8_t i_ws_client_count = 0;
 
+// Track time to refresh progress for OTA updates.
+unsigned long i_progress_millis = 0;
+
 // Create timer for WebSocket cleanup.
 millisDelay ms_cleanup;
 const unsigned int i_websocketCleanup = 5000;
 
 boolean startWiFi() {
   // Begin some diagnostic information to console.
-  Serial.println();
-  Serial.println("Starting Wireless Access Point");
   String macAddr = String(WiFi.macAddress());
-  Serial.print("Device WiFi MAC Address: ");
-  Serial.println(macAddr);
+  #if defined(DEBUG_WIRELESS_SETUP)
+    Serial.println();
+    Serial.println("Starting Wireless Access Point");
+    Serial.print("Device WiFi MAC Address: ");
+    Serial.println(macAddr);
+  #endif
 
   // Create an AP name unique to this device, to avoid stepping on others.
   String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
 
   // Prepare to return either stored preferences or a default value for SSID/password.
   preferences.begin("credentials", true); // Access namespace in read-only mode.
-  ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
-  ap_pass = preferences.getString("password", ap_default_passwd);
+  #if defined(RESET_AP_SETTINGS)
+    // Doesn't actually "reset" but forces default values for SSID and password.
+    // Meant to allow the user to reset their credentials then re-flash after
+    // commenting out the RESET_AP_SETTINGS definition in Configuration.h
+    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix;
+    ap_pass = ap_default_passwd;
+  #else
+    // Use either the stored preferences or an expected default value.
+    ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+    ap_pass = preferences.getString("password", ap_default_passwd);
+  #endif
   preferences.end();
 
   // Start the access point using the SSID and password.
-  return WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str());
+  bool b_ap_started = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str());
+  #if defined(DEBUG_WIRELESS_SETUP)
+    Serial.println(b_ap_started ? "AP Ready" : "AP Failed");
+  #endif
+  return b_ap_started;
 }
 
 void configureNetwork() {
@@ -101,13 +120,13 @@ void configureNetwork() {
   // Set networking info and report to console.
   WiFi.softAPConfig(local_ip, gateway, subnet);
   delay(100);
-  Serial.print("Access Point IP Address: ");
-  IPAddress IP = WiFi.softAPIP();
-  Serial.println(IP);
-  Serial.print("WiFi AP Started as ");
-  Serial.println(ap_ssid);
-  Serial.print("WiFi AP Password: ");
-  Serial.println(ap_pass);
+  #if defined(DEBUG_WIRELESS_SETUP)
+    IPAddress IP = WiFi.softAPIP();
+    Serial.print("Access Point IP Address: ");
+    Serial.println(IP);
+    Serial.println("WiFi AP Started as " + ap_ssid);
+    Serial.println("WiFi AP Password: " + ap_pass);
+  #endif
 }
 
 /*
@@ -265,16 +284,23 @@ StaticJsonDocument<512> jsonDoc; // Used for processing JSON data.
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  Serial.println("Web Root HTML Requested");
-  String s = INDEX_page; // Read HTML contents from .h file.
-  request->send(200, "text/html", s); // Send index page.
+  debug("Web Root HTML Requested");
+  String s = INDEX_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  Serial.println("Password HTML Requested");
-  String s = PASSWORD_page; // Read HTML contents from .h file.
-  request->send(200, "text/html", s); // Send password page.
+  debug("Password HTML Requested");
+  String s = PASSWORD_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
+}
+
+void handleStyle(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  debug("Main StyleSheet Requested");
+  String s = STYLE_page; // Read CSS page into String.
+  request->send(200, "text/css", s); // Serve page content.
 }
 
 String getStatus() {
@@ -364,6 +390,7 @@ void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
 void handleMusicStartStop(AsyncWebServerRequest *request) {
   debug("Music Start/Stop");
   attenuatorSerialSend(A_MUSIC_START_STOP);
+  //attenuatorSerialSend(A_MUSIC_PAUSE_RESUME); // Needs more work.
   request->send(200, "application/json", "{}");
 }
 
@@ -386,10 +413,13 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
     c_music_track = request->getParam("track")->value();
   }
 
-  debug("Selected Music Track: " + c_music_track);
-  
-  if(c_music_track != "") {
-    attenuatorSerialSend(c_music_track.toInt());
+  if(c_music_track.toInt() != 0 && c_music_track.toInt() >= i_music_track_min) {
+    uint16_t i_music_track = c_music_track.toInt();
+    debug("Selected Music Track: " + String(i_music_track));
+    attenuatorSerialSend(i_music_track);
+  }
+  else {
+    debug("Invalid track number supplied");
   }
   request->send(200, "application/json", "{}");
 }
@@ -406,6 +436,7 @@ void setupRouting() {
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/password", HTTP_GET, handlePassword);
+  httpServer.on("/style.css", HTTP_GET, handleStyle);
 
   // AJAX Handlers
   httpServer.on("/status", HTTP_GET, handleStatus);
@@ -436,8 +467,7 @@ void setupRouting() {
     String result;
     if(jsonData.containsKey("password")) {
       String newPasswd = jsonData["password"];
-      Serial.print("New AP Password: ");
-      Serial.println(newPasswd);
+      //Serial.println("New AP Password: " + newPasswd);
 
       if(newPasswd != "") {
         preferences.begin("credentials", false); // Access namespace in read/write mode.
@@ -469,29 +499,61 @@ void setupRouting() {
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){
   switch(type) {
     case WS_EVT_CONNECT:
-      Serial.printf("WebSocket[%s][%u] Connect\n", server->url(), client->id());
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        Serial.printf("WebSocket[%s][%u] Connect\n", server->url(), client->id());
+      #endif
       i_ws_client_count++;
     break;
 
     case WS_EVT_DISCONNECT:
-      Serial.printf("WebSocket[%s][%u] Disconnect\n", server->url(), client->id());
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        Serial.printf("WebSocket[%s][%u] Disconnect\n", server->url(), client->id());
+      #endif
       if(i_ws_client_count > 0) {
         i_ws_client_count--;
       }
     break;
 
     case WS_EVT_ERROR:
-      Serial.printf("WebSocket[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        Serial.printf("WebSocket[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+      #endif
     break;
 
     case WS_EVT_PONG:
-      Serial.printf("WebSocket[%s][%u] Pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        Serial.printf("WebSocket[%s][%u] Pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+      #endif
     break;
 
     case WS_EVT_DATA:
-      Serial.println("WebSocket Data Received");
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        Serial.println("WebSocket Data Received");
+      #endif
       // Do something when data is received via WebSocket.
     break;
+  }
+}
+
+void onOTAStart() {
+  // Log when OTA has started
+  debug("OTA update started");
+}
+
+void onOTAProgress(size_t current, size_t final) {
+  // Log every 1 second
+  if (millis() - i_progress_millis > 1000) {
+    i_progress_millis = millis();
+    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success) {
+  // Log when OTA has finished
+  if (success) {
+    debug("OTA update finished successfully!");
+  } else {
+    debug("There was an error during OTA update!");
   }
 }
 
@@ -503,13 +565,17 @@ void startWebServer() {
   ws.onEvent(onWebSocketEventHandler);
   httpServer.addHandler(&ws);
   
-  // Configure the OTA firmware endpoints handler.
-  //AsyncElegantOTA.begin(&httpServer);
+  // Configure the OTA firmware endpoint handler.
   ElegantOTA.begin(&httpServer);
+
+  // ElegantOTA callbacks
+  ElegantOTA.onStart(onOTAStart);
+  ElegantOTA.onProgress(onOTAProgress);
+  ElegantOTA.onEnd(onOTAEnd);
 
   // Start the web server.
   httpServer.begin();
-  Serial.println("Async HTTP Server Started");
+  //Serial.println("Async HTTP Server Started");
 }
 
 // Send notification to all websocket clients.
