@@ -277,14 +277,25 @@ const char INDEX_page[] PROGMEM = R"=====(
       xhttp.send();
     }
 
-    function toggleMusic() {
+    function startstopMusic() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           handleStatus(this.responseText);
         }
       };
-      xhttp.open("PUT", "/music/toggle", true);
+      xhttp.open("PUT", "/music/startstop", true);
+      xhttp.send();
+    }
+
+    function pauseresumeMusic() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/music/pauseresume", true);
       xhttp.send();
     }
 
@@ -350,7 +361,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <h3>Music Playback</h3>
     <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
-    <button type="button" class="green" onclick="toggleMusic()">Start/Stop</button>
+    <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
     <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
     <br/>
     <h3>Play Music Track</h3>

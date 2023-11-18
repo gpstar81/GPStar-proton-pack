@@ -399,7 +399,12 @@ void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
 void handleMusicStartStop(AsyncWebServerRequest *request) {
   debug("Music Start/Stop");
   attenuatorSerialSend(A_MUSIC_START_STOP);
-  //attenuatorSerialSend(A_MUSIC_PAUSE_RESUME); // Needs more work.
+  request->send(200, "application/json", status);
+}
+
+void handleMusicPauseResume(AsyncWebServerRequest *request) {
+  debug("Music Start/Stop");
+  attenuatorSerialSend(A_MUSIC_PAUSE_RESUME);
   request->send(200, "application/json", status);
 }
 
@@ -464,7 +469,8 @@ void setupRouting() {
   httpServer.on("/volume/master/down", HTTP_PUT, handleMasterVolumeDown);
   httpServer.on("/volume/effects/up", HTTP_PUT, handleEffectsVolumeUp);
   httpServer.on("/volume/effects/down", HTTP_PUT, handleEffectsVolumeDown);
-  httpServer.on("/music/toggle", HTTP_PUT, handleMusicStartStop);
+  httpServer.on("/music/startstop", HTTP_PUT, handleMusicStartStop);
+  httpServer.on("/music/pauseresume", HTTP_PUT, handleMusicPauseResume);
   httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);
   httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);

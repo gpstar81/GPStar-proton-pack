@@ -53,14 +53,15 @@ The following URL's are available for managing actions within your devices:
 	GET /status - Obtain the current equipment status
 	PUT /pack/on - Turn the pack on (subject to system state)
 	PUT /pack/off - Turn the pack onf (subject to system state)
-	PUT /pack/attenuate - Cancel the overheat (attenuate) the pack
-	PUT /pack/vent - Manual vent (subject to system state)
+	PUT /pack/attenuate - Cancel pack overheat via "attenuation"
+	PUT /pack/vent - Perform manual vent (subject to system state)
 	PUT /volume/toggle - Toggle mute for all devices
 	PUT /volume/master/up - Increase master volume
 	PUT /volume/master/down - Decrease master volume
 	PUT /volume/effects/up - Increase effects volume
 	PUT /volume/effects/down - Decrease effects volume
-	PUT /music/toggle - Toggle music playback (start/stop or resume/pause)
+	PUT /music/startstop - Toggle music playback via start/stop
+	PUT /music/pauseresume - Toggle music playback via resume/pause
 	PUT /music/next - Move to next track
-	PUT /music/select?track=[INTEGER] - Select a specific music track (must start at 500)
 	PUT /music/prev - Move to previous track
+	PUT /music/select?track=[INTEGER] - Select a specific music track (Min Value: 500)
