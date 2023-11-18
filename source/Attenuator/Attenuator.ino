@@ -793,6 +793,30 @@ void checkPack() {
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
           break;
 
+          case A_MUSIC_IS_PLAYING:
+            b_playing_music = true;
+
+            if(comStruct.d1 > 0) {
+              i_music_track_count = comStruct.d1;
+            }
+          break;
+
+          case A_MUSIC_IS_NOT_PLAYING:
+            b_playing_music = false;
+
+            if(comStruct.d1 > 0) {
+              i_music_track_count = comStruct.d1;
+            }
+          break;
+
+          case A_MUSIC_IS_PAUSED:
+            b_music_paused = true;
+          break;
+
+          case A_MUSIC_IS_NOT_PAUSED:
+            b_music_paused = false;
+          break;
+
           case A_MUSIC_TRACK_COUNT_SYNC:
           #if defined(__XTENSA__)
             debug("Music Track Sync");

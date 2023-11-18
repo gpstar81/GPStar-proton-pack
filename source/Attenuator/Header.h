@@ -232,6 +232,13 @@ enum MENU_LEVELS MENU_LEVEL;
 #endif
 
 /* 
+ * Music status from the Proton Pack.
+*/
+bool b_playing_music = false;
+bool b_music_pause = false;
+unsigned int i_current_music_track = 0;
+
+/* 
  * Pack Communication
  */
 #if defined(__XTENSA__)

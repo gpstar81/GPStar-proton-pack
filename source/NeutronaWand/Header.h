@@ -307,7 +307,7 @@ struct objEEPROM {
 
   uint8_t neutrona_wand_year_mode;
   uint8_t CTS_mode;
-  uint8_t mode_original_toggle_switch_sounds;
+  uint8_t beep_loop;
   uint8_t overheat_start_timer_level_5;
   uint8_t overheat_start_timer_level_4;
   uint8_t overheat_start_timer_level_3;
