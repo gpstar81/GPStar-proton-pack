@@ -16,9 +16,17 @@ This device supports Over-The-Air (OTA) updates for firmware, meaning you will n
 1. The upload will begin immediately. Once at 100% the device will reboot.
 1. Navigate to [http://192.168.1.2](http://192.168.1.2) to confirm that the device is able to communicate with the Proton Pack PCB.
 
+![](images/WebUI-Update1.jpg)
+
+![](images/WebUI-Update2.jpg)
+
+![](images/WebUI-Update3.jpg)
+
 ### Setting a WiFi Password
 
 Once you are able to reach the web UI at [http://192.168.1.2](http://192.168.1.2) scroll to the bottom of the page to find the "Change WiFi Password" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled.
+
+![](images/WebUI-Password.jpg)
 
 ### Forgot Your WiFi Password?
 

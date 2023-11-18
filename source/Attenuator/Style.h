@@ -72,7 +72,7 @@ button {
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
   color: white;
   margin: 5px;
-  padding: 12px 14px;
+  padding: 12px 8px;
   max-width: 120px;
   text-align: center;
   touch-action: manipulation;
@@ -97,20 +97,16 @@ input {
 }
 
 select {
-  appearance: none;
-  /* safari */
-  -webkit-appearance: none;
-  /* other styles for aesthetics */
-  background-color: #888;
+  background-color: #555;
   border: 2px solid #333;
   border-radius: 8px;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
   color: white;
   cursor: pointer;
   font-size: 1.15rem;
-  height: 40px;
+  height: 50px;
   margin: 5px;
-  padding: 0.675em 6em 0.675em 1em;
+  padding: 6px 8px;
   max-width: 260px;
   min-width: 260px;
   text-align: center;
