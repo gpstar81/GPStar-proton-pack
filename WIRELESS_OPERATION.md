@@ -42,25 +42,25 @@ These links allow you to update the WiFi password to one of your choice, or to u
 
 The following URL's will serve the pages as shown above:
 
-	/ - Index Page
-	/password - WiFi Password Update Page
-	/style.css - Common Stylesheet
+	GET / - Standard Index/Landing Page
+	GET /password - WiFi Password Update Page
+	GET /style.css - Common Stylesheet
 
 For real-time updates, a special url exists at `/ws` to support [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API). When connected, the ESP32 device will "push" any relevant information direct to clients. Note that this data may be in the form of a JSON object or a plain string, so check the contents of the data carefully before usage.
 
 The following URL's are available for managing actions within your devices:
 
 	GET /status - Obtain the current equipment status
-	GET /pack/on - Turn the pack on (subject to system state)
-	GET /pack/off - Turn the pack onf (subject to system state)
-	GET /pack/cancel - Cancel the overheat (attenuate) the pack
-	GET /pack/vent - Manual vent (subject to system state)
-	GET /volume/toggle - Mute or Unmute all devices
-	GET /volume/master/up - Increase master volume
-	GET /volume/master/down - Decrease master volume
-	GET /volume/effects/up - Increase effects volume
-	GET /volume/effects/down - Decrease effects volume
-	GET /music/toggle - Start or Stop music playback
-	GET /music/next - Move to next track
-	GET /music/select?track=### - Select a specific music track (must start at 500)
-	GET /music/prev - Move to previous track
+	PUT /pack/on - Turn the pack on (subject to system state)
+	PUT /pack/off - Turn the pack onf (subject to system state)
+	PUT /pack/attenuate - Cancel the overheat (attenuate) the pack
+	PUT /pack/vent - Manual vent (subject to system state)
+	PUT /volume/toggle - Toggle mute for all devices
+	PUT /volume/master/up - Increase master volume
+	PUT /volume/master/down - Decrease master volume
+	PUT /volume/effects/up - Increase effects volume
+	PUT /volume/effects/down - Decrease effects volume
+	PUT /music/toggle - Toggle music playback (start/stop or resume/pause)
+	PUT /music/next - Move to next track
+	PUT /music/select?track=[INTEGER] - Select a specific music track (must start at 500)
+	PUT /music/prev - Move to previous track
