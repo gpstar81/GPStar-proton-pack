@@ -181,6 +181,11 @@ bool b_wand_boot_errors = true;
 bool b_overheat_bargraph_blink = false;
 
 /*
+ * When set to false, the Neutrona Wand beeping will not loop in Afterlife mode.
+*/
+bool b_beep_loop = true;
+
+/*
  * Which power modes do you want to be able to overheat.
  * Set to true to allow the wand and pack to overheat in that mode.
  * Set to false to disable overheating in that power mode. You will be able to continuously fire instead.

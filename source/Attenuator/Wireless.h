@@ -286,21 +286,21 @@ String status; // Holder for simple "status: success" response.
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  debug("Web Root HTML Requested");
+  //debug("Web Root HTML Requested");
   String s = INDEX_page; // Read HTML page into String.
   request->send(200, "text/html", s); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  debug("Password HTML Requested");
+  //debug("Password HTML Requested");
   String s = PASSWORD_page; // Read HTML page into String.
   request->send(200, "text/html", s); // Serve page content.
 }
 
 void handleStyle(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  debug("Main StyleSheet Requested");
+  //debug("Main StyleSheet Requested");
   String s = STYLE_page; // Read CSS page into String.
   request->send(200, "text/css", s); // Serve page content.
 }
@@ -321,6 +321,9 @@ String getEquipmentStatus() {
   jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
   jsonDoc["cyclotron"] = getCyclotronState();
   jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
+  jsonDoc["musicPlaying"] = b_playing_music;
+  jsonDoc["musicPaused"] = b_music_paused;
+  jsonDoc["musicCurrent"] = i_music_track_current;
   jsonDoc["musicStart"] = i_music_track_min;
   jsonDoc["musicEnd"] = i_music_track_max;
   serializeJson(jsonDoc, equipStatus); // Serialize to string.
@@ -403,7 +406,7 @@ void handleMusicStartStop(AsyncWebServerRequest *request) {
 }
 
 void handleMusicPauseResume(AsyncWebServerRequest *request) {
-  debug("Music Start/Stop");
+  debug("Music Pause/Resume");
   attenuatorSerialSend(A_MUSIC_PAUSE_RESUME);
   request->send(200, "application/json", status);
 }

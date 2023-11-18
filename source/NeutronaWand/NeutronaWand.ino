@@ -889,23 +889,23 @@ void mainLoop() {
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Enable/Disable MODE_ORIGINAL toggle switch sound effects. b_mode_original_toggle_sounds_enabled
-              if(b_mode_original_toggle_sounds_enabled == true) {
-                b_mode_original_toggle_sounds_enabled = false;
+              if(b_beep_loop == true) {
+                b_beep_loop = false;
 
-                stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
-                stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
-                playEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
+                stopEffect(S_VOICE_NEUTRONA_WAND_BEEPING_DISABLED);
+                stopEffect(S_VOICE_NEUTRONA_WAND_BEEPING_ENABLED);
+                playEffect(S_VOICE_NEUTRONA_WAND_BEEPING_DISABLED);
 
-                wandSerialSend(W_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
+                wandSerialSend(W_MODE_BEEP_LOOP_DISABLED);
               }
               else {
-                b_mode_original_toggle_sounds_enabled = true;
+                b_beep_loop = true;
 
-                stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
-                stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
-                playEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+                stopEffect(S_VOICE_NEUTRONA_WAND_BEEPING_DISABLED);
+                stopEffect(S_VOICE_NEUTRONA_WAND_BEEPING_ENABLED);
+                playEffect(S_VOICE_NEUTRONA_WAND_BEEPING_ENABLED);
 
-                wandSerialSend(W_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+                wandSerialSend(W_MODE_BEEP_LOOP_ENABLED);
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
@@ -3288,7 +3288,7 @@ void soundBeepLoop() {
     if(b_beeping == false) {
       switch(i_power_mode) {
         case 1:
-          if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+          if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_beep_loop == true) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
           }
           else {
@@ -3297,7 +3297,7 @@ void soundBeepLoop() {
         break;
 
         case 2:
-         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+         if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_beep_loop == true) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
           }
           else {
@@ -3306,7 +3306,7 @@ void soundBeepLoop() {
         break;
 
         case 3:
-         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+         if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_beep_loop == true) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
           }
           else {
@@ -3315,7 +3315,7 @@ void soundBeepLoop() {
         break;
 
         case 4:
-         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+         if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_beep_loop == true) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
           }
           else {
@@ -3324,7 +3324,7 @@ void soundBeepLoop() {
         break;
 
         case 5:
-         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+         if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_beep_loop == true) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
           }
           else {
@@ -9423,7 +9423,7 @@ void saveEEPROM() {
   uint8_t i_bargraph_overheat_blinking = 1;
   uint8_t i_neutrona_wand_year_mode = 1;
   uint8_t i_CTS_mode = 1;
-  uint8_t i_mode_original_toggle_switch_sounds = 1;
+  uint8_t i_beep_loop = 2;
   uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_mode_5 / 1000;
   uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_mode_4 / 1000;
   uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_mode_3 / 1000;
@@ -9560,8 +9560,8 @@ void saveEEPROM() {
     break;
   }
 
-  if(b_mode_original_toggle_sounds_enabled == true) {
-    i_mode_original_toggle_switch_sounds = 2;
+  if(b_beep_loop != true) {
+    i_beep_loop = 1;
   }
 
   if(b_overheat_mode_5 == true) {
@@ -9602,7 +9602,7 @@ void saveEEPROM() {
     i_bargraph_overheat_blinking,
     i_neutrona_wand_year_mode,
     i_CTS_mode,
-    i_mode_original_toggle_switch_sounds,
+    i_beep_loop,
     i_overheat_start_timer_level_5,
     i_overheat_start_timer_level_4,
     i_overheat_start_timer_level_3,
@@ -9851,12 +9851,12 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.mode_original_toggle_switch_sounds > 0 && obj_eeprom.mode_original_toggle_switch_sounds != 255) {
-      if(obj_eeprom.mode_original_toggle_switch_sounds > 1) {
-        b_mode_original_toggle_sounds_enabled = true;
+    if(obj_eeprom.beep_loop > 0 && obj_eeprom.beep_loop != 255) {
+      if(obj_eeprom.beep_loop > 1) {
+        b_beep_loop = true;
       }
       else {
-        b_mode_original_toggle_sounds_enabled = false;
+        b_beep_loop = false;
       }
     }
 

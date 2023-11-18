@@ -33,6 +33,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     var gateway = "ws://" + hostname + "/ws";
     var websocket;
     var statusInterval;
+    var musicTrackCurrent = 0;
     var musicTrackMax = 0;
 
     window.addEventListener("load", onLoad);
@@ -140,15 +141,23 @@ const char INDEX_page[] PROGMEM = R"=====(
           document.getElementById("btnAttenuate").disabled = true;
         }
 
-        if (jObj.musicStart > 0 && jObj.musicEnd > jObj.musicStart && musicTrackMax != jObj.musicEnd) {
-          // Proceed if we have a starting track and valid end track.
+        if (jObj.musicStart > 0 &&
+            jObj.musicEnd > jObj.musicStart &&
+            (musicTrackMax != jObj.musicEnd ||
+             musicTrackCurrent != jObj.musicCurrent)) {
+          // Proceed if we have a starting track and valid end track, and if current track changed.
           musicTrackMax = jObj.musicEnd;
+          musicTrackCurrent = jObj.musicCurrent;
           var trackList = document.getElementById("tracks");
           removeOptions(trackList);
           for (var i = jObj.musicStart; i <= jObj.musicEnd; i++) {
               var opt = document.createElement("option");
               opt.value = i;
+              opt.text = "Track #" + i;
               opt.innerHTML = i;
+              if (i == jObj.musicCurrent) {
+                opt.selected = true;
+              }
               trackList.appendChild(opt);
           }
         }
@@ -363,6 +372,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
     <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
     <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
+    <br/>
+    <button type="button" class="green" onclick="pauseresumeMusic()" style="width:120px;">Pause/Resume</button>
     <br/>
     <h3>Play Music Track</h3>
     <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>

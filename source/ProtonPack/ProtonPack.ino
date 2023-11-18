@@ -609,15 +609,12 @@ void checkMusic() {
     w_trig.trackPlayingStatus(i_current_music_track);
 
     // Loop through all the tracks if the music is not set to repeat a track.
-    if(b_playing_music == true && b_repeat_track == false) {
+    if(b_playing_music == true && b_repeat_track == false && b_music_paused != true) {
       if(w_trig.currentMusicTrackStatus(i_current_music_track) != true && ms_music_status_check.justFinished() && w_trig.trackCounterReset() != true) {
         ms_check_music.stop();
         ms_music_status_check.stop();
 
         stopMusic();
-
-        // Tell the Neutrona Wand to stop playing music.
-        packSerialSend(P_MUSIC_STOP);
 
         // Switch to the next track.
         if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
@@ -626,9 +623,6 @@ void checkMusic() {
         else {
           i_current_music_track++;
         }
-
-        // Tell the Neutrona Wand which music track to change to.
-        packSerialSend(i_current_music_track);
 
         // Start timer to prepare to play music again.
         ms_music_next_track.start(i_music_next_track_delay);
@@ -647,9 +641,6 @@ void checkMusic() {
     ms_check_music.start(i_music_check_delay);
 
     playMusic();
-
-    // Tell the Neutrona Wand to play music.
-    packSerialSend(P_MUSIC_START);
   }
 }
 
@@ -4177,13 +4168,10 @@ void checkSerial1() {
 
             case A_MUSIC_START_STOP:
               if(b_playing_music == true) {
-                packSerialSend(P_MUSIC_STOP);
                 stopMusic();
-                b_playing_music = false;
               }
               else {
                 if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-                  b_playing_music = true;
                   playMusic();
 
                   packSerialSend(i_current_music_track);
@@ -4194,15 +4182,13 @@ void checkSerial1() {
 
             case A_MUSIC_PAUSE_RESUME:
               if(b_playing_music == true) {
-                packSerialSend(P_MUSIC_PAUSE);
-                pauseMusic();
-                b_playing_music = false;
-              }
-              else {
-                if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-                  b_playing_music = true;
-                  packSerialSend(P_MUSIC_RESUME);
-                  resumeMusic();
+                if(b_music_paused != true) {
+                  pauseMusic();
+                }
+                else {
+                  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+                    resumeMusic();
+                  }
                 }
               }
             break;
@@ -4228,7 +4214,6 @@ void checkSerial1() {
               if(i_music_count > 0 && dataStructR.i >= i_music_track_start) {
                 if(b_playing_music == true) {
                   stopMusic(); // Stops current track before change.
-                  packSerialSend(P_MUSIC_STOP);
 
                   // Only update after the music is stopped.
                   i_current_music_track = dataStructR.i;
@@ -4370,6 +4355,21 @@ void checkSerial1() {
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
             }
 
+            // This sends over the music status and the current music track.
+            if(b_playing_music == true) {
+              serial1Send(A_MUSIC_IS_PLAYING);
+            }
+            else {
+              serial1Send(A_MUSIC_IS_NOT_PLAYING);
+            }
+
+            if(b_music_paused == true) {
+              serial1Send(A_MUSIC_IS_PAUSED);
+            }
+            else {
+              serial1Send(A_MUSIC_IS_NOT_PAUSED);
+            }
+
             serial1Send(A_MUSIC_TRACK_COUNT_SYNC);
 
             b_serial1_connected = true;
@@ -4451,18 +4451,18 @@ void checkWand() {
               playEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_DISABLED);
             break;
 
-            case W_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED:
-              stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
-              stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
+            case W_MODE_BEEP_LOOP_ENABLED:
+              stopEffect(S_VOICE_NEUTRONA_WAND_BEEPING_DISABLED);
+              stopEffect(S_VOICE_NEUTRONA_WAND_BEEPING_ENABLED);
 
-              playEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+              playEffect(S_VOICE_NEUTRONA_WAND_BEEPING_ENABLED);
             break;
 
-            case W_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED:
-              stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
-              stopEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_ENABLED);
+            case W_MODE_BEEP_LOOP_DISABLED:
+              stopEffect(S_VOICE_NEUTRONA_WAND_BEEPING_DISABLED);
+              stopEffect(S_VOICE_NEUTRONA_WAND_BEEPING_ENABLED);
 
-              playEffect(S_VOICE_MODE_ORIGINAL_TOGGLE_SOUNDS_DISABLED);
+              playEffect(S_VOICE_NEUTRONA_WAND_BEEPING_DISABLED);
             break;
 
             case W_CYCLOTRON_SIMULATE_RING_TOGGLE:
@@ -5631,8 +5631,6 @@ void checkWand() {
               // Stop music.
               b_playing_music = false;
               stopMusic();
-
-              packSerialSend(P_MUSIC_STOP);
             break;
 
             case W_MUSIC_START:
@@ -6879,7 +6877,6 @@ void checkWand() {
                   i_current_music_track = comStruct.i;
                   playMusic(); // Start playing new track number.
 
-                  packSerialSend(P_MUSIC_STOP);
                   packSerialSend(i_current_music_track);
                   packSerialSend(P_MUSIC_START);
                 }
@@ -6936,7 +6933,7 @@ void checkWand() {
             }
 
             // Stop any music. Mainly for when flashing while connected to a computer with a running wand.
-             packSerialSend(P_MUSIC_STOP);
+            //packSerialSend(P_MUSIC_STOP);
 
             // Sync the current music track.
             // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
@@ -7108,6 +7105,9 @@ void serial1Send(int i_message) {
   }
   else if(i_message == A_MUSIC_TRACK_COUNT_SYNC) {
     dataStruct.d1 = i_music_count;
+  }
+  else if(i_message == A_MUSIC_IS_PLAYING || i_message == A_MUSIC_IS_NOT_PLAYING) {
+    dataStruct.d1 = i_current_music_track;
   }
 
   dataStruct.e = A_COM_END;
@@ -7390,39 +7390,70 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
 
 // Helper method to play a music track using certain defaults.
 void playMusic() {
-  // Loop the music track.
-  if(b_repeat_track == true) {
-    w_trig.trackLoop(i_current_music_track, 1);
+  if(b_music_paused != true) {
+    b_playing_music = true;
+
+    // Loop the music track.
+    if(b_repeat_track == true) {
+      w_trig.trackLoop(i_current_music_track, 1);
+    }
+    else {
+      w_trig.trackLoop(i_current_music_track, 0);
+    }
+
+    w_trig.trackGain(i_current_music_track, i_volume_music);
+    w_trig.trackPlayPoly(i_current_music_track, true);
+
+    w_trig.update();
+
+    ms_music_status_check.start(i_music_check_delay * 10);
+    w_trig.resetTrackCounter(true);
+
+    // Tell the Neutrona Wand which music track to change to and play it.
+    packSerialSend(i_current_music_track);
+    packSerialSend(P_MUSIC_START);
+
+    serial1Send(A_MUSIC_IS_PLAYING);
   }
-  else {
-    w_trig.trackLoop(i_current_music_track, 0);
-  }
-
-  w_trig.trackGain(i_current_music_track, i_volume_music);
-  w_trig.trackPlayPoly(i_current_music_track, true);
-
-  w_trig.update();
-
-  ms_music_status_check.start(i_music_check_delay * 10);
-  w_trig.resetTrackCounter(true);
 }
 
 void stopMusic() {
   w_trig.trackStop(i_current_music_track);
-
   w_trig.update();
+
+  b_music_paused = false;
+  b_playing_music = false;
+
+  packSerialSend(P_MUSIC_STOP);
+  serial1Send(A_MUSIC_IS_NOT_PLAYING);
+  serial1Send(A_MUSIC_IS_NOT_PAUSED);
 }
 
 void pauseMusic() {
-  w_trig.trackPause(i_current_music_track);
+  if(b_playing_music == true) {
+    w_trig.trackPause(i_current_music_track);
+    w_trig.update();
 
-  w_trig.update();
+    b_music_paused = true;
+    packSerialSend(P_MUSIC_PAUSE);
+    serial1Send(A_MUSIC_IS_PAUSED);
+  }
 }
 
 void resumeMusic() {
-  w_trig.trackResume(i_current_music_track);
+  if(b_playing_music == true) {
+    b_music_paused = false;
 
-  w_trig.update();
+    // Reset the music check timer.
+    ms_music_status_check.start(i_music_check_delay * 10);
+    w_trig.resetTrackCounter(true);
+
+    w_trig.trackResume(i_current_music_track);
+    w_trig.update();
+
+    packSerialSend(P_MUSIC_RESUME);
+    serial1Send(A_MUSIC_IS_NOT_PAUSED);
+  }
 }
 
 void musicNextTrack() {
@@ -7441,22 +7472,17 @@ void musicNextTrack() {
   if(b_playing_music == true) {
     // Stops music using the current track.
     stopMusic();
-    packSerialSend(P_MUSIC_STOP);
 
-    // Set the new track and tell the wand.
     i_current_music_track = i_temp_track;
-    packSerialSend(i_current_music_track);
 
     // Begin playing the new track.
     playMusic();
-    packSerialSend(P_MUSIC_START);
   }
   else {
-    // Set the track to be played.
+    // Set the new track.
     i_current_music_track = i_temp_track;
 
-    // Tell the Neutrona Wand which track we switched to.
-    packSerialSend(i_current_music_track);
+    serial1Send(A_MUSIC_IS_NOT_PLAYING); // Updates the music track on the attenuator.
   }
 }
 
@@ -7476,22 +7502,18 @@ void musicPrevTrack() {
   if(b_playing_music == true) {
     // Stops music using the current track.
     stopMusic();
-    packSerialSend(P_MUSIC_STOP);
 
-    // Set the new track and tell the wand.
+    // Set the new track.
     i_current_music_track = i_temp_track;
-    packSerialSend(i_current_music_track);
 
     // Begin playing the new track.
     playMusic();
-    packSerialSend(P_MUSIC_START);
   }
   else {
-    // Set the track to be played.
+    // Set the new track.
     i_current_music_track = i_temp_track;
 
-    // Tell the Neutrona Wand which track we switched to.
-    packSerialSend(i_current_music_track);
+    serial1Send(A_MUSIC_IS_NOT_PLAYING); // Updates the music track on the attenuator.
   }
 }
 
