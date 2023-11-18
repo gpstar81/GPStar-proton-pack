@@ -222,14 +222,15 @@ enum MENU_LEVELS { MENU_1, MENU_2 };
 enum MENU_LEVELS MENU_LEVEL;
 
 /*
-* Music Track Info - Supported only on the ESP32
+* Music Track Info and Playback States
 */
-#if defined(__XTENSA__)
-  const unsigned int i_music_track_offset = 500; // Music tracks always start at index 500.
-  unsigned int i_music_track_count = 0; // Count of tracks as returned by the pack.
-  unsigned int i_music_track_min = 0; // Min value for music track index (0 = unset).
-  unsigned int i_music_track_max = 0; // Max value for music track index (0 = unset).
-#endif
+const unsigned int i_music_track_offset = 500; // Music tracks always start at index 500.
+unsigned int i_music_track_count = 0; // Count of tracks as returned by the pack.
+unsigned int i_music_track_current = 0;
+unsigned int i_music_track_min = 0; // Min value for music track index (0 = unset).
+unsigned int i_music_track_max = 0; // Max value for music track index (0 = unset).
+bool b_playing_music = false;
+bool b_music_paused = false;
 
 /* 
  * Pack Communication

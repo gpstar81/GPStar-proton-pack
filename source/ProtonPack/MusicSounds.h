@@ -333,10 +333,12 @@ enum sound_fx {
   S_VOICE_OVERHEAT_START_TIMER_LEVEL_3,
   S_VOICE_OVERHEAT_START_TIMER_LEVEL_2,
   S_VOICE_OVERHEAT_START_TIMER_LEVEL_1,
-  S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT
+  S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT,
+  S_VOICE_NEUTRONA_WAND_BEEPING_DISABLED,
+  S_VOICE_NEUTRONA_WAND_BEEPING_ENABLED
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT;
+const unsigned int i_last_effects_track = S_VOICE_NEUTRONA_WAND_BEEPING_ENABLED;

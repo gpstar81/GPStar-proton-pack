@@ -35,6 +35,8 @@ Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING) guide for details on c
 
 ## Operation
 
+### Physical Operation
+
 While not attached to a compatible Proton Pack (read: standalone mode) the device will simply provide some lights and effects. The left toggle switch will turn on the bargraph animations while the right toggle switch will turn on the LED's.
 
 Ideally, the device should be connected to the GPStar Proton Pack Controller which will allow it to provide some extended functionality. Under normal use the main dial will allow adjusting the overall volume, starting/stopping music tracks, navigating to the next track, and adjusting the effects volume.
@@ -51,4 +53,8 @@ Ideally, the device should be connected to the GPStar Proton Pack Controller whi
  		* Main Dial - Double Press: Move to the previous music track
 		* Main Dial - Turn CW/CCW: Adjusts the effects volume for pack/wand
 
-Note that during an overheat warning, the device will emit sounds and vibrations in addition to lighting effects as the pack reaches a critical state. At this time the pack operator can turn the primary dial either direction to cancel the current warning. If the warning time is allowed to expire the the pack will enter the vent sequence.
+Note that during an overheat warning, the device will emit sounds and vibrations in addition to lighting effects as the pack reaches a critical state. At this time the pack operator can turn the primary dial either direction to "attenuate" the pack and cancel the current warning. If the warning time is allowed to expire the the pack will enter the venting sequence.
+
+### Web Operation
+
+For instructions on using the web interface to control your equipment, please see the [Wireless Operations](WIRELESS_OPERATION.md) guide.
