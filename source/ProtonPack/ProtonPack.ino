@@ -609,7 +609,7 @@ void checkMusic() {
     w_trig.trackPlayingStatus(i_current_music_track);
 
     // Loop through all the tracks if the music is not set to repeat a track.
-    if(b_playing_music == true && b_repeat_track == false) {
+    if(b_playing_music == true && b_repeat_track == false && b_music_paused != true) {
       if(w_trig.currentMusicTrackStatus(i_current_music_track) != true && ms_music_status_check.justFinished() && w_trig.trackCounterReset() != true) {
         ms_check_music.stop();
         ms_music_status_check.stop();
@@ -7391,6 +7391,8 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
 // Helper method to play a music track using certain defaults.
 void playMusic() {
   if(b_music_paused != true) {
+    b_playing_music = true;
+    
     // Loop the music track.
     if(b_repeat_track == true) {
       w_trig.trackLoop(i_current_music_track, 1);
@@ -7442,6 +7444,10 @@ void resumeMusic() {
   if(b_playing_music == true) {
     b_music_paused = false;
 
+    // Reset the music check timer.
+    ms_music_status_check.start(i_music_check_delay * 10);
+    w_trig.resetTrackCounter(true);
+
     w_trig.trackResume(i_current_music_track);
     w_trig.update();
 
@@ -7463,16 +7469,20 @@ void musicNextTrack() {
   }
 
   // Switch to the next track.
-  if(b_playing_music == true) {
+  if(b_playing_music == true) {   
     // Stops music using the current track.
     stopMusic();
 
+    i_current_music_track = i_temp_track;
+    
     // Begin playing the new track.
     playMusic();
   }
   else {
     // Set the new track.
     i_current_music_track = i_temp_track;
+
+    serial1Send(A_MUSIC_IS_NOT_PLAYING); // Updates the music track on the attenuator.
   }
 }
 
@@ -7502,6 +7512,8 @@ void musicPrevTrack() {
   else {
     // Set the new track.
     i_current_music_track = i_temp_track;
+
+    serial1Send(A_MUSIC_IS_NOT_PLAYING); // Updates the music track on the attenuator.
   }
 }
 
