@@ -96,7 +96,6 @@ const char INDEX_page[] PROGMEM = R"=====(
 
     function updateStatus(jObj) {
       if (jObj) {
-console.log(jObj);
         document.getElementById("mode").innerHTML = jObj.mode || "...";
         document.getElementById("theme").innerHTML = jObj.theme || "...";
         document.getElementById("switch").innerHTML = jObj.switch || "...";
