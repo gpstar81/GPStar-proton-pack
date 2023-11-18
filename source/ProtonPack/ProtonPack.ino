@@ -7443,16 +7443,16 @@ void musicNextTrack() {
     stopMusic();
     packSerialSend(P_MUSIC_STOP);
 
+    // Set the new track and tell the wand.
     i_current_music_track = i_temp_track;
-
-    // Tell the wand which track to play.
     packSerialSend(i_current_music_track);
 
-    // Advance and begin playing the new track.
+    // Begin playing the new track.
     playMusic();
     packSerialSend(P_MUSIC_START);
   }
   else {
+    // Set the track to be played.
     i_current_music_track = i_temp_track;
 
     // Tell the Neutrona Wand which track we switched to.
@@ -7478,17 +7478,16 @@ void musicPrevTrack() {
     stopMusic();
     packSerialSend(P_MUSIC_STOP);
 
-    // Advance and begin playing the new track.
+    // Set the new track and tell the wand.
     i_current_music_track = i_temp_track;
-
-    // Tell the wand which track to play.
     packSerialSend(i_current_music_track);
 
+    // Begin playing the new track.
     playMusic();
-
     packSerialSend(P_MUSIC_START);
   }
   else {
+    // Set the track to be played.
     i_current_music_track = i_temp_track;
 
     // Tell the Neutrona Wand which track we switched to.
