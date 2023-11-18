@@ -1,0 +1,396 @@
+/**
+ *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                    & Dustin Grau <dustin.grau@gmail.com>
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+const char INDEX_page[] PROGMEM = R"=====(
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Proton Pack</title>
+
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <link rel="stylesheet" href="/style.css">
+
+  <script type="application/javascript">
+    var hostname = window.location.hostname;
+    var gateway = "ws://" + hostname + "/ws";
+    var websocket;
+    var statusInterval;
+    var musicTrackMax = 0;
+
+    window.addEventListener("load", onLoad);
+
+    function onLoad(event) {
+      initWebSocket();
+      getStatus();
+    }
+
+    function initWebSocket() {
+      console.log("Trying to open a WebSocket connection...");
+      websocket = new WebSocket(gateway);
+      websocket.onopen = onOpen;
+      websocket.onclose = onClose;
+      websocket.onmessage = onMessage;
+    }
+
+    function onOpen(event) {
+      console.log("Connection opened");
+
+      // Clear the automated status interval timer.
+      clearInterval(statusInterval);
+    }
+
+    function onClose(event) {
+      console.log("Connection closed");
+      setTimeout(initWebSocket, 1000);
+
+      // Fallback for when WebSocket is unavailable.
+      statusInterval = setInterval(function() {
+        getStatus(); // Check for status every X seconds
+      }, 1000);
+    }
+
+    function isJsonString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
+
+    function onMessage(event) {
+      if (isJsonString(event.data)) {
+        // If JSON, use as status update.
+        updateStatus(JSON.parse(event.data));
+      } else {
+        // Anything else gets sent to console.
+        console.log(event.data);
+      }
+    }
+
+    function removeOptions(selectElement) {
+      var i, len = selectElement.options.length - 1;
+      for(i = len; i >= 0; i--) {
+          selectElement.remove(i);
+      }
+    }
+
+    function updateStatus(jObj) {
+      if (jObj) {
+        document.getElementById("mode").innerHTML = jObj.mode || "...";
+        document.getElementById("theme").innerHTML = jObj.theme || "...";
+        document.getElementById("switch").innerHTML = jObj.switch || "...";
+        document.getElementById("pack").innerHTML = jObj.pack || "...";
+        document.getElementById("power").innerHTML = jObj.power || "...";
+        document.getElementById("safety").innerHTML = jObj.safety || "...";
+        document.getElementById("wand").innerHTML = jObj.wand || "...";
+        document.getElementById("wandMode").innerHTML = jObj.wandMode || "...";
+        document.getElementById("firing").innerHTML = jObj.firing || "...";
+        document.getElementById("cable").innerHTML = jObj.cable || "...";
+        document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
+        document.getElementById("temperature").innerHTML = jObj.temperature || "...";
+
+        if (jObj.mode == "Original" && jObj.pack == "Powered" && jObj.wand == "Powered") {
+          // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
+          document.getElementById("btnPackOff").disabled = true;
+        } else {
+          // Otherwise, this should be allowed.
+          document.getElementById("btnPackOff").disabled = false;
+        }
+
+        if (jObj.mode == "Original" && jObj.pack == "Powered" && jObj.wand == "Powered") {
+          // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
+          document.getElementById("btnPackOn").disabled = true;
+        } else {
+          // Otherwise, this should be allowed.
+          document.getElementById("btnPackOn").disabled = false;
+        }
+
+        if (jObj.mode == "Super Hero" && jObj.wand == "Powered") {
+          // Can only use manual vent if mode Super Hero and wand is Powered.
+          document.getElementById("btnVent").disabled = false;
+        } else {
+          // Otherwise, this should NOT be allowed.
+          document.getElementById("btnVent").disabled = true;
+        }
+
+        if (jObj.cyclotron == "Warning" || jObj.cyclotron == "Critical") {
+          // Can only attenuate if cyclotron is in certain states.
+          document.getElementById("btnAttenuate").disabled = false;
+        } else {
+          // Otherwise, this should NOT be allowed.
+          document.getElementById("btnAttenuate").disabled = true;
+        }
+
+        if (jObj.musicStart > 0 && jObj.musicEnd > jObj.musicStart && musicTrackMax != jObj.musicEnd) {
+          // Proceed if we have a starting track and valid end track.
+          musicTrackMax = jObj.musicEnd;
+          var trackList = document.getElementById("tracks");
+          removeOptions(trackList);
+          for (var i = jObj.musicStart; i <= jObj.musicEnd; i++) {
+              var opt = document.createElement("option");
+              opt.value = i;
+              opt.innerHTML = i;
+              trackList.appendChild(opt);
+          }
+        }
+      }
+    }
+
+    function handleStatus(response) {
+      if (isJsonString(response || "")) {
+        var jObj = JSON.parse(response || "");
+        if (jObj.status && jObj.status != "success") {
+          alert(jObj.status); // Report non-success status.
+        }
+      } else {
+        alert(response); // Display plain text message.
+      }
+    }
+
+    function getStatus() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          var data = JSON.parse(this.responseText);
+          updateStatus(data);
+        }
+      };
+      xhttp.open("GET", "/status", true);
+      xhttp.send();
+    }
+
+    function packOn() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/pack/on", true);
+      xhttp.send();
+    }
+
+    function packOff() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/pack/off", true);
+      xhttp.send();
+    }
+
+    function attenuatePack() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/pack/attenuate", true);
+      xhttp.send();
+    }
+
+    function beginVenting() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/pack/vent", true);
+      xhttp.send();
+    }
+
+    function toggleMute() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/volume/toggle", true);
+      xhttp.send();
+    }
+
+    function volumeMasterUp() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/volume/master/up", true);
+      xhttp.send();
+    }
+
+    function volumeMasterDown() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/volume/master/down", true);
+      xhttp.send();
+    }
+
+    function volumeEffectsUp() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/volume/effects/up", true);
+      xhttp.send();
+    }
+
+    function volumeEffectsDown() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/volume/effects/down", true);
+      xhttp.send();
+    }
+
+    function startstopMusic() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/music/startstop", true);
+      xhttp.send();
+    }
+
+    function pauseresumeMusic() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/music/pauseresume", true);
+      xhttp.send();
+    }
+
+    function musicNext() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/music/next", true);
+      xhttp.send();
+    }
+
+    function musicSelect(caller) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/music/select?track=" + caller.value, true);
+      xhttp.send();
+    }
+
+    function musicPrev() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/music/prev", true);
+      xhttp.send();
+    }
+  </script>
+</head>
+<body>
+  <h1>Equipment Status</h1>
+  <div class="card">
+    <p><b>System Mode:</b> <span class="info" id="mode">&mdash;</span></p>
+    <p><b>Theme Mode:</b> <span class="info" id="theme">&mdash;</span></p>
+    <br/>
+    <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
+    <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
+    <p><b>Ribbon Cable:</b> <span class="info" id="cable">&mdash;</span></p>
+    <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
+    <p><b>Overheat State:</b> <span class="info" id="temperature">&mdash;</span></p>
+    <br/>
+    <p><b>Wand State:</b> <span class="info" id="wand">&mdash;</span></p>
+    <p><b>Wand Armed:</b> <span class="info" id="safety">&mdash;</span></p>
+    <p><b>Wand Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
+    <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
+    <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
+  </div>
+
+  <h1>Audio Controls</h1>
+  <div class="block">
+    <h3>Master Volume</h3>
+    <button type="button" class="blue" onclick="volumeMasterDown()">- Down</button>
+    <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
+    <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
+    <br/>
+    <h3>Music Playback</h3>
+    <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
+    <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
+    <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
+    <br/>
+    <h3>Play Music Track</h3>
+    <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
+    <br/>
+    <h3>Effects Volume</h3>
+    <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
+    &nbsp;&nbsp;
+    <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
+  </div>
+
+  <h1>Pack Controls</h1>
+  <div class="block">
+    <button type="button" class="red" onclick="packOff()" id="btnPackOff">Pack Off</button>
+    &nbsp;&nbsp;
+    <button type="button" class="green" onclick="packOn()" id="btnPackOn">Pack On</button>
+    <br/>
+    <br/>
+    <button type="button" class="orange" onclick="beginVenting()" id="btnVent">Vent</button>
+    &nbsp;&nbsp;
+    <button type="button" class="blue" onclick="attenuatePack()" id="btnAttenuate">Attenuate</button>
+  </div>
+
+  <h1>Administration</h1>
+  <div class="block">
+    <a href="/password">Change WiFi Password</a>
+    &nbsp;&nbsp;&nbsp;
+    <a href="/update">Update Firmware</a>
+  </div>
+</body>
+</html>
+)=====";
