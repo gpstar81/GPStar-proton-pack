@@ -794,6 +794,10 @@ void checkPack() {
           break;
 
           case A_MUSIC_IS_PLAYING:
+            #if defined(__XTENSA__)
+              debug("Music Playing");
+            #endif
+
             b_playing_music = true;
 
             if(comStruct.d1 > 0) {
@@ -802,6 +806,10 @@ void checkPack() {
           break;
 
           case A_MUSIC_IS_NOT_PLAYING:
+            #if defined(__XTENSA__)
+              debug("Music Stopped");
+            #endif
+
             b_playing_music = false;
 
             if(comStruct.d1 > 0) {
@@ -810,10 +818,18 @@ void checkPack() {
           break;
 
           case A_MUSIC_IS_PAUSED:
+            #if defined(__XTENSA__)
+              debug("Music Paused");
+            #endif
+
             b_music_paused = true;
           break;
 
           case A_MUSIC_IS_NOT_PAUSED:
+            #if defined(__XTENSA__)
+              debug("Music Resumed");
+            #endif
+
             b_music_paused = false;
           break;
 

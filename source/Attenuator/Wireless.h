@@ -321,6 +321,9 @@ String getEquipmentStatus() {
   jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
   jsonDoc["cyclotron"] = getCyclotronState();
   jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
+  jsonDoc["musicPlaying"] = b_playing_music;
+  jsonDoc["musicPaused"] = b_music_paused;
+  jsonDoc["musicCurrent"] = i_current_music_track;
   jsonDoc["musicStart"] = i_music_track_min;
   jsonDoc["musicEnd"] = i_music_track_max;
   serializeJson(jsonDoc, equipStatus); // Serialize to string.

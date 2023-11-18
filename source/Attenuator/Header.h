@@ -235,7 +235,7 @@ enum MENU_LEVELS MENU_LEVEL;
  * Music status from the Proton Pack.
 */
 bool b_playing_music = false;
-bool b_music_pause = false;
+bool b_music_paused = false;
 unsigned int i_current_music_track = 0;
 
 /* 

@@ -4181,7 +4181,7 @@ void checkSerial1() {
             break;
 
             case A_MUSIC_PAUSE_RESUME:
-              if(b_playing_music == true) {    
+              if(b_playing_music == true) {
                 if(b_music_paused != true) {
                   pauseMusic();
                 }
@@ -7392,7 +7392,7 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
 void playMusic() {
   if(b_music_paused != true) {
     b_playing_music = true;
-    
+
     // Loop the music track.
     if(b_repeat_track == true) {
       w_trig.trackLoop(i_current_music_track, 1);
@@ -7469,12 +7469,12 @@ void musicNextTrack() {
   }
 
   // Switch to the next track.
-  if(b_playing_music == true) {   
+  if(b_playing_music == true) {
     // Stops music using the current track.
     stopMusic();
 
     i_current_music_track = i_temp_track;
-    
+
     // Begin playing the new track.
     playMusic();
   }
