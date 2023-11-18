@@ -72,7 +72,7 @@ button {
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
   color: white;
   margin: 5px;
-  padding: 12px 14px;
+  padding: 12px 8px;
   max-width: 120px;
   text-align: center;
   touch-action: manipulation;
@@ -97,18 +97,48 @@ input {
 }
 
 select {
-  background-color: #999;
+  background-color: #555;
   border: 2px solid #333;
   border-radius: 8px;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
   color: white;
-  height: 40px;
+  cursor: pointer;
+  font-size: 1.15rem;
+  height: 50px;
   margin: 5px;
-  padding: 12px 14px;
+  padding: 6px 8px;
   max-width: 260px;
+  min-width: 260px;
   text-align: center;
   touch-action: manipulation;
   width: 260px;
+}
+
+.custom-select {
+  position: relative;
+}
+
+.custom-select::before,
+.custom-select::after {
+  --size: 0.3rem;
+  content: "";
+  right: 1rem;
+  pointer-events: none;
+  position: absolute;
+}
+
+.custom-select::before {
+  border-left: var(--size) solid transparent;
+  border-right: var(--size) solid transparent;
+  border-bottom: var(--size) solid black;
+  top: 40%;
+}
+
+.custom-select::after {
+  border-left: var(--size) solid transparent;
+  border-right: var(--size) solid transparent;
+  border-top: var(--size) solid black;
+  top: 55%;
 }
 
 .red {

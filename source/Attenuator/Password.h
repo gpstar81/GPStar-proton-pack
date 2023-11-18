@@ -47,10 +47,10 @@ const char PASSWORD_page[] PROGMEM = R"=====(
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           var jObj = JSON.parse(this.responseText);
-          alert(jObj.response);
+          alert(jObj.status); // Always display status returned.
         }
       };
-      xhttp.open("POST", "/password/update", true);
+      xhttp.open("PUT", "/password/update", true);
       xhttp.setRequestHeader("Content-Type", "application/json");
       xhttp.send(body);
     }

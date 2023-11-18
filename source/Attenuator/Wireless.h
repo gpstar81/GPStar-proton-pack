@@ -280,7 +280,9 @@ String getCyclotronState() {
 /*
  * Web Handler Functions - Performs actions or returns data for web UI
  */
-StaticJsonDocument<512> jsonDoc; // Used for processing JSON data.
+StaticJsonDocument<512> jsonDoc; // Used for processing JSON body data.
+StaticJsonDocument<16> jsonSuccess; // Used for sending JSON status as success.
+String status; // Holder for simple "status: success" response.
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
@@ -303,8 +305,9 @@ void handleStyle(AsyncWebServerRequest *request) {
   request->send(200, "text/css", s); // Serve page content.
 }
 
-String getStatus() {
+String getEquipmentStatus() {
   // Prepare a JSON object with information we have gleamed from the system.
+  String equipStatus;
   jsonDoc.clear();
   jsonDoc["mode"] = getMode();
   jsonDoc["theme"] = getTheme();
@@ -320,94 +323,106 @@ String getStatus() {
   jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
   jsonDoc["musicStart"] = i_music_track_min;
   jsonDoc["musicEnd"] = i_music_track_max;
-  String status;
-  serializeJson(jsonDoc, status); // Serialize to string.
-  return status;
+  serializeJson(jsonDoc, equipStatus); // Serialize to string.
+  return equipStatus;
 }
 
 void handleStatus(AsyncWebServerRequest *request) {
-  // Return data for AJAX requests by the index page.
-  request->send(200, "application/json", getStatus());
+  // Return current system status as a stringified JSON object.
+  request->send(200, "application/json", getEquipmentStatus());
 }
 
 void handlePackOn(AsyncWebServerRequest *request) {
   debug("Turn Pack On");
   attenuatorSerialSend(A_TURN_PACK_ON);
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
 }
 
 void handlePackOff(AsyncWebServerRequest *request) {
   debug("Turn Pack Off");
   attenuatorSerialSend(A_TURN_PACK_OFF);
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
 }
 
-void handleCancelWarning(AsyncWebServerRequest *request) {
+void handleAttenuatePack(AsyncWebServerRequest *request) {
   if(i_speed_multiplier > 1) {
     // Only send command to pack if cyclotron is not "normal".
     debug("Cancel Overheat Warning");
     attenuatorSerialSend(A_WARNING_CANCELLED);
+    request->send(200, "application/json", status);
+  } else {
+    // Tell the user why the requested action failed.
+    String result;
+    jsonDoc.clear();
+    jsonDoc["status"] = "System not in overheat warning";
+    serializeJson(jsonDoc, result); // Serialize to string.
+    request->send(200, "application/json", result);
   }
-  request->send(200, "application/json", "{}");
 }
 
 void handleManualVent(AsyncWebServerRequest *request) {
   debug("Manual Vent Triggered");
   attenuatorSerialSend(A_MANUAL_OVERHEAT);
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
 }
 
 void handleToggleMute(AsyncWebServerRequest *request) {
   debug("Toggle Mute");
   attenuatorSerialSend(A_TOGGLE_MUTE);
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
 }
 
 void handleMasterVolumeUp(AsyncWebServerRequest *request) {
   debug("Master Volume Up");
   attenuatorSerialSend(A_VOLUME_INCREASE);
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
 }
 
 void handleMasterVolumeDown(AsyncWebServerRequest *request) {
   debug("Master Volume Down");
   attenuatorSerialSend(A_VOLUME_DECREASE);
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
 }
 
 void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
   debug("Effects Volume Up");
   attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
 }
 
 void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
   debug("Effects Volume Down");
   attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
 }
 
 void handleMusicStartStop(AsyncWebServerRequest *request) {
   debug("Music Start/Stop");
   attenuatorSerialSend(A_MUSIC_START_STOP);
-  //attenuatorSerialSend(A_MUSIC_PAUSE_RESUME); // Needs more work.
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
+}
+
+void handleMusicPauseResume(AsyncWebServerRequest *request) {
+  debug("Music Start/Stop");
+  attenuatorSerialSend(A_MUSIC_PAUSE_RESUME);
+  request->send(200, "application/json", status);
 }
 
 void handleNextMusicTrack(AsyncWebServerRequest *request) {
   debug("Next Music Track");
   attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
 }
 
 void handlePrevMusicTrack(AsyncWebServerRequest *request) {
   debug("Prev Music Track");
   attenuatorSerialSend(A_MUSIC_PREV_TRACK);
-  request->send(200, "application/json", "{}");
+  request->send(200, "application/json", status);
 }
 
 void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   String c_music_track = "";
+
   if(request->hasParam("track")) {
     // Get the parameter "track" if it exists (will be a String).
     c_music_track = request->getParam("track")->value();
@@ -416,12 +431,17 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   if(c_music_track.toInt() != 0 && c_music_track.toInt() >= i_music_track_min) {
     uint16_t i_music_track = c_music_track.toInt();
     debug("Selected Music Track: " + String(i_music_track));
-    attenuatorSerialSend(i_music_track);
+    attenuatorSerialSend(i_music_track); // Inform the pack of the new track.
+    request->send(200, "application/json", status);
   }
   else {
-    debug("Invalid track number supplied");
+    // Tell the user why the requested action failed.
+    String result;
+    jsonDoc.clear();
+    jsonDoc["status"] = "Invalid track number requested";
+    serializeJson(jsonDoc, result); // Serialize to string.
+    request->send(200, "application/json", result);
   }
-  request->send(200, "application/json", "{}");
 }
 
 void handleNotFound(AsyncWebServerRequest *request) {
@@ -440,44 +460,45 @@ void setupRouting() {
 
   // AJAX Handlers
   httpServer.on("/status", HTTP_GET, handleStatus);
-  httpServer.on("/pack/on", HTTP_GET, handlePackOn);
-  httpServer.on("/pack/off", HTTP_GET, handlePackOff);
-  httpServer.on("/pack/cancel", HTTP_GET, handleCancelWarning);
-  httpServer.on("/pack/vent", HTTP_GET, handleManualVent);
-  httpServer.on("/volume/toggle", HTTP_GET, handleToggleMute);
-  httpServer.on("/volume/master/up", HTTP_GET, handleMasterVolumeUp);
-  httpServer.on("/volume/master/down", HTTP_GET, handleMasterVolumeDown);
-  httpServer.on("/volume/effects/up", HTTP_GET, handleEffectsVolumeUp);
-  httpServer.on("/volume/effects/down", HTTP_GET, handleEffectsVolumeDown);
-  httpServer.on("/music/toggle", HTTP_GET, handleMusicStartStop);
-  httpServer.on("/music/next", HTTP_GET, handleNextMusicTrack);
-  httpServer.on("/music/select", HTTP_GET, handleSelectMusicTrack);
-  httpServer.on("/music/prev", HTTP_GET, handlePrevMusicTrack);
+  httpServer.on("/pack/on", HTTP_PUT, handlePackOn);
+  httpServer.on("/pack/off", HTTP_PUT, handlePackOff);
+  httpServer.on("/pack/attenuate", HTTP_PUT, handleAttenuatePack);
+  httpServer.on("/pack/vent", HTTP_PUT, handleManualVent);
+  httpServer.on("/volume/toggle", HTTP_PUT, handleToggleMute);
+  httpServer.on("/volume/master/up", HTTP_PUT, handleMasterVolumeUp);
+  httpServer.on("/volume/master/down", HTTP_PUT, handleMasterVolumeDown);
+  httpServer.on("/volume/effects/up", HTTP_PUT, handleEffectsVolumeUp);
+  httpServer.on("/volume/effects/down", HTTP_PUT, handleEffectsVolumeDown);
+  httpServer.on("/music/startstop", HTTP_PUT, handleMusicStartStop);
+  httpServer.on("/music/pauseresume", HTTP_PUT, handleMusicPauseResume);
+  httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);
+  httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
+  httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
 
   // Handle the JSON body for the password change request.
   AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
-    StaticJsonDocument<256> jsonData;
+    StaticJsonDocument<256> jsonBody;
     if(json.is<JsonObject>()) {
-      jsonData = json.as<JsonObject>();
+      jsonBody = json.as<JsonObject>();
     }
     else {
       Serial.print("Body was not a JSON object");
     }
 
     String result;
-    if(jsonData.containsKey("password")) {
-      String newPasswd = jsonData["password"];
+    if(jsonBody.containsKey("password")) {
+      String newPasswd = jsonBody["password"];
       //Serial.println("New AP Password: " + newPasswd);
 
       if(newPasswd != "") {
         preferences.begin("credentials", false); // Access namespace in read/write mode.
-        preferences.putString("ssid", ap_ssid);
-        preferences.putString("password", newPasswd);
+        preferences.putString("ssid", ap_ssid); // Store SSID in case this was changed.
+        preferences.putString("password", newPasswd); // Store user-provided password.
         preferences.end();
 
-        jsonData.clear();
-        jsonData["response"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
-        serializeJson(jsonData, result); // Serialize to string.
+        jsonBody.clear();
+        jsonBody["status"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
+        serializeJson(jsonBody, result); // Serialize to string.
         request->send(200, "application/json", result);
         delay(1000); // Pause to allow response to flow.
         ESP.restart(); // Reboot device
@@ -485,9 +506,9 @@ void setupRouting() {
     }
     else {
       debug("No password in JSON body");
-      jsonData.clear();
-      jsonData["response"] = "Unable to update password.";
-      serializeJson(jsonData, result); // Serialize to string.
+      jsonBody.clear();
+      jsonBody["status"] = "Unable to update password.";
+      serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
     }
   });
@@ -561,6 +582,11 @@ void startWebServer() {
   // Configures URI routing with function handlers.
   setupRouting();
 
+  // Prepare a standard "success" message for responses.
+  jsonSuccess.clear();
+  jsonSuccess["status"] = "success";
+  serializeJson(jsonSuccess, status);
+
   // Configure the WebSocket endpoint.
   ws.onEvent(onWebSocketEventHandler);
   httpServer.addHandler(&ws);
@@ -581,5 +607,5 @@ void startWebServer() {
 // Send notification to all websocket clients.
 void notifyWSClients() {
   // Send latest status to all connected clients.
-  ws.textAll(getStatus());
+  ws.textAll(getEquipmentStatus());
 }

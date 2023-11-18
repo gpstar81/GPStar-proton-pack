@@ -155,6 +155,17 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
+    function handleStatus(response) {
+      if (isJsonString(response || "")) {
+        var jObj = JSON.parse(response || "");
+        if (jObj.status && jObj.status != "success") {
+          alert(jObj.status); // Report non-success status.
+        }
+      } else {
+        alert(response); // Display plain text message.
+      }
+    }
+
     function getStatus() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -171,10 +182,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/pack/on", true);
+      xhttp.open("PUT", "/pack/on", true);
       xhttp.send();
     }
 
@@ -182,21 +193,21 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/pack/off", true);
+      xhttp.open("PUT", "/pack/off", true);
       xhttp.send();
     }
 
-    function cancelWarning() {
+    function attenuatePack() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/pack/cancel", true);
+      xhttp.open("PUT", "/pack/attenuate", true);
       xhttp.send();
     }
 
@@ -204,10 +215,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/pack/vent", true);
+      xhttp.open("PUT", "/pack/vent", true);
       xhttp.send();
     }
 
@@ -215,10 +226,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/volume/toggle", true);
+      xhttp.open("PUT", "/volume/toggle", true);
       xhttp.send();
     }
 
@@ -226,10 +237,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/volume/master/up", true);
+      xhttp.open("PUT", "/volume/master/up", true);
       xhttp.send();
     }
 
@@ -237,10 +248,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/volume/master/down", true);
+      xhttp.open("PUT", "/volume/master/down", true);
       xhttp.send();
     }
 
@@ -248,10 +259,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/volume/effects/up", true);
+      xhttp.open("PUT", "/volume/effects/up", true);
       xhttp.send();
     }
 
@@ -259,21 +270,32 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/volume/effects/down", true);
+      xhttp.open("PUT", "/volume/effects/down", true);
       xhttp.send();
     }
 
-    function toggleMusic() {
+    function startstopMusic() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/music/toggle", true);
+      xhttp.open("PUT", "/music/startstop", true);
+      xhttp.send();
+    }
+
+    function pauseresumeMusic() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleStatus(this.responseText);
+        }
+      };
+      xhttp.open("PUT", "/music/pauseresume", true);
       xhttp.send();
     }
 
@@ -281,10 +303,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/music/next", true);
+      xhttp.open("PUT", "/music/next", true);
       xhttp.send();
     }
 
@@ -292,10 +314,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/music/select?track=" + caller.value, true);
+      xhttp.open("PUT", "/music/select?track=" + caller.value, true);
       xhttp.send();
     }
 
@@ -303,10 +325,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          // var jObj = JSON.parse(this.responseText);
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("GET", "/music/prev", true);
+      xhttp.open("PUT", "/music/prev", true);
       xhttp.send();
     }
   </script>
@@ -339,11 +361,11 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <h3>Music Playback</h3>
     <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
-    <button type="button" class="green" onclick="toggleMusic()">Start/Stop</button>
+    <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
     <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
     <br/>
     <h3>Play Music Track</h3>
-    <select id="tracks" onchange="musicSelect(this)"></select>
+    <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
     <br/>
     <h3>Effects Volume</h3>
     <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
@@ -360,7 +382,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <button type="button" class="orange" onclick="beginVenting()" id="btnVent">Vent</button>
     &nbsp;&nbsp;
-    <button type="button" class="blue" onclick="cancelWarning()" id="btnAttenuate">Attenuate</button>
+    <button type="button" class="blue" onclick="attenuatePack()" id="btnAttenuate">Attenuate</button>
   </div>
 
   <h1>Administration</h1>

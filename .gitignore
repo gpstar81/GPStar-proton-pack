@@ -1,3 +1,4 @@
-
+*.bootloader.*
+*.partitions.*
 .DS_Store
 *.h-e
