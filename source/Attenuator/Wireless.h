@@ -323,7 +323,7 @@ String getEquipmentStatus() {
   jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
   jsonDoc["musicPlaying"] = b_playing_music;
   jsonDoc["musicPaused"] = b_music_paused;
-  jsonDoc["musicCurrent"] = i_current_music_track;
+  jsonDoc["musicCurrent"] = i_music_track_current;
   jsonDoc["musicStart"] = i_music_track_min;
   jsonDoc["musicEnd"] = i_music_track_max;
   serializeJson(jsonDoc, equipStatus); // Serialize to string.
@@ -406,7 +406,7 @@ void handleMusicStartStop(AsyncWebServerRequest *request) {
 }
 
 void handleMusicPauseResume(AsyncWebServerRequest *request) {
-  debug("Music Start/Stop");
+  debug("Music Pause/Resume");
   attenuatorSerialSend(A_MUSIC_PAUSE_RESUME);
   request->send(200, "application/json", status);
 }

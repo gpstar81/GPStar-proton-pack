@@ -73,7 +73,6 @@ button {
   color: white;
   margin: 5px;
   padding: 12px 8px;
-  max-width: 120px;
   text-align: center;
   touch-action: manipulation;
   width: 100px;

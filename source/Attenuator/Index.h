@@ -96,6 +96,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
     function updateStatus(jObj) {
       if (jObj) {
+console.log(jObj);
         document.getElementById("mode").innerHTML = jObj.mode || "...";
         document.getElementById("theme").innerHTML = jObj.theme || "...";
         document.getElementById("switch").innerHTML = jObj.switch || "...";
@@ -372,6 +373,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
     <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
     <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
+    <br/>
+    <button type="button" class="green" onclick="pauseresumeMusic()" style="width:120px;">Pause/Resume</button>
     <br/>
     <h3>Play Music Track</h3>
     <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>

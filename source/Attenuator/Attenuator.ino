@@ -523,9 +523,8 @@ void checkRotaryPress() {
       // Perform action for short press based on current menu level.
       switch(MENU_LEVEL) {
         case MENU_1:
-          // A short, single press should start/stop the music.
+          // A short, single press should start or stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
-          //attenuatorSerialSend(A_MUSIC_PAUSE_RESUME); // Needs more work.
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           #if defined(__XTENSA__)
             debug("Music Start/Stop");
@@ -716,6 +715,7 @@ void attenuatorSerialSend(uint16_t i_message) {
 void checkPack() {
   // Pack communication to the Attenuator device.
   if(packComs.available()) {
+    bool b_state_changed = false; // Indicates when a crucial state change occurred.
     packComs.rxObj(comStruct);
 
     if(!packComs.currentPacketID()) {
@@ -735,8 +735,10 @@ void checkPack() {
             #if defined(__XTENSA__)
               debug("Sync End");
             #endif
+
             b_wait_for_pack = false;
             b_a_sync_start = false;
+            b_state_changed = true;
           break;
 
           case A_PACK_ON:
@@ -746,6 +748,7 @@ void checkPack() {
 
             // Pack is on (directly).
             b_pack_on = true;
+            b_state_changed = true;
 
             BARGRAPH_PATTERN = BG_POWER_RAMP;
           break;
@@ -758,6 +761,7 @@ void checkPack() {
             // Pack is on (via wand).
             b_pack_on = true;
             b_wand_on = true;
+            b_state_changed = true;
 
             BARGRAPH_PATTERN = BG_POWER_RAMP;
           break;
@@ -769,6 +773,7 @@ void checkPack() {
 
             // Pack is off (directly or via the wand).
             b_pack_on = false;
+            b_state_changed = true;
 
             if(BARGRAPH_STATE != BG_OFF) {
               // If not already off, illuminate fully before ramp down.
@@ -785,6 +790,7 @@ void checkPack() {
             // Pack is off (directly or via the wand).
             b_pack_on = false;
             b_wand_on = false;
+            b_state_changed = true;
 
             if(BARGRAPH_STATE != BG_OFF) {
               // If not already off, illuminate fully before ramp down.
@@ -800,8 +806,10 @@ void checkPack() {
 
             b_playing_music = true;
 
-            if(comStruct.d1 > 0) {
-              i_music_track_count = comStruct.d1;
+            if(comStruct.d1 > 0 && i_music_track_current != comStruct.d1) {
+              // Music track changed.
+              i_music_track_current = comStruct.d1;
+              b_state_changed = true;
             }
           break;
 
@@ -812,8 +820,10 @@ void checkPack() {
 
             b_playing_music = false;
 
-            if(comStruct.d1 > 0) {
-              i_music_track_count = comStruct.d1;
+            if(comStruct.d1 > 0 && i_music_track_current != comStruct.d1) {
+              // Music track changed.
+              i_music_track_current = comStruct.d1;
+              b_state_changed = true;
             }
           break;
 
@@ -823,6 +833,7 @@ void checkPack() {
             #endif
 
             b_music_paused = true;
+            b_state_changed = true;
           break;
 
           case A_MUSIC_IS_NOT_PAUSED:
@@ -831,23 +842,26 @@ void checkPack() {
             #endif
 
             b_music_paused = false;
+            b_state_changed = true;
           break;
 
           case A_MUSIC_TRACK_COUNT_SYNC:
-          #if defined(__XTENSA__)
-            debug("Music Track Sync");
+            #if defined(__XTENSA__)
+              debug("Music Track Sync");
+            #endif
 
             if(comStruct.d1 > 0) {
               i_music_track_count = comStruct.d1;
             }
 
-            debug("Track Count: " + String(i_music_track_count));
+            #if defined(__XTENSA__)
+              debug("Track Count: " + String(i_music_track_count));
+            #endif
 
             if(i_music_track_count > 0) {
               i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
               i_music_track_max = i_music_track_offset + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
             }
-          #endif
           break;
 
           case A_PACK_CONNECTED:
@@ -855,6 +869,8 @@ void checkPack() {
             #if defined(__XTENSA__)
               debug("Pack Connected");
             #endif
+
+            b_state_changed = true;
           break;
 
           case A_HANDSHAKE:
@@ -878,6 +894,7 @@ void checkPack() {
                 debug("Super Hero Sequence");
               #endif
               ARMING_MODE = MODE_SUPERHERO;
+              b_state_changed = true;
             }
           break;
 
@@ -887,6 +904,7 @@ void checkPack() {
                 debug("Original Sequence");
               #endif
               ARMING_MODE = MODE_ORIGINAL;
+              b_state_changed = true;
             }
           break;
 
@@ -897,6 +915,7 @@ void checkPack() {
                 debug("Red Switch On");
               #endif
               RED_SWITCH_MODE = SWITCH_ON;
+              b_state_changed = true;
             }
           break;
 
@@ -907,6 +926,7 @@ void checkPack() {
                 debug("Red Switch Off");
               #endif
               RED_SWITCH_MODE = SWITCH_OFF;
+              b_state_changed = true;
             }
           break;
 
@@ -916,6 +936,7 @@ void checkPack() {
                 debug("Mode 1984");
               #endif
               SYSTEM_YEAR = SYSTEM_1984;
+              b_state_changed = true;
             }
           break;
 
@@ -925,6 +946,7 @@ void checkPack() {
                 debug("Mode 1989");
               #endif
               SYSTEM_YEAR = SYSTEM_1989;
+              b_state_changed = true;
             }
           break;
 
@@ -934,6 +956,7 @@ void checkPack() {
                 debug("Mode 2021");
               #endif
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              b_state_changed = true;
             }
           break;
 
@@ -944,6 +967,7 @@ void checkPack() {
                 debug("Mode 2024");
               #endif
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+              b_state_changed = true;
             }
           break;
 */
@@ -953,6 +977,7 @@ void checkPack() {
               debug("Proton");
             #endif
             FIRING_MODE = PROTON;
+            b_state_changed = true;
           break;
 
           case A_SLIME_MODE:
@@ -960,6 +985,7 @@ void checkPack() {
               debug("Slime");
             #endif
             FIRING_MODE = SLIME;
+            b_state_changed = true;
           break;
 
           case A_STASIS_MODE:
@@ -967,6 +993,7 @@ void checkPack() {
               debug("Stasis");
             #endif
             FIRING_MODE = STASIS;
+            b_state_changed = true;
           break;
 
           case A_MESON_MODE:
@@ -974,6 +1001,7 @@ void checkPack() {
               debug("Meson");
             #endif
             FIRING_MODE = MESON;
+            b_state_changed = true;
           break;
 
           case A_SPECTRAL_CUSTOM_MODE:
@@ -981,6 +1009,7 @@ void checkPack() {
               debug("Spectral Custom");
             #endif
             FIRING_MODE = SPECTRAL_CUSTOM;
+            b_state_changed = true;
 
             if(comStruct.d1 > 0) {
               i_spectral_custom = comStruct.d1;
@@ -1009,6 +1038,7 @@ void checkPack() {
               debug("Spectral");
             #endif
             FIRING_MODE = SPECTRAL;
+            b_state_changed = true;
           break;
 
           case A_HOLIDAY_MODE:
@@ -1016,6 +1046,7 @@ void checkPack() {
               debug("Spectral Holiday");
             #endif
             FIRING_MODE = HOLIDAY;
+            b_state_changed = true;
           break;
 
           case A_VENTING_MODE:
@@ -1023,6 +1054,7 @@ void checkPack() {
               debug("Venting");
             #endif
             FIRING_MODE = VENTING;
+            b_state_changed = true;
           break;
 
           case A_SETTINGS_MODE:
@@ -1030,6 +1062,7 @@ void checkPack() {
               debug("Settings");
             #endif
             FIRING_MODE = SETTINGS;
+            b_state_changed = true;
           break;
 
           case A_POWER_LEVEL_1:
@@ -1038,6 +1071,7 @@ void checkPack() {
             #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_1;
+            b_state_changed = true;
           break;
 
           case A_POWER_LEVEL_2:
@@ -1046,6 +1080,7 @@ void checkPack() {
             #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_2;
+            b_state_changed = true;
           break;
 
           case A_POWER_LEVEL_3:
@@ -1054,6 +1089,7 @@ void checkPack() {
             #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_3;
+            b_state_changed = true;
           break;
 
           case A_POWER_LEVEL_4:
@@ -1062,6 +1098,7 @@ void checkPack() {
             #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_4;
+            b_state_changed = true;
           break;
 
           case A_POWER_LEVEL_5:
@@ -1070,6 +1107,7 @@ void checkPack() {
             #endif
             POWER_LEVEL_PREV = POWER_LEVEL;
             POWER_LEVEL = LEVEL_5;
+            b_state_changed = true;
           break;
 
           case A_ALARM_ON:
@@ -1079,6 +1117,7 @@ void checkPack() {
 
             // Alarm is on.
             b_pack_alarm = true;
+            b_state_changed = true;
 
             bargraphFull();
             BARGRAPH_PATTERN = BG_RAMP_DOWN;
@@ -1095,6 +1134,7 @@ void checkPack() {
 
             // Alarm is off.
             b_pack_alarm = false;
+            b_state_changed = true;
 
             if(b_pack_on) {
               ms_blink_leds.stop();
@@ -1113,6 +1153,7 @@ void checkPack() {
 
             // Pack is overheating.
             b_overheating = true;
+            b_state_changed = true;
             ms_blink_leds.start(i_blink_leds);
 
             bargraphFull();
@@ -1126,6 +1167,7 @@ void checkPack() {
 
             // Venting process completed.
             b_overheating = false;
+            b_state_changed = true;
             ms_blink_leds.stop();
 
             i_speed_multiplier = 1; // Return to normal speed.
@@ -1144,6 +1186,7 @@ void checkPack() {
             b_firing = true; // Implies the wand is powered on.
             b_pack_on = true; // Implies the pack is powered on.
             b_wand_on = true; // Implies the wand is powered on.
+            b_state_changed = true;
             ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
             bargraphClear();
@@ -1156,6 +1199,7 @@ void checkPack() {
             #endif
 
             b_firing = false;
+            b_state_changed = true;
             ms_blink_leds.stop();
 
             if(!b_overheating) {
@@ -1180,6 +1224,7 @@ void checkPack() {
             #endif
 
             i_speed_multiplier++;
+            b_state_changed = true;
 
             #if defined(__XTENSA__)
               debug(String(i_speed_multiplier));
@@ -1193,6 +1238,7 @@ void checkPack() {
               #endif
 
               BARREL_STATE = BARREL_EXTENDED;
+              b_state_changed = true;
             }
           break;
 
@@ -1203,6 +1249,7 @@ void checkPack() {
               #endif
 
               BARREL_STATE = BARREL_RETRACTED;
+              b_state_changed = true;
             }
           break;
 
@@ -1212,6 +1259,7 @@ void checkPack() {
             #endif
 
             i_speed_multiplier = 1;
+            b_state_changed = true;
 
             if(b_firing) {
               // Use the "normal" pattern if still firing.
@@ -1232,9 +1280,10 @@ void checkPack() {
 
         #if defined(__XTENSA__)
           // ESP - Alert all WebSocket clients after an API call was received.
-          // Note: We only perform this action if we have data from the pack.
-          // This excludes the handshake as this is received way too often.
-          if(!b_wait_for_pack && comStruct.i != A_HANDSHAKE) {
+          // Note: We only perform this action if we have data from the pack
+          // which resulted in a significant state change--this prevents the
+          // device from spamming any clients downstream with data.
+          if(!b_wait_for_pack && b_state_changed) {
             notifyWSClients(); // Send latest status to the WebSocket.
           }
         #endif
