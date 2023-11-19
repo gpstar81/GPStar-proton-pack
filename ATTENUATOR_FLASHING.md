@@ -14,7 +14,12 @@ This device supports Over-The-Air (OTA) updates for firmware, meaning you will n
 
 ### First-Time Upload
 
-You will need to utilize a command-line tool to upload the firmware to your device. [This guide](https://randomnerdtutorials.com/flashing-micropython-firmware-esptool-py-esp32-esp8266/) may be of some help as a reference.
+You will need to utilize a command-line tool to upload the firmware to your device. These guides may be of some help as a reference.
+
+1. [Expressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
+1. [Expressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
+
+[https://web.esphome.io/](https://web.esphome.io/)
 
 **For Windows:**
 
@@ -37,10 +42,12 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 1. From a terminal (command line) prompt run the following:
 	* `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
 	* `python get-pip.py` or `python3 get-pip.py`
-	* `pip install esptool`
+	* `pip install esptool` or `python -m pip install esptool` or `pip3 install esptool`
 1. Locate the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
-1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device:
-	`esptool.py -p <PORT> Attenuator-ESP32.bin`
+1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/MacOS this may be `/dev/ttyUSB0` while on Windows it would simply be something like `COM3`:
+	`esptool.py --chip esp32 -p <PORT> -b 115200 write_flash --flash_mode dio --flash_size detect --flash_freq 40m 0x10000 Attenuator-ESP32.bin`
+
+**Note:** To find your device on Linux it may be necessary to use the `lsusb` utility to list attached USB devices. For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices. For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
 
 ### Additional/Future Updates
 
