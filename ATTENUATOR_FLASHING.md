@@ -6,9 +6,26 @@ For the Arduino Nano you may use the same flashing utility as the other gpstar P
 
 ## For ESP32
 
-This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller.
+This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller. **However, the software which enables the WiFi access point isn't yet loaded you'll need to follow a specific process for the initial upload to your device.**
 
-1. Power up your Proton Pack and device,
+### First-Time Upload
+
+1. For Windows, download the [Flash Download Tools](https://www.espressif.com/en/support/download/other-tools) from Espressif Systems.
+1. Expand the **.zip** file downloaded and open the new folder.
+1. Locate the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
+1. Launch the **"flash_download_tool"** to upload the .bin file to the device via USB.
+	* When prompted, select the Chip Type as **ESP32**.
+	* Leave the Work Mode as "Develop" and Load Mode will be "UART", press **OK**.
+	* Select the software .bin image, setting the start address to `0x10000`
+	* Select the **COM** port where your ESP32 device is connected.
+	* Set the SPI Speed to "40MHz" and SPI Mode to "DIO".
+	* Press the **START** button to begin the flashing process.
+
+![](images/ESP32_Win_Flash.png)
+
+### Additional Updates
+
+1. Power up your Proton Pack and device.
 1. Open the WiFi preferences on your computer and look for the SSID which begins "ProtonPack_".
 	* If this is your first connection to the access point, use the default password "555-2368".
 1. Navigate to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
@@ -34,9 +51,9 @@ Since you won't have the ability to use the OTA update process above, you will n
 
 **For Windows:**
 
-1. Download the [Flash Download Tools](https://www.espressif.com/en/support/download/other-tools) from Espressif Systems.
-1. Locate the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
-1. Use the utility to upload the .bin file to the device via USB.
+1. Follow the instructions above for the "First-Time Upload" to obtain the flash downloader tool from Expressif Systems, expand the archive, and run the utility.
+1. Continue following the instructions to upload a .bin file to the device via USB.
+1. For this purpose, locate the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
 
 **For Linux/MacOS:**
 
