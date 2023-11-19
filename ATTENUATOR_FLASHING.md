@@ -14,40 +14,25 @@ This device supports Over-The-Air (OTA) updates for firmware, meaning you will n
 
 ### First-Time Upload
 
-You will need to utilize a command-line tool to upload the firmware to your device. These guides may be of some help as a reference.
+You will need to utilize a command-line tool to upload the firmware to your device.
 
-1. [Expressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
-1. [Expressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
-
-[https://web.esphome.io/](https://web.esphome.io/)
-
-**For Windows:**
-
-1. Download the [Flash Download Tools](https://www.espressif.com/en/support/download/other-tools) from Espressif Systems.
-1. Expand the **.zip** file downloaded and open the new folder.
-1. Locate the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
-1. Launch the **"flash_download_tool"** to upload the .bin file to the device via USB.
-	* When prompted, select the Chip Type as **ESP32**.
-	* Leave the Work Mode as "Develop" and Load Mode will be "UART", press **OK**.
-	* Select the software .bin image, setting the start address to `0x10000`
-	* Select the **COM** port where your ESP32 device is connected.
-	* Set the SPI Speed to "40MHz" and SPI Mode to "DIO".
-	* Press the **START** button to begin the flashing process.
-
-![](images/ESP32_Win_Flash.png)
-
-**For Linux/MacOS:**
-
-1. Download [Python](https://www.python.org/downloads/) and install for your operating system.
+1. Download [Python](https://www.python.org/downloads/) and install the latest v3.x release for your operating system (assumed: Linux/Windows/macOS).
 1. From a terminal (command line) prompt run the following:
-	* `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
-	* `python get-pip.py` or `python3 get-pip.py`
-	* `pip install esptool` or `python -m pip install esptool` or `pip3 install esptool`
+	* `python3 -m pip install setuptools`	
+	* `python3 -m pip install esptool`
+	* If you do not have the `pip` tool installed, run the following:
+		* `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
+		* `python3 get-pip.py`
 1. Locate the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
-1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/MacOS this may be `/dev/ttyUSB0` while on Windows it would simply be something like `COM3`:
-	`esptool.py --chip esp32 -p <PORT> -b 115200 write_flash --flash_mode dio --flash_size detect --flash_freq 40m 0x10000 Attenuator-ESP32.bin`
+1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS this may be `/dev/ttyUSB0` while on Windows it would simply be something like `COM3`:
+	`python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m 0x10000 Attenuator-ESP32.bin`
 
 **Note:** To find your device on Linux it may be necessary to use the `lsusb` utility to list attached USB devices. For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices. For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
+
+These guides may be of some help as a reference:
+
+* [Expressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
+* [Expressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
 
 ### Additional/Future Updates
 
