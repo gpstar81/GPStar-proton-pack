@@ -18,11 +18,12 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 
 1. Download [Python](https://www.python.org/downloads/) and install the latest v3.x release for your operating system (assumed: Linux/Windows/macOS).
 1. From a terminal (command line) prompt run the following:
-	* `python3 -m pip install setuptools`	
+	* `python3 -m pip install setuptools`
 	* `python3 -m pip install esptool`
 	* If you do not have the `pip` tool installed, run the following:
 		* `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
 		* `python3 get-pip.py`
+	* If the above utilities do not work using `python3` try using just `python`
 1. Locate the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
 1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS this may be `/dev/ttyUSB0` while on Windows it would simply be something like `COM3`:
 	`python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m 0x10000 Attenuator-ESP32.bin`
