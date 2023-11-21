@@ -26,8 +26,8 @@
  * debugging, while the websocket will help with confirming operations
  * while using the device (post-setup for wireless).
  */
-//#define DEBUG_WIRELESS_SETUP
-//#define DEBUG_SEND_TO_CONSOLE
+#define DEBUG_WIRELESS_SETUP
+#define DEBUG_SEND_TO_CONSOLE
 #define DEBUG_SEND_TO_WEBSOCKET
 
 /*
