@@ -4,7 +4,7 @@ This guide will cover the web interface available via the Attenuator or Wireless
 
 ## Firmware Flashing
 
-Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING) guide for details on compiling and/or uploading software to your Wireless Adapter controller.
+Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details on compiling and/or uploading software to your Wireless Adapter controller.
 
 ## Web UI
 
