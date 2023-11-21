@@ -10,7 +10,7 @@ Use of the serial expansion port on the gpstar Proton Pack can bring WiFi capabi
 The configuration for this device is extremely simple and can be implemented with NO SOLDERING using the parts below. You will need a true ESP32 (ESP-WROOM-32 not ESP8266) development board with a terminal shield and a pair of JST-XH pre-wired connectors with bare wire ends.
 
 * [ESP-WROOM-32 Dev Board w/ Terminal Shield](https://a.co/d/hDxXluE)
-* [JST-XH 2-Pin Connector and Wire Set](https://a.co/d/g6bgj5s)
+* [JST-XH 2-Pin Connector and Wire Set](https://a.co/d/74ILiUB)
 
 ## ESP32 - Pin Connections
 
