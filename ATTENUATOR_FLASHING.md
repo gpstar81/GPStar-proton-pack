@@ -14,18 +14,46 @@ This device supports Over-The-Air (OTA) updates for firmware, meaning you will n
 
 ### First-Time Upload
 
-You will need to utilize a command-line tool to upload the firmware to your device.
+**Via Web Uploader**
+
+This uses a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.
+
+1. Plug your device into a USB port on your computer and go to [https://esp.huhn.me](https://esp.huhn.me)
+1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
+1. Locate the following files from the `/binaries/attenuator` directory.
+	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-bootloader.bin)
+	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-partitions.bin)
+	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
+	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
+1. Once connected, select the above files for the following address spaces:
+	* 0x1000 &rarr; [Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-bootloader.bin)
+	* 0x8000 &rarr; [Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-partitions.bin)
+	* 0xE000 &rarr; [boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
+	* 0x10000 &rarr; [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
+1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
+
+**Via Command-Line**
+
+You will need to utilize a command-line tool to upload the firmware to your device from your local computer.
 
 1. Download [Python](https://www.python.org/downloads/) and install the latest v3.x release for your operating system (assumed: Linux/Windows/macOS).
 1. From a terminal (command line) prompt run the following:
-	* `python3 -m pip install setuptools`	
+	* `python3 -m pip install setuptools`
 	* `python3 -m pip install esptool`
 	* If you do not have the `pip` tool installed, run the following:
 		* `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
 		* `python3 get-pip.py`
-1. Locate the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
-1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS this may be `/dev/ttyUSB0` while on Windows it would simply be something like `COM3`:
-	`python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m 0x10000 Attenuator-ESP32.bin`
+	* If the above utilities do not work using `python3` try using just `python`
+1. Locate the following files from the `/binaries/attenuator` directory.
+	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-bootloader.bin)
+	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-partitions.bin)
+	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
+	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
+1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS this may be `/dev/cu.usbserial-0001` or similar, while on Windows it would simply be something like `COM3`:
+	`
+	python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m
+	0x1000 Attenuator-ESP32-bootloader.bin 0x8000 Attenuator-ESP32-partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
+	`
 
 **Note:** To find your device on Linux it may be necessary to use the `lsusb` utility to list attached USB devices. For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices. For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
 

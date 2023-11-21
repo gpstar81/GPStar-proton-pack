@@ -41,7 +41,7 @@ As shown above you will only need 4 connections using the pair of JST-XH connect
 
 ## Firmware Flashing
 
-This device currently uses the exact same firmware image as the Attenuator device, so please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING) guide for details on compiling and/or uploading software to your wireless adapter.
+This device currently uses the exact same firmware image as the Attenuator device, so please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details on compiling and/or uploading software to your wireless adapter.
 
 ## Operation
 
