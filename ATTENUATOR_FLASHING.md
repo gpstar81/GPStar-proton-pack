@@ -21,13 +21,13 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 1. Plug your device into a USB port on your computer and go to [https://esp.huhn.me](https://esp.huhn.me)
 1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
 1. Locate the following files from the `/binaries/attenuator` directory.
-	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-bootloader.bin)
-	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-partitions.bin)
+	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
+	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
 	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
 	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
 1. Once connected, select the above files for the following address spaces:
-	* 0x1000 &rarr; [Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-bootloader.bin)
-	* 0x8000 &rarr; [Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-partitions.bin)
+	* 0x1000 &rarr; [Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
+	* 0x8000 &rarr; [Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
 	* 0xE000 &rarr; [boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
 	* 0x10000 &rarr; [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
 1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
@@ -45,8 +45,8 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 		* `python3 get-pip.py`
 	* If the above utilities do not work using `python3` try using just `python`
 1. Locate the following files from the `/binaries/attenuator` directory.
-	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-bootloader.bin)
-	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-partitions.bin)
+	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
+	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
 	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
 	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
 1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS this may be `/dev/cu.usbserial-0001` or similar, while on Windows it would simply be something like `COM3`:
