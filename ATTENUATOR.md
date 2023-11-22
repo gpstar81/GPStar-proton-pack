@@ -31,7 +31,7 @@ Please see the dedicated [ATTENUATOR_DIY](ATTENUATOR_DIY.md) guide for how to co
 
 ## Firmware Flashing
 
-Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING) guide for details on compiling and/or uploading software to your Attenuator controller.
+Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details on compiling and/or uploading software to your Attenuator controller.
 
 ## Operation
 

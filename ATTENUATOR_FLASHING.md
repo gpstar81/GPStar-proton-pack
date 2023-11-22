@@ -4,14 +4,74 @@ Separate firmware files exist for the Arduino Nano vs. the ESP32 version of the 
 
 For the Arduino Nano you may use the same flashing utility as the other gpstar PCB devices as outlined in the [FLASHING](FLASHING.md) guide. For the ESP32 that will require a different process as outlined below. Since both the Arduino Nano and ESP development board have their own USB connection it will **not** be necessary to use a separate UART programming cable.
 
+## For Arduino Nano
+
+Just as you used the gpstar flashing utility for Windows or MacOS to upload to your Proton Pack or Neutrona Wand, you will do the same for this device. Plug in your device using a standard USB cable and note the serial COM port used. Select the "Attenuator-Nano.hex" file from the `/binaries/attenuator` directory and upload to the attached device.
+
 ## For ESP32
 
-This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller.
+This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller. **However, the software which enables the WiFi access point isn't yet loaded so you'll need to follow a specific process for the initial upload to your device.**
 
-1. Power up your Proton Pack and device,
+📝 **Tip:** Before proceeding, be sure to use a high-quality USB cable which supports data transfer. Some cheap cables may only support charging (not data), or not fully support the power requirements of the device. If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.
+
+### First-Time Upload
+
+**Via Web Uploader**
+
+This uses a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.
+
+1. Plug your device into a USB port on your computer and go to [https://esp.huhn.me](https://esp.huhn.me)
+1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
+1. Locate the following files from the `/binaries/attenuator` directory.
+	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
+	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
+	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
+	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
+1. Once connected, select the above files for the following address spaces:
+	* 0x1000 &rarr; [Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
+	* 0x8000 &rarr; [Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
+	* 0xE000 &rarr; [boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
+	* 0x10000 &rarr; [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
+1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
+
+**Via Command-Line**
+
+You will need to utilize a command-line tool to upload the firmware to your device from your local computer.
+
+1. Download [Python](https://www.python.org/downloads/) and install the latest v3.x release for your operating system (assumed: Linux/Windows/macOS).
+1. From a terminal (command line) prompt run the following:
+	* `python3 -m pip install setuptools`
+	* `python3 -m pip install esptool`
+	* If you do not have the `pip` tool installed, run the following:
+		* `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
+		* `python3 get-pip.py`
+	* If the above utilities do not work using `python3` try using just `python`
+1. Locate the following files from the `/binaries/attenuator` directory.
+	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
+	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
+	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
+	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
+1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS this may be `/dev/cu.usbserial-0001` or similar, while on Windows it would simply be something like `COM3`:
+	`
+	python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m
+	0x1000 Attenuator-ESP32-bootloader.bin 0x8000 Attenuator-ESP32-partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
+	`
+
+📝 **Tip:** To find your device on Linux it may be necessary to use the `lsusb` utility to list attached USB devices. For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices. For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
+
+These guides may be of some help as a reference:
+
+* [Expressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
+* [Expressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
+
+### Additional/Future Updates
+
+This applies to any updates after the first-time upload of the firmware for the device.
+
+1. Power up your Proton Pack and device.
 1. Open the WiFi preferences on your computer and look for the SSID which begins "ProtonPack_".
 	* If this is your first connection to the access point, use the default password "555-2368".
-1. Navigate to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
+1. Navigate directly to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
 1. Use the "Select File" button and select the [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) file from the `/binaries/attenuator` directory.
 1. The upload will begin immediately. Once at 100% the device will reboot.
 1. Navigate to [http://192.168.1.2](http://192.168.1.2) to confirm that the device is able to communicate with the Proton Pack PCB.
@@ -22,37 +82,23 @@ This device supports Over-The-Air (OTA) updates for firmware, meaning you will n
 
 ![](images/WebUI-Update3.jpg)
 
+## WiFi Security
+
+While every device gets a unique SSID for the wireless network, the password is always the same default of "555-2368". Therefore, to keep your device private and out of reach of others you are **strongly** encouraged to change this password.
+
 ### Setting a WiFi Password
 
-Once you are able to reach the web UI at [http://192.168.1.2](http://192.168.1.2) scroll to the bottom of the page to find the "Change WiFi Password" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled.
+Once you are able to reach the web UI at [http://192.168.1.2](http://192.168.1.2) scroll to the bottom of the page to find the "Change WiFi Password" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled. Passwords must only be at least 8 characters and you will be required to enter a matching password as confirmation to ensure you entered the expected string of characters.
 
 ![](images/WebUI-Password.jpg)
 
 ### Forgot Your WiFi Password?
 
-Since you won't have the ability to use the OTA update process above, you will need to follow a manual process using a USB cable and a utility for your OS of choice:
+Since you won't have the ability to use the OTA update process above, you will need to follow a manual process using a USB cable and a utility for your OS of choice. Since you will not have access to the OTA update capability, this will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
 
-**For Windows:**
+Once flashed, this will allow you to get back into the web UI at `http://192.168.1.2` using the default password ("555-2368") and change to your choice of password. **Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password while this firmware is loaded**! The new password will be used automatically to secure the WiFi access point once the regular firmware is in use.
 
-1. Download the [Flash Download Tools](https://www.espressif.com/en/support/download/other-tools) from Espressif Systems.
-1. Locate the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
-1. Use the utility to upload the .bin file to the device via USB.
-
-**For Linux/MacOS:**
-
-1. Download [Python](https://www.python.org/downloads/) and install for your operating system.
-1. From a terminal (command line) environment run the following:
-	* `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
-	* `python get-pip.py` or `python3 get-pip.py`
-	* `pip install esptool`
-1. Locate the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
-1. Run `esptool.py -p <PORT> Attenuator-ESP32.bin` where `<PORT>` is your ESP32 controller as a serial (USB) device.
-
-Once flashed, this will allow you to get back into the web UI using the default password ("555-2368") and change to your choice of password. Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password!
-
-## For Arduino Nano
-
-Just as you used the gpstar flashing utility for Windows or MacOS to upload to your Proton Pack or Neutrona Wand, you will do the same for this device. Plug in your device using a standard USB cable and note the serial COM port used. Select the "Attenuator-Nano.hex" file from the `/binaries/attenuator` directory and upload to the attached device.
+📝 **Note:** When using this firmware there will be additional debug messages enabled for the device. Therefore, this firmware image may also be used to help debug WiFi issues by checking the output via the Arduino IDE's serial console. Be sure to set the baud rate to 112500 to view the output correctly.
 
 ---
 
@@ -64,7 +110,7 @@ To build or edit the code for this device you must have an ArduinoIDE environmen
 
 The following libraries are required to be installed. All but the MillisDelay library can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
 
-### Common Libraries
+### Common Libraries (Nano+ESP32)
 
 - **FastLED** by Daniel Garcia
 - **ezButton** by ArduinoGetStarted.com
@@ -72,7 +118,7 @@ The following libraries are required to be installed. All but the MillisDelay li
 - **SerialTransfer** by PowerBroker2
 - **millisDelay** `See Below`
 
-### ESP32 Libraries
+### Additional ESP32 Libraries
 
 - **ArduinoJSON** by Benoit Blanchon
 - **AsyncTCP** by dvarrel
@@ -88,8 +134,8 @@ To build for the ESP32 controller you will need to use the `Boards Manager` to i
 
 The ElegantOTA library must be enabled to utilize the Asynchronous Web Server.
 
-1. Go to your Arduino libraries directory
-1. Open `ElegantOTA` folder and then open `src` folder
+1. Go to your Arduino libraries directory, typically found at `~/Documents/Arduino/library`.
+1. Open the `ElegantOTA` folder and then open the `src` folder
 1. Locate the `ELEGANTOTA_USE_ASYNC_WEBSERVER` macro in the `ElegantOTA.h` file, and set it to 1:
 	`#define ELEGANTOTA_USE_ASYNC_WEBSERVER 1`
 1. Save the changes to the `ElegantOTA.h` file.

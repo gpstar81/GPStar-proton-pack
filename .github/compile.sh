@@ -58,9 +58,10 @@ arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --warnings n
 rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*.map
-rm -f ${BINDIR}/*bootloader.hex
 
 mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32.bin
+mv ${BINDIR}/Attenuator.ino.bootloader.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Bootloader.bin
+mv ${BINDIR}/Attenuator.ino.partitions.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Partitions.bin
 echo "Done."
 echo ""
 
@@ -68,6 +69,8 @@ echo ""
 echo "Building Attenuator Binary (ESP32 - WiFi Reset)..."
 
 # Change flag(s) for compilation
+sed -i -e 's/\/\/\#define DEBUG_WIRELESS_SETUP/\#define DEBUG_WIRELESS_SETUP/' ${SRCDIR}/Attenuator/Configuration.h
+sed -i -e 's/\/\/\#define DEBUG_SEND_TO_CONSOLE/\#define DEBUG_SEND_TO_CONSOLE/' ${SRCDIR}/Attenuator/Configuration.h
 sed -i -e 's/\/\/\#define RESET_AP_SETTINGS/\#define RESET_AP_SETTINGS/' ${SRCDIR}/Attenuator/Configuration.h
 
 arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --warnings none --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
@@ -76,11 +79,14 @@ arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --warnings n
 rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*.map
-rm -f ${BINDIR}/*bootloader.hex
+rm -f ${BINDIR}/*bootloader.*
+rm -f ${BINDIR}/*partitions.*
 
 mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Reset.bin
 
 # Restore flag(s) from compilation
+sed -i -e 's/\#define DEBUG_WIRELESS_SETUP/\/\/\#define DEBUG_WIRELESS_SETUP/' ${SRCDIR}/Attenuator/Configuration.h
+sed -i -e 's/\#define DEBUG_SEND_TO_CONSOLE/\/\/\#define DEBUG_SEND_TO_CONSOLE/' ${SRCDIR}/Attenuator/Configuration.h
 sed -i -e 's/\#define RESET_AP_SETTINGS/\/\/\#define RESET_AP_SETTINGS/' ${SRCDIR}/Attenuator/Configuration.h
 
 echo "Done."
