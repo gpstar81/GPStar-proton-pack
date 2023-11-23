@@ -24,9 +24,26 @@ const char PASSWORD_page[] PROGMEM = R"=====(
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WiFi Password</title>
-
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Change WiFi Password</h1>
+  <div class="block">
+    <p>
+      Change your preferred password for WiFi access to this device. Note that this value is stored in controller's permanent memory,
+      and restoring/upgrading firmware will have no effect on resetting this value. After updating, any devices which previously stored
+      the password for the WiFi network will require you to update to the new password.
+    </p>
+    <br/>
+    <b>New AP Password:</b> <input type="text" id="password" width="120"/>
+    <br/>
+    <b>Confirm Password:</b> <input type="text" id="password2" width="120"/>
+    <br/>
+    <a href="/">&laquo; Back</a>
+    &nbsp;&nbsp;&nbsp;
+    <button type="button" class="green" onclick="updatePassword()">Update</button>
+  </div>
 
   <script type="application/javascript">
     function updatePassword() {
@@ -55,24 +72,6 @@ const char PASSWORD_page[] PROGMEM = R"=====(
       xhttp.send(body);
     }
   </script>
-</head>
-<body>
-  <h1>Change WiFi Password</h1>
-  <div class="block">
-    <p>
-      Change your preferred password for WiFi access to this device. Note that this value is stored in controller's permanent memory,
-      and restoring/upgrading firmware will have no effect on resetting this value. After updating, any devices which previously stored
-      the password for the WiFi network will require you to update to the new password.
-    </p>
-    <br/>
-    <b>New AP Password:</b> <input type="text" id="password" width="120"/>
-    <br/>
-    <b>Confirm Password:</b> <input type="text" id="password2" width="120"/>
-    <br/>
-    <a href="/">&laquo; Back</a>
-    &nbsp;&nbsp;&nbsp;
-    <button type="button" class="green" onclick="updatePassword()">Update</button>
-  </div>
 </body>
 </html>
 )=====";

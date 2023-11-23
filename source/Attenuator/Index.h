@@ -24,9 +24,69 @@ const char INDEX_page[] PROGMEM = R"=====(
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Proton Pack</title>
-
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Equipment Status</h1>
+  <div class="card">
+    <p><b>System Mode:</b> <span class="info" id="mode">&mdash;</span></p>
+    <p><b>Theme Mode:</b> <span class="info" id="theme">&mdash;</span></p>
+    <br/>
+    <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
+    <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
+    <p><b>Ribbon Cable:</b> <span class="info" id="cable">&mdash;</span></p>
+    <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
+    <p><b>Overheat State:</b> <span class="info" id="temperature">&mdash;</span></p>
+    <br/>
+    <p><b>Wand State:</b> <span class="info" id="wand">&mdash;</span></p>
+    <p><b>Wand Armed:</b> <span class="info" id="safety">&mdash;</span></p>
+    <p><b>Wand Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
+    <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
+    <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
+  </div>
+
+  <h1>Audio Controls</h1>
+  <div class="block">
+    <h3>Master Volume</h3>
+    <button type="button" class="blue" onclick="volumeMasterDown()">- Down</button>
+    <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
+    <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
+    <br/>
+    <h3>Music Playback</h3>
+    <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
+    <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
+    <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
+    <br/>
+    <button type="button" class="green" onclick="pauseresumeMusic()" style="width:120px;">Pause/Resume</button>
+    <br/>
+    <h3>Play Music Track</h3>
+    <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
+    <br/>
+    <h3>Effects Volume</h3>
+    <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
+    &nbsp;&nbsp;
+    <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
+  </div>
+
+  <h1>Pack Controls</h1>
+  <div class="block">
+    <button type="button" class="red" onclick="packOff()" id="btnPackOff">Pack Off</button>
+    &nbsp;&nbsp;
+    <button type="button" class="green" onclick="packOn()" id="btnPackOn">Pack On</button>
+    <br/>
+    <br/>
+    <button type="button" class="orange" onclick="beginVenting()" id="btnVent">Vent</button>
+    &nbsp;&nbsp;
+    <button type="button" class="blue" onclick="attenuatePack()" id="btnAttenuate">Attenuate</button>
+  </div>
+
+  <h1>Administration</h1>
+  <div class="block">
+    <a href="/password">Change WiFi Password</a>
+    &nbsp;&nbsp;&nbsp;
+    <a href="/update">Update Firmware</a>
+  </div>
 
   <script type="application/javascript">
     var hostname = window.location.hostname;
@@ -94,6 +154,66 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
+    function updateTrackListing(musicStart, musicEnd, musicCurrent) {
+      // Continue if start/end values are sane and something actually changed.
+      if (musicStart > 0 && musicEnd < 1000 && musicEnd > musicStart &&
+         (musicTrackMax != musicEnd || musicTrackCurrent != musicCurrent)) {
+        // Proceed if we have a starting track and valid end track, and if current track changed.
+        musicTrackMax = musicEnd;
+        musicTrackCurrent = musicCurrent;
+
+        var trackList = document.getElementById("tracks");
+        if (trackList) {
+          removeOptions(trackList); // Clear previous options.
+
+          for (var i = musicStart; i <= musicEnd; i++) {
+              var opt = document.createElement("option");
+              opt.value = i;
+              opt.text = "Track #" + i;
+              opt.innerHTML = i;
+              if (i == musicCurrent) {
+                opt.selected = true;
+              }
+              trackList.appendChild(opt);
+          }
+        }
+      }
+    }
+
+    function setButtonStates(mode, pack, wand, cyclotron) {
+      if (mode == "Original" && pack == "Powered" && wand == "Powered") {
+        // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
+        document.getElementById("btnPackOff").disabled = true;
+      } else {
+        // Otherwise, this should be allowed.
+        document.getElementById("btnPackOff").disabled = false;
+      }
+
+      if (mode == "Original" && pack == "Powered" && wand == "Powered") {
+        // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
+        document.getElementById("btnPackOn").disabled = true;
+      } else {
+        // Otherwise, this should be allowed.
+        document.getElementById("btnPackOn").disabled = false;
+      }
+
+      if (mode == "Super Hero" && wand == "Powered") {
+        // Can only use manual vent if mode Super Hero and wand is Powered.
+        document.getElementById("btnVent").disabled = false;
+      } else {
+        // Otherwise, this should NOT be allowed.
+        document.getElementById("btnVent").disabled = true;
+      }
+
+      if (cyclotron == "Warning" || cyclotron == "Critical") {
+        // Can only attenuate if cyclotron is in certain states.
+        document.getElementById("btnAttenuate").disabled = false;
+      } else {
+        // Otherwise, this should NOT be allowed.
+        document.getElementById("btnAttenuate").disabled = true;
+      }
+    }
+
     function updateStatus(jObj) {
       if (jObj) {
         document.getElementById("mode").innerHTML = jObj.mode || "...";
@@ -109,58 +229,8 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
 
-        if (jObj.mode == "Original" && jObj.pack == "Powered" && jObj.wand == "Powered") {
-          // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
-          document.getElementById("btnPackOff").disabled = true;
-        } else {
-          // Otherwise, this should be allowed.
-          document.getElementById("btnPackOff").disabled = false;
-        }
-
-        if (jObj.mode == "Original" && jObj.pack == "Powered" && jObj.wand == "Powered") {
-          // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
-          document.getElementById("btnPackOn").disabled = true;
-        } else {
-          // Otherwise, this should be allowed.
-          document.getElementById("btnPackOn").disabled = false;
-        }
-
-        if (jObj.mode == "Super Hero" && jObj.wand == "Powered") {
-          // Can only use manual vent if mode Super Hero and wand is Powered.
-          document.getElementById("btnVent").disabled = false;
-        } else {
-          // Otherwise, this should NOT be allowed.
-          document.getElementById("btnVent").disabled = true;
-        }
-
-        if (jObj.cyclotron == "Warning" || jObj.cyclotron == "Critical") {
-          // Can only attenuate if cyclotron is in certain states.
-          document.getElementById("btnAttenuate").disabled = false;
-        } else {
-          // Otherwise, this should NOT be allowed.
-          document.getElementById("btnAttenuate").disabled = true;
-        }
-
-        if (jObj.musicStart > 0 &&
-            jObj.musicEnd > jObj.musicStart &&
-            (musicTrackMax != jObj.musicEnd ||
-             musicTrackCurrent != jObj.musicCurrent)) {
-          // Proceed if we have a starting track and valid end track, and if current track changed.
-          musicTrackMax = jObj.musicEnd;
-          musicTrackCurrent = jObj.musicCurrent;
-          var trackList = document.getElementById("tracks");
-          removeOptions(trackList);
-          for (var i = jObj.musicStart; i <= jObj.musicEnd; i++) {
-              var opt = document.createElement("option");
-              opt.value = i;
-              opt.text = "Track #" + i;
-              opt.innerHTML = i;
-              if (i == jObj.musicCurrent) {
-                opt.selected = true;
-              }
-              trackList.appendChild(opt);
-          }
-        }
+        setButtonStates(jObj.mode, jObj.pack, jObj.wand, jObj.cyclotron);
+        updateTrackListing(jObj.musicStart, jObj.musicEnd, jObj.musicCurrent);
       }
     }
 
@@ -341,67 +411,6 @@ const char INDEX_page[] PROGMEM = R"=====(
       xhttp.send();
     }
   </script>
-</head>
-<body>
-  <h1>Equipment Status</h1>
-  <div class="card">
-    <p><b>System Mode:</b> <span class="info" id="mode">&mdash;</span></p>
-    <p><b>Theme Mode:</b> <span class="info" id="theme">&mdash;</span></p>
-    <br/>
-    <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
-    <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
-    <p><b>Ribbon Cable:</b> <span class="info" id="cable">&mdash;</span></p>
-    <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
-    <p><b>Overheat State:</b> <span class="info" id="temperature">&mdash;</span></p>
-    <br/>
-    <p><b>Wand State:</b> <span class="info" id="wand">&mdash;</span></p>
-    <p><b>Wand Armed:</b> <span class="info" id="safety">&mdash;</span></p>
-    <p><b>Wand Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
-    <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
-    <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
-  </div>
-
-  <h1>Audio Controls</h1>
-  <div class="block">
-    <h3>Master Volume</h3>
-    <button type="button" class="blue" onclick="volumeMasterDown()">- Down</button>
-    <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
-    <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
-    <br/>
-    <h3>Music Playback</h3>
-    <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
-    <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
-    <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
-    <br/>
-    <button type="button" class="green" onclick="pauseresumeMusic()" style="width:120px;">Pause/Resume</button>
-    <br/>
-    <h3>Play Music Track</h3>
-    <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
-    <br/>
-    <h3>Effects Volume</h3>
-    <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
-    &nbsp;&nbsp;
-    <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
-  </div>
-
-  <h1>Pack Controls</h1>
-  <div class="block">
-    <button type="button" class="red" onclick="packOff()" id="btnPackOff">Pack Off</button>
-    &nbsp;&nbsp;
-    <button type="button" class="green" onclick="packOn()" id="btnPackOn">Pack On</button>
-    <br/>
-    <br/>
-    <button type="button" class="orange" onclick="beginVenting()" id="btnVent">Vent</button>
-    &nbsp;&nbsp;
-    <button type="button" class="blue" onclick="attenuatePack()" id="btnAttenuate">Attenuate</button>
-  </div>
-
-  <h1>Administration</h1>
-  <div class="block">
-    <a href="/password">Change WiFi Password</a>
-    &nbsp;&nbsp;&nbsp;
-    <a href="/update">Update Firmware</a>
-  </div>
 </body>
 </html>
 )=====";
