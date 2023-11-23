@@ -58,7 +58,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
     <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
     <br/>
-    <button type="button" class="green" onclick="pauseresumeMusic()" style="width:120px;">Pause/Resume</button>
+    <button type="button" class="green" onclick="pauseresumeMusic()" style="width:120px;margin-top:10px">Pause/Resume</button>
     <br/>
     <h3>Play Music Track</h3>
     <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>

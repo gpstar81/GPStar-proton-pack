@@ -144,14 +144,17 @@ select {
   background-color: #f44336;
   border: 2px solid #d42316;
 }
+
 .orange {
   background-color: #ffac1c;
   border: 2px solid #dd9a0a;
 }
+
 .green {
   background-color: #4CAF50;
   border: 2px solid #2C8F30;
 }
+
 .blue {
   background-color: #008CBA;
   border: 2px solid #006C9A;
