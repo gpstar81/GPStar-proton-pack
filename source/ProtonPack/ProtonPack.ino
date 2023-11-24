@@ -357,6 +357,36 @@ void loop() {
 
       // Play a little bit of smoke and N-Filter vent lights while firing and other misc sound effects.
       if(b_wand_firing == true) {
+        // If firing in Meson Blast, control the pulse repeat effect.
+        if(FIRING_MODE == MESON) {
+          if(ms_meson_blast.justFinished()) {
+            playEffect(S_MESON_FIRE_PULSE);
+    
+            switch(i_wand_power_level) {
+              case 5:
+                ms_meson_blast.start(i_meson_blast_delay_level_5);
+              break;
+
+              case 4:
+                ms_meson_blast.start(i_meson_blast_delay_level_5);
+              break;
+
+              case 3:
+                ms_meson_blast.start(i_meson_blast_delay_level_3);
+              break;
+
+              case 2:
+                ms_meson_blast.start(i_meson_blast_delay_level_2);
+              break;
+
+              case 1:
+              default:
+                ms_meson_blast.start(i_meson_blast_delay_level_1);
+              break;
+            }
+          }
+        }
+
         // Mix some impact sound effects.
         if(ms_firing_sound_mix.justFinished() && FIRING_MODE == PROTON && b_stream_effects == true) {
           uint8_t i_random = 0;
@@ -708,6 +738,24 @@ void packStartup() {
         ms_idle_fire_fade.start(18000);
       break;
     }
+
+    switch(FIRING_MODE) {
+      case SLIME:
+        playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
+      break;
+
+      case STASIS:
+        playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
+      break;
+
+      case MESON:
+        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
+      break;
+
+      default:
+        // Do nothing.
+      break;
+    }
   }
 }
 
@@ -739,6 +787,10 @@ void packShutdown() {
   stopEffect(S_BEEP_8);
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
+
+  stopEffect(S_PACK_SLIME_TANK_LOOP);
+  stopEffect(S_STASIS_IDLE_LOOP);
+  stopEffect(S_MESON_IDLE_LOOP);
 
   if(SYSTEM_YEAR == SYSTEM_1989) {
     stopEffect(S_GB2_PACK_START);
@@ -3156,11 +3208,13 @@ void modeFireStartSounds() {
     }
   }
 
-  if(SYSTEM_YEAR == SYSTEM_1989) {
-    playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
-  }
-  else {
-    playEffect(S_FIRE_START_SPARK);
+  if(FIRING_MODE != MESON) {
+    if(SYSTEM_YEAR == SYSTEM_1989) {
+      playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
+    }
+    else {
+      playEffect(S_FIRE_START_SPARK);
+    }
   }
 
   switch(FIRING_MODE) {
@@ -3252,18 +3306,43 @@ void modeFireStartSounds() {
     break;
 
     case SLIME:
+      stopEffect(S_SLIME_END);
       playEffect(S_SLIME_START);
       playEffect(S_SLIME_LOOP, true, i_volume_effects, true, 1500);
     break;
 
     case STASIS:
+      stopEffect(S_STASIS_END);
       playEffect(S_STASIS_START);
       playEffect(S_STASIS_LOOP, true, i_volume_effects, true, 1000);
     break;
 
-    case MESON:
+    case MESON: 
       playEffect(S_MESON_START);
-      playEffect(S_MESON_LOOP, true, i_volume_effects, true, 5500);
+      playEffect(S_MESON_FIRE_PULSE);
+
+      switch(i_wand_power_level) {
+        case 5:
+          ms_meson_blast.start(i_meson_blast_delay_level_5);
+        break;
+
+        case 4:
+          ms_meson_blast.start(i_meson_blast_delay_level_5);
+        break;
+
+        case 3:
+          ms_meson_blast.start(i_meson_blast_delay_level_3);
+        break;
+
+        case 2:
+          ms_meson_blast.start(i_meson_blast_delay_level_2);
+        break;
+
+        case 1:
+        default:
+          ms_meson_blast.start(i_meson_blast_delay_level_1);
+        break;
+      }
     break;
 
     case VENTING:
@@ -3365,6 +3444,8 @@ void modeFireStopSounds() {
 }
 
 void wandStoppedFiring() {
+  ms_meson_blast.stop();
+
   modeFireStopSounds();
 
   ms_firing_sound_mix.stop();
@@ -3431,19 +3512,15 @@ void wandStopFiringSounds() {
     case SLIME:
       stopEffect(S_SLIME_START);
       stopEffect(S_SLIME_LOOP);
-      stopEffect(S_SLIME_END);
     break;
 
     case STASIS:
       stopEffect(S_STASIS_START);
       stopEffect(S_STASIS_LOOP);
-      stopEffect(S_STASIS_END);
     break;
 
     case MESON:
-      stopEffect(S_MESON_START);
-      stopEffect(S_MESON_LOOP);
-      stopEffect(S_MESON_END);
+      // Nothing.
     break;
 
     case VENTING:
@@ -3504,6 +3581,24 @@ void packAlarm() {
   }
   else {
     playEffect(S_PACK_SHUTDOWN);
+  }
+
+  switch(FIRING_MODE) {
+    case SLIME:
+      stopEffect(S_PACK_SLIME_TANK_LOOP);
+    break;
+
+    case STASIS:
+      stopEffect(S_STASIS_IDLE_LOOP);
+    break;
+
+    case MESON:
+      stopEffect(S_MESON_IDLE_LOOP);
+    break;
+
+    default:
+      // Do nothing.
+    break;
   }
 
   if(b_overheating != true) {
@@ -3697,6 +3792,10 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_BOOTUP, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
   w_trig.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
+
+  w_trig.trackGain(S_PACK_SLIME_TANK_LOOP, i_volume_effects);
+  w_trig.trackGain(S_STASIS_IDLE_LOOP, i_volume_effects);
+  w_trig.trackGain(S_MESON_IDLE_LOOP, i_volume_effects);
 
   w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 10);
   w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 10);
@@ -4561,6 +4660,10 @@ void checkWand() {
               FIRING_MODE = PROTON;
               playEffect(S_CLICK);
 
+              stopEffect(S_PACK_SLIME_TANK_LOOP);
+              stopEffect(S_STASIS_IDLE_LOOP);
+              stopEffect(S_MESON_IDLE_LOOP);
+
               if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_FIRE_START_SPARK);
               }
@@ -4584,8 +4687,13 @@ void checkWand() {
               FIRING_MODE = SLIME;
               playEffect(S_CLICK);
 
+              stopEffect(S_PACK_SLIME_TANK_LOOP);
+              stopEffect(S_STASIS_IDLE_LOOP);
+              stopEffect(S_MESON_IDLE_LOOP);
+
               if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_PACK_SLIME_OPEN);
+                playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
               }
 
               if(b_cyclotron_colour_toggle == true) {
@@ -4608,8 +4716,13 @@ void checkWand() {
               FIRING_MODE = STASIS;
               playEffect(S_CLICK);
 
+              stopEffect(S_PACK_SLIME_TANK_LOOP);
+              stopEffect(S_STASIS_IDLE_LOOP);
+              stopEffect(S_MESON_IDLE_LOOP);
+
               if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_STASIS_OPEN);
+                playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
               }
 
               if(b_cyclotron_colour_toggle == true) {
@@ -4631,8 +4744,13 @@ void checkWand() {
               FIRING_MODE = MESON;
               playEffect(S_CLICK);
 
+              stopEffect(S_PACK_SLIME_TANK_LOOP);
+              stopEffect(S_STASIS_IDLE_LOOP);
+              stopEffect(S_MESON_IDLE_LOOP);
+
               if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_MESON_OPEN);
+                playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
               }
 
               if(b_cyclotron_colour_toggle == true) {
@@ -4653,6 +4771,10 @@ void checkWand() {
               // Proton mode
               FIRING_MODE = SPECTRAL;
               playEffect(S_CLICK);
+
+              stopEffect(S_PACK_SLIME_TANK_LOOP);
+              stopEffect(S_STASIS_IDLE_LOOP);
+              stopEffect(S_MESON_IDLE_LOOP);
 
               if(PACK_STATE == MODE_ON && b_wand_on == true) {
                 playEffect(S_FIRE_START_SPARK);
@@ -4677,7 +4799,12 @@ void checkWand() {
               FIRING_MODE = HOLIDAY;
               playEffect(S_CLICK);
 
+              stopEffect(S_PACK_SLIME_TANK_LOOP);
+              stopEffect(S_STASIS_IDLE_LOOP);
+              stopEffect(S_MESON_IDLE_LOOP);
+
               if(PACK_STATE == MODE_ON && b_wand_on == true) {
+                stopEffect(S_PACK_SLIME_TANK_LOOP);
                 playEffect(S_FIRE_START_SPARK);
               }
 
@@ -4700,7 +4827,12 @@ void checkWand() {
               FIRING_MODE = SPECTRAL_CUSTOM;
               playEffect(S_CLICK);
 
+              stopEffect(S_PACK_SLIME_TANK_LOOP);
+              stopEffect(S_STASIS_IDLE_LOOP);
+              stopEffect(S_MESON_IDLE_LOOP);
+
               if(PACK_STATE == MODE_ON && b_wand_on == true) {
+                stopEffect(S_PACK_SLIME_TANK_LOOP);
                 playEffect(S_FIRE_START_SPARK);
               }
 
@@ -4723,7 +4855,12 @@ void checkWand() {
               FIRING_MODE = VENTING;
               playEffect(S_CLICK);
 
+              stopEffect(S_PACK_SLIME_TANK_LOOP);
+              stopEffect(S_STASIS_IDLE_LOOP);
+              stopEffect(S_MESON_IDLE_LOOP);
+
               if(PACK_STATE == MODE_ON && b_wand_on == true) {
+                stopEffect(S_PACK_SLIME_TANK_LOOP);
                 playEffect(S_VENT_DRY);
                 playEffect(S_MODE_SWITCH);
               }
@@ -4746,6 +4883,10 @@ void checkWand() {
               // Settings mode
               FIRING_MODE = SETTINGS;
               playEffect(S_CLICK);
+
+              stopEffect(S_PACK_SLIME_TANK_LOOP);
+              stopEffect(S_STASIS_IDLE_LOOP);
+              stopEffect(S_MESON_IDLE_LOOP);
 
               if(b_cyclotron_colour_toggle == true) {
                 // Reset the Cyclotron LED colours.

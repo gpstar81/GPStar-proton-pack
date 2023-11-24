@@ -289,6 +289,35 @@ void mainLoop() {
         startVentSequence();
       }
       else if(b_pack_on == true && b_pack_alarm == false) {
+        if(FIRING_MODE == MESON) {
+          if(ms_meson_blast.justFinished()) {
+            playEffect(S_MESON_FIRE_PULSE);
+
+            switch(i_power_mode) {
+              case 5:
+                ms_meson_blast.start(i_meson_blast_delay_level_5);
+              break;
+
+              case 4:
+                ms_meson_blast.start(i_meson_blast_delay_level_5);
+              break;
+
+              case 3:
+                ms_meson_blast.start(i_meson_blast_delay_level_3);
+              break;
+
+              case 2:
+                ms_meson_blast.start(i_meson_blast_delay_level_2);
+              break;
+
+              case 1:
+              default:
+                ms_meson_blast.start(i_meson_blast_delay_level_1);
+              break;
+            }
+          }
+        }
+
         if(ms_firing_start_sound_delay.justFinished()) {
           modeFireStartSounds();
         }
@@ -3343,12 +3372,14 @@ void soundBeepLoop() {
 void modeFireStartSounds() {
   ms_firing_start_sound_delay.stop();
 
-  // Some sparks for firing start.
-  if(SYSTEM_YEAR == SYSTEM_1989) {
-    playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
-  }
-  else {
-    playEffect(S_FIRE_START_SPARK);
+  if(FIRING_MODE != MESON) {
+    // Some sparks for firing start.
+    if(SYSTEM_YEAR == SYSTEM_1989) {
+      playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
+    }
+    else {
+      playEffect(S_FIRE_START_SPARK);
+    }
   }
 
   switch(FIRING_MODE) {
@@ -3433,18 +3464,44 @@ void modeFireStartSounds() {
     break;
 
     case SLIME:
+      stopEffect(S_SLIME_END);
       playEffect(S_SLIME_START);
       playEffect(S_SLIME_LOOP, true);
     break;
 
     case STASIS:
+      stopEffect(S_STASIS_END);
       playEffect(S_STASIS_START);
       playEffect(S_STASIS_LOOP, true);
     break;
 
     case MESON:
       playEffect(S_MESON_START);
-      playEffect(S_MESON_LOOP, true);
+
+      playEffect(S_MESON_FIRE_PULSE);
+      
+      switch(i_power_mode) {
+        case 5:
+          ms_meson_blast.start(i_meson_blast_delay_level_5);
+        break;
+
+        case 4:
+          ms_meson_blast.start(i_meson_blast_delay_level_5);
+        break;
+
+        case 3:
+          ms_meson_blast.start(i_meson_blast_delay_level_3);
+        break;
+
+        case 2:
+          ms_meson_blast.start(i_meson_blast_delay_level_2);
+        break;
+
+        case 1:
+        default:
+          ms_meson_blast.start(i_meson_blast_delay_level_1);
+        break;
+      }
     break;
 
     case VENTING:
@@ -3542,7 +3599,6 @@ void modeFireStart() {
 
     case MESON:
       stopEffect(S_MESON_START);
-      stopEffect(S_MESON_LOOP);
       stopEffect(S_MESON_END);
     break;
 
@@ -3579,8 +3635,15 @@ void modeFireStart() {
   }
 
   barrelLightsOff();
+  
+  if(FIRING_MODE == MESON) {
+    ms_firing_lights.stop();
+    ms_firing_stream_blue.start(1);    
+  }
+  else {
+    ms_firing_lights.start(10);
+  }
 
-  ms_firing_lights.start(10);
   i_barrel_light = 0;
 
   // Stop any bargraph ramps.
@@ -3794,7 +3857,6 @@ void modeFireStop() {
 
     case MESON:
       stopEffect(S_MESON_START);
-      stopEffect(S_MESON_LOOP);
       stopEffect(S_MESON_END);
     break;
 
@@ -4184,8 +4246,8 @@ void modeFiring() {
     break;
 
     case MESON:
-      fireStreamStart(getHueAsGRB(C_YELLOW));
-      fireStream(getHueAsGRB(C_RED));
+      //fireStreamStart(getHueAsGRB(C_BLACK));
+      fireStream(getHueAsGRB(C_YELLOW));
     break;
 
     case SPECTRAL:
@@ -4295,7 +4357,7 @@ void wandBarrelHeatUp() {
       break;
 
       case MESON:
-        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_ORANGE, i_heatup_counter);
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_YELLOW, i_heatup_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
@@ -4345,7 +4407,7 @@ void wandBarrelHeatDown() {
       break;
 
       case MESON:
-        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_ORANGE, i_heatdown_counter);
+        barrel_leds[i_num_barrel_leds - 1] = getHueAsGRB(C_YELLOW, i_heatdown_counter);
         ms_fast_led.start(i_fast_led_delay);
       break;
 
@@ -4429,7 +4491,7 @@ void fireStream(CRGB c_colour) {
         break;
 
         case MESON:
-          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_ORANGE);
+          barrel_leds[i_barrel_light - 1] = getHueAsGRB(C_BLACK);
         break;
 
         case SPECTRAL:

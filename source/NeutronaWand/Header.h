@@ -95,6 +95,16 @@ millisDelay ms_slo_blo_blink;
 const unsigned int i_slo_blo_blink_delay = 500;
 
 /*
+ * Control for the Meson Shock Blast sound effects.
+*/
+millisDelay ms_meson_blast;
+const unsigned int i_meson_blast_delay_level_5 = 140;
+const unsigned int i_meson_blast_delay_level_4 = 160;
+const unsigned int i_meson_blast_delay_level_3 = 180;
+const unsigned int i_meson_blast_delay_level_2 = 200;
+const unsigned int i_meson_blast_delay_level_1 = 220;
+
+/*
  * Barrel LEDs.
  * The Hasbro Neutrona Wand has 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
  * Support for up to 60 LEDs. With the options of 48 and 60 from Frutto Technology, with the 48 option coming soon.
