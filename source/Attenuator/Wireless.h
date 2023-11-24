@@ -344,7 +344,7 @@ void handleStatus(AsyncWebServerRequest *request) {
 
 void handleRestart(AsyncWebServerRequest *request) {
   // Performs a restart of the device.
-  request->send(200, "application/json", status);
+  request->send(204, "application/json", status);
   delay(1000);
   ESP.restart();
 }

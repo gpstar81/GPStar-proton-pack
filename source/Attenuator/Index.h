@@ -89,7 +89,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <br/>
     <br/>
-    <a href="#" onclick="doRestart()">Restart/Resync</a>
+    <a href="javascript:doRestart()">Restart/Resync</a>
   </div>
 
   <script type="application/javascript">
@@ -264,6 +264,14 @@ const char INDEX_page[] PROGMEM = R"=====(
     function doRestart() {
       if (confirm("Are you sure you wish to restart the serial device?")) {
         var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 204) {
+            // Reload the page after 2 seconds.
+            setTimeout(function(){
+              window.location.reload();
+            }, 2000);
+          }
+        };
         xhttp.open("DELETE", "/restart", true);
         xhttp.send();
       }
