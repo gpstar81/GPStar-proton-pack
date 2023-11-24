@@ -43,6 +43,7 @@
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <WiFi.h>
+#include "esp_wifi.h"
 
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
@@ -103,8 +104,10 @@ boolean startWiFi() {
   #endif
   preferences.end();
 
-  // Start the access point using the SSID and password.
-  bool b_ap_started = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str());
+  // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
+  // Additionally, sets radio to channel 6, don't hide SSID, and max 4 connections.
+  // Note that the WiFi protocols available for use are 802.11b/g/n
+  bool b_ap_started = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 6, false, 4);
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println(b_ap_started ? "AP Ready" : "AP Failed");
   #endif
@@ -113,17 +116,18 @@ boolean startWiFi() {
 
 void configureNetwork() {
   // Simple networking info for the AP.
-  IPAddress local_ip(192, 168, 1, 2);
+  IPAddress localIP(192, 168, 1, 2);
   IPAddress gateway(192, 168, 1, 1);
   IPAddress subnet(255, 255, 255, 0);
 
   // Set networking info and report to console.
-  WiFi.softAPConfig(local_ip, gateway, subnet);
+  WiFi.softAPConfig(localIP, gateway, subnet);
+  WiFi.softAPsetHostname("protonpack.local");
   delay(100);
   #if defined(DEBUG_WIRELESS_SETUP)
-    IPAddress IP = WiFi.softAPIP();
+    IPAddress softIP = WiFi.softAPIP();
     Serial.print("Access Point IP Address: ");
-    Serial.println(IP);
+    Serial.println(softIP);
     Serial.println("WiFi AP Started as " + ap_ssid);
     Serial.println("WiFi AP Password: " + ap_pass);
   #endif

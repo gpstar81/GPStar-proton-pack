@@ -116,7 +116,7 @@ void setup() {
   #if defined(__XTENSA__)
     // ESP - Setup WiFi and WebServer
     if(startWiFi()) {
-      delay(10); // Allow a small delay before config.
+      delay(100); // Allow a small delay before config.
 
       // Do the AP network configuration.
       configureNetwork();
@@ -128,6 +128,9 @@ void setup() {
       ms_cleanup.start(i_websocketCleanup);
     }
   #endif
+
+  // Delay to allow any other devices to start up.
+  delay(1000);
 
   // Initialize critical timers.
   ms_fast_led.start(1);
