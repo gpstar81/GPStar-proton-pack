@@ -74,6 +74,7 @@ bool b_top_led_off = false; // Denotes when top LED is mid-blink.
   // ESP32
   #define BUZZER_PIN 18
   #define VIBRATION_PIN 19
+  #define PWM_CHANNEL 0
 #else
   // Nano
   #define BUZZER_PIN 10

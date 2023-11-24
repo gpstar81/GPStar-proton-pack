@@ -95,15 +95,15 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
   // Setup the bargraph after a brief delay.
-  delay(100);
+  delay(10);
   setupBargraph();
 
   // Feedback devices (piezo buzzer and vibration motor)
   pinMode(BUZZER_PIN, OUTPUT);
   #if defined(__XTENSA__)
     // ESP32
-    ledcSetup(0, 5000, 8);
-    ledcAttachPin(VIBRATION_PIN, 0);
+    ledcSetup(PWM_CHANNEL, 5000, 8);
+    ledcAttachPin(VIBRATION_PIN, PWM_CHANNEL);
   #else
     // Nano
     pinMode(VIBRATION_PIN, OUTPUT);
@@ -116,7 +116,7 @@ void setup() {
   #if defined(__XTENSA__)
     // ESP - Setup WiFi and WebServer
     if(startWiFi()) {
-      delay(100); // Allow a small delay before config.
+      delay(100); // Wait briefly before config.
 
       // Do the AP network configuration.
       configureNetwork();
@@ -129,8 +129,8 @@ void setup() {
     }
   #endif
 
-  // Delay to allow any other devices to start up.
-  delay(1000);
+  // Delay to allow any other devices to start up first.
+  delay(100);
 
   // Initialize critical timers.
   ms_fast_led.start(1);
@@ -142,10 +142,13 @@ void loop() {
     if(ms_cleanup.remaining() < 1) {
       // Clean up oldest WebSocket connections.
       ws.cleanupClients();
+
+      // Restart timer for next cleanup action.
       ms_cleanup.start(i_websocketCleanup);
     }
 
-    ElegantOTA.loop(); // Handle device reboot after OTA update.
+    // Handle device reboot after an OTA update.
+    ElegantOTA.loop();
   #endif
 
   if(b_wait_for_pack) {
@@ -344,7 +347,7 @@ void useVibration(unsigned int i_duration) {
   if(!b_vibrate_on) {
     #if defined(__XTENSA__)
       // ESP32
-      ledcWrite(0, i_max_power);
+      ledcWrite(PWM_CHANNEL, i_max_power);
     #else
       // Nano
       analogWrite(VIBRATION_PIN, i_max_power);
@@ -359,7 +362,7 @@ void useVibration(unsigned int i_duration) {
 void vibrateOff() {
   #if defined(__XTENSA__)
     // ESP32
-    ledcWrite(0, i_min_power);
+    ledcWrite(PWM_CHANNEL, i_min_power);
   #else
     // Nano
     analogWrite(VIBRATION_PIN, i_min_power);
@@ -585,7 +588,7 @@ void checkRotaryPress() {
           #if defined(__XTENSA__)
             debug("Changed to Menu 1");
           #endif
-          useVibration(i_vibrate_max_time); // Give a long nudge.
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(440); // Tone as note A4
         break;
       }

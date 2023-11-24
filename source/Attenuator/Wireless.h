@@ -121,8 +121,6 @@ void configureNetwork() {
 
   // Set networking info and report to console.
   WiFi.softAPConfig(localIP, gateway, subnet);
-  WiFi.softAPsetHostname("protonpack.local");
-  delay(100);
   #if defined(DEBUG_WIRELESS_SETUP)
     IPAddress deviceIP = WiFi.softAPIP();
     Serial.print("Access Point IP Address: ");
@@ -311,6 +309,12 @@ void handleStyle(AsyncWebServerRequest *request) {
 String getEquipmentStatus() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipStatus;
+
+  if(b_wait_for_pack) {
+    // While waiting on the pack we have no status.
+    return equipStatus;
+  }
+
   jsonDoc.clear();
   jsonDoc["mode"] = getMode();
   jsonDoc["theme"] = getTheme();
