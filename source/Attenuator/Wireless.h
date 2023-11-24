@@ -309,37 +309,44 @@ void handleStyle(AsyncWebServerRequest *request) {
 String getEquipmentStatus() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipStatus;
+  jsonDoc.clear();
 
-  if(b_wait_for_pack) {
-    // While waiting on the pack we have no status.
-    return equipStatus;
+  if(!b_wait_for_pack) {
+    // Only prepare status when not waiting on the pack
+    jsonDoc["mode"] = getMode();
+    jsonDoc["theme"] = getTheme();
+    jsonDoc["switch"] = getRedSwitch();
+    jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
+    jsonDoc["power"] = getPower();
+    jsonDoc["safety"] = getSafety();
+    jsonDoc["wand"] = (b_wand_on ? "Powered" : "Idle");
+    jsonDoc["wandMode"] = getWandMode();
+    jsonDoc["firing"] = (b_firing ? "Firing" : "Idle");
+    jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
+    jsonDoc["cyclotron"] = getCyclotronState();
+    jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
+    jsonDoc["musicPlaying"] = b_playing_music;
+    jsonDoc["musicPaused"] = b_music_paused;
+    jsonDoc["musicCurrent"] = i_music_track_current;
+    jsonDoc["musicStart"] = i_music_track_min;
+    jsonDoc["musicEnd"] = i_music_track_max;
   }
 
-  jsonDoc.clear();
-  jsonDoc["mode"] = getMode();
-  jsonDoc["theme"] = getTheme();
-  jsonDoc["switch"] = getRedSwitch();
-  jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
-  jsonDoc["power"] = getPower();
-  jsonDoc["safety"] = getSafety();
-  jsonDoc["wand"] = (b_wand_on ? "Powered" : "Idle");
-  jsonDoc["wandMode"] = getWandMode();
-  jsonDoc["firing"] = (b_firing ? "Firing" : "Idle");
-  jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
-  jsonDoc["cyclotron"] = getCyclotronState();
-  jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
-  jsonDoc["musicPlaying"] = b_playing_music;
-  jsonDoc["musicPaused"] = b_music_paused;
-  jsonDoc["musicCurrent"] = i_music_track_current;
-  jsonDoc["musicStart"] = i_music_track_min;
-  jsonDoc["musicEnd"] = i_music_track_max;
-  serializeJson(jsonDoc, equipStatus); // Serialize to string.
+  // Serialize JSON object to string.
+  serializeJson(jsonDoc, equipStatus);
   return equipStatus;
 }
 
 void handleStatus(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
   request->send(200, "application/json", getEquipmentStatus());
+}
+
+void handleRestart(AsyncWebServerRequest *request) {
+  // Performs a restart of the device.
+  request->send(200, "application/json", status);
+  delay(1000);
+  ESP.restart();
 }
 
 void handlePackOn(AsyncWebServerRequest *request) {
@@ -470,6 +477,7 @@ void setupRouting() {
 
   // AJAX Handlers
   httpServer.on("/status", HTTP_GET, handleStatus);
+  httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/pack/on", HTTP_PUT, handlePackOn);
   httpServer.on("/pack/off", HTTP_PUT, handlePackOff);
   httpServer.on("/pack/attenuate", HTTP_PUT, handleAttenuatePack);

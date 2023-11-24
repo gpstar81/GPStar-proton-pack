@@ -86,6 +86,10 @@ const char INDEX_page[] PROGMEM = R"=====(
     <a href="/password">Change WiFi Password</a>
     &nbsp;&nbsp;&nbsp;
     <a href="/update">Update Firmware</a>
+    <br/>
+    <br/>
+    <br/>
+    <a href="#" onclick="doRestart()">Restart/Resync</a>
   </div>
 
   <script type="application/javascript">
@@ -255,6 +259,14 @@ const char INDEX_page[] PROGMEM = R"=====(
       };
       xhttp.open("GET", "/status", true);
       xhttp.send();
+    }
+
+    function doRestart() {
+      if (confirm("Are you sure you wish to restart the serial device?")) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("DELETE", "/restart", true);
+        xhttp.send();
+      }
     }
 
     function packOn() {
