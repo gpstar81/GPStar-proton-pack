@@ -43,7 +43,6 @@
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <WiFi.h>
-#include "esp_wifi.h"
 
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
@@ -125,9 +124,9 @@ void configureNetwork() {
   WiFi.softAPsetHostname("protonpack.local");
   delay(100);
   #if defined(DEBUG_WIRELESS_SETUP)
-    IPAddress softIP = WiFi.softAPIP();
+    IPAddress deviceIP = WiFi.softAPIP();
     Serial.print("Access Point IP Address: ");
-    Serial.println(softIP);
+    Serial.println(deviceIP);
     Serial.println("WiFi AP Started as " + ap_ssid);
     Serial.println("WiFi AP Password: " + ap_pass);
   #endif
