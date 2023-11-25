@@ -44,7 +44,7 @@
 #include "Colours.h"
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // Standard serial console.
 
   Serial1.begin(9600); // Add-on serial communication.
   Serial2.begin(9600); // Communication to the Neutrona Wand.
@@ -140,7 +140,7 @@ void setup() {
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
   ms_wand_handshake.start(1);
 
-  ms_serial1_handshake.start(1);
+  ms_serial1_handshake.start(int(i_serial1_handshake_delay / 2));
   ms_fast_led.start(i_fast_led_delay);
 
   // Configure the vibration state.
@@ -547,6 +547,13 @@ void loop() {
       b_powercell_updating = false;
     }
   }
+}
+
+void debug(String message) {
+  // Writes a debug message to the serial console.
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    Serial.println(message); // Print to serial console.
+  #endif
 }
 
 bool fadeOutLights() {
@@ -4301,11 +4308,11 @@ void checkSerial1() {
             break;
 
             case A_SYNC_START:
-              //b_serial1_connected = false;
+              debug("Serial1 Sync Start");
             break;
 
             case A_SYNC_END:
-              //b_serial1_connected = false;
+              debug("Serial1 Sync End");
             break;
 
             default:

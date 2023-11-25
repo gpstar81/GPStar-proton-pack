@@ -103,8 +103,10 @@ boolean startWiFi() {
   #endif
   preferences.end();
 
-  // Start the access point using the SSID and password.
-  bool b_ap_started = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str());
+  // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
+  // Additionally, sets radio to channel 6, don't hide SSID, and max 4 connections.
+  // Note that the WiFi protocols available for use are 802.11b/g/n
+  bool b_ap_started = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 6, false, 4);
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println(b_ap_started ? "AP Ready" : "AP Failed");
   #endif
@@ -113,17 +115,16 @@ boolean startWiFi() {
 
 void configureNetwork() {
   // Simple networking info for the AP.
-  IPAddress local_ip(192, 168, 1, 2);
+  IPAddress localIP(192, 168, 1, 2);
   IPAddress gateway(192, 168, 1, 1);
   IPAddress subnet(255, 255, 255, 0);
 
   // Set networking info and report to console.
-  WiFi.softAPConfig(local_ip, gateway, subnet);
-  delay(100);
+  WiFi.softAPConfig(localIP, gateway, subnet);
   #if defined(DEBUG_WIRELESS_SETUP)
-    IPAddress IP = WiFi.softAPIP();
+    IPAddress deviceIP = WiFi.softAPIP();
     Serial.print("Access Point IP Address: ");
-    Serial.println(IP);
+    Serial.println(deviceIP);
     Serial.println("WiFi AP Started as " + ap_ssid);
     Serial.println("WiFi AP Password: " + ap_pass);
   #endif
@@ -309,30 +310,43 @@ String getEquipmentStatus() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipStatus;
   jsonDoc.clear();
-  jsonDoc["mode"] = getMode();
-  jsonDoc["theme"] = getTheme();
-  jsonDoc["switch"] = getRedSwitch();
-  jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
-  jsonDoc["power"] = getPower();
-  jsonDoc["safety"] = getSafety();
-  jsonDoc["wand"] = (b_wand_on ? "Powered" : "Idle");
-  jsonDoc["wandMode"] = getWandMode();
-  jsonDoc["firing"] = (b_firing ? "Firing" : "Idle");
-  jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
-  jsonDoc["cyclotron"] = getCyclotronState();
-  jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
-  jsonDoc["musicPlaying"] = b_playing_music;
-  jsonDoc["musicPaused"] = b_music_paused;
-  jsonDoc["musicCurrent"] = i_music_track_current;
-  jsonDoc["musicStart"] = i_music_track_min;
-  jsonDoc["musicEnd"] = i_music_track_max;
-  serializeJson(jsonDoc, equipStatus); // Serialize to string.
+
+  if(!b_wait_for_pack) {
+    // Only prepare status when not waiting on the pack
+    jsonDoc["mode"] = getMode();
+    jsonDoc["theme"] = getTheme();
+    jsonDoc["switch"] = getRedSwitch();
+    jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
+    jsonDoc["power"] = getPower();
+    jsonDoc["safety"] = getSafety();
+    jsonDoc["wand"] = (b_wand_on ? "Powered" : "Idle");
+    jsonDoc["wandMode"] = getWandMode();
+    jsonDoc["firing"] = (b_firing ? "Firing" : "Idle");
+    jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
+    jsonDoc["cyclotron"] = getCyclotronState();
+    jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
+    jsonDoc["musicPlaying"] = b_playing_music;
+    jsonDoc["musicPaused"] = b_music_paused;
+    jsonDoc["musicCurrent"] = i_music_track_current;
+    jsonDoc["musicStart"] = i_music_track_min;
+    jsonDoc["musicEnd"] = i_music_track_max;
+  }
+
+  // Serialize JSON object to string.
+  serializeJson(jsonDoc, equipStatus);
   return equipStatus;
 }
 
 void handleStatus(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
   request->send(200, "application/json", getEquipmentStatus());
+}
+
+void handleRestart(AsyncWebServerRequest *request) {
+  // Performs a restart of the device.
+  request->send(204, "application/json", status);
+  delay(1000);
+  ESP.restart();
 }
 
 void handlePackOn(AsyncWebServerRequest *request) {
@@ -461,8 +475,9 @@ void setupRouting() {
   httpServer.on("/password", HTTP_GET, handlePassword);
   httpServer.on("/style.css", HTTP_GET, handleStyle);
 
-  // AJAX Handlers
+  // AJAX Handlers (Web API)
   httpServer.on("/status", HTTP_GET, handleStatus);
+  httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/pack/on", HTTP_PUT, handlePackOn);
   httpServer.on("/pack/off", HTTP_PUT, handlePackOff);
   httpServer.on("/pack/attenuate", HTTP_PUT, handleAttenuatePack);
@@ -478,7 +493,7 @@ void setupRouting() {
   httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
 
-  // Handle the JSON body for the password change request.
+  // Handles the JSON body for the password change request.
   AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
     StaticJsonDocument<256> jsonBody;
     if(json.is<JsonObject>()) {
