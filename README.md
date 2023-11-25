@@ -41,7 +41,7 @@ That's alright, this will help you study. Below you will find the various guides
 
 ### Serial Expansion Controller
 
-These are devices which utilize the available expansion port on the gpstar Proton Pack controller. Both devices are based on the same software which drives the Attenuator device, but can also be used without inputs or other devices to provide a WiFi capability to your Proton Pack. Please read the guides for more specific details.
+These are devices which utilize the available expansion port on the GPStar Proton Pack controller. Both devices are based on the same software which drives the Attenuator device, but can also be used without inputs or other devices to provide a WiFi capability to your Proton Pack. Please read the guides for more specific details.
 
 Note: As of November 2023 these are DIY devices! Parts for the Wireless Adapter can be ordered 100% from Amazon and can be assembled without soldering. However, the Attenuator will require some minor soldering to make use of all features available.
 
