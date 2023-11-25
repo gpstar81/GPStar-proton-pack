@@ -53,7 +53,7 @@ Note: As of November 2023 these are DIY devices! Parts for the Wireless Adapter 
 
 ### Addendums
 
-These apply to the normal operation and usage of the equipment, as well as add-on items which may be integrated with the gpstar controllers.
+These apply to the normal operation and usage of the equipment, as well as add-on items which may be integrated with the GPStar controllers.
 
 1. [Operation Manual](OPERATION.md)
 
