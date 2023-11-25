@@ -44,7 +44,7 @@
 #include "Colours.h"
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // Standard serial console.
 
   Serial1.begin(9600); // Add-on serial communication.
   Serial2.begin(9600); // Communication to the Neutrona Wand.
@@ -140,7 +140,7 @@ void setup() {
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
   ms_wand_handshake.start(1);
 
-  ms_serial1_handshake.start(1);
+  ms_serial1_handshake.start(int(i_serial1_handshake_delay / 2));
   ms_fast_led.start(i_fast_led_delay);
 
   // Configure the vibration state.
@@ -361,7 +361,7 @@ void loop() {
         if(FIRING_MODE == MESON) {
           if(ms_meson_blast.justFinished()) {
             playEffect(S_MESON_FIRE_PULSE);
-    
+
             switch(i_wand_power_level) {
               case 5:
                 ms_meson_blast.start(i_meson_blast_delay_level_5);
@@ -3317,7 +3317,7 @@ void modeFireStartSounds() {
       playEffect(S_STASIS_LOOP, true, i_volume_effects, true, 1000);
     break;
 
-    case MESON: 
+    case MESON:
       playEffect(S_MESON_START);
       playEffect(S_MESON_FIRE_PULSE);
 
@@ -4301,11 +4301,11 @@ void checkSerial1() {
             break;
 
             case A_SYNC_START:
-              //b_serial1_connected = false;
+              //Serial.println("Serial1 Sync Start");
             break;
 
             case A_SYNC_END:
-              //b_serial1_connected = false;
+              //Serial.println("Serial1 Sync End");
             break;
 
             default:
