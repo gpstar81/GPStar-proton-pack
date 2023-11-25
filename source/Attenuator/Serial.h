@@ -472,8 +472,6 @@ boolean checkPack() {
 
               bargraphClear();
               BARGRAPH_PATTERN = BG_POWER_RAMP;
-
-              //vibrateOff(); // Stop vibration.
             }
           break;
 
@@ -505,8 +503,6 @@ boolean checkPack() {
 
             bargraphClear();
             BARGRAPH_PATTERN = BG_POWER_RAMP;
-
-            //vibrateOff(); // Stop vibration.
           break;
 
           case A_FIRING:

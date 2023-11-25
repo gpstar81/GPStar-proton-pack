@@ -140,7 +140,7 @@ void setup() {
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
   ms_wand_handshake.start(1);
 
-  ms_serial1_handshake.start(i_serial1_handshake_delay);
+  ms_serial1_handshake.start(int(i_serial1_handshake_delay / 2));
   ms_fast_led.start(i_fast_led_delay);
 
   // Configure the vibration state.
