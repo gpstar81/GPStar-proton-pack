@@ -475,7 +475,7 @@ void setupRouting() {
   httpServer.on("/password", HTTP_GET, handlePassword);
   httpServer.on("/style.css", HTTP_GET, handleStyle);
 
-  // AJAX Handlers
+  // AJAX Handlers (Web API)
   httpServer.on("/status", HTTP_GET, handleStatus);
   httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/pack/on", HTTP_PUT, handlePackOn);
@@ -493,7 +493,7 @@ void setupRouting() {
   httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
 
-  // Handle the JSON body for the password change request.
+  // Handles the JSON body for the password change request.
   AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
     StaticJsonDocument<256> jsonBody;
     if(json.is<JsonObject>()) {
