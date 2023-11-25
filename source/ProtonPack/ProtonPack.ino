@@ -361,7 +361,7 @@ void loop() {
         if(FIRING_MODE == MESON) {
           if(ms_meson_blast.justFinished()) {
             playEffect(S_MESON_FIRE_PULSE);
-    
+
             switch(i_wand_power_level) {
               case 5:
                 ms_meson_blast.start(i_meson_blast_delay_level_5);
@@ -547,13 +547,6 @@ void loop() {
       b_powercell_updating = false;
     }
   }
-}
-
-void debug(String message) {
-  // Writes a debug message to the serial console.
-  #if defined(DEBUG_SEND_TO_CONSOLE)
-    Serial.println(message); // Print to serial console.
-  #endif
 }
 
 bool fadeOutLights() {
@@ -3324,7 +3317,7 @@ void modeFireStartSounds() {
       playEffect(S_STASIS_LOOP, true, i_volume_effects, true, 1000);
     break;
 
-    case MESON: 
+    case MESON:
       playEffect(S_MESON_START);
       playEffect(S_MESON_FIRE_PULSE);
 
@@ -4308,11 +4301,11 @@ void checkSerial1() {
             break;
 
             case A_SYNC_START:
-              debug("Serial1 Sync Start");
+              //Serial.println("Serial1 Sync Start");
             break;
 
             case A_SYNC_END:
-              debug("Serial1 Sync End");
+              //Serial.println("Serial1 Sync End");
             break;
 
             default:

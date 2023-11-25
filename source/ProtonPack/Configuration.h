@@ -24,12 +24,6 @@
  */
 
 /*
- * Control debug messages for various actions during normal operation.
- * Uncomment the line below to enable any embedded debug statements.
- */
-//#define DEBUG_SEND_TO_CONSOLE
-
-/*
  * Cyclotron Lid LEDs.
  * For the stock HasLab LEDs, there are 12 LEDs in the cyclotron lid.
  * Use int i_cyclotron_leds = 12; and i_1984_cyclotron_leds 1, 4, 7, 10.
