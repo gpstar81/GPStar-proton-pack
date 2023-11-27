@@ -1326,8 +1326,8 @@ void mainLoop() {
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
-        // Menu Level 1: Music track loop setting.
-        // Menu Level 2: Enable or disable crossing the streams / video game modes.
+        // Menu Level 1: (Intensify) -> Music track loop setting.
+        // Menu Level 2: (Intensify) -> Enable or disable crossing the streams / video game modes.
         // Menu Level 2: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
         case 5:
         // Music track loop setting.
@@ -1368,9 +1368,9 @@ void mainLoop() {
         }
         break;
 
-        // Menu Level 1: (Intensify + Top dial) Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
-        // Menu Level 1: (Barrel Wing Button) Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
-        // Menu Level 2: Enable or disable smoke for the Proton Pack.
+        // Menu Level 1: (Intensify + Top dial) -> Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
+        // Menu Level 1: (Barrel Wing Button) -> Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
+        // Menu Level 2: (Intensify) -> Enable or disable smoke for the Proton Pack.
         // Menu Level 2: (Barrel Wing Button) -> Enable or disable overheating.
         case 4:
           // Adjust the Proton Pack / Neutrona Wand sound effects volume.
@@ -1397,8 +1397,8 @@ void mainLoop() {
           }
         break;
 
-        // Menu Level 1: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
-        // Menu Level 1: Toggle Cyclotron rotation direction.
+        // Menu Level 1: (Intensify + Top dial) -> Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
+        // Menu Level 1: (Intensify) -> Toggle Cyclotron rotation direction.
         // Menu Level 2: (Barrel Wing Button) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
         case 3:
           // Top menu code is handled in checkRotary();
@@ -1418,8 +1418,9 @@ void mainLoop() {
           }
         break;
 
-        // Menu Level 1: Change music tracks.
-        // Menu Level 2: Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
+        // Menu Level 1: (Intensify) -> Go to next music track.
+        // Menu Level 1: (Barrel Wing Button) -> Go to previous music track.
+        // Menu Level 2: (Intensify) -> Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
         // Menu Level 2: (Barrel Wing Button) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
         case 2:
           // Change music tracks.
@@ -1427,21 +1428,31 @@ void mainLoop() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              if(b_playing_music == true) {
-                stopMusic();
+              if(b_no_pack == true) {
+                musicNextTrack();
               }
+              else {
+                if(b_playing_music == true) {
+                  stopMusic();
+                }
 
-              // Tell the pack to play the next track.
-              wandSerialSend(W_MUSIC_NEXT_TRACK);
+                // Tell the pack to play the next track.
+                wandSerialSend(W_MUSIC_NEXT_TRACK);
+              }
             }
 
             if(switchMode() == true) {
-              if(b_playing_music == true) {
-                stopMusic();
+              if(b_no_pack == true) {
+                musicPrevTrack();
               }
+              else {
+                if(b_playing_music == true) {
+                  stopMusic();
+                }
 
-              // Tell the pack to play the next track.
-              wandSerialSend(W_MUSIC_PREV_TRACK);
+                // Tell the pack to play the previous track.
+                wandSerialSend(W_MUSIC_PREV_TRACK);
+              }
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
@@ -1508,8 +1519,8 @@ void mainLoop() {
           }
         break;
 
-        // Menu Level 1: Play music or stop music.
-        // Menu Level 1: (Barrel Wing Button). Mute the Proton Pack and Neutrona Wand.
+        // Menu Level 1: (Intensify) -> Play music or stop music.
+        // Menu Level 1: (Barrel Wing Button) -> Mute the Proton Pack and Neutrona Wand.
         // Menu Level 2: (Intensify) -> Switch between 1984/1989/Afterlife mode.
         // Menu Level 2: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
         case 1:
@@ -1519,12 +1530,22 @@ void mainLoop() {
               ms_intensify_timer.start(i_intensify_delay);
 
               if(b_playing_music == true) {
-                // Tell the pack to stop music.
-                wandSerialSend(W_MUSIC_STOP);
+                if(b_no_pack == true) {
+                  stopMusic();
+                }
+                else {
+                  // Tell the pack to stop music.
+                  wandSerialSend(W_MUSIC_STOP);
+                }
               }
               else {
-                // Tell the pack to play music.
-                wandSerialSend(W_MUSIC_START);
+                if(b_no_pack == true) {
+                  playMusic();
+                }
+                else {
+                  // Tell the pack to play music.
+                  wandSerialSend(W_MUSIC_START);
+                }
               }
             }
 
@@ -10095,6 +10116,63 @@ void resumeMusic() {
   }
 
   w_trig.update();
+}
+
+void musicNextTrack() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the next track.
+  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+    // Start at the first track if already on the last.
+    i_temp_track = i_music_track_start;
+  }
+  else {
+    i_temp_track++;
+  }
+
+  // Switch to the next track.
+  if(b_playing_music == true) {
+    // Stops music using the current track.
+    stopMusic();
+
+    i_current_music_track = i_temp_track;
+
+    // Begin playing the new track.
+    playMusic();
+  }
+  else {
+    // Set the new track.
+    i_current_music_track = i_temp_track;
+  }
+}
+
+void musicPrevTrack() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the previous track.
+  if(i_current_music_track - 1 < i_music_track_start) {
+    // Start at the last track if already on the first.
+    i_temp_track = i_music_track_start + (i_music_count - 1);
+  }
+  else {
+    i_temp_track--;
+  }
+
+  // Switch to the previous track.
+  if(b_playing_music == true) {
+    // Stops music using the current track.
+    stopMusic();
+
+    // Set the new track.
+    i_current_music_track = i_temp_track;
+
+    // Begin playing the new track.
+    playMusic();
+  }
+  else {
+    // Set the new track.
+    i_current_music_track = i_temp_track;
+  }
 }
 
 void setupWavTrigger() {
