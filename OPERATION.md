@@ -1,6 +1,12 @@
-<center style="background-color:#222"><img src="images/gpstar_logo_white.png"/></center>
+<center style="background-color:#333"><img src="images/gpstar_logo_white.png"/></center>
 
-<center style="font-size:2.6em;font-weight:800;margin:60px auto">Proton Pack &amp; Neutrona Wand Operation</center>
+<br/>
+<br/>
+
+<center><h1>Proton Pack &amp; Neutrona Wand Operation</h1></center>
+
+<br/>
+<br/>
 
 ![](images/OperationNeutrona1.jpg)
 <span style="font-size:0.8em;color:#999">Neutrona Wand renders courtesy of Luis Peña</span>
