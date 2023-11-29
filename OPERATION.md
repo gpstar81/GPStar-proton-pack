@@ -11,16 +11,20 @@
 <br/>
 
 ![](images/OperationNeutrona1.jpg)
-<span style="font-size:0.8em;color:#999">Neutrona Wand renders courtesy of Luis Peña</span>
+<sup>Neutrona Wand renders courtesy of Luis Peña</sup>
 
-# Table of Contents
+<div class="page-break"></div>
+
+<div class="page-break"></div>
+
+# Operation Guide - Table of Contents
 
 - [Standard Features](#standard-features)
 - [Optional Features](#optional-features)
 - [Toggle Operation Modes](#toggle-operation-modes)
 - [Firing Modes](#firing-modes)
 - [Neutrona Wand Menu System](#neutrona-wand-menu-system)
-- [Optional Hardware](#optional-wand-features)
+- [Additional Resources](#additional-resources)
 
 <div class="page-break"></div>
 
@@ -52,14 +56,38 @@
 
 # Optional Features
 
-- Support for switches for Cyclotron direction and to enable or disable smoke effects.
+- Support for changing Cyclotron direction and to enable/disable smoke effects.
 - Support for smoke effects with dedicated fans for the Booster Tube and N-Filter.
 	- See the [Smoke Effects](https://github.com/gpstar81/haslab-proton-pack/blob/main/SMOKE.md) addendum for more information.
-- Additional Lights available for the Cyclotron panel, internal "cake" Cyclotron and Power Cell.
+- Additional Lights available for the Cyclotron panel, internal "cake" Cyclotron, and Power Cell.
 	- Automatically switches to internal "cake" Cyclotron, if implemented (optional).
-	- This supports a 35 LED ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
-- Video game colours supported if using RGB supported LEDs for the Cyclotron Lid, internal "cake" Cyclotron and Power Cell.
+	- This supports a 35-LED RGB ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
+- Video game colours supported if using RGB-supported LEDs for the Cyclotron Lid, internal "cake" Cyclotron and Power Cell.
 - Support for the Attenuator add-on device. See the [Attenuator](https://github.com/gpstar81/haslab-proton-pack/blob/main/ATTENUATOR.md) addendum for more information.
+- Support for additional lights such as the wand hat lights and wand barrel end LED strobe.
+	- When adding the Hat1 light a New Barrel Wing Button can also be added.
+- Serial connection and power for a 28-segment bargraph support (to replace the stock 5-LED bargraph).
+
+![](images/OperationNeutrona7.jpg)
+<sup>Location of optional hardware for Neutrona Wand, requires advanced modifications.</sup>
+
+<div class="page-break"></div>
+
+## Top Dial Behaviour
+
+![](images/OperationNeutrona5.jpg)
+
+- The top dial on the top of the gun box changes the power mode of the wand, affecting the intensity of the stream effects, indicated by increasing or decreasing the bargraph lights (just as the stock wand did).
+   - Clockwise to raise power/volume, counter-clockwise to lower these values.
+- There are 5 wand power levels in Super Hero mode and 4 in Mode Original.
+- For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.
+- This dial will be used to navigate the menu systems and adjust volume in certain cases (see "Wand Settings Menu System" section).
+
+**Tip:** When music is playing while the pack and wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily access the independent music volume control.
+
+Refer to the [Loading The Audio Files](https://github.com/gpstar81/haslab-proton-pack/blob/main/AUDIO.md) for more information on loading additional music tracks.
+
+<div class="page-break"></div>
 
 # Toggle Operation Modes
 
@@ -117,27 +145,9 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 <div class="page-break"></div>
 
-## Top Dial Behaviour
-
-![](images/OperationNeutrona5.jpg)
-
-- The top dial on the top of the gun box changes the power mode of the wand, affecting the intensity of the stream effects, indicated by increasing or decreasing the bargraph lights (just as the stock wand did).
-   - Clockwise to raise power/volume, counter-clockwise to lower these values.
-- There are 5 wand power levels in Super Hero mode and 4 in Mode Original.
-- For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.
-- This dial will be used to navigate the menu systems and adjust volume in certain cases (see "Wand Settings Menu System" section).
-
-**Tip:** When music is playing while the pack and wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily access the independent music volume control.
-
-Refer to the [Loading The Audio Files](https://github.com/gpstar81/haslab-proton-pack/blob/main/AUDIO.md) for more information on loading additional music tracks.
-
----
-
-<div class="page-break"></div>
-
 # Firing Modes
 
-**Video Game Mode (Default)**
+## Video Game Mode (Default)
 
 ![](images/OperationNeutrona4.jpg)
 
@@ -162,7 +172,7 @@ Refer to the [Loading The Audio Files](https://github.com/gpstar81/haslab-proton
 
 📝 **Note:** Spectral modes are disabled by default but can be enabled from the EEPROM Menu or flashed directly to the Neutrona Wand board. They take advantage of RGB coloured LED add-ons if installed.
 
-**Manual Venting Mode**
+## Manual Venting Mode
 
 ![](images/OperationNeutrona6.jpg)
 
@@ -177,22 +187,22 @@ Refer to the [Loading The Audio Files](https://github.com/gpstar81/haslab-proton
 
 To enable Cross The Streams (CTS) or Cross The Streams Mix (CTS Mix) mode by default, you can set this setting from the Wand Settings Menu System.
 
----
-
 <div class="page-break"></div>
 
 # Neutrona Wand Menu System
 
 ![](images/OperationNeutrona9.jpg)
 
-### Entering The Menu System
+## Entering The Menu System
 
 There are 2 ways to enter the Menu System.
 
 - When the Neutrona Wand is in Video Game Mode and powered on, cycle through the various modes with the `Barrel Wing Button` until you reach the Menu System.
 - While the Neutrona Wand and Proton Pack are powered down, press the `Barrel Wing Button`.
 
-### Navigation
+<div class="page-break"></div>
+
+## Navigation
 
 Use the Top Dial on the top of the wand to navigate up and down through the menu system.
 
@@ -200,11 +210,13 @@ Use the Top Dial on the top of the wand to navigate up and down through the menu
 
 When you are in the settings menu system the bargraph's 5 LEDs begin flashing (or 5 distinct segments when using the 28-segment bargraph). All other functions of the wand (such as firing) are temporarily disabled while in the menu system. There are 5 different menu settings, which are indicated by bargraph LED segments 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on menu 1.
 
-### Actions
+## Actions
 
 Changes are made by pressing either the `Intensify` button on the gun box or the `Barrel Wing Button` at the end of the wand.
 
-## Menu Level 1
+<div class="page-break"></div>
+
+### Menu Level 1
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
@@ -220,7 +232,9 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 <sup>3</sup> Note that the LED/segment #1 will stay solid when the Proton Pack and Neutrona Wand volume is muted.
 
-## Menu Level 2
+<div class="page-break"></div>
+
+### Menu Level 2
 
 📝 **Note:** The Neutrona Wand Menu Level 2 can only be reached while Cyclotron is turned off in Proton Pack.
 
@@ -230,15 +244,15 @@ To access the Menu Level 2, use the `Top Dial` on the top of the wand to move do
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
-| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes <sup>4</sup> |
+| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>4</sup> | Cycle through VG color modes <sup>5</sup> |
 | 4 | Smoke/Overheat&nbsp;Toggles | Enable/Disable Smoke Effects | Enable/Disable Overheating |
 | 3 | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron Rotation | Toggle between 1 (centered) or 3 LEDs in the Cyclotron Lid for 1984/1989 modes |
 | 2 | Vibration Settings | Enable/Disable Proton Pack vibration or vibration during firing | Enable/Disable Neutrona Wand vibration or vibration during firing |
 | 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes | Enable/Disable the Proton Stream impact sound effects |
 
-<sup>3</sup> Switch between Video Game and Cross the Streams (CTS) operation modes. Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.
+<sup>4</sup> Switch between Video Game and Cross the Streams (CTS) operation modes. Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.
 
-<sup>4</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
+<sup>5</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
 
 - Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
 - Enable only the Power Cell LEDs to change colors (requires RGB Power Cell such as that offered by Frutto Technology).
@@ -247,18 +261,9 @@ To access the Menu Level 2, use the `Top Dial` on the top of the wand to move do
 
 To exit the menu system, navigate to the top menu in `Option 5` (Slo-blo LED is no longer illuminated) and press the Barrel Wing Button. A small beep will be heard when transitioning between the top and sub menu levels.
 
----
-
 <div class="page-break"></div>
 
-# Optional Hardware
-
-![](images/OperationNeutrona7.jpg)
-
-- Support for additional lights such as the wand hat lights and wand barrel end LED strobe. A New Barrel Wing Button can then be added.
-- Serial connection and power for a 28-segment bargraph support (to replace stock 5 LED bargraph).
-
----
+# Additional Resources
 
 ## EEPROM Menu Guide
 
@@ -281,30 +286,24 @@ Wand Menu Settings Video Demo: [Proton Pack Wand Menu Settings Video Demo](https
 
 <div class="page-break"></div>
 
-<span style="font-style:bold;color:#999">
-<center>Disclaimer</center>
-</span>
-<br/>
-<span style="font-style:italic;color:#999">
+## Disclaimer
+
+<sub>
 This community-driven project is independent and not affiliated with, endorsed by, or sponsored by Hasbro Inc., Ghost Corps, or Sony Pictures. Hasbro Inc. does not endorse or support this project, and any views or opinions expressed within the project are those of the individual contributors and not necessarily those of Hasbro Inc.
-</span>
-<br/>
-<br/>
-<span style="font-style:italic;color:#999">
+</sub>
+
+<sub>
 Participants in this project should be aware that it is entirely separate from any official activities or initiatives of Hasbro Inc.. Any use of Hasbro Inc.'s name or its products within this project is purely for informative purposes and does not imply any form of partnership, endorsement, or association with Hasbro Inc.
-</span>
-<br/>
-<br/>
-<span style="font-style:italic;color:#999">
+</sub>
+
+<sub>
 Individuals involved in this project are responsible for their own actions, and Hasbro Inc. bears no responsibility for the content, decisions, or outcomes related to this community-driven effort.
-</span>
-<br/>
-<br/>
-<span style="font-style:italic;color:#999">
+</sub>
+
+<sub>
 By participating in this project, individuals acknowledge that it is an independent initiative and that Hasbro Inc. is not responsible for the project's development, management, or outcomes.
-</span>
-<br/>
-<br/>
-<span style="font-style:italic;color:#999">
+</sub>
+
+<sub>
 This disclaimer is subject to change, and individuals are encouraged to check for updates regularly.
-</span>
+</sub>
