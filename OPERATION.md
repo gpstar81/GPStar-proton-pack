@@ -1,4 +1,6 @@
-<center style="background-color:#333"><img src="images/gpstar_logo_white.png"/></center>
+<p align="center" style="background-color:#333;">
+  <img src="images/gpstar_logo_white.png"/>
+</p>
 
 <br/>
 <br/>
@@ -11,8 +13,6 @@
 ![](images/OperationNeutrona1.jpg)
 <span style="font-size:0.8em;color:#999">Neutrona Wand renders courtesy of Luis Peña</span>
 
----
-
 # Table of Contents
 
 - [Standard Features](#standard-features)
@@ -21,8 +21,6 @@
 - [Firing Modes](#firing-modes)
 - [Neutrona Wand Menu System](#neutrona-wand-menu-system)
 - [Optional Hardware](#optional-wand-features)
-
----
 
 <div class="page-break"></div>
 
