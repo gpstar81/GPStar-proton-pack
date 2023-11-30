@@ -119,33 +119,40 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         i_curr_colour[i_device] = 24; // Reset if out of range.
       }
 
-      i_count[i_device]++;
-      if(i_count[i_device] % 32 == 0) {
-        i_curr_colour[i_device] = (i_curr_colour[i_device] + 1) % 32;
-        i_count[i_device] = 24; // Reset counter.
+      // Set the time delay for color changes per device.
+      i_change_delay[i_device] = 5;
+
+      if(ms_color_change[i_device].remaining() < 1) {
+        i_count[i_device]++;
+        if(i_count[i_device] % 32 == 0) {
+          i_curr_colour[i_device] = (i_curr_colour[i_device] + 1) % 32;
+          i_count[i_device] = 24; // Reset counter.
+        }
+        ms_color_change[i_device].start(i_change_delay[i_device]);
       }
 
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
     break;
 
     case C_RED_FADE:
-      if(i_curr_bright[i_device] <= 1) {
-        // Prime for the climb back to full brightness.
-        i_curr_bright[i_device] = 1;
-        i_next_bright[i_device] = 3;
-      }
-      if(i_curr_bright[i_device] >= 254) {
-        // Prime for the climb back to full darkness.
-        i_curr_bright[i_device] = 254;
-        i_next_bright[i_device] = -3;
-      }
+      // Set the time delay for color changes per device.
+      i_change_delay[i_device] = 8;
 
-      // Increments brightness by X steps on each processor loop.
+      // Increments brightness by X steps every X milliseconds.
       // Uses the +/- value to increment or decrement by the given value.
-      i_count[i_device]++;
-      if(i_count[i_device] % 2 == 0) {
+      if(ms_color_change[i_device].remaining() < 1) {
+        if(i_curr_bright[i_device] <= 1) {
+          // Prime for the climb back to full brightness.
+          i_curr_bright[i_device] = 1;
+          i_next_bright[i_device] = 3;
+        }
+        if(i_curr_bright[i_device] >= 254) {
+          // Prime for the climb back to full darkness.
+          i_curr_bright[i_device] = 254;
+          i_next_bright[i_device] = -3;
+        }
         i_curr_bright[i_device] = i_curr_bright[i_device] + i_next_bright[i_device];
-        i_count[i_device] = 0; // Reset counter.
+        ms_color_change[i_device].start(i_change_delay[i_device]);
       }
 
       return CHSV(0, 255, i_curr_bright[i_device]);
@@ -157,7 +164,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         i_curr_colour[i_device] = 0; // Reset if out of range.
       }
 
-      // Set the time delay for color changes by device.
+      // Set the time delay for color changes per device.
       i_change_delay[i_device] = 800;
 
       if(ms_color_change[i_device].remaining() < 1) {
@@ -175,12 +182,14 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
     break;
 
     case C_RAINBOW:
-      // Cycle through all colours (0-255) at full saturation every X loops.
-      i_count[i_device]++;
-      if(i_count[i_device] % 10 == 0) {
-        // Increments color by 1 for more gradual fade between cycles.
+      // Set the time delay for color changes per device.
+      i_change_delay[i_device] = 10;
+
+      // Cycle through all colours (0-255) at full saturation every X milliseconds.
+      if(ms_color_change[i_device].remaining() < 1) {
+        // Increment color and restart the timer.
         i_curr_colour[i_device] = (i_curr_colour[i_device] + 1) % 255;
-        i_count[i_device] = 0; // Reset counter.
+        ms_color_change[i_device].start(i_change_delay[i_device]);
       }
 
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
