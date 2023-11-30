@@ -21,7 +21,7 @@ This device has it's own BOM which is separate from any other build items relate
 
 The preferred processor for this device is an ESP32 though you may also use an Arduino Nano though this may be phased out in the future. **Note that wireless capabilities are only available with the ESP32.**
 
-* [ESP-WROOM-32 Dev Board w/ Terminal Shield](https://a.co/d/hDxXluE) or [ESP-WROOM-32 Dev Board w/out Headers](https://a.co/d/62ywBNo)
+* [ESP-WROOM-32 30-pin Dev Board w/ Terminal Shield](https://a.co/d/hDxXluE) or [ESP-WROOM-32 Dev Board w/out Headers](https://a.co/d/62ywBNo)
 
 or
 
@@ -66,13 +66,15 @@ Once you have successfully paired with the WiFi network for the Proton pack, you
 
 For instructions on using the web interface to control your equipment, please see the [Wireless Operations](WIRELESS_OPERATION.md) guide.
 
-## ESP32 - Standard Pinout Reference
+## ESP32 - 30-Pin Reference
 
 ![](images/ESP32-pinout.png)
 
+📝 **Note:** There are typically 30-pin and 38-pin versions of the ESP32 development modules and matching terminal shields. Both should work, though there will be some minor differences to the order of pins. ALWAYS match the GPIO pin by label not position or index. This guide uses the more compact 30-pin packaging.
+
 ## ESP32 - Pin Connections
 
-The following is a diagram of the ESP32 pins from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above.
+The following is a diagram of the ESP32 pins from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above. This follows the standard pinout for a 30-pin device.
 
 | Connection    | ESP32 (L) |     | ESP32 (R) | Connection    |
 |---------------|-----------|-----|-----------|---------------|
