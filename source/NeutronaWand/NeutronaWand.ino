@@ -191,6 +191,9 @@ void setup() {
     b_wait_for_pack = false;
     b_pack_on = true;
     b_pack_ion_arm_switch_on = true;
+
+    // Check music timer for bench test mode only.
+    ms_check_music.start(i_music_check_delay);
   }
 }
 
@@ -216,6 +219,11 @@ void mainLoop() {
   w_trig.update();
 
   checkPack();
+  
+  if(b_gpstar_benchtest == true) {
+    checkMusic();
+  }
+
   switchLoops();
   checkRotary();
   checkSwitches();
@@ -1426,22 +1434,32 @@ void mainLoop() {
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
-
-              if(b_playing_music == true) {
-                stopMusic();
+              
+              if(b_gpstar_benchtest == true) {
+                musicNextTrack();
               }
+              else {
+                if(b_playing_music == true) {
+                  stopMusic();
+                }
 
-              // Tell the pack to play the next track.
-              wandSerialSend(W_MUSIC_NEXT_TRACK);
+                // Tell the pack to play the next track.
+                wandSerialSend(W_MUSIC_NEXT_TRACK);
+              }
             }
 
             if(switchMode() == true) {
-              if(b_playing_music == true) {
-                stopMusic();
+              if(b_gpstar_benchtest == true) {
+                musicPrevTrack();
               }
+              else {
+                if(b_playing_music == true) {
+                  stopMusic();
+                }
 
-              // Tell the pack to play the next track.
-              wandSerialSend(W_MUSIC_PREV_TRACK);
+                // Tell the pack to play the next track.
+                wandSerialSend(W_MUSIC_PREV_TRACK);
+              }
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
@@ -1517,14 +1535,22 @@ void mainLoop() {
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
-
+              
               if(b_playing_music == true) {
                 // Tell the pack to stop music.
                 wandSerialSend(W_MUSIC_STOP);
+
+                if(b_gpstar_benchtest == true) {
+                  stopMusic();
+                }                
               }
               else {
                 // Tell the pack to play music.
                 wandSerialSend(W_MUSIC_START);
+
+                if(b_gpstar_benchtest == true) {
+                  playMusic();
+                }  
               }
             }
 
@@ -1853,6 +1879,47 @@ void mainLoop() {
   if(ms_fast_led.justFinished()) {
     FastLED.show();
     ms_fast_led.stop();
+  }
+}
+
+void checkMusic() {
+  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
+    ms_check_music.start(i_music_check_delay);
+    w_trig.trackPlayingStatus(i_current_music_track);
+
+    // Loop through all the tracks if the music is not set to repeat a track.
+    if(b_playing_music == true && b_repeat_track == false) {
+      if(w_trig.currentMusicTrackStatus(i_current_music_track) != true && ms_music_status_check.justFinished() && w_trig.trackCounterReset() != true) {
+        ms_check_music.stop();
+        ms_music_status_check.stop();
+
+        stopMusic();
+
+        // Switch to the next track.
+        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+          i_current_music_track = i_music_track_start;
+        }
+        else {
+          i_current_music_track++;
+        }
+
+        // Start timer to prepare to play music again.
+        ms_music_next_track.start(i_music_next_track_delay);
+      }
+      else {
+        if(ms_music_status_check.justFinished()) {
+          ms_music_status_check.start(i_music_check_delay * 4);
+        }
+      }
+    }
+  }
+
+  // Start playing music again.
+  if(ms_music_next_track.justFinished()) {
+    ms_music_next_track.stop();
+    ms_check_music.start(i_music_check_delay);
+
+    playMusic();
   }
 }
 
@@ -10068,6 +10135,12 @@ void playMusic() {
     w_trig.trackPlayPoly(i_current_music_track, true);
 
     w_trig.update();
+
+    if(b_gpstar_benchtest == true) {
+      ms_music_status_check.start(i_music_check_delay * 10);
+      w_trig.resetTrackCounter(true);
+    }
+    
   }
 }
 
@@ -10095,6 +10168,63 @@ void resumeMusic() {
   }
 
   w_trig.update();
+}
+
+void musicNextTrack() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the next track.
+  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+    // Start at the first track if already on the last.
+    i_temp_track = i_music_track_start;
+  }
+  else {
+    i_temp_track++;
+  }
+
+  // Switch to the next track.
+  if(b_playing_music == true) {
+    // Stops music using the current track.
+    stopMusic();
+
+    i_current_music_track = i_temp_track;
+
+    // Begin playing the new track.
+    playMusic();
+  }
+  else {
+    // Set the new track.
+    i_current_music_track = i_temp_track;
+  }
+}
+
+void musicPrevTrack() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the previous track.
+  if(i_current_music_track - 1 < i_music_track_start) {
+    // Start at the last track if already on the first.
+    i_temp_track = i_music_track_start + (i_music_count - 1);
+  }
+  else {
+    i_temp_track--;
+  }
+
+  // Switch to the previous track.
+  if(b_playing_music == true) {
+    // Stops music using the current track.
+    stopMusic();
+
+    // Set the new track.
+    i_current_music_track = i_temp_track;
+
+    // Begin playing the new track.
+    playMusic();
+  }
+  else {
+    // Set the new track.
+    i_current_music_track = i_temp_track;
+  }
 }
 
 void setupWavTrigger() {
