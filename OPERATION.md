@@ -1,9 +1,20 @@
-![](images/Manual_Cover.jpg)
+<p align="center" style="background-color:#333;">
+  <img src="images/gpstar_logo_white.png"/>
+</p>
 
-<div class="page-break"></div>
+<br/>
+<br/>
+
+<center><h1>Proton Pack &amp; Neutrona Wand Operational Guide</h1></center>
+
+<br/>
+<br/>
 
 ![](images/OperationNeutrona1.jpg)
 <sup>Neutrona Wand renders courtesy of Luis Peña</sup>
+
+<div class="page-break"></div>
+<div class="page-break"></div>
 
 # Operational Guide - Table of Contents
 
@@ -273,29 +284,3 @@ Wand Menu Settings Video Demo: [Proton Pack Wand Menu Settings Video Demo](https
 [![Proton Pack Wand Menu Settings Video Demo](https://img.youtube.com/vi/QrevSoQo_3M/maxresdefault.jpg)](https://youtu.be/QrevSoQo_3M)
 
 <div class="page-break"></div>
-
-## Disclaimer
-
-<sub>
-This community-driven project is independent and not affiliated with, endorsed by, or sponsored by Hasbro Inc., Ghost Corps, or Sony Pictures. Hasbro Inc. does not endorse or support this project, and any views or opinions expressed within the project are those of the individual contributors and not necessarily those of Hasbro Inc.
-</sub>
-<br/>
-<br/>
-<sub>
-Participants in this project should be aware that it is entirely separate from any official activities or initiatives of Hasbro Inc.. Any use of Hasbro Inc.'s name or its products within this project is purely for informative purposes and does not imply any form of partnership, endorsement, or association with Hasbro Inc.
-</sub>
-<br/>
-<br/>
-<sub>
-Individuals involved in this project are responsible for their own actions, and Hasbro Inc. bears no responsibility for the content, decisions, or outcomes related to this community-driven effort.
-</sub>
-<br/>
-<br/>
-<sub>
-By participating in this project, individuals acknowledge that it is an independent initiative and that Hasbro Inc. is not responsible for the project's development, management, or outcomes.
-</sub>
-<br/>
-<br/>
-<sub>
-This disclaimer is subject to change, and individuals are encouraged to check for updates regularly.
-</sub>
