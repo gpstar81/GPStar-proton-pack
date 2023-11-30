@@ -200,7 +200,7 @@ To access the Menu Level 2, use the `Top Dial` on the top of the wand to move do
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
-| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG color modes <sup>4</sup> |
+| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>3</sup> | Cycle through VG colour modes <sup>4</sup> |
 | 4 | Smoke/Overheat&nbsp;Toggles | Enable/Disable Smoke Effects | Enable/Disable Overheating |
 | 3 | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron Rotation | Toggle between 1 (centered) or 3 LEDs in the Cyclotron Lid for 1984/1989 modes |
 | 2 | Vibration Settings | Enable/Disable Proton Pack vibration or vibration during firing | Enable/Disable Neutrona Wand vibration or vibration during firing |
@@ -211,8 +211,8 @@ To access the Menu Level 2, use the `Top Dial` on the top of the wand to move do
 <sup>4</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
 
 - Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
-- Enable only the Power Cell LEDs to change colors (requires RGB Power Cell such as that offered by Frutto Technology).
-- Enable only the Cyclotron LEDs to change colors (requires RGB replacement such as a Neopixel ring).
+- Enable only the Power Cell LEDs to change colours (requires RGB Power Cell such as that offered by Frutto Technology).
+- Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as a Neopixel ring).
 - Enable both the Power Cell and Cyclotron to use video game colours.
 
 To exit the menu system, navigate to the top menu in `Option 5` (Slo-blo LED is no longer illuminated) and press the Barrel Wing Button. A small beep will be heard when transitioning between the top and sub menu levels.
