@@ -252,7 +252,7 @@ bool b_28segment_bargraph = false;
 
 /*
  * Music control and checking.
- * Only for bench test mode. When benchtest mode is disabled, the Pack controls the music checking and playback.
+ * Only for bench test mode. When bench test mode is disabled, the Pack controls the music checking and playback.
  */
 const unsigned int i_music_check_delay = 2000;
 const unsigned int i_music_next_track_delay = 2000;
