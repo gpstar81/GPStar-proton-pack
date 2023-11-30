@@ -57,12 +57,12 @@
 
 - Support for changing Cyclotron direction and to enable/disable smoke effects.
 - Support for smoke effects with dedicated fans for the Booster Tube and N-Filter.
-	- See the [Smoke Effects](https://github.com/gpstar81/haslab-proton-pack/blob/main/SMOKE.md) addendum for more information.
+	- See the [Smoke Effects](SMOKE.md) addendum for more information.
 - Additional Lights available for the Cyclotron panel, internal "cake" Cyclotron, and Power Cell.
 	- Automatically switches to internal "cake" Cyclotron, if implemented (optional).
 	- This supports a 35-LED RGB ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
 - Video game colours supported if using RGB-supported LEDs for the Cyclotron Lid, internal "cake" Cyclotron and Power Cell.
-- Support for the Attenuator add-on device. See the [Attenuator](https://github.com/gpstar81/haslab-proton-pack/blob/main/ATTENUATOR.md) addendum for more information.
+- Support for the Attenuator add-on device. See the [Attenuator](ATTENUATOR.md) addendum for more information.
 - Support for additional lights such as the wand hat lights and wand barrel end LED strobe.
 	- When adding the Hat1 light a New Barrel Wing Button can also be added.
 - Serial connection and power for a 28-segment bargraph support (to replace the stock 5-LED bargraph).
@@ -84,13 +84,13 @@
 
 **Tip:** When music is playing while the pack and wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily access the independent music volume control.
 
-Refer to the [Loading The Audio Files](https://github.com/gpstar81/haslab-proton-pack/blob/main/AUDIO.md) for more information on loading additional music tracks.
+Refer to the [Loading The Audio Files](AUDIO.md) for more information on loading additional music tracks.
 
 <div class="page-break"></div>
 
 # Toggle Operation Modes
 
-There are two modes available which replicate movie or prop-accurate behaviors of the available toggle switches. These system modes can be altered via an [EEPROM menu](https://github.com/gpstar81/haslab-proton-pack/blob/main/OPERATION_EEPROM.md) and will affect the startup sequence for your Proton Pack and Neutrona Wand.
+There are two modes available which replicate movie or prop-accurate behaviors of the available toggle switches. These system modes can be altered via an [EEPROM menu](OPERATION_EEPROM.md) and will affect the startup sequence for your Proton Pack and Neutrona Wand.
 
 ![](images/OperationNeutrona2.jpg)
 
@@ -243,7 +243,7 @@ To access the Menu Level 2, use the `Top Dial` on the top of the wand to move do
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
-| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>4</sup> | Cycle through VG color modes <sup>5</sup> |
+| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>4</sup> | Cycle through VG colour modes <sup>5</sup> |
 | 4 | Smoke/Overheat&nbsp;Toggles | Enable/Disable Smoke Effects | Enable/Disable Overheating |
 | 3 | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron Rotation | Toggle between 1 (centered) or 3 LEDs in the Cyclotron Lid for 1984/1989 modes |
 | 2 | Vibration Settings | Enable/Disable Proton Pack vibration or vibration during firing | Enable/Disable Neutrona Wand vibration or vibration during firing |
@@ -254,8 +254,8 @@ To access the Menu Level 2, use the `Top Dial` on the top of the wand to move do
 <sup>5</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
 
 - Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
-- Enable only the Power Cell LEDs to change colors (requires RGB Power Cell such as that offered by Frutto Technology).
-- Enable only the Cyclotron LEDs to change colors (requires RGB replacement such as a Neopixel ring).
+- Enable only the Power Cell LEDs to change colours (requires RGB Power Cell such as that offered by Frutto Technology).
+- Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as a Neopixel ring).
 - Enable both the Power Cell and Cyclotron to use video game colours.
 
 To exit the menu system, navigate to the top menu in `Option 5` (Slo-blo LED is no longer illuminated) and press the Barrel Wing Button. A small beep will be heard when transitioning between the top and sub menu levels.
@@ -266,12 +266,12 @@ To exit the menu system, navigate to the top menu in `Option 5` (Slo-blo LED is 
 
 ## EEPROM Menu Guide
 
-Please view the [supplemental operation guide for EEPROM menus](https://github.com/gpstar81/haslab-proton-pack/blob/main/OPERATION_EEPROM.md) which can be used to alter hardware configurations and to set user preferences which will persist across battery power-down events.
+Please view the [supplemental operation guide for EEPROM menus](OPERATION_EEPROM.md) which can be used to alter hardware configurations and to set user preferences which will persist across battery power-down events.
 
 ## PDF Operational Guide
 
 (Direct Download link)
-[gpstar Operational Guide [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstar-Operational-Guide.pdf)
+[gpstar Operational Guide [pdf]](extras/gpstar-Operational-Guide.pdf)
 
 <div class="page-break"></div>
 
@@ -282,5 +282,3 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 
 Wand Menu Settings Video Demo: [Proton Pack Wand Menu Settings Video Demo](https://www.youtube.com/watch?v=QrevSoQo_3M) (YouTube)
 [![Proton Pack Wand Menu Settings Video Demo](https://img.youtube.com/vi/QrevSoQo_3M/maxresdefault.jpg)](https://youtu.be/QrevSoQo_3M)
-
-<div class="page-break"></div>

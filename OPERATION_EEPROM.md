@@ -1,10 +1,13 @@
-<center style="background-color:#333"><img src="images/gpstar_logo_white.png"/></center>
+<p align="center" style="background-color:#333;">
+  <img src="images/gpstar_logo_white.png"/>
+</p>
 
 <br/>
 <br/>
 
-<center><h1>Proton Pack &amp; Neutrona Wand Operation</h1></center>
+<center><h1>Proton Pack &amp; Neutrona Wand Operational Guide</h1></center>
 
+<br/>
 <br/>
 
 # EEPROM Menus
@@ -77,15 +80,15 @@ Please note whatever settings you have temporarily changed in the regular menus 
 |:------:|---------|------------------|--------------------|
 | 5 | Quick&nbsp;Vent / Wand&nbsp;Boot&nbsp;Errors | Enable/Disable the Quick Venting feature. When enabled, you can manually vent your Proton Pack by pressing the Intensify button while the top right toggle switch is switched down. <br><br>📝 `Super Hero mode only` | Enable to disable the Wand boot error mode. When enabled, if you turn on the Neutrona Wand while the top right toggle is up and activated, the Neutrona Wand enters an error mode and remains locked out until the switches are all turned off. <br><br>📝 `Super Hero mode only` |
 | 4 | Auto Vent Light Intensity / Barrel LED Count | Enable/Disable the Auto Vent Light Intensity. When enabled, the vent light will adjust the intensity based on the power level of the wand. | Set the barrel led count between 5 (default), 48 and 60. |
-| 3 | Beep Loop / VGA&nbsp;Colour&nbsp;Mode&nbsp;Toggles | Enable/Disable the looping beep sound effect in Afterlife Mode. | Cycle through VG color modes.<sup>5</sup> |
+| 3 | Beep Loop / VGA&nbsp;Colour&nbsp;Mode&nbsp;Toggles | Enable/Disable the looping beep sound effect in Afterlife Mode. | Cycle through VG colour modes.<sup>5</sup> |
 | 2 | Overheat Lights | Enable/Disable the N-Filter LEDs from strobing during overheating. | Enable/Disable the Proton Pack lights to turn off during overheating. When disabled, after ramping down to a slower pace, the lights stay on.
 | 1 | Default Year&nbsp;Mode / Overheat&nbsp;Sync&nbsp;to&nbsp;Fan | Set your default year mode between 1984/1989/Afterlife/Default. When set, the system will ignore the year mode toggle switch during bootup. However the toggle switch can still be used while the Proton Pack is on. If set to Default, the system picks the year mode based on the position of the year mode toggle switch in the Proton Pack. | Enable/Disable the overheat sync to fan. When enabled, the fan connections in the Proton Pack will only activate at the same time as the smoke connections. When disabled, the fan connections activate slightly after the smoke connections which allows some build of smoke before the fans activate. |
 
 <sup>5</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
 
 - Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
-- Enable only the Power Cell LEDs to change colors (requires RGB Power Cell such as that offered by Frutto Technology).
-- Enable only the Cyclotron LEDs to change colors (requires RGB replacement such as a Neopixel ring).
+- Enable only the Power Cell LEDs to change colours (requires RGB Power Cell such as that offered by Frutto Technology).
+- Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as a Neopixel ring).
 - Enable both the Power Cell and Cyclotron to use video game colours.
 
 <div class="page-break"></div>
@@ -132,4 +135,4 @@ Toggles overheating ability and continuous smoke effects during firing for each 
 
 # Advanced User Configurations
 
-To modify defaults within the software rather than the EEPROM menus, please see the [Advanced Configuration](https://github.com/gpstar81/haslab-proton-pack/blob/main/ADVCONFIG.md) guide.
+To modify defaults within the software rather than the EEPROM menus, please see the [Advanced Configuration](ADVCONFIG.md) guide.
