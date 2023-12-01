@@ -38,7 +38,7 @@ CRGB device_leds[DEVICE_NUM_LEDS];
 #define LED_B_PIN 19
 
 /*
- * LED Devices
+ * Addressable LED Devices
  */
 enum device {
   PRIMARY_LED
@@ -51,3 +51,17 @@ enum device {
  */
 millisDelay ms_fast_led;
 const uint8_t i_fast_led_delay = 3;
+
+/*
+ * Delay for LED blinking.
+ */
+millisDelay ms_blink;
+const uint8_t i_blink_delay = 400;
+bool b_blink = true;
+
+/*
+ * Current firing states and mode
+ */
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
+enum FIRING_MODES FIRING_MODE;
+bool b_firing = false;

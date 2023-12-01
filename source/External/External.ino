@@ -114,5 +114,54 @@ void loop(){
     }
 
     webSocket.loop(); // Keep the socket alive.
+    blinkLights(); // Update blinking lights.
   }
+}
+
+void blinkLights() {
+  if(b_firing) {
+    // Only begin blinking if firing.
+    if(ms_blink.remaining() < 1) {
+      b_blink = !b_blink; // Flip the flag.
+      ms_blink.start(i_blink_delay);
+    }
+
+    if(b_blink) {
+      ledsOff(); // Turn off LED's
+    }
+    else {
+      // Turn on LED's according to the firing mode.
+      switch(FIRING_MODE) {
+        case PROTON:
+          digitalWrite(LED_R_PIN, HIGH);
+        break;
+        case SLIME:
+          digitalWrite(LED_G_PIN, HIGH);
+        break;
+        case STASIS:
+          digitalWrite(LED_B_PIN, HIGH);
+        break;
+        case MESON:
+          digitalWrite(LED_R_PIN, HIGH);
+          digitalWrite(LED_G_PIN, HIGH);
+        break;
+        default:
+          digitalWrite(LED_R_PIN, HIGH);
+          digitalWrite(LED_G_PIN, HIGH);
+          digitalWrite(LED_B_PIN, HIGH);
+        break;
+      }
+    }
+  }
+  else {
+    ledsOff(); // Turn off the RGB LED's
+    b_blink = true; // Set to the blink (off) state.
+  }
+}
+
+void ledsOff() {
+  // Turn off the RGB pins.
+  digitalWrite(LED_R_PIN, LOW);
+  digitalWrite(LED_G_PIN, LOW);
+  digitalWrite(LED_B_PIN, LOW);
 }

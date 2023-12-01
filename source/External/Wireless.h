@@ -104,32 +104,33 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       // Change LED for testing
       if(data_firing == "Firing") {
         //Serial.println(data_firing);
+        b_firing = true;
 
         if(data_wandMode == "Proton") {
-          digitalWrite(LED_R_PIN, HIGH);
+          FIRING_MODE = PROTON;
         }
         else if(data_wandMode == "Slime") {
-          digitalWrite(LED_G_PIN, HIGH);
+          FIRING_MODE = SLIME;
         }
         else if(data_wandMode == "Stasis") {
-          digitalWrite(LED_B_PIN, HIGH);
+          FIRING_MODE = STASIS;
         }
         else if(data_wandMode == "Meson") {
-          digitalWrite(LED_R_PIN, HIGH);
-          digitalWrite(LED_G_PIN, HIGH);
+          FIRING_MODE = MESON;
+        }
+        else if(data_wandMode == "Venting") {
+          FIRING_MODE = VENTING;
+        }
+        else if(data_wandMode == "Settings") {
+          FIRING_MODE = SETTINGS;
         }
         else {
-          digitalWrite(LED_R_PIN, HIGH);
-          digitalWrite(LED_G_PIN, HIGH);
-          digitalWrite(LED_B_PIN, HIGH);
+          FIRING_MODE = SPECTRAL;
         }
       }
       else {
         //Serial.println(data_firing);
-
-        digitalWrite(LED_R_PIN, LOW);
-        digitalWrite(LED_G_PIN, LOW);
-        digitalWrite(LED_B_PIN, LOW);
+        b_firing = false;
       }
     }
   }
