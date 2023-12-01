@@ -42,7 +42,7 @@ bool b_socket_config = false; // Denotes websocket configuration was performed
 
 WebSocketsClient webSocket; // WebSocket client class instance
 
-StaticJsonDocument<256> jsonDoc; // Allocate a static JSON document
+DynamicJsonDocument jsonDoc(1024); // Used for processing JSON body data.
 
 boolean startWiFi() {
   // Begin some diagnostic information to console.
@@ -79,14 +79,14 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
   }
 
   if (type == WStype_TEXT) {
-    // Deserialize incoming JSON String from remote websocket server.
-    DeserializationError error = deserializeJson(jsonDoc, payload); 
-    if (error) {
-      // Print error msg if incomig String is not JSON formatted.
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.c_str());
-    }
-    else {
+    /*
+     * Deserialize incoming JSON String from remote websocket server.
+     * NOTE: Some data from the Attenuator/Wireless may be plain text
+     * which will cause an error to be thrown. Only continue when no
+     * error is present from deserialization.
+     */
+    DeserializationError jsonError = deserializeJson(jsonDoc, payload); 
+    if (!jsonError) {
       // Store values as a known datatype (String).
       String data_mode = jsonDoc["mode"];
       String data_theme = jsonDoc["theme"];
@@ -95,6 +95,7 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       String data_power = jsonDoc["power"];
       String data_safety = jsonDoc["safety"];
       String data_wand = jsonDoc["wand"];
+      String data_wandMode = jsonDoc["wandMode"];
       String data_firing = jsonDoc["firing"];
       String data_cable = jsonDoc["cable"];
       String data_ctron = jsonDoc["cyclotron"];
@@ -104,10 +105,14 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       if(data_firing == "Firing") {
         Serial.println(data_firing);
         digitalWrite(LED_R_PIN, HIGH);
+        digitalWrite(LED_G_PIN, HIGH);
+        digitalWrite(LED_B_PIN, HIGH);
       }
       else {
         Serial.println(data_firing);
         digitalWrite(LED_R_PIN, LOW);
+        digitalWrite(LED_G_PIN, LOW);
+        digitalWrite(LED_B_PIN, LOW);
       }
     }
   }
