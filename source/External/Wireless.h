@@ -103,6 +103,15 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       // Convert power (1-5) to an integer.
       i_power = (int)jsonDoc["power"];
 
+      // Output some data to the serial console when needed.
+      #if defined(USE_DEBUGS)
+        Serial.print(data_wandMode);
+        Serial.print(" is ");
+        Serial.print(data_firing);
+        Serial.print(" at level ");
+        Serial.println(i_power);
+      #endif
+
       // Change LED for testing
       if(data_firing == "Firing") {
         //Serial.println(data_firing);

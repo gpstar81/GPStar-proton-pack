@@ -18,20 +18,22 @@
  *
  */
 
+#define USE_DEBUGS
+
 /*
- * Pin for built-in LED.
+ * Pin for built-in LED
  */
 #define BUILT_IN_LED 2
 
 /*
- * Pin for Addressable LEDs.
+ * Pin for Addressable LEDs
  */
 #define DEVICE_LED_PIN 23
 #define DEVICE_NUM_LEDS 1
 CRGB device_leds[DEVICE_NUM_LEDS];
 
 /*
- * Pins for RGB LEDs.
+ * Pins for RGB LEDs
  */
 #define LED_R_PIN 5
 #define LED_G_PIN 18
@@ -45,9 +47,7 @@ enum device {
 };
 
 /*
- * Delay for fastled to update the addressable LEDs.
- * 0.03 ms to update 1 LED, and this device contains 2.
- * Just setting to 3 which should be sufficient.
+ * Delay for fastled to update the addressable LEDs
  */
 millisDelay ms_fast_led;
 const uint8_t i_fast_led_delay = 3;
