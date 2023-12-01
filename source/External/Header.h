@@ -1,5 +1,5 @@
 /**
- *   gpstar GhostTrap - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar External - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -19,11 +19,23 @@
  */
 
 /*
+ * Pin for built-in LED.
+ */
+#define BUILT_IN_LED 2
+
+/*
  * Pin for Addressable LEDs.
  */
 #define DEVICE_LED_PIN 23
 #define DEVICE_NUM_LEDS 1
 CRGB device_leds[DEVICE_NUM_LEDS];
+
+/*
+ * Pins for RGB LEDs.
+ */
+#define LED_R_PIN 5
+#define LED_G_PIN 18
+#define LED_B_PIN 19
 
 /*
  * LED Devices
@@ -39,8 +51,3 @@ enum device {
  */
 millisDelay ms_fast_led;
 const uint8_t i_fast_led_delay = 3;
-
-/*
- * Pin for test LED.
- */
-#define TEST_LED_PIN 5

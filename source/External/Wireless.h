@@ -1,5 +1,5 @@
 /**
- *   gpstar GhostTrap - Ghostbusters Proton Pack & Neutrona Wand.
+ *   gpstar External - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -28,7 +28,7 @@
 Preferences preferences;
 
 // Set up values for the SSID and password for the WiFi access point (AP).
-const String ap_default_ssid = "ProtonPack_9174"; // This will be the base of the SSID name.
+const String ap_default_ssid = "ProtonPack_D418"; // This will be the base of the SSID name.
 String ap_default_passwd = "12345678"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for storing the true SSID for the AP to be set at startup.
 String ap_pass; // Reserved for storing the true AP password set by the user.
@@ -70,12 +70,12 @@ boolean startWiFi() {
 void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
   if (type == WStype_CONNECTED) {
     Serial.println("WebSocket Connected");
-    device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_RAINBOW); // TESTING
+    digitalWrite(BUILT_IN_LED, HIGH);
   }
 
   if (type == WStype_DISCONNECTED) {
     Serial.println("WebSocket Disconnected");
-    device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_PURPLE); // TESTING
+    digitalWrite(BUILT_IN_LED, LOW);
   }
 
   if (type == WStype_TEXT) {
@@ -100,43 +100,14 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       String data_ctron = jsonDoc["cyclotron"];
       String data_temp = jsonDoc["temperature"];
 
-      // Output for debug purposes only.
-      // Serial.print("Arming Mode: ");
-      // Serial.print(data_mode);
-      // Serial.print("| Operating Mode: ");
-      // Serial.println(data_theme);
-
-      // Serial.print("Pack Armed: ");
-      // Serial.print(data_switch);
-      // Serial.print("| Pack State: ");
-      // Serial.println(data_pack);
-
-      // Serial.print("Power Level: ");
-      // Serial.print(data_power);
-      // Serial.print("| Safety State: ");
-      // Serial.println(data_safety);
-
-      // Serial.print("Wand Mode: ");
-      // Serial.print(data_wand);
-      // Serial.print("| Neutrona Wand: ");
-      // Serial.println(data_firing);
-
-      // Serial.print("Ribbon Cable: ");
-      // Serial.println(data_cable);
-
-      // Serial.print("Cyclotron State: ");
-      // Serial.print(data_ctron);
-      // Serial.print("| Overheat State: ");
-      // Serial.println(data_temp);
-
       // Change LED for testing
       if(data_firing == "Firing") {
         Serial.println(data_firing);
-        device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_RED);
+        digitalWrite(LED_R_PIN, HIGH);
       }
       else {
         Serial.println(data_firing);
-        device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_WHITE);
+        digitalWrite(LED_R_PIN, LOW);
       }
     }
   }

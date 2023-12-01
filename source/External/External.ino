@@ -1,5 +1,5 @@
 /**
- *   gpstar GhostTrap - Ghostbusters Proton Pack & Neutrona Wand.
+ *   gpstar External - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -32,18 +32,28 @@
 #include "Wireless.h"
 
 void setup(){
-  Serial.begin(9600);
+  Serial.begin(115200);
 
-  // RGB LEDs for testing.
+  // RGB LEDs for use when needed.
   FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
 
-  // Set a color indicating we've started up.
-  device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_WHITE);
+  // Change the addressable LED to black by default.
+  device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_BLACK);
 
   // Begin waiting, so we can keep moving in the main loop.
   ms_wifiretry.start(i_wifi_retry_wait);
 
-  pinMode(TEST_LED_PIN, OUTPUT);
+  // Set digital pins for LED's
+  pinMode(BUILT_IN_LED, OUTPUT);
+  pinMode(LED_R_PIN, OUTPUT);
+  pinMode(LED_G_PIN, OUTPUT);
+  pinMode(LED_B_PIN, OUTPUT);
+
+  // Set default state for LED's.
+  digitalWrite(BUILT_IN_LED, LOW);
+  digitalWrite(LED_R_PIN, LOW);
+  digitalWrite(LED_G_PIN, LOW);
+  digitalWrite(LED_B_PIN, LOW);
 
   // Setup WiFi connection to controller device
   startWiFi();
@@ -78,7 +88,6 @@ void loop(){
       Serial.println("WiFi Connected");
       Serial.println(WiFi.localIP());
       b_wifi_connected = true;
-      device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_PURPLE);
     }
     else {
       // When not connected, could be any number of status possible.
@@ -86,14 +95,11 @@ void loop(){
       ms_wifiretry.start(i_wifi_retry_wait);
       b_wifi_connected = false;
       b_socket_config= false;
-      device_leds[PRIMARY_LED] = getHueAsRGB(PRIMARY_LED, C_REDGREEN);
     }
   }
 
   // When the wifi connection is established, proceed with websocket.
   if (b_wifi_connected) {
-    digitalWrite(TEST_LED_PIN, HIGH);
-
     if (!b_socket_config) {
       // Connect to the Attenuator device which is at a known IP address.
       webSocket.begin("192.168.1.2", 80, "/ws");
@@ -108,8 +114,5 @@ void loop(){
     }
 
     webSocket.loop(); // Keep the socket alive.
-  }
-  else {
-    digitalWrite(TEST_LED_PIN, LOW);
   }
 }
