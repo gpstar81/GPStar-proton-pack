@@ -103,13 +103,30 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
 
       // Change LED for testing
       if(data_firing == "Firing") {
-        Serial.println(data_firing);
-        digitalWrite(LED_R_PIN, HIGH);
-        digitalWrite(LED_G_PIN, HIGH);
-        digitalWrite(LED_B_PIN, HIGH);
+        //Serial.println(data_firing);
+
+        if(data_wandMode == "Proton") {
+          digitalWrite(LED_R_PIN, HIGH);
+        }
+        else if(data_wandMode == "Slime") {
+          digitalWrite(LED_G_PIN, HIGH);
+        }
+        else if(data_wandMode == "Stasis") {
+          digitalWrite(LED_B_PIN, HIGH);
+        }
+        else if(data_wandMode == "Meson") {
+          digitalWrite(LED_R_PIN, HIGH);
+          digitalWrite(LED_G_PIN, HIGH);
+        }
+        else {
+          digitalWrite(LED_R_PIN, HIGH);
+          digitalWrite(LED_G_PIN, HIGH);
+          digitalWrite(LED_B_PIN, HIGH);
+        }
       }
       else {
-        Serial.println(data_firing);
+        //Serial.println(data_firing);
+
         digitalWrite(LED_R_PIN, LOW);
         digitalWrite(LED_G_PIN, LOW);
         digitalWrite(LED_B_PIN, LOW);
