@@ -5230,6 +5230,7 @@ void bargraphSuperHeroRampFiringAnimation() {
   }
 }
 
+// This is the Mode Original bargraph firing animation. The top portion fluctuates during firing and becomes more erratic the longer firing continues.
 void bargraphModeOriginalRampFiringAnimation() {
   if(b_28segment_bargraph == true) {
     /*
