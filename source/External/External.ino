@@ -123,7 +123,15 @@ void blinkLights() {
     // Only begin blinking if firing.
     if(ms_blink.remaining() < 1) {
       b_blink = !b_blink; // Flip the flag.
-      ms_blink.start(i_blink_delay);
+
+      if(i_power > 0) {
+        // Speed up the blink with the power level.
+        ms_blink.start(i_blink_delay / i_power);
+      }
+      else {
+        // Handle case where power is unset.
+        ms_blink.start(i_blink_delay);
+      }
     }
 
     if(b_blink) {

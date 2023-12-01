@@ -92,7 +92,6 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       String data_theme = jsonDoc["theme"];
       String data_switch = jsonDoc["switch"];
       String data_pack = jsonDoc["pack"];
-      String data_power = jsonDoc["power"];
       String data_safety = jsonDoc["safety"];
       String data_wand = jsonDoc["wand"];
       String data_wandMode = jsonDoc["wandMode"];
@@ -100,6 +99,9 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       String data_cable = jsonDoc["cable"];
       String data_ctron = jsonDoc["cyclotron"];
       String data_temp = jsonDoc["temperature"];
+
+      // Convert power (1-5) to an integer.
+      i_power = (int)jsonDoc["power"];
 
       // Change LED for testing
       if(data_firing == "Firing") {

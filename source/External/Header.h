@@ -56,12 +56,13 @@ const uint8_t i_fast_led_delay = 3;
  * Delay for LED blinking.
  */
 millisDelay ms_blink;
-const uint8_t i_blink_delay = 400;
+const uint8_t i_blink_delay = 100;
 bool b_blink = true;
 
 /*
- * Current firing states and mode
+ * Current firing states and wand/firing mode
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
 enum FIRING_MODES FIRING_MODE;
 bool b_firing = false;
+uint8_t i_power = 0;
