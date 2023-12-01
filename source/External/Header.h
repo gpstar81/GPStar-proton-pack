@@ -56,7 +56,7 @@ const uint8_t i_fast_led_delay = 3;
  * Delay for LED blinking.
  */
 millisDelay ms_blink;
-const uint8_t i_blink_delay = 100;
+const uint8_t i_blink_delay = 200;
 bool b_blink = true;
 
 /*
