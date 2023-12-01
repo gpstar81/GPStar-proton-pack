@@ -5230,6 +5230,869 @@ void bargraphSuperHeroRampFiringAnimation() {
   }
 }
 
+// This is the Mode Original bargraph firing animation. The top portion fluctuates during firing and becomes more erratic the longer firing continues.
+void bargraphModeOriginalRampFiringAnimation() {
+  if(b_28segment_bargraph == true) {
+    /*
+      5: full: 23 - 27  (5 segments)
+      4: 3/4: 17 - 22   (6 segments)
+      3: 1/2: 12 - 16   (5 segments)
+      2: 1/4: 5 - 11    (7 segments)
+      1: none: 0 - 4    (5 segments)
+    */
+
+    // When firing starts, i_bargraph_status_alt resets to 0 in modeFireStart();
+    if(i_bargraph_status_alt == 0) {
+      // Set our target.
+      switch(i_power_mode) {
+        case 5:
+          i_bargraph_status_alt = random(18, i_bargraph_segments - 1);
+        break;
+
+        case 4:
+          i_bargraph_status_alt = random(13, 25);
+        break;
+
+        case 3:
+          i_bargraph_status_alt = random(9, 19);
+        break;
+
+        case 2:
+          i_bargraph_status_alt = random(3, 13);
+        break;
+
+        case 1:
+        default:
+          // Not used in MODE_ORIGINAL.
+          //i_bargraph_status_alt = random(0, 6);
+        break;
+      }
+    }
+
+    bool b_tmp_down = true;
+
+    for(uint8_t i = 0; i < i_bargraph_segments; i++) {
+      if(b_bargraph_status[i] != true && i < i_bargraph_status_alt) {
+        b_tmp_down = false;
+        break;
+      }
+    }
+
+    switch(i_power_mode) {
+      case 5:
+        if(b_tmp_down == true) {
+          // Moving down.
+          for(uint8_t i = i_bargraph_segments - 1; i >= i_bargraph_status_alt; i--) {
+            if(i_bargraph_status_alt == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status_alt = random(6, i_bargraph_segments - 1);
+                break;
+
+                case 4:
+                  i_bargraph_status_alt = random(9, i_bargraph_segments - 1);
+                break;
+
+                case 3:
+                  i_bargraph_status_alt = random(12, i_bargraph_segments - 1);
+                break;
+
+                case 2:
+                  i_bargraph_status_alt = random(15, i_bargraph_segments - 1);
+                break;
+
+                case 1:
+                  i_bargraph_status_alt = random(18, i_bargraph_segments - 1);
+                break;
+
+                default:
+                  i_bargraph_status_alt = random(0, i_bargraph_segments - 1);
+                break;
+              }
+            }
+
+            if(b_bargraph_status[i] == true) {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+              b_bargraph_status[i] = false;
+
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
+            if(i_bargraph_status_alt == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status_alt = random(8, i_bargraph_segments - 1);
+                break;
+
+                case 4:
+                  i_bargraph_status_alt = random(12, i_bargraph_segments - 1);
+                break;
+
+                case 3:
+                  i_bargraph_status_alt = random(14, i_bargraph_segments - 1);
+                break;
+
+                case 2:
+                  i_bargraph_status_alt = random(16, i_bargraph_segments - 1);
+                break;
+
+                case 1:
+                  i_bargraph_status_alt = random(18, i_bargraph_segments - 1);
+                break;
+
+                default:
+                  i_bargraph_status_alt = random(0, i_bargraph_segments - 1);
+                break;
+              }
+            }
+
+            if(b_bargraph_status[i] == false) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+              b_bargraph_status[i] = true;
+
+              break;
+            }
+          }
+        }
+      break;
+
+      case 4:
+        if(b_tmp_down == true) {
+          // Moving down.
+          for(uint8_t i = 25; i >= i_bargraph_status_alt; i--) {
+            if(i_bargraph_status_alt == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status_alt = random(1, 25);
+                break;
+
+                case 4:
+                  i_bargraph_status_alt = random(4, 25);
+                break;
+
+                case 3:
+                  i_bargraph_status_alt = random(7, 25);
+                break;
+
+                case 2:
+                  i_bargraph_status_alt = random(10, 25);
+                break;
+
+                case 1:
+                  i_bargraph_status_alt = random(13, 25);
+                break;
+
+                default:
+                  i_bargraph_status_alt = random(0, 25);
+                break;
+              }
+            }
+
+            if(b_bargraph_status[i] == true) {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+              b_bargraph_status[i] = false;
+
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
+            if(i_bargraph_status_alt == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status_alt = random(1, 25);
+                break;
+
+                case 4:
+                  i_bargraph_status_alt = random(4, 25);
+                break;
+
+                case 3:
+                  i_bargraph_status_alt = random(7, 25);
+                break;
+
+                case 2:
+                  i_bargraph_status_alt = random(10, 25);
+                break;
+
+                case 1:
+                  i_bargraph_status_alt = random(13, 25);
+                break;
+
+                default:
+                  i_bargraph_status_alt = random(0, 25);
+                break;
+              }
+            }
+
+            if(b_bargraph_status[i] == false) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+              b_bargraph_status[i] = true;
+
+              break;
+            }
+          }
+        }
+      break;
+
+      case 3:
+        if(b_tmp_down == true) {
+          // Moving down.
+          for(uint8_t i = 19; i >= i_bargraph_status_alt; i--) {
+            if(i_bargraph_status_alt == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status_alt = random(1, 19);
+                break;
+
+                case 4:
+                  i_bargraph_status_alt = random(3, 19);
+                break;
+
+                case 3:
+                  i_bargraph_status_alt = random(5, 19);
+                break;
+
+                case 2:
+                  i_bargraph_status_alt = random(7, 19);
+                break;
+
+                case 1:
+                  i_bargraph_status_alt = random(9, 19);
+                break;
+
+                default:
+                  i_bargraph_status_alt = random(0, 19);
+                break;
+              }
+            }
+
+            if(b_bargraph_status[i] == true) {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+              b_bargraph_status[i] = false;
+
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
+            if(i_bargraph_status_alt == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status_alt = random(1, 19);
+                break;
+
+                case 4:
+                  i_bargraph_status_alt = random(3, 19);
+                break;
+
+                case 3:
+                  i_bargraph_status_alt = random(5, 19);
+                break;
+
+                case 2:
+                  i_bargraph_status_alt = random(7, 19);
+                break;
+
+                case 1:
+                  i_bargraph_status_alt = random(9, 19);
+                break;
+
+                default:
+                  i_bargraph_status_alt = random(0, 19);
+                break;
+              }
+            }
+
+            if(b_bargraph_status[i] == false) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+              b_bargraph_status[i] = true;
+
+              break;
+            }
+          }
+        }
+      break;
+
+      case 2:
+        if(b_tmp_down == true) {
+          // Moving down.
+          for(uint8_t i = 13; i >= i_bargraph_status_alt; i--) {
+            if(i_bargraph_status_alt == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status_alt = random(1, 13);
+                break;
+
+                case 4:
+                  i_bargraph_status_alt = random(2, 13);
+                break;
+
+                case 3:
+                case 2:
+                case 1:
+                  i_bargraph_status_alt = random(3, 13);
+                break;
+
+                default:
+                  i_bargraph_status_alt = random(0, 13);
+                break;
+              }
+            }
+
+            if(b_bargraph_status[i] == true) {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+              b_bargraph_status[i] = false;
+
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
+            if(i_bargraph_status_alt == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status_alt = random(1, 13);
+                break;
+
+                case 4:
+                  i_bargraph_status_alt = random(2, 13);
+                break;
+
+                case 3:
+                case 2:
+                case 1:
+                  i_bargraph_status_alt = random(3, 13);
+                break;
+
+                default:
+                  i_bargraph_status_alt = random(0, 13);
+                break;
+              }
+            }
+
+            if(b_bargraph_status[i] == false) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+              b_bargraph_status[i] = true;
+
+              break;
+            }
+          }
+        }
+      break;
+
+      case 1:
+      default:
+        if(b_tmp_down == true) {
+          // Moving down.
+          for(uint8_t i = 7; i >= i_bargraph_status_alt; i--) {
+            if(i_bargraph_status_alt == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status_alt = random(0, 10);
+                break;
+
+                case 4:
+                  i_bargraph_status_alt = random(0, 9);
+                break;
+
+                case 3:
+                case 2:
+                case 1:
+                  i_bargraph_status_alt = random(0, 8);
+                break;
+
+                default:
+                  i_bargraph_status_alt = random(0, 7);
+                break;
+              }
+            }
+
+            if(b_bargraph_status[i] == true) {
+              ht_bargraph.clearLedNow(i_bargraph[i]);
+              b_bargraph_status[i] = false;
+
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
+            if(i_bargraph_status_alt == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status_alt = random(0, 10);
+                break;
+
+                case 4:
+                  i_bargraph_status_alt = random(0, 9);
+                break;
+
+                case 3:
+                case 2:
+                case 1:
+                  i_bargraph_status_alt = random(0, 8);
+                break;
+
+                default:
+                  i_bargraph_status_alt = random(0, 7);
+                break;
+              }
+            }
+
+            if(b_bargraph_status[i] == false) {
+              ht_bargraph.setLedNow(i_bargraph[i]);
+              b_bargraph_status[i] = true;
+
+              break;
+            }
+          }
+        }
+      break;
+    }
+  }
+  else {
+    // When firing starts, i_bargraph_status resets to 0 in modeFireStart();
+    if(i_bargraph_status == 0) {
+      // Set our target.
+      switch(i_power_mode) {
+        case 5:
+          i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+        break;
+
+        case 4:
+          i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+        break;
+
+        case 3:
+          i_bargraph_status = random(1, 4);
+        break;
+
+        case 2:
+          i_bargraph_status = random(0, 3);
+        break;
+
+        case 1:
+        default:
+          i_bargraph_status = random(0, 2);
+        break;
+      }
+    }
+
+    bool b_tmp_down = true;
+
+    for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
+      if(b_bargraph_status_5[i] != true && i <= i_bargraph_status) {
+        b_tmp_down = false;
+        break;
+      }
+    }
+
+    switch(i_power_mode) {
+      case 5:
+        if(b_tmp_down == true) {
+          // Moving down.
+          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 1:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                default:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+              }
+            }
+
+
+            if(b_bargraph_status_5[i-1] == true) {
+              wandBargraphControl(i-1);
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 1:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                default:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+              }
+            }
+
+            if(b_bargraph_status_5[i] == false) {
+              wandBargraphControl(i+1);
+              break;
+            }
+          }
+        }
+      break;
+
+      case 4:
+        if(b_tmp_down == true) {
+          // Moving down.
+          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 1:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                default:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+              }
+            }
+
+
+            if(b_bargraph_status_5[i-1] == true) {
+              wandBargraphControl(i-1);
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 1:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                default:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+              }
+            }
+
+            if(b_bargraph_status_5[i] == false) {
+              wandBargraphControl(i+1);
+              break;
+            }
+          }
+        }
+      break;
+
+      case 3:
+        if(b_tmp_down == true) {
+          // Moving down.
+          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
+                break;
+
+                case 1:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
+                break;
+
+                default:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
+                break;
+              }
+            }
+
+
+            if(b_bargraph_status_5[i-1] == true) {
+              wandBargraphControl(i-1);
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
+                break;
+
+                case 1:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
+                break;
+
+                default:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
+                break;
+              }
+            }
+
+            if(b_bargraph_status_5[i] == false) {
+              wandBargraphControl(i+1);
+              break;
+            }
+          }
+        }
+      break;
+
+      case 2:
+        if(b_tmp_down == true) {
+          // Moving down.
+          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 1:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+
+                default:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+              }
+            }
+
+
+            if(b_bargraph_status_5[i-1] == true) {
+              wandBargraphControl(i-1);
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+
+                case 1:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+
+                default:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+              }
+            }
+
+            if(b_bargraph_status_5[i] == false) {
+              wandBargraphControl(i+1);
+              break;
+            }
+          }
+        }
+      break;
+
+      case 1:
+      default:
+        if(b_tmp_down == true) {
+          // Moving down.
+          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+
+                case 1:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+
+                default:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+              }
+            }
+
+            if(b_bargraph_status_5[i-1] == true) {
+              wandBargraphControl(i-1);
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_speed_up) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+
+                case 1:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+
+                default:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+              }
+            }
+
+            if(b_bargraph_status_5[i] == false) {
+              wandBargraphControl(i+1);
+              break;
+            }
+          }
+        }
+      break;
+    }
+  }
+}
+
 // Bargraph ramping during firing.
 // Optional barrel LED tip strobing is controlled from here to give it a ramp effect if the Proton Pack and Neutrona Wand are going to overheat.
 void bargraphRampFiring() {
@@ -5237,867 +6100,16 @@ void bargraphRampFiring() {
     case BARGRAPH_ANIMATION_SUPER_HERO:
       bargraphSuperHeroRampFiringAnimation();
     break;
-
     case BARGRAPH_ANIMATION_ORIGINAL:
     default:
-      if(b_28segment_bargraph == true) {
-        /*
-          5: full: 23 - 27  (5 segments)
-          4: 3/4: 17 - 22   (6 segments)
-          3: 1/2: 12 - 16   (5 segments)
-          2: 1/4: 5 - 11    (7 segments)
-          1: none: 0 - 4    (5 segments)
-        */
-
-        // When firing starts, i_bargraph_status_alt resets to 0 in modeFireStart();
-        if(i_bargraph_status_alt == 0) {
-          // Set our target.
-          switch(i_power_mode) {
-            case 5:
-              i_bargraph_status_alt = random(18, i_bargraph_segments - 1);
-            break;
-
-            case 4:
-              i_bargraph_status_alt = random(13, 25);
-            break;
-
-            case 3:
-              i_bargraph_status_alt = random(9, 19);
-            break;
-
-            case 2:
-              i_bargraph_status_alt = random(3, 13);
-            break;
-
-            case 1:
-            default:
-              // Not used in MODE_ORIGINAL.
-              //i_bargraph_status_alt = random(0, 6);
-            break;
-          }
-        }
-
-        bool b_tmp_down = true;
-
-        for(uint8_t i = 0; i < i_bargraph_segments; i++) {
-          if(b_bargraph_status[i] != true && i < i_bargraph_status_alt) {
-            b_tmp_down = false;
-            break;
-          }
-        }
-
-        switch(i_power_mode) {
-          case 5:
-            if(b_tmp_down == true) {
-              // Moving down.
-              for(uint8_t i = i_bargraph_segments - 1; i >= i_bargraph_status_alt; i--) {
-                if(i_bargraph_status_alt == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status_alt = random(6, i_bargraph_segments - 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status_alt = random(9, i_bargraph_segments - 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status_alt = random(12, i_bargraph_segments - 1);
-                    break;
-
-                    case 2:
-                      i_bargraph_status_alt = random(15, i_bargraph_segments - 1);
-                    break;
-
-                    case 1:
-                      i_bargraph_status_alt = random(18, i_bargraph_segments - 1);
-                    break;
-
-                    default:
-                      i_bargraph_status_alt = random(0, i_bargraph_segments - 1);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status[i] == true) {
-                  ht_bargraph.clearLedNow(i_bargraph[i]);
-                  b_bargraph_status[i] = false;
-
-                  break;
-                }
-              }
-            }
-            else {
-              // Need to move up.
-              for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
-                if(i_bargraph_status_alt == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status_alt = random(8, i_bargraph_segments - 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status_alt = random(12, i_bargraph_segments - 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status_alt = random(14, i_bargraph_segments - 1);
-                    break;
-
-                    case 2:
-                      i_bargraph_status_alt = random(16, i_bargraph_segments - 1);
-                    break;
-
-                    case 1:
-                      i_bargraph_status_alt = random(18, i_bargraph_segments - 1);
-                    break;
-
-                    default:
-                      i_bargraph_status_alt = random(0, i_bargraph_segments - 1);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status[i] == false) {
-                  ht_bargraph.setLedNow(i_bargraph[i]);
-                  b_bargraph_status[i] = true;
-
-                  break;
-                }
-              }
-            }
-          break;
-
-          case 4:
-            if(b_tmp_down == true) {
-              // Moving down.
-              for(uint8_t i = 25; i >= i_bargraph_status_alt; i--) {
-                if(i_bargraph_status_alt == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status_alt = random(1, 25);
-                    break;
-
-                    case 4:
-                      i_bargraph_status_alt = random(4, 25);
-                    break;
-
-                    case 3:
-                      i_bargraph_status_alt = random(7, 25);
-                    break;
-
-                    case 2:
-                      i_bargraph_status_alt = random(10, 25);
-                    break;
-
-                    case 1:
-                      i_bargraph_status_alt = random(13, 25);
-                    break;
-
-                    default:
-                      i_bargraph_status_alt = random(0, 25);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status[i] == true) {
-                  ht_bargraph.clearLedNow(i_bargraph[i]);
-                  b_bargraph_status[i] = false;
-
-                  break;
-                }
-              }
-            }
-            else {
-              // Need to move up.
-              for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
-                if(i_bargraph_status_alt == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status_alt = random(1, 25);
-                    break;
-
-                    case 4:
-                      i_bargraph_status_alt = random(4, 25);
-                    break;
-
-                    case 3:
-                      i_bargraph_status_alt = random(7, 25);
-                    break;
-
-                    case 2:
-                      i_bargraph_status_alt = random(10, 25);
-                    break;
-
-                    case 1:
-                      i_bargraph_status_alt = random(13, 25);
-                    break;
-
-                    default:
-                      i_bargraph_status_alt = random(0, 25);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status[i] == false) {
-                  ht_bargraph.setLedNow(i_bargraph[i]);
-                  b_bargraph_status[i] = true;
-
-                  break;
-                }
-              }
-            }
-          break;
-
-          case 3:
-            if(b_tmp_down == true) {
-              // Moving down.
-              for(uint8_t i = 19; i >= i_bargraph_status_alt; i--) {
-                if(i_bargraph_status_alt == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status_alt = random(1, 19);
-                    break;
-
-                    case 4:
-                      i_bargraph_status_alt = random(3, 19);
-                    break;
-
-                    case 3:
-                      i_bargraph_status_alt = random(5, 19);
-                    break;
-
-                    case 2:
-                      i_bargraph_status_alt = random(7, 19);
-                    break;
-
-                    case 1:
-                      i_bargraph_status_alt = random(9, 19);
-                    break;
-
-                    default:
-                      i_bargraph_status_alt = random(0, 19);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status[i] == true) {
-                  ht_bargraph.clearLedNow(i_bargraph[i]);
-                  b_bargraph_status[i] = false;
-
-                  break;
-                }
-              }
-            }
-            else {
-              // Need to move up.
-              for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
-                if(i_bargraph_status_alt == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status_alt = random(1, 19);
-                    break;
-
-                    case 4:
-                      i_bargraph_status_alt = random(3, 19);
-                    break;
-
-                    case 3:
-                      i_bargraph_status_alt = random(5, 19);
-                    break;
-
-                    case 2:
-                      i_bargraph_status_alt = random(7, 19);
-                    break;
-
-                    case 1:
-                      i_bargraph_status_alt = random(9, 19);
-                    break;
-
-                    default:
-                      i_bargraph_status_alt = random(0, 19);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status[i] == false) {
-                  ht_bargraph.setLedNow(i_bargraph[i]);
-                  b_bargraph_status[i] = true;
-
-                  break;
-                }
-              }
-            }
-          break;
-
-          case 2:
-            if(b_tmp_down == true) {
-              // Moving down.
-              for(uint8_t i = 13; i >= i_bargraph_status_alt; i--) {
-                if(i_bargraph_status_alt == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status_alt = random(1, 13);
-                    break;
-
-                    case 4:
-                      i_bargraph_status_alt = random(2, 13);
-                    break;
-
-                    case 3:
-                    case 2:
-                    case 1:
-                      i_bargraph_status_alt = random(3, 13);
-                    break;
-
-                    default:
-                      i_bargraph_status_alt = random(0, 13);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status[i] == true) {
-                  ht_bargraph.clearLedNow(i_bargraph[i]);
-                  b_bargraph_status[i] = false;
-
-                  break;
-                }
-              }
-            }
-            else {
-              // Need to move up.
-              for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
-                if(i_bargraph_status_alt == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status_alt = random(1, 13);
-                    break;
-
-                    case 4:
-                      i_bargraph_status_alt = random(2, 13);
-                    break;
-
-                    case 3:
-                    case 2:
-                    case 1:
-                      i_bargraph_status_alt = random(3, 13);
-                    break;
-
-                    default:
-                      i_bargraph_status_alt = random(0, 13);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status[i] == false) {
-                  ht_bargraph.setLedNow(i_bargraph[i]);
-                  b_bargraph_status[i] = true;
-
-                  break;
-                }
-              }
-            }
-          break;
-
-          case 1:
-          default:
-            if(b_tmp_down == true) {
-              // Moving down.
-              for(uint8_t i = 7; i >= i_bargraph_status_alt; i--) {
-                if(i_bargraph_status_alt == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status_alt = random(0, 10);
-                    break;
-
-                    case 4:
-                      i_bargraph_status_alt = random(0, 9);
-                    break;
-
-                    case 3:
-                    case 2:
-                    case 1:
-                      i_bargraph_status_alt = random(0, 8);
-                    break;
-
-                    default:
-                      i_bargraph_status_alt = random(0, 7);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status[i] == true) {
-                  ht_bargraph.clearLedNow(i_bargraph[i]);
-                  b_bargraph_status[i] = false;
-
-                  break;
-                }
-              }
-            }
-            else {
-              // Need to move up.
-              for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
-                if(i_bargraph_status_alt == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status_alt = random(0, 10);
-                    break;
-
-                    case 4:
-                      i_bargraph_status_alt = random(0, 9);
-                    break;
-
-                    case 3:
-                    case 2:
-                    case 1:
-                      i_bargraph_status_alt = random(0, 8);
-                    break;
-
-                    default:
-                      i_bargraph_status_alt = random(0, 7);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status[i] == false) {
-                  ht_bargraph.setLedNow(i_bargraph[i]);
-                  b_bargraph_status[i] = true;
-
-                  break;
-                }
-              }
-            }
-          break;
-        }
+      bargraphModeOriginalRampFiringAnimation();
+
+      // Strobe the optional tip light whenever the last LED for the barrel is lit.
+      if(i_barrel_light == i_num_barrel_leds) {
+        digitalWrite(led_barrel_tip, HIGH);
       }
       else {
-        // When firing starts, i_bargraph_status resets to 0 in modeFireStart();
-        if(i_bargraph_status == 0) {
-          // Set our target.
-          switch(i_power_mode) {
-            case 5:
-              i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-            break;
-
-            case 4:
-              i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-            break;
-
-            case 3:
-              i_bargraph_status = random(1, 4);
-            break;
-
-            case 2:
-              i_bargraph_status = random(0, 3);
-            break;
-
-            case 1:
-            default:
-              i_bargraph_status = random(0, 2);
-            break;
-          }
-        }
-
-        bool b_tmp_down = true;
-
-        for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
-          if(b_bargraph_status_5[i] != true && i <= i_bargraph_status) {
-            b_tmp_down = false;
-            break;
-          }
-        }
-
-        switch(i_power_mode) {
-          case 5:
-            if(b_tmp_down == true) {
-              // Moving down.
-              for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
-                if(i_bargraph_status == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 2:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 1:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    default:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-                  }
-                }
-
-
-                if(b_bargraph_status_5[i-1] == true) {
-                  wandBargraphControl(i-1);
-                  break;
-                }
-              }
-            }
-            else {
-              // Need to move up.
-              for(uint8_t i = 0; i <= i_bargraph_status; i++) {
-                if(i_bargraph_status == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 2:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 1:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    default:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status_5[i] == false) {
-                  wandBargraphControl(i+1);
-                  break;
-                }
-              }
-            }
-          break;
-
-          case 4:
-            if(b_tmp_down == true) {
-              // Moving down.
-              for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
-                if(i_bargraph_status == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 2:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 1:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    default:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-                  }
-                }
-
-
-                if(b_bargraph_status_5[i-1] == true) {
-                  wandBargraphControl(i-1);
-                  break;
-                }
-              }
-            }
-            else {
-              // Need to move up.
-              for(uint8_t i = 0; i <= i_bargraph_status; i++) {
-                if(i_bargraph_status == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 2:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 1:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    default:
-                      i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status_5[i] == false) {
-                  wandBargraphControl(i+1);
-                  break;
-                }
-              }
-            }
-          break;
-
-          case 3:
-            if(b_tmp_down == true) {
-              // Moving down.
-              for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
-                if(i_bargraph_status == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 2:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                    break;
-
-                    case 1:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                    break;
-
-                    default:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                    break;
-                  }
-                }
-
-
-                if(b_bargraph_status_5[i-1] == true) {
-                  wandBargraphControl(i-1);
-                  break;
-                }
-              }
-            }
-            else {
-              // Need to move up.
-              for(uint8_t i = 0; i <= i_bargraph_status; i++) {
-                if(i_bargraph_status == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 2:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                    break;
-
-                    case 1:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                    break;
-
-                    default:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status_5[i] == false) {
-                  wandBargraphControl(i+1);
-                  break;
-                }
-              }
-            }
-          break;
-
-          case 2:
-            if(b_tmp_down == true) {
-              // Moving down.
-              for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
-                if(i_bargraph_status == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 2:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 1:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-
-                    default:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-                  }
-                }
-
-
-                if(b_bargraph_status_5[i-1] == true) {
-                  wandBargraphControl(i-1);
-                  break;
-                }
-              }
-            }
-            else {
-              // Need to move up.
-              for(uint8_t i = 0; i <= i_bargraph_status; i++) {
-                if(i_bargraph_status == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 2:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-
-                    case 1:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-
-                    default:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status_5[i] == false) {
-                  wandBargraphControl(i+1);
-                  break;
-                }
-              }
-            }
-          break;
-
-          case 1:
-          default:
-            if(b_tmp_down == true) {
-              // Moving down.
-              for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
-                if(i_bargraph_status == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led);
-                    break;
-
-                    case 2:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-
-                    case 1:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-
-                    default:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status_5[i-1] == true) {
-                  wandBargraphControl(i-1);
-                  break;
-                }
-              }
-            }
-            else {
-              // Need to move up.
-              for(uint8_t i = 0; i <= i_bargraph_status; i++) {
-                if(i_bargraph_status == i) {
-                  switch(i_cyclotron_speed_up) {
-                    case 5:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 4:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                    break;
-
-                    case 3:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led);
-                    break;
-
-                    case 2:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-
-                    case 1:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-
-                    default:
-                      i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                    break;
-                  }
-                }
-
-                if(b_bargraph_status_5[i] == false) {
-                  wandBargraphControl(i+1);
-                  break;
-                }
-              }
-            }
-          break;
-        }
+        digitalWrite(led_barrel_tip, LOW);
       }
     break;
   }
