@@ -233,7 +233,7 @@ unsigned int i_music_track_max = 0; // Max value for music track index (0 = unse
 bool b_playing_music = false;
 bool b_music_paused = false;
 
-/* 
+/*
  * Pack Communication
  */
 #if defined(__XTENSA__)

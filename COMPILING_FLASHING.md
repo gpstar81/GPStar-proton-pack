@@ -4,13 +4,20 @@ The custom software needed for operation must be compiled and uploaded to your d
 
 ## Supported Devices
 
-### Proton Pack:
+Please refer to the table below for a list of devices and their supported software release.
 
-- <img src='images/gpstar_logo.png' width=30 align="left" /> GPStar Proton Pack PCB
+| Controller Device | v1.x | v2.x | v3.x |
+|-------------------|------|------|------|
+| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Proton Pack PCB   | Yes | Yes | Yes |
+| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Neutrona Wand PCB | Yes | Yes | Yes |
+| <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> |
+| <sup>d1</sup> DIY Arduino Nano Neutrona Wand | Yes | Yes <sup>2</sup> | No |
 
-### Neutrona Wand:
+<sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions.
 
-- <img src='images/gpstar_logo.png' width=30 align="left" /> GPStar Neutrona Wand PCB
+<sup>2</sup> Both devices are supported as of the last release at v2.2.0
+
+<sup>3</sup> If paired with an Arduino Nano for the Neutrona Wand, this arrangement is deprecated. To continue using the DIY Arduino Mega you will need to upgrade the Neutrona Wand to use the GPStar Neutrona Wand PCB.
 
 ## Prerequisites
 

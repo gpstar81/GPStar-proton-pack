@@ -251,6 +251,16 @@ HT16K33 ht_bargraph;
 bool b_28segment_bargraph = false;
 
 /*
+ * Music control and checking.
+ * Only for bench test mode. When bench test mode is disabled, the Pack controls the music checking and playback.
+ */
+const unsigned int i_music_check_delay = 2000;
+const unsigned int i_music_next_track_delay = 2000;
+millisDelay ms_check_music;
+millisDelay ms_music_next_track;
+millisDelay ms_music_status_check;
+
+/*
  * Flag check for video game mode.
  */
 bool b_vg_mode = true;
@@ -352,7 +362,7 @@ const unsigned int i_hat_2_delay = 400;
  * A timer for controlling the wand beep in 2021 mode.
  */
 millisDelay ms_reset_sound_beep;
-const uint8_t i_sound_timer = 50;
+const uint8_t i_sound_timer = 150;
 
 /*
  * Wand tip heatup timers (when changing firing modes).

@@ -12,6 +12,8 @@ Just as you used the gpstar flashing utility for Windows or MacOS to upload to y
 
 This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller. **However, the software which enables the WiFi access point isn't yet loaded so you'll need to follow a specific process for the initial upload to your device.**
 
+**Troubleshooting:** If your ESP32 controller does not appear as a serial device it may be required to install a driver for the "CP210x USB to UART Bridge" onto your computer. A driver for Windows and macOS is available [via Silicon Labs](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads) and has proved useful.
+
 📝 **Tip:** Before proceeding, be sure to use a high-quality USB cable which supports data transfer. Some cheap cables may only support charging (not data), or not fully support the power requirements of the device. If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.
 
 ### First-Time Upload

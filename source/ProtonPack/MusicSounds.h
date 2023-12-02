@@ -79,7 +79,7 @@ enum sound_fx {
   S_SLIME_END,
   S_MESON_START,
   S_STASIS_IDLE_LOOP,
-  S_MESON_END,  
+  S_MESON_END,
   S_STASIS_START,
   S_STASIS_LOOP,
   S_STASIS_END,
@@ -350,10 +350,11 @@ enum sound_fx {
   S_AFTERLIFE_BEEP_WAND_S4_HIGH,
   S_AFTERLIFE_BEEP_WAND_S5_HIGH,
   S_MESON_FIRE_PULSE,
-  S_MESON_IDLE_LOOP
+  S_MESON_IDLE_LOOP,
+  S_WAND_SHUTDOWN_ALT
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_MESON_IDLE_LOOP;
+const unsigned int i_last_effects_track = S_WAND_SHUTDOWN_ALT;
