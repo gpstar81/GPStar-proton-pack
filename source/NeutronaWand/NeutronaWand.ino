@@ -214,13 +214,12 @@ void loop() {
   }
 }
 
-
 void mainLoop() {
   w_trig.update();
 
   checkPack();
-  
-  if(b_gpstar_benchtest == true) {
+
+  if(b_no_pack == true) {
     checkMusic();
   }
 
@@ -1334,8 +1333,8 @@ void mainLoop() {
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
-        // Menu Level 1: Music track loop setting.
-        // Menu Level 2: Enable or disable crossing the streams / video game modes.
+        // Menu Level 1: (Intensify) -> Music track loop setting.
+        // Menu Level 2: (Intensify) -> Enable or disable crossing the streams / video game modes.
         // Menu Level 2: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
         case 5:
         // Music track loop setting.
@@ -1376,9 +1375,9 @@ void mainLoop() {
         }
         break;
 
-        // Menu Level 1: (Intensify + Top dial) Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
-        // Menu Level 1: (Barrel Wing Button) Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
-        // Menu Level 2: Enable or disable smoke for the Proton Pack.
+        // Menu Level 1: (Intensify + Top dial) -> Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
+        // Menu Level 1: (Barrel Wing Button) -> Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
+        // Menu Level 2: (Intensify) -> Enable or disable smoke for the Proton Pack.
         // Menu Level 2: (Barrel Wing Button) -> Enable or disable overheating.
         case 4:
           // Adjust the Proton Pack / Neutrona Wand sound effects volume.
@@ -1405,8 +1404,8 @@ void mainLoop() {
           }
         break;
 
-        // Menu Level 1: (Intensify + top dial) Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
-        // Menu Level 1: Toggle Cyclotron rotation direction.
+        // Menu Level 1: (Intensify + Top dial) -> Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
+        // Menu Level 1: (Intensify) -> Toggle Cyclotron rotation direction.
         // Menu Level 2: (Barrel Wing Button) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
         case 3:
           // Top menu code is handled in checkRotary();
@@ -1426,16 +1425,17 @@ void mainLoop() {
           }
         break;
 
-        // Menu Level 1: Change music tracks.
-        // Menu Level 2: Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
+        // Menu Level 1: (Intensify) -> Go to next music track.
+        // Menu Level 1: (Barrel Wing Button) -> Go to previous music track.
+        // Menu Level 2: (Intensify) -> Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
         // Menu Level 2: (Barrel Wing Button) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
         case 2:
           // Change music tracks.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
-              
-              if(b_gpstar_benchtest == true) {
+
+              if(b_no_pack == true) {
                 musicNextTrack();
               }
               else {
@@ -1449,7 +1449,7 @@ void mainLoop() {
             }
 
             if(switchMode() == true) {
-              if(b_gpstar_benchtest == true) {
+              if(b_no_pack == true) {
                 musicPrevTrack();
               }
               else {
@@ -1457,7 +1457,7 @@ void mainLoop() {
                   stopMusic();
                 }
 
-                // Tell the pack to play the next track.
+                // Tell the pack to play the previous track.
                 wandSerialSend(W_MUSIC_PREV_TRACK);
               }
             }
@@ -1526,8 +1526,8 @@ void mainLoop() {
           }
         break;
 
-        // Menu Level 1: Play music or stop music.
-        // Menu Level 1: (Barrel Wing Button). Mute the Proton Pack and Neutrona Wand.
+        // Menu Level 1: (Intensify) -> Play music or stop music.
+        // Menu Level 1: (Barrel Wing Button) -> Mute the Proton Pack and Neutrona Wand.
         // Menu Level 2: (Intensify) -> Switch between 1984/1989/Afterlife mode.
         // Menu Level 2: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
         case 1:
@@ -1535,22 +1535,22 @@ void mainLoop() {
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
-              
+
               if(b_playing_music == true) {
                 // Tell the pack to stop music.
                 wandSerialSend(W_MUSIC_STOP);
 
-                if(b_gpstar_benchtest == true) {
+                if(b_no_pack == true) {
                   stopMusic();
-                }                
+                }
               }
               else {
                 // Tell the pack to play music.
                 wandSerialSend(W_MUSIC_START);
 
-                if(b_gpstar_benchtest == true) {
+                if(b_no_pack == true) {
                   playMusic();
-                }  
+                }
               }
             }
 
@@ -1879,47 +1879,6 @@ void mainLoop() {
   if(ms_fast_led.justFinished()) {
     FastLED.show();
     ms_fast_led.stop();
-  }
-}
-
-void checkMusic() {
-  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
-    ms_check_music.start(i_music_check_delay);
-    w_trig.trackPlayingStatus(i_current_music_track);
-
-    // Loop through all the tracks if the music is not set to repeat a track.
-    if(b_playing_music == true && b_repeat_track == false) {
-      if(w_trig.currentMusicTrackStatus(i_current_music_track) != true && ms_music_status_check.justFinished() && w_trig.trackCounterReset() != true) {
-        ms_check_music.stop();
-        ms_music_status_check.stop();
-
-        stopMusic();
-
-        // Switch to the next track.
-        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-          i_current_music_track = i_music_track_start;
-        }
-        else {
-          i_current_music_track++;
-        }
-
-        // Start timer to prepare to play music again.
-        ms_music_next_track.start(i_music_next_track_delay);
-      }
-      else {
-        if(ms_music_status_check.justFinished()) {
-          ms_music_status_check.start(i_music_check_delay * 4);
-        }
-      }
-    }
-  }
-
-  // Start playing music again.
-  if(ms_music_next_track.justFinished()) {
-    ms_music_next_track.stop();
-    ms_check_music.start(i_music_check_delay);
-
-    playMusic();
   }
 }
 
@@ -3546,7 +3505,7 @@ void modeFireStartSounds() {
       playEffect(S_MESON_START);
 
       playEffect(S_MESON_FIRE_PULSE);
-      
+
       switch(i_power_mode) {
         case 5:
           ms_meson_blast.start(i_meson_blast_delay_level_5);
@@ -3702,10 +3661,10 @@ void modeFireStart() {
   }
 
   barrelLightsOff();
-  
+
   if(FIRING_MODE == MESON) {
     ms_firing_lights.stop();
-    ms_firing_stream_blue.start(1);    
+    ms_firing_stream_blue.start(1);
   }
   else {
     ms_firing_lights.start(10);
@@ -10148,11 +10107,11 @@ void playMusic() {
 
     w_trig.update();
 
-    if(b_gpstar_benchtest == true) {
+    if(b_no_pack == true) {
       ms_music_status_check.start(i_music_check_delay * 10);
       w_trig.resetTrackCounter(true);
     }
-    
+
   }
 }
 
@@ -10236,6 +10195,47 @@ void musicPrevTrack() {
   else {
     // Set the new track.
     i_current_music_track = i_temp_track;
+  }
+}
+
+void checkMusic() {
+  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
+    ms_check_music.start(i_music_check_delay);
+    w_trig.trackPlayingStatus(i_current_music_track);
+
+    // Loop through all the tracks if the music is not set to repeat a track.
+    if(b_playing_music == true && b_repeat_track == false) {
+      if(w_trig.currentMusicTrackStatus(i_current_music_track) != true && ms_music_status_check.justFinished() && w_trig.trackCounterReset() != true) {
+        ms_check_music.stop();
+        ms_music_status_check.stop();
+
+        stopMusic();
+
+        // Switch to the next track.
+        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+          i_current_music_track = i_music_track_start;
+        }
+        else {
+          i_current_music_track++;
+        }
+
+        // Start timer to prepare to play music again.
+        ms_music_next_track.start(i_music_next_track_delay);
+      }
+      else {
+        if(ms_music_status_check.justFinished()) {
+          ms_music_status_check.start(i_music_check_delay * 4);
+        }
+      }
+    }
+  }
+
+  // Start playing music again.
+  if(ms_music_next_track.justFinished()) {
+    ms_music_next_track.stop();
+    ms_check_music.start(i_music_check_delay);
+
+    playMusic();
   }
 }
 
