@@ -3327,7 +3327,6 @@ void soundBeepLoopStop() {
   if(b_beeping == true) {
     b_beeping = false;
 
-    stopEffect(S_AFTERLIFE_BEEP_WAND);
     stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
     stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
     stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
@@ -3338,6 +3337,7 @@ void soundBeepLoopStop() {
     ms_reset_sound_beep.start(i_sound_timer);
   }
 }
+
 void soundBeepLoop() {
   if(ms_reset_sound_beep.justFinished() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
     if(b_beeping == false) {
@@ -6063,8 +6063,8 @@ void bargraphRampFiring() {
     default:
       bargraphModeOriginalRampFiringAnimation();
 
-      // Strobe the optional tip light whenever the last LED for the barrel is lit.
-      if(i_barrel_light == i_num_barrel_leds) {
+      // Strobe the optional tip light on even barrel lights numbers.     
+      if((i_barrel_light & 0x01) == 0) {
         digitalWrite(led_barrel_tip, HIGH);
       }
       else {
@@ -8543,6 +8543,10 @@ void checkPack() {
               b_pack_on = false;
             break;
 
+            case P_PACK_BOOTUP:
+              // Nothing for now.
+            break;
+
             case P_SYNC_START:
               b_sync = true;
             break;
@@ -10111,7 +10115,6 @@ void playMusic() {
       ms_music_status_check.start(i_music_check_delay * 10);
       w_trig.resetTrackCounter(true);
     }
-
   }
 }
 
@@ -10267,7 +10270,7 @@ void setupWavTrigger() {
 
   // Build the music track count.
   i_music_count = w_num_tracks - i_last_effects_track;
-
+  
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
   }

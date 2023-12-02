@@ -362,7 +362,7 @@ const unsigned int i_hat_2_delay = 400;
  * A timer for controlling the wand beep in 2021 mode.
  */
 millisDelay ms_reset_sound_beep;
-const uint8_t i_sound_timer = 50;
+const uint8_t i_sound_timer = 150;
 
 /*
  * Wand tip heatup timers (when changing firing modes).
