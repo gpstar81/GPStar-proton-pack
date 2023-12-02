@@ -6063,7 +6063,7 @@ void bargraphRampFiring() {
     default:
       bargraphModeOriginalRampFiringAnimation();
 
-      // Strobe the optional tip light on even barrel lights numbes.     
+      // Strobe the optional tip light on even barrel lights numbers.     
       if((i_barrel_light & 0x01) == 0) {
         digitalWrite(led_barrel_tip, HIGH);
       }
