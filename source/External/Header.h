@@ -35,7 +35,7 @@ CRGB device_leds[DEVICE_NUM_LEDS];
 /*
  * Pins for RGB LEDs
  */
-#define LED_R_PIN 5
+#define LED_R_PIN 4
 #define LED_G_PIN 18
 #define LED_B_PIN 19
 
