@@ -608,7 +608,7 @@ void startWebServer() {
   // Configure the WebSocket endpoint.
   ws.onEvent(onWebSocketEventHandler);
   httpServer.addHandler(&ws);
-  
+
   // Configure the OTA firmware endpoint handler.
   ElegantOTA.begin(&httpServer);
 
