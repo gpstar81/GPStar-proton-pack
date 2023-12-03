@@ -14,7 +14,7 @@ This device has it's own BOM which is separate from any other build items relate
 * [PG7 Rubber Strain Relief Connector](https://a.co/d/h1Hxh5T)
 * [Single-Pixel 5V WS2812B RGB Addressable RGB LEDs](https://a.co/d/90SO4AQ) (You will use 3 pixels from this set)
 * [Pre-soldered SPST Mini Toggle Switches](https://a.co/d/8SfEpVH)
-* [Rotary Encoder Knob w/ Switch](https://a.co/d/3iBps4P)
+* [Rotary Encoder Knob w/ Switch](https://a.co/d/3dWJTzi)
 * [3V 10mm x 2mm Vibration Motor](https://a.co/d/8p7mP9x)
 * [9mm Passive Piezo Buzzer](https://a.co/d/b39ELcm)
 * [28-Segment Bargraph from Frutto Technology](https://fruttotechnology.com/ols/products/preorder-28-segment-bargraph-pcb-for-spengler-neutrona-wand)
@@ -176,24 +176,17 @@ For the ESP32 controller, GPIO pins 34 and 35 are input-only and do not have int
 
 **Rotary Encoder w/ Switch**
 
-The rotary encoder is similar to that used on the Proton Pack and Neutrona Wand. It requires a common ground connection and sends data via the A/B signal wires to indicate which direction it was turned.
+The rotary encoder is similar to that used on the Proton Pack and Neutrona Wand in that it will rotate without an end-stop, though unlike the other devices this has a center post which acts like a momentary switch. It requires a common ground connection with positive voltage, and sends data via the A/B signal wires to indicate which direction it was turned or the center post was pushed.
 
-**Note: For this connection the post is oriented to the left.**
+**Note: This is based on the KY-040 pre-soldered module with 5 pins.**
 
-| ROTARY ENCODER (DIAL)          |   | MCU Pin   |
-|--------------------------------|---|-----------|
-| <font color="blue">Blue</font> | → | D2/GPIO33 |
-| Black                          | → | GND       |
-| <font color="blue">Blue</font> | → | D3/GPIO32 |
-
-One notable point in the stated part noted in the BOM is that this encoder MUST also support a momentary "push" action on the center post, so an additional ground and data pin will be used for that momentary switch.
-
-**Note: It does not matter which pin on the rotary encoder goes to which MCU pin.**
-
-| ROTARY ENCODER (POST)            |   | MCU Pin  |
-|----------------------------------|---|----------|
-| <font color="green">Green</font> | → | D4/GPIO4 |
-| Black                            | → | GND      |
+| ROTARY ENCODER (DIAL)             |   | MCU Pin   |
+|-----------------------------------|---|-----------|
+| GND                               | → | GND       |
+| <font color="red">+ (VCC)</font>  | → | VIN (5V)  |
+| <font color="green">SW</font>     | → | D4/GPIO4  |
+| <font color="blue">DT (B)</font>  | → | D2/GPIO33 |
+| <font color="blue">CLK (A)</font> | → | D3/GPIO32 |
 
 **Addressable LEDs**
 
@@ -209,10 +202,12 @@ Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `
 
 **Audio &amp; Physical Feedback**
 
-| PIEZO BUZZER                 |   | MCU Pin    |
-|------------------------------|---|------------|
-| <font color="red">Red</font> | → | D10/GPIO18 |
-| Black                        | → | GND        |
+| PIEZO BUZZER                   | Component(s) | MCU Pin |
+|--------------------------------|--------------|---------|
+| <font color="red">Red</font>   | →     | VIN/5V |
+| Black                          | NPN C |          |
+|                                | NPN B | R 270 Ω → D10/GPIO18 |
+|                                | NPN E | GND      |
 
 | VIBRATION MOTOR                | Component(s) | Component(s) | MCU Pin |
 |--------------------------------|--------------|--------------|---------|
