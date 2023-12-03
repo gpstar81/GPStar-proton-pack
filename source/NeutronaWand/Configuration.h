@@ -74,13 +74,6 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
- * How many LEDs are in your Neutrona Wand Barrel.
- * Default setting is 5: for the Hasbro Neturona Wand.
- * Supported options: 5, 48 and 60.
- */
-uint8_t i_num_barrel_leds = 5;
-
-/*
  * When set to true, the bargraph will invert the sequence.
  * Only compatible with the gpstar Neutrona Wand board.
  */
