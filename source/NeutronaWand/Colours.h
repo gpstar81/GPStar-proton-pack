@@ -235,3 +235,16 @@ CRGB getHueAsGRB(uint8_t i_colour, uint8_t i_brightness = 255) {
   // Forward to getHueAsRGB() with the flag set for GRB color swap.
   return getHueAsRGB(i_colour, i_brightness, true);
 }
+
+CRGB getHueColour(uint8_t i_colour, uint8_t i_num_leds, uint8_t i_brightness = 255) {
+  switch(i_num_leds) {
+    case 48:
+      return getHueAsRGB(i_colour, i_brightness, false);
+    break;
+
+    case 5:
+    default:
+      return getHueAsRGB(i_colour, i_brightness, true);
+    break;
+  }
+}

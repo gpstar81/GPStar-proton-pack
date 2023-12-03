@@ -387,7 +387,6 @@ millisDelay ms_firing_lights_end;
 millisDelay ms_firing_stream_blue;
 millisDelay ms_firing_stream_orange;
 millisDelay ms_impact; // Mix some impact sounds while firing.
-
 millisDelay ms_firing_start_sound_delay;
 millisDelay ms_firing_stop_sound_delay;
 const uint8_t d_firing_lights = 20; // 20 milliseconds. Timer for adjusting the firing stream colours.
