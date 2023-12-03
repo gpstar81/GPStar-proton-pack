@@ -114,6 +114,16 @@ const unsigned int i_meson_blast_delay_level_1 = 220;
 CRGB barrel_leds[BARREL_LEDS_MAX];
 
 /*
+ * How many LEDs are in your Neutrona Wand Barrel.
+ * Default setting is 5: for the Hasbro Neturona Wand.
+ * Supported options: 5, 48 and 60.
+ */
+uint8_t i_num_barrel_leds = 5;
+enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_48, LEDS_60 };
+enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
+
+
+/*
  * Delay for fastled to update the addressable LEDs.
  * We have up to 5 addressable LEDs in the wand barrel.
  * 0.03 ms to update 1 LED. So 0.15 ms should be okay? Let's bump it up to 3 just in case.
@@ -387,7 +397,6 @@ millisDelay ms_firing_lights_end;
 millisDelay ms_firing_stream_blue;
 millisDelay ms_firing_stream_orange;
 millisDelay ms_impact; // Mix some impact sounds while firing.
-
 millisDelay ms_firing_start_sound_delay;
 millisDelay ms_firing_stop_sound_delay;
 const uint8_t d_firing_lights = 20; // 20 milliseconds. Timer for adjusting the firing stream colours.
