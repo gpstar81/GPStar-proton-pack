@@ -21,7 +21,7 @@ Connections for the pack should be made according to the tables below.
 | BATTERY 5V-IN | +/\- | Power from battery. **This MUST be a regulated 5V source!** |
 | Volume | D3/GND/D2 | Rotary encoder connection for pack volume adjusted via crank generator knob |
 | SW1 | D31/GND | Stock connection for main switch under the Ion Arm |
-| SW3/SW4 | GND/D27/D25/GND | Stock connection for Cyclotron panel toggles, Vibration and Mode Switch |
+| SW3/SW4 | GND/D27/D25/GND | Stock connection for Cyclotron panel toggles: SW3 (2 pins on left side) = Year Mode Toggle. SW4 (2 pins on right side) = Vibration toggle. |
 | SW6 | GND/D23 | Stock connection for ribbon cable disconnection alarm (wire order does not matter) |
 | M1 | VCC/GND | Stock connection for pack vibration motor (D45) |
 | Power Cell | VCC/D53/GND/PCCYC | Stock connection for Power Cell LEDs (continues to Cyclotron Lid) |
