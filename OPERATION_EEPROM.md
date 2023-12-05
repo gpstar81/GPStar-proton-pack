@@ -1,10 +1,20 @@
-<h1><img src='images/gpstar_logo.png' width=50 align="left"/>GPStar Proton Pack and Neutrona Wand Operation Manual</h1>
+<p align="center" style="background-color:#333;">
+  <img src="images/gpstar_logo_white.png"/>
+</p>
+
+<br/>
+<br/>
+
+<center><h1>Proton Pack &amp; Neutrona Wand Operation Manual</h1></center>
+
+<br/>
+<br/>
 
 # EEPROM Menus
 
 There are two EEPROM menus available which can be accessed to adjust and save configurations onto either the Proton Pack and Neutrona Wand EEPROM memory. These are the **EEPROM LED Menu** and the **EEPROM Configuration Menu**.
 
-**NOTICE:** The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, but if you did, it can be disabled to bypass it. Refer to the Advanced User Configurations below for more information.
+⚠️ **NOTICE:** The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, but if you did, it can be disabled to bypass it. Refer to the Advanced User Configurations below for more information.
 
 ## EEPROM LED Menu
 
@@ -12,7 +22,7 @@ The EEPOM LED Menu can be used to configure different LED setups for your Proton
 
 To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggle the right hand `Top Toggle` button 5 times (up and down). You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM LED Menu System. The Neutrona Wand barrel and all the Proton Pack LEDs will light up to the default Spectral Custom colours when you enter the EEPROM LED Menu.
 
-📝 **Note:** The EEPROM LED Menu System can only be reached while both the Neutrona Wand and Proton Pack are powered down.
+📝 **Note:** EEPROM menus can only be reached while both the Neutrona Wand and Proton Pack are powered down.
 
 ![](images/OperationNeutrona11.jpg)
 
@@ -25,6 +35,8 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 | 3 | Power Cell LED Count Toggle / Spectral Custom (Power Cell) Colour | Toggle between 15 or 13 LEDs for your Power Cell. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Power Cell** for the Spectral Custom mode. |
 | 2 | Inner Cyclotron LED Count Toggle  / Spectral Custom (Cyclotron) Colour | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron Cake. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Cyclotron Lid** for the Spectral Custom mode. |
 | 1 | Inner Cyclotron GRB Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Inner Cyclotron (Cake)** for the Spectral Custom mode. |
+
+<div class="page-break"></div>
 
 ## EEPROM Configuration Menu
 
@@ -40,11 +52,13 @@ To access the EEPROM Configuration menus, use the `Top Dial` on the top of the w
 	Menu Level 4 -> Slo-Blo, vent light, and top gun box light illuminated
 	Menu Level 5 -> Slo-Blo; vent light, top gun box light, and front gun box light illuminated
 
-📝 **Note:** The EEPROM Configuration Menu System can only be reached while both the Neutrona Wand and Proton Pack are powered down.
+📝 **Note:** EEPROM menus can only be reached while both the Neutrona Wand and Proton Pack are powered down.
 
 Please note whatever settings you have temporarily changed in the regular menus and sub menus will be applied automatically and saved if you exit the EEPROM menu by saving the settings.
 
 ![](images/OperationNeutrona12.jpg)
+
+<div class="page-break"></div>
 
 **EEPROM Configuration Menu Level 1**
 
@@ -57,6 +71,8 @@ Please note whatever settings you have temporarily changed in the regular menus 
 | 1 | Sound Effects | Enable/Disable the proton stream impact sound effects. | Enable/Disable extra Neutrona Wand sound effects to be played by the Proton Pack. |
 
 <sup>3</sup> Choose between Video Game and Cross the Streams (CTS) operation modes. Cross the Streams modes is like what you see in the films.
+
+<div class="page-break"></div>
 
 **EEPROM Configuration Menu Level 2**
 
@@ -74,6 +90,8 @@ Please note whatever settings you have temporarily changed in the regular menus 
 - Enable only the Power Cell LEDs to change colours (requires RGB Power Cell such as that offered by Frutto Technology).
 - Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as a Neopixel ring).
 - Enable both the Power Cell and Cyclotron to use video game colours.
+
+<div class="page-break"></div>
 
 **EEPROM Configuration Menu Level 3**
 
@@ -96,6 +114,8 @@ Adjust the vent smoke duration during overheat events and overheat start delay f
 | 3 | Power&nbsp;Level&nbsp;3 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 4 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 20 seconds` |
 | 2 | Power&nbsp;Level&nbsp;2 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 3 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 30 seconds` |
 | 1 | Power&nbsp;Level&nbsp;1 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 2 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 60 seconds` |
+
+<div class="page-break"></div>
 
 **EEPROM Configuration Menu Level 5**
 

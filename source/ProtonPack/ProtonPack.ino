@@ -670,6 +670,7 @@ void checkMusic() {
     ms_music_next_track.stop();
     ms_check_music.start(i_music_check_delay);
 
+    // Play the appropriate track on pack and wand, and notify the serial1 device.
     playMusic();
   }
 }
@@ -4271,10 +4272,8 @@ void checkSerial1() {
               }
               else {
                 if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+                  // Play the appropriate track on pack and wand, and notify the serial1 device.
                   playMusic();
-
-                  packSerialSend(i_current_music_track);
-                  packSerialSend(P_MUSIC_START);
                 }
               }
             break;
@@ -4317,11 +4316,8 @@ void checkSerial1() {
                   // Only update after the music is stopped.
                   i_current_music_track = dataStructR.i;
 
-                  // Tell the wand which track to play.
-                  packSerialSend(i_current_music_track);
-
-                  playMusic(); // Start playing new track number.
-                  packSerialSend(P_MUSIC_START);
+                  // Play the appropriate track on pack and wand, and notify the serial1 device.
+                  playMusic();
                 }
                 else {
                   i_current_music_track = dataStructR.i;
@@ -5775,12 +5771,8 @@ void checkWand() {
             break;
 
             case W_MUSIC_START:
-              // Play music.
-              b_playing_music = true;
+              // Play the appropriate track on pack and wand, and notify the serial1 device.
               playMusic();
-
-              packSerialSend(i_current_music_track);
-              packSerialSend(P_MUSIC_START);
             break;
 
             case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5:
@@ -7015,11 +7007,11 @@ void checkWand() {
               if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
                 if(b_playing_music == true) {
                   stopMusic(); // Stops current track before change.
-                  i_current_music_track = comStruct.i;
-                  playMusic(); // Start playing new track number.
 
-                  packSerialSend(i_current_music_track);
-                  packSerialSend(P_MUSIC_START);
+                  i_current_music_track = comStruct.i; // Change track AFTER stopping music.
+
+                  // Play the appropriate track on pack and wand, and notify the serial1 device.
+                  playMusic();
                 }
                 else {
                   i_current_music_track = comStruct.i;
@@ -7554,7 +7546,9 @@ void playMusic() {
     packSerialSend(i_current_music_track);
     packSerialSend(P_MUSIC_START);
 
+    // Tell connected serial device music playback has started.
     serial1Send(A_MUSIC_IS_PLAYING);
+    serial1Send(A_MUSIC_IS_NOT_PAUSED);
   }
 }
 
@@ -7565,17 +7559,22 @@ void stopMusic() {
   b_music_paused = false;
   b_playing_music = false;
 
+  // Tell the Neutrona Wand to stop music playback.
   packSerialSend(P_MUSIC_STOP);
+
+  // Tell connected serial device music playback has stopped.
   serial1Send(A_MUSIC_IS_NOT_PLAYING);
   serial1Send(A_MUSIC_IS_NOT_PAUSED);
 }
 
 void pauseMusic() {
   if(b_playing_music == true) {
+    // Pause music playback on the Proton Pack
     w_trig.trackPause(i_current_music_track);
     w_trig.update();
-
     b_music_paused = true;
+
+    // Tell connected devices music playback is paused.    
     packSerialSend(P_MUSIC_PAUSE);
     serial1Send(A_MUSIC_IS_PAUSED);
   }
@@ -7583,15 +7582,16 @@ void pauseMusic() {
 
 void resumeMusic() {
   if(b_playing_music == true) {
-    b_music_paused = false;
-
     // Reset the music check timer.
     ms_music_status_check.start(i_music_check_delay * 10);
     w_trig.resetTrackCounter(true);
 
+    // Resume music playback on the Proton Pack
     w_trig.trackResume(i_current_music_track);
     w_trig.update();
+    b_music_paused = false;
 
+    // Tell connected devices music playback is resumed.
     packSerialSend(P_MUSIC_RESUME);
     serial1Send(A_MUSIC_IS_NOT_PAUSED);
   }
@@ -7611,12 +7611,12 @@ void musicNextTrack() {
 
   // Switch to the next track.
   if(b_playing_music == true) {
-    // Stops music using the current track.
+    // Stops music using the current track number as the identifier.
     stopMusic();
 
-    i_current_music_track = i_temp_track;
+    i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
 
-    // Begin playing the new track.
+    // Play the appropriate track on pack and wand, and notify the serial1 device.
     playMusic();
   }
   else {
@@ -7641,13 +7641,12 @@ void musicPrevTrack() {
 
   // Switch to the previous track.
   if(b_playing_music == true) {
-    // Stops music using the current track.
+    // Stops music using the current track number as the identifier.
     stopMusic();
 
-    // Set the new track.
-    i_current_music_track = i_temp_track;
+    i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
 
-    // Begin playing the new track.
+    // Play the appropriate track on pack and wand, and notify the serial1 device.
     playMusic();
   }
   else {
