@@ -2,37 +2,45 @@
 
 This guide is intended to document the parts and processes required to build the internals of an Attenuator device for your Proton Pack. Please note that while both the Arduino Nano is supported, there is much more functionality and room for improvements by using an ESP32 controller. This document supports both paths in their own sub-sections.
 
+[Video Assembly Guide](https://www.youtube.com/watch?v=iuZ5ij_PN44) (YouTube, December 2023).
+[![Video Assembly Guide](https://img.youtube.com/vi/iuZ5ij_PN44/maxresdefault.jpg)](https://www.youtube.com/watch?v=iuZ5ij_PN44)
+
 ## Bill of Materials
 
 This device has it's own BOM which is separate from any other build items related to the pack or wand. This utilizes the same ArduinoIDE for writing software as the other controllers and we'll be using the same type of serial protocol as used between the pack and wand.
 
 **Core Electronics**
 
-* [4 Pin Aviation Connector (to Proton Pack)](https://a.co/d/gPiOSzL)
-* [20 AWG 4 Conductor Wire w/ PVC Jacket](https://a.co/d/iglELZR)
-* [1/4 Inch Braided PET Wire Loom](https://a.co/d/cDQPSk0)
+* Proton Pack Connector: [4 Pin Aviation Connector](https://a.co/d/gPiOSzL)
+* Proton Pack Cable: [20 AWG 4 Conductor Wire w/ PVC Jacket](https://a.co/d/iglELZR)
+* Cable Covering: [1/4 Inch Braided PET Wire Loom](https://a.co/d/cDQPSk0)
 * [PG7 Rubber Strain Relief Connector](https://a.co/d/h1Hxh5T)
-* [Single-Pixel 5V WS2812B RGB Addressable RGB LEDs](https://a.co/d/90SO4AQ) (You will use 3 pixels from this set)
-* [Pre-soldered SPST Mini Toggle Switches](https://a.co/d/8SfEpVH)
-* [Rotary Encoder Knob w/ Switch](https://a.co/d/3iBps4P)
+* [Single-Pixel 5V WS2812B RGB Addressable RGB LEDs](https://a.co/d/90SO4AQ) (You will use 3 pixels from this set<sup>1</sup>)
+* [Pre-soldered SPST Mini Toggle Switches](https://a.co/d/8SfEpVH) or [Flat Toggles w/o Wires](https://a.co/d/9oIRMAG)
+* [Rotary Encoder Knob w/ Switch](https://a.co/d/3dWJTzi)
 * [3V 10mm x 2mm Vibration Motor](https://a.co/d/8p7mP9x)
 * [9mm Passive Piezo Buzzer](https://a.co/d/b39ELcm)
 * [28-Segment Bargraph from Frutto Technology](https://fruttotechnology.com/ols/products/preorder-28-segment-bargraph-pcb-for-spengler-neutrona-wand)
+* 2x NPN2222 transistors, 2x 1N4001 diodes, and various resistors (see schematics)
 
-The preferred processor for this device is an ESP32 though you may also use an Arduino Nano though this may be phased out in the future. **Note that wireless capabilities are only available with the ESP32.**
+<sup>1</sup> These [pre-soldered LED modules](https://a.co/d/2Y9HvIK) will likely be offered for use in future kits, though in both cases the price point is high considering the need for only 3 LED's.
+
+**Microprocessor Control Unit (MCU)**
+
+The preferred processor for this device is an ESP32 though you may also use an Arduino Nano although the latter may be phased out in the future. **Note that wireless capabilities are only available with the ESP32.**
 
 * [ESP-WROOM-32 30-pin Dev Board w/ Terminal Shield](https://a.co/d/hDxXluE) or [ESP-WROOM-32 Dev Board w/out Headers](https://a.co/d/62ywBNo)
 
 or
 
-* [Arduino Nano Microcontroller](https://a.co/d/ev1LPea) plus [Arduino Nano Terminal Shield](https://a.co/d/7xNKJtO)
+* [Arduino Nano Microcontroller](https://a.co/d/ev1LPea) plus [Arduino Nano Terminal Shield](https://a.co/d/7xNKJtO) - Note that this device will not offer WiFi capabilities!
 
-**Decorations**
+**Exterior Decorations**
 
-This device was designed to allow for certain "real" parts as opposed to being 100% 3D printed. To finish the look of the exterior the following are either required or suggested. These parts may be sourced from any vendor you prefer (in the US most ACE Hardware locations have extensive selections of metrics screws).
+This device was designed to allow for certain "real" parts as opposed to being 100% 3D printed. To finish the look of the exterior the following are **merely suggestions**. These parts may be sourced from any vendor you prefer (in the US most ACE Hardware locations have extensive selections of metrics screws). If a certain item is improbable or unavailable you may substitute as you wish--regardless of material used for printing it should be possible to install a similar sized screw for the provided holes in the shell.
 
 * [M3x4 Button Hex Head Screws](https://a.co/d/h5No0N9) (Qty: 14) - Used for decoration on the sides of the body.
-* [M4x4 Fillister Head Slotted Screws](https://a.co/d/es5eXBC) (Qty: 4) - Used for decoration on the top of the body.
+* [8-40 x 1/4" Fillister Head Slotted Screws](https://a.co/d/es5eXBC) (Qty: 4) - Used for decoration on the top of the body.
 
 The back plate will be attached using either M5 or M4 screws depending on the material used. For screws, your best value is to purchase an assorted set as this cost less than buying a single size of screw.
 
@@ -45,8 +53,8 @@ or
 
 Device labels can be obtained or created by any means desired. The sizes [offered by this product on GBFans](https://www.gbfans.com/shop/pack-vinyl-labels/) should be sufficient.
 
-* [Clear Dome Lens](https://www.digikey.com/en/products/detail/carclo-technical-plastics/10403/2641656)
-* [Clip-in Lens SML_190_CTP](https://www.digikey.com/en/products/detail/visual-communications-company-vcc/SML-190-CTP/4515623)
+* Lower Mode/Indicator: [Clear Dome Lens](https://www.digikey.com/en/products/detail/carclo-technical-plastics/10403/2641656) or [Fluted Dome Lens](https://www.lvelectronics.com/details/item?itemid=CML%2025P-326C#)
+* Top Mode/Indicator: [Clip-in Lens SML&#95;190&#95;CTP](https://www.digikey.com/en/products/detail/visual-communications-company-vcc/SML-190-CTP/4515623)
 
 ## Dimensions
 
@@ -176,24 +184,17 @@ For the ESP32 controller, GPIO pins 34 and 35 are input-only and do not have int
 
 **Rotary Encoder w/ Switch**
 
-The rotary encoder is similar to that used on the Proton Pack and Neutrona Wand. It requires a common ground connection and sends data via the A/B signal wires to indicate which direction it was turned.
+The rotary encoder is similar to that used on the Proton Pack and Neutrona Wand in that it will rotate without an end-stop, though unlike the other devices this has a center post which acts like a momentary switch. It requires a common ground connection with positive voltage, and sends data via the A/B signal wires to indicate which direction it was turned or the center post was pushed.
 
-**Note: For this connection the post is oriented to the left.**
+**Note: This is based on the KY-040 pre-soldered module with 5 pins.**
 
-| ROTARY ENCODER (DIAL)          |   | MCU Pin   |
-|--------------------------------|---|-----------|
-| <font color="blue">Blue</font> | → | D2/GPIO33 |
-| Black                          | → | GND       |
-| <font color="blue">Blue</font> | → | D3/GPIO32 |
-
-One notable point in the stated part noted in the BOM is that this encoder MUST also support a momentary "push" action on the center post, so an additional ground and data pin will be used for that momentary switch.
-
-**Note: It does not matter which pin on the rotary encoder goes to which MCU pin.**
-
-| ROTARY ENCODER (POST)            |   | MCU Pin  |
-|----------------------------------|---|----------|
-| <font color="green">Green</font> | → | D4/GPIO4 |
-| Black                            | → | GND      |
+| ROTARY ENCODER (DIAL)             |   | MCU Pin   |
+|-----------------------------------|---|-----------|
+| GND                               | → | GND       |
+| <font color="red">+ (VCC)</font>  | → | VIN (5V)  |
+| <font color="green">SW</font>     | → | D4/GPIO4  |
+| <font color="blue">DT (B)</font>  | → | D2/GPIO33 |
+| <font color="blue">CLK (A)</font> | → | D3/GPIO32 |
 
 **Addressable LEDs**
 
@@ -209,10 +210,12 @@ Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `
 
 **Audio &amp; Physical Feedback**
 
-| PIEZO BUZZER                 |   | MCU Pin    |
-|------------------------------|---|------------|
-| <font color="red">Red</font> | → | D10/GPIO18 |
-| Black                        | → | GND        |
+| PIEZO BUZZER                   | Component(s) | MCU Pin |
+|--------------------------------|--------------|---------|
+| <font color="red">Red</font>   | →     | VIN/5V |
+| Black                          | NPN C |          |
+|                                | NPN B | R 270 Ω → D10/GPIO18 |
+|                                | NPN E | GND      |
 
 | VIBRATION MOTOR                | Component(s) | Component(s) | MCU Pin |
 |--------------------------------|--------------|--------------|---------|
@@ -245,22 +248,22 @@ To simplify installation it is suggested to create a break-out board for connect
 |        | **A** | **B** | **C** | **D** | **E** |   | **F** | **G** | **H** | **I** | **J** |
 |--------|-------|-------|-------|-------|-------|---|-------|-------|-------|-------|-------|
 | **1**  | <font color="green">GPIO23</font> |  |  | R 470 Ω | ↔ | ↔ | ↔ |  R 470 Ω |  |  | Addressable&nbsp;LED's |
-| **2**  |  |  |  |  |  |  |  |  |  |  |  |
-| **3**  | <font color="red">3V3</font> | <font color="red">Z+</font> |  | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO21</font> | Bargraph&nbsp;SDA (JST-PH) |
-| **4**  | | <font color="red">Z+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO22</font> | Bargraph&nbsp;SCL (JST-PH) |
-| **5**  |  |  |  |  |  |  |  |  |  |  |  |
-| **6**  |  | <font color="red">X+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO34</font> | <font color="blue">Left Toggle</font> |
-| **7**  |  |  |  |  |  |  |    | X- |  |  | Left Toggle (-) |
-| **8**  |  |  |  |  |  |  | Y- | X- |  |  | Right Toggle (-) |
-| **9**  |  | <font color="red">X+</font> | <font color="red">W+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO35</font> | <font color="green">Right Toggle</font> |
-| **10** |  |  |  |  |  |  |  |  |  |  |  |
-| **11** |  |  |  |  |  |  |  |  | <font color="red">W+</font> | 1N4001 (s) | <font color="red">Vib. Motor (+)</font> |
-| **12** | Buzzer&nbsp;(&dash;) |  | Z- |  | Y- |  |  |  |  | ↕ |  |
-| **13** | <font color="red">Buzzer&nbsp;(+)</font> |  | <font color="green">GPIO18</font> |  |  |  |  |  |  | ↕ |  |
-| **14** |  |  |  |  |  |  |  |  | NPN&nbsp;C | 1N4001 | <font color="blue">Vib. Motor (-)</font> |
-| **15** | <font color="green">GPIO19</font> |  |  | R 270 Ω | ↔ | ↔ | ↔ | R 270 Ω | NPN&nbsp;B |  |  |
-| **16** | GND (-) | V- |  |  | W- |  | W- |  | NPN&nbsp;E |  |  |
-| **17** |  | V- | Rot.&nbsp;Enc.&nbsp;(&dash;) | Enc.&nbsp;Post&nbsp;(&dash;) | Z- |  |  |  |  |  |  |
+| **2**  | <font color="red">3V3</font> | <font color="red">Z+</font> |  | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO21</font> | Bargraph&nbsp;SDA (JST&dash;PH) |
+| **3**  | | <font color="red">Z+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO22</font> | Bargraph&nbsp;SCL (JST&dash;PH) |
+| **4**  | <font color="red">V+</font> | <font color="red">X+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO34</font> | <font color="blue">Left Toggle</font> |
+| **5**  |  |  |  |  |  |  |    | V- |  |  | Left Toggle (-) |
+| **6**  |  |  |  |  |  |  | W- | V- |  |  | Right Toggle (-) |
+| **7**  |  | <font color="red">X+</font> | <font color="red">W+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO35</font> | <font color="green">Right Toggle</font> |
+| **8**  |  |  |  |  |  |  |  |  |  |  |  |
+| **9**  |  |  |  |  |  |  |  | <font color="red">V+</font> | NPN&nbsp;C |  | <font color="red">Buzzer&nbsp;(+)</font> |
+| **10** | <font color="green">GPIO18</font> |  |  | R 270 Ω | ↔ | ↔ | ↔ | R 270 Ω | NPN&nbsp;B |  |  |
+| **11** |  |  |  |  |  |  |  | X- | NPN&nbsp;E |  | Buzzer&nbsp;(&dash;) |
+| **12** |  | Z- |  | Rot.&nbsp;Enc.&nbsp;(GND) |  |  |  | <font color="red">W+</font> |  | 1N4001 (s) | <font color="red">Vib. Motor (+)</font> |
+| **13** | GND (-) | Z- | Y- | X- | W- |  |  |  |  | ↕ |  |
+| **14** |  |  |  |  |  |  |  |  |  | ↕ |  |
+| **15** |  |  |  |  |  |  |  |  | NPN&nbsp;C | 1N4001 | <font color="blue">Vib. Motor (-)</font> |
+| **16** | <font color="green">GPIO19</font> |  |  | R 270 Ω | ↔ | ↔ | ↔ | R 270 Ω | NPN&nbsp;B |  |  |
+| **17** |  |  |  |  |  |  |  | Y- | NPN&nbsp;E |  |  |
 
 ## Pack Connection Cable
 
