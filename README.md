@@ -1,12 +1,8 @@
 <h1><img src='images/gpstar_logo.png' width=50 align="left"/>GPStar Proton Pack and Neutrona Wand</h1>
 
-<h3>Microcontroller Replacements for the HasLab Plasma Series Proton Pack and Neutrona Wand</h3>
-
-This repository outlines the full replacement of the stock microcontrollers which run the Proton Pack and Neutrona Wand while retaining the use and function of all existing controls and lighting in these HasLab products.
-
 ### Summary
 
-A fully integrated Proton Pack and Neutrona Wand, packed with features and add-ons.
+A fully integrated Proton Pack and Neutrona Wand, packed with features and add-ons. Compatible with the HasLab Plasma Series Proton Pack and Neutrona Wand
 
 - Polyphonic sound
   - Allows simultaneous playback of multiple audio tracks which can be layered together to create a rich experience with smoothly layered sound effects and buttery smooth transitions.
