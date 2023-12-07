@@ -8,7 +8,7 @@ Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details o
 
 ## Hardware Synchronization
 
-In order to view the state of the pack and control it remotely, the two devices must be physically connected and have been sychnronized via the built-in software. On the ESP32 are 2 on-board LED's which will show the current status. A red LED indicates the device is powered and should be accessible via WiFi. A blue LED indicates the device has successfully synchronized with the Proton Pack.
+In order to view the state of the pack and control it remotely, the two devices must be physically connected and have been sychnronized via the built-in software. On the ESP32 are 2 on-board LEDs which will show the current status. A red LED indicates the device is powered and should be accessible via WiFi. A blue LED indicates the device has successfully synchronized with the Proton Pack.
 
 ## Web UI
 
@@ -34,9 +34,9 @@ This section allows full control of the master (overall) volume and to mute/unmu
 
 Controls will be made available on a per-action or per-state basis. Shown here, the pack and wand are both in an Idle state while in the "Original" mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.
 
-**Vent:** This can only be triggered when in the Super Hero mode and while the pack is Powered.
+**Vent:** This can only be triggered remotely when in the "Super Hero" mode and while the Pack State is "Powered".
 
-**Attenuate:** The Cyclotron State must be either "Warning" or "Critical".
+**Attenuate:** When firing, the Cyclotron State must be either "Warning" or "Critical".
 
 ![](images/WebUI-Controls.jpg)
 
