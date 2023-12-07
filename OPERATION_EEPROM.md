@@ -5,7 +5,7 @@
 <br/>
 <br/>
 
-<center><h1>Proton Pack &amp; Neutrona Wand Operational Guide</h1></center>
+<center><h1>Proton Pack &amp; Neutrona Wand Operation Manual</h1></center>
 
 <br/>
 <br/>

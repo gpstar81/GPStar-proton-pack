@@ -2,6 +2,9 @@
 
 This guide is intended to document the parts and processes required to build the internals of an Attenuator device for your Proton Pack. Please note that while both the Arduino Nano is supported, there is much more functionality and room for improvements by using an ESP32 controller. This document supports both paths in their own sub-sections.
 
+[Video Assembly Guide](https://www.youtube.com/watch?v=iuZ5ij_PN44) (YouTube, December 2023).
+[![Video Assembly Guide](https://img.youtube.com/vi/iuZ5ij_PN44/maxresdefault.jpg)](https://www.youtube.com/watch?v=iuZ5ij_PN44)
+
 ## Bill of Materials
 
 This device has it's own BOM which is separate from any other build items related to the pack or wand. This utilizes the same ArduinoIDE for writing software as the other controllers and we'll be using the same type of serial protocol as used between the pack and wand.
@@ -252,7 +255,7 @@ To simplify installation it is suggested to create a break-out board for connect
 | **6**  |  |  |  |  |  |  | W- | V- |  |  | Right Toggle (-) |
 | **7**  |  | <font color="red">X+</font> | <font color="red">W+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO35</font> | <font color="green">Right Toggle</font> |
 | **8**  |  |  |  |  |  |  |  |  |  |  |  |
-| **9**  |  |  |  |  |  |  |  | <font color="red">5V+</font> | NPN&nbsp;C |  | <font color="red">Buzzer&nbsp;(+)</font> |
+| **9**  |  |  |  |  |  |  |  | <font color="red">V+</font> | NPN&nbsp;C |  | <font color="red">Buzzer&nbsp;(+)</font> |
 | **10** | <font color="green">GPIO18</font> |  |  | R 270 Ω | ↔ | ↔ | ↔ | R 270 Ω | NPN&nbsp;B |  |  |
 | **11** |  |  |  |  |  |  |  | X- | NPN&nbsp;E |  | Buzzer&nbsp;(&dash;) |
 | **12** |  | Z- |  | Rot.&nbsp;Enc.&nbsp;(GND) |  |  |  | <font color="red">W+</font> |  | 1N4001 (s) | <font color="red">Vib. Motor (+)</font> |
