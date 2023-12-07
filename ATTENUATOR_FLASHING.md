@@ -16,7 +16,9 @@ This device supports Over-The-Air (OTA) updates for firmware, meaning you will n
 
 📝 **Tip:** Before proceeding, be sure to use a high-quality USB cable which supports data transfer. Some cheap cables may only support charging (not data), or not fully support the power requirements of the device. If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.
 
-### First-Time Upload
+### ESP32: First-Time Upload
+
+If you do not see a WiFi network for your Proton Pack, the device has likely not been flashed with the GPStar firmware to enable that feature. You will need to upload the software using a USB cable via either the 2 methods listed here.
 
 **Via Web Uploader**
 
@@ -66,9 +68,9 @@ These guides may be of some help as a reference:
 * [Expressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
 * [Expressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
 
-### Additional/Future Updates
+### ESP32: Additional/Future Updates
 
-This applies to any updates after the first-time upload of the firmware for the device.
+This applies to any updates after the first-time upload of the firmware for the device, when the WiFi network for the Proton Pack is enabled and available.
 
 1. Power up your Proton Pack and device.
 1. Open the WiFi preferences on your computer and look for the SSID which begins "ProtonPack_".
@@ -83,6 +85,8 @@ This applies to any updates after the first-time upload of the firmware for the 
 ![](images/WebUI-Update2.jpg)
 
 ![](images/WebUI-Update3.jpg)
+
+**Note:** If the upload fails, this is not uncommon. Simply attempt the upload again using the OTA updater.
 
 ## WiFi Security
 

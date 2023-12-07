@@ -6,6 +6,10 @@ This guide will cover the web interface available via the Attenuator or Wireless
 
 Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details on compiling and/or uploading software to your Wireless Adapter controller.
 
+## Hardware Synchronization
+
+In order to view the state of the pack and control it remotely, the two devices must be physically connected and have been sychnronized via the built-in software. On the ESP32 are 2 on-board LED's which will show the current status. A red LED indicates the device is powered and should be accessible via WiFi. A blue LED indicates the device has successfully synchronized with the Proton Pack.
+
 ## Web UI
 
 When using the ESP32 controller for either the Attenuator or Wireless Adapter, a web-based user interface is available to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
@@ -29,6 +33,10 @@ This section allows full control of the master (overall) volume and to mute/unmu
 ### Pack Controls
 
 Controls will be made available on a per-action or per-state basis. Shown here, the pack and wand are both in an Idle state while in the "Original" mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.
+
+**Vent:** This can only be triggered when in the Super Hero mode and while the pack is Powered.
+
+**Attenuate:** The Cyclotron State must be either "Warning" or "Critical".
 
 ![](images/WebUI-Controls.jpg)
 
