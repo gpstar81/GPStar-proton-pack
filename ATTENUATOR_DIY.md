@@ -23,7 +23,7 @@ This device has it's own BOM which is separate from any other build items relate
 * [28-Segment Bargraph from Frutto Technology](https://fruttotechnology.com/ols/products/preorder-28-segment-bargraph-pcb-for-spengler-neutrona-wand)
 * 2x NPN2222 transistors, 2x 1N4001 diodes, and various resistors (see schematics)
 
-<sup>1</sup> These [pre-soldered LED modules](https://a.co/d/2Y9HvIK) will likely be offered for use in future kits, though in both cases the price point is high considering the need for only 3 LED's.
+<sup>1</sup> These [pre-soldered LED modules](https://a.co/d/2Y9HvIK) will likely be offered for use in future kits, though in both cases the price point is high considering the need for only 3 LEDs.
 
 **Microprocessor Control Unit (MCU)**
 
@@ -110,7 +110,7 @@ When connecting to the pack, the following wiring scheme was used with the recom
 	3 - TX2 (White) to Pack RX1
 	4 - RX2 (Yellow) to Pack TX1
 
-It is advised to add a 330uF capacitor to the VIN+GND pins to help regulate power which will be shared with the controller, bargraph, and addressable LED's.
+It is advised to add a 330uF capacitor to the VIN+GND pins to help regulate power which will be shared with the controller, bargraph, and addressable LEDs.
 
 **Note:** Bargraph power (+5V) should be split from the VIN terminal which delivers power from the Proton Pack.
 
@@ -148,7 +148,7 @@ When connecting to the pack, the following wiring scheme was used with the recom
 	3 - TX1 (White) to Pack RX1
 	4 - RX0 (Yellow) to Pack TX1
 
-It is advised to add a 330uF capacitor to the VIN+GND pins to help regulate power which will be shared with the controller, bargraph, and addressable LED's.
+It is advised to add a 330uF capacitor to the VIN+GND pins to help regulate power which will be shared with the controller, bargraph, and addressable LEDs.
 
 ### Connections by Component
 
@@ -206,7 +206,7 @@ The rotary encoder is similar to that used on the Proton Pack and Neutrona Wand 
 
 **Note:** It is advised to place a 100uf capacitor across the positive and negative connections to these devices, just to buffer any current fluctuations.
 
-Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `DOUT`. It is crucial to chain these devices starting from the Arduino to an LED's `DIN` pad first, then the same device's `DOUT` pad to the next LED's `DIN` pad, and so on.
+Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `DOUT`. It is crucial to chain these devices starting from the Arduino to an LEDs `DIN` pad first, then the same device's `DOUT` pad to the next LED's `DIN` pad, and so on.
 
 **Audio &amp; Physical Feedback**
 
@@ -247,7 +247,7 @@ To simplify installation it is suggested to create a break-out board for connect
 
 |        | **A** | **B** | **C** | **D** | **E** |   | **F** | **G** | **H** | **I** | **J** |
 |--------|-------|-------|-------|-------|-------|---|-------|-------|-------|-------|-------|
-| **1**  | <font color="green">GPIO23</font> |  |  | R 470 Ω | ↔ | ↔ | ↔ |  R 470 Ω |  |  | Addressable&nbsp;LED's |
+| **1**  | <font color="green">GPIO23</font> |  |  | R 470 Ω | ↔ | ↔ | ↔ |  R 470 Ω |  |  | Addressable&nbsp;LEDs |
 | **2**  | <font color="red">3V3</font> | <font color="red">Z+</font> |  | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO21</font> | Bargraph&nbsp;SDA (JST&dash;PH) |
 | **3**  | | <font color="red">Z+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="green">GPIO22</font> | Bargraph&nbsp;SCL (JST&dash;PH) |
 | **4**  | <font color="red">V+</font> | <font color="red">X+</font> | <font color="red">Y+</font> | R&nbsp;3.8K&nbsp;Ω | ↔ | ↔ | ↔ | R&nbsp;3.8K&nbsp;Ω |  | <font color="blue">GPIO34</font> | <font color="blue">Left Toggle</font> |
