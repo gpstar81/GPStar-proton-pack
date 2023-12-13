@@ -3,11 +3,9 @@
 </p>
 
 <br/>
-<br/>
 
-<center><h1>Proton Pack &amp; Neutrona Wand Operation Manual</h1></center>
+<center><h1><img height="30" src="images/gpstar_logo.png"/> GPStar Proton Pack &amp; Neutrona Wand Operation Manual</h1></center>
 
-<br/>
 <br/>
 
 ![](images/OperationNeutrona1.jpg)
@@ -50,6 +48,9 @@
 	- The Proton Pack can also be configured within the Neutrona Wand menu system to adjust the duration of smoke effects (for each power level), which smoke effects are activated (for each power level), use of overheating smoke effects (for each power level), or whether smoke is enabled or disabled entirely (for each power level).
 	Default settings: The Neutrona Wand will fire forever on power levels level 1 through 4 and overheat on power level 5.
 - The Proton Pack will emit smoke effects during longer firing (Default setting: enabled). This can be configured from the Neutrona Wand menu system.
+
+### System Power Inactivity Indicator 
+- The LED at the front of the Neutrona Wand body next to the Clippard valve will start to blink after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered down to indicate the system still has power.
 
 <div class="page-break"></div>
 

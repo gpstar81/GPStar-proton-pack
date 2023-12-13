@@ -489,10 +489,20 @@ uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts
 uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out
 bool b_wand_mash_error = false;        // Indicates wand is in a lock-out phase
 
-
+/*
+ * Used during the overheating sequences.
+*/
 millisDelay ms_blink_sound_timer_1;
 millisDelay ms_blink_sound_timer_2;
 const unsigned int i_blink_sound_timer = 400;
+
+/*
+ * A timer to turn on some Neutrona Wand lights when the system is shut down after some inactivity, as a reminder you left your power on to the system.
+*/
+millisDelay ms_power_indicator;
+millisDelay ms_power_indicator_blink;
+const unsigned long int i_ms_power_indicator = 60000; // 1 Minute -> 60000
+const unsigned int i_ms_power_indicator_blink = 1000;
 
 /*
  * Set this to true to be able to use your wand without a Proton Pack connected.
