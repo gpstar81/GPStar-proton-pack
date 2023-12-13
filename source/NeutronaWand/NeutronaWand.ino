@@ -1757,6 +1757,47 @@ void mainLoop() {
           ms_hat_2.start(i_hat_2_delay);
         }
       }
+
+      // If the power indicator is enabled. Blink the LED on the Neutrona Wand body next to the clippard valve to indicator the system has battery power.
+      if(b_power_on_indicator == true && WAND_ACTION_STATUS == ACTION_IDLE && (b_pack_on != true || b_no_pack == true)) {
+        if(ms_power_indicator.isRunning() == true && ms_power_indicator.remaining() < 1) {
+          if(ms_power_indicator_blink.isRunning() != true || ms_power_indicator_blink.justFinished()) {
+            ms_power_indicator_blink.start(i_ms_power_indicator_blink);
+          }
+
+          switch(SYSTEM_MODE) {
+            case MODE_ORIGINAL:
+              if(b_pack_ion_arm_switch_on != true) {
+                if(ms_power_indicator_blink.remaining() < i_ms_power_indicator_blink / 2) {
+                  analogWrite(led_front_left, 0);
+                }
+                else {
+                  analogWrite(led_front_left, 255);
+                }
+              }
+              else {
+                // When the top right wand switch is off, then we make sure the led is off as the Slo-Blo LED will be on or blinking at this point.
+                if(switch_wand.getState() == HIGH) {
+                  analogWrite(led_front_left, 0);
+                }
+              }
+              break;
+
+            case MODE_SUPER_HERO:
+            default:
+              if(ms_power_indicator_blink.remaining() < i_ms_power_indicator_blink / 2) {
+                analogWrite(led_front_left, 0);
+              }
+              else {
+                analogWrite(led_front_left, 255);
+              }
+            break;
+          }
+        }
+        else {
+          analogWrite(led_front_left, 0);
+        }
+      }
     break;
 
     case MODE_ERROR:
@@ -2764,6 +2805,11 @@ void wandOff() {
 
   switch_wand.resetCount();
   switch_vent.resetCount();
+
+  // Start the timer for the power on indicator option.
+  if(b_power_on_indicator == true) {
+    ms_power_indicator.start(i_ms_power_indicator);
+  }
 }
 
 // Called from checkSwitches(); Check if we should fire, or if the wand and pack turn off.
@@ -7276,6 +7322,12 @@ void wandLightsOff() {
 
   i_bargraph_status = 0;
   i_bargraph_status_alt = 0;
+
+  if(b_power_on_indicator == true) {
+    if(ms_power_indicator.isRunning() != true) {
+      ms_power_indicator.start(i_ms_power_indicator);
+    }
+  }
 }
 
 void wandLightsOffMenuSystem() {
@@ -7284,6 +7336,11 @@ void wandLightsOffMenuSystem() {
   digitalWrite(led_vent, HIGH);
   digitalWrite(led_white, HIGH);
   analogWrite(led_front_left, 0);
+
+  if(b_power_on_indicator == true) {
+    ms_power_indicator.stop();
+    ms_power_indicator_blink.stop();
+  }
 }
 
 void vibrationOff() {
@@ -8698,6 +8755,11 @@ void checkPack() {
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
                     playEffect(S_WAND_HEATDOWN);
+                  }
+
+                  // Start the power on indicator timer if enabled.
+                  if(b_power_on_indicator == true) {
+                    ms_power_indicator.start(i_ms_power_indicator);
                   }
                 break;
 

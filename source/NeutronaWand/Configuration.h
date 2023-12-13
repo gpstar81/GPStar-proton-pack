@@ -109,6 +109,11 @@ bool b_cross_the_streams_mix = false;
 bool b_quick_vent = false;
 
 /*
+ * When set to true, the LED at the front of the Neutrona Wand body next to the Clippard valve will start blinking after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered off to indicate battery power is still feeding the system.
+*/
+bool b_power_on_indicator = true;
+
+/*
  * When set to true, allows selection of special firing modes after the standard video game modes.
  * Nano builds of the wand do not get a full effect of the colours due to memory limitations.
  * gpstar Neutrona Wand boards will the full effect from the wand.

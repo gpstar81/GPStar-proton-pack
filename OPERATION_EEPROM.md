@@ -3,11 +3,9 @@
 </p>
 
 <br/>
-<br/>
 
-<center><h1>Proton Pack &amp; Neutrona Wand Operation Manual</h1></center>
+<center><h1><img height="30" src="images/gpstar_logo.png"/> GPStar Proton Pack &amp; Neutrona Wand EEPROM System</h1></center>
 
-<br/>
 <br/>
 
 # EEPROM Menus
