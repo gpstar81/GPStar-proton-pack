@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef PROTONPACK_H
-#define PROTONPACK_H
+#pragma once
 
 /*
  * The HasLab Power Cell has 13 LEDs.
@@ -550,5 +549,4 @@ void powercellDraw(uint8_t i_start = 0);
   ezButton switch_cyclotron_lid(43); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
 #else
   ezButton switch_cyclotron_lid(51); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
-#endif
 #endif

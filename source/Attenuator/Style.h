@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef ATTENSTYLE_H
-#define ATTENSTYLE_H
+#pragma once
 
 const char STYLE_page[] PROGMEM = R"=====(
 html {
@@ -163,4 +162,3 @@ select {
   border: 2px solid #006C9A;
 }
 )=====";
-#endif

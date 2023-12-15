@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef ATTENINDEX_H
-#define ATTENINDEX_H
+#pragma once
 
 const char INDEX_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
@@ -437,4 +436,3 @@ const char INDEX_page[] PROGMEM = R"=====(
 </body>
 </html>
 )=====";
-#endif

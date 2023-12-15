@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef ATTENUATOR_H
-#define ATTENUATOR_H
+#pragma once
 
 /*
  * Pin for Addressable LEDs.
@@ -275,4 +274,3 @@ bool b_overheating = false;
 // Forward declarations.
 void attenuatorSerialSend(uint16_t i_message);
 void debug(String message);
-#endif

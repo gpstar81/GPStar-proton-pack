@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef WANDCOMMS_H
-#define WANDCOMMS_H
+#pragma once
 
 enum pack_messages {
   P_COM_START,
@@ -325,4 +324,3 @@ enum wand_messages {
   W_COM_SOUND_NUMBER,
   W_COM_END
 };
-#endif

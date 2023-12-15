@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef NEUTRONAWAND_H
-#define NEUTRONAWAND_H
+#pragma once
 
 /*
  * Wand state.
@@ -526,4 +525,3 @@ const uint8_t led_front_left = 9;
 const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
 const uint8_t led_hat_2 = 23; // Hat light at top of the wand body. (Red LED)
 const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
-#endif

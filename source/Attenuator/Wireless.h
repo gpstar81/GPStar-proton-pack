@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef ATTENWIRELESS_H
-#define ATTENWIRELESS_H
+#pragma once
 
 /**
  * Wireless (WiFi) Communications for ESP32
@@ -630,4 +629,3 @@ void notifyWSClients() {
   // Send latest status to all connected clients.
   ws.textAll(getEquipmentStatus());
 }
-#endif

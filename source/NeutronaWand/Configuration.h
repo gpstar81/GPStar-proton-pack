@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef WANDCONFIG_H
-#define WANDCONFIG_H
+#pragma once
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
@@ -237,4 +236,3 @@ const bool b_eeprom = true;
  * This prevents the Neutrona Wand from sending and reading serial data. Set to false return communication back to the Proton Pack.
  */
 const bool b_gpstar_benchtest = false;
-#endif

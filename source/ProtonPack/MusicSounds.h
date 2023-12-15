@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef PACKMUSIC_H
-#define PACKMUSIC_H
+#pragma once
 
 /*
  * Micro SD Card sound files in order. If you have no sound, your SD card might be too slow, try a faster one.
@@ -361,4 +360,3 @@ enum sound_fx {
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
 const unsigned int i_last_effects_track = S_WAND_SHUTDOWN_ALT;
-#endif

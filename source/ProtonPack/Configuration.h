@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef PACKCONFIG_H
-#define PACKCONFIG_H
+#pragma once
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
@@ -442,4 +441,3 @@ const bool b_cyclotron_haslab_chsv_colour_change = false;
  * In general, leave this enabled by default as very few people did the pin 51 setup.
  */
 #define GPSTAR_PROTON_PACK_PCB
-#endif

@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef PACKCOMMS_H
-#define PACKCOMMS_H
+#pragma once
 
 enum pack_messages {
   P_COM_START,
@@ -461,4 +460,3 @@ enum api_messages {
   A_MUSIC_IS_NOT_PAUSED,
   A_COM_END
 };
-#endif

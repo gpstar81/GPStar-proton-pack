@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef ATTENCONFIG_H
-#define ATTENCONFIG_H
+#pragma once
 
 /*
  * Debugging options for ESP32 only.
@@ -53,4 +52,3 @@ bool b_wait_for_pack = true;
  */
 uint8_t i_spectral_custom = 0;
 uint8_t i_spectral_custom_saturation = 254;
-#endif

@@ -17,8 +17,7 @@
  *
  */
 
-#ifndef WANDCOLOURS_H
-#define WANDCOLOURS_H
+#pragma once
 
 /**
  * Colours are based on the RGB pattern; for GRB the Red/Green values should be switched.
@@ -252,4 +251,3 @@ CRGB getHueColour(uint8_t i_colour, uint8_t i_num_leds, uint8_t i_brightness = 2
     break;
   }
 }
-#endif
