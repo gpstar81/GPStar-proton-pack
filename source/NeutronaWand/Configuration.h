@@ -235,4 +235,4 @@ const bool b_eeprom = true;
  * When set to true, the Neutrona Wand will function without a Proton Pack connected.
  * This prevents the Neutrona Wand from sending and reading serial data. Set to false return communication back to the Proton Pack.
  */
-const bool b_gpstar_benchtest = true;
+const bool b_gpstar_benchtest = false;
