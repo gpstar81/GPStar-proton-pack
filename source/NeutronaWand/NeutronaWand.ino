@@ -3459,7 +3459,7 @@ void modeFireStartSounds() {
 
   if(FIRING_MODE != MESON) {
     // Some sparks for firing start.
-    if(SYSTEM_YEAR == SYSTEM_1989) {
+    if(getNeutronaWandYearMode() == SYSTEM_1989) {
       playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
     }
     else {
@@ -3478,7 +3478,7 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_intensify_trigger = true;
 
-              if(SYSTEM_YEAR == SYSTEM_1989) {
+              if(getNeutronaWandYearMode() == SYSTEM_1989) {
                 playEffect(S_GB2_FIRE_START);
                 playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
               }
@@ -3495,7 +3495,7 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              if(SYSTEM_YEAR == SYSTEM_1989) {
+              if(getNeutronaWandYearMode() == SYSTEM_1989) {
                 playEffect(S_GB2_FIRE_START);
               }
 
@@ -3650,7 +3650,7 @@ void modeFireStart() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(SYSTEM_YEAR == SYSTEM_1989) {
+      if(getNeutronaWandYearMode() == SYSTEM_1989) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
       }
@@ -3911,7 +3911,7 @@ void modeFireStop() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(SYSTEM_YEAR == SYSTEM_1989) {
+      if(getNeutronaWandYearMode() == SYSTEM_1989) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
       }
@@ -3966,7 +3966,7 @@ void modeFiring() {
 
       switch(i_power_mode) {
         case 1 ... 4:
-          if(SYSTEM_YEAR == SYSTEM_1989) {
+          if(getNeutronaWandYearMode() == SYSTEM_1989) {
             playEffect(S_GB2_FIRE_START);
             playEffect(S_GB2_FIRE_LOOP, true);
           }
@@ -3996,7 +3996,7 @@ void modeFiring() {
 
       switch(i_power_mode) {
         case 1 ... 4:
-          if(SYSTEM_YEAR == SYSTEM_1989) {
+          if(getNeutronaWandYearMode() == SYSTEM_1989) {
             stopEffect(S_GB2_FIRE_LOOP);
             stopEffect(S_GB2_FIRE_START);
           }
@@ -8917,24 +8917,24 @@ void checkPack() {
 
             case P_YEAR_1984:
               // 1984 mode.
-              SYSTEM_YEAR = SYSTEM_1984;
+              WAND_YEAR_MODE = YEAR_1984;
               bargraphYearModeUpdate();
             break;
 
             case P_YEAR_1989:
               // 1984 mode.
-              SYSTEM_YEAR = SYSTEM_1989;
+              WAND_YEAR_MODE = YEAR_1989;
               bargraphYearModeUpdate();
             break;
 
             case P_YEAR_AFTERLIFE:
               // 2021 mode.
-              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              WAND_YEAR_MODE = YEAR_AFTERLIFE;
               bargraphYearModeUpdate();
             break;
 
             case P_YEAR_FROZEN_EMPIRE:
-              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+              WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
               bargraphYearModeUpdate();
             break;
 
