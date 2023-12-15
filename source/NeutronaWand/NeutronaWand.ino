@@ -1599,7 +1599,7 @@ void mainLoop() {
 
               // There is no pack connected; let's change the years.
               if(b_no_pack == true) {
-                switch(SYSTEM_YEAR) {
+                switch(getNeutronaWandYearMode()) {
                   case SYSTEM_1984:
                     SYSTEM_YEAR = SYSTEM_1989;
 
@@ -3507,7 +3507,7 @@ void modeFireStartSounds() {
           break;
 
           case 5:
-            switch(SYSTEM_YEAR) {
+            switch(getNeutronaWandYearMode()) {
               case SYSTEM_1989:
                 playEffect(S_GB2_FIRE_START);
               break;
@@ -3799,7 +3799,7 @@ void modeFireStopSounds() {
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
       default:
-        switch(SYSTEM_YEAR) {
+        switch(getNeutronaWandYearMode()) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -4090,7 +4090,7 @@ void modeFiring() {
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
       default:
-        switch(SYSTEM_YEAR) {
+        switch(getNeutronaWandYearMode()) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -4172,7 +4172,7 @@ void modeFiring() {
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
       default:
-        switch(SYSTEM_YEAR) {
+        switch(getNeutronaWandYearMode()) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -4226,7 +4226,7 @@ void modeFiring() {
 
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
-        switch(SYSTEM_YEAR) {
+        switch(getNeutronaWandYearMode()) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -8221,7 +8221,7 @@ void checkRotary() {
 
               soundBeepLoopStop();
 
-              switch(SYSTEM_YEAR) {
+              switch(getNeutronaWandYearMode()) {
                 case SYSTEM_1984:
                 case SYSTEM_1989:
                   if(switch_vent.getState() == LOW) {
