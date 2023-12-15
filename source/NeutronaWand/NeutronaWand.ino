@@ -7155,7 +7155,7 @@ void prepBargraphRampUp() {
   }
 }
 
-// Return the year mode that the Neturona Wand is suppose to be in. Or if overridden to be in a different year by the user.
+// Return the year mode that the Neturona Wand is supposed to be in. Or if overridden to be in a different year by the user.
 unsigned int getNeutronaWandYearMode() {
   switch(WAND_YEAR_MODE) {
     case YEAR_1984:
