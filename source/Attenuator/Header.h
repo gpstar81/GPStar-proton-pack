@@ -18,6 +18,9 @@
  *
  */
 
+#ifndef ATTENUATOR_H
+#define ATTENUATOR_H
+
 /*
  * Pin for Addressable LEDs.
  */
@@ -95,7 +98,7 @@ const unsigned int i_vibrate_max_time = 1500; // Maximum runtime for vibration m
  */
 millisDelay ms_blink_leds;
 const unsigned int i_blink_leds = 600;
-bool b_blink_blank = false; // Denotes when upper/lower LED's are mid-blink.
+bool b_blink_blank = false; // Denotes when upper/lower LEDs are mid-blink.
 
 /*
  * Barmeter 28 segment bargraph configuration and timers.
@@ -272,3 +275,4 @@ bool b_overheating = false;
 // Forward declarations.
 void attenuatorSerialSend(uint16_t i_message);
 void debug(String message);
+#endif

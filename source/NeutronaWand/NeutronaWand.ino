@@ -834,7 +834,7 @@ void mainLoop() {
                   stopEffect(S_VOICE_BARREL_LED_5);
                   playEffect(S_VOICE_BARREL_LED_5);
 
-                  wandSerialSend(W_BARREL_LEDS_5);                  
+                  wandSerialSend(W_BARREL_LEDS_5);
                 break;
 
                 // 48 LED wand barrel board coming soon.
@@ -6170,7 +6170,7 @@ void bargraphRampFiring() {
     default:
       bargraphModeOriginalRampFiringAnimation();
 
-      // Strobe the optional tip light on even barrel lights numbers.     
+      // Strobe the optional tip light on even barrel lights numbers.
       if((i_barrel_light & 0x01) == 0) {
         digitalWrite(led_barrel_tip, HIGH);
       }
@@ -10408,7 +10408,7 @@ void setupWavTrigger() {
 
   // Build the music track count.
   i_music_count = w_num_tracks - i_last_effects_track;
-  
+
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
   }

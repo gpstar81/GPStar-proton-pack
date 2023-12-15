@@ -18,6 +18,9 @@
  *
  */
 
+#ifndef ATTENPASSWORD_H
+#define ATTENPASSWORD_H
+
 const char PASSWORD_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
@@ -75,3 +78,4 @@ const char PASSWORD_page[] PROGMEM = R"=====(
 </body>
 </html>
 )=====";
+#endif

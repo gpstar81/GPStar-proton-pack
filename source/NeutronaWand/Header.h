@@ -17,6 +17,9 @@
  *
  */
 
+#ifndef NEUTRONAWAND_H
+#define NEUTRONAWAND_H
+
 /*
  * Wand state.
  */
@@ -462,7 +465,6 @@ millisDelay ms_settings_blinking;
 /*
  * Misc wand settings and flags.
  */
-unsigned int year_mode = 2021;
 bool b_firing = false;
 bool b_firing_intensify = false;
 bool b_firing_alt = false;
@@ -505,8 +507,8 @@ const unsigned long int i_ms_power_indicator = 60000; // 1 Minute -> 60000
 const unsigned int i_ms_power_indicator_blink = 1000;
 
 /*
- * Set this to true to be able to use your wand without a Proton Pack connected.
- * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
+ * Used for standalone wand functionality.
+ * Set b_gpstar_benchtest in Configuration.h to true rather than modifying this setting as this is not the only setting involved.
  */
 bool b_no_pack = false;
 
@@ -524,3 +526,4 @@ const uint8_t led_front_left = 9;
 const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
 const uint8_t led_hat_2 = 23; // Hat light at top of the wand body. (Red LED)
 const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
+#endif

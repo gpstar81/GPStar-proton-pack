@@ -17,6 +17,9 @@
  *
  */
 
+#ifndef PACKCOLOURS_H
+#define PACKCOLOURS_H
+
 /**
  * Colours are based on the RGB pattern; for GRB the Red/Green values should be switched.
  * Brightness is based on varying the intensity of each (0-255) using a relative value.
@@ -421,3 +424,4 @@ CRGB getHueAsGRB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255)
   // Forward to getHueAsRGB() with the flag set for GRB color swap.
   return getHueAsRGB(i_device, i_colour, i_brightness, true);
 }
+#endif

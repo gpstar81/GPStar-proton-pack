@@ -17,6 +17,9 @@
  *
  */
 
+#ifndef WANDCONFIG_H
+#define WANDCONFIG_H
+
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
  * Change the variables below to alter the behaviour of your Neutrona Wand.
@@ -75,7 +78,6 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
  * When set to true, the bargraph will invert the sequence.
- * Only compatible with the gpstar Neutrona Wand board.
  */
 bool b_bargraph_invert = false;
 
@@ -215,8 +217,7 @@ unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 const bool b_onboard_amp_enabled = true;
 
 /*
- * When set to true, the Neutrona Wand will tell the Proton Pack to play the After Life Neutrona Wand ramp sounds:
- * Only compatible with the gpstar Neutrona Wand board.
+ * When set to true, the Neutrona Wand will tell the Proton Pack to play the Afterlife Neutrona Wand ramp sounds.
  * The default setting is false.
  */
 bool b_extra_pack_sounds = false;
@@ -236,3 +237,4 @@ const bool b_eeprom = true;
  * This prevents the Neutrona Wand from sending and reading serial data. Set to false return communication back to the Proton Pack.
  */
 const bool b_gpstar_benchtest = false;
+#endif

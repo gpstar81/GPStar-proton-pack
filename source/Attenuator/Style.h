@@ -18,6 +18,9 @@
  *
  */
 
+#ifndef ATTENSTYLE_H
+#define ATTENSTYLE_H
+
 const char STYLE_page[] PROGMEM = R"=====(
 html {
   font-family: Tahoma, Verdana, Arial;
@@ -160,3 +163,4 @@ select {
   border: 2px solid #006C9A;
 }
 )=====";
+#endif

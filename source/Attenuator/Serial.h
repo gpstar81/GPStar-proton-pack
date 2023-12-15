@@ -18,6 +18,9 @@
  *
  */
 
+#ifndef ATTENSERIAL_H
+#define ATTENSERIAL_H
+
 /*
  * Serial API Communication Handlers
  */
@@ -613,3 +616,4 @@ boolean checkPack() {
 
   return b_state_changed;
 }
+#endif

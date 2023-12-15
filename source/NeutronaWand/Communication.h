@@ -17,6 +17,9 @@
  *
  */
 
+#ifndef WANDCOMMS_H
+#define WANDCOMMS_H
+
 enum pack_messages {
   P_COM_START,
   P_PACK_BOOTUP,
@@ -322,3 +325,4 @@ enum wand_messages {
   W_COM_SOUND_NUMBER,
   W_COM_END
 };
+#endif

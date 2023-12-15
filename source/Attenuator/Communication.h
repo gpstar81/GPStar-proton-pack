@@ -18,6 +18,9 @@
  *
  */
 
+#ifndef ATTENCOMMS_H
+#define ATTENCOMMS_H
+
 enum api_messages {
   A_COM_START,
   A_WAND_ON,
@@ -153,3 +156,4 @@ enum api_messages {
   A_MUSIC_IS_NOT_PAUSED,
   A_COM_END
 };
+#endif

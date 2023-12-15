@@ -17,6 +17,9 @@
  *
  */
 
+#ifndef WANDCOLOURS_H
+#define WANDCOLOURS_H
+
 /**
  * Colours are based on the RGB pattern; for GRB the Red/Green values should be switched.
  * Brightness is based on varying the intensity of each (0-255) using a relative value.
@@ -249,3 +252,4 @@ CRGB getHueColour(uint8_t i_colour, uint8_t i_num_leds, uint8_t i_brightness = 2
     break;
   }
 }
+#endif

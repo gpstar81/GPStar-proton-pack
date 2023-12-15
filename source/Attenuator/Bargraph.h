@@ -18,6 +18,9 @@
  *
  */
 
+#ifndef ATTENBARGRAPH_H
+#define ATTENBARGRAPH_H
+
 /**
  * Purpose: Control patterns displayed by the 28-segment bargraph device (mostly) independent of external factors.
  *
@@ -371,3 +374,4 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
     }
   }
 }
+#endif
