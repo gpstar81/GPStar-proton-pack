@@ -1599,9 +1599,9 @@ void mainLoop() {
 
               // There is no pack connected; let's change the years.
               if(b_no_pack == true) {
-                switch(getNeutronaWandYearMode()) {
+                switch(SYSTEM_YEAR) {
                   case SYSTEM_1984:
-                    WAND_YEAR_MODE = YEAR_1989;
+                    SYSTEM_YEAR = SYSTEM_1989;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
@@ -1614,7 +1614,7 @@ void mainLoop() {
                   break;
 
                   case SYSTEM_1989:
-                    WAND_YEAR_MODE = YEAR_AFTERLIFE;
+                    SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
@@ -1629,7 +1629,7 @@ void mainLoop() {
                   case SYSTEM_AFTERLIFE:
                   case SYSTEM_FROZEN_EMPIRE:
                   default:
-                    WAND_YEAR_MODE = YEAR_1984;
+                    SYSTEM_YEAR = SYSTEM_1984;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
