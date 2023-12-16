@@ -82,6 +82,7 @@ void setup() {
   WAND_YEAR_MODE = YEAR_DEFAULT;
   WAND_YEAR_CTS = CTS_DEFAULT;
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+  SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
   WAND_BARREL_LED_COUNT = LEDS_5;
 
   switch_wand.setDebounceTime(switch_debounce_time);
@@ -409,7 +410,7 @@ void mainLoop() {
       modeActivate();
     break;
 
-    case ACTION_EEPROM_MENU:
+    case ACTION_LED_EEPROM_MENU:
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
@@ -1599,9 +1600,9 @@ void mainLoop() {
 
               // There is no pack connected; let's change the years.
               if(b_no_pack == true) {
-                switch(SYSTEM_YEAR) {
+                switch(getNeutronaWandYearMode()) {
                   case SYSTEM_1984:
-                    SYSTEM_YEAR = SYSTEM_1989;
+                    WAND_YEAR_MODE = YEAR_1989;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
@@ -1614,7 +1615,7 @@ void mainLoop() {
                   break;
 
                   case SYSTEM_1989:
-                    SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+                    WAND_YEAR_MODE = YEAR_AFTERLIFE;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
@@ -1629,7 +1630,7 @@ void mainLoop() {
                   case SYSTEM_AFTERLIFE:
                   case SYSTEM_FROZEN_EMPIRE:
                   default:
-                    SYSTEM_YEAR = SYSTEM_1984;
+                    WAND_YEAR_MODE = YEAR_1984;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
@@ -1656,7 +1657,7 @@ void mainLoop() {
 
   switch(WAND_STATUS) {
     case MODE_OFF:
-      if(WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+      if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
         if(switchMode() == true || b_pack_alarm == true) {
           if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
             playEffect(S_CLICK);
@@ -1699,7 +1700,7 @@ void mainLoop() {
         switch_vent.resetCount();
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -1711,7 +1712,7 @@ void mainLoop() {
 
         i_wand_menu = 5;
 
-        WAND_ACTION_STATUS = ACTION_EEPROM_MENU;
+        WAND_ACTION_STATUS = ACTION_LED_EEPROM_MENU;
         WAND_MENU_LEVEL = MENU_LEVEL_1;
 
         ms_settings_blinking.start(i_settings_blinking_delay);
@@ -1721,13 +1722,13 @@ void mainLoop() {
         // Make sure some of the wand lights are off.
         wandLightsOffMenuSystem();
       }
-      else if(WAND_ACTION_STATUS == ACTION_EEPROM_MENU && b_pack_on == true) {
+      else if(WAND_ACTION_STATUS == ACTION_LED_EEPROM_MENU && b_pack_on == true) {
         if(b_no_pack != true) {
           wandExitEEPROMMenu();
         }
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -2153,12 +2154,12 @@ void settingsBlinkingLights() {
     bool b_solid_one = false;
 
     // Indicator for looping track setting.
-    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && WAND_MENU_LEVEL == MENU_LEVEL_1 && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && WAND_MENU_LEVEL == MENU_LEVEL_1 && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
       b_solid_five = true;
     }
 
     // Indicator for crossing the streams setting.
-    if((b_cross_the_streams == true || b_cross_the_streams_mix == true) && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && WAND_MENU_LEVEL == MENU_LEVEL_2 && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+    if((b_cross_the_streams == true || b_cross_the_streams_mix == true) && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && WAND_MENU_LEVEL == MENU_LEVEL_2 && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
       b_solid_five = true;
     }
 
@@ -2535,7 +2536,7 @@ void checkSwitches() {
             }
           }
           else {
-            if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_SETTINGS) {
+            if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_SETTINGS) {
               wandLightsOff();
             }
           }
@@ -3459,7 +3460,7 @@ void modeFireStartSounds() {
 
   if(FIRING_MODE != MESON) {
     // Some sparks for firing start.
-    if(getNeutronaWandYearMode() == SYSTEM_1989) {
+    if(SYSTEM_YEAR == SYSTEM_1989 || (b_no_pack == true && getNeutronaWandYearMode() == SYSTEM_1989)) {
       playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
     }
     else {
@@ -3478,7 +3479,7 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_intensify_trigger = true;
 
-              if(getNeutronaWandYearMode() == SYSTEM_1989) {
+              if(SYSTEM_YEAR == SYSTEM_1989 || (b_no_pack == true && getNeutronaWandYearMode() == SYSTEM_1989)) {
                 playEffect(S_GB2_FIRE_START);
                 playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
               }
@@ -3495,7 +3496,7 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              if(getNeutronaWandYearMode() == SYSTEM_1989) {
+              if(SYSTEM_YEAR == SYSTEM_1989 || (b_no_pack == true && getNeutronaWandYearMode() == SYSTEM_1989)) {
                 playEffect(S_GB2_FIRE_START);
               }
 
@@ -3507,7 +3508,15 @@ void modeFireStartSounds() {
           break;
 
           case 5:
-            switch(getNeutronaWandYearMode()) {
+            // Standalone wand needs to check WAND_YEAR_MODE instead of SYSTEM_YEAR so let's use our temp variable for the switch
+            if(b_no_pack == true) {
+              SYSTEM_YEAR_TEMP = getNeutronaWandYearMode();
+            }
+            else {
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+            }
+
+            switch(SYSTEM_YEAR_TEMP) {
               case SYSTEM_1989:
                 playEffect(S_GB2_FIRE_START);
               break;
@@ -3650,7 +3659,7 @@ void modeFireStart() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(getNeutronaWandYearMode() == SYSTEM_1989) {
+      if(SYSTEM_YEAR == SYSTEM_1989 || (b_no_pack == true && getNeutronaWandYearMode() == SYSTEM_1989)) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
       }
@@ -3799,7 +3808,15 @@ void modeFireStopSounds() {
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
       default:
-        switch(getNeutronaWandYearMode()) {
+        // Standalone wand needs to check WAND_YEAR_MODE instead of SYSTEM_YEAR so let's use our temp variable for the switch
+        if(b_no_pack == true) {
+          SYSTEM_YEAR_TEMP = getNeutronaWandYearMode();
+        }
+        else {
+          SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+        }
+
+        switch(SYSTEM_YEAR_TEMP) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -3911,7 +3928,7 @@ void modeFireStop() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(getNeutronaWandYearMode() == SYSTEM_1989) {
+      if(SYSTEM_YEAR == SYSTEM_1989 || (b_no_pack == true && getNeutronaWandYearMode() == SYSTEM_1989)) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
       }
@@ -3966,7 +3983,7 @@ void modeFiring() {
 
       switch(i_power_mode) {
         case 1 ... 4:
-          if(getNeutronaWandYearMode() == SYSTEM_1989) {
+          if(SYSTEM_YEAR == SYSTEM_1989 || (b_no_pack == true && getNeutronaWandYearMode() == SYSTEM_1989)) {
             playEffect(S_GB2_FIRE_START);
             playEffect(S_GB2_FIRE_LOOP, true);
           }
@@ -3996,7 +4013,7 @@ void modeFiring() {
 
       switch(i_power_mode) {
         case 1 ... 4:
-          if(getNeutronaWandYearMode() == SYSTEM_1989) {
+          if(SYSTEM_YEAR == SYSTEM_1989 || (b_no_pack == true && getNeutronaWandYearMode() == SYSTEM_1989)) {
             stopEffect(S_GB2_FIRE_LOOP);
             stopEffect(S_GB2_FIRE_START);
           }
@@ -4090,7 +4107,15 @@ void modeFiring() {
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
       default:
-        switch(getNeutronaWandYearMode()) {
+        // Standalone wand needs to check WAND_YEAR_MODE instead of SYSTEM_YEAR so let's use our temp variable for the switch
+        if(b_no_pack == true) {
+          SYSTEM_YEAR_TEMP = getNeutronaWandYearMode();
+        }
+        else {
+          SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+        }
+
+        switch(SYSTEM_YEAR_TEMP) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -4172,7 +4197,15 @@ void modeFiring() {
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
       default:
-        switch(getNeutronaWandYearMode()) {
+        // Standalone wand needs to check WAND_YEAR_MODE instead of SYSTEM_YEAR so let's use our temp variable for the switch
+        if(b_no_pack == true) {
+          SYSTEM_YEAR_TEMP = getNeutronaWandYearMode();
+        }
+        else {
+          SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+        }
+
+        switch(SYSTEM_YEAR_TEMP) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -4226,7 +4259,16 @@ void modeFiring() {
 
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
-        switch(getNeutronaWandYearMode()) {
+      default:
+        // Standalone wand needs to check WAND_YEAR_MODE instead of SYSTEM_YEAR so let's use our temp variable for the switch
+        if(b_no_pack == true) {
+          SYSTEM_YEAR_TEMP = getNeutronaWandYearMode();
+        }
+        else {
+          SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+        }
+
+        switch(SYSTEM_YEAR_TEMP) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -7156,7 +7198,7 @@ void prepBargraphRampUp() {
 }
 
 // Return the year mode that the Neturona Wand is supposed to be in. Or if overridden to be in a different year by the user.
-unsigned int getNeutronaWandYearMode() {
+SYSTEM_YEARS getNeutronaWandYearMode() {
   switch(WAND_YEAR_MODE) {
     case YEAR_1984:
       return SYSTEM_1984;
@@ -7937,7 +7979,7 @@ void checkRotary() {
         }
       break;
 
-      case ACTION_EEPROM_MENU:
+      case ACTION_LED_EEPROM_MENU:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
           if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
@@ -8221,7 +8263,15 @@ void checkRotary() {
 
               soundBeepLoopStop();
 
-              switch(getNeutronaWandYearMode()) {
+              // Standalone wand needs to check WAND_YEAR_MODE instead of SYSTEM_YEAR so let's use our temp variable for the switch
+              if(b_no_pack == true) {
+                SYSTEM_YEAR_TEMP = getNeutronaWandYearMode();
+              }
+              else {
+                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+              }
+
+              switch(SYSTEM_YEAR_TEMP) {
                 case SYSTEM_1984:
                 case SYSTEM_1989:
                   if(switch_vent.getState() == LOW) {
