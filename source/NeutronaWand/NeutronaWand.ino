@@ -8917,24 +8917,24 @@ void checkPack() {
 
             case P_YEAR_1984:
               // 1984 mode.
-              WAND_YEAR_MODE = YEAR_1984;
+              SYSTEM_YEAR = SYSTEM_1984;
               bargraphYearModeUpdate();
             break;
 
             case P_YEAR_1989:
               // 1984 mode.
-              WAND_YEAR_MODE = YEAR_1989;
+              SYSTEM_YEAR = SYSTEM_1989;
               bargraphYearModeUpdate();
             break;
 
             case P_YEAR_AFTERLIFE:
               // 2021 mode.
-              WAND_YEAR_MODE = YEAR_AFTERLIFE;
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
               bargraphYearModeUpdate();
             break;
 
             case P_YEAR_FROZEN_EMPIRE:
-              WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
               bargraphYearModeUpdate();
             break;
 
