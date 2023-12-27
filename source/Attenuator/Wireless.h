@@ -321,10 +321,61 @@ String getEquipmentSettings() {
 
   if(!b_wait_for_pack) {
     // Only prepare status when not waiting on the pack
-    jsonDoc["pack"] = (b_pack_on ? "true" : "false");
-    jsonDoc["wand"] = (b_wand_on ? "true" : "false");
-    // ledCyclotron = [12,20,40]
-    
+    jsonDoc["packPowered"] = (b_pack_on ? true : false);
+    jsonDoc["wandPowered"] = (b_wand_on ? true : false);
+    jsonDoc["ledCyclotronCount"] = 12; // [12,20,40]
+    jsonDoc["ledCyclotronColor"] = 0; // 0-255
+    jsonDoc["ledPowercellCount"] = 13; //[13,15]
+    jsonDoc["ledPowercellColor"] = 0; // 0-255
+    jsonDoc["ledCakeCount"] = 35; // [12,23,24,35]
+    jsonDoc["ledCakeColor"] = 0; // 0-255
+    jsonDoc["ledCakeRGB"] = true; // true|false
+    jsonDoc["ledWandCount"] = 5; // [5,48,60]
+    jsonDoc["firingMode"] = "DEFAULT"; // [VG,CTS,DEFAULT]
+    jsonDoc["spectralModes"] = false; // true|false
+    jsonDoc["wandImpactSounds"] = true; // true|false
+    jsonDoc["extraWandSounds"] = false; // true|false
+    jsonDoc["quickVenting"] = false; // true|false (Super-Hero Mode Only)
+    jsonDoc["wandBootError"] = true; // true|false (Super-Hero Mode Only)
+    jsonDoc["variableVentLight"] = false; // true|false
+    jsonDoc["wandBeepLoop"] = true; // true|false (Afterlife Only)
+    jsonDoc["vgColorModes"] = "BOTH"; // [DISABLED,POWERCELL,CYCLOTRON,BOTH]
+    jsonDoc["nFilterStrobe"] = true; // true|false
+    jsonDoc["defaultYearModePack"] = 2021; // [1984,1989,2021,2024,DEFAULT]
+    jsonDoc["defaultYearModeWand"] = 2021; // [1984,1989,2021,2024,DEFAULT]
+    jsonDoc["defaultYearModeCTS"] = 2021; // [1984,1989,2021,2024,DEFAULT]
+    jsonDoc["defaultSystemVolume"] = 100; // 0-100
+    jsonDoc["invertWandBargraph"] = false; // true|false
+    jsonDoc["bargraphOverheatBlink"] = true; // true|false
+    jsonDoc["bargraphIdleAnimation"] = "DEFAULT"; // [SH,MO,DEFAULT]
+    jsonDoc["bargraphFireAnimation"] = "DEFAULT"; // [SH,MO,DEFAULT]
+    jsonDoc["demoLightMode"] = false; // true|false
+    jsonDoc["cyclotronCenter"] = 1; // [1,3]
+    jsonDoc["systemMode"] = "SH"; // [SH,MO]
+    jsonDoc["smokeEffects"] = true; // true|false
+    jsonDoc["overheating"] = true; // true|false
+    jsonDoc["overheatSyncFan"] = false;// true|false
+    jsonDoc["overheatLightsOff"] = true; // true|false
+    jsonDoc["overheatDuration5"] = 6; // 2-60
+    jsonDoc["overheatEnabled5"] = true; // true|false
+    jsonDoc["overheatContinuous5"] = true; // true|false
+    jsonDoc["overheatStartDelay5"] = 12; // 2-60
+    jsonDoc["overheatDuration4"] = 5; // 2-60
+    jsonDoc["overheatEnabled4"] = false; // true|false
+    jsonDoc["overheatContinuous4"] = false; // true|false
+    jsonDoc["overheatStartDelay4"] = 15; // 2-60
+    jsonDoc["overheatDuration3"] = 4; // 2-60
+    jsonDoc["overheatEnabled3"] = false; // true|false
+    jsonDoc["overheatContinuous3"] = false; // true|false
+    jsonDoc["overheatStartDelay3"] = 20; // 2-60
+    jsonDoc["overheatDuration2"] = 3; // 2-60
+    jsonDoc["overheatEnabled2"] = false; // true|false
+    jsonDoc["overheatContinuous2"] = false; // true|false
+    jsonDoc["overheatStartDelay2"] = 30; // 2-60
+    jsonDoc["overheatDuration1"] = 2; // 2-60
+    jsonDoc["overheatEnabled1"] = false; // true|false
+    jsonDoc["overheatContinuous1"] = false; // true|false
+    jsonDoc["overheatStartDelay1"] = 60; // 2-60
   }
 
   // Serialize JSON object to string.
