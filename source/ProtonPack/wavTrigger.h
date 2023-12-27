@@ -30,8 +30,7 @@
 //
 // 09/05/23  Additional track serial query status added and integration into the GPStar Proton Pack and Neutrona Wand codebase. - Michael Rajotte, michael.rajotte@gpstartechnologies.com
 
-#ifndef WAVTRIGGER_H
-#define WAVTRIGGER_H
+#pragma once
 
 #if defined(__AVR_ATmega2560__)
   #define GPSTAR_PCB
@@ -169,5 +168,3 @@ private:
   bool currentMusicStatus;
   bool trackCounter;
 };
-
-#endif

@@ -7574,7 +7574,7 @@ void pauseMusic() {
     w_trig.update();
     b_music_paused = true;
 
-    // Tell connected devices music playback is paused.    
+    // Tell connected devices music playback is paused.
     packSerialSend(P_MUSIC_PAUSE);
     serial1Send(A_MUSIC_IS_PAUSED);
   }

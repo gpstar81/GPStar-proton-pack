@@ -18,6 +18,8 @@
  *
  */
 
+#pragma once
+
 const char SETTINGS_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>

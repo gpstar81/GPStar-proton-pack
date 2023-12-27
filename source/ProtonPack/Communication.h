@@ -17,6 +17,8 @@
  *
  */
 
+#pragma once
+
 enum pack_messages {
   P_COM_START,
   P_PACK_BOOTUP,

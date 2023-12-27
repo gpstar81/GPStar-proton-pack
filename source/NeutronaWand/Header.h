@@ -17,6 +17,8 @@
  *
  */
 
+#pragma once
+
 /*
  * Wand state.
  */
@@ -26,11 +28,12 @@ enum WAND_STATE WAND_STATUS;
 /*
  * Various wand action states.
  */
-enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
+enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_LED_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
 enum SYSTEM_YEARS { SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
 enum SYSTEM_YEARS SYSTEM_YEAR;
+enum SYSTEM_YEARS SYSTEM_YEAR_TEMP;
 
 /*
  * System modes.
@@ -186,7 +189,7 @@ ezButton switch_vent(4); // Turns on the vent light. Bottom right switch.
 const int switch_mode = A6; // Changes firing modes or to reach the settings menu.
 const int switch_barrel = A7; // Barrel extension/open switch.
 bool b_switch_mode_pressed = false;
-bool b_switch_barrel_extended = true; // Set to true for bootup. The Neutrona Wand will adjust as necessary, to prevent the barrel extension sound from playing during bootup when it's not suppose to.
+bool b_switch_barrel_extended = true; // Set to true for bootup. The Neutrona Wand will adjust as necessary, to prevent the barrel extension sound from playing during bootup when it's not supposed to.
 
 /*
  * Some switch settings.
@@ -462,7 +465,6 @@ millisDelay ms_settings_blinking;
 /*
  * Misc wand settings and flags.
  */
-unsigned int year_mode = 2021;
 bool b_firing = false;
 bool b_firing_intensify = false;
 bool b_firing_alt = false;
@@ -505,8 +507,8 @@ const unsigned long int i_ms_power_indicator = 60000; // 1 Minute -> 60000
 const unsigned int i_ms_power_indicator_blink = 1000;
 
 /*
- * Set this to true to be able to use your wand without a Proton Pack connected.
- * Otherwise set to false and the wand will wait until it is connected to a Proton Pack before it can activate.
+ * Used for standalone wand functionality.
+ * Set b_gpstar_benchtest in Configuration.h to true rather than modifying this setting as this is not the only setting involved.
  */
 bool b_no_pack = false;
 

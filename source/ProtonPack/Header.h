@@ -17,6 +17,8 @@
  *
  */
 
+#pragma once
+
 /*
  * The HasLab Power Cell has 13 LEDs.
  */
@@ -509,7 +511,7 @@ struct objConfigEEPROM {
   uint8_t overheat_lights_off;
   uint8_t overheat_sync_to_fan;
 
-  uint8_t year_mode; // 1984, 1989, After Life, Frozen Empire or the Proton Pack toggle switch default.
+  uint8_t year_mode; // 1984, 1989, Afterlife, Frozen Empire or the Proton Pack toggle switch default.
   uint8_t system_mode; // Super Hero or Mode Original.
   uint8_t vga_powercell; // For disabling or enabling video game colours for the Power Cell.
   uint8_t vga_cyclotron; // For disabling or enabling video game colours for the Cyclotron.

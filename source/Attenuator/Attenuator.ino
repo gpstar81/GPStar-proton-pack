@@ -276,13 +276,13 @@ void mainLoop() {
 
         // Adjust feedback over 1/2 of the blink time allotted.
         if(ms_blink_leds.remaining() < (i_blink_time / 2)) {
-          // Denote that certain LED's should be in the dark phase of blinking.
+          // Denote that certain LEDs should be in the dark phase of blinking.
           b_blink_blank = true;
           vibrateOff(); // Stop vibration.
           buzzOff(); // Stop buzzer tone.
         }
         else {
-          // Denote that certain LED's should be in the lit phase of blinking.
+          // Denote that certain LEDs should be in the lit phase of blinking.
           b_blink_blank = false;
           useVibration(i_vibrate_min_time); // Provide physical feedback.
           buzzOn(523); // Tone as note C4
@@ -386,7 +386,7 @@ void vibrateOff() {
 }
 
 /*
- * Determine the current state of any LED's before next FastLED refresh.
+ * Determine the current state of any LEDs before next FastLED refresh.
  */
 void updateLEDs() {
   #if defined(__XTENSA__)

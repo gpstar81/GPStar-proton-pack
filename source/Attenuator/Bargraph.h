@@ -18,6 +18,8 @@
  *
  */
 
+#pragma once
+
 /**
  * Purpose: Control patterns displayed by the 28-segment bargraph device (mostly) independent of external factors.
  *

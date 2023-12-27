@@ -18,6 +18,8 @@
  *
  */
 
+#pragma once
+
 enum api_messages {
   A_COM_START,
   A_WAND_ON,

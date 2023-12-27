@@ -18,6 +18,8 @@
  *
  */
 
+#pragma once
+
 const char INDEX_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
