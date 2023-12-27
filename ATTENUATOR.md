@@ -37,12 +37,12 @@ Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details o
 
 ### Physical Operation
 
-While not attached to a compatible Proton Pack (read: standalone mode) the device will simply provide some lights and effects. The left toggle switch will turn on the bargraph animations while the right toggle switch will turn on the LED's.
+While not attached to a compatible Proton Pack (read: standalone mode) the device will simply provide some lights and effects. The left toggle switch will turn on the bargraph animations while the right toggle switch will turn on the LEDs.
 
 Ideally, the device should be connected to the GPStar Proton Pack Controller which will allow it to provide some extended functionality. Under normal use the main dial will allow adjusting the overall volume, starting/stopping music tracks, navigating to the next track, and adjusting the effects volume.
 
 * Left Toggle: Turns the pack on or off, similar to use of the switch under the Ion Arm
-* Right Toggle: Turns the LED's on the device on or off
+* Right Toggle: Turns the LEDs on the device on or off
 * Main Dial - Long Press: Alternates between two modes of operation
 	* Mode 1 (Default) - Indicated by a high buzzer tone
 		* Main Dial - Short Press: Starts or stops the current music track
