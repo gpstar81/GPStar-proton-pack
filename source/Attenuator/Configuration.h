@@ -18,6 +18,8 @@
  *
  */
 
+#pragma once
+
 /*
  * Debugging options for ESP32 only.
  * Control debug messages for various actions during normal operation.

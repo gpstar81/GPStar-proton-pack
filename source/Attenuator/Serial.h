@@ -18,6 +18,8 @@
  *
  */
 
+#pragma once
+
 /*
  * Serial API Communication Handlers
  */

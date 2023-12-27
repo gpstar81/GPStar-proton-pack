@@ -50,7 +50,7 @@ If you are flashing updates to your existing setup, make sure that both your Pro
 
 ### Important information for older DIY GPStar Proton Pack builds
 
-If you are compiling the code to upload to an Arduino Mega with the original GPStar home built instructions. You want to use disabled GPSTAR&#95;PROTON&#95;PACK&#95;PCB which can be found at the very bottom of the `configuration.h` of the Proton Pack.
+If you are compiling the code to upload to an Arduino Mega with the original GPStar home built instructions. You want to use disabled GPSTAR&#95;PROTON&#95;PACK&#95;PCB which can be found at the very bottom of the `Configuration.h` of the Proton Pack.
 
 Example: `//#define GPSTAR_PROTON_PACK_PCB`
 

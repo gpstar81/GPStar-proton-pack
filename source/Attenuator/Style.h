@@ -18,6 +18,8 @@
  *
  */
 
+#pragma once
+
 const char STYLE_page[] PROGMEM = R"=====(
 html {
   font-family: Tahoma, Verdana, Arial;

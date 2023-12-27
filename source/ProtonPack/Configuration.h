@@ -17,6 +17,8 @@
  *
  */
 
+#pragma once
+
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
  * Change the variables below to alter the behaviour of your Proton Pack.

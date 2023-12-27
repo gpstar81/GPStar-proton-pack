@@ -18,6 +18,8 @@
  *
  */
 
+#pragma once
+
 const char PASSWORD_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>

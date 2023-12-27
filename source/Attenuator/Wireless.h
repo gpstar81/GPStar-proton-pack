@@ -18,6 +18,8 @@
  *
  */
 
+#pragma once
+
 /**
  * Wireless (WiFi) Communications for ESP32
  *
