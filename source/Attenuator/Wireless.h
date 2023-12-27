@@ -47,6 +47,7 @@
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
 #include "Password.h" // PASSWORD_page
+#include "Settings.h" // SETTINGS_page
 #include "Style.h" // STYLE_page
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
@@ -286,16 +287,23 @@ StaticJsonDocument<16> jsonSuccess; // Used for sending JSON status as success.
 String status; // Holder for simple "status: success" response.
 
 void handleRoot(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
+  // Used for the root page (/) from the web server.
   //debug("Web Root HTML Requested");
   String s = INDEX_page; // Read HTML page into String.
   request->send(200, "text/html", s); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
+  // Used for the password page from the web server.
   //debug("Password HTML Requested");
   String s = PASSWORD_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
+}
+
+void handleSettings(AsyncWebServerRequest *request) {
+  // Used for the settings page from the web server.
+  //debug("Settings HTML Requested");
+  String s = SETTINGS_page; // Read HTML page into String.
   request->send(200, "text/html", s); // Serve page content.
 }
 
@@ -304,6 +312,24 @@ void handleStyle(AsyncWebServerRequest *request) {
   //debug("Main StyleSheet Requested");
   String s = STYLE_page; // Read CSS page into String.
   request->send(200, "text/css", s); // Serve page content.
+}
+
+String getEquipmentSettings() {
+  // Prepare a JSON object with information we have gleamed from the system.
+  String equipSettings;
+  jsonDoc.clear();
+
+  if(!b_wait_for_pack) {
+    // Only prepare status when not waiting on the pack
+    jsonDoc["pack"] = (b_pack_on ? "true" : "false");
+    jsonDoc["wand"] = (b_wand_on ? "true" : "false");
+    // ledCyclotron = [12,20,40]
+    
+  }
+
+  // Serialize JSON object to string.
+  serializeJson(jsonDoc, equipSettings);
+  return equipSettings;
 }
 
 String getEquipmentStatus() {
@@ -335,6 +361,11 @@ String getEquipmentStatus() {
   // Serialize JSON object to string.
   serializeJson(jsonDoc, equipStatus);
   return equipStatus;
+}
+
+void handleSettingsData(AsyncWebServerRequest *request) {
+  // Return current system status as a stringified JSON object.
+  request->send(200, "application/json", getEquipmentSettings());
 }
 
 void handleStatus(AsyncWebServerRequest *request) {
@@ -473,9 +504,11 @@ void setupRouting() {
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/password", HTTP_GET, handlePassword);
+  httpServer.on("/settings", HTTP_GET, handleSettings);
   httpServer.on("/style.css", HTTP_GET, handleStyle);
 
   // AJAX Handlers (Web API)
+  httpServer.on("/settings", HTTP_GET, handleSettingsData);
   httpServer.on("/status", HTTP_GET, handleStatus);
   httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/pack/on", HTTP_PUT, handlePackOn);

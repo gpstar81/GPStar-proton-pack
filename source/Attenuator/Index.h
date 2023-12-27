@@ -83,6 +83,9 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <h1>Administration</h1>
   <div class="block">
+    <a href="/settings">Change Pack/Wand Settings</a>
+    <br/>
+    <br/>
     <a href="/password">Change WiFi Password</a>
     &nbsp;&nbsp;&nbsp;
     <a href="/update">Update Firmware</a>
@@ -253,8 +256,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          var data = JSON.parse(this.responseText);
-          updateStatus(data);
+          updateStatus(JSON.parse(this.responseText));
         }
       };
       xhttp.open("GET", "/status", true);
@@ -277,158 +279,71 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
-    function packOn() {
+    function sendCommand(apiUri) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           handleStatus(this.responseText);
         }
       };
-      xhttp.open("PUT", "/pack/on", true);
+      xhttp.open("PUT", apiURI, true);
       xhttp.send();
+    }
+
+    function packOn() {
+      sendCommand("/pack/on");
     }
 
     function packOff() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/pack/off", true);
-      xhttp.send();
+      sendCommand("/pack/off");
     }
 
     function attenuatePack() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/pack/attenuate", true);
-      xhttp.send();
+      sendCommand("/pack/attenuate");
     }
 
     function beginVenting() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/pack/vent", true);
-      xhttp.send();
+      sendCommand("/pack/vent");
     }
 
     function toggleMute() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/volume/toggle", true);
-      xhttp.send();
+      sendCommand("/volume/toggle");
     }
 
     function volumeMasterUp() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/volume/master/up", true);
-      xhttp.send();
+      sendCommand("/volume/master/up");
     }
 
     function volumeMasterDown() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/volume/master/down", true);
-      xhttp.send();
+      sendCommand("/volume/master/down");
     }
 
     function volumeEffectsUp() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/volume/effects/up", true);
-      xhttp.send();
+      sendCommand("/volume/effects/up");
     }
 
     function volumeEffectsDown() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/volume/effects/down", true);
-      xhttp.send();
+      sendCommand("/volume/effects/down");
     }
 
     function startstopMusic() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/music/startstop", true);
-      xhttp.send();
+      sendCommand("/music/startstop");
     }
 
     function pauseresumeMusic() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/music/pauseresume", true);
-      xhttp.send();
+      sendCommand("/music/pauseresume");
     }
 
     function musicNext() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/music/next", true);
-      xhttp.send();
+      sendCommand("/music/next");
     }
 
     function musicSelect(caller) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/music/select?track=" + caller.value, true);
-      xhttp.send();
+      sendCommand("/music/select?track=" + caller.value);
     }
 
     function musicPrev() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/music/prev", true);
-      xhttp.send();
+      sendCommand("/music/prev");
     }
   </script>
 </body>
