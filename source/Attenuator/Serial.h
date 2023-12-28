@@ -602,6 +602,17 @@ boolean checkPack() {
             }
           break;
 
+          case A_SEND_PREFERENCES:
+            #if defined(__XTENSA__)
+              debug("Preferences Sent");
+            #endif
+
+            // Convert long to string using dtostrf function
+            char buffer[20];
+            dtostrf(comStruct.d1, 1, 0, buffer);
+            debug(String(buffer));
+          break;
+
           default:
             // Nothing.
           break;
