@@ -288,7 +288,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           handleStatus(this.responseText);
         }
       };
-      xhttp.open("PUT", apiURI, true);
+      xhttp.open("PUT", apiUri, true);
       xhttp.send();
     }
 
