@@ -478,61 +478,6 @@ bool b_fade_out = false;
 millisDelay ms_fadeout;
 
 /*
- * EEPROM
- */
-unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
-unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
-
-/*
- * EEPROM Data structure object that is saved into the EEPROM memory.
- */
-struct objEEPROM {
-  uint8_t powercell_count;
-  uint8_t cyclotron_count;
-  uint8_t inner_cyclotron_count;
-  uint8_t grb_inner_cyclotron;
-  uint8_t powercell_spectral_custom;
-  uint8_t cyclotron_spectral_custom;
-  uint8_t cyclotron_inner_spectral_custom;
-  uint8_t powercell_spectral_saturation_custom;
-  uint8_t cyclotron_spectral_saturation_custom;
-  uint8_t cyclotron_inner_spectral_saturation_custom;
-};
-
-/*
- * EEPROM Another data structure object that is saved into the EEPROM memory.
- */
-struct objConfigEEPROM {
-  uint8_t stream_effects;
-  uint8_t cyclotron_direction;
-  uint8_t simulate_ring;
-  uint8_t smoke_setting;
-  uint8_t overheat_strobe;
-  uint8_t overheat_lights_off;
-  uint8_t overheat_sync_to_fan;
-
-  uint8_t year_mode; // 1984, 1989, Afterlife, Frozen Empire or the Proton Pack toggle switch default.
-  uint8_t system_mode; // Super Hero or Mode Original.
-  uint8_t vga_powercell; // For disabling or enabling video game colours for the Power Cell.
-  uint8_t vga_cyclotron; // For disabling or enabling video game colours for the Cyclotron.
-  uint8_t demo_light_mode;
-  uint8_t cyclotron_three_led_toggle;
-  uint8_t default_system_volume;
-
-  uint8_t overheat_smoke_duration_level_5;
-  uint8_t overheat_smoke_duration_level_4;
-  uint8_t overheat_smoke_duration_level_3;
-  uint8_t overheat_smoke_duration_level_2;
-  uint8_t overheat_smoke_duration_level_1;
-
-  uint8_t smoke_continuous_mode_5;
-  uint8_t smoke_continuous_mode_4;
-  uint8_t smoke_continuous_mode_3;
-  uint8_t smoke_continuous_mode_2;
-  uint8_t smoke_continuous_mode_1;
-};
-
-/*
  * Function prototypes.
  */
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);

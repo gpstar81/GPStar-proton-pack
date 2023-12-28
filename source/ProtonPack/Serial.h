@@ -1746,7 +1746,7 @@ void checkWand() {
                       i_cyclotron_brightness = i_cyclotron_brightness + 10;
                     }
 
-                    resetCyclotronLeds();
+                    resetCyclotronState();
 
                     packSerialSend(P_DIMMING);
 
@@ -1815,8 +1815,7 @@ void checkWand() {
                       i_cyclotron_brightness = i_cyclotron_brightness - 10;
                     }
 
-                    // Reset the Cyclotron.
-                    resetCyclotronLeds();
+                    resetCyclotronState();
 
                     packSerialSend(P_DIMMING);
 
@@ -2000,7 +1999,7 @@ void checkWand() {
                   // Switch to 20 LEDs. Frutto Technology.
                   i_cyclotron_leds = FRUTTO_CYCLOTRON_LED_COUNT;
 
-                  resetCyclotronLEDs();
+                  resetCyclotronState();
 
                   playEffect(S_VOICE_CYCLOTRON_20);
                   packSerialSend(P_CYCLOTRON_LEDS_20);
@@ -2011,7 +2010,7 @@ void checkWand() {
                   // Switch to 12 LEDs. Default HasLab.
                   i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
 
-                  resetCyclotronLEDs();
+                  resetCyclotronState();
 
                   playEffect(S_VOICE_CYCLOTRON_12);
                   packSerialSend(P_CYCLOTRON_LEDS_12);
@@ -2021,7 +2020,7 @@ void checkWand() {
                   // Switch to 40 LEDs.
                   i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
 
-                  resetCyclotronLEDs();
+                  resetCyclotronState();
 
                   playEffect(S_VOICE_CYCLOTRON_40);
                   packSerialSend(P_CYCLOTRON_LEDS_40);

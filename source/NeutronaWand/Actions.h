@@ -276,7 +276,7 @@ void checkWandAction() {
               playEffect(S_VOICE_EEPROM_ERASE);
 
               // Clear wand EEPROM. (CTS/VGA, Overheating)
-              clearEEPROM();
+              clearConfigEEPROM();
 
               wandExitEEPROMMenu();
             }
@@ -352,7 +352,7 @@ void checkWandAction() {
               playEffect(S_VOICE_EEPROM_SAVE);
 
               // Save wand EEPROM. (CTS/VGA, Overheating)
-              saveEEPROM();
+              saveConfigEEPROM();
 
               wandExitEEPROMMenu();
             }
