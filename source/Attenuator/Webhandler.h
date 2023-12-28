@@ -46,6 +46,9 @@ void handleSettings(AsyncWebServerRequest *request) {
   //debug("Settings HTML Requested");
   String s = SETTINGS_page; // Read HTML page into String.
   request->send(200, "text/html", s); // Serve page content.
+
+  // Tell the pack that we'll need the latest EEPROM values.
+  attenuatorSerialSend(A_SEND_PREFERENCES);
 }
 
 void handleStyle(AsyncWebServerRequest *request) {

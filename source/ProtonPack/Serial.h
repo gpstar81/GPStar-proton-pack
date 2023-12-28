@@ -34,6 +34,11 @@ void serial1Send(int i_message) {
   else if(i_message == A_MUSIC_IS_PLAYING || i_message == A_MUSIC_IS_NOT_PLAYING) {
     dataStruct.d1 = i_current_music_track;
   }
+  else if(i_message == A_SEND_PREFERENCES){
+    Serial.println("Send Preferences");
+    dataStruct.d1 = 18446744073709551615;
+    dataStruct.d2 = 18446744073709551615;
+  }
 
   dataStruct.e = A_COM_END;
 
