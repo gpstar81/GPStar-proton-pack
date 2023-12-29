@@ -39,7 +39,7 @@ void serial1Send(int i_message) {
     dataStruct.b[0] = 1;
     dataStruct.b[1] = true;
     dataStruct.b[2] = false;
-    dataStruct.b[3] = "a";
+    dataStruct.b[3] = 4;
   }
 
   dataStruct.e = A_COM_END;
