@@ -138,7 +138,7 @@ void configureNetwork() {
  */
 
 String getMode() {
-  switch(ARMING_MODE) {
+  switch(SYSTEM_MODE) {
     case MODE_SUPERHERO:
       return "Super Hero";
     break;
@@ -172,7 +172,7 @@ String getTheme() {
 }
 
 String getRedSwitch() {
-  if(ARMING_MODE == MODE_ORIGINAL) {
+  if(SYSTEM_MODE == MODE_ORIGINAL) {
     // Switch state only matters for mode "Original".
     switch(RED_SWITCH_MODE) {
       case SWITCH_ON:

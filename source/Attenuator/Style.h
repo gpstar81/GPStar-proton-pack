@@ -46,6 +46,10 @@ a { text-decoration: none; }
 
 p { font-size: 18px; margin-bottom: 5px; }
 
+.left {
+  text-align: left;
+}
+
 .block {
   margin: 10px 5px 30px 5px;
   padding: 10px 5px 10px 5px;

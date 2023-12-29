@@ -38,62 +38,148 @@ const char SETTINGS_page[] PROGMEM = R"=====(
       Options can only be changed when the pack and wand are not powered/running!
     </p>
     <br/>
-    <b>Power Cell - LED Count:</b>
-    <select type="text" id="password">
-      <option value="13">13 - Stock</option>
-      <option value="15">15 - Frutto</option>
-    </select>
-    <br/>
-    <b>Power Cell - Spectral Custom Color (Hue):</b>
-    <input type="range" id="pcHue" name="pcHue" min="2" max="254" value="254" step="2"/>
-    <br/>
-    <b>Power Cell - Spectral Custom Saturation:</b>
-    <input type="range" id="pcSat" name="pcSat" min="2" max="254" value="254" step="2"/>
-    <br/>
-    <b>Cyclotron Lid - LED Count:</b>
-    <select type="text" id="password">
-      <option value="12">12 - Stock</option>
-      <option value="20">20 - Frutto</option>
-      <option value="40">40 - Ring</option>
-    </select>
-    <br/>
-    <b>Cyclotron Lid - Spectral Custom Color (Hue):</b>
-    <input type="range" id="cycHue" name="cycHue" min="2" max="254" value="254" step="2"/>
-    <br/>
-    <b>Cyclotron Lid - Spectral Custom Saturation:</b>
-    <input type="range" id="cycSat" name="cycSat" min="2" max="254" value="254" step="2"/>
-    <br/>
-    <b>Cyclotron Lid - Center LEDs:</b>
-    <select type="text" id="password">
-      <option value="1">1 LED</option>
-      <option value="3">3 LED</option>
-    </select>
-    <br/>
-    <b>Cyclotron Lid - Simulate Ring:</b>
-    <label class="switch">
-      <input id="cycRing" name="cycRing" type="checkbox">
-      <span class="slider round"></span>
-    </label>
-    <br/>
-    <b>Cyclotron Cake - LED Count:</b>
-    <select type="text" id="password">
-      <option value="12">12</option>
-      <option value="23">23</option>
-      <option value="24">24</option>
-      <option value="35">35</option>
-    </select>
-    <br/>
-    <b>Cyclotron Cake - Spectral Custom Color (Hue):</b>
-    <input type="range" id="cakeHue" name="cakeHue" min="2" max="254" value="254" step="2"/>
-    <br/>
-    <b>Cyclotron Cake - Spectral Custom Saturation:</b>
-    <input type="range" id="cakeSat" name="cakeSat" min="2" max="254" value="254" step="2"/>
-    <br/>
-    <b>Cyclotron Cake - Use GRB (Default: RGB):</b>
-    <label class="switch">
-      <input id="cakeGRB" name="cakeGRB" type="checkbox">
-      <span class="slider round"></span>
-    </label>
+
+    <h1>System Options</h1>
+    <div class="block left">
+      <b>System Mode:</b>
+      <select id="systemMode" name="systemMode">
+        <option value="0">Super Hero</option>
+        <option value="1">Mode Original</option>
+      </select>
+      </br>
+      <b>Theme Year:</b>
+      <select id="themeYear" name="themeYear">
+        <option value="1">System Toggle</option>
+        <option value="2">1984</option>
+        <option value="3">1989</option>
+        <option value="4">Afterlife</option>
+        <!-- <option value="5">Frozen Empire</option> -->
+      </select>
+      </br>
+      <b>Default Master Volume:</b>
+      <input type="range" id="masterVol" name="masterVol" min="0" max="100" value="100" step="2"/>
+      </br>
+      <b>Proton Stream Impact Effects:</b>
+      <label class="switch">
+        <input id="streamEffects" name="streamEffects" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+      </br>
+      <b>Smoke Effects:</b>
+      <label class="switch">
+        <input id="smokeEffects" name="smokeEffects" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+      </br>
+      <b>Strobe N-Filter on Overheat:</b>
+      <label class="switch">
+        <input id="overheatStrobe" name="overheatStrobe" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+      </br>
+      <b>Lights Off During Overheat:</b>
+      <label class="switch">
+        <input id="overheatLightOff" name="overheatLightOff" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+      </br>
+      <b>Overheat Sync to Fan:</b>
+      <label class="switch">
+        <input id="overheatSync" name="overheatSync" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+      </br>
+      <b>Demo Light Mode:</b>
+      <label class="switch">
+        <input id="demoEnabled" name="demoEnabled" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+
+    <h1>Cyclotron Lid</h1>
+    <div class="block left">
+      <b>LED Count:</b>
+      <select id="cycCount" name="cycCount">
+        <option value="12">12 - Stock</option>
+        <option value="20">20 - Frutto</option>
+        <option value="40">40 - Ring</option>
+      </select>
+      <br/>
+      <b>Spectral Custom Color (Hue):</b>
+      <input type="range" id="cycHue" name="cycHue" min="2" max="254" value="254" step="2"/>
+      <br/>
+      <b>Spectral Custom Saturation:</b>
+      <input type="range" id="cycSat" name="cycSat" min="2" max="254" value="254" step="2"/>
+      <br/>
+      <b>Direction:</b>
+      <select id="cycDir" name="cycDir">
+        <option value="0">Counter-Clockwise</option>
+        <option value="1">Clockwise</option>
+      </select>
+      </br>
+      <b>Center LEDs:</b>
+      <select id="cycCenter" name="cycCenter">
+        <option value="0">3 LED</option>
+        <option value="1">1 LED</option>
+      </select>
+      </br>
+      <b>Enable Video Game Colors:</b>
+      <label class="switch">
+        <input id="vgCyclotron" name="vgCyclotron" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+      <br/>
+      <b>Simulate Ring:</b>
+      <label class="switch">
+        <input id="cycRing" name="cycRing" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+
+    <h1>Cyclotron Cake</h1>
+    <div class="block left">
+      <b>LED Count:</b>
+      <select id="cakeCount" name="cakeCount">
+        <option value="12">12</option>
+        <option value="23">23</option>
+        <option value="24">24</option>
+        <option value="35">35</option>
+      </select>
+      <br/>
+      <b>Spectral Custom Color (Hue):</b>
+      <input type="range" id="cakeHue" name="cakeHue" min="2" max="254" value="254" step="2"/>
+      <br/>
+      <b>Spectral Custom Saturation:</b>
+      <input type="range" id="cakeSat" name="cakeSat" min="2" max="254" value="254" step="2"/>
+      <br/>
+      <b>Swap Red/Green LEDs (GRB):</b>
+      <label class="switch">
+        <input id="cakeGRB" name="cakeGRB" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+
+    <h1>Power Cell</h1>
+    <div class="block left">
+      <b>LED Count:</b>
+      <select id="pcCount" name="pcCount">
+        <option value="13">13 - Stock</option>
+        <option value="15">15 - Frutto</option>
+      </select>
+      <br/>
+      <b>Spectral Custom Color (Hue):</b>
+      <input type="range" id="pcHue" name="pcHue" min="2" max="254" value="254" step="2"/>
+      <br/>
+      <b>Spectral Custom Saturation:</b>
+      <input type="range" id="pcSat" name="pcSat" min="2" max="254" value="254" step="2"/>
+      </br>
+      <b>Enable Video Game Colors:</b>
+      <label class="switch">
+        <input id="vgPowercell" name="vgPowercell" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+
     <br/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;&nbsp;

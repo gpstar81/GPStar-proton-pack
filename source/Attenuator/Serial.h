@@ -35,7 +35,7 @@ struct __attribute__((packed)) STRUCT {
   uint16_t s;
   uint16_t i;
   uint16_t d1;
-  uint8_t d[24];
+  uint8_t d[25];
   uint16_t e;
 } comStruct;
 
@@ -43,7 +43,7 @@ struct __attribute__((packed)) STRUCTSEND {
   uint16_t s;
   uint16_t i;
   uint16_t d1;
-  uint8_t d[24];
+  uint8_t d[25];
   uint16_t e;
 } sendStruct;
 
@@ -249,21 +249,21 @@ boolean checkPack() {
           break;
 
           case A_MODE_SUPER_HERO:
-            if(ARMING_MODE != MODE_SUPERHERO) {
+            if(SYSTEM_MODE != MODE_SUPERHERO) {
               #if defined(__XTENSA__)
                 debug("Super Hero Sequence");
               #endif
-              ARMING_MODE = MODE_SUPERHERO;
+              SYSTEM_MODE = MODE_SUPERHERO;
               b_state_changed = true;
             }
           break;
 
           case A_MODE_ORIGINAL:
-            if(ARMING_MODE != MODE_ORIGINAL) {
+            if(SYSTEM_MODE != MODE_ORIGINAL) {
               #if defined(__XTENSA__)
                 debug("Original Sequence");
               #endif
-              ARMING_MODE = MODE_ORIGINAL;
+              SYSTEM_MODE = MODE_ORIGINAL;
               b_state_changed = true;
             }
           break;
@@ -635,7 +635,7 @@ boolean checkPack() {
             #endif
 
             for (int i = 0; i < (sizeof(comStruct.d) / sizeof(comStruct.d[0])); i++) {
-                debug("Data" + String(i) + ": " + String(comStruct.d[i]));
+                Serial.println("Data" + String(i) + ": " + String(comStruct.d[i]));
             }
           break;
 

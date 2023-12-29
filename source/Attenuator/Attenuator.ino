@@ -59,7 +59,7 @@ void setup() {
   #endif
 
   // Assume the Super Hero arming mode with Afterlife (default for Haslab).
-  ARMING_MODE = MODE_SUPERHERO;
+  SYSTEM_MODE = MODE_SUPERHERO;
   RED_SWITCH_MODE = SWITCH_OFF;
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 

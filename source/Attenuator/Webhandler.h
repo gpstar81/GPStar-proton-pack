@@ -48,7 +48,9 @@ void handleSettings(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Serve page content.
 
   // Tell the pack that we'll need the latest EEPROM values.
+  Serial.println("Sending request for preferences");
   attenuatorSerialSend(A_SEND_PREFERENCES);
+  Serial.println("Request sent");
 }
 
 void handleStyle(AsyncWebServerRequest *request) {
@@ -64,7 +66,7 @@ String getPreferences() {
   jsonDoc.clear();
 
   if(!b_wait_for_pack) {
-    attenuatorSerialSend(A_SEND_PREFERENCES);
+    Serial.println("Getting Preferences");
 
     // Return current powered state for pack and wand.
     jsonDoc["packPowered"] = (b_pack_on ? true : false);
@@ -72,23 +74,23 @@ String getPreferences() {
 
     // Proton Pack LED Options
     jsonDoc["ledCycLidCount"] = 12; // [12,20,40]
-    jsonDoc["ledCycLidHue"] = 0; // Spectral custom color/hue 0-255
-    jsonDoc["ledCycLidSat"] = 0; // Spectral custom saturation 0-255
-    jsonDoc["ledCycLidCenter"] = 1; // [1,3]
+    jsonDoc["ledCycLidHue"] = 0; // Spectral custom color/hue 1-254
+    jsonDoc["ledCycLidSat"] = 0; // Spectral custom saturation 1-254
+    jsonDoc["ledCycLidCenter"] = 1; // [0=3,1=1]
     jsonDoc["ledCycLidSimRing"] = true; // true|false
     jsonDoc["ledCycCakeCount"] = 35; // [12,23,24,35]
-    jsonDoc["ledCycCakeHue"] = 0; // Spectral custom color/hue 0-255
-    jsonDoc["ledCycCakeSat"] = 0; // Spectral custom saturation 0-255
+    jsonDoc["ledCycCakeHue"] = 0; // Spectral custom color/hue 1-254
+    jsonDoc["ledCycCakeSat"] = 0; // Spectral custom saturation 1-254
     jsonDoc["ledCycCakeGRB"] = true; // Use GRB for cake LEDs true|false
     jsonDoc["ledPowercellCount"] = 13; //[13,15]
-    jsonDoc["ledPowercellHue"] = 0; // Spectral custom color/hue 0-255
-    jsonDoc["ledPowercellSat"] = 0; // Spectral custom saturation 0-255
+    jsonDoc["ledPowercellHue"] = 0; // Spectral custom color/hue 1-254
+    jsonDoc["ledPowercellSat"] = 0; // Spectral custom saturation 1-254
 
     // Proton Pack Runtime Options
-    jsonDoc["defaultSystemModePack"] = "SH"; // [SH,MO]
-    jsonDoc["defaultYearModePack"] = "SYSTEM"; // [1984,1989,2021,2024,SYSTEM]
+    jsonDoc["defaultSystemModePack"] = 0; // [0=SH,1=MO]
+    jsonDoc["defaultYearModePack"] = 4; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
     jsonDoc["defaultSystemVolume"] = 100; // 0-100
-    jsonDoc["cyclotronDirection"] = "CW"; // [CW,CCW]
+    jsonDoc["cyclotronDirection"] = 1; // [0=CCW,1=CW]
     jsonDoc["vgCyclotron"] = true; // true|false
     jsonDoc["vgPowercell"] = true; // true|false
     jsonDoc["demoLightMode"] = false; // true|false
