@@ -607,7 +607,10 @@ boolean checkPack() {
               debug("Preferences Sent");
             #endif
 
-            debug("Data " + String(comStruct.b[0]));
+            debug("Data0: " + String(comStruct.b[0]));
+            debug("Data1: " + String(comStruct.b[1]));
+            debug("Data2: " + String(comStruct.b[2]));
+            debug("Data3: " + String(comStruct.b[3]));
           break;
 
           default:

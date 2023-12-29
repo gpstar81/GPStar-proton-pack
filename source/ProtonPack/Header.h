@@ -407,7 +407,7 @@ struct __attribute__((packed)) STRUCTDATAR {
   uint16_t i;
   uint16_t d1; // Data 1
   uint16_t d2; // Data 2
-  byte b[1];
+  byte b[10];
   uint16_t e;
 } dataStructR;
 
@@ -417,7 +417,7 @@ struct __attribute__((packed)) STRUCTDATA {
   uint16_t i;
   uint16_t d1; // Data 1
   uint16_t d2; // Data 2
-  byte b[1];
+  byte b[10];
   uint16_t e;
 } dataStruct;
 

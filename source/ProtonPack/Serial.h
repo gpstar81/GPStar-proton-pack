@@ -35,7 +35,11 @@ void serial1Send(int i_message) {
     dataStruct.d1 = i_current_music_track;
   }
   else if(i_message == A_SEND_PREFERENCES) {
-    dataStruct.b[0] = 0xAA;
+    // Send values from EEPROM as values in a byte array.
+    dataStruct.b[0] = 1;
+    dataStruct.b[1] = true;
+    dataStruct.b[2] = false;
+    dataStruct.b[3] = "a";
   }
 
   dataStruct.e = A_COM_END;
