@@ -35,11 +35,44 @@ void serial1Send(int i_message) {
     dataStruct.d1 = i_current_music_track;
   }
   else if(i_message == A_SEND_PREFERENCES) {
-    // Send values from EEPROM as values in a byte array.
-    dataStruct.b[0] = 1;
-    dataStruct.b[1] = true;
-    dataStruct.b[2] = false;
-    dataStruct.b[3] = 4;
+    // Send values from current runtime variables as values in a byte array.
+    dataStruct.b[0] = i_powercell_leds;
+    dataStruct.b[1] = i_cyclotron_leds;
+    dataStruct.b[2] = i_inner_cyclotron_num_leds;
+    dataStruct.b[3] = b_grb_cyclotron;
+    dataStruct.b[4] = i_spectral_powercell_custom;
+    dataStruct.b[5] = i_spectral_cyclotron_custom;
+    dataStruct.b[6] = i_spectral_cyclotron_inner_custom;
+    dataStruct.b[7] = i_spectral_powercell_custom_saturation;
+    dataStruct.b[8] = i_spectral_cyclotron_custom_saturation;
+    dataStruct.b[9] = i_spectral_cyclotron_inner_custom_saturation;
+
+    dataStruct.b[10] = b_stream_effects;
+    dataStruct.b[11] = b_clockwise; // Cyclotron Direction
+    dataStruct.b[12] = b_cyclotron_simulate_ring;
+    dataStruct.b[13] = b_smoke_enabled;
+    dataStruct.b[14] = b_overheat_strobe;
+    dataStruct.b[15] = b_overheat_lights_off;
+    dataStruct.b[16] = b_overheat_sync_to_fan;
+    dataStruct.b[17] = SYSTEM_YEAR;
+    dataStruct.b[18] = SYSTEM_MODE;
+    dataStruct.b[19] = b_powercell_colour_toggle;
+    dataStruct.b[20] = b_cyclotron_colour_toggle;
+    dataStruct.b[21] = b_demo_light_mode;
+    dataStruct.b[22] = b_cyclotron_single_led;
+    dataStruct.b[23] = i_volume_master_percentage;
+
+    dataStruct.b[24] = i_ms_overheating_length_5;
+    dataStruct.b[25] = i_ms_overheating_length_4;
+    dataStruct.b[26] = i_ms_overheating_length_3;
+    dataStruct.b[27] = i_ms_overheating_length_2;
+    dataStruct.b[28] = i_ms_overheating_length_1;
+
+    dataStruct.b[29] = b_smoke_continuous_mode_5;
+    dataStruct.b[30] = b_smoke_continuous_mode_4;
+    dataStruct.b[31] = b_smoke_continuous_mode_3;
+    dataStruct.b[32] = b_smoke_continuous_mode_2;
+    dataStruct.b[33] = b_smoke_continuous_mode_1;
   }
 
   dataStruct.e = A_COM_END;

@@ -87,7 +87,8 @@ String getEquipmentSettings() {
     jsonDoc["defaultYearModePack"] = "SYSTEM"; // [1984,1989,2021,2024,SYSTEM]
     jsonDoc["defaultSystemVolume"] = 100; // 0-100
     jsonDoc["cyclotronDirection"] = "CW"; // [CW,CCW]
-    jsonDoc["vgColorModes"] = "BOTH"; // [DISABLED,POWERCELL,CYCLOTRON,BOTH]
+    jsonDoc["vgCyclotron"] = true; // true|false
+    jsonDoc["vgPowercell"] = true; // true|false
     jsonDoc["demoLightMode"] = false; // true|false
     jsonDoc["protonStreamEffects"] = true; // true|false
     jsonDoc["smokeEnabled"] = true; // true|false

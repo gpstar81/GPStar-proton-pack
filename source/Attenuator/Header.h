@@ -251,7 +251,7 @@ struct __attribute__((packed)) STRUCT {
   uint16_t i;
   uint16_t d1; // Data 1
   uint16_t d2; // Data 2
-  byte b[10];
+  byte b[34];
   uint16_t e;
 } comStruct;
 
@@ -260,7 +260,7 @@ struct __attribute__((packed)) STRUCTSEND {
   uint16_t i;
   uint16_t d1; // Data 1
   uint16_t d2; // Data 2
-  byte b[10];
+  byte b[34];
   uint16_t e;
 } sendStruct;
 

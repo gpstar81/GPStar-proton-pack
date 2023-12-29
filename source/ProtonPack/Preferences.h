@@ -20,6 +20,17 @@
 #pragma once
 
 /*
+ * User Preference Storage/Retrieval via EEPROM
+ *
+ * This library of functions controls the storing, clearing, reading, and management
+ * of user preferences by way of the EEPROM storage area of the ATMega2560 chipset.
+ * Values are stored a simple integer types, though they are mapped to boolean and
+ * other datatypes as necessary during the reading/storing actions. Additionally,
+ * a user may not even be using the EEPROM storage area and thus defaults may be
+ * set when values are not present.
+ */
+
+/*
  * Function prototypes.
  */
 void readEEPROM();
@@ -42,7 +53,7 @@ unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the
 /*
  * Data structure object for LED settings which are saved into the EEPROM memory.
  */
-struct objEEPROM {
+struct objLEDEEPROM {
   uint8_t powercell_count;
   uint8_t cyclotron_count;
   uint8_t inner_cyclotron_count;
@@ -99,7 +110,7 @@ void readEEPROM() {
   // Check if the calculated CRC matches the stored CRC value in the EEPROM.
   if(eepromCRC() == l_crc_check) {
     // Read our object from the EEPROM.
-    objEEPROM obj_eeprom;
+    objLEDEEPROM obj_eeprom;
     EEPROM.get(i_eepromAddress, obj_eeprom);
 
     if(obj_eeprom.powercell_count > 0 && obj_eeprom.powercell_count != 255) {
@@ -412,7 +423,7 @@ void readEEPROM() {
 
 void clearLedEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(unsigned int i = 0 ; i < sizeof(objEEPROM); i++) {
+  for(unsigned int i = 0 ; i < sizeof(objLEDEEPROM); i++) {
     EEPROM.put(i, 0);
   }
 
@@ -434,7 +445,7 @@ void saveLedEEPROM() {
   }
 
   // Write the data to the EEPROM if any of the values have changed.
-  objEEPROM obj_eeprom = {
+  objLEDEEPROM obj_eeprom = {
     i_powercell_leds,
     i_cyclotron_leds,
     i_inner_cyclotron_num_leds,

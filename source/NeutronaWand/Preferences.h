@@ -20,6 +20,17 @@
 #pragma once
 
 /*
+ * User Preference Storage/Retrieval via EEPROM
+ *
+ * This library of functions controls the storing, clearing, reading, and management
+ * of user preferences by way of the EEPROM storage area of the ATMega2560 chipset.
+ * Values are stored a simple integer types, though they are mapped to boolean and
+ * other datatypes as necessary during the reading/storing actions. Additionally,
+ * a user may not even be using the EEPROM storage area and thus defaults may be
+ * set when values are not present.
+ */
+
+/*
  * Function prototypes.
  */
 void readEEPROM();
