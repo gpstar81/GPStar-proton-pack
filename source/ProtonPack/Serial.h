@@ -35,9 +35,7 @@ void serial1Send(int i_message) {
     dataStruct.d1 = i_current_music_track;
   }
   else if(i_message == A_SEND_PREFERENCES) {
-    // Test sending a large payload in these data slots.
-    dataStruct.d1 = 18446744073709551615; // Pack EEPROM
-    dataStruct.d2 = 18446744073709551615; // Wand EEPROM
+    dataStruct.b[0] = 0xAA;
   }
 
   dataStruct.e = A_COM_END;

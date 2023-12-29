@@ -607,10 +607,7 @@ boolean checkPack() {
               debug("Preferences Sent");
             #endif
 
-            // Convert long to string using dtostrf function
-            char buffer[20];
-            dtostrf(comStruct.d1, 1, 0, buffer);
-            debug(String(buffer));
+            debug("Data " + String(comStruct.b[0]));
           break;
 
           default:
