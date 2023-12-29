@@ -19,14 +19,46 @@
 
 #pragma once
 
+// For wand communication.
+struct __attribute__((packed)) STRUCT {
+  uint16_t s;
+  uint16_t i;
+  uint16_t e;
+} comStruct;
+
+// For wand communication.
+struct __attribute__((packed)) STRUCTSEND {
+  uint16_t s;
+  uint16_t i;
+  uint16_t e;
+} sendStruct;
+
+// For Serial1 add-on communication.
+struct __attribute__((packed)) STRUCTDATAR {
+  uint16_t s;
+  uint16_t i;
+  uint16_t d1;
+  uint8_t d[24];
+  uint16_t e;
+} dataStructR;
+
+// For Serial1 add-on communication.
+struct __attribute__((packed)) STRUCTDATA {
+  uint16_t s;
+  uint16_t i;
+  uint16_t d1;
+  uint8_t d[24];
+  uint16_t e;
+} dataStruct;
+
 // Outgoing messages to the Serial1 device
 void serial1Send(int i_message) {
   dataStruct.s = A_COM_START;
   dataStruct.i = i_message;
 
   if(i_message == A_SPECTRAL_CUSTOM_MODE || i_message == A_SPECTRAL_COLOUR_DATA) {
-    dataStruct.d1 = i_spectral_cyclotron_custom;
-    dataStruct.d2 = i_spectral_cyclotron_custom_saturation;
+    dataStruct.d[0] = i_spectral_cyclotron_custom;
+    dataStruct.d[1] = i_spectral_cyclotron_custom_saturation;
   }
   else if(i_message == A_MUSIC_TRACK_COUNT_SYNC) {
     dataStruct.d1 = i_music_count;
@@ -36,43 +68,43 @@ void serial1Send(int i_message) {
   }
   else if(i_message == A_SEND_PREFERENCES) {
     // Send values from current runtime variables as values in a byte array.
-    dataStruct.b[0] = i_powercell_leds;
-    dataStruct.b[1] = i_cyclotron_leds;
-    dataStruct.b[2] = i_inner_cyclotron_num_leds;
-    dataStruct.b[3] = b_grb_cyclotron;
-    dataStruct.b[4] = i_spectral_powercell_custom;
-    dataStruct.b[5] = i_spectral_cyclotron_custom;
-    dataStruct.b[6] = i_spectral_cyclotron_inner_custom;
-    dataStruct.b[7] = i_spectral_powercell_custom_saturation;
-    dataStruct.b[8] = i_spectral_cyclotron_custom_saturation;
-    dataStruct.b[9] = i_spectral_cyclotron_inner_custom_saturation;
+    dataStruct.d[0] = i_powercell_leds;
+    dataStruct.d[1] = i_cyclotron_leds;
+    dataStruct.d[2] = i_inner_cyclotron_num_leds;
+    dataStruct.d[3] = b_grb_cyclotron;
+    dataStruct.d[4] = i_spectral_powercell_custom;
+    dataStruct.d[5] = i_spectral_cyclotron_custom;
+    dataStruct.d[6] = i_spectral_cyclotron_inner_custom;
+    dataStruct.d[7] = i_spectral_powercell_custom_saturation;
+    dataStruct.d[8] = i_spectral_cyclotron_custom_saturation;
+    dataStruct.d[9] = i_spectral_cyclotron_inner_custom_saturation;
 
-    dataStruct.b[10] = b_stream_effects;
-    dataStruct.b[11] = b_clockwise; // Cyclotron Direction
-    dataStruct.b[12] = b_cyclotron_simulate_ring;
-    dataStruct.b[13] = b_smoke_enabled;
-    dataStruct.b[14] = b_overheat_strobe;
-    dataStruct.b[15] = b_overheat_lights_off;
-    dataStruct.b[16] = b_overheat_sync_to_fan;
-    dataStruct.b[17] = SYSTEM_YEAR;
-    dataStruct.b[18] = SYSTEM_MODE;
-    dataStruct.b[19] = b_powercell_colour_toggle;
-    dataStruct.b[20] = b_cyclotron_colour_toggle;
-    dataStruct.b[21] = b_demo_light_mode;
-    dataStruct.b[22] = b_cyclotron_single_led;
-    dataStruct.b[23] = i_volume_master_percentage;
+    dataStruct.d[10] = b_stream_effects;
+    dataStruct.d[11] = b_clockwise; // Cyclotron Direction
+    dataStruct.d[12] = b_cyclotron_simulate_ring;
+    dataStruct.d[13] = b_smoke_enabled;
+    dataStruct.d[14] = b_overheat_strobe;
+    dataStruct.d[15] = b_overheat_lights_off;
+    dataStruct.d[16] = b_overheat_sync_to_fan;
+    dataStruct.d[17] = SYSTEM_YEAR;
+    dataStruct.d[18] = SYSTEM_MODE;
+    dataStruct.d[19] = b_powercell_colour_toggle;
+    dataStruct.d[20] = b_cyclotron_colour_toggle;
+    dataStruct.d[21] = b_demo_light_mode;
+    dataStruct.d[22] = b_cyclotron_single_led;
+    dataStruct.d[23] = i_volume_master_percentage;
 
-    dataStruct.b[24] = i_ms_overheating_length_5;
-    dataStruct.b[25] = i_ms_overheating_length_4;
-    dataStruct.b[26] = i_ms_overheating_length_3;
-    dataStruct.b[27] = i_ms_overheating_length_2;
-    dataStruct.b[28] = i_ms_overheating_length_1;
+    // dataStruct.d[24] = i_ms_overheating_length_5;
+    // dataStruct.d[25] = i_ms_overheating_length_4;
+    // dataStruct.d[26] = i_ms_overheating_length_3;
+    // dataStruct.d[27] = i_ms_overheating_length_2;
+    // dataStruct.d[28] = i_ms_overheating_length_1;
 
-    dataStruct.b[29] = b_smoke_continuous_mode_5;
-    dataStruct.b[30] = b_smoke_continuous_mode_4;
-    dataStruct.b[31] = b_smoke_continuous_mode_3;
-    dataStruct.b[32] = b_smoke_continuous_mode_2;
-    dataStruct.b[33] = b_smoke_continuous_mode_1;
+    // dataStruct.d[29] = b_smoke_continuous_mode_5;
+    // dataStruct.d[30] = b_smoke_continuous_mode_4;
+    // dataStruct.d[31] = b_smoke_continuous_mode_3;
+    // dataStruct.d[32] = b_smoke_continuous_mode_2;
+    // dataStruct.d[33] = b_smoke_continuous_mode_1;
   }
 
   dataStruct.e = A_COM_END;

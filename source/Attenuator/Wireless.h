@@ -295,8 +295,8 @@ void setupRouting() {
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers
-  httpServer.on("/settings", HTTP_GET, handleSettingsData);
-  httpServer.on("/status", HTTP_GET, handleStatus);
+  httpServer.on("/preferences", HTTP_GET, handleGetPrefs);
+  httpServer.on("/status", HTTP_GET, handleGetStatus);
   httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/pack/on", HTTP_PUT, handlePackOn);
   httpServer.on("/pack/off", HTTP_PUT, handlePackOff);

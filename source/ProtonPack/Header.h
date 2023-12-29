@@ -376,7 +376,7 @@ uint8_t i_wand_power_level = 1; // Power level of the wand.
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
 
 /*
- * Attenuator Status
+ * Serial1 Status
  */
 bool b_serial1_connected = false;
 millisDelay ms_serial1_handshake;
@@ -386,40 +386,6 @@ bool b_serial_1_syncing = false;
 
 SerialTransfer serial1Coms;
 SerialTransfer packComs;
-
-// For wand communication.
-struct __attribute__((packed)) STRUCT {
-  uint16_t s;
-  uint16_t i;
-  uint16_t e;
-} comStruct;
-
-// For wand communication.
-struct __attribute__((packed)) STRUCTSEND {
-  uint16_t s;
-  uint16_t i;
-  uint16_t e;
-} sendStruct;
-
-// For Serial1 add-on communication.
-struct __attribute__((packed)) STRUCTDATAR {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1; // Data 1
-  uint16_t d2; // Data 2
-  byte b[34];
-  uint16_t e;
-} dataStructR;
-
-// For Serial1 add-on communication.
-struct __attribute__((packed)) STRUCTDATA {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1; // Data 1
-  uint16_t d2; // Data 2
-  byte b[34];
-  uint16_t e;
-} dataStruct;
 
 /*
  * Firing timers

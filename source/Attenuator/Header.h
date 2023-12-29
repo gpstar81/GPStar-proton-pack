@@ -236,35 +236,6 @@ bool b_playing_music = false;
 bool b_music_paused = false;
 
 /*
- * Pack Communication
- */
-#if defined(__XTENSA__)
-  // ESP32 - Hardware Serial2 Pins
-  #define RXD2 16
-  #define TXD2 17
-#endif
-SerialTransfer packComs;
-bool b_a_sync_start = false; // Denotes pack communications have begun.
-
-struct __attribute__((packed)) STRUCT {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1; // Data 1
-  uint16_t d2; // Data 2
-  byte b[34];
-  uint16_t e;
-} comStruct;
-
-struct __attribute__((packed)) STRUCTSEND {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1; // Data 1
-  uint16_t d2; // Data 2
-  byte b[34];
-  uint16_t e;
-} sendStruct;
-
-/*
  * Some pack flags which get transmitted to the attenuator depending on the pack status.
  */
 bool b_pack_on = false;

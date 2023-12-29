@@ -58,12 +58,14 @@ void handleStyle(AsyncWebServerRequest *request) {
   request->send(200, "text/css", s); // Serve page content.
 }
 
-String getEquipmentSettings() {
+String getPreferences() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipSettings;
   jsonDoc.clear();
 
   if(!b_wait_for_pack) {
+    attenuatorSerialSend(A_SEND_PREFERENCES);
+
     // Return current powered state for pack and wand.
     jsonDoc["packPowered"] = (b_pack_on ? true : false);
     jsonDoc["wandPowered"] = (b_wand_on ? true : false);
@@ -180,8 +182,6 @@ String getEquipmentStatus() {
     jsonDoc["musicCurrent"] = i_music_track_current;
     jsonDoc["musicStart"] = i_music_track_min;
     jsonDoc["musicEnd"] = i_music_track_max;
-
-    attenuatorSerialSend(A_SEND_PREFERENCES);
   }
 
   // Serialize JSON object to string.
@@ -189,12 +189,12 @@ String getEquipmentStatus() {
   return equipStatus;
 }
 
-void handleSettingsData(AsyncWebServerRequest *request) {
+void handleGetPrefs(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
-  request->send(200, "application/json", getEquipmentSettings());
+  request->send(200, "application/json", getPreferences());
 }
 
-void handleStatus(AsyncWebServerRequest *request) {
+void handleGetStatus(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
   request->send(200, "application/json", getEquipmentStatus());
 }

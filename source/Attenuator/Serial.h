@@ -21,6 +21,33 @@
 #pragma once
 
 /*
+ * Pack Communication
+ */
+#if defined(__XTENSA__)
+  // ESP32 - Hardware Serial2 Pins
+  #define RXD2 16
+  #define TXD2 17
+#endif
+SerialTransfer packComs;
+bool b_a_sync_start = false; // Denotes pack communications have begun.
+
+struct __attribute__((packed)) STRUCT {
+  uint16_t s;
+  uint16_t i;
+  uint16_t d1;
+  uint8_t d[24];
+  uint16_t e;
+} comStruct;
+
+struct __attribute__((packed)) STRUCTSEND {
+  uint16_t s;
+  uint16_t i;
+  uint16_t d1;
+  uint8_t d[24];
+  uint16_t e;
+} sendStruct;
+
+/*
  * Serial API Communication Handlers
  */
 
@@ -130,7 +157,7 @@ boolean checkPack() {
 
           case A_MUSIC_IS_PLAYING:
             #if defined(__XTENSA__)
-              debug("Music Playing");
+              debug("Music Playing: " + String(comStruct.d1));
             #endif
 
             b_playing_music = true;
@@ -144,7 +171,7 @@ boolean checkPack() {
 
           case A_MUSIC_IS_NOT_PLAYING:
             #if defined(__XTENSA__)
-              debug("Music Stopped");
+              debug("Music Stopped: " + String(comStruct.d1));
             #endif
 
             b_playing_music = false;
@@ -180,7 +207,7 @@ boolean checkPack() {
 
           case A_MUSIC_TRACK_COUNT_SYNC:
             #if defined(__XTENSA__)
-              debug("Music Track Sync");
+              debug("Music Track Sync: " + String(comStruct.d1));
             #endif
 
             if(comStruct.d1 > 0) {
@@ -344,12 +371,12 @@ boolean checkPack() {
             FIRING_MODE = SPECTRAL_CUSTOM;
             b_state_changed = true;
 
-            if(comStruct.d1 > 0) {
-              i_spectral_custom = comStruct.d1;
+            if(comStruct.d[0] > 0) {
+              i_spectral_custom = comStruct.d[0];
             }
 
-            if(comStruct.d2 > 0) {
-              i_spectral_custom_saturation = comStruct.d2;
+            if(comStruct.d[1] > 0) {
+              i_spectral_custom_saturation = comStruct.d[1];
             }
           break;
 
@@ -357,12 +384,12 @@ boolean checkPack() {
             #if defined(__XTENSA__)
               debug("Spectral Color Data");
             #endif
-            if(comStruct.d1 > 0) {
-              i_spectral_custom = comStruct.d1;
+            if(comStruct.d[0] > 0) {
+              i_spectral_custom = comStruct.d[0];
             }
 
-            if(comStruct.d2 > 0) {
-              i_spectral_custom_saturation = comStruct.d2;
+            if(comStruct.d[1] > 0) {
+              i_spectral_custom_saturation = comStruct.d[1];
             }
           break;
 
@@ -607,8 +634,8 @@ boolean checkPack() {
               debug("Preferences Sent");
             #endif
 
-            for (int i = 0; i < sizeof(comStruct.b)/sizeof(comStruct.b[0]); i++) {
-                debug("Data" + String(i) + ": " + String(comStruct.b[i]));
+            for (int i = 0; i < sizeof(comStruct.d)/sizeof(comStruct.d[0]); i++) {
+                debug("Data" + String(i) + ": " + String(comStruct.d[i]));
             }
           break;
 
