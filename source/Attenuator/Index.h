@@ -85,7 +85,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <h1>Administration</h1>
   <div class="block">
-    <a href="/settings">Change Pack/Wand Settings</a>
+    <a href="/settings/pack">Change Pack Settings</a>
     <br/>
     <br/>
     <a href="/password">Change WiFi Password</a>

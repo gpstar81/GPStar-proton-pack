@@ -49,7 +49,7 @@
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
 #include "Password.h" // PASSWORD_page
-#include "Settings.h" // SETTINGS_page
+#include "PackSettings.h" // PACK_SETTINGS_page
 #include "Style.h" // STYLE_page
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
@@ -290,12 +290,12 @@ void setupRouting() {
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/password", HTTP_GET, handlePassword);
-  httpServer.on("/settings", HTTP_GET, handleSettings);
+  httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
   httpServer.on("/style.css", HTTP_GET, handleStyle);
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers
-  httpServer.on("/preferences", HTTP_GET, handleGetPrefs);
+  httpServer.on("/settings/pack/data", HTTP_GET, handleGetPackPrefs);
   httpServer.on("/status", HTTP_GET, handleGetStatus);
   httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/pack/on", HTTP_PUT, handlePackOn);

@@ -20,17 +20,17 @@
 
 #pragma once
 
-const char SETTINGS_page[] PROGMEM = R"=====(
+const char PACK_SETTINGS_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Equipment Settings</title>
+  <title>Proton Pack Settings</title>
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Modify Equipment Settings</h1>
+  <h1>Proton Pack Settings</h1>
   <div class="block">
     <p>
       Change system configuration options using the available toggles/selectors.
@@ -39,7 +39,7 @@ const char SETTINGS_page[] PROGMEM = R"=====(
     </p>
     <br/>
 
-    <h1>System Options</h1>
+    <h1>General Options</h1>
     <div class="block left">
       <b>System Mode:</b>
       <select id="systemMode" name="systemMode">
@@ -201,7 +201,7 @@ const char SETTINGS_page[] PROGMEM = R"=====(
           console.log(JSON.parse(this.responseText));
         }
       };
-      xhttp.open("GET", "/preferences", true);
+      xhttp.open("GET", "/settings/pack/data", true);
       xhttp.send();
     }
 

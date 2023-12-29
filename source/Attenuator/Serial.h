@@ -629,7 +629,7 @@ boolean checkPack() {
             }
           break;
 
-          case A_SEND_PREFERENCES:
+          case A_SEND_PREFERENCES_PACK:
             #if defined(__XTENSA__)
               debug("Preferences Sent");
             #endif

@@ -41,15 +41,15 @@ void handlePassword(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Serve page content.
 }
 
-void handleSettings(AsyncWebServerRequest *request) {
+void handlePackSettings(AsyncWebServerRequest *request) {
   // Used for the settings page from the web server.
-  //debug("Settings HTML Requested");
-  String s = SETTINGS_page; // Read HTML page into String.
+  //debug("Pack Settings HTML Requested");
+  String s = PACK_SETTINGS_page; // Read HTML page into String.
   request->send(200, "text/html", s); // Serve page content.
 
   // Tell the pack that we'll need the latest EEPROM values.
   Serial.println("Sending request for preferences");
-  attenuatorSerialSend(A_SEND_PREFERENCES);
+  attenuatorSerialSend(A_SEND_PREFERENCES_PACK);
   Serial.println("Request sent");
 }
 
@@ -60,7 +60,7 @@ void handleStyle(AsyncWebServerRequest *request) {
   request->send(200, "text/css", s); // Serve page content.
 }
 
-String getPreferences() {
+String getPackPreferences() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipSettings;
   jsonDoc.clear();
@@ -191,9 +191,9 @@ String getEquipmentStatus() {
   return equipStatus;
 }
 
-void handleGetPrefs(AsyncWebServerRequest *request) {
+void handleGetPackPrefs(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
-  request->send(200, "application/json", getPreferences());
+  request->send(200, "application/json", getPackPreferences());
 }
 
 void handleGetStatus(AsyncWebServerRequest *request) {

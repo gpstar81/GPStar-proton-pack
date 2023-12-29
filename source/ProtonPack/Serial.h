@@ -74,7 +74,7 @@ void serial1Send(int i_message) {
   else if(i_message == A_MUSIC_IS_PLAYING || i_message == A_MUSIC_IS_NOT_PLAYING) {
     dataStruct.d1 = i_current_music_track;
   }
-  else if(i_message == A_SEND_PREFERENCES) {
+  else if(i_message == A_SEND_PREFERENCES_PACK) {
     // Sends values from current runtime variables as values in a byte array.
     // Any ENUM or boolean types will simply translate as numeric values.
     dataStruct.d[0] = SYSTEM_MODE;
@@ -3006,9 +3006,9 @@ void checkSerial1() {
               musicPrevTrack();
             break;
 
-            case A_SEND_PREFERENCES:
+            case A_SEND_PREFERENCES_PACK:
               // If requested by the serial device, send back all EEPROM preferences.
-              serial1Send(A_SEND_PREFERENCES);
+              serial1Send(A_SEND_PREFERENCES_PACK);
             break;
 
             case A_SYNC_START:
