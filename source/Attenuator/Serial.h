@@ -53,8 +53,8 @@ struct __attribute__((packed)) STRUCTSEND {
 
 // Sends an API to the Proton Pack
 void attenuatorSerialSend(uint16_t i_message) {
-  sendStruct.i = i_message;
   sendStruct.s = A_COM_START;
+  sendStruct.i = i_message;
   sendStruct.e = A_COM_END;
 
   packComs.sendDatum(sendStruct);
@@ -634,7 +634,7 @@ boolean checkPack() {
               debug("Preferences Sent");
             #endif
 
-            for (int i = 0; i < sizeof(comStruct.d)/sizeof(comStruct.d[0]); i++) {
+            for (int i = 0; i < (sizeof(comStruct.d) / sizeof(comStruct.d[0])); i++) {
                 debug("Data" + String(i) + ": " + String(comStruct.d[i]));
             }
           break;

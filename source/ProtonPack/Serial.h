@@ -56,6 +56,14 @@ void serial1Send(int i_message) {
   dataStruct.s = A_COM_START;
   dataStruct.i = i_message;
 
+  // Get the number of elements in the data array
+  int arrayLength = sizeof(dataStruct.d) / sizeof(dataStruct.d[0]);
+
+  // Set each element of the data array to 0
+  for (int i = 0; i < arrayLength; i++) {
+    dataStruct.d[i] = 0;
+  }
+
   if(i_message == A_SPECTRAL_CUSTOM_MODE || i_message == A_SPECTRAL_COLOUR_DATA) {
     dataStruct.d[0] = i_spectral_cyclotron_custom;
     dataStruct.d[1] = i_spectral_cyclotron_custom_saturation;

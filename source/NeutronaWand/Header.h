@@ -370,18 +370,6 @@ uint8_t i_power_mode_prev = 1;
  */
 SerialTransfer wandComs;
 
-struct __attribute__((packed)) STRUCT {
-  uint16_t s;
-  uint16_t i;
-  uint16_t e;
-} comStruct;
-
-struct __attribute__((packed)) STRUCTSEND {
-  uint16_t s;
-  uint16_t i;
-  uint16_t e;
-} sendStruct;
-
 /*
  * Some pack flags which get transmitted to the wand depending on the pack status.
  */

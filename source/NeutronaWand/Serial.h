@@ -19,11 +19,25 @@
 
 #pragma once
 
+// For pack communication.
+struct __attribute__((packed)) STRUCT {
+  uint16_t s;
+  uint16_t i;
+  uint16_t e;
+} comStruct;
+
+// For pack communication.
+struct __attribute__((packed)) STRUCTSEND {
+  uint16_t s;
+  uint16_t i;
+  uint16_t e;
+} sendStruct;
+
 // Pack communication from the wand.
 void wandSerialSend(int i_message, bool b_sound) {
   if(b_no_pack != true) {
-    sendStruct.i = i_message;
     sendStruct.s = W_COM_START;
+    sendStruct.i = i_message;
 
     if(b_sound == true) {
       // Tell the Proton Pack to play the sound # i_message.
