@@ -77,11 +77,23 @@ struct PackPrefs {
 
 // Sends an API to the Proton Pack
 void attenuatorSerialSend(uint16_t i_message) {
+  uint16_t sendSize = 0;
+
   sendStruct.s = A_COM_START;
   sendStruct.i = i_message;
   sendStruct.e = A_COM_END;
 
-  packComs.sendDatum(sendStruct);
+  switch(i_message) {
+    case A_SAVE_PREFERENCES_PACK:      
+      sendSize = packComs.txObj(sendStruct, sendSize);
+      sendSize = packComs.txObj(packConfig, sendSize);
+      packComs.sendData(sendSize);
+    break;
+
+    default:
+      packComs.sendDatum(sendStruct);
+    break;
+  }
 }
 
 // Handles an API (and data) sent from the Proton Pack

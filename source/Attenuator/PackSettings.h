@@ -60,8 +60,9 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b class="labelSlider">Startup Volume %:</b>
-      <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="0" max="100" value="100" step="2" oninput="masterVolOut.value=defaultSystemVolume.value"/>
-      <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume">100</output>
+      <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="0" max="100" value="100" step="2"
+       oninput="masterVolOut.value=defaultSystemVolume.value"/>
+      <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume"></output>
     </div>
     <div class="setting">
       <b class="labelSwitch">Proton Stream Impact Effects:</b>
@@ -119,13 +120,17 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b class="labelSlider">Custom Color (Hue):</b>
-      <input type="range" id="ledCycLidHue" name="ledCycLidHue" min="0" max="360" value="360" step="2" oninput="cycHueOut.value=ledCycLidHue.value"/>
-      <output class="labelSlider" id="cycHueOut" for="ledCycLidHue">360</output>
+      <input type="range" id="ledCycLidHue" name="ledCycLidHue" min="0" max="360" value="360" step="2"
+       oninput="updateColor('cycColorPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
+      <output class="labelSlider" id="cycHueOut" for="ledCycLidHue"></output>
+      <br/>
+      <div id="cycColorPreview"></div>
     </div>
     <div class="setting">
       <b class="labelSlider">Custom Saturation %:</b>
-      <input type="range" id="ledCycLidSat" name="ledCycLidSat" min="0" max="100" value="100" step="2" oninput="cycSatOut.value=ledCycLidSat.value"/>
-      <output class="labelSlider" id="cycSatOut" for="ledCycLidSat">100</output>
+      <input type="range" id="ledCycLidSat" name="ledCycLidSat" min="0" max="100" value="100" step="2"
+       oninput="updateColor('cycColorPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
+      <output class="labelSlider" id="cycSatOut" for="ledCycLidSat"></output>
     </div>
     <div class="setting">
       <b>Direction:</b>
@@ -170,13 +175,17 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b class="labelSlider">Custom Color (Hue):</b>
-      <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="0" max="360" value="360" step="2" oninput="cakeHueOut.value=ledCycCakeHue.value"/>
-      <output class="labelSlider" id="cakeHueOut" for="ledCycCakeHue">360</output>
+      <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="0" max="360" value="360" step="2"
+       oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
+      <output class="labelSlider" id="cakeHueOut" for="ledCycCakeHue"></output>
+      <br/>
+      <div id="cakeColorPreview"></div>
     </div>
     <div class="setting">
       <b class="labelSlider">Custom Saturation %:</b>
-      <input type="range" id="ledCycCakeSat" name="ledCycCakeSat" min="0" max="100" value="100" step="2" oninput="cakeSatOut.value=ledCycCakeSat.value"/>
-      <output class="labelSlider" id="cakeSatOut" for="ledCycCakeSat">100</output>
+      <input type="range" id="ledCycCakeSat" name="ledCycCakeSat" min="0" max="100" value="100" step="2"
+       oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
+      <output class="labelSlider" id="cakeSatOut" for="ledCycCakeSat"></output>
     </div>
       <div class="setting">
       <b class="labelSwitch">Swap Red/Green LEDs (GRB):</b>
@@ -198,13 +207,17 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b class="labelSlider">Custom Color (Hue):</b>
-      <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="0" max="360" value="360" step="2" oninput="pcHueOut.value=ledPowercellHue.value"/>
-      <output class="labelSlider" id="pcHueOut" for="ledPowercellHue">360</output>
+      <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="0" max="360" value="360" step="2"
+       oninput="updateColor('pcColorPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
+      <output class="labelSlider" id="pcHueOut" for="ledPowercellHue"></output>
+      <br/>
+      <div id="pcColorPreview"></div>
     </div>
     <div class="setting">
       <b class="labelSlider">Custom Saturation %:</b>
-      <input type="range" id="ledPowercellSat" name="ledPowercellSat" min="0" max="100" value="100" step="2" oninput="pcSatOut.value=ledPowercellSat.value"/>
-      <output class="labelSlider" id="pcSatOut" for="ledPowercellSat">100</output>
+      <input type="range" id="ledPowercellSat" name="ledPowercellSat" min="0" max="100" value="100" step="2"
+       oninput="updateColor('pcColorPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
+      <output class="labelSlider" id="pcSatOut" for="ledPowercellSat"></output>
     </div>
     <div class="setting">
       <b class="labelSwitch">Enable Video Game Colors:</b>
@@ -234,6 +247,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       return Math.round((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);
     }
 
+    function updateColor(colorPreviewID, hueLabelID, satLabelID, hueValue, satValue) {
+      // Updates the slider values and preview the selected color using HSL.
+      document.getElementById(hueLabelID).innerHTML = hueValue;
+      document.getElementById(satLabelID).innerHTML = satValue;
+      document.getElementById(colorPreviewID).style.backgroundColor = "hsl(" + hueValue + ", " + satValue + "%, 50%)";
+    }
+
     function getSettings() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -245,13 +265,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             }
 
             /**
-             * Note: Color (hue) value range uses the following scale, though HTML5 uses 0-360 for HSL color.
+             * Note: Color (hue) value range uses the following scale, though CSS uses 0-360 for HSL color.
              *  0 = Red
              *  32 = Orange
              *  64 = Yellow
              *  96 = Green
              *  128 = Aqua
-             *  160 = Blue
              *  160 = Blue
              *  192 = Purple
              *  224 = Pink

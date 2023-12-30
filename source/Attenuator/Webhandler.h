@@ -329,16 +329,54 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
   }
 
   String result;
-  if(jsonBody.containsKey("defaultSystemModePack")) {
-    uint8_t defaultSystemModePack = jsonBody["defaultSystemModePack"];
-    Serial.println("defaultSystemModePack: " + String(defaultSystemModePack));
+  if(!b_pack_on && !b_wand_on) {
+    // General Options
+    packConfig.defaultSystemModePack = jsonBody["defaultSystemModePack"];
+    packConfig.defaultYearThemePack = jsonBody["defaultYearThemePack"];
+    packConfig.defaultSystemVolume = jsonBody["defaultSystemVolume"];
+    packConfig.protonStreamEffects = jsonBody["protonStreamEffects"];
+    packConfig.smokeEnabled = jsonBody["smokeEnabled"];
+    packConfig.overheatStrobeNF = jsonBody["overheatStrobeNF"];
+    packConfig.overheatLightsOff = jsonBody["overheatLightsOff"];
+    packConfig.overheatSyncToFan = jsonBody["overheatSyncToFan"];
+    packConfig.demoLightMode = jsonBody["demoLightMode"];
 
-    uint8_t defaultYearThemePack = jsonBody["defaultYearThemePack"];
-    Serial.println("defaultYearThemePack: " + String(defaultYearThemePack));
+    Serial.println("defaultSystemModePack: " + String(packConfig.defaultSystemModePack));
+    Serial.println("defaultYearThemePack: " + String(packConfig.defaultYearThemePack));
+
+    // Cyclotron Lid
+    packConfig.ledCycLidCount = jsonBody["ledCycLidCount"];
+    packConfig.ledCycLidHue = jsonBody["ledCycLidHue"];
+    packConfig.ledCycLidSat = jsonBody["ledCycLidSat"];
+    packConfig.cyclotronDirection = jsonBody["cyclotronDirection"];
+    packConfig.ledCycLidCenter = jsonBody["ledCycLidCenter"];
+    packConfig.ledVGCyclotron = jsonBody["ledVGCyclotron"];
+    packConfig.ledCycLidSimRing = jsonBody["ledCycLidSimRing"];
+
+    // Inner Cyclotron
+    packConfig.ledCycCakeCount = jsonBody["ledCycCakeCount"];
+    packConfig.ledCycCakeHue = jsonBody["ledCycCakeHue"];
+    packConfig.ledCycCakeSat = jsonBody["ledCycCakeSat"];
+    packConfig.ledCycCakeGRB = jsonBody["ledCycCakeGRB"];
+
+    // Power Cell
+    packConfig.ledPowercellCount = jsonBody["ledPowercellCount"];
+    packConfig.ledPowercellHue = jsonBody["ledPowercellHue"];
+    packConfig.ledPowercellSat = jsonBody["ledPowercellSat"];
+    packConfig.ledVGPowercell = jsonBody["ledVGPowercell"];
 
     jsonBody.clear();
     jsonBody["status"] = "Changes saved.";
     serializeJson(jsonBody, result); // Serialize to string.
+    attenuatorSerialSend(A_SAVE_PREFERENCES_PACK); // Tell the pack to save the new settings.
+    request->send(200, "application/json", result);
+  }
+  else {
+    // Tell the user why the requested action failed.
+    String result;
+    jsonDoc.clear();
+    jsonDoc["status"] = "Pack and/or Wand are running, save action cancelled";
+    serializeJson(jsonDoc, result); // Serialize to string.
     request->send(200, "application/json", result);
   }
 });
