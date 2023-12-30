@@ -318,6 +318,28 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   }
 }
 
+// Handles the JSON body for the pack settings save request.
+AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHandler("/config/pack/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
+  StaticJsonDocument<512> jsonBody;
+  if(json.is<JsonObject>()) {
+    jsonBody = json.as<JsonObject>();
+  }
+  else {
+    Serial.print("Body was not a JSON object");
+  }
+
+  String result;
+  if(jsonBody.containsKey("defaultSystemModePack")) {
+    uint8_t defaultSystemModePack = jsonBody["defaultSystemModePack"];
+    Serial.println("defaultSystemModePack: " + defaultSystemModePack);
+
+    jsonBody.clear();
+    jsonBody["status"] = "Changes saved.";
+    serializeJson(jsonBody, result); // Serialize to string.
+    request->send(200, "application/json", result);
+  }
+});
+
 // Handles the JSON body for the password change request.
 AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
   StaticJsonDocument<256> jsonBody;

@@ -314,6 +314,7 @@ void setupRouting() {
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
 
   // Body Handlers
+  httpServer.addHandler(handleSavePackConfig);
   httpServer.addHandler(passwordChangeHandler);
 }
 
