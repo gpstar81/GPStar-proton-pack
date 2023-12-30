@@ -656,10 +656,7 @@ boolean checkPack() {
               debug("Preferences Received");
             #endif
 
-            for (int i = 0; i < (sizeof(comStruct.d) / sizeof(comStruct.d[0])); i++) {
-                Serial.println("Data" + String(i) + ": " + String(comStruct.d[i]));
-            }
-
+            // Convert integer values to user-friendly object properties.
             packConfig.defaultSystemModePack = comStruct.d[0];
             packConfig.defaultYearThemePack = comStruct.d[1];
             packConfig.defaultSystemVolume = comStruct.d[2];

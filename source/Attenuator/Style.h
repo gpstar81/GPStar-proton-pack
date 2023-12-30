@@ -91,6 +91,11 @@ button[disabled] {
   color: #555 !important;
 }
 
+button:active { 
+  box-shadow: 7px 6px 28px 1px rgba(0, 0, 0, 0.24); 
+  transform: translateY(4px);
+} 
+
 input {
   border: 2px solid #333;
   border-radius: 4px;
@@ -109,14 +114,14 @@ select {
   color: white;
   cursor: pointer;
   font-size: 1.15rem;
-  height: 50px;
+  height: 40px;
   margin: 5px;
   padding: 6px 8px;
   max-width: 260px;
   min-width: 260px;
   text-align: center;
   touch-action: manipulation;
-  width: 260px;
+  width: 220px;
 }
 
 .custom-select {
@@ -164,6 +169,24 @@ select {
 .blue {
   background-color: #008CBA;
   border: 2px solid #006C9A;
+}
+
+.setting {
+  margin: 10px 0;
+}
+
+.labelSlider {
+  top: -10px;
+  position: relative;
+}
+
+.labelSwitch {
+  top: 8px;
+  position: relative;
+}
+
+input[type=range] {
+  width: 200px;
 }
 
 /* The switch - the box around the slider */
