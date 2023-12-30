@@ -20,18 +20,14 @@
 #pragma once
 
 // For pack communication.
-struct __attribute__((packed)) STRUCT {
+struct __attribute__((packed)) MessagePacket {
   uint16_t s;
   uint16_t i;
   uint16_t e;
-} comStruct;
+};
 
-// For pack communication.
-struct __attribute__((packed)) STRUCTSEND {
-  uint16_t s;
-  uint16_t i;
-  uint16_t e;
-} sendStruct;
+struct MessagePacket comStruct;
+struct MessagePacket sendStruct;
 
 // Pack communication from the wand.
 void wandSerialSend(int i_message, bool b_sound) {

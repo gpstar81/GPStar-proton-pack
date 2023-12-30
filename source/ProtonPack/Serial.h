@@ -20,36 +20,26 @@
 #pragma once
 
 // For wand communication.
-struct __attribute__((packed)) STRUCT {
+struct __attribute__((packed)) MessagePacket {
   uint16_t s;
   uint16_t i;
   uint16_t e;
-} comStruct;
+};
 
-// For wand communication.
-struct __attribute__((packed)) STRUCTSEND {
-  uint16_t s;
-  uint16_t i;
-  uint16_t e;
-} sendStruct;
+struct MessagePacket comStruct;
+struct MessagePacket sendStruct;
 
 // For Serial1 add-on communication.
-struct __attribute__((packed)) STRUCTDATAR {
+struct __attribute__((packed)) DataPacket {
   uint16_t s;
   uint16_t i;
   uint16_t d1;
   uint8_t d[25];
   uint16_t e;
-} dataStructR;
+};
 
-// For Serial1 add-on communication.
-struct __attribute__((packed)) STRUCTDATA {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1;
-  uint8_t d[25];
-  uint16_t e;
-} dataStruct;
+struct DataPacket dataStruct;
+struct DataPacket dataStructR;
 
 // Outgoing messages to the Serial1 device
 void serial1Send(int i_message) {

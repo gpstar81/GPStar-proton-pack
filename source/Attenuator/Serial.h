@@ -31,22 +31,19 @@
 SerialTransfer packComs;
 bool b_a_sync_start = false; // Denotes pack communications have begun.
 
-struct __attribute__((packed)) STRUCT {
+// For pack communication.
+struct __attribute__((packed)) DataPacket {
   uint16_t s;
   uint16_t i;
   uint16_t d1;
   uint8_t d[25];
   uint16_t e;
-} comStruct;
+};
 
-struct __attribute__((packed)) STRUCTSEND {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1;
-  uint8_t d[25];
-  uint16_t e;
-} sendStruct;
+struct DataPacket comStruct;
+struct DataPacket sendStruct;
 
+// Translates a DataPacket to user-friendly names.
 struct PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
