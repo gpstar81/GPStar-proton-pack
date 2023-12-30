@@ -73,33 +73,40 @@ String getPackConfig() {
     jsonDoc["wandPowered"] = (b_wand_on ? true : false);
 
     // Proton Pack LED Options
-    jsonDoc["ledCycLidCount"] = 12; // [12,20,40]
-    jsonDoc["ledCycLidHue"] = 0; // Spectral custom color/hue 1-254
-    jsonDoc["ledCycLidSat"] = 0; // Spectral custom saturation 1-254
-    jsonDoc["ledCycLidCenter"] = 1; // [0=3,1=1]
-    jsonDoc["ledCycLidSimRing"] = true; // true|false
-    jsonDoc["ledCycCakeCount"] = 35; // [12,23,24,35]
-    jsonDoc["ledCycCakeHue"] = 0; // Spectral custom color/hue 1-254
-    jsonDoc["ledCycCakeSat"] = 0; // Spectral custom saturation 1-254
-    jsonDoc["ledCycCakeGRB"] = true; // Use GRB for cake LEDs true|false
-    jsonDoc["ledPowercellCount"] = 13; //[13,15]
-    jsonDoc["ledPowercellHue"] = 0; // Spectral custom color/hue 1-254
-    jsonDoc["ledPowercellSat"] = 0; // Spectral custom saturation 1-254
+    jsonDoc["ledCycLidCount"] = packConfig.ledCycLidCount; // [12,20,40]
+    jsonDoc["ledCycLidHue"] = packConfig.ledCycLidHue; // Spectral custom color/hue 1-254
+    jsonDoc["ledCycLidSat"] = packConfig.ledCycLidSat; // Spectral custom saturation 1-254
+    jsonDoc["cyclotronDirection"] = packConfig.cyclotronDirection; // [0=CCW,1=CW]
+    jsonDoc["ledCycLidCenter"] = packConfig.ledCycLidCenter; // [0=3,1=1]
+    jsonDoc["ledVGCyclotron"] = packConfig.ledVGCyclotron; // true|false
+    jsonDoc["ledCycLidSimRing"] = packConfig.ledCycLidSimRing; // true|false
+    jsonDoc["ledCycCakeCount"] = packConfig.ledCycCakeCount; // [12,23,24,35]
+    jsonDoc["ledCycCakeHue"] = packConfig.ledCycCakeHue; // Spectral custom color/hue 1-254
+    jsonDoc["ledCycCakeSat"] = packConfig.ledCycCakeSat; // Spectral custom saturation 1-254
+    jsonDoc["ledCycCakeGRB"] = packConfig.ledCycCakeGRB; // Use GRB for cake LEDs true|false
+    jsonDoc["ledPowercellCount"] = packConfig.ledPowercellCount; //[13,15]
+    jsonDoc["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom color/hue 1-254
+    jsonDoc["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 1-254
+    jsonDoc["ledVGPowercell"] = packConfig.ledVGPowercell; // true|false
 
     // Proton Pack Runtime Options
-    jsonDoc["defaultSystemModePack"] = 0; // [0=SH,1=MO]
-    jsonDoc["defaultYearModePack"] = 4; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
-    jsonDoc["defaultSystemVolume"] = 100; // 0-100
-    jsonDoc["cyclotronDirection"] = 1; // [0=CCW,1=CW]
-    jsonDoc["vgCyclotron"] = true; // true|false
-    jsonDoc["vgPowercell"] = true; // true|false
-    jsonDoc["demoLightMode"] = false; // true|false
-    jsonDoc["protonStreamEffects"] = true; // true|false
-    jsonDoc["smokeEnabled"] = true; // true|false
-    jsonDoc["overheatStrobeNF"] = true; // true|false
-    jsonDoc["overheatSyncToFan"] = false;// true|false
-    jsonDoc["overheatLightsOff"] = true; // true|false
+    jsonDoc["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
+    jsonDoc["defaultYearThemePack"] = packConfig.defaultYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
+    jsonDoc["defaultSystemVolume"] = packConfig.defaultSystemVolume; // 0-100
+    jsonDoc["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
+    jsonDoc["smokeEnabled"] = packConfig.smokeEnabled; // true|false
+    jsonDoc["overheatStrobeNF"] = packConfig.overheatStrobeNF; // true|false
+    jsonDoc["overheatLightsOff"] = packConfig.overheatLightsOff; // true|false
+    jsonDoc["overheatSyncToFan"] = packConfig.overheatSyncToFan;// true|false
+    jsonDoc["demoLightMode"] = packConfig.demoLightMode; // true|false
+  }
 
+  // Serialize JSON object to string.
+  serializeJson(jsonDoc, equipSettings);
+  return equipSettings;
+}
+
+/*
     // Power Level 5
     jsonDoc["overheatDuration5"] = 6; // 2-60
     jsonDoc["overheatContinuous5"] = true; // true|false
@@ -153,12 +160,7 @@ String getPackConfig() {
     // Power Level 1
     jsonDoc["overheatEnabled1"] = false; // true|false
     jsonDoc["overheatStartDelay1"] = 60; // 2-60
-  }
-
-  // Serialize JSON object to string.
-  serializeJson(jsonDoc, equipSettings);
-  return equipSettings;
-}
+*/
 
 String getEquipmentStatus() {
   // Prepare a JSON object with information we have gleamed from the system.

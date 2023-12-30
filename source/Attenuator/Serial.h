@@ -47,6 +47,33 @@ struct __attribute__((packed)) STRUCTSEND {
   uint16_t e;
 } sendStruct;
 
+struct PackPrefs {
+  uint8_t defaultSystemModePack;
+  uint8_t defaultYearThemePack;
+  uint8_t defaultSystemVolume;
+  uint8_t cyclotronDirection;
+  uint8_t demoLightMode;
+  uint8_t protonStreamEffects;
+  uint8_t smokeEnabled;
+  uint8_t overheatStrobeNF;
+  uint8_t overheatSyncToFan;
+  uint8_t overheatLightsOff;
+  uint8_t ledCycLidCount;
+  uint8_t ledCycLidHue;
+  uint8_t ledCycLidSat;
+  uint8_t ledCycLidCenter;
+  uint8_t ledCycLidSimRing;
+  uint8_t ledCycCakeCount;
+  uint8_t ledCycCakeHue;
+  uint8_t ledCycCakeSat;
+  uint8_t ledCycCakeGRB;
+  uint8_t ledVGCyclotron;
+  uint8_t ledPowercellCount;
+  uint8_t ledPowercellHue;
+  uint8_t ledPowercellSat;
+  uint8_t ledVGPowercell;
+} packConfig;
+
 /*
  * Serial API Communication Handlers
  */
@@ -637,6 +664,34 @@ boolean checkPack() {
             for (int i = 0; i < (sizeof(comStruct.d) / sizeof(comStruct.d[0])); i++) {
                 Serial.println("Data" + String(i) + ": " + String(comStruct.d[i]));
             }
+
+            packConfig.defaultSystemModePack = comStruct.d[0];
+            packConfig.defaultYearThemePack = comStruct.d[1];
+            packConfig.defaultSystemVolume = comStruct.d[2];
+            packConfig.protonStreamEffects = comStruct.d[3];
+            packConfig.smokeEnabled = comStruct.d[4];
+            packConfig.overheatStrobeNF = comStruct.d[5];
+            packConfig.overheatLightsOff = comStruct.d[6];
+            packConfig.overheatSyncToFan = comStruct.d[7];
+            packConfig.demoLightMode = comStruct.d[8];
+
+            packConfig.ledCycLidCount = comStruct.d[9];
+            packConfig.ledCycLidHue = comStruct.d[10];
+            packConfig.ledCycLidSat = comStruct.d[11];
+            packConfig.cyclotronDirection = comStruct.d[12];
+            packConfig.ledCycLidCenter = comStruct.d[13];
+            packConfig.ledVGCyclotron = comStruct.d[14];
+            packConfig.ledCycLidSimRing = comStruct.d[15];
+
+            packConfig.ledCycCakeCount = comStruct.d[16];
+            packConfig.ledCycCakeHue = comStruct.d[17];
+            packConfig.ledCycCakeSat = comStruct.d[18];
+            packConfig.ledCycCakeGRB = comStruct.d[19];
+
+            packConfig.ledPowercellCount = comStruct.d[20];
+            packConfig.ledPowercellHue = comStruct.d[21];
+            packConfig.ledPowercellSat = comStruct.d[22];
+            packConfig.ledVGPowercell = comStruct.d[23];
           break;
 
           default:

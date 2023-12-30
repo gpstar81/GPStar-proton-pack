@@ -57,7 +57,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
       </br>
       <b>Default Master Volume:</b>
-      <input type="range" id="masterVol" name="masterVol" min="0" max="100" value="100" step="2"/>
+      <input type="range" id="masterVol" name="masterVol" min="0" max="100" value="100" step="2" oninput="masterVolOut.value=masterVol.value"/>
+      <output id="masterVolOut" for="masterVol">100</output>
       </br>
       <b>Proton Stream Impact Effects:</b>
       <label class="switch">
@@ -106,10 +107,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
       <br/>
       <b>Spectral Custom Color (Hue):</b>
-      <input type="range" id="cycHue" name="cycHue" min="2" max="254" value="254" step="2"/>
+      <input type="range" id="cycHue" name="cycHue" min="2" max="254" value="254" step="2" oninput="cycHueOut.value=cycHue.value"/>
+      <output id="cycHueOut" for="cycHue">100</output>
       <br/>
       <b>Spectral Custom Saturation:</b>
-      <input type="range" id="cycSat" name="cycSat" min="2" max="254" value="254" step="2"/>
+      <input type="range" id="cycSat" name="cycSat" min="2" max="254" value="254" step="2" oninput="cycSatOut.value=cycSat.value"/>
+      <output id="cycSatOut" for="cycSat">100</output>
       <br/>
       <b>Direction:</b>
       <select id="cycDir" name="cycDir">
@@ -147,10 +150,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
       <br/>
       <b>Spectral Custom Color (Hue):</b>
-      <input type="range" id="cakeHue" name="cakeHue" min="2" max="254" value="254" step="2"/>
+      <input type="range" id="cakeHue" name="cakeHue" min="2" max="254" value="254" step="2" oninput="cakeHueOut.value=cakeHue.value"/>
+      <output id="cakeHueOut" for="cakeHue">100</output>
       <br/>
       <b>Spectral Custom Saturation:</b>
-      <input type="range" id="cakeSat" name="cakeSat" min="2" max="254" value="254" step="2"/>
+      <input type="range" id="cakeSat" name="cakeSat" min="2" max="254" value="254" step="2" oninput="cakeSatOut.value=cakeSat.value"/>
+      <output id="cakeSatOut" for="cakeSat">100</output>
       <br/>
       <b>Swap Red/Green LEDs (GRB):</b>
       <label class="switch">
@@ -168,10 +173,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
       <br/>
       <b>Spectral Custom Color (Hue):</b>
-      <input type="range" id="pcHue" name="pcHue" min="2" max="254" value="254" step="2"/>
+      <input type="range" id="pcHue" name="pcHue" min="2" max="254" value="254" step="2" oninput="pcHueOut.value=pcHue.value"/>
+      <output id="pcHueOut" for="pcHue">100</output>
       <br/>
       <b>Spectral Custom Saturation:</b>
-      <input type="range" id="pcSat" name="pcSat" min="2" max="254" value="254" step="2"/>
+      <input type="range" id="pcSat" name="pcSat" min="2" max="254" value="254" step="2" oninput="pcSatOut.value=pcSat.value"/>
+      <output id="pcSatOut" for="pcSat">100</output>
       </br>
       <b>Enable Video Game Colors:</b>
       <label class="switch">
