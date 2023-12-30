@@ -1082,7 +1082,7 @@ void checkSwitches() {
             }
 
             SYSTEM_YEAR = SYSTEM_1984;
-            SYSTEM_YEAR_TEMP = SYSTEM_1984;
+            SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
             serial1Send(A_YEAR_1984);
           }
@@ -1093,7 +1093,7 @@ void checkSwitches() {
             }
 
             SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-            SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
+            SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
             serial1Send(A_YEAR_AFTERLIFE);
           }
@@ -1108,7 +1108,7 @@ void checkSwitches() {
               }
 
               SYSTEM_YEAR = SYSTEM_1984;
-              SYSTEM_YEAR_TEMP = SYSTEM_1984;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_1984);
             break;
@@ -1120,25 +1120,22 @@ void checkSwitches() {
               }
 
               SYSTEM_YEAR = SYSTEM_1989;
-              SYSTEM_YEAR_TEMP = SYSTEM_1989;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_1989);
             break;
 
-            /*
             case SYSTEM_FROZEN_EMPIRE:
-            default:
               if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to Frozen Empire mode.
                 packSerialSend(P_YEAR_FROZEN_EMPIRE);
               }
 
-              SYSTEM_YEAR = SYSTEM_YEAR_FROZEN_EMPIRE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR_FROZEN_EMPIRE;
+              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_FROZEN_EMPIRE);
             break;
-            */
 
             case SYSTEM_AFTERLIFE:
             default:
@@ -1148,7 +1145,7 @@ void checkSwitches() {
               }
 
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-              SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_AFTERLIFE);
             break;

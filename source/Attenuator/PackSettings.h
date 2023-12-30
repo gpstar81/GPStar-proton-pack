@@ -53,7 +53,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         <option value="2">1984</option>
         <option value="3">1989</option>
         <option value="4">Afterlife</option>
-        <!-- <option value="5">Frozen Empire</option> -->
+        <option value="5">Frozen Empire</option>
       </select>
       </br>
       <b>Default Master Volume:</b>
@@ -115,7 +115,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <output id="cycSatOut" for="cycSat">254</output>
       <br/>
       <b>Direction:</b>
-      <select id="cycDir" name="cycDir">
+      <select id="cyclotronDirection" name="cyclotronDirection">
         <option value="0">Counter-Clockwise</option>
         <option value="1">Clockwise</option>
       </select>
@@ -204,7 +204,39 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          console.log(JSON.parse(this.responseText));
+          var settings = JSON.parse(this.responseText);
+          console.log(settings);
+
+          if (settings.packPowered || settings.wandPowered) {
+            alert("Pack and/or Wand are currently powered up. Changes to settings will not be allowed. Turn off system via toggle switches and reload the page to obtain the latest settings.");
+          }
+
+          // Update fields with the current values, or supply an expected default as necessary.
+          document.getElementById("cyclotronDirection").value = settings.cyclotronDirection || 0;
+
+          //     "ledCycLidCount": 12,
+          //     "ledCycLidHue": 200,
+          //     "ledCycLidSat": 254,
+          //     "ledCycLidCenter": 1,
+          //     "ledVGCyclotron": 1,
+          //     "ledCycLidSimRing": 1,
+          //     "ledCycCakeCount": 35,
+          //     "ledCycCakeHue": 200,
+          //     "ledCycCakeSat": 254,
+          //     "ledCycCakeGRB": 0,
+          //     "ledPowercellCount": 13,
+          //     "ledPowercellHue": 200,
+          //     "ledPowercellSat": 254,
+          //     "ledVGPowercell": 1,
+          //     "defaultSystemModePack": 0,
+          //     "defaultYearThemePack": 4,
+          //     "defaultSystemVolume": 100,
+          //     "protonStreamEffects": 1,
+          //     "smokeEnabled": 1,
+          //     "overheatStrobeNF": 1,
+          //     "overheatLightsOff": 1,
+          //     "overheatSyncToFan": 0,
+          //     "demoLightMode": 0
         }
       };
       xhttp.open("GET", "/config/pack", true);

@@ -72,7 +72,6 @@ void serial1Send(int i_message) {
     break;
 
     case A_SEND_PREFERENCES_PACK:
-Serial.println("sending pack preferences");
       // Sends values from current runtime variables as values in an int array.
       // Any ENUM or boolean types will simply translate as numeric values.
       dataStruct.d[0] = SYSTEM_MODE;

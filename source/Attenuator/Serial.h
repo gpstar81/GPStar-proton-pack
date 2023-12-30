@@ -344,7 +344,6 @@ boolean checkPack() {
             }
           break;
 
-/*
           case A_YEAR_FROZEN_EMPIRE:
             if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE) {
               #if defined(__XTENSA__)
@@ -354,7 +353,6 @@ boolean checkPack() {
               b_state_changed = true;
             }
           break;
-*/
 
           case A_PROTON_MODE:
             #if defined(__XTENSA__)
