@@ -76,11 +76,12 @@ struct PackPrefs {
  */
 
 // Sends an API to the Proton Pack
-void attenuatorSerialSend(uint16_t i_message) {
+void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
   uint16_t sendSize = 0;
 
   sendStruct.s = A_COM_START;
   sendStruct.i = i_message;
+  sendStruct.d1 = i_value;
   sendStruct.e = A_COM_END;
 
   switch(i_message) {
@@ -418,6 +419,7 @@ boolean checkPack() {
             #if defined(__XTENSA__)
               debug("Spectral Color Data");
             #endif
+
             if(comStruct.d[0] > 0) {
               i_spectral_custom = comStruct.d[0];
             }

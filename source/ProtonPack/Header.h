@@ -450,8 +450,8 @@ millisDelay ms_fadeout;
  */
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
 void stopEffect(int i_track_id);
-void stopMusic();
 void playMusic();
+void stopMusic();
 void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
 void powercellDraw(uint8_t i_start = 0);
 

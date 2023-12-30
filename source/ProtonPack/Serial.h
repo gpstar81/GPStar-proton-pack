@@ -2607,8 +2607,8 @@ void checkWand() {
                 if(SYSTEM_YEAR_TEMP == SYSTEM_AFTERLIFE) {
                   b_switch_mode_override = false;
 
-                  //stopEffect(S_VOICE_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
+                  stopEffect(S_VOICE_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_AFTERLIFE);
                   stopEffect(S_VOICE_1984);
                   stopEffect(S_VOICE_1989);
@@ -2714,11 +2714,9 @@ void checkWand() {
             else if(SYSTEM_YEAR == SYSTEM_1989) {
               packSerialSend(P_YEAR_1989);
             }
-            /*
             else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
               packSerialSend(P_YEAR_FROZEN_EMPIRE);
             }
-            */
             else {
               packSerialSend(P_YEAR_AFTERLIFE);
             }
@@ -3019,29 +3017,33 @@ void checkSerial1() {
               //Serial.println("Serial1 Sync Start");
             break;
 
-            case A_SYNC_END:
-              //Serial.println("Serial1 Sync End");
-            break;
-
-            default:
+            case A_MUSIC_PLAY_TRACK:
               // Music track number to be played.
-              if(i_music_count > 0 && dataStructR.i >= i_music_track_start) {
+              if(i_music_count > 0 && dataStructR.d1 >= i_music_track_start) {
                 if(b_playing_music == true) {
                   stopMusic(); // Stops current track before change.
 
                   // Only update after the music is stopped.
-                  i_current_music_track = dataStructR.i;
+                  i_current_music_track = dataStructR.d1;
 
                   // Play the appropriate track on pack and wand, and notify the serial1 device.
                   playMusic();
                 }
                 else {
-                  i_current_music_track = dataStructR.i;
+                  i_current_music_track = dataStructR.d1;
 
                   // Tell the wand which track to play.
                   packSerialSend(i_current_music_track);
                 }
               }
+            break;
+
+            case A_SYNC_END:
+              //Serial.println("Serial1 Sync End");
+            break;
+
+            default:
+              // No-op for anything else.
             break;
           }
         }
@@ -3062,13 +3064,11 @@ void checkSerial1() {
             else if(SYSTEM_YEAR == SYSTEM_1989) {
               serial1Send(A_YEAR_1989);
             }
-            /*
-            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              serial1Send(A_YEAR_FROZEN_EMPIRE);
-            }
-            */
             else if(SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
               serial1Send(A_YEAR_AFTERLIFE);
+            }
+            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              serial1Send(A_YEAR_FROZEN_EMPIRE);
             }
 
             // Ribbon cable alarm.

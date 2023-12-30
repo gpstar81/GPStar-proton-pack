@@ -305,7 +305,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   if(c_music_track.toInt() != 0 && c_music_track.toInt() >= i_music_track_min) {
     uint16_t i_music_track = c_music_track.toInt();
     debug("Selected Music Track: " + String(i_music_track));
-    attenuatorSerialSend(i_music_track); // Inform the pack of the new track.
+    attenuatorSerialSend(A_MUSIC_PLAY_TRACK, i_music_track); // Inform the pack of the new track.
     request->send(200, "application/json", status);
   }
   else {
