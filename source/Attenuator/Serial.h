@@ -655,7 +655,7 @@ boolean checkPack() {
 
           case A_SEND_PREFERENCES_PACK:
             #if defined(__XTENSA__)
-              debug("Preferences Sent");
+              debug("Preferences Received");
             #endif
 
             for (int i = 0; i < (sizeof(comStruct.d) / sizeof(comStruct.d[0])); i++) {

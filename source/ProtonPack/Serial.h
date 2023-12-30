@@ -54,62 +54,77 @@ void serial1Send(int i_message) {
     dataStruct.d[i] = 0;
   }
 
-  if(i_message == A_SPECTRAL_CUSTOM_MODE || i_message == A_SPECTRAL_COLOUR_DATA) {
-    dataStruct.d[0] = i_spectral_cyclotron_custom;
-    dataStruct.d[1] = i_spectral_cyclotron_custom_saturation;
-  }
-  else if(i_message == A_MUSIC_TRACK_COUNT_SYNC) {
-    dataStruct.d1 = i_music_count;
-  }
-  else if(i_message == A_MUSIC_IS_PLAYING || i_message == A_MUSIC_IS_NOT_PLAYING) {
-    dataStruct.d1 = i_current_music_track;
-  }
-  else if(i_message == A_SEND_PREFERENCES_PACK) {
-    // Sends values from current runtime variables as values in a byte array.
-    // Any ENUM or boolean types will simply translate as numeric values.
-    dataStruct.d[0] = SYSTEM_MODE;
-    dataStruct.d[1] = SYSTEM_YEAR;
-    dataStruct.d[2] = i_volume_master_percentage;
-    dataStruct.d[3] = b_stream_effects;
-    dataStruct.d[4] = b_smoke_enabled;
-    dataStruct.d[5] = b_overheat_strobe;
-    dataStruct.d[6] = b_overheat_lights_off;
-    dataStruct.d[7] = b_overheat_sync_to_fan;
-    dataStruct.d[8] = b_demo_light_mode;
+  // Provide additional data with certain messages.
+  switch(i_message) {
+    case A_SPECTRAL_CUSTOM_MODE:
+    case A_SPECTRAL_COLOUR_DATA:
+      dataStruct.d[0] = i_spectral_cyclotron_custom;
+      dataStruct.d[1] = i_spectral_cyclotron_custom_saturation;
+    break;
 
-    // Cyclotron Lid
-    dataStruct.d[9] = i_cyclotron_leds;
-    dataStruct.d[10] = i_spectral_cyclotron_custom;
-    dataStruct.d[11] = i_spectral_cyclotron_custom_saturation;
-    dataStruct.d[12] = b_clockwise; // Cyclotron Direction
-    dataStruct.d[13] = b_cyclotron_single_led;
-    dataStruct.d[14] = b_cyclotron_colour_toggle;
-    dataStruct.d[15] = b_cyclotron_simulate_ring;
+    case A_MUSIC_TRACK_COUNT_SYNC:
+      dataStruct.d1 = i_music_count;
+    break;
 
-    // Cyclotron Cake
-    dataStruct.d[16] = i_inner_cyclotron_num_leds;
-    dataStruct.d[17] = i_spectral_cyclotron_inner_custom;
-    dataStruct.d[18] = i_spectral_cyclotron_inner_custom_saturation;
-    dataStruct.d[19] = b_grb_cyclotron;
+    case A_MUSIC_IS_PLAYING:
+    case A_MUSIC_IS_NOT_PLAYING:
+      dataStruct.d1 = i_current_music_track;
+    break;
 
-    // Power Cell
-    dataStruct.d[20] = i_powercell_leds;
-    dataStruct.d[21] = i_spectral_powercell_custom;
-    dataStruct.d[22] = i_spectral_powercell_custom_saturation;
-    dataStruct.d[23] = b_powercell_colour_toggle;
-  }
-  else if(i_message == A_SEND_PREFERENCES_TIMINGS) {
-    dataStruct.d[0] = i_ms_overheating_length_5;
-    dataStruct.d[1] = i_ms_overheating_length_4;
-    dataStruct.d[2] = i_ms_overheating_length_3;
-    dataStruct.d[3] = i_ms_overheating_length_2;
-    dataStruct.d[4] = i_ms_overheating_length_1;
+    case A_SEND_PREFERENCES_PACK:
+Serial.println("sending pack preferences");
+      // Sends values from current runtime variables as values in an int array.
+      // Any ENUM or boolean types will simply translate as numeric values.
+      dataStruct.d[0] = SYSTEM_MODE;
+      dataStruct.d[1] = SYSTEM_YEAR;
+      dataStruct.d[2] = i_volume_master_percentage;
+      dataStruct.d[3] = b_stream_effects;
+      dataStruct.d[4] = b_smoke_enabled;
+      dataStruct.d[5] = b_overheat_strobe;
+      dataStruct.d[6] = b_overheat_lights_off;
+      dataStruct.d[7] = b_overheat_sync_to_fan;
+      dataStruct.d[8] = b_demo_light_mode;
 
-    dataStruct.d[5] = b_smoke_continuous_mode_5;
-    dataStruct.d[6] = b_smoke_continuous_mode_4;
-    dataStruct.d[7] = b_smoke_continuous_mode_3;
-    dataStruct.d[8] = b_smoke_continuous_mode_2;
-    dataStruct.d[9] = b_smoke_continuous_mode_1;
+      // Cyclotron Lid
+      dataStruct.d[9] = i_cyclotron_leds;
+      dataStruct.d[10] = i_spectral_cyclotron_custom;
+      dataStruct.d[11] = i_spectral_cyclotron_custom_saturation;
+      dataStruct.d[12] = b_clockwise; // Cyclotron Direction
+      dataStruct.d[13] = b_cyclotron_single_led;
+      dataStruct.d[14] = b_cyclotron_colour_toggle;
+      dataStruct.d[15] = b_cyclotron_simulate_ring;
+
+      // Cyclotron Cake
+      dataStruct.d[16] = i_inner_cyclotron_num_leds;
+      dataStruct.d[17] = i_spectral_cyclotron_inner_custom;
+      dataStruct.d[18] = i_spectral_cyclotron_inner_custom_saturation;
+      dataStruct.d[19] = b_grb_cyclotron;
+
+      // Power Cell
+      dataStruct.d[20] = i_powercell_leds;
+      dataStruct.d[21] = i_spectral_powercell_custom;
+      dataStruct.d[22] = i_spectral_powercell_custom_saturation;
+      dataStruct.d[23] = b_powercell_colour_toggle;
+    break;
+
+    case A_SEND_PREFERENCES_TIMINGS:
+      // Sends values from current runtime variables as values in an int array.
+      dataStruct.d[0] = i_ms_overheating_length_5;
+      dataStruct.d[1] = i_ms_overheating_length_4;
+      dataStruct.d[2] = i_ms_overheating_length_3;
+      dataStruct.d[3] = i_ms_overheating_length_2;
+      dataStruct.d[4] = i_ms_overheating_length_1;
+
+      dataStruct.d[5] = b_smoke_continuous_mode_5;
+      dataStruct.d[6] = b_smoke_continuous_mode_4;
+      dataStruct.d[7] = b_smoke_continuous_mode_3;
+      dataStruct.d[8] = b_smoke_continuous_mode_2;
+      dataStruct.d[9] = b_smoke_continuous_mode_1;
+    break;
+
+    default:
+      // No-op for all other communications.
+    break;
   }
 
   dataStruct.e = A_COM_END;

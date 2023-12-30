@@ -45,7 +45,7 @@
 #include "Preferences.h"
 
 /*
- * Function prototypes from Serial.h
+ * Function prototypes from Serial.h (included at end of this file)
  */
 void serial1Send(int i_message);
 void packSerialSend(int i_message);
@@ -55,12 +55,12 @@ void checkWand();
 void setup() {
   Serial.begin(9600); // Standard serial console.
 
-  Serial1.begin(9600); // Add-on serial communication.
+  Serial1.begin(9600); // Add-on Serial1 communication.
   Serial2.begin(9600); // Communication to the Neutrona Wand.
 
   // Connect the serial ports.
-  serial1Coms.begin(Serial1, false);
-  packComs.begin(Serial2, false);
+  serial1Coms.begin(Serial1, true, Serial);
+  packComs.begin(Serial2, true, Serial);
 
   // Setup the WAV Trigger.
   setupWavTrigger();

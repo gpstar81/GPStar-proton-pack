@@ -48,9 +48,7 @@ void handlePackSettings(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Serve page content.
 
   // Tell the pack that we'll need the latest EEPROM values.
-  Serial.println("Sending request for preferences");
   attenuatorSerialSend(A_SEND_PREFERENCES_PACK);
-  Serial.println("Request sent");
 }
 
 void handleStyle(AsyncWebServerRequest *request) {
@@ -66,8 +64,6 @@ String getPackConfig() {
   jsonDoc.clear();
 
   if(!b_wait_for_pack) {
-    Serial.println("Getting Preferences");
-
     // Return current powered state for pack and wand.
     jsonDoc["packPowered"] = (b_pack_on ? true : false);
     jsonDoc["wandPowered"] = (b_wand_on ? true : false);

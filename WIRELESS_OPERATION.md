@@ -52,14 +52,14 @@ The following URL's will serve the pages as shown above:
 
 	GET / - Standard Index/Landing Page
 	GET /password - WiFi Password Update Page
-	GET /settings - Hardware Settings Page
+	GET /settings/pack - Pack Settings Page
 	GET /style.css - Common Stylesheet
 
 For real-time updates, a special url exists at `/ws` to support [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API). When connected, the ESP32 device will "push" any relevant information direct to clients. Note that this data may be in the form of a JSON object or a plain string, so check the contents of the data carefully before usage.
 
 The following URL's are available for managing actions within your devices:
 
-	GET /settings - Obtain the current equipment settings
+	GET /config/pack - Obtain the current pack equipment settings
 	GET /status - Obtain the current equipment status
 	PUT /pack/on - Turn the pack on (subject to system state)
 	PUT /pack/off - Turn the pack onf (subject to system state)
