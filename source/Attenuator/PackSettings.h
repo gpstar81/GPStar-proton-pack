@@ -34,192 +34,192 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block">
     <p>
       Change system configuration options using the available toggles/selectors.
-      <br/>
       Options can only be changed when the pack and wand are not powered/running!
     </p>
     <br/>
+  </div>
 
-    <h1>General Options</h1>
-    <div class="block left">
-      <div class="setting">
-        <b>System Mode:</b>
-        <select id="defaultSystemModePack" name="defaultSystemModePack">
-          <option value="0">Super Hero</option>
-          <option value="1">Mode Original</option>
-        </select>
-      </div>
-      <div class="setting">
-        <b>Theme Year:</b>
-        <select id="defaultYearThemePack" name="defaultYearThemePack">
-          <option value="1">System Toggle</option>
-          <option value="2">1984</option>
-          <option value="3">1989</option>
-          <option value="4">Afterlife</option>
-          <option value="5">Frozen Empire</option>
-        </select>
-      </div>
-      <div class="setting">
-        <b class="labelSlider">Default Master Volume %:</b>
-        <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="0" max="100" value="100" step="2" oninput="masterVolOut.value=defaultSystemVolume.value"/>
-        <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume">100</output>
-      </div>
-      <div class="setting">
-        <b class="labelSwitch">Proton Stream Impact Effects:</b>
-        <label class="switch">
-          <input id="protonStreamEffects" name="protonStreamEffects" type="checkbox">
-          <span class="slider round"></span>
-        </label>
-      </div>
-      <div class="setting">
-        <b class="labelSwitch">Enable Smoke Effects:</b>
-        <label class="switch">
-          <input id="smokeEnabled" name="smokeEnabled" type="checkbox">
-          <span class="slider round"></span>
-        </label>
-      </div>
-      <div class="setting">
-        <b class="labelSwitch">Strobe N-Filter on Overheat:</b>
-        <label class="switch">
-          <input id="overheatStrobeNF" name="overheatStrobeNF" type="checkbox">
-          <span class="slider round"></span>
-        </label>
-      </div>
-      <div class="setting">
-        <b class="labelSwitch">Lights Off During Overheat:</b>
-        <label class="switch">
-          <input id="overheatLightsOff" name="overheatLightsOff" type="checkbox">
-          <span class="slider round"></span>
-        </label>
-      </div>
-      <div class="setting">
-        <b class="labelSwitch">Overheat Sync Smoke to Fan:</b>
-        <label class="switch">
-          <input id="overheatSyncToFan" name="overheatSyncToFan" type="checkbox">
-          <span class="slider round"></span>
-        </label>
-      </div>
-      <div class="setting">
-        <b class="labelSwitch">Enable Demo Light Mode:</b>
-        <label class="switch">
-          <input id="demoLightMode" name="demoLightMode" type="checkbox">
-          <span class="slider round"></span>
-        </label>
-      </div>
+  <h1>General Options</h1>
+  <div class="block left">
+    <div class="setting">
+      <b>System Mode:</b>
+      <select id="defaultSystemModePack" name="defaultSystemModePack">
+        <option value="0">Super Hero</option>
+        <option value="1">Mode Original</option>
+      </select>
     </div>
+    <div class="setting">
+      <b>Theme Year:</b>
+      <select id="defaultYearThemePack" name="defaultYearThemePack">
+        <option value="1">System Toggle</option>
+        <option value="2">1984</option>
+        <option value="3">1989</option>
+        <option value="4">Afterlife</option>
+        <option value="5">Frozen Empire</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b class="labelSlider">Startup Volume %:</b>
+      <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="0" max="100" value="100" step="2" oninput="masterVolOut.value=defaultSystemVolume.value"/>
+      <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume">100</output>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Proton Stream Impact Effects:</b>
+      <label class="switch">
+        <input id="protonStreamEffects" name="protonStreamEffects" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Enable Smoke Effects:</b>
+      <label class="switch">
+        <input id="smokeEnabled" name="smokeEnabled" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Strobe N-Filter on Overheat:</b>
+      <label class="switch">
+        <input id="overheatStrobeNF" name="overheatStrobeNF" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Lights Off During Overheat:</b>
+      <label class="switch">
+        <input id="overheatLightsOff" name="overheatLightsOff" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Overheat Sync Smoke to Fan:</b>
+      <label class="switch">
+        <input id="overheatSyncToFan" name="overheatSyncToFan" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Enable Demo Light Mode:</b>
+      <label class="switch">
+        <input id="demoLightMode" name="demoLightMode" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
 
-    <h1>Cyclotron Lid</h1>
-    <div class="block left">
-      <div class="setting">
-        <b>LED Count:</b>
-        <select id="ledCycLidCount" name="ledCycLidCount">
-          <option value="12">12 - Stock</option>
-          <option value="20">20 - Frutto</option>
-          <option value="40">40 - Ring</option>
-        </select>
-      </div>
-      <div class="setting">
-        <b class="labelSlider">Spectral Custom Color (Hue):</b>
-        <input type="range" id="ledCycLidHue" name="ledCycLidHue" min="0" max="360" value="360" step="2" oninput="cycHueOut.value=ledCycLidHue.value"/>
-        <output class="labelSlider" id="cycHueOut" for="ledCycLidHue">360</output>
-      </div>
-      <div class="setting">
-        <b class="labelSlider">Spectral Custom Saturation %:</b>
-        <input type="range" id="ledCycLidSat" name="ledCycLidSat" min="0" max="100" value="100" step="2" oninput="cycSatOut.value=ledCycLidSat.value"/>
-        <output class="labelSlider" id="cycSatOut" for="ledCycLidSat">100</output>
-      </div>
-      <div class="setting">
-        <b>Direction:</b>
-        <select id="cyclotronDirection" name="cyclotronDirection">
-          <option value="0">Counter-Clockwise</option>
-          <option value="1">Clockwise</option>
-        </select>
-      </div>
-      <div class="setting">
-        <b>Center LEDs:</b>
-        <select id="ledCycLidCenter" name="ledCycLidCenter">
-          <option value="0">3 LED</option>
-          <option value="1">1 LED</option>
-        </select>
-      </div>
-      <div class="setting">
-        <b class="labelSwitch">Enable Video Game Colors:</b>
-        <label class="switch">
-          <input id="ledVGCyclotron" name="ledVGCyclotron" type="checkbox">
-          <span class="slider round"></span>
-        </label>
-      </div>
-      <div class="setting">
-        <b class="labelSwitch">Simulate Ring Spin Effect:</b>
-        <label class="switch">
-          <input id="ledCycLidSimRing" name="ledCycLidSimRing" type="checkbox">
-          <span class="slider round"></span>
-        </label>
-      </div>
+  <h1>Cyclotron Lid</h1>
+  <div class="block left">
+    <div class="setting">
+      <b>LED Count:</b>
+      <select id="ledCycLidCount" name="ledCycLidCount">
+        <option value="12">12 - Stock</option>
+        <option value="20">20 - Frutto</option>
+        <option value="40">40 - Ring</option>
+      </select>
     </div>
+    <div class="setting">
+      <b class="labelSlider">Custom Color (Hue):</b>
+      <input type="range" id="ledCycLidHue" name="ledCycLidHue" min="0" max="360" value="360" step="2" oninput="cycHueOut.value=ledCycLidHue.value"/>
+      <output class="labelSlider" id="cycHueOut" for="ledCycLidHue">360</output>
+    </div>
+    <div class="setting">
+      <b class="labelSlider">Custom Saturation %:</b>
+      <input type="range" id="ledCycLidSat" name="ledCycLidSat" min="0" max="100" value="100" step="2" oninput="cycSatOut.value=ledCycLidSat.value"/>
+      <output class="labelSlider" id="cycSatOut" for="ledCycLidSat">100</output>
+    </div>
+    <div class="setting">
+      <b>Direction:</b>
+      <select id="cyclotronDirection" name="cyclotronDirection">
+        <option value="0">Counter-Clockwise</option>
+        <option value="1">Clockwise</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b>Center LEDs:</b>
+      <select id="ledCycLidCenter" name="ledCycLidCenter">
+        <option value="0">3 LED</option>
+        <option value="1">1 LED</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Enable Video Game Colors:</b>
+      <label class="switch">
+        <input id="ledVGCyclotron" name="ledVGCyclotron" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Simulate Ring Spin Effect:</b>
+      <label class="switch">
+        <input id="ledCycLidSimRing" name="ledCycLidSimRing" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
 
-    <h1>Cyclotron Cake</h1>
-    <div class="block left">
-      <div class="setting">
-        <b>LED Count:</b>
-        <select id="ledCycCakeCount" name="ledCycCakeCount">
-          <option value="12">12</option>
-          <option value="23">23</option>
-          <option value="24">24</option>
-          <option value="35">35</option>
-        </select>
-      </div>
-      <div class="setting">
-        <b class="labelSlider">Spectral Custom Color (Hue):</b>
-        <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="0" max="360" value="360" step="2" oninput="cakeHueOut.value=ledCycCakeHue.value"/>
-        <output class="labelSlider" id="cakeHueOut" for="ledCycCakeHue">360</output>
-      </div>
-      <div class="setting">
-        <b class="labelSlider">Spectral Custom Saturation %:</b>
-        <input type="range" id="ledCycCakeSat" name="ledCycCakeSat" min="0" max="100" value="100" step="2" oninput="cakeSatOut.value=ledCycCakeSat.value"/>
-        <output class="labelSlider" id="cakeSatOut" for="ledCycCakeSat">100</output>
-      </div>
-        <div class="setting">
-        <b class="labelSwitch">Swap Red/Green LEDs (GRB):</b>
-        <label class="switch">
-          <input id="ledCycCakeGRB" name="ledCycCakeGRB" type="checkbox">
-          <span class="slider round"></span>
-        </label>
-      </div>
+  <h1>Inner Cyclotron</h1>
+  <div class="block left">
+    <div class="setting">
+      <b>LED Count:</b>
+      <select id="ledCycCakeCount" name="ledCycCakeCount">
+        <option value="12">12</option>
+        <option value="23">23</option>
+        <option value="24">24</option>
+        <option value="35">35</option>
+      </select>
     </div>
+    <div class="setting">
+      <b class="labelSlider">Custom Color (Hue):</b>
+      <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="0" max="360" value="360" step="2" oninput="cakeHueOut.value=ledCycCakeHue.value"/>
+      <output class="labelSlider" id="cakeHueOut" for="ledCycCakeHue">360</output>
+    </div>
+    <div class="setting">
+      <b class="labelSlider">Custom Saturation %:</b>
+      <input type="range" id="ledCycCakeSat" name="ledCycCakeSat" min="0" max="100" value="100" step="2" oninput="cakeSatOut.value=ledCycCakeSat.value"/>
+      <output class="labelSlider" id="cakeSatOut" for="ledCycCakeSat">100</output>
+    </div>
+      <div class="setting">
+      <b class="labelSwitch">Swap Red/Green LEDs (GRB):</b>
+      <label class="switch">
+        <input id="ledCycCakeGRB" name="ledCycCakeGRB" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
 
-    <h1>Power Cell</h1>
-    <div class="block left">
-      <div class="setting">
-        <b>LED Count:</b>
-        <select id="ledPowercellCount" name="ledPowercellCount">
-          <option value="13">13 - Stock</option>
-          <option value="15">15 - Frutto</option>
-        </select>
-      </div>
-      <div class="setting">
-        <b class="labelSlider">Spectral Custom Color (Hue):</b>
-        <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="0" max="360" value="360" step="2" oninput="pcHueOut.value=ledPowercellHue.value"/>
-        <output class="labelSlider" id="pcHueOut" for="ledPowercellHue">360</output>
-      </div>
-      <div class="setting">
-        <b class="labelSlider">Spectral Custom Saturation %:</b>
-        <input type="range" id="ledPowercellSat" name="ledPowercellSat" min="0" max="100" value="100" step="2" oninput="pcSatOut.value=ledPowercellSat.value"/>
-        <output class="labelSlider" id="pcSatOut" for="ledPowercellSat">100</output>
-      </div>
-      <div class="setting">
-        <b class="labelSwitch">Enable Video Game Colors:</b>
-        <label class="switch">
-          <input id="ledVGPowercell" name="ledVGPowercell" type="checkbox">
-          <span class="slider round"></span>
-        </label>
-      </div>
+  <h1>Power Cell</h1>
+  <div class="block left">
+    <div class="setting">
+      <b>LED Count:</b>
+      <select id="ledPowercellCount" name="ledPowercellCount">
+        <option value="13">13 - Stock</option>
+        <option value="15">15 - Frutto</option>
+      </select>
     </div>
+    <div class="setting">
+      <b class="labelSlider">Custom Color (Hue):</b>
+      <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="0" max="360" value="360" step="2" oninput="pcHueOut.value=ledPowercellHue.value"/>
+      <output class="labelSlider" id="pcHueOut" for="ledPowercellHue">360</output>
+    </div>
+    <div class="setting">
+      <b class="labelSlider">Custom Saturation %:</b>
+      <input type="range" id="ledPowercellSat" name="ledPowercellSat" min="0" max="100" value="100" step="2" oninput="pcSatOut.value=ledPowercellSat.value"/>
+      <output class="labelSlider" id="pcSatOut" for="ledPowercellSat">100</output>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Enable Video Game Colors:</b>
+      <label class="switch">
+        <input id="ledVGPowercell" name="ledVGPowercell" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
 
-    <div class="block">
-      <a href="/">&laquo; Back</a>
-      &nbsp;&nbsp;&nbsp;
-      <button type="button" class="green" onclick="saveSettings()">Save</button>
-    </div>
+  <div class="block">
+    <hr/>
+    <a href="/">&laquo; Back</a>
+    &nbsp;&nbsp;&nbsp;
+    <button type="button" class="green" onclick="saveSettings()">Save</button>
   </div>
 
   <script type="application/javascript">
@@ -240,14 +240,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         if (this.readyState == 4 && this.status == 200) {
           var settings = JSON.parse(this.responseText);
           if (settings) {
-            console.log(settings);
-
             if (settings.packPowered || settings.wandPowered) {
               alert("Pack and/or Wand are currently powered up. Changes to settings will not be allowed. Turn off system via toggle switches and reload the page to obtain the latest settings.");
             }
 
             /**
-             * Note: Color (hue) value range uses the following scale:
+             * Note: Color (hue) value range uses the following scale, though HTML5 uses 0-360 for HSL color.
              *  0 = Red
              *  32 = Orange
              *  64 = Yellow
@@ -264,6 +262,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("defaultSystemModePack").value = settings.defaultSystemModePack || 0;
             document.getElementById("defaultYearThemePack").value = settings.defaultYearThemePack || 1; // Value cannot be 0.
             document.getElementById("defaultSystemVolume").value = settings.defaultSystemVolume || 100; // Default to full volume.
+            document.getElementById("masterVolOut").innerHTML = document.getElementById("defaultSystemVolume").value;
             document.getElementById("protonStreamEffects").value = settings.protonStreamEffects || 0;
             document.getElementById("smokeEnabled").checked = settings.smokeEnabled ? true: false;
             document.getElementById("overheatStrobeNF").checked = settings.overheatStrobeNF ? true: false;
@@ -271,19 +270,25 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("overheatSyncToFan").checked = settings.overheatSyncToFan ? true: false;
             document.getElementById("demoLightMode").checked = settings.demoLightMode ? true: false;
             document.getElementById("ledCycLidCount").value = settings.ledCycLidCount || 12; // Haslab: 12
-            document.getElementById("ledCycLidHue").value = convertRange(settings.ledCycLidHue || 254, [2,254], [0,360]); // Default: Red
-            document.getElementById("ledCycLidSat").value = convertRange(settings.ledCycLidSat || 254, [2,254], [0,100]); // Full Saturation
+            document.getElementById("ledCycLidHue").value = convertRange(settings.ledCycLidHue || 254, [1,254], [0,360]); // Default: Red
+            document.getElementById("cycHueOut").innerHTML = document.getElementById("ledCycLidHue").value;
+            document.getElementById("ledCycLidSat").value = convertRange(settings.ledCycLidSat || 254, [1,254], [0,100]); // Full Saturation
+            document.getElementById("cycSatOut").innerHTML = document.getElementById("ledCycLidSat").value;
             document.getElementById("cyclotronDirection").value = settings.cyclotronDirection || 0;
             document.getElementById("ledCycLidCenter").value = settings.ledCycLidCenter || 0;
             document.getElementById("ledVGCyclotron").checked = settings.ledVGCyclotron ? true: false;
             document.getElementById("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true: false;
             document.getElementById("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 12
-            document.getElementById("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [2,254], [0,360]); // Default: Red
-            document.getElementById("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [2,254], [0,100]); // Full Saturation
+            document.getElementById("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360]); // Default: Red
+            document.getElementById("cakeHueOut").innerHTML = document.getElementById("ledCycCakeHue").value;
+            document.getElementById("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
+            document.getElementById("cakeSatOut").innerHTML = document.getElementById("ledCycCakeSat").value;
             document.getElementById("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true: false;
             document.getElementById("ledPowercellCount").value = settings.ledPowercellCount || 13; // Haslab: 13
-            document.getElementById("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [2,254], [0,360]); // Default: Blue
-            document.getElementById("ledPowercellSat").value = convertRange(settings.ledPowercellSat || 254, [2,254], [0,100]); // Full Saturation
+            document.getElementById("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [1,254], [0,360]); // Default: Blue
+            document.getElementById("pcHueOut").innerHTML = document.getElementById("ledPowercellHue").value;
+            document.getElementById("ledPowercellSat").value = convertRange(settings.ledPowercellSat || 254, [1,254], [0,100]); // Full Saturation
+            document.getElementById("pcSatOut").innerHTML = document.getElementById("ledPowercellSat").value;
             document.getElementById("ledVGPowercell").checked = settings.ledVGPowercell ? true: false;
           }
         }
@@ -304,19 +309,19 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         overheatSyncToFan: document.getElementById("overheatSyncToFan").checked ? 1 : 0,
         demoLightMode: document.getElementById("demoLightMode").checked ? 1 : 0,
         ledCycLidCount: parseInt(document.getElementById("ledCycLidCount").value || 12, 10),
-        ledCycLidHue: convertRange(parseInt(document.getElementById("ledCycLidHue").value || 254, 10), [0,360], [2,254]),
-        ledCycLidSat: convertRange(parseInt(document.getElementById("ledCycLidSat").value || 254, 10), [0,100], [2,254]),
+        ledCycLidHue: convertRange(parseInt(document.getElementById("ledCycLidHue").value || 360, 10), [0,360], [1,254]),
+        ledCycLidSat: convertRange(parseInt(document.getElementById("ledCycLidSat").value || 100, 10), [0,100], [1,254]),
         cyclotronDirection: parseInt(document.getElementById("cyclotronDirection").value || 0, 10),
         ledCycLidCenter: parseInt(document.getElementById("ledCycLidCenter").value || 0, 10),
         ledVGCyclotron: document.getElementById("ledVGCyclotron").checked ? 1 : 0,
         ledCycLidSimRing: document.getElementById("ledCycLidSimRing").checked ? 1 : 0,
         ledCycCakeCount: parseInt(document.getElementById("ledCycCakeCount").value || 35, 10),
-        ledCycCakeHue: convertRange(parseInt(document.getElementById("ledCycCakeHue").value || 254, 10), [0,360], [2,254]),
-        ledCycCakeSat: convertRange(parseInt(document.getElementById("ledCycCakeSat").value || 254, 10), [0,100], [2,254]),
+        ledCycCakeHue: convertRange(parseInt(document.getElementById("ledCycCakeHue").value || 360, 10), [0,360], [1,254]),
+        ledCycCakeSat: convertRange(parseInt(document.getElementById("ledCycCakeSat").value || 100, 10), [0,100], [1,254]),
         ledCycCakeGRB: document.getElementById("ledCycCakeGRB").checked ? 1 : 0,
         ledPowercellCount: parseInt(document.getElementById("ledPowercellCount").value || 13, 10),
-        ledPowercellHue: convertRange(parseInt(document.getElementById("ledPowercellHue").value || 160, 10), [0,360], [2,254]),
-        ledPowercellSat: convertRange(parseInt(document.getElementById("ledPowercellSat").value || 254, 10), [0,100], [2,254]),
+        ledPowercellHue: convertRange(parseInt(document.getElementById("ledPowercellHue").value || 200, 10), [0,360], [1,254]),
+        ledPowercellSat: convertRange(parseInt(document.getElementById("ledPowercellSat").value || 100, 10), [0,100], [1,254]),
         ledVGPowercell: document.getElementById("ledVGPowercell").checked ? 1 : 0
       };
       var body = JSON.stringify(settings);

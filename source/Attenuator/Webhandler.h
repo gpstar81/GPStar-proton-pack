@@ -330,8 +330,11 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
 
   String result;
   if(jsonBody.containsKey("defaultSystemModePack")) {
-    Serial.println("defaultSystemModePack: " + String(jsonBody["defaultSystemModePack"]));
-    Serial.println("defaultYearThemePack: " + String(jsonBody["defaultYearThemePack"]));
+    uint8_t defaultSystemModePack = jsonBody["defaultSystemModePack"];
+    Serial.println("defaultSystemModePack: " + String(defaultSystemModePack));
+
+    uint8_t defaultYearThemePack = jsonBody["defaultYearThemePack"];
+    Serial.println("defaultYearThemePack: " + String(defaultYearThemePack));
 
     jsonBody.clear();
     jsonBody["status"] = "Changes saved.";
