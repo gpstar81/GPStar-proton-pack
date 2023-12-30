@@ -108,11 +108,11 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <br/>
       <b>Spectral Custom Color (Hue):</b>
       <input type="range" id="cycHue" name="cycHue" min="2" max="254" value="254" step="2" oninput="cycHueOut.value=cycHue.value"/>
-      <output id="cycHueOut" for="cycHue">100</output>
+      <output id="cycHueOut" for="cycHue">254</output>
       <br/>
       <b>Spectral Custom Saturation:</b>
       <input type="range" id="cycSat" name="cycSat" min="2" max="254" value="254" step="2" oninput="cycSatOut.value=cycSat.value"/>
-      <output id="cycSatOut" for="cycSat">100</output>
+      <output id="cycSatOut" for="cycSat">254</output>
       <br/>
       <b>Direction:</b>
       <select id="cycDir" name="cycDir">
@@ -151,11 +151,11 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <br/>
       <b>Spectral Custom Color (Hue):</b>
       <input type="range" id="cakeHue" name="cakeHue" min="2" max="254" value="254" step="2" oninput="cakeHueOut.value=cakeHue.value"/>
-      <output id="cakeHueOut" for="cakeHue">100</output>
+      <output id="cakeHueOut" for="cakeHue">254</output>
       <br/>
       <b>Spectral Custom Saturation:</b>
       <input type="range" id="cakeSat" name="cakeSat" min="2" max="254" value="254" step="2" oninput="cakeSatOut.value=cakeSat.value"/>
-      <output id="cakeSatOut" for="cakeSat">100</output>
+      <output id="cakeSatOut" for="cakeSat">254</output>
       <br/>
       <b>Swap Red/Green LEDs (GRB):</b>
       <label class="switch">
@@ -174,11 +174,11 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <br/>
       <b>Spectral Custom Color (Hue):</b>
       <input type="range" id="pcHue" name="pcHue" min="2" max="254" value="254" step="2" oninput="pcHueOut.value=pcHue.value"/>
-      <output id="pcHueOut" for="pcHue">100</output>
+      <output id="pcHueOut" for="pcHue">254</output>
       <br/>
       <b>Spectral Custom Saturation:</b>
       <input type="range" id="pcSat" name="pcSat" min="2" max="254" value="254" step="2" oninput="pcSatOut.value=pcSat.value"/>
-      <output id="pcSatOut" for="pcSat">100</output>
+      <output id="pcSatOut" for="pcSat">254</output>
       </br>
       <b>Enable Video Game Colors:</b>
       <label class="switch">
@@ -197,11 +197,10 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      getStatus();
-      getPreferences();
+      getSettings();
     }
 
-    function getPreferences() {
+    function getSettings() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -209,18 +208,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         }
       };
       xhttp.open("GET", "/config/pack", true);
-      xhttp.send();
-    }
-
-    function getStatus() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          // Use the current settings to determine what's configured.
-          var data = JSON.parse(this.responseText);
-        }
-      };
-      xhttp.open("GET", "/status", true);
       xhttp.send();
     }
 
