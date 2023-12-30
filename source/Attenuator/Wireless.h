@@ -295,7 +295,7 @@ void setupRouting() {
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers
-  httpServer.on("/settings/pack/data", HTTP_GET, handleGetPackPrefs);
+  httpServer.on("/config/pack", HTTP_GET, handleGetPackConfig);
   httpServer.on("/status", HTTP_GET, handleGetStatus);
   httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/pack/on", HTTP_PUT, handlePackOn);

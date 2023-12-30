@@ -201,7 +201,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
           console.log(JSON.parse(this.responseText));
         }
       };
-      xhttp.open("GET", "/settings/pack/data", true);
+      xhttp.open("GET", "/config/pack", true);
       xhttp.send();
     }
 

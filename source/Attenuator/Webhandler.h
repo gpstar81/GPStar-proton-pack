@@ -60,7 +60,7 @@ void handleStyle(AsyncWebServerRequest *request) {
   request->send(200, "text/css", s); // Serve page content.
 }
 
-String getPackPreferences() {
+String getPackConfig() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipSettings;
   jsonDoc.clear();
@@ -191,9 +191,9 @@ String getEquipmentStatus() {
   return equipStatus;
 }
 
-void handleGetPackPrefs(AsyncWebServerRequest *request) {
+void handleGetPackConfig(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
-  request->send(200, "application/json", getPackPreferences());
+  request->send(200, "application/json", getPackConfig());
 }
 
 void handleGetStatus(AsyncWebServerRequest *request) {
