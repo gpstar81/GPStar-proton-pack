@@ -3168,8 +3168,30 @@ void checkSerial1() {
             case A_SAVE_PREFERENCES_PACK:
               // Writes new preferences back to runtime variables.
               // This action does not save changes to the EEPROM!
-              SYSTEM_MODE = dataStructR.d[0];
-              SYSTEM_YEAR = dataStructR.d[1];
+              switch(dataStructR.d[0]) {
+                case 1:
+                  SYSTEM_MODE = MODE_ORIGINAL;
+                break;
+                case 0:
+                default:
+                  SYSTEM_MODE = MODE_SUPER_HERO;
+                break;
+              }
+              switch(dataStructR.d[1]) {
+                case 1:
+                  SYSTEM_YEAR = SYSTEM_TOGGLE_SWITCH;
+                break;
+                case 2:
+                  SYSTEM_YEAR = SYSTEM_1984;
+                break;
+                case 4:
+                default:
+                  SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+                break;
+                case 5:
+                  SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+                break;
+              }
               i_volume_master_percentage = dataStructR.d[2];
               b_stream_effects = dataStructR.d[3];
               b_smoke_enabled = dataStructR.d[4];
