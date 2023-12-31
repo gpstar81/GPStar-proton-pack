@@ -35,6 +35,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <p>
       Change system configuration options using the available toggles/selectors.
       Options can only be changed when the pack and wand are not powered/running!
+      Use the "Update Settings" to save preferences to your equipment and test any changes.
+      Use the "Save to EEPROM" to store as permanent values when battery power is disconnected.
     </p>
     <br/>
   </div>
@@ -369,12 +371,11 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          var jObj = JSON.parse(this.responseText);
-          alert(jObj.status); // Always display status returned.
+          handleStatus(this.responseText);
         }
       };
-      xhttp.open("PUT", "/config/pack/eeprom", true);
-      xhttp.setRequestHeader("Content-Type", "application/json");
+      xhttp.open("PUT", "/eeprom/pack", true);
+      xhttp.send();
     }
   </script>
 </body>

@@ -3071,6 +3071,10 @@ void checkSerial1() {
               i_spectral_powercell_custom_colour = dataStructR.d[21];
               i_spectral_powercell_custom_saturation = dataStructR.d[22];
               b_powercell_colour_toggle = dataStructR.d[23];
+
+              // Offer some feedback to the user
+              stopEffect(S_BEEPS_ALT);
+              playEffect(S_BEEPS_ALT);
             break;
 
             case A_SAVE_EEPROM_SETTINGS:

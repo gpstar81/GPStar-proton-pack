@@ -372,7 +372,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
     packConfig.ledVGPowercell = jsonBody["ledVGPowercell"];
 
     jsonBody.clear();
-    jsonBody["status"] = "Changes saved.";
+    jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
     serializeJson(jsonBody, result); // Serialize to string.
     attenuatorSerialSend(A_SAVE_PREFERENCES_PACK); // Tell the pack to save the new settings.
     request->send(200, "application/json", result);
