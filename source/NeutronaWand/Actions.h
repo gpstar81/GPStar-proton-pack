@@ -182,7 +182,7 @@ void checkWandAction() {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
             // Tell pack to clear the EEPROM and exit.
-            wandSerialSend(W_CLEAR_EEPROM_SETTINGS);
+            wandSerialSend(W_CLEAR_LED_EEPROM_SETTINGS);
             wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
 
             stopEffect(S_VOICE_EEPROM_ERASE);
@@ -194,7 +194,7 @@ void checkWandAction() {
           }
           else if(switchMode() == true) {
             // Tell the Proton Pack to save the current settings to the EEPROM and exit.
-            wandSerialSend(W_SAVE_EEPROM_SETTINGS);
+            wandSerialSend(W_SAVE_LED_EEPROM_SETTINGS);
             wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
 
             stopEffect(S_VOICE_EEPROM_SAVE);

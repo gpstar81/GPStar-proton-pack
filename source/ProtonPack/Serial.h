@@ -1978,14 +1978,14 @@ void checkWand() {
               saveConfigEEPROM();
             break;
 
-            case W_CLEAR_EEPROM_SETTINGS:
+            case W_CLEAR_LED_EEPROM_SETTINGS:
               clearLedEEPROM();
 
               stopEffect(S_VOICE_EEPROM_ERASE);
               playEffect(S_VOICE_EEPROM_ERASE);
             break;
 
-            case W_SAVE_EEPROM_SETTINGS:
+            case W_SAVE_LED_EEPROM_SETTINGS:
               saveLedEEPROM();
 
               stopEffect(S_VOICE_EEPROM_SAVE);
@@ -3039,8 +3039,8 @@ void checkSerial1() {
             break;
 
             case A_SAVE_PREFERENCES_PACK:
-              Serial.println("Saving Preferences");
-
+              // Writes new preferences back to runtime variables.
+              // This action does not save changes to the EEPROM!
               SYSTEM_MODE = dataStructR.d[0];
               SYSTEM_YEAR = dataStructR.d[1];
               i_volume_master_percentage = dataStructR.d[2];
@@ -3071,6 +3071,14 @@ void checkSerial1() {
               i_spectral_powercell_custom_colour = dataStructR.d[21];
               i_spectral_powercell_custom_saturation = dataStructR.d[22];
               b_powercell_colour_toggle = dataStructR.d[23];
+            break;
+
+            case A_SAVE_EEPROM_SETTINGS:
+              // Commit changes to the EEPROM space
+              saveLedEEPROM();
+              saveConfigEEPROM();
+              stopEffect(S_VOICE_EEPROM_SAVE);
+              playEffect(S_VOICE_EEPROM_SAVE);            
             break;
 
             case A_SYNC_END:
