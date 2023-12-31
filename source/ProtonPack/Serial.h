@@ -58,7 +58,7 @@ void serial1Send(int i_message) {
   switch(i_message) {
     case A_SPECTRAL_CUSTOM_MODE:
     case A_SPECTRAL_COLOUR_DATA:
-      dataStruct.d[0] = i_spectral_cyclotron_custom;
+      dataStruct.d[0] = i_spectral_cyclotron_custom_colour;
       dataStruct.d[1] = i_spectral_cyclotron_custom_saturation;
     break;
 
@@ -86,22 +86,22 @@ void serial1Send(int i_message) {
 
       // Cyclotron Lid
       dataStruct.d[9] = i_cyclotron_leds;
-      dataStruct.d[10] = i_spectral_cyclotron_custom;
+      dataStruct.d[10] = i_spectral_cyclotron_custom_colour;
       dataStruct.d[11] = i_spectral_cyclotron_custom_saturation;
       dataStruct.d[12] = b_clockwise; // Cyclotron Direction
       dataStruct.d[13] = b_cyclotron_single_led;
       dataStruct.d[14] = b_cyclotron_colour_toggle;
       dataStruct.d[15] = b_cyclotron_simulate_ring;
 
-      // Cyclotron Cake
+      // Inner Cyclotron
       dataStruct.d[16] = i_inner_cyclotron_num_leds;
-      dataStruct.d[17] = i_spectral_cyclotron_inner_custom;
+      dataStruct.d[17] = i_spectral_cyclotron_inner_custom_colour;
       dataStruct.d[18] = i_spectral_cyclotron_inner_custom_saturation;
       dataStruct.d[19] = b_grb_cyclotron;
 
       // Power Cell
       dataStruct.d[20] = i_powercell_leds;
-      dataStruct.d[21] = i_spectral_powercell_custom;
+      dataStruct.d[21] = i_spectral_powercell_custom_colour;
       dataStruct.d[22] = i_spectral_powercell_custom_saturation;
       dataStruct.d[23] = b_powercell_colour_toggle;
     break;
@@ -1664,11 +1664,11 @@ void checkWand() {
             break;
 
             case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE:
-              if(i_spectral_cyclotron_inner_custom > 1 && i_spectral_cyclotron_inner_custom_saturation > 253) {
-                i_spectral_cyclotron_inner_custom--;
+              if(i_spectral_cyclotron_inner_custom_colour > 1 && i_spectral_cyclotron_inner_custom_saturation > 253) {
+                i_spectral_cyclotron_inner_custom_colour--;
               }
               else {
-                i_spectral_cyclotron_inner_custom = 1;
+                i_spectral_cyclotron_inner_custom_colour = 1;
 
                 if(i_spectral_cyclotron_inner_custom_saturation > 1) {
                   i_spectral_cyclotron_inner_custom_saturation--;
@@ -1682,11 +1682,11 @@ void checkWand() {
             break;
 
             case W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE:
-              if(i_spectral_cyclotron_custom > 1 && i_spectral_cyclotron_custom_saturation > 253) {
-                i_spectral_cyclotron_custom--;
+              if(i_spectral_cyclotron_custom_colour > 1 && i_spectral_cyclotron_custom_saturation > 253) {
+                i_spectral_cyclotron_custom_colour--;
               }
               else {
-                i_spectral_cyclotron_custom = 1;
+                i_spectral_cyclotron_custom_colour = 1;
 
                 if(i_spectral_cyclotron_custom_saturation > 1) {
                   i_spectral_cyclotron_custom_saturation--;
@@ -1700,11 +1700,11 @@ void checkWand() {
             break;
 
             case W_SPECTRAL_POWERCELL_CUSTOM_DECREASE:
-              if(i_spectral_powercell_custom > 1 && i_spectral_powercell_custom_saturation > 253) {
-                i_spectral_powercell_custom--;
+              if(i_spectral_powercell_custom_colour > 1 && i_spectral_powercell_custom_saturation > 253) {
+                i_spectral_powercell_custom_colour--;
               }
               else {
-                i_spectral_powercell_custom = 1;
+                i_spectral_powercell_custom_colour = 1;
 
                 if(i_spectral_powercell_custom_saturation > 1) {
                   i_spectral_powercell_custom_saturation--;
@@ -1725,11 +1725,11 @@ void checkWand() {
                   i_spectral_powercell_custom_saturation = 254;
                 }
               }
-              else if(i_spectral_powercell_custom < 253) {
-                i_spectral_powercell_custom++;
+              else if(i_spectral_powercell_custom_colour < 253) {
+                i_spectral_powercell_custom_colour++;
               }
               else {
-                i_spectral_powercell_custom = 254;
+                i_spectral_powercell_custom_colour = 254;
               }
 
               spectralLightsOn();
@@ -1743,11 +1743,11 @@ void checkWand() {
                   i_spectral_cyclotron_custom_saturation = 254;
                 }
               }
-              else if(i_spectral_cyclotron_custom < 253) {
-                i_spectral_cyclotron_custom++;
+              else if(i_spectral_cyclotron_custom_colour < 253) {
+                i_spectral_cyclotron_custom_colour++;
               }
               else {
-                i_spectral_cyclotron_custom = 254;
+                i_spectral_cyclotron_custom_colour = 254;
 
                 if(i_spectral_cyclotron_custom_saturation < 253) {
                   i_spectral_cyclotron_custom_saturation++;
@@ -1768,11 +1768,11 @@ void checkWand() {
                   i_spectral_cyclotron_inner_custom_saturation = 254;
                 }
               }
-              else if(i_spectral_cyclotron_inner_custom < 253) {
-                i_spectral_cyclotron_inner_custom++;
+              else if(i_spectral_cyclotron_inner_custom_colour < 253) {
+                i_spectral_cyclotron_inner_custom_colour++;
               }
               else {
-                i_spectral_cyclotron_inner_custom = 254;
+                i_spectral_cyclotron_inner_custom_colour = 254;
 
                 if(i_spectral_cyclotron_inner_custom_saturation < 253) {
                   i_spectral_cyclotron_inner_custom_saturation++;
@@ -3041,8 +3041,36 @@ void checkSerial1() {
             case A_SAVE_PREFERENCES_PACK:
               Serial.println("Saving Preferences");
 
-              Serial.println("defaultSystemModePack: " + String(dataStructR.d[0]));
-              Serial.println("defaultYearThemePack: " + String(dataStructR.d[1]));
+              SYSTEM_MODE = dataStructR.d[0];
+              SYSTEM_YEAR = dataStructR.d[1];
+              i_volume_master_percentage = dataStructR.d[2];
+              b_stream_effects = dataStructR.d[3];
+              b_smoke_enabled = dataStructR.d[4];
+              b_overheat_strobe = dataStructR.d[5];
+              b_overheat_lights_off = dataStructR.d[6];
+              b_overheat_sync_to_fan = dataStructR.d[7];
+              b_demo_light_mode = dataStructR.d[8];
+
+              // Cyclotron Lid
+              i_cyclotron_leds = dataStructR.d[9];
+              i_spectral_cyclotron_custom_colour = dataStructR.d[10];
+              i_spectral_cyclotron_custom_saturation = dataStructR.d[11];
+              b_clockwise = dataStructR.d[12]; // Cyclotron Direction
+              b_cyclotron_single_led = dataStructR.d[13];
+              b_cyclotron_colour_toggle = dataStructR.d[14];
+              b_cyclotron_simulate_ring = dataStructR.d[15];
+
+              // Inner Cyclotron
+              i_inner_cyclotron_num_leds = dataStructR.d[16];
+              i_spectral_cyclotron_inner_custom_colour = dataStructR.d[17];
+              i_spectral_cyclotron_inner_custom_saturation = dataStructR.d[18];
+              b_grb_cyclotron = dataStructR.d[19];
+
+              // Power Cell
+              i_powercell_leds = dataStructR.d[20];
+              i_spectral_powercell_custom_colour = dataStructR.d[21];
+              i_spectral_powercell_custom_saturation = dataStructR.d[22];
+              b_powercell_colour_toggle = dataStructR.d[23];
             break;
 
             case A_SYNC_END:

@@ -87,6 +87,34 @@ void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
       // Convert user-friendly object properties to integer values.
       sendStruct.d[0] = packConfig.defaultSystemModePack;
       sendStruct.d[1] = packConfig.defaultYearThemePack;
+      sendStruct.d[2] = packConfig.defaultSystemVolume;
+      sendStruct.d[3] = packConfig.protonStreamEffects;
+      sendStruct.d[4] = packConfig.smokeEnabled;
+      sendStruct.d[5] = packConfig.overheatStrobeNF;
+      sendStruct.d[6] = packConfig.overheatLightsOff;
+      sendStruct.d[7] = packConfig.overheatSyncToFan;
+      sendStruct.d[8] = packConfig.demoLightMode;
+
+      // Cyclotron Lid
+      sendStruct.d[9] = packConfig.ledCycLidCount;
+      sendStruct.d[10] = packConfig.ledCycLidHue;
+      sendStruct.d[11] = packConfig.ledCycLidSat;
+      sendStruct.d[12] = packConfig.cyclotronDirection;
+      sendStruct.d[13] = packConfig.ledCycLidCenter;
+      sendStruct.d[14] = packConfig.ledVGCyclotron;
+      sendStruct.d[15] = packConfig.ledCycLidSimRing;
+
+      // Inner Cyclotron
+      sendStruct.d[16] = packConfig.ledCycCakeCount;
+      sendStruct.d[17] = packConfig.ledCycCakeHue;
+      sendStruct.d[18] = packConfig.ledCycCakeSat;
+      sendStruct.d[19] = packConfig.ledCycCakeGRB;
+
+      // Power Cell
+      sendStruct.d[20] = packConfig.ledPowercellCount;
+      sendStruct.d[21] = packConfig.ledPowercellHue;
+      sendStruct.d[22] = packConfig.ledPowercellSat;
+      sendStruct.d[23] = packConfig.ledVGPowercell;
     break;
 
     default:
