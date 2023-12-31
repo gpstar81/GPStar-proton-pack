@@ -117,8 +117,8 @@ select {
   height: 40px;
   margin: 5px;
   padding: 6px 8px;
-  max-width: 260px;
-  min-width: 260px;
+  max-width: 220px;
+  min-width: 220px;
   text-align: center;
   touch-action: manipulation;
   width: 220px;

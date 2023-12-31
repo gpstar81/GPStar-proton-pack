@@ -31,12 +31,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
 </head>
 <body>
   <h1>Proton Pack Settings</h1>
-  <div class="block">
+  <div class="block left">
     <p>
-      Change system configuration options using the available toggles/selectors.
-      Options can only be changed when the pack and wand are not powered/running!
-      Use the "Update Settings" to save preferences to your equipment and test any changes.
-      Use the "Save to EEPROM" to store as permanent values when battery power is disconnected.
+      Change system configuration options using the available toggles and selectors.
+      Options may only be changed when the pack and wand are not powered and running.
+      Use the "Update Settings" button to save values to your equipment.
+      Test your changes before using the "Save to EEPROM" to store as permanent defaults.
     </p>
     <br/>
   </div>
@@ -61,7 +61,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSlider">Startup Volume %:</b>
+      <b>Startup Volume %:</b><br/>
       <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="0" max="100" value="100" step="2"
        oninput="masterVolOut.value=defaultSystemVolume.value"/>
       <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume"></output>
@@ -121,7 +121,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSlider">Custom Color (Hue):</b>
+      <b>Custom Color (Hue):</b><br/>
       <input type="range" id="ledCycLidHue" name="ledCycLidHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('cycColorPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
       <output class="labelSlider" id="cycHueOut" for="ledCycLidHue"></output>
@@ -129,7 +129,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <div id="cycColorPreview" class="swatch"></div>
     </div>
     <div class="setting">
-      <b class="labelSlider">Custom Saturation %:</b>
+      <b>Custom Saturation %:</b><br/>
       <input type="range" id="ledCycLidSat" name="ledCycLidSat" min="0" max="100" value="100" step="2"
        oninput="updateColor('cycColorPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
       <output class="labelSlider" id="cycSatOut" for="ledCycLidSat"></output>
@@ -176,7 +176,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSlider">Custom Color (Hue):</b>
+      <b>Custom Color (Hue):</b><br/>
       <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
       <output class="labelSlider" id="cakeHueOut" for="ledCycCakeHue"></output>
@@ -184,7 +184,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <div id="cakeColorPreview" class="swatch"></div>
     </div>
     <div class="setting">
-      <b class="labelSlider">Custom Saturation %:</b>
+      <b>Custom Saturation %:</b><br/>
       <input type="range" id="ledCycCakeSat" name="ledCycCakeSat" min="0" max="100" value="100" step="2"
        oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
       <output class="labelSlider" id="cakeSatOut" for="ledCycCakeSat"></output>
@@ -208,7 +208,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSlider">Custom Color (Hue):</b>
+      <b>Custom Color (Hue):</b><br/>
       <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('pcColorPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
       <output class="labelSlider" id="pcHueOut" for="ledPowercellHue"></output>
@@ -216,7 +216,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <div id="pcColorPreview" class="swatch"></div>
     </div>
     <div class="setting">
-      <b class="labelSlider">Custom Saturation %:</b>
+      <b>Custom Saturation %:</b><br/>
       <input type="range" id="ledPowercellSat" name="ledPowercellSat" min="0" max="100" value="100" step="2"
        oninput="updateColor('pcColorPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
       <output class="labelSlider" id="pcSatOut" for="ledPowercellSat"></output>
@@ -233,10 +233,10 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block">
     <hr/>
     <a href="/">&laquo; Back</a>
-    &nbsp;&nbsp;&nbsp;
-    <button type="button" class="green" onclick="saveSettings()">Update Settings</button>
-    &nbsp;&nbsp;&nbsp;
-    <button type="button" class="orange" onclick="saveEEPROM()">Save to EEPROM</button>
+    &nbsp;&nbsp;
+    <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
+    &nbsp;&nbsp;
+    <button type="button" class="orange" style="width:120px" onclick="saveEEPROM()">Save&nbsp;to&nbsp;EPROM</button>
   </div>
 
   <script type="application/javascript">
@@ -259,6 +259,26 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       document.getElementById(colorPreviewID).style.backgroundColor = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
     }
 
+    function isJsonString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
+
+    function handleStatus(response) {
+      if (isJsonString(response || "")) {
+        var jObj = JSON.parse(response || "");
+        if (jObj.status && jObj.status != "success") {
+          alert(jObj.status); // Report non-success status.
+        }
+      } else {
+        alert(response); // Display plain text message.
+      }
+    }
+
     function getSettings() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -270,7 +290,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             }
 
             /**
-             * Note: Color (hue) value range uses the following scale, though CSS uses 0-360 for HSL color.
+             * Note: Color (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL color.
              *  0 = Red
              *  32 = Orange
              *  64 = Yellow
@@ -287,35 +307,32 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("defaultYearThemePack").value = settings.defaultYearThemePack || 1; // Value cannot be 0.
             document.getElementById("defaultSystemVolume").value = settings.defaultSystemVolume || 100; // Default to full volume.
             document.getElementById("masterVolOut").innerHTML = document.getElementById("defaultSystemVolume").value;
-            document.getElementById("protonStreamEffects").value = settings.protonStreamEffects || 0;
+            document.getElementById("protonStreamEffects").checked = settings.protonStreamEffects || 0;
             document.getElementById("smokeEnabled").checked = settings.smokeEnabled ? true: false;
             document.getElementById("overheatStrobeNF").checked = settings.overheatStrobeNF ? true: false;
             document.getElementById("overheatLightsOff").checked = settings.overheatLightsOff ? true: false;
             document.getElementById("overheatSyncToFan").checked = settings.overheatSyncToFan ? true: false;
             document.getElementById("demoLightMode").checked = settings.demoLightMode ? true: false;
+
             document.getElementById("ledCycLidCount").value = settings.ledCycLidCount || 12; // Haslab: 12
             document.getElementById("ledCycLidHue").value = convertRange(settings.ledCycLidHue || 254, [1,254], [0,360]); // Default: Red
-            // document.getElementById("cycHueOut").innerHTML = document.getElementById("ledCycLidHue").value;
             document.getElementById("ledCycLidSat").value = convertRange(settings.ledCycLidSat || 254, [1,254], [0,100]); // Full Saturation
-            // document.getElementById("cycSatOut").innerHTML = document.getElementById("ledCycLidSat").value;
             document.getElementById("cyclotronDirection").value = settings.cyclotronDirection || 0;
             document.getElementById("ledCycLidCenter").value = settings.ledCycLidCenter || 0;
             document.getElementById("ledVGCyclotron").checked = settings.ledVGCyclotron ? true: false;
             document.getElementById("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true: false;
+
             document.getElementById("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 12
             document.getElementById("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360]); // Default: Red
-            // document.getElementById("cakeHueOut").innerHTML = document.getElementById("ledCycCakeHue").value;
             document.getElementById("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
-            // document.getElementById("cakeSatOut").innerHTML = document.getElementById("ledCycCakeSat").value;
             document.getElementById("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true: false;
+
             document.getElementById("ledPowercellCount").value = settings.ledPowercellCount || 13; // Haslab: 13
             document.getElementById("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [1,254], [0,360]); // Default: Blue
-            // document.getElementById("pcHueOut").innerHTML = document.getElementById("ledPowercellHue").value;
             document.getElementById("ledPowercellSat").value = convertRange(settings.ledPowercellSat || 254, [1,254], [0,100]); // Full Saturation
-            // document.getElementById("pcSatOut").innerHTML = document.getElementById("ledPowercellSat").value;
             document.getElementById("ledVGPowercell").checked = settings.ledVGPowercell ? true: false;
 
-            // Update color preview and display for hue/saturation sliders.
+            // Update color preview and value display for hue/saturation sliders.
             updateColor("cycColorPreview", "cycHueOut", "cycSatOut", document.getElementById("ledCycLidHue").value, document.getElementById("ledCycLidSat").value);
             updateColor("cakeColorPreview", "cakeHueOut", "cakeSatOut", document.getElementById("ledCycCakeHue").value, document.getElementById("ledCycCakeSat").value);
             updateColor("pcColorPreview", "pcHueOut", "pcSatOut", document.getElementById("ledPowercellHue").value, document.getElementById("ledPowercellSat").value);
@@ -327,6 +344,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     }
 
     function saveSettings() {
+      // Saves current settings to pack, updating runtime variables and making changes immediately effective.
+      // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
         defaultSystemModePack: parseInt(document.getElementById("defaultSystemModePack").value || 0, 10),
         defaultYearThemePack: parseInt(document.getElementById("defaultYearThemePack").value || 1, 10),
@@ -337,6 +356,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         overheatLightsOff: document.getElementById("overheatLightsOff").checked ? 1 : 0,
         overheatSyncToFan: document.getElementById("overheatSyncToFan").checked ? 1 : 0,
         demoLightMode: document.getElementById("demoLightMode").checked ? 1 : 0,
+
         ledCycLidCount: parseInt(document.getElementById("ledCycLidCount").value || 12, 10),
         ledCycLidHue: convertRange(parseInt(document.getElementById("ledCycLidHue").value || 360, 10), [0,360], [1,254]),
         ledCycLidSat: convertRange(parseInt(document.getElementById("ledCycLidSat").value || 100, 10), [0,100], [1,254]),
@@ -344,10 +364,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycLidCenter: parseInt(document.getElementById("ledCycLidCenter").value || 0, 10),
         ledVGCyclotron: document.getElementById("ledVGCyclotron").checked ? 1 : 0,
         ledCycLidSimRing: document.getElementById("ledCycLidSimRing").checked ? 1 : 0,
+
         ledCycCakeCount: parseInt(document.getElementById("ledCycCakeCount").value || 35, 10),
         ledCycCakeHue: convertRange(parseInt(document.getElementById("ledCycCakeHue").value || 360, 10), [0,360], [1,254]),
         ledCycCakeSat: convertRange(parseInt(document.getElementById("ledCycCakeSat").value || 100, 10), [0,100], [1,254]),
         ledCycCakeGRB: document.getElementById("ledCycCakeGRB").checked ? 1 : 0,
+
         ledPowercellCount: parseInt(document.getElementById("ledPowercellCount").value || 13, 10),
         ledPowercellHue: convertRange(parseInt(document.getElementById("ledPowercellHue").value || 200, 10), [0,360], [1,254]),
         ledPowercellSat: convertRange(parseInt(document.getElementById("ledPowercellSat").value || 100, 10), [0,100], [1,254]),
@@ -358,8 +380,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          var jObj = JSON.parse(this.responseText);
-          alert(jObj.status); // Always display status returned.
+          handleStatus(this.responseText);
         }
       };
       xhttp.open("PUT", "/config/pack/save", true);

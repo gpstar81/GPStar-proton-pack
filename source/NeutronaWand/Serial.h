@@ -1016,6 +1016,7 @@ void checkPack() {
         }
 
         comStruct.i = 0;
+        comStruct.d1 = 0;
         comStruct.s = 0;
       }
     }

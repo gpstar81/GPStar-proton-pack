@@ -156,9 +156,10 @@ void updateSystemModeYear() {
 }
 
 // Outgoing messages to the Serial1 device
-void serial1Send(uint16_t i_message) {
+void serial1Send(uint16_t i_message, uint16_t i_value = 0) {
   dataStruct.s = A_COM_START;
   dataStruct.i = i_message;
+  dataStruct.d1 = i_value;
 
   // Get the number of elements in the data array
   uint16_t arrayLength = sizeof(dataStruct.d) / sizeof(dataStruct.d[0]);
@@ -246,9 +247,10 @@ void serial1Send(uint16_t i_message) {
 }
 
 // Outgoing messages to the wand
-void packSerialSend(uint16_t i_message) {
+void packSerialSend(uint16_t i_message, uint16_t i_value = 0) {
   sendStruct.s = P_COM_START;
   sendStruct.i = i_message;
+  sendStruct.d1 = i_value;
   sendStruct.e = P_COM_END;
 
   packComs.sendDatum(sendStruct);
@@ -3159,8 +3161,8 @@ void checkSerial1() {
                 else {
                   i_current_music_track = dataStructR.d1;
 
-                  // Tell the wand which track to play.
-                  packSerialSend(i_current_music_track);
+                  // Just tell the wand which track was requested for play.
+                  packSerialSend(W_MUSIC_PLAY_TRACK, i_current_music_track);
                 }
               }
             break;
@@ -3169,23 +3171,26 @@ void checkSerial1() {
               // Writes new preferences back to runtime variables.
               // This action does not save changes to the EEPROM!
               switch(dataStructR.d[0]) {
-                case 1:
-                  SYSTEM_MODE = MODE_ORIGINAL;
-                break;
                 case 0:
                 default:
                   SYSTEM_MODE = MODE_SUPER_HERO;
                 break;
+                case 1:
+                  SYSTEM_MODE = MODE_ORIGINAL;
+                break;
               }
               switch(dataStructR.d[1]) {
                 case 1:
+                default:
                   SYSTEM_YEAR = SYSTEM_TOGGLE_SWITCH;
                 break;
                 case 2:
                   SYSTEM_YEAR = SYSTEM_1984;
                 break;
+                case 3:
+                  SYSTEM_YEAR = SYSTEM_1989;
+                break;
                 case 4:
-                default:
                   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
                 break;
                 case 5:

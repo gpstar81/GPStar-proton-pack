@@ -47,8 +47,8 @@
 /*
  * Function prototypes from Serial.h (included at end of this file)
  */
-void packSerialSend(uint16_t i_message);
-void serial1Send(uint16_t i_message);
+void packSerialSend(uint16_t i_message, uint16_t i_value = 0);
+void serial1Send(uint16_t i_message, uint16_t i_value = 0);
 void checkSerial1();
 void checkWand();
 
@@ -4369,7 +4369,7 @@ void playMusic() {
     w_trig.resetTrackCounter(true);
 
     // Tell the Neutrona Wand which music track to change to and play it.
-    packSerialSend(i_current_music_track);
+    packSerialSend(W_MUSIC_PLAY_TRACK, i_current_music_track);
     packSerialSend(P_MUSIC_START);
 
     // Tell connected serial device music playback has started.
