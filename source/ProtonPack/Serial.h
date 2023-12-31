@@ -3088,7 +3088,6 @@ void checkSerial1() {
               // This action does not save changes to the EEPROM!
               SYSTEM_MODE = dataStructR.d[0];
               SYSTEM_YEAR = dataStructR.d[1];
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
               i_volume_master_percentage = dataStructR.d[2];
               b_stream_effects = dataStructR.d[3];
               b_smoke_enabled = dataStructR.d[4];
@@ -3119,6 +3118,8 @@ void checkSerial1() {
               b_powercell_colour_toggle = dataStructR.d[23];
 
               // Push changes to connected devices and reset related variables
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               updateSystemModeYear();
               resetRampSpeeds();
 

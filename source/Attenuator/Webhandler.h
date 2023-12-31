@@ -347,9 +347,6 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
     packConfig.overheatSyncToFan = jsonBody["overheatSyncToFan"];
     packConfig.demoLightMode = jsonBody["demoLightMode"];
 
-    Serial.println("defaultSystemModePack: " + String(packConfig.defaultSystemModePack));
-    Serial.println("defaultYearThemePack: " + String(packConfig.defaultYearThemePack));
-
     // Cyclotron Lid
     packConfig.ledCycLidCount = jsonBody["ledCycLidCount"];
     packConfig.ledCycLidHue = jsonBody["ledCycLidHue"];

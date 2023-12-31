@@ -407,6 +407,20 @@ void checkWandAction() {
                 break;
 
                 case YEAR_AFTERLIFE:
+                  WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+
+                  wandSerialSend(W_NEUTRONA_WAND_FROZEN_EMPIRE_MODE);
+                break;
+
+                case YEAR_FROZEN_EMPIRE:
                   WAND_YEAR_MODE = YEAR_DEFAULT;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
@@ -421,7 +435,6 @@ void checkWandAction() {
                 break;
 
                 case YEAR_DEFAULT:
-                case YEAR_FROZEN_EMPIRE:
                 default:
                   WAND_YEAR_MODE = YEAR_1984;
 
