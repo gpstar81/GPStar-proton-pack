@@ -19,6 +19,11 @@
 
 #pragma once
 
+/*
+ * Function prototypes.
+ */
+void updateSystemModeYear();
+
 // For wand communication.
 struct __attribute__((packed)) MessagePacket {
   uint16_t s;
@@ -40,6 +45,41 @@ struct __attribute__((packed)) DataPacket {
 
 struct DataPacket dataStruct;
 struct DataPacket dataStructR;
+
+// Handle telling connected devices the proper mode/year in use.
+void updateSystemModeYear() {
+  switch(SYSTEM_MODE) {
+    case MODE_ORIGINAL:
+      packSerialSend(P_MODE_ORIGINAL);
+      serial1Send(A_MODE_ORIGINAL);
+    break;
+
+    case MODE_SUPER_HERO:
+    default:
+      packSerialSend(P_MODE_SUPER_HERO);
+      serial1Send(A_MODE_ORIGINAL);
+    break;
+  }
+
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_1984:
+      packSerialSend(P_YEAR_1984);
+      serial1Send(A_YEAR_1984);
+    break;
+    case SYSTEM_1989:
+      packSerialSend(P_YEAR_1989);
+      serial1Send(A_YEAR_1989);
+    break;
+    case SYSTEM_AFTERLIFE:
+      packSerialSend(P_YEAR_AFTERLIFE);
+      serial1Send(A_YEAR_AFTERLIFE);
+    break;
+    case SYSTEM_FROZEN_EMPIRE:
+      packSerialSend(P_YEAR_FROZEN_EMPIRE);
+      serial1Send(A_YEAR_FROZEN_EMPIRE);
+    break;
+  }
+}
 
 // Outgoing messages to the Serial1 device
 void serial1Send(int i_message) {
@@ -2603,7 +2643,6 @@ void checkWand() {
 
             case W_YEAR_MODES_CYCLE_EEPROM:
               if(b_switch_mode_override == true) {
-                //if(SYSTEM_YEAR_TEMP == SYSTEM_FROZEN_EMPIRE) {
                 if(SYSTEM_YEAR_TEMP == SYSTEM_AFTERLIFE) {
                   b_switch_mode_override = false;
 
@@ -2692,11 +2731,15 @@ void checkWand() {
             packSerialSend(P_HANDSHAKE);
 
             // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
-            if(SYSTEM_MODE == MODE_SUPER_HERO) {
-              packSerialSend(P_MODE_SUPER_HERO);
-            }
-            else {
-              packSerialSend(P_MODE_ORIGINAL);
+            switch(SYSTEM_MODE) {
+              case MODE_ORIGINAL:
+                packSerialSend(P_MODE_ORIGINAL);
+              break;
+
+              case MODE_SUPER_HERO:
+              default:
+                packSerialSend(P_MODE_SUPER_HERO);
+              break;
             }
 
             if(switch_power.getState() == LOW) {
@@ -2708,17 +2751,19 @@ void checkWand() {
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
             }
 
-            if(SYSTEM_YEAR == SYSTEM_1984) {
-              packSerialSend(P_YEAR_1984);
-            }
-            else if(SYSTEM_YEAR == SYSTEM_1989) {
-              packSerialSend(P_YEAR_1989);
-            }
-            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              packSerialSend(P_YEAR_FROZEN_EMPIRE);
-            }
-            else {
-              packSerialSend(P_YEAR_AFTERLIFE);
+            switch(SYSTEM_YEAR) {
+              case SYSTEM_1984:
+                packSerialSend(P_YEAR_1984);
+              break;
+              case SYSTEM_1989:
+                packSerialSend(P_YEAR_1989);
+              break;
+              case SYSTEM_AFTERLIFE:
+                packSerialSend(P_YEAR_AFTERLIFE);
+              break;
+              case SYSTEM_FROZEN_EMPIRE:
+                packSerialSend(P_YEAR_FROZEN_EMPIRE);
+              break;
             }
 
             // Stop any music. Mainly for when flashing while connected to a computer with a running wand.
@@ -3043,6 +3088,7 @@ void checkSerial1() {
               // This action does not save changes to the EEPROM!
               SYSTEM_MODE = dataStructR.d[0];
               SYSTEM_YEAR = dataStructR.d[1];
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
               i_volume_master_percentage = dataStructR.d[2];
               b_stream_effects = dataStructR.d[3];
               b_smoke_enabled = dataStructR.d[4];
@@ -3071,6 +3117,10 @@ void checkSerial1() {
               i_spectral_powercell_custom_colour = dataStructR.d[21];
               i_spectral_powercell_custom_saturation = dataStructR.d[22];
               b_powercell_colour_toggle = dataStructR.d[23];
+
+              // Push changes to connected devices and reset related variables
+              updateSystemModeYear();
+              resetRampSpeeds();
 
               // Offer some feedback to the user
               stopEffect(S_BEEPS_ALT);
@@ -3105,17 +3155,19 @@ void checkSerial1() {
             // Tell the Attenuator that the pack is here.
             serial1Send(A_PACK_CONNECTED);
 
-            if(SYSTEM_YEAR == SYSTEM_1984) {
-              serial1Send(A_YEAR_1984);
-            }
-            else if(SYSTEM_YEAR == SYSTEM_1989) {
-              serial1Send(A_YEAR_1989);
-            }
-            else if(SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
-              serial1Send(A_YEAR_AFTERLIFE);
-            }
-            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              serial1Send(A_YEAR_FROZEN_EMPIRE);
+            switch(SYSTEM_YEAR) {
+              case SYSTEM_1984:
+                serial1Send(A_YEAR_1984);
+              break;
+              case SYSTEM_1989:
+                serial1Send(A_YEAR_1989);
+              break;
+              case SYSTEM_AFTERLIFE:
+                serial1Send(A_YEAR_AFTERLIFE);
+              break;
+              case SYSTEM_FROZEN_EMPIRE:
+                serial1Send(A_YEAR_FROZEN_EMPIRE);
+              break;
             }
 
             // Ribbon cable alarm.
@@ -3158,6 +3210,18 @@ void checkSerial1() {
               break;
             }
 
+            // Make sure this is called before the A_YEAR is sent over to the Attenuator/Wireless.
+            switch(SYSTEM_MODE) {
+              case MODE_ORIGINAL:
+                serial1Send(A_MODE_ORIGINAL);
+              break;
+
+              case MODE_SUPER_HERO:
+              default:
+                serial1Send(A_MODE_SUPER_HERO);
+              break;
+            }
+
             // Synchronise the firing modes.
             switch(FIRING_MODE) {
               case SLIME:
@@ -3196,13 +3260,6 @@ void checkSerial1() {
             }
 
             serial1Send(A_SPECTRAL_COLOUR_DATA);
-
-            if(SYSTEM_MODE == MODE_SUPER_HERO) {
-              serial1Send(A_MODE_SUPER_HERO);
-            }
-            else {
-              serial1Send(A_MODE_ORIGINAL);
-            }
 
             if(switch_power.getState() == LOW) {
               // Tell the Attenuator or any other device that the power to the Proton Pack is on.

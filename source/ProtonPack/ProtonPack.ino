@@ -119,29 +119,21 @@ void setup() {
   // Misc configuration before startup.
   resetCyclotronState();
 
+  // Default mode is Super Hero (for simpler controls).
+  SYSTEM_MODE = MODE_SUPER_HERO;
+
   // Bootup the pack into Proton mode, the same as the wand.
   FIRING_MODE = PROTON;
 
   // Set the CTS to not firing.
   STATUS_CTS = CTS_NOT_FIRING;
+
+  // Set defaults for year/theme.
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
   SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
 
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-      i_current_ramp_speed = i_1984_delay * 1.3;
-      i_inner_current_ramp_speed = i_inner_ramp_delay;
-    break;
-
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-    default:
-      i_current_ramp_speed = i_2021_ramp_delay;
-      i_inner_current_ramp_speed = i_inner_ramp_delay;
-    break;
-  }
+  resetRampSpeeds();
 
   // Start some timers
   ms_cyclotron.start(i_current_ramp_speed);
@@ -190,9 +182,6 @@ void setup() {
 
   // Check music timer.
   ms_check_music.start(i_music_check_delay);
-
-  // Default mode is MODE_SUPER_HERO.
-  SYSTEM_MODE = MODE_SUPER_HERO;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
@@ -1152,23 +1141,8 @@ void checkSwitches() {
           }
         }
 
-        // Reset the ramp speeds.
-        switch(SYSTEM_YEAR) {
-          case SYSTEM_1984:
-          case SYSTEM_1989:
-              // Reset the ramp speeds.
-              i_current_ramp_speed = i_1984_delay * 1.3;
-              i_inner_current_ramp_speed = i_inner_ramp_delay;
-          break;
-
-          case SYSTEM_AFTERLIFE:
-          case SYSTEM_FROZEN_EMPIRE:
-          default:
-            // Reset the ramp speeds.
-            i_current_ramp_speed = i_2021_ramp_delay;
-            i_inner_current_ramp_speed = i_inner_ramp_delay;
-          break;
-        }
+        // Reset the cyclotron ramp speeds.
+        resetRampSpeeds();
       }
     break;
 
@@ -1177,6 +1151,23 @@ void checkSwitches() {
         // Turn the pack off.
         PACK_ACTION_STATE = ACTION_OFF;
       }
+    break;
+  }
+}
+
+void resetRampSpeeds() {
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+      i_current_ramp_speed = i_1984_delay * 1.3;
+      i_inner_current_ramp_speed = i_inner_ramp_delay;
+    break;
+
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
+      i_current_ramp_speed = i_2021_ramp_delay;
+      i_inner_current_ramp_speed = i_inner_ramp_delay;
     break;
   }
 }
@@ -2805,23 +2796,8 @@ void packOverHeatingFinished() {
   if(b_overheat_lights_off == true) {
     cyclotronSpeedRevert();
 
-    // Reset the ramp speeds.
-    switch(SYSTEM_YEAR) {
-      case SYSTEM_1984:
-      case SYSTEM_1989:
-          // Reset the ramp speeds.
-          i_current_ramp_speed = i_1984_delay * 1.3;
-          i_inner_current_ramp_speed = i_inner_ramp_delay;
-      break;
-
-      case SYSTEM_AFTERLIFE:
-      case SYSTEM_FROZEN_EMPIRE:
-      default:
-        // Reset the ramp speeds.
-        i_current_ramp_speed = i_2021_ramp_delay;
-        i_inner_current_ramp_speed = i_inner_ramp_delay;
-      break;
-    }
+    // Reset the cyclotron ramp speeds.
+    resetRampSpeeds();
   }
 
   reset2021RampUp();
@@ -4331,63 +4307,58 @@ void toggleYearModes() {
     case SYSTEM_1984:
       SYSTEM_YEAR_TEMP = SYSTEM_1989;
 
-      //stopEffect(S_VOICE_FROZEN_EMPIRE);
+      stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1984);
       stopEffect(S_VOICE_1989);
+      stopEffect(S_VOICE_1984);
 
       playEffect(S_VOICE_1989);
 
-      // Tell the wand to play the 1989 sound effect.
+      // Tell the wand to play the 1989 sound effects.
       packSerialSend(P_MODE_1989);
     break;
 
     case SYSTEM_1989:
       SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
 
-      //stopEffect(S_VOICE_FROZEN_EMPIRE);
+      stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1984);
       stopEffect(S_VOICE_1989);
+      stopEffect(S_VOICE_1984);
 
       playEffect(S_VOICE_AFTERLIFE);
 
-      // Tell the wand to play the Afterlife sound effect.
+      // Tell the wand to play the Afterlife sound effects.
       packSerialSend(P_MODE_AFTERLIFE);
     break;
 
     case SYSTEM_AFTERLIFE:
-      SYSTEM_YEAR_TEMP = SYSTEM_1984;
-      //SYSTEM_YEAR_TEMP = SYSTEM_FROZEN_EMPIRE;
-
-      //stopEffect(S_VOICE_FROZEN_EMPIRE);
-      stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1984);
-      stopEffect(S_VOICE_1989);
-
-      playEffect(S_VOICE_1984);
-
-      // Tell the wand to play the 1984 sound effect.
-      packSerialSend(P_MODE_1984);
-
-      //packSerialSend(P_MODE_FROZEN_EMPIRE);
-    break;
-
-    /*
-    case SYSTEM_FROZEN_EMPIRE:
       SYSTEM_YEAR_TEMP = SYSTEM_FROZEN_EMPIRE;
 
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1984);
       stopEffect(S_VOICE_1989);
+      stopEffect(S_VOICE_1984);
+
+      playEffect(S_VOICE_FROZEN_EMPIRE);
+
+      // Tell the wand to play the Frozen Empire sound effects.
+      packSerialSend(P_MODE_FROZEN_EMPIRE);
+    break;
+
+    case SYSTEM_FROZEN_EMPIRE:
+      SYSTEM_YEAR_TEMP = SYSTEM_1984;
+
+      stopEffect(S_VOICE_FROZEN_EMPIRE);
+      stopEffect(S_VOICE_AFTERLIFE);
+      stopEffect(S_VOICE_1989);
+      stopEffect(S_VOICE_1984);
 
       playEffect(S_VOICE_1984);
 
-      // Tell the wand to play the 1984 sound effect.
+      // Tell the wand to play the 1984 sound effects.
       packSerialSend(P_MODE_1984);
     break;
-    */
 
     default:
       // Nothing.
