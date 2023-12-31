@@ -2867,7 +2867,7 @@ void checkWand() {
 
             // Sync the current music track.
             // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
-            packSerialSend(i_current_music_track);
+            packSerialSend(W_MUSIC_PLAY_TRACK, i_current_music_track);
 
             if(b_repeat_track == true) {
               packSerialSend(P_MUSIC_REPEAT);
@@ -2985,15 +2985,10 @@ void checkWand() {
               packSerialSend(P_RIBBON_CABLE_OFF);
             }
 
-            // Put the wand into volume sync mode.
-            packSerialSend(P_VOLUME_SYNC_MODE);
-
-            // Sequence here is important. Synchronise the volume settings.
-            packSerialSend(i_volume_percentage);
-
-            packSerialSend(i_volume_master_percentage);
-
-            packSerialSend(i_volume_music_percentage);
+            // Synchronise the volume settings.
+            packSerialSend(P_VOLUME_SYNC_EFFECTS, i_volume_effects_percentage);
+            packSerialSend(P_VOLUME_SYNC_MASTER, i_volume_master_percentage);
+            packSerialSend(P_VOLUME_SYNC_MUSIC, i_volume_music_percentage);
 
             if(i_volume_master == i_volume_abs_min) {
               // Telling the wand to be silent if required.
@@ -3244,7 +3239,7 @@ void checkSerial1() {
               saveLedEEPROM();
               saveConfigEEPROM();
               stopEffect(S_VOICE_EEPROM_SAVE);
-              playEffect(S_VOICE_EEPROM_SAVE);            
+              playEffect(S_VOICE_EEPROM_SAVE);
             break;
 
             case A_SYNC_END:

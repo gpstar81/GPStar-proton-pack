@@ -212,10 +212,8 @@ void setup() {
 
 void loop() {
   if(b_wait_for_pack == true) {
-    if(b_volume_sync_wait != true) {
-      // Handshake with the pack telling the pack that we are here.
-      wandSerialSend(W_HANDSHAKE);
-    }
+    // Handshake with the pack telling the pack that we are here.
+    wandSerialSend(W_HANDSHAKE);
 
     // Synchronise some settings with the pack.
     checkPack();
@@ -6010,35 +6008,35 @@ void adjustVolumeEffectsGain() {
 }
 
 void increaseVolumeEffects() {
-  if(i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
-    i_volume_percentage = 100;
+  if(i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
+    i_volume_effects_percentage = 100;
 
     // Provide feedback at maximum volume.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
-    i_volume_percentage = i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER;
+    i_volume_effects_percentage = i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+  i_volume_effects_percentage = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
 
 void decreaseVolumeEffects() {
-  if(i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
-    i_volume_percentage = 0;
+  if(i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
+    i_volume_effects_percentage = 0;
 
     // Provide feedback at minimum volume.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
-    i_volume_percentage = i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER;
+    i_volume_effects_percentage = i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+  i_volume_effects_percentage = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
 
   adjustVolumeEffectsGain();
 }

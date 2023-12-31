@@ -146,11 +146,11 @@ const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible
 /*
  * Volume (0 = loudest, -70 = quietest)
  */
-uint8_t i_volume_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
+uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
 uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
-int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
+int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects
 int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
 int8_t i_volume_revert = i_volume_master;
 
@@ -376,15 +376,8 @@ bool b_pack_on = false;
 bool b_pack_alarm = false;
 bool b_wait_for_pack = true;
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the Proton Pack and Neutrona Wand.
-bool b_volume_sync_wait = false;
 bool b_sync = false;
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
-
-/*
- * Volume sync status with the pack.
- */
-enum VOLUME_SYNC { EFFECTS, MASTER, MUSIC, SILENT };
-enum VOLUME_SYNC VOLUME_SYNC_WAIT;
 
 /*
  * Wand menu & music
