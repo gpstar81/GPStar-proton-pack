@@ -84,6 +84,7 @@ void checkPack() {
 
           case P_SYNC_END:
             b_sync = false;
+            b_wait_for_pack = false;
 
             switchBarrel();
 
@@ -363,6 +364,13 @@ void checkPack() {
             b_repeat_track = false;
           break;
 
+          case P_VOLUME_SYNC_EFFECTS:
+            i_volume_effects_percentage = comStruct.d1;
+            i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
+
+            adjustVolumeEffectsGain();
+          break;
+
           case P_VOLUME_SYNC_MASTER:
             i_volume_master_percentage = comStruct.d1;
             i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
@@ -377,13 +385,6 @@ void checkPack() {
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
             w_trig.masterGain(i_volume_master);
-          break;
-
-          case P_VOLUME_SYNC_EFFECTS:
-            i_volume_effects_percentage = comStruct.d1;
-            i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-
-            adjustVolumeEffectsGain();
           break;
 
           case P_VIBRATION_ENABLED:
