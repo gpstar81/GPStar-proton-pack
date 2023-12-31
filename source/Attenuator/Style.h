@@ -189,6 +189,13 @@ input[type=range] {
   width: 200px;
 }
 
+.swatch {
+  border: 1px solid black;
+  height: 40px;
+  max-width: 60px;
+  width: 60px:
+}
+
 /* The switch - the box around the slider */
 .switch {
   position: relative;

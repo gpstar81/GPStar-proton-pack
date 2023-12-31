@@ -124,7 +124,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
        oninput="updateColor('cycColorPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
       <output class="labelSlider" id="cycHueOut" for="ledCycLidHue"></output>
       <br/>
-      <div id="cycColorPreview"></div>
+      <div id="cycColorPreview" class="swatch"></div>
     </div>
     <div class="setting">
       <b class="labelSlider">Custom Saturation %:</b>
@@ -179,7 +179,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
        oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
       <output class="labelSlider" id="cakeHueOut" for="ledCycCakeHue"></output>
       <br/>
-      <div id="cakeColorPreview"></div>
+      <div id="cakeColorPreview" class="swatch"></div>
     </div>
     <div class="setting">
       <b class="labelSlider">Custom Saturation %:</b>
@@ -211,7 +211,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
        oninput="updateColor('pcColorPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
       <output class="labelSlider" id="pcHueOut" for="ledPowercellHue"></output>
       <br/>
-      <div id="pcColorPreview"></div>
+      <div id="pcColorPreview" class="swatch"></div>
     </div>
     <div class="setting">
       <b class="labelSlider">Custom Saturation %:</b>
@@ -251,7 +251,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       // Updates the slider values and preview the selected color using HSL.
       document.getElementById(hueLabelID).innerHTML = hueValue;
       document.getElementById(satLabelID).innerHTML = satValue;
-      document.getElementById(colorPreviewID).style.backgroundColor = "hsl(" + hueValue + ", " + satValue + "%, 50%)";
+      var lightness = convertRange(100 - parseInt(satValue, 10), [0,100], [50,100]);
+      document.getElementById(colorPreviewID).style.backgroundColor = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
     }
 
     function getSettings() {
@@ -290,25 +291,30 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("demoLightMode").checked = settings.demoLightMode ? true: false;
             document.getElementById("ledCycLidCount").value = settings.ledCycLidCount || 12; // Haslab: 12
             document.getElementById("ledCycLidHue").value = convertRange(settings.ledCycLidHue || 254, [1,254], [0,360]); // Default: Red
-            document.getElementById("cycHueOut").innerHTML = document.getElementById("ledCycLidHue").value;
+            // document.getElementById("cycHueOut").innerHTML = document.getElementById("ledCycLidHue").value;
             document.getElementById("ledCycLidSat").value = convertRange(settings.ledCycLidSat || 254, [1,254], [0,100]); // Full Saturation
-            document.getElementById("cycSatOut").innerHTML = document.getElementById("ledCycLidSat").value;
+            // document.getElementById("cycSatOut").innerHTML = document.getElementById("ledCycLidSat").value;
             document.getElementById("cyclotronDirection").value = settings.cyclotronDirection || 0;
             document.getElementById("ledCycLidCenter").value = settings.ledCycLidCenter || 0;
             document.getElementById("ledVGCyclotron").checked = settings.ledVGCyclotron ? true: false;
             document.getElementById("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true: false;
             document.getElementById("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 12
             document.getElementById("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360]); // Default: Red
-            document.getElementById("cakeHueOut").innerHTML = document.getElementById("ledCycCakeHue").value;
+            // document.getElementById("cakeHueOut").innerHTML = document.getElementById("ledCycCakeHue").value;
             document.getElementById("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
-            document.getElementById("cakeSatOut").innerHTML = document.getElementById("ledCycCakeSat").value;
+            // document.getElementById("cakeSatOut").innerHTML = document.getElementById("ledCycCakeSat").value;
             document.getElementById("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true: false;
             document.getElementById("ledPowercellCount").value = settings.ledPowercellCount || 13; // Haslab: 13
             document.getElementById("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [1,254], [0,360]); // Default: Blue
-            document.getElementById("pcHueOut").innerHTML = document.getElementById("ledPowercellHue").value;
+            // document.getElementById("pcHueOut").innerHTML = document.getElementById("ledPowercellHue").value;
             document.getElementById("ledPowercellSat").value = convertRange(settings.ledPowercellSat || 254, [1,254], [0,100]); // Full Saturation
-            document.getElementById("pcSatOut").innerHTML = document.getElementById("ledPowercellSat").value;
+            // document.getElementById("pcSatOut").innerHTML = document.getElementById("ledPowercellSat").value;
             document.getElementById("ledVGPowercell").checked = settings.ledVGPowercell ? true: false;
+
+            // Update color preview and display for hue/saturation sliders.
+            updateColor("cycColorPreview", "cycHueOut", "cycSatOut", document.getElementById("ledCycLidHue").value, document.getElementById("ledCycLidSat").value);
+            updateColor("cakeColorPreview", "cakeHueOut", "cakeSatOut", document.getElementById("ledCycCakeHue").value, document.getElementById("ledCycCakeSat").value);
+            updateColor("pcColorPreview", "pcHueOut", "pcSatOut", document.getElementById("ledPowercellHue").value, document.getElementById("ledPowercellSat").value);
           }
         }
       };
