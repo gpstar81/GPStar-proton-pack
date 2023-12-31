@@ -35,8 +35,8 @@ bool b_a_sync_start = false; // Denotes pack communications have begun.
 struct __attribute__((packed)) DataPacket {
   uint16_t s;
   uint16_t i;
-  uint16_t d1;
-  uint8_t d[25];
+  uint16_t d1; // Reserved for values over 255 (eg. current music track)
+  uint8_t d[25]; // Reserved for large data packets (eg. EEPROM configs)
   uint16_t e;
 };
 
@@ -80,7 +80,14 @@ void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
   sendStruct.s = A_COM_START;
   sendStruct.i = i_message;
   sendStruct.d1 = i_value;
-  sendStruct.e = A_COM_END;
+
+  // Get the number of elements in the data array
+  uint16_t arrayLength = sizeof(sendStruct.d) / sizeof(sendStruct.d[0]);
+
+  // Set each element of the data array to 0
+  for (uint16_t i = 0; i < arrayLength; i++) {
+    sendStruct.d[i] = 0;
+  }
 
   switch(i_message) {
     case A_SAVE_PREFERENCES_PACK:
@@ -118,9 +125,11 @@ void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
     break;
 
     default:
-      // No-op for any other packet types.
+      // No-op for all other communications.
     break;
   }
+
+  sendStruct.e = A_COM_END;
 
   packComs.sendDatum(sendStruct);
 }

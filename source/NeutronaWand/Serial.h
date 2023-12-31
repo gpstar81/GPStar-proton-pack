@@ -23,6 +23,7 @@
 struct __attribute__((packed)) MessagePacket {
   uint16_t s;
   uint16_t i;
+  uint16_t d1; // Reserved for values over 255 (eg. current music track)
   uint16_t e;
 };
 
@@ -30,18 +31,12 @@ struct MessagePacket comStruct;
 struct MessagePacket sendStruct;
 
 // Pack communication from the wand.
-void wandSerialSend(int i_message, bool b_sound) {
+void wandSerialSend(uint16_t i_message, uint16_t i_value = 0) {
   if(b_no_pack != true) {
     sendStruct.s = W_COM_START;
     sendStruct.i = i_message;
-
-    if(b_sound == true) {
-      // Tell the Proton Pack to play the sound # i_message.
-      sendStruct.e = W_COM_SOUND_NUMBER;
-    }
-    else {
-      sendStruct.e = W_COM_END;
-    }
+    sendStruct.d1 = i_value;
+    sendStruct.e = W_COM_END;
 
     wandComs.sendDatum(sendStruct);
   }
@@ -380,29 +375,6 @@ void checkPack() {
               cyclotronSpeedRevert();
             break;
 
-            case P_YEAR_1984:
-              // 1984 mode.
-              SYSTEM_YEAR = SYSTEM_1984;
-              bargraphYearModeUpdate();
-            break;
-
-            case P_YEAR_1989:
-              // 1984 mode.
-              SYSTEM_YEAR = SYSTEM_1989;
-              bargraphYearModeUpdate();
-            break;
-
-            case P_YEAR_AFTERLIFE:
-              // 2021 mode.
-              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-              bargraphYearModeUpdate();
-            break;
-
-            case P_YEAR_FROZEN_EMPIRE:
-              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-              bargraphYearModeUpdate();
-            break;
-
             case P_VOLUME_SOUND_EFFECTS_INCREASE:
               // Increase effects volume.
               increaseVolumeEffects();
@@ -519,7 +491,7 @@ void checkPack() {
               playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
             break;
 
-            case P_MODE_FROZEN_EMPIRE:
+            case P_YEAR_FROZEN_EMPIRE:
               // Play Frozen Empire voice.
               stopEffect(S_VOICE_FROZEN_EMPIRE);
               stopEffect(S_VOICE_AFTERLIFE);
@@ -527,9 +499,12 @@ void checkPack() {
               stopEffect(S_VOICE_1984);
 
               playEffect(S_VOICE_FROZEN_EMPIRE);
+
+              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+              bargraphYearModeUpdate();
             break;
 
-            case P_MODE_AFTERLIFE:
+            case P_YEAR_AFTERLIFE:
               // Play Afterlife voice.
               stopEffect(S_VOICE_FROZEN_EMPIRE);
               stopEffect(S_VOICE_AFTERLIFE);
@@ -537,9 +512,12 @@ void checkPack() {
               stopEffect(S_VOICE_1984);
 
               playEffect(S_VOICE_AFTERLIFE);
+
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              bargraphYearModeUpdate();
             break;
 
-            case P_MODE_1989:
+            case P_YEAR_1989:
               // Play 1989 voice.
               stopEffect(S_VOICE_FROZEN_EMPIRE);
               stopEffect(S_VOICE_AFTERLIFE);
@@ -547,9 +525,12 @@ void checkPack() {
               stopEffect(S_VOICE_1984);
 
               playEffect(S_VOICE_1989);
+
+              SYSTEM_YEAR = SYSTEM_1989;
+              bargraphYearModeUpdate();
             break;
 
-            case P_MODE_1984:
+            case P_YEAR_1984:
               // Play 1984 voice.
               stopEffect(S_VOICE_FROZEN_EMPIRE);
               stopEffect(S_VOICE_AFTERLIFE);
@@ -557,6 +538,9 @@ void checkPack() {
               stopEffect(S_VOICE_1984);
 
               playEffect(S_VOICE_1984);
+
+              SYSTEM_YEAR = SYSTEM_1984;
+              bargraphYearModeUpdate();
             break;
 
             case P_SMOKE_DISABLED:
@@ -1020,9 +1004,13 @@ void checkPack() {
               resumeMusic();
             break;
 
-            default:
+            case P_MUSIC_PLAY_TRACK:
               // Music track number to be played.
-              i_current_music_track = comStruct.i;
+              i_current_music_track = comStruct.d1;
+            break;
+
+            default:
+              // No-op for anything else.
             break;
           }
         }

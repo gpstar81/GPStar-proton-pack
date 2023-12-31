@@ -65,7 +65,7 @@ void checkWandAction();
 /*
  * Function prototypes from Serial.h (included at end of this file)
  */
-void wandSerialSend(int i_message, bool b_sound);
+void wandSerialSend(uint16_t i_message, uint16_t i_value = 0);
 void checkPack();
 
 void setup() {
@@ -6136,7 +6136,7 @@ void overheatVoiceIndicator(unsigned int i_tmp_length) {
   playEffect(i_tmp_sound);
 
   // Tell the Proton Pack to play this sound effect.
-  wandSerialSend(i_tmp_sound, true);
+  wandSerialSend(W_COM_SOUND_NUMBER, i_tmp_sound);
 }
 
 void overheatTimerIncrement(uint8_t i_tmp_power_level) {

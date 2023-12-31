@@ -28,6 +28,7 @@ void updateSystemModeYear();
 struct __attribute__((packed)) MessagePacket {
   uint16_t s;
   uint16_t i;
+  uint16_t d1; // Reserved for values over 255 (eg. current music track)
   uint16_t e;
 };
 
@@ -38,13 +39,86 @@ struct MessagePacket sendStruct;
 struct __attribute__((packed)) DataPacket {
   uint16_t s;
   uint16_t i;
-  uint16_t d1;
-  uint8_t d[25];
+  uint16_t d1; // Reserved for values over 255 (eg. current music track)
+  uint8_t d[25]; // Reserved for large data packets (eg. EEPROM configs)
   uint16_t e;
 };
 
 struct DataPacket dataStruct;
 struct DataPacket dataStructR;
+
+// Adjusts which year mode the Proton Pack and Neutrona Wand are in if switched by the Neutrona Wand.
+void toggleYearModes() {
+  // Toggle between the year modes.
+  stopEffect(S_BEEPS_BARGRAPH);
+  playEffect(S_BEEPS_BARGRAPH);
+
+  switch(SYSTEM_YEAR_TEMP) {
+    case SYSTEM_1984:
+      SYSTEM_YEAR_TEMP = SYSTEM_1989;
+
+      stopEffect(S_VOICE_FROZEN_EMPIRE);
+      stopEffect(S_VOICE_AFTERLIFE);
+      stopEffect(S_VOICE_1989);
+      stopEffect(S_VOICE_1984);
+
+      playEffect(S_VOICE_1989);
+
+      // Tell the wand to play the 1989 sound effects.
+      packSerialSend(P_YEAR_1989);
+      serial1Send(A_YEAR_1989);
+    break;
+
+    case SYSTEM_1989:
+      SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
+
+      stopEffect(S_VOICE_FROZEN_EMPIRE);
+      stopEffect(S_VOICE_AFTERLIFE);
+      stopEffect(S_VOICE_1989);
+      stopEffect(S_VOICE_1984);
+
+      playEffect(S_VOICE_AFTERLIFE);
+
+      // Tell the wand to play the Afterlife sound effects.
+      packSerialSend(P_YEAR_AFTERLIFE);
+      serial1Send(A_YEAR_AFTERLIFE);
+    break;
+
+    case SYSTEM_AFTERLIFE:
+      SYSTEM_YEAR_TEMP = SYSTEM_FROZEN_EMPIRE;
+
+      stopEffect(S_VOICE_FROZEN_EMPIRE);
+      stopEffect(S_VOICE_AFTERLIFE);
+      stopEffect(S_VOICE_1989);
+      stopEffect(S_VOICE_1984);
+
+      playEffect(S_VOICE_FROZEN_EMPIRE);
+
+      // Tell the wand to play the Frozen Empire sound effects.
+      packSerialSend(P_YEAR_FROZEN_EMPIRE);
+      serial1Send(A_YEAR_FROZEN_EMPIRE);
+    break;
+
+    case SYSTEM_FROZEN_EMPIRE:
+      SYSTEM_YEAR_TEMP = SYSTEM_1984;
+
+      stopEffect(S_VOICE_FROZEN_EMPIRE);
+      stopEffect(S_VOICE_AFTERLIFE);
+      stopEffect(S_VOICE_1989);
+      stopEffect(S_VOICE_1984);
+
+      playEffect(S_VOICE_1984);
+
+      // Tell the wand to play the 1984 sound effects.
+      packSerialSend(P_YEAR_1984);
+      serial1Send(P_YEAR_1984);
+    break;
+
+    default:
+      // Nothing.
+    break;
+  }
+}
 
 // Handle telling connected devices the proper mode/year in use.
 void updateSystemModeYear() {
@@ -82,15 +156,15 @@ void updateSystemModeYear() {
 }
 
 // Outgoing messages to the Serial1 device
-void serial1Send(int i_message) {
+void serial1Send(uint16_t i_message) {
   dataStruct.s = A_COM_START;
   dataStruct.i = i_message;
 
   // Get the number of elements in the data array
-  int arrayLength = sizeof(dataStruct.d) / sizeof(dataStruct.d[0]);
+  uint16_t arrayLength = sizeof(dataStruct.d) / sizeof(dataStruct.d[0]);
 
   // Set each element of the data array to 0
-  for (int i = 0; i < arrayLength; i++) {
+  for (uint16_t i = 0; i < arrayLength; i++) {
     dataStruct.d[i] = 0;
   }
 
@@ -172,7 +246,7 @@ void serial1Send(int i_message) {
 }
 
 // Outgoing messages to the wand
-void packSerialSend(int i_message) {
+void packSerialSend(uint16_t i_message) {
   sendStruct.s = P_COM_START;
   sendStruct.i = i_message;
   sendStruct.e = P_COM_END;
@@ -1671,6 +1745,7 @@ void checkWand() {
               switch(SYSTEM_MODE) {
                 case MODE_ORIGINAL:
                   SYSTEM_MODE = MODE_SUPER_HERO;
+
                   stopEffect(S_VOICE_MODE_SUPER_HERO);
                   stopEffect(S_VOICE_MODE_ORIGINAL);
                   playEffect(S_VOICE_MODE_SUPER_HERO);
@@ -2699,21 +2774,40 @@ void checkWand() {
               musicPrevTrack();
             break;
 
-            default:
+            case W_MUSIC_PLAY_TRACK:
               // Music track number to be played.
-              if(i_music_count > 0 && comStruct.i >= i_music_track_start) {
+              if(i_music_count > 0 && comStruct.d1 >= i_music_track_start) {
                 if(b_playing_music == true) {
                   stopMusic(); // Stops current track before change.
 
-                  i_current_music_track = comStruct.i; // Change track AFTER stopping music.
+                  // Only update after the music is stopped.
+                  i_current_music_track = comStruct.d1;
 
                   // Play the appropriate track on pack and wand, and notify the serial1 device.
                   playMusic();
                 }
                 else {
-                  i_current_music_track = comStruct.i;
+                  i_current_music_track = comStruct.d1;
                 }
               }
+            break;
+
+            case W_COM_SOUND_NUMBER:
+              if(comStruct.d1 > 0) {
+                // The Neutrona Wand is telling us to play a sound effect only (S_1 through S_60).
+                stopEffect(comStruct.d1 + 1);
+
+                if(comStruct.d1 - 1 > 0) {
+                  stopEffect(comStruct.d1 - 1);
+                }
+
+                stopEffect(comStruct.d1);
+                playEffect(comStruct.d1);
+              }
+            break;
+
+            default:
+              // No-op for anything else.
             break;
           }
         }
@@ -2913,18 +3007,6 @@ void checkWand() {
           }
         }
       }
-      else if(comStruct.i > 0 && comStruct.s == W_COM_START && comStruct.e == W_COM_SOUND_NUMBER) {
-        // The Neutrona Wand is telling us to play a # number sound effect only. S_1 through S_60).
-        stopEffect(comStruct.i + 1);
-
-        if(comStruct.i - 1 > 0) {
-          stopEffect(comStruct.i - 1);
-        }
-
-        stopEffect(comStruct.i);
-
-        playEffect(comStruct.i);
-      }
     }
   }
 }
@@ -3120,7 +3202,9 @@ void checkSerial1() {
               // Push changes to connected devices and reset related variables
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
               SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
+              b_switch_mode_override = true;
               updateSystemModeYear();
+              updateProtonPackLEDCounts();
               resetRampSpeeds();
 
               // Offer some feedback to the user

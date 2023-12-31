@@ -47,8 +47,8 @@
 /*
  * Function prototypes from Serial.h (included at end of this file)
  */
-void serial1Send(int i_message);
-void packSerialSend(int i_message);
+void packSerialSend(uint16_t i_message);
+void serial1Send(uint16_t i_message);
 void checkSerial1();
 void checkWand();
 
@@ -4293,75 +4293,6 @@ void resetCyclotronLEDs() {
       i_1984_cyclotron_leds[1] = i_1984_cyclotron_12_leds[1];
       i_1984_cyclotron_leds[2] = i_1984_cyclotron_12_leds[2];
       i_1984_cyclotron_leds[3] = i_1984_cyclotron_12_leds[3];
-    break;
-  }
-}
-
-// Adjusts which year mode the Proton Pack and Neutrona Wand are in if switched by the Neutrona Wand.
-void toggleYearModes() {
-  // Toggle between the year modes.
-  stopEffect(S_BEEPS_BARGRAPH);
-  playEffect(S_BEEPS_BARGRAPH);
-
-  switch(SYSTEM_YEAR_TEMP) {
-    case SYSTEM_1984:
-      SYSTEM_YEAR_TEMP = SYSTEM_1989;
-
-      stopEffect(S_VOICE_FROZEN_EMPIRE);
-      stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1989);
-      stopEffect(S_VOICE_1984);
-
-      playEffect(S_VOICE_1989);
-
-      // Tell the wand to play the 1989 sound effects.
-      packSerialSend(P_MODE_1989);
-    break;
-
-    case SYSTEM_1989:
-      SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
-
-      stopEffect(S_VOICE_FROZEN_EMPIRE);
-      stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1989);
-      stopEffect(S_VOICE_1984);
-
-      playEffect(S_VOICE_AFTERLIFE);
-
-      // Tell the wand to play the Afterlife sound effects.
-      packSerialSend(P_MODE_AFTERLIFE);
-    break;
-
-    case SYSTEM_AFTERLIFE:
-      SYSTEM_YEAR_TEMP = SYSTEM_FROZEN_EMPIRE;
-
-      stopEffect(S_VOICE_FROZEN_EMPIRE);
-      stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1989);
-      stopEffect(S_VOICE_1984);
-
-      playEffect(S_VOICE_FROZEN_EMPIRE);
-
-      // Tell the wand to play the Frozen Empire sound effects.
-      packSerialSend(P_MODE_FROZEN_EMPIRE);
-    break;
-
-    case SYSTEM_FROZEN_EMPIRE:
-      SYSTEM_YEAR_TEMP = SYSTEM_1984;
-
-      stopEffect(S_VOICE_FROZEN_EMPIRE);
-      stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1989);
-      stopEffect(S_VOICE_1984);
-
-      playEffect(S_VOICE_1984);
-
-      // Tell the wand to play the 1984 sound effects.
-      packSerialSend(P_MODE_1984);
-    break;
-
-    default:
-      // Nothing.
     break;
   }
 }
