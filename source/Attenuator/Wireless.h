@@ -296,6 +296,7 @@ void setupRouting() {
 
   // Get/Set Handlers
   httpServer.on("/config/pack", HTTP_GET, handleGetPackConfig);
+  httpServer.on("/config/pack/eeprom", HTTP_PUT, handleSavePackEEPROM);
   httpServer.on("/status", HTTP_GET, handleGetStatus);
   httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/pack/on", HTTP_PUT, handlePackOn);

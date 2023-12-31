@@ -3074,7 +3074,7 @@ void checkSerial1() {
             break;
 
             case A_SAVE_EEPROM_SETTINGS:
-              // Commit changes to the EEPROM space
+              // Commit changes to the EEPROM
               saveLedEEPROM();
               saveConfigEEPROM();
               stopEffect(S_VOICE_EEPROM_SAVE);

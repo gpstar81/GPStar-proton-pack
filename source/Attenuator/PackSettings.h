@@ -232,7 +232,9 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;&nbsp;
-    <button type="button" class="green" onclick="saveSettings()">Save</button>
+    <button type="button" class="green" onclick="saveSettings()">Update Settings</button>
+    &nbsp;&nbsp;&nbsp;
+    <button type="button" class="orange" onclick="saveEEPROM()">Save to EEPROM</button>
   </div>
 
   <script type="application/javascript">
@@ -361,6 +363,18 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       xhttp.open("PUT", "/config/pack/save", true);
       xhttp.setRequestHeader("Content-Type", "application/json");
       xhttp.send(body);
+    }
+
+    function saveEEPROM() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          var jObj = JSON.parse(this.responseText);
+          alert(jObj.status); // Always display status returned.
+        }
+      };
+      xhttp.open("PUT", "/config/pack/eeprom", true);
+      xhttp.setRequestHeader("Content-Type", "application/json");
     }
   </script>
 </body>

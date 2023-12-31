@@ -318,6 +318,12 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   }
 }
 
+void handleSavePackEEPROM(AsyncWebServerRequest *request) {
+  debug("Save Pack EEPROM");
+  attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS);
+  request->send(200, "application/json", status);
+}
+
 // Handles the JSON body for the pack settings save request.
 AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHandler("/config/pack/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
   StaticJsonDocument<512> jsonBody;
