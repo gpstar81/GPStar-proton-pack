@@ -3038,6 +3038,13 @@ void checkSerial1() {
               }
             break;
 
+            case A_SAVE_PREFERENCES_PACK:
+              Serial.println("Saving Preferences");
+
+              Serial.println("defaultSystemModePack: " + String(dataStructR.d[0]));
+              Serial.println("defaultYearThemePack: " + String(dataStructR.d[1]));
+            break;
+
             case A_SYNC_END:
               //Serial.println("Serial1 Sync End");
             break;
