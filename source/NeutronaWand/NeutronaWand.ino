@@ -10214,7 +10214,7 @@ void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
-  if(i_track_volume > 10) {
+  if(i_track_volume > i_volume_abs_max) {
     i_track_volume = i_volume_abs_max;
   }
 
