@@ -4361,7 +4361,7 @@ void playMusic() {
     w_trig.resetTrackCounter(true);
 
     // Tell the Neutrona Wand which music track to change to and play it.
-    packSerialSend(W_MUSIC_PLAY_TRACK, i_current_music_track);
+    packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
     packSerialSend(P_MUSIC_START);
 
     // Tell connected serial device music playback has started.

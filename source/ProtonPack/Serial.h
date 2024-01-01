@@ -2967,7 +2967,7 @@ void checkWand() {
 
             // Sync the current music track.
             // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
-            packSerialSend(W_MUSIC_PLAY_TRACK, i_current_music_track);
+            packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
 
             if(b_repeat_track == true) {
               packSerialSend(P_MUSIC_REPEAT);
