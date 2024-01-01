@@ -170,15 +170,15 @@ void readEEPROM() {
     }
 
     if(obj_eeprom.powercell_spectral_custom > 0 && obj_eeprom.powercell_spectral_custom != 255) {
-      i_spectral_powercell_custom = obj_eeprom.powercell_spectral_custom;
+      i_spectral_powercell_custom_colour = obj_eeprom.powercell_spectral_custom;
     }
 
     if(obj_eeprom.cyclotron_spectral_custom > 0 && obj_eeprom.cyclotron_spectral_custom != 255) {
-      i_spectral_cyclotron_custom = obj_eeprom.cyclotron_spectral_custom;
+      i_spectral_cyclotron_custom_colour = obj_eeprom.cyclotron_spectral_custom;
     }
 
     if(obj_eeprom.cyclotron_inner_spectral_custom > 0 && obj_eeprom.cyclotron_inner_spectral_custom != 255) {
-      i_spectral_cyclotron_inner_custom = obj_eeprom.cyclotron_inner_spectral_custom;
+      i_spectral_cyclotron_inner_custom_colour = obj_eeprom.cyclotron_inner_spectral_custom;
     }
 
     if(obj_eeprom.powercell_spectral_saturation_custom > 0 && obj_eeprom.powercell_spectral_saturation_custom != 255) {
@@ -450,9 +450,9 @@ void saveLedEEPROM() {
     i_cyclotron_leds,
     i_inner_cyclotron_num_leds,
     i_grb_cyclotron,
-    i_spectral_powercell_custom,
-    i_spectral_cyclotron_custom,
-    i_spectral_cyclotron_inner_custom,
+    i_spectral_powercell_custom_colour,
+    i_spectral_cyclotron_custom_colour,
+    i_spectral_cyclotron_inner_custom_colour,
     i_spectral_powercell_custom_saturation,
     i_spectral_cyclotron_custom_saturation,
     i_spectral_cyclotron_inner_custom_saturation,

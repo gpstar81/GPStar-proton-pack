@@ -70,8 +70,8 @@ void toggleYearModes() {
 
       //stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1984);
       stopEffect(S_VOICE_1989);
+      stopEffect(S_VOICE_1984);
 
       playEffect(S_VOICE_1989);
 
@@ -84,8 +84,8 @@ void toggleYearModes() {
 
       //stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1984);
       stopEffect(S_VOICE_1989);
+      stopEffect(S_VOICE_1984);
 
       playEffect(S_VOICE_AFTERLIFE);
 
@@ -138,7 +138,7 @@ void serial1Send(uint16_t i_message) {
   dataStruct.i = i_message;
 
   if(i_message == A_SPECTRAL_CUSTOM_MODE || i_message == A_SPECTRAL_COLOUR_DATA) {
-    dataStruct.d1 = i_spectral_cyclotron_custom;
+    dataStruct.d1 = i_spectral_cyclotron_custom_colour;
     dataStruct.d2 = i_spectral_cyclotron_custom_saturation;
   }
   else if(i_message == A_MUSIC_TRACK_COUNT_SYNC) {
@@ -1688,11 +1688,11 @@ void checkWand() {
             break;
 
             case W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE:
-              if(i_spectral_cyclotron_inner_custom > 1 && i_spectral_cyclotron_inner_custom_saturation > 253) {
-                i_spectral_cyclotron_inner_custom--;
+              if(i_spectral_cyclotron_inner_custom_colour > 1 && i_spectral_cyclotron_inner_custom_saturation > 253) {
+                i_spectral_cyclotron_inner_custom_colour--;
               }
               else {
-                i_spectral_cyclotron_inner_custom = 1;
+                i_spectral_cyclotron_inner_custom_colour = 1;
 
                 if(i_spectral_cyclotron_inner_custom_saturation > 1) {
                   i_spectral_cyclotron_inner_custom_saturation--;
@@ -1706,11 +1706,11 @@ void checkWand() {
             break;
 
             case W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE:
-              if(i_spectral_cyclotron_custom > 1 && i_spectral_cyclotron_custom_saturation > 253) {
-                i_spectral_cyclotron_custom--;
+              if(i_spectral_cyclotron_custom_colour > 1 && i_spectral_cyclotron_custom_saturation > 253) {
+                i_spectral_cyclotron_custom_colour--;
               }
               else {
-                i_spectral_cyclotron_custom = 1;
+                i_spectral_cyclotron_custom_colour = 1;
 
                 if(i_spectral_cyclotron_custom_saturation > 1) {
                   i_spectral_cyclotron_custom_saturation--;
@@ -1724,11 +1724,11 @@ void checkWand() {
             break;
 
             case W_SPECTRAL_POWERCELL_CUSTOM_DECREASE:
-              if(i_spectral_powercell_custom > 1 && i_spectral_powercell_custom_saturation > 253) {
-                i_spectral_powercell_custom--;
+              if(i_spectral_powercell_custom_colour > 1 && i_spectral_powercell_custom_saturation > 253) {
+                i_spectral_powercell_custom_colour--;
               }
               else {
-                i_spectral_powercell_custom = 1;
+                i_spectral_powercell_custom_colour = 1;
 
                 if(i_spectral_powercell_custom_saturation > 1) {
                   i_spectral_powercell_custom_saturation--;
@@ -1749,11 +1749,11 @@ void checkWand() {
                   i_spectral_powercell_custom_saturation = 254;
                 }
               }
-              else if(i_spectral_powercell_custom < 253) {
-                i_spectral_powercell_custom++;
+              else if(i_spectral_powercell_custom_colour < 253) {
+                i_spectral_powercell_custom_colour++;
               }
               else {
-                i_spectral_powercell_custom = 254;
+                i_spectral_powercell_custom_colour = 254;
               }
 
               spectralLightsOn();
@@ -1767,11 +1767,11 @@ void checkWand() {
                   i_spectral_cyclotron_custom_saturation = 254;
                 }
               }
-              else if(i_spectral_cyclotron_custom < 253) {
-                i_spectral_cyclotron_custom++;
+              else if(i_spectral_cyclotron_custom_colour < 253) {
+                i_spectral_cyclotron_custom_colour++;
               }
               else {
-                i_spectral_cyclotron_custom = 254;
+                i_spectral_cyclotron_custom_colour = 254;
 
                 if(i_spectral_cyclotron_custom_saturation < 253) {
                   i_spectral_cyclotron_custom_saturation++;
@@ -1792,11 +1792,11 @@ void checkWand() {
                   i_spectral_cyclotron_inner_custom_saturation = 254;
                 }
               }
-              else if(i_spectral_cyclotron_inner_custom < 253) {
-                i_spectral_cyclotron_inner_custom++;
+              else if(i_spectral_cyclotron_inner_custom_colour < 253) {
+                i_spectral_cyclotron_inner_custom_colour++;
               }
               else {
-                i_spectral_cyclotron_inner_custom = 254;
+                i_spectral_cyclotron_inner_custom_colour = 254;
 
                 if(i_spectral_cyclotron_inner_custom_saturation < 253) {
                   i_spectral_cyclotron_inner_custom_saturation++;
@@ -2874,7 +2874,7 @@ void checkWand() {
             packSerialSend(P_VOLUME_SYNC_MODE);
 
             // Sequence here is important. Synchronise the volume settings.
-            packSerialSend(i_volume_percentage);
+            packSerialSend(i_volume_effects_percentage);
 
             packSerialSend(i_volume_master_percentage);
 

@@ -142,9 +142,9 @@ bool b_grb_cyclotron = false;
  * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. The Neutrona Wand custom spectral colours are stored on the Neutrona Wand. So it is possible to mix and match different wands' colours to different pack settings.
  * Value range: 1 <--> 254
  */
-uint8_t i_spectral_powercell_custom = 200;
-uint8_t i_spectral_cyclotron_custom = 200;
-uint8_t i_spectral_cyclotron_inner_custom = 200;
+uint8_t i_spectral_powercell_custom_colour = 200;
+uint8_t i_spectral_cyclotron_custom_colour = 200;
+uint8_t i_spectral_cyclotron_inner_custom_colour = 200;
 
 /*
  * The CHSV saturation range for the Spectral Custom mode.

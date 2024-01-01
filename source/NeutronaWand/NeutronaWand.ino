@@ -2958,7 +2958,7 @@ void modeFiring() {
     case SPECTRAL_CUSTOM:
       fireStreamStart(getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT));
 
-      if(i_spectral_wand_saturation_custom < 254) {
+      if(i_spectral_wand_custom_saturation < 254) {
         fireStream(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
       }
       else {
@@ -5999,35 +5999,35 @@ void adjustVolumeEffectsGain() {
 }
 
 void increaseVolumeEffects() {
-  if(i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
-    i_volume_percentage = 100;
+  if(i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
+    i_volume_effects_percentage = 100;
 
     // Provide feedback at maximum volume.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
-    i_volume_percentage = i_volume_percentage + VOLUME_EFFECTS_MULTIPLIER;
+    i_volume_effects_percentage = i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+  i_volume_effects_percentage = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
 
 void decreaseVolumeEffects() {
-  if(i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
-    i_volume_percentage = 0;
+  if(i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
+    i_volume_effects_percentage = 0;
 
     // Provide feedback at minimum volume.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
   }
   else {
-    i_volume_percentage = i_volume_percentage - VOLUME_EFFECTS_MULTIPLIER;
+    i_volume_effects_percentage = i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+  i_volume_effects_percentage = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
 
   adjustVolumeEffectsGain();
 }
@@ -6562,17 +6562,17 @@ void checkRotary() {
         if(prev_next_code == 0x0b) {
           if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
             // Change colour of the wand barrel spectral custom colour.
-            if(i_spectral_wand_custom > 1 && i_spectral_wand_saturation_custom > 253) {
-              i_spectral_wand_custom--;
+            if(i_spectral_wand_custom_colour > 1 && i_spectral_wand_custom_saturation > 253) {
+              i_spectral_wand_custom_colour--;
             }
             else {
-              i_spectral_wand_custom = 1;
+              i_spectral_wand_custom_colour = 1;
 
-              if(i_spectral_wand_saturation_custom > 1) {
-                i_spectral_wand_saturation_custom--;
+              if(i_spectral_wand_custom_saturation > 1) {
+                i_spectral_wand_custom_saturation--;
               }
               else {
-                i_spectral_wand_saturation_custom = 1;
+                i_spectral_wand_custom_saturation = 1;
               }
             }
 
@@ -6602,24 +6602,24 @@ void checkRotary() {
         if(prev_next_code == 0x07) {
           if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
             // Change colour of the Wand Barrel Spectral custom colour.
-            if(i_spectral_wand_saturation_custom < 254) {
-              i_spectral_wand_saturation_custom++;
+            if(i_spectral_wand_custom_saturation < 254) {
+              i_spectral_wand_custom_saturation++;
 
-              if(i_spectral_wand_saturation_custom > 253) {
-                i_spectral_wand_saturation_custom = 254;
+              if(i_spectral_wand_custom_saturation > 253) {
+                i_spectral_wand_custom_saturation = 254;
               }
             }
-            else if(i_spectral_wand_custom < 253 && i_spectral_wand_saturation_custom > 253) {
-              i_spectral_wand_custom++;
+            else if(i_spectral_wand_custom_colour < 253 && i_spectral_wand_custom_saturation > 253) {
+              i_spectral_wand_custom_colour++;
             }
             else {
-              i_spectral_wand_custom = 254;
+              i_spectral_wand_custom_colour = 254;
 
-              if(i_spectral_wand_saturation_custom < 253) {
-                i_spectral_wand_saturation_custom++;
+              if(i_spectral_wand_custom_saturation < 253) {
+                i_spectral_wand_custom_saturation++;
               }
               else {
-                i_spectral_wand_saturation_custom = 254;
+                i_spectral_wand_custom_saturation = 254;
               }
             }
 

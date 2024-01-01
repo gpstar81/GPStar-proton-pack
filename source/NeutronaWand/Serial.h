@@ -33,7 +33,7 @@ struct __attribute__((packed)) STRUCTSEND {
 } sendStruct;
 
 // Pack communication from the wand.
-void wandSerialSend(int i_message, bool b_sound) {
+void wandSerialSend(uint16_t i_message, bool b_sound) {
   if(b_no_pack != true) {
     sendStruct.s = W_COM_START;
     sendStruct.i = i_message;
@@ -61,8 +61,8 @@ void checkPack() {
         if(b_volume_sync_wait == true) {
           switch(VOLUME_SYNC_WAIT) {
             case EFFECTS:
-              i_volume_percentage = comStruct.i;
-              i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100);
+              i_volume_effects_percentage = comStruct.i;
+              i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
 
               adjustVolumeEffectsGain();
               VOLUME_SYNC_WAIT = MASTER;
