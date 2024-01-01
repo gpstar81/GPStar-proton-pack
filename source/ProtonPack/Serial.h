@@ -89,8 +89,7 @@ void toggleYearModes() {
       playEffect(S_VOICE_1989);
 
       // Tell the wand to play the 1989 sound effects.
-      packSerialSend(P_YEAR_1989);
-      serial1Send(A_YEAR_1989);
+      packSerialSend(P_MODE_1989);
     break;
 
     case SYSTEM_1989:
@@ -104,8 +103,7 @@ void toggleYearModes() {
       playEffect(S_VOICE_AFTERLIFE);
 
       // Tell the wand to play the Afterlife sound effects.
-      packSerialSend(P_YEAR_AFTERLIFE);
-      serial1Send(A_YEAR_AFTERLIFE);
+      packSerialSend(P_MODE_AFTERLIFE);
     break;
 
     case SYSTEM_AFTERLIFE:
@@ -119,8 +117,7 @@ void toggleYearModes() {
       playEffect(S_VOICE_FROZEN_EMPIRE);
 
       // Tell the wand to play the Frozen Empire sound effects.
-      packSerialSend(P_YEAR_FROZEN_EMPIRE);
-      serial1Send(A_YEAR_FROZEN_EMPIRE);
+      packSerialSend(P_MODE_FROZEN_EMPIRE);
     break;
 
     case SYSTEM_FROZEN_EMPIRE:
@@ -134,8 +131,7 @@ void toggleYearModes() {
       playEffect(S_VOICE_1984);
 
       // Tell the wand to play the 1984 sound effects.
-      packSerialSend(P_YEAR_1984);
-      serial1Send(P_YEAR_1984);
+      packSerialSend(P_MODE_1984);
     break;
 
     default:

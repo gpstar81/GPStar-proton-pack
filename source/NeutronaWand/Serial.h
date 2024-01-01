@@ -515,7 +515,7 @@ void checkPack() {
             playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
           break;
 
-          case P_YEAR_FROZEN_EMPIRE:
+          case P_MODE_FROZEN_EMPIRE:
             // Play Frozen Empire voice.
             stopEffect(S_VOICE_FROZEN_EMPIRE);
             stopEffect(S_VOICE_AFTERLIFE);
@@ -523,12 +523,9 @@ void checkPack() {
             stopEffect(S_VOICE_1984);
 
             playEffect(S_VOICE_FROZEN_EMPIRE);
-
-            SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-            bargraphYearModeUpdate();
           break;
 
-          case P_YEAR_AFTERLIFE:
+          case P_MODE_AFTERLIFE:
             // Play Afterlife voice.
             stopEffect(S_VOICE_FROZEN_EMPIRE);
             stopEffect(S_VOICE_AFTERLIFE);
@@ -536,12 +533,9 @@ void checkPack() {
             stopEffect(S_VOICE_1984);
 
             playEffect(S_VOICE_AFTERLIFE);
-
-            SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-            bargraphYearModeUpdate();
           break;
 
-          case P_YEAR_1989:
+          case P_MODE_1989:
             // Play 1989 voice.
             stopEffect(S_VOICE_FROZEN_EMPIRE);
             stopEffect(S_VOICE_AFTERLIFE);
@@ -549,12 +543,9 @@ void checkPack() {
             stopEffect(S_VOICE_1984);
 
             playEffect(S_VOICE_1989);
-
-            SYSTEM_YEAR = SYSTEM_1989;
-            bargraphYearModeUpdate();
           break;
 
-          case P_YEAR_1984:
+          case P_MODE_1984:
             // Play 1984 voice.
             stopEffect(S_VOICE_FROZEN_EMPIRE);
             stopEffect(S_VOICE_AFTERLIFE);
@@ -562,9 +553,6 @@ void checkPack() {
             stopEffect(S_VOICE_1984);
 
             playEffect(S_VOICE_1984);
-
-            SYSTEM_YEAR = SYSTEM_1984;
-            bargraphYearModeUpdate();
           break;
 
           case P_SMOKE_DISABLED:
