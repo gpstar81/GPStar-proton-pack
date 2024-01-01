@@ -40,11 +40,13 @@ or
 This device was designed to allow for certain "real" parts as opposed to being 100% 3D printed. To finish the look of the exterior the following are **merely suggestions**. These parts may be sourced from any vendor you prefer (in the US most ACE Hardware locations have extensive selections of metrics screws). If a certain item is improbable or unavailable you may substitute as you wish--regardless of material used for printing it should be possible to install a similar sized screw for the provided holes in the shell.
 
 * [M3x4 Button Hex Head Screws](https://a.co/d/h5No0N9) (Qty: 14) - Used for decoration on the sides of the body.
-* [8-40 x 1/4" Fillister Head Slotted Screws](https://a.co/d/es5eXBC) (Qty: 4) - Used for decoration on the top of the body.
+* [M4x6 Cheese Head Slotted Screws](https://a.co/d/eUhDiRO) (Qty: 4) - Used for decoration on the top of the body.
+	* You could also use [8-40 x 1/4" Fillister Head Slotted Screws](https://a.co/d/es5eXBC)
+	* M4 nuts may be required to secure the screws to the Attenuator shell.
 
 The back plate will be attached using either M5 or M4 screws depending on the material used. For screws, your best value is to purchase an assorted set as this cost less than buying a single size of screw.
 
-* [M5x8 Button Hex Head Screws](https://a.co/d/0fcUDN5) (Qty: 4) - Used to secure the base plate to metal body.
+* [M4x8 Button Hex Head Screws](https://a.co/d/0fcUDN5) (Qty: 4) - Used to secure the base plate to metal body.
 
 or
 
