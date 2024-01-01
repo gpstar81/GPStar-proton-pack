@@ -38,6 +38,37 @@ struct MessagePacket sendStruct;
 struct MessagePacket dataStruct;
 struct MessagePacket dataStructR;
 
+struct WandPrefs {
+  uint8_t ledWandCount;
+  uint8_t ledWandHue;
+  uint8_t ledWandSat;
+  uint8_t spectralModeEnabled;
+  uint8_t spectralHolidayMode;
+  uint8_t overheatEnabled;
+  uint8_t defaultFiringMode;
+  uint8_t wandSoundsToPack;
+  uint8_t quickVenting;
+  uint8_t autoVentLight;
+  uint8_t wandBeepLoop;
+  uint8_t wandBootError;
+  uint8_t defaultYearModeWand;
+  uint8_t defaultYearModeCTS;
+  uint8_t invertWandBargraph;
+  uint8_t bargraphOverheatBlink;
+  uint8_t bargraphIdleAnimation;
+  uint8_t bargraphFireAnimation;
+  uint8_t overheatLevel5;
+  uint8_t overheatLevel4;
+  uint8_t overheatLevel3;
+  uint8_t overheatLevel2;
+  uint8_t overheatLevel1;
+  uint8_t overheatDelay5;
+  uint8_t overheatDelay4;
+  uint8_t overheatDelay3;
+  uint8_t overheatDelay2;
+  uint8_t overheatDelay1;
+} wandConfig;
+
 // Adjusts which year mode the Proton Pack and Neutrona Wand are in, when switched by the Neutrona Wand.
 void toggleYearModes() {
   // Toggle between the year modes.
@@ -219,24 +250,24 @@ void serial1Send(uint16_t i_message, uint16_t i_value = 0) {
     case A_SEND_PREFERENCES_WAND:
       // Sends values from current runtime variables as values in an int array.
       // Any ENUM or boolean types will simply translate as numeric values.
-      dataStruct.d[0] = 5; // ledWandCount
-      dataStruct.d[1] = 1; // ledWandHue
-      dataStruct.d[2] = 254; // ledWandSat
-      dataStruct.d[3] = 1; // spectralModeEnabled
-      dataStruct.d[4] = 1; // spectralHolidayMode
-      dataStruct.d[5] = 1; // overheatEnabled
-      dataStruct.d[6] = 0; // defaultFiringMode
-      dataStruct.d[7] = 0; // wandSoundsToPack
-      dataStruct.d[8] = 0; // quickVenting
-      dataStruct.d[9] = 0; // autoVentLight
-      dataStruct.d[10] = 1; // wandBeepLoop
-      dataStruct.d[11] = 1; // wandBootError
-      dataStruct.d[12] = 0; // defaultYearModeWand
-      dataStruct.d[13] = 0; // defaultYearModeCTS
-      dataStruct.d[14] = 0; // invertWandBargraph
-      dataStruct.d[15] = 0; // bargraphOverheatBlink
-      dataStruct.d[16] = 0; // bargraphIdleAnimation
-      dataStruct.d[17] = 0; // bargraphFireAnimation
+      dataStruct.d[0] = wandConfig.ledWandCount;
+      dataStruct.d[1] = wandConfig.ledWandHue;
+      dataStruct.d[2] = wandConfig.ledWandSat;
+      dataStruct.d[3] = wandConfig.spectralModeEnabled;
+      dataStruct.d[4] = wandConfig.spectralHolidayMode;
+      dataStruct.d[5] = wandConfig.overheatEnabled;
+      dataStruct.d[6] = wandConfig.defaultFiringMode;
+      dataStruct.d[7] = wandConfig.wandSoundsToPack;
+      dataStruct.d[8] = wandConfig.quickVenting;
+      dataStruct.d[9] = wandConfig.autoVentLight;
+      dataStruct.d[10] = wandConfig.wandBeepLoop;
+      dataStruct.d[11] = wandConfig.wandBootError;
+      dataStruct.d[12] = wandConfig.defaultYearModeWand;
+      dataStruct.d[13] = wandConfig.defaultYearModeCTS;
+      dataStruct.d[14] = wandConfig.invertWandBargraph;
+      dataStruct.d[15] = wandConfig.bargraphOverheatBlink;
+      dataStruct.d[16] = wandConfig.bargraphIdleAnimation;
+      dataStruct.d[17] = wandConfig.bargraphFireAnimation;
     break;
 
     case A_SEND_PREFERENCES_SMOKE:
@@ -253,17 +284,17 @@ void serial1Send(uint16_t i_message, uint16_t i_value = 0) {
       dataStruct.d[8] = b_smoke_continuous_mode_2;
       dataStruct.d[9] = b_smoke_continuous_mode_1;
 
-      // dataStruct.d[10] = i_ms_overheating_enabled_5;
-      // dataStruct.d[11] = i_ms_overheating_enabled_4;
-      // dataStruct.d[12] = i_ms_overheating_enabled_3;
-      // dataStruct.d[13] = i_ms_overheating_enabled_2;
-      // dataStruct.d[14] = i_ms_overheating_enabled_1;
+      dataStruct.d[10] = wandConfig.overheatLevel5;
+      dataStruct.d[11] = wandConfig.overheatLevel4;
+      dataStruct.d[12] = wandConfig.overheatLevel3;
+      dataStruct.d[13] = wandConfig.overheatLevel2;
+      dataStruct.d[14] = wandConfig.overheatLevel1;
 
-      // dataStruct.d[15] = b_smoke_start_delay_5;
-      // dataStruct.d[16] = b_smoke_start_delay_4;
-      // dataStruct.d[17] = b_smoke_start_delay_3;
-      // dataStruct.d[18] = b_smoke_start_delay_2;
-      // dataStruct.d[19] = b_smoke_start_delay_1;
+      dataStruct.d[15] = wandConfig.overheatDelay5;
+      dataStruct.d[16] = wandConfig.overheatDelay4;
+      dataStruct.d[17] = wandConfig.overheatDelay3;
+      dataStruct.d[18] = wandConfig.overheatDelay2;
+      dataStruct.d[19] = wandConfig.overheatDelay1;
     break;
 
     default:
@@ -2845,6 +2876,40 @@ void checkWand() {
                 stopEffect(comStruct.d1);
                 playEffect(comStruct.d1);
               }
+            break;
+
+            case W_SEND_PREFERENCES_WAND:
+              wandConfig.ledWandCount = dataStruct.d[0];
+              wandConfig.ledWandHue = dataStruct.d[1];
+              wandConfig.ledWandSat = dataStruct.d[2];
+              wandConfig.spectralModeEnabled = dataStruct.d[3];
+              wandConfig.spectralHolidayMode = dataStruct.d[4];
+              wandConfig.overheatEnabled = dataStruct.d[5];
+              wandConfig.defaultFiringMode = dataStruct.d[6];
+              wandConfig.wandSoundsToPack = dataStruct.d[7];
+              wandConfig.quickVenting = dataStruct.d[8];
+              wandConfig.autoVentLight = dataStruct.d[9];
+              wandConfig.wandBeepLoop = dataStruct.d[10];
+              wandConfig.wandBootError = dataStruct.d[11];
+              wandConfig.defaultYearModeWand = dataStruct.d[12];
+              wandConfig.defaultYearModeCTS = dataStruct.d[13];
+              wandConfig.invertWandBargraph = dataStruct.d[14];
+              wandConfig.bargraphOverheatBlink = dataStruct.d[15];
+              wandConfig.bargraphIdleAnimation = dataStruct.d[16];
+              wandConfig.bargraphFireAnimation = dataStruct.d[17];
+            break;
+
+            case W_SEND_PREFERENCES_SMOKE:
+              wandConfig.overheatLevel5 = dataStruct.d[0];
+              wandConfig.overheatLevel3 = dataStruct.d[1];
+              wandConfig.overheatLevel3 = dataStruct.d[2];
+              wandConfig.overheatLevel2 = dataStruct.d[3];
+              wandConfig.overheatLevel1 = dataStruct.d[4];
+              wandConfig.overheatDelay5 = dataStruct.d[5];
+              wandConfig.overheatDelay4 = dataStruct.d[6];
+              wandConfig.overheatDelay3 = dataStruct.d[7];
+              wandConfig.overheatDelay2 = dataStruct.d[8];
+              wandConfig.overheatDelay1 = dataStruct.d[9];
             break;
 
             default:

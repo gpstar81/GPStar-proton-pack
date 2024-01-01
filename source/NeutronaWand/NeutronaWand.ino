@@ -2956,7 +2956,7 @@ void modeFiring() {
     case SPECTRAL_CUSTOM:
       fireStreamStart(getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT));
 
-      if(i_spectral_wand_saturation_custom < 254) {
+      if(i_spectral_wand_custom_saturation < 254) {
         fireStream(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
       }
       else {
@@ -6560,17 +6560,17 @@ void checkRotary() {
         if(prev_next_code == 0x0b) {
           if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
             // Change colour of the wand barrel spectral custom colour.
-            if(i_spectral_wand_custom > 1 && i_spectral_wand_saturation_custom > 253) {
-              i_spectral_wand_custom--;
+            if(i_spectral_wand_custom_colour > 1 && i_spectral_wand_custom_saturation > 253) {
+              i_spectral_wand_custom_colour--;
             }
             else {
-              i_spectral_wand_custom = 1;
+              i_spectral_wand_custom_colour = 1;
 
-              if(i_spectral_wand_saturation_custom > 1) {
-                i_spectral_wand_saturation_custom--;
+              if(i_spectral_wand_custom_saturation > 1) {
+                i_spectral_wand_custom_saturation--;
               }
               else {
-                i_spectral_wand_saturation_custom = 1;
+                i_spectral_wand_custom_saturation = 1;
               }
             }
 
@@ -6600,24 +6600,24 @@ void checkRotary() {
         if(prev_next_code == 0x07) {
           if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && digitalRead(switch_mode) == LOW) {
             // Change colour of the Wand Barrel Spectral custom colour.
-            if(i_spectral_wand_saturation_custom < 254) {
-              i_spectral_wand_saturation_custom++;
+            if(i_spectral_wand_custom_saturation < 254) {
+              i_spectral_wand_custom_saturation++;
 
-              if(i_spectral_wand_saturation_custom > 253) {
-                i_spectral_wand_saturation_custom = 254;
+              if(i_spectral_wand_custom_saturation > 253) {
+                i_spectral_wand_custom_saturation = 254;
               }
             }
-            else if(i_spectral_wand_custom < 253 && i_spectral_wand_saturation_custom > 253) {
-              i_spectral_wand_custom++;
+            else if(i_spectral_wand_custom_colour < 253 && i_spectral_wand_custom_saturation > 253) {
+              i_spectral_wand_custom_colour++;
             }
             else {
-              i_spectral_wand_custom = 254;
+              i_spectral_wand_custom_colour = 254;
 
-              if(i_spectral_wand_saturation_custom < 253) {
-                i_spectral_wand_saturation_custom++;
+              if(i_spectral_wand_custom_saturation < 253) {
+                i_spectral_wand_custom_saturation++;
               }
               else {
-                i_spectral_wand_saturation_custom = 254;
+                i_spectral_wand_custom_saturation = 254;
               }
             }
 

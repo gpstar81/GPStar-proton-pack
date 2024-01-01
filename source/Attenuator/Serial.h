@@ -93,26 +93,28 @@ struct WandPrefs {
 } wandConfig;
 
 struct SmokePrefs {
-  uint8_t overheatDuration5;
+  // Pack
   uint8_t overheatContinuous5;
-  uint8_t overheatDuration4;
   uint8_t overheatContinuous4;
-  uint8_t overheatDuration3;
   uint8_t overheatContinuous3;
-  uint8_t overheatDuration2;
   uint8_t overheatContinuous2;
-  uint8_t overheatDuration1;
   uint8_t overheatContinuous1;
-  uint8_t overheatEnabled5;
-  uint8_t overheatStartDelay5;
-  uint8_t overheatEnabled4;
-  uint8_t overheatStartDelay4;
-  uint8_t overheatEnabled3;
-  uint8_t overheatStartDelay3;
-  uint8_t overheatEnabled2;
-  uint8_t overheatStartDelay2;
-  uint8_t overheatEnabled1;
-  uint8_t overheatStartDelay1;
+  uint8_t overheatDuration5;
+  uint8_t overheatDuration4;
+  uint8_t overheatDuration3;
+  uint8_t overheatDuration2;
+  uint8_t overheatDuration1;
+  // Wand
+  uint8_t overheatLevel5;
+  uint8_t overheatLevel4;
+  uint8_t overheatLevel3;
+  uint8_t overheatLevel2;
+  uint8_t overheatLevel1;
+  uint8_t overheatDelay5;
+  uint8_t overheatDelay4;
+  uint8_t overheatDelay3;
+  uint8_t overheatDelay2;
+  uint8_t overheatDelay1;
 } smokeConfig;
 
 /*
@@ -193,25 +195,28 @@ void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
     case A_SAVE_PREFERENCES_SMOKE:
       // Convert user-friendly object properties to integer values.
       sendStruct.d[0] = smokeConfig.overheatDuration5;
-      sendStruct.d[1] = smokeConfig.overheatContinuous5;
-      sendStruct.d[2] = smokeConfig.overheatDuration4;
-      sendStruct.d[3] = smokeConfig.overheatContinuous4;
-      sendStruct.d[4] = smokeConfig.overheatDuration3;
-      sendStruct.d[5] = smokeConfig.overheatContinuous3;
-      sendStruct.d[6] = smokeConfig.overheatDuration2;
-      sendStruct.d[7] = smokeConfig.overheatContinuous2;
-      sendStruct.d[8] = smokeConfig.overheatDuration1;
+      sendStruct.d[1] = smokeConfig.overheatDuration4;
+      sendStruct.d[2] = smokeConfig.overheatDuration3;
+      sendStruct.d[3] = smokeConfig.overheatDuration2;
+      sendStruct.d[4] = smokeConfig.overheatDuration1;
+
+      sendStruct.d[5] = smokeConfig.overheatContinuous5;
+      sendStruct.d[6] = smokeConfig.overheatContinuous4;
+      sendStruct.d[7] = smokeConfig.overheatContinuous3;
+      sendStruct.d[8] = smokeConfig.overheatContinuous2;
       sendStruct.d[9] = smokeConfig.overheatContinuous1;
-      sendStruct.d[10] = smokeConfig.overheatEnabled5;
-      sendStruct.d[11] = smokeConfig.overheatStartDelay5;
-      sendStruct.d[12] = smokeConfig.overheatEnabled4;
-      sendStruct.d[13] = smokeConfig.overheatStartDelay4;
-      sendStruct.d[14] = smokeConfig.overheatEnabled3;
-      sendStruct.d[15] = smokeConfig.overheatStartDelay3;
-      sendStruct.d[16] = smokeConfig.overheatEnabled2;
-      sendStruct.d[17] = smokeConfig.overheatStartDelay2;
-      sendStruct.d[18] = smokeConfig.overheatEnabled1;
-      sendStruct.d[19] = smokeConfig.overheatStartDelay1;
+
+      sendStruct.d[10] = smokeConfig.overheatLevel5;
+      sendStruct.d[11] = smokeConfig.overheatLevel4;
+      sendStruct.d[12] = smokeConfig.overheatLevel3;
+      sendStruct.d[13] = smokeConfig.overheatLevel2;
+      sendStruct.d[14] = smokeConfig.overheatLevel1;
+
+      sendStruct.d[15] = smokeConfig.overheatDelay5;
+      sendStruct.d[16] = smokeConfig.overheatDelay4;
+      sendStruct.d[17] = smokeConfig.overheatDelay3;
+      sendStruct.d[18] = smokeConfig.overheatDelay2;
+      sendStruct.d[19] = smokeConfig.overheatDelay1;
     break;
 
     default:
@@ -860,25 +865,28 @@ boolean checkPack() {
 
             // Convert integer values to user-friendly object properties.
             smokeConfig.overheatDuration5 = comStruct.d[0];
-            smokeConfig.overheatContinuous5 = comStruct.d[1];
-            smokeConfig.overheatDuration4 = comStruct.d[2];
-            smokeConfig.overheatContinuous4 = comStruct.d[3];
-            smokeConfig.overheatDuration3 = comStruct.d[4];
-            smokeConfig.overheatContinuous3 = comStruct.d[5];
-            smokeConfig.overheatDuration2 = comStruct.d[6];
-            smokeConfig.overheatContinuous2 = comStruct.d[7];
-            smokeConfig.overheatDuration1 = comStruct.d[8];
+            smokeConfig.overheatDuration4 = comStruct.d[1];
+            smokeConfig.overheatDuration3 = comStruct.d[2];
+            smokeConfig.overheatDuration2 = comStruct.d[3];
+            smokeConfig.overheatDuration1 = comStruct.d[4];
+
+            smokeConfig.overheatContinuous5 = comStruct.d[5];
+            smokeConfig.overheatContinuous4 = comStruct.d[6];
+            smokeConfig.overheatContinuous3 = comStruct.d[7];
+            smokeConfig.overheatContinuous2 = comStruct.d[8];
             smokeConfig.overheatContinuous1 = comStruct.d[9];
-            smokeConfig.overheatEnabled5 = comStruct.d[10];
-            smokeConfig.overheatStartDelay5 = comStruct.d[11];
-            smokeConfig.overheatEnabled4 = comStruct.d[12];
-            smokeConfig.overheatStartDelay4 = comStruct.d[13];
-            smokeConfig.overheatEnabled3 = comStruct.d[14];
-            smokeConfig.overheatStartDelay3 = comStruct.d[15];
-            smokeConfig.overheatEnabled2 = comStruct.d[16];
-            smokeConfig.overheatStartDelay2 = comStruct.d[17];
-            smokeConfig.overheatEnabled1 = comStruct.d[18];
-            smokeConfig.overheatStartDelay1 = comStruct.d[19];
+
+            smokeConfig.overheatLevel5 = comStruct.d[10];
+            smokeConfig.overheatLevel4 = comStruct.d[11];
+            smokeConfig.overheatLevel3 = comStruct.d[12];
+            smokeConfig.overheatLevel2 = comStruct.d[13];
+            smokeConfig.overheatLevel1 = comStruct.d[14];
+
+            smokeConfig.overheatDelay5 = comStruct.d[15];
+            smokeConfig.overheatDelay4 = comStruct.d[16];
+            smokeConfig.overheatDelay3 = comStruct.d[17];
+            smokeConfig.overheatDelay2 = comStruct.d[18];
+            smokeConfig.overheatDelay1 = comStruct.d[19];
           break;
 
           default:

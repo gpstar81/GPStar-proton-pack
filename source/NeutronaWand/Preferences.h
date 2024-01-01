@@ -416,11 +416,11 @@ void readEEPROM() {
 
     EEPROM.get(i_eepromLEDAddress, obj_led_eeprom);
     if(obj_led_eeprom.barrel_spectral_custom > 0 && obj_led_eeprom.barrel_spectral_custom != 255) {
-      i_spectral_wand_custom = obj_led_eeprom.barrel_spectral_custom;
+      i_spectral_wand_custom_colour = obj_led_eeprom.barrel_spectral_custom;
     }
 
     if(obj_led_eeprom.barrel_spectral_saturation_custom > 0 && obj_led_eeprom.barrel_spectral_saturation_custom != 255) {
-      i_spectral_wand_saturation_custom = obj_led_eeprom.barrel_spectral_saturation_custom;
+      i_spectral_wand_custom_saturation = obj_led_eeprom.barrel_spectral_saturation_custom;
     }
   }
 }
@@ -443,8 +443,8 @@ void saveLEDEEPROM() {
 
   // For now we are just saving the Spectral Custom colour.
   objLEDEEPROM obj_eeprom = {
-    i_spectral_wand_custom,
-    i_spectral_wand_saturation_custom,
+    i_spectral_wand_custom_colour,
+    i_spectral_wand_custom_saturation,
   };
 
   // Save to the EEPROM.

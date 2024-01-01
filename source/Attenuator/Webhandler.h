@@ -171,20 +171,20 @@ String getSmokeConfig() {
     // Neutrona Wand
 
     // Power Level 5
-    jsonDoc["overheatEnabled5"] = smokeConfig.overheatEnabled5; // true|false
-    jsonDoc["overheatStartDelay5"] = smokeConfig.overheatStartDelay5; // 2-60
+    jsonDoc["overheatLevel5"] = smokeConfig.overheatLevel5; // true|false
+    jsonDoc["overheatDelay5"] = smokeConfig.overheatDelay5; // 2-60
     // Power Level 4
-    jsonDoc["overheatEnabled4"] = smokeConfig.overheatEnabled4; // true|false
-    jsonDoc["overheatStartDelay4"] = smokeConfig.overheatStartDelay4; // 2-60
+    jsonDoc["overheatLevel4"] = smokeConfig.overheatLevel4; // true|false
+    jsonDoc["overheatDelay4"] = smokeConfig.overheatDelay4; // 2-60
     // Power Level 3
-    jsonDoc["overheatEnabled3"] = smokeConfig.overheatEnabled3; // true|false
-    jsonDoc["overheatStartDelay3"] = smokeConfig.overheatStartDelay3; // 2-60
+    jsonDoc["overheatLevel3"] = smokeConfig.overheatLevel3; // true|false
+    jsonDoc["overheatDelay3"] = smokeConfig.overheatDelay3; // 2-60
     // Power Level 2
-    jsonDoc["overheatEnabled2"] = smokeConfig.overheatEnabled2; // true|false
-    jsonDoc["overheatStartDelay2"] = smokeConfig.overheatStartDelay2; // 2-60
+    jsonDoc["overheatLevel2"] = smokeConfig.overheatLevel2; // true|false
+    jsonDoc["overheatDelay2"] = smokeConfig.overheatDelay2; // 2-60
     // Power Level 1
-    jsonDoc["overheatEnabled1"] = smokeConfig.overheatEnabled1; // true|false
-    jsonDoc["overheatStartDelay1"] = smokeConfig.overheatStartDelay1; // 2-60
+    jsonDoc["overheatLevel1"] = smokeConfig.overheatLevel1; // true|false
+    jsonDoc["overheatDelay1"] = smokeConfig.overheatDelay1; // 2-60
   }
 
   // Serialize JSON object to string.
@@ -501,25 +501,28 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
   String result;
   if(!b_pack_on && !b_wand_on) {
     smokeConfig.overheatDuration5 = jsonBody["overheatDuration5"];
-    smokeConfig.overheatContinuous5 = jsonBody["overheatContinuous5"];
     smokeConfig.overheatDuration4 = jsonBody["overheatDuration4"];
-    smokeConfig.overheatContinuous4 = jsonBody["overheatContinuous4"];
     smokeConfig.overheatDuration3 = jsonBody["overheatDuration3"];
-    smokeConfig.overheatContinuous3 = jsonBody["overheatContinuous3"];
     smokeConfig.overheatDuration2 = jsonBody["overheatDuration2"];
-    smokeConfig.overheatContinuous2 = jsonBody["overheatContinuous2"];
     smokeConfig.overheatDuration1 = jsonBody["overheatDuration1"];
+
+    smokeConfig.overheatContinuous5 = jsonBody["overheatContinuous5"];
+    smokeConfig.overheatContinuous4 = jsonBody["overheatContinuous4"];
+    smokeConfig.overheatContinuous3 = jsonBody["overheatContinuous3"];
+    smokeConfig.overheatContinuous2 = jsonBody["overheatContinuous2"];
     smokeConfig.overheatContinuous1 = jsonBody["overheatContinuous1"];
-    smokeConfig.overheatEnabled5 = jsonBody["overheatEnabled5"];
-    smokeConfig.overheatStartDelay5 = jsonBody["overheatStartDelay5"];
-    smokeConfig.overheatEnabled4 = jsonBody["overheatEnabled4"];
-    smokeConfig.overheatStartDelay4 = jsonBody["overheatStartDelay4"];
-    smokeConfig.overheatEnabled3 = jsonBody["overheatEnabled3"];
-    smokeConfig.overheatStartDelay3 = jsonBody["overheatStartDelay3"];
-    smokeConfig.overheatEnabled2 = jsonBody["overheatEnabled2"];
-    smokeConfig.overheatStartDelay2 = jsonBody["overheatStartDelay2"];
-    smokeConfig.overheatEnabled1 = jsonBody["overheatEnabled1"];
-    smokeConfig.overheatStartDelay1 = jsonBody["overheatStartDelay1"];
+
+    smokeConfig.overheatLevel5 = jsonBody["overheatLevel5"];
+    smokeConfig.overheatLevel4 = jsonBody["overheatLevel4"];
+    smokeConfig.overheatLevel3 = jsonBody["overheatLevel3"];
+    smokeConfig.overheatLevel2 = jsonBody["overheatLevel2"];
+    smokeConfig.overheatLevel1 = jsonBody["overheatLevel1"];
+
+    smokeConfig.overheatDelay5 = jsonBody["overheatDelay5"];
+    smokeConfig.overheatDelay4 = jsonBody["overheatDelay4"];
+    smokeConfig.overheatDelay3 = jsonBody["overheatDelay3"];
+    smokeConfig.overheatDelay2 = jsonBody["overheatDelay2"];
+    smokeConfig.overheatDelay1 = jsonBody["overheatDelay1"];
 
     jsonBody.clear();
     jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";

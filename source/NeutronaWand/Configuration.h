@@ -134,7 +134,7 @@ bool b_spectral_custom_mode_enabled = false;
  * Value range: 1 <--> 254
  * Spectral modes are only supported by the gpstar Neutrona Wand board.
  */
-uint8_t i_spectral_wand_custom = 200;
+uint8_t i_spectral_wand_custom_colour = 200;
 
 /*
  * The CHSV saturation range for the Spectral custom mode.
@@ -142,7 +142,7 @@ uint8_t i_spectral_wand_custom = 200;
  * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. The Neutrona Wand custom spectral colours are stored on the Neutrona Wand. So it is possible to mix and match different wands colours to different pack settings.
  * Value range: 1 <--> 254
  */
-uint8_t i_spectral_wand_saturation_custom = 254;
+uint8_t i_spectral_wand_custom_saturation = 254;
 
 /*
  * When enabled, the Neutrona Wand will vibrate at all times.

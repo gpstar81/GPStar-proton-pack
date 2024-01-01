@@ -47,6 +47,44 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value = 0) {
       sendStruct.d[i] = 0;
     }
 
+    switch(i_message) {
+      case W_SEND_PREFERENCES_WAND:
+        // Sends values from current runtime variables as values in an int array.
+        // Any ENUM or boolean types will simply translate as numeric values.
+        sendStruct.d[0] = WAND_BARREL_LED_COUNT;
+        sendStruct.d[1] = i_spectral_wand_custom_colour;
+        sendStruct.d[2] = i_spectral_wand_custom_saturation;
+        sendStruct.d[3] = b_spectral_mode_enabled;
+        sendStruct.d[4] = b_holiday_mode_enabled;
+        sendStruct.d[5] = b_overheat_enabled;
+        sendStruct.d[6] = (b_cross_the_streams || b_cross_the_streams_mix) ? 1 : 0;
+        sendStruct.d[7] = b_extra_pack_sounds;
+        sendStruct.d[8] = b_quick_vent;
+        sendStruct.d[9] = b_vent_light_control;
+        sendStruct.d[10] = b_beep_loop;
+        sendStruct.d[11] = b_wand_boot_errors;
+        sendStruct.d[12] = WAND_YEAR_MODE;
+        sendStruct.d[13] = WAND_YEAR_CTS;
+        sendStruct.d[14] = b_bargraph_invert;
+        sendStruct.d[15] = b_overheat_bargraph_blink;
+        sendStruct.d[16] = BARGRAPH_MODE;
+        sendStruct.d[17] = BARGRAPH_EEPROM_FIRING_ANIMATION;
+      break;
+
+      case W_SEND_PREFERENCES_SMOKE:
+        sendStruct.d[0] = b_overheat_mode_5;
+        sendStruct.d[1] = b_overheat_mode_4;
+        sendStruct.d[2] = b_overheat_mode_3;
+        sendStruct.d[3] = b_overheat_mode_2;
+        sendStruct.d[4] = b_overheat_mode_1;
+        sendStruct.d[5] = i_ms_overheat_initiate_mode_5;
+        sendStruct.d[6] = i_ms_overheat_initiate_mode_4;
+        sendStruct.d[7] = i_ms_overheat_initiate_mode_3;
+        sendStruct.d[8] = i_ms_overheat_initiate_mode_2;
+        sendStruct.d[9] = i_ms_overheat_initiate_mode_1;
+      break;
+    }
+
     wandComs.sendDatum(sendStruct);
   }
 }
@@ -102,6 +140,10 @@ void checkPack() {
             if(b_switch_barrel_extended == true) {
               wandSerialSend(W_BARREL_EXTENDED);
             }
+
+            // Send current preferences to the pack for use by the serial1 device.
+            wandSerialSend(W_SEND_PREFERENCES_WAND);
+            wandSerialSend(W_SEND_PREFERENCES_SMOKE);
           break;
 
           case P_SOUND_SUPER_HERO:
