@@ -44,14 +44,6 @@
 #include "Colours.h"
 #include "Preferences.h"
 
-/*
- * Function prototypes from Serial.h (included at end of this file)
- */
-void packSerialSend(uint16_t i_message, uint16_t i_value = 0);
-void serial1Send(uint16_t i_message, uint16_t i_value = 0);
-void checkSerial1();
-void checkWand();
-
 void setup() {
   Serial.begin(9600); // Standard serial console.
 
@@ -4521,5 +4513,5 @@ void setupWavTrigger() {
   }
 }
 
-// Included last as these will control all aspects of the pack using the defined functions above.
+// Included last as the contained logic will control all aspects of the pack using the defined functions above.
 #include "Serial.h"

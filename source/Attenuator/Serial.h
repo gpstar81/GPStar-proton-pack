@@ -43,7 +43,7 @@ struct __attribute__((packed)) DataPacket {
 struct DataPacket comStruct;
 struct DataPacket sendStruct;
 
-// Translates a DataPacket to user-friendly names.
+// Translates a preferences to user-friendly names.
 struct PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
@@ -70,6 +70,50 @@ struct PackPrefs {
   uint8_t ledPowercellSat;
   uint8_t ledVGPowercell;
 } packConfig;
+
+struct WandPrefs {
+  uint8_t ledWandCount;
+  uint8_t ledWandHue;
+  uint8_t ledWandSat;
+  uint8_t spectralModeEnabled;
+  uint8_t spectralHolidayMode;
+  uint8_t overheatEnabled;
+  uint8_t defaultFiringMode;
+  uint8_t wandSoundsToPack;
+  uint8_t quickVenting;
+  uint8_t autoVentLight;
+  uint8_t wandBeepLoop;
+  uint8_t wandBootError;
+  uint8_t defaultYearModeWand;
+  uint8_t defaultYearModeCTS;
+  uint8_t invertWandBargraph;
+  uint8_t bargraphOverheatBlink;
+  uint8_t bargraphIdleAnimation;
+  uint8_t bargraphFireAnimation;
+} wandConfig;
+
+struct SmokePrefs {
+  uint8_t overheatDuration5;
+  uint8_t overheatContinuous5;
+  uint8_t overheatDuration4;
+  uint8_t overheatContinuous4;
+  uint8_t overheatDuration3;
+  uint8_t overheatContinuous3;
+  uint8_t overheatDuration2;
+  uint8_t overheatContinuous2;
+  uint8_t overheatDuration1;
+  uint8_t overheatContinuous1;
+  uint8_t overheatEnabled5;
+  uint8_t overheatStartDelay5;
+  uint8_t overheatEnabled4;
+  uint8_t overheatStartDelay4;
+  uint8_t overheatEnabled3;
+  uint8_t overheatStartDelay3;
+  uint8_t overheatEnabled2;
+  uint8_t overheatStartDelay2;
+  uint8_t overheatEnabled1;
+  uint8_t overheatStartDelay1;
+} smokeConfig;
 
 /*
  * Serial API Communication Handlers

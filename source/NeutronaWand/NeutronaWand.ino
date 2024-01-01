@@ -57,17 +57,6 @@
 #include "Colours.h"
 #include "Preferences.h"
 
-/*
- * Function prototypes from Action.h (included at end of this file)
- */
-void checkWandAction();
-
-/*
- * Function prototypes from Serial.h (included at end of this file)
- */
-void wandSerialSend(uint16_t i_message, uint16_t i_value = 0);
-void checkPack();
-
 void setup() {
   Serial.begin(9600);
 
@@ -7436,6 +7425,6 @@ void setupWavTrigger() {
   }
 }
 
-// Included last as these will control all aspects of the wand using the defined functions above.
+// Included last as the contained logic will control all aspects of the pack using the defined functions above.
 #include "Actions.h"
 #include "Serial.h"

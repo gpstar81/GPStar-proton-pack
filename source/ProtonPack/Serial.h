@@ -216,6 +216,29 @@ void serial1Send(uint16_t i_message, uint16_t i_value = 0) {
       dataStruct.d[23] = b_powercell_colour_toggle;
     break;
 
+    case A_SEND_PREFERENCES_WAND:
+      // Sends values from current runtime variables as values in an int array.
+      // Any ENUM or boolean types will simply translate as numeric values.
+      dataStruct.d[0] = 5; // ledWandCount
+      dataStruct.d[1] = 1; // ledWandHue
+      dataStruct.d[2] = 254; // ledWandSat
+      dataStruct.d[3] = 1; // spectralModeEnabled
+      dataStruct.d[4] = 1; // spectralHolidayMode
+      dataStruct.d[5] = 1; // overheatEnabled
+      dataStruct.d[6] = 0; // defaultFiringMode
+      dataStruct.d[7] = 0; // wandSoundsToPack
+      dataStruct.d[8] = 0; // quickVenting
+      dataStruct.d[9] = 0; // autoVentLight
+      dataStruct.d[10] = 1; // wandBeepLoop
+      dataStruct.d[11] = 1; // wandBootError
+      dataStruct.d[12] = 0; // defaultYearModeWand
+      dataStruct.d[13] = 0; // defaultYearModeCTS
+      dataStruct.d[14] = 0; // invertWandBargraph
+      dataStruct.d[15] = 0; // bargraphOverheatBlink
+      dataStruct.d[16] = 0; // bargraphIdleAnimation
+      dataStruct.d[17] = 0; // bargraphFireAnimation
+    break;
+
     case A_SEND_PREFERENCES_TIMINGS:
       // Sends values from current runtime variables as values in an int array.
       dataStruct.d[0] = i_ms_overheating_length_5;
@@ -229,6 +252,18 @@ void serial1Send(uint16_t i_message, uint16_t i_value = 0) {
       dataStruct.d[7] = b_smoke_continuous_mode_3;
       dataStruct.d[8] = b_smoke_continuous_mode_2;
       dataStruct.d[9] = b_smoke_continuous_mode_1;
+
+      // dataStruct.d[10] = i_ms_overheating_enabled_5;
+      // dataStruct.d[11] = i_ms_overheating_enabled_4;
+      // dataStruct.d[12] = i_ms_overheating_enabled_3;
+      // dataStruct.d[13] = i_ms_overheating_enabled_2;
+      // dataStruct.d[14] = i_ms_overheating_enabled_1;
+
+      // dataStruct.d[15] = b_smoke_start_delay_5;
+      // dataStruct.d[16] = b_smoke_start_delay_4;
+      // dataStruct.d[17] = b_smoke_start_delay_3;
+      // dataStruct.d[18] = b_smoke_start_delay_2;
+      // dataStruct.d[19] = b_smoke_start_delay_1;
     break;
 
     default:
@@ -3238,12 +3273,23 @@ void checkSerial1() {
               playEffect(S_BEEPS_ALT);
             break;
 
-            case A_SAVE_EEPROM_SETTINGS:
-              // Commit changes to the EEPROM
+            case A_SAVE_EEPROM_SETTINGS_PACK:
+              // Commit changes to the EEPROM in the pack controller
               saveLedEEPROM();
               saveConfigEEPROM();
               stopEffect(S_VOICE_EEPROM_SAVE);
               playEffect(S_VOICE_EEPROM_SAVE);
+            break;
+
+            case A_SAVE_PREFERENCES_WAND:
+              // Send latest preferences from serial1 web UI back to wand
+              // Need to pass all values from dataStructR.d[] array
+              packSerialSend(P_SAVE_WAND_PREFERENCES);
+            break;
+
+            case A_SAVE_EEPROM_SETTINGS_WAND:
+              // Commit changes to the EEPROM on the wand controller
+              packSerialSend(P_SAVE_WAND_EEPROM);
             break;
 
             case A_SYNC_END:

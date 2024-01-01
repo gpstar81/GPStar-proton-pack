@@ -102,7 +102,56 @@ String getPackConfig() {
   return equipSettings;
 }
 
-/*
+String getWandConfig() {
+  // Prepare a JSON object with information we have gleamed from the system.
+  String equipSettings;
+  jsonDoc.clear();
+
+  if(!b_wait_for_pack) {
+    // Return current powered state for pack and wand.
+    jsonDoc["packPowered"] = (b_pack_on ? true : false);
+    jsonDoc["wandPowered"] = (b_wand_on ? true : false);
+
+    // Neutrona Wand LED Options
+    jsonDoc["ledWandCount"] = 5; // [5,48,60]
+    jsonDoc["ledWandHue"] = 0; // Spectral custom color/hue 1-254
+    jsonDoc["ledWandSat"] = 0; // Spectral custom saturation 1-254
+    jsonDoc["spectralModeEnabled"] = false; // true|false
+    jsonDoc["spectralHolidayMode"] = false; // true|false
+
+    // Neutrona Wand Runtime Options
+    jsonDoc["overheatEnabled"] = true; // true|false
+    jsonDoc["defaultFiringMode"] = 2; // [0=VG,1=CTS,2=SYSTEM]
+    jsonDoc["wandSoundsToPack"] = false; // true|false
+    jsonDoc["quickVenting"] = false; // true|false (Super-Hero Mode Only)
+    jsonDoc["autoVentLight"] = false; // true|false
+    jsonDoc["wandBeepLoop"] = true; // true|false (Afterlife/Frozen Empire Only)
+    jsonDoc["wandBootError"] = true; // true|false (Super-Hero Mode Only)
+    jsonDoc["defaultYearModeWand"] = 1; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
+    jsonDoc["defaultYearModeCTS"] = 1; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
+    jsonDoc["invertWandBargraph"] = false; // true|false
+    jsonDoc["bargraphOverheatBlink"] = true; // true|false
+    jsonDoc["bargraphIdleAnimation"] = 2; // [0=SH,1=MO,2=SYSTEM]
+    jsonDoc["bargraphFireAnimation"] = 2; // [0=SH,1=MO,2=SYSTEM]
+  }
+
+  // Serialize JSON object to string.
+  serializeJson(jsonDoc, equipSettings);
+  return equipSettings;
+}
+
+String getSmokeConfig() {
+  // Prepare a JSON object with information we have gleamed from the system.
+  String equipSettings;
+  jsonDoc.clear();
+
+  if(!b_wait_for_pack) {
+    // Return current powered state for pack and wand.
+    jsonDoc["packPowered"] = (b_pack_on ? true : false);
+    jsonDoc["wandPowered"] = (b_wand_on ? true : false);
+
+    // Proton Pack
+
     // Power Level 5
     jsonDoc["overheatDuration5"] = 6; // 2-60
     jsonDoc["overheatContinuous5"] = true; // true|false
@@ -119,27 +168,7 @@ String getPackConfig() {
     jsonDoc["overheatDuration1"] = 2; // 2-60
     jsonDoc["overheatContinuous1"] = false; // true|false
 
-    // Neutrona Wand LED Options
-    jsonDoc["ledWandCount"] = 5; // [5,48,60]
-    jsonDoc["ledWandHue"] = 0; // Spectral custom color/hue 0-255
-    jsonDoc["ledWandSat"] = 0; // Spectral custom saturation 0-255
-    jsonDoc["spectralModeEnabled"] = false; // true|false
-    jsonDoc["spectralHolidayMode"] = false; // true|false
-
-    // Neutrona Wand Runtime Options
-    jsonDoc["overheatEnabled"] = true; // true|false
-    jsonDoc["defaultFiringMode"] = "SYSTEM"; // [VG,CTS,SYSTEM]
-    jsonDoc["wandSoundsToPack"] = false; // true|false
-    jsonDoc["quickVenting"] = false; // true|false (Super-Hero Mode Only)
-    jsonDoc["autoVentLight"] = false; // true|false
-    jsonDoc["wandBeepLoop"] = true; // true|false (Afterlife/Frozen Empire Only)
-    jsonDoc["wandBootError"] = true; // true|false (Super-Hero Mode Only)
-    jsonDoc["defaultYearModeWand"] = 2021; // [1984,1989,2021,2024,DEFAULT]
-    jsonDoc["defaultYearModeCTS"] = 2021; // [1984,1989,2021,2024,DEFAULT]
-    jsonDoc["invertWandBargraph"] = false; // true|false
-    jsonDoc["bargraphOverheatBlink"] = true; // true|false
-    jsonDoc["bargraphIdleAnimation"] = "SYSTEM"; // [SH,MO,SYSTEM]
-    jsonDoc["bargraphFireAnimation"] = "SYSTEM"; // [SH,MO,SYSTEM]
+    // Neutrona Wand
 
     // Power Level 5
     jsonDoc["overheatEnabled5"] = true; // true|false
@@ -156,7 +185,12 @@ String getPackConfig() {
     // Power Level 1
     jsonDoc["overheatEnabled1"] = false; // true|false
     jsonDoc["overheatStartDelay1"] = 60; // 2-60
-*/
+  }
+
+  // Serialize JSON object to string.
+  serializeJson(jsonDoc, equipSettings);
+  return equipSettings;
+}
 
 String getEquipmentStatus() {
   // Prepare a JSON object with information we have gleamed from the system.
@@ -192,6 +226,16 @@ String getEquipmentStatus() {
 void handleGetPackConfig(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
   request->send(200, "application/json", getPackConfig());
+}
+
+void handleGetWandConfig(AsyncWebServerRequest *request) {
+  // Return current system status as a stringified JSON object.
+  request->send(200, "application/json", getWandConfig());
+}
+
+void handleGetSmokeConfig(AsyncWebServerRequest *request) {
+  // Return current system status as a stringified JSON object.
+  request->send(200, "application/json", getSmokeConfig());
 }
 
 void handleGetStatus(AsyncWebServerRequest *request) {
@@ -318,9 +362,22 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   }
 }
 
+void handleSaveAllEEPROM(AsyncWebServerRequest *request) {
+  debug("Save All EEPROM");
+  attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS_PACK);
+  attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS_WAND);
+  request->send(200, "application/json", status);
+}
+
 void handleSavePackEEPROM(AsyncWebServerRequest *request) {
   debug("Save Pack EEPROM");
-  attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS);
+  attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS_PACK);
+  request->send(200, "application/json", status);
+}
+
+void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
+  debug("Save Wand EEPROM");
+  attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS_WAND);
   request->send(200, "application/json", status);
 }
 
