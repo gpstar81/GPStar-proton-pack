@@ -47,7 +47,27 @@ void handlePackSettings(AsyncWebServerRequest *request) {
   String s = PACK_SETTINGS_page; // Read HTML page into String.
   request->send(200, "text/html", s); // Serve page content.
 
-  // Tell the pack that we'll need the latest EEPROM values.
+  // Tell the pack that we'll need the latest pack EEPROM values.
+  attenuatorSerialSend(A_SEND_PREFERENCES_PACK);
+}
+
+void handleWandSettings(AsyncWebServerRequest *request) {
+  // Used for the settings page from the web server.
+  //debug("Wand Settings HTML Requested");
+  String s = WAND_SETTINGS_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
+
+  // Tell the pack that we'll need the latest wand EEPROM values.
+  attenuatorSerialSend(A_SEND_PREFERENCES_PACK);
+}
+
+void handleSmokeSettings(AsyncWebServerRequest *request) {
+  // Used for the settings page from the web server.
+  //debug("Smoke Settings HTML Requested");
+  String s = SMOKE_SETTINGS_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
+
+  // Tell the pack that we'll need the latest smoke EEPROM values.
   attenuatorSerialSend(A_SEND_PREFERENCES_PACK);
 }
 

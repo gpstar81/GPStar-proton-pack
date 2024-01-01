@@ -138,12 +138,12 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function isJsonString(str) {
-        try {
-            JSON.parse(str);
-        } catch (e) {
-            return false;
-        }
-        return true;
+      try {
+        JSON.parse(str);
+      } catch (e) {
+        return false;
+      }
+      return true;
     }
 
     function onMessage(event) {
@@ -159,7 +159,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     function removeOptions(selectElement) {
       var i, len = selectElement.options.length - 1;
       for(i = len; i >= 0; i--) {
-          selectElement.remove(i);
+        selectElement.remove(i);
       }
     }
 
@@ -176,14 +176,14 @@ const char INDEX_page[] PROGMEM = R"=====(
           removeOptions(trackList); // Clear previous options.
 
           for (var i = musicStart; i <= musicEnd; i++) {
-              var opt = document.createElement("option");
-              opt.value = i;
-              opt.text = "Track #" + i;
-              opt.innerHTML = i;
-              if (i == musicCurrent) {
-                opt.selected = true;
-              }
-              trackList.appendChild(opt);
+            var opt = document.createElement("option");
+            opt.value = i;
+            opt.text = "Track #" + i;
+            opt.innerHTML = i;
+            if (i == musicCurrent) {
+              opt.selected = true;
+            }
+            trackList.appendChild(opt);
           }
         }
       }

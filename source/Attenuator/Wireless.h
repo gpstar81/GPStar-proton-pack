@@ -50,6 +50,8 @@
 #include "Index.h" // INDEX_page
 #include "Password.h" // PASSWORD_page
 #include "PackSettings.h" // PACK_SETTINGS_page
+#include "WandSettings.h" // WAND_SETTINGS_page
+#include "SmokeSettings.h" // SMOKE_SETTINGS_page
 #include "Style.h" // STYLE_page
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
@@ -291,6 +293,8 @@ void setupRouting() {
   httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/password", HTTP_GET, handlePassword);
   httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
+  httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
+  httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
   httpServer.on("/style.css", HTTP_GET, handleStyle);
   httpServer.onNotFound(handleNotFound);
 

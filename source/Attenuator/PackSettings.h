@@ -260,12 +260,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     }
 
     function isJsonString(str) {
-        try {
-            JSON.parse(str);
-        } catch (e) {
-            return false;
-        }
-        return true;
+      try {
+        JSON.parse(str);
+      } catch (e) {
+        return false;
+      }
+      return true;
     }
 
     function handleStatus(response) {
