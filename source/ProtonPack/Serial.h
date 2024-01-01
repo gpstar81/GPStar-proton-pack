@@ -24,19 +24,8 @@
  */
 void updateSystemModeYear();
 
-// For wand communication.
+// For wand/serial communications.
 struct __attribute__((packed)) MessagePacket {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1; // Reserved for values over 255 (eg. current music track)
-  uint16_t e;
-};
-
-struct MessagePacket comStruct;
-struct MessagePacket sendStruct;
-
-// For Serial1 add-on communication.
-struct __attribute__((packed)) DataPacket {
   uint16_t s;
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
@@ -44,14 +33,18 @@ struct __attribute__((packed)) DataPacket {
   uint16_t e;
 };
 
-struct DataPacket dataStruct;
-struct DataPacket dataStructR;
+struct MessagePacket comStruct;
+struct MessagePacket sendStruct;
+struct MessagePacket dataStruct;
+struct MessagePacket dataStructR;
 
-// Adjusts which year mode the Proton Pack and Neutrona Wand are in if switched by the Neutrona Wand.
+// Adjusts which year mode the Proton Pack and Neutrona Wand are in, when switched by the Neutrona Wand.
 void toggleYearModes() {
   // Toggle between the year modes.
   stopEffect(S_BEEPS_BARGRAPH);
   playEffect(S_BEEPS_BARGRAPH);
+
+  // Cycles through year modes: 1984 -> 1989 -> Afterlife -> Frozen Empire
 
   switch(SYSTEM_YEAR_TEMP) {
     case SYSTEM_1984:
@@ -178,11 +171,13 @@ void serial1Send(uint16_t i_message, uint16_t i_value = 0) {
     break;
 
     case A_MUSIC_TRACK_COUNT_SYNC:
+      // Send the total count of music tracks.
       dataStruct.d1 = i_music_count;
     break;
 
     case A_MUSIC_IS_PLAYING:
     case A_MUSIC_IS_NOT_PLAYING:
+      // Send the current music track played/stopped.
       dataStruct.d1 = i_current_music_track;
     break;
 
@@ -252,6 +247,14 @@ void packSerialSend(uint16_t i_message, uint16_t i_value = 0) {
   sendStruct.i = i_message;
   sendStruct.d1 = i_value;
   sendStruct.e = P_COM_END;
+
+  // Get the number of elements in the data array
+  uint16_t arrayLength = sizeof(sendStruct.d) / sizeof(sendStruct.d[0]);
+
+  // Set each element of the data array to 0
+  for (uint16_t i = 0; i < arrayLength; i++) {
+    sendStruct.d[i] = 0;
+  }
 
   packComs.sendDatum(sendStruct);
 }
@@ -1514,6 +1517,7 @@ void checkWand() {
             break;
 
             case W_SILENT_MODE:
+              // Remember the current master volume level.
               i_volume_revert = i_volume_master;
 
               // Set the master volume to silent.
@@ -1523,7 +1527,7 @@ void checkWand() {
             break;
 
             case W_VOLUME_REVERT:
-              // Set the master volume to silent.
+              // Restore the master volume to previous level.
               i_volume_master = i_volume_revert;
 
               w_trig.masterGain(i_volume_master); // Reset the master gain.
@@ -2795,7 +2799,7 @@ void checkWand() {
             break;
 
             case W_COM_SOUND_NUMBER:
-              if(comStruct.d1 > 0) {
+              if(comStruct.d1 > 0 && comStruct.d1 < i_music_track_start) {
                 // The Neutrona Wand is telling us to play a sound effect only (S_1 through S_60).
                 stopEffect(comStruct.d1 + 1);
 
@@ -3157,7 +3161,7 @@ void checkSerial1() {
                   i_current_music_track = dataStructR.d1;
 
                   // Just tell the wand which track was requested for play.
-                  packSerialSend(W_MUSIC_PLAY_TRACK, i_current_music_track);
+                  packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
                 }
               }
             break;

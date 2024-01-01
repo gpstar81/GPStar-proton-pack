@@ -7281,7 +7281,7 @@ void playMusic() {
 void stopMusic() {
   b_playing_music = false;
 
-  if(i_music_count > 0) {
+  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
     w_trig.trackStop(i_current_music_track);
   }
 

@@ -24,6 +24,7 @@ struct __attribute__((packed)) MessagePacket {
   uint16_t s;
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
+  uint8_t d[25]; // Reserved for large data packets (eg. EEPROM configs)
   uint16_t e;
 };
 
@@ -37,6 +38,14 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value = 0) {
     sendStruct.i = i_message;
     sendStruct.d1 = i_value;
     sendStruct.e = W_COM_END;
+
+    // Get the number of elements in the data array
+    uint16_t arrayLength = sizeof(sendStruct.d) / sizeof(sendStruct.d[0]);
+
+    // Set each element of the data array to 0
+    for (uint16_t i = 0; i < arrayLength; i++) {
+      sendStruct.d[i] = 0;
+    }
 
     wandComs.sendDatum(sendStruct);
   }
@@ -88,7 +97,8 @@ void checkPack() {
 
             switchBarrel();
 
-            // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended. Otherwise the switchBarrel() will tell it if it's retracted during bootup.
+            // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
+            // Otherwise the switchBarrel() will tell it if it's retracted during bootup.
             if(b_switch_barrel_extended == true) {
               wandSerialSend(W_BARREL_EXTENDED);
             }
@@ -101,8 +111,8 @@ void checkPack() {
           break;
 
           case P_SOUND_MODE_ORIGINAL:
-            stopEffect(S_VOICE_MODE_ORIGINAL);
             stopEffect(S_VOICE_MODE_SUPER_HERO);
+            stopEffect(S_VOICE_MODE_ORIGINAL);
             playEffect(S_VOICE_MODE_ORIGINAL);
           break;
 
@@ -134,6 +144,7 @@ void checkPack() {
                           stopEffect(S_WAND_HEATDOWN);
                           stopEffect(S_WAND_HEATUP_ALT);
                           stopEffect(S_WAND_HEATUP);
+
                           playEffect(S_WAND_HEATUP);
                           playEffect(S_WAND_HEATUP_ALT);
                         }
@@ -153,7 +164,7 @@ void checkPack() {
                 break;
 
                 default:
-                // Do nothing if we aren't MODE_OFF
+                  // Do nothing if we aren't MODE_OFF
                 break;
               }
             }
@@ -192,6 +203,7 @@ void checkPack() {
           break;
 
           case P_MASTER_AUDIO_SILENT_MODE:
+            // Remember the current master volume level.
             i_volume_revert = i_volume_master;
 
             // The pack is telling us to be silent.
@@ -200,7 +212,7 @@ void checkPack() {
           break;
 
           case P_MASTER_AUDIO_NORMAL:
-            // The pack is telling us to revert the audio to normal.
+            // The pack is telling us to revert the volume to normal.
             i_volume_master = i_volume_revert;
             w_trig.masterGain(i_volume_master);
           break;
@@ -288,7 +300,6 @@ void checkPack() {
               if(WAND_STATUS == MODE_ON) {
                 switch(SYSTEM_MODE) {
                   case MODE_ORIGINAL:
-
                     if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && switch_activate.getState() == LOW && b_pack_alarm == true) {
                       b_pack_alarm = false;
 
@@ -598,13 +609,6 @@ void checkPack() {
             playEffect(S_VOICE_VIDEO_GAME_COLOURS_ENABLED);
           break;
 
-          case P_MUSIC_STOP:
-            b_playing_music = false;
-
-            // Stop music
-            stopMusic();
-          break;
-
           case P_DIMMING:
             stopEffect(S_BEEPS);
             playEffect(S_BEEPS);
@@ -786,6 +790,8 @@ void checkPack() {
           case P_SLIME_MODE:
             FIRING_MODE = SLIME;
             PREV_FIRING_MODE = PROTON;
+
+            setVGMode();
           break;
 
           case P_STASIS_MODE:
@@ -802,12 +808,6 @@ void checkPack() {
             setVGMode();
           break;
 
-          case P_SPECTRAL_CUSTOM_MODE:
-            FIRING_MODE = SPECTRAL_CUSTOM;
-            PREV_FIRING_MODE = PROTON;
-            setVGMode();
-          break;
-
           case P_SPECTRAL_MODE:
             FIRING_MODE = SPECTRAL;
             PREV_FIRING_MODE = PROTON;
@@ -817,6 +817,13 @@ void checkPack() {
 
           case P_HOLIDAY_MODE:
             FIRING_MODE = HOLIDAY;
+            PREV_FIRING_MODE = PROTON;
+
+            setVGMode();
+          break;
+
+          case P_SPECTRAL_CUSTOM_MODE:
+            FIRING_MODE = SPECTRAL_CUSTOM;
             PREV_FIRING_MODE = PROTON;
 
             setVGMode();
@@ -959,6 +966,13 @@ void checkPack() {
             playEffect(S_VOICE_YEAR_MODE_DEFAULT);
           break;
 
+          case P_MUSIC_STOP:
+            b_playing_music = false;
+
+            // Stop music
+            stopMusic();
+          break;
+
           case P_MUSIC_START:
             if(b_playing_music == true) {
               stopMusic();
@@ -976,18 +990,16 @@ void checkPack() {
           break;
 
           case P_MUSIC_PLAY_TRACK:
-            // Music track number to be played.
-            i_current_music_track = comStruct.d1;
+            if(i_music_count > 0 && comStruct.d1 >= i_music_track_start) {
+              // Music track number to be played.
+              i_current_music_track = comStruct.d1;
+            }
           break;
 
           default:
             // No-op for anything else.
           break;
         }
-
-        comStruct.i = 0;
-        comStruct.d1 = 0;
-        comStruct.s = 0;
       }
     }
   }
