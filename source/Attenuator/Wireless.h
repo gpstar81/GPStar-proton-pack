@@ -320,6 +320,8 @@ void setupRouting() {
 
   // Body Handlers
   httpServer.addHandler(handleSavePackConfig);
+  httpServer.addHandler(handleSaveWandConfig);
+  httpServer.addHandler(handleSaveSmokeConfig);
   httpServer.addHandler(passwordChangeHandler);
 }
 

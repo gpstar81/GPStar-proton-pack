@@ -239,7 +239,7 @@ void serial1Send(uint16_t i_message, uint16_t i_value = 0) {
       dataStruct.d[17] = 0; // bargraphFireAnimation
     break;
 
-    case A_SEND_PREFERENCES_TIMINGS:
+    case A_SEND_PREFERENCES_SMOKE:
       // Sends values from current runtime variables as values in an int array.
       dataStruct.d[0] = i_ms_overheating_length_5;
       dataStruct.d[1] = i_ms_overheating_length_4;
@@ -3273,18 +3273,24 @@ void checkSerial1() {
               playEffect(S_BEEPS_ALT);
             break;
 
+            case A_SAVE_PREFERENCES_WAND:
+              // Send latest preferences from serial1 web UI back to wand
+              // Need to pass all values from dataStructR.d[] array
+              //packSerialSend(P_SAVE_WAND_PREFERENCES);
+            break;
+
+            case A_SAVE_PREFERENCES_SMOKE:
+              // Save local and remote (wand) smoke timing settings
+              // Need to pass all values from dataStructR.d[] array
+              //packSerialSend(P_SAVE_WAND_PREFERENCES);
+            break;
+
             case A_SAVE_EEPROM_SETTINGS_PACK:
               // Commit changes to the EEPROM in the pack controller
               saveLedEEPROM();
               saveConfigEEPROM();
               stopEffect(S_VOICE_EEPROM_SAVE);
               playEffect(S_VOICE_EEPROM_SAVE);
-            break;
-
-            case A_SAVE_PREFERENCES_WAND:
-              // Send latest preferences from serial1 web UI back to wand
-              // Need to pass all values from dataStructR.d[] array
-              packSerialSend(P_SAVE_WAND_PREFERENCES);
             break;
 
             case A_SAVE_EEPROM_SETTINGS_WAND:

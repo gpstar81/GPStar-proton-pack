@@ -168,6 +168,52 @@ void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
       sendStruct.d[23] = packConfig.ledVGPowercell;
     break;
 
+    case A_SAVE_PREFERENCES_WAND:
+      // Convert user-friendly object properties to integer values.
+      sendStruct.d[0] = wandConfig.ledWandCount;
+      sendStruct.d[1] = wandConfig.ledWandHue;
+      sendStruct.d[2] = wandConfig.ledWandSat;
+      sendStruct.d[3] = wandConfig.spectralModeEnabled;
+      sendStruct.d[4] = wandConfig.spectralHolidayMode;
+      sendStruct.d[5] = wandConfig.overheatEnabled;
+      sendStruct.d[6] = wandConfig.defaultFiringMode;
+      sendStruct.d[7] = wandConfig.wandSoundsToPack;
+      sendStruct.d[8] = wandConfig.quickVenting;
+      sendStruct.d[9] = wandConfig.autoVentLight;
+      sendStruct.d[10] = wandConfig.wandBeepLoop;
+      sendStruct.d[11] = wandConfig.wandBootError;
+      sendStruct.d[12] = wandConfig.defaultYearModeWand;
+      sendStruct.d[13] = wandConfig.defaultYearModeCTS;
+      sendStruct.d[14] = wandConfig.invertWandBargraph;
+      sendStruct.d[15] = wandConfig.bargraphOverheatBlink;
+      sendStruct.d[16] = wandConfig.bargraphIdleAnimation;
+      sendStruct.d[17] = wandConfig.bargraphFireAnimation;
+    break;
+
+    case A_SAVE_PREFERENCES_SMOKE:
+      // Convert user-friendly object properties to integer values.
+      sendStruct.d[0] = smokeConfig.overheatDuration5;
+      sendStruct.d[1] = smokeConfig.overheatContinuous5;
+      sendStruct.d[2] = smokeConfig.overheatDuration4;
+      sendStruct.d[3] = smokeConfig.overheatContinuous4;
+      sendStruct.d[4] = smokeConfig.overheatDuration3;
+      sendStruct.d[5] = smokeConfig.overheatContinuous3;
+      sendStruct.d[6] = smokeConfig.overheatDuration2;
+      sendStruct.d[7] = smokeConfig.overheatContinuous2;
+      sendStruct.d[8] = smokeConfig.overheatDuration1;
+      sendStruct.d[9] = smokeConfig.overheatContinuous1;
+      sendStruct.d[10] = smokeConfig.overheatEnabled5;
+      sendStruct.d[11] = smokeConfig.overheatStartDelay5;
+      sendStruct.d[12] = smokeConfig.overheatEnabled4;
+      sendStruct.d[13] = smokeConfig.overheatStartDelay4;
+      sendStruct.d[14] = smokeConfig.overheatEnabled3;
+      sendStruct.d[15] = smokeConfig.overheatStartDelay3;
+      sendStruct.d[16] = smokeConfig.overheatEnabled2;
+      sendStruct.d[17] = smokeConfig.overheatStartDelay2;
+      sendStruct.d[18] = smokeConfig.overheatEnabled1;
+      sendStruct.d[19] = smokeConfig.overheatStartDelay1;
+    break;
+
     default:
       // No-op for all other communications.
     break;
@@ -748,7 +794,7 @@ boolean checkPack() {
 
           case A_SEND_PREFERENCES_PACK:
             #if defined(__XTENSA__)
-              debug("Preferences Received");
+              debug("Pack Preferences Received");
             #endif
 
             // Convert integer values to user-friendly object properties.
@@ -779,6 +825,60 @@ boolean checkPack() {
             packConfig.ledPowercellHue = comStruct.d[21];
             packConfig.ledPowercellSat = comStruct.d[22];
             packConfig.ledVGPowercell = comStruct.d[23];
+          break;
+
+          case A_SEND_PREFERENCES_WAND:
+            #if defined(__XTENSA__)
+              debug("Wand Preferences Received");
+            #endif
+
+            // Convert integer values to user-friendly object properties.
+            wandConfig.ledWandCount = comStruct.d[0];
+            wandConfig.ledWandHue = comStruct.d[1];
+            wandConfig.ledWandSat = comStruct.d[2];
+            wandConfig.spectralModeEnabled = comStruct.d[3];
+            wandConfig.spectralHolidayMode = comStruct.d[4];
+            wandConfig.overheatEnabled = comStruct.d[5];
+            wandConfig.defaultFiringMode = comStruct.d[6];
+            wandConfig.wandSoundsToPack = comStruct.d[7];
+            wandConfig.quickVenting = comStruct.d[8];
+            wandConfig.autoVentLight = comStruct.d[9];
+            wandConfig.wandBeepLoop = comStruct.d[10];
+            wandConfig.wandBootError = comStruct.d[11];
+            wandConfig.defaultYearModeWand = comStruct.d[12];
+            wandConfig.defaultYearModeCTS = comStruct.d[13];
+            wandConfig.invertWandBargraph = comStruct.d[14];
+            wandConfig.bargraphOverheatBlink = comStruct.d[15];
+            wandConfig.bargraphIdleAnimation = comStruct.d[16];
+            wandConfig.bargraphFireAnimation = comStruct.d[17];
+          break;
+
+          case A_SEND_PREFERENCES_SMOKE:
+            #if defined(__XTENSA__)
+              debug("Smoke Preferences Received");
+            #endif
+
+            // Convert integer values to user-friendly object properties.
+            smokeConfig.overheatDuration5 = comStruct.d[0];
+            smokeConfig.overheatContinuous5 = comStruct.d[1];
+            smokeConfig.overheatDuration4 = comStruct.d[2];
+            smokeConfig.overheatContinuous4 = comStruct.d[3];
+            smokeConfig.overheatDuration3 = comStruct.d[4];
+            smokeConfig.overheatContinuous3 = comStruct.d[5];
+            smokeConfig.overheatDuration2 = comStruct.d[6];
+            smokeConfig.overheatContinuous2 = comStruct.d[7];
+            smokeConfig.overheatDuration1 = comStruct.d[8];
+            smokeConfig.overheatContinuous1 = comStruct.d[9];
+            smokeConfig.overheatEnabled5 = comStruct.d[10];
+            smokeConfig.overheatStartDelay5 = comStruct.d[11];
+            smokeConfig.overheatEnabled4 = comStruct.d[12];
+            smokeConfig.overheatStartDelay4 = comStruct.d[13];
+            smokeConfig.overheatEnabled3 = comStruct.d[14];
+            smokeConfig.overheatStartDelay3 = comStruct.d[15];
+            smokeConfig.overheatEnabled2 = comStruct.d[16];
+            smokeConfig.overheatStartDelay2 = comStruct.d[17];
+            smokeConfig.overheatEnabled1 = comStruct.d[18];
+            smokeConfig.overheatStartDelay1 = comStruct.d[19];
           break;
 
           default:
