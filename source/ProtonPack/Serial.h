@@ -3341,13 +3341,13 @@ void checkSerial1() {
             case A_SAVE_PREFERENCES_WAND:
               // Send latest preferences from serial1 web UI back to wand
               // Need to pass all values from dataStructR.d[] array
-              //packSerialSend(P_SAVE_WAND_PREFERENCES);
+              packSerialSend(P_SAVE_PREFERENCES_WAND);
             break;
 
             case A_SAVE_PREFERENCES_SMOKE:
               // Save local and remote (wand) smoke timing settings
               // Need to pass all values from dataStructR.d[] array
-              //packSerialSend(P_SAVE_WAND_PREFERENCES);
+              packSerialSend(P_SAVE_PREFERENCES_SMOKE);
             break;
 
             case A_SAVE_EEPROM_SETTINGS_PACK:
@@ -3360,7 +3360,7 @@ void checkSerial1() {
 
             case A_SAVE_EEPROM_SETTINGS_WAND:
               // Commit changes to the EEPROM on the wand controller
-              packSerialSend(P_SAVE_WAND_EEPROM);
+              packSerialSend(P_SAVE_EEPROM_WAND);
             break;
 
             case A_SYNC_END:

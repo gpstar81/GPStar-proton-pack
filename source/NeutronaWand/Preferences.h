@@ -438,7 +438,7 @@ void clearLEDEEPROM() {
   updateCRCEEPROM();
 }
 
-void saveLEDEEPROM() {
+void saveLedEEPROM() {
   unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
 
   // For now we are just saving the Spectral Custom colour.

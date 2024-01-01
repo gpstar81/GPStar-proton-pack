@@ -1038,6 +1038,124 @@ void checkPack() {
             }
           break;
 
+          case P_SAVE_PREFERENCES_WAND:
+            // Writes new preferences back to runtime variables.
+            // This action does not save changes to the EEPROM!
+            switch(comStruct.d[0]) {
+              case 0:
+              default:
+                WAND_BARREL_LED_COUNT = LEDS_5;
+              break;
+              case 1:
+                WAND_BARREL_LED_COUNT = LEDS_48;
+              break;
+              case 2:
+                WAND_BARREL_LED_COUNT = LEDS_60;
+              break;
+            }
+
+            i_spectral_wand_custom_colour = comStruct.d[1];
+            i_spectral_wand_custom_saturation = comStruct.d[2];
+            b_spectral_mode_enabled = comStruct.d[3];
+            b_holiday_mode_enabled = comStruct.d[4];
+            b_overheat_enabled = comStruct.d[5];
+            b_cross_the_streams = comStruct.d[6];
+            b_cross_the_streams_mix = comStruct.d[6];
+            b_extra_pack_sounds = comStruct.d[7];
+            b_quick_vent = comStruct.d[8];
+            b_vent_light_control = comStruct.d[9];
+            b_beep_loop = comStruct.d[10];
+            b_wand_boot_errors = comStruct.d[11];
+
+            switch(comStruct.d[12]) {
+              case 0:
+              default:
+                WAND_YEAR_MODE = YEAR_DEFAULT;
+              break;
+              case 1:
+                WAND_YEAR_MODE = YEAR_1984;
+              break;
+              case 2:
+                WAND_YEAR_MODE = YEAR_1989;
+              break;
+              case 3:
+                WAND_YEAR_MODE = YEAR_AFTERLIFE;
+              break;
+              case 4:
+                WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+              break;
+            }
+
+            switch(comStruct.d[13]) {
+              case 0:
+              default:
+                WAND_YEAR_CTS = CTS_DEFAULT;
+              break;
+              case 1:
+                WAND_YEAR_CTS = CTS_1984;
+              break;
+              case 2:
+                WAND_YEAR_CTS = CTS_1989;
+              break;
+              case 3:
+                WAND_YEAR_CTS = CTS_AFTERLIFE;
+              break;
+              case 4:
+                WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
+              break;
+            }
+
+            b_bargraph_invert = comStruct.d[14];
+            b_overheat_bargraph_blink = comStruct.d[15];
+
+            comStruct.d[16] = BARGRAPH_MODE;
+            switch(comStruct.d[16]) {
+              case 0:
+              default:
+                BARGRAPH_MODE = BARGRAPH_SUPER_HERO;
+              break;
+              case 1:
+                BARGRAPH_MODE = BARGRAPH_ORIGINAL;
+              break;
+            }
+
+            switch(comStruct.d[17]) {
+              case 0:
+              default:
+                BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
+              break;
+              case 1:
+                BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_SUPER_HERO;
+              break;
+              case 2:
+                BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
+              break;
+            }
+          break;
+
+          case P_SAVE_PREFERENCES_SMOKE:
+            // Writes new preferences back to runtime variables.
+            // This action does not save changes to the EEPROM!
+            b_overheat_mode_5 = comStruct.d[0];
+            b_overheat_mode_4 = comStruct.d[1];
+            b_overheat_mode_3 = comStruct.d[2];
+            b_overheat_mode_2 = comStruct.d[3];
+            b_overheat_mode_1 = comStruct.d[4];
+            i_ms_overheat_initiate_mode_5 = comStruct.d[5];
+            i_ms_overheat_initiate_mode_4 = comStruct.d[6];
+            i_ms_overheat_initiate_mode_3 = comStruct.d[7];
+            i_ms_overheat_initiate_mode_2 = comStruct.d[8];
+            i_ms_overheat_initiate_mode_1 = comStruct.d[9];
+          break;
+
+          case P_SAVE_EEPROM_WAND:
+            // Commit changes to the EEPROM in the wand controller
+            saveLedEEPROM();
+            saveConfigEEPROM();
+            stopEffect(S_VOICE_EEPROM_SAVE);
+            playEffect(S_VOICE_EEPROM_SAVE);
+          break;
+
           default:
             // No-op for anything else.
           break;
