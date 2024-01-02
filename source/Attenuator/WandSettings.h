@@ -41,6 +41,174 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <br/>
   </div>
 
+  <h1>General Options</h1>
+  <div class="block left">
+    <div class="setting">
+      <b>Default Firing Mode:</b>
+      <select id="defaultFiringMode" name="defaultFiringMode">
+        <option value="0">Video Game Modes</option>
+        <option value="1">Cross the Streams</option>
+        <option value="2">System Mode/Theme</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b>Default Year Mode:</b>
+      <select id="defaultYearModeWand" name="defaultYearModeWand">
+        <option value="1">Toggle</option>
+        <option value="2">1984</option>
+        <option value="3">1989</option>
+        <option value="4"Afterlife</option>
+        <option value="5">Frozen Empire</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b>Default CTS Mode:</b>
+      <select id="defaultYearModeCTS" name="defaultYearModeCTS">
+        <option value="1">Toggle</option>
+        <option value="2">1984</option>
+        <option value="3">1989</option>
+        <option value="4"Afterlife</option>
+        <option value="5">Frozen Empire</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Wand Boot Errors:</b>
+      <label class="switch">
+        <input id="wandBootError" name="wandBootError" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Wand Beep Loop:</b>
+      <label class="switch">
+        <input id="wandBeepLoop" name="wandBeepLoop" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Send Sounds to Pack:</b>
+      <label class="switch">
+        <input id="wandSoundsToPack" name="wandSoundsToPack" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Overheating Enabled:</b>
+      <label class="switch">
+        <input id="overheatEnabled" name="overheatEnabled" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Quick Venting Enabled:</b>
+      <label class="switch">
+        <input id="quickVenting" name="quickVenting" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Auto Vent Light Brightness:</b>
+      <label class="switch">
+        <input id="autoVentLight" name="autoVentLight" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Lights Off During Overheat:</b>
+      <label class="switch">
+        <input id="overheatLightsOff" name="overheatLightsOff" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Overheat Sync Smoke to Fan:</b>
+      <label class="switch">
+        <input id="overheatSyncToFan" name="overheatSyncToFan" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Enable Demo Light Mode:</b>
+      <label class="switch">
+        <input id="demoLightMode" name="demoLightMode" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
+
+  <h1>Bargraph Options</h1>
+  <div class="block left">
+    <div class="setting">
+      <b>Idle Animation:</b>
+      <select id="bargraphIdleAnimation" name="bargraphIdleAnimation">
+        <option value="1">Default</option>
+        <option value="2">Super Hero</option>
+        <option value="3">Mode Original</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b>Firing Animation:</b>
+      <select id="bargraphFireAnimation" name="bargraphFireAnimation">
+        <option value="1">Default</option>
+        <option value="2">Super Hero</option>
+        <option value="3">Mode Original</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Invert Animations:</b>
+      <label class="switch">
+        <input id="invertWandBargraph" name="invertWandBargraph" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Overheat Blink:</b>
+      <label class="switch">
+        <input id="bargraphOverheatBlink" name="bargraphOverheatBlink" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
+
+  <h1>Barrel LEDs</h1>
+  <div class="block left">
+    <div class="setting">
+      <b>LED Count:</b>
+      <select id="ledWandCount" name="ledWandCount">
+        <option value="5">5 - Stock</option>
+        <option value="48">48 - Frutto</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b>Custom Color (Hue):</b><br/>
+      <input type="range" id="ledWandHue" name="ledWandHue" min="0" max="360" value="360" step="2"
+       oninput="updateColor('wandColorPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
+      <output class="labelSlider" id="wandHueOut" for="ledWandHue"></output>
+      <br/>
+      <div id="wandColorPreview" class="swatch"></div>
+    </div>
+    <div class="setting">
+      <b>Custom Saturation %:</b><br/>
+      <input type="range" id="ledWandSat" name="ledWandSat" min="0" max="100" value="100" step="2"
+       oninput="updateColor('wandColorPreview', 'wandHueOut', 'wandSatOut', ledCycLidHue.value, ledWandSat.value)"/>
+      <output class="labelSlider" id="wandSatOut" for="ledWandSat"></output>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Spectral Modes Enabled:</b>
+      <label class="switch">
+        <input id="spectralModeEnabled" name="spectralModeEnabled" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Spectral Holiday Mode:</b>
+      <label class="switch">
+        <input id="spectralHolidayMode" name="spectralHolidayMode" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
+
   <div class="block">
     <hr/>
     <a href="/">&laquo; Back</a>
@@ -100,6 +268,40 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
               alert("Pack and/or Wand are currently powered up. Changes to settings will not be allowed. Turn off system via toggle switches and reload the page to obtain the latest settings.");
             }
 
+            /**
+             * Note: Color (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL color.
+             *  0 = Red
+             *  32 = Orange
+             *  64 = Yellow
+             *  96 = Green
+             *  128 = Aqua
+             *  160 = Blue
+             *  192 = Purple
+             *  224 = Pink
+             *  254 = Red
+             */
+
+            document.getElementById("ledWandCount").value = settings.ledWandCount || 5; // Haslab: 5
+            document.getElementById("ledWandHue").value = convertRange(settings.ledWandHue || 254, [1,254], [0,360]); // Default: Red
+            document.getElementById("ledWandSat").value = convertRange(settings.ledWandSat || 254, [1,254], [0,100]); // Full Saturation
+            document.getElementById("spectralModeEnabled").checked = settings.spectralModeEnabled ? true: false;
+            document.getElementById("spectralHolidayMode").checked = settings.spectralHolidayMode ? true: false;
+            document.getElementById("overheatEnabled").checked = settings.overheatEnabled ? true: false;
+            document.getElementById("defaultFiringMode").value = settings.defaultFiringMode || 1;
+            document.getElementById("wandSoundsToPack").checked = settings.wandSoundsToPack ? true: false;
+            document.getElementById("quickVenting").checked = settings.quickVenting ? true: false;
+            document.getElementById("autoVentLight").checked = settings.autoVentLight ? true: false;
+            document.getElementById("wandBeepLoop").checked = settings.wandBeepLoop ? true: false;
+            document.getElementById("wandBootError").checked = settings.wandBootError ? true: false;
+            document.getElementById("defaultYearModeWand").value = settings.defaultYearModeWand || 1;
+            document.getElementById("defaultYearModeCTS").value = settings.defaultYearModeCTS || 1;
+            document.getElementById("invertWandBargraph").checked = settings.invertWandBargraph ? true: false;
+            document.getElementById("bargraphOverheatBlink").checked = settings.bargraphOverheatBlink ? true: false;
+            document.getElementById("bargraphIdleAnimation").value = settings.bargraphIdleAnimation || 1;
+            document.getElementById("bargraphFireAnimation").value = settings.bargraphFireAnimation || 1;
+
+            // Update color preview and value display for hue/saturation sliders.
+            updateColor("wandColorPreview", "wandHueOut", "wandSatOut", document.getElementById("ledWandHue").value, document.getElementById("ledWandSat").value);
           }
         }
       };
@@ -111,24 +313,24 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to wand, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
-        ledWandCount: 5,
-        ledWandHue: 254,
-        ledWandSat: 254,
-        spectralModeEnabled: false,
-        spectralHolidayMode: false,
-        overheatEnabled: false,
-        defaultFiringMode: 0,
-        wandSoundsToPack: false,
-        quickVenting: false,
-        autoVentLight: false,
-        wandBeepLoop: false,
-        wandBootError: false,
-        defaultYearModeWand: 0,
-        defaultYearModeCTS: 0,
-        invertWandBargraph: false,
-        bargraphOverheatBlink: false,
-        bargraphIdleAnimation: 0,
-        bargraphFireAnimation: 0
+        ledWandCount: parseInt(document.getElementById("ledWandCount").value || 5, 10),
+        ledWandHue: convertRange(parseInt(document.getElementById("ledWandHue").value || 360, 10), [0,360], [1,254]),
+        ledWandSat: convertRange(parseInt(document.getElementById("ledWandSat").value || 360, 10), [0,360], [1,254]),
+        spectralModeEnabled: document.getElementById("spectralModeEnabled").checked ? 1 : 0,
+        spectralHolidayMode: document.getElementById("spectralHolidayMode").checked ? 1 : 0,
+        overheatEnabled: document.getElementById("overheatEnabled").checked ? 1 : 0,
+        defaultFiringMode: parseInt(document.getElementById("defaultFiringMode").value || 1, 10),
+        wandSoundsToPack: document.getElementById("wandSoundsToPack").checked ? 1 : 0,
+        quickVenting: document.getElementById("quickVenting").checked ? 1 : 0,
+        autoVentLight: document.getElementById("autoVentLight").checked ? 1 : 0,
+        wandBeepLoop: document.getElementById("wandBeepLoop").checked ? 1 : 0,
+        wandBootError: document.getElementById("wandBootError").checked ? 1 : 0,
+        defaultYearModeWand: parseInt(document.getElementById("defaultYearModeWand").value || 1, 10),
+        defaultYearModeCTS: parseInt(document.getElementById("defaultYearModeCTS").value || 1, 10),
+        invertWandBargraph: document.getElementById("invertWandBargraph").checked ? 1 : 0,
+        bargraphOverheatBlink: document.getElementById("bargraphOverheatBlink").checked ? 1 : 0,
+        bargraphIdleAnimation: parseInt(document.getElementById("bargraphIdleAnimation").value || 1, 10),
+        bargraphFireAnimation: parseInt(document.getElementById("bargraphFireAnimation").value || 1, 10)
       };
       var body = JSON.stringify(settings);
 

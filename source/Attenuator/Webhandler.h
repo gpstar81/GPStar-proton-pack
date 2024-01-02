@@ -151,8 +151,8 @@ String getWandConfig() {
     jsonDoc["defaultYearModeCTS"] = wandConfig.defaultYearModeCTS; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
     jsonDoc["invertWandBargraph"] = wandConfig.invertWandBargraph; // true|false
     jsonDoc["bargraphOverheatBlink"] = wandConfig.bargraphOverheatBlink; // true|false
-    jsonDoc["bargraphIdleAnimation"] = wandConfig.bargraphIdleAnimation; // [0=SH,1=MO,2=SYSTEM]
-    jsonDoc["bargraphFireAnimation"] = wandConfig.bargraphFireAnimation; // [0=SH,1=MO,2=SYSTEM]
+    jsonDoc["bargraphIdleAnimation"] = wandConfig.bargraphIdleAnimation; // [1=SYSTEM,2=SH,3=MO]
+    jsonDoc["bargraphFireAnimation"] = wandConfig.bargraphFireAnimation; // [1=SYSTEM,2=SH,3=MO]
   }
 
   // Serialize JSON object to string.
