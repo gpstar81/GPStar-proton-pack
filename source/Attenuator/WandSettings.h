@@ -111,6 +111,24 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to wand, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
+        ledWandCount: 5,
+        ledWandHue: 254,
+        ledWandSat: 254,
+        spectralModeEnabled: false,
+        spectralHolidayMode: false,
+        overheatEnabled: false,
+        defaultFiringMode: 0,
+        wandSoundsToPack: false,
+        quickVenting: false,
+        autoVentLight: false,
+        wandBeepLoop: false,
+        wandBootError: false,
+        defaultYearModeWand: 0,
+        defaultYearModeCTS: 0,
+        invertWandBargraph: false,
+        bargraphOverheatBlink: false,
+        bargraphIdleAnimation: 0,
+        bargraphFireAnimation: 0
       };
       var body = JSON.stringify(settings);
 

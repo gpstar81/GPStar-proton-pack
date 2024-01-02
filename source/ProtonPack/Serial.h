@@ -176,7 +176,7 @@ void updateSystemModeYear() {
 }
 
 // Outgoing messages to the Serial1 device
-void serial1Send(uint16_t i_message, uint16_t i_value = 0) {
+void serial1Send(uint16_t i_message, uint16_t i_value) {
   dataStruct.s = A_COM_START;
   dataStruct.i = i_message;
   dataStruct.d1 = i_value;
@@ -302,9 +302,13 @@ void serial1Send(uint16_t i_message, uint16_t i_value = 0) {
 
   serial1Coms.sendDatum(dataStruct);
 }
+// Override function to handle calls with a single parameter.
+void serial1Send(uint16_t i_message) {
+  serial1Send(i_message, 0);
+}
 
 // Outgoing messages to the wand
-void packSerialSend(uint16_t i_message, uint16_t i_value = 0) {
+void packSerialSend(uint16_t i_message, uint16_t i_value) {
   sendStruct.s = P_COM_START;
   sendStruct.i = i_message;
   sendStruct.d1 = i_value;
@@ -319,6 +323,10 @@ void packSerialSend(uint16_t i_message, uint16_t i_value = 0) {
   }
 
   packComs.sendDatum(sendStruct);
+}
+// Override function to handle calls with a single parameter.
+void packSerialSend(uint16_t i_message) {
+  packSerialSend(i_message, 0);
 }
 
 // Incoming messages from the wand.

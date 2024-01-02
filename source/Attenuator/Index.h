@@ -85,15 +85,19 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <h1>Administration</h1>
   <div class="block">
-    <a href="/settings/pack">Change Pack Settings</a>
+    <a href="/settings/pack">Change Proton Pack Settings</a>
+    <br/>
+    <br/>
+    <a href="/settings/wand">Change Neutrona Wand Settings</a>
+    <br/>
+    <br/>
+    <a href="/settings/smoke">Change Overheat/Smoke Settings</a>
     <br/>
     <br/>
     <a href="/password">Change WiFi Password</a>
-    &nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;
     <a href="/update">Update Firmware</a>
-    <br/>
-    <br/>
-    <br/>
+    &nbsp;&nbsp;
     <a href="javascript:doRestart()">Restart/Resync</a>
   </div>
 

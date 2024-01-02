@@ -443,7 +443,8 @@ bool b_no_pack = false;
 /*
  * Function prototypes.
  */
-void wandSerialSend(uint16_t i_message, uint16_t i_value = 0);
+void wandSerialSend(uint16_t i_message, uint16_t i_value);
+void wandSerialSend(uint16_t i_message);
 void checkPack();
 void checkWandAction();
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);

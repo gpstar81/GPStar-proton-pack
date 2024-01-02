@@ -32,7 +32,7 @@ struct MessagePacket comStruct;
 struct MessagePacket sendStruct;
 
 // Pack communication from the wand.
-void wandSerialSend(uint16_t i_message, uint16_t i_value = 0) {
+void wandSerialSend(uint16_t i_message, uint16_t i_value) {
   if(b_no_pack != true) {
     sendStruct.s = W_COM_START;
     sendStruct.i = i_message;
@@ -87,6 +87,10 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value = 0) {
 
     wandComs.sendDatum(sendStruct);
   }
+}
+// Override function to handle calls with a single parameter.
+void wandSerialSend(uint16_t i_message) {
+  wandSerialSend(i_message, 0);
 }
 
 // Pack communication to the wand.

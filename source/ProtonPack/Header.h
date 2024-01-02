@@ -448,8 +448,10 @@ millisDelay ms_fadeout;
 /*
  * Function prototypes.
  */
-void packSerialSend(uint16_t i_message, uint16_t i_value = 0);
-void serial1Send(uint16_t i_message, uint16_t i_value = 0);
+void packSerialSend(uint16_t i_message, uint16_t i_value);
+void packSerialSend(uint16_t i_message);
+void serial1Send(uint16_t i_message, uint16_t i_value);
+void serial1Send(uint16_t i_message);
 void checkSerial1();
 void checkWand();
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
