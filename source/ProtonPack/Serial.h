@@ -3431,6 +3431,18 @@ void checkSerial1() {
             // Tell the Attenuator that the pack is here.
             serial1Send(A_PACK_CONNECTED);
 
+            // Make sure this is called before the A_YEAR is sent over to the Attenuator/Wireless.
+            switch(SYSTEM_MODE) {
+              case MODE_ORIGINAL:
+                serial1Send(A_MODE_ORIGINAL);
+              break;
+
+              case MODE_SUPER_HERO:
+              default:
+                serial1Send(A_MODE_SUPER_HERO);
+              break;
+            }
+
             switch(SYSTEM_YEAR) {
               case SYSTEM_1984:
                 serial1Send(A_YEAR_1984);
@@ -3483,18 +3495,6 @@ void checkSerial1() {
               case 1:
               default:
                 serial1Send(A_POWER_LEVEL_1);
-              break;
-            }
-
-            // Make sure this is called before the A_YEAR is sent over to the Attenuator/Wireless.
-            switch(SYSTEM_MODE) {
-              case MODE_ORIGINAL:
-                serial1Send(A_MODE_ORIGINAL);
-              break;
-
-              case MODE_SUPER_HERO:
-              default:
-                serial1Send(A_MODE_SUPER_HERO);
               break;
             }
 
