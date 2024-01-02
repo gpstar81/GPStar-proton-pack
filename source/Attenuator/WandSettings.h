@@ -57,7 +57,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         <option value="1">Toggle</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
-        <option value="4"Afterlife</option>
+        <option value="4">Afterlife</option>
         <option value="5">Frozen Empire</option>
       </select>
     </div>
@@ -67,7 +67,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         <option value="1">Toggle</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
-        <option value="4"Afterlife</option>
+        <option value="4">Afterlife</option>
         <option value="5">Frozen Empire</option>
       </select>
     </div>
@@ -190,7 +190,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Custom Saturation %:</b><br/>
       <input type="range" id="ledWandSat" name="ledWandSat" min="0" max="100" value="100" step="2"
-       oninput="updateColor('wandColorPreview', 'wandHueOut', 'wandSatOut', ledCycLidHue.value, ledWandSat.value)"/>
+       oninput="updateColor('wandColorPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
       <output class="labelSlider" id="wandSatOut" for="ledWandSat"></output>
     </div>
     <div class="setting">

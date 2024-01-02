@@ -58,13 +58,13 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Overheat Delay:</b><br/>
+      <b>Overheat Delay (Seconds):</b><br/>
       <input type="range" id="overheatDelay5" name="overheatDelay5" min="2" max="60" value="2" step="1"
        oninput="delay5Out.value=overheatDelay5.value"/>
       <output class="labelSlider" id="delay5Out" for="overheatDelay5"></output>
     </div>
     <div class="setting">
-      <b>Overheat Duration:</b><br/>
+      <b>Overheat Duration (Seconds):</b><br/>
       <input type="range" id="overheatDuration5" name="overheatDuration5" min="2" max="60" value="2" step="1"
        oninput="duration5Out.value=overheatDuration5.value"/>
       <output class="labelSlider" id="duration5Out" for="overheatDuration5"></output>
@@ -88,13 +88,13 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Overheat Delay:</b><br/>
+      <b>Overheat Delay (Seconds):</b><br/>
       <input type="range" id="overheatDelay4" name="overheatDelay4" min="2" max="60" value="2" step="1"
        oninput="delay4Out.value=overheatDelay4.value"/>
       <output class="labelSlider" id="delay4Out" for="overheatDelay4"></output>
     </div>
     <div class="setting">
-      <b>Overheat Duration:</b><br/>
+      <b>Overheat Duration (Seconds):</b><br/>
       <input type="range" id="overheatDuration4" name="overheatDuration4" min="2" max="60" value="2" step="1"
        oninput="duration4Out.value=overheatDuration4.value"/>
       <output class="labelSlider" id="duration4Out" for="overheatDuration4"></output>
@@ -118,13 +118,13 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Overheat Delay:</b><br/>
+      <b>Overheat Delay (Seconds):</b><br/>
       <input type="range" id="overheatDelay3" name="overheatDelay3" min="2" max="60" value="2" step="1"
        oninput="delay3Out.value=overheatDelay3.value"/>
       <output class="labelSlider" id="delay3Out" for="overheatDelay3"></output>
     </div>
     <div class="setting">
-      <b>Overheat Duration:</b><br/>
+      <b>Overheat Duration (Seconds):</b><br/>
       <input type="range" id="overheatDuration3" name="overheatDuration3" min="2" max="60" value="2" step="1"
        oninput="duration3Out.value=overheatDuration3.value"/>
       <output class="labelSlider" id="duration3Out" for="overheatDuration3"></output>
@@ -148,13 +148,13 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Overheat Delay:</b><br/>
+      <b>Overheat Delay (Seconds):</b><br/>
       <input type="range" id="overheatDelay2" name="overheatDelay2" min="2" max="60" value="2" step="1"
        oninput="delay2Out.value=overheatDelay2.value"/>
       <output class="labelSlider" id="delay2Out" for="overheatDelay2"></output>
     </div>
     <div class="setting">
-      <b>Overheat Duration:</b><br/>
+      <b>Overheat Duration (Seconds):</b><br/>
       <input type="range" id="overheatDuration2" name="overheatDuration2" min="2" max="60" value="2" step="1"
        oninput="duration2Out.value=overheatDuration2.value"/>
       <output class="labelSlider" id="duration2Out" for="overheatDuration2"></output>
@@ -178,13 +178,13 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Overheat Delay:</b><br/>
+      <b>Overheat Delay (Seconds):</b><br/>
       <input type="range" id="overheatDelay1" name="overheatDelay1" min="2" max="60" value="2" step="1"
        oninput="delay1Out.value=overheatDelay1.value"/>
       <output class="labelSlider" id="delay1Out" for="overheatDelay1"></output>
     </div>
     <div class="setting">
-      <b>Overheat Duration:</b><br/>
+      <b>Overheat Duration (Seconds):</b><br/>
       <input type="range" id="overheatDuration1" name="overheatDuration1" min="2" max="60" value="2" step="1"
        oninput="duration1Out.value=overheatDuration1.value"/>
       <output class="labelSlider" id="duration1Out" for="overheatDuration1"></output>
