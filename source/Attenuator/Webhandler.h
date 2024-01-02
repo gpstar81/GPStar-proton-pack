@@ -88,6 +88,17 @@ String getPackConfig() {
     jsonDoc["packPowered"] = (b_pack_on ? true : false);
     jsonDoc["wandPowered"] = (b_wand_on ? true : false);
 
+    // Proton Pack Runtime Options
+    jsonDoc["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
+    jsonDoc["defaultYearThemePack"] = packConfig.defaultYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
+    jsonDoc["defaultSystemVolume"] = packConfig.defaultSystemVolume; // 0-100
+    jsonDoc["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
+    jsonDoc["smokeEnabled"] = packConfig.smokeEnabled; // true|false
+    jsonDoc["overheatStrobeNF"] = packConfig.overheatStrobeNF; // true|false
+    jsonDoc["overheatLightsOff"] = packConfig.overheatLightsOff; // true|false
+    jsonDoc["overheatSyncToFan"] = packConfig.overheatSyncToFan;// true|false
+    jsonDoc["demoLightMode"] = packConfig.demoLightMode; // true|false
+
     // Proton Pack LED Options
     jsonDoc["ledCycLidCount"] = packConfig.ledCycLidCount; // [12,20,40]
     jsonDoc["ledCycLidHue"] = packConfig.ledCycLidHue; // Spectral custom color/hue 1-254
@@ -104,17 +115,6 @@ String getPackConfig() {
     jsonDoc["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom color/hue 1-254
     jsonDoc["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 1-254
     jsonDoc["ledVGPowercell"] = packConfig.ledVGPowercell; // true|false
-
-    // Proton Pack Runtime Options
-    jsonDoc["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
-    jsonDoc["defaultYearThemePack"] = packConfig.defaultYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
-    jsonDoc["defaultSystemVolume"] = packConfig.defaultSystemVolume; // 0-100
-    jsonDoc["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
-    jsonDoc["smokeEnabled"] = packConfig.smokeEnabled; // true|false
-    jsonDoc["overheatStrobeNF"] = packConfig.overheatStrobeNF; // true|false
-    jsonDoc["overheatLightsOff"] = packConfig.overheatLightsOff; // true|false
-    jsonDoc["overheatSyncToFan"] = packConfig.overheatSyncToFan;// true|false
-    jsonDoc["demoLightMode"] = packConfig.demoLightMode; // true|false
   }
 
   // Serialize JSON object to string.
