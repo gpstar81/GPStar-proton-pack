@@ -322,6 +322,50 @@ void packSerialSend(uint16_t i_message, uint16_t i_value) {
     sendStruct.d[i] = 0;
   }
 
+  // Provide additional data with certain messages.
+  switch(i_message) {
+    case P_SAVE_PREFERENCES_WAND:
+      // Sends values from current runtime variables as values in an int array.
+      // Any ENUM or boolean types will simply translate as numeric values.
+      sendStruct.d[0] = wandConfig.ledWandCount;
+      sendStruct.d[1] = wandConfig.ledWandHue;
+      sendStruct.d[2] = wandConfig.ledWandSat;
+      sendStruct.d[3] = wandConfig.spectralModeEnabled;
+      sendStruct.d[4] = wandConfig.spectralHolidayMode;
+      sendStruct.d[5] = wandConfig.overheatEnabled;
+      sendStruct.d[6] = wandConfig.defaultFiringMode;
+      sendStruct.d[7] = wandConfig.wandSoundsToPack;
+      sendStruct.d[8] = wandConfig.quickVenting;
+      sendStruct.d[9] = wandConfig.autoVentLight;
+      sendStruct.d[10] = wandConfig.wandBeepLoop;
+      sendStruct.d[11] = wandConfig.wandBootError;
+      sendStruct.d[12] = wandConfig.defaultYearModeWand;
+      sendStruct.d[13] = wandConfig.defaultYearModeCTS;
+      sendStruct.d[14] = wandConfig.invertWandBargraph;
+      sendStruct.d[15] = wandConfig.bargraphOverheatBlink;
+      sendStruct.d[16] = wandConfig.bargraphIdleAnimation;
+      sendStruct.d[17] = wandConfig.bargraphFireAnimation;
+    break;
+
+    case P_SAVE_PREFERENCES_SMOKE:
+      // Sends values from current runtime variables as values in an int array.
+      sendStruct.d[0] = wandConfig.overheatLevel5;
+      sendStruct.d[1] = wandConfig.overheatLevel4;
+      sendStruct.d[2] = wandConfig.overheatLevel3;
+      sendStruct.d[3] = wandConfig.overheatLevel2;
+      sendStruct.d[4] = wandConfig.overheatLevel1;
+      sendStruct.d[5] = wandConfig.overheatDelay5;
+      sendStruct.d[6] = wandConfig.overheatDelay4;
+      sendStruct.d[7] = wandConfig.overheatDelay3;
+      sendStruct.d[8] = wandConfig.overheatDelay2;
+      sendStruct.d[9] = wandConfig.overheatDelay1;
+    break;
+
+    default:
+      // No-op for all other communications.
+    break;
+  }
+
   packComs.sendDatum(sendStruct);
 }
 // Override function to handle calls with a single parameter.
@@ -2905,7 +2949,7 @@ void checkWand() {
 
             case W_SEND_PREFERENCES_SMOKE:
               wandConfig.overheatLevel5 = dataStruct.d[0];
-              wandConfig.overheatLevel3 = dataStruct.d[1];
+              wandConfig.overheatLevel4 = dataStruct.d[1];
               wandConfig.overheatLevel3 = dataStruct.d[2];
               wandConfig.overheatLevel2 = dataStruct.d[3];
               wandConfig.overheatLevel1 = dataStruct.d[4];
@@ -3344,13 +3388,13 @@ void checkSerial1() {
 
             case A_SAVE_PREFERENCES_WAND:
               // Send latest preferences from serial1 web UI back to wand
-              // Need to pass all values from dataStructR.d[] array
+              // This will pass select values from the wandConfig object
               packSerialSend(P_SAVE_PREFERENCES_WAND);
             break;
 
             case A_SAVE_PREFERENCES_SMOKE:
               // Save local and remote (wand) smoke timing settings
-              // Need to pass all values from dataStructR.d[] array
+              // This will pass select values from the wandConfig object
               packSerialSend(P_SAVE_PREFERENCES_SMOKE);
             break;
 

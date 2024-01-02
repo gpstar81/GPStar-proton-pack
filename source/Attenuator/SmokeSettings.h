@@ -98,26 +98,26 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to pack/wand, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
-        overheatDuration5: 0,
-        overheatDuration4: 0,
-        overheatDuration3: 0,
-        overheatDuration2: 0,
-        overheatDuration1: 0,
-        overheatContinuous5: false,
-        overheatContinuous4: false,
-        overheatContinuous3: false,
-        overheatContinuous2: false,
-        overheatContinuous1: false,
-        overheatLevel5: false,
+        overheatDuration5: 6000,
+        overheatDuration4: 5000,
+        overheatDuration3: 4000,
+        overheatDuration2: 3000,
+        overheatDuration1: 2000,
+        overheatContinuous5: true,
+        overheatContinuous4: true,
+        overheatContinuous3: true,
+        overheatContinuous2: true,
+        overheatContinuous1: true,
+        overheatLevel5: true,
         overheatLevel4: false,
         overheatLevel3: false,
         overheatLevel2: false,
         overheatLevel1: false,
-        overheatDelay5: 0,
-        overheatDelay4: 0,
-        overheatDelay3: 0,
-        overheatDelay2: 0,
-        overheatDelay1: 0
+        overheatDelay5: 12000,
+        overheatDelay4: 15000,
+        overheatDelay3: 20000,
+        overheatDelay2: 30000,
+        overheatDelay1: 60000
       };
       var body = JSON.stringify(settings);
 
