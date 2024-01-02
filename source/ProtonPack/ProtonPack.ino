@@ -4329,7 +4329,7 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
     i_track_volume = i_volume_abs_min;
   }
 
-  if(i_track_volume > 10) {
+  if(i_track_volume > i_volume_abs_max) {
     i_track_volume = i_volume_abs_max;
   }
 
