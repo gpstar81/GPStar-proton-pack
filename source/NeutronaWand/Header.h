@@ -146,11 +146,11 @@ const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible
 /*
  * Volume (0 = loudest, -70 = quietest)
  */
-uint8_t i_volume_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
+uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
 uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
-int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_percentage / 100); // Sound effects
+int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects
 int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
 int8_t i_volume_revert = i_volume_master;
 
@@ -309,58 +309,6 @@ bool b_bargraph_status[i_bargraph_segments] = {};
  */
 // bool b_overheat_indicators[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false};
 
-
-/*
- * EEPROM
- */
-unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
-unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
-
-/*
- * EEPROM data structure object that is saved into the EEPROM memory of the Neutrona Wand.
- */
-struct objEEPROM {
-  uint8_t cross_the_streams;
-  uint8_t cross_the_streams_mix;
-  uint8_t overheating;
-  uint8_t neutrona_wand_sounds;
-  uint8_t spectral_mode;
-  uint8_t holiday_mode;
-
-  uint8_t quick_vent;
-  uint8_t wand_boot_errors;
-  uint8_t vent_light_auto_intensity;
-  uint8_t num_barrel_leds;
-
-  uint8_t invert_bargraph;
-  uint8_t bargraph_mode;
-  uint8_t bargraph_firing_animation;
-  uint8_t bargraph_overheat_blinking;
-
-  uint8_t neutrona_wand_year_mode;
-  uint8_t CTS_mode;
-  uint8_t beep_loop;
-  uint8_t overheat_start_timer_level_5;
-  uint8_t overheat_start_timer_level_4;
-  uint8_t overheat_start_timer_level_3;
-  uint8_t overheat_start_timer_level_2;
-  uint8_t overheat_start_timer_level_1;
-
-  uint8_t overheat_level_5;
-  uint8_t overheat_level_4;
-  uint8_t overheat_level_3;
-  uint8_t overheat_level_2;
-  uint8_t overheat_level_1;
-};
-
-/*
- * EEPROM Another data structure object that is saved into the EEPROM memory.
- */
-struct objLEDEEPROM {
-  uint8_t barrel_spectral_custom;
-  uint8_t barrel_spectral_saturation_custom;
-};
-
 /*
  * Timers for the optional hat lights.
  * Also used for vent lights during error modes.
@@ -420,18 +368,6 @@ uint8_t i_power_mode_prev = 1;
  * Wand / Pack communication
  */
 SerialTransfer wandComs;
-
-struct __attribute__((packed)) STRUCT {
-  uint16_t s;
-  uint16_t i;
-  uint16_t e;
-} comStruct;
-
-struct __attribute__((packed)) STRUCTSEND {
-  uint16_t s;
-  uint16_t i;
-  uint16_t e;
-} sendStruct;
 
 /*
  * Some pack flags which get transmitted to the wand depending on the pack status.
@@ -514,7 +450,9 @@ bool b_no_pack = false;
 /*
  * Function prototypes.
  */
-void wandSerialSend(int i_message, bool b_sound = false);
+void wandSerialSend(uint16_t i_message, bool b_sound = false);
+void checkPack();
+void checkWandAction();
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
 void stopEffect(int i_track_id);
 void stopMusic();
