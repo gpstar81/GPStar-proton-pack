@@ -58,7 +58,7 @@ void handleWandSettings(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Serve page content.
 
   // Tell the pack that we'll need the latest wand EEPROM values.
-  attenuatorSerialSend(A_SEND_PREFERENCES_PACK);
+  attenuatorSerialSend(A_SEND_PREFERENCES_WAND);
 }
 
 void handleSmokeSettings(AsyncWebServerRequest *request) {
@@ -68,10 +68,10 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Serve page content.
 
   // Tell the pack that we'll need the latest smoke EEPROM values.
-  attenuatorSerialSend(A_SEND_PREFERENCES_PACK);
+  attenuatorSerialSend(A_SEND_PREFERENCES_SMOKE);
 }
 
-void handleStyle(AsyncWebServerRequest *request) {
+void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   //debug("Main StyleSheet Requested");
   String s = STYLE_page; // Read CSS page into String.

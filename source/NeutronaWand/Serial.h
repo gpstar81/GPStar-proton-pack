@@ -37,7 +37,6 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
     sendStruct.s = W_COM_START;
     sendStruct.i = i_message;
     sendStruct.d1 = i_value;
-    sendStruct.e = W_COM_END;
 
     // Get the number of elements in the data array
     uint16_t arrayLength = sizeof(sendStruct.d) / sizeof(sendStruct.d[0]);
@@ -49,6 +48,7 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
 
     switch(i_message) {
       case W_SEND_PREFERENCES_WAND:
+Serial.println("W_SEND_PREFERENCES_WAND");
         // Sends values from current runtime variables as values in an int array.
         // Any ENUM or boolean types will simply translate as numeric values.
         sendStruct.d[0] = WAND_BARREL_LED_COUNT;
@@ -72,6 +72,7 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
       break;
 
       case W_SEND_PREFERENCES_SMOKE:
+Serial.println("W_SEND_PREFERENCES_SMOKE");
         sendStruct.d[0] = b_overheat_mode_5;
         sendStruct.d[1] = b_overheat_mode_4;
         sendStruct.d[2] = b_overheat_mode_3;
@@ -84,6 +85,8 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
         sendStruct.d[9] = i_ms_overheat_initiate_mode_1;
       break;
     }
+
+    sendStruct.e = W_COM_END;
 
     wandComs.sendDatum(sendStruct);
   }
@@ -147,6 +150,16 @@ void checkPack() {
 
             // Send current preferences to the pack for use by the serial1 device.
             wandSerialSend(W_SEND_PREFERENCES_WAND);
+            wandSerialSend(W_SEND_PREFERENCES_SMOKE);
+          break;
+
+          case P_SEND_PREFERENCES_WAND:
+            // The pack wants the latest wand preferences.
+            wandSerialSend(W_SEND_PREFERENCES_WAND);
+          break;
+
+          case P_SEND_PREFERENCES_SMOKE:
+            // The pack wants the latest smoke preferences.
             wandSerialSend(W_SEND_PREFERENCES_SMOKE);
           break;
 

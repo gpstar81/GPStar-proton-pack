@@ -295,7 +295,7 @@ void setupRouting() {
   httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
   httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
-  httpServer.on("/style.css", HTTP_GET, handleStyle);
+  httpServer.on("/style.css", HTTP_GET, handleStylesheet);
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers

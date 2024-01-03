@@ -312,7 +312,6 @@ void packSerialSend(uint16_t i_message, uint16_t i_value) {
   sendStruct.s = P_COM_START;
   sendStruct.i = i_message;
   sendStruct.d1 = i_value;
-  sendStruct.e = P_COM_END;
 
   // Get the number of elements in the data array
   uint16_t arrayLength = sizeof(sendStruct.d) / sizeof(sendStruct.d[0]);
@@ -365,6 +364,8 @@ void packSerialSend(uint16_t i_message, uint16_t i_value) {
       // No-op for all other communications.
     break;
   }
+
+  sendStruct.e = P_COM_END;
 
   packComs.sendDatum(sendStruct);
 }
@@ -2927,6 +2928,8 @@ void checkWand() {
             break;
 
             case W_SEND_PREFERENCES_WAND:
+Serial.println("W_SEND_PREFERENCES_WAND");
+              // Preferences are received from the wand.
               wandConfig.ledWandCount = dataStruct.d[0];
               wandConfig.ledWandHue = dataStruct.d[1];
               wandConfig.ledWandSat = dataStruct.d[2];
@@ -2948,6 +2951,7 @@ void checkWand() {
             break;
 
             case W_SEND_PREFERENCES_SMOKE:
+              // Preferences are received from the wand.
               wandConfig.overheatLevel5 = dataStruct.d[0];
               wandConfig.overheatLevel4 = dataStruct.d[1];
               wandConfig.overheatLevel3 = dataStruct.d[2];
@@ -3287,6 +3291,16 @@ void checkSerial1() {
             case A_SEND_PREFERENCES_PACK:
               // If requested by the serial device, send back all EEPROM preferences.
               serial1Send(A_SEND_PREFERENCES_PACK);
+            break;
+
+            case A_SEND_PREFERENCES_WAND:
+              // If requested by the serial device, send back all EEPROM preferences.
+              serial1Send(A_SEND_PREFERENCES_WAND);
+            break;
+
+            case A_SEND_PREFERENCES_SMOKE:
+              // If requested by the serial device, send back all EEPROM preferences.
+              serial1Send(A_SEND_PREFERENCES_SMOKE);
             break;
 
             case A_SYNC_START:

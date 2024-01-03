@@ -7120,6 +7120,10 @@ void wandExitEEPROMMenu() {
 
   wandLightsOff();
   wandBarrelLightsOff();
+
+  // Send current preferences to the pack for use by the serial1 device.
+  wandSerialSend(W_SEND_PREFERENCES_WAND);
+  wandSerialSend(W_SEND_PREFERENCES_SMOKE);
 }
 
 // Barrel Wing Button is connected to analog pin 6.
