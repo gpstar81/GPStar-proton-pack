@@ -84,6 +84,10 @@ Serial.println("W_SEND_PREFERENCES_SMOKE");
         sendStruct.d[8] = i_ms_overheat_initiate_mode_2;
         sendStruct.d[9] = i_ms_overheat_initiate_mode_1;
       break;
+
+      default:
+        // No-op for all other actions.
+      break;
     }
 
     sendStruct.e = W_COM_END;
@@ -147,7 +151,7 @@ void checkPack() {
             if(b_switch_barrel_extended == true) {
               wandSerialSend(W_BARREL_EXTENDED);
             }
-
+Serial.println("P_SYNC_END");
             // Send current preferences to the pack for use by the serial1 device.
             wandSerialSend(W_SEND_PREFERENCES_WAND);
             wandSerialSend(W_SEND_PREFERENCES_SMOKE);
@@ -155,11 +159,13 @@ void checkPack() {
 
           case P_SEND_PREFERENCES_WAND:
             // The pack wants the latest wand preferences.
+Serial.println("P_SEND_PREFERENCES_WAND");
             wandSerialSend(W_SEND_PREFERENCES_WAND);
           break;
 
           case P_SEND_PREFERENCES_SMOKE:
             // The pack wants the latest smoke preferences.
+Serial.println("P_SEND_PREFERENCES_SMOKE");
             wandSerialSend(W_SEND_PREFERENCES_SMOKE);
           break;
 
