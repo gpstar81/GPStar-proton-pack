@@ -222,7 +222,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      getSettings();
+      // Wait for 1 second for serial communications between devices.
+      setTimeout(getSettings, 1000);
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])

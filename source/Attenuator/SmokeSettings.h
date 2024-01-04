@@ -44,16 +44,16 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 5</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Continuous Firing:</b>
+      <b class="labelSwitch">Overheat Enabled:</b>
       <label class="switch">
-        <input id="overheatContinuous5" name="overheatContinuous5" type="checkbox">
+        <input id="overheatLevel5" name="overheatLevel5" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Overheat Enabled:</b>
+      <b class="labelSwitch">Continuous Firing Smoke:</b>
       <label class="switch">
-        <input id="overheatLevel5" name="overheatLevel5" type="checkbox">
+        <input id="overheatContinuous5" name="overheatContinuous5" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -74,16 +74,16 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 4</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Continuous Firing:</b>
-      <label class="switch">
-        <input id="overheatContinuous4" name="overheatContinuous4" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
     <div class="setting">
       <b class="labelSwitch">Overheat Enabled:</b>
       <label class="switch">
         <input id="overheatLevel4" name="overheatLevel4" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+      <b class="labelSwitch">Continuous Firing Smoke:</b>
+      <label class="switch">
+        <input id="overheatContinuous4" name="overheatContinuous4" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -104,16 +104,16 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 3</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Continuous Firing:</b>
+      <b class="labelSwitch">Overheat Enabled:</b>
       <label class="switch">
-        <input id="overheatContinuous3" name="overheatContinuous3" type="checkbox">
+        <input id="overheatLevel3" name="overheatLevel3" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Overheat Enabled:</b>
+      <b class="labelSwitch">Continuous Firing Smoke:</b>
       <label class="switch">
-        <input id="overheatLevel3" name="overheatLevel3" type="checkbox">
+        <input id="overheatContinuous3" name="overheatContinuous3" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -134,16 +134,16 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 2</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Continuous Firing:</b>
+      <b class="labelSwitch">Overheat Enabled:</b>
       <label class="switch">
-        <input id="overheatContinuous2" name="overheatContinuous2" type="checkbox">
+        <input id="overheatLevel2" name="overheatLevel2" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Overheat Enabled:</b>
+      <b class="labelSwitch">Continuous Firing Smoke:</b>
       <label class="switch">
-        <input id="overheatLevel2" name="overheatLevel2" type="checkbox">
+        <input id="overheatContinuous2" name="overheatContinuous2" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -164,16 +164,16 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 1</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Continuous Firing:</b>
+      <b class="labelSwitch">Overheat Enabled:</b>
       <label class="switch">
-        <input id="overheatContinuous1" name="overheatContinuous1" type="checkbox">
+        <input id="overheatLevel1" name="overheatLevel1" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Overheat Enabled:</b>
+      <b class="labelSwitch">Continuous Firing Smoke:</b>
       <label class="switch">
-        <input id="overheatLevel1" name="overheatLevel1" type="checkbox">
+        <input id="overheatContinuous1" name="overheatContinuous1" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -204,7 +204,8 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      getSettings();
+      // Wait for 1 second for serial communications between devices.
+      setTimeout(getSettings, 1000);
     }
 
     function isJsonString(str) {
@@ -239,37 +240,37 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
 
             document.getElementById("overheatContinuous5").checked = settings.overheatContinuous5 || 0;
             document.getElementById("overheatLevel5").checked = settings.overheatLevel5 || 0;
-            document.getElementById("overheatDelay5").value = (settings.overheatDelay5 || 2) / 1000;
+            document.getElementById("overheatDelay5").value = settings.overheatDelay5 || 2;
             document.getElementById("delay5Out").innerHTML = document.getElementById("overheatDelay5").value;
-            document.getElementById("overheatDuration5").value = (settings.overheatDuration5 || 2) / 1000;
+            document.getElementById("overheatDuration5").value = settings.overheatDuration5 || 2;
             document.getElementById("duration5Out").innerHTML = document.getElementById("overheatDuration5").value;
-            
+
             document.getElementById("overheatContinuous4").checked = settings.overheatContinuous4 || 0;
             document.getElementById("overheatLevel4").checked = settings.overheatLevel4 || 0;
-            document.getElementById("overheatDelay4").value = (settings.overheatDelay4 || 2) / 1000;
+            document.getElementById("overheatDelay4").value = settings.overheatDelay4 || 2;
             document.getElementById("delay4Out").innerHTML = document.getElementById("overheatDelay5").value;
-            document.getElementById("overheatDuration4").value = (settings.overheatDuration4 || 2) / 1000;
+            document.getElementById("overheatDuration4").value = settings.overheatDuration4 || 2;
             document.getElementById("duration4Out").innerHTML = document.getElementById("overheatDuration4").value;
-            
+
             document.getElementById("overheatContinuous3").checked = settings.overheatContinuous3 || 0;
             document.getElementById("overheatLevel3").checked = settings.overheatLevel3 || 0;
-            document.getElementById("overheatDelay3").value = (settings.overheatDelay3 || 2) / 1000;
+            document.getElementById("overheatDelay3").value = settings.overheatDelay3 || 2;
             document.getElementById("delay3Out").innerHTML = document.getElementById("overheatDelay3").value;
-            document.getElementById("overheatDuration3").value = (settings.overheatDuration3 || 2) / 1000;
+            document.getElementById("overheatDuration3").value = settings.overheatDuration3 || 2;
             document.getElementById("duration3Out").innerHTML = document.getElementById("overheatDuration3").value;
-            
+
             document.getElementById("overheatContinuous2").checked = settings.overheatContinuous2 || 0;
             document.getElementById("overheatLevel2").checked = settings.overheatLevel2 || 0;
-            document.getElementById("overheatDelay2").value = (settings.overheatDelay2 || 2) / 1000;
+            document.getElementById("overheatDelay2").value = settings.overheatDelay2 || 2;
             document.getElementById("delay2Out").innerHTML = document.getElementById("overheatDelay2").value;
-            document.getElementById("overheatDuration2").value = (settings.overheatDuration2 || 2) / 1000;
+            document.getElementById("overheatDuration2").value = settings.overheatDuration2 || 2;
             document.getElementById("duration2Out").innerHTML = document.getElementById("overheatDuration2").value;
-            
+
             document.getElementById("overheatContinuous1").checked = settings.overheatContinuous1 || 0;
             document.getElementById("overheatLevel1").checked = settings.overheatLevel1 || 0;
-            document.getElementById("overheatDelay1").value = (settings.overheatDelay1 || 2) / 1000;
+            document.getElementById("overheatDelay1").value = settings.overheatDelay1 || 2;
             document.getElementById("delay1Out").innerHTML = document.getElementById("overheatDelay1").value;
-            document.getElementById("overheatDuration1").value = (settings.overheatDuration1 || 2) / 1000;
+            document.getElementById("overheatDuration1").value = settings.overheatDuration1 || 2;
             document.getElementById("duration1Out").innerHTML = document.getElementById("overheatDuration1").value;
           }
         }
@@ -282,11 +283,11 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to pack/wand, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
-        overheatDuration5: (document.getElementById("overheatDuration5").value || 0) * 1000,
-        overheatDuration4: (document.getElementById("overheatDuration4").value || 0) * 1000,
-        overheatDuration3: (document.getElementById("overheatDuration3").value || 0) * 1000,
-        overheatDuration2: (document.getElementById("overheatDuration2").value || 0) * 1000,
-        overheatDuration1: (document.getElementById("overheatDuration1").value || 0) * 1000,
+        overheatDuration5: document.getElementById("overheatDuration5").value || 2,
+        overheatDuration4: document.getElementById("overheatDuration4").value || 2,
+        overheatDuration3: document.getElementById("overheatDuration3").value || 2,
+        overheatDuration2: document.getElementById("overheatDuration2").value || 2,
+        overheatDuration1: document.getElementById("overheatDuration1").value || 2,
         overheatContinuous5: document.getElementById("overheatContinuous5").checked ? 1 : 0,
         overheatContinuous4: document.getElementById("overheatContinuous4").checked ? 1 : 0,
         overheatContinuous3: document.getElementById("overheatContinuous3").checked ? 1 : 0,
@@ -297,11 +298,11 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
         overheatLevel3: document.getElementById("overheatLevel3").checked ? 1 : 0,
         overheatLevel2: document.getElementById("overheatLevel2").checked ? 1 : 0,
         overheatLevel1: document.getElementById("overheatLevel1").checked ? 1 : 0,
-        overheatDelay5: (document.getElementById("overheatDelay5").value || 0) * 1000,
-        overheatDelay4: (document.getElementById("overheatDelay4").value || 0) * 1000,
-        overheatDelay3: (document.getElementById("overheatDelay3").value || 0) * 1000,
-        overheatDelay2: (document.getElementById("overheatDelay2").value || 0) * 1000,
-        overheatDelay1: (document.getElementById("overheatDelay1").value || 0) * 1000
+        overheatDelay5: document.getElementById("overheatDelay5").value || 2,
+        overheatDelay4: document.getElementById("overheatDelay4").value || 2,
+        overheatDelay3: document.getElementById("overheatDelay3").value || 2,
+        overheatDelay2: document.getElementById("overheatDelay2").value || 2,
+        overheatDelay1: document.getElementById("overheatDelay1").value || 2
       };
       var body = JSON.stringify(settings);
 
@@ -323,7 +324,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
           handleStatus(this.responseText);
         }
       };
-      xhttp.open("PUT", "/eeprom/smoke", true);
+      xhttp.open("PUT", "/eeprom/all", true);
       xhttp.send();
     }
   </script>
