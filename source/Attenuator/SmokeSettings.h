@@ -48,7 +48,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       <label class="switch">
         <input id="overheatLevel5" name="overheatLevel5" type="checkbox">
         <span class="slider round"></span>
-      </label>
+      </label>  
     </div>
     <div class="setting">
       <b class="labelSwitch">Continuous Firing Smoke:</b>
@@ -248,7 +248,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("overheatContinuous4").checked = settings.overheatContinuous4 || 0;
             document.getElementById("overheatLevel4").checked = settings.overheatLevel4 || 0;
             document.getElementById("overheatDelay4").value = settings.overheatDelay4 || 2;
-            document.getElementById("delay4Out").innerHTML = document.getElementById("overheatDelay5").value;
+            document.getElementById("delay4Out").innerHTML = document.getElementById("overheatDelay4").value;
             document.getElementById("overheatDuration4").value = settings.overheatDuration4 || 2;
             document.getElementById("duration4Out").innerHTML = document.getElementById("overheatDuration4").value;
 

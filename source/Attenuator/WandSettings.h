@@ -316,7 +316,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       var settings = {
         ledWandCount: parseInt(document.getElementById("ledWandCount").value || 5, 10),
         ledWandHue: convertRange(parseInt(document.getElementById("ledWandHue").value || 360, 10), [0,360], [1,254]),
-        ledWandSat: convertRange(parseInt(document.getElementById("ledWandSat").value || 360, 10), [0,360], [1,254]),
+        ledWandSat: convertRange(parseInt(document.getElementById("ledWandSat").value || 100, 10), [0,100], [1,254]),
         spectralModeEnabled: document.getElementById("spectralModeEnabled").checked ? 1 : 0,
         spectralHolidayMode: document.getElementById("spectralHolidayMode").checked ? 1 : 0,
         overheatEnabled: document.getElementById("overheatEnabled").checked ? 1 : 0,

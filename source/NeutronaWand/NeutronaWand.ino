@@ -6115,7 +6115,7 @@ void wandBarrelSpectralCustomConfigOn() {
 void overheatVoiceIndicator(unsigned int i_tmp_length) {
   i_tmp_length = i_tmp_length / i_overheat_delay_increment;
 
-  unsigned int i_tmp_sound = (S_1 - 1) + i_tmp_length;
+  uint16_t i_tmp_sound = (S_1 - 1) + i_tmp_length;
 
   stopEffect(i_tmp_sound - 1);
   stopEffect(i_tmp_sound);

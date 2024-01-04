@@ -2935,26 +2935,24 @@ void checkWand() {
             case W_SEND_PREFERENCES_WAND:
 Serial.println("W_SEND_PREFERENCES_WAND");
               // Preferences are received from the wand.
-              wandConfig.ledWandCount = dataStruct.d[0];
-Serial.println("WandLED: " + String(dataStruct.d[0]));
-Serial.println("WandLED: " + String(wandConfig.ledWandCount));
-              wandConfig.ledWandHue = dataStruct.d[1];
-              wandConfig.ledWandSat = dataStruct.d[2];
-              wandConfig.spectralModeEnabled = dataStruct.d[3];
-              wandConfig.spectralHolidayMode = dataStruct.d[4];
-              wandConfig.overheatEnabled = dataStruct.d[5];
-              wandConfig.defaultFiringMode = dataStruct.d[6];
-              wandConfig.wandSoundsToPack = dataStruct.d[7];
-              wandConfig.quickVenting = dataStruct.d[8];
-              wandConfig.autoVentLight = dataStruct.d[9];
-              wandConfig.wandBeepLoop = dataStruct.d[10];
-              wandConfig.wandBootError = dataStruct.d[11];
-              wandConfig.defaultYearModeWand = dataStruct.d[12];
-              wandConfig.defaultYearModeCTS = dataStruct.d[13];
-              wandConfig.invertWandBargraph = dataStruct.d[14];
-              wandConfig.bargraphOverheatBlink = dataStruct.d[15];
-              wandConfig.bargraphIdleAnimation = dataStruct.d[16];
-              wandConfig.bargraphFireAnimation = dataStruct.d[17];
+              wandConfig.ledWandCount = comStruct.d[0];
+              wandConfig.ledWandHue = comStruct.d[1];
+              wandConfig.ledWandSat = comStruct.d[2];
+              wandConfig.spectralModeEnabled = comStruct.d[3];
+              wandConfig.spectralHolidayMode = comStruct.d[4];
+              wandConfig.overheatEnabled = comStruct.d[5];
+              wandConfig.defaultFiringMode = comStruct.d[6];
+              wandConfig.wandSoundsToPack = comStruct.d[7];
+              wandConfig.quickVenting = comStruct.d[8];
+              wandConfig.autoVentLight = comStruct.d[9];
+              wandConfig.wandBeepLoop = comStruct.d[10];
+              wandConfig.wandBootError = comStruct.d[11];
+              wandConfig.defaultYearModeWand = comStruct.d[12];
+              wandConfig.defaultYearModeCTS = comStruct.d[13];
+              wandConfig.invertWandBargraph = comStruct.d[14];
+              wandConfig.bargraphOverheatBlink = comStruct.d[15];
+              wandConfig.bargraphIdleAnimation = comStruct.d[16];
+              wandConfig.bargraphFireAnimation = comStruct.d[17];
 
               // Return the EEPROM preferences just returned by the wand.
               serial1Send(A_SEND_PREFERENCES_WAND);
@@ -2963,16 +2961,16 @@ Serial.println("WandLED: " + String(wandConfig.ledWandCount));
             case W_SEND_PREFERENCES_SMOKE:
 Serial.println("W_SEND_PREFERENCES_SMOKE");
               // Preferences are received from the wand.
-              wandConfig.overheatLevel5 = dataStruct.d[0];
-              wandConfig.overheatLevel4 = dataStruct.d[1];
-              wandConfig.overheatLevel3 = dataStruct.d[2];
-              wandConfig.overheatLevel2 = dataStruct.d[3];
-              wandConfig.overheatLevel1 = dataStruct.d[4];
-              wandConfig.overheatDelay5 = dataStruct.d[5];
-              wandConfig.overheatDelay4 = dataStruct.d[6];
-              wandConfig.overheatDelay3 = dataStruct.d[7];
-              wandConfig.overheatDelay2 = dataStruct.d[8];
-              wandConfig.overheatDelay1 = dataStruct.d[9];
+              wandConfig.overheatLevel5 = comStruct.d[0];
+              wandConfig.overheatLevel4 = comStruct.d[1];
+              wandConfig.overheatLevel3 = comStruct.d[2];
+              wandConfig.overheatLevel2 = comStruct.d[3];
+              wandConfig.overheatLevel1 = comStruct.d[4];
+              wandConfig.overheatDelay5 = comStruct.d[5];
+              wandConfig.overheatDelay4 = comStruct.d[6];
+              wandConfig.overheatDelay3 = comStruct.d[7];
+              wandConfig.overheatDelay2 = comStruct.d[8];
+              wandConfig.overheatDelay1 = comStruct.d[9];
 
               // Return the EEPROM preferences just returned by the wand.
               serial1Send(A_SEND_PREFERENCES_SMOKE);
@@ -3412,23 +3410,77 @@ Serial.println("A_SEND_PREFERENCES_SMOKE");
               resetRampSpeeds();
 
               // Offer some feedback to the user
-              stopEffect(S_BEEPS_ALT);
-              playEffect(S_BEEPS_ALT);
+              stopEffect(S_VENT_DRY);
+              playEffect(S_VENT_DRY);
             break;
 
             case A_SAVE_PREFERENCES_WAND:
               // Send latest preferences from serial1 web UI back to wand
+Serial.println("A_SAVE_PREFERENCES_WAND");
+              wandConfig.ledWandCount = dataStructR.d[0];
+              wandConfig.ledWandHue = dataStructR.d[1];
+              wandConfig.ledWandSat = dataStructR.d[2];
+              wandConfig.spectralModeEnabled = dataStructR.d[3];
+              wandConfig.spectralHolidayMode = dataStructR.d[4];
+              wandConfig.overheatEnabled = dataStructR.d[5];
+              wandConfig.defaultFiringMode = dataStructR.d[6];
+              wandConfig.wandSoundsToPack = dataStructR.d[7];
+              wandConfig.quickVenting = dataStructR.d[8];
+              wandConfig.autoVentLight = dataStructR.d[9];
+              wandConfig.wandBeepLoop = dataStructR.d[10];
+              wandConfig.wandBootError = dataStructR.d[11];
+              wandConfig.defaultYearModeWand = dataStructR.d[12];
+              wandConfig.defaultYearModeCTS = dataStructR.d[13];
+              wandConfig.invertWandBargraph = dataStructR.d[14];
+              wandConfig.bargraphOverheatBlink = dataStructR.d[15];
+              wandConfig.bargraphIdleAnimation = dataStructR.d[16];
+              wandConfig.bargraphFireAnimation = dataStructR.d[17];
+
               // This will pass select values from the wandConfig object
               packSerialSend(P_SAVE_PREFERENCES_WAND);
+
+              // Offer some feedback to the user
+              stopEffect(S_VENT_DRY);
+              playEffect(S_VENT_DRY);
             break;
 
             case A_SAVE_PREFERENCES_SMOKE:
               // Save local and remote (wand) smoke timing settings
+Serial.println("A_SAVE_PREFERENCES_SMOKE");
+              i_ms_overheating_length_5 = dataStruct.d[0] * 1000;
+              i_ms_overheating_length_4 = dataStruct.d[1] * 1000;
+              i_ms_overheating_length_3 = dataStruct.d[2] * 1000;
+              i_ms_overheating_length_2 = dataStruct.d[3] * 1000;
+              i_ms_overheating_length_1 = dataStruct.d[4] * 1000;
+
+              b_smoke_continuous_mode_5 = dataStruct.d[5];
+              b_smoke_continuous_mode_4 = dataStruct.d[6];
+              b_smoke_continuous_mode_3 = dataStruct.d[7];
+              b_smoke_continuous_mode_2 = dataStruct.d[8];
+              b_smoke_continuous_mode_1 = dataStruct.d[9];
+
+              wandConfig.overheatLevel5 = dataStructR.d[10];
+              wandConfig.overheatLevel4 = dataStructR.d[11];
+              wandConfig.overheatLevel3 = dataStructR.d[12];
+              wandConfig.overheatLevel2 = dataStructR.d[13];
+              wandConfig.overheatLevel1 = dataStructR.d[14];
+
+              wandConfig.overheatDelay5 = dataStructR.d[15];
+              wandConfig.overheatDelay4 = dataStructR.d[16];
+              wandConfig.overheatDelay3 = dataStructR.d[17];
+              wandConfig.overheatDelay2 = dataStructR.d[18];
+              wandConfig.overheatDelay1 = dataStructR.d[19];
+
               // This will pass select values from the wandConfig object
               packSerialSend(P_SAVE_PREFERENCES_SMOKE);
+
+              // Offer some feedback to the user
+              stopEffect(S_VENT_SMOKE);
+              playEffect(S_VENT_SMOKE);
             break;
 
             case A_SAVE_EEPROM_SETTINGS_PACK:
+Serial.println("A_SAVE_EEPROM_SETTINGS_PACK");
               // Commit changes to the EEPROM in the pack controller
               saveLedEEPROM();
               saveConfigEEPROM();
@@ -3437,6 +3489,7 @@ Serial.println("A_SEND_PREFERENCES_SMOKE");
             break;
 
             case A_SAVE_EEPROM_SETTINGS_WAND:
+Serial.println("A_SAVE_EEPROM_SETTINGS_WAND");
               // Commit changes to the EEPROM on the wand controller
               packSerialSend(P_SAVE_EEPROM_WAND);
             break;
