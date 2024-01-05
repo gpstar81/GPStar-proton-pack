@@ -76,8 +76,6 @@ Serial.println("W_SEND_PREFERENCES_WAND");
 Serial.println("W_SEND_PREFERENCES_SMOKE");
         // Determines whether overheating is enabled for a power level.
         sendStruct.d[0] = b_overheat_mode_5;
-Serial.println(sendStruct.d[0]);
-Serial.println(b_overheat_mode_5);
         sendStruct.d[1] = b_overheat_mode_4;
         sendStruct.d[2] = b_overheat_mode_3;
         sendStruct.d[3] = b_overheat_mode_2;
@@ -85,8 +83,6 @@ Serial.println(b_overheat_mode_5);
 
         // Time (seconds) before an overheat event takes place by level.
         sendStruct.d[5] = i_ms_overheat_initiate_mode_5 / 1000;
-Serial.println(sendStruct.d[5]);
-Serial.println(i_ms_overheat_initiate_mode_5 / 1000);
         sendStruct.d[6] = i_ms_overheat_initiate_mode_4 / 1000;
         sendStruct.d[7] = i_ms_overheat_initiate_mode_3 / 1000;
         sendStruct.d[8] = i_ms_overheat_initiate_mode_2 / 1000;
