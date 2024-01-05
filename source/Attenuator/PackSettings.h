@@ -74,13 +74,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Smoke Effects:</b>
-      <label class="switch">
-        <input id="smokeEnabled" name="smokeEnabled" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
-    <div class="setting">
       <b class="labelSwitch">Strobe N-Filter on Overheat:</b>
       <label class="switch">
         <input id="overheatStrobeNF" name="overheatStrobeNF" type="checkbox">
@@ -309,7 +302,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("defaultSystemVolume").value = settings.defaultSystemVolume || 100; // Default to full volume.
             document.getElementById("masterVolOut").innerHTML = document.getElementById("defaultSystemVolume").value;
             document.getElementById("protonStreamEffects").checked = settings.protonStreamEffects || 0;
-            document.getElementById("smokeEnabled").checked = settings.smokeEnabled ? true: false;
             document.getElementById("overheatStrobeNF").checked = settings.overheatStrobeNF ? true: false;
             document.getElementById("overheatLightsOff").checked = settings.overheatLightsOff ? true: false;
             document.getElementById("overheatSyncToFan").checked = settings.overheatSyncToFan ? true: false;
@@ -352,7 +344,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         defaultYearThemePack: parseInt(document.getElementById("defaultYearThemePack").value || 1, 10),
         defaultSystemVolume: parseInt(document.getElementById("defaultSystemVolume").value || 0, 10),
         protonStreamEffects: document.getElementById("protonStreamEffects").checked ? 1 : 0,
-        smokeEnabled: document.getElementById("smokeEnabled").checked ? 1 : 0,
         overheatStrobeNF: document.getElementById("overheatStrobeNF").checked ? 1 : 0,
         overheatLightsOff: document.getElementById("overheatLightsOff").checked ? 1 : 0,
         overheatSyncToFan: document.getElementById("overheatSyncToFan").checked ? 1 : 0,

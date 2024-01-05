@@ -24,7 +24,7 @@ struct __attribute__((packed)) MessagePacket {
   uint16_t s;
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
-  uint8_t d[25]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[22]; // Reserved for large data packets (eg. EEPROM configs)
   uint16_t e;
 };
 

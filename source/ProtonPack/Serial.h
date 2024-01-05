@@ -29,7 +29,7 @@ struct __attribute__((packed)) MessagePacket {
   uint16_t s;
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
-  uint8_t d[25]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[22]; // Reserved for large data packets (eg. EEPROM configs)
   uint16_t e;
 };
 
@@ -210,32 +210,31 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
       dataStruct.d[1] = SYSTEM_YEAR;
       dataStruct.d[2] = i_volume_master_percentage;
       dataStruct.d[3] = b_stream_effects;
-      dataStruct.d[4] = b_smoke_enabled;
-      dataStruct.d[5] = b_overheat_strobe;
-      dataStruct.d[6] = b_overheat_lights_off;
-      dataStruct.d[7] = b_overheat_sync_to_fan;
-      dataStruct.d[8] = b_demo_light_mode;
+      dataStruct.d[4] = b_overheat_strobe;
+      dataStruct.d[5] = b_overheat_lights_off;
+      dataStruct.d[6] = b_overheat_sync_to_fan;
+      dataStruct.d[7] = b_demo_light_mode;
 
       // Cyclotron Lid
-      dataStruct.d[9] = i_cyclotron_leds;
-      dataStruct.d[10] = i_spectral_cyclotron_custom_colour;
-      dataStruct.d[11] = i_spectral_cyclotron_custom_saturation;
-      dataStruct.d[12] = b_clockwise; // Cyclotron Direction
-      dataStruct.d[13] = b_cyclotron_single_led;
-      dataStruct.d[14] = b_cyclotron_colour_toggle;
-      dataStruct.d[15] = b_cyclotron_simulate_ring;
+      dataStruct.d[8] = i_cyclotron_leds;
+      dataStruct.d[9] = i_spectral_cyclotron_custom_colour;
+      dataStruct.d[10] = i_spectral_cyclotron_custom_saturation;
+      dataStruct.d[11] = b_clockwise; // Cyclotron Direction
+      dataStruct.d[12] = b_cyclotron_single_led;
+      dataStruct.d[13] = b_cyclotron_colour_toggle;
+      dataStruct.d[14] = b_cyclotron_simulate_ring;
 
       // Inner Cyclotron
-      dataStruct.d[16] = i_inner_cyclotron_num_leds;
-      dataStruct.d[17] = i_spectral_cyclotron_inner_custom_colour;
-      dataStruct.d[18] = i_spectral_cyclotron_inner_custom_saturation;
-      dataStruct.d[19] = b_grb_cyclotron;
+      dataStruct.d[15] = i_inner_cyclotron_num_leds;
+      dataStruct.d[16] = i_spectral_cyclotron_inner_custom_colour;
+      dataStruct.d[17] = i_spectral_cyclotron_inner_custom_saturation;
+      dataStruct.d[18] = b_grb_cyclotron;
 
       // Power Cell
-      dataStruct.d[20] = i_powercell_leds;
-      dataStruct.d[21] = i_spectral_powercell_custom_colour;
-      dataStruct.d[22] = i_spectral_powercell_custom_saturation;
-      dataStruct.d[23] = b_powercell_colour_toggle;
+      dataStruct.d[19] = i_powercell_leds;
+      dataStruct.d[20] = i_spectral_powercell_custom_colour;
+      dataStruct.d[21] = i_spectral_powercell_custom_saturation;
+      dataStruct.d[22] = b_powercell_colour_toggle;
     break;
 
     case A_SEND_PREFERENCES_WAND:
@@ -291,6 +290,9 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
       dataStruct.d[17] = wandConfig.overheatDelay3;
       dataStruct.d[18] = wandConfig.overheatDelay2;
       dataStruct.d[19] = wandConfig.overheatDelay1;
+
+      // Enable or disable smoke effects overall.
+      dataStruct.d[20] = b_smoke_enabled;
     break;
 
     default:
@@ -3364,32 +3366,31 @@ Serial.println("A_SEND_PREFERENCES_SMOKE");
               }
               i_volume_master_percentage = dataStructR.d[2];
               b_stream_effects = dataStructR.d[3];
-              b_smoke_enabled = dataStructR.d[4];
-              b_overheat_strobe = dataStructR.d[5];
-              b_overheat_lights_off = dataStructR.d[6];
-              b_overheat_sync_to_fan = dataStructR.d[7];
-              b_demo_light_mode = dataStructR.d[8];
+              b_overheat_strobe = dataStructR.d[4];
+              b_overheat_lights_off = dataStructR.d[5];
+              b_overheat_sync_to_fan = dataStructR.d[6];
+              b_demo_light_mode = dataStructR.d[7];
 
               // Cyclotron Lid
-              i_cyclotron_leds = dataStructR.d[9];
-              i_spectral_cyclotron_custom_colour = dataStructR.d[10];
-              i_spectral_cyclotron_custom_saturation = dataStructR.d[11];
-              b_clockwise = dataStructR.d[12]; // Cyclotron Direction
-              b_cyclotron_single_led = dataStructR.d[13];
-              b_cyclotron_colour_toggle = dataStructR.d[14];
-              b_cyclotron_simulate_ring = dataStructR.d[15];
+              i_cyclotron_leds = dataStructR.d[8];
+              i_spectral_cyclotron_custom_colour = dataStructR.d[9];
+              i_spectral_cyclotron_custom_saturation = dataStructR.d[10];
+              b_clockwise = dataStructR.d[11]; // Cyclotron Direction
+              b_cyclotron_single_led = dataStructR.d[12];
+              b_cyclotron_colour_toggle = dataStructR.d[13];
+              b_cyclotron_simulate_ring = dataStructR.d[14];
 
               // Inner Cyclotron
-              i_inner_cyclotron_num_leds = dataStructR.d[16];
-              i_spectral_cyclotron_inner_custom_colour = dataStructR.d[17];
-              i_spectral_cyclotron_inner_custom_saturation = dataStructR.d[18];
-              b_grb_cyclotron = dataStructR.d[19];
+              i_inner_cyclotron_num_leds = dataStructR.d[15];
+              i_spectral_cyclotron_inner_custom_colour = dataStructR.d[16];
+              i_spectral_cyclotron_inner_custom_saturation = dataStructR.d[17];
+              b_grb_cyclotron = dataStructR.d[18];
 
               // Power Cell
-              i_powercell_leds = dataStructR.d[20];
-              i_spectral_powercell_custom_colour = dataStructR.d[21];
-              i_spectral_powercell_custom_saturation = dataStructR.d[22];
-              b_powercell_colour_toggle = dataStructR.d[23];
+              i_powercell_leds = dataStructR.d[19];
+              i_spectral_powercell_custom_colour = dataStructR.d[20];
+              i_spectral_powercell_custom_saturation = dataStructR.d[21];
+              b_powercell_colour_toggle = dataStructR.d[22];
 
               // Push changes to connected devices and reset related variables
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
@@ -3460,6 +3461,8 @@ Serial.println("A_SAVE_PREFERENCES_SMOKE");
               wandConfig.overheatDelay3 = dataStructR.d[17];
               wandConfig.overheatDelay2 = dataStructR.d[18];
               wandConfig.overheatDelay1 = dataStructR.d[19];
+
+              b_smoke_enabled = dataStructR.d[20];
 
               // This will pass select values from the wandConfig object
               packSerialSend(P_SAVE_PREFERENCES_SMOKE);

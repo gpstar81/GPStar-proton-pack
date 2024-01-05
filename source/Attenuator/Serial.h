@@ -36,7 +36,7 @@ struct __attribute__((packed)) DataPacket {
   uint16_t s;
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
-  uint8_t d[25]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[22]; // Reserved for large data packets (eg. EEPROM configs)
   uint16_t e;
 };
 
@@ -51,7 +51,6 @@ struct PackPrefs {
   uint8_t cyclotronDirection;
   uint8_t demoLightMode;
   uint8_t protonStreamEffects;
-  uint8_t smokeEnabled;
   uint8_t overheatStrobeNF;
   uint8_t overheatSyncToFan;
   uint8_t overheatLightsOff;
@@ -94,6 +93,7 @@ struct WandPrefs {
 
 struct SmokePrefs {
   // Pack
+  uint8_t smokeEnabled;
   uint8_t overheatContinuous5;
   uint8_t overheatContinuous4;
   uint8_t overheatContinuous3;
@@ -142,7 +142,6 @@ void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
       sendStruct.d[1] = packConfig.defaultYearThemePack;
       sendStruct.d[2] = packConfig.defaultSystemVolume;
       sendStruct.d[3] = packConfig.protonStreamEffects;
-      sendStruct.d[4] = packConfig.smokeEnabled;
       sendStruct.d[5] = packConfig.overheatStrobeNF;
       sendStruct.d[6] = packConfig.overheatLightsOff;
       sendStruct.d[7] = packConfig.overheatSyncToFan;
@@ -231,6 +230,8 @@ void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
       sendStruct.d[17] = smokeConfig.overheatDelay3;
       sendStruct.d[18] = smokeConfig.overheatDelay2;
       sendStruct.d[19] = smokeConfig.overheatDelay1;
+
+      sendStruct.d[20] = smokeConfig.smokeEnabled;
     break;
 
     default:
@@ -821,29 +822,28 @@ boolean checkPack() {
             packConfig.defaultYearThemePack = comStruct.d[1];
             packConfig.defaultSystemVolume = comStruct.d[2];
             packConfig.protonStreamEffects = comStruct.d[3];
-            packConfig.smokeEnabled = comStruct.d[4];
-            packConfig.overheatStrobeNF = comStruct.d[5];
-            packConfig.overheatLightsOff = comStruct.d[6];
-            packConfig.overheatSyncToFan = comStruct.d[7];
-            packConfig.demoLightMode = comStruct.d[8];
+            packConfig.overheatStrobeNF = comStruct.d[4];
+            packConfig.overheatLightsOff = comStruct.d[5];
+            packConfig.overheatSyncToFan = comStruct.d[6];
+            packConfig.demoLightMode = comStruct.d[7];
 
-            packConfig.ledCycLidCount = comStruct.d[9];
-            packConfig.ledCycLidHue = comStruct.d[10];
-            packConfig.ledCycLidSat = comStruct.d[11];
-            packConfig.cyclotronDirection = comStruct.d[12];
-            packConfig.ledCycLidCenter = comStruct.d[13];
-            packConfig.ledVGCyclotron = comStruct.d[14];
-            packConfig.ledCycLidSimRing = comStruct.d[15];
+            packConfig.ledCycLidCount = comStruct.d[8];
+            packConfig.ledCycLidHue = comStruct.d[9];
+            packConfig.ledCycLidSat = comStruct.d[10];
+            packConfig.cyclotronDirection = comStruct.d[11];
+            packConfig.ledCycLidCenter = comStruct.d[12];
+            packConfig.ledVGCyclotron = comStruct.d[13];
+            packConfig.ledCycLidSimRing = comStruct.d[14];
 
-            packConfig.ledCycCakeCount = comStruct.d[16];
-            packConfig.ledCycCakeHue = comStruct.d[17];
-            packConfig.ledCycCakeSat = comStruct.d[18];
-            packConfig.ledCycCakeGRB = comStruct.d[19];
+            packConfig.ledCycCakeCount = comStruct.d[15];
+            packConfig.ledCycCakeHue = comStruct.d[16];
+            packConfig.ledCycCakeSat = comStruct.d[17];
+            packConfig.ledCycCakeGRB = comStruct.d[18];
 
-            packConfig.ledPowercellCount = comStruct.d[20];
-            packConfig.ledPowercellHue = comStruct.d[21];
-            packConfig.ledPowercellSat = comStruct.d[22];
-            packConfig.ledVGPowercell = comStruct.d[23];
+            packConfig.ledPowercellCount = comStruct.d[19];
+            packConfig.ledPowercellHue = comStruct.d[20];
+            packConfig.ledPowercellSat = comStruct.d[21];
+            packConfig.ledVGPowercell = comStruct.d[22];
           break;
 
           case A_SEND_PREFERENCES_WAND:
@@ -909,6 +909,8 @@ boolean checkPack() {
             smokeConfig.overheatDelay3 = comStruct.d[17];
             smokeConfig.overheatDelay2 = comStruct.d[18];
             smokeConfig.overheatDelay1 = comStruct.d[19];
+
+            smokeConfig.smokeEnabled = comStruct.d[20];
           break;
 
           default:

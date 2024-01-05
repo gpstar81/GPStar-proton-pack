@@ -41,6 +41,17 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
     <br/>
   </div>
 
+  <h1>General Options</h1>
+  <div class="block left">
+    <div class="setting">
+      <b class="labelSwitch">Enable Smoke Effects:</b>
+      <label class="switch">
+        <input id="smokeEnabled" name="smokeEnabled" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
+
   <h1>Power Level 5</h1>
   <div class="block left">
     <div class="setting">
@@ -238,6 +249,8 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
               alert("Pack and/or Wand are currently powered up. Changes to settings will not be allowed. Turn off system via toggle switches and reload the page to obtain the latest settings.");
             }
 
+            document.getElementById("smokeEnabled").checked = settings.smokeEnabled ? true: false;
+
             document.getElementById("overheatContinuous5").checked = settings.overheatContinuous5 || 0;
             document.getElementById("overheatLevel5").checked = settings.overheatLevel5 || 0;
             document.getElementById("overheatDelay5").value = settings.overheatDelay5 || 2;
@@ -283,6 +296,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to pack/wand, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
+        smokeEnabled: document.getElementById("smokeEnabled").checked ? 1 : 0,
         overheatDuration5: document.getElementById("overheatDuration5").value || 2,
         overheatDuration4: document.getElementById("overheatDuration4").value || 2,
         overheatDuration3: document.getElementById("overheatDuration3").value || 2,

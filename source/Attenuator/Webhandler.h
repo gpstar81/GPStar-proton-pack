@@ -93,7 +93,6 @@ String getPackConfig() {
     jsonDoc["defaultYearThemePack"] = packConfig.defaultYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
     jsonDoc["defaultSystemVolume"] = packConfig.defaultSystemVolume; // 0-100
     jsonDoc["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
-    jsonDoc["smokeEnabled"] = packConfig.smokeEnabled; // true|false
     jsonDoc["overheatStrobeNF"] = packConfig.overheatStrobeNF; // true|false
     jsonDoc["overheatLightsOff"] = packConfig.overheatLightsOff; // true|false
     jsonDoc["overheatSyncToFan"] = packConfig.overheatSyncToFan;// true|false
@@ -171,6 +170,7 @@ String getSmokeConfig() {
     jsonDoc["wandPowered"] = (b_wand_on ? true : false);
 
     // Proton Pack
+    jsonDoc["smokeEnabled"] = smokeConfig.smokeEnabled; // true|false
 
     // Power Level 5
     jsonDoc["overheatDuration5"] = smokeConfig.overheatDuration5; // 2-60
@@ -418,7 +418,6 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
     packConfig.defaultYearThemePack = jsonBody["defaultYearThemePack"];
     packConfig.defaultSystemVolume = jsonBody["defaultSystemVolume"];
     packConfig.protonStreamEffects = jsonBody["protonStreamEffects"];
-    packConfig.smokeEnabled = jsonBody["smokeEnabled"];
     packConfig.overheatStrobeNF = jsonBody["overheatStrobeNF"];
     packConfig.overheatLightsOff = jsonBody["overheatLightsOff"];
     packConfig.overheatSyncToFan = jsonBody["overheatSyncToFan"];
@@ -520,6 +519,8 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
 
   String result;
   if(!b_pack_on && !b_wand_on) {
+    smokeConfig.smokeEnabled = jsonBody["smokeEnabled"];
+
     smokeConfig.overheatDuration5 = jsonBody["overheatDuration5"];
     smokeConfig.overheatDuration4 = jsonBody["overheatDuration4"];
     smokeConfig.overheatDuration3 = jsonBody["overheatDuration3"];
