@@ -178,18 +178,32 @@ void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
       sendStruct.d[3] = wandConfig.spectralModeEnabled;
       sendStruct.d[4] = wandConfig.spectralHolidayMode;
       sendStruct.d[5] = wandConfig.overheatEnabled;
-      sendStruct.d[6] = wandConfig.defaultFiringMode;
-      sendStruct.d[7] = wandConfig.wandSoundsToPack;
-      sendStruct.d[8] = wandConfig.quickVenting;
-      sendStruct.d[9] = wandConfig.autoVentLight;
-      sendStruct.d[10] = wandConfig.wandBeepLoop;
-      sendStruct.d[11] = wandConfig.wandBootError;
-      sendStruct.d[12] = wandConfig.defaultYearModeWand;
-      sendStruct.d[13] = wandConfig.defaultYearModeCTS;
-      sendStruct.d[14] = wandConfig.invertWandBargraph;
-      sendStruct.d[15] = wandConfig.bargraphOverheatBlink;
-      sendStruct.d[16] = wandConfig.bargraphIdleAnimation;
-      sendStruct.d[17] = wandConfig.bargraphFireAnimation;
+      switch(wandConfig.defaultFiringMode) {
+        case 3:
+          sendStruct.d[6] = 1; // CTS
+          sendStruct.d[7] = 1; // CTS Mix
+        break;
+        case 2:
+          sendStruct.d[6] = 1; // CTS
+          sendStruct.d[7] = 0; // CTS Mix
+        break;
+        case 1:
+        default:
+          sendStruct.d[6] = 0; // CTS
+          sendStruct.d[7] = 0; // CTS Mix
+        break;
+      }
+      sendStruct.d[8] = wandConfig.wandSoundsToPack;
+      sendStruct.d[9] = wandConfig.quickVenting;
+      sendStruct.d[10] = wandConfig.autoVentLight;
+      sendStruct.d[11] = wandConfig.wandBeepLoop;
+      sendStruct.d[12] = wandConfig.wandBootError;
+      sendStruct.d[13] = wandConfig.defaultYearModeWand;
+      sendStruct.d[14] = wandConfig.defaultYearModeCTS;
+      sendStruct.d[15] = wandConfig.invertWandBargraph;
+      sendStruct.d[16] = wandConfig.bargraphOverheatBlink;
+      sendStruct.d[17] = wandConfig.bargraphIdleAnimation;
+      sendStruct.d[18] = wandConfig.bargraphFireAnimation;
     break;
 
     case A_SAVE_PREFERENCES_SMOKE:
@@ -844,18 +858,26 @@ boolean checkPack() {
             wandConfig.spectralModeEnabled = comStruct.d[3];
             wandConfig.spectralHolidayMode = comStruct.d[4];
             wandConfig.overheatEnabled = comStruct.d[5];
-            wandConfig.defaultFiringMode = comStruct.d[6];
-            wandConfig.wandSoundsToPack = comStruct.d[7];
-            wandConfig.quickVenting = comStruct.d[8];
-            wandConfig.autoVentLight = comStruct.d[9];
-            wandConfig.wandBeepLoop = comStruct.d[10];
-            wandConfig.wandBootError = comStruct.d[11];
-            wandConfig.defaultYearModeWand = comStruct.d[12];
-            wandConfig.defaultYearModeCTS = comStruct.d[13];
-            wandConfig.invertWandBargraph = comStruct.d[14];
-            wandConfig.bargraphOverheatBlink = comStruct.d[15];
-            wandConfig.bargraphIdleAnimation = comStruct.d[16];
-            wandConfig.bargraphFireAnimation = comStruct.d[17];
+            if(comStruct.d[6] == 1 && comStruct.d[7] == 1) {
+              wandConfig.defaultFiringMode = 3; // CTS Mix
+            }
+            else if(comStruct.d[6] == 1 && comStruct.d[7] == 0) {
+              wandConfig.defaultFiringMode = 2; // CTS
+            }
+            else {
+              wandConfig.defaultFiringMode = 1; // VG
+            }
+            wandConfig.wandSoundsToPack = comStruct.d[8];
+            wandConfig.quickVenting = comStruct.d[9];
+            wandConfig.autoVentLight = comStruct.d[10];
+            wandConfig.wandBeepLoop = comStruct.d[11];
+            wandConfig.wandBootError = comStruct.d[12];
+            wandConfig.defaultYearModeWand = comStruct.d[13];
+            wandConfig.defaultYearModeCTS = comStruct.d[14];
+            wandConfig.invertWandBargraph = comStruct.d[15];
+            wandConfig.bargraphOverheatBlink = comStruct.d[16];
+            wandConfig.bargraphIdleAnimation = comStruct.d[17];
+            wandConfig.bargraphFireAnimation = comStruct.d[18];
           break;
 
           case A_SEND_PREFERENCES_SMOKE:

@@ -247,9 +247,9 @@ millisDelay ms_music_status_check;
 /*
  *  Volume (0 = loudest, -70 = quietest)
  */
-int i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
-int i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-int i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
+uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
+uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
+uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
 int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.

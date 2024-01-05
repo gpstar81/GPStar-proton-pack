@@ -46,9 +46,9 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Default Firing Mode:</b>
       <select id="defaultFiringMode" name="defaultFiringMode">
-        <option value="0">Video Game Modes</option>
-        <option value="1">Cross the Streams</option>
-        <option value="2">System Mode/Theme</option>
+        <option value="1">Video Game Modes</option>
+        <option value="2">Cross the Streams</option>
+        <option value="3">Cross the Streams Mix</option>
       </select>
     </div>
     <div class="setting">
@@ -141,9 +141,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Idle Animation:</b>
       <select id="bargraphIdleAnimation" name="bargraphIdleAnimation">
-        <option value="1">Default</option>
-        <option value="2">Super Hero</option>
-        <option value="3">Mode Original</option>
+        <option value="1">Super Hero</option>
+        <option value="2">Mode Original</option>
       </select>
     </div>
     <div class="setting">

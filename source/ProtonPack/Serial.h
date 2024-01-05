@@ -181,13 +181,8 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
   dataStruct.i = i_message;
   dataStruct.d1 = i_value;
 
-  // Get the number of elements in the data array
-  uint16_t arrayLength = sizeof(dataStruct.d) / sizeof(dataStruct.d[0]);
-
-  // Set each element of the data array to 0
-  for (uint16_t i = 0; i < arrayLength; i++) {
-    dataStruct.d[i] = 0;
-  }
+  // Set all elements of the data array to 0
+  memset(sendStruct.d, 0, sizeof(sendStruct.d));
 
   // Provide additional data with certain messages.
   switch(i_message) {
@@ -318,13 +313,8 @@ void packSerialSend(uint16_t i_message, uint16_t i_value) {
   sendStruct.i = i_message;
   sendStruct.d1 = i_value;
 
-  // Get the number of elements in the data array
-  uint16_t arrayLength = sizeof(sendStruct.d) / sizeof(sendStruct.d[0]);
-
-  // Set each element of the data array to 0
-  for (uint16_t i = 0; i < arrayLength; i++) {
-    sendStruct.d[i] = 0;
-  }
+  // Set all elements of the data array to 0
+  memset(sendStruct.d, 0, sizeof(sendStruct.d));
 
   // Provide additional data with certain messages.
   switch(i_message) {

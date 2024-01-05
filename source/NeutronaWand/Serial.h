@@ -57,18 +57,19 @@ Serial.println("W_SEND_PREFERENCES_WAND");
         sendStruct.d[3] = b_spectral_mode_enabled;
         sendStruct.d[4] = b_holiday_mode_enabled;
         sendStruct.d[5] = b_overheat_enabled;
-        sendStruct.d[6] = (b_cross_the_streams || b_cross_the_streams_mix) ? 1 : 0;
-        sendStruct.d[7] = b_extra_pack_sounds;
-        sendStruct.d[8] = b_quick_vent;
-        sendStruct.d[9] = b_vent_light_control;
-        sendStruct.d[10] = b_beep_loop;
-        sendStruct.d[11] = b_wand_boot_errors;
-        sendStruct.d[12] = WAND_YEAR_MODE;
-        sendStruct.d[13] = WAND_YEAR_CTS;
-        sendStruct.d[14] = b_bargraph_invert;
-        sendStruct.d[15] = b_overheat_bargraph_blink;
-        sendStruct.d[16] = BARGRAPH_MODE;
-        sendStruct.d[17] = BARGRAPH_EEPROM_FIRING_ANIMATION;
+        sendStruct.d[6] = b_cross_the_streams;
+        sendStruct.d[7] = b_cross_the_streams_mix;
+        sendStruct.d[8] = b_extra_pack_sounds;
+        sendStruct.d[9] = b_quick_vent;
+        sendStruct.d[10] = b_vent_light_control;
+        sendStruct.d[11] = b_beep_loop;
+        sendStruct.d[12] = b_wand_boot_errors;
+        sendStruct.d[13] = WAND_YEAR_MODE;
+        sendStruct.d[14] = WAND_YEAR_CTS;
+        sendStruct.d[15] = b_bargraph_invert;
+        sendStruct.d[16] = b_overheat_bargraph_blink;
+        sendStruct.d[17] = BARGRAPH_MODE;
+        sendStruct.d[18] = BARGRAPH_EEPROM_FIRING_ANIMATION;
       break;
 
       case W_SEND_PREFERENCES_SMOKE:
@@ -1078,74 +1079,80 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
             b_holiday_mode_enabled = comStruct.d[4];
             b_overheat_enabled = comStruct.d[5];
             b_cross_the_streams = comStruct.d[6];
-            b_cross_the_streams_mix = comStruct.d[6];
-            b_extra_pack_sounds = comStruct.d[7];
-            b_quick_vent = comStruct.d[8];
-            b_vent_light_control = comStruct.d[9];
-            b_beep_loop = comStruct.d[10];
-            b_wand_boot_errors = comStruct.d[11];
+            b_cross_the_streams_mix = comStruct.d[7];
+            b_extra_pack_sounds = comStruct.d[8];
+            b_quick_vent = comStruct.d[9];
+            b_vent_light_control = comStruct.d[10];
+            b_beep_loop = comStruct.d[11];
+            b_wand_boot_errors = comStruct.d[12];
 
-            switch(comStruct.d[12]) {
-              case 0:
+            switch(comStruct.d[13]) {
+              case 1:
               default:
                 WAND_YEAR_MODE = YEAR_DEFAULT;
               break;
-              case 1:
+              case 2:
                 WAND_YEAR_MODE = YEAR_1984;
               break;
-              case 2:
+              case 3:
                 WAND_YEAR_MODE = YEAR_1989;
               break;
-              case 3:
+              case 4:
                 WAND_YEAR_MODE = YEAR_AFTERLIFE;
               break;
-              case 4:
+              case 5:
                 WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
               break;
             }
 
-            switch(comStruct.d[13]) {
-              case 0:
+            switch(comStruct.d[14]) {
+              case 1:
               default:
                 WAND_YEAR_CTS = CTS_DEFAULT;
               break;
-              case 1:
+              case 2:
                 WAND_YEAR_CTS = CTS_1984;
               break;
-              case 2:
+              case 3:
                 WAND_YEAR_CTS = CTS_1989;
               break;
-              case 3:
+              case 4:
                 WAND_YEAR_CTS = CTS_AFTERLIFE;
               break;
-              case 4:
+              case 5:
                 WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
               break;
             }
 
-            b_bargraph_invert = comStruct.d[14];
-            b_overheat_bargraph_blink = comStruct.d[15];
+            b_bargraph_invert = comStruct.d[15];
+            b_overheat_bargraph_blink = comStruct.d[16];
 
-            comStruct.d[16] = BARGRAPH_MODE;
-            switch(comStruct.d[16]) {
-              case 0:
-              default:
-                BARGRAPH_MODE = BARGRAPH_SUPER_HERO;
-              break;
+            switch(comStruct.d[17]) {
               case 1:
+              default:
+                BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
+              break;
+              case 2:
+                BARGRAPH_MODE = BARGRAPH_SUPER_HERO;
+                BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_SUPER_HERO;
+              break;
+              case 3:
                 BARGRAPH_MODE = BARGRAPH_ORIGINAL;
+                BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_ORIGINAL;
               break;
             }
 
-            switch(comStruct.d[17]) {
-              case 0:
-              default:
+            switch(comStruct.d[18]) {
+              case 1:
+              default: 
                 BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
               break;
-              case 1:
+              case 2:
+                BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_SUPER_HERO;
                 BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_SUPER_HERO;
               break;
-              case 2:
+              case 3:
+                BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_ORIGINAL;
                 BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
               break;
             }
