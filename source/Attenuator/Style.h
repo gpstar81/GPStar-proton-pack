@@ -22,22 +22,25 @@
 
 const char STYLE_page[] PROGMEM = R"=====(
 html {
-  font-family: Tahoma, Verdana, Arial;
   display: inline-block;
+  font-family: Tahoma, Verdana, Arial;
   margin: 0px;
+  overflow-x: hidden;
   text-align: center;
+  width: 100%;
 }
 
 body {
   margin: 0px 0px 20px 0px;
+  position: relative;
 }
 
 h1 {
-    background: #222;
-    color: #eee;
-    margin: 0px;
-    padding: 8px;
-    width: 100%;
+  background: #222;
+  color: #eee;
+  margin: 0px;
+  padding: 8px;
+  width: 100%;
 }
 
 h3 { color: #333; margin: 10px; }
@@ -53,6 +56,7 @@ p { font-size: 18px; margin-bottom: 5px; }
 .block {
   margin: 10px 5px 30px 5px;
   padding: 10px 5px 10px 5px;
+  width: 99%;
 }
 
 .card {
@@ -61,10 +65,11 @@ p { font-size: 18px; margin-bottom: 5px; }
   box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
   color: #444;
   margin: 20px auto;
-  max-width: 400px;
+  max-width: 360px;
   min-height: 200px;
-  padding: 10px 20px 10px 20px;
+  padding: 10px 15px 10px 15px;
   text-align: left;
+  width: 360px;
 }
 
 .info {
@@ -186,7 +191,7 @@ select {
 }
 
 input[type=range] {
-  width: 200px;
+  width: 300px;
 }
 
 .swatch {

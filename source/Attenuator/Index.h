@@ -83,22 +83,28 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="blue" onclick="attenuatePack()" id="btnAttenuate">Attenuate</button>
   </div>
 
+  <h1>Preferences</h1>
+  <div class="block">
+    <a href="/settings/pack">Proton Pack Settings</a>
+    <br/>
+    <br/>
+    <a href="/settings/wand">Neutrona Wand Settings</a>
+    <br/>
+    <br/>
+    <a href="/settings/smoke">Overheat/Smoke Settings</a>
+  </div>
+
   <h1>Administration</h1>
   <div class="block">
-    <a href="/settings/pack">Change Proton Pack Settings</a>
-    <br/>
-    <br/>
-    <a href="/settings/wand">Change Neutrona Wand Settings</a>
-    <br/>
-    <br/>
-    <a href="/settings/smoke">Change Overheat/Smoke Settings</a>
+    <a href="/update">Update Firmware</a>
     <br/>
     <br/>
     <a href="/password">Change WiFi Password</a>
-    &nbsp;&nbsp;
-    <a href="/update">Update Firmware</a>
-    &nbsp;&nbsp;
+    <br/>
+    <br/>
     <a href="javascript:doRestart()">Restart/Resync</a>
+    <br/>
+    <br/>
   </div>
 
   <script type="application/javascript">
@@ -228,7 +234,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function updateStatus(jObj) {
-      if (jObj) {
+      // Update display if we have the expected data (containing mode and theme).
+      if (jObj && jObj.mode && jObj.theme) {
         document.getElementById("mode").innerHTML = jObj.mode || "...";
         document.getElementById("theme").innerHTML = jObj.theme || "...";
         document.getElementById("switch").innerHTML = jObj.switch || "...";
@@ -242,6 +249,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
 
+        // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wand, jObj.cyclotron);
         updateTrackListing(jObj.musicStart, jObj.musicEnd, jObj.musicCurrent);
       }

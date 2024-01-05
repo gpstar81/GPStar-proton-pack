@@ -215,6 +215,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
     &nbsp;&nbsp;
     <button type="button" class="orange" style="width:120px" onclick="saveEEPROM()">Save&nbsp;to&nbsp;EPROM</button>
+    <br/>
+    <br/>
   </div>
 
   <script type="application/javascript">
