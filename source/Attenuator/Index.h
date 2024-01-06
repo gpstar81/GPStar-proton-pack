@@ -135,7 +135,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       if (!websocket) return;
       if (websocket.readyState !== 1) return;
       websocket.ping();
-      setTimeout(heartbeat, 500);
+      setTimeout(heartbeat, 1000);
     }
 
     function onOpen(event) {
@@ -165,12 +165,14 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function onMessage(event) {
-      if (isJsonString(event.data)) {
-        // If JSON, use as status update.
-        updateStatus(JSON.parse(event.data));
-      } else {
-        // Anything else gets sent to console.
-        console.log(event.data);
+      if (typeOf event.data === String) {
+        if (isJsonString(event.data)) {
+          // If JSON, use as status update.
+          updateStatus(JSON.parse(event.data));
+        } else {
+          // Anything else gets sent to console.
+          console.log(event.data);
+        }
       }
     }
 
