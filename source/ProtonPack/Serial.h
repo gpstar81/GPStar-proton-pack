@@ -263,14 +263,14 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
     case A_SEND_PREFERENCES_SMOKE:
       // Sends values from current runtime variables as values in an int array.
 
-      // Time (seconds) an overheat event persists once activated.
+      // Duration (in seconds) an overheat event persists once activated.
       dataStruct.d[0] = i_ms_overheating_length_5 / 1000;
       dataStruct.d[1] = i_ms_overheating_length_4 / 1000;
       dataStruct.d[2] = i_ms_overheating_length_3 / 1000;
       dataStruct.d[3] = i_ms_overheating_length_2 / 1000;
       dataStruct.d[4] = i_ms_overheating_length_1 / 1000;
 
-      // Determines whether smoke effects while firing is enabled for a power level.
+      // Determines whether smoke effects while firing is enabled by power level.
       dataStruct.d[5] = b_smoke_continuous_mode_5;
       dataStruct.d[6] = b_smoke_continuous_mode_4;
       dataStruct.d[7] = b_smoke_continuous_mode_3;
@@ -284,7 +284,7 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
       dataStruct.d[13] = wandConfig.overheatLevel2;
       dataStruct.d[14] = wandConfig.overheatLevel1;
 
-      // Time (seconds) before an overheat event takes place by level.
+      // Time (seconds) before an overheat event is triggered by level.
       dataStruct.d[15] = wandConfig.overheatDelay5;
       dataStruct.d[16] = wandConfig.overheatDelay4;
       dataStruct.d[17] = wandConfig.overheatDelay3;
@@ -2925,7 +2925,6 @@ void checkWand() {
             break;
 
             case W_SEND_PREFERENCES_WAND:
-Serial.println("W_SEND_PREFERENCES_WAND");
               // Preferences are received from the wand.
               wandConfig.ledWandCount = comStruct.d[0];
               wandConfig.ledWandHue = comStruct.d[1];
@@ -2946,12 +2945,11 @@ Serial.println("W_SEND_PREFERENCES_WAND");
               wandConfig.bargraphIdleAnimation = comStruct.d[16];
               wandConfig.bargraphFireAnimation = comStruct.d[17];
 
-              // Return the EEPROM preferences just returned by the wand.
+              // Send the EEPROM preferences just returned by the wand.
               serial1Send(A_SEND_PREFERENCES_WAND);
             break;
 
             case W_SEND_PREFERENCES_SMOKE:
-Serial.println("W_SEND_PREFERENCES_SMOKE");
               // Preferences are received from the wand.
               wandConfig.overheatLevel5 = comStruct.d[0];
               wandConfig.overheatLevel4 = comStruct.d[1];
@@ -2964,7 +2962,8 @@ Serial.println("W_SEND_PREFERENCES_SMOKE");
               wandConfig.overheatDelay2 = comStruct.d[8];
               wandConfig.overheatDelay1 = comStruct.d[9];
 
-              // Return the EEPROM preferences just returned by the wand.
+              // Send the EEPROM preferences just returned by the wand.
+              // This data will combine with the pack's smoke settings.
               serial1Send(A_SEND_PREFERENCES_SMOKE);
             break;
 
@@ -3292,21 +3291,31 @@ void checkSerial1() {
               musicPrevTrack();
             break;
 
-            case A_SEND_PREFERENCES_PACK:
-              // If requested by the serial device, send back all EEPROM preferences.
+            case A_REQUEST_PREFERENCES_PACK:
+              // If requested by the serial device, send back all pack EEPROM preferences.
               serial1Send(A_SEND_PREFERENCES_PACK);
+
+              // Offer some feedback to the user
+              stopEffect(S_VENT_DRY);
+              playEffect(S_VENT_DRY);
             break;
 
-            case A_SEND_PREFERENCES_WAND:
+            case A_REQUEST_PREFERENCES_WAND:
               // If requested by the serial device, tell the wand we need EEPROM preferences.
-Serial.println("A_SEND_PREFERENCES_WAND");
               packSerialSend(P_SEND_PREFERENCES_WAND);
+
+              // Offer some feedback to the user
+              stopEffect(S_VENT_DRY);
+              playEffect(S_VENT_DRY);
             break;
 
-            case A_SEND_PREFERENCES_SMOKE:
+            case A_REQUEST_PREFERENCES_SMOKE:
               // If requested by the serial device, tell the wand we need EEPROM preferences.
-Serial.println("A_SEND_PREFERENCES_SMOKE");
               packSerialSend(P_SEND_PREFERENCES_SMOKE);
+
+              // Offer some feedback to the user
+              stopEffect(S_VENT_SMOKE);
+              playEffect(S_VENT_SMOKE);
             break;
 
             case A_SYNC_START:
@@ -3407,7 +3416,6 @@ Serial.println("A_SEND_PREFERENCES_SMOKE");
 
             case A_SAVE_PREFERENCES_WAND:
               // Send latest preferences from serial1 web UI back to wand
-Serial.println("A_SAVE_PREFERENCES_WAND");
               wandConfig.ledWandCount = dataStructR.d[0];
               wandConfig.ledWandHue = dataStructR.d[1];
               wandConfig.ledWandSat = dataStructR.d[2];
@@ -3437,7 +3445,6 @@ Serial.println("A_SAVE_PREFERENCES_WAND");
 
             case A_SAVE_PREFERENCES_SMOKE:
               // Save local and remote (wand) smoke timing settings
-Serial.println("A_SAVE_PREFERENCES_SMOKE");
               i_ms_overheating_length_5 = dataStruct.d[0] * 1000;
               i_ms_overheating_length_4 = dataStruct.d[1] * 1000;
               i_ms_overheating_length_3 = dataStruct.d[2] * 1000;
@@ -3473,7 +3480,6 @@ Serial.println("A_SAVE_PREFERENCES_SMOKE");
             break;
 
             case A_SAVE_EEPROM_SETTINGS_PACK:
-Serial.println("A_SAVE_EEPROM_SETTINGS_PACK");
               // Commit changes to the EEPROM in the pack controller
               saveLedEEPROM();
               saveConfigEEPROM();
@@ -3482,7 +3488,6 @@ Serial.println("A_SAVE_EEPROM_SETTINGS_PACK");
             break;
 
             case A_SAVE_EEPROM_SETTINGS_WAND:
-Serial.println("A_SAVE_EEPROM_SETTINGS_WAND");
               // Commit changes to the EEPROM on the wand controller
               packSerialSend(P_SAVE_EEPROM_WAND);
             break;

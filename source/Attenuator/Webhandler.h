@@ -43,7 +43,7 @@ void handlePassword(AsyncWebServerRequest *request) {
 
 void handlePackSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest pack EEPROM values.
-  attenuatorSerialSend(A_SEND_PREFERENCES_PACK);
+  attenuatorSerialSend(A_REQUEST_PREFERENCES_PACK);
 
   // Used for the settings page from the web server.
   //debug("Pack Settings HTML Requested");
@@ -53,7 +53,7 @@ void handlePackSettings(AsyncWebServerRequest *request) {
 
 void handleWandSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest wand EEPROM values.
-  attenuatorSerialSend(A_SEND_PREFERENCES_WAND);
+  attenuatorSerialSend(A_REQUEST_PREFERENCES_WAND);
 
   // Used for the settings page from the web server.
   //debug("Wand Settings HTML Requested");
@@ -63,7 +63,7 @@ void handleWandSettings(AsyncWebServerRequest *request) {
 
 void handleSmokeSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest smoke EEPROM values.
-  attenuatorSerialSend(A_SEND_PREFERENCES_SMOKE);
+  attenuatorSerialSend(A_REQUEST_PREFERENCES_SMOKE);
 
   // Used for the settings page from the web server.
   //debug("Smoke Settings HTML Requested");

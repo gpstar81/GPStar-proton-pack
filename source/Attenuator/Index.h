@@ -123,11 +123,19 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function initWebSocket() {
-      console.log("Trying to open a WebSocket connection...");
+      console.log("Attempting to open a WebSocket connection...");
       websocket = new WebSocket(gateway);
       websocket.onopen = onOpen;
       websocket.onclose = onClose;
       websocket.onmessage = onMessage;
+      heartbeat();
+    }
+
+    function heartbeat() {
+      if (!websocket) return;
+      if (websocket.readyState !== 1) return;
+      websocket.ping();
+      setTimeout(heartbeat, 500);
     }
 
     function onOpen(event) {

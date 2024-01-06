@@ -323,10 +323,10 @@ void setupRouting() {
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
 
   // Body Handlers
-  httpServer.addHandler(handleSavePackConfig);
-  httpServer.addHandler(handleSaveWandConfig);
-  httpServer.addHandler(handleSaveSmokeConfig);
-  httpServer.addHandler(passwordChangeHandler);
+  httpServer.addHandler(handleSavePackConfig); // /config/pack/save
+  httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
+  httpServer.addHandler(handleSaveSmokeConfig); // /config/smoke/save
+  httpServer.addHandler(passwordChangeHandler); // /password/update
 }
 
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){
