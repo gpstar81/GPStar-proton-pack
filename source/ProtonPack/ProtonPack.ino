@@ -132,9 +132,9 @@ void setup() {
   ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
   ms_wand_handshake.start(1);
-
   ms_serial1_handshake.start(int(i_serial1_handshake_delay / 2));
   ms_fast_led.start(i_fast_led_delay);
+  ms_battcheck.start(1);
 
   // Configure the vibration state.
   if(switch_vibration.getState() == LOW) {
@@ -195,12 +195,23 @@ void setup() {
     serial1Send(A_MODE_ORIGINAL);
   }
 
-  // Reset the master volume. Important to keep this as we startup the system at the lowest volume. Then the EEPROM reads any settings if required, then we reset the volume.
+  // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
+  // Then the EEPROM reads any settings if required, then we reset the volume.
   w_trig.masterGain(i_volume_master);
 }
 
 void loop() {
   w_trig.update();
+
+  // Voltage Check, Part 1 - Initiate the read process, which requires a delay.
+  if(ms_battcheck.remaining() < 1) {
+    beginVoltageCheck(); // Kick off a check which will write to the i_batt_volts variable.
+    ms_battcheck.start(i_ms_battcheck_delay);
+  }
+  // Voltage Check, Part 2 - Read the actual voltage after a brief delay.
+  if(ms_battread.remaining() < 1) { 
+    readVoltage(); // Reads the latest into a global variable.
+  }
 
   wandHandShake();
   checkWand();
@@ -4511,6 +4522,35 @@ void setupWavTrigger() {
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
   }
+}
+
+// Sourced from https://community.particle.io/t/battery-voltage-checking/5467
+// Obtains the ATMega chip's actual Vcc voltage value, using internal bandgap reference.
+// This demonstrates ability to read processors Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
+void beginVoltageCheck() {
+  // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
+  // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
+  ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
+
+  // Let mux settle a little to get a more stable A/D conversion.
+  // This will require an additional function to read results.
+  ms_battread.start(50);
+}
+void readVoltage() {
+  const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
+
+  ADCSRA |= _BV( ADSC ); // Start a conversion.
+  while( ( (ADCSRA & (1<<ADSC)) != 0 ) ); // Wait for conversion to complete...
+
+  // Scale the value, which returns the actual value of Vcc x 100
+  i_batt_volts = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value
+
+  // Using this for debugging only.
+  Serial.print("Battery Vcc volts = ");
+  Serial.println(i_batt_volts);
+  Serial.print("Analog pin 0 voltage = ");
+  Serial.println(map(analogRead(0), 0, 1023, 0, i_batt_volts));
+  Serial.println();
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.

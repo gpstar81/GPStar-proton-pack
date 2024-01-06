@@ -446,6 +446,14 @@ bool b_fade_out = false;
 millisDelay ms_fadeout;
 
 /*
+ * Voltage reference.
+ */
+int i_batt_volts; // Current voltage value (Vcc) using internal bandgap reference.
+const unsigned int i_ms_battcheck_delay = 1000; // Time between battery voltage checks.
+millisDelay ms_battcheck; // Timer for checking battery voltage on a regular interval.
+millisDelay ms_battread; // Timer for internal checks while reading voltage.
+
+/*
  * Function prototypes.
  */
 void packSerialSend(uint16_t i_message, uint16_t i_value);
