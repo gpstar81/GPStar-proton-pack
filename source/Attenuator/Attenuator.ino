@@ -49,12 +49,12 @@ void setup() {
   #if defined(__XTENSA__)
     // ESP - Serial Console for messages and Device Comms via Serial2
     Serial.begin(115200);
-    Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
+    Serial2.begin(19200, SERIAL_8N1, RXD2, TXD2);
     packComs.begin(Serial2, true, Serial);
     pinMode(BUILT_IN_LED, OUTPUT);
   #else
     // Nano - Utilizes the only Serial connection
-    Serial.begin(9600);
+    Serial.begin(19200);
     packComs.begin(Serial);
   #endif
 
