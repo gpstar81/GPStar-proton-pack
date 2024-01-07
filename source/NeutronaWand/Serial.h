@@ -19,66 +19,66 @@
 
 #pragma once
 
-// For pack communication.
+// For pack communication (2 byte ID, 2 byte optional data, 23 byte data payload).
 struct __attribute__((packed)) MessagePacket {
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
   uint8_t d[22]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
-struct MessagePacket comStruct;
-struct MessagePacket sendStruct;
+struct MessagePacket recvData;
+struct MessagePacket sendData;
 
 // Pack communication from the wand.
 void wandSerialSend(uint16_t i_message, uint16_t i_value) {
   if(b_no_pack != true) {
-    sendStruct.i = i_message;
-    sendStruct.d1 = i_value;
+    sendData.i = i_message;
+    sendData.d1 = i_value;
 
     // Set all elements of the data array to 0
-    memset(sendStruct.d, 0, sizeof(sendStruct.d));
+    memset(sendData.d, 0, sizeof(sendData.d));
 
     switch(i_message) {
       case W_SEND_PREFERENCES_WAND:
 Serial.println("W_SEND_PREFERENCES_WAND");
         // Sends values from current runtime variables as values in an int array.
         // Any ENUM or boolean types will simply translate as numeric values.
-        sendStruct.d[0] = WAND_BARREL_LED_COUNT;
-        sendStruct.d[1] = i_spectral_wand_custom_colour;
-        sendStruct.d[2] = i_spectral_wand_custom_saturation;
-        sendStruct.d[3] = b_spectral_mode_enabled;
-        sendStruct.d[4] = b_holiday_mode_enabled;
-        sendStruct.d[5] = b_overheat_enabled;
-        sendStruct.d[6] = b_cross_the_streams;
-        sendStruct.d[7] = b_cross_the_streams_mix;
-        sendStruct.d[8] = b_extra_pack_sounds;
-        sendStruct.d[9] = b_quick_vent;
-        sendStruct.d[10] = b_vent_light_control;
-        sendStruct.d[11] = b_beep_loop;
-        sendStruct.d[12] = b_wand_boot_errors;
-        sendStruct.d[13] = WAND_YEAR_MODE;
-        sendStruct.d[14] = WAND_YEAR_CTS;
-        sendStruct.d[15] = b_bargraph_invert;
-        sendStruct.d[16] = b_overheat_bargraph_blink;
-        sendStruct.d[17] = BARGRAPH_MODE;
-        sendStruct.d[18] = BARGRAPH_EEPROM_FIRING_ANIMATION;
+        sendData.d[0] = WAND_BARREL_LED_COUNT;
+        sendData.d[1] = i_spectral_wand_custom_colour;
+        sendData.d[2] = i_spectral_wand_custom_saturation;
+        sendData.d[3] = b_spectral_mode_enabled;
+        sendData.d[4] = b_holiday_mode_enabled;
+        sendData.d[5] = b_overheat_enabled;
+        sendData.d[6] = b_cross_the_streams;
+        sendData.d[7] = b_cross_the_streams_mix;
+        sendData.d[8] = b_extra_pack_sounds;
+        sendData.d[9] = b_quick_vent;
+        sendData.d[10] = b_vent_light_control;
+        sendData.d[11] = b_beep_loop;
+        sendData.d[12] = b_wand_boot_errors;
+        sendData.d[13] = WAND_YEAR_MODE;
+        sendData.d[14] = WAND_YEAR_CTS;
+        sendData.d[15] = b_bargraph_invert;
+        sendData.d[16] = b_overheat_bargraph_blink;
+        sendData.d[17] = BARGRAPH_MODE;
+        sendData.d[18] = BARGRAPH_EEPROM_FIRING_ANIMATION;
       break;
 
       case W_SEND_PREFERENCES_SMOKE:
 Serial.println("W_SEND_PREFERENCES_SMOKE");
         // Determines whether overheating is enabled for a power level.
-        sendStruct.d[0] = b_overheat_mode_5;
-        sendStruct.d[1] = b_overheat_mode_4;
-        sendStruct.d[2] = b_overheat_mode_3;
-        sendStruct.d[3] = b_overheat_mode_2;
-        sendStruct.d[4] = b_overheat_mode_1;
+        sendData.d[0] = b_overheat_mode_5;
+        sendData.d[1] = b_overheat_mode_4;
+        sendData.d[2] = b_overheat_mode_3;
+        sendData.d[3] = b_overheat_mode_2;
+        sendData.d[4] = b_overheat_mode_1;
 
         // Time (seconds) before an overheat event takes place by level.
-        sendStruct.d[5] = i_ms_overheat_initiate_mode_5 / 1000;
-        sendStruct.d[6] = i_ms_overheat_initiate_mode_4 / 1000;
-        sendStruct.d[7] = i_ms_overheat_initiate_mode_3 / 1000;
-        sendStruct.d[8] = i_ms_overheat_initiate_mode_2 / 1000;
-        sendStruct.d[9] = i_ms_overheat_initiate_mode_1 / 1000;
+        sendData.d[5] = i_ms_overheat_initiate_mode_5 / 1000;
+        sendData.d[6] = i_ms_overheat_initiate_mode_4 / 1000;
+        sendData.d[7] = i_ms_overheat_initiate_mode_3 / 1000;
+        sendData.d[8] = i_ms_overheat_initiate_mode_2 / 1000;
+        sendData.d[9] = i_ms_overheat_initiate_mode_1 / 1000;
       break;
 
       default:
@@ -86,7 +86,7 @@ Serial.println("W_SEND_PREFERENCES_SMOKE");
       break;
     }
 
-    wandComs.sendDatum(sendStruct);
+    wandComs.sendDatum(sendData);
   }
 }
 // Override function to handle calls with a single parameter.
@@ -97,10 +97,10 @@ void wandSerialSend(uint16_t i_message) {
 // Pack communication to the wand.
 void checkPack() {
   if(wandComs.available() && b_no_pack != true) {
-    wandComs.rxObj(comStruct);
+    wandComs.rxObj(recvData);
 
-    if(!wandComs.currentPacketID() && comStruct.i > 0) {
-      switch(comStruct.i) {
+    if(!wandComs.currentPacketID() && recvData.i > 0) {
+      switch(recvData.i) {
         case P_ON:
           // Pack is on.
           b_pack_on = true;
@@ -430,14 +430,14 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
         break;
 
         case P_VOLUME_SYNC_EFFECTS:
-          i_volume_effects_percentage = comStruct.d1;
+          i_volume_effects_percentage = recvData.d1;
           i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
 
           adjustVolumeEffectsGain();
         break;
 
         case P_VOLUME_SYNC_MASTER:
-          i_volume_master_percentage = comStruct.d1;
+          i_volume_master_percentage = recvData.d1;
           i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
 
           i_volume_revert = i_volume_master;
@@ -446,7 +446,7 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
         break;
 
         case P_VOLUME_SYNC_MUSIC:
-          i_volume_music_percentage = comStruct.d1;
+          i_volume_music_percentage = recvData.d1;
           i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
           w_trig.masterGain(i_volume_master);
@@ -1032,16 +1032,16 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
         break;
 
         case P_MUSIC_PLAY_TRACK:
-          if(i_music_count > 0 && comStruct.d1 >= i_music_track_start) {
+          if(i_music_count > 0 && recvData.d1 >= i_music_track_start) {
             // Music track number to be played.
-            i_current_music_track = comStruct.d1;
+            i_current_music_track = recvData.d1;
           }
         break;
 
         case P_SAVE_PREFERENCES_WAND:
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
-          switch(comStruct.d[0]) {
+          switch(recvData.d[0]) {
             case 0:
             default:
               WAND_BARREL_LED_COUNT = LEDS_5;
@@ -1054,20 +1054,20 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
             break;
           }
 
-          i_spectral_wand_custom_colour = comStruct.d[1];
-          i_spectral_wand_custom_saturation = comStruct.d[2];
-          b_spectral_mode_enabled = comStruct.d[3];
-          b_holiday_mode_enabled = comStruct.d[4];
-          b_overheat_enabled = comStruct.d[5];
-          b_cross_the_streams = comStruct.d[6];
-          b_cross_the_streams_mix = comStruct.d[7];
-          b_extra_pack_sounds = comStruct.d[8];
-          b_quick_vent = comStruct.d[9];
-          b_vent_light_control = comStruct.d[10];
-          b_beep_loop = comStruct.d[11];
-          b_wand_boot_errors = comStruct.d[12];
+          i_spectral_wand_custom_colour = recvData.d[1];
+          i_spectral_wand_custom_saturation = recvData.d[2];
+          b_spectral_mode_enabled = recvData.d[3];
+          b_holiday_mode_enabled = recvData.d[4];
+          b_overheat_enabled = recvData.d[5];
+          b_cross_the_streams = recvData.d[6];
+          b_cross_the_streams_mix = recvData.d[7];
+          b_extra_pack_sounds = recvData.d[8];
+          b_quick_vent = recvData.d[9];
+          b_vent_light_control = recvData.d[10];
+          b_beep_loop = recvData.d[11];
+          b_wand_boot_errors = recvData.d[12];
 
-          switch(comStruct.d[13]) {
+          switch(recvData.d[13]) {
             case 1:
             default:
               WAND_YEAR_MODE = YEAR_DEFAULT;
@@ -1086,7 +1086,7 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
             break;
           }
 
-          switch(comStruct.d[14]) {
+          switch(recvData.d[14]) {
             case 1:
             default:
               WAND_YEAR_CTS = CTS_DEFAULT;
@@ -1105,10 +1105,10 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
             break;
           }
 
-          b_bargraph_invert = comStruct.d[15];
-          b_overheat_bargraph_blink = comStruct.d[16];
+          b_bargraph_invert = recvData.d[15];
+          b_overheat_bargraph_blink = recvData.d[16];
 
-          switch(comStruct.d[17]) {
+          switch(recvData.d[17]) {
             case 1:
             default:
               BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
@@ -1123,7 +1123,7 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
             break;
           }
 
-          switch(comStruct.d[18]) {
+          switch(recvData.d[18]) {
             case 1:
             default: 
               BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
@@ -1142,16 +1142,16 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
         case P_SAVE_PREFERENCES_SMOKE:
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
-          b_overheat_mode_5 = comStruct.d[0];
-          b_overheat_mode_4 = comStruct.d[1];
-          b_overheat_mode_3 = comStruct.d[2];
-          b_overheat_mode_2 = comStruct.d[3];
-          b_overheat_mode_1 = comStruct.d[4];
-          i_ms_overheat_initiate_mode_5 = comStruct.d[5];
-          i_ms_overheat_initiate_mode_4 = comStruct.d[6];
-          i_ms_overheat_initiate_mode_3 = comStruct.d[7];
-          i_ms_overheat_initiate_mode_2 = comStruct.d[8];
-          i_ms_overheat_initiate_mode_1 = comStruct.d[9];
+          b_overheat_mode_5 = recvData.d[0];
+          b_overheat_mode_4 = recvData.d[1];
+          b_overheat_mode_3 = recvData.d[2];
+          b_overheat_mode_2 = recvData.d[3];
+          b_overheat_mode_1 = recvData.d[4];
+          i_ms_overheat_initiate_mode_5 = recvData.d[5];
+          i_ms_overheat_initiate_mode_4 = recvData.d[6];
+          i_ms_overheat_initiate_mode_3 = recvData.d[7];
+          i_ms_overheat_initiate_mode_2 = recvData.d[8];
+          i_ms_overheat_initiate_mode_1 = recvData.d[9];
         break;
 
         case P_SAVE_EEPROM_WAND:

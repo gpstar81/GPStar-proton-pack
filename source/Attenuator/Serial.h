@@ -31,15 +31,15 @@
 SerialTransfer packComs;
 bool b_a_sync_start = false; // Denotes pack communications have begun.
 
-// For pack communication.
+// For pack communication (2 byte ID, 2 byte optional data, 23 byte data payload).
 struct __attribute__((packed)) DataPacket {
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
   uint8_t d[22]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
-struct DataPacket comStruct;
-struct DataPacket sendStruct;
+struct DataPacket recvData;
+struct DataPacket sendData;
 
 // Translates a preferences to user-friendly names.
 struct PackPrefs {
@@ -121,109 +121,121 @@ struct SmokePrefs {
 
 // Sends an API to the Proton Pack
 void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
-  sendStruct.i = i_message;
-  sendStruct.d1 = i_value;
+  sendData.i = i_message;
+  sendData.d1 = i_value;
 
   // Set all elements of the data array to 0
-  memset(sendStruct.d, 0, sizeof(sendStruct.d));
+  memset(sendData.d, 0, sizeof(sendData.d));
 
   switch(i_message) {
     case A_SAVE_PREFERENCES_PACK:
+      #if defined(__XTENSA__)
+        debug("Saving Pack Preferences");
+      #endif
+
       // Convert user-friendly object properties to integer values.
-      sendStruct.d[0] = packConfig.defaultSystemModePack;
-      sendStruct.d[1] = packConfig.defaultYearThemePack;
-      sendStruct.d[2] = packConfig.defaultSystemVolume;
-      sendStruct.d[3] = packConfig.protonStreamEffects;
-      sendStruct.d[5] = packConfig.overheatStrobeNF;
-      sendStruct.d[6] = packConfig.overheatLightsOff;
-      sendStruct.d[7] = packConfig.overheatSyncToFan;
-      sendStruct.d[8] = packConfig.demoLightMode;
+      sendData.d[0] = packConfig.defaultSystemModePack;
+      sendData.d[1] = packConfig.defaultYearThemePack;
+      sendData.d[2] = packConfig.defaultSystemVolume;
+      sendData.d[3] = packConfig.protonStreamEffects;
+      sendData.d[5] = packConfig.overheatStrobeNF;
+      sendData.d[6] = packConfig.overheatLightsOff;
+      sendData.d[7] = packConfig.overheatSyncToFan;
+      sendData.d[8] = packConfig.demoLightMode;
 
       // Cyclotron Lid
-      sendStruct.d[9] = packConfig.ledCycLidCount;
-      sendStruct.d[10] = packConfig.ledCycLidHue;
-      sendStruct.d[11] = packConfig.ledCycLidSat;
-      sendStruct.d[12] = packConfig.cyclotronDirection;
-      sendStruct.d[13] = packConfig.ledCycLidCenter;
-      sendStruct.d[14] = packConfig.ledVGCyclotron;
-      sendStruct.d[15] = packConfig.ledCycLidSimRing;
+      sendData.d[9] = packConfig.ledCycLidCount;
+      sendData.d[10] = packConfig.ledCycLidHue;
+      sendData.d[11] = packConfig.ledCycLidSat;
+      sendData.d[12] = packConfig.cyclotronDirection;
+      sendData.d[13] = packConfig.ledCycLidCenter;
+      sendData.d[14] = packConfig.ledVGCyclotron;
+      sendData.d[15] = packConfig.ledCycLidSimRing;
 
       // Inner Cyclotron
-      sendStruct.d[16] = packConfig.ledCycCakeCount;
-      sendStruct.d[17] = packConfig.ledCycCakeHue;
-      sendStruct.d[18] = packConfig.ledCycCakeSat;
-      sendStruct.d[19] = packConfig.ledCycCakeGRB;
+      sendData.d[16] = packConfig.ledCycCakeCount;
+      sendData.d[17] = packConfig.ledCycCakeHue;
+      sendData.d[18] = packConfig.ledCycCakeSat;
+      sendData.d[19] = packConfig.ledCycCakeGRB;
 
       // Power Cell
-      sendStruct.d[20] = packConfig.ledPowercellCount;
-      sendStruct.d[21] = packConfig.ledPowercellHue;
-      sendStruct.d[22] = packConfig.ledPowercellSat;
-      sendStruct.d[23] = packConfig.ledVGPowercell;
+      sendData.d[20] = packConfig.ledPowercellCount;
+      sendData.d[21] = packConfig.ledPowercellHue;
+      sendData.d[22] = packConfig.ledPowercellSat;
+      sendData.d[23] = packConfig.ledVGPowercell;
     break;
 
     case A_SAVE_PREFERENCES_WAND:
+      #if defined(__XTENSA__)
+        debug("Saving Wand Preferences");
+      #endif
+
       // Convert user-friendly object properties to integer values.
-      sendStruct.d[0] = wandConfig.ledWandCount;
-      sendStruct.d[1] = wandConfig.ledWandHue;
-      sendStruct.d[2] = wandConfig.ledWandSat;
-      sendStruct.d[3] = wandConfig.spectralModeEnabled;
-      sendStruct.d[4] = wandConfig.spectralHolidayMode;
-      sendStruct.d[5] = wandConfig.overheatEnabled;
+      sendData.d[0] = wandConfig.ledWandCount;
+      sendData.d[1] = wandConfig.ledWandHue;
+      sendData.d[2] = wandConfig.ledWandSat;
+      sendData.d[3] = wandConfig.spectralModeEnabled;
+      sendData.d[4] = wandConfig.spectralHolidayMode;
+      sendData.d[5] = wandConfig.overheatEnabled;
       switch(wandConfig.defaultFiringMode) {
         case 3:
-          sendStruct.d[6] = 1; // CTS
-          sendStruct.d[7] = 1; // CTS Mix
+          sendData.d[6] = 1; // CTS
+          sendData.d[7] = 1; // CTS Mix
         break;
         case 2:
-          sendStruct.d[6] = 1; // CTS
-          sendStruct.d[7] = 0; // CTS Mix
+          sendData.d[6] = 1; // CTS
+          sendData.d[7] = 0; // CTS Mix
         break;
         case 1:
         default:
-          sendStruct.d[6] = 0; // CTS
-          sendStruct.d[7] = 0; // CTS Mix
+          sendData.d[6] = 0; // CTS
+          sendData.d[7] = 0; // CTS Mix
         break;
       }
-      sendStruct.d[8] = wandConfig.wandSoundsToPack;
-      sendStruct.d[9] = wandConfig.quickVenting;
-      sendStruct.d[10] = wandConfig.autoVentLight;
-      sendStruct.d[11] = wandConfig.wandBeepLoop;
-      sendStruct.d[12] = wandConfig.wandBootError;
-      sendStruct.d[13] = wandConfig.defaultYearModeWand;
-      sendStruct.d[14] = wandConfig.defaultYearModeCTS;
-      sendStruct.d[15] = wandConfig.invertWandBargraph;
-      sendStruct.d[16] = wandConfig.bargraphOverheatBlink;
-      sendStruct.d[17] = wandConfig.bargraphIdleAnimation;
-      sendStruct.d[18] = wandConfig.bargraphFireAnimation;
+      sendData.d[8] = wandConfig.wandSoundsToPack;
+      sendData.d[9] = wandConfig.quickVenting;
+      sendData.d[10] = wandConfig.autoVentLight;
+      sendData.d[11] = wandConfig.wandBeepLoop;
+      sendData.d[12] = wandConfig.wandBootError;
+      sendData.d[13] = wandConfig.defaultYearModeWand;
+      sendData.d[14] = wandConfig.defaultYearModeCTS;
+      sendData.d[15] = wandConfig.invertWandBargraph;
+      sendData.d[16] = wandConfig.bargraphOverheatBlink;
+      sendData.d[17] = wandConfig.bargraphIdleAnimation;
+      sendData.d[18] = wandConfig.bargraphFireAnimation;
     break;
 
     case A_SAVE_PREFERENCES_SMOKE:
+      #if defined(__XTENSA__)
+        debug("Saving Smoke Preferences");
+      #endif
+
       // Convert user-friendly object properties to integer values.
-      sendStruct.d[0] = smokeConfig.overheatDuration5;
-      sendStruct.d[1] = smokeConfig.overheatDuration4;
-      sendStruct.d[2] = smokeConfig.overheatDuration3;
-      sendStruct.d[3] = smokeConfig.overheatDuration2;
-      sendStruct.d[4] = smokeConfig.overheatDuration1;
+      sendData.d[0] = smokeConfig.overheatDuration5;
+      sendData.d[1] = smokeConfig.overheatDuration4;
+      sendData.d[2] = smokeConfig.overheatDuration3;
+      sendData.d[3] = smokeConfig.overheatDuration2;
+      sendData.d[4] = smokeConfig.overheatDuration1;
 
-      sendStruct.d[5] = smokeConfig.overheatContinuous5;
-      sendStruct.d[6] = smokeConfig.overheatContinuous4;
-      sendStruct.d[7] = smokeConfig.overheatContinuous3;
-      sendStruct.d[8] = smokeConfig.overheatContinuous2;
-      sendStruct.d[9] = smokeConfig.overheatContinuous1;
+      sendData.d[5] = smokeConfig.overheatContinuous5;
+      sendData.d[6] = smokeConfig.overheatContinuous4;
+      sendData.d[7] = smokeConfig.overheatContinuous3;
+      sendData.d[8] = smokeConfig.overheatContinuous2;
+      sendData.d[9] = smokeConfig.overheatContinuous1;
 
-      sendStruct.d[10] = smokeConfig.overheatLevel5;
-      sendStruct.d[11] = smokeConfig.overheatLevel4;
-      sendStruct.d[12] = smokeConfig.overheatLevel3;
-      sendStruct.d[13] = smokeConfig.overheatLevel2;
-      sendStruct.d[14] = smokeConfig.overheatLevel1;
+      sendData.d[10] = smokeConfig.overheatLevel5;
+      sendData.d[11] = smokeConfig.overheatLevel4;
+      sendData.d[12] = smokeConfig.overheatLevel3;
+      sendData.d[13] = smokeConfig.overheatLevel2;
+      sendData.d[14] = smokeConfig.overheatLevel1;
 
-      sendStruct.d[15] = smokeConfig.overheatDelay5;
-      sendStruct.d[16] = smokeConfig.overheatDelay4;
-      sendStruct.d[17] = smokeConfig.overheatDelay3;
-      sendStruct.d[18] = smokeConfig.overheatDelay2;
-      sendStruct.d[19] = smokeConfig.overheatDelay1;
+      sendData.d[15] = smokeConfig.overheatDelay5;
+      sendData.d[16] = smokeConfig.overheatDelay4;
+      sendData.d[17] = smokeConfig.overheatDelay3;
+      sendData.d[18] = smokeConfig.overheatDelay2;
+      sendData.d[19] = smokeConfig.overheatDelay1;
 
-      sendStruct.d[20] = smokeConfig.smokeEnabled;
+      sendData.d[20] = smokeConfig.smokeEnabled;
     break;
 
     default:
@@ -231,7 +243,7 @@ void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
     break;
   }
 
-  packComs.sendDatum(sendStruct);
+  packComs.sendDatum(sendData);
 }
 
 // Handles an API (and data) sent from the Proton Pack
@@ -240,11 +252,11 @@ boolean checkPack() {
 
   // Pack communication to the Attenuator device.
   if(packComs.available()) {
-    packComs.rxObj(comStruct);
+    packComs.rxObj(recvData);
 
-    if(!packComs.currentPacketID() && comStruct.i > 0) {
+    if(!packComs.currentPacketID() && recvData.i > 0) {
       // Use the passed communication flag to set the proper state for this device.
-      switch(comStruct.i) {
+      switch(recvData.i) {
         case A_PACK_BOOTUP:
           #if defined(__XTENSA__)
             debug("Pack Bootup");
@@ -330,28 +342,28 @@ boolean checkPack() {
 
         case A_MUSIC_IS_PLAYING:
           #if defined(__XTENSA__)
-            debug("Music Playing: " + String(comStruct.d1));
+            debug("Music Playing: " + String(recvData.d1));
           #endif
 
           b_playing_music = true;
 
-          if(comStruct.d1 > 0 && i_music_track_current != comStruct.d1) {
+          if(recvData.d1 > 0 && i_music_track_current != recvData.d1) {
             // Music track changed.
-            i_music_track_current = comStruct.d1;
+            i_music_track_current = recvData.d1;
             b_state_changed = true;
           }
         break;
 
         case A_MUSIC_IS_NOT_PLAYING:
           #if defined(__XTENSA__)
-            debug("Music Stopped: " + String(comStruct.d1));
+            debug("Music Stopped: " + String(recvData.d1));
           #endif
 
           b_playing_music = false;
 
-          if(comStruct.d1 > 0 && i_music_track_current != comStruct.d1) {
+          if(recvData.d1 > 0 && i_music_track_current != recvData.d1) {
             // Music track changed.
-            i_music_track_current = comStruct.d1;
+            i_music_track_current = recvData.d1;
             b_state_changed = true;
           }
         break;
@@ -380,11 +392,11 @@ boolean checkPack() {
 
         case A_MUSIC_TRACK_COUNT_SYNC:
           #if defined(__XTENSA__)
-            debug("Music Track Sync: " + String(comStruct.d1));
+            debug("Music Track Sync: " + String(recvData.d1));
           #endif
 
-          if(comStruct.d1 > 0) {
-            i_music_track_count = comStruct.d1;
+          if(recvData.d1 > 0) {
+            i_music_track_count = recvData.d1;
           }
 
           #if defined(__XTENSA__)
@@ -542,12 +554,12 @@ boolean checkPack() {
           FIRING_MODE = SPECTRAL_CUSTOM;
           b_state_changed = true;
 
-          if(comStruct.d[0] > 0) {
-            i_spectral_custom = comStruct.d[0];
+          if(recvData.d[0] > 0) {
+            i_spectral_custom = recvData.d[0];
           }
 
-          if(comStruct.d[1] > 0) {
-            i_spectral_custom_saturation = comStruct.d[1];
+          if(recvData.d[1] > 0) {
+            i_spectral_custom_saturation = recvData.d[1];
           }
         break;
 
@@ -556,12 +568,12 @@ boolean checkPack() {
             debug("Spectral Color Data");
           #endif
 
-          if(comStruct.d[0] > 0) {
-            i_spectral_custom = comStruct.d[0];
+          if(recvData.d[0] > 0) {
+            i_spectral_custom = recvData.d[0];
           }
 
-          if(comStruct.d[1] > 0) {
-            i_spectral_custom_saturation = comStruct.d[1];
+          if(recvData.d[1] > 0) {
+            i_spectral_custom_saturation = recvData.d[1];
           }
         break;
 
@@ -807,32 +819,32 @@ boolean checkPack() {
           #endif
 
           // Convert integer values to user-friendly object properties.
-          packConfig.defaultSystemModePack = comStruct.d[0];
-          packConfig.defaultYearThemePack = comStruct.d[1];
-          packConfig.defaultSystemVolume = comStruct.d[2];
-          packConfig.protonStreamEffects = comStruct.d[3];
-          packConfig.overheatStrobeNF = comStruct.d[4];
-          packConfig.overheatLightsOff = comStruct.d[5];
-          packConfig.overheatSyncToFan = comStruct.d[6];
-          packConfig.demoLightMode = comStruct.d[7];
+          packConfig.defaultSystemModePack = recvData.d[0];
+          packConfig.defaultYearThemePack = recvData.d[1];
+          packConfig.defaultSystemVolume = recvData.d[2];
+          packConfig.protonStreamEffects = recvData.d[3];
+          packConfig.overheatStrobeNF = recvData.d[4];
+          packConfig.overheatLightsOff = recvData.d[5];
+          packConfig.overheatSyncToFan = recvData.d[6];
+          packConfig.demoLightMode = recvData.d[7];
 
-          packConfig.ledCycLidCount = comStruct.d[8];
-          packConfig.ledCycLidHue = comStruct.d[9];
-          packConfig.ledCycLidSat = comStruct.d[10];
-          packConfig.cyclotronDirection = comStruct.d[11];
-          packConfig.ledCycLidCenter = comStruct.d[12];
-          packConfig.ledVGCyclotron = comStruct.d[13];
-          packConfig.ledCycLidSimRing = comStruct.d[14];
+          packConfig.ledCycLidCount = recvData.d[8];
+          packConfig.ledCycLidHue = recvData.d[9];
+          packConfig.ledCycLidSat = recvData.d[10];
+          packConfig.cyclotronDirection = recvData.d[11];
+          packConfig.ledCycLidCenter = recvData.d[12];
+          packConfig.ledVGCyclotron = recvData.d[13];
+          packConfig.ledCycLidSimRing = recvData.d[14];
 
-          packConfig.ledCycCakeCount = comStruct.d[15];
-          packConfig.ledCycCakeHue = comStruct.d[16];
-          packConfig.ledCycCakeSat = comStruct.d[17];
-          packConfig.ledCycCakeGRB = comStruct.d[18];
+          packConfig.ledCycCakeCount = recvData.d[15];
+          packConfig.ledCycCakeHue = recvData.d[16];
+          packConfig.ledCycCakeSat = recvData.d[17];
+          packConfig.ledCycCakeGRB = recvData.d[18];
 
-          packConfig.ledPowercellCount = comStruct.d[19];
-          packConfig.ledPowercellHue = comStruct.d[20];
-          packConfig.ledPowercellSat = comStruct.d[21];
-          packConfig.ledVGPowercell = comStruct.d[22];
+          packConfig.ledPowercellCount = recvData.d[19];
+          packConfig.ledPowercellHue = recvData.d[20];
+          packConfig.ledPowercellSat = recvData.d[21];
+          packConfig.ledVGPowercell = recvData.d[22];
         break;
 
         case A_SEND_PREFERENCES_WAND:
@@ -841,32 +853,32 @@ boolean checkPack() {
           #endif
 
           // Convert integer values to user-friendly object properties.
-          wandConfig.ledWandCount = comStruct.d[0];
-          wandConfig.ledWandHue = comStruct.d[1];
-          wandConfig.ledWandSat = comStruct.d[2];
-          wandConfig.spectralModeEnabled = comStruct.d[3];
-          wandConfig.spectralHolidayMode = comStruct.d[4];
-          wandConfig.overheatEnabled = comStruct.d[5];
-          if(comStruct.d[6] == 1 && comStruct.d[7] == 1) {
+          wandConfig.ledWandCount = recvData.d[0];
+          wandConfig.ledWandHue = recvData.d[1];
+          wandConfig.ledWandSat = recvData.d[2];
+          wandConfig.spectralModeEnabled = recvData.d[3];
+          wandConfig.spectralHolidayMode = recvData.d[4];
+          wandConfig.overheatEnabled = recvData.d[5];
+          if(recvData.d[6] == 1 && recvData.d[7] == 1) {
             wandConfig.defaultFiringMode = 3; // CTS Mix
           }
-          else if(comStruct.d[6] == 1 && comStruct.d[7] == 0) {
+          else if(recvData.d[6] == 1 && recvData.d[7] == 0) {
             wandConfig.defaultFiringMode = 2; // CTS
           }
           else {
             wandConfig.defaultFiringMode = 1; // VG
           }
-          wandConfig.wandSoundsToPack = comStruct.d[8];
-          wandConfig.quickVenting = comStruct.d[9];
-          wandConfig.autoVentLight = comStruct.d[10];
-          wandConfig.wandBeepLoop = comStruct.d[11];
-          wandConfig.wandBootError = comStruct.d[12];
-          wandConfig.defaultYearModeWand = comStruct.d[13];
-          wandConfig.defaultYearModeCTS = comStruct.d[14];
-          wandConfig.invertWandBargraph = comStruct.d[15];
-          wandConfig.bargraphOverheatBlink = comStruct.d[16];
-          wandConfig.bargraphIdleAnimation = comStruct.d[17];
-          wandConfig.bargraphFireAnimation = comStruct.d[18];
+          wandConfig.wandSoundsToPack = recvData.d[8];
+          wandConfig.quickVenting = recvData.d[9];
+          wandConfig.autoVentLight = recvData.d[10];
+          wandConfig.wandBeepLoop = recvData.d[11];
+          wandConfig.wandBootError = recvData.d[12];
+          wandConfig.defaultYearModeWand = recvData.d[13];
+          wandConfig.defaultYearModeCTS = recvData.d[14];
+          wandConfig.invertWandBargraph = recvData.d[15];
+          wandConfig.bargraphOverheatBlink = recvData.d[16];
+          wandConfig.bargraphIdleAnimation = recvData.d[17];
+          wandConfig.bargraphFireAnimation = recvData.d[18];
         break;
 
         case A_SEND_PREFERENCES_SMOKE:
@@ -875,40 +887,40 @@ boolean checkPack() {
           #endif
 
           // Convert integer values to user-friendly object properties.
-          smokeConfig.overheatDuration5 = comStruct.d[0];
-          smokeConfig.overheatDuration4 = comStruct.d[1];
-          smokeConfig.overheatDuration3 = comStruct.d[2];
-          smokeConfig.overheatDuration2 = comStruct.d[3];
-          smokeConfig.overheatDuration1 = comStruct.d[4];
+          smokeConfig.overheatDuration5 = recvData.d[0];
+          smokeConfig.overheatDuration4 = recvData.d[1];
+          smokeConfig.overheatDuration3 = recvData.d[2];
+          smokeConfig.overheatDuration2 = recvData.d[3];
+          smokeConfig.overheatDuration1 = recvData.d[4];
 
-          smokeConfig.overheatContinuous5 = comStruct.d[5];
-          smokeConfig.overheatContinuous4 = comStruct.d[6];
-          smokeConfig.overheatContinuous3 = comStruct.d[7];
-          smokeConfig.overheatContinuous2 = comStruct.d[8];
-          smokeConfig.overheatContinuous1 = comStruct.d[9];
+          smokeConfig.overheatContinuous5 = recvData.d[5];
+          smokeConfig.overheatContinuous4 = recvData.d[6];
+          smokeConfig.overheatContinuous3 = recvData.d[7];
+          smokeConfig.overheatContinuous2 = recvData.d[8];
+          smokeConfig.overheatContinuous1 = recvData.d[9];
 
-          smokeConfig.overheatLevel5 = comStruct.d[10];
-          smokeConfig.overheatLevel4 = comStruct.d[11];
-          smokeConfig.overheatLevel3 = comStruct.d[12];
-          smokeConfig.overheatLevel2 = comStruct.d[13];
-          smokeConfig.overheatLevel1 = comStruct.d[14];
+          smokeConfig.overheatLevel5 = recvData.d[10];
+          smokeConfig.overheatLevel4 = recvData.d[11];
+          smokeConfig.overheatLevel3 = recvData.d[12];
+          smokeConfig.overheatLevel2 = recvData.d[13];
+          smokeConfig.overheatLevel1 = recvData.d[14];
 
-          smokeConfig.overheatDelay5 = comStruct.d[15];
-          smokeConfig.overheatDelay4 = comStruct.d[16];
-          smokeConfig.overheatDelay3 = comStruct.d[17];
-          smokeConfig.overheatDelay2 = comStruct.d[18];
-          smokeConfig.overheatDelay1 = comStruct.d[19];
+          smokeConfig.overheatDelay5 = recvData.d[15];
+          smokeConfig.overheatDelay4 = recvData.d[16];
+          smokeConfig.overheatDelay3 = recvData.d[17];
+          smokeConfig.overheatDelay2 = recvData.d[18];
+          smokeConfig.overheatDelay1 = recvData.d[19];
 
-          smokeConfig.smokeEnabled = comStruct.d[20];
+          smokeConfig.smokeEnabled = recvData.d[20];
         break;
 
         case A_BATTERY_VOLTAGE_PACK:
           #if defined(__XTENSA__)
-            debug("Voltage: " + String(comStruct.d1));
+            debug("Voltage: " + String(recvData.d1));
           #endif
 
           // Convert to a value X.NN based on expected 5VDC maximum.
-          f_batt_volts = (float) comStruct.d1 / 100;
+          f_batt_volts = (float) recvData.d1 / 100;
         break;
 
         default:
