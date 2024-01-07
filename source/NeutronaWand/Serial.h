@@ -43,7 +43,18 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
 Serial.println("W_SEND_PREFERENCES_WAND");
         // Sends values from current runtime variables as values in an int array.
         // Any ENUM or boolean types will simply translate as numeric values.
-        sendData.d[0] = WAND_BARREL_LED_COUNT;
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_5:
+          default:
+            sendData.d[0] = 0;
+          break;
+          case LEDS_48:
+            sendData.d[0] = 1;
+          break;
+          case LEDS_60:
+            sendData.d[0] = 2;
+          break;
+        }
         sendData.d[1] = i_spectral_wand_custom_colour;
         sendData.d[2] = i_spectral_wand_custom_saturation;
         sendData.d[3] = b_spectral_mode_enabled;
@@ -1044,13 +1055,16 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
           switch(recvData.d[0]) {
             case 0:
             default:
+              i_num_barrel_leds = 5;
               WAND_BARREL_LED_COUNT = LEDS_5;
             break;
             case 1:
-              WAND_BARREL_LED_COUNT = LEDS_49;
+              i_num_barrel_leds = 48;
+              WAND_BARREL_LED_COUNT = LEDS_48;
             break;
             case 2:
-              WAND_BARREL_LED_COUNT = LEDS_61;
+              i_num_barrel_leds = 60;
+              WAND_BARREL_LED_COUNT = LEDS_60;
             break;
           }
 
@@ -1125,7 +1139,7 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
 
           switch(recvData.d[18]) {
             case 1:
-            default: 
+            default:
               BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
             break;
             case 2:

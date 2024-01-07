@@ -175,7 +175,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       <b>LED Count:</b>
       <select id="ledWandCount" name="ledWandCount">
         <option value="0">5 - Stock</option>
-        <option value="1">49 - Frutto</option>
+        <option value="1">48 - Frutto</option>
       </select>
     </div>
     <div class="setting">
@@ -283,7 +283,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
              *  254 = Red
              */
 
-            document.getElementById("ledWandCount").value = settings.ledWandCount || 5; // Haslab: 5
+            document.getElementById("ledWandCount").value = settings.ledWandCount || 0; // Haslab: 0 (5 LED)
             document.getElementById("ledWandHue").value = convertRange(settings.ledWandHue || 254, [1,254], [0,360]); // Default: Red
             document.getElementById("ledWandSat").value = convertRange(settings.ledWandSat || 254, [1,254], [0,100]); // Full Saturation
             document.getElementById("spectralModeEnabled").checked = settings.spectralModeEnabled ? true: false;
@@ -315,7 +315,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to wand, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
-        ledWandCount: parseInt(document.getElementById("ledWandCount").value || 5, 10),
+        ledWandCount: parseInt(document.getElementById("ledWandCount").value || 0, 10),
         ledWandHue: convertRange(parseInt(document.getElementById("ledWandHue").value || 360, 10), [0,360], [1,254]),
         ledWandSat: convertRange(parseInt(document.getElementById("ledWandSat").value || 100, 10), [0,100], [1,254]),
         spectralModeEnabled: document.getElementById("spectralModeEnabled").checked ? 1 : 0,

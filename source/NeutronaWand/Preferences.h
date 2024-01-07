@@ -194,13 +194,14 @@ void readEEPROM() {
     }
 
     if(obj_eeprom.num_barrel_leds > 0 && obj_eeprom.num_barrel_leds != 255) {
-      /*
       i_num_barrel_leds = obj_eeprom.num_barrel_leds; // Keep it disabled for now until new barrel leds are ready.
 
       switch(i_num_barrel_leds) {
         case 5:
         default:
           WAND_BARREL_LED_COUNT = LEDS_5;
+        break;
+
         case 48:
           WAND_BARREL_LED_COUNT = LEDS_48;
         break;
@@ -209,7 +210,6 @@ void readEEPROM() {
           WAND_BARREL_LED_COUNT = LEDS_60;
         break;
       }
-      */
     }
 
     if(obj_eeprom.invert_bargraph > 0 && obj_eeprom.invert_bargraph != 255) {

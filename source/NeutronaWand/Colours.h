@@ -240,13 +240,15 @@ CRGB getHueAsGRB(uint8_t i_colour, uint8_t i_brightness = 255) {
 
 CRGB getHueColour(uint8_t i_colour, uint8_t i_num_leds, uint8_t i_brightness = 255) {
   switch(i_num_leds) {
-    case LEDS_49:
-    case LEDS_61:
+    case LEDS_48:
+    case LEDS_60:
+      // Frutto LEDs are RGB
       return getHueAsRGB(i_colour, i_brightness, false);
     break;
 
     case LEDS_5:
     default:
+      // Stock LEDs are GRB
       return getHueAsRGB(i_colour, i_brightness, true);
     break;
   }

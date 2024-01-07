@@ -594,7 +594,6 @@ void checkWandAction() {
               switch(WAND_BARREL_LED_COUNT) {
                 case LEDS_5:
                 default:
-                  /*
                   i_num_barrel_leds = 48;
                   WAND_BARREL_LED_COUNT = LEDS_48;
 
@@ -604,16 +603,10 @@ void checkWandAction() {
                   playEffect(S_VOICE_BARREL_LED_48);
 
                   wandSerialSend(W_BARREL_LEDS_48);
-                  */
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  playEffect(S_VOICE_BARREL_LED_5);
-
-                  wandSerialSend(W_BARREL_LEDS_5);
                 break;
 
-                // 49 LED wand barrel board coming soon.
-                case LEDS_49:
-                  /*
+                // 48 LED wand barrel board coming soon.
+                case LEDS_48:
                   i_num_barrel_leds = 5;
                   WAND_BARREL_LED_COUNT = LEDS_5;
 
@@ -623,7 +616,6 @@ void checkWandAction() {
                   playEffect(S_VOICE_BARREL_LED_5);
 
                   wandSerialSend(W_BARREL_LEDS_5);
-                  */
 
                   /*
                   i_num_barrel_leds = 60;
@@ -639,7 +631,7 @@ void checkWandAction() {
                 break;
 
                 // The 60 LED flexi-pcb may come one day in the future.
-                case LEDS_61:
+                case LEDS_60:
                 /*
                   i_num_barrel_leds = 5;
                   WAND_BARREL_LED_COUNT = LEDS_5;
