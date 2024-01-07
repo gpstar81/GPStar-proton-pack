@@ -174,8 +174,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>LED Count:</b>
       <select id="ledWandCount" name="ledWandCount">
-        <option value="5">5 - Stock</option>
-        <option value="48">48 - Frutto</option>
+        <option value="0">5 - Stock</option>
+        <option value="1">49 - Frutto</option>
       </select>
     </div>
     <div class="setting">

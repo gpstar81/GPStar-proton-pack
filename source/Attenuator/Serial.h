@@ -31,11 +31,11 @@
 SerialTransfer packComs;
 bool b_a_sync_start = false; // Denotes pack communications have begun.
 
-// For pack communication (2 byte ID, 2 byte optional data, 23 byte data payload).
+// For pack communication (2 byte ID, 2 byte optional data, 24 byte data payload).
 struct __attribute__((packed)) DataPacket {
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
-  uint8_t d[22]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
 struct DataPacket recvData;
@@ -138,31 +138,31 @@ void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
       sendData.d[1] = packConfig.defaultYearThemePack;
       sendData.d[2] = packConfig.defaultSystemVolume;
       sendData.d[3] = packConfig.protonStreamEffects;
-      sendData.d[5] = packConfig.overheatStrobeNF;
-      sendData.d[6] = packConfig.overheatLightsOff;
-      sendData.d[7] = packConfig.overheatSyncToFan;
-      sendData.d[8] = packConfig.demoLightMode;
+      sendData.d[4] = packConfig.overheatStrobeNF;
+      sendData.d[5] = packConfig.overheatLightsOff;
+      sendData.d[6] = packConfig.overheatSyncToFan;
+      sendData.d[7] = packConfig.demoLightMode;
 
       // Cyclotron Lid
-      sendData.d[9] = packConfig.ledCycLidCount;
-      sendData.d[10] = packConfig.ledCycLidHue;
-      sendData.d[11] = packConfig.ledCycLidSat;
-      sendData.d[12] = packConfig.cyclotronDirection;
-      sendData.d[13] = packConfig.ledCycLidCenter;
-      sendData.d[14] = packConfig.ledVGCyclotron;
-      sendData.d[15] = packConfig.ledCycLidSimRing;
+      sendData.d[8] = packConfig.ledCycLidCount;
+      sendData.d[9] = packConfig.ledCycLidHue;
+      sendData.d[10] = packConfig.ledCycLidSat;
+      sendData.d[11] = packConfig.cyclotronDirection;
+      sendData.d[12] = packConfig.ledCycLidCenter;
+      sendData.d[13] = packConfig.ledVGCyclotron;
+      sendData.d[14] = packConfig.ledCycLidSimRing;
 
       // Inner Cyclotron
-      sendData.d[16] = packConfig.ledCycCakeCount;
-      sendData.d[17] = packConfig.ledCycCakeHue;
-      sendData.d[18] = packConfig.ledCycCakeSat;
-      sendData.d[19] = packConfig.ledCycCakeGRB;
+      sendData.d[15] = packConfig.ledCycCakeCount;
+      sendData.d[16] = packConfig.ledCycCakeHue;
+      sendData.d[17] = packConfig.ledCycCakeSat;
+      sendData.d[18] = packConfig.ledCycCakeGRB;
 
       // Power Cell
-      sendData.d[20] = packConfig.ledPowercellCount;
-      sendData.d[21] = packConfig.ledPowercellHue;
-      sendData.d[22] = packConfig.ledPowercellSat;
-      sendData.d[23] = packConfig.ledVGPowercell;
+      sendData.d[19] = packConfig.ledPowercellCount;
+      sendData.d[20] = packConfig.ledPowercellHue;
+      sendData.d[21] = packConfig.ledPowercellSat;
+      sendData.d[22] = packConfig.ledVGPowercell;
     break;
 
     case A_SAVE_PREFERENCES_WAND:
@@ -254,7 +254,7 @@ boolean checkPack() {
   if(packComs.available()) {
     packComs.rxObj(recvData);
 
-    if(!packComs.currentPacketID() && recvData.i > 0) {
+    if(!packComs.currentPacketID()) {
       // Use the passed communication flag to set the proper state for this device.
       switch(recvData.i) {
         case A_PACK_BOOTUP:

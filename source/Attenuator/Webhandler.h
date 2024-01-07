@@ -132,7 +132,7 @@ String getWandConfig() {
     jsonDoc["wandPowered"] = (b_wand_on ? true : false);
 
     // Neutrona Wand LED Options
-    jsonDoc["ledWandCount"] = wandConfig.ledWandCount; // [5,48,60]
+    jsonDoc["ledWandCount"] = wandConfig.ledWandCount; // [0=5,1=49,2=61]
     jsonDoc["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom color/hue 1-254
     jsonDoc["ledWandSat"] = wandConfig.ledWandSat; // Spectral custom saturation 1-254
     jsonDoc["spectralModeEnabled"] = wandConfig.spectralModeEnabled; // true|false

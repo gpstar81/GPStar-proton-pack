@@ -611,8 +611,8 @@ void checkWandAction() {
                   wandSerialSend(W_BARREL_LEDS_5);
                 break;
 
-                // 48 LED wand barrel board coming soon.
-                case LEDS_48:
+                // 49 LED wand barrel board coming soon.
+                case LEDS_49:
                   /*
                   i_num_barrel_leds = 5;
                   WAND_BARREL_LED_COUNT = LEDS_5;
@@ -639,7 +639,7 @@ void checkWandAction() {
                 break;
 
                 // The 60 LED flexi-pcb may come one day in the future.
-                case LEDS_60:
+                case LEDS_61:
                 /*
                   i_num_barrel_leds = 5;
                   WAND_BARREL_LED_COUNT = LEDS_5;

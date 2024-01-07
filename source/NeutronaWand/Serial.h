@@ -99,8 +99,12 @@ void checkPack() {
   if(wandComs.available() && b_no_pack != true) {
     wandComs.rxObj(recvData);
 
-    if(!wandComs.currentPacketID() && recvData.i > 0) {
+    if(!wandComs.currentPacketID()) {
       switch(recvData.i) {
+        case P_PACK_BOOTUP:
+          // Nothing for now.
+        break;
+
         case P_ON:
           // Pack is on.
           b_pack_on = true;
@@ -123,10 +127,6 @@ void checkPack() {
 
           // Pack is off.
           b_pack_on = false;
-        break;
-
-        case P_PACK_BOOTUP:
-          // Nothing for now.
         break;
 
         case P_SYNC_START:
@@ -1047,10 +1047,10 @@ Serial.println("P_SEND_PREFERENCES_SMOKE");
               WAND_BARREL_LED_COUNT = LEDS_5;
             break;
             case 1:
-              WAND_BARREL_LED_COUNT = LEDS_48;
+              WAND_BARREL_LED_COUNT = LEDS_49;
             break;
             case 2:
-              WAND_BARREL_LED_COUNT = LEDS_60;
+              WAND_BARREL_LED_COUNT = LEDS_61;
             break;
           }
 

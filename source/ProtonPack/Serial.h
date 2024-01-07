@@ -24,11 +24,11 @@
  */
 void updateSystemModeYear();
 
-// For pack communication (2 byte ID, 2 byte optional data, 23 byte data payload).
+// For pack communication (2 byte ID, 2 byte optional data, 24 byte data payload).
 struct __attribute__((packed)) MessagePacket {
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
-  uint8_t d[22]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
 struct MessagePacket recvDataW;
@@ -371,7 +371,7 @@ void checkWand() {
   while(packComs.available() > 0) {
     packComs.rxObj(recvDataW);
 
-    if(!packComs.currentPacketID() && recvDataW.i > 0) {
+    if(!packComs.currentPacketID()) {
       if(b_wand_connected == true) {
         switch(recvDataW.i) {
           case W_ON:
@@ -3165,7 +3165,7 @@ void checkSerial1() {
   while(serial1Coms.available() > 0) {
     serial1Coms.rxObj(recvDataS);
 
-    if(!serial1Coms.currentPacketID() && recvDataS.i > 0) {
+    if(!serial1Coms.currentPacketID()) {
       if(b_serial1_connected == true) {
         switch(recvDataS.i) {
           case A_HANDSHAKE:

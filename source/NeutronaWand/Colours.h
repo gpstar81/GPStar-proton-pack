@@ -240,8 +240,8 @@ CRGB getHueAsGRB(uint8_t i_colour, uint8_t i_brightness = 255) {
 
 CRGB getHueColour(uint8_t i_colour, uint8_t i_num_leds, uint8_t i_brightness = 255) {
   switch(i_num_leds) {
-    case LEDS_48:
-    case LEDS_60:
+    case LEDS_49:
+    case LEDS_61:
       return getHueAsRGB(i_colour, i_brightness, false);
     break;
 
