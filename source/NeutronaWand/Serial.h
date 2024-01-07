@@ -40,7 +40,6 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
 
     switch(i_message) {
       case W_SEND_PREFERENCES_WAND:
-Serial.println("W_SEND_PREFERENCES_WAND");
         // Sends values from current runtime variables as values in an int array.
         // Any ENUM or boolean types will simply translate as numeric values.
         switch(WAND_BARREL_LED_COUNT) {
@@ -76,7 +75,6 @@ Serial.println("W_SEND_PREFERENCES_WAND");
       break;
 
       case W_SEND_PREFERENCES_SMOKE:
-Serial.println("W_SEND_PREFERENCES_SMOKE");
         // Determines whether overheating is enabled for a power level.
         sendData.d[0] = b_overheat_mode_5;
         sendData.d[1] = b_overheat_mode_4;
@@ -159,13 +157,11 @@ void checkPack() {
 
         case P_SEND_PREFERENCES_WAND:
           // The pack wants the latest wand preferences.
-Serial.println("P_SEND_PREFERENCES_WAND");
           wandSerialSend(W_SEND_PREFERENCES_WAND);
         break;
 
         case P_SEND_PREFERENCES_SMOKE:
           // The pack wants the latest smoke preferences.
-Serial.println("P_SEND_PREFERENCES_SMOKE");
           wandSerialSend(W_SEND_PREFERENCES_SMOKE);
         break;
 

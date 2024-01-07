@@ -110,9 +110,9 @@ const unsigned int i_meson_blast_delay_level_1 = 220;
  * Barrel LEDs.
  * The Hasbro Neutrona Wand has 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
  * Support for up to 60 LEDs. With the options of 48 and 60 from Frutto Technology, with the 48 option first.
- * Note: A 49th and 61st LEDs are a built-in strobe for the tip which will supercede the dedicated white LED.
+ * Note: The 48/60 LED options include built-in strobe for the tip which will supersede the dedicated white LED.
  */
-#define BARREL_LEDS_MAX 60 // The maximum number of barrel LEDs supported.
+#define BARREL_LEDS_MAX 61 // The maximum number of barrel LEDs supported.
 #define BARREL_LED_PIN 10
 CRGB barrel_leds[BARREL_LEDS_MAX];
 

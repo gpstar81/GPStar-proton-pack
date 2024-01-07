@@ -201,7 +201,6 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
     break;
 
     case A_SEND_PREFERENCES_PACK:
-Serial.println("A_SEND_PREFERENCES_PACK");
       // Sends values from current runtime variables as values in an int array.
       // Any ENUM or boolean types will simply translate as numeric values.
       sendDataS.d[0] = SYSTEM_MODE;
@@ -236,7 +235,6 @@ Serial.println("A_SEND_PREFERENCES_PACK");
     break;
 
     case A_SEND_PREFERENCES_WAND:
-Serial.println("A_SEND_PREFERENCES_WAND");
       // Sends values from current runtime variables as values in an int array.
       // Any ENUM or boolean types will simply translate as numeric values.
       sendDataS.d[0] = wandConfig.ledWandCount;
@@ -261,7 +259,7 @@ Serial.println("A_SEND_PREFERENCES_WAND");
 
     case A_SEND_PREFERENCES_SMOKE:
       // Sends values from current runtime variables as values in an int array.
-Serial.println("A_SEND_PREFERENCES_SMOKE");
+
       // Duration (in seconds) an overheat event persists once activated.
       sendDataS.d[0] = i_ms_overheating_length_5 / 1000;
       sendDataS.d[1] = i_ms_overheating_length_4 / 1000;
@@ -316,7 +314,6 @@ void packSerialSend(uint16_t i_message, uint16_t i_value) {
   // Provide additional data with certain messages.
   switch(i_message) {
     case P_SAVE_PREFERENCES_WAND:
-Serial.println("P_SAVE_PREFERENCES_WAND");
       // Sends values from current runtime variables as values in an int array.
       // Any ENUM or boolean types will simply translate as numeric values.
       sendDataW.d[0] = wandConfig.ledWandCount;
@@ -340,7 +337,6 @@ Serial.println("P_SAVE_PREFERENCES_WAND");
     break;
 
     case P_SAVE_PREFERENCES_SMOKE:
-Serial.println("P_SAVE_PREFERENCES_SMOKE");
       // Sends values from current runtime variables as values in an int array.
       sendDataW.d[0] = wandConfig.overheatLevel5;
       sendDataW.d[1] = wandConfig.overheatLevel4;
@@ -3285,19 +3281,16 @@ void checkSerial1() {
 
           case A_REQUEST_PREFERENCES_PACK:
             // If requested by the serial device, send back all pack EEPROM preferences.
-Serial.println("A_REQUEST_PREFERENCES_PACK");
             serial1Send(A_SEND_PREFERENCES_PACK);
           break;
 
           case A_REQUEST_PREFERENCES_WAND:
             // If requested by the serial device, tell the wand we need EEPROM preferences.
-Serial.println("A_REQUEST_PREFERENCES_WAND");
             packSerialSend(P_SEND_PREFERENCES_WAND);
           break;
 
           case A_REQUEST_PREFERENCES_SMOKE:
             // If requested by the serial device, tell the wand we need EEPROM preferences.
-Serial.println("A_REQUEST_PREFERENCES_SMOKE");
             packSerialSend(P_SEND_PREFERENCES_SMOKE);
           break;
 
@@ -3466,6 +3459,8 @@ Serial.println("A_REQUEST_PREFERENCES_SMOKE");
             // Commit changes to the EEPROM in the pack controller
             saveLedEEPROM();
             saveConfigEEPROM();
+
+            // Offer some feedback to the user
             stopEffect(S_VOICE_EEPROM_SAVE);
             playEffect(S_VOICE_EEPROM_SAVE);
           break;
@@ -3473,6 +3468,10 @@ Serial.println("A_REQUEST_PREFERENCES_SMOKE");
           case A_SAVE_EEPROM_SETTINGS_WAND:
             // Commit changes to the EEPROM on the wand controller
             packSerialSend(P_SAVE_EEPROM_WAND);
+
+            // Offer some feedback to the user
+            stopEffect(S_VOICE_EEPROM_SAVE);
+            playEffect(S_VOICE_EEPROM_SAVE);
           break;
 
           case A_SYNC_END:

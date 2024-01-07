@@ -236,6 +236,7 @@ String getEquipmentStatus() {
     jsonDoc["musicCurrent"] = i_music_track_current;
     jsonDoc["musicStart"] = i_music_track_min;
     jsonDoc["musicEnd"] = i_music_track_max;
+    jsonDoc["battVoltage"] = f_batt_volts;
   }
 
   // Serialize JSON object to string.
