@@ -4528,6 +4528,9 @@ void doVoltageCheck() {
   // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
   ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
 
+  // This appears to work without the delay, but for more accurate readings it may be necessary.
+  // delay(50); // Let mux settle a little to get a more stable A/D conversion.
+
   ADCSRA |= _BV( ADSC ); // Start a conversion.
   while( ( (ADCSRA & (1<<ADSC)) != 0 ) ); // Wait for conversion to complete...
 

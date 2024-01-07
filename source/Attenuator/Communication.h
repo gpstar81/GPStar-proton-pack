@@ -21,7 +21,6 @@
 #pragma once
 
 enum api_messages {
-  A_COM_START,
   A_WAND_ON,
   A_WAND_OFF,
   A_FIRING,
@@ -166,6 +165,5 @@ enum api_messages {
   A_SEND_PREFERENCES_SMOKE,
   A_SAVE_PREFERENCES_PACK,
   A_SAVE_PREFERENCES_WAND,
-  A_SAVE_PREFERENCES_SMOKE,
-  A_COM_END
+  A_SAVE_PREFERENCES_SMOKE
 };

@@ -244,5 +244,8 @@ bool b_pack_alarm = false;
 bool b_firing = false;
 bool b_overheating = false;
 
+// Battery Voltage
+float f_batt_volts;
+
 // Forward declarations.
 void debug(String message);

@@ -20,7 +20,6 @@
 #pragma once
 
 enum pack_messages {
-  P_COM_START,
   P_PACK_BOOTUP,
   P_ON,
   P_OFF,
@@ -136,12 +135,10 @@ enum pack_messages {
   P_SAVE_PREFERENCES_SMOKE,
   P_SAVE_EEPROM_WAND,
   P_SYNC_START,
-  P_SYNC_END,
-  P_COM_END,
+  P_SYNC_END
 };
 
 enum wand_messages {
-  W_COM_START,
   W_ON,
   W_OFF,
   W_FIRING,
@@ -332,6 +329,5 @@ enum wand_messages {
   W_SOUND_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT,
   W_SEND_PREFERENCES_WAND,
   W_SEND_PREFERENCES_SMOKE,
-  W_COM_SOUND_NUMBER,
-  W_COM_END
+  W_COM_SOUND_NUMBER
 };
