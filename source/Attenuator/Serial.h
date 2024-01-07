@@ -913,6 +913,12 @@ boolean checkPack() {
             smokeConfig.smokeEnabled = comStruct.d[20];
           break;
 
+          case A_BATTERY_VOLTAGE_PACK:
+            #if defined(__XTENSA__)
+              debug("Voltage: " + String((float) comStruct.d1 / 100));
+            #endif
+          break;
+
           default:
             // Nothing.
           break;

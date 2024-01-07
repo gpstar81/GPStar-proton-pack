@@ -205,12 +205,8 @@ void loop() {
 
   // Voltage Check, Part 1 - Initiate the read process, which requires a delay.
   if(ms_battcheck.remaining() < 1) {
-    beginVoltageCheck(); // Kick off a check which will write to the i_batt_volts variable.
+    doVoltageCheck(); // Kick off a check which will write to the i_batt_volts variable.
     ms_battcheck.start(i_ms_battcheck_delay);
-  }
-  // Voltage Check, Part 2 - Read the actual voltage after a brief delay.
-  if(ms_battread.remaining() < 1) { 
-    readVoltage(); // Reads the latest into a global variable.
   }
 
   wandHandShake();
@@ -4527,30 +4523,20 @@ void setupWavTrigger() {
 // Sourced from https://community.particle.io/t/battery-voltage-checking/5467
 // Obtains the ATMega chip's actual Vcc voltage value, using internal bandgap reference.
 // This demonstrates ability to read processors Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
-void beginVoltageCheck() {
+void doVoltageCheck() {
   // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
   // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
   ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
-
-  // Let mux settle a little to get a more stable A/D conversion.
-  // This will require an additional function to read results.
-  ms_battread.start(50);
-}
-void readVoltage() {
-  const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
 
   ADCSRA |= _BV( ADSC ); // Start a conversion.
   while( ( (ADCSRA & (1<<ADSC)) != 0 ) ); // Wait for conversion to complete...
 
   // Scale the value, which returns the actual value of Vcc x 100
-  i_batt_volts = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value
+  const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
+  i_batt_volts = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
 
-  // Using this for debugging only.
-  Serial.print("Battery Vcc volts = ");
-  Serial.println(i_batt_volts);
-  Serial.print("Analog pin 0 voltage = ");
-  Serial.println(map(analogRead(0), 0, 1023, 0, i_batt_volts));
-  Serial.println();
+  // Send current voltage value to the serial1 device.
+  serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.

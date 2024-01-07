@@ -132,10 +132,10 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function heartbeat() {
-      if (!websocket) return;
-      if (websocket.readyState !== 1) return;
-      websocket.ping();
-      setTimeout(heartbeat, 1000);
+      if (websocket && websocket.readyState == websocket.OPEN) {
+        websocket.send("heartbeat");
+      }
+      setTimeout(heartbeat, 2000);
     }
 
     function onOpen(event) {
@@ -165,14 +165,12 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function onMessage(event) {
-      if (typeOf event.data === String) {
-        if (isJsonString(event.data)) {
-          // If JSON, use as status update.
-          updateStatus(JSON.parse(event.data));
-        } else {
-          // Anything else gets sent to console.
-          console.log(event.data);
-        }
+      if (isJsonString(event.data)) {
+        // If JSON, use as status update.
+        updateStatus(JSON.parse(event.data));
+      } else {
+        // Anything else gets sent to console.
+        console.log(event.data);
       }
     }
 
