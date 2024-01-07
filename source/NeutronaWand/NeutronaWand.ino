@@ -3143,10 +3143,7 @@ void fireStream(CRGB c_colour) {
     break;
 
     case LEDS_48:
-      if(ms_firing_stream_blue.justFinished()) {
-        ms_firing_stream_blue.start(2);
-        ms_fast_led.start(1);
-      }
+      // Not yet supported.
     break;
 
     case LEDS_5:
