@@ -35,13 +35,8 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
     sendStruct.i = i_message;
     sendStruct.d1 = i_value;
 
-    // Get the number of elements in the data array
-    uint16_t arrayLength = sizeof(sendStruct.d) / sizeof(sendStruct.d[0]);
-
-    // Set each element of the data array to 0
-    for (uint16_t i = 0; i < arrayLength; i++) {
-      sendStruct.d[i] = 0;
-    }
+    // Set all elements of the data array to 0
+    memset(sendStruct.d, 0, sizeof(sendStruct.d));
 
     switch(i_message) {
       case W_SEND_PREFERENCES_WAND:
@@ -149,10 +144,6 @@ void checkPack() {
           if(b_switch_barrel_extended == true) {
             wandSerialSend(W_BARREL_EXTENDED);
           }
-Serial.println("P_SYNC_END");
-          // Send current preferences to the pack for use by the serial1 device.
-          wandSerialSend(W_SEND_PREFERENCES_WAND);
-          wandSerialSend(W_SEND_PREFERENCES_SMOKE);
         break;
 
         case P_SEND_PREFERENCES_WAND:
