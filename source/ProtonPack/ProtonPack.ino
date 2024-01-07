@@ -47,7 +47,7 @@
 void setup() {
   Serial.begin(9600); // Standard serial console.
 
-  Serial1.begin(19200); // Add-on Serial1 communication.
+  Serial1.begin(9600); // Add-on Serial1 communication.
   Serial2.begin(9600); // Communication to the Neutrona Wand.
 
   // Connect the serial ports.
