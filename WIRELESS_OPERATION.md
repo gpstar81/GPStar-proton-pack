@@ -40,6 +40,10 @@ Controls will be made available on a per-action or per-state basis. Shown here, 
 
 ![](images/WebUI-Controls.jpg)
 
+### Preferences
+
+These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 3 sections: Pack, Wand, and Smoke.
+
 ### Administration
 
 These links allow you to update the WiFi password to one of your choice, or to update the software (respectively).
@@ -61,9 +65,6 @@ For real-time updates, a special url exists at `/ws` to support [WebSockets](htt
 
 The following URL's are available for managing actions within your devices:
 
-	GET /config/pack - Obtain the current pack equipment settings
-	GET /config/wand - Obtain the current wand equipment settings
-	GET /config/smoke - Obtain the current pack/wand smoke settings
 	GET /status - Obtain the current equipment status
 	PUT /pack/on - Turn the pack on (subject to system state)
 	PUT /pack/off - Turn the pack onf (subject to system state)
@@ -79,3 +80,12 @@ The following URL's are available for managing actions within your devices:
 	PUT /music/next - Move to next track
 	PUT /music/prev - Move to previous track
 	PUT /music/select?track=[INTEGER] - Select a specific music track (Min Value: 500)
+	GET /config/pack - Obtain the current pack equipment settings
+	PUT /config/pack/save - Sends latest pack settings for evaluation
+	GET /config/wand - Obtain the current wand equipment settings
+	PUT /config/wand/save - Sends latest wand settings for evaluation
+	GET /config/smoke - Obtain the current pack/wand smoke settings
+	PUT /config/smoke/save - Sends latest smoke settings for evaluation
+	PUT /eeprom/app - Stores current smoke preferences to pack/wand EEPROMs
+	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM
+	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM
