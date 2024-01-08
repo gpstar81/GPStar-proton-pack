@@ -23,8 +23,8 @@
 /*
  * Web Handler Functions - Performs actions or returns data for web UI
  */
-StaticJsonDocument<1024> jsonDoc; // Used for processing JSON body data.
-StaticJsonDocument<16> jsonSuccess; // Used for sending JSON status as success.
+JsonDocument jsonBody; // Used for processing JSON body/payload data.
+JsonDocument jsonSuccess; // Used for sending JSON status as success.
 String status; // Holder for simple "status: success" response.
 
 void handleRoot(AsyncWebServerRequest *request) {
@@ -81,166 +81,166 @@ void handleStylesheet(AsyncWebServerRequest *request) {
 String getPackConfig() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipSettings;
-  jsonDoc.clear();
+  jsonBody.clear();
 
   if(!b_wait_for_pack) {
     // Return current powered state for pack and wand.
-    jsonDoc["packPowered"] = (b_pack_on ? true : false);
-    jsonDoc["wandPowered"] = (b_wand_on ? true : false);
+    jsonBody["packPowered"] = (b_pack_on ? true : false);
+    jsonBody["wandPowered"] = (b_wand_on ? true : false);
 
     // Proton Pack Runtime Options
-    jsonDoc["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
-    jsonDoc["defaultYearThemePack"] = packConfig.defaultYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
-    jsonDoc["defaultSystemVolume"] = packConfig.defaultSystemVolume; // 0-100
-    jsonDoc["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
-    jsonDoc["overheatStrobeNF"] = packConfig.overheatStrobeNF; // true|false
-    jsonDoc["overheatLightsOff"] = packConfig.overheatLightsOff; // true|false
-    jsonDoc["overheatSyncToFan"] = packConfig.overheatSyncToFan;// true|false
-    jsonDoc["demoLightMode"] = packConfig.demoLightMode; // true|false
+    jsonBody["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
+    jsonBody["defaultYearThemePack"] = packConfig.defaultYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
+    jsonBody["defaultSystemVolume"] = packConfig.defaultSystemVolume; // 0-100
+    jsonBody["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
+    jsonBody["overheatStrobeNF"] = packConfig.overheatStrobeNF; // true|false
+    jsonBody["overheatLightsOff"] = packConfig.overheatLightsOff; // true|false
+    jsonBody["overheatSyncToFan"] = packConfig.overheatSyncToFan;// true|false
+    jsonBody["demoLightMode"] = packConfig.demoLightMode; // true|false
 
     // Proton Pack LED Options
-    jsonDoc["ledCycLidCount"] = packConfig.ledCycLidCount; // [12,20,40]
-    jsonDoc["ledCycLidHue"] = packConfig.ledCycLidHue; // Spectral custom color/hue 1-254
-    jsonDoc["ledCycLidSat"] = packConfig.ledCycLidSat; // Spectral custom saturation 1-254
-    jsonDoc["cyclotronDirection"] = packConfig.cyclotronDirection; // [0=CCW,1=CW]
-    jsonDoc["ledCycLidCenter"] = packConfig.ledCycLidCenter; // [0=3,1=1]
-    jsonDoc["ledVGCyclotron"] = packConfig.ledVGCyclotron; // true|false
-    jsonDoc["ledCycLidSimRing"] = packConfig.ledCycLidSimRing; // true|false
-    jsonDoc["ledCycCakeCount"] = packConfig.ledCycCakeCount; // [12,23,24,35]
-    jsonDoc["ledCycCakeHue"] = packConfig.ledCycCakeHue; // Spectral custom color/hue 1-254
-    jsonDoc["ledCycCakeSat"] = packConfig.ledCycCakeSat; // Spectral custom saturation 1-254
-    jsonDoc["ledCycCakeGRB"] = packConfig.ledCycCakeGRB; // Use GRB for cake LEDs true|false
-    jsonDoc["ledPowercellCount"] = packConfig.ledPowercellCount; //[13,15]
-    jsonDoc["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom color/hue 1-254
-    jsonDoc["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 1-254
-    jsonDoc["ledVGPowercell"] = packConfig.ledVGPowercell; // true|false
+    jsonBody["ledCycLidCount"] = packConfig.ledCycLidCount; // [12,20,40]
+    jsonBody["ledCycLidHue"] = packConfig.ledCycLidHue; // Spectral custom color/hue 1-254
+    jsonBody["ledCycLidSat"] = packConfig.ledCycLidSat; // Spectral custom saturation 1-254
+    jsonBody["cyclotronDirection"] = packConfig.cyclotronDirection; // [0=CCW,1=CW]
+    jsonBody["ledCycLidCenter"] = packConfig.ledCycLidCenter; // [0=3,1=1]
+    jsonBody["ledVGCyclotron"] = packConfig.ledVGCyclotron; // true|false
+    jsonBody["ledCycLidSimRing"] = packConfig.ledCycLidSimRing; // true|false
+    jsonBody["ledCycCakeCount"] = packConfig.ledCycCakeCount; // [12,23,24,35]
+    jsonBody["ledCycCakeHue"] = packConfig.ledCycCakeHue; // Spectral custom color/hue 1-254
+    jsonBody["ledCycCakeSat"] = packConfig.ledCycCakeSat; // Spectral custom saturation 1-254
+    jsonBody["ledCycCakeGRB"] = packConfig.ledCycCakeGRB; // Use GRB for cake LEDs true|false
+    jsonBody["ledPowercellCount"] = packConfig.ledPowercellCount; //[13,15]
+    jsonBody["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom color/hue 1-254
+    jsonBody["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 1-254
+    jsonBody["ledVGPowercell"] = packConfig.ledVGPowercell; // true|false
   }
 
   // Serialize JSON object to string.
-  serializeJson(jsonDoc, equipSettings);
+  serializeJson(jsonBody, equipSettings);
   return equipSettings;
 }
 
 String getWandConfig() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipSettings;
-  jsonDoc.clear();
+  jsonBody.clear();
 
   if(!b_wait_for_pack) {
     // Return current powered state for pack and wand.
-    jsonDoc["packPowered"] = (b_pack_on ? true : false);
-    jsonDoc["wandPowered"] = (b_wand_on ? true : false);
+    jsonBody["packPowered"] = (b_pack_on ? true : false);
+    jsonBody["wandPowered"] = (b_wand_on ? true : false);
 
     // Neutrona Wand LED Options
-    jsonDoc["ledWandCount"] = wandConfig.ledWandCount; // [0=5,1=48]
-    jsonDoc["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom color/hue 1-254
-    jsonDoc["ledWandSat"] = wandConfig.ledWandSat; // Spectral custom saturation 1-254
-    jsonDoc["spectralModeEnabled"] = wandConfig.spectralModeEnabled; // true|false
-    jsonDoc["spectralHolidayMode"] = wandConfig.spectralHolidayMode; // true|false
+    jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5,1=48]
+    jsonBody["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom color/hue 1-254
+    jsonBody["ledWandSat"] = wandConfig.ledWandSat; // Spectral custom saturation 1-254
+    jsonBody["spectralModeEnabled"] = wandConfig.spectralModeEnabled; // true|false
+    jsonBody["spectralHolidayMode"] = wandConfig.spectralHolidayMode; // true|false
 
     // Neutrona Wand Runtime Options
-    jsonDoc["overheatEnabled"] = wandConfig.overheatEnabled; // true|false
-    jsonDoc["defaultFiringMode"] = wandConfig.defaultFiringMode; // [0=VG,1=CTS,2=SYSTEM]
-    jsonDoc["wandSoundsToPack"] = wandConfig.wandSoundsToPack; // true|false
-    jsonDoc["quickVenting"] = wandConfig.quickVenting; // true|false (Super-Hero Mode Only)
-    jsonDoc["autoVentLight"] = wandConfig.autoVentLight; // true|false
-    jsonDoc["wandBeepLoop"] = wandConfig.wandBeepLoop; // true|false (Afterlife/Frozen Empire Only)
-    jsonDoc["wandBootError"] = wandConfig.wandBootError; // true|false (Super-Hero Mode Only)
-    jsonDoc["defaultYearModeWand"] = wandConfig.defaultYearModeWand; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
-    jsonDoc["defaultYearModeCTS"] = wandConfig.defaultYearModeCTS; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
-    jsonDoc["invertWandBargraph"] = wandConfig.invertWandBargraph; // true|false
-    jsonDoc["bargraphOverheatBlink"] = wandConfig.bargraphOverheatBlink; // true|false
-    jsonDoc["bargraphIdleAnimation"] = wandConfig.bargraphIdleAnimation; // [1=SYSTEM,2=SH,3=MO]
-    jsonDoc["bargraphFireAnimation"] = wandConfig.bargraphFireAnimation; // [1=SYSTEM,2=SH,3=MO]
+    jsonBody["overheatEnabled"] = wandConfig.overheatEnabled; // true|false
+    jsonBody["defaultFiringMode"] = wandConfig.defaultFiringMode; // [0=VG,1=CTS,2=SYSTEM]
+    jsonBody["wandSoundsToPack"] = wandConfig.wandSoundsToPack; // true|false
+    jsonBody["quickVenting"] = wandConfig.quickVenting; // true|false (Super-Hero Mode Only)
+    jsonBody["autoVentLight"] = wandConfig.autoVentLight; // true|false
+    jsonBody["wandBeepLoop"] = wandConfig.wandBeepLoop; // true|false (Afterlife/Frozen Empire Only)
+    jsonBody["wandBootError"] = wandConfig.wandBootError; // true|false (Super-Hero Mode Only)
+    jsonBody["defaultYearModeWand"] = wandConfig.defaultYearModeWand; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
+    jsonBody["defaultYearModeCTS"] = wandConfig.defaultYearModeCTS; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
+    jsonBody["invertWandBargraph"] = wandConfig.invertWandBargraph; // true|false
+    jsonBody["bargraphOverheatBlink"] = wandConfig.bargraphOverheatBlink; // true|false
+    jsonBody["bargraphIdleAnimation"] = wandConfig.bargraphIdleAnimation; // [1=SYSTEM,2=SH,3=MO]
+    jsonBody["bargraphFireAnimation"] = wandConfig.bargraphFireAnimation; // [1=SYSTEM,2=SH,3=MO]
   }
 
   // Serialize JSON object to string.
-  serializeJson(jsonDoc, equipSettings);
+  serializeJson(jsonBody, equipSettings);
   return equipSettings;
 }
 
 String getSmokeConfig() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipSettings;
-  jsonDoc.clear();
+  jsonBody.clear();
 
   if(!b_wait_for_pack) {
     // Return current powered state for pack and wand.
-    jsonDoc["packPowered"] = (b_pack_on ? true : false);
-    jsonDoc["wandPowered"] = (b_wand_on ? true : false);
+    jsonBody["packPowered"] = (b_pack_on ? true : false);
+    jsonBody["wandPowered"] = (b_wand_on ? true : false);
 
     // Proton Pack
-    jsonDoc["smokeEnabled"] = smokeConfig.smokeEnabled; // true|false
+    jsonBody["smokeEnabled"] = smokeConfig.smokeEnabled; // true|false
 
     // Power Level 5
-    jsonDoc["overheatDuration5"] = smokeConfig.overheatDuration5; // 2-60
-    jsonDoc["overheatContinuous5"] = smokeConfig.overheatContinuous5; // true|false
+    jsonBody["overheatDuration5"] = smokeConfig.overheatDuration5; // 2-60
+    jsonBody["overheatContinuous5"] = smokeConfig.overheatContinuous5; // true|false
     // Power Level 4
-    jsonDoc["overheatDuration4"] = smokeConfig.overheatDuration4; // 2-60
-    jsonDoc["overheatContinuous4"] = smokeConfig.overheatContinuous4; // true|false
+    jsonBody["overheatDuration4"] = smokeConfig.overheatDuration4; // 2-60
+    jsonBody["overheatContinuous4"] = smokeConfig.overheatContinuous4; // true|false
     // Power Level 3
-    jsonDoc["overheatDuration3"] = smokeConfig.overheatDuration3; // 2-60
-    jsonDoc["overheatContinuous3"] = smokeConfig.overheatContinuous3; // true|false
+    jsonBody["overheatDuration3"] = smokeConfig.overheatDuration3; // 2-60
+    jsonBody["overheatContinuous3"] = smokeConfig.overheatContinuous3; // true|false
     // Power Level 2
-    jsonDoc["overheatDuration2"] = smokeConfig.overheatDuration2; // 2-60
-    jsonDoc["overheatContinuous2"] = smokeConfig.overheatContinuous2; // true|false
+    jsonBody["overheatDuration2"] = smokeConfig.overheatDuration2; // 2-60
+    jsonBody["overheatContinuous2"] = smokeConfig.overheatContinuous2; // true|false
     // Power Level 1
-    jsonDoc["overheatDuration1"] = smokeConfig.overheatDuration1; // 2-60
-    jsonDoc["overheatContinuous1"] = smokeConfig.overheatContinuous1; // true|false
+    jsonBody["overheatDuration1"] = smokeConfig.overheatDuration1; // 2-60
+    jsonBody["overheatContinuous1"] = smokeConfig.overheatContinuous1; // true|false
 
     // Neutrona Wand
 
     // Power Level 5
-    jsonDoc["overheatLevel5"] = smokeConfig.overheatLevel5; // true|false
-    jsonDoc["overheatDelay5"] = smokeConfig.overheatDelay5; // 2-60
+    jsonBody["overheatLevel5"] = smokeConfig.overheatLevel5; // true|false
+    jsonBody["overheatDelay5"] = smokeConfig.overheatDelay5; // 2-60
     // Power Level 4
-    jsonDoc["overheatLevel4"] = smokeConfig.overheatLevel4; // true|false
-    jsonDoc["overheatDelay4"] = smokeConfig.overheatDelay4; // 2-60
+    jsonBody["overheatLevel4"] = smokeConfig.overheatLevel4; // true|false
+    jsonBody["overheatDelay4"] = smokeConfig.overheatDelay4; // 2-60
     // Power Level 3
-    jsonDoc["overheatLevel3"] = smokeConfig.overheatLevel3; // true|false
-    jsonDoc["overheatDelay3"] = smokeConfig.overheatDelay3; // 2-60
+    jsonBody["overheatLevel3"] = smokeConfig.overheatLevel3; // true|false
+    jsonBody["overheatDelay3"] = smokeConfig.overheatDelay3; // 2-60
     // Power Level 2
-    jsonDoc["overheatLevel2"] = smokeConfig.overheatLevel2; // true|false
-    jsonDoc["overheatDelay2"] = smokeConfig.overheatDelay2; // 2-60
+    jsonBody["overheatLevel2"] = smokeConfig.overheatLevel2; // true|false
+    jsonBody["overheatDelay2"] = smokeConfig.overheatDelay2; // 2-60
     // Power Level 1
-    jsonDoc["overheatLevel1"] = smokeConfig.overheatLevel1; // true|false
-    jsonDoc["overheatDelay1"] = smokeConfig.overheatDelay1; // 2-60
+    jsonBody["overheatLevel1"] = smokeConfig.overheatLevel1; // true|false
+    jsonBody["overheatDelay1"] = smokeConfig.overheatDelay1; // 2-60
   }
 
   // Serialize JSON object to string.
-  serializeJson(jsonDoc, equipSettings);
+  serializeJson(jsonBody, equipSettings);
   return equipSettings;
 }
 
 String getEquipmentStatus() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipStatus;
-  jsonDoc.clear();
+  jsonBody.clear();
 
   if(!b_wait_for_pack) {
     // Only prepare status when not waiting on the pack
-    jsonDoc["mode"] = getMode();
-    jsonDoc["theme"] = getTheme();
-    jsonDoc["switch"] = getRedSwitch();
-    jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
-    jsonDoc["power"] = getPower();
-    jsonDoc["safety"] = getSafety();
-    jsonDoc["wand"] = (b_wand_on ? "Powered" : "Idle");
-    jsonDoc["wandMode"] = getWandMode();
-    jsonDoc["firing"] = (b_firing ? "Firing" : "Idle");
-    jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
-    jsonDoc["cyclotron"] = getCyclotronState();
-    jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
-    jsonDoc["musicPlaying"] = b_playing_music;
-    jsonDoc["musicPaused"] = b_music_paused;
-    jsonDoc["musicCurrent"] = i_music_track_current;
-    jsonDoc["musicStart"] = i_music_track_min;
-    jsonDoc["musicEnd"] = i_music_track_max;
-    jsonDoc["battVoltage"] = f_batt_volts;
+    jsonBody["mode"] = getMode();
+    jsonBody["theme"] = getTheme();
+    jsonBody["switch"] = getRedSwitch();
+    jsonBody["pack"] = (b_pack_on ? "Powered" : "Idle");
+    jsonBody["power"] = getPower();
+    jsonBody["safety"] = getSafety();
+    jsonBody["wand"] = (b_wand_on ? "Powered" : "Idle");
+    jsonBody["wandMode"] = getWandMode();
+    jsonBody["firing"] = (b_firing ? "Firing" : "Idle");
+    jsonBody["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
+    jsonBody["cyclotron"] = getCyclotronState();
+    jsonBody["temperature"] = (b_overheating ? "Venting" : "Normal");
+    jsonBody["musicPlaying"] = b_playing_music;
+    jsonBody["musicPaused"] = b_music_paused;
+    jsonBody["musicCurrent"] = i_music_track_current;
+    jsonBody["musicStart"] = i_music_track_min;
+    jsonBody["musicEnd"] = i_music_track_max;
+    jsonBody["battVoltage"] = f_batt_volts;
   }
 
   // Serialize JSON object to string.
-  serializeJson(jsonDoc, equipStatus);
+  serializeJson(jsonBody, equipStatus);
   return equipStatus;
 }
 
@@ -292,9 +292,9 @@ void handleAttenuatePack(AsyncWebServerRequest *request) {
   } else {
     // Tell the user why the requested action failed.
     String result;
-    jsonDoc.clear();
-    jsonDoc["status"] = "System not in overheat warning";
-    serializeJson(jsonDoc, result); // Serialize to string.
+    jsonBody.clear();
+    jsonBody["status"] = "System not in overheat warning";
+    serializeJson(jsonBody, result); // Serialize to string.
     request->send(200, "application/json", result);
   }
 }
@@ -376,9 +376,9 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   else {
     // Tell the user why the requested action failed.
     String result;
-    jsonDoc.clear();
-    jsonDoc["status"] = "Invalid track number requested";
-    serializeJson(jsonDoc, result); // Serialize to string.
+    jsonBody.clear();
+    jsonBody["status"] = "Invalid track number requested";
+    serializeJson(jsonBody, result); // Serialize to string.
     request->send(200, "application/json", result);
   }
 }
@@ -404,7 +404,7 @@ void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
 
 // Handles the JSON body for the pack settings save request.
 AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHandler("/config/pack/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  StaticJsonDocument<512> jsonBody;
+  jsonBody.clear();
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
@@ -414,56 +414,64 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
 
   String result;
   if(!b_pack_on && !b_wand_on) {
-    // General Options
-    packConfig.defaultSystemModePack = jsonBody["defaultSystemModePack"];
-    packConfig.defaultYearThemePack = jsonBody["defaultYearThemePack"];
-    packConfig.defaultSystemVolume = jsonBody["defaultSystemVolume"];
-    packConfig.protonStreamEffects = jsonBody["protonStreamEffects"];
-    packConfig.overheatStrobeNF = jsonBody["overheatStrobeNF"];
-    packConfig.overheatLightsOff = jsonBody["overheatLightsOff"];
-    packConfig.overheatSyncToFan = jsonBody["overheatSyncToFan"];
-    packConfig.demoLightMode = jsonBody["demoLightMode"];
+    try {
+      // General Options
+      packConfig.defaultSystemModePack = jsonBody["defaultSystemModePack"].as<uint8_t>();
+      packConfig.defaultYearThemePack = jsonBody["defaultYearThemePack"].as<uint8_t>();
+      packConfig.defaultSystemVolume = jsonBody["defaultSystemVolume"].as<uint8_t>();
+      packConfig.protonStreamEffects = jsonBody["protonStreamEffects"].as<uint8_t>();
+      packConfig.overheatStrobeNF = jsonBody["overheatStrobeNF"].as<uint8_t>();
+      packConfig.overheatLightsOff = jsonBody["overheatLightsOff"].as<uint8_t>();
+      packConfig.overheatSyncToFan = jsonBody["overheatSyncToFan"].as<uint8_t>();
+      packConfig.demoLightMode = jsonBody["demoLightMode"].as<uint8_t>();
 
-    // Cyclotron Lid
-    packConfig.ledCycLidCount = jsonBody["ledCycLidCount"];
-    packConfig.ledCycLidHue = jsonBody["ledCycLidHue"];
-    packConfig.ledCycLidSat = jsonBody["ledCycLidSat"];
-    packConfig.cyclotronDirection = jsonBody["cyclotronDirection"];
-    packConfig.ledCycLidCenter = jsonBody["ledCycLidCenter"];
-    packConfig.ledVGCyclotron = jsonBody["ledVGCyclotron"];
-    packConfig.ledCycLidSimRing = jsonBody["ledCycLidSimRing"];
+      // Cyclotron Lid
+      packConfig.ledCycLidCount = jsonBody["ledCycLidCount"].as<uint8_t>();
+      packConfig.ledCycLidHue = jsonBody["ledCycLidHue"].as<uint8_t>();
+      packConfig.ledCycLidSat = jsonBody["ledCycLidSat"].as<uint8_t>();
+      packConfig.cyclotronDirection = jsonBody["cyclotronDirection"].as<uint8_t>();
+      packConfig.ledCycLidCenter = jsonBody["ledCycLidCenter"].as<uint8_t>();
+      packConfig.ledVGCyclotron = jsonBody["ledVGCyclotron"].as<uint8_t>();
+      packConfig.ledCycLidSimRing = jsonBody["ledCycLidSimRing"].as<uint8_t>();
 
-    // Inner Cyclotron
-    packConfig.ledCycCakeCount = jsonBody["ledCycCakeCount"];
-    packConfig.ledCycCakeHue = jsonBody["ledCycCakeHue"];
-    packConfig.ledCycCakeSat = jsonBody["ledCycCakeSat"];
-    packConfig.ledCycCakeGRB = jsonBody["ledCycCakeGRB"];
+      // Inner Cyclotron
+      packConfig.ledCycCakeCount = jsonBody["ledCycCakeCount"].as<uint8_t>();
+      packConfig.ledCycCakeHue = jsonBody["ledCycCakeHue"].as<uint8_t>();
+      packConfig.ledCycCakeSat = jsonBody["ledCycCakeSat"].as<uint8_t>();
+      packConfig.ledCycCakeGRB = jsonBody["ledCycCakeGRB"].as<uint8_t>();
 
-    // Power Cell
-    packConfig.ledPowercellCount = jsonBody["ledPowercellCount"];
-    packConfig.ledPowercellHue = jsonBody["ledPowercellHue"];
-    packConfig.ledPowercellSat = jsonBody["ledPowercellSat"];
-    packConfig.ledVGPowercell = jsonBody["ledVGPowercell"];
+      // Power Cell
+      packConfig.ledPowercellCount = jsonBody["ledPowercellCount"].as<uint8_t>();
+      packConfig.ledPowercellHue = jsonBody["ledPowercellHue"].as<uint8_t>();
+      packConfig.ledPowercellSat = jsonBody["ledPowercellSat"].as<uint8_t>();
+      packConfig.ledVGPowercell = jsonBody["ledVGPowercell"].as<uint8_t>();
 
-    jsonBody.clear();
-    jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-    serializeJson(jsonBody, result); // Serialize to string.
-    attenuatorSerialSend(A_SAVE_PREFERENCES_PACK); // Tell the pack to save the new settings.
-    request->send(200, "application/json", result);
+      jsonBody.clear();
+      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
+      serializeJson(jsonBody, result); // Serialize to string.
+      attenuatorSerialSend(A_SAVE_PREFERENCES_PACK); // Tell the pack to save the new settings.
+      request->send(200, "application/json", result);
+    }
+    catch (...) {
+      jsonBody.clear();
+      jsonBody["status"] = "An error was encountered while saving settings.";
+      serializeJson(jsonBody, result); // Serialize to string.
+      request->send(200, "application/json", result);
+    }
   }
   else {
     // Tell the user why the requested action failed.
     String result;
-    jsonDoc.clear();
-    jsonDoc["status"] = "Pack and/or Wand are running, save action cancelled";
-    serializeJson(jsonDoc, result); // Serialize to string.
+    jsonBody.clear();
+    jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
+    serializeJson(jsonBody, result); // Serialize to string.
     request->send(200, "application/json", result);
   }
 });
 
 // Handles the JSON body for the wand settings save request.
 AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHandler("/config/wand/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  StaticJsonDocument<512> jsonBody;
+  jsonBody.clear();
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
@@ -473,44 +481,52 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
 
   String result;
   if(!b_pack_on && !b_wand_on) {
-    wandConfig.ledWandCount = jsonBody["ledWandCount"];
-    wandConfig.ledWandHue = jsonBody["ledWandHue"];
-    wandConfig.ledWandSat = jsonBody["ledWandSat"];
-    wandConfig.spectralModeEnabled = jsonBody["spectralModeEnabled"];
-    wandConfig.spectralHolidayMode = jsonBody["spectralHolidayMode"];
-    wandConfig.overheatEnabled = jsonBody["overheatEnabled"];
-    wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"];
-    wandConfig.wandSoundsToPack = jsonBody["wandSoundsToPack"];
-    wandConfig.quickVenting = jsonBody["quickVenting"];
-    wandConfig.autoVentLight = jsonBody["autoVentLight"];
-    wandConfig.wandBeepLoop = jsonBody["wandBeepLoop"];
-    wandConfig.wandBootError = jsonBody["wandBootError"];
-    wandConfig.defaultYearModeWand = jsonBody["defaultYearModeWand"];
-    wandConfig.defaultYearModeCTS = jsonBody["defaultYearModeCTS"];
-    wandConfig.invertWandBargraph = jsonBody["invertWandBargraph"];
-    wandConfig.bargraphOverheatBlink = jsonBody["bargraphOverheatBlink"];
-    wandConfig.bargraphIdleAnimation = jsonBody["bargraphIdleAnimation"];
-    wandConfig.bargraphFireAnimation = jsonBody["bargraphFireAnimation"];
+    try {
+      wandConfig.ledWandCount = jsonBody["ledWandCount"].as<uint8_t>();
+      wandConfig.ledWandHue = jsonBody["ledWandHue"].as<uint8_t>();
+      wandConfig.ledWandSat = jsonBody["ledWandSat"].as<uint8_t>();
+      wandConfig.spectralModeEnabled = jsonBody["spectralModeEnabled"].as<uint8_t>();
+      wandConfig.spectralHolidayMode = jsonBody["spectralHolidayMode"].as<uint8_t>();
+      wandConfig.overheatEnabled = jsonBody["overheatEnabled"].as<uint8_t>();
+      wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();
+      wandConfig.wandSoundsToPack = jsonBody["wandSoundsToPack"].as<uint8_t>();
+      wandConfig.quickVenting = jsonBody["quickVenting"].as<uint8_t>();
+      wandConfig.autoVentLight = jsonBody["autoVentLight"].as<uint8_t>();
+      wandConfig.wandBeepLoop = jsonBody["wandBeepLoop"].as<uint8_t>();
+      wandConfig.wandBootError = jsonBody["wandBootError"].as<uint8_t>();
+      wandConfig.defaultYearModeWand = jsonBody["defaultYearModeWand"].as<uint8_t>();
+      wandConfig.defaultYearModeCTS = jsonBody["defaultYearModeCTS"].as<uint8_t>();
+      wandConfig.invertWandBargraph = jsonBody["invertWandBargraph"].as<uint8_t>();
+      wandConfig.bargraphOverheatBlink = jsonBody["bargraphOverheatBlink"].as<uint8_t>();
+      wandConfig.bargraphIdleAnimation = jsonBody["bargraphIdleAnimation"].as<uint8_t>();
+      wandConfig.bargraphFireAnimation = jsonBody["bargraphFireAnimation"].as<uint8_t>();
 
-    jsonBody.clear();
-    jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-    serializeJson(jsonBody, result); // Serialize to string.
-    attenuatorSerialSend(A_SAVE_PREFERENCES_WAND); // Tell the wand (via pack) to save the new settings.
-    request->send(200, "application/json", result);
+      jsonBody.clear();
+      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
+      serializeJson(jsonBody, result); // Serialize to string.
+      attenuatorSerialSend(A_SAVE_PREFERENCES_WAND); // Tell the wand (via pack) to save the new settings.
+      request->send(200, "application/json", result);
+    }
+    catch (...) {
+      jsonBody.clear();
+      jsonBody["status"] = "An error was encountered while saving settings.";
+      serializeJson(jsonBody, result); // Serialize to string.
+      request->send(200, "application/json", result);
+    }
   }
   else {
     // Tell the user why the requested action failed.
     String result;
-    jsonDoc.clear();
-    jsonDoc["status"] = "Pack and/or Wand are running, save action cancelled";
-    serializeJson(jsonDoc, result); // Serialize to string.
+    jsonBody.clear();
+    jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
+    serializeJson(jsonBody, result); // Serialize to string.
     request->send(200, "application/json", result);
   }
 });
 
 // Handles the JSON body for the smoke settings save request.
 AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHandler("/config/smoke/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  StaticJsonDocument<512> jsonBody;
+  jsonBody.clear();
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
@@ -520,51 +536,59 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
 
   String result;
   if(!b_pack_on && !b_wand_on) {
-    smokeConfig.smokeEnabled = jsonBody["smokeEnabled"];
+    try {
+      smokeConfig.smokeEnabled = jsonBody["smokeEnabled"].as<uint8_t>();
 
-    smokeConfig.overheatDuration5 = jsonBody["overheatDuration5"];
-    smokeConfig.overheatDuration4 = jsonBody["overheatDuration4"];
-    smokeConfig.overheatDuration3 = jsonBody["overheatDuration3"];
-    smokeConfig.overheatDuration2 = jsonBody["overheatDuration2"];
-    smokeConfig.overheatDuration1 = jsonBody["overheatDuration1"];
+      smokeConfig.overheatDuration5 = jsonBody["overheatDuration5"].as<uint8_t>();
+      smokeConfig.overheatDuration4 = jsonBody["overheatDuration4"].as<uint8_t>();
+      smokeConfig.overheatDuration3 = jsonBody["overheatDuration3"].as<uint8_t>();
+      smokeConfig.overheatDuration2 = jsonBody["overheatDuration2"].as<uint8_t>();
+      smokeConfig.overheatDuration1 = jsonBody["overheatDuration1"].as<uint8_t>();
 
-    smokeConfig.overheatContinuous5 = jsonBody["overheatContinuous5"];
-    smokeConfig.overheatContinuous4 = jsonBody["overheatContinuous4"];
-    smokeConfig.overheatContinuous3 = jsonBody["overheatContinuous3"];
-    smokeConfig.overheatContinuous2 = jsonBody["overheatContinuous2"];
-    smokeConfig.overheatContinuous1 = jsonBody["overheatContinuous1"];
+      smokeConfig.overheatContinuous5 = jsonBody["overheatContinuous5"].as<uint8_t>();
+      smokeConfig.overheatContinuous4 = jsonBody["overheatContinuous4"].as<uint8_t>();
+      smokeConfig.overheatContinuous3 = jsonBody["overheatContinuous3"].as<uint8_t>();
+      smokeConfig.overheatContinuous2 = jsonBody["overheatContinuous2"].as<uint8_t>();
+      smokeConfig.overheatContinuous1 = jsonBody["overheatContinuous1"].as<uint8_t>();
 
-    smokeConfig.overheatLevel5 = jsonBody["overheatLevel5"];
-    smokeConfig.overheatLevel4 = jsonBody["overheatLevel4"];
-    smokeConfig.overheatLevel3 = jsonBody["overheatLevel3"];
-    smokeConfig.overheatLevel2 = jsonBody["overheatLevel2"];
-    smokeConfig.overheatLevel1 = jsonBody["overheatLevel1"];
+      smokeConfig.overheatLevel5 = jsonBody["overheatLevel5"].as<uint8_t>();
+      smokeConfig.overheatLevel4 = jsonBody["overheatLevel4"].as<uint8_t>();
+      smokeConfig.overheatLevel3 = jsonBody["overheatLevel3"].as<uint8_t>();
+      smokeConfig.overheatLevel2 = jsonBody["overheatLevel2"].as<uint8_t>();
+      smokeConfig.overheatLevel1 = jsonBody["overheatLevel1"].as<uint8_t>();
 
-    smokeConfig.overheatDelay5 = jsonBody["overheatDelay5"];
-    smokeConfig.overheatDelay4 = jsonBody["overheatDelay4"];
-    smokeConfig.overheatDelay3 = jsonBody["overheatDelay3"];
-    smokeConfig.overheatDelay2 = jsonBody["overheatDelay2"];
-    smokeConfig.overheatDelay1 = jsonBody["overheatDelay1"];
+      smokeConfig.overheatDelay5 = jsonBody["overheatDelay5"].as<uint8_t>();
+      smokeConfig.overheatDelay4 = jsonBody["overheatDelay4"].as<uint8_t>();
+      smokeConfig.overheatDelay3 = jsonBody["overheatDelay3"].as<uint8_t>();
+      smokeConfig.overheatDelay2 = jsonBody["overheatDelay2"].as<uint8_t>();
+      smokeConfig.overheatDelay1 = jsonBody["overheatDelay1"].as<uint8_t>();
 
-    jsonBody.clear();
-    jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-    serializeJson(jsonBody, result); // Serialize to string.
-    attenuatorSerialSend(A_SAVE_PREFERENCES_SMOKE); // Tell the pack and wand to save the new settings.
-    request->send(200, "application/json", result);
+      jsonBody.clear();
+      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
+      serializeJson(jsonBody, result); // Serialize to string.
+      attenuatorSerialSend(A_SAVE_PREFERENCES_SMOKE); // Tell the pack and wand to save the new settings.
+      request->send(200, "application/json", result);
+    }
+    catch (...) {
+      jsonBody.clear();
+      jsonBody["status"] = "An error was encountered while saving settings.";
+      serializeJson(jsonBody, result); // Serialize to string.
+      request->send(200, "application/json", result);
+    }
   }
   else {
     // Tell the user why the requested action failed.
     String result;
-    jsonDoc.clear();
-    jsonDoc["status"] = "Pack and/or Wand are running, save action cancelled";
-    serializeJson(jsonDoc, result); // Serialize to string.
+    jsonBody.clear();
+    jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
+    serializeJson(jsonBody, result); // Serialize to string.
     request->send(200, "application/json", result);
   }
 });
 
 // Handles the JSON body for the password change request.
 AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  StaticJsonDocument<256> jsonBody;
+  jsonBody.clear();
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }

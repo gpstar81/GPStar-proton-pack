@@ -46,6 +46,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><b>Wand Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
     <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
     <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
+    <br/>
+    <p><b>Batt. Voltage:</b> <span class="info" id="battVoltage">&mdash;</span> VDC</p>
   </div>
 
   <h1>Audio Controls</h1>
@@ -60,7 +62,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
     <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
     <br/>
-    <button type="button" class="green" onclick="pauseresumeMusic()" style="width:120px;margin-top:10px">Pause/Resume</button>
+    <button type="button" class="green" onclick="pauseresumeMusic()"
+     style="width:120px;margin-top:10px">Pause/Resume</button>
     <br/>
     <h3>Play Music Track</h3>
     <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
@@ -193,14 +196,15 @@ const char INDEX_page[] PROGMEM = R"=====(
         if (trackList) {
           removeOptions(trackList); // Clear previous options.
 
+          // Generate an option for each track in the selection field.
           for (var i = musicStart; i <= musicEnd; i++) {
             var opt = document.createElement("option");
-            opt.value = i;
-            opt.text = "Track #" + i;
-            opt.innerHTML = i;
+            opt.setAttribute("value", i);
             if (i == musicCurrent) {
-              opt.selected = true;
+              opt.setAttribute("selected", true);
             }
+            var txt = document.createTextNode("Track #" + i);
+            opt.appendChild(txt);
             trackList.appendChild(opt);
           }
         }
@@ -256,6 +260,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cable").innerHTML = jObj.cable || "...";
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
+        document.getElementById("battVoltage").innerHTML = jObj.battVoltage || "N/A";
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wand, jObj.cyclotron);
