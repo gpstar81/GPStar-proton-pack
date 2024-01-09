@@ -202,13 +202,17 @@ void readEEPROM() {
           WAND_BARREL_LED_COUNT = LEDS_5;
         break;
 
+        case 29:
+          WAND_BARREL_LED_COUNT = LEDS_29;
+        break;
+
         case 48:
           WAND_BARREL_LED_COUNT = LEDS_48;
         break;
 
-        case 60:
-          WAND_BARREL_LED_COUNT = LEDS_60;
-        break;
+        // case 60:
+        //   WAND_BARREL_LED_COUNT = LEDS_60;
+        // break;
       }
     }
 

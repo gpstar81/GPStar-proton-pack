@@ -122,7 +122,7 @@ CRGB barrel_leds[BARREL_LEDS_MAX];
  * Supported options: 5, 48, and 60.
  */
 uint8_t i_num_barrel_leds = 5;
-enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_48, LEDS_60 };
+enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_29, LEDS_48, LEDS_60 };
 enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
 
 /*
