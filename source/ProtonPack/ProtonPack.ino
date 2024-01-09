@@ -4540,7 +4540,7 @@ void doVoltageCheck() {
 
   // Format for use with the serial plotter.
   Serial.print("Voltage:");
-  Serial.print(i_batt_volts);
+  Serial.println(i_batt_volts);
 
   // Send current voltage value to the serial1 device.
   serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
