@@ -4539,7 +4539,7 @@ void doVoltageCheck() {
   i_batt_volts = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
 
   // Format for use with the serial plotter.
-  Serial.print("Voltage:")
+  Serial.print("Voltage:");
   Serial.print(i_batt_volts);
 
   // Send current voltage value to the serial1 device.
