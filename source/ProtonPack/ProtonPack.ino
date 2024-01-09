@@ -4538,6 +4538,10 @@ void doVoltageCheck() {
   const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
   i_batt_volts = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
 
+  // Format for use with the serial plotter.
+  Serial.print("Voltage:")
+  Serial.print(i_batt_volts);
+
   // Send current voltage value to the serial1 device.
   serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
 }

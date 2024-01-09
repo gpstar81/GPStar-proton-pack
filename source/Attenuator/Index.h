@@ -260,7 +260,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cable").innerHTML = jObj.cable || "...";
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
-        document.getElementById("battVoltage").innerHTML = jObj.battVoltage || "N/A";
+        document.getElementById("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2));
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wand, jObj.cyclotron);
