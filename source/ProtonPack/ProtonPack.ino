@@ -3792,7 +3792,7 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 10);
   w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 10);
 
-  serial1Send(A_VOLUME_SYNC); // Tell connnected device about this change.
+  serial1Send(A_VOLUME_SYNC); // Tell the connected device about this change.
 }
 
 void increaseVolumeEffects() {
