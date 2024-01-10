@@ -4543,7 +4543,7 @@ void doVoltageCheck() {
   Serial.println(i_batt_volts);
 
   // Send current voltage value to the serial1 device.
-  packSerialSendValue(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
+  serial1SendValue(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.
