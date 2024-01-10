@@ -278,6 +278,7 @@ String getCyclotronState() {
       return "Warning";
     break;
     default:
+      // For anything above level 3.
       return "Critical";
     break;
   }

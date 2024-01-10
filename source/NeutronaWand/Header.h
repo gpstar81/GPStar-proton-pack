@@ -146,8 +146,8 @@ const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible
 /*
  * Volume (0 = loudest, -70 = quietest)
  */
-uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
+uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
 int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects

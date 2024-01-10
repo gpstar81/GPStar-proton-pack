@@ -54,8 +54,12 @@ const char INDEX_page[] PROGMEM = R"=====(
   <div class="block">
     <h3>Master Volume</h3>
     <button type="button" class="blue" onclick="volumeMasterDown()">- Down</button>
-    <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
+    &nbsp;&nbsp;
+    <div id="masterVolume" style="font-weight:bold;"></div>
+    &nbsp;&nbsp;
     <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
+    <br/>
+    <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
     <br/>
     <h3>Music Playback</h3>
     <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
@@ -70,6 +74,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <h3>Effects Volume</h3>
     <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
+    &nbsp;&nbsp;
+    <div id="effectsVolume" style="font-weight:bold;"></div>
     &nbsp;&nbsp;
     <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
   </div>
@@ -248,6 +254,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     function updateStatus(jObj) {
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
+        // Current Pack/Wand Status
         document.getElementById("mode").innerHTML = jObj.mode || "...";
         document.getElementById("theme").innerHTML = jObj.theme || "...";
         document.getElementById("switch").innerHTML = jObj.switch || "...";
@@ -261,6 +268,10 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
         document.getElementById("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2));
+
+        // Volume Information
+        document.getElementById("masterVolume").innerHTML = (jObj.volMaster || 0) + "%";
+        document.getElementById("effectsVolume").innerHTML = (jObj.volEffects || 0) + "%";
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wand, jObj.cyclotron);

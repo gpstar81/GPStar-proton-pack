@@ -200,6 +200,13 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
       sendDataS.d1 = i_current_music_track;
     break;
 
+    case A_VOLUME_SYNC:
+      // Send the current volume levels.
+      sendDataS.d[0] = i_volume_master_percentage;
+      sendDataS.d[1] = i_volume_effects_percentage;
+      sendDataS.d[2] = i_volume_music_percentage;
+    break;
+
     case A_SEND_PREFERENCES_PACK:
       // Sends values from current runtime variables as values in an int array.
       // Any ENUM or boolean types will simply translate as numeric values.
@@ -259,7 +266,6 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
 
     case A_SEND_PREFERENCES_SMOKE:
       // Sends values from current runtime variables as values in an int array.
-
       // Duration (in seconds) an overheat event persists once activated.
       sendDataS.d[0] = i_ms_overheating_length_5 / 1000;
       sendDataS.d[1] = i_ms_overheating_length_4 / 1000;
@@ -313,6 +319,13 @@ void packSerialSend(uint16_t i_message, uint16_t i_value) {
 
   // Provide additional data with certain messages.
   switch(i_message) {
+    case P_VOLUME_SYNC:
+      // Send the current volume levels.
+      sendDataW.d[0] = i_volume_master_percentage;
+      sendDataW.d[1] = i_volume_effects_percentage;
+      sendDataW.d[2] = i_volume_music_percentage;
+    break;
+
     case P_SAVE_PREFERENCES_WAND:
       // Sends values from current runtime variables as values in an int array.
       // Any ENUM or boolean types will simply translate as numeric values.
@@ -1573,6 +1586,7 @@ void checkWand() {
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
               w_trig.trackGain(i_current_music_track, i_volume_music);
+              serial1Send(A_VOLUME_SYNC);
             }
           break;
 
@@ -1593,6 +1607,7 @@ void checkWand() {
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
               w_trig.trackGain(i_current_music_track, i_volume_music);
+              serial1Send(A_VOLUME_SYNC);
             }
           break;
 
@@ -3135,9 +3150,7 @@ void checkWand() {
           }
 
           // Synchronise the volume settings.
-          packSerialSend(P_VOLUME_SYNC_EFFECTS, i_volume_effects_percentage);
-          packSerialSend(P_VOLUME_SYNC_MASTER, i_volume_master_percentage);
-          packSerialSend(P_VOLUME_SYNC_MUSIC, i_volume_music_percentage);
+          packSerialSend(P_VOLUME_SYNC);
 
           if(i_volume_master == i_volume_abs_min) {
             // Telling the wand to be silent if required.
@@ -3220,6 +3233,7 @@ void checkSerial1() {
 
             // Tell wand to decrease volume.
             packSerialSend(P_VOLUME_DECREASE);
+            serial1Send(A_VOLUME_SYNC);
           break;
 
           case A_VOLUME_INCREASE:
@@ -3228,6 +3242,7 @@ void checkSerial1() {
 
             // Tell wand to increase volume.
             packSerialSend(P_VOLUME_INCREASE);
+            serial1Send(A_VOLUME_SYNC);
           break;
 
           case A_VOLUME_SOUND_EFFECTS_DECREASE:
@@ -3236,6 +3251,7 @@ void checkSerial1() {
 
             // Tell wand to decrease effects volume.
             packSerialSend(P_VOLUME_SOUND_EFFECTS_DECREASE);
+            serial1Send(A_VOLUME_SYNC);
           break;
 
           case A_VOLUME_SOUND_EFFECTS_INCREASE:
@@ -3244,6 +3260,7 @@ void checkSerial1() {
 
             // Tell wand to increase effects volume.
             packSerialSend(P_VOLUME_SOUND_EFFECTS_INCREASE);
+            serial1Send(A_VOLUME_SYNC);
           break;
 
           case A_MUSIC_START_STOP:

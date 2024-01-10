@@ -436,27 +436,21 @@ void checkPack() {
           b_repeat_track = false;
         break;
 
-        case P_VOLUME_SYNC_EFFECTS:
-          i_volume_effects_percentage = recvData.d1;
+        case P_VOLUME_SYNC:
+          i_volume_master_percentage = recvData.d[0];
+          i_volume_effects_percentage = recvData.d[1];
+          i_volume_music_percentage = recvData.d[2];
+
+          i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
           i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
+          i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+Serial.println("Master Volume: " + String(i_volume_master));
+Serial.println("Effects Volume: " + String(i_volume_effects));
+Serial.println("Music Volume: " + String(i_volume_music));
+          i_volume_revert = i_volume_master;
+          w_trig.masterGain(i_volume_master);
 
           adjustVolumeEffectsGain();
-        break;
-
-        case P_VOLUME_SYNC_MASTER:
-          i_volume_master_percentage = recvData.d1;
-          i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-
-          i_volume_revert = i_volume_master;
-
-          w_trig.masterGain(i_volume_master);
-        break;
-
-        case P_VOLUME_SYNC_MUSIC:
-          i_volume_music_percentage = recvData.d1;
-          i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-          w_trig.masterGain(i_volume_master);
         break;
 
         case P_VIBRATION_ENABLED:

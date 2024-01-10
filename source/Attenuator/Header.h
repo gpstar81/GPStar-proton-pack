@@ -232,6 +232,9 @@ unsigned int i_music_track_count = 0; // Count of tracks as returned by the pack
 unsigned int i_music_track_current = 0;
 unsigned int i_music_track_min = 0; // Min value for music track index (0 = unset).
 unsigned int i_music_track_max = 0; // Max value for music track index (0 = unset).
+uint8_t i_volume_master_percentage = 100; // Master overall volume
+uint8_t i_volume_effects_percentage = 100; // Sound effects
+uint8_t i_volume_music_percentage = 100; // Music volume
 bool b_playing_music = false;
 bool b_music_paused = false;
 

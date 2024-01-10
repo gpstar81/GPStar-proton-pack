@@ -236,6 +236,9 @@ String getEquipmentStatus() {
     jsonBody["musicCurrent"] = i_music_track_current;
     jsonBody["musicStart"] = i_music_track_min;
     jsonBody["musicEnd"] = i_music_track_max;
+    jsonBody["volMaster"] = i_volume_master_percentage;
+    jsonBody["volEffects"] = i_volume_effects_percentage;
+    jsonBody["volMusic"] = i_volume_music_percentage;
     jsonBody["battVoltage"] = f_batt_volts;
   }
 
