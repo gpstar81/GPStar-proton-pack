@@ -1145,6 +1145,11 @@ void checkPack() {
               BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
             break;
           }
+
+          // Update and reset wand components.
+          setBargraphOrientation();
+          bargraphYearModeUpdate();
+          resetOverHeatModes();
         break;
 
         case P_SAVE_PREFERENCES_SMOKE:
@@ -1160,6 +1165,9 @@ void checkPack() {
           i_ms_overheat_initiate_mode_3 = recvData.d[7];
           i_ms_overheat_initiate_mode_2 = recvData.d[8];
           i_ms_overheat_initiate_mode_1 = recvData.d[9];
+
+          // Update and reset wand components.
+          resetOverHeatModes();
         break;
 
         case P_SAVE_EEPROM_WAND:
