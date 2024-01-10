@@ -452,7 +452,7 @@ bool b_no_pack = false;
 /*
  * Function prototypes.
  */
-void wandSerialSendValue(uint16_t i_message, uint16_t i_value);
+void wandSerialSend(uint16_t i_message, uint16_t i_value);
 void wandSerialSend(uint16_t i_message);
 void checkPack();
 void checkWandAction();

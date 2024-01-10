@@ -30,7 +30,7 @@ struct MessagePacket recvData;
 struct MessagePacket sendData;
 
 // Pack communication from the wand.
-void wandSerialSendValue(uint16_t i_message, uint16_t i_value) {
+void wandSerialSend(uint16_t i_message, uint16_t i_value) {
   if(b_no_pack != true) {
     sendData.i = i_message;
     sendData.d1 = i_value;
@@ -100,7 +100,7 @@ void wandSerialSendValue(uint16_t i_message, uint16_t i_value) {
 }
 // Override function to handle calls with a single parameter.
 void wandSerialSend(uint16_t i_message) {
-  wandSerialSendValue(i_message, 0);
+  wandSerialSend(i_message, 0);
 }
 
 // Pack communication to the wand.
@@ -1010,15 +1010,19 @@ void checkPack() {
         break;
 
         case P_MUSIC_STOP:
-          b_playing_music = false;
-
-          // Stop music
+          // Stop music for current track.
           stopMusic();
         break;
 
         case P_MUSIC_START:
           if(b_playing_music == true) {
+            // Stop playing current track.
             stopMusic();
+          }
+
+          if(i_music_count > 0 && recvData.d1 >= i_music_track_start) {
+            // Update the music track number to be played.
+            i_current_music_track = recvData.d1;
           }
 
           playMusic();
@@ -1034,7 +1038,7 @@ void checkPack() {
 
         case P_MUSIC_PLAY_TRACK:
           if(i_music_count > 0 && recvData.d1 >= i_music_track_start) {
-            // Music track number to be played.
+            // Update the music track number to be played.
             i_current_music_track = recvData.d1;
           }
         break;

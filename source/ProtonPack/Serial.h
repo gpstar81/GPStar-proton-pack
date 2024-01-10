@@ -174,7 +174,7 @@ void updateSystemModeYear() {
 }
 
 // Outgoing messages to the Serial1 device
-void serial1SendValue(uint16_t i_message, uint16_t i_value) {
+void serial1Send(uint16_t i_message, uint16_t i_value) {
   sendDataS.i = i_message;
   sendDataS.d1 = i_value;
 
@@ -307,11 +307,11 @@ void serial1SendValue(uint16_t i_message, uint16_t i_value) {
 }
 // Override function to handle calls with a single parameter.
 void serial1Send(uint16_t i_message) {
-  serial1SendValue(i_message, 0);
+  serial1Send(i_message, 0);
 }
 
 // Outgoing messages to the wand
-void packSerialSendValue(uint16_t i_message, uint16_t i_value) {
+void packSerialSend(uint16_t i_message, uint16_t i_value) {
   sendDataW.i = i_message;
   sendDataW.d1 = i_value;
 
@@ -373,7 +373,7 @@ void packSerialSendValue(uint16_t i_message, uint16_t i_value) {
 }
 // Override function to handle calls with a single parameter.
 void packSerialSend(uint16_t i_message) {
-  packSerialSendValue(i_message, 0);
+  packSerialSend(i_message, 0);
 }
 
 // Incoming messages from the wand.
@@ -3032,7 +3032,7 @@ void checkWand() {
 
           // Sync the current music track.
           // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
-          packSerialSendValue(P_MUSIC_PLAY_TRACK, i_current_music_track);
+          packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
 
           if(b_repeat_track == true) {
             packSerialSend(P_MUSIC_REPEAT);
@@ -3234,7 +3234,6 @@ void checkSerial1() {
 
             // Tell wand to decrease volume.
             packSerialSend(P_VOLUME_DECREASE);
-            serial1Send(A_VOLUME_SYNC);
           break;
 
           case A_VOLUME_INCREASE:
@@ -3243,7 +3242,6 @@ void checkSerial1() {
 
             // Tell wand to increase volume.
             packSerialSend(P_VOLUME_INCREASE);
-            serial1Send(A_VOLUME_SYNC);
           break;
 
           case A_VOLUME_SOUND_EFFECTS_DECREASE:
@@ -3252,7 +3250,6 @@ void checkSerial1() {
 
             // Tell wand to decrease effects volume.
             packSerialSend(P_VOLUME_SOUND_EFFECTS_DECREASE);
-            serial1Send(A_VOLUME_SYNC);
           break;
 
           case A_VOLUME_SOUND_EFFECTS_INCREASE:
@@ -3261,7 +3258,6 @@ void checkSerial1() {
 
             // Tell wand to increase effects volume.
             packSerialSend(P_VOLUME_SOUND_EFFECTS_INCREASE);
-            serial1Send(A_VOLUME_SYNC);
           break;
 
           case A_MUSIC_START_STOP:
@@ -3332,7 +3328,7 @@ void checkSerial1() {
                 i_current_music_track = recvDataS.d1;
 
                 // Just tell the wand which track was requested for play.
-                packSerialSendValue(P_MUSIC_PLAY_TRACK, i_current_music_track);
+                packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
               }
             }
           break;
@@ -3399,8 +3395,12 @@ void checkSerial1() {
             SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
             SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
             b_switch_mode_override = true;
+
+            // Update system values and reset as needed.
             updateSystemModeYear();
             updateProtonPackLEDCounts();
+            resetContinuousSmoke();
+            resetCyclotronLEDs();
             resetRampSpeeds();
 
             // Offer some feedback to the user
@@ -3464,6 +3464,7 @@ void checkSerial1() {
             wandConfig.overheatDelay1 = recvDataS.d[19];
 
             b_smoke_enabled = recvDataS.d[20];
+            resetContinuousSmoke();
 
             // This will pass select values from the wandConfig object
             packSerialSend(P_SAVE_PREFERENCES_SMOKE);

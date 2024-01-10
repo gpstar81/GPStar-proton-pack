@@ -455,9 +455,9 @@ millisDelay ms_battcheck; // Timer for checking battery voltage on a regular int
 /*
  * Function prototypes.
  */
-void packSerialSendValue(uint16_t i_message, uint16_t i_value);
+void packSerialSend(uint16_t i_message, uint16_t i_value);
 void packSerialSend(uint16_t i_message);
-void serial1SendValue(uint16_t i_message, uint16_t i_value);
+void serial1Send(uint16_t i_message, uint16_t i_value);
 void serial1Send(uint16_t i_message);
 void checkSerial1();
 void checkWand();

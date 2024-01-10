@@ -198,6 +198,7 @@ void setup() {
   // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
   // Then the EEPROM reads any settings if required, then we reset the volume.
   w_trig.masterGain(i_volume_master);
+  serial1Send(A_VOLUME_SYNC);
 }
 
 void loop() {
@@ -209,9 +210,11 @@ void loop() {
     ms_battcheck.start(i_ms_battcheck_delay);
   }
 
+  // Check if wand device is present, and if any new serial commands were received.
   wandHandShake();
   checkWand();
 
+  // Check if serial1 device is present, and if any new serial commands were received.
   serial1HandShake();
   checkSerial1();
 
@@ -3788,6 +3791,8 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 10);
   w_trig.trackGain(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 10);
   w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 10);
+
+  serial1Send(A_VOLUME_SYNC); // Tell connnected device about this change.
 }
 
 void increaseVolumeEffects() {
@@ -3899,6 +3904,7 @@ void increaseVolume() {
   }
 
   w_trig.masterGain(i_volume_master);
+  serial1Send(A_VOLUME_SYNC);
 }
 
 void decreaseVolume() {
@@ -3924,6 +3930,8 @@ void decreaseVolume() {
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
+
+  serial1Send(A_VOLUME_SYNC);
 }
 
 void readEncoder() {
@@ -4351,6 +4359,10 @@ void playMusic() {
   if(b_music_paused != true) {
     b_playing_music = true;
 
+    // Tell the Neutrona Wand which music track to change to and play it.
+    // Called first to allow time for serial communications to occur.
+    packSerialSend(P_MUSIC_START, i_current_music_track);
+
     // Loop the music track.
     if(b_repeat_track == true) {
       w_trig.trackLoop(i_current_music_track, 1);
@@ -4367,10 +4379,6 @@ void playMusic() {
     ms_music_status_check.start(i_music_check_delay * 10);
     w_trig.resetTrackCounter(true);
 
-    // Tell the Neutrona Wand which music track to change to and play it.
-    packSerialSendValue(P_MUSIC_PLAY_TRACK, i_current_music_track);
-    packSerialSend(P_MUSIC_START);
-
     // Tell connected serial device music playback has started.
     serial1Send(A_MUSIC_IS_PLAYING);
     serial1Send(A_MUSIC_IS_NOT_PAUSED);
@@ -4378,14 +4386,15 @@ void playMusic() {
 }
 
 void stopMusic() {
+  // Tell the Neutrona Wand to stop music playback and confirm track.
+  // Called first to allow time for serial communications to occur.
+  packSerialSend(P_MUSIC_STOP);
+
   w_trig.trackStop(i_current_music_track);
   w_trig.update();
 
   b_music_paused = false;
   b_playing_music = false;
-
-  // Tell the Neutrona Wand to stop music playback.
-  packSerialSend(P_MUSIC_STOP);
 
   // Tell connected serial device music playback has stopped.
   serial1Send(A_MUSIC_IS_NOT_PLAYING);
@@ -4394,19 +4403,23 @@ void stopMusic() {
 
 void pauseMusic() {
   if(b_playing_music == true) {
+    // Tell connected devices music playback is paused.
+    packSerialSend(P_MUSIC_PAUSE);
+    serial1Send(A_MUSIC_IS_PAUSED);
+
     // Pause music playback on the Proton Pack
     w_trig.trackPause(i_current_music_track);
     w_trig.update();
     b_music_paused = true;
-
-    // Tell connected devices music playback is paused.
-    packSerialSend(P_MUSIC_PAUSE);
-    serial1Send(A_MUSIC_IS_PAUSED);
   }
 }
 
 void resumeMusic() {
   if(b_playing_music == true) {
+    // Tell connected devices music playback has resumed.
+    packSerialSend(P_MUSIC_RESUME);
+    serial1Send(A_MUSIC_IS_NOT_PAUSED);
+
     // Reset the music check timer.
     ms_music_status_check.start(i_music_check_delay * 10);
     w_trig.resetTrackCounter(true);
@@ -4415,10 +4428,6 @@ void resumeMusic() {
     w_trig.trackResume(i_current_music_track);
     w_trig.update();
     b_music_paused = false;
-
-    // Tell connected devices music playback is resumed.
-    packSerialSend(P_MUSIC_RESUME);
-    serial1Send(A_MUSIC_IS_NOT_PAUSED);
   }
 }
 
@@ -4543,7 +4552,7 @@ void doVoltageCheck() {
   Serial.println(i_batt_volts);
 
   // Send current voltage value to the serial1 device.
-  serial1SendValue(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
+  serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.
