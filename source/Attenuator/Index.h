@@ -47,37 +47,34 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
     <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
     <br/>
-    <p><b>Batt. Voltage:</b> <span class="info" id="battVoltage">&mdash;</span> VDC</p>
+    <p>
+      <b>Batt. Voltage:</b> <span class="info" id="battVoltage">&mdash;</span>
+      <span id="battHealth"></span>
+    </p>
   </div>
 
   <h1>Audio Controls</h1>
   <div class="block">
-    <h3>Master Volume</h3>
+    <h3>Master Volume: <span id="masterVolume"></span></h3>
     <button type="button" class="blue" onclick="volumeMasterDown()">- Down</button>
-    &nbsp;&nbsp;
-    <div id="masterVolume" style="font-weight:bold;"></div>
-    &nbsp;&nbsp;
+    <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
     <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
     <br/>
-    <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
+    <h3>Effects Volume: <span id="effectsVolume"></span></h3>
+    <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
+    <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
     <br/>
-    <h3>Music Playback</h3>
-    <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
+    <h3>Music Controls</h3>
     <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
+    <br/>
+    <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
+    <br/>
+    <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
+    &nbsp;
     <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
     <br/>
     <button type="button" class="green" onclick="pauseresumeMusic()"
      style="width:120px;margin-top:10px">Pause/Resume</button>
-    <br/>
-    <h3>Play Music Track</h3>
-    <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
-    <br/>
-    <h3>Effects Volume</h3>
-    <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
-    &nbsp;&nbsp;
-    <div id="effectsVolume" style="font-weight:bold;"></div>
-    &nbsp;&nbsp;
-    <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
   </div>
 
   <h1>Pack Controls</h1>
@@ -105,7 +102,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <h1>Administration</h1>
   <div class="block">
-    <a href="/update">Update Firmware</a>
+    <a href="/update">Update ESP32 Firmware</a>
     <br/>
     <br/>
     <a href="/password">Change WiFi Password</a>
@@ -267,7 +264,14 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cable").innerHTML = jObj.cable || "...";
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
-        document.getElementById("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2));
+        if (jObj.battVoltage) {
+          document.getElementById("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2)) + " VDC";
+          if (jObj.battVoltage < 4) {
+            document.getElementById("battHealth").innerHTML = "&#129707;"; // Low Battery
+          } else {
+            document.getElementById("battHealth").innerHTML = "&#128267;"; // Good Battery
+          }
+        }
 
         // Volume Information
         document.getElementById("masterVolume").innerHTML = (jObj.volMaster || 0) + "%";

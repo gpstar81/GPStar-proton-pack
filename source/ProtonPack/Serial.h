@@ -174,7 +174,7 @@ void updateSystemModeYear() {
 }
 
 // Outgoing messages to the Serial1 device
-void serial1Send(uint16_t i_message, uint16_t i_value) {
+void serial1SendValue(uint16_t i_message, uint16_t i_value) {
   sendDataS.i = i_message;
   sendDataS.d1 = i_value;
 
@@ -307,12 +307,13 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
 }
 // Override function to handle calls with a single parameter.
 void serial1Send(uint16_t i_message) {
-  serial1Send(i_message, 0);
+  serial1SendValue(i_message, 0);
 }
 
 // Outgoing messages to the wand
-void packSerialSend(uint16_t i_message, uint16_t i_value) {
+void packSerialSendValue(uint16_t i_message, uint16_t i_value) {
   sendDataW.i = i_message;
+  sendDataW.d1 = i_value;
 
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
@@ -372,7 +373,7 @@ void packSerialSend(uint16_t i_message, uint16_t i_value) {
 }
 // Override function to handle calls with a single parameter.
 void packSerialSend(uint16_t i_message) {
-  packSerialSend(i_message, 0);
+  packSerialSendValue(i_message, 0);
 }
 
 // Incoming messages from the wand.
@@ -3031,7 +3032,7 @@ void checkWand() {
 
           // Sync the current music track.
           // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
-          packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
+          packSerialSendValue(P_MUSIC_PLAY_TRACK, i_current_music_track);
 
           if(b_repeat_track == true) {
             packSerialSend(P_MUSIC_REPEAT);
@@ -3331,7 +3332,7 @@ void checkSerial1() {
                 i_current_music_track = recvDataS.d1;
 
                 // Just tell the wand which track was requested for play.
-                packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
+                packSerialSendValue(P_MUSIC_PLAY_TRACK, i_current_music_track);
               }
             }
           break;

@@ -146,8 +146,8 @@ const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (Whit
  * WAV Trigger
  */
 wavTrigger w_trig;
-unsigned int i_music_count = 0;
-unsigned int i_current_music_track = 0;
+uint16_t i_music_count = 0;
+uint16_t i_current_music_track = 0;
 const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
@@ -452,7 +452,7 @@ bool b_no_pack = false;
 /*
  * Function prototypes.
  */
-void wandSerialSend(uint16_t i_message, uint16_t i_value);
+void wandSerialSendValue(uint16_t i_message, uint16_t i_value);
 void wandSerialSend(uint16_t i_message);
 void checkPack();
 void checkWandAction();

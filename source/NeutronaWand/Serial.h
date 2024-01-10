@@ -30,7 +30,7 @@ struct MessagePacket recvData;
 struct MessagePacket sendData;
 
 // Pack communication from the wand.
-void wandSerialSend(uint16_t i_message, uint16_t i_value) {
+void wandSerialSendValue(uint16_t i_message, uint16_t i_value) {
   if(b_no_pack != true) {
     sendData.i = i_message;
     sendData.d1 = i_value;
@@ -100,7 +100,7 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
 }
 // Override function to handle calls with a single parameter.
 void wandSerialSend(uint16_t i_message) {
-  wandSerialSend(i_message, 0);
+  wandSerialSendValue(i_message, 0);
 }
 
 // Pack communication to the wand.
@@ -437,21 +437,19 @@ void checkPack() {
         break;
 
         case P_VOLUME_SYNC:
+          // Set the percentage volume.
           i_volume_master_percentage = recvData.d[0];
           i_volume_effects_percentage = recvData.d[1];
           i_volume_music_percentage = recvData.d[2];
-Serial.println("Master Volume %: " + String(i_volume_master_percentage));
-Serial.println("Effects Volume %: " + String(i_volume_effects_percentage));
-Serial.println("Music Volume %: " + String(i_volume_music_percentage));
+
+          // Set the decibel volume.
           i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
           i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
           i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-Serial.println("Master Volume: " + String(i_volume_master));
-Serial.println("Effects Volume: " + String(i_volume_effects));
-Serial.println("Music Volume: " + String(i_volume_music));
+
+          // Update volume levels.
           i_volume_revert = i_volume_master;
           w_trig.masterGain(i_volume_master);
-
           adjustVolumeEffectsGain();
         break;
 

@@ -6133,7 +6133,7 @@ void overheatVoiceIndicator(unsigned int i_tmp_length) {
   playEffect(i_tmp_sound);
 
   // Tell the Proton Pack to play this sound effect.
-  wandSerialSend(W_COM_SOUND_NUMBER, i_tmp_sound);
+  wandSerialSendValue(W_COM_SOUND_NUMBER, i_tmp_sound);
 }
 
 void overheatTimerIncrement(uint8_t i_tmp_power_level) {

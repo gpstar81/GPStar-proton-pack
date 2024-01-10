@@ -226,8 +226,8 @@ ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defa
  * WAV Trigger
  */
 wavTrigger w_trig;
-unsigned int i_music_count = 0;
-unsigned int i_current_music_track = 0;
+uint16_t i_music_count = 0;
+uint16_t i_current_music_track = 0;
 const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
@@ -455,9 +455,9 @@ millisDelay ms_battcheck; // Timer for checking battery voltage on a regular int
 /*
  * Function prototypes.
  */
-void packSerialSend(uint16_t i_message, uint16_t i_value);
+void packSerialSendValue(uint16_t i_message, uint16_t i_value);
 void packSerialSend(uint16_t i_message);
-void serial1Send(uint16_t i_message, uint16_t i_value);
+void serial1SendValue(uint16_t i_message, uint16_t i_value);
 void serial1Send(uint16_t i_message);
 void checkSerial1();
 void checkWand();

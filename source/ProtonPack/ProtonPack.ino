@@ -4368,7 +4368,7 @@ void playMusic() {
     w_trig.resetTrackCounter(true);
 
     // Tell the Neutrona Wand which music track to change to and play it.
-    packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
+    packSerialSendValue(P_MUSIC_PLAY_TRACK, i_current_music_track);
     packSerialSend(P_MUSIC_START);
 
     // Tell connected serial device music playback has started.
@@ -4543,7 +4543,7 @@ void doVoltageCheck() {
   Serial.println(i_batt_volts);
 
   // Send current voltage value to the serial1 device.
-  serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
+  packSerialSendValue(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.
