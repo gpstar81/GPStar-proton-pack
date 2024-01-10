@@ -107,7 +107,7 @@ const unsigned int i_meson_blast_delay_level_2 = 200;
 const unsigned int i_meson_blast_delay_level_1 = 220;
 
 /*
- * Barrel LEDs.
+ * Barrel LEDs
  * The Hasbro Neutrona Wand has 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
  * Support for up to 60 LEDs. With the options of 48 and 60 from Frutto Technology, with the 48 option first.
  * Note: The 48/60 LED options include built-in strobe for the tip which will supersede the dedicated white LED.
@@ -132,6 +132,15 @@ enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
  */
 const uint8_t i_fast_led_delay = 3;
 millisDelay ms_fast_led;
+
+/*
+ * Non-addressable LEDs
+ */
+const uint8_t led_slo_blo = 8;
+const uint8_t led_front_left = 9;
+const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
+const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Red LED)
+const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
 
 /*
  * WAV Trigger
@@ -451,9 +460,3 @@ void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume
 void stopEffect(int i_track_id);
 void stopMusic();
 void playMusic();
-
-const uint8_t led_slo_blo = 8;
-const uint8_t led_front_left = 9;
-const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
-const uint8_t led_hat_2 = 23; // Hat light at top of the wand body. (Red LED)
-const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).

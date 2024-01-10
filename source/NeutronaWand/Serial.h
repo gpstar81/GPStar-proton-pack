@@ -440,7 +440,9 @@ void checkPack() {
           i_volume_master_percentage = recvData.d[0];
           i_volume_effects_percentage = recvData.d[1];
           i_volume_music_percentage = recvData.d[2];
-
+Serial.println("Master Volume %: " + String(i_volume_master_percentage));
+Serial.println("Effects Volume %: " + String(i_volume_effects_percentage));
+Serial.println("Music Volume %: " + String(i_volume_music_percentage));
           i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
           i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
           i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
