@@ -141,8 +141,9 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Idle Animation:</b>
       <select id="bargraphIdleAnimation" name="bargraphIdleAnimation">
-        <option value="1">Super Hero</option>
-        <option value="2">Mode Original</option>
+        <option value="1">Default</option>
+        <option value="2">Super Hero</option>
+        <option value="3">Mode Original</option>
       </select>
     </div>
     <div class="setting">

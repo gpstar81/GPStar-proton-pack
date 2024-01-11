@@ -43,7 +43,8 @@ struct WandPrefs {
   uint8_t spectralModeEnabled;
   uint8_t spectralHolidayMode;
   uint8_t overheatEnabled;
-  uint8_t defaultFiringMode;
+  uint8_t defaultFiringModeCTS;
+  uint8_t defaultFiringModeMix;
   uint8_t wandSoundsToPack;
   uint8_t quickVenting;
   uint8_t autoVentLight;
@@ -250,18 +251,19 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
       sendDataS.d[3] = wandConfig.spectralModeEnabled;
       sendDataS.d[4] = wandConfig.spectralHolidayMode;
       sendDataS.d[5] = wandConfig.overheatEnabled;
-      sendDataS.d[6] = wandConfig.defaultFiringMode;
-      sendDataS.d[7] = wandConfig.wandSoundsToPack;
-      sendDataS.d[8] = wandConfig.quickVenting;
-      sendDataS.d[9] = wandConfig.autoVentLight;
-      sendDataS.d[10] = wandConfig.wandBeepLoop;
-      sendDataS.d[11] = wandConfig.wandBootError;
-      sendDataS.d[12] = wandConfig.defaultYearModeWand;
-      sendDataS.d[13] = wandConfig.defaultYearModeCTS;
-      sendDataS.d[14] = wandConfig.invertWandBargraph;
-      sendDataS.d[15] = wandConfig.bargraphOverheatBlink;
-      sendDataS.d[16] = wandConfig.bargraphIdleAnimation;
-      sendDataS.d[17] = wandConfig.bargraphFireAnimation;
+      sendDataS.d[6] = wandConfig.defaultFiringModeCTS;
+      sendDataS.d[7] = wandConfig.defaultFiringModeMix;
+      sendDataS.d[8] = wandConfig.wandSoundsToPack;
+      sendDataS.d[9] = wandConfig.quickVenting;
+      sendDataS.d[10] = wandConfig.autoVentLight;
+      sendDataS.d[11] = wandConfig.wandBeepLoop;
+      sendDataS.d[12] = wandConfig.wandBootError;
+      sendDataS.d[13] = wandConfig.defaultYearModeWand;
+      sendDataS.d[14] = wandConfig.defaultYearModeCTS;
+      sendDataS.d[15] = wandConfig.invertWandBargraph;
+      sendDataS.d[16] = wandConfig.bargraphOverheatBlink;
+      sendDataS.d[17] = wandConfig.bargraphIdleAnimation;
+      sendDataS.d[18] = wandConfig.bargraphFireAnimation;
     break;
 
     case A_SEND_PREFERENCES_SMOKE:
@@ -336,18 +338,19 @@ void packSerialSend(uint16_t i_message, uint16_t i_value) {
       sendDataW.d[3] = wandConfig.spectralModeEnabled;
       sendDataW.d[4] = wandConfig.spectralHolidayMode;
       sendDataW.d[5] = wandConfig.overheatEnabled;
-      sendDataW.d[6] = wandConfig.defaultFiringMode;
-      sendDataW.d[7] = wandConfig.wandSoundsToPack;
-      sendDataW.d[8] = wandConfig.quickVenting;
-      sendDataW.d[9] = wandConfig.autoVentLight;
-      sendDataW.d[10] = wandConfig.wandBeepLoop;
-      sendDataW.d[11] = wandConfig.wandBootError;
-      sendDataW.d[12] = wandConfig.defaultYearModeWand;
-      sendDataW.d[13] = wandConfig.defaultYearModeCTS;
-      sendDataW.d[14] = wandConfig.invertWandBargraph;
-      sendDataW.d[15] = wandConfig.bargraphOverheatBlink;
-      sendDataW.d[16] = wandConfig.bargraphIdleAnimation;
-      sendDataW.d[17] = wandConfig.bargraphFireAnimation;
+      sendDataW.d[6] = wandConfig.defaultFiringModeCTS;
+      sendDataW.d[7] = wandConfig.defaultFiringModeMix;
+      sendDataW.d[8] = wandConfig.wandSoundsToPack;
+      sendDataW.d[9] = wandConfig.quickVenting;
+      sendDataW.d[10] = wandConfig.autoVentLight;
+      sendDataW.d[11] = wandConfig.wandBeepLoop;
+      sendDataW.d[12] = wandConfig.wandBootError;
+      sendDataW.d[13] = wandConfig.defaultYearModeWand;
+      sendDataW.d[14] = wandConfig.defaultYearModeCTS;
+      sendDataW.d[16] = wandConfig.invertWandBargraph;
+      sendDataW.d[16] = wandConfig.bargraphOverheatBlink;
+      sendDataW.d[17] = wandConfig.bargraphIdleAnimation;
+      sendDataW.d[18] = wandConfig.bargraphFireAnimation;
     break;
 
     case P_SAVE_PREFERENCES_SMOKE:
@@ -2938,18 +2941,19 @@ void checkWand() {
             wandConfig.spectralModeEnabled = recvDataW.d[3];
             wandConfig.spectralHolidayMode = recvDataW.d[4];
             wandConfig.overheatEnabled = recvDataW.d[5];
-            wandConfig.defaultFiringMode = recvDataW.d[6];
-            wandConfig.wandSoundsToPack = recvDataW.d[7];
-            wandConfig.quickVenting = recvDataW.d[8];
-            wandConfig.autoVentLight = recvDataW.d[9];
-            wandConfig.wandBeepLoop = recvDataW.d[10];
-            wandConfig.wandBootError = recvDataW.d[11];
-            wandConfig.defaultYearModeWand = recvDataW.d[12];
-            wandConfig.defaultYearModeCTS = recvDataW.d[13];
-            wandConfig.invertWandBargraph = recvDataW.d[14];
-            wandConfig.bargraphOverheatBlink = recvDataW.d[15];
-            wandConfig.bargraphIdleAnimation = recvDataW.d[16];
-            wandConfig.bargraphFireAnimation = recvDataW.d[17];
+            wandConfig.defaultFiringModeCTS = recvDataW.d[6];
+            wandConfig.defaultFiringModeMix = recvDataW.d[7];
+            wandConfig.wandSoundsToPack = recvDataW.d[8];
+            wandConfig.quickVenting = recvDataW.d[9];
+            wandConfig.autoVentLight = recvDataW.d[10];
+            wandConfig.wandBeepLoop = recvDataW.d[11];
+            wandConfig.wandBootError = recvDataW.d[12];
+            wandConfig.defaultYearModeWand = recvDataW.d[13];
+            wandConfig.defaultYearModeCTS = recvDataW.d[14];
+            wandConfig.invertWandBargraph = recvDataW.d[15];
+            wandConfig.bargraphOverheatBlink = recvDataW.d[16];
+            wandConfig.bargraphIdleAnimation = recvDataW.d[17];
+            wandConfig.bargraphFireAnimation = recvDataW.d[18];
 
             // Send the EEPROM preferences just returned by the wand.
             serial1Send(A_SEND_PREFERENCES_WAND);
@@ -3416,18 +3420,19 @@ void checkSerial1() {
             wandConfig.spectralModeEnabled = recvDataS.d[3];
             wandConfig.spectralHolidayMode = recvDataS.d[4];
             wandConfig.overheatEnabled = recvDataS.d[5];
-            wandConfig.defaultFiringMode = recvDataS.d[6];
-            wandConfig.wandSoundsToPack = recvDataS.d[7];
-            wandConfig.quickVenting = recvDataS.d[8];
-            wandConfig.autoVentLight = recvDataS.d[9];
-            wandConfig.wandBeepLoop = recvDataS.d[10];
-            wandConfig.wandBootError = recvDataS.d[11];
-            wandConfig.defaultYearModeWand = recvDataS.d[12];
-            wandConfig.defaultYearModeCTS = recvDataS.d[13];
-            wandConfig.invertWandBargraph = recvDataS.d[14];
-            wandConfig.bargraphOverheatBlink = recvDataS.d[15];
-            wandConfig.bargraphIdleAnimation = recvDataS.d[16];
-            wandConfig.bargraphFireAnimation = recvDataS.d[17];
+            wandConfig.defaultFiringModeCTS = recvDataS.d[6];
+            wandConfig.defaultFiringModeMix = recvDataS.d[7];
+            wandConfig.wandSoundsToPack = recvDataS.d[8];
+            wandConfig.quickVenting = recvDataS.d[9];
+            wandConfig.autoVentLight = recvDataS.d[10];
+            wandConfig.wandBeepLoop = recvDataS.d[11];
+            wandConfig.wandBootError = recvDataS.d[12];
+            wandConfig.defaultYearModeWand = recvDataS.d[13];
+            wandConfig.defaultYearModeCTS = recvDataS.d[14];
+            wandConfig.invertWandBargraph = recvDataS.d[15];
+            wandConfig.bargraphOverheatBlink = recvDataS.d[16];
+            wandConfig.bargraphIdleAnimation = recvDataS.d[17];
+            wandConfig.bargraphFireAnimation = recvDataS.d[18];
 
             // This will pass select values from the wandConfig object
             packSerialSend(P_SAVE_PREFERENCES_WAND);
