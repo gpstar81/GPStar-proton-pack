@@ -19,12 +19,21 @@
 
 #pragma once
 
-// For pack communication (2 byte ID, 2 byte optional data, 23 byte data payload).
+// For command signals (2 byte ID, 2 byte optional data).
+struct __attribute__((packed)) CommandPacket {
+  uint16_t i;
+  uint16_t d1; // Reserved for values over 255 (eg. current music track)
+};
+
+// For data communication (2 byte ID, 2 byte optional data, 23 byte data payload).
 struct __attribute__((packed)) MessagePacket {
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
   uint8_t d[22]; // Reserved for large data packets (eg. EEPROM configs)
 };
+
+struct CommandPacket recvCmd;
+struct CommandPacket sendCmd;
 
 struct MessagePacket recvData;
 struct MessagePacket sendData;

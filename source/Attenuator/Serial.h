@@ -31,12 +31,21 @@
 SerialTransfer packComs;
 bool b_a_sync_start = false; // Denotes pack communications have begun.
 
+// For command signals (2 byte ID, 2 byte optional data).
+struct __attribute__((packed)) CommandPacket {
+  uint16_t i;
+  uint16_t d1; // Reserved for values over 255 (eg. current music track)
+};
+
 // For pack communication (2 byte ID, 2 byte optional data, 24 byte data payload).
 struct __attribute__((packed)) DataPacket {
   uint16_t i;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
   uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
 };
+
+struct DataPacket recvCmd;
+struct DataPacket sendCmd;
 
 struct DataPacket recvData;
 struct DataPacket sendData;
@@ -118,6 +127,17 @@ struct SmokePrefs {
 /*
  * Serial API Communication Handlers
  */
+
+// Sends an API to the Proton Pack
+void attenuatorSerialCommand(uint16_t i_message, uint16_t i_value = 0) {
+  sendCmd.i = i_message;
+  sendCmd.d1 = i_value;
+  packComs.sendDatum(sendCmd);
+}
+// Override function to handle calls with a single parameter.
+void attenuatorSerialCommand(uint16_t i_message) {
+  attenuatorSerialCommand(i_message, 0);
+}
 
 // Sends an API to the Proton Pack
 void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
@@ -267,9 +287,13 @@ boolean checkPack() {
 
   // Pack communication to the Attenuator device.
   if(packComs.available()) {
+    //packComs.rxObj(recvCmd);
     packComs.rxObj(recvData);
 
     if(!packComs.currentPacketID()) {
+Serial.println("Command: " + String(recvCmd.i));
+Serial.println("Message: " + String(recvData.i));
+
       // Use the passed communication flag to set the proper state for this device.
       switch(recvData.i) {
         case A_PACK_BOOTUP:

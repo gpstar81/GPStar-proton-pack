@@ -1070,23 +1070,24 @@ void checkSwitches() {
             if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
               // Tell the wand to switch to 1984 mode.
               packSerialSend(P_YEAR_1984);
+
+              SYSTEM_YEAR = SYSTEM_1984;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+              serial1Send(A_YEAR_1984);
             }
-
-            SYSTEM_YEAR = SYSTEM_1984;
-            SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-            serial1Send(A_YEAR_1984);
           }
           else {
-            if(SYSTEM_YEAR == SYSTEM_1984) {
+            if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
               // Tell the wand to switch to Afterlife mode.
               packSerialSend(P_YEAR_AFTERLIFE);
+
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+              serial1Send(A_YEAR_AFTERLIFE);
+              serial1Command(A_YEAR_AFTERLIFE);
             }
-
-            SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-            SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-            serial1Send(A_YEAR_AFTERLIFE);
           }
         }
         else {
@@ -1096,36 +1097,36 @@ void checkSwitches() {
               if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to 1984 mode.
                 packSerialSend(P_YEAR_1984);
+
+                SYSTEM_YEAR = SYSTEM_1984;
+                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+                serial1Send(A_YEAR_1984);
               }
-
-              SYSTEM_YEAR = SYSTEM_1984;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_1984);
             break;
 
             case SYSTEM_1989:
               if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to 1989 mode.
                 packSerialSend(P_YEAR_1989);
+
+                SYSTEM_YEAR = SYSTEM_1989;
+                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+                serial1Send(A_YEAR_1989);
               }
-
-              SYSTEM_YEAR = SYSTEM_1989;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_1989);
             break;
 
             case SYSTEM_FROZEN_EMPIRE:
               if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to Frozen Empire mode.
                 packSerialSend(P_YEAR_FROZEN_EMPIRE);
+
+                SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+                serial1Send(A_YEAR_FROZEN_EMPIRE);
               }
-
-              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_FROZEN_EMPIRE);
             break;
 
             case SYSTEM_AFTERLIFE:
@@ -1133,12 +1134,13 @@ void checkSwitches() {
               if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to Afterlife mode.
                 packSerialSend(P_YEAR_AFTERLIFE);
+
+                SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+                serial1Send(A_YEAR_AFTERLIFE);
+                serial1Command(A_YEAR_AFTERLIFE);
               }
-
-              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_AFTERLIFE);
             break;
           }
         }
@@ -4546,10 +4548,6 @@ void doVoltageCheck() {
   // Scale the value, which returns the actual value of Vcc x 100
   const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
   i_batt_volts = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
-
-  // Format for use with the serial plotter.
-  Serial.print("Voltage:");
-  Serial.println(i_batt_volts);
 
   // Send current voltage value to the serial1 device.
   serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
