@@ -19,7 +19,7 @@
 - [Standard Features](#standard-features)
 - [Optional Features](#optional-features)
 - [Toggle Operation Modes](#toggle-operation-modes)
-- [Firing Modes](#firing-modes)
+- [System Modes](#system-modes)
 - [Neutrona Wand Menu System](#neutrona-wand-menu-system)
 - [Additional Resources](#additional-resources)
 
@@ -91,7 +91,7 @@ Refer to the [Loading The Audio Files](AUDIO.md) for more information on loading
 
 # Toggle Operation Modes
 
-There are two modes available which replicate movie or prop-accurate behaviors of the available toggle switches. These system modes can be altered via an [EEPROM menu](OPERATION_EEPROM.md) and will affect the startup sequence for your Proton Pack and Neutrona Wand.
+There are two modes available which replicate movie or prop-accurate behaviors of the available toggle switches. These operational modes can be altered via an [EEPROM menu](OPERATION_EEPROM.md) and will affect the startup sequence for your Proton Pack and Neutrona Wand.
 
 ![](images/OperationNeutrona2.jpg)
 
@@ -145,7 +145,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 <div class="page-break"></div>
 
-# Firing Modes
+# System Modes
 
 ## Video Game Mode (Default)
 
@@ -153,7 +153,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 - Pressing the Barrel Wing Button while you are already throwing a Proton Stream with the Intensify button will initiate "Cross the Streams".
 
-- The Barrel Wing Button at the end of the Neutrona Wand switches between these available firing modes while the wand is active and not throwing a stream:
+- The Barrel Wing Button at the end of the Neutrona Wand switches between these available system modes while the wand is active and not throwing a stream:
 	1. Proton Stream (Default)
 	1. Slime Blower
 	1. Stasis Stream
@@ -164,9 +164,9 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 	1. Manual Venting Mode (Manual vent your Proton Pack)
 	1. Special: Setting 6 is a settings menu system (see "Wand Settings Menu System" section below).
 
-<sup>1</sup> Spectral Mode (Rainbow) is a firing mode which gives a RAINBOW effect. If your Proton Pack has RGB LEDs, they will change to match.
+<sup>1</sup> Spectral Mode (Rainbow) is a system mode which gives a RAINBOW effect. If your Proton Pack has RGB LEDs, they will change to match.
 
-<sup>2</sup> Spectral (Holiday) is a firing mode which gives a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.
+<sup>2</sup> Spectral (Holiday) is a system mode which gives a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.
 
 <sup>3</sup> Spectral (Custom) is a user defined colour mode. You can independently adjust the Neutrona Wand Barrel, Power Cell, Cyclotron and Inner Cyclotron colours directly from the EEPROM LED Menu ystem. The default colours are purple.
 
@@ -178,10 +178,10 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 - When in manual venting mode, the Slo-Blo LED and the Orange LED on the front of the wand body will blink to indicate that you are in the manual venting mode. Press Intensify on the wand to manually vent your Proton Pack. (All the toggle and safety switches on the wand must be activated).
 
-**Alternate Firing Modes: Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)**
+**Alternate System Firing Modes: Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)**
 
-- The Barrel Wing Button at the end of the wand acts as a alternate fire mode button. When Cross The Streams is enabled, Video Game Modes are disabled and you will only have the Proton Stream.
-- The overheat features can only be triggered when holding the alternate fire mode button (Barrel Wing Button) when Cross The Streams mode is enabled.
+- The Barrel Wing Button at the end of the wand acts as a alternate firing button. When Cross The Streams is enabled, Video Game Modes are disabled and you will only have the Proton Stream.
+- The overheat features can only be triggered when holding the alternate firing button (Barrel Wing Button) when Cross The Streams mode is enabled.
 - Pressing both the Intensify and Barrel Wing Button at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing one of the 2 firing buttons will continue these effects.
 	- With Cross The Streams Mix, you need to hold both the Intensify and Barrel Wing Button at the same time. Releasing the Barrel Wing Button will end crossing the streams but continue firing a regular proton stream, and releasing Intensify will end firing completely.
 
