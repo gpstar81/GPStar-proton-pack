@@ -62,7 +62,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Startup Volume %:</b><br/>
-      <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="0" max="100" value="100" step="2"
+      <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="0" max="100" value="100" step="5"
        oninput="masterVolOut.value=defaultSystemVolume.value"/>
       <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume"></output>
     </div>
