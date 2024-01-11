@@ -229,9 +229,9 @@ void readEEPROM() {
 
     if(obj_eeprom.bargraph_mode > 0 && obj_eeprom.bargraph_mode != 255) {
       switch(obj_eeprom.bargraph_mode) {
-        case 3:
-          BARGRAPH_MODE = BARGRAPH_ORIGINAL;
-          BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_ORIGINAL;
+        case 1:
+        default:
+          BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
         break;
 
         case 2:
@@ -239,18 +239,18 @@ void readEEPROM() {
           BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_SUPER_HERO;
         break;
 
-        case 1:
-        default:
-          BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
+        case 3:
+          BARGRAPH_MODE = BARGRAPH_ORIGINAL;
+          BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_ORIGINAL;
         break;
       }
     }
 
     if(obj_eeprom.bargraph_firing_animation > 0 && obj_eeprom.bargraph_mode != 255) {
       switch(obj_eeprom.bargraph_firing_animation) {
-        case 3:
-          BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_ORIGINAL;
-          BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
+        case 1:
+        default:
+          BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
         break;
 
         case 2:
@@ -258,9 +258,9 @@ void readEEPROM() {
           BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_SUPER_HERO;
         break;
 
-        case 1:
-        default:
-          BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
+        case 3:
+          BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_ORIGINAL;
+          BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
         break;
       }
     }
@@ -276,50 +276,50 @@ void readEEPROM() {
 
     if(obj_eeprom.neutrona_wand_year_mode > 0 && obj_eeprom.neutrona_wand_year_mode != 255) {
       switch(obj_eeprom.neutrona_wand_year_mode) {
-        case 5:
-          WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
-        break;
-
-        case 4:
-          WAND_YEAR_MODE = YEAR_AFTERLIFE;
-        break;
-
-        case 3:
-          WAND_YEAR_MODE = YEAR_1989;
+        case 1:
+        default:
+          WAND_YEAR_MODE = YEAR_DEFAULT;
         break;
 
         case 2:
           WAND_YEAR_MODE = YEAR_1984;
         break;
 
-        case 1:
-        default:
-          WAND_YEAR_MODE = YEAR_DEFAULT;
+        case 3:
+          WAND_YEAR_MODE = YEAR_1989;
+        break;
+
+        case 4:
+          WAND_YEAR_MODE = YEAR_AFTERLIFE;
+        break;
+
+        case 5:
+          WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
         break;
       }
     }
 
     if(obj_eeprom.CTS_mode > 0 && obj_eeprom.CTS_mode != 255) {
       switch(obj_eeprom.CTS_mode) {
-        case 5:
-          WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
-        break;
-
-        case 4:
-          WAND_YEAR_CTS = CTS_AFTERLIFE;
-        break;
-
-        case 3:
-          WAND_YEAR_CTS = CTS_1989;
+        case 1:
+        default:
+          WAND_YEAR_CTS = CTS_DEFAULT;
         break;
 
         case 2:
           WAND_YEAR_CTS = CTS_1984;
         break;
 
-        case 1:
-        default:
-          WAND_YEAR_CTS = CTS_DEFAULT;
+        case 3:
+          WAND_YEAR_CTS = CTS_1989;
+        break;
+
+        case 4:
+          WAND_YEAR_CTS = CTS_AFTERLIFE;
+        break;
+
+        case 5:
+          WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
         break;
       }
     }

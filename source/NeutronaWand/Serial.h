@@ -41,7 +41,7 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
     switch(i_message) {
       case W_SEND_PREFERENCES_WAND:
         // Sends values from current runtime variables as values in an int array.
-        // Any ENUM or boolean types will simply translate as numeric values.
+        // Boolean types will simply translate as 1/0, ENUMs should be converted.
         switch(WAND_BARREL_LED_COUNT) {
           case LEDS_5:
           default:
@@ -54,6 +54,7 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
             sendData.d[0] = 2;
           break;
         }
+
         sendData.d[1] = i_spectral_wand_custom_colour;
         sendData.d[2] = i_spectral_wand_custom_saturation;
         sendData.d[3] = b_spectral_mode_enabled;
@@ -66,12 +67,73 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
         sendData.d[10] = b_vent_light_control;
         sendData.d[11] = b_beep_loop;
         sendData.d[12] = b_wand_boot_errors;
-        sendData.d[13] = WAND_YEAR_MODE;
-        sendData.d[14] = WAND_YEAR_CTS;
+
+        switch(WAND_YEAR_MODE) {
+          case YEAR_DEFAULT:
+          default:
+            sendData.d[13] = 1;
+          break;
+          case YEAR_1984:
+            sendData.d[13] = 2;
+          break;
+          case YEAR_1989:
+            sendData.d[13] = 3;
+          break;
+          case YEAR_AFTERLIFE:
+            sendData.d[13] = 4;
+          break;
+          case YEAR_FROZEN_EMPIRE:
+            sendData.d[13] = 5;
+          break;
+        }
+
+        switch(WAND_YEAR_CTS) {
+          case CTS_DEFAULT:
+          default:
+            sendData.d[14] = 1;
+          break;
+          case CTS_1984:
+            sendData.d[14] = 2;
+          break;
+          case CTS_1989:
+            sendData.d[14] = 3;
+          break;
+          case CTS_AFTERLIFE:
+            sendData.d[14] = 4;
+          break;
+          case CTS_FROZEN_EMPIRE:
+            sendData.d[14] = 5;
+          break;
+        }
+
         sendData.d[15] = b_bargraph_invert;
         sendData.d[16] = b_overheat_bargraph_blink;
-        sendData.d[17] = BARGRAPH_MODE;
-        sendData.d[18] = BARGRAPH_EEPROM_FIRING_ANIMATION;
+
+        switch(BARGRAPH_MODE_EEPROM) {
+          case BARGRAPH_EEPROM_DEFAULT:
+          default:
+            sendData.d[17] = 1;
+          break;
+          case BARGRAPH_EEPROM_SUPER_HERO:
+            sendData.d[17] = 2;
+          break;
+          case BARGRAPH_EEPROM_ORIGINAL:
+            sendData.d[17] = 3;
+          break;
+        }
+
+        switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
+          case BARGRAPH_EEPROM_ANIMATION_DEFAULT:
+          default:
+            sendData.d[18] = 1;
+          break;
+          case BARGRAPH_EEPROM_ANIMATION_SUPER_HERO:
+            sendData.d[18] = 2;
+          break;
+          case BARGRAPH_EEPROM_ANIMATION_ORIGINAL:
+            sendData.d[18] = 3;
+          break;
+        }
       break;
 
       case W_SEND_PREFERENCES_SMOKE:
