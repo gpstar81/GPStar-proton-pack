@@ -37,18 +37,17 @@ struct __attribute__((packed)) CommandPacket {
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
-// For pack communication (2 byte ID, 2 byte optional data, 24 byte data payload).
-struct __attribute__((packed)) DataPacket {
+// For data communication (2 byte ID, 24 byte data payload).
+struct __attribute__((packed)) MessagePacket {
   uint16_t i;
-  uint16_t d1; // Reserved for values over 255 (eg. current music track)
   uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
-struct DataPacket recvCmd;
-struct DataPacket sendCmd;
+struct CommandPacket recvCmd;
+struct CommandPacket sendCmd;
 
-struct DataPacket recvData;
-struct DataPacket sendData;
+struct MessagePacket recvData;
+struct MessagePacket sendData;
 
 // Translates a preferences to user-friendly names.
 struct PackPrefs {
@@ -129,20 +128,15 @@ struct SmokePrefs {
  */
 
 // Sends an API to the Proton Pack
-void attenuatorSerialCommand(uint16_t i_message, uint16_t i_value = 0) {
+void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
   sendCmd.i = i_message;
   sendCmd.d1 = i_value;
   packComs.sendDatum(sendCmd);
 }
-// Override function to handle calls with a single parameter.
-void attenuatorSerialCommand(uint16_t i_message) {
-  attenuatorSerialCommand(i_message, 0);
-}
 
 // Sends an API to the Proton Pack
-void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
+void attenuatorSerialSendData(uint16_t i_message) {
   sendData.i = i_message;
-  sendData.d1 = i_value;
 
   // Set all elements of the data array to 0
   memset(sendData.d, 0, sizeof(sendData.d));
@@ -287,15 +281,15 @@ boolean checkPack() {
 
   // Pack communication to the Attenuator device.
   if(packComs.available()) {
-    //packComs.rxObj(recvCmd);
+    packComs.rxObj(recvCmd);
     packComs.rxObj(recvData);
 
     if(!packComs.currentPacketID()) {
-Serial.println("Command: " + String(recvCmd.i));
-Serial.println("Message: " + String(recvData.i));
+Serial.println("Recv. Command: " + String(recvCmd.i));
+Serial.println("Recv. Message: " + String(recvData.i));
 
-      // Use the passed communication flag to set the proper state for this device.
-      switch(recvData.i) {
+      // Handle simple commands.
+      switch(recvCmd.i) {
         case A_PACK_BOOTUP:
           #if defined(__XTENSA__)
             debug("Pack Bootup");
@@ -383,28 +377,28 @@ Serial.println("Message: " + String(recvData.i));
 
         case A_MUSIC_IS_PLAYING:
           #if defined(__XTENSA__)
-            debug("Music Playing: " + String(recvData.d1));
+            debug("Music Playing: " + String(recvCmd.d1));
           #endif
 
           b_playing_music = true;
 
-          if(recvData.d1 > 0 && i_music_track_current != recvData.d1) {
+          if(recvCmd.d1 > 0 && i_music_track_current != recvCmd.d1) {
             // Music track changed.
-            i_music_track_current = recvData.d1;
+            i_music_track_current = recvCmd.d1;
             b_state_changed = true;
           }
         break;
 
         case A_MUSIC_IS_NOT_PLAYING:
           #if defined(__XTENSA__)
-            debug("Music Stopped: " + String(recvData.d1));
+            debug("Music Stopped: " + String(recvCmd.d1));
           #endif
 
           b_playing_music = false;
 
-          if(recvData.d1 > 0 && i_music_track_current != recvData.d1) {
+          if(recvCmd.d1 > 0 && i_music_track_current != recvCmd.d1) {
             // Music track changed.
-            i_music_track_current = recvData.d1;
+            i_music_track_current = recvCmd.d1;
             b_state_changed = true;
           }
         break;
@@ -433,11 +427,11 @@ Serial.println("Message: " + String(recvData.i));
 
         case A_MUSIC_TRACK_COUNT_SYNC:
           #if defined(__XTENSA__)
-            debug("Music Track Sync: " + String(recvData.d1));
+            debug("Music Track Sync: " + String(recvCmd.d1));
           #endif
 
-          if(recvData.d1 > 0) {
-            i_music_track_count = recvData.d1;
+          if(recvCmd.d1 > 0) {
+            i_music_track_count = recvCmd.d1;
           }
 
           #if defined(__XTENSA__)
@@ -871,6 +865,22 @@ Serial.println("Message: " + String(recvData.i));
           }
         break;
 
+        case A_BATTERY_VOLTAGE_PACK:
+          #if defined(__XTENSA__)
+            debug("Voltage: " + String(recvCmd.d1));
+          #endif
+
+          // Convert to a value X.NN based on expected 5VDC maximum.
+          f_batt_volts = (float) recvCmd.d1 / 100;
+          b_state_changed = true;
+        break;
+
+        default:
+          // No-op for anything else.
+        break;
+      }
+      // Handle data payloads.
+      switch(recvData.i) {
         case A_SEND_PREFERENCES_PACK:
           #if defined(__XTENSA__)
             debug("Pack Preferences Received");
@@ -985,16 +995,6 @@ Serial.println("Message: " + String(recvData.i));
               debug("Error while receiving smoke preferences");
             }
           #endif
-        break;
-
-        case A_BATTERY_VOLTAGE_PACK:
-          #if defined(__XTENSA__)
-            debug("Voltage: " + String(recvData.d1));
-          #endif
-
-          // Convert to a value X.NN based on expected 5VDC maximum.
-          f_batt_volts = (float) recvData.d1 / 100;
-          b_state_changed = true;
         break;
 
         default:

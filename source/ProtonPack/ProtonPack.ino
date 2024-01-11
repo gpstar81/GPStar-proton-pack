@@ -1086,7 +1086,6 @@ void checkSwitches() {
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_AFTERLIFE);
-              serial1Command(A_YEAR_AFTERLIFE);
             }
           }
         }
@@ -1139,7 +1138,6 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_AFTERLIFE);
-                serial1Command(A_YEAR_AFTERLIFE);
               }
             break;
           }

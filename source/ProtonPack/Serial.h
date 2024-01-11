@@ -30,10 +30,9 @@ struct __attribute__((packed)) CommandPacket {
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
-// For data communication (2 byte ID, 2 byte optional data, 24 byte data payload).
+// For data communication (2 byte ID, 24 byte data payload).
 struct __attribute__((packed)) MessagePacket {
   uint16_t i;
-  uint16_t d1; // Reserved for values over 255 (eg. current music track)
   uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
@@ -186,20 +185,19 @@ void updateSystemModeYear() {
 }
 
 // Outgoing commands to the Serial1 device
-void serial1Command(uint16_t i_message, uint16_t i_value) {
+void serial1Send(uint16_t i_message, uint16_t i_value) {
   sendCmdS.i = i_message;
   sendCmdS.d1 = i_value;
   serial1Coms.sendDatum(sendCmdS);
 }
 // Override function to handle calls with a single parameter.
-void serial1Command(uint16_t i_message) {
-  serial1Command(i_message, 0);
+void serial1Send(uint16_t i_message) {
+  serial1Send(i_message, 0);
 }
 
 // Outgoing payloads to the Serial1 device
-void serial1Send(uint16_t i_message, uint16_t i_value) {
+void serial1SendData(uint16_t i_message) {
   sendDataS.i = i_message;
-  sendDataS.d1 = i_value;
 
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
@@ -210,17 +208,6 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
     case A_SPECTRAL_COLOUR_DATA:
       sendDataS.d[0] = i_spectral_cyclotron_custom_colour;
       sendDataS.d[1] = i_spectral_cyclotron_custom_saturation;
-    break;
-
-    case A_MUSIC_TRACK_COUNT_SYNC:
-      // Send the total count of music tracks.
-      sendDataS.d1 = i_music_count;
-    break;
-
-    case A_MUSIC_IS_PLAYING:
-    case A_MUSIC_IS_NOT_PLAYING:
-      // Send the current music track played/stopped.
-      sendDataS.d1 = i_current_music_track;
     break;
 
     case A_VOLUME_SYNC:
@@ -329,15 +316,21 @@ void serial1Send(uint16_t i_message, uint16_t i_value) {
 
   serial1Coms.sendDatum(sendDataS);
 }
+
+// Outgoing commands to the wand
+void packSerialSend(uint16_t i_message, uint16_t i_value) {
+  sendCmdW.i = i_message;
+  sendCmdW.d1 = i_value;
+  serial1Coms.sendDatum(sendCmdW);
+}
 // Override function to handle calls with a single parameter.
-void serial1Send(uint16_t i_message) {
-  serial1Send(i_message, 0);
+void packSerialSend(uint16_t i_message) {
+  packSerialSend(i_message, 0);
 }
 
-// Outgoing messages to the wand
-void packSerialSend(uint16_t i_message, uint16_t i_value) {
+// Outgoing payloads to the wand
+void packSerialSendData(uint16_t i_message) {
   sendDataW.i = i_message;
-  sendDataW.d1 = i_value;
 
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
@@ -396,10 +389,6 @@ void packSerialSend(uint16_t i_message, uint16_t i_value) {
 
   packComs.sendDatum(sendDataW);
 }
-// Override function to handle calls with a single parameter.
-void packSerialSend(uint16_t i_message) {
-  packSerialSend(i_message, 0);
-}
 
 // Incoming messages from the extra Serial 1 port.
 void checkSerial1() {
@@ -409,7 +398,8 @@ void checkSerial1() {
 
     if(!serial1Coms.currentPacketID()) {
       if(b_serial1_connected == true) {
-        switch(recvDataS.i) {
+        // Handle simple commands.
+        switch(recvCmdS.i) {
           case A_HANDSHAKE:
             // The Attenuator is still here.
             ms_serial1_handshake.start(i_serial1_handshake_delay);
@@ -527,17 +517,17 @@ void checkSerial1() {
 
           case A_REQUEST_PREFERENCES_PACK:
             // If requested by the serial device, send back all pack EEPROM preferences.
-            serial1Send(A_SEND_PREFERENCES_PACK);
+            serial1SendData(A_SEND_PREFERENCES_PACK);
           break;
 
           case A_REQUEST_PREFERENCES_WAND:
             // If requested by the serial device, tell the wand we need EEPROM preferences.
-            packSerialSend(P_SEND_PREFERENCES_WAND);
+            serial1SendData(P_SEND_PREFERENCES_WAND);
           break;
 
           case A_REQUEST_PREFERENCES_SMOKE:
             // If requested by the serial device, tell the wand we need EEPROM preferences.
-            packSerialSend(P_SEND_PREFERENCES_SMOKE);
+            serial1SendData(P_SEND_PREFERENCES_SMOKE);
           break;
 
           case A_SYNC_START:
@@ -546,24 +536,55 @@ void checkSerial1() {
 
           case A_MUSIC_PLAY_TRACK:
             // Music track number to be played.
-            if(i_music_count > 0 && recvDataS.d1 >= i_music_track_start) {
+            if(i_music_count > 0 && recvCmdS.d1 >= i_music_track_start) {
               if(b_playing_music == true) {
                 stopMusic(); // Stops current track before change.
 
                 // Only update after the music is stopped.
-                i_current_music_track = recvDataS.d1;
+                i_current_music_track = recvCmdS.d1;
 
                 // Play the appropriate track on pack and wand, and notify the serial1 device.
                 playMusic();
               }
               else {
-                i_current_music_track = recvDataS.d1;
+                i_current_music_track = recvCmdS.d1;
 
                 // Just tell the wand which track was requested for play.
                 packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
               }
             }
           break;
+
+          case A_SAVE_EEPROM_SETTINGS_PACK:
+            // Commit changes to the EEPROM in the pack controller
+            saveLedEEPROM();
+            saveConfigEEPROM();
+
+            // Offer some feedback to the user
+            stopEffect(S_VOICE_EEPROM_SAVE);
+            playEffect(S_VOICE_EEPROM_SAVE);
+          break;
+
+          case A_SAVE_EEPROM_SETTINGS_WAND:
+            // Commit changes to the EEPROM on the wand controller
+            packSerialSend(P_SAVE_EEPROM_WAND);
+
+            // Offer some feedback to the user
+            stopEffect(S_VOICE_EEPROM_SAVE);
+            playEffect(S_VOICE_EEPROM_SAVE);
+          break;
+
+          case A_SYNC_END:
+            //Serial.println("Serial1 Sync End");
+          break;
+
+          default:
+            // No-op for anything else.
+          break;
+        }
+
+        // Handle data payloads.
+        switch(recvDataS.i) {
 
           case A_SAVE_PREFERENCES_PACK:
             // Writes new preferences back to runtime variables.
@@ -663,7 +684,7 @@ void checkSerial1() {
             wandConfig.bargraphFireAnimation = recvDataS.d[18];
 
             // This will pass select values from the wandConfig object
-            packSerialSend(P_SAVE_PREFERENCES_WAND);
+            packSerialSendData(P_SAVE_PREFERENCES_WAND);
 
             // Offer some feedback to the user
             stopEffect(S_VENT_DRY);
@@ -672,17 +693,17 @@ void checkSerial1() {
 
           case A_SAVE_PREFERENCES_SMOKE:
             // Save local and remote (wand) smoke timing settings
-            i_ms_overheating_length_5 = sendDataS.d[0] * 1000;
-            i_ms_overheating_length_4 = sendDataS.d[1] * 1000;
-            i_ms_overheating_length_3 = sendDataS.d[2] * 1000;
-            i_ms_overheating_length_2 = sendDataS.d[3] * 1000;
-            i_ms_overheating_length_1 = sendDataS.d[4] * 1000;
+            i_ms_overheating_length_5 = recvDataS.d[0] * 1000;
+            i_ms_overheating_length_4 = recvDataS.d[1] * 1000;
+            i_ms_overheating_length_3 = recvDataS.d[2] * 1000;
+            i_ms_overheating_length_2 = recvDataS.d[3] * 1000;
+            i_ms_overheating_length_1 = recvDataS.d[4] * 1000;
 
-            b_smoke_continuous_mode_5 = sendDataS.d[5];
-            b_smoke_continuous_mode_4 = sendDataS.d[6];
-            b_smoke_continuous_mode_3 = sendDataS.d[7];
-            b_smoke_continuous_mode_2 = sendDataS.d[8];
-            b_smoke_continuous_mode_1 = sendDataS.d[9];
+            b_smoke_continuous_mode_5 = recvDataS.d[5];
+            b_smoke_continuous_mode_4 = recvDataS.d[6];
+            b_smoke_continuous_mode_3 = recvDataS.d[7];
+            b_smoke_continuous_mode_2 = recvDataS.d[8];
+            b_smoke_continuous_mode_1 = recvDataS.d[9];
 
             wandConfig.overheatLevel5 = recvDataS.d[10];
             wandConfig.overheatLevel4 = recvDataS.d[11];
@@ -700,34 +721,11 @@ void checkSerial1() {
             resetContinuousSmoke();
 
             // This will pass select values from the wandConfig object
-            packSerialSend(P_SAVE_PREFERENCES_SMOKE);
+            packSerialSendData(P_SAVE_PREFERENCES_SMOKE);
 
             // Offer some feedback to the user
             stopEffect(S_VENT_SMOKE);
             playEffect(S_VENT_SMOKE);
-          break;
-
-          case A_SAVE_EEPROM_SETTINGS_PACK:
-            // Commit changes to the EEPROM in the pack controller
-            saveLedEEPROM();
-            saveConfigEEPROM();
-
-            // Offer some feedback to the user
-            stopEffect(S_VOICE_EEPROM_SAVE);
-            playEffect(S_VOICE_EEPROM_SAVE);
-          break;
-
-          case A_SAVE_EEPROM_SETTINGS_WAND:
-            // Commit changes to the EEPROM on the wand controller
-            packSerialSend(P_SAVE_EEPROM_WAND);
-
-            // Offer some feedback to the user
-            stopEffect(S_VOICE_EEPROM_SAVE);
-            playEffect(S_VOICE_EEPROM_SAVE);
-          break;
-
-          case A_SYNC_END:
-            //Serial.println("Serial1 Sync End");
           break;
 
           default:
@@ -738,7 +736,7 @@ void checkSerial1() {
       else {
         // Check if the Attenuator is telling us it is here after connecting it to the pack.
         // Then synchronise some settings between the pack and the Attenuator.
-        if(recvDataS.i == A_SYNC_START && b_serial_1_syncing != true) {
+        if(recvCmdS.i == A_SYNC_START && b_serial_1_syncing != true) {
           b_serial_1_syncing = true;
 
           serial1Send(A_SYNC_START);
@@ -836,7 +834,7 @@ void checkSerial1() {
             break;
 
             case SPECTRAL_CUSTOM:
-              serial1Send(A_SPECTRAL_CUSTOM_MODE);
+              serial1SendData(A_SPECTRAL_CUSTOM_MODE);
             break;
 
             case VENTING:
@@ -850,7 +848,7 @@ void checkSerial1() {
             break;
           }
 
-          serial1Send(A_SPECTRAL_COLOUR_DATA);
+          serial1SendData(A_SPECTRAL_COLOUR_DATA);
 
           if(switch_power.getState() == LOW) {
             // Tell the Attenuator or any other device that the power to the Proton Pack is on.
@@ -863,10 +861,10 @@ void checkSerial1() {
 
           // This sends over the music status and the current music track.
           if(b_playing_music == true) {
-            serial1Send(A_MUSIC_IS_PLAYING);
+            serial1Send(A_MUSIC_IS_PLAYING, i_current_music_track);
           }
           else {
-            serial1Send(A_MUSIC_IS_NOT_PLAYING);
+            serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
           }
 
           if(b_music_paused == true) {
@@ -876,7 +874,7 @@ void checkSerial1() {
             serial1Send(A_MUSIC_IS_NOT_PAUSED);
           }
 
-          serial1Send(A_MUSIC_TRACK_COUNT_SYNC);
+          serial1Send(A_MUSIC_TRACK_COUNT_SYNC, i_music_count);
 
           b_serial1_connected = true;
           b_serial_1_syncing = false;
@@ -894,11 +892,13 @@ void checkSerial1() {
 // Incoming messages from the wand.
 void checkWand() {
   while(packComs.available() > 0) {
+    packComs.rxObj(recvCmdW);
     packComs.rxObj(recvDataW);
 
     if(!packComs.currentPacketID()) {
       if(b_wand_connected == true) {
-        switch(recvDataW.i) {
+        // Handle simple commands.
+        switch(recvCmdW.i) {
           case W_ON:
             // The wand has been turned on.
             b_wand_on = true;
@@ -1252,7 +1252,7 @@ void checkWand() {
               powercellDraw();
             }
 
-            serial1Send(A_SPECTRAL_CUSTOM_MODE);
+            serial1SendData(A_SPECTRAL_CUSTOM_MODE);
           break;
 
           case W_VENTING_MODE:
@@ -2102,7 +2102,7 @@ void checkWand() {
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
               w_trig.trackGain(i_current_music_track, i_volume_music);
-              serial1Send(A_VOLUME_SYNC);
+              serial1SendData(A_VOLUME_SYNC);
             }
           break;
 
@@ -2123,7 +2123,7 @@ void checkWand() {
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
               w_trig.trackGain(i_current_music_track, i_volume_music);
-              serial1Send(A_VOLUME_SYNC);
+              serial1SendData(A_VOLUME_SYNC);
             }
           break;
 
@@ -3415,36 +3415,43 @@ void checkWand() {
 
           case W_MUSIC_PLAY_TRACK:
             // Music track number to be played.
-            if(i_music_count > 0 && recvDataW.d1 >= i_music_track_start) {
+            if(i_music_count > 0 && recvCmdW.d1 >= i_music_track_start) {
               if(b_playing_music == true) {
                 stopMusic(); // Stops current track before change.
 
                 // Only update after the music is stopped.
-                i_current_music_track = recvDataW.d1;
+                i_current_music_track = recvCmdW.d1;
 
                 // Play the appropriate track on pack and wand, and notify the serial1 device.
                 playMusic();
               }
               else {
-                i_current_music_track = recvDataW.d1;
+                i_current_music_track = recvCmdW.d1;
               }
             }
           break;
 
           case W_COM_SOUND_NUMBER:
-            if(recvDataW.d1 > 0 && recvDataW.d1 < i_music_track_start) {
+            if(recvCmdW.d1 > 0 && recvCmdW.d1 < i_music_track_start) {
               // The Neutrona Wand is telling us to play a sound effect only (S_1 through S_60).
-              stopEffect(recvDataW.d1 + 1);
+              stopEffect(recvCmdW.d1 + 1);
 
-              if(recvDataW.d1 - 1 > 0) {
-                stopEffect(recvDataW.d1 - 1);
+              if(recvCmdW.d1 - 1 > 0) {
+                stopEffect(recvCmdW.d1 - 1);
               }
 
-              stopEffect(recvDataW.d1);
-              playEffect(recvDataW.d1);
+              stopEffect(recvCmdW.d1);
+              playEffect(recvCmdW.d1);
             }
           break;
 
+          default:
+            // No-op for all other actions.
+          break;
+        }
+
+        // Handle data payloads.
+        switch(recvDataW.i) {
           case W_SEND_PREFERENCES_WAND:
             // Preferences are received from the wand.
             wandConfig.ledWandCount = recvDataW.d[0];
@@ -3468,7 +3475,7 @@ void checkWand() {
             wandConfig.bargraphFireAnimation = recvDataW.d[18];
 
             // Send the EEPROM preferences just returned by the wand.
-            serial1Send(A_SEND_PREFERENCES_WAND);
+            serial1SendData(A_SEND_PREFERENCES_WAND);
           break;
 
           case W_SEND_PREFERENCES_SMOKE:
@@ -3486,7 +3493,7 @@ void checkWand() {
 
             // Send the EEPROM preferences just returned by the wand.
             // This data will combine with the pack's smoke settings.
-            serial1Send(A_SEND_PREFERENCES_SMOKE);
+            serial1SendData(A_SEND_PREFERENCES_SMOKE);
           break;
 
           default:
@@ -3497,7 +3504,7 @@ void checkWand() {
       else {
         // Check if the wand is telling us it is here after connecting it to the pack.
         // Then synchronise some settings between the pack and the wand.
-        if(recvDataW.i == W_HANDSHAKE) {
+        if(recvCmdW.i == W_HANDSHAKE) {
           if(b_overheating == true) {
             packOverHeatingFinished();
           }
@@ -3667,7 +3674,7 @@ void checkWand() {
           }
 
           // Synchronise the volume settings.
-          packSerialSend(P_VOLUME_SYNC);
+          packSerialSendData(P_VOLUME_SYNC);
 
           if(i_volume_master == i_volume_abs_min) {
             // Telling the wand to be silent if required.

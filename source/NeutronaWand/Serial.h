@@ -25,11 +25,10 @@ struct __attribute__((packed)) CommandPacket {
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
-// For data communication (2 byte ID, 2 byte optional data, 23 byte data payload).
+// For data communication (2 byte ID, 24 byte data payload).
 struct __attribute__((packed)) MessagePacket {
   uint16_t i;
-  uint16_t d1; // Reserved for values over 255 (eg. current music track)
-  uint8_t d[22]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
 struct CommandPacket recvCmd;
@@ -38,11 +37,25 @@ struct CommandPacket sendCmd;
 struct MessagePacket recvData;
 struct MessagePacket sendData;
 
-// Pack communication from the wand.
+// Outgoing commands to the pack.
 void wandSerialSend(uint16_t i_message, uint16_t i_value) {
+  // Only sends when pack is present.
+  if(b_no_pack != true) {
+    sendCmd.i = i_message;
+    sendCmd.d1 = i_value;
+    wandComs.sendDatum(sendCmd);
+  }
+}
+// Override function to handle calls with a single parameter.
+void wandSerialSend(uint16_t i_message) {
+  wandSerialSend(i_message, 0);
+}
+
+// Outgoing payloads to the pack.
+void wandSerialSendData(uint16_t i_message) {
+  // Only sends when pack is present.
   if(b_no_pack != true) {
     sendData.i = i_message;
-    sendData.d1 = i_value;
 
     // Set all elements of the data array to 0
     memset(sendData.d, 0, sizeof(sendData.d));
@@ -169,18 +182,17 @@ void wandSerialSend(uint16_t i_message, uint16_t i_value) {
     wandComs.sendDatum(sendData);
   }
 }
-// Override function to handle calls with a single parameter.
-void wandSerialSend(uint16_t i_message) {
-  wandSerialSend(i_message, 0);
-}
 
 // Pack communication to the wand.
 void checkPack() {
+  // Only checks when pack is present.
   if(wandComs.available() && b_no_pack != true) {
+    wandComs.rxObj(recvCmd);
     wandComs.rxObj(recvData);
 
     if(!wandComs.currentPacketID()) {
-      switch(recvData.i) {
+      // Handle simple commands.
+      switch(recvCmd.i) {
         case P_PACK_BOOTUP:
           // Nothing for now.
         break;
@@ -228,12 +240,12 @@ void checkPack() {
 
         case P_SEND_PREFERENCES_WAND:
           // The pack wants the latest wand preferences.
-          wandSerialSend(W_SEND_PREFERENCES_WAND);
+          wandSerialSendData(W_SEND_PREFERENCES_WAND);
         break;
 
         case P_SEND_PREFERENCES_SMOKE:
           // The pack wants the latest smoke preferences.
-          wandSerialSend(W_SEND_PREFERENCES_SMOKE);
+          wandSerialSendData(W_SEND_PREFERENCES_SMOKE);
         break;
 
         case P_SOUND_SUPER_HERO:
@@ -1091,9 +1103,9 @@ void checkPack() {
             stopMusic();
           }
 
-          if(i_music_count > 0 && recvData.d1 >= i_music_track_start) {
+          if(i_music_count > 0 && recvCmd.d1 >= i_music_track_start) {
             // Update the music track number to be played.
-            i_current_music_track = recvData.d1;
+            i_current_music_track = recvCmd.d1;
           }
 
           playMusic();
@@ -1108,12 +1120,27 @@ void checkPack() {
         break;
 
         case P_MUSIC_PLAY_TRACK:
-          if(i_music_count > 0 && recvData.d1 >= i_music_track_start) {
+          if(i_music_count > 0 && recvCmd.d1 >= i_music_track_start) {
             // Update the music track number to be played.
-            i_current_music_track = recvData.d1;
+            i_current_music_track = recvCmd.d1;
           }
         break;
 
+        case P_SAVE_EEPROM_WAND:
+          // Commit changes to the EEPROM in the wand controller
+          saveLedEEPROM();
+          saveConfigEEPROM();
+          stopEffect(S_VOICE_EEPROM_SAVE);
+          playEffect(S_VOICE_EEPROM_SAVE);
+        break;
+
+        default:
+          // No-op for anything else.
+        break;
+      }
+
+      // Handle data payloads.
+      switch(recvData.i) {
         case P_SAVE_PREFERENCES_WAND:
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -1239,14 +1266,6 @@ void checkPack() {
 
           // Update and reset wand components.
           resetOverHeatModes();
-        break;
-
-        case P_SAVE_EEPROM_WAND:
-          // Commit changes to the EEPROM in the wand controller
-          saveLedEEPROM();
-          saveConfigEEPROM();
-          stopEffect(S_VOICE_EEPROM_SAVE);
-          playEffect(S_VOICE_EEPROM_SAVE);
         break;
 
         default:
