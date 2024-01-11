@@ -48,7 +48,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
     <br/>
     <p>
-      <b>Batt. Voltage:</b> <span class="info" id="battVoltage">&mdash;</span>
+      <b>Battery Health:</b> <span class="info" id="battVoltage">&mdash;</span>
       <span id="battHealth"></span>
     </p>
   </div>
@@ -124,8 +124,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      initWebSocket();
-      getStatus();
+      initWebSocket(); // Open the WebSocket for server-push data.
+      getStatus(); // Get status immediately while WebSocket opens.
     }
 
     function initWebSocket() {
@@ -156,9 +156,11 @@ const char INDEX_page[] PROGMEM = R"=====(
       setTimeout(initWebSocket, 1000);
 
       // Fallback for when WebSocket is unavailable.
-      statusInterval = setInterval(function() {
-        getStatus(); // Check for status every X seconds
-      }, 1000);
+      if (!statusInterval) {
+        statusInterval = setInterval(function() {
+          getStatus(); // Check for status every X seconds
+        }, 1000);
+      }
     }
 
     function isJsonString(str) {
@@ -264,9 +266,11 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cable").innerHTML = jObj.cable || "...";
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
+
         if (jObj.battVoltage) {
+          // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
           document.getElementById("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2)) + " VDC";
-          if (jObj.battVoltage < 4) {
+          if (jObj.battVoltage < 4.2) {
             document.getElementById("battHealth").innerHTML = "&#129707;"; // Low Battery
           } else {
             document.getElementById("battHealth").innerHTML = "&#128267;"; // Good Battery

@@ -61,6 +61,7 @@ p { font-size: 18px; margin-bottom: 5px; }
 
 .card {
   background: #ddd;
+  border-radius: 12px;
   box-sizing: border-box;
   box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
   color: #444;
