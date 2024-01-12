@@ -188,6 +188,9 @@ void setup() {
   // Start up some timers for MODE_ORIGINAL.
   ms_slo_blo_blink.start(i_slo_blo_blink_delay);
 
+  // Initialize the timer for initial handshake.
+  ms_handshake.start(1);
+
   if(b_gpstar_benchtest == true) {
     b_wait_for_pack = false;
     b_pack_on = true;
@@ -200,15 +203,18 @@ void setup() {
 
 void loop() {
   if(b_wait_for_pack == true) {
-    // Handshake with the pack telling the pack that we are here.
-    wandSerialSend(W_HANDSHAKE);
+    // While waiting for a proton pack, issue a handshake to a connected device.
+    // Immediately after, check for a response and handle any synchronization.
+    if(ms_handshake.remaining() < 1) {
+      wandSerialSend(W_HANDSHAKE); // Poke the pack to tell it the wand is here.
+      ms_handshake.start(i_handshake_delay); // Wait to try again if necessary.
+    }
 
-    // Synchronise some settings with the pack.
+    // Check for any response from the pack.
     checkPack();
-
-    delay(100);
   }
   else {
+    // When not waiting for the pack, move directly into the main loop.
     mainLoop();
   }
 }
@@ -1011,7 +1017,7 @@ void checkSwitches() {
     ms_slo_blo_blink.start(i_slo_blo_blink_delay);
   }
 
-  switchBarrel();
+  switchBarrel(); // Determine the state of the barrel safety switch.
 
   switch(WAND_STATUS) {
     case MODE_OFF:

@@ -197,8 +197,25 @@ Serial.println("Recv. Message: " + String(recvData.i));
 
       // Handle simple commands.
       switch(recvCmd.i) {
+        case P_SYNC_START:
+          b_sync = true; // Sync process has begun.
+          b_wait_for_pack = false; // Immediately set false so that the loop() stops sending handshakes.
+        break;
+
+        case P_SYNC_END:
+          b_sync = false; // Sync process has completed.
+
+          switchBarrel(); // Determine the state of the barrel safety switch.
+
+          // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
+          // Otherwise the switchBarrel() will tell it if it's retracted during bootup.
+          if(b_switch_barrel_extended == true) {
+            wandSerialSend(W_BARREL_EXTENDED);
+          }
+        break;
+
         case P_PACK_BOOTUP:
-          // Nothing for now.
+          // Does nothing for now.
         break;
 
         case P_ON:
@@ -223,23 +240,6 @@ Serial.println("Recv. Message: " + String(recvData.i));
 
           // Pack is off.
           b_pack_on = false;
-        break;
-
-        case P_SYNC_START:
-          b_sync = true;
-        break;
-
-        case P_SYNC_END:
-          b_sync = false;
-          b_wait_for_pack = false;
-
-          switchBarrel();
-
-          // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
-          // Otherwise the switchBarrel() will tell it if it's retracted during bootup.
-          if(b_switch_barrel_extended == true) {
-            wandSerialSend(W_BARREL_EXTENDED);
-          }
         break;
 
         case P_SEND_PREFERENCES_WAND:
