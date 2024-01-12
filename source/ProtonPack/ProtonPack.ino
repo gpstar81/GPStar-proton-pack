@@ -4140,12 +4140,13 @@ void wandHandShake() {
       spectralLightsOff();
     }
 
-    if(ms_wand_handshake.justFinished()) {
-      // Ask the wand if it is connected.
-      packSerialSend(P_HANDSHAKE);
+    // @TODO: Consider who should do this...the pack asking the wand or the wand asking the pack?
+    // if(ms_wand_handshake.justFinished()) {
+    //   // Ask the wand if it is connected.
+    //   packSerialSend(P_HANDSHAKE);
 
-      ms_wand_handshake.start(i_wand_handshake_delay / 5);
-    }
+    //   ms_wand_handshake.start(i_wand_handshake_delay / 5);
+    // }
   }
 }
 

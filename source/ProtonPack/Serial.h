@@ -174,6 +174,7 @@ void updateSystemModeYear() {
       serial1Send(A_YEAR_1989);
     break;
     case SYSTEM_AFTERLIFE:
+    default:
       packSerialSend(P_YEAR_AFTERLIFE);
       serial1Send(A_YEAR_AFTERLIFE);
     break;
@@ -318,14 +319,14 @@ void serial1SendData(uint16_t i_message) {
 }
 
 // Outgoing commands to the wand
-void packSerialSend(uint16_t i_message, uint16_t i_value) {
-  sendCmdW.c = i_message;
+void packSerialSend(uint16_t i_command, uint16_t i_value) {
+  sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
   serial1Coms.sendDatum(sendCmdW);
 }
 // Override function to handle calls with a single parameter.
-void packSerialSend(uint16_t i_message) {
-  packSerialSend(i_message, 0);
+void packSerialSend(uint16_t i_command) {
+  packSerialSend(i_command, 0);
 }
 
 // Outgoing payloads to the wand
@@ -767,6 +768,7 @@ void checkSerial1() {
               serial1Send(A_YEAR_1989);
             break;
             case SYSTEM_AFTERLIFE:
+            default:
               serial1Send(A_YEAR_AFTERLIFE);
             break;
             case SYSTEM_FROZEN_EMPIRE:
@@ -3517,6 +3519,12 @@ Serial.println("Got Initial Wand Handshake");
 
             // Begin the synchronization process which tells the wand the pack got the handshake.
 Serial.println("Sending Sync Start");
+            // Turn on a single Power Cell LED to indicate that the wand sync process has begun.
+            // This LED will be turned off automatically on the next iteration of the main loop.
+            pack_leds[0] = getHueAsRGB(POWERCELL, C_WHITE); // White works with any LED choice.
+            FastLED.show(); // Force update of color state.
+
+            // Begin the synchronization process with the attached wand.
             packSerialSend(P_SYNC_START);
 /*
             if(b_overheating == true) {
@@ -3699,7 +3707,7 @@ Serial.println("Sending Sync End");
 
           case W_SYNCHRONIZED:
 Serial.println("Wand Synchronized");
-            b_wand_connected = true;
+            b_wand_connected = true; // Indicate completion of wand sync process.
           break;
 
           default:
