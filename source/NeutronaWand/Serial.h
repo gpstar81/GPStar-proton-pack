@@ -205,7 +205,7 @@ Serial.println("Got Sync Start");
         case P_SYNC_END:
 Serial.println("Got Sync End");
           b_sync = false; // Sync process has completed.
-          b_wait_for_pack = false; // Immediately set false so that the loop() stops sending handshakes.
+          b_wait_for_pack = false; // Stops sending of initial handshake.
 
           switchBarrel(); // Determine the state of the barrel safety switch.
 
@@ -214,6 +214,9 @@ Serial.println("Got Sync End");
           if(b_switch_barrel_extended == true) {
             wandSerialSend(W_BARREL_EXTENDED);
           }
+
+          // Acknowledgement that the wand is now synchronized.
+          wandSerialSend(W_SYNCHRONIZED);
         break;
 
         case P_HANDSHAKE:
@@ -1132,6 +1135,7 @@ Serial.println("Got Sync End");
       // Handle data payloads.
       switch(recvData.m) {
         case P_VOLUME_SYNC:
+Serial.println("P_VOLUME_SYNC");
           // Set the percentage volume.
           i_volume_master_percentage = recvData.d[0];
           i_volume_effects_percentage = recvData.d[1];

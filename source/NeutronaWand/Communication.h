@@ -139,6 +139,7 @@ enum pack_messages {
 enum wand_messages {
   W_NULL,
   W_HANDSHAKE,
+  W_SYNCHRONIZED,
   W_ON,
   W_OFF,
   W_FIRING,

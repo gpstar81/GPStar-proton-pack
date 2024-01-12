@@ -202,7 +202,7 @@ void setup() {
 }
 
 void loop() {
-  if(b_wait_for_pack == true || b_sync == true) {
+  if(b_wait_for_pack == true) {
     // While waiting for a proton pack, issue a handshake to a connected device.
     // Immediately after, check for a response and handle any synchronization.
     if(ms_handshake.justFinished()) {
