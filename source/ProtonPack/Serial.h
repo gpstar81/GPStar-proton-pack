@@ -397,8 +397,8 @@ void checkSerial1() {
     serial1Coms.rxObj(recvDataS);
 
     if(!serial1Coms.currentPacketID()) {
-  // Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
-  // Serial.println("Recv. Serial Message: " + String(recvDataS.m));
+Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
+Serial.println("Recv. Serial Message: " + String(recvDataS.m));
 
       if(b_serial1_connected == true) {
         // Handle simple commands.

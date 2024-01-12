@@ -285,8 +285,8 @@ boolean checkPack() {
     packComs.rxObj(recvData);
 
     if(!packComs.currentPacketID()) {
-Serial.println("Recv. Command: " + String(recvCmd.c));
-Serial.println("Recv. Message: " + String(recvData.m));
+// Serial.println("Recv. Command: " + String(recvCmd.c));
+// Serial.println("Recv. Message: " + String(recvData.m));
 
       // Handle simple commands.
       switch(recvCmd.c) {
@@ -444,23 +444,6 @@ Serial.println("Recv. Message: " + String(recvData.m));
           }
         break;
 
-        case A_VOLUME_SYNC:
-          #if defined(__XTENSA__)
-            debug("Volume Sync");
-
-            try {
-              i_volume_master_percentage = recvData.d[0];
-              i_volume_effects_percentage = recvData.d[1];
-              i_volume_music_percentage = recvData.d[2];
-            }
-            catch (...) {
-              debug("Error during volume sync");
-            }
-
-            b_state_changed = true;
-          #endif
-        break;
-
         case A_PACK_CONNECTED:
           // The Proton Pack is connected.
           #if defined(__XTENSA__)
@@ -597,36 +580,6 @@ Serial.println("Recv. Message: " + String(recvData.m));
           #endif
           FIRING_MODE = MESON;
           b_state_changed = true;
-        break;
-
-        case A_SPECTRAL_CUSTOM_MODE:
-          #if defined(__XTENSA__)
-            debug("Spectral Custom");
-          #endif
-          FIRING_MODE = SPECTRAL_CUSTOM;
-          b_state_changed = true;
-
-          if(recvData.d[0] > 0) {
-            i_spectral_custom = recvData.d[0];
-          }
-
-          if(recvData.d[1] > 0) {
-            i_spectral_custom_saturation = recvData.d[1];
-          }
-        break;
-
-        case A_SPECTRAL_COLOUR_DATA:
-          #if defined(__XTENSA__)
-            debug("Spectral Color Data");
-          #endif
-
-          if(recvData.d[0] > 0) {
-            i_spectral_custom = recvData.d[0];
-          }
-
-          if(recvData.d[1] > 0) {
-            i_spectral_custom_saturation = recvData.d[1];
-          }
         break;
 
         case A_SPECTRAL_MODE:
@@ -883,6 +836,53 @@ Serial.println("Recv. Message: " + String(recvData.m));
 
       // Handle data payloads.
       switch(recvData.m) {
+        case A_VOLUME_SYNC:
+          #if defined(__XTENSA__)
+            debug("Volume Sync");
+
+            try {
+              i_volume_master_percentage = recvData.d[0];
+              i_volume_effects_percentage = recvData.d[1];
+              i_volume_music_percentage = recvData.d[2];
+            }
+            catch (...) {
+              debug("Error during volume sync");
+            }
+
+            b_state_changed = true;
+          #endif
+        break;
+
+        case A_SPECTRAL_CUSTOM_MODE:
+          #if defined(__XTENSA__)
+            debug("Spectral Custom");
+          #endif
+          FIRING_MODE = SPECTRAL_CUSTOM;
+          b_state_changed = true;
+
+          if(recvData.d[0] > 0) {
+            i_spectral_custom = recvData.d[0];
+          }
+
+          if(recvData.d[1] > 0) {
+            i_spectral_custom_saturation = recvData.d[1];
+          }
+        break;
+
+        case A_SPECTRAL_COLOUR_DATA:
+          #if defined(__XTENSA__)
+            debug("Spectral Color Data");
+          #endif
+
+          if(recvData.d[0] > 0) {
+            i_spectral_custom = recvData.d[0];
+          }
+
+          if(recvData.d[1] > 0) {
+            i_spectral_custom_saturation = recvData.d[1];
+          }
+        break;
+
         case A_SEND_PREFERENCES_PACK:
           #if defined(__XTENSA__)
             debug("Pack Preferences Received");

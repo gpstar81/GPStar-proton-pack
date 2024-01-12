@@ -526,23 +526,6 @@ Serial.println("Got Sync End");
           b_repeat_track = false;
         break;
 
-        case P_VOLUME_SYNC:
-          // Set the percentage volume.
-          i_volume_master_percentage = recvData.d[0];
-          i_volume_effects_percentage = recvData.d[1];
-          i_volume_music_percentage = recvData.d[2];
-
-          // Set the decibel volume.
-          i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-          i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-          i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-          // Update volume levels.
-          i_volume_revert = i_volume_master;
-          w_trig.masterGain(i_volume_master);
-          adjustVolumeEffectsGain();
-        break;
-
         case P_VIBRATION_ENABLED:
           // Vibration enabled (from Proton Pack vibration toggle switch).
           b_vibration_enabled = true;
@@ -1148,6 +1131,23 @@ Serial.println("Got Sync End");
 
       // Handle data payloads.
       switch(recvData.m) {
+        case P_VOLUME_SYNC:
+          // Set the percentage volume.
+          i_volume_master_percentage = recvData.d[0];
+          i_volume_effects_percentage = recvData.d[1];
+          i_volume_music_percentage = recvData.d[2];
+
+          // Set the decibel volume.
+          i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+          i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
+          i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+          // Update volume levels.
+          i_volume_revert = i_volume_master;
+          w_trig.masterGain(i_volume_master);
+          adjustVolumeEffectsGain();
+        break;
+
         case P_SAVE_PREFERENCES_WAND:
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!

@@ -388,7 +388,7 @@ bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the
 bool b_sync = false; // Indicates whether a synchronization with the pack is in process (between SYNC_START and SYNC_END).
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
 millisDelay ms_handshake; // Timer for attempting a new handshake while initializing pack communications.
-const unsigned int i_handshake_delay = 200; // Delay to re-try an initial handshake with a proton pack.
+const unsigned int i_handshake_delay = 400; // Delay to re-try an initial handshake with a proton pack.
 
 /*
  * Wand menu & music
