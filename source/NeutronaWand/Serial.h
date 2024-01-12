@@ -198,12 +198,14 @@ Serial.println("Recv. Command: " + String(recvCmd.i));
       // Handle simple commands.
       switch(recvCmd.i) {
         case P_SYNC_START:
+Serial.println("Sync Start");
           b_sync = true; // Sync process has begun.
-          b_wait_for_pack = false; // Immediately set false so that the loop() stops sending handshakes.
         break;
 
         case P_SYNC_END:
+Serial.println("Sync End");
           b_sync = false; // Sync process has completed.
+          b_wait_for_pack = false; // Immediately set false so that the loop() stops sending handshakes.
 
           switchBarrel(); // Determine the state of the barrel safety switch.
 
@@ -215,7 +217,7 @@ Serial.println("Recv. Command: " + String(recvCmd.i));
         break;
 
         case P_PACK_BOOTUP:
-          // Does nothing for now.
+          // Does nothing at the moment.
         break;
 
         case P_ON:
@@ -224,6 +226,7 @@ Serial.println("Recv. Command: " + String(recvCmd.i));
         break;
 
         case P_OFF:
+          // Pack is off.
           if(b_pack_on == true) {
             // Turn wand off.
             if(WAND_STATUS != MODE_OFF) {

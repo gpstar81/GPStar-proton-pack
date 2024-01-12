@@ -202,10 +202,10 @@ void setup() {
 }
 
 void loop() {
-  if(b_wait_for_pack == true) {
+  if(b_wait_for_pack == true || b_sync == true) {
     // While waiting for a proton pack, issue a handshake to a connected device.
     // Immediately after, check for a response and handle any synchronization.
-    if(ms_handshake.remaining() < 1) {
+    if(ms_handshake.justFinished()) {
       wandSerialSend(W_HANDSHAKE); // Poke the pack to tell it the wand is here.
       ms_handshake.start(i_handshake_delay); // Wait to try again if necessary.
     }

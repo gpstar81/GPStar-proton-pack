@@ -3517,9 +3517,11 @@ Serial.println("Initial Wand Handshake");
           }
 
           // Begin the synchronization process.
+Serial.println("Sync Start");
           packSerialSend(P_SYNC_START);
 
           // Tell the wand that the pack is here.
+Serial.println("Handshake");
           packSerialSend(P_HANDSHAKE);
 
           // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
@@ -3693,7 +3695,7 @@ Serial.println("Initial Wand Handshake");
           }
 
           b_wand_connected = true;
-
+Serial.println("Sync End");
           packSerialSend(P_SYNC_END);
         }
       }
