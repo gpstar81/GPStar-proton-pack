@@ -332,8 +332,8 @@ void packSerialSend(uint16_t i_command, uint16_t i_value) {
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
 
-  i_send_size = serial1Coms.txObj(sendCmdW, i_send_size);
-  serial1Coms.sendData(i_send_size, 1);
+  i_send_size = packComs.txObj(sendCmdW, i_send_size);
+  packComs.sendData(i_send_size, 1);
 }
 // Override function to handle calls with a single parameter.
 void packSerialSend(uint16_t i_command) {
@@ -401,8 +401,8 @@ void packSerialSendData(uint16_t i_message) {
     break;
   }
 
-  i_send_size = serial1Coms.txObj(sendDataW, i_send_size);
-  serial1Coms.sendData(i_send_size, 2);
+  i_send_size = packComs.txObj(sendDataW, i_send_size);
+  packComs.sendData(i_send_size, 2);
 }
 
 // Incoming messages from the extra Serial 1 port.

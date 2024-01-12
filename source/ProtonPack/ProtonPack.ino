@@ -51,8 +51,8 @@ void setup() {
   Serial2.begin(9600); // Communication to the Neutrona Wand.
 
   // Connect the serial ports.
-  serial1Coms.begin(Serial1, false);
-  packComs.begin(Serial2, false);
+  serial1Coms.begin(Serial1, false); // Attenuator/Wireless
+  packComs.begin(Serial2, false); // Neutrona Wand
 
   // Setup the WAV Trigger.
   setupWavTrigger();
