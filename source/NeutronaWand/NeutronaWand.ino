@@ -62,7 +62,7 @@ void setup() {
 
   // Enable communication to the Proton Pack.
   Serial1.begin(9600);
-  wandComs.begin(Serial1, false);
+  wandComs.begin(Serial1, true, Serial);
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz

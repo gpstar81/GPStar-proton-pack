@@ -766,8 +766,8 @@ void checkSerial1() {
       else {
         // Check if the Attenuator is telling us it is here after connecting it to the pack.
         // Then synchronise some settings between the pack and the Attenuator.
-        if(recvCmdS.c == A_SYNC_START && b_serial_1_syncing != true) {
-          b_serial_1_syncing = true;
+        if(!b_serial1_connected && !b_serial_1_syncing && i_packet_id == 1 && recvCmdS.c == A_SYNC_START) {
+          b_serial_1_syncing = true; // Sync has begun; do not try to start this command again.
 
           serial1Send(A_SYNC_START);
 

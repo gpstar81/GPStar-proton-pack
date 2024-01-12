@@ -198,7 +198,7 @@ void wandSerialSendData(uint16_t i_message) {
 void checkPack() {
   // Only checks when pack is present.
 Serial.println("wandComs.available(): " + String(wandComs.available()));
-  if(wandComs.available() > 0) {
+  if(b_gpstar_benchtest != true && wandComs.available() > 0) {
     uint8_t i_packet_id = wandComs.currentPacketID();
     Serial.println("i_packet_id: " + String(i_packet_id));
 

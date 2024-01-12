@@ -29,7 +29,7 @@
   #define TXD2 17
 #endif
 SerialTransfer packComs;
-bool b_a_sync_start = false; // Denotes pack communications have begun.
+bool b_sync_start = false; // Denotes pack communications have begun.
 
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
@@ -317,7 +317,7 @@ boolean checkPack() {
           #endif
 
           i_speed_multiplier = 1;
-          b_a_sync_start = true;
+          b_sync_start = true;
         break;
 
         case A_SYNC_END:
@@ -326,7 +326,7 @@ boolean checkPack() {
           #endif
 
           b_wait_for_pack = false;
-          b_a_sync_start = false;
+          b_sync_start = false;
           b_state_changed = true;
         break;
 
@@ -471,11 +471,11 @@ boolean checkPack() {
             // debug("Handshake");
           #endif
 
-          if(b_wait_for_pack && !b_a_sync_start) {
-            b_a_sync_start = true;
+          if(b_wait_for_pack && !b_sync_start) {
+            b_sync_start = true;
             attenuatorSerialSend(A_SYNC_START);
           }
-          else if(b_a_sync_start != true) {
+          else if(!b_sync_start) {
             // The pack is asking us if we are still here. Respond back.
             attenuatorSerialSend(A_HANDSHAKE);
           }
