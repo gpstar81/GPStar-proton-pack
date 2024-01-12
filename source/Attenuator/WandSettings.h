@@ -181,7 +181,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Custom Color (Hue):</b><br/>
+      <b>&nbsp;Custom Color (Hue):</b><br/>
       <input type="range" id="ledWandHue" name="ledWandHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('wandColorPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
       <output class="labelSlider" id="wandHueOut" for="ledWandHue"></output>

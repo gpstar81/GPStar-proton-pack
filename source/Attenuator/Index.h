@@ -32,8 +32,8 @@ const char INDEX_page[] PROGMEM = R"=====(
 <body>
   <h1>Equipment Status</h1>
   <div class="card">
-    <p><b>System Mode:</b> <span class="info" id="mode">&mdash;</span></p>
-    <p><b>Theme Mode:</b> <span class="info" id="theme">&mdash;</span></p>
+    <p><b>Operation Mode:</b> <span class="info" id="mode">&mdash;</span></p>
+    <p><b>Effects Theme:</b> <span class="info" id="theme">&mdash;</span></p>
     <br/>
     <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
     <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
@@ -43,7 +43,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <p><b>Wand State:</b> <span class="info" id="wand">&mdash;</span></p>
     <p><b>Wand Armed:</b> <span class="info" id="safety">&mdash;</span></p>
-    <p><b>Wand Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
+    <p><b>System Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
     <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
     <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
     <br/>

@@ -44,7 +44,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <h1>General Options</h1>
   <div class="block left">
     <div class="setting">
-      <b>System Mode:</b>
+      <b>Operation Mode:</b>
       <select id="defaultSystemModePack" name="defaultSystemModePack">
         <option value="0">Super Hero</option>
         <option value="1">Mode Original</option>
@@ -74,7 +74,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Strobe N-Filter on Overheat:</b>
+      <b class="labelSwitch">&nbsp;Strobe N-Filter on Overheat:</b>
       <label class="switch">
         <input id="overheatStrobeNF" name="overheatStrobeNF" type="checkbox">
         <span class="slider round"></span>
@@ -95,7 +95,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Demo Light Mode:</b>
+      <b class="labelSwitch">Enable Startup Light Mode:</b>
       <label class="switch">
         <input id="demoLightMode" name="demoLightMode" type="checkbox">
         <span class="slider round"></span>
@@ -114,7 +114,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Custom Color (Hue):</b><br/>
+      <b>&nbsp;Custom Color (Hue):</b><br/>
       <input type="range" id="ledCycLidHue" name="ledCycLidHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('cycColorPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
       <output class="labelSlider" id="cycHueOut" for="ledCycLidHue"></output>
@@ -169,7 +169,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Custom Color (Hue):</b><br/>
+      <b>&nbsp;Custom Color (Hue):</b><br/>
       <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
       <output class="labelSlider" id="cakeHueOut" for="ledCycCakeHue"></output>
@@ -201,7 +201,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Custom Color (Hue):</b><br/>
+      <b>&nbsp;Custom Color (Hue):</b><br/>
       <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('pcColorPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
       <output class="labelSlider" id="pcHueOut" for="ledPowercellHue"></output>
