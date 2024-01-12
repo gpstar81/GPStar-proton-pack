@@ -191,6 +191,10 @@ void checkPack() {
     wandComs.rxObj(recvCmd);
     wandComs.rxObj(recvData);
 
+    // Reference: https://forum.arduino.cc/t/how-to-send-and-recieve-multiple-buffers-with-the-serialtransfer-library/1069088/14
+
+    uint8_t packetID = wandComs.currentPacketID();
+Serial.println("packetID: " + String(packetID));
     if(!wandComs.currentPacketID()) {
 Serial.println("Recv. Command: " + String(recvCmd.c));
 //Serial.println("Recv. Message: " + String(recvData.m));
@@ -198,12 +202,12 @@ Serial.println("Recv. Command: " + String(recvCmd.c));
       // Handle simple commands.
       switch(recvCmd.c) {
         case P_SYNC_START:
-Serial.println("Got Sync Start");
+Serial.println("Sync Start");
           b_sync = true; // Sync process has begun.
         break;
 
         case P_SYNC_END:
-Serial.println("Got Sync End");
+Serial.println("Sync End");
           b_sync = false; // Sync process has completed.
           b_wait_for_pack = false; // Stops sending of initial handshake.
 
