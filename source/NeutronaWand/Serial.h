@@ -40,16 +40,16 @@ struct MessagePacket sendData;
 // Outgoing commands to the pack.
 void wandSerialSend(uint16_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
-  uint8_t i_packet_id = 1;
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
     Serial.println("wandSerialSend: " + String(i_command));
+
     sendCmd.c = i_command;
     sendCmd.d1 = i_value;
 
     i_send_size = wandComs.txObj(sendCmd, i_send_size);
-    wandComs.sendData(i_send_size, i_packet_id);
+    wandComs.sendData(i_send_size, 1);
   }
 }
 // Override function to handle calls with a single parameter.
@@ -60,11 +60,11 @@ void wandSerialSend(uint16_t i_command) {
 // Outgoing payloads to the pack.
 void wandSerialSendData(uint16_t i_message) {
   uint16_t i_send_size = 0;
-  uint8_t i_packet_id = 2;
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
     Serial.println("wandSerialSendData: " + String(i_message));
+
     sendData.m = i_message;
 
     // Set all elements of the data array to 0
@@ -190,14 +190,15 @@ void wandSerialSendData(uint16_t i_message) {
     }
 
     i_send_size = wandComs.txObj(sendData, i_send_size);
-    wandComs.sendData(i_send_size, i_packet_id);
+    wandComs.sendData(i_send_size, 2);
   }
 }
 
 // Pack communication to the wand.
 void checkPack() {
   // Only checks when pack is present.
-  while(wandComs.available() > 0) {
+Serial.println("wandComs.available(): " + String(wandComs.available()));
+  if(wandComs.available() > 0) {
     uint8_t i_packet_id = wandComs.currentPacketID();
     Serial.println("i_packet_id: " + String(i_packet_id));
 
