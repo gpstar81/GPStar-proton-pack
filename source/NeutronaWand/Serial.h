@@ -40,7 +40,7 @@ struct MessagePacket sendData;
 // Outgoing commands to the pack.
 void wandSerialSend(uint16_t i_message, uint16_t i_value) {
   // Only sends when pack is present.
-  if(b_no_pack != true) {
+  if(b_gpstar_benchtest != true) {
 Serial.println("wandSerialSend: " + String(i_message));
     sendCmd.i = i_message;
     sendCmd.d1 = i_value;
@@ -55,7 +55,7 @@ void wandSerialSend(uint16_t i_message) {
 // Outgoing payloads to the pack.
 void wandSerialSendData(uint16_t i_message) {
   // Only sends when pack is present.
-  if(b_no_pack != true) {
+  if(b_gpstar_benchtest != true) {
     sendData.i = i_message;
 
     // Set all elements of the data array to 0

@@ -189,7 +189,6 @@ void setup() {
   ms_slo_blo_blink.start(i_slo_blo_blink_delay);
 
   if(b_gpstar_benchtest == true) {
-    b_no_pack = true;
     b_wait_for_pack = false;
     b_pack_on = true;
     b_pack_ion_arm_switch_on = true;
@@ -219,7 +218,7 @@ void mainLoop() {
 
   checkPack();
 
-  if(b_no_pack == true) {
+  if(b_gpstar_benchtest == true) {
     checkMusic();
   }
 
@@ -265,7 +264,7 @@ void mainLoop() {
     case MODE_OFF:
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
         if(switchMode() == true || b_pack_alarm == true) {
-          if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
+          if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
             playEffect(S_CLICK);
 
             PREV_FIRING_MODE = FIRING_MODE;
@@ -294,7 +293,7 @@ void mainLoop() {
           }
         }
         else if(WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on == true) {
-          if(b_no_pack != true) {
+          if(b_gpstar_benchtest != true) {
             wandExitMenu();
           }
         }
@@ -306,7 +305,7 @@ void mainLoop() {
         switch_vent.resetCount();
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_gpstar_benchtest == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -329,12 +328,13 @@ void mainLoop() {
         wandLightsOffMenuSystem();
       }
       else if(WAND_ACTION_STATUS == ACTION_LED_EEPROM_MENU && b_pack_on == true) {
-        if(b_no_pack != true) {
+        if(b_gpstar_benchtest != true) {
           wandExitEEPROMMenu();
         }
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU
+         && (b_pack_on != true || b_gpstar_benchtest == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -354,7 +354,7 @@ void mainLoop() {
         wandLightsOffMenuSystem();
       }
       else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on == true) {
-        if(b_no_pack != true) {
+        if(b_gpstar_benchtest != true) {
           wandExitEEPROMMenu();
         }
       }
@@ -366,7 +366,7 @@ void mainLoop() {
       }
 
       // If the power indicator is enabled. Blink the LED on the Neutrona Wand body next to the clippard valve to indicator the system has battery power.
-      if(b_power_on_indicator == true && WAND_ACTION_STATUS == ACTION_IDLE && (b_pack_on != true || b_no_pack == true)) {
+      if(b_power_on_indicator == true && WAND_ACTION_STATUS == ACTION_IDLE && (b_pack_on != true || b_gpstar_benchtest == true)) {
         if(ms_power_indicator.isRunning() == true && ms_power_indicator.remaining() < 1) {
           if(ms_power_indicator_blink.isRunning() != true || ms_power_indicator_blink.justFinished()) {
             ms_power_indicator_blink.start(i_ms_power_indicator_blink);
@@ -646,8 +646,9 @@ void toggleOverHeating() {
 void overHeatingFinished() {
   bargraphClearAlt();
 
-  // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
-  if(b_no_pack == true) {
+  // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is
+  // running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
+  if(b_gpstar_benchtest == true) {
     ms_overheating.stop();
   }
 
@@ -705,7 +706,7 @@ void startVentSequence() {
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
   // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
-  if(b_no_pack == true) {
+  if(b_gpstar_benchtest == true) {
     ms_overheating.start(i_ms_overheating);
   }
 
@@ -1808,7 +1809,7 @@ void postActivation() {
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
         default:
-          if(b_no_pack == true) {
+          if(b_gpstar_benchtest == true) {
             playEffect(S_BOOTUP);
           }
 
@@ -5798,7 +5799,7 @@ SYSTEM_YEARS getNeutronaWandYearMode() {
 
 // Returns SYSTEM_YEAR when operating with a Proton Pack, or WAND_YEAR_MODE when in standalone operation
 SYSTEM_YEARS getSystemYearMode() {
-  if(b_no_pack == true) {
+  if(b_gpstar_benchtest == true) {
     return getNeutronaWandYearMode();
   }
   else {
@@ -7274,7 +7275,7 @@ void playMusic() {
 
     w_trig.update();
 
-    if(b_no_pack == true) {
+    if(b_gpstar_benchtest == true) {
       ms_music_status_check.start(i_music_check_delay * 10);
       w_trig.resetTrackCounter(true);
     }

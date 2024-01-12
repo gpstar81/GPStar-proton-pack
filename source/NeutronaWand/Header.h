@@ -444,12 +444,6 @@ const unsigned long int i_ms_power_indicator = 60000; // 1 Minute -> 60000
 const unsigned int i_ms_power_indicator_blink = 1000;
 
 /*
- * Used for indicating whether communication with the pack has taken place yet.
- * Set b_gpstar_benchtest in Configuration.h to true rather than modifying this setting as this is not the only setting involved.
- */
-bool b_no_pack = false;
-
-/*
  * Function prototypes.
  */
 void wandSerialSend(uint16_t i_message, uint16_t i_value);

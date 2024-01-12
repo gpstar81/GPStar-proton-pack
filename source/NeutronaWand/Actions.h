@@ -153,8 +153,9 @@ void checkWandAction() {
         }
       }
 
-      if(b_no_pack == true) {
-        // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
+      if(b_gpstar_benchtest == true) {
+        // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is
+        // running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
         if(ms_overheating.justFinished()) {
           overHeatingFinished();
         }
@@ -1214,7 +1215,7 @@ void checkWandAction() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              if(b_no_pack == true) {
+              if(b_gpstar_benchtest == true) {
                 musicNextTrack();
               }
               else {
@@ -1228,7 +1229,7 @@ void checkWandAction() {
             }
 
             if(switchMode() == true) {
-              if(b_no_pack == true) {
+              if(b_gpstar_benchtest == true) {
                 musicPrevTrack();
               }
               else {
@@ -1319,7 +1320,7 @@ void checkWandAction() {
                 // Tell the pack to stop music.
                 wandSerialSend(W_MUSIC_STOP);
 
-                if(b_no_pack == true) {
+                if(b_gpstar_benchtest == true) {
                   stopMusic();
                 }
               }
@@ -1327,7 +1328,7 @@ void checkWandAction() {
                 // Tell the pack to play music.
                 wandSerialSend(W_MUSIC_START);
 
-                if(b_no_pack == true) {
+                if(b_gpstar_benchtest == true) {
                   playMusic();
                 }
               }
@@ -1364,7 +1365,7 @@ void checkWandAction() {
               playEffect(S_BEEPS_BARGRAPH);
 
               // There is no pack connected; let's change the years.
-              if(b_no_pack == true) {
+              if(b_gpstar_benchtest == true) {
                 switch(getNeutronaWandYearMode()) {
                   case SYSTEM_1984:
                     WAND_YEAR_MODE = YEAR_1989;
