@@ -400,6 +400,7 @@ void checkSerial1() {
 // Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
 // Serial.println("Recv. Serial Message: " + String(recvDataS.m));
 
+      // Perform checks based on whether a serial1 device is connected or not.
       if(b_serial1_connected == true) {
         // Handle simple commands.
         switch(recvCmdS.c) {
@@ -878,8 +879,8 @@ void checkSerial1() {
 
           serial1Send(A_MUSIC_TRACK_COUNT_SYNC, i_music_count);
 
-          b_serial1_connected = true;
-          b_serial_1_syncing = false;
+          b_serial1_connected = true; // Device is officially connected.
+          b_serial_1_syncing = false; // Sync process has been completed.
 
           ms_serial1_handshake.start(i_serial1_handshake_delay);
           ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
@@ -901,6 +902,7 @@ void checkWand() {
 //Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
 //Serial.println("Recv. Wand Message: " + String(recvDataW.m));
 
+      // Perform checks based on whether a wand is connected or not.
       if(b_wand_connected == true) {
         // Handle simple commands.
         switch(recvCmdW.c) {
@@ -3513,14 +3515,10 @@ void checkWand() {
           case W_HANDSHAKE:
 Serial.println("Got Initial Wand Handshake");
 
-            // Begin the synchronization process.
+            // Begin the synchronization process which tells the wand the pack got the handshake.
 Serial.println("Sending Sync Start");
             packSerialSend(P_SYNC_START);
-
-            // Tell the wand that the pack is here.
-Serial.println("Sending Handshake");
-            packSerialSend(P_HANDSHAKE);
-
+/*
             if(b_overheating == true) {
               packOverHeatingFinished();
             }
@@ -3694,7 +3692,7 @@ Serial.println("Sending Handshake");
             else {
               packSerialSend(P_MASTER_AUDIO_NORMAL);
             }
-
+*/
 Serial.println("Sending Sync End");
             packSerialSend(P_SYNC_END);
           break;
