@@ -207,7 +207,9 @@ void loop() {
     // Immediately after, check for a response and handle any synchronization.
     if(ms_handshake.justFinished()) {
       wandSerialSend(W_HANDSHAKE); // Poke the pack to tell it the wand is here.
-      ms_handshake.start(i_handshake_delay); // Wait to try again if necessary.
+      ms_handshake.start(i_handshake_delay); // Wait to try again, if necessary.
+      b_sync_light = !b_sync_light; // Toggle the white LED while synchronizing.
+      digitalWrite(led_white, (b_sync_light ? HIGH : LOW));
     }
 
     // Check for any response from the pack.
