@@ -712,6 +712,7 @@ Serial.println("Recv. Message: " + String(recvData.i));
           #endif
 
           // Alarm is on.
+          b_firing = false;
           b_pack_alarm = true;
           b_state_changed = true;
 

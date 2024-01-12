@@ -216,6 +216,11 @@ Serial.println("Sync End");
           }
         break;
 
+        case P_HANDSHAKE:
+          // The pack is asking us if we are still here. Respond back.
+          wandSerialSend(W_HANDSHAKE);
+        break;
+
         case P_PACK_BOOTUP:
           // Does nothing at the moment.
         break;
@@ -509,11 +514,6 @@ Serial.println("Sync End");
         case P_VOLUME_DECREASE:
           // Decrease overall volume.
           decreaseVolume();
-        break;
-
-        case P_HANDSHAKE:
-          // The pack is asking us if we are still here. Respond back.
-          wandSerialSend(W_HANDSHAKE);
         break;
 
         case P_MUSIC_REPEAT:

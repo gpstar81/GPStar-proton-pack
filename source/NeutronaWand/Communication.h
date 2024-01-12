@@ -22,9 +22,9 @@
 enum pack_messages {
   P_NULL,
   P_HANDSHAKE,
-  P_PACK_BOOTUP,
   P_SYNC_START,
   P_SYNC_END,
+  P_PACK_BOOTUP,
   P_ON,
   P_OFF,
   P_ALARM_ON,
