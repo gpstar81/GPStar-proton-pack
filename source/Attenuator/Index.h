@@ -142,7 +142,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       if (websocket.readyState == websocket.OPEN) {
         websocket.send("heartbeat");
       }
-      setTimeout(heartbeat, 2000);
+      setTimeout(heartbeat, 6000);
     }
 
     function onOpen(event) {

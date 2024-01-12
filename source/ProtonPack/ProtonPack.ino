@@ -198,7 +198,7 @@ void setup() {
   // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
   // Then the EEPROM reads any settings if required, then we reset the volume.
   w_trig.masterGain(i_volume_master);
-  serial1Send(A_VOLUME_SYNC);
+  serial1SendData(A_VOLUME_SYNC);
 }
 
 void loop() {
@@ -3792,7 +3792,7 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 10);
   w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 10);
 
-  serial1Send(A_VOLUME_SYNC); // Tell the connected device about this change.
+  serial1SendData(A_VOLUME_SYNC); // Tell the connected device about this change.
 }
 
 void increaseVolumeEffects() {
@@ -3904,7 +3904,7 @@ void increaseVolume() {
   }
 
   w_trig.masterGain(i_volume_master);
-  serial1Send(A_VOLUME_SYNC);
+  serial1SendData(A_VOLUME_SYNC);
 }
 
 void decreaseVolume() {
@@ -3931,7 +3931,7 @@ void decreaseVolume() {
     playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
 
-  serial1Send(A_VOLUME_SYNC);
+  serial1SendData(A_VOLUME_SYNC);
 }
 
 void readEncoder() {

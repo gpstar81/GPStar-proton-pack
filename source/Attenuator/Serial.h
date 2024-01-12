@@ -130,21 +130,27 @@ struct SmokePrefs {
 // Sends an API to the Proton Pack
 void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
   uint16_t i_send_size = 0;
-  uint8_t i_packet_id = 1;
+
+  #if defined(__XTENSA__)
+    debug("Send Command: " + String(i_command));
+  #endif
 
   sendCmd.c = i_command;
   sendCmd.d1 = i_value;
 
   i_send_size = packComs.txObj(sendCmd, i_send_size);
-  packComs.sendData(i_send_size, i_packet_id);
+  packComs.sendData(i_send_size, 1);
 }
 
 // Sends an API to the Proton Pack
 void attenuatorSerialSendData(uint16_t i_message) {
   uint16_t i_send_size = 0;
-  uint8_t i_packet_id = 2;
 
-  sendData.m = i_message;
+  #if defined(__XTENSA__)
+    debug("Send Data: " + String(i_message));
+  #endif
+
+  sendData.m = i_message;  
 
   // Set all elements of the data array to 0
   memset(sendData.d, 0, sizeof(sendData.d));
@@ -281,7 +287,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
   }
 
   i_send_size = packComs.txObj(sendData, i_send_size);
-  packComs.sendData(i_send_size, i_packet_id);
+  packComs.sendData(i_send_size, 2);
 }
 
 // Handles an API (and data) sent from the Proton Pack
@@ -289,14 +295,12 @@ boolean checkPack() {
   bool b_state_changed = false; // Indicates when a crucial state change occurred.
 
   // Pack communication to the Attenuator device.
-  while(packComs.available() > 0) {
+  if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
-    Serial.println("i_packet_id: " + String(i_packet_id));
 
     // Handle simple commands.
     if(i_packet_id == 1) {
       packComs.rxObj(recvCmd);
-      // Serial.println("Recv. Command: " + String(recvCmd.c));
 
       switch(recvCmd.c) {
         case A_PACK_BOOTUP:
@@ -846,8 +850,10 @@ boolean checkPack() {
 
     // Handle data payloads.
     if(i_packet_id == 2) {
+      #if defined(__XTENSA__)
+        debug("Receiving Data Payload");
+      #endif
       packComs.rxObj(recvData);
-      // Serial.println("Recv. Message: " + String(recvData.m));
 
       switch(recvData.m) {
         case A_VOLUME_SYNC:

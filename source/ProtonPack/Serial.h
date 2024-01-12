@@ -188,13 +188,12 @@ void updateSystemModeYear() {
 // Outgoing commands to the Serial1 device
 void serial1Send(uint16_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
-  uint8_t i_packet_id = 1;
 
   sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
 
   i_send_size = serial1Coms.txObj(sendCmdS, i_send_size);
-  serial1Coms.sendData(i_send_size, i_packet_id);
+  serial1Coms.sendData(i_send_size, 1);
 }
 // Override function to handle calls with a single parameter.
 void serial1Send(uint16_t i_command) {
@@ -204,7 +203,6 @@ void serial1Send(uint16_t i_command) {
 // Outgoing payloads to the Serial1 device
 void serial1SendData(uint16_t i_message) {
   uint16_t i_send_size = 0;
-  uint8_t i_packet_id = 2;
 
   sendDataS.m = i_message;
 
@@ -324,19 +322,18 @@ void serial1SendData(uint16_t i_message) {
   }
 
   i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
-  serial1Coms.sendData(i_send_size, i_packet_id);
+  serial1Coms.sendData(i_send_size, 2);
 }
 
 // Outgoing commands to the wand
 void packSerialSend(uint16_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
-  uint8_t i_packet_id = 1;
 
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
 
   i_send_size = serial1Coms.txObj(sendCmdW, i_send_size);
-  serial1Coms.sendData(i_send_size, i_packet_id);
+  serial1Coms.sendData(i_send_size, 1);
 }
 // Override function to handle calls with a single parameter.
 void packSerialSend(uint16_t i_command) {
@@ -346,7 +343,6 @@ void packSerialSend(uint16_t i_command) {
 // Outgoing payloads to the wand
 void packSerialSendData(uint16_t i_message) {
   uint16_t i_send_size = 0;
-  uint8_t i_packet_id = 2;
 
   sendDataW.m = i_message;
 
@@ -406,361 +402,365 @@ void packSerialSendData(uint16_t i_message) {
   }
 
   i_send_size = serial1Coms.txObj(sendDataW, i_send_size);
-  serial1Coms.sendData(i_send_size, i_packet_id);
+  serial1Coms.sendData(i_send_size, 2);
 }
 
 // Incoming messages from the extra Serial 1 port.
 void checkSerial1() {
-  while(serial1Coms.available() > 0) {
+  if(serial1Coms.available() > 0) {
     uint8_t i_packet_id = serial1Coms.currentPacketID();
-    Serial.println("i_packet_id: " + String(i_packet_id));
+    Serial.println("Serial PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
       switch(i_packet_id) {
         case 1:
           serial1Coms.rxObj(recvCmdS);
-          // Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
+          Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
         break;
         case 2:
           serial1Coms.rxObj(recvDataS);
-          // Serial.println("Recv. Serial Message: " + String(recvDataS.m));
+          Serial.println("Recv. Serial Message: " + String(recvDataS.m));
         break;
       }
 
       // Perform checks based on whether a serial1 device is connected or not.
       if(b_serial1_connected == true) {
         // Handle simple commands.
-        switch(recvCmdS.c) {
-          case A_HANDSHAKE:
-            // The Attenuator is still here.
-            ms_serial1_handshake.start(i_serial1_handshake_delay);
-            ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
-          break;
+        if(i_packet_id == 1) {
+          switch(recvCmdS.c) {
+            case A_HANDSHAKE:
+              // The Attenuator is still here.
+              ms_serial1_handshake.start(i_serial1_handshake_delay);
+              ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
+            break;
 
-          case A_TURN_PACK_ON:
-            // Turn the pack on.
-            if(PACK_STATE != MODE_ON) {
-              PACK_ACTION_STATE = ACTION_ACTIVATE;
-            }
-          break;
-
-          case A_TURN_PACK_OFF:
-            // Turn the pack off.
-            if(PACK_STATE != MODE_OFF) {
-              PACK_ACTION_STATE = ACTION_OFF;
-            }
-          break;
-
-          case A_WARNING_CANCELLED:
-            // Tell wand to reset overheat warning.
-            packSerialSend(P_WARNING_CANCELLED);
-          break;
-
-          case A_MANUAL_OVERHEAT:
-            // Trigger a manual overheat vent.
-            packSerialSend(P_MANUAL_OVERHEAT);
-          break;
-
-          case A_TOGGLE_MUTE:
-            if(i_volume_master == i_volume_abs_min) {
-              i_volume_master = i_volume_revert;
-
-              w_trig.masterGain(i_volume_master); // Reset the master gain.
-
-              packSerialSend(P_MASTER_AUDIO_NORMAL);
-            }
-            else {
-              i_volume_revert = i_volume_master;
-
-              // Set the master volume to silent.
-              i_volume_master = i_volume_abs_min;
-
-              w_trig.masterGain(i_volume_master); // Reset the master gain.
-
-              packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
-            }
-          break;
-
-          case A_VOLUME_DECREASE:
-            // Decrease overall pack volume.
-            decreaseVolume();
-
-            // Tell wand to decrease volume.
-            packSerialSend(P_VOLUME_DECREASE);
-          break;
-
-          case A_VOLUME_INCREASE:
-            // Increase overall pack volume.
-            increaseVolume();
-
-            // Tell wand to increase volume.
-            packSerialSend(P_VOLUME_INCREASE);
-          break;
-
-          case A_VOLUME_SOUND_EFFECTS_DECREASE:
-            // Decrease pack effects volume.
-            decreaseVolumeEffects();
-
-            // Tell wand to decrease effects volume.
-            packSerialSend(P_VOLUME_SOUND_EFFECTS_DECREASE);
-          break;
-
-          case A_VOLUME_SOUND_EFFECTS_INCREASE:
-            // Increase pack effects volume.
-            increaseVolumeEffects();
-
-            // Tell wand to increase effects volume.
-            packSerialSend(P_VOLUME_SOUND_EFFECTS_INCREASE);
-          break;
-
-          case A_MUSIC_START_STOP:
-            if(b_playing_music == true) {
-              stopMusic();
-            }
-            else {
-              if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-                // Play the appropriate track on pack and wand, and notify the serial1 device.
-                playMusic();
+            case A_TURN_PACK_ON:
+              // Turn the pack on.
+              if(PACK_STATE != MODE_ON) {
+                PACK_ACTION_STATE = ACTION_ACTIVATE;
               }
-            }
-          break;
+            break;
 
-          case A_MUSIC_PAUSE_RESUME:
-            if(b_playing_music == true) {
-              if(b_music_paused != true) {
-                pauseMusic();
+            case A_TURN_PACK_OFF:
+              // Turn the pack off.
+              if(PACK_STATE != MODE_OFF) {
+                PACK_ACTION_STATE = ACTION_OFF;
+              }
+            break;
+
+            case A_WARNING_CANCELLED:
+              // Tell wand to reset overheat warning.
+              packSerialSend(P_WARNING_CANCELLED);
+            break;
+
+            case A_MANUAL_OVERHEAT:
+              // Trigger a manual overheat vent.
+              packSerialSend(P_MANUAL_OVERHEAT);
+            break;
+
+            case A_TOGGLE_MUTE:
+              if(i_volume_master == i_volume_abs_min) {
+                i_volume_master = i_volume_revert;
+
+                w_trig.masterGain(i_volume_master); // Reset the master gain.
+
+                packSerialSend(P_MASTER_AUDIO_NORMAL);
+              }
+              else {
+                i_volume_revert = i_volume_master;
+
+                // Set the master volume to silent.
+                i_volume_master = i_volume_abs_min;
+
+                w_trig.masterGain(i_volume_master); // Reset the master gain.
+
+                packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
+              }
+            break;
+
+            case A_VOLUME_DECREASE:
+              // Decrease overall pack volume.
+              decreaseVolume();
+
+              // Tell wand to decrease volume.
+              packSerialSend(P_VOLUME_DECREASE);
+            break;
+
+            case A_VOLUME_INCREASE:
+              // Increase overall pack volume.
+              increaseVolume();
+
+              // Tell wand to increase volume.
+              packSerialSend(P_VOLUME_INCREASE);
+            break;
+
+            case A_VOLUME_SOUND_EFFECTS_DECREASE:
+              // Decrease pack effects volume.
+              decreaseVolumeEffects();
+
+              // Tell wand to decrease effects volume.
+              packSerialSend(P_VOLUME_SOUND_EFFECTS_DECREASE);
+            break;
+
+            case A_VOLUME_SOUND_EFFECTS_INCREASE:
+              // Increase pack effects volume.
+              increaseVolumeEffects();
+
+              // Tell wand to increase effects volume.
+              packSerialSend(P_VOLUME_SOUND_EFFECTS_INCREASE);
+            break;
+
+            case A_MUSIC_START_STOP:
+              if(b_playing_music == true) {
+                stopMusic();
               }
               else {
                 if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-                  resumeMusic();
+                  // Play the appropriate track on pack and wand, and notify the serial1 device.
+                  playMusic();
                 }
               }
-            }
-          break;
+            break;
 
-          case A_MUSIC_NEXT_TRACK:
-            musicNextTrack();
-          break;
-
-          case A_MUSIC_PREV_TRACK:
-            musicPrevTrack();
-          break;
-
-          case A_REQUEST_PREFERENCES_PACK:
-            // If requested by the serial device, send back all pack EEPROM preferences.
-            serial1SendData(A_SEND_PREFERENCES_PACK);
-          break;
-
-          case A_REQUEST_PREFERENCES_WAND:
-            // If requested by the serial device, tell the wand we need EEPROM preferences.
-            serial1SendData(P_SEND_PREFERENCES_WAND);
-          break;
-
-          case A_REQUEST_PREFERENCES_SMOKE:
-            // If requested by the serial device, tell the wand we need EEPROM preferences.
-            serial1SendData(P_SEND_PREFERENCES_SMOKE);
-          break;
-
-          case A_SYNC_START:
-            //Serial.println("Serial1 Sync Start");
-          break;
-
-          case A_MUSIC_PLAY_TRACK:
-            // Music track number to be played.
-            if(i_music_count > 0 && recvCmdS.d1 >= i_music_track_start) {
+            case A_MUSIC_PAUSE_RESUME:
               if(b_playing_music == true) {
-                stopMusic(); // Stops current track before change.
-
-                // Only update after the music is stopped.
-                i_current_music_track = recvCmdS.d1;
-
-                // Play the appropriate track on pack and wand, and notify the serial1 device.
-                playMusic();
+                if(b_music_paused != true) {
+                  pauseMusic();
+                }
+                else {
+                  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+                    resumeMusic();
+                  }
+                }
               }
-              else {
-                i_current_music_track = recvCmdS.d1;
+            break;
 
-                // Just tell the wand which track was requested for play.
-                packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
+            case A_MUSIC_NEXT_TRACK:
+              musicNextTrack();
+            break;
+
+            case A_MUSIC_PREV_TRACK:
+              musicPrevTrack();
+            break;
+
+            case A_REQUEST_PREFERENCES_PACK:
+              // If requested by the serial device, send back all pack EEPROM preferences.
+              serial1SendData(A_SEND_PREFERENCES_PACK);
+            break;
+
+            case A_REQUEST_PREFERENCES_WAND:
+              // If requested by the serial device, tell the wand we need EEPROM preferences.
+              serial1SendData(P_SEND_PREFERENCES_WAND);
+            break;
+
+            case A_REQUEST_PREFERENCES_SMOKE:
+              // If requested by the serial device, tell the wand we need EEPROM preferences.
+              serial1SendData(P_SEND_PREFERENCES_SMOKE);
+            break;
+
+            case A_SYNC_START:
+              //Serial.println("Serial1 Sync Start");
+            break;
+
+            case A_MUSIC_PLAY_TRACK:
+              // Music track number to be played.
+              if(i_music_count > 0 && recvCmdS.d1 >= i_music_track_start) {
+                if(b_playing_music == true) {
+                  stopMusic(); // Stops current track before change.
+
+                  // Only update after the music is stopped.
+                  i_current_music_track = recvCmdS.d1;
+
+                  // Play the appropriate track on pack and wand, and notify the serial1 device.
+                  playMusic();
+                }
+                else {
+                  i_current_music_track = recvCmdS.d1;
+
+                  // Just tell the wand which track was requested for play.
+                  packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
+                }
               }
-            }
-          break;
+            break;
 
-          case A_SAVE_EEPROM_SETTINGS_PACK:
-            // Commit changes to the EEPROM in the pack controller
-            saveLedEEPROM();
-            saveConfigEEPROM();
+            case A_SAVE_EEPROM_SETTINGS_PACK:
+              // Commit changes to the EEPROM in the pack controller
+              saveLedEEPROM();
+              saveConfigEEPROM();
 
-            // Offer some feedback to the user
-            stopEffect(S_VOICE_EEPROM_SAVE);
-            playEffect(S_VOICE_EEPROM_SAVE);
-          break;
+              // Offer some feedback to the user
+              stopEffect(S_VOICE_EEPROM_SAVE);
+              playEffect(S_VOICE_EEPROM_SAVE);
+            break;
 
-          case A_SAVE_EEPROM_SETTINGS_WAND:
-            // Commit changes to the EEPROM on the wand controller
-            packSerialSend(P_SAVE_EEPROM_WAND);
+            case A_SAVE_EEPROM_SETTINGS_WAND:
+              // Commit changes to the EEPROM on the wand controller
+              packSerialSend(P_SAVE_EEPROM_WAND);
 
-            // Offer some feedback to the user
-            stopEffect(S_VOICE_EEPROM_SAVE);
-            playEffect(S_VOICE_EEPROM_SAVE);
-          break;
+              // Offer some feedback to the user
+              stopEffect(S_VOICE_EEPROM_SAVE);
+              playEffect(S_VOICE_EEPROM_SAVE);
+            break;
 
-          case A_SYNC_END:
-            //Serial.println("Serial1 Sync End");
-          break;
+            case A_SYNC_END:
+              //Serial.println("Serial1 Sync End");
+            break;
 
-          default:
-            // No-op for anything else.
-          break;
+            default:
+              // No-op for anything else.
+            break;
+          }
         }
 
         // Handle data payloads.
-        switch(recvDataS.m) {
-          case A_SAVE_PREFERENCES_PACK:
-            // Writes new preferences back to runtime variables.
-            // This action does not save changes to the EEPROM!
-            switch(recvDataS.d[0]) {
-              case 0:
-              default:
-                SYSTEM_MODE = MODE_SUPER_HERO;
-              break;
-              case 1:
-                SYSTEM_MODE = MODE_ORIGINAL;
-              break;
-            }
-            switch(recvDataS.d[1]) {
-              case 1:
-              default:
-                SYSTEM_YEAR = SYSTEM_TOGGLE_SWITCH;
-              break;
-              case 2:
-                SYSTEM_YEAR = SYSTEM_1984;
-              break;
-              case 3:
-                SYSTEM_YEAR = SYSTEM_1989;
-              break;
-              case 4:
-                SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-              break;
-              case 5:
-                SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-              break;
-            }
-            i_volume_master_percentage = recvDataS.d[2];
-            b_stream_effects = recvDataS.d[3];
-            b_overheat_strobe = recvDataS.d[4];
-            b_overheat_lights_off = recvDataS.d[5];
-            b_overheat_sync_to_fan = recvDataS.d[6];
-            b_demo_light_mode = recvDataS.d[7];
+        if(i_packet_id == 2) {
+          switch(recvDataS.m) {
+            case A_SAVE_PREFERENCES_PACK:
+              // Writes new preferences back to runtime variables.
+              // This action does not save changes to the EEPROM!
+              switch(recvDataS.d[0]) {
+                case 0:
+                default:
+                  SYSTEM_MODE = MODE_SUPER_HERO;
+                break;
+                case 1:
+                  SYSTEM_MODE = MODE_ORIGINAL;
+                break;
+              }
+              switch(recvDataS.d[1]) {
+                case 1:
+                default:
+                  SYSTEM_YEAR = SYSTEM_TOGGLE_SWITCH;
+                break;
+                case 2:
+                  SYSTEM_YEAR = SYSTEM_1984;
+                break;
+                case 3:
+                  SYSTEM_YEAR = SYSTEM_1989;
+                break;
+                case 4:
+                  SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+                break;
+                case 5:
+                  SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+                break;
+              }
+              i_volume_master_percentage = recvDataS.d[2];
+              b_stream_effects = recvDataS.d[3];
+              b_overheat_strobe = recvDataS.d[4];
+              b_overheat_lights_off = recvDataS.d[5];
+              b_overheat_sync_to_fan = recvDataS.d[6];
+              b_demo_light_mode = recvDataS.d[7];
 
-            // Cyclotron Lid
-            i_cyclotron_leds = recvDataS.d[8];
-            i_spectral_cyclotron_custom_colour = recvDataS.d[9];
-            i_spectral_cyclotron_custom_saturation = recvDataS.d[10];
-            b_clockwise = recvDataS.d[11]; // Cyclotron Direction
-            b_cyclotron_single_led = recvDataS.d[12];
-            b_cyclotron_colour_toggle = recvDataS.d[13];
-            b_cyclotron_simulate_ring = recvDataS.d[14];
+              // Cyclotron Lid
+              i_cyclotron_leds = recvDataS.d[8];
+              i_spectral_cyclotron_custom_colour = recvDataS.d[9];
+              i_spectral_cyclotron_custom_saturation = recvDataS.d[10];
+              b_clockwise = recvDataS.d[11]; // Cyclotron Direction
+              b_cyclotron_single_led = recvDataS.d[12];
+              b_cyclotron_colour_toggle = recvDataS.d[13];
+              b_cyclotron_simulate_ring = recvDataS.d[14];
 
-            // Inner Cyclotron
-            i_inner_cyclotron_num_leds = recvDataS.d[15];
-            i_spectral_cyclotron_inner_custom_colour = recvDataS.d[16];
-            i_spectral_cyclotron_inner_custom_saturation = recvDataS.d[17];
-            b_grb_cyclotron = recvDataS.d[18];
+              // Inner Cyclotron
+              i_inner_cyclotron_num_leds = recvDataS.d[15];
+              i_spectral_cyclotron_inner_custom_colour = recvDataS.d[16];
+              i_spectral_cyclotron_inner_custom_saturation = recvDataS.d[17];
+              b_grb_cyclotron = recvDataS.d[18];
 
-            // Power Cell
-            i_powercell_leds = recvDataS.d[19];
-            i_spectral_powercell_custom_colour = recvDataS.d[20];
-            i_spectral_powercell_custom_saturation = recvDataS.d[21];
-            b_powercell_colour_toggle = recvDataS.d[22];
+              // Power Cell
+              i_powercell_leds = recvDataS.d[19];
+              i_spectral_powercell_custom_colour = recvDataS.d[20];
+              i_spectral_powercell_custom_saturation = recvDataS.d[21];
+              b_powercell_colour_toggle = recvDataS.d[22];
 
-            // Push changes to connected devices and reset related variables
-            SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-            SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
-            b_switch_mode_override = true;
+              // Push changes to connected devices and reset related variables
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
+              b_switch_mode_override = true;
 
-            // Update system values and reset as needed.
-            updateSystemModeYear();
-            updateProtonPackLEDCounts();
-            resetContinuousSmoke();
-            resetCyclotronLEDs();
-            resetRampSpeeds();
+              // Update system values and reset as needed.
+              updateSystemModeYear();
+              updateProtonPackLEDCounts();
+              resetContinuousSmoke();
+              resetCyclotronLEDs();
+              resetRampSpeeds();
 
-            // Offer some feedback to the user
-            stopEffect(S_VENT_DRY);
-            playEffect(S_VENT_DRY);
-          break;
+              // Offer some feedback to the user
+              stopEffect(S_VENT_DRY);
+              playEffect(S_VENT_DRY);
+            break;
 
-          case A_SAVE_PREFERENCES_WAND:
-            // Send latest preferences from serial1 web UI back to wand
-            wandConfig.ledWandCount = recvDataS.d[0];
-            wandConfig.ledWandHue = recvDataS.d[1];
-            wandConfig.ledWandSat = recvDataS.d[2];
-            wandConfig.spectralModeEnabled = recvDataS.d[3];
-            wandConfig.spectralHolidayMode = recvDataS.d[4];
-            wandConfig.overheatEnabled = recvDataS.d[5];
-            wandConfig.defaultFiringModeCTS = recvDataS.d[6];
-            wandConfig.defaultFiringModeMix = recvDataS.d[7];
-            wandConfig.wandSoundsToPack = recvDataS.d[8];
-            wandConfig.quickVenting = recvDataS.d[9];
-            wandConfig.autoVentLight = recvDataS.d[10];
-            wandConfig.wandBeepLoop = recvDataS.d[11];
-            wandConfig.wandBootError = recvDataS.d[12];
-            wandConfig.defaultYearModeWand = recvDataS.d[13];
-            wandConfig.defaultYearModeCTS = recvDataS.d[14];
-            wandConfig.invertWandBargraph = recvDataS.d[15];
-            wandConfig.bargraphOverheatBlink = recvDataS.d[16];
-            wandConfig.bargraphIdleAnimation = recvDataS.d[17];
-            wandConfig.bargraphFireAnimation = recvDataS.d[18];
+            case A_SAVE_PREFERENCES_WAND:
+              // Send latest preferences from serial1 web UI back to wand
+              wandConfig.ledWandCount = recvDataS.d[0];
+              wandConfig.ledWandHue = recvDataS.d[1];
+              wandConfig.ledWandSat = recvDataS.d[2];
+              wandConfig.spectralModeEnabled = recvDataS.d[3];
+              wandConfig.spectralHolidayMode = recvDataS.d[4];
+              wandConfig.overheatEnabled = recvDataS.d[5];
+              wandConfig.defaultFiringModeCTS = recvDataS.d[6];
+              wandConfig.defaultFiringModeMix = recvDataS.d[7];
+              wandConfig.wandSoundsToPack = recvDataS.d[8];
+              wandConfig.quickVenting = recvDataS.d[9];
+              wandConfig.autoVentLight = recvDataS.d[10];
+              wandConfig.wandBeepLoop = recvDataS.d[11];
+              wandConfig.wandBootError = recvDataS.d[12];
+              wandConfig.defaultYearModeWand = recvDataS.d[13];
+              wandConfig.defaultYearModeCTS = recvDataS.d[14];
+              wandConfig.invertWandBargraph = recvDataS.d[15];
+              wandConfig.bargraphOverheatBlink = recvDataS.d[16];
+              wandConfig.bargraphIdleAnimation = recvDataS.d[17];
+              wandConfig.bargraphFireAnimation = recvDataS.d[18];
 
-            // This will pass select values from the wandConfig object
-            packSerialSendData(P_SAVE_PREFERENCES_WAND);
+              // This will pass select values from the wandConfig object
+              packSerialSendData(P_SAVE_PREFERENCES_WAND);
 
-            // Offer some feedback to the user
-            stopEffect(S_VENT_DRY);
-            playEffect(S_VENT_DRY);
-          break;
+              // Offer some feedback to the user
+              stopEffect(S_VENT_DRY);
+              playEffect(S_VENT_DRY);
+            break;
 
-          case A_SAVE_PREFERENCES_SMOKE:
-            // Save local and remote (wand) smoke timing settings
-            i_ms_overheating_length_5 = recvDataS.d[0] * 1000;
-            i_ms_overheating_length_4 = recvDataS.d[1] * 1000;
-            i_ms_overheating_length_3 = recvDataS.d[2] * 1000;
-            i_ms_overheating_length_2 = recvDataS.d[3] * 1000;
-            i_ms_overheating_length_1 = recvDataS.d[4] * 1000;
+            case A_SAVE_PREFERENCES_SMOKE:
+              // Save local and remote (wand) smoke timing settings
+              i_ms_overheating_length_5 = recvDataS.d[0] * 1000;
+              i_ms_overheating_length_4 = recvDataS.d[1] * 1000;
+              i_ms_overheating_length_3 = recvDataS.d[2] * 1000;
+              i_ms_overheating_length_2 = recvDataS.d[3] * 1000;
+              i_ms_overheating_length_1 = recvDataS.d[4] * 1000;
 
-            b_smoke_continuous_mode_5 = recvDataS.d[5];
-            b_smoke_continuous_mode_4 = recvDataS.d[6];
-            b_smoke_continuous_mode_3 = recvDataS.d[7];
-            b_smoke_continuous_mode_2 = recvDataS.d[8];
-            b_smoke_continuous_mode_1 = recvDataS.d[9];
+              b_smoke_continuous_mode_5 = recvDataS.d[5];
+              b_smoke_continuous_mode_4 = recvDataS.d[6];
+              b_smoke_continuous_mode_3 = recvDataS.d[7];
+              b_smoke_continuous_mode_2 = recvDataS.d[8];
+              b_smoke_continuous_mode_1 = recvDataS.d[9];
 
-            wandConfig.overheatLevel5 = recvDataS.d[10];
-            wandConfig.overheatLevel4 = recvDataS.d[11];
-            wandConfig.overheatLevel3 = recvDataS.d[12];
-            wandConfig.overheatLevel2 = recvDataS.d[13];
-            wandConfig.overheatLevel1 = recvDataS.d[14];
+              wandConfig.overheatLevel5 = recvDataS.d[10];
+              wandConfig.overheatLevel4 = recvDataS.d[11];
+              wandConfig.overheatLevel3 = recvDataS.d[12];
+              wandConfig.overheatLevel2 = recvDataS.d[13];
+              wandConfig.overheatLevel1 = recvDataS.d[14];
 
-            wandConfig.overheatDelay5 = recvDataS.d[15];
-            wandConfig.overheatDelay4 = recvDataS.d[16];
-            wandConfig.overheatDelay3 = recvDataS.d[17];
-            wandConfig.overheatDelay2 = recvDataS.d[18];
-            wandConfig.overheatDelay1 = recvDataS.d[19];
+              wandConfig.overheatDelay5 = recvDataS.d[15];
+              wandConfig.overheatDelay4 = recvDataS.d[16];
+              wandConfig.overheatDelay3 = recvDataS.d[17];
+              wandConfig.overheatDelay2 = recvDataS.d[18];
+              wandConfig.overheatDelay1 = recvDataS.d[19];
 
-            b_smoke_enabled = recvDataS.d[20];
-            resetContinuousSmoke();
+              b_smoke_enabled = recvDataS.d[20];
+              resetContinuousSmoke();
 
-            // This will pass select values from the wandConfig object
-            packSerialSendData(P_SAVE_PREFERENCES_SMOKE);
+              // This will pass select values from the wandConfig object
+              packSerialSendData(P_SAVE_PREFERENCES_SMOKE);
 
-            // Offer some feedback to the user
-            stopEffect(S_VENT_SMOKE);
-            playEffect(S_VENT_SMOKE);
-          break;
+              // Offer some feedback to the user
+              stopEffect(S_VENT_SMOKE);
+              playEffect(S_VENT_SMOKE);
+            break;
 
-          default:
-            // No-op for anything else.
-          break;
+            default:
+              // No-op for anything else.
+            break;
+          }
         }
       }
       else {
@@ -922,19 +922,19 @@ void checkSerial1() {
 
 // Incoming messages from the wand.
 void checkWand() {
-  while(packComs.available() > 0) {
+  if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
-    Serial.println("i_packet_id: " + String(i_packet_id));
+    Serial.println("Wand PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
       switch(i_packet_id) {
         case 1:
           packComs.rxObj(recvCmdW);
-          // Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
+          Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
         break;
         case 2:
           packComs.rxObj(recvDataW);
-          // Serial.println("Recv. Wand Message: " + String(recvDataW.m));
+          Serial.println("Recv. Wand Message: " + String(recvDataW.m));
         break;
       }
 

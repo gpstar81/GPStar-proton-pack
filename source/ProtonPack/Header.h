@@ -370,7 +370,7 @@ bool b_sound_firing_alt_trigger = false;
 bool b_wand_connected = false;
 bool b_wand_on = false;
 millisDelay ms_wand_handshake;
-const unsigned int i_wand_handshake_delay = 3000;
+const unsigned int i_wand_handshake_delay = 4000;
 millisDelay ms_wand_handshake_checking;
 uint8_t i_wand_power_level = 1; // Power level of the wand.
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
@@ -380,7 +380,7 @@ const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
  */
 bool b_serial1_connected = false;
 millisDelay ms_serial1_handshake;
-const unsigned int i_serial1_handshake_delay = 3000;
+const unsigned int i_serial1_handshake_delay = 4000;
 millisDelay ms_serial1_handshake_checking;
 bool b_serial_1_syncing = false;
 
