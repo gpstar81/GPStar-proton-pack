@@ -207,7 +207,7 @@ void loop() {
     // Synchronise some settings with the pack.
     checkPack();
 
-    delay(10);
+    delay(100);
   }
   else {
     mainLoop();

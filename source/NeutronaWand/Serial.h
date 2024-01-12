@@ -41,6 +41,7 @@ struct MessagePacket sendData;
 void wandSerialSend(uint16_t i_message, uint16_t i_value) {
   // Only sends when pack is present.
   if(b_no_pack != true) {
+Serial.println("wandSerialSend: " + String(i_message));
     sendCmd.i = i_message;
     sendCmd.d1 = i_value;
     wandComs.sendDatum(sendCmd);
@@ -186,11 +187,14 @@ void wandSerialSendData(uint16_t i_message) {
 // Pack communication to the wand.
 void checkPack() {
   // Only checks when pack is present.
-  if(wandComs.available() && b_no_pack != true) {
+  if(wandComs.available()) {
     wandComs.rxObj(recvCmd);
     wandComs.rxObj(recvData);
 
     if(!wandComs.currentPacketID()) {
+Serial.println("Recv. Command: " + String(recvCmd.i));
+Serial.println("Recv. Message: " + String(recvData.i));
+
       // Handle simple commands.
       switch(recvCmd.i) {
         case P_PACK_BOOTUP:

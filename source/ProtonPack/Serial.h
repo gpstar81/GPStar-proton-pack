@@ -397,6 +397,9 @@ void checkSerial1() {
     serial1Coms.rxObj(recvDataS);
 
     if(!serial1Coms.currentPacketID()) {
+  // Serial.println("Recv. Serial Command: " + String(recvCmdS.i));
+  // Serial.println("Recv. Serial Message: " + String(recvDataS.i));
+
       if(b_serial1_connected == true) {
         // Handle simple commands.
         switch(recvCmdS.i) {
@@ -897,6 +900,9 @@ void checkWand() {
 
     if(!packComs.currentPacketID()) {
       if(b_wand_connected == true) {
+// Serial.println("Recv. Wand Command: " + String(recvCmdW.i));
+// Serial.println("Recv. Wand Message: " + String(recvDataW.i));
+
         // Handle simple commands.
         switch(recvCmdW.i) {
           case W_ON:
@@ -3505,10 +3511,12 @@ void checkWand() {
         // Check if the wand is telling us it is here after connecting it to the pack.
         // Then synchronise some settings between the pack and the wand.
         if(recvCmdW.i == W_HANDSHAKE) {
+Serial.println("Initial Wand Handshake");
           if(b_overheating == true) {
             packOverHeatingFinished();
           }
 
+          // Begin the synchronization process.
           packSerialSend(P_SYNC_START);
 
           // Tell the wand that the pack is here.
