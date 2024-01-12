@@ -129,13 +129,21 @@ struct SmokePrefs {
 
 // Sends an API to the Proton Pack
 void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
+  uint16_t i_send_size = 0;
+  uint8_t i_packet_id = 1;
+
   sendCmd.c = i_command;
   sendCmd.d1 = i_value;
-  packComs.sendDatum(sendCmd);
+
+  i_send_size = packComs.txObj(sendCmd, i_send_size);
+  packComs.sendData(i_send_size, i_packet_id);
 }
 
 // Sends an API to the Proton Pack
 void attenuatorSerialSendData(uint16_t i_message) {
+  uint16_t i_send_size = 0;
+  uint8_t i_packet_id = 2;
+
   sendData.m = i_message;
 
   // Set all elements of the data array to 0
@@ -272,7 +280,8 @@ void attenuatorSerialSendData(uint16_t i_message) {
     break;
   }
 
-  packComs.sendDatum(sendData);
+  i_send_size = packComs.txObj(sendData, i_send_size);
+  packComs.sendData(i_send_size, i_packet_id);
 }
 
 // Handles an API (and data) sent from the Proton Pack
@@ -280,15 +289,15 @@ boolean checkPack() {
   bool b_state_changed = false; // Indicates when a crucial state change occurred.
 
   // Pack communication to the Attenuator device.
-  if(packComs.available()) {
-    packComs.rxObj(recvCmd);
-    packComs.rxObj(recvData);
+  while(packComs.available() > 0) {
+    uint8_t i_packet_id = packComs.currentPacketID();
+    Serial.println("i_packet_id: " + String(i_packet_id));
 
-    if(!packComs.currentPacketID()) {
-// Serial.println("Recv. Command: " + String(recvCmd.c));
-// Serial.println("Recv. Message: " + String(recvData.m));
+    // Handle simple commands.
+    if(i_packet_id == 1) {
+      packComs.rxObj(recvCmd);
+      // Serial.println("Recv. Command: " + String(recvCmd.c));
 
-      // Handle simple commands.
       switch(recvCmd.c) {
         case A_PACK_BOOTUP:
           #if defined(__XTENSA__)
@@ -833,8 +842,13 @@ boolean checkPack() {
           // No-op for anything else.
         break;
       }
+    }
 
-      // Handle data payloads.
+    // Handle data payloads.
+    if(i_packet_id == 2) {
+      packComs.rxObj(recvData);
+      // Serial.println("Recv. Message: " + String(recvData.m));
+
       switch(recvData.m) {
         case A_VOLUME_SYNC:
           #if defined(__XTENSA__)

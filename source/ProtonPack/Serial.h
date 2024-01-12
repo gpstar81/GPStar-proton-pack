@@ -187,9 +187,14 @@ void updateSystemModeYear() {
 
 // Outgoing commands to the Serial1 device
 void serial1Send(uint16_t i_command, uint16_t i_value) {
+  uint16_t i_send_size = 0;
+  uint8_t i_packet_id = 1;
+
   sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
-  serial1Coms.sendDatum(sendCmdS);
+
+  i_send_size = serial1Coms.txObj(sendCmdS, i_send_size);
+  serial1Coms.sendData(i_send_size, i_packet_id);
 }
 // Override function to handle calls with a single parameter.
 void serial1Send(uint16_t i_command) {
@@ -198,6 +203,9 @@ void serial1Send(uint16_t i_command) {
 
 // Outgoing payloads to the Serial1 device
 void serial1SendData(uint16_t i_message) {
+  uint16_t i_send_size = 0;
+  uint8_t i_packet_id = 2;
+
   sendDataS.m = i_message;
 
   // Set all elements of the data array to 0
@@ -315,14 +323,20 @@ void serial1SendData(uint16_t i_message) {
     break;
   }
 
-  serial1Coms.sendDatum(sendDataS);
+  i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
+  serial1Coms.sendData(i_send_size, i_packet_id);
 }
 
 // Outgoing commands to the wand
 void packSerialSend(uint16_t i_command, uint16_t i_value) {
+  uint16_t i_send_size = 0;
+  uint8_t i_packet_id = 1;
+
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
-  serial1Coms.sendDatum(sendCmdW);
+
+  i_send_size = serial1Coms.txObj(sendCmdW, i_send_size);
+  serial1Coms.sendData(i_send_size, i_packet_id);
 }
 // Override function to handle calls with a single parameter.
 void packSerialSend(uint16_t i_command) {
@@ -331,6 +345,9 @@ void packSerialSend(uint16_t i_command) {
 
 // Outgoing payloads to the wand
 void packSerialSendData(uint16_t i_message) {
+  uint16_t i_send_size = 0;
+  uint8_t i_packet_id = 2;
+
   sendDataW.m = i_message;
 
   // Set all elements of the data array to 0
@@ -388,18 +405,27 @@ void packSerialSendData(uint16_t i_message) {
     break;
   }
 
-  packComs.sendDatum(sendDataW);
+  i_send_size = serial1Coms.txObj(sendDataW, i_send_size);
+  serial1Coms.sendData(i_send_size, i_packet_id);
 }
 
 // Incoming messages from the extra Serial 1 port.
 void checkSerial1() {
   while(serial1Coms.available() > 0) {
-    serial1Coms.rxObj(recvCmdS);
-    serial1Coms.rxObj(recvDataS);
+    uint8_t i_packet_id = serial1Coms.currentPacketID();
+    Serial.println("i_packet_id: " + String(i_packet_id));
 
-    if(!serial1Coms.currentPacketID()) {
-// Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
-// Serial.println("Recv. Serial Message: " + String(recvDataS.m));
+    if(i_packet_id > 0) {
+      switch(i_packet_id) {
+        case 1:
+          serial1Coms.rxObj(recvCmdS);
+          // Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
+        break;
+        case 2:
+          serial1Coms.rxObj(recvDataS);
+          // Serial.println("Recv. Serial Message: " + String(recvDataS.m));
+        break;
+      }
 
       // Perform checks based on whether a serial1 device is connected or not.
       if(b_serial1_connected == true) {
@@ -897,12 +923,20 @@ void checkSerial1() {
 // Incoming messages from the wand.
 void checkWand() {
   while(packComs.available() > 0) {
-    packComs.rxObj(recvCmdW);
-    packComs.rxObj(recvDataW);
+    uint8_t i_packet_id = packComs.currentPacketID();
+    Serial.println("i_packet_id: " + String(i_packet_id));
 
-    if(!packComs.currentPacketID()) {
-//Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
-//Serial.println("Recv. Wand Message: " + String(recvDataW.m));
+    if(i_packet_id > 0) {
+      switch(i_packet_id) {
+        case 1:
+          packComs.rxObj(recvCmdW);
+          // Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
+        break;
+        case 2:
+          packComs.rxObj(recvDataW);
+          // Serial.println("Recv. Wand Message: " + String(recvDataW.m));
+        break;
+      }
 
       // Perform checks based on whether a wand is connected or not.
       if(b_wand_connected == true) {
@@ -3515,18 +3549,18 @@ void checkWand() {
         // Then synchronise some basic/current settings between the pack and the wand.
         switch(recvCmdW.c) {
           case W_HANDSHAKE:
-Serial.println("Got Initial Wand Handshake");
+            Serial.println("Got Initial Wand Handshake");
 
-            // Begin the synchronization process which tells the wand the pack got the handshake.
-Serial.println("Sending Sync Start");
             // Turn on a single Power Cell LED to indicate that the wand sync process has begun.
             // This LED will be turned off automatically on the next iteration of the main loop.
             pack_leds[0] = getHueAsRGB(POWERCELL, C_WHITE); // White works with any LED choice.
             FastLED.show(); // Force update of color state.
 
-            // Begin the synchronization process with the attached wand.
+            // Begin the synchronization process which tells the wand the pack got the handshake.
+            
             packSerialSend(P_SYNC_START);
-/*
+            Serial.println("Sending Sync Start");
+          /*
             if(b_overheating == true) {
               packOverHeatingFinished();
             }
@@ -3700,13 +3734,14 @@ Serial.println("Sending Sync Start");
             else {
               packSerialSend(P_MASTER_AUDIO_NORMAL);
             }
-*/
-Serial.println("Sending Sync End");
+          */
+
+            Serial.println("Sending Sync End");
             packSerialSend(P_SYNC_END);
           break;
 
           case W_SYNCHRONIZED:
-Serial.println("Wand Synchronized");
+            Serial.println("Wand Synchronized");
             b_wand_connected = true; // Indicate completion of wand sync process.
           break;
 

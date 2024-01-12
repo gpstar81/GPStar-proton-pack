@@ -39,12 +39,17 @@ struct MessagePacket sendData;
 
 // Outgoing commands to the pack.
 void wandSerialSend(uint16_t i_command, uint16_t i_value) {
+  uint16_t i_send_size = 0;
+  uint8_t i_packet_id = 1;
+
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-Serial.println("wandSerialSend: " + String(i_command));
+    Serial.println("wandSerialSend: " + String(i_command));
     sendCmd.c = i_command;
     sendCmd.d1 = i_value;
-    wandComs.sendDatum(sendCmd);
+
+    i_send_size = wandComs.txObj(sendCmd, i_send_size);
+    wandComs.sendData(i_send_size, i_packet_id);
   }
 }
 // Override function to handle calls with a single parameter.
@@ -54,8 +59,12 @@ void wandSerialSend(uint16_t i_command) {
 
 // Outgoing payloads to the pack.
 void wandSerialSendData(uint16_t i_message) {
+  uint16_t i_send_size = 0;
+  uint8_t i_packet_id = 2;
+
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
+    Serial.println("wandSerialSendData: " + String(i_message));
     sendData.m = i_message;
 
     // Set all elements of the data array to 0
@@ -180,34 +189,31 @@ void wandSerialSendData(uint16_t i_message) {
       break;
     }
 
-    wandComs.sendDatum(sendData);
+    i_send_size = wandComs.txObj(sendData, i_send_size);
+    wandComs.sendData(i_send_size, i_packet_id);
   }
 }
 
 // Pack communication to the wand.
 void checkPack() {
   // Only checks when pack is present.
-  if(wandComs.available()) {
-    wandComs.rxObj(recvCmd);
-    wandComs.rxObj(recvData);
+  while(wandComs.available() > 0) {
+    uint8_t i_packet_id = wandComs.currentPacketID();
+    Serial.println("i_packet_id: " + String(i_packet_id));
 
-    // Reference: https://forum.arduino.cc/t/how-to-send-and-recieve-multiple-buffers-with-the-serialtransfer-library/1069088/14
+    // Handle simple commands.
+    if(i_packet_id == 1) {
+      wandComs.rxObj(recvCmd);
+      Serial.println("Recv. Command: " + String(recvCmd.c));
 
-    uint8_t packetID = wandComs.currentPacketID();
-Serial.println("packetID: " + String(packetID));
-    if(!wandComs.currentPacketID()) {
-Serial.println("Recv. Command: " + String(recvCmd.c));
-//Serial.println("Recv. Message: " + String(recvData.m));
-
-      // Handle simple commands.
       switch(recvCmd.c) {
         case P_SYNC_START:
-Serial.println("Sync Start");
+          Serial.println("Sync Start");
           b_sync = true; // Sync process has begun.
         break;
 
         case P_SYNC_END:
-Serial.println("Sync End");
+          Serial.println("Sync End");
           b_sync = false; // Sync process has completed.
           b_wait_for_pack = false; // Stops sending of initial handshake.
 
@@ -1135,11 +1141,16 @@ Serial.println("Sync End");
           // No-op for anything else.
         break;
       }
+    }
 
-      // Handle data payloads.
+    // Handle data payloads.
+    if(i_packet_id == 2) {
+      wandComs.rxObj(recvData);
+      Serial.println("Recv. Message: " + String(recvData.m));
+      
       switch(recvData.m) {
         case P_VOLUME_SYNC:
-Serial.println("P_VOLUME_SYNC");
+          Serial.println("P_VOLUME_SYNC");
           // Set the percentage volume.
           i_volume_master_percentage = recvData.d[0];
           i_volume_effects_percentage = recvData.d[1];
