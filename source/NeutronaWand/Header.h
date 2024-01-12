@@ -448,8 +448,8 @@ const unsigned int i_ms_power_indicator_blink = 1000;
 /*
  * Function prototypes.
  */
-void wandSerialSend(uint16_t i_message, uint16_t i_value);
-void wandSerialSend(uint16_t i_message);
+void wandSerialSend(uint16_t i_command, uint16_t i_value);
+void wandSerialSend(uint16_t i_command);
 void wandSerialSendData(uint16_t i_message);
 void checkPack();
 void checkWandAction();

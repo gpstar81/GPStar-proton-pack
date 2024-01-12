@@ -21,13 +21,13 @@
 
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
-  uint16_t i;
+  uint16_t c;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
 // For data communication (2 byte ID, 24 byte data payload).
 struct __attribute__((packed)) MessagePacket {
-  uint16_t i;
+  uint16_t m;
   uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
@@ -38,25 +38,25 @@ struct MessagePacket recvData;
 struct MessagePacket sendData;
 
 // Outgoing commands to the pack.
-void wandSerialSend(uint16_t i_message, uint16_t i_value) {
+void wandSerialSend(uint16_t i_command, uint16_t i_value) {
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-Serial.println("wandSerialSend: " + String(i_message));
-    sendCmd.i = i_message;
+Serial.println("wandSerialSend: " + String(i_command));
+    sendCmd.c = i_command;
     sendCmd.d1 = i_value;
     wandComs.sendDatum(sendCmd);
   }
 }
 // Override function to handle calls with a single parameter.
-void wandSerialSend(uint16_t i_message) {
-  wandSerialSend(i_message, 0);
+void wandSerialSend(uint16_t i_command) {
+  wandSerialSend(i_command, 0);
 }
 
 // Outgoing payloads to the pack.
 void wandSerialSendData(uint16_t i_message) {
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    sendData.i = i_message;
+    sendData.m = i_message;
 
     // Set all elements of the data array to 0
     memset(sendData.d, 0, sizeof(sendData.d));
@@ -192,18 +192,18 @@ void checkPack() {
     wandComs.rxObj(recvData);
 
     if(!wandComs.currentPacketID()) {
-Serial.println("Recv. Command: " + String(recvCmd.i));
-//Serial.println("Recv. Message: " + String(recvData.i));
+Serial.println("Recv. Command: " + String(recvCmd.c));
+//Serial.println("Recv. Message: " + String(recvData.m));
 
       // Handle simple commands.
-      switch(recvCmd.i) {
+      switch(recvCmd.c) {
         case P_SYNC_START:
-Serial.println("Sync Start");
+Serial.println("Got Sync Start");
           b_sync = true; // Sync process has begun.
         break;
 
         case P_SYNC_END:
-Serial.println("Sync End");
+Serial.println("Got Sync End");
           b_sync = false; // Sync process has completed.
           b_wait_for_pack = false; // Immediately set false so that the loop() stops sending handshakes.
 
@@ -1147,7 +1147,7 @@ Serial.println("Sync End");
       }
 
       // Handle data payloads.
-      switch(recvData.i) {
+      switch(recvData.m) {
         case P_SAVE_PREFERENCES_WAND:
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!

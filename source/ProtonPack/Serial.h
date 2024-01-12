@@ -26,13 +26,13 @@ void updateSystemModeYear();
 
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
-  uint16_t i;
+  uint16_t c;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
 // For data communication (2 byte ID, 24 byte data payload).
 struct __attribute__((packed)) MessagePacket {
-  uint16_t i;
+  uint16_t m;
   uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
@@ -185,19 +185,19 @@ void updateSystemModeYear() {
 }
 
 // Outgoing commands to the Serial1 device
-void serial1Send(uint16_t i_message, uint16_t i_value) {
-  sendCmdS.i = i_message;
+void serial1Send(uint16_t i_command, uint16_t i_value) {
+  sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
   serial1Coms.sendDatum(sendCmdS);
 }
 // Override function to handle calls with a single parameter.
-void serial1Send(uint16_t i_message) {
-  serial1Send(i_message, 0);
+void serial1Send(uint16_t i_command) {
+  serial1Send(i_command, 0);
 }
 
 // Outgoing payloads to the Serial1 device
 void serial1SendData(uint16_t i_message) {
-  sendDataS.i = i_message;
+  sendDataS.m = i_message;
 
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
@@ -319,7 +319,7 @@ void serial1SendData(uint16_t i_message) {
 
 // Outgoing commands to the wand
 void packSerialSend(uint16_t i_message, uint16_t i_value) {
-  sendCmdW.i = i_message;
+  sendCmdW.c = i_message;
   sendCmdW.d1 = i_value;
   serial1Coms.sendDatum(sendCmdW);
 }
@@ -330,7 +330,7 @@ void packSerialSend(uint16_t i_message) {
 
 // Outgoing payloads to the wand
 void packSerialSendData(uint16_t i_message) {
-  sendDataW.i = i_message;
+  sendDataW.m = i_message;
 
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
@@ -397,12 +397,12 @@ void checkSerial1() {
     serial1Coms.rxObj(recvDataS);
 
     if(!serial1Coms.currentPacketID()) {
-  // Serial.println("Recv. Serial Command: " + String(recvCmdS.i));
-  // Serial.println("Recv. Serial Message: " + String(recvDataS.i));
+  // Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
+  // Serial.println("Recv. Serial Message: " + String(recvDataS.m));
 
       if(b_serial1_connected == true) {
         // Handle simple commands.
-        switch(recvCmdS.i) {
+        switch(recvCmdS.c) {
           case A_HANDSHAKE:
             // The Attenuator is still here.
             ms_serial1_handshake.start(i_serial1_handshake_delay);
@@ -587,8 +587,7 @@ void checkSerial1() {
         }
 
         // Handle data payloads.
-        switch(recvDataS.i) {
-
+        switch(recvDataS.m) {
           case A_SAVE_PREFERENCES_PACK:
             // Writes new preferences back to runtime variables.
             // This action does not save changes to the EEPROM!
@@ -739,7 +738,7 @@ void checkSerial1() {
       else {
         // Check if the Attenuator is telling us it is here after connecting it to the pack.
         // Then synchronise some settings between the pack and the Attenuator.
-        if(recvCmdS.i == A_SYNC_START && b_serial_1_syncing != true) {
+        if(recvCmdS.c == A_SYNC_START && b_serial_1_syncing != true) {
           b_serial_1_syncing = true;
 
           serial1Send(A_SYNC_START);
@@ -899,12 +898,12 @@ void checkWand() {
     packComs.rxObj(recvDataW);
 
     if(!packComs.currentPacketID()) {
-//Serial.println("Recv. Wand Command: " + String(recvCmdW.i));
-//Serial.println("Recv. Wand Message: " + String(recvDataW.i));
+//Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
+//Serial.println("Recv. Wand Message: " + String(recvDataW.m));
 
       if(b_wand_connected == true) {
         // Handle simple commands.
-        switch(recvCmdW.i) {
+        switch(recvCmdW.c) {
           case W_ON:
             // The wand has been turned on.
             b_wand_on = true;
@@ -3457,7 +3456,7 @@ void checkWand() {
         }
 
         // Handle data payloads.
-        switch(recvDataW.i) {
+        switch(recvDataW.m) {
           case W_SEND_PREFERENCES_WAND:
             // Preferences are received from the wand.
             wandConfig.ledWandCount = recvDataW.d[0];
@@ -3510,18 +3509,18 @@ void checkWand() {
       else {
         // Check if the wand is telling us it is here after connecting it to the pack.
         // Then synchronise some settings between the pack and the wand.
-        if(recvCmdW.i == W_HANDSHAKE) {
-Serial.println("Initial Wand Handshake");
+        if(recvCmdW.c == W_HANDSHAKE) {
+Serial.println("Got Initial Wand Handshake");
           if(b_overheating == true) {
             packOverHeatingFinished();
           }
 
           // Begin the synchronization process.
-Serial.println("Sync Start");
+Serial.println("Sending Sync Start");
           packSerialSend(P_SYNC_START);
 
           // Tell the wand that the pack is here.
-Serial.println("Handshake");
+Serial.println("Sending Handshake");
           packSerialSend(P_HANDSHAKE);
 
           // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.

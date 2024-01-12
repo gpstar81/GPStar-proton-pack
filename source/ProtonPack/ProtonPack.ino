@@ -4090,7 +4090,6 @@ void serial1HandShake() {
 void wandHandShake() {
   if(b_wand_connected == true) {
     if(ms_wand_handshake.justFinished()) {
-
       if(b_wand_firing == true) {
         wandStoppedFiring();
         cyclotronSpeedRevert();

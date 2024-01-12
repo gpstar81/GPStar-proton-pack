@@ -33,13 +33,13 @@ bool b_a_sync_start = false; // Denotes pack communications have begun.
 
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
-  uint16_t i;
+  uint16_t c;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
 // For data communication (2 byte ID, 24 byte data payload).
 struct __attribute__((packed)) MessagePacket {
-  uint16_t i;
+  uint16_t m;
   uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
@@ -128,15 +128,15 @@ struct SmokePrefs {
  */
 
 // Sends an API to the Proton Pack
-void attenuatorSerialSend(uint16_t i_message, uint16_t i_value = 0) {
-  sendCmd.i = i_message;
+void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
+  sendCmd.c = i_command;
   sendCmd.d1 = i_value;
   packComs.sendDatum(sendCmd);
 }
 
 // Sends an API to the Proton Pack
 void attenuatorSerialSendData(uint16_t i_message) {
-  sendData.i = i_message;
+  sendData.m = i_message;
 
   // Set all elements of the data array to 0
   memset(sendData.d, 0, sizeof(sendData.d));
@@ -285,11 +285,11 @@ boolean checkPack() {
     packComs.rxObj(recvData);
 
     if(!packComs.currentPacketID()) {
-Serial.println("Recv. Command: " + String(recvCmd.i));
-Serial.println("Recv. Message: " + String(recvData.i));
+Serial.println("Recv. Command: " + String(recvCmd.c));
+Serial.println("Recv. Message: " + String(recvData.m));
 
       // Handle simple commands.
-      switch(recvCmd.i) {
+      switch(recvCmd.c) {
         case A_PACK_BOOTUP:
           #if defined(__XTENSA__)
             debug("Pack Bootup");
@@ -880,8 +880,9 @@ Serial.println("Recv. Message: " + String(recvData.i));
           // No-op for anything else.
         break;
       }
+
       // Handle data payloads.
-      switch(recvData.i) {
+      switch(recvData.m) {
         case A_SEND_PREFERENCES_PACK:
           #if defined(__XTENSA__)
             debug("Pack Preferences Received");
