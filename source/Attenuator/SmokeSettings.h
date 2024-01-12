@@ -55,7 +55,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 5</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Overheat Enabled:</b>
+      <b class="labelSwitch">Overheating Enabled:</b>
       <label class="switch">
         <input id="overheatLevel5" name="overheatLevel5" type="checkbox">
         <span class="slider round"></span>
@@ -69,7 +69,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Overheat Delay (Seconds):</b><br/>
+      <b>Overheat Start Delay (Seconds):</b><br/>
       <input type="range" id="overheatDelay5" name="overheatDelay5" min="2" max="60" value="2" step="1"
        oninput="delay5Out.value=overheatDelay5.value"/>
       <output class="labelSlider" id="delay5Out" for="overheatDelay5"></output>
@@ -86,7 +86,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
     <div class="setting">
-      <b class="labelSwitch">Overheat Enabled:</b>
+      <b class="labelSwitch">Overheating Enabled:</b>
       <label class="switch">
         <input id="overheatLevel4" name="overheatLevel4" type="checkbox">
         <span class="slider round"></span>
@@ -99,7 +99,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Overheat Delay (Seconds):</b><br/>
+      <b>Overheat Start Delay (Seconds):</b><br/>
       <input type="range" id="overheatDelay4" name="overheatDelay4" min="2" max="60" value="2" step="1"
        oninput="delay4Out.value=overheatDelay4.value"/>
       <output class="labelSlider" id="delay4Out" for="overheatDelay4"></output>
@@ -115,7 +115,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 3</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Overheat Enabled:</b>
+      <b class="labelSwitch">Overheating Enabled:</b>
       <label class="switch">
         <input id="overheatLevel3" name="overheatLevel3" type="checkbox">
         <span class="slider round"></span>
@@ -129,7 +129,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Overheat Delay (Seconds):</b><br/>
+      <b>Overheat Start Delay (Seconds):</b><br/>
       <input type="range" id="overheatDelay3" name="overheatDelay3" min="2" max="60" value="2" step="1"
        oninput="delay3Out.value=overheatDelay3.value"/>
       <output class="labelSlider" id="delay3Out" for="overheatDelay3"></output>
@@ -145,7 +145,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 2</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Overheat Enabled:</b>
+      <b class="labelSwitch">Overheating Enabled:</b>
       <label class="switch">
         <input id="overheatLevel2" name="overheatLevel2" type="checkbox">
         <span class="slider round"></span>
@@ -159,7 +159,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Overheat Delay (Seconds):</b><br/>
+      <b>Overheat Start Delay (Seconds):</b><br/>
       <input type="range" id="overheatDelay2" name="overheatDelay2" min="2" max="60" value="2" step="1"
        oninput="delay2Out.value=overheatDelay2.value"/>
       <output class="labelSlider" id="delay2Out" for="overheatDelay2"></output>
@@ -175,7 +175,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 1</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Overheat Enabled:</b>
+      <b class="labelSwitch">Overheating Enabled:</b>
       <label class="switch">
         <input id="overheatLevel1" name="overheatLevel1" type="checkbox">
         <span class="slider round"></span>
@@ -189,7 +189,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Overheat Delay (Seconds):</b><br/>
+      <b>Overheat Start Delay (Seconds):</b><br/>
       <input type="range" id="overheatDelay1" name="overheatDelay1" min="2" max="60" value="2" step="1"
        oninput="delay1Out.value=overheatDelay1.value"/>
       <output class="labelSlider" id="delay1Out" for="overheatDelay1"></output>
@@ -207,7 +207,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
     <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
-    &nbsp;&nbsp;
+    &nbsp;
     <button type="button" class="orange" style="width:120px" onclick="saveEEPROM()">Save&nbsp;to&nbsp;EPROM</button>
     <br/>
     <br/>

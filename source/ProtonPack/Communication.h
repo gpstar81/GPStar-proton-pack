@@ -20,8 +20,9 @@
 #pragma once
 
 enum pack_messages {
-  P_PACK_BOOTUP,
+  P_NULL,
   P_HANDSHAKE,
+  P_PACK_BOOTUP,
   P_SYNC_START,
   P_SYNC_END,
   P_ON,
@@ -136,6 +137,8 @@ enum pack_messages {
 };
 
 enum wand_messages {
+  W_NULL,
+  W_HANDSHAKE,
   W_ON,
   W_OFF,
   W_FIRING,
@@ -153,7 +156,6 @@ enum wand_messages {
   W_OVERHEATING_FINISHED,
   W_CYCLOTRON_NORMAL_SPEED,
   W_CYCLOTRON_INCREASE_SPEED,
-  W_HANDSHAKE,
   W_BEEP_START,
   W_POWER_LEVEL_1,
   W_POWER_LEVEL_2,
@@ -330,6 +332,8 @@ enum wand_messages {
 };
 
 enum api_messages {
+  A_NULL,
+  A_HANDSHAKE,
   A_WAND_ON,
   A_WAND_OFF,
   A_FIRING,
@@ -348,7 +352,6 @@ enum api_messages {
   A_WARNING_CANCELLED,
   A_CYCLOTRON_NORMAL_SPEED,
   A_CYCLOTRON_INCREASE_SPEED,
-  A_HANDSHAKE,
   A_BEEP_START,
   A_POWER_LEVEL_1,
   A_POWER_LEVEL_2,

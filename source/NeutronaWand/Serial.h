@@ -188,12 +188,12 @@ void wandSerialSendData(uint16_t i_message) {
 void checkPack() {
   // Only checks when pack is present.
   if(wandComs.available()) {
-    uint16_t cmdSize = wandComs.rxObj(recvCmd);
-    uint16_t dataSize = wandComs.rxObj(recvData);
+    wandComs.rxObj(recvCmd);
+    wandComs.rxObj(recvData);
 
     if(!wandComs.currentPacketID()) {
-Serial.println("Recv. Command: " + String(recvCmd.i) + " Size: " + String(cmdSize));
-Serial.println("Recv. Message: " + String(recvData.i) + " Size: " + String(dataSize));
+Serial.println("Recv. Command: " + String(recvCmd.i));
+//Serial.println("Recv. Message: " + String(recvData.i));
 
       // Handle simple commands.
       switch(recvCmd.i) {

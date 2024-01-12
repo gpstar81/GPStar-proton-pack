@@ -21,6 +21,8 @@
 #pragma once
 
 enum api_messages {
+  A_NULL,
+  A_HANDSHAKE,
   A_WAND_ON,
   A_WAND_OFF,
   A_FIRING,
@@ -39,7 +41,6 @@ enum api_messages {
   A_WARNING_CANCELLED,
   A_CYCLOTRON_NORMAL_SPEED,
   A_CYCLOTRON_INCREASE_SPEED,
-  A_HANDSHAKE,
   A_BEEP_START,
   A_POWER_LEVEL_1,
   A_POWER_LEVEL_2,

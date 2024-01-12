@@ -48,8 +48,9 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
     <br/>
     <p>
-      <b>Battery Health:</b> <span class="info" id="battVoltage">&mdash;</span>
-      <span id="battHealth"></span>
+      <b>Battery Health:</b> <span id="battHealth"></span>
+      <span class="info" id="battVoltage">&mdash;</span>
+      <span style="font-size: 0.6em">VDC</span>
     </p>
   </div>
 
@@ -269,7 +270,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
         if (jObj.battVoltage) {
           // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
-          document.getElementById("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2)) + " VDC";
+          document.getElementById("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2));
           if (jObj.battVoltage < 4.2) {
             document.getElementById("battHealth").innerHTML = "&#129707;"; // Low Battery
           } else {

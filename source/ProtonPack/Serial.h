@@ -899,10 +899,10 @@ void checkWand() {
     packComs.rxObj(recvDataW);
 
     if(!packComs.currentPacketID()) {
-      if(b_wand_connected == true) {
-// Serial.println("Recv. Wand Command: " + String(recvCmdW.i));
-// Serial.println("Recv. Wand Message: " + String(recvDataW.i));
+//Serial.println("Recv. Wand Command: " + String(recvCmdW.i));
+//Serial.println("Recv. Wand Message: " + String(recvDataW.i));
 
+      if(b_wand_connected == true) {
         // Handle simple commands.
         switch(recvCmdW.i) {
           case W_ON:

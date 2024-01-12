@@ -46,13 +46,13 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Default Firing Mode:</b>
       <select id="defaultFiringMode" name="defaultFiringMode">
-        <option value="1">Video Game Modes</option>
-        <option value="2">Cross the Streams</option>
-        <option value="3">Cross the Streams Mix</option>
+        <option value="1">Video Game</option>
+        <option value="2">CTS</option>
+        <option value="3">CTS Mix</option>
       </select>
     </div>
     <div class="setting">
-      <b>Default Year Mode:</b>
+      <b>&nbsp;Default Effects Mode:</b>
       <select id="defaultYearModeWand" name="defaultYearModeWand">
         <option value="1">Toggle</option>
         <option value="2">1984</option>
@@ -62,7 +62,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Default CTS Mode:</b>
+      <b>&nbsp;&nbsp;Default CTS Mode:</b>
       <select id="defaultYearModeCTS" name="defaultYearModeCTS">
         <option value="1">Toggle</option>
         <option value="2">1984</option>
@@ -79,7 +79,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Wand Beep Loop:</b>
+      <b class="labelSwitch">&nbsp;Wand Beep Loop:</b>
       <label class="switch">
         <input id="wandBeepLoop" name="wandBeepLoop" type="checkbox">
         <span class="slider round"></span>
@@ -128,7 +128,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Demo Light Mode:</b>
+      <b class="labelSwitch">Enable Startup Light Mode:</b>
       <label class="switch">
         <input id="demoLightMode" name="demoLightMode" type="checkbox">
         <span class="slider round"></span>
@@ -139,7 +139,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Bargraph Options</h1>
   <div class="block left">
     <div class="setting">
-      <b>Idle Animation:</b>
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;Idle Animation:</b>
       <select id="bargraphIdleAnimation" name="bargraphIdleAnimation">
         <option value="1">Default</option>
         <option value="2">Super Hero</option>
@@ -162,7 +162,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Overheat Blink:</b>
+      <b class="labelSwitch">Blink on Overheat:</b>
       <label class="switch">
         <input id="bargraphOverheatBlink" name="bargraphOverheatBlink" type="checkbox">
         <span class="slider round"></span>
@@ -181,7 +181,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;Custom Color (Hue):</b><br/>
+      <b>Custom Color (Hue):</b><br/>
       <input type="range" id="ledWandHue" name="ledWandHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('wandColorPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
       <output class="labelSlider" id="wandHueOut" for="ledWandHue"></output>
@@ -215,7 +215,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
     <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
-    &nbsp;&nbsp;
+    &nbsp;
     <button type="button" class="orange" style="width:120px" onclick="saveEEPROM()">Save&nbsp;to&nbsp;EPROM</button>
     <br/>
     <br/>

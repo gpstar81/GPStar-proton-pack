@@ -51,7 +51,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Theme Year:</b>
+      <b>&nbsp;&nbsp;&nbsp;Effects Theme:</b>
       <select id="defaultYearThemePack" name="defaultYearThemePack">
         <option value="1">System Toggle</option>
         <option value="2">1984</option>
@@ -74,7 +74,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">&nbsp;Strobe N-Filter on Overheat:</b>
+      <b class="labelSwitch">Strobe N-Filter on Overheat:</b>
       <label class="switch">
         <input id="overheatStrobeNF" name="overheatStrobeNF" type="checkbox">
         <span class="slider round"></span>
@@ -114,7 +114,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;Custom Color (Hue):</b><br/>
+      <b>Custom Color (Hue):</b><br/>
       <input type="range" id="ledCycLidHue" name="ledCycLidHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('cycColorPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
       <output class="labelSlider" id="cycHueOut" for="ledCycLidHue"></output>
@@ -128,14 +128,14 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <output class="labelSlider" id="cycSatOut" for="ledCycLidSat"></output>
     </div>
     <div class="setting">
-      <b>Direction:</b>
+      <b>Spin Direction:</b>
       <select id="cyclotronDirection" name="cyclotronDirection">
         <option value="0">Counter-Clockwise</option>
         <option value="1">Clockwise</option>
       </select>
     </div>
     <div class="setting">
-      <b>Center LEDs:</b>
+      <b>&nbsp;&nbsp;&nbsp;Center LEDs:</b>
       <select id="ledCycLidCenter" name="ledCycLidCenter">
         <option value="0">3 LED</option>
         <option value="1">1 LED</option>
@@ -169,7 +169,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;Custom Color (Hue):</b><br/>
+      <b>Custom Color (Hue):</b><br/>
       <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
       <output class="labelSlider" id="cakeHueOut" for="ledCycCakeHue"></output>
@@ -201,7 +201,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;Custom Color (Hue):</b><br/>
+      <b>Custom Color (Hue):</b><br/>
       <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('pcColorPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
       <output class="labelSlider" id="pcHueOut" for="ledPowercellHue"></output>
@@ -228,7 +228,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
     <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
-    &nbsp;&nbsp;
+    &nbsp;
     <button type="button" class="orange" style="width:120px" onclick="saveEEPROM()">Save&nbsp;to&nbsp;EPROM</button>
     <br/>
     <br/>

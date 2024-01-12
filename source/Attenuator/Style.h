@@ -123,11 +123,11 @@ select {
   height: 40px;
   margin: 5px;
   padding: 6px 8px;
-  max-width: 220px;
-  min-width: 220px;
+  max-width: 200px;
+  min-width: 200px;
   text-align: center;
   touch-action: manipulation;
-  width: 220px;
+  width: 200px;
 }
 
 .custom-select {
@@ -187,8 +187,11 @@ select {
 }
 
 .labelSwitch {
-  top: 8px;
+  display: inline-block;
   position: relative;
+  text-align: right;
+  top: 6px;
+  width: 280px;
 }
 
 input[type=range] {
