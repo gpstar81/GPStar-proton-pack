@@ -3565,7 +3565,7 @@ void checkWand() {
               
               packSerialSend(P_SYNC_START);
               Serial.println("Sending Sync Start");
-            /*
+
               if(b_overheating == true) {
                 packOverHeatingFinished();
               }
@@ -3739,7 +3739,6 @@ void checkWand() {
               else {
                 packSerialSend(P_MASTER_AUDIO_NORMAL);
               }
-            */
 
               Serial.println("Sending Sync End");
               packSerialSend(P_SYNC_END);

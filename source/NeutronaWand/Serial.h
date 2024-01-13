@@ -199,12 +199,12 @@ void checkPack() {
   // Only checks when pack is present.
   if(b_gpstar_benchtest != true && wandComs.available() > 0) {
     uint8_t i_packet_id = wandComs.currentPacketID();
-    Serial.println("i_packet_id: " + String(i_packet_id));
+    //Serial.println("PacketID: " + String(i_packet_id));
 
     // Handle simple commands.
     if(i_packet_id == 1) {
       wandComs.rxObj(recvCmd);
-      Serial.println("Recv. Command: " + String(recvCmd.c));
+      //Serial.println("Recv. Command: " + String(recvCmd.c));
 
       switch(recvCmd.c) {
         case P_SYNC_START:
@@ -1146,7 +1146,7 @@ void checkPack() {
     // Handle data payloads.
     if(i_packet_id == 2) {
       wandComs.rxObj(recvData);
-      Serial.println("Recv. Message: " + String(recvData.m));
+      //Serial.println("Recv. Message: " + String(recvData.m));
       
       switch(recvData.m) {
         case P_VOLUME_SYNC:
