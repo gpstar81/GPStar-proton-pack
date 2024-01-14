@@ -332,6 +332,8 @@ boolean checkPack() {
           b_wait_for_pack = false;
           b_sync_start = false;
           b_state_changed = true;
+
+          attenuatorSerialSend(A_SYNC_END); // Signal end of sync.
         break;
 
         case A_PACK_ON:

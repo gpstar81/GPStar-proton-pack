@@ -4359,10 +4359,6 @@ void playMusic() {
   if(b_music_paused != true) {
     b_playing_music = true;
 
-    // Tell the Neutrona Wand which music track to change to and play it.
-    // Called first to allow time for serial communications to occur.
-    packSerialSend(P_MUSIC_START, i_current_music_track);
-
     // Loop the music track.
     if(b_repeat_track == true) {
       w_trig.trackLoop(i_current_music_track, 1);
@@ -4380,16 +4376,15 @@ void playMusic() {
     w_trig.resetTrackCounter(true);
 
     // Tell connected serial device music playback has started.
-    serial1Send(A_MUSIC_IS_PLAYING);
+    serial1Send(A_MUSIC_IS_PLAYING, i_current_music_track);
     serial1Send(A_MUSIC_IS_NOT_PAUSED);
+
+    // Tell the Neutrona Wand which music track to change to and play it.
+    packSerialSend(P_MUSIC_START, i_current_music_track);
   }
 }
 
 void stopMusic() {
-  // Tell the Neutrona Wand to stop music playback and confirm track.
-  // Called first to allow time for serial communications to occur.
-  packSerialSend(P_MUSIC_STOP);
-
   w_trig.trackStop(i_current_music_track);
   w_trig.update();
 
@@ -4397,8 +4392,11 @@ void stopMusic() {
   b_playing_music = false;
 
   // Tell connected serial device music playback has stopped.
-  serial1Send(A_MUSIC_IS_NOT_PLAYING);
+  serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
   serial1Send(A_MUSIC_IS_NOT_PAUSED);
+
+  // Tell the Neutrona Wand to stop music playback and confirm track.
+  packSerialSend(P_MUSIC_STOP);
 }
 
 void pauseMusic() {
