@@ -127,13 +127,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         <span class="slider round"></span>
       </label>
     </div>
-    <div class="setting">
-      <b class="labelSwitch">Enable Startup Light Mode:</b>
-      <label class="switch">
-        <input id="demoLightMode" name="demoLightMode" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
   </div>
 
   <h1>Bargraph Options</h1>
