@@ -207,8 +207,8 @@ void loop() {
     // Immediately after, check for a response and handle any synchronization.
     if(ms_handshake.justFinished()) {
       wandSerialSend(W_HANDSHAKE); // Poke the pack to tell it the wand is here.
-      ms_handshake.start(i_handshake_delay); // Wait to try again, if necessary.
-      b_sync_light = !b_sync_light; // Toggle the white LED while synchronizing.
+      ms_handshake.start(i_handshake_initial_delay); // Wait to try again, if necessary.
+      b_sync_light = !b_sync_light; // Toggle a white LED while attempting to sync.
       digitalWrite(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
     }
 
@@ -216,9 +216,10 @@ void loop() {
     checkPack();
   }
   else {
-    if(ms_handshake.justFinished()) {
+    // If connected to a pack, prepare to send a regular handshake to indicate presence.
+    if(!b_gpstar_benchtest && ms_handshake.justFinished()) {
       wandSerialSend(W_HANDSHAKE); // Remind the pack that a wand is still present.
-      ms_handshake.start(i_handshake_delay * 4); // Delay after initial connection.
+      ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
     }
 
     // When not waiting for the pack, move directly into the main loop.
@@ -229,12 +230,13 @@ void loop() {
 void mainLoop() {
   w_trig.update();
 
-  checkPack();
+  checkPack(); // Get the latest communications from a proton pack, if connected.
 
   if(b_gpstar_benchtest == true) {
     checkMusic();
   }
 
+  // Get the current state of any input devices (toggles, buttons, and switches).
   switchLoops();
   checkRotary();
   checkSwitches();

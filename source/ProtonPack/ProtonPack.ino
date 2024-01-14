@@ -131,7 +131,7 @@ void setup() {
   ms_cyclotron.start(i_current_ramp_speed);
   ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
-  ms_wand_handshake.start(1);
+  ms_wand_disconnect.start(int(i_wand_disconnect_delay / 4));
   ms_serial1_handshake.start(int(i_serial1_handshake_delay / 2));
   ms_fast_led.start(i_fast_led_delay);
   ms_battcheck.start(1);
@@ -210,9 +210,11 @@ void loop() {
     ms_battcheck.start(i_ms_battcheck_delay);
   }
 
-  // Check if wand device is present, and if any new serial commands were received.
-  //wandHandShake();
+  // Check for any new serial commands were received from the Neutrona Wand.
   checkWand();
+
+  // Check if the wand is considered to have been disconnected.
+  wandDisconnectCheck();
 
   // Check if serial1 device is present, and if any new serial commands were received.
   serial1HandShake();
@@ -4090,66 +4092,38 @@ void serial1HandShake() {
 }
 
 // Check if the wand is still connected.
-void wandHandShake() {
+void wandDisconnectCheck() {
   if(b_wand_connected == true) {
-    if(ms_wand_handshake.justFinished()) {
+    // A wand was previously considered to be connected.
+    if(ms_wand_disconnect.justFinished()) {
+      // Timeout has expired, so we must assume the wand was disconnected.
+      b_wand_connected = false; // Cause the next handshake to trigger a sync.
+      b_wand_on = false; // No wand means the device is no longer powered on.
+
       if(b_wand_firing == true) {
+        // Reset the pack to a non-firing state.
         wandStoppedFiring();
         cyclotronSpeedRevert();
       }
 
-      ms_wand_handshake.start(i_wand_handshake_delay);
-
-      b_wand_connected = false;
-      b_wand_on = false;
-
       wandExtraSoundsStop();
+
+      // Turn off overheating if the wand gets disconnected.
+      if(b_overheating == true) {
+        packOverHeatingFinished();
+      }
 
       if(b_spectral_lights_on == true) {
         spectralLightsOff();
       }
-
-      // Where are you wand?
-      packSerialSend(P_HANDSHAKE);
     }
-    else if(ms_wand_handshake_checking.justFinished()) {
+    else {
+      // Wand is connected and timer is still running, so do with that info what you will.
       if(b_diagnostic == true) {
         // Play a beep sound to know if the wand is connected while in diagnostic mode.
         playEffect(S_VENT_BEEP, true);
       }
-
-      ms_wand_handshake_checking.stop();
-
-      // Ask the wand if it is still connected.
-      packSerialSend(P_HANDSHAKE);
     }
-  }
-  else {
-    b_wand_on = false;
-
-    if(b_wand_firing == true) {
-      wandStoppedFiring();
-      cyclotronSpeedRevert();
-    }
-
-    // Turn off overheating if the wand gets disconnected.
-    /*
-    if(b_overheating == true) {
-      packOverHeatingFinished();
-    }
-    */
-
-    if(b_spectral_lights_on == true) {
-      spectralLightsOff();
-    }
-
-    // @TODO: Consider who should do this...the pack asking the wand or the wand asking the pack?
-    // if(ms_wand_handshake.justFinished()) {
-    //   // Ask the wand if it is connected.
-    //   packSerialSend(P_HANDSHAKE);
-
-    //   ms_wand_handshake.start(i_wand_handshake_delay / 5);
-    // }
   }
 }
 

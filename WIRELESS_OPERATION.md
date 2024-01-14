@@ -1,6 +1,6 @@
 # Wireless Operation
 
-This guide will cover the web interface available via the Attenuator or Wireless Adapter devices to control your Proton Pack and Neutrona Wand. At present the same software will be utilized for both solution.
+This guide will cover the web interface available via an ESP32 chip used as either the **Attenuator** or **Wireless Adapter** devices, and is capable of controlling some operations of your Proton Pack and Neutrona Wand.
 
 ## Firmware Flashing
 
@@ -10,7 +10,7 @@ Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details o
 
 In order to view the state of the pack and control it remotely, the two devices must be physically connected and have been sychnronized via the built-in software. On the ESP32 are 2 on-board LEDs which will show the current status. A red LED indicates the device is powered and should be accessible via WiFi. A blue LED indicates the device has successfully synchronized with the Proton Pack.
 
-## Web UI
+## Web Interface
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main.jpg"/>
 
@@ -24,17 +24,17 @@ The equipment status will reflect the status of your Proton Pack and Neutrona Wa
 
 ### Audio Controls
 
-This section allows full control of the master (overall) volume and to mute/unmute all devices. For playback of music you can advance forward or backwards in the music queue, or select a specific track for playback via the selection field (switching immediately if already playing, otherwise will be the track started via the Start/Stop button). Lastly, you can change the effects volume as needed via the dedicated buttons.
+This section allows full control of the master (overall) volume and to mute/unmute all devices. For playback of music you can advance forward or backwards in the music queue, or select a specific track for playback via the selection field (switching immediately if already playing, otherwise will be the track started via the Start/Stop button). Lastly, you can change the effects volume as needed via the dedicated buttons. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or wand.
 
-**Note:** Only the track numbers are known to the WavTrigger device, and track names are not available for display.
+**Note:** Only the track numbers are known to the WavTrigger device, and track names are not available for display. Music tracks must begin at value "500" per the naming convention used by the GPStar controllers/software.
 
 ### Pack Controls
 
-Controls will be made available on a per-action or per-state basis. Shown here, the pack and wand are both in an Idle state while in the "Original" mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.
+Controls will be made available on a per-action or per-state basis. Shown here, the pack and wand are both in an Idle state while in the "Super Hero" operation mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.
 
 **Vent:** This can only be triggered remotely when in the "Super Hero" mode and while the Pack State is "Powered".
 
-**Attenuate:** When firing, the Cyclotron State must be either "Warning" or "Critical".
+**Attenuate:** When firing, the Cyclotron State must be either "Warning" or "Critical" to enable this button.
 
 ### Preferences
 
@@ -42,7 +42,7 @@ These provide a web interface for managing options which are accessed via the LE
 
 ### Administration
 
-These links allow you to update the WiFi password to one of your choice, or to update the software (respectively). Please view [this dedicated guide](ATTENUATOR_FLASHING.md) for updating the firmware and adjusting your WiFi security.
+These links allow you to update the WiFi password to one of your choice, or to update the ESP32 software (respectively). Please view [this dedicated guide](ATTENUATOR_FLASHING.md) for updating the firmware and adjusting your WiFi security.
 
 <div style="clear:both"></div>
 

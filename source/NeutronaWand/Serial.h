@@ -211,15 +211,27 @@ void checkPack() {
       // Serial.println("Recv. Command: " + String(recvCmd.c));
 
       switch(recvCmd.c) {
+        case P_HANDSHAKE:
+          // The pack is asking us if we are still here so respond accordingly.
+          if(b_wait_for_pack) {
+            // If still waiting for the pack, trigger a synchronization handshake.
+            wandSerialSend(W_HANDSHAKE);
+          }
+          else {
+            // The wand already synchronized with the pack, so respond as such.
+            wandSerialSend(W_SYNCHRONIZED);
+          }
+        break;
+
         case P_SYNC_START:
           // Serial.println("Sync Start");
-          b_sync = true; // Sync process has begun.
+          b_sync = true; // Sync process has begun, set a semaphore to avoid another sync attempt.
         break;
 
         case P_SYNC_END:
           // Serial.println("Sync End");
-          b_sync = false; // Sync process has completed.
-          b_wait_for_pack = false; // Stops sending of initial handshake.
+          b_sync = false; // Sync process has completed so remove the semaphore.
+          b_wait_for_pack = false; // Initial handshake is complete, no longer waiting on the pack.
 
           switchBarrel(); // Determine the state of the barrel safety switch.
 
@@ -231,11 +243,6 @@ void checkPack() {
 
           // Acknowledgement that the wand is now synchronized.
           wandSerialSend(W_SYNCHRONIZED);
-        break;
-
-        case P_HANDSHAKE:
-          // The pack is asking us if we are still here. Respond back.
-          wandSerialSend(W_HANDSHAKE);
         break;
 
         case P_PACK_BOOTUP:
