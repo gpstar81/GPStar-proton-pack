@@ -1405,12 +1405,11 @@ void checkWand() {
           break;
 
           case W_HANDSHAKE:
-Serial.println("W_HANDSHAKE, Already Connected? " + String(b_wand_connected) + " | " + String(b_wand_syncing));
             // Check if the wand is telling us it is here after connecting it to the pack.
             // Otherwise, synchronize some basic settings between the pack and the wand.
-            if(b_wand_connected != true && b_wand_syncing != true) {
-Serial.println("Perform wand sync");
-              b_wand_syncing = true; // Denote sync must occur, don't run this code again.
+            if(!b_wand_connected && !b_wand_syncing) {
+Serial.println("Performing Wand Sync");
+              b_wand_syncing = true; // Denote sync in progress, don't run this code again if we get another handshake.
 
               // Turn on a single Power Cell LED to indicate that the wand sync process has begun.
               // This LED will be turned off automatically on the next iteration of the main loop.
@@ -1600,6 +1599,7 @@ Serial.println("Perform wand sync");
               packSerialSend(P_SYNC_END);
             }
             else {
+Serial.println("Resetting handshake delay");
               // The wand is already connected and telling the pack it's still there.
               ms_wand_handshake.start(i_wand_handshake_delay);
               ms_wand_handshake_checking.start(i_wand_handshake_delay / 2);
