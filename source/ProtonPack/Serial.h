@@ -2949,7 +2949,7 @@ void checkWand() {
 
           case W_CLEAR_CONFIG_EEPROM_SETTINGS:
             if(b_wand_connected) {
-              // Only proceeed if a wand is connected.
+              // Only proceed if a wand is connected.
               stopEffect(S_VOICE_EEPROM_ERASE);
               playEffect(S_VOICE_EEPROM_ERASE);
 
@@ -2959,7 +2959,7 @@ void checkWand() {
 
           case W_SAVE_CONFIG_EEPROM_SETTINGS:
             if(b_wand_connected) {
-              // Only proceeed if a wand is connected.
+              // Only proceed if a wand is connected.
               stopEffect(S_VOICE_EEPROM_SAVE);
               playEffect(S_VOICE_EEPROM_SAVE);
 
@@ -2969,7 +2969,7 @@ void checkWand() {
 
           case W_CLEAR_LED_EEPROM_SETTINGS:
             if(b_wand_connected) {
-              // Only proceeed if a wand is connected.
+              // Only proceed if a wand is connected.
               stopEffect(S_VOICE_EEPROM_ERASE);
               playEffect(S_VOICE_EEPROM_ERASE);
 
@@ -2979,7 +2979,7 @@ void checkWand() {
 
           case W_SAVE_LED_EEPROM_SETTINGS:
             if(b_wand_connected) {
-              // Only proceeed if a wand is connected.
+              // Only proceed if a wand is connected.
               stopEffect(S_VOICE_EEPROM_SAVE);
               playEffect(S_VOICE_EEPROM_SAVE);
 
