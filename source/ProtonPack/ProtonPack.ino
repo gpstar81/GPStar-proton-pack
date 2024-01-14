@@ -4097,6 +4097,7 @@ void wandDisconnectCheck() {
     // A wand was previously considered to be connected.
     if(ms_wand_disconnect.justFinished()) {
       // Timeout has expired, so we must assume the wand was disconnected.
+      Serial.println("Wand Disconnected");
       b_wand_connected = false; // Cause the next handshake to trigger a sync.
       b_wand_on = false; // No wand means the device is no longer powered on.
 

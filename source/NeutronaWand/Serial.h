@@ -47,7 +47,7 @@ void wandSerialSend(uint16_t i_command, uint16_t i_value) {
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    Serial.println("wandSerialSend: " + String(i_command));
+    // Serial.println("wandSerialSend: " + String(i_command));
 
     sendCmd.c = i_command;
     sendCmd.d1 = i_value;

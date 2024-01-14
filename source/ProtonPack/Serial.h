@@ -934,17 +934,206 @@ void checkWand() {
       switch(i_packet_id) {
         case CMD_PACKET:
           packComs.rxObj(recvCmdW);
-          Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
+          // Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
         break;
         case DATA_PACKET:
           packComs.rxObj(recvDataW);
-          Serial.println("Recv. Wand Message: " + String(recvDataW.m));
+          // Serial.println("Recv. Wand Message: " + String(recvDataW.m));
         break;
       }
 
       // Handle simple commands.
       if(i_packet_id == CMD_PACKET) {
         switch(recvCmdW.c) {
+          case W_HANDSHAKE:
+            // Check if the wand is telling us it is here after connecting it to the pack.
+            // If first connected, synchronize some basic settings between the pack and the wand.
+            if(!b_wand_connected && !b_wand_syncing) {
+              // Serial.println("Performing Wand Sync");
+              b_wand_syncing = true; // Denote sync in progress, don't run this code again if we get another handshake.
+
+              // Begin the synchronization process which tells the wand the pack got the handshake.
+              packSerialSend(P_SYNC_START);
+              // Serial.println("Start Wand Sync");
+
+              // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
+              if(b_overheating == true) {
+                packOverHeatingFinished();
+              }
+
+              // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
+              switch(SYSTEM_MODE) {
+                case MODE_ORIGINAL:
+                  packSerialSend(P_MODE_ORIGINAL);
+
+                  if(switch_power.getState() == LOW) {
+                    // Tell the Neutrona Wand that power to the Proton Pack is on.
+                    packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+                  }
+                  else {
+                    // Tell the Neutrona Wand that power to the Proton Pack is off.
+                    packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+                  }
+                break;
+
+                case MODE_SUPER_HERO:
+                default:
+                  packSerialSend(P_MODE_SUPER_HERO);
+
+                  // This is only applicable to the Mode Original, so default to off.
+                  packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+                break;
+              }
+
+              // Make sure to send this after the system (operation) mode is sent.
+              switch(SYSTEM_YEAR) {
+                case SYSTEM_1984:
+                  packSerialSend(P_YEAR_1984);
+                break;
+                case SYSTEM_1989:
+                  packSerialSend(P_YEAR_1989);
+                break;
+                case SYSTEM_AFTERLIFE:
+                default:
+                  packSerialSend(P_YEAR_AFTERLIFE);
+                break;
+                case SYSTEM_FROZEN_EMPIRE:
+                  packSerialSend(P_YEAR_FROZEN_EMPIRE);
+                break;
+              }
+
+              // Stop any music. Mainly for when flashing while connected to a computer with a running wand.
+              //packSerialSend(P_MUSIC_STOP);
+
+              // Sync the current music track.
+              // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
+              packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
+
+              // Denote the current looping preference for the current track.
+              b_repeat_track ? packSerialSend(P_MUSIC_REPEAT) : packSerialSend(P_MUSIC_NO_REPEAT);
+
+              // Vibration enabled or disabled from the Proton Pack toggle switch.
+              b_vibration_enabled ? packSerialSend(P_VIBRATION_ENABLED) : packSerialSend(P_VIBRATION_DISABLED);
+
+              // Ribbon cable alarm status.
+              b_alarm ? packSerialSend(P_ALARM_ON) : packSerialSend(P_ALARM_OFF);
+
+              // Pack power status.
+              (PACK_STATE != MODE_OFF) ? packSerialSend(P_ON) : packSerialSend(P_OFF);
+
+              // Reset the wand power levels.
+              switch(i_wand_power_level) {
+                case 5:
+                  packSerialSend(P_POWER_LEVEL_5);
+                break;
+
+                case 4:
+                  packSerialSend(P_POWER_LEVEL_4);
+                break;
+
+                case 3:
+                  packSerialSend(P_POWER_LEVEL_3);
+                break;
+
+                case 2:
+                  packSerialSend(P_POWER_LEVEL_2);
+                break;
+
+                case 1:
+                default:
+                  packSerialSend(P_POWER_LEVEL_1);
+                break;
+              }
+
+              // Synchronise the firing mode.
+              switch(FIRING_MODE) {
+                case SLIME:
+                  packSerialSend(P_SLIME_MODE);
+                break;
+
+                case STASIS:
+                  packSerialSend(P_STASIS_MODE);
+                break;
+
+                case MESON:
+                  packSerialSend(P_MESON_MODE);
+                break;
+
+                case SPECTRAL:
+                  packSerialSend(P_SPECTRAL_MODE);
+                break;
+
+                case HOLIDAY:
+                  packSerialSend(P_HOLIDAY_MODE);
+                break;
+
+                case SPECTRAL_CUSTOM:
+                  packSerialSend(P_SPECTRAL_CUSTOM_MODE);
+                break;
+
+                case VENTING:
+                  packSerialSend(P_VENTING_MODE);
+                break;
+
+                case PROTON:
+                case SETTINGS:
+                default:
+                  packSerialSend(P_PROTON_MODE);
+
+                  FIRING_MODE = PROTON;
+
+                  if(b_pack_on != true && b_pack_shutting_down != true) {
+                    if(b_cyclotron_colour_toggle == true) {
+                      // Reset the Cyclotron LED colours.
+                      cyclotronColourReset();
+                    }
+
+                    if(b_powercell_colour_toggle == true) {
+                      // Reset the Power Cell colours.
+                      b_powercell_updating = true;
+                      powercellDraw();
+                    }
+                  }
+                break;
+              }
+
+              // Tell the wand the status of the Proton Pack ribbon cable.
+              if(switch_alarm.getState() == LOW) {
+                // Ribbon cable is on.
+                packSerialSend(P_RIBBON_CABLE_ON);
+              }
+              else {
+                packSerialSend(P_RIBBON_CABLE_OFF);
+              }
+
+              // Synchronise the volume settings.
+              packSerialSendData(P_VOLUME_SYNC);
+
+              if(i_volume_master == i_volume_abs_min) {
+                // Telling the wand to be silent if required.
+                packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
+              }
+              else {
+                packSerialSend(P_MASTER_AUDIO_NORMAL);
+              }
+
+              // Tell the wand that we've reached the end of settings to be sync'd.
+              packSerialSend(P_SYNC_END);
+              // Serial.println("Sending Sync End");
+            }
+            else if(b_wand_connected) {
+              // Wand was connected and still present, so reset the disconnection delay.
+              ms_wand_disconnect.start(i_wand_disconnect_delay);
+              // Serial.println("Resetting handshake delay");
+            }
+          break;
+
+          case W_SYNCHRONIZED:
+            // Serial.println("Wand Synchronized");
+            b_wand_connected = true; // Remember that a wand has been connected.
+            b_wand_syncing = false; // Indicate completion of wand sync process.
+          break;
+
           case W_ON:
             // The wand has been turned on.
             b_wand_on = true;
@@ -1402,195 +1591,6 @@ void checkWand() {
 
             // Indicate speed-up to serial device.
             serial1Send(A_CYCLOTRON_INCREASE_SPEED);
-          break;
-
-          case W_HANDSHAKE:
-            // Check if the wand is telling us it is here after connecting it to the pack.
-            // If first connected, synchronize some basic settings between the pack and the wand.
-            if(!b_wand_connected && !b_wand_syncing) {
-Serial.println("Performing Wand Sync");
-              b_wand_syncing = true; // Denote sync in progress, don't run this code again if we get another handshake.
-
-              // Begin the synchronization process which tells the wand the pack got the handshake.
-              packSerialSend(P_SYNC_START);
-              // Serial.println("Start Wand Sync");
-
-              // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
-              if(b_overheating == true) {
-                packOverHeatingFinished();
-              }
-
-              // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
-              switch(SYSTEM_MODE) {
-                case MODE_ORIGINAL:
-                  packSerialSend(P_MODE_ORIGINAL);
-
-                  if(switch_power.getState() == LOW) {
-                    // Tell the Neutrona Wand that power to the Proton Pack is on.
-                    packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
-                  }
-                  else {
-                    // Tell the Neutrona Wand that power to the Proton Pack is off.
-                    packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-                  }
-                break;
-
-                case MODE_SUPER_HERO:
-                default:
-                  packSerialSend(P_MODE_SUPER_HERO);
-
-                  // This is only applicable to the Mode Original, so default to off.
-                  packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-                break;
-              }
-
-              // Make sure to send this after the system (operation) mode is sent.
-              switch(SYSTEM_YEAR) {
-                case SYSTEM_1984:
-                  packSerialSend(P_YEAR_1984);
-                break;
-                case SYSTEM_1989:
-                  packSerialSend(P_YEAR_1989);
-                break;
-                case SYSTEM_AFTERLIFE:
-                default:
-                  packSerialSend(P_YEAR_AFTERLIFE);
-                break;
-                case SYSTEM_FROZEN_EMPIRE:
-                  packSerialSend(P_YEAR_FROZEN_EMPIRE);
-                break;
-              }
-
-              // Stop any music. Mainly for when flashing while connected to a computer with a running wand.
-              //packSerialSend(P_MUSIC_STOP);
-
-              // Sync the current music track.
-              // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
-              packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
-
-              // Denote the current looping preference for the current track.
-              b_repeat_track ? packSerialSend(P_MUSIC_REPEAT) : packSerialSend(P_MUSIC_NO_REPEAT);
-
-              // Vibration enabled or disabled from the Proton Pack toggle switch.
-              b_vibration_enabled ? packSerialSend(P_VIBRATION_ENABLED) : packSerialSend(P_VIBRATION_DISABLED);
-
-              // Ribbon cable alarm status.
-              b_alarm ? packSerialSend(P_ALARM_ON) : packSerialSend(P_ALARM_OFF);
-
-              // Pack power status.
-              (PACK_STATE != MODE_OFF) ? packSerialSend(P_ON) : packSerialSend(P_OFF);
-
-              // Reset the wand power levels.
-              switch(i_wand_power_level) {
-                case 5:
-                  packSerialSend(P_POWER_LEVEL_5);
-                break;
-
-                case 4:
-                  packSerialSend(P_POWER_LEVEL_4);
-                break;
-
-                case 3:
-                  packSerialSend(P_POWER_LEVEL_3);
-                break;
-
-                case 2:
-                  packSerialSend(P_POWER_LEVEL_2);
-                break;
-
-                case 1:
-                default:
-                  packSerialSend(P_POWER_LEVEL_1);
-                break;
-              }
-
-              // Synchronise the firing mode.
-              switch(FIRING_MODE) {
-                case SLIME:
-                  packSerialSend(P_SLIME_MODE);
-                break;
-
-                case STASIS:
-                  packSerialSend(P_STASIS_MODE);
-                break;
-
-                case MESON:
-                  packSerialSend(P_MESON_MODE);
-                break;
-
-                case SPECTRAL:
-                  packSerialSend(P_SPECTRAL_MODE);
-                break;
-
-                case HOLIDAY:
-                  packSerialSend(P_HOLIDAY_MODE);
-                break;
-
-                case SPECTRAL_CUSTOM:
-                  packSerialSend(P_SPECTRAL_CUSTOM_MODE);
-                break;
-
-                case VENTING:
-                  packSerialSend(P_VENTING_MODE);
-                break;
-
-                case PROTON:
-                case SETTINGS:
-                default:
-                  packSerialSend(P_PROTON_MODE);
-
-                  FIRING_MODE = PROTON;
-
-                  if(b_pack_on != true && b_pack_shutting_down != true) {
-                    if(b_cyclotron_colour_toggle == true) {
-                      // Reset the Cyclotron LED colours.
-                      cyclotronColourReset();
-                    }
-
-                    if(b_powercell_colour_toggle == true) {
-                      // Reset the Power Cell colours.
-                      b_powercell_updating = true;
-                      powercellDraw();
-                    }
-                  }
-                break;
-              }
-
-              // Tell the wand the status of the Proton Pack ribbon cable.
-              if(switch_alarm.getState() == LOW) {
-                // Ribbon cable is on.
-                packSerialSend(P_RIBBON_CABLE_ON);
-              }
-              else {
-                packSerialSend(P_RIBBON_CABLE_OFF);
-              }
-
-              // Synchronise the volume settings.
-              packSerialSendData(P_VOLUME_SYNC);
-
-              if(i_volume_master == i_volume_abs_min) {
-                // Telling the wand to be silent if required.
-                packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
-              }
-              else {
-                packSerialSend(P_MASTER_AUDIO_NORMAL);
-              }
-
-              // Tell the wand that we've reached the end of settings to be sync'd.
-              packSerialSend(P_SYNC_END);
-              // Serial.println("Sending Sync End");
-            }
-            else {
-              // Wand was connected and still present, so reset the disconnection delay.
-              ms_wand_disconnect.start(i_wand_disconnect_delay);
-              Serial.println("Resetting handshake delay");
-            }
-          break;
-
-          case W_SYNCHRONIZED:
-            Serial.println("Wand Synchronized");
-            b_wand_connected = true; // Remember that a wand has been connected.
-            b_wand_syncing = false; // Indicate completion of wand sync process.
           break;
 
           case W_BEEP_START:
@@ -2948,31 +2948,43 @@ Serial.println("Performing Wand Sync");
           break;
 
           case W_CLEAR_CONFIG_EEPROM_SETTINGS:
-            stopEffect(S_VOICE_EEPROM_ERASE);
-            playEffect(S_VOICE_EEPROM_ERASE);
+            if(b_wand_connected) {
+              // Only proceeed if a wand is connected.
+              stopEffect(S_VOICE_EEPROM_ERASE);
+              playEffect(S_VOICE_EEPROM_ERASE);
 
-            clearConfigEEPROM();
+              clearConfigEEPROM();
+            }
           break;
 
           case W_SAVE_CONFIG_EEPROM_SETTINGS:
-            stopEffect(S_VOICE_EEPROM_SAVE);
-            playEffect(S_VOICE_EEPROM_SAVE);
+            if(b_wand_connected) {
+              // Only proceeed if a wand is connected.
+              stopEffect(S_VOICE_EEPROM_SAVE);
+              playEffect(S_VOICE_EEPROM_SAVE);
 
-            saveConfigEEPROM();
+              saveConfigEEPROM();
+            }
           break;
 
           case W_CLEAR_LED_EEPROM_SETTINGS:
-            clearLedEEPROM();
+            if(b_wand_connected) {
+              // Only proceeed if a wand is connected.
+              stopEffect(S_VOICE_EEPROM_ERASE);
+              playEffect(S_VOICE_EEPROM_ERASE);
 
-            stopEffect(S_VOICE_EEPROM_ERASE);
-            playEffect(S_VOICE_EEPROM_ERASE);
+              clearLedEEPROM();
+            }
           break;
 
           case W_SAVE_LED_EEPROM_SETTINGS:
-            saveLedEEPROM();
+            if(b_wand_connected) {
+              // Only proceeed if a wand is connected.
+              stopEffect(S_VOICE_EEPROM_SAVE);
+              playEffect(S_VOICE_EEPROM_SAVE);
 
-            stopEffect(S_VOICE_EEPROM_SAVE);
-            playEffect(S_VOICE_EEPROM_SAVE);
+              saveLedEEPROM();
+            }
           break;
 
           case W_TOGGLE_INNER_CYCLOTRON_LEDS:
