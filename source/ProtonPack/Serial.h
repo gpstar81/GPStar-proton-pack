@@ -24,6 +24,10 @@
  */
 void updateSystemModeYear();
 
+// Types of packets to be sent: command or data.
+const uint8_t CMD_PACKET = 1;
+const uint8_t DATA_PACKET = 2;
+
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
   uint16_t c;
@@ -193,7 +197,7 @@ void serial1Send(uint16_t i_command, uint16_t i_value) {
   sendCmdS.d1 = i_value;
 
   i_send_size = serial1Coms.txObj(sendCmdS, i_send_size);
-  serial1Coms.sendData(i_send_size, 1);
+  serial1Coms.sendData(i_send_size, CMD_PACKET);
 }
 // Override function to handle calls with a single parameter.
 void serial1Send(uint16_t i_command) {
@@ -322,7 +326,7 @@ void serial1SendData(uint16_t i_message) {
   }
 
   i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
-  serial1Coms.sendData(i_send_size, 2);
+  serial1Coms.sendData(i_send_size, DATA_PACKET);
 }
 
 // Outgoing commands to the wand
@@ -333,7 +337,7 @@ void packSerialSend(uint16_t i_command, uint16_t i_value) {
   sendCmdW.d1 = i_value;
 
   i_send_size = packComs.txObj(sendCmdW, i_send_size);
-  packComs.sendData(i_send_size, 1);
+  packComs.sendData(i_send_size, CMD_PACKET);
 }
 // Override function to handle calls with a single parameter.
 void packSerialSend(uint16_t i_command) {
@@ -402,7 +406,7 @@ void packSerialSendData(uint16_t i_message) {
   }
 
   i_send_size = packComs.txObj(sendDataW, i_send_size);
-  packComs.sendData(i_send_size, 2);
+  packComs.sendData(i_send_size, DATA_PACKET);
 }
 
 // Incoming messages from the extra Serial 1 port.
@@ -412,12 +416,13 @@ void checkSerial1() {
     // Serial.println("Serial PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
+      // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
-        case 1:
+        case CMD_PACKET:
           serial1Coms.rxObj(recvCmdS);
           // Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
         break;
-        case 2:
+        case DATA_PACKET:
           serial1Coms.rxObj(recvDataS);
           // Serial.println("Recv. Serial Message: " + String(recvDataS.m));
         break;
@@ -426,12 +431,20 @@ void checkSerial1() {
       // Perform checks based on whether a serial1 device is connected or not.
       if(b_serial1_connected == true) {
         // Handle simple commands.
-        if(i_packet_id == 1) {
+        if(i_packet_id == CMD_PACKET) {
           switch(recvCmdS.c) {
             case A_HANDSHAKE:
               // The Attenuator is still here.
               ms_serial1_handshake.start(i_serial1_handshake_delay);
               ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
+            break;
+
+            case A_SYNC_START:
+              //Serial.println("Serial1 Sync Start");
+            break;
+
+            case A_SYNC_END:
+              //Serial.println("Serial1 Sync End");
             break;
 
             case A_TURN_PACK_ON:
@@ -545,21 +558,20 @@ void checkSerial1() {
 
             case A_REQUEST_PREFERENCES_PACK:
               // If requested by the serial device, send back all pack EEPROM preferences.
+              // This will send a data payload directly from the pack as all data is local.
               serial1SendData(A_SEND_PREFERENCES_PACK);
             break;
 
             case A_REQUEST_PREFERENCES_WAND:
-              // If requested by the serial device, tell the wand we need EEPROM preferences.
-              serial1SendData(P_SEND_PREFERENCES_WAND);
+              // If requested by the serial device, tell the wand we need its EEPROM preferences.
+              // This is merely a command to the wand which tells it to send back a data payload.
+              packSerialSend(P_SEND_PREFERENCES_WAND);
             break;
 
             case A_REQUEST_PREFERENCES_SMOKE:
-              // If requested by the serial device, tell the wand we need EEPROM preferences.
-              serial1SendData(P_SEND_PREFERENCES_SMOKE);
-            break;
-
-            case A_SYNC_START:
-              //Serial.println("Serial1 Sync Start");
+              // If requested by the serial device, tell the wand we need its EEPROM preferences.
+              // This is merely a command to the wand which tells it to send back a data payload.
+              packSerialSend(P_SEND_PREFERENCES_SMOKE);
             break;
 
             case A_MUSIC_PLAY_TRACK:
@@ -602,10 +614,6 @@ void checkSerial1() {
               playEffect(S_VOICE_EEPROM_SAVE);
             break;
 
-            case A_SYNC_END:
-              //Serial.println("Serial1 Sync End");
-            break;
-
             default:
               // No-op for anything else.
             break;
@@ -613,7 +621,7 @@ void checkSerial1() {
         }
 
         // Handle data payloads.
-        if(i_packet_id == 2) {
+        if(i_packet_id == DATA_PACKET) {
           switch(recvDataS.m) {
             case A_SAVE_PREFERENCES_PACK:
               // Writes new preferences back to runtime variables.
@@ -766,7 +774,7 @@ void checkSerial1() {
       else {
         // Check if the Attenuator is telling us it is here after connecting it to the pack.
         // Then synchronise some settings between the pack and the Attenuator.
-        if(!b_serial1_connected && !b_serial_1_syncing && i_packet_id == 1 && recvCmdS.c == A_SYNC_START) {
+        if(!b_serial1_connected && !b_serial_1_syncing && i_packet_id == CMD_PACKET && recvCmdS.c == A_SYNC_START) {
           b_serial_1_syncing = true; // Sync has begun; do not try to start this command again.
 
           serial1Send(A_SYNC_START);
@@ -924,15 +932,16 @@ void checkSerial1() {
 void checkWand() {
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
-    Serial.println("Wand PacketID: " + String(i_packet_id));
+    //Serial.println("Wand PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
+      // Determine the type of packet which was sent by the wand device.
       switch(i_packet_id) {
-        case 1:
+        case CMD_PACKET:
           packComs.rxObj(recvCmdW);
           Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
         break;
-        case 2:
+        case DATA_PACKET:
           packComs.rxObj(recvDataW);
           Serial.println("Recv. Wand Message: " + String(recvDataW.m));
         break;
@@ -941,7 +950,7 @@ void checkWand() {
       // Perform checks based on whether a wand is connected or not.
       if(b_wand_connected == true) {
         // Handle simple commands.
-        if(i_packet_id == 1) {
+        if(i_packet_id == CMD_PACKET) {
           switch(recvCmdW.c) {
             case W_ON:
               // The wand has been turned on.
@@ -3496,9 +3505,11 @@ void checkWand() {
         }
 
         // Handle data payloads.
-        if(i_packet_id ==2) {
+        if(i_packet_id == DATA_PACKET) {
           switch(recvDataW.m) {
             case W_SEND_PREFERENCES_WAND:
+              Serial.println("W_SEND_PREFERENCES_WAND");
+
               // Preferences are received from the wand.
               wandConfig.ledWandCount = recvDataW.d[0];
               wandConfig.ledWandHue = recvDataW.d[1];
@@ -3525,6 +3536,8 @@ void checkWand() {
             break;
 
             case W_SEND_PREFERENCES_SMOKE:
+              Serial.println("W_SEND_PREFERENCES_SMOKE");
+
               // Preferences are received from the wand.
               wandConfig.overheatLevel5 = recvDataW.d[0];
               wandConfig.overheatLevel4 = recvDataW.d[1];
@@ -3542,6 +3555,11 @@ void checkWand() {
               serial1SendData(A_SEND_PREFERENCES_SMOKE);
             break;
 
+            case W_SYNCHRONIZED:
+              Serial.println("Wand Synchronized");
+              b_wand_connected = true; // Indicate completion of wand sync process.
+            break;
+
             default:
               // No-op for all other actions.
             break;
@@ -3550,11 +3568,11 @@ void checkWand() {
       }
       else {
         // Check if the wand is telling us it is here after connecting it to the pack.
-        // Then synchronise some basic/current settings between the pack and the wand.
-        if(i_packet_id == 1) {
+        // Then synchronize some basic/current settings between the pack and the wand.
+        if(i_packet_id == CMD_PACKET) {
           switch(recvCmdW.c) {
             case W_HANDSHAKE:
-              Serial.println("Got Initial Wand Handshake");
+              Serial.println("Initial Wand Handshake");
 
               // Turn on a single Power Cell LED to indicate that the wand sync process has begun.
               // This LED will be turned off automatically on the next iteration of the main loop.

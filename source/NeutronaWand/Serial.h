@@ -19,6 +19,10 @@
 
 #pragma once
 
+// Types of packets to be sent: command or data.
+const uint8_t CMD_PACKET = 1;
+const uint8_t DATA_PACKET = 2;
+
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
   uint16_t c;
@@ -49,7 +53,7 @@ void wandSerialSend(uint16_t i_command, uint16_t i_value) {
     sendCmd.d1 = i_value;
 
     i_send_size = wandComs.txObj(sendCmd, i_send_size);
-    wandComs.sendData(i_send_size, 1);
+    wandComs.sendData(i_send_size, CMD_PACKET);
   }
 }
 // Override function to handle calls with a single parameter.
@@ -190,7 +194,7 @@ void wandSerialSendData(uint16_t i_message) {
     }
 
     i_send_size = wandComs.txObj(sendData, i_send_size);
-    wandComs.sendData(i_send_size, 2);
+    wandComs.sendData(i_send_size, DATA_PACKET);
   }
 }
 
@@ -202,7 +206,7 @@ void checkPack() {
     //Serial.println("PacketID: " + String(i_packet_id));
 
     // Handle simple commands.
-    if(i_packet_id == 1) {
+    if(i_packet_id == CMD_PACKET) {
       wandComs.rxObj(recvCmd);
       //Serial.println("Recv. Command: " + String(recvCmd.c));
 
@@ -1144,13 +1148,14 @@ void checkPack() {
     }
 
     // Handle data payloads.
-    if(i_packet_id == 2) {
+    if(i_packet_id == DATA_PACKET) {
       wandComs.rxObj(recvData);
       //Serial.println("Recv. Message: " + String(recvData.m));
       
       switch(recvData.m) {
         case P_VOLUME_SYNC:
           Serial.println("P_VOLUME_SYNC");
+
           // Set the percentage volume.
           i_volume_master_percentage = recvData.d[0];
           i_volume_effects_percentage = recvData.d[1];
@@ -1168,6 +1173,8 @@ void checkPack() {
         break;
 
         case P_SAVE_PREFERENCES_WAND:
+          Serial.println("P_SAVE_PREFERENCES_WAND");
+
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
           switch(recvData.d[0]) {
@@ -1277,6 +1284,8 @@ void checkPack() {
         break;
 
         case P_SAVE_PREFERENCES_SMOKE:
+          Serial.println("P_SAVE_PREFERENCES_SMOKE");
+
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
           b_overheat_mode_5 = recvData.d[0];

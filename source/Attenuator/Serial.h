@@ -31,6 +31,10 @@
 SerialTransfer packComs;
 bool b_sync_start = false; // Denotes pack communications have begun.
 
+// Types of packets to be sent: command or data.
+const uint8_t CMD_PACKET = 1;
+const uint8_t DATA_PACKET = 2;
+
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
   uint16_t c;
@@ -139,7 +143,7 @@ void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
   sendCmd.d1 = i_value;
 
   i_send_size = packComs.txObj(sendCmd, i_send_size);
-  packComs.sendData(i_send_size, 1);
+  packComs.sendData(i_send_size, CMD_PACKET);
 }
 
 // Sends an API to the Proton Pack
@@ -287,7 +291,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
   }
 
   i_send_size = packComs.txObj(sendData, i_send_size);
-  packComs.sendData(i_send_size, 2);
+  packComs.sendData(i_send_size, DATA_PACKET);
 }
 
 // Handles an API (and data) sent from the Proton Pack
@@ -299,7 +303,7 @@ boolean checkPack() {
     uint8_t i_packet_id = packComs.currentPacketID();
 
     // Handle simple commands.
-    if(i_packet_id == 1) {
+    if(i_packet_id == CMD_PACKET) {
       packComs.rxObj(recvCmd);
 
       switch(recvCmd.c) {
@@ -849,7 +853,7 @@ boolean checkPack() {
     }
 
     // Handle data payloads.
-    if(i_packet_id == 2) {
+    if(i_packet_id == DATA_PACKET) {
       #if defined(__XTENSA__)
         debug("Receiving Data Payload");
       #endif
