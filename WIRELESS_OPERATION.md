@@ -12,6 +12,8 @@ In order to view the state of the pack and control it remotely, the two devices 
 
 ## Web UI
 
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main.jpg"/>
+
 When using the ESP32 controller for either the Attenuator or Wireless Adapter, a web-based user interface is available to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
 
 ### Equipment Status
@@ -20,15 +22,11 @@ The equipment status will reflect the status of your Proton Pack and Neutrona Wa
 
 **Note:** If you see a "&mdash;" (dash) beside these values it can indicate a potential communication issue. Simply refresh the page and/or check your WiFi connection to the device.
 
-![](images/WebUI-Equipment.jpg)
-
 ### Audio Controls
 
 This section allows full control of the master (overall) volume and to mute/unmute all devices. For playback of music you can advance forward or backwards in the music queue, or select a specific track for playback via the selection field (switching immediately if already playing, otherwise will be the track started via the Start/Stop button). Lastly, you can change the effects volume as needed via the dedicated buttons.
 
 **Note:** Only the track numbers are known to the WavTrigger device, and track names are not available for display.
-
-![](images/WebUI-Audio.jpg)
 
 ### Pack Controls
 
@@ -38,17 +36,45 @@ Controls will be made available on a per-action or per-state basis. Shown here, 
 
 **Attenuate:** When firing, the Cyclotron State must be either "Warning" or "Critical".
 
-![](images/WebUI-Controls.jpg)
-
 ### Preferences
 
 These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 3 sections: Pack, Wand, and Smoke.
 
 ### Administration
 
-These links allow you to update the WiFi password to one of your choice, or to update the software (respectively).
+These links allow you to update the WiFi password to one of your choice, or to update the software (respectively). Please view [this dedicated guide](ATTENUATOR_FLASHING.md) for updating the firmware and adjusting your WiFi security.
 
-![](images/WebUI-Admin.jpg)
+<div style="clear:both"></div>
+
+## Pack Preferences
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Pack.jpg"/>
+
+Set options related specifically to the Proton Pack.
+
+**Note:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+
+<div style="clear:both"></div>
+
+## Wand Preferences
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand.jpg"/>
+
+Set options related specifically to the Neutrona Wand.
+
+**Note:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+
+<div style="clear:both"></div>
+
+## Smoke Preferences
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Smoke.jpg"/>
+
+Adjust overall smoke effects (toggle on/off) and adjust per-level effects.
+
+**Note:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+
+<div style="clear:both"></div>
 
 ## Web API
 
