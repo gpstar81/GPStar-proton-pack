@@ -211,7 +211,7 @@ void loop() {
   }
 
   // Check if wand device is present, and if any new serial commands were received.
-  wandHandShake();
+  //wandHandShake();
   checkWand();
 
   // Check if serial1 device is present, and if any new serial commands were received.
@@ -3338,10 +3338,11 @@ void modeFireStartSounds() {
 }
 
 void wandFiring() {
+  // Serial.println("Started Firing");
+
   modeFireStartSounds();
 
   b_wand_firing = true;
-
   serial1Send(A_FIRING);
 
   // Reset the Cyclotron auto speed up timers. Only for Afterlife (2021) mode.
@@ -3429,6 +3430,8 @@ void modeFireStopSounds() {
 }
 
 void wandStoppedFiring() {
+  Serial.println("Stopped Firing");
+
   ms_meson_blast.stop();
 
   modeFireStopSounds();

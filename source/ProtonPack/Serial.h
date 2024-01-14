@@ -1101,8 +1101,9 @@ void checkWand() {
 
           case W_FIRING_STOPPED:
             // Wand just stopped firing.
-            //firingDebouncing();
             wandStoppedFiring();
+
+            // Return cyclotron to normal speed.
             cyclotronSpeedRevert();
           break;
 
@@ -1404,9 +1405,13 @@ void checkWand() {
           break;
 
           case W_HANDSHAKE:
+Serial.println("W_HANDSHAKE, Already Connected? " + String(b_wand_connected) + " | " + String(b_wand_syncing));
             // Check if the wand is telling us it is here after connecting it to the pack.
             // Otherwise, synchronize some basic settings between the pack and the wand.
-            if(!b_wand_connected) {
+            if(b_wand_connected != true && b_wand_syncing != true) {
+Serial.println("Perform wand sync");
+              b_wand_syncing = true; // Denote sync must occur, don't run this code again.
+
               // Turn on a single Power Cell LED to indicate that the wand sync process has begun.
               // This LED will be turned off automatically on the next iteration of the main loop.
               pack_leds[0] = getHueAsRGB(POWERCELL, C_WHITE); // White works with any LED choice.
@@ -3736,8 +3741,9 @@ void checkWand() {
           break;
 
           case W_SYNCHRONIZED:
-            // Serial.println("Wand Synchronized");
-            b_wand_connected = true; // Indicate completion of wand sync process.
+            Serial.println("Wand Synchronized");
+            b_wand_connected = true; // Remember that a wand is now connected.
+            b_wand_syncing = false; // Indicate completion of wand sync process.
           break;
 
           default:

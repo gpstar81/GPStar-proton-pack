@@ -368,6 +368,7 @@ bool b_firing_intensify = false;
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_wand_connected = false;
+bool b_wand_syncing = false;
 bool b_wand_on = false;
 millisDelay ms_wand_handshake;
 const unsigned int i_wand_handshake_delay = 4000;

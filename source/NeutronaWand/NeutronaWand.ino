@@ -209,13 +209,18 @@ void loop() {
       wandSerialSend(W_HANDSHAKE); // Poke the pack to tell it the wand is here.
       ms_handshake.start(i_handshake_delay); // Wait to try again, if necessary.
       b_sync_light = !b_sync_light; // Toggle the white LED while synchronizing.
-      digitalWrite(led_white, (b_sync_light ? HIGH : LOW));
+      digitalWrite(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
     }
 
     // Check for any response from the pack.
     checkPack();
   }
   else {
+    if(ms_handshake.justFinished()) {
+      wandSerialSend(W_HANDSHAKE); // Remind the pack that a wand is still present.
+      ms_handshake.start(i_handshake_delay * 4); // Delay after initial connection.
+    }
+
     // When not waiting for the pack, move directly into the main loop.
     mainLoop();
   }
@@ -2652,17 +2657,16 @@ void modeFiring() {
 
   if(b_firing_alt != true && b_sound_firing_alt_trigger == true) {
     b_sound_firing_alt_trigger = false;
-Serial.println("b_cross_the_streams_mix: " + String(b_cross_the_streams_mix));
-Serial.println("b_vg_mode: " + String(b_vg_mode));
+
     if(b_cross_the_streams_mix == true || b_vg_mode == true) {
       stopEffect(S_FIRING_LOOP_GB1);
 
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode mix.
-      // wandSerialSend(W_FIRING_ALT_STOPPED_MIX);
+      wandSerialSend(W_FIRING_ALT_STOPPED_MIX);
     }
     else {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode.
-      // wandSerialSend(W_FIRING_ALT_STOPPED);
+      wandSerialSend(W_FIRING_ALT_STOPPED);
     }
   }
 
