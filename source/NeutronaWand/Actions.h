@@ -111,12 +111,12 @@ void checkWandAction() {
           }
         }
 
-        // Overheating.
+        // Overheating check, start vent sequence if expected for power level and timer delay is completed.
         if(ms_overheat_initiate.justFinished() && b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
           startVentSequence();
         }
         else {
-          modeFiring();
+          modeFiring(); // Tell the pack whether firing has started/stopped.
 
           // Stop firing if any of the main switches are turned off or the barrel is retracted.
           if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH || b_switch_barrel_extended != true) {

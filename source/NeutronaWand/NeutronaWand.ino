@@ -2652,16 +2652,17 @@ void modeFiring() {
 
   if(b_firing_alt != true && b_sound_firing_alt_trigger == true) {
     b_sound_firing_alt_trigger = false;
-
+Serial.println("b_cross_the_streams_mix: " + String(b_cross_the_streams_mix));
+Serial.println("b_vg_mode: " + String(b_vg_mode));
     if(b_cross_the_streams_mix == true || b_vg_mode == true) {
       stopEffect(S_FIRING_LOOP_GB1);
 
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode mix.
-      wandSerialSend(W_FIRING_ALT_STOPPED_MIX);
+      // wandSerialSend(W_FIRING_ALT_STOPPED_MIX);
     }
     else {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode.
-      wandSerialSend(W_FIRING_ALT_STOPPED);
+      // wandSerialSend(W_FIRING_ALT_STOPPED);
     }
   }
 

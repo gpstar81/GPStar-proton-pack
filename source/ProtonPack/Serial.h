@@ -439,8 +439,6 @@ void checkSerial1() {
           break;
 
           case A_SYNC_START:
-            Serial.println("Serial1 Sync Start");
-
             // Check if the Attenuator is telling us it is here after connecting it to the pack.
             // Then synchronise some settings between the pack and the Attenuator.
             if(!b_serial1_connected && !b_serial_1_syncing) {
@@ -595,7 +593,7 @@ void checkSerial1() {
           break;
 
           case A_SYNC_END:
-            Serial.println("Serial1 Sync End");
+            // Serial.println("Serial1 Sync End");
           break;
 
           case A_TURN_PACK_ON:
@@ -1409,17 +1407,14 @@ void checkWand() {
             // Check if the wand is telling us it is here after connecting it to the pack.
             // Otherwise, synchronize some basic settings between the pack and the wand.
             if(!b_wand_connected) {
-              Serial.println("Initial Wand Handshake");
-
               // Turn on a single Power Cell LED to indicate that the wand sync process has begun.
               // This LED will be turned off automatically on the next iteration of the main loop.
               pack_leds[0] = getHueAsRGB(POWERCELL, C_WHITE); // White works with any LED choice.
               FastLED.show(); // Force update of color state.
 
               // Begin the synchronization process which tells the wand the pack got the handshake.
-              
               packSerialSend(P_SYNC_START);
-              Serial.println("Sending Sync Start");
+              // Serial.println("Sending Sync Start");
 
               if(b_overheating == true) {
                 packOverHeatingFinished();
@@ -1596,7 +1591,7 @@ void checkWand() {
                 packSerialSend(P_MASTER_AUDIO_NORMAL);
               }
 
-              Serial.println("Sending Sync End");
+              // Serial.println("Sending Sync End");
               packSerialSend(P_SYNC_END);
             }
             else {
@@ -3697,8 +3692,6 @@ void checkWand() {
       if(i_packet_id == DATA_PACKET) {
         switch(recvDataW.m) {
           case W_SEND_PREFERENCES_WAND:
-            Serial.println("W_SEND_PREFERENCES_WAND");
-
             // Preferences are received from the wand.
             wandConfig.ledWandCount = recvDataW.d[0];
             wandConfig.ledWandHue = recvDataW.d[1];
@@ -3725,8 +3718,6 @@ void checkWand() {
           break;
 
           case W_SEND_PREFERENCES_SMOKE:
-            Serial.println("W_SEND_PREFERENCES_SMOKE");
-
             // Preferences are received from the wand.
             wandConfig.overheatLevel5 = recvDataW.d[0];
             wandConfig.overheatLevel4 = recvDataW.d[1];
@@ -3745,7 +3736,7 @@ void checkWand() {
           break;
 
           case W_SYNCHRONIZED:
-            Serial.println("Wand Synchronized");
+            // Serial.println("Wand Synchronized");
             b_wand_connected = true; // Indicate completion of wand sync process.
           break;
 

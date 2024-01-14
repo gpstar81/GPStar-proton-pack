@@ -47,7 +47,7 @@ void wandSerialSend(uint16_t i_command, uint16_t i_value) {
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    Serial.println("wandSerialSend: " + String(i_command));
+    // Serial.println("wandSerialSend: " + String(i_command));
 
     sendCmd.c = i_command;
     sendCmd.d1 = i_value;
@@ -67,7 +67,7 @@ void wandSerialSendData(uint16_t i_message) {
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    Serial.println("wandSerialSendData: " + String(i_message));
+    // Serial.println("wandSerialSendData: " + String(i_message));
 
     sendData.m = i_message;
 
@@ -203,21 +203,21 @@ void checkPack() {
   // Only checks when pack is present.
   if(b_gpstar_benchtest != true && wandComs.available() > 0) {
     uint8_t i_packet_id = wandComs.currentPacketID();
-    //Serial.println("PacketID: " + String(i_packet_id));
+    // Serial.println("PacketID: " + String(i_packet_id));
 
     // Handle simple commands.
     if(i_packet_id == CMD_PACKET) {
       wandComs.rxObj(recvCmd);
-      //Serial.println("Recv. Command: " + String(recvCmd.c));
+      // Serial.println("Recv. Command: " + String(recvCmd.c));
 
       switch(recvCmd.c) {
         case P_SYNC_START:
-          Serial.println("Sync Start");
+          // Serial.println("Sync Start");
           b_sync = true; // Sync process has begun.
         break;
 
         case P_SYNC_END:
-          Serial.println("Sync End");
+          // Serial.println("Sync End");
           b_sync = false; // Sync process has completed.
           b_wait_for_pack = false; // Stops sending of initial handshake.
 
@@ -1150,12 +1150,10 @@ void checkPack() {
     // Handle data payloads.
     if(i_packet_id == DATA_PACKET) {
       wandComs.rxObj(recvData);
-      //Serial.println("Recv. Message: " + String(recvData.m));
+      // ("Recv. Message: " + String(recvData.m));
       
       switch(recvData.m) {
         case P_VOLUME_SYNC:
-          Serial.println("P_VOLUME_SYNC");
-
           // Set the percentage volume.
           i_volume_master_percentage = recvData.d[0];
           i_volume_effects_percentage = recvData.d[1];
@@ -1173,8 +1171,6 @@ void checkPack() {
         break;
 
         case P_SAVE_PREFERENCES_WAND:
-          Serial.println("P_SAVE_PREFERENCES_WAND");
-
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
           switch(recvData.d[0]) {
@@ -1284,8 +1280,6 @@ void checkPack() {
         break;
 
         case P_SAVE_PREFERENCES_SMOKE:
-          Serial.println("P_SAVE_PREFERENCES_SMOKE");
-
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
           b_overheat_mode_5 = recvData.d[0];
