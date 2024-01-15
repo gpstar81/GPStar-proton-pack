@@ -1381,6 +1381,7 @@ void checkWandAction() {
                   break;
 
                   case SYSTEM_1989:
+                  default:
                     WAND_YEAR_MODE = YEAR_AFTERLIFE;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
@@ -1394,8 +1395,19 @@ void checkWandAction() {
                   break;
 
                   case SYSTEM_AFTERLIFE:
+                    WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+
+                    stopEffect(S_VOICE_FROZEN_EMPIRE);
+                    stopEffect(S_VOICE_AFTERLIFE);
+                    stopEffect(S_VOICE_1989);
+                    stopEffect(S_VOICE_1984);
+
+                    playEffect(S_VOICE_FROZEN_EMPIRE);
+
+                    bargraphYearModeUpdate();
+                  break;
+
                   case SYSTEM_FROZEN_EMPIRE:
-                  default:
                     WAND_YEAR_MODE = YEAR_1984;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);

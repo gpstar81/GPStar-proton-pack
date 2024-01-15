@@ -260,7 +260,7 @@ void mainLoop() {
         wandSerialSend(W_ON);
         postActivation();
 
-        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE) {
+        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
           playEffect(S_BOOTUP);
         }
 
@@ -5804,8 +5804,11 @@ SYSTEM_YEARS getNeutronaWandYearMode() {
       return SYSTEM_AFTERLIFE;
     break;
 
-    case YEAR_DEFAULT:
     case YEAR_FROZEN_EMPIRE:
+      return SYSTEM_FROZEN_EMPIRE;
+    break;
+
+    case YEAR_DEFAULT:
     default:
       return SYSTEM_YEAR;
     break;
