@@ -50,5 +50,5 @@ bool b_wait_for_pack = true;
  *
  * Override as desired if b_wait_for_pack is false.
  */
-uint8_t i_spectral_custom = 0;
+uint8_t i_spectral_custom_colour = 0;
 uint8_t i_spectral_custom_saturation = 254;

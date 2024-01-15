@@ -51,8 +51,8 @@ void setup() {
   Serial2.begin(9600); // Communication to the Neutrona Wand.
 
   // Connect the serial ports.
-  serial1Coms.begin(Serial1, false);
-  packComs.begin(Serial2, false);
+  serial1Coms.begin(Serial1, false); // Attenuator/Wireless
+  packComs.begin(Serial2, false); // Neutrona Wand
 
   // Setup the WAV Trigger.
   setupWavTrigger();
@@ -131,10 +131,10 @@ void setup() {
   ms_cyclotron.start(i_current_ramp_speed);
   ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
-  ms_wand_handshake.start(1);
-
+  ms_wand_disconnect.start(int(i_wand_disconnect_delay / 4));
   ms_serial1_handshake.start(int(i_serial1_handshake_delay / 2));
   ms_fast_led.start(i_fast_led_delay);
+  ms_battcheck.start(1);
 
   // Configure the vibration state.
   if(switch_vibration.getState() == LOW) {
@@ -195,16 +195,28 @@ void setup() {
     serial1Send(A_MODE_ORIGINAL);
   }
 
-  // Reset the master volume. Important to keep this as we startup the system at the lowest volume. Then the EEPROM reads any settings if required, then we reset the volume.
+  // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
+  // Then the EEPROM reads any settings if required, then we reset the volume.
   w_trig.masterGain(i_volume_master);
+  serial1SendData(A_VOLUME_SYNC);
 }
 
 void loop() {
   w_trig.update();
 
-  wandHandShake();
+  // Voltage Check, Part 1 - Initiate the read process, which requires a delay.
+  if(ms_battcheck.remaining() < 1) {
+    doVoltageCheck(); // Kick off a check which will write to the i_batt_volts variable.
+    ms_battcheck.start(i_ms_battcheck_delay);
+  }
+
+  // Check for any new serial commands were received from the Neutrona Wand.
   checkWand();
 
+  // Check if the wand is considered to have been disconnected.
+  wandDisconnectCheck();
+
+  // Check if serial1 device is present, and if any new serial commands were received.
   serial1HandShake();
   checkSerial1();
 
@@ -1060,23 +1072,23 @@ void checkSwitches() {
             if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
               // Tell the wand to switch to 1984 mode.
               packSerialSend(P_YEAR_1984);
+
+              SYSTEM_YEAR = SYSTEM_1984;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+              serial1Send(A_YEAR_1984);
             }
-
-            SYSTEM_YEAR = SYSTEM_1984;
-            SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-            serial1Send(A_YEAR_1984);
           }
           else {
-            if(SYSTEM_YEAR == SYSTEM_1984) {
+            if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
               // Tell the wand to switch to Afterlife mode.
               packSerialSend(P_YEAR_AFTERLIFE);
+
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+              serial1Send(A_YEAR_AFTERLIFE);
             }
-
-            SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-            SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-            serial1Send(A_YEAR_AFTERLIFE);
           }
         }
         else {
@@ -1086,51 +1098,49 @@ void checkSwitches() {
               if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to 1984 mode.
                 packSerialSend(P_YEAR_1984);
+
+                SYSTEM_YEAR = SYSTEM_1984;
+                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+                serial1Send(A_YEAR_1984);
               }
-
-              SYSTEM_YEAR = SYSTEM_1984;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_1984);
             break;
 
             case SYSTEM_1989:
               if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to 1989 mode.
                 packSerialSend(P_YEAR_1989);
+
+                SYSTEM_YEAR = SYSTEM_1989;
+                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+                serial1Send(A_YEAR_1989);
               }
-
-              SYSTEM_YEAR = SYSTEM_1989;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_1989);
             break;
 
-            /*
             case SYSTEM_FROZEN_EMPIRE:
               if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to Frozen Empire mode.
                 packSerialSend(P_YEAR_FROZEN_EMPIRE);
+
+                SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+                serial1Send(A_YEAR_FROZEN_EMPIRE);
               }
-
-              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_FROZEN_EMPIRE);
             break;
-            */
 
             case SYSTEM_AFTERLIFE:
             default:
               if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
                 // Tell the wand to switch to Afterlife mode.
                 packSerialSend(P_YEAR_AFTERLIFE);
+
+                SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+                serial1Send(A_YEAR_AFTERLIFE);
               }
-
-              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_AFTERLIFE);
             break;
           }
         }
@@ -3333,7 +3343,6 @@ void wandFiring() {
   modeFireStartSounds();
 
   b_wand_firing = true;
-
   serial1Send(A_FIRING);
 
   // Reset the Cyclotron auto speed up timers. Only for Afterlife (2021) mode.
@@ -3783,6 +3792,8 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 10);
   w_trig.trackGain(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 10);
   w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 10);
+
+  serial1SendData(A_VOLUME_SYNC); // Tell the connected device about this change.
 }
 
 void increaseVolumeEffects() {
@@ -3894,6 +3905,7 @@ void increaseVolume() {
   }
 
   w_trig.masterGain(i_volume_master);
+  serial1SendData(A_VOLUME_SYNC);
 }
 
 void decreaseVolume() {
@@ -3919,6 +3931,8 @@ void decreaseVolume() {
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
+
+  serial1SendData(A_VOLUME_SYNC);
 }
 
 void readEncoder() {
@@ -4074,65 +4088,38 @@ void serial1HandShake() {
 }
 
 // Check if the wand is still connected.
-void wandHandShake() {
+void wandDisconnectCheck() {
   if(b_wand_connected == true) {
-    if(ms_wand_handshake.justFinished()) {
+    // A wand was previously considered to be connected.
+    if(ms_wand_disconnect.justFinished()) {
+      // Timeout has expired, so we must assume the wand was disconnected.
+      //Serial.println("Wand Disconnected");
+      b_wand_connected = false; // Cause the next handshake to trigger a sync.
+      b_wand_on = false; // No wand means the device is no longer powered on.
 
       if(b_wand_firing == true) {
+        // Reset the pack to a non-firing state.
         wandStoppedFiring();
         cyclotronSpeedRevert();
       }
 
-      ms_wand_handshake.start(i_wand_handshake_delay);
-
-      b_wand_connected = false;
-      b_wand_on = false;
-
       wandExtraSoundsStop();
+
+      // Turn off overheating if the wand gets disconnected.
+      if(b_overheating == true) {
+        packOverHeatingFinished();
+      }
 
       if(b_spectral_lights_on == true) {
         spectralLightsOff();
       }
-
-      // Where are you wand?
-      packSerialSend(P_HANDSHAKE);
     }
-    else if(ms_wand_handshake_checking.justFinished()) {
+    else {
+      // Wand is connected and timer is still running, so do with that info what you will.
       if(b_diagnostic == true) {
         // Play a beep sound to know if the wand is connected while in diagnostic mode.
         playEffect(S_VENT_BEEP, true);
       }
-
-      ms_wand_handshake_checking.stop();
-
-      // Ask the wand if it is still connected.
-      packSerialSend(P_HANDSHAKE);
-    }
-  }
-  else {
-    b_wand_on = false;
-
-    if(b_wand_firing == true) {
-      wandStoppedFiring();
-      cyclotronSpeedRevert();
-    }
-
-    // Turn off overheating if the wand gets disconnected.
-    /*
-    if(b_overheating == true) {
-      packOverHeatingFinished();
-    }
-    */
-
-    if(b_spectral_lights_on == true) {
-      spectralLightsOff();
-    }
-
-    if(ms_wand_handshake.justFinished()) {
-      // Ask the wand if it is connected.
-      packSerialSend(P_HANDSHAKE);
-
-      ms_wand_handshake.start(i_wand_handshake_delay / 5);
     }
   }
 }
@@ -4343,7 +4330,7 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
 
 // Helper method to play a music track using certain defaults.
 void playMusic() {
-  if(b_music_paused != true) {
+  if(b_music_paused != true && i_music_count > 0 && i_current_music_track >= i_music_track_start) {
     b_playing_music = true;
 
     // Loop the music track.
@@ -4356,47 +4343,51 @@ void playMusic() {
 
     w_trig.trackGain(i_current_music_track, i_volume_music);
     w_trig.trackPlayPoly(i_current_music_track, true);
-
     w_trig.update();
 
+    // Manage track navigation.
     ms_music_status_check.start(i_music_check_delay * 10);
     w_trig.resetTrackCounter(true);
 
-    // Tell the Neutrona Wand which music track to change to and play it.
-    packSerialSend(i_current_music_track);
-    packSerialSend(P_MUSIC_START);
-
     // Tell connected serial device music playback has started.
-    serial1Send(A_MUSIC_IS_PLAYING);
+    serial1Send(A_MUSIC_IS_PLAYING, i_current_music_track);
     serial1Send(A_MUSIC_IS_NOT_PAUSED);
+
+    // Tell the Neutrona Wand which music track to change to and play it.
+    packSerialSend(P_MUSIC_START, i_current_music_track);
   }
 }
 
 void stopMusic() {
-  w_trig.trackStop(i_current_music_track);
+  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+    w_trig.trackStop(i_current_music_track);
+  }
+
   w_trig.update();
 
   b_music_paused = false;
   b_playing_music = false;
 
-  // Tell the Neutrona Wand to stop music playback.
-  packSerialSend(P_MUSIC_STOP);
-
   // Tell connected serial device music playback has stopped.
-  serial1Send(A_MUSIC_IS_NOT_PLAYING);
+  serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
   serial1Send(A_MUSIC_IS_NOT_PAUSED);
+
+  // Tell the Neutrona Wand to stop music playback and confirm track.
+  packSerialSend(P_MUSIC_STOP);
 }
 
 void pauseMusic() {
   if(b_playing_music == true) {
-    // Pause music playback on the Proton Pack
-    w_trig.trackPause(i_current_music_track);
-    w_trig.update();
-    b_music_paused = true;
-
     // Tell connected devices music playback is paused.
     packSerialSend(P_MUSIC_PAUSE);
     serial1Send(A_MUSIC_IS_PAUSED);
+
+    // Pause music playback on the Proton Pack
+    if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+      w_trig.trackPause(i_current_music_track);
+    }
+    w_trig.update();
+    b_music_paused = true;
   }
 }
 
@@ -4407,11 +4398,13 @@ void resumeMusic() {
     w_trig.resetTrackCounter(true);
 
     // Resume music playback on the Proton Pack
-    w_trig.trackResume(i_current_music_track);
+    if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+      w_trig.trackResume(i_current_music_track);
+    }
     w_trig.update();
     b_music_paused = false;
 
-    // Tell connected devices music playback is resumed.
+    // Tell connected devices music playback has resumed.
     packSerialSend(P_MUSIC_RESUME);
     serial1Send(A_MUSIC_IS_NOT_PAUSED);
   }
@@ -4513,6 +4506,28 @@ void setupWavTrigger() {
   if(i_music_count > 0) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
   }
+}
+
+// Sourced from https://community.particle.io/t/battery-voltage-checking/5467
+// Obtains the ATMega chip's actual Vcc voltage value, using internal bandgap reference.
+// This demonstrates ability to read processors Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
+void doVoltageCheck() {
+  // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
+  // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
+  ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
+
+  // This appears to work without the delay, but for more accurate readings it may be necessary.
+  // delay(50); // Let mux settle a little to get a more stable A/D conversion.
+
+  ADCSRA |= _BV( ADSC ); // Start a conversion.
+  while( ( (ADCSRA & (1<<ADSC)) != 0 ) ); // Wait for conversion to complete...
+
+  // Scale the value, which returns the actual value of Vcc x 100
+  const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
+  i_batt_volts = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
+
+  // Send current voltage value to the serial1 device.
+  serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.

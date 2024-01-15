@@ -50,7 +50,7 @@ void setup() {
     // ESP - Serial Console for messages and Device Comms via Serial2
     Serial.begin(115200);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
-    packComs.begin(Serial2);
+    packComs.begin(Serial2, false);
     pinMode(BUILT_IN_LED, OUTPUT);
   #else
     // Nano - Utilizes the only Serial connection
@@ -59,7 +59,7 @@ void setup() {
   #endif
 
   // Assume the Super Hero arming mode with Afterlife (default for Haslab).
-  ARMING_MODE = MODE_SUPERHERO;
+  SYSTEM_MODE = MODE_SUPERHERO;
   RED_SWITCH_MODE = SWITCH_OFF;
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 

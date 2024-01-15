@@ -141,15 +141,15 @@ uint8_t i_speed_multiplier = 1;
 /*
  * System Mode
  */
-enum ARMING_MODES { MODE_SUPERHERO, MODE_ORIGINAL };
-enum ARMING_MODES ARMING_MODE;
+enum SYSTEM_MODES { MODE_SUPERHERO, MODE_ORIGINAL };
+enum SYSTEM_MODES SYSTEM_MODE;
 enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
 enum RED_SWITCH_MODES RED_SWITCH_MODE;
 
 /*
  * Year Theme
  */
-enum SYSTEM_YEARS { SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
+enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
 enum SYSTEM_YEARS SYSTEM_YEAR;
 
 /*
@@ -232,35 +232,11 @@ unsigned int i_music_track_count = 0; // Count of tracks as returned by the pack
 unsigned int i_music_track_current = 0;
 unsigned int i_music_track_min = 0; // Min value for music track index (0 = unset).
 unsigned int i_music_track_max = 0; // Max value for music track index (0 = unset).
+uint8_t i_volume_master_percentage = 100; // Master overall volume
+uint8_t i_volume_effects_percentage = 100; // Sound effects
+uint8_t i_volume_music_percentage = 100; // Music volume
 bool b_playing_music = false;
 bool b_music_paused = false;
-
-/*
- * Pack Communication
- */
-#if defined(__XTENSA__)
-  // ESP32 - Hardware Serial2 Pins
-  #define RXD2 16
-  #define TXD2 17
-#endif
-SerialTransfer packComs;
-bool b_a_sync_start = false; // Denotes pack communications have begun.
-
-struct __attribute__((packed)) STRUCT {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1; // Data 1
-  uint16_t d2; // Data 2
-  uint16_t e;
-} comStruct;
-
-struct __attribute__((packed)) STRUCTSEND {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1; // Data 1
-  uint16_t d2; // Data 2
-  uint16_t e;
-} sendStruct;
 
 /*
  * Some pack flags which get transmitted to the attenuator depending on the pack status.
@@ -271,6 +247,8 @@ bool b_pack_alarm = false;
 bool b_firing = false;
 bool b_overheating = false;
 
+// Battery Voltage
+float f_batt_volts;
+
 // Forward declarations.
-void attenuatorSerialSend(uint16_t i_message);
 void debug(String message);

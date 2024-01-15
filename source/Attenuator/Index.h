@@ -32,8 +32,8 @@ const char INDEX_page[] PROGMEM = R"=====(
 <body>
   <h1>Equipment Status</h1>
   <div class="card">
-    <p><b>System Mode:</b> <span class="info" id="mode">&mdash;</span></p>
-    <p><b>Theme Mode:</b> <span class="info" id="theme">&mdash;</span></p>
+    <p><b>Operation Mode:</b> <span class="info" id="mode">&mdash;</span></p>
+    <p><b>Effects Theme:</b> <span class="info" id="theme">&mdash;</span></p>
     <br/>
     <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
     <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
@@ -43,32 +43,39 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <p><b>Wand State:</b> <span class="info" id="wand">&mdash;</span></p>
     <p><b>Wand Armed:</b> <span class="info" id="safety">&mdash;</span></p>
-    <p><b>Wand Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
+    <p><b>System Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
     <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
     <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
+    <br/>
+    <p>
+      <b>Battery Health:</b> <span id="battHealth"></span>
+      <span class="info" id="battVoltage">&mdash;</span>
+      <span style="font-size: 0.6em">VDC</span>
+    </p>
   </div>
 
   <h1>Audio Controls</h1>
   <div class="block">
-    <h3>Master Volume</h3>
+    <h3>Master Volume: <span id="masterVolume"></span></h3>
     <button type="button" class="blue" onclick="volumeMasterDown()">- Down</button>
     <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
     <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
     <br/>
-    <h3>Music Playback</h3>
-    <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
+    <h3>Effects Volume: <span id="effectsVolume"></span></h3>
+    <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
+    <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
+    <br/>
+    <h3>Music Controls</h3>
     <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
-    <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
     <br/>
-    <button type="button" class="green" onclick="pauseresumeMusic()" style="width:120px;margin-top:10px">Pause/Resume</button>
-    <br/>
-    <h3>Play Music Track</h3>
     <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
     <br/>
-    <h3>Effects Volume</h3>
-    <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
-    &nbsp;&nbsp;
-    <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
+    <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
+    &nbsp;
+    <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
+    <br/>
+    <button type="button" class="green" onclick="pauseresumeMusic()"
+     style="width:120px;margin-top:10px">Pause/Resume</button>
   </div>
 
   <h1>Pack Controls</h1>
@@ -83,15 +90,28 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="blue" onclick="attenuatePack()" id="btnAttenuate">Attenuate</button>
   </div>
 
+  <h1>Preferences</h1>
+  <div class="block">
+    <a href="/settings/pack">Proton Pack Settings</a>
+    <br/>
+    <br/>
+    <a href="/settings/wand">Neutrona Wand Settings</a>
+    <br/>
+    <br/>
+    <a href="/settings/smoke">Overheat/Smoke Settings</a>
+  </div>
+
   <h1>Administration</h1>
   <div class="block">
-    <a href="/password">Change WiFi Password</a>
-    &nbsp;&nbsp;&nbsp;
-    <a href="/update">Update Firmware</a>
+    <a href="/update">Update ESP32 Firmware</a>
     <br/>
+    <br/>
+    <a href="/password">Change WiFi Password</a>
     <br/>
     <br/>
     <a href="javascript:doRestart()">Restart/Resync</a>
+    <br/>
+    <br/>
   </div>
 
   <script type="application/javascript">
@@ -105,16 +125,24 @@ const char INDEX_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      initWebSocket();
-      getStatus();
+      initWebSocket(); // Open the WebSocket for server-push data.
+      getStatus(); // Get status immediately while WebSocket opens.
     }
 
     function initWebSocket() {
-      console.log("Trying to open a WebSocket connection...");
+      console.log("Attempting to open a WebSocket connection...");
       websocket = new WebSocket(gateway);
       websocket.onopen = onOpen;
       websocket.onclose = onClose;
       websocket.onmessage = onMessage;
+      heartbeat();
+    }
+
+    function heartbeat() {
+      if (websocket.readyState == websocket.OPEN) {
+        websocket.send("heartbeat");
+      }
+      setTimeout(heartbeat, 6000);
     }
 
     function onOpen(event) {
@@ -129,18 +157,20 @@ const char INDEX_page[] PROGMEM = R"=====(
       setTimeout(initWebSocket, 1000);
 
       // Fallback for when WebSocket is unavailable.
-      statusInterval = setInterval(function() {
-        getStatus(); // Check for status every X seconds
-      }, 1000);
+      if (!statusInterval) {
+        statusInterval = setInterval(function() {
+          getStatus(); // Check for status every X seconds
+        }, 1000);
+      }
     }
 
     function isJsonString(str) {
-        try {
-            JSON.parse(str);
-        } catch (e) {
-            return false;
-        }
-        return true;
+      try {
+        JSON.parse(str);
+      } catch (e) {
+        return false;
+      }
+      return true;
     }
 
     function onMessage(event) {
@@ -156,7 +186,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     function removeOptions(selectElement) {
       var i, len = selectElement.options.length - 1;
       for(i = len; i >= 0; i--) {
-          selectElement.remove(i);
+        selectElement.remove(i);
       }
     }
 
@@ -172,15 +202,16 @@ const char INDEX_page[] PROGMEM = R"=====(
         if (trackList) {
           removeOptions(trackList); // Clear previous options.
 
+          // Generate an option for each track in the selection field.
           for (var i = musicStart; i <= musicEnd; i++) {
-              var opt = document.createElement("option");
-              opt.value = i;
-              opt.text = "Track #" + i;
-              opt.innerHTML = i;
-              if (i == musicCurrent) {
-                opt.selected = true;
-              }
-              trackList.appendChild(opt);
+            var opt = document.createElement("option");
+            opt.setAttribute("value", i);
+            if (i == musicCurrent) {
+              opt.setAttribute("selected", true);
+            }
+            var txt = document.createTextNode("Track #" + i);
+            opt.appendChild(txt);
+            trackList.appendChild(opt);
           }
         }
       }
@@ -221,7 +252,9 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function updateStatus(jObj) {
-      if (jObj) {
+      // Update display if we have the expected data (containing mode and theme).
+      if (jObj && jObj.mode && jObj.theme) {
+        // Current Pack/Wand Status
         document.getElementById("mode").innerHTML = jObj.mode || "...";
         document.getElementById("theme").innerHTML = jObj.theme || "...";
         document.getElementById("switch").innerHTML = jObj.switch || "...";
@@ -235,6 +268,21 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
 
+        if (jObj.battVoltage) {
+          // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
+          document.getElementById("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2));
+          if (jObj.battVoltage < 4.2) {
+            document.getElementById("battHealth").innerHTML = "&#129707;"; // Low Battery
+          } else {
+            document.getElementById("battHealth").innerHTML = "&#128267;"; // Good Battery
+          }
+        }
+
+        // Volume Information
+        document.getElementById("masterVolume").innerHTML = (jObj.volMaster || 0) + "%";
+        document.getElementById("effectsVolume").innerHTML = (jObj.volEffects || 0) + "%";
+
+        // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wand, jObj.cyclotron);
         updateTrackListing(jObj.musicStart, jObj.musicEnd, jObj.musicCurrent);
       }
@@ -255,8 +303,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          var data = JSON.parse(this.responseText);
-          updateStatus(data);
+          updateStatus(JSON.parse(this.responseText));
         }
       };
       xhttp.open("GET", "/status", true);
@@ -279,158 +326,71 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
-    function packOn() {
+    function sendCommand(apiUri) {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           handleStatus(this.responseText);
         }
       };
-      xhttp.open("PUT", "/pack/on", true);
+      xhttp.open("PUT", apiUri, true);
       xhttp.send();
+    }
+
+    function packOn() {
+      sendCommand("/pack/on");
     }
 
     function packOff() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/pack/off", true);
-      xhttp.send();
+      sendCommand("/pack/off");
     }
 
     function attenuatePack() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/pack/attenuate", true);
-      xhttp.send();
+      sendCommand("/pack/attenuate");
     }
 
     function beginVenting() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/pack/vent", true);
-      xhttp.send();
+      sendCommand("/pack/vent");
     }
 
     function toggleMute() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/volume/toggle", true);
-      xhttp.send();
+      sendCommand("/volume/toggle");
     }
 
     function volumeMasterUp() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/volume/master/up", true);
-      xhttp.send();
+      sendCommand("/volume/master/up");
     }
 
     function volumeMasterDown() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/volume/master/down", true);
-      xhttp.send();
+      sendCommand("/volume/master/down");
     }
 
     function volumeEffectsUp() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/volume/effects/up", true);
-      xhttp.send();
+      sendCommand("/volume/effects/up");
     }
 
     function volumeEffectsDown() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/volume/effects/down", true);
-      xhttp.send();
+      sendCommand("/volume/effects/down");
     }
 
     function startstopMusic() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/music/startstop", true);
-      xhttp.send();
+      sendCommand("/music/startstop");
     }
 
     function pauseresumeMusic() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/music/pauseresume", true);
-      xhttp.send();
+      sendCommand("/music/pauseresume");
     }
 
     function musicNext() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/music/next", true);
-      xhttp.send();
+      sendCommand("/music/next");
     }
 
     function musicSelect(caller) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/music/select?track=" + caller.value, true);
-      xhttp.send();
+      sendCommand("/music/select?track=" + caller.value);
     }
 
     function musicPrev() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-        }
-      };
-      xhttp.open("PUT", "/music/prev", true);
-      xhttp.send();
+      sendCommand("/music/prev");
     }
   </script>
 </body>

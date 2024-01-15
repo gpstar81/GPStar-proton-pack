@@ -277,11 +277,10 @@ void readEEPROM() {
             SYSTEM_YEAR = SYSTEM_1989;
           break;
 
-          /*
           case 5:
             SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
           break;
-          */
+
           case 4:
           default:
             SYSTEM_YEAR = SYSTEM_AFTERLIFE;

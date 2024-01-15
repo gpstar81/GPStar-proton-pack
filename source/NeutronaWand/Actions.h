@@ -111,12 +111,12 @@ void checkWandAction() {
           }
         }
 
-        // Overheating.
+        // Overheating check, start vent sequence if expected for power level and timer delay is completed.
         if(ms_overheat_initiate.justFinished() && b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
           startVentSequence();
         }
         else {
-          modeFiring();
+          modeFiring(); // Tell the pack whether firing has started/stopped.
 
           // Stop firing if any of the main switches are turned off or the barrel is retracted.
           if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH || b_switch_barrel_extended != true) {
@@ -153,8 +153,9 @@ void checkWandAction() {
         }
       }
 
-      if(b_no_pack == true) {
-        // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
+      if(b_gpstar_benchtest == true) {
+        // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is
+        // running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
         if(ms_overheating.justFinished()) {
           overHeatingFinished();
         }
@@ -407,6 +408,20 @@ void checkWandAction() {
                 break;
 
                 case YEAR_AFTERLIFE:
+                  WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+
+                  wandSerialSend(W_NEUTRONA_WAND_FROZEN_EMPIRE_MODE);
+                break;
+
+                case YEAR_FROZEN_EMPIRE:
                   WAND_YEAR_MODE = YEAR_DEFAULT;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
@@ -421,7 +436,6 @@ void checkWandAction() {
                 break;
 
                 case YEAR_DEFAULT:
-                case YEAR_FROZEN_EMPIRE:
                 default:
                   WAND_YEAR_MODE = YEAR_1984;
 
@@ -581,7 +595,6 @@ void checkWandAction() {
               switch(WAND_BARREL_LED_COUNT) {
                 case LEDS_5:
                 default:
-                  /*
                   i_num_barrel_leds = 48;
                   WAND_BARREL_LED_COUNT = LEDS_48;
 
@@ -591,16 +604,10 @@ void checkWandAction() {
                   playEffect(S_VOICE_BARREL_LED_48);
 
                   wandSerialSend(W_BARREL_LEDS_48);
-                  */
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  playEffect(S_VOICE_BARREL_LED_5);
-
-                  wandSerialSend(W_BARREL_LEDS_5);
                 break;
 
                 // 48 LED wand barrel board coming soon.
                 case LEDS_48:
-                  /*
                   i_num_barrel_leds = 5;
                   WAND_BARREL_LED_COUNT = LEDS_5;
 
@@ -610,7 +617,6 @@ void checkWandAction() {
                   playEffect(S_VOICE_BARREL_LED_5);
 
                   wandSerialSend(W_BARREL_LEDS_5);
-                  */
 
                   /*
                   i_num_barrel_leds = 60;
@@ -1209,7 +1215,7 @@ void checkWandAction() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              if(b_no_pack == true) {
+              if(b_gpstar_benchtest == true) {
                 musicNextTrack();
               }
               else {
@@ -1223,7 +1229,7 @@ void checkWandAction() {
             }
 
             if(switchMode() == true) {
-              if(b_no_pack == true) {
+              if(b_gpstar_benchtest == true) {
                 musicPrevTrack();
               }
               else {
@@ -1314,7 +1320,7 @@ void checkWandAction() {
                 // Tell the pack to stop music.
                 wandSerialSend(W_MUSIC_STOP);
 
-                if(b_no_pack == true) {
+                if(b_gpstar_benchtest == true) {
                   stopMusic();
                 }
               }
@@ -1322,7 +1328,7 @@ void checkWandAction() {
                 // Tell the pack to play music.
                 wandSerialSend(W_MUSIC_START);
 
-                if(b_no_pack == true) {
+                if(b_gpstar_benchtest == true) {
                   playMusic();
                 }
               }
@@ -1359,7 +1365,7 @@ void checkWandAction() {
               playEffect(S_BEEPS_BARGRAPH);
 
               // There is no pack connected; let's change the years.
-              if(b_no_pack == true) {
+              if(b_gpstar_benchtest == true) {
                 switch(getNeutronaWandYearMode()) {
                   case SYSTEM_1984:
                     WAND_YEAR_MODE = YEAR_1989;

@@ -49,6 +49,9 @@
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
 #include "Password.h" // PASSWORD_page
+#include "PackSettings.h" // PACK_SETTINGS_page
+#include "WandSettings.h" // WAND_SETTINGS_page
+#include "SmokeSettings.h" // SMOKE_SETTINGS_page
 #include "Style.h" // STYLE_page
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
@@ -137,7 +140,7 @@ void configureNetwork() {
  */
 
 String getMode() {
-  switch(ARMING_MODE) {
+  switch(SYSTEM_MODE) {
     case MODE_SUPERHERO:
       return "Super Hero";
     break;
@@ -171,7 +174,7 @@ String getTheme() {
 }
 
 String getRedSwitch() {
-  if(ARMING_MODE == MODE_ORIGINAL) {
+  if(SYSTEM_MODE == MODE_ORIGINAL) {
     // Switch state only matters for mode "Original".
     switch(RED_SWITCH_MODE) {
       case SWITCH_ON:
@@ -275,199 +278,14 @@ String getCyclotronState() {
       return "Warning";
     break;
     default:
+      // For anything above level 3.
       return "Critical";
     break;
   }
 }
 
-/*
- * Web Handler Functions - Performs actions or returns data for web UI
- */
-StaticJsonDocument<512> jsonDoc; // Used for processing JSON body data.
-StaticJsonDocument<16> jsonSuccess; // Used for sending JSON status as success.
-String status; // Holder for simple "status: success" response.
-
-void handleRoot(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  //debug("Web Root HTML Requested");
-  String s = INDEX_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
-}
-
-void handlePassword(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  //debug("Password HTML Requested");
-  String s = PASSWORD_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
-}
-
-void handleStyle(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  //debug("Main StyleSheet Requested");
-  String s = STYLE_page; // Read CSS page into String.
-  request->send(200, "text/css", s); // Serve page content.
-}
-
-String getEquipmentStatus() {
-  // Prepare a JSON object with information we have gleamed from the system.
-  String equipStatus;
-  jsonDoc.clear();
-
-  if(!b_wait_for_pack) {
-    // Only prepare status when not waiting on the pack
-    jsonDoc["mode"] = getMode();
-    jsonDoc["theme"] = getTheme();
-    jsonDoc["switch"] = getRedSwitch();
-    jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
-    jsonDoc["power"] = getPower();
-    jsonDoc["safety"] = getSafety();
-    jsonDoc["wand"] = (b_wand_on ? "Powered" : "Idle");
-    jsonDoc["wandMode"] = getWandMode();
-    jsonDoc["firing"] = (b_firing ? "Firing" : "Idle");
-    jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
-    jsonDoc["cyclotron"] = getCyclotronState();
-    jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
-    jsonDoc["musicPlaying"] = b_playing_music;
-    jsonDoc["musicPaused"] = b_music_paused;
-    jsonDoc["musicCurrent"] = i_music_track_current;
-    jsonDoc["musicStart"] = i_music_track_min;
-    jsonDoc["musicEnd"] = i_music_track_max;
-  }
-
-  // Serialize JSON object to string.
-  serializeJson(jsonDoc, equipStatus);
-  return equipStatus;
-}
-
-void handleStatus(AsyncWebServerRequest *request) {
-  // Return current system status as a stringified JSON object.
-  request->send(200, "application/json", getEquipmentStatus());
-}
-
-void handleRestart(AsyncWebServerRequest *request) {
-  // Performs a restart of the device.
-  request->send(204, "application/json", status);
-  delay(1000);
-  ESP.restart();
-}
-
-void handlePackOn(AsyncWebServerRequest *request) {
-  debug("Turn Pack On");
-  attenuatorSerialSend(A_TURN_PACK_ON);
-  request->send(200, "application/json", status);
-}
-
-void handlePackOff(AsyncWebServerRequest *request) {
-  debug("Turn Pack Off");
-  attenuatorSerialSend(A_TURN_PACK_OFF);
-  request->send(200, "application/json", status);
-}
-
-void handleAttenuatePack(AsyncWebServerRequest *request) {
-  if(i_speed_multiplier > 1) {
-    // Only send command to pack if cyclotron is not "normal".
-    debug("Cancel Overheat Warning");
-    attenuatorSerialSend(A_WARNING_CANCELLED);
-    request->send(200, "application/json", status);
-  } else {
-    // Tell the user why the requested action failed.
-    String result;
-    jsonDoc.clear();
-    jsonDoc["status"] = "System not in overheat warning";
-    serializeJson(jsonDoc, result); // Serialize to string.
-    request->send(200, "application/json", result);
-  }
-}
-
-void handleManualVent(AsyncWebServerRequest *request) {
-  debug("Manual Vent Triggered");
-  attenuatorSerialSend(A_MANUAL_OVERHEAT);
-  request->send(200, "application/json", status);
-}
-
-void handleToggleMute(AsyncWebServerRequest *request) {
-  debug("Toggle Mute");
-  attenuatorSerialSend(A_TOGGLE_MUTE);
-  request->send(200, "application/json", status);
-}
-
-void handleMasterVolumeUp(AsyncWebServerRequest *request) {
-  debug("Master Volume Up");
-  attenuatorSerialSend(A_VOLUME_INCREASE);
-  request->send(200, "application/json", status);
-}
-
-void handleMasterVolumeDown(AsyncWebServerRequest *request) {
-  debug("Master Volume Down");
-  attenuatorSerialSend(A_VOLUME_DECREASE);
-  request->send(200, "application/json", status);
-}
-
-void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
-  debug("Effects Volume Up");
-  attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-  request->send(200, "application/json", status);
-}
-
-void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
-  debug("Effects Volume Down");
-  attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-  request->send(200, "application/json", status);
-}
-
-void handleMusicStartStop(AsyncWebServerRequest *request) {
-  debug("Music Start/Stop");
-  attenuatorSerialSend(A_MUSIC_START_STOP);
-  request->send(200, "application/json", status);
-}
-
-void handleMusicPauseResume(AsyncWebServerRequest *request) {
-  debug("Music Pause/Resume");
-  attenuatorSerialSend(A_MUSIC_PAUSE_RESUME);
-  request->send(200, "application/json", status);
-}
-
-void handleNextMusicTrack(AsyncWebServerRequest *request) {
-  debug("Next Music Track");
-  attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-  request->send(200, "application/json", status);
-}
-
-void handlePrevMusicTrack(AsyncWebServerRequest *request) {
-  debug("Prev Music Track");
-  attenuatorSerialSend(A_MUSIC_PREV_TRACK);
-  request->send(200, "application/json", status);
-}
-
-void handleSelectMusicTrack(AsyncWebServerRequest *request) {
-  String c_music_track = "";
-
-  if(request->hasParam("track")) {
-    // Get the parameter "track" if it exists (will be a String).
-    c_music_track = request->getParam("track")->value();
-  }
-
-  if(c_music_track.toInt() != 0 && c_music_track.toInt() >= i_music_track_min) {
-    uint16_t i_music_track = c_music_track.toInt();
-    debug("Selected Music Track: " + String(i_music_track));
-    attenuatorSerialSend(i_music_track); // Inform the pack of the new track.
-    request->send(200, "application/json", status);
-  }
-  else {
-    // Tell the user why the requested action failed.
-    String result;
-    jsonDoc.clear();
-    jsonDoc["status"] = "Invalid track number requested";
-    serializeJson(jsonDoc, result); // Serialize to string.
-    request->send(200, "application/json", result);
-  }
-}
-
-void handleNotFound(AsyncWebServerRequest *request) {
-  // Returned for any invalid URL requested.
-  debug("Web page not found");
-  request->send(404, "text/plain", "Not Found");
-}
+// Provide all handler functions for the API layer.
+#include "Webhandler.h"
 
 void setupRouting() {
   // Define the endpoints for the web server.
@@ -475,10 +293,20 @@ void setupRouting() {
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/password", HTTP_GET, handlePassword);
-  httpServer.on("/style.css", HTTP_GET, handleStyle);
+  httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
+  httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
+  httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
+  httpServer.on("/style.css", HTTP_GET, handleStylesheet);
+  httpServer.onNotFound(handleNotFound);
 
-  // AJAX Handlers (Web API)
-  httpServer.on("/status", HTTP_GET, handleStatus);
+  // Get/Set Handlers
+  httpServer.on("/config/pack", HTTP_GET, handleGetPackConfig);
+  httpServer.on("/config/wand", HTTP_GET, handleGetWandConfig);
+  httpServer.on("/config/smoke", HTTP_GET, handleGetSmokeConfig);
+  httpServer.on("/eeprom/all", HTTP_PUT, handleSaveAllEEPROM);
+  httpServer.on("/eeprom/pack", HTTP_PUT, handleSavePackEEPROM);
+  httpServer.on("/eeprom/wand", HTTP_PUT, handleSaveWandEEPROM);
+  httpServer.on("/status", HTTP_GET, handleGetStatus);
   httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/pack/on", HTTP_PUT, handlePackOn);
   httpServer.on("/pack/off", HTTP_PUT, handlePackOff);
@@ -495,46 +323,11 @@ void setupRouting() {
   httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
 
-  // Handles the JSON body for the password change request.
-  AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
-    StaticJsonDocument<256> jsonBody;
-    if(json.is<JsonObject>()) {
-      jsonBody = json.as<JsonObject>();
-    }
-    else {
-      Serial.print("Body was not a JSON object");
-    }
-
-    String result;
-    if(jsonBody.containsKey("password")) {
-      String newPasswd = jsonBody["password"];
-      //Serial.println("New AP Password: " + newPasswd);
-
-      if(newPasswd != "") {
-        preferences.begin("credentials", false); // Access namespace in read/write mode.
-        preferences.putString("ssid", ap_ssid); // Store SSID in case this was changed.
-        preferences.putString("password", newPasswd); // Store user-provided password.
-        preferences.end();
-
-        jsonBody.clear();
-        jsonBody["status"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
-        serializeJson(jsonBody, result); // Serialize to string.
-        request->send(200, "application/json", result);
-        delay(1000); // Pause to allow response to flow.
-        ESP.restart(); // Reboot device
-      }
-    }
-    else {
-      debug("No password in JSON body");
-      jsonBody.clear();
-      jsonBody["status"] = "Unable to update password.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
-    }
-  });
-  httpServer.addHandler(passwordChangeHandler);
-
-  httpServer.onNotFound(handleNotFound);
+  // Body Handlers
+  httpServer.addHandler(handleSavePackConfig); // /config/pack/save
+  httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
+  httpServer.addHandler(handleSaveSmokeConfig); // /config/smoke/save
+  httpServer.addHandler(passwordChangeHandler); // /password/update
 }
 
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){

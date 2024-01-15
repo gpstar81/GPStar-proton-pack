@@ -62,7 +62,7 @@ void setup() {
 
   // Enable communication to the Proton Pack.
   Serial1.begin(9600);
-  wandComs.begin(Serial1, false);
+  wandComs.begin(Serial1, true, Serial);
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
@@ -188,8 +188,10 @@ void setup() {
   // Start up some timers for MODE_ORIGINAL.
   ms_slo_blo_blink.start(i_slo_blo_blink_delay);
 
+  // Initialize the timer for initial handshake.
+  ms_handshake.start(1);
+
   if(b_gpstar_benchtest == true) {
-    b_no_pack = true;
     b_wait_for_pack = false;
     b_pack_on = true;
     b_pack_ion_arm_switch_on = true;
@@ -201,17 +203,26 @@ void setup() {
 
 void loop() {
   if(b_wait_for_pack == true) {
-    if(b_volume_sync_wait != true) {
-      // Handshake with the pack telling the pack that we are here.
-      wandSerialSend(W_HANDSHAKE);
+    // While waiting for a proton pack, issue a handshake to a connected device.
+    // Immediately after, check for a response and handle any synchronization.
+    if(ms_handshake.justFinished()) {
+      wandSerialSend(W_HANDSHAKE); // Poke the pack to tell it the wand is here.
+      ms_handshake.start(i_handshake_initial_delay); // Wait to try again, if necessary.
+      b_sync_light = !b_sync_light; // Toggle a white LED while attempting to sync.
+      digitalWrite(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
     }
 
-    // Synchronise some settings with the pack.
+    // Check for any response from the pack.
     checkPack();
-
-    delay(10);
   }
   else {
+    // If connected to a pack, prepare to send a regular handshake to indicate presence.
+    if(!b_gpstar_benchtest && ms_handshake.justFinished()) {
+      wandSerialSend(W_HANDSHAKE); // Remind the pack that a wand is still present.
+      ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
+    }
+
+    // When not waiting for the pack, move directly into the main loop.
     mainLoop();
   }
 }
@@ -219,12 +230,13 @@ void loop() {
 void mainLoop() {
   w_trig.update();
 
-  checkPack();
+  checkPack(); // Get the latest communications from a proton pack, if connected.
 
-  if(b_no_pack == true) {
+  if(b_gpstar_benchtest == true) {
     checkMusic();
   }
 
+  // Get the current state of any input devices (toggles, buttons, and switches).
   switchLoops();
   checkRotary();
   checkSwitches();
@@ -267,7 +279,7 @@ void mainLoop() {
     case MODE_OFF:
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
         if(switchMode() == true || b_pack_alarm == true) {
-          if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_no_pack == true)) {
+          if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
             playEffect(S_CLICK);
 
             PREV_FIRING_MODE = FIRING_MODE;
@@ -296,7 +308,7 @@ void mainLoop() {
           }
         }
         else if(WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on == true) {
-          if(b_no_pack != true) {
+          if(b_gpstar_benchtest != true) {
             wandExitMenu();
           }
         }
@@ -308,7 +320,7 @@ void mainLoop() {
         switch_vent.resetCount();
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_gpstar_benchtest == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -331,12 +343,13 @@ void mainLoop() {
         wandLightsOffMenuSystem();
       }
       else if(WAND_ACTION_STATUS == ACTION_LED_EEPROM_MENU && b_pack_on == true) {
-        if(b_no_pack != true) {
+        if(b_gpstar_benchtest != true) {
           wandExitEEPROMMenu();
         }
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_no_pack == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU
+         && (b_pack_on != true || b_gpstar_benchtest == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -356,7 +369,7 @@ void mainLoop() {
         wandLightsOffMenuSystem();
       }
       else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on == true) {
-        if(b_no_pack != true) {
+        if(b_gpstar_benchtest != true) {
           wandExitEEPROMMenu();
         }
       }
@@ -368,7 +381,7 @@ void mainLoop() {
       }
 
       // If the power indicator is enabled. Blink the LED on the Neutrona Wand body next to the clippard valve to indicator the system has battery power.
-      if(b_power_on_indicator == true && WAND_ACTION_STATUS == ACTION_IDLE && (b_pack_on != true || b_no_pack == true)) {
+      if(b_power_on_indicator == true && WAND_ACTION_STATUS == ACTION_IDLE && (b_pack_on != true || b_gpstar_benchtest == true)) {
         if(ms_power_indicator.isRunning() == true && ms_power_indicator.remaining() < 1) {
           if(ms_power_indicator_blink.isRunning() != true || ms_power_indicator_blink.justFinished()) {
             ms_power_indicator_blink.start(i_ms_power_indicator_blink);
@@ -648,8 +661,9 @@ void toggleOverHeating() {
 void overHeatingFinished() {
   bargraphClearAlt();
 
-  // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
-  if(b_no_pack == true) {
+  // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is
+  // running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
+  if(b_gpstar_benchtest == true) {
     ms_overheating.stop();
   }
 
@@ -707,7 +721,7 @@ void startVentSequence() {
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
   // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
-  if(b_no_pack == true) {
+  if(b_gpstar_benchtest == true) {
     ms_overheating.start(i_ms_overheating);
   }
 
@@ -1012,7 +1026,7 @@ void checkSwitches() {
     ms_slo_blo_blink.start(i_slo_blo_blink_delay);
   }
 
-  switchBarrel();
+  switchBarrel(); // Determine the state of the barrel safety switch.
 
   switch(WAND_STATUS) {
     case MODE_OFF:
@@ -1810,7 +1824,7 @@ void postActivation() {
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
         default:
-          if(b_no_pack == true) {
+          if(b_gpstar_benchtest == true) {
             playEffect(S_BOOTUP);
           }
 
@@ -3141,20 +3155,14 @@ void wandBarrelHeatDown() {
 void fireStream(CRGB c_colour) {
   switch(WAND_BARREL_LED_COUNT) {
     case LEDS_60:
-      // nothing.
+      // Not yet supported.
     break;
 
     case LEDS_48:
-      /*
-      if(ms_firing_stream_blue.justFinished()) {
-
-        ms_firing_stream_blue.start(2);
-
-        ms_fast_led.start(1);
-      }
-      */
+      // Not yet supported.
     break;
 
+    case LEDS_29:
     case LEDS_5:
     default:
       if(ms_firing_stream_blue.justFinished()) {
@@ -3328,15 +3336,23 @@ void fireStreamStart(CRGB c_colour) {
 
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_60:
-        // ms_firing_lights.start(d_firing_lights / 4);
+        // More LEDs means a faster firing rate.
+        // ms_firing_lights.start(d_firing_lights / 6);
       break;
 
       case LEDS_48:
-        ms_firing_lights.start(d_firing_lights / 3);
+        // More LEDs means a faster firing rate.
+        ms_firing_lights.start(d_firing_lights / 5);
+      break;
+
+      case LEDS_29:
+        // More LEDs means a faster firing rate.
+        ms_firing_lights.start(d_firing_lights / 4);
       break;
 
       case LEDS_5:
       default:
+        // Firing at "normal" speed.
         ms_firing_lights.start(d_firing_lights);
       break;
     }
@@ -3360,15 +3376,23 @@ void fireStreamEnd(CRGB c_colour) {
 
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_60:
-        // ms_firing_lights_end.start(d_firing_lights / 4);
+        // More LEDs means a faster firing rate.
+        // ms_firing_lights_end.start(d_firing_lights / 6);
       break;
 
       case LEDS_48:
-        ms_firing_lights_end.start(d_firing_lights / 3);
+        // More LEDs means a faster firing rate.
+        ms_firing_lights_end.start(d_firing_lights / 5);
+      break;
+
+      case LEDS_29:
+        // More LEDs means a faster firing rate.
+        ms_firing_lights_end.start(d_firing_lights / 4);
       break;
 
       case LEDS_5:
       default:
+        // Firing at a "normal" rate
         ms_firing_lights_end.start(d_firing_lights);
       break;
     }
@@ -5790,7 +5814,7 @@ SYSTEM_YEARS getNeutronaWandYearMode() {
 
 // Returns SYSTEM_YEAR when operating with a Proton Pack, or WAND_YEAR_MODE when in standalone operation
 SYSTEM_YEARS getSystemYearMode() {
-  if(b_no_pack == true) {
+  if(b_gpstar_benchtest == true) {
     return getNeutronaWandYearMode();
   }
   else {
@@ -6117,7 +6141,7 @@ void wandBarrelSpectralCustomConfigOn() {
 void overheatVoiceIndicator(unsigned int i_tmp_length) {
   i_tmp_length = i_tmp_length / i_overheat_delay_increment;
 
-  unsigned int i_tmp_sound = (S_1 - 1) + i_tmp_length;
+  uint16_t i_tmp_sound = (S_1 - 1) + i_tmp_length;
 
   stopEffect(i_tmp_sound - 1);
   stopEffect(i_tmp_sound);
@@ -6125,7 +6149,7 @@ void overheatVoiceIndicator(unsigned int i_tmp_length) {
   playEffect(i_tmp_sound);
 
   // Tell the Proton Pack to play this sound effect.
-  wandSerialSend(i_tmp_sound, true);
+  wandSerialSend(W_COM_SOUND_NUMBER, i_tmp_sound);
 }
 
 void overheatTimerIncrement(uint8_t i_tmp_power_level) {
@@ -7122,6 +7146,10 @@ void wandExitEEPROMMenu() {
 
   wandLightsOff();
   wandBarrelLightsOff();
+
+  // Send current preferences to the pack for use by the serial1 device.
+  wandSerialSend(W_SEND_PREFERENCES_WAND);
+  wandSerialSend(W_SEND_PREFERENCES_SMOKE);
 }
 
 // Barrel Wing Button is connected to analog pin 6.
@@ -7259,10 +7287,10 @@ void playMusic() {
 
     w_trig.trackGain(i_current_music_track, i_volume_music);
     w_trig.trackPlayPoly(i_current_music_track, true);
-
     w_trig.update();
 
-    if(b_no_pack == true) {
+    if(b_gpstar_benchtest == true) {
+      // Keep track of music playback on the wand directly.
       ms_music_status_check.start(i_music_check_delay * 10);
       w_trig.resetTrackCounter(true);
     }

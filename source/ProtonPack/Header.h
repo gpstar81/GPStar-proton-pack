@@ -226,8 +226,8 @@ ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defa
  * WAV Trigger
  */
 wavTrigger w_trig;
-unsigned int i_music_count = 0;
-unsigned int i_current_music_track = 0;
+uint16_t i_music_count = 0;
+uint16_t i_current_music_track = 0;
 const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
@@ -247,9 +247,9 @@ millisDelay ms_music_status_check;
 /*
  *  Volume (0 = loudest, -70 = quietest)
  */
-int i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
-int i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-int i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
+uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
+uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
+uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
 int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
@@ -368,22 +368,25 @@ bool b_firing_intensify = false;
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_wand_connected = false;
+bool b_wand_syncing = false;
 bool b_wand_on = false;
-millisDelay ms_wand_handshake;
-const unsigned int i_wand_handshake_delay = 3000;
-millisDelay ms_wand_handshake_checking;
-uint8_t i_wand_power_level = 1; // Power level of the wand.
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
+uint8_t i_wand_power_level = 1; // Power level of the wand.
+millisDelay ms_wand_disconnect; // Timer used to determine whether the wand has been disconnected.
+const unsigned int i_wand_disconnect_delay = 3000; // Time until the pack considers a wand as disconnected.
 
 /*
  * Serial1 Status
  */
 bool b_serial1_connected = false;
 millisDelay ms_serial1_handshake;
-const unsigned int i_serial1_handshake_delay = 3000;
+const unsigned int i_serial1_handshake_delay = 4000;
 millisDelay ms_serial1_handshake_checking;
 bool b_serial_1_syncing = false;
 
+/*
+ * Define Serial Communication Buffers
+ */
 SerialTransfer serial1Coms;
 SerialTransfer packComs;
 
@@ -446,10 +449,21 @@ bool b_fade_out = false;
 millisDelay ms_fadeout;
 
 /*
+ * Voltage reference.
+ */
+uint16_t i_batt_volts; // Current voltage value (Vcc) using internal bandgap reference.
+const unsigned int i_ms_battcheck_delay = 5000; // Time between battery voltage checks.
+millisDelay ms_battcheck; // Timer for checking battery voltage on a regular interval.
+
+/*
  * Function prototypes.
  */
-void packSerialSend(uint16_t i_message);
-void serial1Send(uint16_t i_message);
+void packSerialSend(uint16_t i_command, uint16_t i_value);
+void packSerialSend(uint16_t i_command);
+void packSerialSendData(uint16_t i_message);
+void serial1Send(uint16_t i_command, uint16_t i_value);
+void serial1Send(uint16_t i_command);
+void serial1SendData(uint16_t i_message);
 void checkSerial1();
 void checkWand();
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
