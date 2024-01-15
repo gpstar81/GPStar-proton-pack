@@ -19,9 +19,8 @@
 
 #pragma once
 
-// Types of packets to be sent: command or data.
-const uint8_t CMD_PACKET = 1;
-const uint8_t DATA_PACKET = 2;
+// Types of packets to be sent.
+enum PACKET_TYPE { PACKET_UNKNOWN, PACKET_COMMAND, PACKET_DATA, PACKET_PACK, PACKET_WAND, PACKET_SMOKE };
 
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
@@ -29,10 +28,10 @@ struct __attribute__((packed)) CommandPacket {
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
-// For data communication (2 byte ID, 24 byte data payload).
+// For generic data communication (2 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
   uint16_t m;
-  uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[3]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
 struct CommandPacket recvCmd;
@@ -40,6 +39,53 @@ struct CommandPacket sendCmd;
 
 struct MessagePacket recvData;
 struct MessagePacket sendData;
+
+struct WandPrefs {
+  uint8_t ledWandCount;
+  uint8_t ledWandHue;
+  uint8_t ledWandSat;
+  uint8_t spectralModeEnabled;
+  uint8_t spectralHolidayMode;
+  uint8_t overheatEnabled;
+  uint8_t defaultFiringMode;
+  uint8_t wandSoundsToPack;
+  uint8_t quickVenting;
+  uint8_t autoVentLight;
+  uint8_t wandBeepLoop;
+  uint8_t wandBootError;
+  uint8_t defaultYearModeWand;
+  uint8_t defaultYearModeCTS;
+  uint8_t invertWandBargraph;
+  uint8_t bargraphOverheatBlink;
+  uint8_t bargraphIdleAnimation;
+  uint8_t bargraphFireAnimation;
+} wandConfig;
+
+struct SmokePrefs {
+  // Pack
+  uint8_t smokeEnabled;
+  uint8_t overheatContinuous5;
+  uint8_t overheatContinuous4;
+  uint8_t overheatContinuous3;
+  uint8_t overheatContinuous2;
+  uint8_t overheatContinuous1;
+  uint8_t overheatDuration5;
+  uint8_t overheatDuration4;
+  uint8_t overheatDuration3;
+  uint8_t overheatDuration2;
+  uint8_t overheatDuration1;
+  // Wand
+  uint8_t overheatLevel5;
+  uint8_t overheatLevel4;
+  uint8_t overheatLevel3;
+  uint8_t overheatLevel2;
+  uint8_t overheatLevel1;
+  uint8_t overheatDelay5;
+  uint8_t overheatDelay4;
+  uint8_t overheatDelay3;
+  uint8_t overheatDelay2;
+  uint8_t overheatDelay1;
+} smokeConfig;
 
 // Outgoing commands to the pack.
 void wandSerialSend(uint16_t i_command, uint16_t i_value) {
@@ -53,7 +99,7 @@ void wandSerialSend(uint16_t i_command, uint16_t i_value) {
     sendCmd.d1 = i_value;
 
     i_send_size = wandComs.txObj(sendCmd, i_send_size);
-    wandComs.sendData(i_send_size, CMD_PACKET);
+    wandComs.sendData(i_send_size, PACKET_COMMAND);
   }
 }
 // Override function to handle calls with a single parameter.
@@ -76,125 +122,137 @@ void wandSerialSendData(uint16_t i_message) {
 
     switch(i_message) {
       case W_SEND_PREFERENCES_WAND:
-        // Sends values from current runtime variables as values in an int array.
         // Boolean types will simply translate as 1/0, ENUMs should be converted.
         switch(WAND_BARREL_LED_COUNT) {
           case LEDS_5:
           default:
-            sendData.d[0] = 0;
+            wandConfig.ledWandCount = 0;
           break;
           case LEDS_29:
-            sendData.d[0] = 1;
+            wandConfig.ledWandCount = 1;
           break;
           case LEDS_48:
-            sendData.d[0] = 2;
+            wandConfig.ledWandCount = 2;
           break;
         }
 
-        sendData.d[1] = i_spectral_wand_custom_colour;
-        sendData.d[2] = i_spectral_wand_custom_saturation;
-        sendData.d[3] = b_spectral_mode_enabled;
-        sendData.d[4] = b_holiday_mode_enabled;
-        sendData.d[5] = b_overheat_enabled;
-        sendData.d[6] = b_cross_the_streams;
-        sendData.d[7] = b_cross_the_streams_mix;
-        sendData.d[8] = b_extra_pack_sounds;
-        sendData.d[9] = b_quick_vent;
-        sendData.d[10] = b_vent_light_control;
-        sendData.d[11] = b_beep_loop;
-        sendData.d[12] = b_wand_boot_errors;
+        wandConfig.ledWandHue = i_spectral_wand_custom_colour;
+        wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
+        wandConfig.spectralModeEnabled = b_spectral_mode_enabled;
+        wandConfig.spectralHolidayMode = b_holiday_mode_enabled;
+        wandConfig.overheatEnabled = b_overheat_enabled;
+        if(b_cross_the_streams_mix) {
+          // More significant, implies b_cross_the_streams.
+          wandConfig.defaultFiringMode = 3;
+        }
+        else if(b_cross_the_streams) {
+          // Implies that b_cross_the_streams_mix was false.
+          wandConfig.defaultFiringMode = 2;
+        }
+        else {
+          // Use VG modes as default.
+          wandConfig.defaultFiringMode = 1;
+        }
+        wandConfig.wandSoundsToPack = b_extra_pack_sounds;
+        wandConfig.quickVenting = b_quick_vent;
+        wandConfig.autoVentLight = b_vent_light_control;
+        wandConfig.wandBeepLoop = b_beep_loop;
+        wandConfig.wandBootError = b_wand_boot_errors;
 
         switch(WAND_YEAR_MODE) {
           case YEAR_DEFAULT:
           default:
-            sendData.d[13] = 1;
+            wandConfig.defaultYearModeWand = 1;
           break;
           case YEAR_1984:
-            sendData.d[13] = 2;
+            wandConfig.defaultYearModeWand = 2;
           break;
           case YEAR_1989:
-            sendData.d[13] = 3;
+            wandConfig.defaultYearModeWand = 3;
           break;
           case YEAR_AFTERLIFE:
-            sendData.d[13] = 4;
+            wandConfig.defaultYearModeWand = 4;
           break;
           case YEAR_FROZEN_EMPIRE:
-            sendData.d[13] = 5;
+            wandConfig.defaultYearModeWand = 5;
           break;
         }
 
         switch(WAND_YEAR_CTS) {
           case CTS_DEFAULT:
           default:
-            sendData.d[14] = 1;
+            wandConfig.defaultYearModeCTS = 1;
           break;
           case CTS_1984:
-            sendData.d[14] = 2;
+            wandConfig.defaultYearModeCTS = 2;
           break;
           case CTS_1989:
-            sendData.d[14] = 3;
+            wandConfig.defaultYearModeCTS = 3;
           break;
           case CTS_AFTERLIFE:
-            sendData.d[14] = 4;
+            wandConfig.defaultYearModeCTS = 4;
           break;
           case CTS_FROZEN_EMPIRE:
-            sendData.d[14] = 5;
+            wandConfig.defaultYearModeCTS = 5;
           break;
         }
 
-        sendData.d[15] = b_bargraph_invert;
-        sendData.d[16] = b_overheat_bargraph_blink;
+        wandConfig.invertWandBargraph = b_bargraph_invert;
+        wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink;
 
         switch(BARGRAPH_MODE_EEPROM) {
           case BARGRAPH_EEPROM_DEFAULT:
           default:
-            sendData.d[17] = 1;
+            wandConfig.bargraphIdleAnimation = 1;
           break;
           case BARGRAPH_EEPROM_SUPER_HERO:
-            sendData.d[17] = 2;
+            wandConfig.bargraphIdleAnimation = 2;
           break;
           case BARGRAPH_EEPROM_ORIGINAL:
-            sendData.d[17] = 3;
+            wandConfig.bargraphIdleAnimation = 3;
           break;
         }
 
         switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
           case BARGRAPH_EEPROM_ANIMATION_DEFAULT:
           default:
-            sendData.d[18] = 1;
+            wandConfig.bargraphFireAnimation = 1;
           break;
           case BARGRAPH_EEPROM_ANIMATION_SUPER_HERO:
-            sendData.d[18] = 2;
+            wandConfig.bargraphFireAnimation = 2;
           break;
           case BARGRAPH_EEPROM_ANIMATION_ORIGINAL:
-            sendData.d[18] = 3;
+            wandConfig.bargraphFireAnimation = 3;
           break;
         }
+
+        i_send_size = wandComs.txObj(wandConfig, i_send_size);
+        wandComs.sendData(i_send_size, PACKET_WAND);
       break;
 
       case W_SEND_PREFERENCES_SMOKE:
         // Determines whether overheating is enabled for a power level.
-        sendData.d[0] = b_overheat_mode_5;
-        sendData.d[1] = b_overheat_mode_4;
-        sendData.d[2] = b_overheat_mode_3;
-        sendData.d[3] = b_overheat_mode_2;
-        sendData.d[4] = b_overheat_mode_1;
+        smokeConfig.overheatLevel5 = b_overheat_mode_5;
+        smokeConfig.overheatLevel4 = b_overheat_mode_4;
+        smokeConfig.overheatLevel3 = b_overheat_mode_3;
+        smokeConfig.overheatLevel2 = b_overheat_mode_2;
+        smokeConfig.overheatLevel1 = b_overheat_mode_1;
 
         // Time (seconds) before an overheat event takes place by level.
-        sendData.d[5] = i_ms_overheat_initiate_mode_5 / 1000;
-        sendData.d[6] = i_ms_overheat_initiate_mode_4 / 1000;
-        sendData.d[7] = i_ms_overheat_initiate_mode_3 / 1000;
-        sendData.d[8] = i_ms_overheat_initiate_mode_2 / 1000;
-        sendData.d[9] = i_ms_overheat_initiate_mode_1 / 1000;
+        smokeConfig.overheatDelay5 = i_ms_overheat_initiate_mode_5 / 1000;
+        smokeConfig.overheatDelay4 = i_ms_overheat_initiate_mode_4 / 1000;
+        smokeConfig.overheatDelay3 = i_ms_overheat_initiate_mode_3 / 1000;
+        smokeConfig.overheatDelay2 = i_ms_overheat_initiate_mode_2 / 1000;
+        smokeConfig.overheatDelay1 = i_ms_overheat_initiate_mode_1 / 1000;
+
+        i_send_size = wandComs.txObj(smokeConfig, i_send_size);
+        wandComs.sendData(i_send_size, PACKET_SMOKE);
       break;
 
       default:
         // No-op for all other actions.
       break;
     }
-
-    i_send_size = wandComs.txObj(sendData, i_send_size);
-    wandComs.sendData(i_send_size, DATA_PACKET);
   }
 }
 
@@ -205,11 +263,189 @@ void checkPack() {
     uint8_t i_packet_id = wandComs.currentPacketID();
     // Serial.println("PacketID: " + String(i_packet_id));
 
-    // Handle simple commands.
-    if(i_packet_id == CMD_PACKET) {
-      wandComs.rxObj(recvCmd);
-      // Serial.println("Recv. Command: " + String(recvCmd.c));
+    if(i_packet_id > 0) {
+      // Determine the type of packet which was sent by the serial1 device.
+      switch(i_packet_id) {
+        case PACKET_COMMAND:
+          wandComs.rxObj(recvCmd);
+          // Serial.println("Recv. Command: " + String(recvCmdS.c));
+        break;
 
+        case PACKET_DATA:
+          wandComs.rxObj(recvData);
+          Serial.println("Recv. Message: " + String(recvData.m));
+
+          switch(recvData.m) {
+            case P_VOLUME_SYNC:
+              // Set the percentage volume.
+              i_volume_master_percentage = recvData.d[0];
+              i_volume_effects_percentage = recvData.d[1];
+              i_volume_music_percentage = recvData.d[2];
+
+              // Set the decibel volume.
+              i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+              i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
+              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+              // Update volume levels.
+              i_volume_revert = i_volume_master;
+              w_trig.masterGain(i_volume_master);
+              adjustVolumeEffectsGain();
+            break;
+          }
+        break;
+
+        case PACKET_WAND:
+          wandComs.rxObj(wandConfig);
+          Serial.println("Recv. Wand Config");
+
+          // Writes new preferences back to runtime variables.
+          // This action does not save changes to the EEPROM!
+          switch(wandConfig.ledWandCount) {
+            case 0:
+            default:
+              i_num_barrel_leds = 5;
+              WAND_BARREL_LED_COUNT = LEDS_5;
+            break;
+            case 1:
+              i_num_barrel_leds = 29;
+              WAND_BARREL_LED_COUNT = LEDS_29;
+            break;
+            case 2:
+              i_num_barrel_leds = 48;
+              WAND_BARREL_LED_COUNT = LEDS_48;
+            break;
+          }
+
+          i_spectral_wand_custom_colour = wandConfig.ledWandHue;
+          i_spectral_wand_custom_saturation = wandConfig.ledWandSat;
+          b_spectral_mode_enabled = wandConfig.spectralModeEnabled;
+          b_holiday_mode_enabled = wandConfig.spectralHolidayMode;
+          b_overheat_enabled = wandConfig.overheatEnabled;
+
+          switch(wandConfig.defaultFiringMode) {
+            case 3:
+              b_cross_the_streams_mix = true;
+              b_cross_the_streams = true;
+            break;
+            case 2:
+              b_cross_the_streams_mix = false;
+              b_cross_the_streams = true;
+            break;
+            default:
+              b_cross_the_streams_mix = false;
+              b_cross_the_streams = false;
+            break;
+          }          
+          
+          b_extra_pack_sounds = wandConfig.wandSoundsToPack;
+          b_quick_vent = wandConfig.quickVenting;
+          b_vent_light_control = wandConfig.autoVentLight;
+          b_beep_loop = wandConfig.wandBeepLoop;
+          b_wand_boot_errors = wandConfig.wandBootError;
+
+          switch(wandConfig.defaultYearModeWand) {
+            case 1:
+            default:
+              WAND_YEAR_MODE = YEAR_DEFAULT;
+            break;
+            case 2:
+              WAND_YEAR_MODE = YEAR_1984;
+            break;
+            case 3:
+              WAND_YEAR_MODE = YEAR_1989;
+            break;
+            case 4:
+              WAND_YEAR_MODE = YEAR_AFTERLIFE;
+            break;
+            case 5:
+              WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+            break;
+          }
+
+          switch(wandConfig.defaultYearModeCTS) {
+            case 1:
+            default:
+              WAND_YEAR_CTS = CTS_DEFAULT;
+            break;
+            case 2:
+              WAND_YEAR_CTS = CTS_1984;
+            break;
+            case 3:
+              WAND_YEAR_CTS = CTS_1989;
+            break;
+            case 4:
+              WAND_YEAR_CTS = CTS_AFTERLIFE;
+            break;
+            case 5:
+              WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
+            break;
+          }
+
+          b_bargraph_invert = wandConfig.invertWandBargraph;
+          b_overheat_bargraph_blink = wandConfig.bargraphOverheatBlink;
+
+          switch(wandConfig.bargraphIdleAnimation) {
+            case 1:
+            default:
+              BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
+            break;
+            case 2:
+              BARGRAPH_MODE = BARGRAPH_SUPER_HERO;
+              BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_SUPER_HERO;
+            break;
+            case 3:
+              BARGRAPH_MODE = BARGRAPH_ORIGINAL;
+              BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_ORIGINAL;
+            break;
+          }
+
+          switch(wandConfig.bargraphFireAnimation) {
+            case 1:
+            default:
+              BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
+            break;
+            case 2:
+              BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_SUPER_HERO;
+              BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_SUPER_HERO;
+            break;
+            case 3:
+              BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_ORIGINAL;
+              BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
+            break;
+          }
+
+          // Update and reset wand components.
+          setBargraphOrientation();
+          bargraphYearModeUpdate();
+          resetOverHeatModes();
+        break;
+
+        case PACKET_SMOKE:
+          wandComs.rxObj(smokeConfig);
+          Serial.println("Recv. Smoke Config");
+
+          // Writes new preferences back to runtime variables.
+          // This action does not save changes to the EEPROM!
+          b_overheat_mode_5 = smokeConfig.overheatLevel5;
+          b_overheat_mode_4 = smokeConfig.overheatLevel4;
+          b_overheat_mode_3 = smokeConfig.overheatLevel3;
+          b_overheat_mode_2 = smokeConfig.overheatLevel2;
+          b_overheat_mode_1 = smokeConfig.overheatLevel1;
+          i_ms_overheat_initiate_mode_5 = smokeConfig.overheatDelay5;
+          i_ms_overheat_initiate_mode_4 = smokeConfig.overheatDelay4;
+          i_ms_overheat_initiate_mode_3 = smokeConfig.overheatDelay3;
+          i_ms_overheat_initiate_mode_2 = smokeConfig.overheatDelay2;
+          i_ms_overheat_initiate_mode_1 = smokeConfig.overheatDelay1;
+
+          // Update and reset wand components.
+          resetOverHeatModes();
+        break;
+      }
+    }
+
+    // Handle simple commands.
+    if(i_packet_id == PACKET_COMMAND) {
       switch(recvCmd.c) {
         case P_HANDSHAKE:
           // The pack is asking us if we are still here so respond accordingly.
@@ -1146,162 +1382,6 @@ void checkPack() {
           saveConfigEEPROM();
           stopEffect(S_VOICE_EEPROM_SAVE);
           playEffect(S_VOICE_EEPROM_SAVE);
-        break;
-
-        default:
-          // No-op for anything else.
-        break;
-      }
-    }
-
-    // Handle data payloads.
-    if(i_packet_id == DATA_PACKET) {
-      wandComs.rxObj(recvData);
-      // ("Recv. Message: " + String(recvData.m));
-      
-      switch(recvData.m) {
-        case P_VOLUME_SYNC:
-          // Set the percentage volume.
-          i_volume_master_percentage = recvData.d[0];
-          i_volume_effects_percentage = recvData.d[1];
-          i_volume_music_percentage = recvData.d[2];
-
-          // Set the decibel volume.
-          i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-          i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-          i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-          // Update volume levels.
-          i_volume_revert = i_volume_master;
-          w_trig.masterGain(i_volume_master);
-          adjustVolumeEffectsGain();
-        break;
-
-        case P_SAVE_PREFERENCES_WAND:
-          // Writes new preferences back to runtime variables.
-          // This action does not save changes to the EEPROM!
-          switch(recvData.d[0]) {
-            case 0:
-            default:
-              i_num_barrel_leds = 5;
-              WAND_BARREL_LED_COUNT = LEDS_5;
-            break;
-            case 1:
-              i_num_barrel_leds = 29;
-              WAND_BARREL_LED_COUNT = LEDS_29;
-            break;
-            case 2:
-              i_num_barrel_leds = 48;
-              WAND_BARREL_LED_COUNT = LEDS_48;
-            break;
-          }
-
-          i_spectral_wand_custom_colour = recvData.d[1];
-          i_spectral_wand_custom_saturation = recvData.d[2];
-          b_spectral_mode_enabled = recvData.d[3];
-          b_holiday_mode_enabled = recvData.d[4];
-          b_overheat_enabled = recvData.d[5];
-          b_cross_the_streams = recvData.d[6];
-          b_cross_the_streams_mix = recvData.d[7];
-          b_extra_pack_sounds = recvData.d[8];
-          b_quick_vent = recvData.d[9];
-          b_vent_light_control = recvData.d[10];
-          b_beep_loop = recvData.d[11];
-          b_wand_boot_errors = recvData.d[12];
-
-          switch(recvData.d[13]) {
-            case 1:
-            default:
-              WAND_YEAR_MODE = YEAR_DEFAULT;
-            break;
-            case 2:
-              WAND_YEAR_MODE = YEAR_1984;
-            break;
-            case 3:
-              WAND_YEAR_MODE = YEAR_1989;
-            break;
-            case 4:
-              WAND_YEAR_MODE = YEAR_AFTERLIFE;
-            break;
-            case 5:
-              WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
-            break;
-          }
-
-          switch(recvData.d[14]) {
-            case 1:
-            default:
-              WAND_YEAR_CTS = CTS_DEFAULT;
-            break;
-            case 2:
-              WAND_YEAR_CTS = CTS_1984;
-            break;
-            case 3:
-              WAND_YEAR_CTS = CTS_1989;
-            break;
-            case 4:
-              WAND_YEAR_CTS = CTS_AFTERLIFE;
-            break;
-            case 5:
-              WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
-            break;
-          }
-
-          b_bargraph_invert = recvData.d[15];
-          b_overheat_bargraph_blink = recvData.d[16];
-
-          switch(recvData.d[17]) {
-            case 1:
-            default:
-              BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
-            break;
-            case 2:
-              BARGRAPH_MODE = BARGRAPH_SUPER_HERO;
-              BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_SUPER_HERO;
-            break;
-            case 3:
-              BARGRAPH_MODE = BARGRAPH_ORIGINAL;
-              BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_ORIGINAL;
-            break;
-          }
-
-          switch(recvData.d[18]) {
-            case 1:
-            default:
-              BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
-            break;
-            case 2:
-              BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_SUPER_HERO;
-              BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_SUPER_HERO;
-            break;
-            case 3:
-              BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_ORIGINAL;
-              BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
-            break;
-          }
-
-          // Update and reset wand components.
-          setBargraphOrientation();
-          bargraphYearModeUpdate();
-          resetOverHeatModes();
-        break;
-
-        case P_SAVE_PREFERENCES_SMOKE:
-          // Writes new preferences back to runtime variables.
-          // This action does not save changes to the EEPROM!
-          b_overheat_mode_5 = recvData.d[0];
-          b_overheat_mode_4 = recvData.d[1];
-          b_overheat_mode_3 = recvData.d[2];
-          b_overheat_mode_2 = recvData.d[3];
-          b_overheat_mode_1 = recvData.d[4];
-          i_ms_overheat_initiate_mode_5 = recvData.d[5];
-          i_ms_overheat_initiate_mode_4 = recvData.d[6];
-          i_ms_overheat_initiate_mode_3 = recvData.d[7];
-          i_ms_overheat_initiate_mode_2 = recvData.d[8];
-          i_ms_overheat_initiate_mode_1 = recvData.d[9];
-
-          // Update and reset wand components.
-          resetOverHeatModes();
         break;
 
         default:

@@ -31,9 +31,8 @@
 SerialTransfer packComs;
 bool b_sync_start = false; // Denotes pack communications have begun.
 
-// Types of packets to be sent: command or data.
-const uint8_t CMD_PACKET = 1;
-const uint8_t DATA_PACKET = 2;
+// Types of packets to be sent.
+enum PACKET_TYPE { PACKET_UNKNOWN, PACKET_COMMAND, PACKET_DATA, PACKET_PACK, PACKET_WAND, PACKET_SMOKE };
 
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
@@ -41,10 +40,10 @@ struct __attribute__((packed)) CommandPacket {
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
-// For data communication (2 byte ID, 24 byte data payload).
+// For generic data communication (2 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
   uint16_t m;
-  uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[3]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
 struct CommandPacket recvCmd;
@@ -143,7 +142,7 @@ void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
   sendCmd.d1 = i_value;
 
   i_send_size = packComs.txObj(sendCmd, i_send_size);
-  packComs.sendData(i_send_size, CMD_PACKET);
+  packComs.sendData(i_send_size, PACKET_COMMAND);
 }
 
 // Sends an API to the Proton Pack
@@ -164,41 +163,8 @@ void attenuatorSerialSendData(uint16_t i_message) {
       #if defined(__XTENSA__)
         debug("Saving Pack Preferences");
 
-        try {
-          // Convert user-friendly object properties to integer values.
-          sendData.d[0] = packConfig.defaultSystemModePack;
-          sendData.d[1] = packConfig.defaultYearThemePack;
-          sendData.d[2] = packConfig.defaultSystemVolume;
-          sendData.d[3] = packConfig.protonStreamEffects;
-          sendData.d[4] = packConfig.overheatStrobeNF;
-          sendData.d[5] = packConfig.overheatLightsOff;
-          sendData.d[6] = packConfig.overheatSyncToFan;
-          sendData.d[7] = packConfig.demoLightMode;
-
-          // Cyclotron Lid
-          sendData.d[8] = packConfig.ledCycLidCount;
-          sendData.d[9] = packConfig.ledCycLidHue;
-          sendData.d[10] = packConfig.ledCycLidSat;
-          sendData.d[11] = packConfig.cyclotronDirection;
-          sendData.d[12] = packConfig.ledCycLidCenter;
-          sendData.d[13] = packConfig.ledVGCyclotron;
-          sendData.d[14] = packConfig.ledCycLidSimRing;
-
-          // Inner Cyclotron
-          sendData.d[15] = packConfig.ledCycCakeCount;
-          sendData.d[16] = packConfig.ledCycCakeHue;
-          sendData.d[17] = packConfig.ledCycCakeSat;
-          sendData.d[18] = packConfig.ledCycCakeGRB;
-
-          // Power Cell
-          sendData.d[19] = packConfig.ledPowercellCount;
-          sendData.d[20] = packConfig.ledPowercellHue;
-          sendData.d[21] = packConfig.ledPowercellSat;
-          sendData.d[22] = packConfig.ledVGPowercell;
-        }
-        catch (...) {
-          debug("Error while saving pack preferences");
-        }
+        i_send_size = packComs.txObj(packConfig, i_send_size);
+        packComs.sendData(i_send_size, PACKET_PACK);
       #endif
     break;
 
@@ -206,44 +172,8 @@ void attenuatorSerialSendData(uint16_t i_message) {
       #if defined(__XTENSA__)
         debug("Saving Wand Preferences");
 
-        try {
-          // Convert user-friendly object properties to integer values.
-          sendData.d[0] = wandConfig.ledWandCount;
-          sendData.d[1] = wandConfig.ledWandHue;
-          sendData.d[2] = wandConfig.ledWandSat;
-          sendData.d[3] = wandConfig.spectralModeEnabled;
-          sendData.d[4] = wandConfig.spectralHolidayMode;
-          sendData.d[5] = wandConfig.overheatEnabled;
-          switch(wandConfig.defaultFiringMode) {
-            case 3:
-              sendData.d[6] = 1; // CTS
-              sendData.d[7] = 1; // CTS Mix
-            break;
-            case 2:
-              sendData.d[6] = 1; // CTS
-              sendData.d[7] = 0; // CTS Mix
-            break;
-            case 1:
-            default:
-              sendData.d[6] = 0; // CTS
-              sendData.d[7] = 0; // CTS Mix
-            break;
-          }
-          sendData.d[8] = wandConfig.wandSoundsToPack;
-          sendData.d[9] = wandConfig.quickVenting;
-          sendData.d[10] = wandConfig.autoVentLight;
-          sendData.d[11] = wandConfig.wandBeepLoop;
-          sendData.d[12] = wandConfig.wandBootError;
-          sendData.d[13] = wandConfig.defaultYearModeWand;
-          sendData.d[14] = wandConfig.defaultYearModeCTS;
-          sendData.d[15] = wandConfig.invertWandBargraph;
-          sendData.d[16] = wandConfig.bargraphOverheatBlink;
-          sendData.d[17] = wandConfig.bargraphIdleAnimation;
-          sendData.d[18] = wandConfig.bargraphFireAnimation;
-        }
-        catch (...) {
-          debug("Error while saving wand preferences");
-        }
+        i_send_size = packComs.txObj(wandConfig, i_send_size);
+        packComs.sendData(i_send_size, PACKET_WAND);
       #endif
     break;
 
@@ -251,37 +181,8 @@ void attenuatorSerialSendData(uint16_t i_message) {
       #if defined(__XTENSA__)
         debug("Saving Smoke Preferences");
 
-        try {
-          // Convert user-friendly object properties to integer values.
-          sendData.d[0] = smokeConfig.overheatDuration5;
-          sendData.d[1] = smokeConfig.overheatDuration4;
-          sendData.d[2] = smokeConfig.overheatDuration3;
-          sendData.d[3] = smokeConfig.overheatDuration2;
-          sendData.d[4] = smokeConfig.overheatDuration1;
-
-          sendData.d[5] = smokeConfig.overheatContinuous5;
-          sendData.d[6] = smokeConfig.overheatContinuous4;
-          sendData.d[7] = smokeConfig.overheatContinuous3;
-          sendData.d[8] = smokeConfig.overheatContinuous2;
-          sendData.d[9] = smokeConfig.overheatContinuous1;
-
-          sendData.d[10] = smokeConfig.overheatLevel5;
-          sendData.d[11] = smokeConfig.overheatLevel4;
-          sendData.d[12] = smokeConfig.overheatLevel3;
-          sendData.d[13] = smokeConfig.overheatLevel2;
-          sendData.d[14] = smokeConfig.overheatLevel1;
-
-          sendData.d[15] = smokeConfig.overheatDelay5;
-          sendData.d[16] = smokeConfig.overheatDelay4;
-          sendData.d[17] = smokeConfig.overheatDelay3;
-          sendData.d[18] = smokeConfig.overheatDelay2;
-          sendData.d[19] = smokeConfig.overheatDelay1;
-
-          sendData.d[20] = smokeConfig.smokeEnabled;
-        }
-        catch (...) {
-          debug("Error while saving smoke preferences");
-        }
+        i_send_size = packComs.txObj(smokeConfig, i_send_size);
+        packComs.sendData(i_send_size, PACKET_SMOKE);
       #endif
     break;
 
@@ -289,9 +190,6 @@ void attenuatorSerialSendData(uint16_t i_message) {
       // No-op for all other communications.
     break;
   }
-
-  i_send_size = packComs.txObj(sendData, i_send_size);
-  packComs.sendData(i_send_size, DATA_PACKET);
 }
 
 // Handles an API (and data) sent from the Proton Pack
@@ -302,10 +200,93 @@ boolean checkPack() {
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
 
-    // Handle simple commands.
-    if(i_packet_id == CMD_PACKET) {
-      packComs.rxObj(recvCmd);
+    if(i_packet_id > 0) {
+      // Determine the type of packet which was sent by the serial1 device.
+      switch(i_packet_id) {
+        case PACKET_COMMAND:
+          packComs.rxObj(recvCmd);
+          // Serial.println("Recv. Command: " + String(recvCmd.c));
+        break;
 
+        case PACKET_DATA:
+          packComs.rxObj(recvData);
+          // Serial.println("Recv. Message: " + String(recvData.c));
+
+          switch(recvData.m) {
+            case A_VOLUME_SYNC:
+              #if defined(__XTENSA__)
+                debug("Volume Sync");
+
+                try {
+                  i_volume_master_percentage = recvData.d[0];
+                  i_volume_effects_percentage = recvData.d[1];
+                  i_volume_music_percentage = recvData.d[2];
+                }
+                catch (...) {
+                  debug("Error during volume sync");
+                }
+
+                b_state_changed = true;
+              #endif
+            break;
+
+            case A_SPECTRAL_CUSTOM_MODE:
+              #if defined(__XTENSA__)
+                debug("Spectral Custom");
+              #endif
+              FIRING_MODE = SPECTRAL_CUSTOM;
+              b_state_changed = true;
+
+              if(recvData.d[0] > 0) {
+                i_spectral_custom = recvData.d[0];
+              }
+
+              if(recvData.d[1] > 0) {
+                i_spectral_custom_saturation = recvData.d[1];
+              }
+            break;
+
+            case A_SPECTRAL_COLOUR_DATA:
+              #if defined(__XTENSA__)
+                debug("Spectral Color Data");
+              #endif
+
+              if(recvData.d[0] > 0) {
+                i_spectral_custom = recvData.d[0];
+              }
+
+              if(recvData.d[1] > 0) {
+                i_spectral_custom_saturation = recvData.d[1];
+              }
+            break;
+          }
+        break;
+
+        case PACKET_PACK:
+          #if defined(__XTENSA__)
+            debug("Pack Preferences Received");
+            packComs.rxObj(packConfig);
+          #endif
+        break;
+
+        case PACKET_WAND:
+          #if defined(__XTENSA__)
+            debug("Wand Preferences Received");
+            packComs.rxObj(wandConfig);
+          #endif
+        break;
+
+        case PACKET_SMOKE:
+          #if defined(__XTENSA__)
+            debug("Smoke Preferences Received");
+            packComs.rxObj(smokeConfig);
+          #endif
+        break;
+      }
+    }
+
+    // Handle simple commands.
+    if(i_packet_id == PACKET_COMMAND) {
       switch(recvCmd.c) {
         case A_PACK_BOOTUP:
           #if defined(__XTENSA__)
@@ -846,183 +827,6 @@ boolean checkPack() {
           // Convert to a value X.NN based on expected 5VDC maximum.
           f_batt_volts = (float) recvCmd.d1 / 100;
           b_state_changed = true;
-        break;
-
-        default:
-          // No-op for anything else.
-        break;
-      }
-    }
-
-    // Handle data payloads.
-    if(i_packet_id == DATA_PACKET) {
-      #if defined(__XTENSA__)
-        debug("Receiving Data Payload");
-      #endif
-      packComs.rxObj(recvData);
-
-      switch(recvData.m) {
-        case A_VOLUME_SYNC:
-          #if defined(__XTENSA__)
-            debug("Volume Sync");
-
-            try {
-              i_volume_master_percentage = recvData.d[0];
-              i_volume_effects_percentage = recvData.d[1];
-              i_volume_music_percentage = recvData.d[2];
-            }
-            catch (...) {
-              debug("Error during volume sync");
-            }
-
-            b_state_changed = true;
-          #endif
-        break;
-
-        case A_SPECTRAL_CUSTOM_MODE:
-          #if defined(__XTENSA__)
-            debug("Spectral Custom");
-          #endif
-          FIRING_MODE = SPECTRAL_CUSTOM;
-          b_state_changed = true;
-
-          if(recvData.d[0] > 0) {
-            i_spectral_custom = recvData.d[0];
-          }
-
-          if(recvData.d[1] > 0) {
-            i_spectral_custom_saturation = recvData.d[1];
-          }
-        break;
-
-        case A_SPECTRAL_COLOUR_DATA:
-          #if defined(__XTENSA__)
-            debug("Spectral Color Data");
-          #endif
-
-          if(recvData.d[0] > 0) {
-            i_spectral_custom = recvData.d[0];
-          }
-
-          if(recvData.d[1] > 0) {
-            i_spectral_custom_saturation = recvData.d[1];
-          }
-        break;
-
-        case A_SEND_PREFERENCES_PACK:
-          #if defined(__XTENSA__)
-            debug("Pack Preferences Received");
-
-            try {
-              // Convert integer values to user-friendly object properties.
-              packConfig.defaultSystemModePack = recvData.d[0];
-              packConfig.defaultYearThemePack = recvData.d[1];
-              packConfig.defaultSystemVolume = recvData.d[2];
-              packConfig.protonStreamEffects = recvData.d[3];
-              packConfig.overheatStrobeNF = recvData.d[4];
-              packConfig.overheatLightsOff = recvData.d[5];
-              packConfig.overheatSyncToFan = recvData.d[6];
-              packConfig.demoLightMode = recvData.d[7];
-
-              packConfig.ledCycLidCount = recvData.d[8];
-              packConfig.ledCycLidHue = recvData.d[9];
-              packConfig.ledCycLidSat = recvData.d[10];
-              packConfig.cyclotronDirection = recvData.d[11];
-              packConfig.ledCycLidCenter = recvData.d[12];
-              packConfig.ledVGCyclotron = recvData.d[13];
-              packConfig.ledCycLidSimRing = recvData.d[14];
-
-              packConfig.ledCycCakeCount = recvData.d[15];
-              packConfig.ledCycCakeHue = recvData.d[16];
-              packConfig.ledCycCakeSat = recvData.d[17];
-              packConfig.ledCycCakeGRB = recvData.d[18];
-
-              packConfig.ledPowercellCount = recvData.d[19];
-              packConfig.ledPowercellHue = recvData.d[20];
-              packConfig.ledPowercellSat = recvData.d[21];
-              packConfig.ledVGPowercell = recvData.d[22];
-            }
-            catch (...) {
-              debug("Error while receiving pack preferences");
-            }
-          #endif
-        break;
-
-        case A_SEND_PREFERENCES_WAND:
-          #if defined(__XTENSA__)
-            debug("Wand Preferences Received");
-
-            try{
-              // Convert integer values to user-friendly object properties.
-              wandConfig.ledWandCount = recvData.d[0];
-              wandConfig.ledWandHue = recvData.d[1];
-              wandConfig.ledWandSat = recvData.d[2];
-              wandConfig.spectralModeEnabled = recvData.d[3];
-              wandConfig.spectralHolidayMode = recvData.d[4];
-              wandConfig.overheatEnabled = recvData.d[5];
-              if(recvData.d[6] == 1 && recvData.d[7] == 1) {
-                wandConfig.defaultFiringMode = 3; // CTS Mix
-              }
-              else if(recvData.d[6] == 1 && recvData.d[7] == 0) {
-                wandConfig.defaultFiringMode = 2; // CTS
-              }
-              else {
-                wandConfig.defaultFiringMode = 1; // VG
-              }
-              wandConfig.wandSoundsToPack = recvData.d[8];
-              wandConfig.quickVenting = recvData.d[9];
-              wandConfig.autoVentLight = recvData.d[10];
-              wandConfig.wandBeepLoop = recvData.d[11];
-              wandConfig.wandBootError = recvData.d[12];
-              wandConfig.defaultYearModeWand = recvData.d[13];
-              wandConfig.defaultYearModeCTS = recvData.d[14];
-              wandConfig.invertWandBargraph = recvData.d[15];
-              wandConfig.bargraphOverheatBlink = recvData.d[16];
-              wandConfig.bargraphIdleAnimation = recvData.d[17];
-              wandConfig.bargraphFireAnimation = recvData.d[18];
-            }
-            catch (...) {
-              debug("Error while receiving wand preferences");
-            }
-          #endif
-        break;
-
-        case A_SEND_PREFERENCES_SMOKE:
-          #if defined(__XTENSA__)
-            debug("Smoke Preferences Received");
-
-            try {
-              // Convert integer values to user-friendly object properties.
-              smokeConfig.overheatDuration5 = recvData.d[0];
-              smokeConfig.overheatDuration4 = recvData.d[1];
-              smokeConfig.overheatDuration3 = recvData.d[2];
-              smokeConfig.overheatDuration2 = recvData.d[3];
-              smokeConfig.overheatDuration1 = recvData.d[4];
-
-              smokeConfig.overheatContinuous5 = recvData.d[5];
-              smokeConfig.overheatContinuous4 = recvData.d[6];
-              smokeConfig.overheatContinuous3 = recvData.d[7];
-              smokeConfig.overheatContinuous2 = recvData.d[8];
-              smokeConfig.overheatContinuous1 = recvData.d[9];
-
-              smokeConfig.overheatLevel5 = recvData.d[10];
-              smokeConfig.overheatLevel4 = recvData.d[11];
-              smokeConfig.overheatLevel3 = recvData.d[12];
-              smokeConfig.overheatLevel2 = recvData.d[13];
-              smokeConfig.overheatLevel1 = recvData.d[14];
-
-              smokeConfig.overheatDelay5 = recvData.d[15];
-              smokeConfig.overheatDelay4 = recvData.d[16];
-              smokeConfig.overheatDelay3 = recvData.d[17];
-              smokeConfig.overheatDelay2 = recvData.d[18];
-              smokeConfig.overheatDelay1 = recvData.d[19];
-
-              smokeConfig.smokeEnabled = recvData.d[20];
-            }
-            catch (...) {
-              debug("Error while receiving smoke preferences");
-            }
-          #endif
         break;
 
         default:

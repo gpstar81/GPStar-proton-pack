@@ -25,9 +25,8 @@
  */
 void updateSystemModeYear();
 
-// Types of packets to be sent: command or data.
-const uint8_t CMD_PACKET = 1;
-const uint8_t DATA_PACKET = 2;
+// Types of packets to be sent.
+enum PACKET_TYPE { PACKET_UNKNOWN, PACKET_COMMAND, PACKET_DATA, PACKET_PACK, PACKET_WAND, PACKET_SMOKE };
 
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
@@ -35,10 +34,10 @@ struct __attribute__((packed)) CommandPacket {
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
-// For data communication (2 byte ID, 24 byte data payload).
+// For generic data communication (2 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
   uint16_t m;
-  uint8_t d[23]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[3]; // Reserved for large data packets (eg. EEPROM configs)
 };
 
 struct CommandPacket recvCmdW;
@@ -51,6 +50,32 @@ struct MessagePacket sendDataW;
 struct MessagePacket sendDataS;
 struct MessagePacket recvDataS;
 
+struct PackPrefs {
+  uint8_t defaultSystemModePack;
+  uint8_t defaultYearThemePack;
+  uint8_t defaultSystemVolume;
+  uint8_t cyclotronDirection;
+  uint8_t demoLightMode;
+  uint8_t protonStreamEffects;
+  uint8_t overheatStrobeNF;
+  uint8_t overheatSyncToFan;
+  uint8_t overheatLightsOff;
+  uint8_t ledCycLidCount;
+  uint8_t ledCycLidHue;
+  uint8_t ledCycLidSat;
+  uint8_t ledCycLidCenter;
+  uint8_t ledCycLidSimRing;
+  uint8_t ledCycCakeCount;
+  uint8_t ledCycCakeHue;
+  uint8_t ledCycCakeSat;
+  uint8_t ledCycCakeGRB;
+  uint8_t ledVGCyclotron;
+  uint8_t ledPowercellCount;
+  uint8_t ledPowercellHue;
+  uint8_t ledPowercellSat;
+  uint8_t ledVGPowercell;
+} packConfig;
+
 struct WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
@@ -58,8 +83,7 @@ struct WandPrefs {
   uint8_t spectralModeEnabled;
   uint8_t spectralHolidayMode;
   uint8_t overheatEnabled;
-  uint8_t defaultFiringModeCTS;
-  uint8_t defaultFiringModeMix;
+  uint8_t defaultFiringMode;
   uint8_t wandSoundsToPack;
   uint8_t quickVenting;
   uint8_t autoVentLight;
@@ -71,6 +95,22 @@ struct WandPrefs {
   uint8_t bargraphOverheatBlink;
   uint8_t bargraphIdleAnimation;
   uint8_t bargraphFireAnimation;
+} wandConfig;
+
+struct SmokePrefs {
+  // Pack
+  uint8_t smokeEnabled;
+  uint8_t overheatContinuous5;
+  uint8_t overheatContinuous4;
+  uint8_t overheatContinuous3;
+  uint8_t overheatContinuous2;
+  uint8_t overheatContinuous1;
+  uint8_t overheatDuration5;
+  uint8_t overheatDuration4;
+  uint8_t overheatDuration3;
+  uint8_t overheatDuration2;
+  uint8_t overheatDuration1;
+  // Wand
   uint8_t overheatLevel5;
   uint8_t overheatLevel4;
   uint8_t overheatLevel3;
@@ -81,7 +121,7 @@ struct WandPrefs {
   uint8_t overheatDelay3;
   uint8_t overheatDelay2;
   uint8_t overheatDelay1;
-} wandConfig;
+} smokeConfig;
 
 // Adjusts which year mode the Proton Pack and Neutrona Wand are in, when switched by the Neutrona Wand.
 void toggleYearModes() {
@@ -198,7 +238,7 @@ void serial1Send(uint16_t i_command, uint16_t i_value) {
   sendCmdS.d1 = i_value;
 
   i_send_size = serial1Coms.txObj(sendCmdS, i_send_size);
-  serial1Coms.sendData(i_send_size, CMD_PACKET);
+  serial1Coms.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
 void serial1Send(uint16_t i_command) {
@@ -220,6 +260,9 @@ void serial1SendData(uint16_t i_message) {
     case A_SPECTRAL_COLOUR_DATA:
       sendDataS.d[0] = i_spectral_cyclotron_custom_colour;
       sendDataS.d[1] = i_spectral_cyclotron_custom_saturation;
+
+      i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
+      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
     case A_VOLUME_SYNC:
@@ -227,107 +270,79 @@ void serial1SendData(uint16_t i_message) {
       sendDataS.d[0] = i_volume_master_percentage;
       sendDataS.d[1] = i_volume_effects_percentage;
       sendDataS.d[2] = i_volume_music_percentage;
+
+      i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
+      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
     case A_SEND_PREFERENCES_PACK:
-      // Sends values from current runtime variables as values in an int array.
       // Any ENUM or boolean types will simply translate as numeric values.
-      sendDataS.d[0] = SYSTEM_MODE;
-      sendDataS.d[1] = SYSTEM_YEAR;
-      sendDataS.d[2] = i_volume_master_percentage;
-      sendDataS.d[3] = b_stream_effects;
-      sendDataS.d[4] = b_overheat_strobe;
-      sendDataS.d[5] = b_overheat_lights_off;
-      sendDataS.d[6] = b_overheat_sync_to_fan;
-      sendDataS.d[7] = b_demo_light_mode;
+      packConfig.defaultSystemModePack = SYSTEM_MODE;
+      packConfig.defaultYearThemePack = SYSTEM_YEAR;
+      packConfig.defaultSystemVolume = i_volume_master_percentage;
+      packConfig.protonStreamEffects = b_stream_effects;
+      packConfig.overheatStrobeNF = b_overheat_strobe;
+      packConfig.overheatLightsOff = b_overheat_lights_off;
+      packConfig.overheatSyncToFan = b_overheat_sync_to_fan;
+      packConfig.demoLightMode = b_demo_light_mode;
 
       // Cyclotron Lid
-      sendDataS.d[8] = i_cyclotron_leds;
-      sendDataS.d[9] = i_spectral_cyclotron_custom_colour;
-      sendDataS.d[10] = i_spectral_cyclotron_custom_saturation;
-      sendDataS.d[11] = b_clockwise; // Cyclotron Direction
-      sendDataS.d[12] = b_cyclotron_single_led;
-      sendDataS.d[13] = b_cyclotron_colour_toggle;
-      sendDataS.d[14] = b_cyclotron_simulate_ring;
+      packConfig.ledCycLidCount = i_cyclotron_leds;
+      packConfig.ledCycLidHue = i_spectral_cyclotron_custom_colour;
+      packConfig.ledCycLidSat = i_spectral_cyclotron_custom_saturation;
+      packConfig.cyclotronDirection = b_clockwise;
+      packConfig.ledCycLidCenter = b_cyclotron_single_led;
+      packConfig.ledVGCyclotron = b_cyclotron_colour_toggle;
+      packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring;
 
       // Inner Cyclotron
-      sendDataS.d[15] = i_inner_cyclotron_num_leds;
-      sendDataS.d[16] = i_spectral_cyclotron_inner_custom_colour;
-      sendDataS.d[17] = i_spectral_cyclotron_inner_custom_saturation;
-      sendDataS.d[18] = b_grb_cyclotron;
+      packConfig.ledCycCakeCount = i_inner_cyclotron_num_leds;
+      packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
+      packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
+      packConfig.ledCycCakeGRB = b_grb_cyclotron;
 
       // Power Cell
-      sendDataS.d[19] = i_powercell_leds;
-      sendDataS.d[20] = i_spectral_powercell_custom_colour;
-      sendDataS.d[21] = i_spectral_powercell_custom_saturation;
-      sendDataS.d[22] = b_powercell_colour_toggle;
+      packConfig.ledPowercellCount = i_powercell_leds;
+      packConfig.ledPowercellHue = i_spectral_powercell_custom_colour;
+      packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
+      packConfig.ledVGPowercell = b_powercell_colour_toggle;
+
+      i_send_size = serial1Coms.txObj(packConfig, i_send_size);
+      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_PACK);
     break;
 
     case A_SEND_PREFERENCES_WAND:
-      // Sends values from current runtime variables as values in an int array.
       // Any ENUM or boolean types will simply translate as numeric values.
-      sendDataS.d[0] = wandConfig.ledWandCount;
-      sendDataS.d[1] = wandConfig.ledWandHue;
-      sendDataS.d[2] = wandConfig.ledWandSat;
-      sendDataS.d[3] = wandConfig.spectralModeEnabled;
-      sendDataS.d[4] = wandConfig.spectralHolidayMode;
-      sendDataS.d[5] = wandConfig.overheatEnabled;
-      sendDataS.d[6] = wandConfig.defaultFiringModeCTS;
-      sendDataS.d[7] = wandConfig.defaultFiringModeMix;
-      sendDataS.d[8] = wandConfig.wandSoundsToPack;
-      sendDataS.d[9] = wandConfig.quickVenting;
-      sendDataS.d[10] = wandConfig.autoVentLight;
-      sendDataS.d[11] = wandConfig.wandBeepLoop;
-      sendDataS.d[12] = wandConfig.wandBootError;
-      sendDataS.d[13] = wandConfig.defaultYearModeWand;
-      sendDataS.d[14] = wandConfig.defaultYearModeCTS;
-      sendDataS.d[15] = wandConfig.invertWandBargraph;
-      sendDataS.d[16] = wandConfig.bargraphOverheatBlink;
-      sendDataS.d[17] = wandConfig.bargraphIdleAnimation;
-      sendDataS.d[18] = wandConfig.bargraphFireAnimation;
+      i_send_size = serial1Coms.txObj(wandConfig, i_send_size);
+      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
     case A_SEND_PREFERENCES_SMOKE:
-      // Sends values from current runtime variables as values in an int array.
-      // Duration (in seconds) an overheat event persists once activated.
-      sendDataS.d[0] = i_ms_overheating_length_5 / 1000;
-      sendDataS.d[1] = i_ms_overheating_length_4 / 1000;
-      sendDataS.d[2] = i_ms_overheating_length_3 / 1000;
-      sendDataS.d[3] = i_ms_overheating_length_2 / 1000;
-      sendDataS.d[4] = i_ms_overheating_length_1 / 1000;
-
       // Determines whether smoke effects while firing is enabled by power level.
-      sendDataS.d[5] = b_smoke_continuous_mode_5;
-      sendDataS.d[6] = b_smoke_continuous_mode_4;
-      sendDataS.d[7] = b_smoke_continuous_mode_3;
-      sendDataS.d[8] = b_smoke_continuous_mode_2;
-      sendDataS.d[9] = b_smoke_continuous_mode_1;
+      smokeConfig.overheatContinuous5 = b_smoke_continuous_mode_5;
+      smokeConfig.overheatContinuous4 = b_smoke_continuous_mode_4;
+      smokeConfig.overheatContinuous3 = b_smoke_continuous_mode_3;
+      smokeConfig.overheatContinuous2 = b_smoke_continuous_mode_2;
+      smokeConfig.overheatContinuous1 = b_smoke_continuous_mode_1;
 
-      // Determines whether overheating is enabled for a power level.
-      sendDataS.d[10] = wandConfig.overheatLevel5;
-      sendDataS.d[11] = wandConfig.overheatLevel4;
-      sendDataS.d[12] = wandConfig.overheatLevel3;
-      sendDataS.d[13] = wandConfig.overheatLevel2;
-      sendDataS.d[14] = wandConfig.overheatLevel1;
-
-      // Time (seconds) before an overheat event is triggered by level.
-      sendDataS.d[15] = wandConfig.overheatDelay5;
-      sendDataS.d[16] = wandConfig.overheatDelay4;
-      sendDataS.d[17] = wandConfig.overheatDelay3;
-      sendDataS.d[18] = wandConfig.overheatDelay2;
-      sendDataS.d[19] = wandConfig.overheatDelay1;
+      // Duration (in seconds) an overheat event persists once activated.
+      smokeConfig.overheatDuration5 = i_ms_overheating_length_5 / 1000;
+      smokeConfig.overheatDuration4 = i_ms_overheating_length_4 / 1000;
+      smokeConfig.overheatDuration3 = i_ms_overheating_length_3 / 1000;
+      smokeConfig.overheatDuration2 = i_ms_overheating_length_2 / 1000;
+      smokeConfig.overheatDuration1 = i_ms_overheating_length_1 / 1000;
 
       // Enable or disable smoke effects overall.
-      sendDataS.d[20] = b_smoke_enabled;
+      smokeConfig.smokeEnabled = b_smoke_enabled;
+
+      i_send_size = serial1Coms.txObj(smokeConfig, i_send_size);
+      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 
     default:
       // No-op for all other communications.
     break;
   }
-
-  i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
-  serial1Coms.sendData(i_send_size, DATA_PACKET);
 }
 
 // Outgoing commands to the wand
@@ -338,7 +353,7 @@ void packSerialSend(uint16_t i_command, uint16_t i_value) {
   sendCmdW.d1 = i_value;
 
   i_send_size = packComs.txObj(sendCmdW, i_send_size);
-  packComs.sendData(i_send_size, CMD_PACKET);
+  packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
 void packSerialSend(uint16_t i_command) {
@@ -361,53 +376,25 @@ void packSerialSendData(uint16_t i_message) {
       sendDataW.d[0] = i_volume_master_percentage;
       sendDataW.d[1] = i_volume_effects_percentage;
       sendDataW.d[2] = i_volume_music_percentage;
+
+      i_send_size = packComs.txObj(sendDataW, i_send_size);
+      packComs.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
     case P_SAVE_PREFERENCES_WAND:
-      // Sends values from current runtime variables as values in an int array.
-      // Any ENUM or boolean types will simply translate as numeric values.
-      sendDataW.d[0] = wandConfig.ledWandCount;
-      sendDataW.d[1] = wandConfig.ledWandHue;
-      sendDataW.d[2] = wandConfig.ledWandSat;
-      sendDataW.d[3] = wandConfig.spectralModeEnabled;
-      sendDataW.d[4] = wandConfig.spectralHolidayMode;
-      sendDataW.d[5] = wandConfig.overheatEnabled;
-      sendDataW.d[6] = wandConfig.defaultFiringModeCTS;
-      sendDataW.d[7] = wandConfig.defaultFiringModeMix;
-      sendDataW.d[8] = wandConfig.wandSoundsToPack;
-      sendDataW.d[9] = wandConfig.quickVenting;
-      sendDataW.d[10] = wandConfig.autoVentLight;
-      sendDataW.d[11] = wandConfig.wandBeepLoop;
-      sendDataW.d[12] = wandConfig.wandBootError;
-      sendDataW.d[13] = wandConfig.defaultYearModeWand;
-      sendDataW.d[14] = wandConfig.defaultYearModeCTS;
-      sendDataW.d[16] = wandConfig.invertWandBargraph;
-      sendDataW.d[16] = wandConfig.bargraphOverheatBlink;
-      sendDataW.d[17] = wandConfig.bargraphIdleAnimation;
-      sendDataW.d[18] = wandConfig.bargraphFireAnimation;
+      i_send_size = packComs.txObj(wandConfig, i_send_size);
+      packComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
     case P_SAVE_PREFERENCES_SMOKE:
-      // Sends values from current runtime variables as values in an int array.
-      sendDataW.d[0] = wandConfig.overheatLevel5;
-      sendDataW.d[1] = wandConfig.overheatLevel4;
-      sendDataW.d[2] = wandConfig.overheatLevel3;
-      sendDataW.d[3] = wandConfig.overheatLevel2;
-      sendDataW.d[4] = wandConfig.overheatLevel1;
-      sendDataW.d[5] = wandConfig.overheatDelay5;
-      sendDataW.d[6] = wandConfig.overheatDelay4;
-      sendDataW.d[7] = wandConfig.overheatDelay3;
-      sendDataW.d[8] = wandConfig.overheatDelay2;
-      sendDataW.d[9] = wandConfig.overheatDelay1;
+      i_send_size = packComs.txObj(smokeConfig, i_send_size);
+      packComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 
     default:
       // No-op for all other communications.
     break;
   }
-
-  i_send_size = packComs.txObj(sendDataW, i_send_size);
-  packComs.sendData(i_send_size, DATA_PACKET);
 }
 
 // Incoming messages from the extra Serial 1 port.
@@ -419,18 +406,136 @@ void checkSerial1() {
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
-        case CMD_PACKET:
+        case PACKET_COMMAND:
           serial1Coms.rxObj(recvCmdS);
           // Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
         break;
-        case DATA_PACKET:
+
+        case PACKET_DATA:
           serial1Coms.rxObj(recvDataS);
           // Serial.println("Recv. Serial Message: " + String(recvDataS.m));
+        break;
+
+        case PACKET_PACK:
+          serial1Coms.rxObj(packConfig);
+          Serial.println("Recv. Serial Pack");
+
+          // Writes new preferences back to runtime variables.
+          // This action does not save changes to the EEPROM!
+          switch(packConfig.defaultSystemModePack) {
+            case 0:
+            default:
+              SYSTEM_MODE = MODE_SUPER_HERO;
+            break;
+            case 1:
+              SYSTEM_MODE = MODE_ORIGINAL;
+            break;
+          }
+          switch(packConfig.defaultYearThemePack) {
+            case 1:
+            default:
+              SYSTEM_YEAR = SYSTEM_TOGGLE_SWITCH;
+            break;
+            case 2:
+              SYSTEM_YEAR = SYSTEM_1984;
+            break;
+            case 3:
+              SYSTEM_YEAR = SYSTEM_1989;
+            break;
+            case 4:
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+            break;
+            case 5:
+              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+            break;
+          }
+          i_volume_master_percentage = packConfig.defaultSystemVolume;
+          b_stream_effects = packConfig.protonStreamEffects;
+          b_overheat_strobe = packConfig.overheatStrobeNF;
+          b_overheat_lights_off = packConfig.overheatLightsOff;
+          b_overheat_sync_to_fan = packConfig.overheatSyncToFan;
+          b_demo_light_mode = packConfig.demoLightMode;
+
+          // Cyclotron Lid
+          i_cyclotron_leds = packConfig.ledCycLidCount;
+          i_spectral_cyclotron_custom_colour = packConfig.ledCycLidHue;
+          i_spectral_cyclotron_custom_saturation = packConfig.ledCycLidSat;
+          b_clockwise = packConfig.cyclotronDirection;
+          b_cyclotron_single_led = packConfig.ledCycLidCenter;
+          b_cyclotron_colour_toggle = packConfig.ledVGCyclotron;
+          b_cyclotron_simulate_ring = packConfig.ledCycLidSimRing;
+
+          // Inner Cyclotron
+          i_inner_cyclotron_num_leds = packConfig.ledCycCakeCount;
+          i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
+          i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
+          b_grb_cyclotron = packConfig.ledCycCakeGRB;
+
+          // Power Cell
+          i_powercell_leds = packConfig.ledPowercellCount;
+          i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
+          i_spectral_powercell_custom_saturation = packConfig.ledPowercellSat;
+          b_powercell_colour_toggle = packConfig.ledVGPowercell;
+
+          // Push changes to connected devices and reset related variables
+          SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+          SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
+          b_switch_mode_override = true;
+
+          // Update system values and reset as needed.
+          updateSystemModeYear();
+          updateProtonPackLEDCounts();
+          resetContinuousSmoke();
+          resetCyclotronLEDs();
+          resetRampSpeeds();
+
+          // Offer some feedback to the user
+          stopEffect(S_VENT_DRY);
+          playEffect(S_VENT_DRY);
+        break;
+
+        case PACKET_WAND:
+          serial1Coms.rxObj(wandConfig);
+          Serial.println("Recv. Serial Wand");
+
+          // This will pass values from the wandConfig object
+          packSerialSendData(P_SAVE_PREFERENCES_WAND);
+
+          // Offer some feedback to the user
+          stopEffect(S_VENT_DRY);
+          playEffect(S_VENT_DRY);
+        break;
+
+        case PACKET_SMOKE:
+          serial1Coms.rxObj(smokeConfig);
+          Serial.println("Recv. Serial Smoke");
+  
+          // Save local and remote (wand) smoke timing settings
+          i_ms_overheating_length_5 = smokeConfig.overheatDuration5 * 1000;
+          i_ms_overheating_length_4 = smokeConfig.overheatDuration4 * 1000;
+          i_ms_overheating_length_3 = smokeConfig.overheatDuration3 * 1000;
+          i_ms_overheating_length_2 = smokeConfig.overheatDuration2 * 1000;
+          i_ms_overheating_length_1 = smokeConfig.overheatDuration1 * 1000;
+
+          b_smoke_continuous_mode_5 = smokeConfig.overheatContinuous5;
+          b_smoke_continuous_mode_4 = smokeConfig.overheatContinuous4;
+          b_smoke_continuous_mode_3 = smokeConfig.overheatContinuous3;
+          b_smoke_continuous_mode_2 = smokeConfig.overheatContinuous2;
+          b_smoke_continuous_mode_1 = smokeConfig.overheatContinuous1;
+          b_smoke_enabled = smokeConfig.smokeEnabled;
+          resetContinuousSmoke();
+
+          // This will pass values from the smokeConfig object
+          packSerialSendData(P_SAVE_PREFERENCES_SMOKE);
+
+          // Offer some feedback to the user
+          stopEffect(S_VENT_SMOKE);
+          playEffect(S_VENT_SMOKE);
         break;
       }
 
       // Handle simple commands.
-      if(i_packet_id == CMD_PACKET) {
+      if(i_packet_id == PACKET_COMMAND) {
         switch(recvCmdS.c) {
           case A_HANDSHAKE:
             // The Attenuator is still here.
@@ -768,157 +873,6 @@ void checkSerial1() {
           break;
         }
       }
-
-      // Handle data payloads.
-      if(i_packet_id == DATA_PACKET) {
-        switch(recvDataS.m) {
-          case A_SAVE_PREFERENCES_PACK:
-            // Writes new preferences back to runtime variables.
-            // This action does not save changes to the EEPROM!
-            switch(recvDataS.d[0]) {
-              case 0:
-              default:
-                SYSTEM_MODE = MODE_SUPER_HERO;
-              break;
-              case 1:
-                SYSTEM_MODE = MODE_ORIGINAL;
-              break;
-            }
-            switch(recvDataS.d[1]) {
-              case 1:
-              default:
-                SYSTEM_YEAR = SYSTEM_TOGGLE_SWITCH;
-              break;
-              case 2:
-                SYSTEM_YEAR = SYSTEM_1984;
-              break;
-              case 3:
-                SYSTEM_YEAR = SYSTEM_1989;
-              break;
-              case 4:
-                SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-              break;
-              case 5:
-                SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-              break;
-            }
-            i_volume_master_percentage = recvDataS.d[2];
-            b_stream_effects = recvDataS.d[3];
-            b_overheat_strobe = recvDataS.d[4];
-            b_overheat_lights_off = recvDataS.d[5];
-            b_overheat_sync_to_fan = recvDataS.d[6];
-            b_demo_light_mode = recvDataS.d[7];
-
-            // Cyclotron Lid
-            i_cyclotron_leds = recvDataS.d[8];
-            i_spectral_cyclotron_custom_colour = recvDataS.d[9];
-            i_spectral_cyclotron_custom_saturation = recvDataS.d[10];
-            b_clockwise = recvDataS.d[11]; // Cyclotron Direction
-            b_cyclotron_single_led = recvDataS.d[12];
-            b_cyclotron_colour_toggle = recvDataS.d[13];
-            b_cyclotron_simulate_ring = recvDataS.d[14];
-
-            // Inner Cyclotron
-            i_inner_cyclotron_num_leds = recvDataS.d[15];
-            i_spectral_cyclotron_inner_custom_colour = recvDataS.d[16];
-            i_spectral_cyclotron_inner_custom_saturation = recvDataS.d[17];
-            b_grb_cyclotron = recvDataS.d[18];
-
-            // Power Cell
-            i_powercell_leds = recvDataS.d[19];
-            i_spectral_powercell_custom_colour = recvDataS.d[20];
-            i_spectral_powercell_custom_saturation = recvDataS.d[21];
-            b_powercell_colour_toggle = recvDataS.d[22];
-
-            // Push changes to connected devices and reset related variables
-            SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-            SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
-            b_switch_mode_override = true;
-
-            // Update system values and reset as needed.
-            updateSystemModeYear();
-            updateProtonPackLEDCounts();
-            resetContinuousSmoke();
-            resetCyclotronLEDs();
-            resetRampSpeeds();
-
-            // Offer some feedback to the user
-            stopEffect(S_VENT_DRY);
-            playEffect(S_VENT_DRY);
-          break;
-
-          case A_SAVE_PREFERENCES_WAND:
-            // Send latest preferences from serial1 web UI back to wand
-            wandConfig.ledWandCount = recvDataS.d[0];
-            wandConfig.ledWandHue = recvDataS.d[1];
-            wandConfig.ledWandSat = recvDataS.d[2];
-            wandConfig.spectralModeEnabled = recvDataS.d[3];
-            wandConfig.spectralHolidayMode = recvDataS.d[4];
-            wandConfig.overheatEnabled = recvDataS.d[5];
-            wandConfig.defaultFiringModeCTS = recvDataS.d[6];
-            wandConfig.defaultFiringModeMix = recvDataS.d[7];
-            wandConfig.wandSoundsToPack = recvDataS.d[8];
-            wandConfig.quickVenting = recvDataS.d[9];
-            wandConfig.autoVentLight = recvDataS.d[10];
-            wandConfig.wandBeepLoop = recvDataS.d[11];
-            wandConfig.wandBootError = recvDataS.d[12];
-            wandConfig.defaultYearModeWand = recvDataS.d[13];
-            wandConfig.defaultYearModeCTS = recvDataS.d[14];
-            wandConfig.invertWandBargraph = recvDataS.d[15];
-            wandConfig.bargraphOverheatBlink = recvDataS.d[16];
-            wandConfig.bargraphIdleAnimation = recvDataS.d[17];
-            wandConfig.bargraphFireAnimation = recvDataS.d[18];
-
-            // This will pass select values from the wandConfig object
-            packSerialSendData(P_SAVE_PREFERENCES_WAND);
-
-            // Offer some feedback to the user
-            stopEffect(S_VENT_DRY);
-            playEffect(S_VENT_DRY);
-          break;
-
-          case A_SAVE_PREFERENCES_SMOKE:
-            // Save local and remote (wand) smoke timing settings
-            i_ms_overheating_length_5 = recvDataS.d[0] * 1000;
-            i_ms_overheating_length_4 = recvDataS.d[1] * 1000;
-            i_ms_overheating_length_3 = recvDataS.d[2] * 1000;
-            i_ms_overheating_length_2 = recvDataS.d[3] * 1000;
-            i_ms_overheating_length_1 = recvDataS.d[4] * 1000;
-
-            b_smoke_continuous_mode_5 = recvDataS.d[5];
-            b_smoke_continuous_mode_4 = recvDataS.d[6];
-            b_smoke_continuous_mode_3 = recvDataS.d[7];
-            b_smoke_continuous_mode_2 = recvDataS.d[8];
-            b_smoke_continuous_mode_1 = recvDataS.d[9];
-
-            wandConfig.overheatLevel5 = recvDataS.d[10];
-            wandConfig.overheatLevel4 = recvDataS.d[11];
-            wandConfig.overheatLevel3 = recvDataS.d[12];
-            wandConfig.overheatLevel2 = recvDataS.d[13];
-            wandConfig.overheatLevel1 = recvDataS.d[14];
-
-            wandConfig.overheatDelay5 = recvDataS.d[15];
-            wandConfig.overheatDelay4 = recvDataS.d[16];
-            wandConfig.overheatDelay3 = recvDataS.d[17];
-            wandConfig.overheatDelay2 = recvDataS.d[18];
-            wandConfig.overheatDelay1 = recvDataS.d[19];
-
-            b_smoke_enabled = recvDataS.d[20];
-            resetContinuousSmoke();
-
-            // This will pass select values from the wandConfig object
-            packSerialSendData(P_SAVE_PREFERENCES_SMOKE);
-
-            // Offer some feedback to the user
-            stopEffect(S_VENT_SMOKE);
-            playEffect(S_VENT_SMOKE);
-          break;
-
-          default:
-            // No-op for anything else.
-          break;
-        }
-      }
     }
   }
 }
@@ -932,18 +886,33 @@ void checkWand() {
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the wand device.
       switch(i_packet_id) {
-        case CMD_PACKET:
+        case PACKET_COMMAND:
           packComs.rxObj(recvCmdW);
           // Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
         break;
-        case DATA_PACKET:
+        case PACKET_DATA:
           packComs.rxObj(recvDataW);
-          // Serial.println("Recv. Wand Message: " + String(recvDataW.m));
+          // Serial.println("Recv. Wand Data: " + String(recvDataW.m));
+        break;
+        case PACKET_WAND:
+          packComs.rxObj(wandConfig);
+          Serial.println("Recv. Wand Prefs");
+
+          // Send the EEPROM preferences just returned by the wand.
+          serial1SendData(A_SEND_PREFERENCES_WAND);
+        break;
+        case PACKET_SMOKE:
+          packComs.rxObj(smokeConfig);
+          Serial.println("Recv. Wand Smoke");
+
+          // Send the EEPROM preferences just returned by the wand.
+          // This data will combine with the pack's smoke settings.
+          serial1SendData(A_SEND_PREFERENCES_SMOKE);
         break;
       }
 
       // Handle simple commands.
-      if(i_packet_id == CMD_PACKET) {
+      if(i_packet_id == PACKET_COMMAND) {
         switch(recvCmdW.c) {
           case W_HANDSHAKE:
             // Check if the wand is telling us it is here after connecting it to the pack.
@@ -3684,59 +3653,6 @@ void checkWand() {
               stopEffect(recvCmdW.d1);
               playEffect(recvCmdW.d1);
             }
-          break;
-
-          default:
-            // No-op for all other actions.
-          break;
-        }
-      }
-
-      // Handle data payloads.
-      if(i_packet_id == DATA_PACKET) {
-        switch(recvDataW.m) {
-          case W_SEND_PREFERENCES_WAND:
-            // Preferences are received from the wand.
-            wandConfig.ledWandCount = recvDataW.d[0];
-            wandConfig.ledWandHue = recvDataW.d[1];
-            wandConfig.ledWandSat = recvDataW.d[2];
-            wandConfig.spectralModeEnabled = recvDataW.d[3];
-            wandConfig.spectralHolidayMode = recvDataW.d[4];
-            wandConfig.overheatEnabled = recvDataW.d[5];
-            wandConfig.defaultFiringModeCTS = recvDataW.d[6];
-            wandConfig.defaultFiringModeMix = recvDataW.d[7];
-            wandConfig.wandSoundsToPack = recvDataW.d[8];
-            wandConfig.quickVenting = recvDataW.d[9];
-            wandConfig.autoVentLight = recvDataW.d[10];
-            wandConfig.wandBeepLoop = recvDataW.d[11];
-            wandConfig.wandBootError = recvDataW.d[12];
-            wandConfig.defaultYearModeWand = recvDataW.d[13];
-            wandConfig.defaultYearModeCTS = recvDataW.d[14];
-            wandConfig.invertWandBargraph = recvDataW.d[15];
-            wandConfig.bargraphOverheatBlink = recvDataW.d[16];
-            wandConfig.bargraphIdleAnimation = recvDataW.d[17];
-            wandConfig.bargraphFireAnimation = recvDataW.d[18];
-
-            // Send the EEPROM preferences just returned by the wand.
-            serial1SendData(A_SEND_PREFERENCES_WAND);
-          break;
-
-          case W_SEND_PREFERENCES_SMOKE:
-            // Preferences are received from the wand.
-            wandConfig.overheatLevel5 = recvDataW.d[0];
-            wandConfig.overheatLevel4 = recvDataW.d[1];
-            wandConfig.overheatLevel3 = recvDataW.d[2];
-            wandConfig.overheatLevel2 = recvDataW.d[3];
-            wandConfig.overheatLevel1 = recvDataW.d[4];
-            wandConfig.overheatDelay5 = recvDataW.d[5];
-            wandConfig.overheatDelay4 = recvDataW.d[6];
-            wandConfig.overheatDelay3 = recvDataW.d[7];
-            wandConfig.overheatDelay2 = recvDataW.d[8];
-            wandConfig.overheatDelay1 = recvDataW.d[9];
-
-            // Send the EEPROM preferences just returned by the wand.
-            // This data will combine with the pack's smoke settings.
-            serial1SendData(A_SEND_PREFERENCES_SMOKE);
           break;
 
           default:
