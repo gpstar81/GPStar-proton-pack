@@ -238,7 +238,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      // Wait for 1/2 second for serial communications between devices.
+      // Wait 0.5s for serial communications between devices.
       setTimeout(getSettings, 500);
     }
 

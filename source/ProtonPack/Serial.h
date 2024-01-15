@@ -418,7 +418,7 @@ void checkSerial1() {
 
         case PACKET_PACK:
           serial1Coms.rxObj(packConfig);
-          Serial.println("Recv. Serial Pack");
+          // Serial.println("Recv. Serial Pack");
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -496,7 +496,7 @@ void checkSerial1() {
 
         case PACKET_WAND:
           serial1Coms.rxObj(wandConfig);
-          Serial.println("Recv. Serial Wand");
+          // Serial.println("Recv. Serial Wand");
 
           // This will pass values from the wandConfig object
           packSerialSendData(P_SAVE_PREFERENCES_WAND);
@@ -508,7 +508,7 @@ void checkSerial1() {
 
         case PACKET_SMOKE:
           serial1Coms.rxObj(smokeConfig);
-          Serial.println("Recv. Serial Smoke");
+          // Serial.println("Recv. Serial Smoke");
   
           // Save local and remote (wand) smoke timing settings
           i_ms_overheating_length_5 = smokeConfig.overheatDuration5 * 1000;
@@ -881,7 +881,7 @@ void checkSerial1() {
 void checkWand() {
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
-    //Serial.println("Wand PacketID: " + String(i_packet_id));
+    // Serial.println("Wand PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the wand device.
@@ -896,14 +896,14 @@ void checkWand() {
         break;
         case PACKET_WAND:
           packComs.rxObj(wandConfig);
-          Serial.println("Recv. Wand Prefs");
+          // Serial.println("Recv. Wand Prefs");
 
           // Send the EEPROM preferences just returned by the wand.
           serial1SendData(A_SEND_PREFERENCES_WAND);
         break;
         case PACKET_SMOKE:
           packComs.rxObj(smokeConfig);
-          Serial.println("Recv. Wand Smoke");
+          // Serial.println("Recv. Wand Smoke");
 
           // Send the EEPROM preferences just returned by the wand.
           // This data will combine with the pack's smoke settings.

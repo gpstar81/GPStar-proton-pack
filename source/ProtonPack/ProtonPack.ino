@@ -3340,8 +3340,6 @@ void modeFireStartSounds() {
 }
 
 void wandFiring() {
-  // Serial.println("Started Firing");
-
   modeFireStartSounds();
 
   b_wand_firing = true;
@@ -3432,8 +3430,6 @@ void modeFireStopSounds() {
 }
 
 void wandStoppedFiring() {
-  Serial.println("Stopped Firing");
-
   ms_meson_blast.stop();
 
   modeFireStopSounds();
@@ -4097,7 +4093,7 @@ void wandDisconnectCheck() {
     // A wand was previously considered to be connected.
     if(ms_wand_disconnect.justFinished()) {
       // Timeout has expired, so we must assume the wand was disconnected.
-      Serial.println("Wand Disconnected");
+      //Serial.println("Wand Disconnected");
       b_wand_connected = false; // Cause the next handshake to trigger a sync.
       b_wand_on = false; // No wand means the device is no longer powered on.
 
@@ -4334,7 +4330,7 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
 
 // Helper method to play a music track using certain defaults.
 void playMusic() {
-  if(b_music_paused != true) {
+  if(b_music_paused != true && i_music_count > 0 && i_current_music_track >= i_music_track_start) {
     b_playing_music = true;
 
     // Loop the music track.
@@ -4347,9 +4343,9 @@ void playMusic() {
 
     w_trig.trackGain(i_current_music_track, i_volume_music);
     w_trig.trackPlayPoly(i_current_music_track, true);
-
     w_trig.update();
 
+    // Manage track navigation.
     ms_music_status_check.start(i_music_check_delay * 10);
     w_trig.resetTrackCounter(true);
 
@@ -4363,7 +4359,10 @@ void playMusic() {
 }
 
 void stopMusic() {
-  w_trig.trackStop(i_current_music_track);
+  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+    w_trig.trackStop(i_current_music_track);
+  }
+
   w_trig.update();
 
   b_music_paused = false;
@@ -4384,7 +4383,9 @@ void pauseMusic() {
     serial1Send(A_MUSIC_IS_PAUSED);
 
     // Pause music playback on the Proton Pack
-    w_trig.trackPause(i_current_music_track);
+    if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+      w_trig.trackPause(i_current_music_track);
+    }
     w_trig.update();
     b_music_paused = true;
   }
@@ -4392,18 +4393,20 @@ void pauseMusic() {
 
 void resumeMusic() {
   if(b_playing_music == true) {
-    // Tell connected devices music playback has resumed.
-    packSerialSend(P_MUSIC_RESUME);
-    serial1Send(A_MUSIC_IS_NOT_PAUSED);
-
     // Reset the music check timer.
     ms_music_status_check.start(i_music_check_delay * 10);
     w_trig.resetTrackCounter(true);
 
     // Resume music playback on the Proton Pack
-    w_trig.trackResume(i_current_music_track);
+    if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+      w_trig.trackResume(i_current_music_track);
+    }
     w_trig.update();
     b_music_paused = false;
+
+    // Tell connected devices music playback has resumed.
+    packSerialSend(P_MUSIC_RESUME);
+    serial1Send(A_MUSIC_IS_NOT_PAUSED);
   }
 }
 

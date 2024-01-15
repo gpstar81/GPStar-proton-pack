@@ -198,7 +198,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
     break;
 
     case C_SPECTRAL_CUSTOM:
-      return CHSV(i_spectral_custom, i_spectral_custom_saturation, i_brightness);
+      return CHSV(i_spectral_custom_colour, i_spectral_custom_saturation, i_brightness);
     break;
 
     default:

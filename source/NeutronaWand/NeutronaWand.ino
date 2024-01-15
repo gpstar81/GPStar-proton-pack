@@ -7287,10 +7287,10 @@ void playMusic() {
 
     w_trig.trackGain(i_current_music_track, i_volume_music);
     w_trig.trackPlayPoly(i_current_music_track, true);
-
     w_trig.update();
 
     if(b_gpstar_benchtest == true) {
+      // Keep track of music playback on the wand directly.
       ms_music_status_check.start(i_music_check_delay * 10);
       w_trig.resetTrackCounter(true);
     }

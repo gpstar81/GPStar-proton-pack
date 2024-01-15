@@ -273,7 +273,7 @@ void checkPack() {
 
         case PACKET_DATA:
           wandComs.rxObj(recvData);
-          Serial.println("Recv. Message: " + String(recvData.m));
+          // Serial.println("Recv. Message: " + String(recvData.m));
 
           switch(recvData.m) {
             case P_VOLUME_SYNC:
@@ -297,7 +297,7 @@ void checkPack() {
 
         case PACKET_WAND:
           wandComs.rxObj(wandConfig);
-          Serial.println("Recv. Wand Config");
+          // Serial.println("Recv. Wand Config");
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -423,7 +423,7 @@ void checkPack() {
 
         case PACKET_SMOKE:
           wandComs.rxObj(smokeConfig);
-          Serial.println("Recv. Smoke Config");
+          // Serial.println("Recv. Smoke Config");
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!

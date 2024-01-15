@@ -217,8 +217,8 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      // Wait for 1 second for serial communications between devices.
-      setTimeout(getSettings, 1000);
+      // Wait 0.5s for serial communications between devices.
+      setTimeout(getSettings, 500);
     }
 
     function isJsonString(str) {

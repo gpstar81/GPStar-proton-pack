@@ -199,23 +199,33 @@ boolean checkPack() {
   // Pack communication to the Attenuator device.
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
+    #if defined(__XTENSA__)
+      //debug("PacketID: " + String(i_packet_id));
+    #endif
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
+          #if defined(__XTENSA__)
+            //debug("Recv. Command: " + String(recvCmd.c));
+          #endif
+
           packComs.rxObj(recvCmd);
-          // Serial.println("Recv. Command: " + String(recvCmd.c));
         break;
 
         case PACKET_DATA:
+          #if defined(__XTENSA__)
+            //debug("Recv. Message: " + String(recvData.m));
+          #endif
+
           packComs.rxObj(recvData);
-          // Serial.println("Recv. Message: " + String(recvData.c));
 
           switch(recvData.m) {
             case A_VOLUME_SYNC:
+              // Only applies to ESP32 for the web UI.
               #if defined(__XTENSA__)
-                debug("Volume Sync");
+                //debug("Volume Sync");
 
                 try {
                   i_volume_master_percentage = recvData.d[0];
@@ -232,15 +242,16 @@ boolean checkPack() {
 
             case A_SPECTRAL_CUSTOM_MODE:
               #if defined(__XTENSA__)
-                debug("Spectral Custom");
+                //debug("Spectral Custom");
               #endif
+
               FIRING_MODE = SPECTRAL_CUSTOM;
               b_state_changed = true;
 
+              // Applies to both Arduino Nano and ESP32.
               if(recvData.d[0] > 0) {
-                i_spectral_custom = recvData.d[0];
+                i_spectral_custom_colour = recvData.d[0];
               }
-
               if(recvData.d[1] > 0) {
                 i_spectral_custom_saturation = recvData.d[1];
               }
@@ -248,13 +259,13 @@ boolean checkPack() {
 
             case A_SPECTRAL_COLOUR_DATA:
               #if defined(__XTENSA__)
-                debug("Spectral Color Data");
+                //debug("Spectral Color Data");
               #endif
 
+              // Applies to both Arduino Nano and ESP32.
               if(recvData.d[0] > 0) {
-                i_spectral_custom = recvData.d[0];
+                i_spectral_custom_colour = recvData.d[0];
               }
-
               if(recvData.d[1] > 0) {
                 i_spectral_custom_saturation = recvData.d[1];
               }
@@ -263,6 +274,7 @@ boolean checkPack() {
         break;
 
         case PACKET_PACK:
+          // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Pack Preferences Received");
             packComs.rxObj(packConfig);
@@ -270,6 +282,7 @@ boolean checkPack() {
         break;
 
         case PACKET_WAND:
+          // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Wand Preferences Received");
             packComs.rxObj(wandConfig);
@@ -277,6 +290,7 @@ boolean checkPack() {
         break;
 
         case PACKET_SMOKE:
+          // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Smoke Preferences Received");
             packComs.rxObj(smokeConfig);

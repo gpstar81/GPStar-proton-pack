@@ -120,13 +120,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         <span class="slider round"></span>
       </label>
     </div>
-    <div class="setting">
-      <b class="labelSwitch">Overheat Sync Smoke to Fan:</b>
-      <label class="switch">
-        <input id="overheatSyncToFan" name="overheatSyncToFan" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
   </div>
 
   <h1>Bargraph Options</h1>
@@ -218,8 +211,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      // Wait for 1 second for serial communications between devices.
-      setTimeout(getSettings, 1000);
+      // Wait 0.5s for serial communications between devices.
+      setTimeout(getSettings, 500);
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
