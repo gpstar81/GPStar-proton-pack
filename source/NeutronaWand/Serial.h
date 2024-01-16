@@ -317,11 +317,14 @@ void checkPack() {
             break;
           }
 
+          b_overheat_enabled = wandConfig.overheatEnabled;
           i_spectral_wand_custom_colour = wandConfig.ledWandHue;
           i_spectral_wand_custom_saturation = wandConfig.ledWandSat;
-          b_spectral_mode_enabled = wandConfig.spectralModeEnabled;
           b_holiday_mode_enabled = wandConfig.spectralHolidayMode;
-          b_overheat_enabled = wandConfig.overheatEnabled;
+          b_spectral_mode_enabled = wandConfig.spectralModeEnabled;
+
+          // Spectral custom, is linked to spectral mode overall, just like in the Neutrona Wand EEPROM menu system.
+          b_spectral_custom_mode_enabled = wandConfig.spectralModeEnabled;
 
           switch(wandConfig.defaultFiringMode) {
             case 3:
