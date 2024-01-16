@@ -40,19 +40,18 @@ struct __attribute__((packed)) CommandPacket {
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
+struct CommandPacket sendCmd;
+struct CommandPacket recvCmd;
+
 // For generic data communication (2 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
   uint16_t m;
-  uint8_t d[3]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
 };
 
-struct CommandPacket recvCmd;
-struct CommandPacket sendCmd;
-
-struct MessagePacket recvData;
 struct MessagePacket sendData;
+struct MessagePacket recvData;
 
-// Translates a preferences to user-friendly names.
 struct __attribute__((packed)) PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;

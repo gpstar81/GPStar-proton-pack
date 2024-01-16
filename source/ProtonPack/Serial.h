@@ -20,11 +20,6 @@
 
 #pragma once
 
-/*
- * Function prototypes.
- */
-void updateSystemModeYear();
-
 // Types of packets to be sent.
 enum PACKET_TYPE { PACKET_UNKNOWN, PACKET_COMMAND, PACKET_DATA, PACKET_PACK, PACKET_WAND, PACKET_SMOKE };
 
@@ -34,19 +29,19 @@ struct __attribute__((packed)) CommandPacket {
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
-// For generic data communication (2 byte ID, 4 byte array).
-struct __attribute__((packed)) MessagePacket {
-  uint16_t m;
-  uint8_t d[3]; // Reserved for large data packets (eg. EEPROM configs)
-};
-
-struct CommandPacket recvCmdW;
 struct CommandPacket sendCmdW;
+struct CommandPacket recvCmdW;
 struct CommandPacket sendCmdS;
 struct CommandPacket recvCmdS;
 
-struct MessagePacket recvDataW;
+// For generic data communication (2 byte ID, 4 byte array).
+struct __attribute__((packed)) MessagePacket {
+  uint16_t m;
+  uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
+};
+
 struct MessagePacket sendDataW;
+struct MessagePacket recvDataW;
 struct MessagePacket sendDataS;
 struct MessagePacket recvDataS;
 
@@ -194,41 +189,9 @@ void toggleYearModes() {
   }
 }
 
-// Handle telling connected devices the proper mode/year in use.
-void updateSystemModeYear() {
-  switch(SYSTEM_MODE) {
-    case MODE_ORIGINAL:
-      packSerialSend(P_MODE_ORIGINAL);
-      serial1Send(A_MODE_ORIGINAL);
-    break;
-
-    case MODE_SUPER_HERO:
-    default:
-      packSerialSend(P_MODE_SUPER_HERO);
-      serial1Send(A_MODE_ORIGINAL);
-    break;
-  }
-
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_1984:
-      packSerialSend(P_YEAR_1984);
-      serial1Send(A_YEAR_1984);
-    break;
-    case SYSTEM_1989:
-      packSerialSend(P_YEAR_1989);
-      serial1Send(A_YEAR_1989);
-    break;
-    case SYSTEM_AFTERLIFE:
-    default:
-      packSerialSend(P_YEAR_AFTERLIFE);
-      serial1Send(A_YEAR_AFTERLIFE);
-    break;
-    case SYSTEM_FROZEN_EMPIRE:
-      packSerialSend(P_YEAR_FROZEN_EMPIRE);
-      serial1Send(A_YEAR_FROZEN_EMPIRE);
-    break;
-  }
-}
+/*
+ * Serial API Communication Handlers
+ */
 
 // Outgoing commands to the Serial1 device
 void serial1Send(uint16_t i_command, uint16_t i_value) {
@@ -426,29 +389,55 @@ void checkSerial1() {
             case 0:
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
+              packSerialSend(P_MODE_ORIGINAL);
+
+              if(switch_power.getState() == LOW) {
+                // Tell the Neutrona Wand that power to the Proton Pack is on.
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+              }
+              else {
+                // Tell the Neutrona Wand that power to the Proton Pack is off.
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
             break;
+
             case 1:
               SYSTEM_MODE = MODE_ORIGINAL;
+              packSerialSend(P_MODE_SUPER_HERO);
+
+              // This is only applicable to the Mode Original, so default to off.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
             break;
           }
+
           switch(packConfig.defaultYearThemePack) {
             case 1:
             default:
               SYSTEM_YEAR = SYSTEM_TOGGLE_SWITCH;
+              setYearModeByToggle();
             break;
             case 2:
               SYSTEM_YEAR = SYSTEM_1984;
+              packSerialSend(P_YEAR_1984);
+              serial1Send(A_YEAR_1984);
             break;
             case 3:
               SYSTEM_YEAR = SYSTEM_1989;
+              packSerialSend(P_YEAR_1989);
+              serial1Send(A_YEAR_1989);
             break;
             case 4:
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              packSerialSend(P_YEAR_AFTERLIFE);
+              serial1Send(A_YEAR_AFTERLIFE);
             break;
             case 5:
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+              packSerialSend(P_YEAR_FROZEN_EMPIRE);
+              serial1Send(A_YEAR_FROZEN_EMPIRE);
             break;
           }
+
           i_volume_master_percentage = packConfig.defaultSystemVolume;
           b_stream_effects = packConfig.protonStreamEffects;
           b_overheat_strobe = packConfig.overheatStrobeNF;
@@ -483,7 +472,6 @@ void checkSerial1() {
           b_switch_mode_override = true;
 
           // Update system values and reset as needed.
-          updateSystemModeYear();
           updateProtonPackLEDCounts();
           resetContinuousSmoke();
           resetCyclotronLEDs();

@@ -933,6 +933,31 @@ void packOffReset() {
   }
 }
 
+void setYearModeByToggle() {
+  if(switch_mode.getState() == LOW) {
+    if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      // Tell the wand to switch to 1984 mode.
+      packSerialSend(P_YEAR_1984);
+
+      SYSTEM_YEAR = SYSTEM_1984;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+      serial1Send(A_YEAR_1984);
+    }
+  }
+  else {
+    if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+      // Tell the wand to switch to Afterlife mode.
+      packSerialSend(P_YEAR_AFTERLIFE);
+
+      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+      serial1Send(A_YEAR_AFTERLIFE);
+    }
+  }
+}
+
 void checkSwitches() {
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
@@ -1073,6 +1098,10 @@ void checkSwitches() {
             // Turn the pack on.
             PACK_ACTION_STATE = ACTION_ACTIVATE;
           }
+
+          // The "Red Switch" is not applicable to Super Hero mode, so default to OFF.
+          packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+          serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
         break;
       }
 
@@ -1080,28 +1109,7 @@ void checkSwitches() {
       if(b_2021_ramp_down != true && b_pack_on == false) {
         // If switching manually by the pack toggle switch.
         if(b_switch_mode_override != true) {
-          if(switch_mode.getState() == LOW) {
-            if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              // Tell the wand to switch to 1984 mode.
-              packSerialSend(P_YEAR_1984);
-
-              SYSTEM_YEAR = SYSTEM_1984;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_1984);
-            }
-          }
-          else {
-            if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-              // Tell the wand to switch to Afterlife mode.
-              packSerialSend(P_YEAR_AFTERLIFE);
-
-              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_AFTERLIFE);
-            }
-          }
+          setYearModeByToggle();
         }
         else {
           // If the Neutrona Wand sub menu setting told the Proton Pack to change years.
