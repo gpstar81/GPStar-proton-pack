@@ -595,7 +595,7 @@ void checkRotaryPress() {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
           #if defined(__XTENSA__)
-            debug("Changed to Menu 2");
+            debug("Menu 2");
           #endif
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
@@ -603,7 +603,7 @@ void checkRotaryPress() {
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
           #if defined(__XTENSA__)
-            debug("Changed to Menu 1");
+            debug("Menu 1");
           #endif
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(440); // Tone as note A4
@@ -656,7 +656,7 @@ void checkRotaryEncoder() {
             // Tell pack to increase overall volume.
             attenuatorSerialSend(A_VOLUME_INCREASE);
             #if defined(__XTENSA__)
-              debug("Increase Master Volume");
+              debug("Master Volume+");
             #endif
           break;
 
@@ -664,7 +664,7 @@ void checkRotaryEncoder() {
             // Tell pack to increase effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
             #if defined(__XTENSA__)
-              debug("Increase Effects Volume");
+              debug("Effects Volume+");
             #endif
           break;
         }
@@ -696,7 +696,7 @@ void checkRotaryEncoder() {
             // Tell pack to decrease overall volume.
             attenuatorSerialSend(A_VOLUME_DECREASE);
             #if defined(__XTENSA__)
-              debug("Decrease Master Volume");
+              debug("Master Volume-");
             #endif
           break;
 
@@ -704,7 +704,7 @@ void checkRotaryEncoder() {
             // Tell pack to decrease effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
             #if defined(__XTENSA__)
-              debug("Decrease Effects Volume");
+              debug("Effects Volume-");
             #endif
           break;
         }

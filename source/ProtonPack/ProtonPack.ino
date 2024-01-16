@@ -17,6 +17,18 @@
  *
  */
 
+// Set to 1 to enable built-in debug messages
+#define DEBUG 0
+
+// Debug macros
+#if DEBUG == 1
+#define debug(x) Serial.print(x)
+#define debugln(x) Serial.println(x)
+#else
+#define debug(x)
+#define debugln(x)
+#endif
+
 // 3rd-Party Libraries
 #include <EEPROM.h>
 #include <millisDelay.h>
@@ -25,15 +37,15 @@
 #include <Ramp.h>
 #include <SerialTransfer.h>
 
-/*
-  ***** IMPORTANT *****
-  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
-  * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
-  https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
-
-  * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
-  https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
-*/
+/**
+ ***** IMPORTANT *****
+ * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
+ * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
+ * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
+ *
+ * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
+ * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
+ */
 #include "wavTrigger.h"
 
 // Local Files
@@ -282,11 +294,15 @@ void loop() {
         switch(SYSTEM_MODE) {
           case MODE_ORIGINAL:
             if(switch_power.getState() == HIGH) {
-             // Tell the Neutrona Wand that power to the Proton Pack is off.
-              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              // Tell the Neutrona Wand that power to the Proton Pack is off.
+              if(b_wand_connected) {
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
 
               // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              if(b_serial1_connected) {
+                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
             }
           break;
 
@@ -921,6 +937,31 @@ void packOffReset() {
   }
 }
 
+void setYearModeByToggle() {
+  if(switch_mode.getState() == LOW) {
+    if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      // Tell the wand to switch to 1984 mode.
+      packSerialSend(P_YEAR_1984);
+
+      SYSTEM_YEAR = SYSTEM_1984;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+      serial1Send(A_YEAR_1984);
+    }
+  }
+  else {
+    if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+      // Tell the wand to switch to Afterlife mode.
+      packSerialSend(P_YEAR_AFTERLIFE);
+
+      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+      serial1Send(A_YEAR_AFTERLIFE);
+    }
+  }
+}
+
 void checkSwitches() {
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
@@ -1047,10 +1088,14 @@ void checkSwitches() {
             }
             else {
               // Tell the Neutrona Wand that power to the Proton Pack is off.
-              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              if(b_wand_connected) {
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
 
               // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              if(b_serial1_connected) {
+                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
             }
           }
         break;
@@ -1061,6 +1106,17 @@ void checkSwitches() {
             // Turn the pack on.
             PACK_ACTION_STATE = ACTION_ACTIVATE;
           }
+
+          // @TODO: Is this necessary here, or can we send this from a better point in the logic?
+
+          // The "Red Switch" is not applicable to Super Hero mode, so default to OFF.
+          // if(b_wand_connected) {
+          //   packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+          // }
+
+          // if(b_serial1_connected) {
+          //   serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+          // }
         break;
       }
 
@@ -1068,28 +1124,7 @@ void checkSwitches() {
       if(b_2021_ramp_down != true && b_pack_on == false) {
         // If switching manually by the pack toggle switch.
         if(b_switch_mode_override != true) {
-          if(switch_mode.getState() == LOW) {
-            if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              // Tell the wand to switch to 1984 mode.
-              packSerialSend(P_YEAR_1984);
-
-              SYSTEM_YEAR = SYSTEM_1984;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_1984);
-            }
-          }
-          else {
-            if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-              // Tell the wand to switch to Afterlife mode.
-              packSerialSend(P_YEAR_AFTERLIFE);
-
-              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-              serial1Send(A_YEAR_AFTERLIFE);
-            }
-          }
+          setYearModeByToggle();
         }
         else {
           // If the Neutrona Wand sub menu setting told the Proton Pack to change years.
@@ -4093,7 +4128,7 @@ void wandDisconnectCheck() {
     // A wand was previously considered to be connected.
     if(ms_wand_disconnect.justFinished()) {
       // Timeout has expired, so we must assume the wand was disconnected.
-      //Serial.println("Wand Disconnected");
+      debugln("Wand Disconnected");
       b_wand_connected = false; // Cause the next handshake to trigger a sync.
       b_wand_on = false; // No wand means the device is no longer powered on.
 
@@ -4526,8 +4561,10 @@ void doVoltageCheck() {
   const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
   i_batt_volts = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
 
-  // Send current voltage value to the serial1 device.
-  serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
+  // Send current voltage value to the serial1 device, if connected.
+  if(b_serial1_connected) {
+    serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
+  }
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.

@@ -379,10 +379,10 @@ const unsigned int i_wand_disconnect_delay = 3000; // Time until the pack consid
  * Serial1 Status
  */
 bool b_serial1_connected = false;
+bool b_serial1_syncing = false;
 millisDelay ms_serial1_handshake;
 const unsigned int i_serial1_handshake_delay = 4000;
 millisDelay ms_serial1_handshake_checking;
-bool b_serial_1_syncing = false;
 
 /*
  * Define Serial Communication Buffers

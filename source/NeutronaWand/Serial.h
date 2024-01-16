@@ -28,19 +28,19 @@ struct __attribute__((packed)) CommandPacket {
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
+struct CommandPacket sendCmd;
+struct CommandPacket recvCmd;
+
 // For generic data communication (2 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
   uint16_t m;
-  uint8_t d[3]; // Reserved for large data packets (eg. EEPROM configs)
+  uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
 };
 
-struct CommandPacket recvCmd;
-struct CommandPacket sendCmd;
-
-struct MessagePacket recvData;
 struct MessagePacket sendData;
+struct MessagePacket recvData;
 
-struct WandPrefs {
+struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
@@ -61,7 +61,7 @@ struct WandPrefs {
   uint8_t bargraphFireAnimation;
 } wandConfig;
 
-struct SmokePrefs {
+struct __attribute__((packed)) SmokePrefs {
   // Pack
   uint8_t smokeEnabled;
   uint8_t overheatContinuous5;
@@ -87,13 +87,17 @@ struct SmokePrefs {
   uint8_t overheatDelay1;
 } smokeConfig;
 
+/*
+ * Serial API Communication Handlers
+ */
+
 // Outgoing commands to the pack.
 void wandSerialSend(uint16_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    // Serial.println("wandSerialSend: " + String(i_command));
+    debugln("wandSerialSend: " + String(i_command));
 
     sendCmd.c = i_command;
     sendCmd.d1 = i_value;
@@ -113,7 +117,7 @@ void wandSerialSendData(uint16_t i_message) {
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    // Serial.println("wandSerialSendData: " + String(i_message));
+    debugln("wandSerialSendData: " + String(i_message));
 
     sendData.m = i_message;
 
@@ -141,6 +145,7 @@ void wandSerialSendData(uint16_t i_message) {
         wandConfig.spectralModeEnabled = b_spectral_mode_enabled;
         wandConfig.spectralHolidayMode = b_holiday_mode_enabled;
         wandConfig.overheatEnabled = b_overheat_enabled;
+
         if(b_cross_the_streams_mix) {
           // More significant, implies b_cross_the_streams.
           wandConfig.defaultFiringMode = 3;
@@ -153,6 +158,7 @@ void wandSerialSendData(uint16_t i_message) {
           // Use VG modes as default.
           wandConfig.defaultFiringMode = 1;
         }
+
         wandConfig.wandSoundsToPack = b_extra_pack_sounds;
         wandConfig.quickVenting = b_quick_vent;
         wandConfig.autoVentLight = b_vent_light_control;
@@ -261,19 +267,19 @@ void checkPack() {
   // Only checks when pack is present.
   if(b_gpstar_benchtest != true && wandComs.available() > 0) {
     uint8_t i_packet_id = wandComs.currentPacketID();
-    // Serial.println("PacketID: " + String(i_packet_id));
+    // debugln("PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
           wandComs.rxObj(recvCmd);
-          // Serial.println("Recv. Command: " + String(recvCmdS.c));
+          debugln("Recv. Command: " + String(recvCmd.c));
         break;
 
         case PACKET_DATA:
           wandComs.rxObj(recvData);
-          // Serial.println("Recv. Message: " + String(recvData.m));
+          debugln("Recv. Message: " + String(recvData.m));
 
           switch(recvData.m) {
             case P_VOLUME_SYNC:
@@ -297,7 +303,7 @@ void checkPack() {
 
         case PACKET_WAND:
           wandComs.rxObj(wandConfig);
-          // Serial.println("Recv. Wand Config");
+          debugln("Recv. Wand Config");
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -426,7 +432,7 @@ void checkPack() {
 
         case PACKET_SMOKE:
           wandComs.rxObj(smokeConfig);
-          // Serial.println("Recv. Smoke Config");
+          debugln("Recv. Smoke Config");
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -463,12 +469,12 @@ void checkPack() {
         break;
 
         case P_SYNC_START:
-          // Serial.println("Sync Start");
+          debugln("Sync Start");
           b_sync = true; // Sync process has begun, set a semaphore to avoid another sync attempt.
         break;
 
         case P_SYNC_END:
-          // Serial.println("Sync End");
+          debugln("Sync End");
           b_sync = false; // Sync process has completed so remove the semaphore.
           b_wait_for_pack = false; // Initial handshake is complete, no longer waiting on the pack.
 

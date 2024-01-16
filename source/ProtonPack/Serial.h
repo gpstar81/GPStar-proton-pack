@@ -20,11 +20,6 @@
 
 #pragma once
 
-/*
- * Function prototypes.
- */
-void updateSystemModeYear();
-
 // Types of packets to be sent.
 enum PACKET_TYPE { PACKET_UNKNOWN, PACKET_COMMAND, PACKET_DATA, PACKET_PACK, PACKET_WAND, PACKET_SMOKE };
 
@@ -34,23 +29,23 @@ struct __attribute__((packed)) CommandPacket {
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
-// For generic data communication (2 byte ID, 4 byte array).
-struct __attribute__((packed)) MessagePacket {
-  uint16_t m;
-  uint8_t d[3]; // Reserved for large data packets (eg. EEPROM configs)
-};
-
-struct CommandPacket recvCmdW;
 struct CommandPacket sendCmdW;
+struct CommandPacket recvCmdW;
 struct CommandPacket sendCmdS;
 struct CommandPacket recvCmdS;
 
-struct MessagePacket recvDataW;
+// For generic data communication (2 byte ID, 4 byte array).
+struct __attribute__((packed)) MessagePacket {
+  uint16_t m;
+  uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
+};
+
 struct MessagePacket sendDataW;
+struct MessagePacket recvDataW;
 struct MessagePacket sendDataS;
 struct MessagePacket recvDataS;
 
-struct PackPrefs {
+struct __attribute__((packed)) PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
   uint8_t defaultSystemVolume;
@@ -76,7 +71,7 @@ struct PackPrefs {
   uint8_t ledVGPowercell;
 } packConfig;
 
-struct WandPrefs {
+struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
@@ -97,7 +92,7 @@ struct WandPrefs {
   uint8_t bargraphFireAnimation;
 } wandConfig;
 
-struct SmokePrefs {
+struct __attribute__((packed)) SmokePrefs {
   // Pack
   uint8_t smokeEnabled;
   uint8_t overheatContinuous5;
@@ -194,45 +189,15 @@ void toggleYearModes() {
   }
 }
 
-// Handle telling connected devices the proper mode/year in use.
-void updateSystemModeYear() {
-  switch(SYSTEM_MODE) {
-    case MODE_ORIGINAL:
-      packSerialSend(P_MODE_ORIGINAL);
-      serial1Send(A_MODE_ORIGINAL);
-    break;
-
-    case MODE_SUPER_HERO:
-    default:
-      packSerialSend(P_MODE_SUPER_HERO);
-      serial1Send(A_MODE_ORIGINAL);
-    break;
-  }
-
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_1984:
-      packSerialSend(P_YEAR_1984);
-      serial1Send(A_YEAR_1984);
-    break;
-    case SYSTEM_1989:
-      packSerialSend(P_YEAR_1989);
-      serial1Send(A_YEAR_1989);
-    break;
-    case SYSTEM_AFTERLIFE:
-    default:
-      packSerialSend(P_YEAR_AFTERLIFE);
-      serial1Send(A_YEAR_AFTERLIFE);
-    break;
-    case SYSTEM_FROZEN_EMPIRE:
-      packSerialSend(P_YEAR_FROZEN_EMPIRE);
-      serial1Send(A_YEAR_FROZEN_EMPIRE);
-    break;
-  }
-}
+/*
+ * Serial API Communication Handlers
+ */
 
 // Outgoing commands to the Serial1 device
 void serial1Send(uint16_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
+
+  debugln("serial1Send: " + String(i_command));
 
   sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
@@ -248,6 +213,8 @@ void serial1Send(uint16_t i_command) {
 // Outgoing payloads to the Serial1 device
 void serial1SendData(uint16_t i_message) {
   uint16_t i_send_size = 0;
+
+  debugln("serial1SendData: " + String(i_message));
 
   sendDataS.m = i_message;
 
@@ -349,6 +316,8 @@ void serial1SendData(uint16_t i_message) {
 void packSerialSend(uint16_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
+  debugln("packSerialSend: " + String(i_command));
+
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
 
@@ -363,6 +332,8 @@ void packSerialSend(uint16_t i_command) {
 // Outgoing payloads to the wand
 void packSerialSendData(uint16_t i_message) {
   uint16_t i_send_size = 0;
+
+  debugln("packSerialSendData: " + String(i_message));
 
   sendDataW.m = i_message;
 
@@ -401,24 +372,24 @@ void packSerialSendData(uint16_t i_message) {
 void checkSerial1() {
   if(serial1Coms.available() > 0) {
     uint8_t i_packet_id = serial1Coms.currentPacketID();
-    // Serial.println("Serial PacketID: " + String(i_packet_id));
+    // debugln("Serial PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
           serial1Coms.rxObj(recvCmdS);
-          // Serial.println("Recv. Serial Command: " + String(recvCmdS.c));
+          debugln("Recv. Serial Command: " + String(recvCmdS.c));
         break;
 
         case PACKET_DATA:
           serial1Coms.rxObj(recvDataS);
-          // Serial.println("Recv. Serial Message: " + String(recvDataS.m));
+          debugln("Recv. Serial Message: " + String(recvDataS.m));
         break;
 
         case PACKET_PACK:
           serial1Coms.rxObj(packConfig);
-          // Serial.println("Recv. Serial Pack");
+          debugln("Recv. Serial Pack");
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -426,29 +397,55 @@ void checkSerial1() {
             case 0:
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
+              packSerialSend(P_MODE_ORIGINAL);
+
+              if(switch_power.getState() == LOW) {
+                // Tell the Neutrona Wand that power to the Proton Pack is on.
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+              }
+              else {
+                // Tell the Neutrona Wand that power to the Proton Pack is off.
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
             break;
+
             case 1:
               SYSTEM_MODE = MODE_ORIGINAL;
+              packSerialSend(P_MODE_SUPER_HERO);
+
+              // This is only applicable to the Mode Original, so default to off.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
             break;
           }
+
           switch(packConfig.defaultYearThemePack) {
             case 1:
             default:
               SYSTEM_YEAR = SYSTEM_TOGGLE_SWITCH;
+              setYearModeByToggle();
             break;
             case 2:
               SYSTEM_YEAR = SYSTEM_1984;
+              packSerialSend(P_YEAR_1984);
+              serial1Send(A_YEAR_1984);
             break;
             case 3:
               SYSTEM_YEAR = SYSTEM_1989;
+              packSerialSend(P_YEAR_1989);
+              serial1Send(A_YEAR_1989);
             break;
             case 4:
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              packSerialSend(P_YEAR_AFTERLIFE);
+              serial1Send(A_YEAR_AFTERLIFE);
             break;
             case 5:
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+              packSerialSend(P_YEAR_FROZEN_EMPIRE);
+              serial1Send(A_YEAR_FROZEN_EMPIRE);
             break;
           }
+
           i_volume_master_percentage = packConfig.defaultSystemVolume;
           b_stream_effects = packConfig.protonStreamEffects;
           b_overheat_strobe = packConfig.overheatStrobeNF;
@@ -483,7 +480,6 @@ void checkSerial1() {
           b_switch_mode_override = true;
 
           // Update system values and reset as needed.
-          updateSystemModeYear();
           updateProtonPackLEDCounts();
           resetContinuousSmoke();
           resetCyclotronLEDs();
@@ -496,7 +492,7 @@ void checkSerial1() {
 
         case PACKET_WAND:
           serial1Coms.rxObj(wandConfig);
-          // Serial.println("Recv. Serial Wand");
+          debugln("Recv. Serial Wand");
 
           // This will pass values from the wandConfig object
           packSerialSendData(P_SAVE_PREFERENCES_WAND);
@@ -508,7 +504,7 @@ void checkSerial1() {
 
         case PACKET_SMOKE:
           serial1Coms.rxObj(smokeConfig);
-          // Serial.println("Recv. Serial Smoke");
+          debugln("Recv. Serial Smoke");
   
           // Save local and remote (wand) smoke timing settings
           i_ms_overheating_length_5 = smokeConfig.overheatDuration5 * 1000;
@@ -546,8 +542,8 @@ void checkSerial1() {
           case A_SYNC_START:
             // Check if the Attenuator is telling us it is here after connecting it to the pack.
             // Then synchronise some settings between the pack and the Attenuator.
-            if(!b_serial1_connected && !b_serial_1_syncing) {
-              b_serial_1_syncing = true; // Sync has begun; do not try to start this command again.
+            if(!b_serial1_connected && !b_serial1_syncing) {
+              b_serial1_syncing = true; // Sync has begun; do not try to start this command again.
 
               serial1Send(A_SYNC_START);
 
@@ -688,7 +684,7 @@ void checkSerial1() {
               serial1Send(A_MUSIC_TRACK_COUNT_SYNC, i_music_count);
 
               b_serial1_connected = true; // Device is officially connected.
-              b_serial_1_syncing = false; // Sync process has been completed.
+              b_serial1_syncing = false; // Sync process has been completed.
 
               ms_serial1_handshake.start(i_serial1_handshake_delay);
               ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
@@ -698,7 +694,7 @@ void checkSerial1() {
           break;
 
           case A_SYNC_END:
-            // Serial.println("Serial1 Sync End");
+            debugln("Serial1 Sync End");
           break;
 
           case A_TURN_PACK_ON:
@@ -881,29 +877,29 @@ void checkSerial1() {
 void checkWand() {
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
-    // Serial.println("Wand PacketID: " + String(i_packet_id));
+    // debugln("Wand PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the wand device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
           packComs.rxObj(recvCmdW);
-          // Serial.println("Recv. Wand Command: " + String(recvCmdW.c));
+          debugln("Recv. Wand Command: " + String(recvCmdW.c));
         break;
         case PACKET_DATA:
           packComs.rxObj(recvDataW);
-          // Serial.println("Recv. Wand Data: " + String(recvDataW.m));
+          debugln("Recv. Wand Data: " + String(recvDataW.m));
         break;
         case PACKET_WAND:
           packComs.rxObj(wandConfig);
-          // Serial.println("Recv. Wand Prefs");
+          debugln("Recv. Wand Prefs");
 
           // Send the EEPROM preferences just returned by the wand.
           serial1SendData(A_SEND_PREFERENCES_WAND);
         break;
         case PACKET_SMOKE:
           packComs.rxObj(smokeConfig);
-          // Serial.println("Recv. Wand Smoke");
+          debugln("Recv. Wand Smoke");
 
           // Send the EEPROM preferences just returned by the wand.
           // This data will combine with the pack's smoke settings.
@@ -918,12 +914,12 @@ void checkWand() {
             // Check if the wand is telling us it is here after connecting it to the pack.
             // If first connected, synchronize some basic settings between the pack and the wand.
             if(!b_wand_connected && !b_wand_syncing) {
-              // Serial.println("Performing Wand Sync");
+              debugln("Performing Wand Sync");
               b_wand_syncing = true; // Denote sync in progress, don't run this code again if we get another handshake.
 
               // Begin the synchronization process which tells the wand the pack got the handshake.
               packSerialSend(P_SYNC_START);
-              // Serial.println("Start Wand Sync");
+              debugln("Start Wand Sync");
 
               // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
               if(b_overheating == true) {
@@ -1088,17 +1084,17 @@ void checkWand() {
 
               // Tell the wand that we've reached the end of settings to be sync'd.
               packSerialSend(P_SYNC_END);
-              // Serial.println("Sending Sync End");
+              debugln("Sending Sync End");
             }
             else if(b_wand_connected) {
               // Wand was connected and still present, so reset the disconnection delay.
               ms_wand_disconnect.start(i_wand_disconnect_delay);
-              // Serial.println("Resetting handshake delay");
+              debugln("Reset Handshake Delay");
             }
           break;
 
           case W_SYNCHRONIZED:
-            // Serial.println("Wand Synchronized");
+            debugln("Wand Synchronized");
             b_wand_connected = true; // Remember that a wand has been connected.
             b_wand_syncing = false; // Indicate completion of wand sync process.
           break;
