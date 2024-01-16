@@ -27,6 +27,18 @@
   #define GPSTAR_NEUTRONA_WAND_PCB
 #endif
 
+// Set to 1 to enable built-in debug messages
+#define DEBUG 1
+
+// Debug macros
+#if DEBUG == 1
+#define debug(x) Serial.print(x)
+#define debugln(x) Serial.println(x)
+#else
+#define debug(x)
+#define debugln(x)
+#endif
+
 // 3rd-Party Libraries
 #include <millisDelay.h>
 #include <FastLED.h>
@@ -34,19 +46,17 @@
 #include <EEPROM.h>
 #include <ht16k33.h>
 #include <Wire.h>
-
 #include <SerialTransfer.h>
 
-/*
-  ***** IMPORTANT *****
-  * You no longer need to edit and configure wavTrigger.h anymore.
-  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
-  * You can download the latest directly from the gpstar github repository or from the Robertsonics website.
-  https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
-
-  * Information on how to update your WAV Trigger devices can be found on the gpstar github repository.
-  https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
-*/
+/**
+ ***** IMPORTANT *****
+ * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
+ * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
+ * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
+ *
+ * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
+ * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
+ */
 #include "wavTrigger.h"
 
 // Local Files

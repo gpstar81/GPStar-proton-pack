@@ -17,6 +17,18 @@
  *
  */
 
+// Set to 1 to enable built-in debug messages
+#define DEBUG 1
+
+// Debug macros
+#if DEBUG == 1
+#define debug(x) Serial.print(x)
+#define debugln(x) Serial.println(x)
+#else
+#define debug(x)
+#define debugln(x)
+#endif
+
 // 3rd-Party Libraries
 #include <EEPROM.h>
 #include <millisDelay.h>
@@ -25,15 +37,15 @@
 #include <Ramp.h>
 #include <SerialTransfer.h>
 
-/*
-  ***** IMPORTANT *****
-  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
-  * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
-  https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
-
-  * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
-  https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
-*/
+/**
+ ***** IMPORTANT *****
+ * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
+ * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
+ * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
+ *
+ * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
+ * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
+ */
 #include "wavTrigger.h"
 
 // Local Files
@@ -4093,7 +4105,7 @@ void wandDisconnectCheck() {
     // A wand was previously considered to be connected.
     if(ms_wand_disconnect.justFinished()) {
       // Timeout has expired, so we must assume the wand was disconnected.
-      //Serial.println("Wand Disconnected");
+      debugln("Wand Disconnected");
       b_wand_connected = false; // Cause the next handshake to trigger a sync.
       b_wand_on = false; // No wand means the device is no longer powered on.
 

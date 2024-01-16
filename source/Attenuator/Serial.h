@@ -53,7 +53,7 @@ struct MessagePacket recvData;
 struct MessagePacket sendData;
 
 // Translates a preferences to user-friendly names.
-struct PackPrefs {
+struct __attribute__((packed)) PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
   uint8_t defaultSystemVolume;
@@ -79,7 +79,7 @@ struct PackPrefs {
   uint8_t ledVGPowercell;
 } packConfig;
 
-struct WandPrefs {
+struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
@@ -100,7 +100,7 @@ struct WandPrefs {
   uint8_t bargraphFireAnimation;
 } wandConfig;
 
-struct SmokePrefs {
+struct __attribute__((packed)) SmokePrefs {
   // Pack
   uint8_t smokeEnabled;
   uint8_t overheatContinuous5;
@@ -135,6 +135,7 @@ void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
   uint16_t i_send_size = 0;
 
   #if defined(__XTENSA__)
+    // Can only debug communications when using the ESP32.
     debug("Send Command: " + String(i_command));
   #endif
 
@@ -150,6 +151,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
   uint16_t i_send_size = 0;
 
   #if defined(__XTENSA__)
+    // Can only debug communications when using the ESP32.
     debug("Send Data: " + String(i_message));
   #endif
 
@@ -200,6 +202,7 @@ boolean checkPack() {
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
     #if defined(__XTENSA__)
+      // Advanced debugging message, only enable if absolutely needed!
       //debug("PacketID: " + String(i_packet_id));
     #endif
 
@@ -208,7 +211,7 @@ boolean checkPack() {
       switch(i_packet_id) {
         case PACKET_COMMAND:
           #if defined(__XTENSA__)
-            //debug("Recv. Command: " + String(recvCmd.c));
+            debug("Recv. Command: " + String(recvCmd.c));
           #endif
 
           packComs.rxObj(recvCmd);
@@ -216,7 +219,7 @@ boolean checkPack() {
 
         case PACKET_DATA:
           #if defined(__XTENSA__)
-            //debug("Recv. Message: " + String(recvData.m));
+            debug("Recv. Message: " + String(recvData.m));
           #endif
 
           packComs.rxObj(recvData);
@@ -225,8 +228,6 @@ boolean checkPack() {
             case A_VOLUME_SYNC:
               // Only applies to ESP32 for the web UI.
               #if defined(__XTENSA__)
-                //debug("Volume Sync");
-
                 try {
                   i_volume_master_percentage = recvData.d[0];
                   i_volume_effects_percentage = recvData.d[1];
@@ -241,10 +242,6 @@ boolean checkPack() {
             break;
 
             case A_SPECTRAL_CUSTOM_MODE:
-              #if defined(__XTENSA__)
-                //debug("Spectral Custom");
-              #endif
-
               FIRING_MODE = SPECTRAL_CUSTOM;
               b_state_changed = true;
 
@@ -258,10 +255,6 @@ boolean checkPack() {
             break;
 
             case A_SPECTRAL_COLOUR_DATA:
-              #if defined(__XTENSA__)
-                //debug("Spectral Color Data");
-              #endif
-
               // Applies to both Arduino Nano and ESP32.
               if(recvData.d[0] > 0) {
                 i_spectral_custom_colour = recvData.d[0];

@@ -40,7 +40,7 @@ struct CommandPacket sendCmd;
 struct MessagePacket recvData;
 struct MessagePacket sendData;
 
-struct WandPrefs {
+struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
@@ -61,7 +61,7 @@ struct WandPrefs {
   uint8_t bargraphFireAnimation;
 } wandConfig;
 
-struct SmokePrefs {
+struct __attribute__((packed)) SmokePrefs {
   // Pack
   uint8_t smokeEnabled;
   uint8_t overheatContinuous5;
@@ -93,7 +93,7 @@ void wandSerialSend(uint16_t i_command, uint16_t i_value) {
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    // Serial.println("wandSerialSend: " + String(i_command));
+    debugln("wandSerialSend: " + String(i_command));
 
     sendCmd.c = i_command;
     sendCmd.d1 = i_value;
@@ -113,7 +113,7 @@ void wandSerialSendData(uint16_t i_message) {
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    // Serial.println("wandSerialSendData: " + String(i_message));
+    debugln("wandSerialSendData: " + String(i_message));
 
     sendData.m = i_message;
 
@@ -261,19 +261,19 @@ void checkPack() {
   // Only checks when pack is present.
   if(b_gpstar_benchtest != true && wandComs.available() > 0) {
     uint8_t i_packet_id = wandComs.currentPacketID();
-    // Serial.println("PacketID: " + String(i_packet_id));
+    debugln("PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
           wandComs.rxObj(recvCmd);
-          // Serial.println("Recv. Command: " + String(recvCmdS.c));
+          debugln("Recv. Command: " + String(recvCmd.c));
         break;
 
         case PACKET_DATA:
           wandComs.rxObj(recvData);
-          // Serial.println("Recv. Message: " + String(recvData.m));
+          debugln("Recv. Message: " + String(recvData.m));
 
           switch(recvData.m) {
             case P_VOLUME_SYNC:
@@ -297,7 +297,7 @@ void checkPack() {
 
         case PACKET_WAND:
           wandComs.rxObj(wandConfig);
-          // Serial.println("Recv. Wand Config");
+          debugln("Recv. Wand Config");
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -317,11 +317,14 @@ void checkPack() {
             break;
           }
 
+          b_overheat_enabled = wandConfig.overheatEnabled;
           i_spectral_wand_custom_colour = wandConfig.ledWandHue;
           i_spectral_wand_custom_saturation = wandConfig.ledWandSat;
-          b_spectral_mode_enabled = wandConfig.spectralModeEnabled;
           b_holiday_mode_enabled = wandConfig.spectralHolidayMode;
-          b_overheat_enabled = wandConfig.overheatEnabled;
+          b_spectral_mode_enabled = wandConfig.spectralModeEnabled;
+
+          // Spectral custom, is linked to spectral mode overall, just like in the Neutrona Wand EEPROM menu system.
+          b_spectral_custom_mode_enabled = wandConfig.spectralModeEnabled;
 
           switch(wandConfig.defaultFiringMode) {
             case 3:
@@ -423,7 +426,7 @@ void checkPack() {
 
         case PACKET_SMOKE:
           wandComs.rxObj(smokeConfig);
-          // Serial.println("Recv. Smoke Config");
+          debugln("Recv. Smoke Config");
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -460,12 +463,12 @@ void checkPack() {
         break;
 
         case P_SYNC_START:
-          // Serial.println("Sync Start");
+          debugln("Sync Start");
           b_sync = true; // Sync process has begun, set a semaphore to avoid another sync attempt.
         break;
 
         case P_SYNC_END:
-          // Serial.println("Sync End");
+          debugln("Sync End");
           b_sync = false; // Sync process has completed so remove the semaphore.
           b_wait_for_pack = false; // Initial handshake is complete, no longer waiting on the pack.
 
@@ -613,6 +616,30 @@ void checkPack() {
         case P_MANUAL_OVERHEAT:
           if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
             if(b_pack_on == true && b_pack_alarm != true && b_overheat_enabled == true) {
+              switch(getNeutronaWandYearMode()) {
+                  case SYSTEM_1984:
+                  case SYSTEM_1989:
+                    // Nothing for now.
+                  break;
+
+                  case SYSTEM_AFTERLIFE:
+                  case SYSTEM_FROZEN_EMPIRE:
+                  default:
+                      stopEffect(S_WAND_SHUTDOWN);
+                      playEffect(S_WAND_SHUTDOWN);
+
+                    if(switch_vent.getState() == HIGH) {
+                      stopAfterLifeSounds();
+                      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+
+                      if(b_extra_pack_sounds == true) {
+                        wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+                        wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+                      }
+                    }
+                  break;
+                }
+
               startVentSequence();
             }
           }
