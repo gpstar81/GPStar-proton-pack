@@ -18,7 +18,7 @@
  */
 
 // Set to 1 to enable built-in debug messages
-#define DEBUG 1
+#define DEBUG 0
 
 // Debug macros
 #if DEBUG == 1
@@ -294,11 +294,15 @@ void loop() {
         switch(SYSTEM_MODE) {
           case MODE_ORIGINAL:
             if(switch_power.getState() == HIGH) {
-             // Tell the Neutrona Wand that power to the Proton Pack is off.
-              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              // Tell the Neutrona Wand that power to the Proton Pack is off.
+              if(b_wand_connected) {
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
 
               // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              if(b_serial1_connected) {
+                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
             }
           break;
 
@@ -1084,10 +1088,14 @@ void checkSwitches() {
             }
             else {
               // Tell the Neutrona Wand that power to the Proton Pack is off.
-              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              if(b_wand_connected) {
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
 
               // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              if(b_serial1_connected) {
+                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
             }
           }
         break;
@@ -1099,9 +1107,16 @@ void checkSwitches() {
             PACK_ACTION_STATE = ACTION_ACTIVATE;
           }
 
+          // @TODO: Is this necessary here, or can we send this from a better point in the logic?
+
           // The "Red Switch" is not applicable to Super Hero mode, so default to OFF.
-          packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-          serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+          // if(b_wand_connected) {
+          //   packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+          // }
+
+          // if(b_serial1_connected) {
+          //   serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+          // }
         break;
       }
 
@@ -4546,8 +4561,10 @@ void doVoltageCheck() {
   const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
   i_batt_volts = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
 
-  // Send current voltage value to the serial1 device.
-  serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
+  // Send current voltage value to the serial1 device, if connected.
+  if(b_serial1_connected) {
+    serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
+  }
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.

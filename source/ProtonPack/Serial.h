@@ -197,6 +197,8 @@ void toggleYearModes() {
 void serial1Send(uint16_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
+  debugln("serial1Send: " + String(i_command));
+
   sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
 
@@ -211,6 +213,8 @@ void serial1Send(uint16_t i_command) {
 // Outgoing payloads to the Serial1 device
 void serial1SendData(uint16_t i_message) {
   uint16_t i_send_size = 0;
+
+  debugln("serial1SendData: " + String(i_message));
 
   sendDataS.m = i_message;
 
@@ -312,6 +316,8 @@ void serial1SendData(uint16_t i_message) {
 void packSerialSend(uint16_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
+  debugln("packSerialSend: " + String(i_command));
+
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
 
@@ -326,6 +332,8 @@ void packSerialSend(uint16_t i_command) {
 // Outgoing payloads to the wand
 void packSerialSendData(uint16_t i_message) {
   uint16_t i_send_size = 0;
+
+  debugln("packSerialSendData: " + String(i_message));
 
   sendDataW.m = i_message;
 
@@ -364,7 +372,7 @@ void packSerialSendData(uint16_t i_message) {
 void checkSerial1() {
   if(serial1Coms.available() > 0) {
     uint8_t i_packet_id = serial1Coms.currentPacketID();
-    debugln("Serial PacketID: " + String(i_packet_id));
+    // debugln("Serial PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
@@ -534,8 +542,8 @@ void checkSerial1() {
           case A_SYNC_START:
             // Check if the Attenuator is telling us it is here after connecting it to the pack.
             // Then synchronise some settings between the pack and the Attenuator.
-            if(!b_serial1_connected && !b_serial_1_syncing) {
-              b_serial_1_syncing = true; // Sync has begun; do not try to start this command again.
+            if(!b_serial1_connected && !b_serial1_syncing) {
+              b_serial1_syncing = true; // Sync has begun; do not try to start this command again.
 
               serial1Send(A_SYNC_START);
 
@@ -676,7 +684,7 @@ void checkSerial1() {
               serial1Send(A_MUSIC_TRACK_COUNT_SYNC, i_music_count);
 
               b_serial1_connected = true; // Device is officially connected.
-              b_serial_1_syncing = false; // Sync process has been completed.
+              b_serial1_syncing = false; // Sync process has been completed.
 
               ms_serial1_handshake.start(i_serial1_handshake_delay);
               ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
@@ -869,7 +877,7 @@ void checkSerial1() {
 void checkWand() {
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
-    debugln("Wand PacketID: " + String(i_packet_id));
+    // debugln("Wand PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the wand device.
@@ -1081,7 +1089,7 @@ void checkWand() {
             else if(b_wand_connected) {
               // Wand was connected and still present, so reset the disconnection delay.
               ms_wand_disconnect.start(i_wand_disconnect_delay);
-              debugln("Resetting handshake delay");
+              debugln("Reset Handshake Delay");
             }
           break;
 

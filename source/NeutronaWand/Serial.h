@@ -267,7 +267,7 @@ void checkPack() {
   // Only checks when pack is present.
   if(b_gpstar_benchtest != true && wandComs.available() > 0) {
     uint8_t i_packet_id = wandComs.currentPacketID();
-    debugln("PacketID: " + String(i_packet_id));
+    // debugln("PacketID: " + String(i_packet_id));
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
