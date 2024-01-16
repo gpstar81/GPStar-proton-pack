@@ -613,6 +613,30 @@ void checkPack() {
         case P_MANUAL_OVERHEAT:
           if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
             if(b_pack_on == true && b_pack_alarm != true && b_overheat_enabled == true) {
+              switch(getNeutronaWandYearMode()) {
+                  case SYSTEM_1984:
+                  case SYSTEM_1989:
+                    // Nothing for now.
+                  break;
+
+                  case SYSTEM_AFTERLIFE:
+                  case SYSTEM_FROZEN_EMPIRE:
+                  default:
+                      stopEffect(S_WAND_SHUTDOWN);
+                      playEffect(S_WAND_SHUTDOWN);
+
+                    if(switch_vent.getState() == HIGH) {
+                      stopAfterLifeSounds();
+                      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+
+                      if(b_extra_pack_sounds == true) {
+                        wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+                        wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+                      }
+                    }
+                  break;
+                }
+
               startVentSequence();
             }
           }
