@@ -161,8 +161,10 @@ void attenuatorSerialSendData(uint16_t i_message) {
 
   switch(i_message) {
     case A_SAVE_PREFERENCES_PACK:
-      #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
-        debug("Saving Pack Preferences");
+      #if defined(__XTENSA__)
+        #if defined(DEBUG_SERIAL_COMMS)
+          debug("Saving Pack Preferences");
+        #endif
 
         i_send_size = packComs.txObj(packConfig, i_send_size);
         packComs.sendData(i_send_size, PACKET_PACK);
@@ -170,8 +172,10 @@ void attenuatorSerialSendData(uint16_t i_message) {
     break;
 
     case A_SAVE_PREFERENCES_WAND:
-      #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
-        debug("Saving Wand Preferences");
+      #if defined(__XTENSA__)
+        #if defined(DEBUG_SERIAL_COMMS)
+          debug("Saving Wand Preferences");
+        #endif
 
         i_send_size = packComs.txObj(wandConfig, i_send_size);
         packComs.sendData(i_send_size, PACKET_WAND);
@@ -179,8 +183,10 @@ void attenuatorSerialSendData(uint16_t i_message) {
     break;
 
     case A_SAVE_PREFERENCES_SMOKE:
-      #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
-        debug("Saving Smoke Preferences");
+      #if defined(__XTENSA__)
+        #if defined(DEBUG_SERIAL_COMMS)
+          debug("Saving Smoke Preferences");
+        #endif
 
         i_send_size = packComs.txObj(smokeConfig, i_send_size);
         packComs.sendData(i_send_size, PACKET_SMOKE);
