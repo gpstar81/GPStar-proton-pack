@@ -66,6 +66,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
     <br/>
     <h3>Music Controls</h3>
+    <div style="color:#444;"><b>Music Volume:</b> <span id="musicVolume"></span></div>
+    <br/>
     <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
     <br/>
     <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
@@ -234,11 +236,11 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("btnPackOn").disabled = false;
       }
 
-      if (mode == "Super Hero" && wand == "Powered") {
-        // Can only use manual vent if mode Super Hero and wand is Powered.
+      if (mode == "Super Hero" && wand == "Powered" && cyclotron != "Recovery") {
+        // Can only use manual vent if mode Super Hero and wand is Powered and not already venting.
         document.getElementById("btnVent").disabled = false;
       } else {
-        // Otherwise, this should NOT be allowed.
+        // Otherwise, this action should NOT be allowed (button disabled).
         document.getElementById("btnVent").disabled = true;
       }
 
@@ -281,6 +283,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         // Volume Information
         document.getElementById("masterVolume").innerHTML = (jObj.volMaster || 0) + "%";
         document.getElementById("effectsVolume").innerHTML = (jObj.volEffects || 0) + "%";
+        document.getElementById("musicVolume").innerHTML = (jObj.volMusic || 0) + "%";
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wand, jObj.cyclotron);

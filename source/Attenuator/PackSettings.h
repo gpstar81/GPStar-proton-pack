@@ -30,7 +30,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Proton Pack Settings</h1>
+  <h1>Pack Settings</h1>
   <div class="block left">
     <p>
       Change system configuration options using the available toggles and selectors.
