@@ -55,7 +55,16 @@ The wand assumes successful operation of the pack, so please only proceed once t
 
 The wand is expects to communicate with the pack and will only power on when that connection is successfully established. If no lights or audio are observed when using the Activate switch, please consider the following options.
 
-### Wand has lights but does not play audio
+* Re-check the Power/GND connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply folde them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
+* If you are using the 28 Segment bargraph from Frutto Technology, make sure the connection cables are plugged into the proper connectors. If the power cable for the bargraph is plugged into the SCL/SDA connector on the wand board and the communication cable is plugged into the 5V power connector on the wand board, then the wand will not start up.
+
+### Wand has a blinking vent light but does not start up
+
+When the wand is trying to establish communication to the Pack, the vent light blinks. When a successful connection is made, the light will stop blinking.
+
+* Re-check the TX/RX serial connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply folde them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
+
+### Wand has no audio
 
 Troubleshooting will be similar to the process used with the pack, though there will not be an external amplifier or audio cable in use. With the wand attached to the pack, press the test button on the WavTrigger to play the first audio file on the SD card and observe the status LED state.
 
@@ -63,7 +72,6 @@ If the red LED illuminates, this indicates the WavTrigger is receiving power and
 
 * Re-check the connection to the speaker. Polarity should be observed for the best audio quality, though a reversed connection should still support some form of audio playback.
 * Re-flash the latest software to both the pack and wand controllers. These devices must be in agreement for the communication layer to operate correctly.
-* Re-check the Tx/Rx connections to the pack. If these are reversed it will prevent proper communication. Attempt to switch the wires at the pack-side connector which use screw terminals, and retry the Activate switch.
 
 If the red LED does not illuminate, this could mean a connection or data problem.
 
