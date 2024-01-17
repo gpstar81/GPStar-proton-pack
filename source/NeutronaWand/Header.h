@@ -448,6 +448,7 @@ const unsigned int i_blink_sound_timer = 400;
 */
 millisDelay ms_power_indicator;
 millisDelay ms_power_indicator_blink;
+millisDelay ms_power_indicator_reset;
 const unsigned long int i_ms_power_indicator = 60000; // 1 Minute -> 60000
 const unsigned int i_ms_power_indicator_blink = 1000;
 

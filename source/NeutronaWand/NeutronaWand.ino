@@ -1374,8 +1374,28 @@ void wandOff() {
   stopEffect(S_STASIS_START);
   stopEffect(S_MESON_START);
 
-  stopEffect(S_WAND_SHUTDOWN);
-  playEffect(S_WAND_SHUTDOWN);
+  switch(getNeutronaWandYearMode()) {
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+      if(SYSTEM_MODE == MODE_SUPER_HERO) {
+        if(switch_vent.getState() == LOW) {
+          stopEffect(S_WAND_SHUTDOWN);
+          playEffect(S_WAND_SHUTDOWN);
+        }
+      }
+      else {
+        stopEffect(S_WAND_SHUTDOWN);
+        playEffect(S_WAND_SHUTDOWN);
+      }
+    break;
+
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
+      stopEffect(S_WAND_SHUTDOWN);
+      playEffect(S_WAND_SHUTDOWN);
+    break;
+  }
 
   // Clear counter until user begins firing.
   i_bmash_count = 0;
