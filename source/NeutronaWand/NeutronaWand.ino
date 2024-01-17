@@ -1417,16 +1417,16 @@ void wandOff() {
             case SYSTEM_FROZEN_EMPIRE:
             default:
               if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+                i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
               }
               else {
-                i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+                i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
               }
             break;
 
             case SYSTEM_1984:
             case SYSTEM_1989:
-              i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+              i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
             break;
           }
         break;
@@ -2033,9 +2033,12 @@ void soundBeepLoopStop() {
 void soundBeepLoop() {
   if(ms_reset_sound_beep.justFinished() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
     if(b_beeping == false) {
+      // Quick check to know if effects belong to the next-gen movies (as opposed to the OG 80's themes).
+      boolean b_next_gen = (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE);
+
       switch(i_power_mode) {
         case 1:
-          if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_beep_loop == true) {
+          if(b_next_gen && b_beep_loop == true) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
           }
           else {
@@ -2044,7 +2047,7 @@ void soundBeepLoop() {
         break;
 
         case 2:
-         if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_beep_loop == true) {
+         if(b_next_gen && b_beep_loop == true) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
           }
           else {
@@ -2053,7 +2056,7 @@ void soundBeepLoop() {
         break;
 
         case 3:
-         if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_beep_loop == true) {
+         if(b_next_gen && b_beep_loop == true) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
           }
           else {
@@ -2062,7 +2065,7 @@ void soundBeepLoop() {
         break;
 
         case 4:
-         if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_beep_loop == true) {
+         if(b_next_gen && b_beep_loop == true) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
           }
           else {
@@ -2071,7 +2074,7 @@ void soundBeepLoop() {
         break;
 
         case 5:
-         if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_beep_loop == true) {
+         if(b_next_gen && b_beep_loop == true) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
           }
           else {
@@ -7261,7 +7264,7 @@ void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b
     i_track_volume = i_volume_abs_max;
   }
 
-  if(b_sync != true) {
+  if(b_synchronizing != true) {
     if(b_fade_in == true) {
       w_trig.trackGain(i_track_id, i_volume_abs_min);
       w_trig.trackPlayPoly(i_track_id, true);

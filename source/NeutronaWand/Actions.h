@@ -380,13 +380,14 @@ void checkWandAction() {
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               switch(WAND_YEAR_MODE) {
                 case YEAR_1984:
+                  // 1984 -> 1989
                   WAND_YEAR_MODE = YEAR_1989;
 
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
 
                   playEffect(S_VOICE_NEUTRONA_WAND_1989);
 
@@ -394,13 +395,14 @@ void checkWandAction() {
                 break;
 
                 case YEAR_1989:
+                  // 1989 -> Afterlife
                   WAND_YEAR_MODE = YEAR_AFTERLIFE;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
                   stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
 
                   playEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
 
@@ -408,13 +410,14 @@ void checkWandAction() {
                 break;
 
                 case YEAR_AFTERLIFE:
+                  // Afterlife -> Frozen Empire
                   WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
                   stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
 
                   playEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
 
@@ -422,13 +425,14 @@ void checkWandAction() {
                 break;
 
                 case YEAR_FROZEN_EMPIRE:
+                  // Frozen Empire -> Default (Toggle)
                   WAND_YEAR_MODE = YEAR_DEFAULT;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
                   stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
 
                   playEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
 
@@ -437,13 +441,14 @@ void checkWandAction() {
 
                 case YEAR_DEFAULT:
                 default:
+                  // Default (Toggle) -> 1984
                   WAND_YEAR_MODE = YEAR_1984;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
                   stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
 
                   playEffect(S_VOICE_NEUTRONA_WAND_1984);
 
@@ -459,6 +464,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
               playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
 
               wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_5);
@@ -676,6 +682,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
               playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
 
               wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_4);
@@ -857,6 +864,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
               playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
 
               wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_3);
@@ -949,6 +957,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
               playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
 
               wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_2);
@@ -1047,10 +1056,10 @@ void checkWandAction() {
                 case CTS_1989:
                   WAND_YEAR_CTS = CTS_AFTERLIFE;
 
-                  stopEffect(S_VOICE_CTS_AFTERLIFE);
                   stopEffect(S_VOICE_CTS_1984);
-                  //stopEffect(S_VOICE_CTS_1989);
-                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_1989);
+                  stopEffect(S_VOICE_CTS_AFTERLIFE);
+                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_AFTERLIFE);
@@ -1062,11 +1071,11 @@ void checkWandAction() {
                 case CTS_FROZEN_EMPIRE:
                   WAND_YEAR_CTS = CTS_DEFAULT;
 
-                  stopEffect(S_VOICE_CTS_DEFAULT);
-                  stopEffect(S_VOICE_CTS_AFTERLIFE);
                   stopEffect(S_VOICE_CTS_1984);
-                  //stopEffect(S_VOICE_CTS_1989);
-                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_1989);
+                  stopEffect(S_VOICE_CTS_AFTERLIFE);
+                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_DEFAULT);
 
@@ -1078,10 +1087,10 @@ void checkWandAction() {
                   WAND_YEAR_CTS = CTS_1984;
 
                   stopEffect(S_VOICE_CTS_1984);
-                  stopEffect(S_VOICE_CTS_DEFAULT);
+                  stopEffect(S_VOICE_CTS_1989);
                   stopEffect(S_VOICE_CTS_AFTERLIFE);
-                  //stopEffect(S_VOICE_CTS_1989);
-                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_1984);
 
@@ -1097,6 +1106,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
               playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
 
               wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_1);
@@ -1368,12 +1378,13 @@ void checkWandAction() {
               if(b_gpstar_benchtest == true) {
                 switch(getNeutronaWandYearMode()) {
                   case SYSTEM_1984:
+                    // 1984 -> 1989
                     WAND_YEAR_MODE = YEAR_1989;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
-                    stopEffect(S_VOICE_1984);
                     stopEffect(S_VOICE_1989);
+                    stopEffect(S_VOICE_1984);
 
                     playEffect(S_VOICE_1989);
 
@@ -1382,12 +1393,13 @@ void checkWandAction() {
 
                   case SYSTEM_1989:
                   default:
+                    // 1989 -> Afterlife
                     WAND_YEAR_MODE = YEAR_AFTERLIFE;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
-                    stopEffect(S_VOICE_1984);
                     stopEffect(S_VOICE_1989);
+                    stopEffect(S_VOICE_1984);
 
                     playEffect(S_VOICE_AFTERLIFE);
 
@@ -1395,6 +1407,7 @@ void checkWandAction() {
                   break;
 
                   case SYSTEM_AFTERLIFE:
+                    // Afterlife -> Frozen Empire
                     WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
@@ -1408,6 +1421,7 @@ void checkWandAction() {
                   break;
 
                   case SYSTEM_FROZEN_EMPIRE:
+                    // Frozen Empire -> 1984
                     WAND_YEAR_MODE = YEAR_1984;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
