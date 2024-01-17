@@ -225,7 +225,7 @@ String getEquipmentStatus() {
     jsonBody["pack"] = (b_pack_on ? "Powered" : "Idle");
     jsonBody["power"] = getPower();
     jsonBody["safety"] = getSafety();
-    jsonBody["wand"] = (b_wand_present ? "Connected" : "Not Connected")
+    jsonBody["wand"] = (b_wand_present ? "Connected" : "Not Connected");
     jsonBody["wandPower"] = (b_wand_on ? "Powered" : "Idle");
     jsonBody["wandMode"] = getWandMode();
     jsonBody["firing"] = (b_firing ? "Firing" : "Idle");

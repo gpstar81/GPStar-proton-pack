@@ -430,30 +430,39 @@ void checkSerial1() {
           switch(packConfig.defaultYearThemePack) {
             case 1:
             default:
-              SYSTEM_YEAR = SYSTEM_TOGGLE_SWITCH;
+              // Just set this enum, as others will be set according to the toggle.
+              SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
               b_switch_mode_override = false; // Mode to be determined by toggle switch.
               setYearModeByToggle(); // Use the toggle to update to the correct year mode.
             break;
             case 2:
               SYSTEM_YEAR = SYSTEM_1984;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_1984);
               serial1Send(A_YEAR_1984);
             break;
             case 3:
               SYSTEM_YEAR = SYSTEM_1989;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_1989);
               serial1Send(A_YEAR_1989);
             break;
             case 4:
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_AFTERLIFE);
               serial1Send(A_YEAR_AFTERLIFE);
             break;
             case 5:
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_FROZEN_EMPIRE);
               serial1Send(A_YEAR_FROZEN_EMPIRE);
@@ -487,10 +496,6 @@ void checkSerial1() {
           i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
           i_spectral_powercell_custom_saturation = packConfig.ledPowercellSat;
           b_powercell_colour_toggle = packConfig.ledVGPowercell;
-
-          // Push changes to connected devices and reset related variables
-          SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-          SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
 
           // Update system values and reset as needed.
           updateProtonPackLEDCounts();
