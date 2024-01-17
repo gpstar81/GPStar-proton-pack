@@ -133,7 +133,7 @@ struct __attribute__((packed)) SmokePrefs {
 void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
   uint16_t i_send_size = 0;
 
-  #if defined(__XTENSA__)
+  #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
     // Can only debug communications when using the ESP32.
     debug("Send Command: " + String(i_command));
   #endif
@@ -149,7 +149,7 @@ void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
 void attenuatorSerialSendData(uint16_t i_message) {
   uint16_t i_send_size = 0;
 
-  #if defined(__XTENSA__)
+  #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
     // Can only debug communications when using the ESP32.
     debug("Send Data: " + String(i_message));
   #endif
@@ -161,7 +161,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
 
   switch(i_message) {
     case A_SAVE_PREFERENCES_PACK:
-      #if defined(__XTENSA__)
+      #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
         debug("Saving Pack Preferences");
 
         i_send_size = packComs.txObj(packConfig, i_send_size);
@@ -170,7 +170,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
     break;
 
     case A_SAVE_PREFERENCES_WAND:
-      #if defined(__XTENSA__)
+      #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
         debug("Saving Wand Preferences");
 
         i_send_size = packComs.txObj(wandConfig, i_send_size);
@@ -179,7 +179,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
     break;
 
     case A_SAVE_PREFERENCES_SMOKE:
-      #if defined(__XTENSA__)
+      #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
         debug("Saving Smoke Preferences");
 
         i_send_size = packComs.txObj(smokeConfig, i_send_size);
@@ -210,7 +210,7 @@ boolean checkPack() {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
-          #if defined(__XTENSA__)
+          #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
             debug("Recv. Command: " + String(recvCmd.c));
           #endif
 
@@ -219,7 +219,7 @@ boolean checkPack() {
         break;
 
         case PACKET_DATA:
-          #if defined(__XTENSA__)
+          #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
             debug("Recv. Message: " + String(recvData.m));
           #endif
 
@@ -834,7 +834,7 @@ boolean handleCommand(uint16_t i_command, uint16_t i_value) {
     break;
 
     case A_BATTERY_VOLTAGE_PACK:
-      #if defined(__XTENSA__)
+      #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
         debug("Voltage: " + String(i_value));
       #endif
 
