@@ -915,25 +915,26 @@ void packOffReset() {
 }
 
 void setYearModeByToggle() {
+  // We have 4 year modes but only 2 toggle states, so these get grouped by their Haslab defaults.
   if(switch_mode.getState() == LOW) {
     if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-      // Tell the wand to switch to 1984 mode.
-      packSerialSend(P_YEAR_1984);
-
+      // When currently in Afterlife/FrozenEmpire we switch to 1984.
       SYSTEM_YEAR = SYSTEM_1984;
       SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
+      // Tell the wand/serial1 to switch to 1984 mode.
+      packSerialSend(P_YEAR_1984);
       serial1Send(A_YEAR_1984);
     }
   }
   else {
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-      // Tell the wand to switch to Afterlife mode.
-      packSerialSend(P_YEAR_AFTERLIFE);
-
+      // When currently in 1984/1989 we switch to Afterlife.
       SYSTEM_YEAR = SYSTEM_AFTERLIFE;
       SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
+      // Tell the wand/serial1 to switch to Afterlife mode.
+      packSerialSend(P_YEAR_AFTERLIFE);
       serial1Send(A_YEAR_AFTERLIFE);
     }
   }
@@ -4118,6 +4119,10 @@ void wandDisconnectCheck() {
     if(ms_wand_disconnect.justFinished()) {
       // Timeout has expired, so we must assume the wand was disconnected.
       debugln("Wand Disconnected");
+
+      // Tell the serial1 device the wand was disconnected.
+      serial1Send(A_WAND_DISCONNECTED);
+
       b_wand_connected = false; // Cause the next handshake to trigger a sync.
       b_wand_on = false; // No wand means the device is no longer powered on.
 

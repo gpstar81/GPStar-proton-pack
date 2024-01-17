@@ -475,15 +475,15 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
 
     case P_SYNC_START:
       debugln("Sync Start");
-      b_sync = true; // Sync process has begun, set a semaphore to avoid another sync attempt.
+      b_synchronizing = true; // Sync process has begun, set a semaphore to avoid another sync attempt.
     break;
 
     case P_SYNC_END:
       debugln("Sync End");
-      b_sync = false; // Sync process has completed so remove the semaphore.
+      b_synchronizing = false; // Sync process has completed so remove the semaphore.
       b_wait_for_pack = false; // Initial handshake is complete, no longer waiting on the pack.
 
-      digitalWrite(led_white, HIGH); // turn the led off. The wand is now connected.
+      digitalWrite(led_white, HIGH); // Turn off the sync indicator LED. The wand is now connected.
 
       switchBarrel(); // Determine the state of the barrel safety switch.
 
@@ -901,8 +901,32 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
     break;
 
+    case P_YEAR_1984:
+      // Indicates system (pack) year is 1984 mode
+      SYSTEM_YEAR = SYSTEM_1984;
+      bargraphYearModeUpdate();
+    break;
+
+    case P_YEAR_1989:
+      // Indicates system (pack) year is 1984 mode
+      SYSTEM_YEAR = SYSTEM_1989;
+      bargraphYearModeUpdate();
+    break;
+
+    case P_YEAR_AFTERLIFE:
+      // Indicates system (pack) year is Afterlife mode
+      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+      bargraphYearModeUpdate();
+    break;
+
+    case P_YEAR_FROZEN_EMPIRE:
+      // Indicates system (pack) year is Frozen Empire mode
+      SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+      bargraphYearModeUpdate();
+    break;
+
     case P_MODE_FROZEN_EMPIRE:
-      // Play Frozen Empire voice.
+      // Play only the Frozen Empire voice
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
@@ -912,7 +936,7 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
     break;
 
     case P_MODE_AFTERLIFE:
-      // Play Afterlife voice.
+      // Play only the Afterlife voice
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
@@ -922,7 +946,7 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
     break;
 
     case P_MODE_1989:
-      // Play 1989 voice.
+      // Play only the 1989 voice
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
@@ -932,13 +956,24 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
     break;
 
     case P_MODE_1984:
-      // Play 1984 voice.
+      // Play only the 1984 voice
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
       stopEffect(S_VOICE_1984);
 
       playEffect(S_VOICE_1984);
+    break;
+
+    case P_YEAR_MODE_DEFAULT:
+      // Play only the default year voice
+      stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
+      stopEffect(S_VOICE_FROZEN_EMPIRE);
+      stopEffect(S_VOICE_AFTERLIFE);
+      stopEffect(S_VOICE_1984);
+      stopEffect(S_VOICE_1989);
+
+      playEffect(S_VOICE_YEAR_MODE_DEFAULT);
     break;
 
     case P_SMOKE_DISABLED:
@@ -1370,16 +1405,6 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
       playEffect(S_VOICE_INNER_CYCLOTRON_12);
-    break;
-
-    case P_YEAR_MODE_DEFAULT:
-      stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
-      stopEffect(S_VOICE_FROZEN_EMPIRE);
-      stopEffect(S_VOICE_AFTERLIFE);
-      stopEffect(S_VOICE_1984);
-      stopEffect(S_VOICE_1989);
-
-      playEffect(S_VOICE_YEAR_MODE_DEFAULT);
     break;
 
     case P_MUSIC_STOP:

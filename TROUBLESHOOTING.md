@@ -60,9 +60,9 @@ The wand is expects to communicate with the pack and will only power on when tha
 
 ### Wand has a blinking vent light but does not start up
 
-When the wand is trying to establish communication to the Pack, the vent light blinks. When a successful connection is made, the light will stop blinking.
+When the wand is trying to establish communication to the GPStar Proton Pack controller, the LED beside the vent light blinks. When a successful connection is made, the light will stop blinking.
 
-* Re-check the TX/RX serial connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply folde them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
+* Re-check the TX/RX serial connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply fold them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
 
 ### Wand has no audio
 
@@ -72,6 +72,7 @@ If the red LED illuminates, this indicates the WavTrigger is receiving power and
 
 * Re-check the connection to the speaker. Polarity should be observed for the best audio quality, though a reversed connection should still support some form of audio playback.
 * Re-flash the latest software to both the pack and wand controllers. These devices must be in agreement for the communication layer to operate correctly.
+* Re-check the Tx/Rx connections to the pack. If these are reversed it will prevent proper communication. Attempt to switch the wires at the pack-side connector which use screw terminals, and retry the Activate switch.
 
 If the red LED does not illuminate, this could mean a connection or data problem.
 

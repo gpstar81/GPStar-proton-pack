@@ -337,6 +337,24 @@ boolean handleCommand(uint16_t i_command, uint16_t i_value) {
       attenuatorSerialSend(A_SYNC_END); // Signal end of sync.
     break;
 
+    case A_WAND_CONNECTED:
+      #if defined(__XTENSA__)
+        debug("Wand Connected");
+      #endif
+
+      b_wand_present = true;
+      b_state_changed = true;
+    break;
+
+    case A_WAND_DISCONNECTED:
+      #if defined(__XTENSA__)
+        debug("Wand Disconnected");
+      #endif
+
+      b_wand_present = false;
+      b_state_changed = true;
+    break;
+
     case A_PACK_ON:
       #if defined(__XTENSA__)
         debug("Pack On");

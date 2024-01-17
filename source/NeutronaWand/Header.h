@@ -31,9 +31,6 @@ enum WAND_STATE WAND_STATUS;
 enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_LED_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
-enum SYSTEM_YEARS { SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
-enum SYSTEM_YEARS SYSTEM_YEAR;
-
 /*
  * System modes.
  * Super Hero: A idealised system based on the close up of the Super Hero Proton Pack and Neutrona Wand in the 1984 Rooftop closeup scene and what is shown in Afterlife. (Different toggle switch sequences for turning on the pack and wand)
@@ -42,6 +39,13 @@ enum SYSTEM_YEARS SYSTEM_YEAR;
  */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
+
+/*
+ * Which year mode the Proton Pack is set into which may not be the same the user prefers for the wand.
+ * Though this can/will be used if YEAR_DEFAULT is specified by the user as the WAND_YEAR_MODE.
+ */
+enum SYSTEM_YEARS { SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
+enum SYSTEM_YEARS SYSTEM_YEAR;
 
 /*
  * Which year mode the Neutrona Wand is set into, regardless of which year the Proton Pack is in.
@@ -385,7 +389,7 @@ bool b_pack_on = false; // Denotes the pack has been powered on.
 bool b_pack_alarm = false; // Denotes the alarm (ribbon cable) has been disconnected.
 bool b_wait_for_pack = true; // Denotes the wand is waiting for response by a connected pack (is set to false when b_gpstar_benchtest is true).
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the Proton Pack and Neutrona Wand.
-bool b_sync = false; // Indicates whether a synchronization with the pack is in process (between SYNC_START and SYNC_END).
+bool b_synchronizing = false; // Indicates whether a synchronization with the pack is in process (between SYNC_START and SYNC_END).
 bool b_sync_light = false; // Toggle the white LED beside the vent light as the sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
 millisDelay ms_handshake; // Timer for attempting a new handshake while initializing pack communications.
