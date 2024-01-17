@@ -242,6 +242,7 @@ bool b_music_paused = false;
  * Some pack flags which get transmitted to the attenuator depending on the pack status.
  */
 bool b_pack_on = false;
+bool b_wand_present = false;
 bool b_wand_on = false;
 bool b_pack_alarm = false;
 bool b_firing = false;

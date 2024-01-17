@@ -41,7 +41,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
     <p><b>Overheat State:</b> <span class="info" id="temperature">&mdash;</span></p>
     <br/>
-    <p><b>Wand State:</b> <span class="info" id="wand">&mdash;</span></p>
+    <p><b>Wand Presence:</b> <span class="info" id="wand">&mdash;</span></p>
+    <p><b>Wand State:</b> <span class="info" id="wandPower">&mdash;</span></p>
     <p><b>Wand Armed:</b> <span class="info" id="safety">&mdash;</span></p>
     <p><b>System Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
     <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
@@ -256,19 +257,31 @@ const char INDEX_page[] PROGMEM = R"=====(
     function updateStatus(jObj) {
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
-        // Current Pack/Wand Status
+        // Current Pack Status
         document.getElementById("mode").innerHTML = jObj.mode || "...";
         document.getElementById("theme").innerHTML = jObj.theme || "...";
         document.getElementById("switch").innerHTML = jObj.switch || "...";
         document.getElementById("pack").innerHTML = jObj.pack || "...";
         document.getElementById("power").innerHTML = jObj.power || "...";
-        document.getElementById("safety").innerHTML = jObj.safety || "...";
         document.getElementById("wand").innerHTML = jObj.wand || "...";
-        document.getElementById("wandMode").innerHTML = jObj.wandMode || "...";
-        document.getElementById("firing").innerHTML = jObj.firing || "...";
         document.getElementById("cable").innerHTML = jObj.cable || "...";
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
+
+        // Current Wand Status
+        if (jObj.wand == "Connected") {
+          // Only update if the wand is physically connected to the pack.
+          document.getElementById("wandPower").innerHTML = jObj.wandPower || "...";
+          document.getElementById("wandMode").innerHTML = jObj.wandMode || "...";
+          document.getElementById("safety").innerHTML = jObj.safety || "...";
+          document.getElementById("firing").innerHTML = jObj.firing || "...";
+        } else {
+          // Default to empty values when wand is not present.
+          document.getElementById("wandPower").innerHTML = "...";
+          document.getElementById("wandMode").innerHTML = "...";
+          document.getElementById("safety").innerHTML = "...";
+          document.getElementById("firing").innerHTML = "...";
+        }
 
         if (jObj.battVoltage) {
           // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
@@ -286,7 +299,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("musicVolume").innerHTML = (jObj.volMusic || 0) + "%";
 
         // Update special UI elements based on the latest data values.
-        setButtonStates(jObj.mode, jObj.pack, jObj.wand, jObj.cyclotron);
+        setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);
         updateTrackListing(jObj.musicStart, jObj.musicEnd, jObj.musicCurrent);
       }
     }
