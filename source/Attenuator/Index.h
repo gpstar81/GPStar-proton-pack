@@ -262,11 +262,10 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("theme").innerHTML = jObj.theme || "...";
         document.getElementById("switch").innerHTML = jObj.switch || "...";
         document.getElementById("pack").innerHTML = jObj.pack || "...";
-        document.getElementById("power").innerHTML = jObj.power || "...";
-        document.getElementById("wand").innerHTML = jObj.wand || "...";
         document.getElementById("cable").innerHTML = jObj.cable || "...";
         document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
         document.getElementById("temperature").innerHTML = jObj.temperature || "...";
+        document.getElementById("wand").innerHTML = jObj.wand || "...";
 
         // Current Wand Status
         if (jObj.wand == "Connected") {
@@ -274,12 +273,14 @@ const char INDEX_page[] PROGMEM = R"=====(
           document.getElementById("wandPower").innerHTML = jObj.wandPower || "...";
           document.getElementById("wandMode").innerHTML = jObj.wandMode || "...";
           document.getElementById("safety").innerHTML = jObj.safety || "...";
+          document.getElementById("power").innerHTML = jObj.power || "...";
           document.getElementById("firing").innerHTML = jObj.firing || "...";
         } else {
           // Default to empty values when wand is not present.
           document.getElementById("wandPower").innerHTML = "...";
           document.getElementById("wandMode").innerHTML = "...";
           document.getElementById("safety").innerHTML = "...";
+          document.getElementById("power").innerHTML = "...";
           document.getElementById("firing").innerHTML = "...";
         }
 
