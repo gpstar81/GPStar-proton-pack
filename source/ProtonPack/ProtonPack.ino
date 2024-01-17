@@ -57,8 +57,7 @@
 #include "Preferences.h"
 
 void setup() {
-  Serial.begin(9600); // Standard serial console.
-
+  Serial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600); // Add-on Serial1 communication.
   Serial2.begin(9600); // Communication to the Neutrona Wand.
 
@@ -75,11 +74,11 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(encoder_pin_a), readEncoder, CHANGE);
 
   // Configure the various switches on the pack.
-  switch_cyclotron_lid.setDebounceTime(50);
   switch_alarm.setDebounceTime(50);
   switch_mode.setDebounceTime(50);
   switch_vibration.setDebounceTime(50);
   switch_cyclotron_direction.setDebounceTime(50);
+  switch_cyclotron_lid.setDebounceTime(50);
   switch_smoke.setDebounceTime(50);
 
   // Adjust the PWM frequency of the vibration motor.
@@ -146,7 +145,7 @@ void setup() {
   ms_wand_disconnect.start(int(i_wand_disconnect_delay / 4));
   ms_serial1_handshake.start(int(i_serial1_handshake_delay / 2));
   ms_fast_led.start(i_fast_led_delay);
-  ms_battcheck.start(1);
+  ms_battcheck.start(500);
 
   // Configure the vibration state.
   if(switch_vibration.getState() == LOW) {
@@ -178,12 +177,6 @@ void setup() {
     i_cyclotron_inner_brightness = 100;
   }
 
-  // Tell the Attenuator the pack is here.
-  serial1Send(A_PACK_BOOTUP);
-
-  // Tell the wand the pack is here.
-  packSerialSend(P_PACK_BOOTUP);
-
   // Check music timer.
   ms_check_music.start(i_music_check_delay);
 
@@ -193,32 +186,24 @@ void setup() {
   }
 
   if(SYSTEM_MODE == MODE_SUPER_HERO) {
-    packSerialSend(P_MODE_SUPER_HERO);
-    serial1Send(A_MODE_SUPER_HERO);
-
     // Auto start the pack if it is in demo light mode.
     if(b_demo_light_mode == true) {
       // Turn the pack on.
       PACK_ACTION_STATE = ACTION_ACTIVATE;
     }
   }
-  else {
-    packSerialSend(P_MODE_ORIGINAL);
-    serial1Send(A_MODE_ORIGINAL);
-  }
 
   // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
   // Then the EEPROM reads any settings if required, then we reset the volume.
   w_trig.masterGain(i_volume_master);
-  serial1SendData(A_VOLUME_SYNC);
 }
 
 void loop() {
   w_trig.update();
 
-  // Voltage Check, Part 1 - Initiate the read process, which requires a delay.
+  // Voltage Check
   if(ms_battcheck.remaining() < 1) {
-    doVoltageCheck(); // Kick off a check which will write to the i_batt_volts variable.
+    doVoltageCheck(); // Obtains the latest value and pushes the data to serial1, if available.
     ms_battcheck.start(i_ms_battcheck_delay);
   }
 
@@ -228,22 +213,13 @@ void loop() {
   // Check if the wand is considered to have been disconnected.
   wandDisconnectCheck();
 
-  // Check if serial1 device is present, and if any new serial commands were received.
+  // Check if serial1 device is present.
   serial1HandShake();
+
+  // Check if any new serial commands were received.
   checkSerial1();
 
   checkMusic();
-  checkRibbonCableSwitch();
-  cyclotronSwitchPlateLEDs();
-
-  switch_cyclotron_lid.loop();
-  switch_alarm.loop();
-  switch_cyclotron_direction.loop();
-  switch_mode.loop();
-  switch_vibration.loop();
-  switch_power.loop();
-  switch_smoke.loop();
-
   checkSwitches();
   checkRotaryEncoder();
 
@@ -696,10 +672,11 @@ void checkMusic() {
 void checkRibbonCableSwitch() {
   if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
     if(switch_alarm.getState() == LOW) {
-      // Ribbon cable is on.
+      // Ribbon cable is attached.
       packSerialSend(P_RIBBON_CABLE_ON);
     }
     else {
+      // Ribbon cable is detached.
       packSerialSend(P_RIBBON_CABLE_OFF);
     }
   }
@@ -963,6 +940,18 @@ void setYearModeByToggle() {
 }
 
 void checkSwitches() {
+  // Perform loop() needed by ezButton.
+  switch_alarm.loop();
+  switch_cyclotron_lid.loop();
+  switch_cyclotron_direction.loop();
+  switch_mode.loop();
+  switch_power.loop();
+  switch_smoke.loop();
+  switch_vibration.loop();
+
+  checkRibbonCableSwitch();
+  cyclotronSwitchPlateLEDs();
+
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
     if(b_clockwise == true) {
@@ -4292,7 +4281,7 @@ void resetCyclotronLEDs() {
       i_1984_cyclotron_leds[3] = i_1984_cyclotron_40_leds[3];
     break;
 
-    // For Frutto Technology Cyclotron LEDs.
+    // For Frutto Technology Cyclotron (20) LEDs.
     case FRUTTO_CYCLOTRON_LED_COUNT:
       i_2021_delay = CYCLOTRON_DELAY_2021_20_LED;
       i_1984_cyclotron_leds[0] = i_1984_cyclotron_20_leds[0];
@@ -4301,7 +4290,7 @@ void resetCyclotronLEDs() {
       i_1984_cyclotron_leds[3] = i_1984_cyclotron_20_leds[3];
     break;
 
-    // Default HasLab LEDs.
+    // Default HasLab (12) LEDs.
     case HASLAB_CYCLOTRON_LED_COUNT:
     default:
       i_2021_delay = CYCLOTRON_DELAY_2021_12_LED;
