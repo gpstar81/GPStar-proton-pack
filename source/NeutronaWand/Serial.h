@@ -483,6 +483,8 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
       b_sync = false; // Sync process has completed so remove the semaphore.
       b_wait_for_pack = false; // Initial handshake is complete, no longer waiting on the pack.
 
+      digitalWrite(led_white, HIGH); // turn the led off. The wand is now connected.
+
       switchBarrel(); // Determine the state of the barrel safety switch.
 
       // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
