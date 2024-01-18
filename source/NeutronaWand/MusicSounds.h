@@ -353,10 +353,11 @@ enum sound_fx {
   S_AFTERLIFE_BEEP_WAND_S5_HIGH,
   S_MESON_FIRE_PULSE,
   S_MESON_IDLE_LOOP,
-  S_WAND_SHUTDOWN_ALT
+  S_WAND_SHUTDOWN_ALT,
+  S_WAND_BOOTUP
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_WAND_SHUTDOWN_ALT;
+const unsigned int i_last_effects_track = S_WAND_BOOTUP;

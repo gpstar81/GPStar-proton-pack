@@ -3788,6 +3788,12 @@ void cyclotronSpeedIncrease() {
 
 void adjustVolumeEffectsGain() {
   // Since adjusting only from the wand, only certain effects need to be adjusted on the fly.
+  w_trig.trackGain(S_BEEPS, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
+  w_trig.trackGain(S_WAND_BOOTUP, i_volume_effects);
+
   w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume_effects);
   w_trig.trackGain(S_ALARM_LOOP, i_volume_effects);
   w_trig.trackGain(S_RIBBON_CABLE_START, i_volume_effects);
@@ -4164,6 +4170,8 @@ void wandExtraSoundsStop() {
 
   stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
+
+  stopEffect(S_WAND_BOOTUP);
 }
 
 // It is very important that S_1 up to S_60 follow each other in order on the Micro SD Card and sound effects enum.

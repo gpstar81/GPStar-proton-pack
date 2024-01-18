@@ -271,7 +271,11 @@ void mainLoop() {
         postActivation();
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          playEffect(S_BOOTUP);
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_WAND_BOOTUP_SOUND);
+          }
+
+          playEffect(S_WAND_BOOTUP);
         }
 
         bargraphClearAlt();
@@ -454,11 +458,21 @@ void mainLoop() {
       if(ms_hat_2.justFinished()) {
         ms_hat_2.start(i_hat_2_delay);
 
+        if(b_extra_pack_sounds == true && b_wand_audio_board_here != true) {
+          // Only play this beep on the Proton Pack if the Neutrona Wand has no audio board.
+          wandSerialSend(W_WAND_BEEP_SOUNDS);
+        }
+
         playEffect(S_BEEPS_LOW);
         playEffect(S_BEEPS);
       }
 
       if(ms_hat_1.justFinished()) {
+        if(b_extra_pack_sounds == true && b_wand_audio_board_here != true) {
+          // Only play this beep on the Proton Pack if the Neutrona Wand has no audio board.
+          wandSerialSend(W_WAND_BEEP_BARGRAPH);
+        }
+
         playEffect(S_BEEPS_BARGRAPH);
 
         ms_hat_1.start(i_hat_2_delay * 4);
@@ -697,7 +711,7 @@ void overHeatingFinished() {
     }
   }
 
-  playEffect(S_BOOTUP);
+  playEffect(S_WAND_BOOTUP);
 
   if(switch_vent.getState() == LOW) {
     soundIdleLoop(true);
@@ -748,6 +762,12 @@ void startVentSequence() {
 
     bargraphClearAlt();
 
+    if(b_extra_pack_sounds == true && b_wand_audio_board_here != true) {
+      // Only play these beeps on the Proton Pack if the Neutrona Wand has no audio board.
+      wandSerialSend(W_WAND_BEEP_SOUNDS);
+      wandSerialSend(W_WAND_BEEP_BARGRAPH);
+    }
+
     ms_settings_blinking.start(i_settings_blinking_delay);
 
     playEffect(S_BEEPS_LOW);
@@ -769,6 +789,10 @@ void startVentSequence() {
 
   playEffect(S_VENT_DRY);
   playEffect(S_CLICK);
+
+  if(b_extra_pack_sounds == true) {
+    wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+  }
 
   playEffect(S_WAND_SHUTDOWN);
 
@@ -1359,7 +1383,7 @@ void wandOff() {
     modeFireStop();
   }
 
-  stopEffect(S_BOOTUP);
+  stopEffect(S_WAND_BOOTUP);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -1379,11 +1403,19 @@ void wandOff() {
     case SYSTEM_1989:
       if(SYSTEM_MODE == MODE_SUPER_HERO) {
         if(switch_vent.getState() == LOW) {
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+          }
+
           stopEffect(S_WAND_SHUTDOWN);
           playEffect(S_WAND_SHUTDOWN);
         }
       }
       else {
+        if(b_extra_pack_sounds == true) {
+          wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+        }
+
         stopEffect(S_WAND_SHUTDOWN);
         playEffect(S_WAND_SHUTDOWN);
       }
@@ -1392,6 +1424,10 @@ void wandOff() {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
+      if(b_extra_pack_sounds == true) {
+        wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+      }
+
       stopEffect(S_WAND_SHUTDOWN);
       playEffect(S_WAND_SHUTDOWN);
     break;
@@ -1752,10 +1788,14 @@ void modeError() {
 
   ms_settings_blinking.start(i_settings_blinking_delay);
 
+  if(b_extra_pack_sounds == true && b_wand_audio_board_here != true) {
+    // Only play these beeps on the Proton Pack if the Neutrona Wand has no audio board.
+    wandSerialSend(W_WAND_BEEP_BARGRAPH);
+    wandSerialSend(W_WAND_BEEP_SOUNDS);
+  }
+
   playEffect(S_BEEPS_LOW);
-
   playEffect(S_BEEPS);
-
   playEffect(S_BEEPS_BARGRAPH);
 }
 
@@ -1855,7 +1895,7 @@ void postActivation() {
         case SYSTEM_FROZEN_EMPIRE:
         default:
           if(b_gpstar_benchtest == true) {
-            playEffect(S_BOOTUP);
+            playEffect(W_WAND_BOOTUP_SOUND);
           }
 
           soundIdleLoop(true);
@@ -1907,7 +1947,11 @@ void soundIdleStart() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        playEffect(S_BOOTUP);
+        if(b_extra_pack_sounds == true && switch_vent.getState() == LOW && (switch_vent.isPressed() || switch_vent.isReleased())) {
+          wandSerialSend(W_WAND_BOOTUP_SOUND);
+        }
+
+        playEffect(S_WAND_BOOTUP);
 
         soundIdleLoop(true);
 
@@ -1975,6 +2019,10 @@ void soundIdleStop() {
       case SYSTEM_1984:
       case SYSTEM_1989:
         if(WAND_ACTION_STATUS != ACTION_OFF) {
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+          }          
+
           stopEffect(S_WAND_SHUTDOWN);
           playEffect(S_WAND_SHUTDOWN);
         }
@@ -2015,7 +2063,7 @@ void soundIdleStop() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        stopEffect(S_BOOTUP);
+        stopEffect(S_WAND_BOOTUP);
         soundIdleLoopStop();
       break;
 
@@ -7228,6 +7276,10 @@ void switchBarrel() {
   else if(digitalRead(switch_barrel) == HIGH && ms_switch_barrel_debounce.remaining() < 1) {
     // Play the Afterlife Barrel extension sound effect.
     if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_switch_barrel_extended != true) {
+      if(b_extra_pack_sounds == true) {
+        wandSerialSend(W_AFTERLIFE_WAND_BARREL_EXTEND);
+      }
+
       // Plays the "thwoop" barrel extension sound in Afterlife mode.
       playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
     }
@@ -7482,6 +7534,10 @@ void setupWavTrigger() {
   delay(350);
 
   unsigned int w_num_tracks = w_trig.getNumTracks();
+
+  if(w_num_tracks > 0) {
+    b_wand_audio_board_here = true;
+  }
 
   // Build the music track count.
   i_music_count = w_num_tracks - i_last_effects_track;

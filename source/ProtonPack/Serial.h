@@ -1229,6 +1229,34 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
     break;
 
+    case W_WAND_BEEP_BARGRAPH:
+      playEffect(S_BEEPS_BARGRAPH);
+    break;
+
+    case W_WAND_BEEP_SOUNDS:
+      playEffect(S_BEEPS_LOW);
+      playEffect(S_BEEPS);
+    break;
+
+    case W_WAND_SHUTDOWN_SOUND:
+      stopEffect(S_WAND_SHUTDOWN);
+      playEffect(S_WAND_SHUTDOWN);
+    break;
+
+    case W_WAND_BOOTUP_SOUND:
+      stopEffect(S_WAND_BOOTUP);
+      playEffect(S_WAND_BOOTUP);
+    break;
+
+    case W_AFTERLIFE_WAND_BARREL_EXTEND:
+      stopEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
+      playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
+    break;
+    
+    case W_AFTERLIFE_RAMP_LOOP_STOP:
+      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+    break;
+
     case W_AFTERLIFE_RAMP_LOOP_2_STOP:
       stopEffect(S_AFTERLIFE_WAND_IDLE_2);
     break;
