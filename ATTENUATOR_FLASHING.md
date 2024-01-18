@@ -122,7 +122,7 @@ The following libraries are required to be installed. All but the MillisDelay li
 - **ezButton** by ArduinoGetStarted.com
 - **simple ht16k33 library** by lpaseen
 - **SerialTransfer** by PowerBroker2
-- **millisDelay** `See Below`
+- **SafeString** by Matthew Ford
 
 ### Additional ESP32 Libraries
 
@@ -150,12 +150,5 @@ The ElegantOTA library must be enabled to utilize the Asynchronous Web Server.
 
 The ESPAsyncWebServer library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
 [https://github.com/me-no-dev/ESPAsyncWebServer.git](https://github.com/me-no-dev/ESPAsyncWebServer.git)
-
-No further configuration is needed for this library.
-
-### MillisDelay
-
-The MillisDelay library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/ansonhe97/millisDelay.git](https://github.com/ansonhe97/millisDelay.git)
 
 No further configuration is needed for this library.
