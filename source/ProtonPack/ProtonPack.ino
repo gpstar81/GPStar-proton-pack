@@ -779,6 +779,7 @@ void packShutdown() {
   }
 
   wandExtraSoundsStop();
+  wandExtraSoundsBeepLoopStop();
 
   stopEffect(S_BEEP_8);
   stopEffect(S_SHUTDOWN);
@@ -3788,6 +3789,17 @@ void cyclotronSpeedIncrease() {
 
 void adjustVolumeEffectsGain() {
   // Since adjusting only from the wand, only certain effects need to be adjusted on the fly.
+  w_trig.trackGain(S_BEEPS, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
+  w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
+  w_trig.trackGain(S_WAND_BOOTUP, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
+
   w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume_effects);
   w_trig.trackGain(S_ALARM_LOOP, i_volume_effects);
   w_trig.trackGain(S_RIBBON_CABLE_START, i_volume_effects);
@@ -4133,6 +4145,7 @@ void wandDisconnectCheck() {
       }
 
       wandExtraSoundsStop();
+      wandExtraSoundsBeepLoopStop();
 
       // Turn off overheating if the wand gets disconnected.
       if(b_overheating == true) {
@@ -4153,6 +4166,40 @@ void wandDisconnectCheck() {
   }
 }
 
+void wandExtraSoundsBeepLoop() {
+  if(b_overheating != true) {
+    switch(i_wand_power_level) {
+      case 1:
+        playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
+      break;
+
+      case 2:
+        playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
+      break;
+
+      case 3:
+        playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
+      break;
+
+      case 4:
+        playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
+      break;
+
+      case 5:
+        playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
+      break;
+    }
+  }
+}
+
+void wandExtraSoundsBeepLoopStop() {
+  stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
+  stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
+  stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
+  stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
+  stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
+}
+
 void wandExtraSoundsStop() {
   stopEffect(S_AFTERLIFE_WAND_RAMP_1);
   stopEffect(S_AFTERLIFE_WAND_IDLE_1);
@@ -4164,6 +4211,8 @@ void wandExtraSoundsStop() {
 
   stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
+
+  stopEffect(S_WAND_BOOTUP);
 }
 
 // It is very important that S_1 up to S_60 follow each other in order on the Micro SD Card and sound effects enum.

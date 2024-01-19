@@ -573,6 +573,11 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
               case MODE_ORIGINAL:
                 if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
                   if(b_mode_original_toggle_sounds_enabled == true) {
+                    if(b_extra_pack_sounds == true) {
+                      wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
+                      wandSerialSend(W_MODE_ORIGINAL_HEATUP);
+                    }
+
                     stopEffect(S_WAND_HEATDOWN);
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
@@ -608,6 +613,11 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
           if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
+              wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
+            }
+
             stopEffect(S_WAND_HEATDOWN);
             stopEffect(S_WAND_HEATUP_ALT);
             stopEffect(S_WAND_HEATUP);
@@ -632,7 +642,10 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
           switch(getNeutronaWandYearMode()) {
               case SYSTEM_1984:
               case SYSTEM_1989:
-                // Nothing for now.
+                if(b_extra_pack_sounds == true) {
+                  wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+                  wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+                }
               break;
 
               case SYSTEM_AFTERLIFE:
@@ -647,6 +660,7 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
 
                   if(b_extra_pack_sounds == true) {
                     wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+                    wandSerialSend(W_WAND_SHUTDOWN_SOUND);
                     wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
                   }
                 }
@@ -675,52 +689,10 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
 
     case P_RIBBON_CABLE_ON:
       b_pack_ribbon_cable_on = true;
-
-      if(WAND_STATUS == MODE_ON && b_pack_alarm != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        soundIdleLoop(true);
-
-        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          stopEffect(S_BOOTUP);
-          playEffect(S_BOOTUP);
-
-          if(switch_vent.getState() == HIGH) {
-            afterLifeRamp1();
-          }
-          else {
-            stopAfterLifeSounds();
-          }
-        }
-      }
     break;
 
     case P_RIBBON_CABLE_OFF:
       b_pack_ribbon_cable_on = false;
-
-      if(WAND_STATUS == MODE_ON && b_pack_alarm == true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        switch(getNeutronaWandYearMode()) {
-          case SYSTEM_1984:
-          case SYSTEM_1989:
-            // Nothing for now.
-          break;
-
-          case SYSTEM_AFTERLIFE:
-          case SYSTEM_FROZEN_EMPIRE:
-          default:
-              stopEffect(S_WAND_SHUTDOWN);
-              playEffect(S_WAND_SHUTDOWN);
-
-            if(switch_vent.getState() == HIGH) {
-              stopAfterLifeSounds();
-              playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
-
-              if(b_extra_pack_sounds == true) {
-                wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-                wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
-              }
-            }
-          break;
-        }
-      }
     break;
 
     case P_ALARM_ON:
@@ -743,6 +715,38 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
 
         if(WAND_STATUS == MODE_ON) {
           prepBargraphRampDown();
+        }
+      }
+
+      if(WAND_STATUS == MODE_ON && b_pack_ribbon_cable_on != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        switch(getNeutronaWandYearMode()) {
+          case SYSTEM_1984:
+          case SYSTEM_1989:
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+              wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+            }
+          break;
+
+          case SYSTEM_AFTERLIFE:
+          case SYSTEM_FROZEN_EMPIRE:
+          default:
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);                
+              
+              wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+            }   
+
+            stopEffect(S_WAND_SHUTDOWN);
+            playEffect(S_WAND_SHUTDOWN);
+
+            if(switch_vent.getState() == HIGH) {
+              stopAfterLifeSounds();
+            }
+
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+          break;
         }
       }
     break;
@@ -775,6 +779,22 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
 
       // Alarm is off.
       b_pack_alarm = false;
+
+      if(WAND_STATUS == MODE_ON && b_pack_ribbon_cable_on == true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        soundIdleLoop(true);
+
+        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+          stopEffect(S_WAND_BOOTUP);
+          playEffect(S_WAND_BOOTUP);
+
+          if(switch_vent.getState() == HIGH) {
+            afterLifeRamp1();
+          }
+          else {
+            stopAfterLifeSounds();
+          }
+        }
+      }      
     break;
 
     case P_WARNING_CANCELLED:

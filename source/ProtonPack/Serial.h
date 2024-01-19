@@ -1229,6 +1229,94 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
     break;
 
+    case W_WAND_BEEP:
+      if(b_overheating != true) {
+        switch(i_wand_power_level) {
+          case 1:
+            playEffect(S_AFTERLIFE_BEEP_WAND_S1);
+          break;
+
+          case 2:
+            playEffect(S_AFTERLIFE_BEEP_WAND_S2);
+          break;
+
+          case 3:
+            playEffect(S_AFTERLIFE_BEEP_WAND_S3);
+          break;
+
+          case 4:
+            playEffect(S_AFTERLIFE_BEEP_WAND_S4);
+          break;
+
+          case 5:
+            playEffect(S_AFTERLIFE_BEEP_WAND_S5);
+          break;
+        }
+      }    
+    break;
+
+    case W_WAND_BEEP_START:
+      wandExtraSoundsBeepLoop();
+    break;
+
+    case W_WAND_BEEP_STOP:
+      wandExtraSoundsBeepLoopStop();
+    break;
+
+    case W_BEEPS_ALT:
+      stopEffect(S_BEEPS_ALT);
+      playEffect(S_BEEPS_ALT);
+    break;
+
+    case W_MODE_ORIGINAL_HEATDOWN:
+      stopEffect(S_WAND_HEATDOWN);
+      playEffect(S_WAND_HEATDOWN);
+    break;
+
+    case W_MODE_ORIGINAL_HEATDOWN_STOP:
+      stopEffect(S_WAND_HEATDOWN);
+    break;
+
+    case W_MODE_ORIGINAL_HEATUP_STOP:
+      stopEffect(S_WAND_HEATUP_ALT);
+      stopEffect(S_WAND_HEATUP);
+    break;
+
+    case W_MODE_ORIGINAL_HEATUP:
+      stopEffect(S_WAND_HEATUP_ALT);
+      stopEffect(S_WAND_HEATUP);
+      playEffect(S_WAND_HEATUP);
+      playEffect(S_WAND_HEATUP_ALT);
+    break;
+
+    case W_WAND_BEEP_BARGRAPH:
+      playEffect(S_BEEPS_BARGRAPH);
+    break;
+
+    case W_WAND_BEEP_SOUNDS:
+      playEffect(S_BEEPS_LOW);
+      playEffect(S_BEEPS);
+    break;
+
+    case W_WAND_SHUTDOWN_SOUND:
+      stopEffect(S_WAND_SHUTDOWN);
+      playEffect(S_WAND_SHUTDOWN);
+    break;
+
+    case W_WAND_BOOTUP_SOUND:
+      stopEffect(S_WAND_BOOTUP);
+      playEffect(S_WAND_BOOTUP);
+    break;
+
+    case W_AFTERLIFE_WAND_BARREL_EXTEND:
+      stopEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
+      playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
+    break;
+    
+    case W_AFTERLIFE_RAMP_LOOP_STOP:
+      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+    break;
+
     case W_AFTERLIFE_RAMP_LOOP_2_STOP:
       stopEffect(S_AFTERLIFE_WAND_IDLE_2);
     break;

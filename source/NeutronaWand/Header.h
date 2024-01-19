@@ -155,6 +155,7 @@ uint16_t i_current_music_track = 0;
 const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
+// boolean b_wand_audio_board_here = false; // Unused for now.
 
 /*
  * Volume (0 = loudest, -70 = quietest)
@@ -332,7 +333,7 @@ const uint8_t i_hat_1_delay = 100;
 const unsigned int i_hat_2_delay = 400;
 
 /*
- * A timer for controlling the wand beep in 2021 mode.
+ * A timer for controlling the wand beep in Afterlife & Frozen Empire mode.
  */
 millisDelay ms_reset_sound_beep;
 const uint8_t i_sound_timer = 150;
