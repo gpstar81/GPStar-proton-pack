@@ -779,6 +779,7 @@ void packShutdown() {
   }
 
   wandExtraSoundsStop();
+  wandExtraSoundsBeepLoopStop();
 
   stopEffect(S_BEEP_8);
   stopEffect(S_SHUTDOWN);
@@ -3793,6 +3794,11 @@ void adjustVolumeEffectsGain() {
   w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
   w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
   w_trig.trackGain(S_WAND_BOOTUP, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
+  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
 
   w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume_effects);
   w_trig.trackGain(S_ALARM_LOOP, i_volume_effects);
@@ -4139,6 +4145,7 @@ void wandDisconnectCheck() {
       }
 
       wandExtraSoundsStop();
+      wandExtraSoundsBeepLoopStop();
 
       // Turn off overheating if the wand gets disconnected.
       if(b_overheating == true) {
@@ -4157,6 +4164,40 @@ void wandDisconnectCheck() {
       }
     }
   }
+}
+
+void wandExtraSoundsBeepLoop() {
+  if(b_overheating != true) {
+    switch(i_wand_power_level) {
+      case 1:
+        playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
+      break;
+
+      case 2:
+        playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
+      break;
+
+      case 3:
+        playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
+      break;
+
+      case 4:
+        playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
+      break;
+
+      case 5:
+        playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
+      break;
+    }
+  }
+}
+
+void wandExtraSoundsBeepLoopStop() {
+  stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
+  stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
+  stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
+  stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
+  stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
 }
 
 void wandExtraSoundsStop() {

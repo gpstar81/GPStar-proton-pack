@@ -216,7 +216,8 @@ unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 const bool b_onboard_amp_enabled = true;
 
 /*
- * When set to true, the Neutrona Wand will tell the Proton Pack to play the Afterlife Neutrona Wand ramp sounds.
+ * When set to true, the Neutrona Wand will tell the Proton Pack to play the Neutrona Wand sound effects. 
+ * Perfect if you want louder Neutrona Wand sounds or if your Neutrona Wand does not have a audio board.
  * The default setting is false.
  */
 bool b_extra_pack_sounds = false;

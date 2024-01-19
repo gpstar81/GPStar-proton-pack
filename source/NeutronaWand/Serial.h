@@ -573,6 +573,11 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
               case MODE_ORIGINAL:
                 if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
                   if(b_mode_original_toggle_sounds_enabled == true) {
+                    if(b_extra_pack_sounds == true) {
+                      wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
+                      wandSerialSend(W_MODE_ORIGINAL_HEATUP);
+                    }
+
                     stopEffect(S_WAND_HEATDOWN);
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
@@ -608,6 +613,11 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
           if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
+              wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
+            }
+
             stopEffect(S_WAND_HEATDOWN);
             stopEffect(S_WAND_HEATUP_ALT);
             stopEffect(S_WAND_HEATUP);

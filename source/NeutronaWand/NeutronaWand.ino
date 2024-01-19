@@ -458,7 +458,7 @@ void mainLoop() {
       if(ms_hat_2.justFinished()) {
         ms_hat_2.start(i_hat_2_delay);
 
-        if(b_extra_pack_sounds == true && b_wand_audio_board_here != true) {
+        if(b_extra_pack_sounds == true) {
           // Only play this beep on the Proton Pack if the Neutrona Wand has no audio board.
           wandSerialSend(W_WAND_BEEP_SOUNDS);
         }
@@ -468,7 +468,7 @@ void mainLoop() {
       }
 
       if(ms_hat_1.justFinished()) {
-        if(b_extra_pack_sounds == true && b_wand_audio_board_here != true) {
+        if(b_extra_pack_sounds == true) {
           // Only play this beep on the Proton Pack if the Neutrona Wand has no audio board.
           wandSerialSend(W_WAND_BEEP_BARGRAPH);
         }
@@ -762,8 +762,7 @@ void startVentSequence() {
 
     bargraphClearAlt();
 
-    if(b_extra_pack_sounds == true && b_wand_audio_board_here != true) {
-      // Only play these beeps on the Proton Pack if the Neutrona Wand has no audio board.
+    if(b_extra_pack_sounds == true) {
       wandSerialSend(W_WAND_BEEP_SOUNDS);
       wandSerialSend(W_WAND_BEEP_BARGRAPH);
     }
@@ -1119,8 +1118,11 @@ void checkSwitches() {
                   if(switch_vent.isPressed() || switch_vent.isReleased()) {
                     if(switch_vent.getState() == LOW) {
                       if(b_mode_original_toggle_sounds_enabled == true) {
+                        if(b_extra_pack_sounds == true) {
+                          wandSerialSend(W_BEEPS_ALT);
+                        }
+
                         stopEffect(S_BEEPS_ALT);
-                        stopEffect(S_BEEP_VARIATION);
                         playEffect(S_BEEPS_ALT);
                       }
                     }
@@ -1128,6 +1130,11 @@ void checkSwitches() {
 
                   if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
                     if(b_mode_original_toggle_sounds_enabled == true) {
+                      if(b_extra_pack_sounds == true) {
+                        wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
+                        wandSerialSend(W_MODE_ORIGINAL_HEATUP);
+                      }
+
                       stopEffect(S_WAND_HEATDOWN);
                       stopEffect(S_WAND_HEATUP_ALT);
                       stopEffect(S_WAND_HEATUP);
@@ -1142,11 +1149,21 @@ void checkSwitches() {
                     prepBargraphRampUp();
                   }
                   else if((switch_wand.isPressed() || switch_wand.isReleased()) && switch_vent.getState() == LOW && switch_wand.getState() == HIGH && b_mode_original_toggle_sounds_enabled == true) {
+                    if(b_extra_pack_sounds == true) {
+                      wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
+                      wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
+                    }
+
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
                     playEffect(S_WAND_HEATDOWN);
                   }
                   else if((switch_vent.isPressed() || switch_vent.isReleased()) && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
+                    if(b_extra_pack_sounds == true) {
+                      wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
+                      wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
+                    }
+
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
                     playEffect(S_WAND_HEATDOWN);
@@ -1387,6 +1404,7 @@ void wandOff() {
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+    wandSerialSend(W_WAND_BEEP_STOP);
   }
 
   // Turn off any overheating sounds.
@@ -1599,7 +1617,8 @@ void fireControlCheck() {
     }
 
     // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
-    if(b_quick_vent == true) {
+    // Super Hero Mode only, because mode original uses different toggle switch combinations which makes this not possible.
+    if(b_quick_vent == true && SYSTEM_MODE == MODE_SUPER_HERO) {
       if(switch_intensify.getState() == LOW && ms_firing_debounce.remaining() < 1 && ms_intensify_timer.isRunning() != true && switch_wand.getState() == HIGH && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
         startVentSequence();
       }
@@ -1788,8 +1807,7 @@ void modeError() {
 
   ms_settings_blinking.start(i_settings_blinking_delay);
 
-  if(b_extra_pack_sounds == true && b_wand_audio_board_here != true) {
-    // Only play these beeps on the Proton Pack if the Neutrona Wand has no audio board.
+  if(b_extra_pack_sounds == true) {
     wandSerialSend(W_WAND_BEEP_BARGRAPH);
     wandSerialSend(W_WAND_BEEP_SOUNDS);
   }
@@ -1812,6 +1830,10 @@ void modeActivate() {
 
       // If starting up directly from any of the non-toggle-sequence switches, play the wand heatup sound.
       if(switch_activate.isPressed() != true && switch_activate.isReleased() != true && b_mode_original_toggle_sounds_enabled == true) {
+        if(b_extra_pack_sounds == true) {
+          wandSerialSend(W_MODE_ORIGINAL_HEATUP);
+        }
+
         stopEffect(S_WAND_HEATUP_ALT);
         stopEffect(S_WAND_HEATUP);
         playEffect(S_WAND_HEATUP);
@@ -2087,6 +2109,10 @@ void soundBeepLoopStop() {
   if(b_beeping == true) {
     b_beeping = false;
 
+    if(b_extra_pack_sounds == true) {
+      wandSerialSend(W_WAND_BEEP_STOP);
+    }
+
     stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
     stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
     stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
@@ -2107,45 +2133,85 @@ void soundBeepLoop() {
       switch(i_power_mode) {
         case 1:
           if(b_next_gen && b_beep_loop == true) {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_BEEP_START);
+            }
+
             playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
           }
           else {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_BEEP);
+            }
+
             playEffect(S_AFTERLIFE_BEEP_WAND_S1);
           }
         break;
 
         case 2:
          if(b_next_gen && b_beep_loop == true) {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_BEEP_START);
+            }
+
             playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
           }
           else {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_BEEP);
+            }
+
             playEffect(S_AFTERLIFE_BEEP_WAND_S2);
           }
         break;
 
         case 3:
          if(b_next_gen && b_beep_loop == true) {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_BEEP_START);
+            }
+
             playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
           }
           else {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_BEEP);
+            }
+
             playEffect(S_AFTERLIFE_BEEP_WAND_S3);
           }
         break;
 
         case 4:
          if(b_next_gen && b_beep_loop == true) {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_BEEP_START);
+            }
+
             playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
           }
           else {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_BEEP);
+            }
+
             playEffect(S_AFTERLIFE_BEEP_WAND_S4);
           }
         break;
 
         case 5:
          if(b_next_gen && b_beep_loop == true) {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_BEEP_START);
+            }
+                       
             playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
           }
           else {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_BEEP);
+            }
+                        
             playEffect(S_AFTERLIFE_BEEP_WAND_S5);
           }
         break;
@@ -7202,6 +7268,10 @@ void wandExitMenu() {
   if(SYSTEM_MODE == MODE_ORIGINAL) {
     if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
       if(b_pack_ion_arm_switch_on == true && b_28segment_bargraph == true && b_mode_original_toggle_sounds_enabled == true) {
+        if(b_extra_pack_sounds == true) {
+          wandSerialSend(W_MODE_ORIGINAL_HEATUP);
+        }
+
         stopEffect(S_WAND_HEATUP_ALT);
         stopEffect(S_WAND_HEATUP);
         playEffect(S_WAND_HEATUP);
@@ -7535,9 +7605,12 @@ void setupWavTrigger() {
 
   unsigned int w_num_tracks = w_trig.getNumTracks();
 
+  /*
+  // Unused for now.
   if(w_num_tracks > 0) {
     b_wand_audio_board_here = true;
   }
+  */
 
   // Build the music track count.
   i_music_count = w_num_tracks - i_last_effects_track;
