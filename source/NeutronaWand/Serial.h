@@ -698,7 +698,7 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
     case P_ALARM_ON:
       // Alarm is on.
       b_pack_alarm = true;
-      
+
       if(WAND_STATUS != MODE_ERROR) {
         if(WAND_STATUS == MODE_ON) {
           digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
@@ -748,7 +748,7 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
           break;
         }
-      }      
+      }
     break;
 
     case P_ALARM_OFF:

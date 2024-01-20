@@ -2043,7 +2043,7 @@ void soundIdleStop() {
         if(WAND_ACTION_STATUS != ACTION_OFF) {
           if(b_extra_pack_sounds == true) {
             wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-          }          
+          }
 
           stopEffect(S_WAND_SHUTDOWN);
           playEffect(S_WAND_SHUTDOWN);
@@ -2204,14 +2204,14 @@ void soundBeepLoop() {
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_WAND_BEEP_START);
             }
-                       
+
             playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
           }
           else {
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_WAND_BEEP);
             }
-                        
+
             playEffect(S_AFTERLIFE_BEEP_WAND_S5);
           }
         break;
