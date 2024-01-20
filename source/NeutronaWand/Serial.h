@@ -790,9 +790,6 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
           if(switch_vent.getState() == HIGH) {
             afterLifeRamp1();
           }
-          else {
-            stopAfterLifeSounds();
-          }
         }
       }      
     break;
