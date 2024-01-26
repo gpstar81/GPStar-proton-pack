@@ -30,7 +30,6 @@ The following libraries are required to be installed. All but the MillisDelay li
 - **FastLED** by Daniel Garcia
 - **ezButton** by ArduinoGetStarted.com
 - **Ramp** by Sylvain Garnavault
-- **AltSoftSerial** by Paul Stoffregen
 - **simple ht16k33 library** by lpaseen
 - **SerialTransfer** by PowerBroker2
 - **millisDelay** `See Below`
@@ -63,7 +62,7 @@ This is a legacy flag, for people who originally put the Cyclotron Lid detection
 
 The **final** release compatible with the Arduino Nano was **v2.2.0** in November of 2023. Releases after this date no longer support that device due primarily to system memory limitations. Please consider migrating to the official GPStar Neutrona Wand PCB to continue to receive additional software updates for your devices.
 
-**In other words, since the software for the pack and wand must be updated in tandem, this implies that updates cannot be made to a Proton Pack (whether DIY or PCB) without the accompanying change to the Neutrona Wand.**
+**In other words: since the software for the pack and wand must be updated in tandem, this implies that updates cannot be made to a Proton Pack (whether DIY or PCB) without the accompanying change to the Neutrona Wand.**
 
 ## Advanced User Configurations
 

@@ -23,7 +23,6 @@ jobs:
               - name: FastLED
               - name: Ramp
               - name: simple ht16k33 library
-              - name: AltSoftSerial
               - name: SerialTransfer
               - name: SafeString
             verbose: false
@@ -48,7 +47,6 @@ jobs:
               - name: FastLED
               - name: Ramp
               - name: simple ht16k33 library
-              - name: AltSoftSerial
               - name: SerialTransfer
               - name: SafeString
             verbose: false
@@ -73,13 +71,11 @@ jobs:
               - name: FastLED
               - name: Ramp
               - name: simple ht16k33 library
-              - name: AltSoftSerial
               - name: SerialTransfer
               - name: SafeString
               - name: ArduinoJson
               - name: AsyncTCP
               - name: ESP Async WebServer
-              - name: Preferences
               - source-url: https://github.com/DustinGrau/ElegantOTA.git
             verbose: false
             # Need this to ensure any warnings do not impede compilation
