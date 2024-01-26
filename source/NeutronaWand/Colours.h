@@ -242,7 +242,6 @@ CRGB getHueColour(uint8_t i_colour, WAND_BARREL_LED_COUNTS NUM_LEDS_ENUM, uint8_
   switch(NUM_LEDS_ENUM) {
     case LEDS_29:
     case LEDS_48:
-    case LEDS_60:
       // All other LEDs are considered RGB
       return getHueAsRGB(i_colour, i_brightness);
     break;

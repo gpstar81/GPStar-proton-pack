@@ -3301,18 +3301,11 @@ void wandBarrelHeatDown() {
 
 void fireStream(CRGB c_colour) {
   switch(WAND_BARREL_LED_COUNT) {
-    case LEDS_60:
-      // Not yet supported.
-    break;
-
     case LEDS_48:
       // Not yet supported.
     break;
 
     case LEDS_29:
-      // Not yet supported.
-    break;
-
     case LEDS_5:
     default:
       if(ms_firing_stream_blue.justFinished()) {
@@ -3485,11 +3478,6 @@ void fireStreamStart(CRGB c_colour) {
     ms_fast_led.start(i_fast_led_delay);
 
     switch(WAND_BARREL_LED_COUNT) {
-      case LEDS_60:
-        // More LEDs means a faster firing rate.
-        // ms_firing_lights.start(d_firing_lights / 6);
-      break;
-
       case LEDS_48:
         // More LEDs means a faster firing rate.
         ms_firing_lights.start(d_firing_lights / 5);
@@ -3497,7 +3485,7 @@ void fireStreamStart(CRGB c_colour) {
 
       case LEDS_29:
         // More LEDs means a faster firing rate.
-        // ms_firing_lights.start(d_firing_lights / 4);
+        ms_firing_lights.start(d_firing_lights / 4);
       break;
 
       case LEDS_5:
@@ -3525,11 +3513,6 @@ void fireStreamEnd(CRGB c_colour) {
     ms_fast_led.start(i_fast_led_delay);
 
     switch(WAND_BARREL_LED_COUNT) {
-      case LEDS_60:
-        // More LEDs means a faster firing rate.
-        // ms_firing_lights_end.start(d_firing_lights / 8);
-      break;
-
       case LEDS_48:
         // More LEDs means a faster firing rate.
         ms_firing_lights_end.start(d_firing_lights / 6);
@@ -3537,7 +3520,7 @@ void fireStreamEnd(CRGB c_colour) {
 
       case LEDS_29:
         // More LEDs means a faster firing rate.
-        // ms_firing_lights_end.start(d_firing_lights / 4);
+        ms_firing_lights_end.start(d_firing_lights / 4);
       break;
 
       case LEDS_5:
