@@ -138,6 +138,9 @@ void wandSerialSendData(uint16_t i_message) {
           case LEDS_48:
             wandConfig.ledWandCount = 2;
           break;
+          case LEDS_60:
+            wandConfig.ledWandCount = 3;
+          break;
         }
 
         wandConfig.ledWandHue = i_spectral_wand_custom_colour;
@@ -324,6 +327,10 @@ void checkPack() {
             case 2:
               i_num_barrel_leds = 48;
               WAND_BARREL_LED_COUNT = LEDS_48;
+            break;
+            case 3:
+              i_num_barrel_leds = 60;
+              WAND_BARREL_LED_COUNT = LEDS_60;
             break;
           }
 

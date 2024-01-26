@@ -3479,8 +3479,27 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
       resetContinuousSmoke();
     break;
 
+    case W_BARREL_LEDS_5:
+      stopEffect(S_VOICE_BARREL_LED_5);
+      //stopEffect(S_VOICE_BARREL_LED_29);
+      stopEffect(S_VOICE_BARREL_LED_48);
+      stopEffect(S_VOICE_BARREL_LED_60);
+
+      playEffect(S_VOICE_BARREL_LED_5);
+    break;
+
+    case W_BARREL_LEDS_29:
+      stopEffect(S_VOICE_BARREL_LED_5);
+      //stopEffect(S_VOICE_BARREL_LED_29);
+      stopEffect(S_VOICE_BARREL_LED_48);
+      stopEffect(S_VOICE_BARREL_LED_60);
+
+      //playEffect(S_VOICE_BARREL_LED_29);
+    break;
+
     case W_BARREL_LEDS_48:
       stopEffect(S_VOICE_BARREL_LED_5);
+      //stopEffect(S_VOICE_BARREL_LED_29);
       stopEffect(S_VOICE_BARREL_LED_48);
       stopEffect(S_VOICE_BARREL_LED_60);
 
@@ -3489,18 +3508,11 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
 
     case W_BARREL_LEDS_60:
       stopEffect(S_VOICE_BARREL_LED_5);
+      //stopEffect(S_VOICE_BARREL_LED_29);
       stopEffect(S_VOICE_BARREL_LED_48);
       stopEffect(S_VOICE_BARREL_LED_60);
 
       playEffect(S_VOICE_BARREL_LED_60);
-    break;
-
-    case W_BARREL_LEDS_5:
-      stopEffect(S_VOICE_BARREL_LED_5);
-      stopEffect(S_VOICE_BARREL_LED_48);
-      stopEffect(S_VOICE_BARREL_LED_60);
-
-      playEffect(S_VOICE_BARREL_LED_5);
     break;
 
     case W_BARGRAPH_INVERTED:
