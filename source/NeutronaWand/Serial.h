@@ -791,7 +791,7 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
             afterLifeRamp1();
           }
         }
-      }      
+      }
     break;
 
     case P_WARNING_CANCELLED:
