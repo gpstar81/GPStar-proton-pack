@@ -606,7 +606,6 @@ void checkWandAction() {
 
                   stopEffect(S_VOICE_BARREL_LED_5);
                   stopEffect(S_VOICE_BARREL_LED_48);
-                  stopEffect(S_VOICE_BARREL_LED_60);
                   playEffect(S_VOICE_BARREL_LED_48);
 
                   wandSerialSend(W_BARREL_LEDS_48);
@@ -619,37 +618,9 @@ void checkWandAction() {
 
                   stopEffect(S_VOICE_BARREL_LED_5);
                   stopEffect(S_VOICE_BARREL_LED_48);
-                  stopEffect(S_VOICE_BARREL_LED_60);
                   playEffect(S_VOICE_BARREL_LED_5);
 
                   wandSerialSend(W_BARREL_LEDS_5);
-
-                  /*
-                  i_num_barrel_leds = 60;
-                  WAND_BARREL_LED_COUNT = LEDS_60;
-
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  stopEffect(S_VOICE_BARREL_LED_48);
-                  stopEffect(S_VOICE_BARREL_LED_60);
-                  playEffect(S_VOICE_BARREL_LED_60);
-
-                  wandSerialSend(W_BARREL_LEDS_60);
-                  */
-                break;
-
-                // The 60 LED flexi-pcb may come one day in the future.
-                case LEDS_60:
-                /*
-                  i_num_barrel_leds = 5;
-                  WAND_BARREL_LED_COUNT = LEDS_5;
-
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  stopEffect(S_VOICE_BARREL_LED_48);
-                  stopEffect(S_VOICE_BARREL_LED_60);
-                  playEffect(S_VOICE_BARREL_LED_5);
-
-                  wandSerialSend(W_BARREL_LEDS_5);
-                  */
                 break;
               }
             }
