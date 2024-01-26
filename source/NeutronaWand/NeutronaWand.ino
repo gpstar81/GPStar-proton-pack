@@ -3489,7 +3489,7 @@ void fireStreamStart(CRGB c_colour) {
 
       case LEDS_48:
         // More LEDs means a faster firing rate.
-        ms_firing_lights.start(d_firing_lights / 5);
+        // ms_firing_lights.start(d_firing_lights / 5);
       break;
 
       case LEDS_29:
@@ -3529,7 +3529,7 @@ void fireStreamEnd(CRGB c_colour) {
 
       case LEDS_48:
         // More LEDs means a faster firing rate.
-        ms_firing_lights_end.start(d_firing_lights / 5);
+        // ms_firing_lights_end.start(d_firing_lights / 5);
       break;
 
       case LEDS_29:

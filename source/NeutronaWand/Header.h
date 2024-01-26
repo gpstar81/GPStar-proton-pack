@@ -123,7 +123,7 @@ CRGB barrel_leds[BARREL_LEDS_MAX];
 /*
  * How many LEDs are in your Neutrona Wand Barrel.
  * Default setting is 5: for the Hasbro Neturona Wand.
- * Supported options: 5, 48, and 60.
+ * Supported options: 5, 29, 48, and 60.
  */
 uint8_t i_num_barrel_leds = 5;
 enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_29, LEDS_48, LEDS_60 };
