@@ -128,10 +128,11 @@ The following libraries are required to be installed. All but the MillisDelay li
 
 - **ArduinoJSON** by Benoit Blanchon
 - **AsyncTCP** by dvarrel
+- **ESP Async WebServer** by Me-No-Dev
+- **Preferences** by Volodymyr Shymanskyy
 - **ElegantOTA** by Ayush Sharma `See Below`
-- **ESPAsyncWebServer** `See Below`
 
-To build for the ESP32 controller you will need to use the `Boards Manager` to install the `esp32 by Expressif Systems` package. When selecting a board for compilation and upload, simply use the board `ESP32 Dev Module` for satisfactory results. For reference, the FQBN for builds is "esp32:esp32:esp32".
+To build for the ESP32 hardware you will need to use the `Boards Manager` to install the `esp32 by Expressif Systems` package. When selecting a board for compilation and upload, simply use the board `ESP32 Dev Module` for satisfactory results. For reference, the FQBN for builds is "esp32:esp32:esp32".
 
 ### ElegantOTA
 
@@ -143,9 +144,9 @@ The ElegantOTA library must be enabled to utilize the Asynchronous Web Server.
 	`#define ELEGANTOTA_USE_ASYNC_WEBSERVER 1`
 1. Save the changes to the `ElegantOTA.h` file.
 
-### ESPAsyncWebServer
+**Alternative:**
 
-The ESPAsyncWebServer library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/me-no-dev/ESPAsyncWebServer.git](https://github.com/me-no-dev/ESPAsyncWebServer.git)
+A fork of the `ElegantOTA` library can be downloaded from GitHub which contains the above modifications for use with the ESPAsyncWebServer package. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
+[https://github.com/DustinGrau/ElegantOTA.git](https://github.com/DustinGrau/ElegantOTA.git)
 
 No further configuration is needed for this library.

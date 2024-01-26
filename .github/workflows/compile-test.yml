@@ -77,10 +77,10 @@ jobs:
               - name: SerialTransfer
               - name: SafeString
               - name: ArduinoJson
-              - name: Preferences
               - name: AsyncTCP
+              - name: ESP Async WebServer
+              - name: Preferences
               - source-url: https://github.com/DustinGrau/ElegantOTA.git
-              - source-url: https://github.com/me-no-dev/ESPAsyncWebServer.git
             verbose: false
             # Need this to ensure any warnings do not impede compilation
             cli-compile-flags: |
