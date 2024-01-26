@@ -128,7 +128,7 @@ The following libraries are required to be installed. All but the MillisDelay li
 
 - **ArduinoJSON** by Benoit Blanchon
 - **AsyncTCP** by dvarrel
-- **ESP Async WebServer** by Me-No-Dev
+- **ESP Async WebServer** by Mathieu Carbou
 - **ElegantOTA** by Ayush Sharma `See Below`
 
 To build for the ESP32 hardware you will need to use the `Boards Manager` to install the `esp32 by Expressif Systems` package. When selecting a board for compilation and upload, simply use the board `ESP32 Dev Module` for satisfactory results. For reference, the FQBN for builds is "esp32:esp32:esp32".
