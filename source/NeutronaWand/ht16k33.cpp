@@ -467,7 +467,7 @@ int8_t HT16K33::readKey(boolean clear){
       key+=13;
     } // if diff
   } // for i
-  return 0; //apperently no new key was pressed - old might still be held down, pass clear=true to see it
+  return 0; //apparently no new key was pressed - old might still be held down, pass clear=true to see it
 } // readKey
 
 /****************************************************************/
