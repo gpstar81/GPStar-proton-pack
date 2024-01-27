@@ -134,6 +134,10 @@ void checkWandAction() {
         settingsBlinkingLights();
 
         if(ms_blink_sound_timer_1.justFinished()) {
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_WAND_BEEP_SOUNDS);
+          }
+          
           ms_blink_sound_timer_1.start(i_blink_sound_timer);
 
           playEffect(S_BEEPS_LOW);
@@ -141,6 +145,10 @@ void checkWandAction() {
         }
 
         if(ms_blink_sound_timer_2.justFinished()) {
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_WAND_BEEP_BARGRAPH);
+          }
+
           playEffect(S_BEEPS_BARGRAPH);
 
           ms_blink_sound_timer_2.start(i_blink_sound_timer * 4);
