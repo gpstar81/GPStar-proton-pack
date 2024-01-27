@@ -118,10 +118,10 @@ The following libraries are required to be installed. All but the MillisDelay li
 
 ### Common Libraries (Nano+ESP32)
 
-- **FastLED** by Daniel Garcia
 - **ezButton** by ArduinoGetStarted.com
-- **SerialTransfer** by PowerBroker2
+- **FastLED** by Daniel Garcia
 - **SafeString** by Matthew Ford
+- **SerialTransfer** by PowerBroker2
 
 ### Additional ESP32 Libraries
 

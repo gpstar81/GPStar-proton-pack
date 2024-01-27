@@ -86,7 +86,7 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Power Requirements](POWER.md)
 
-1. [Compiling and Uploading the code](ARDUINO_FLASHING.md)
+1. [Compiling and Uploading the code](DIY_FLASHING.md)
 
 1. [WAV Trigger Configuration](WAVTRIGGER.md)
 
