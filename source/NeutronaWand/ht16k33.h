@@ -58,7 +58,7 @@ class HT16K33
   uint8_t set16Seg(uint8_t dig, uint8_t cha); // position 0-7, see asciifont.h
   boolean getLed(uint8_t ledno,boolean Fresh=false); // check if a specific led is on(true) or off(false)
   uint8_t setDisplayRaw(uint8_t pos, uint8_t val); // load byte "pos" with value "val"
-  uint8_t sendLed(); // send whatever led patter you set
+  uint8_t sendLed(); // send whatever led pattern you set
   uint8_t set7SegNow(uint8_t dig, uint8_t cha, boolean dp); // position 0-15, 0-15 (0-F Hexadecimal), decimal point and send led in one function
   uint8_t set7SegRaw(uint8_t dig, uint8_t val); // load byte "pos" with value "val"
   uint8_t set16SegNow(uint8_t dig, uint8_t cha); // position 0-17, see asciifont.h and send led in one function
