@@ -28,9 +28,9 @@
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
-#include <ht16k33.h>
 #include <Wire.h>
 #include <SerialTransfer.h>
+#include "ht16k33.h" // Local copy of the "Simple ht16k33 Library"
 
 // Local Files
 #include "Configuration.h"

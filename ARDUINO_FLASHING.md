@@ -30,18 +30,10 @@ The following libraries are required to be installed. All but the MillisDelay li
 - **FastLED** by Daniel Garcia
 - **ezButton** by ArduinoGetStarted.com
 - **Ramp** by Sylvain Garnavault
-- **simple ht16k33 library** by lpaseen
 - **SerialTransfer** by PowerBroker2
-- **millisDelay** `See Below`
+- **SafeString** by Matthew Ford
 
 For reference, the FQBN for builds is "arduino:avr:mega" for the GPStar PCB's while "arduino:avr:nano" would be used for a Nano controller as part of the DIY builds.
-
-### MillisDelay
-
-The MillisDelay library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/ansonhe97/millisDelay](https://github.com/ansonhe97/millisDelay)
-
-No further configuration is needed for this library.
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 

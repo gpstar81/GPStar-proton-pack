@@ -30,7 +30,6 @@ The following libraries are required to be installed. All can be found within th
 - **FastLED** by Daniel Garcia
 - **ezButton** by ArduinoGetStarted.com
 - **Ramp** by Sylvain Garnavault
-- **simple ht16k33 library** by lpaseen
 - **SerialTransfer** by PowerBroker2
 - **SafeString** by Matthew Ford
 
