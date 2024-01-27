@@ -118,17 +118,16 @@ The following libraries are required to be installed. All but the MillisDelay li
 
 ### Common Libraries (Nano+ESP32)
 
-- **FastLED** by Daniel Garcia
 - **ezButton** by ArduinoGetStarted.com
-- **simple ht16k33 library** by lpaseen
-- **SerialTransfer** by PowerBroker2
+- **FastLED** by Daniel Garcia
 - **SafeString** by Matthew Ford
+- **SerialTransfer** by PowerBroker2
 
 ### Additional ESP32 Libraries
 
 - **ArduinoJSON** by Benoit Blanchon
 - **AsyncTCP** by dvarrel
-- **ESP Async WebServer** by Mathieu Carbou
+- **ESP Async WebServer** by Mathieu Carbou (note spaces in library name)
 - **ElegantOTA** by Ayush Sharma `See Below`
 
 To build for the ESP32 hardware you will need to use the `Boards Manager` to install the `esp32 by Expressif Systems` package. When selecting a board for compilation and upload, simply use the board `ESP32 Dev Module` for satisfactory results. For reference, the FQBN for builds is "esp32:esp32:esp32".

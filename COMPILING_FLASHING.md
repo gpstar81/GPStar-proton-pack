@@ -27,12 +27,11 @@ Download and install the Arduino IDE 2.x or higher. This will be used to compile
 
 The following libraries are required to be installed. All can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
 
-- **FastLED** by Daniel Garcia
 - **ezButton** by ArduinoGetStarted.com
+- **FastLED** by Daniel Garcia
 - **Ramp** by Sylvain Garnavault
-- **simple ht16k33 library** by lpaseen
-- **SerialTransfer** by PowerBroker2
 - **SafeString** by Matthew Ford
+- **SerialTransfer** by PowerBroker2
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 

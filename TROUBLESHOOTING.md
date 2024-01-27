@@ -81,6 +81,7 @@ If the red LED does not illuminate, this could mean a connection or data problem
 * Re-check the power connection to the wand. If you have a digital multimeter available, set the device to the DC power measurement and check that the 5V-OUT connection is supplying the expected voltage. Be careful to not short out the pins and mind the polarity.
 
 ### The music I added is not playing back
+
 * Make sure to following the naming conventions that are indicated in the [Loading The Audio Files](AUDIO.md) guide.
 * Remove any metadata that may be embedded in your wav files. This can cause problems with loading the music.
 * The Proton Pack at a minimum must contain all the music, however it is advised for the Neutrona Wand to have the same files as well if you want music to also play back from the Neutrona Wand audio system.
