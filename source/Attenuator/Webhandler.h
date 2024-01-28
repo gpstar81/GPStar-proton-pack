@@ -429,6 +429,20 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.overheatSyncToFan = jsonBody["overheatSyncToFan"].as<uint8_t>();
       packConfig.demoLightMode = jsonBody["demoLightMode"].as<uint8_t>();
 
+      // Update certain operational values immediately.
+      switch(packConfig.defaultSystemModePack) {
+        case 0:
+        default:
+          SYSTEM_MODE = MODE_SUPER_HERO;
+          RED_SWITCH_MODE = SWITCH_OFF;
+        break;
+
+        case 1:
+          SYSTEM_MODE = MODE_ORIGINAL;
+          RED_SWITCH_MODE = SWITCH_OFF;
+        break;
+      }
+
       // Cyclotron Lid
       packConfig.ledCycLidCount = jsonBody["ledCycLidCount"].as<uint8_t>();
       packConfig.ledCycLidHue = jsonBody["ledCycLidHue"].as<uint8_t>();
