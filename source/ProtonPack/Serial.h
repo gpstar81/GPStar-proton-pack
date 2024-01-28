@@ -402,28 +402,34 @@ void checkSerial1() {
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
+
           switch(packConfig.defaultSystemModePack) {
             case 0:
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
-              packSerialSend(P_MODE_ORIGINAL);
+              packSerialSend(P_MODE_SUPER_HERO);
+              serial1Send(A_MODE_SUPER_HERO);
 
-              if(switch_power.getState() == LOW) {
-                // Tell the Neutrona Wand that power to the Proton Pack is on.
-                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
-              }
-              else {
-                // Tell the Neutrona Wand that power to the Proton Pack is off.
-                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-              }
+              // This is only applicable to the Mode Original, so default to off.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
             break;
 
             case 1:
               SYSTEM_MODE = MODE_ORIGINAL;
-              packSerialSend(P_MODE_SUPER_HERO);
+              packSerialSend(P_MODE_ORIGINAL);
+              serial1Send(A_MODE_ORIGINAL);
 
-              // This is only applicable to the Mode Original, so default to off.
-              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              if(switch_power.getState() == LOW) {
+                // Tell the Neutrona Wand that power to the Proton Pack is on.
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
+              }
+              else {
+                // Tell the Neutrona Wand that power to the Proton Pack is off.
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
             break;
           }
 

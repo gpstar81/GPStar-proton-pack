@@ -1072,10 +1072,14 @@ void checkSwitches() {
           if(switch_power.isPressed() || switch_power.isReleased()) {
             if(switch_power.getState() == LOW) {
               // Tell the Neutrona Wand that power to the Proton Pack is on.
-              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+              if(b_wand_connected) {
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+              }
 
               // Tell the Attenuator or any other device that the power to the Proton Pack is on.
-              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
+              if(b_serial1_connected) {
+                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
+              }
             }
             else {
               // Tell the Neutrona Wand that power to the Proton Pack is off.

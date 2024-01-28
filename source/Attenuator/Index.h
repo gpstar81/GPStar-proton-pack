@@ -32,25 +32,25 @@ const char INDEX_page[] PROGMEM = R"=====(
 <body>
   <h1>Equipment Status</h1>
   <div class="card">
-    <p><b>Operation Mode:</b> <span class="info" id="mode">&mdash;</span></p>
-    <p><b>Effects Theme:</b> <span class="info" id="theme">&mdash;</span></p>
+    <p><span class="infoLabel">Operation Mode:</span> <span class="infoState" id="mode">&mdash;</span></p>
+    <p><span class="infoLabel">Effects Theme:</span> <span class="infoState" id="theme">&mdash;</span></p>
     <br/>
-    <p><b>Pack State:</b> <span class="info" id="pack">&mdash;</span></p>
-    <p><b>Pack Armed:</b> <span class="info" id="switch">&mdash;</span></p>
-    <p><b>Ribbon Cable:</b> <span class="info" id="cable">&mdash;</span></p>
-    <p><b>Cyclotron State:</b> <span class="info" id="cyclotron">&mdash;</span></p>
-    <p><b>Overheat State:</b> <span class="info" id="temperature">&mdash;</span></p>
+    <p><span class="infoLabel">Pack State:</span> <span class="infoState" id="pack">&mdash;</span></p>
+    <p><span class="infoLabel">Pack Armed:</span> <span class="infoState" id="switch">&mdash;</span></p>
+    <p><span class="infoLabel">Ribbon Cable:</span> <span class="infoState" id="cable">&mdash;</span></p>
+    <p><span class="infoLabel">Cyclotron State:</span> <span class="infoState" id="cyclotron">&mdash;</span></p>
+    <p><span class="infoLabel">Overheat State:</span> <span class="infoState" id="temperature">&mdash;</span></p>
     <br/>
-    <p><b>Wand Presence:</b> <span class="info" id="wand">&mdash;</span></p>
-    <p><b>Wand State:</b> <span class="info" id="wandPower">&mdash;</span></p>
-    <p><b>Wand Armed:</b> <span class="info" id="safety">&mdash;</span></p>
-    <p><b>System Mode:</b> <span class="info" id="wandMode">&mdash;</span></p>
-    <p><b>Power Level:</b> <span class="info" id="power">&mdash;</span></p>
-    <p><b>Firing State:</b> <span class="info" id="firing">&mdash;</span></p>
+    <p><span class="infoLabel">Wand Presence:</span> <span class="infoState" id="wand">&mdash;</span></p>
+    <p><span class="infoLabel">Wand State:</span> <span class="infoState" id="wandPower">&mdash;</span></p>
+    <p><span class="infoLabel">Wand Armed:</span> <span class="infoState" id="safety">&mdash;</span></p>
+    <p><span class="infoLabel">System Mode:</span> <span class="infoState" id="wandMode">&mdash;</span></p>
+    <p><span class="infoLabel">Power Level:</span> <span class="infoState" id="power">&mdash;</span></p>
+    <p><span class="infoLabel">Firing State:</span> <span class="infoState" id="firing">&mdash;</span></p>
     <br/>
     <p>
-      <b>Battery Health:</b> <span id="battHealth"></span>
-      <span class="info" id="battVoltage">&mdash;</span>
+      <span class="infoLabel">Battery Health:</b> <span id="battHealth"></span>
+      <span class="infoState" id="battVoltage">&mdash;</span>
       <span style="font-size: 0.6em">VDC</span>
     </p>
   </div>
@@ -195,7 +195,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
     function updateTrackListing(musicStart, musicEnd, musicCurrent) {
       // Continue if start/end values are sane and something actually changed.
-      if (musicStart > 0 && musicEnd < 1000 && musicEnd > musicStart &&
+      if (musicStart > 0 && musicEnd < 1000 && musicEnd >= musicStart &&
          (musicTrackMax != musicEnd || musicTrackCurrent != musicCurrent)) {
         // Proceed if we have a starting track and valid end track, and if current track changed.
         musicTrackMax = musicEnd;
@@ -221,35 +221,53 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function setButtonStates(mode, pack, wand, cyclotron) {
-      if (mode == "Original" && pack == "Powered" && wand == "Powered") {
-        // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
-        document.getElementById("btnPackOff").disabled = true;
+      // Assume remote on/off is not possible, override as necessary.
+      document.getElementById("btnPackOff").disabled = false;
+      document.getElementById("btnPackOn").disabled = false;
+
+      // Assume remote venting is not possible, override as necessary.
+      document.getElementById("btnVent").disabled = true;
+
+      if (mode == "Original") {
+        // Rules for Mode Original
+
+        if (pack == "Powered" && wand == "Powered") {
+          // Cannot turn on/off pack remotely if in mode Original and pack+wand are Powered.
+          document.getElementById("btnPackOff").disabled = true;
+          document.getElementById("btnPackOn").disabled = true;
+        }
       } else {
-        // Otherwise, this should be allowed.
-        document.getElementById("btnPackOff").disabled = false;
+        // Rules for Super Hero
+
+        if (pack == "Powered" && wand == "Powered") {
+          // Cannot turn on/off pack remotely if in mode Original and pack+wand are Powered.
+          document.getElementById("btnPackOff").disabled = true;
+          document.getElementById("btnPackOn").disabled = true;
+        } else {
+          // Otherwise, buttons can be enabled based on pack/wand status.
+          if (pack == "Powered" && wand != "Powered") {
+            // Can only turn off the pack, so long as the wand is not powered.
+            document.getElementById("btnPackOff").disabled = false;
+          }
+          if (pack != "Powered") {
+            // Can turn on the pack if not already powered (implies wand is not powered).
+            document.getElementById("btnPackOn").disabled = false;
+          }
+        }
+
+        if (wand == "Powered" && (cyclotron == "Normal" || cyclotron == "Active")) {
+          // Can only use manual vent if wand is Powered and pack is not already venting.
+          // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
+          document.getElementById("btnVent").disabled = false;
+        }
       }
 
-      if (mode == "Original" && pack == "Powered" && wand == "Powered") {
-        // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
-        document.getElementById("btnPackOn").disabled = true;
-      } else {
-        // Otherwise, this should be allowed.
-        document.getElementById("btnPackOn").disabled = false;
-      }
-
-      if (mode == "Super Hero" && wand == "Powered" && cyclotron != "Recovery") {
-        // Can only use manual vent if mode Super Hero and wand is Powered and not already venting.
-        document.getElementById("btnVent").disabled = false;
-      } else {
-        // Otherwise, this action should NOT be allowed (button disabled).
-        document.getElementById("btnVent").disabled = true;
-      }
-
+      // Attenuate action works for either Operation Mode available.
       if (cyclotron == "Warning" || cyclotron == "Critical") {
-        // Can only attenuate if cyclotron is in certain states.
+        // Can only attenuate if cyclotron is in the pre-overheat states.
         document.getElementById("btnAttenuate").disabled = false;
       } else {
-        // Otherwise, this should NOT be allowed.
+        // Otherwise, this should NOT be allowed for any other state.
         document.getElementById("btnAttenuate").disabled = true;
       }
     }
