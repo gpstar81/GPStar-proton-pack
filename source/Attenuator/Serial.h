@@ -507,11 +507,11 @@ boolean handleCommand(uint16_t i_command, uint16_t i_value) {
     break;
 
     case A_MODE_SUPER_HERO:
-      if(SYSTEM_MODE != MODE_SUPERHERO) {
+      if(SYSTEM_MODE != MODE_SUPER_HERO) {
         #if defined(__XTENSA__)
           debug("Super Hero Sequence");
         #endif
-        SYSTEM_MODE = MODE_SUPERHERO;
+        SYSTEM_MODE = MODE_SUPER_HERO;
         b_state_changed = true;
       }
     break;

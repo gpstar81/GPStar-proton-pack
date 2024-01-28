@@ -141,7 +141,7 @@ void configureNetwork() {
 
 String getMode() {
   switch(SYSTEM_MODE) {
-    case MODE_SUPERHERO:
+    case MODE_SUPER_HERO:
       return "Super Hero";
     break;
     case MODE_ORIGINAL:
