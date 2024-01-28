@@ -195,7 +195,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
     function updateTrackListing(musicStart, musicEnd, musicCurrent) {
       // Continue if start/end values are sane and something actually changed.
-      if (musicStart > 0 && musicEnd < 1000 && musicEnd > musicStart &&
+      if (musicStart > 0 && musicEnd < 1000 && musicEnd >= musicStart &&
          (musicTrackMax != musicEnd || musicTrackCurrent != musicCurrent)) {
         // Proceed if we have a starting track and valid end track, and if current track changed.
         musicTrackMax = musicEnd;
@@ -221,35 +221,53 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function setButtonStates(mode, pack, wand, cyclotron) {
-      if (mode == "Original" && pack == "Powered" && wand == "Powered") {
-        // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
-        document.getElementById("btnPackOff").disabled = true;
+      // Assume remote on/off is not possible, override as necessary.
+      document.getElementById("btnPackOff").disabled = false;
+      document.getElementById("btnPackOn").disabled = false;
+
+      // Assume remote venting is not possible, override as necessary.
+      document.getElementById("btnVent").disabled = true;
+
+      if (mode == "Original") {
+        // Rules for Mode Original
+
+        if (pack == "Powered" && wand == "Powered") {
+          // Cannot turn on/off pack remotely if in mode Original and pack+wand are Powered.
+          document.getElementById("btnPackOff").disabled = true;
+          document.getElementById("btnPackOn").disabled = true;
+        }
       } else {
-        // Otherwise, this should be allowed.
-        document.getElementById("btnPackOff").disabled = false;
+        // Rules for Super Hero
+
+        if (pack == "Powered" && wand == "Powered") {
+          // Cannot turn on/off pack remotely if in mode Original and pack+wand are Powered.
+          document.getElementById("btnPackOff").disabled = true;
+          document.getElementById("btnPackOn").disabled = true;
+        } else {
+          // Otherwise, buttons can be enabled based on pack/wand status.
+          if (pack == "Powered" && wand != "Powered") {
+            // Can only turn off the pack, so long as the wand is not powered.
+            document.getElementById("btnPackOff").disabled = false;
+          }
+          if (pack != "Powered") {
+            // Can turn on the pack if not already powered (implies wand is not powered).
+            document.getElementById("btnPackOn").disabled = false;
+          }
+        }
+
+        if (wand == "Powered" && (cyclotron == "Normal" || cyclotron == "Active")) {
+          // Can only use manual vent if wand is Powered and pack is not already venting.
+          // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
+          document.getElementById("btnVent").disabled = false;
+        }
       }
 
-      if (mode == "Original" && pack == "Powered" && wand == "Powered") {
-        // Cannot turn off pack remotely if in mode Original and pack/wand are Powered.
-        document.getElementById("btnPackOn").disabled = true;
-      } else {
-        // Otherwise, this should be allowed.
-        document.getElementById("btnPackOn").disabled = false;
-      }
-
-      if (mode == "Super Hero" && wand == "Powered" && cyclotron != "Recovery") {
-        // Can only use manual vent if mode Super Hero and wand is Powered and not already venting.
-        document.getElementById("btnVent").disabled = false;
-      } else {
-        // Otherwise, this action should NOT be allowed (button disabled).
-        document.getElementById("btnVent").disabled = true;
-      }
-
+      // Attenuate action works for either Operation Mode available.
       if (cyclotron == "Warning" || cyclotron == "Critical") {
-        // Can only attenuate if cyclotron is in certain states.
+        // Can only attenuate if cyclotron is in the pre-overheat states.
         document.getElementById("btnAttenuate").disabled = false;
       } else {
-        // Otherwise, this should NOT be allowed.
+        // Otherwise, this should NOT be allowed for any other state.
         document.getElementById("btnAttenuate").disabled = true;
       }
     }

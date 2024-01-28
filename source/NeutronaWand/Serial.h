@@ -338,14 +338,25 @@ void checkPack() {
 
           switch(wandConfig.defaultFiringMode) {
             case 3:
+              // Default: CTS Mix
               b_cross_the_streams_mix = true;
               b_cross_the_streams = true;
+
+              // Force into Proton mode.
+              wandSerialSend(W_PROTON_MODE);
+              FIRING_MODE = PROTON;
             break;
             case 2:
+              // Default: Cross the Streams
               b_cross_the_streams_mix = false;
               b_cross_the_streams = true;
+
+              // Force into Proton mode.
+              wandSerialSend(W_PROTON_MODE);
+              FIRING_MODE = PROTON;
             break;
             default:
+              // Default: Video Game
               b_cross_the_streams_mix = false;
               b_cross_the_streams = false;
             break;
