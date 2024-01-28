@@ -73,8 +73,15 @@ p { font-size: 18px; margin-bottom: 5px; }
   width: 360px;
 }
 
-.info {
-  font-family: courier, courier new, serif;
+.infoLabel {
+  font-family: Tahoma, Verdana, Arial;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.infoState {
+  font-family: courier new, courier, sans-serif;
+  font-size: 1em;
 }
 
 button {
