@@ -109,7 +109,10 @@ const char INDEX_page[] PROGMEM = R"=====(
     <a href="/update">Update ESP32 Firmware</a>
     <br/>
     <br/>
-    <a href="/password">Change WiFi Password</a>
+    <a href="/password">Secure Device WiFi</a>
+    <br/>
+    <br/>
+    <a href="/network">Change WiFi Settings</a>
     <br/>
     <br/>
     <a href="javascript:doRestart()">Restart/Resync</a>
