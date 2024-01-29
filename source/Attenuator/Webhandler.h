@@ -34,6 +34,13 @@ void handleRoot(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Serve page content.
 }
 
+void handleNetwork(AsyncWebServerRequest *request) {
+  // Used for the network page from the web server.
+  //debug("Metwprl HTML Requested");
+  String s = NETWORK_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
+}
+
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
   //debug("Password HTML Requested");
@@ -241,6 +248,7 @@ String getEquipmentStatus() {
     jsonBody["volEffects"] = i_volume_effects_percentage;
     jsonBody["volMusic"] = i_volume_music_percentage;
     jsonBody["battVoltage"] = f_batt_volts;
+    jsonBody["ipAddress"] = wifi_address;
   }
 
   // Serialize JSON object to string.
@@ -254,6 +262,7 @@ String getWifiSettings() {
   jsonBody.clear();
 
   preferences.begin("network", true); // Access namespace in read-only mode.
+  jsonBody["enabled"] = preferences.getBool("enabled", false);
   jsonBody["network"] = preferences.getString("ssid", "");
   jsonBody["password"] = preferences.getString("password", "");
   jsonBody["address"] = preferences.getString("address", "");
@@ -683,30 +692,36 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
   }
 
   String result;
-  if(jsonBody.containsKey("password")) {
+  if(jsonBody.containsKey("network") && jsonBody.containsKey("password")) {
     bool b_errors = false; // Assume false until otherwise indicated.
-    bool b_useCustom = jsonBody["custom"].as<bool>();
+    bool b_enabled = jsonBody["enabled"].as<bool>();
     String wifiNetwork = jsonBody["network"];
-    String wifiPasswd = jsonBody["wifipass"];
+    String wifiPasswd = jsonBody["password"];
     String localAddr = jsonBody["address"];
     String subnetMask = jsonBody["subnet"];
     String gatewayIP = jsonBody["gateway"];
 
     // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
-    if(!b_errors && b_useCustom) {
-      // Continue if network values are 7 characters or more (eg. N.N.N.N)
-      if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8 && localAddr.length() >= 7 && subnetMask.length() >= 7 && gatewayIP.length() >= 7) {
-        preferences.begin("network", false); // Access namespace in read/write mode.
-        preferences.putString("ssid", wifiNetwork);
-        preferences.putString("password", wifiPasswd);
+    if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
+      preferences.begin("network", false); // Access namespace in read/write mode.
+
+      // Store the critical values to enable/disable the external WiFi.
+      preferences.putBool("enabled", b_enabled);
+      preferences.putString("ssid", wifiNetwork);
+      preferences.putString("password", wifiPasswd);
+
+      // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
+      if(localAddr.length() >= 7) {
         preferences.putString("address", localAddr);
+      }
+      if(subnetMask.length() >= 7) {
         preferences.putString("subnet", subnetMask);
+      }
+      if(gatewayIP.length() >= 7) {
         preferences.putString("gateway", gatewayIP);
-        preferences.end();
       }
-      else {
-        b_errors = true; // Cannot proceed as IP information is invalid.
-      }
+
+      preferences.end();
     }
 
     if(!b_errors) {

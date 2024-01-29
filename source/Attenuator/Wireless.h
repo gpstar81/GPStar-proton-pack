@@ -48,6 +48,7 @@
 
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
+#include "Network.h" // NETWORK_page
 #include "Password.h" // PASSWORD_page
 #include "PackSettings.h" // PACK_SETTINGS_page
 #include "WandSettings.h" // WAND_SETTINGS_page
@@ -57,12 +58,20 @@
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
 
-// Set up values for the SSID and password for the WiFi access point (AP).
+// Set up values for the SSID and password for the built-in WiFi access point (AP).
 const uint8_t maxAttempts = 3; // Max attempts to establish a external WiFi connection.
 const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, local AP name of this device.
 bool b_ap_started = false; // Denotes the softAP network has been started.
+
+// Local variables for connecting to a preferred WiFi network (when available).
+bool b_wifi_enabled = false; // Denotes user wishes to join/use external WiFi.
+String wifi_ssid;
+String wifi_pass;
+String wifi_address;
+String wifi_subnet;
+String wifi_gateway;
 
 // Define an asynchronous web server at TCP port 80.
 // Docs: https://github.com/me-no-dev/ESPAsyncWebServer
@@ -143,7 +152,7 @@ bool startAccesPoint() {
     // Doesn't actually "reset" but forces default values for SSID and password.
     // Meant to allow the user to reset their credentials then re-flash after
     // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix;
+    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update global variable.
     ap_pass = ap_default_passwd;
   #else
     // Use either the stored preferences or an expected default value.
@@ -183,13 +192,6 @@ bool startAccesPoint() {
 }
 
 bool startWiFi() {
-  // Local variables for connecting to a preferred WiFi network (when available).
-  String wifi_ssid;
-  String wifi_pass;
-  String wifi_address;
-  String wifi_subnet;
-  String wifi_gateway;
-
   // Begin some diagnostic information to console.
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println();
@@ -197,17 +199,6 @@ bool startWiFi() {
     Serial.print("Device WiFi MAC Address: ");
     Serial.println(WiFi.macAddress());
   #endif
-
-  // Assign an event handler to deal with changes in WiFi status.
-  WiFi.onEvent(OnWiFiEvent);
-
-  // Configure the WiFi of the ESP32 for simultaneous SoftAP + Station mode.
-  WiFi.mode(WIFI_MODE_APSTA);
-
-  // Start the built-in access point (softAP) with the preferred credentials.
-  if(!b_ap_started) {
-    b_ap_started = startAccesPoint();
-  }
 
   // Check for stored network preferences and attempt to connect as a client.
   preferences.begin("network", true); // Access namespace in read-only mode.
@@ -217,6 +208,7 @@ bool startWiFi() {
     // commenting out the RESET_AP_SETTINGS definition in Configuration.h
   #else
     // Use either the stored preferences or an expected default value.
+    b_wifi_enabled = preferences.getBool("enabled", false);
     wifi_ssid = preferences.getString("ssid", "GrauGuest");
     wifi_pass = preferences.getString("password", "beourguest");
     wifi_address = preferences.getString("address", "192.168.4.2");
@@ -225,7 +217,20 @@ bool startWiFi() {
   #endif
   preferences.end();
 
-  if(wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
+  // Assign an event handler to deal with changes in WiFi status.
+  WiFi.onEvent(OnWiFiEvent);
+
+  if(b_wifi_enabled) {
+    // When external WiFi is desired, enable simultaneous SoftAP + Station mode.
+    WiFi.mode(WIFI_MODE_APSTA);
+  }
+
+  // Start the built-in access point (softAP) with the preferred credentials.
+  if(!b_ap_started) {
+    b_ap_started = startAccesPoint();
+  }
+
+  if(b_wifi_enabled && wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
     uint8_t attemptCount = 0;
 
     while (attemptCount < maxAttempts) {
@@ -243,17 +248,26 @@ bool startWiFi() {
       }
 
       if (WiFi.status() == WL_CONNECTED) {
-        // Configure the device for this network.
-        IPAddress staticIP = convertToIP(wifi_address);
-        IPAddress gateway = convertToIP(wifi_gateway);
-        IPAddress subnet = convertToIP(wifi_subnet);
+        // Configure static IP values for tis device on the preferred network.
+        if(wifi_address.length() >= 7 && wifi_subnet.length() >= 7 && wifi_gateway.length() >= 7) {
+          IPAddress staticIP = convertToIP(wifi_address);
+          IPAddress gateway = convertToIP(wifi_gateway);
+          IPAddress subnet = convertToIP(wifi_subnet);
 
-        // Set a static IP for this device.
-        WiFi.config(staticIP, gateway, subnet);
-        #if defined(DEBUG_WIRELESS_SETUP)
-          IPAddress deviceIP = WiFi.localIP();
+          // Set a static IP for this device.
+          WiFi.config(staticIP, gateway, subnet);
+        }
+
+        // Get the IP address for this device on the preferred network.
+        wifi_address = String(WiFi.localIP());
+        wifi_subnet = String(WiFi.subnetMask());
+        wifi_gateway = String(WiFi.gatewayIP());
+
+        #if defined(DEBUG_WIRELESS_SETUP)          
           Serial.print("Static IP Address: ");
-          Serial.println(deviceIP);
+          Serial.print(wifi_address);
+          Serial.print("/");
+          Serial.println(wifi_subnet);
         #endif
 
         return true; // Exit the loop if connected successfully.
@@ -432,6 +446,7 @@ void setupRouting() {
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
+  httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
   httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
   httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
