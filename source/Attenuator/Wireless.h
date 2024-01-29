@@ -111,19 +111,19 @@ IPAddress convertToIP(String ipAddressString) {
 void OnWiFiEvent(WiFiEvent_t event) {
   switch (event) {
     case SYSTEM_EVENT_STA_CONNECTED:
-      Serial.println("ESP32 Connected to WiFi Network");
+      Serial.println("Connected to WiFi Network");
     break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
-      Serial.println("ESP32 Disconnected from WiFi Network");
+      Serial.println("Disconnected from WiFi Network");
     break;
     case SYSTEM_EVENT_AP_START:
-      Serial.println("ESP32 soft AP started");
+      Serial.println("Soft AP started");
     break;
     case SYSTEM_EVENT_AP_STACONNECTED:
-      Serial.println("Station connected to ESP32 softAP");
+      Serial.println("Station connected to softAP");
     break;
     case SYSTEM_EVENT_AP_STADISCONNECTED:
-      Serial.println("Station disconnected from ESP32 softAP");
+      Serial.println("Station disconnected from softAP");
     break;
     default:
       // No-op for any other status.
@@ -236,7 +236,9 @@ bool startWiFi() {
       uint8_t attempt = 0;
       while (attempt < 30 && WiFi.status() != WL_CONNECTED) {
         delay(500);
-        Serial.println("Connecting to WiFi...");
+        #if defined(DEBUG_WIRELESS_SETUP)
+          Serial.println("Attempting to connect to WiFi network...");
+        #endif
         attempt++;
       }
 
