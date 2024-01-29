@@ -616,7 +616,8 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
 
   String result;
   if(jsonBody.containsKey("password")) {
-    boolean b_success = true; // Assume true until otherwise indicated.
+    boolean b_errors = false; // Assume false until otherwise indicated.
+    boolean b_useCustom = jsonBody["custom"].as<bool>();
     String apPassword = jsonBody["password"];
     String wifiNetwork = jsonBody["network"];
     String wifiPasswd = jsonBody["wifipass"];
@@ -633,13 +634,13 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
       preferences.end();      
     }
     else {
-      b_success = false; // Cannot proceed as password length is incorrect.
+      b_errors = true; // Cannot proceed as password length is incorrect.
     }
 
     // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
-    if(b_success && wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
+    if(!b_errors && b_useCustom) {
       // Continue if network values are 7 characters or more (eg. N.N.N.N)
-      if(localAddr.length() >= 7 && subnetMask.length() >= 7 && gatewayIP.length() >= 7) {
+      if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8 && localAddr.length() >= 7 && subnetMask.length() >= 7 && gatewayIP.length() >= 7) {
         preferences.begin("network", false); // Access namespace in read/write mode.
         preferences.putString("ssid", wifiNetwork);
         preferences.putString("password", wifiPasswd);
@@ -649,11 +650,11 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
         preferences.end();
       }
       else {
-        b_success = false; // Cannot proceed as IP information is invalid.
+        b_errors = true; // Cannot proceed as IP information is invalid.
       }
     }
 
-    if(b_success) {
+    if(!b_errors) {
       jsonBody.clear();
       jsonBody["status"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
       serializeJson(jsonBody, result); // Serialize to string.
@@ -663,7 +664,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     }
     else {
       jsonBody.clear();
-      jsonBody["status"] = "One or more errors encountered. Please re-check submitted values and try again.";
+      jsonBody["status"] = "Errors encountered while processing request data. Please re-check submitted values and try again.";
       serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
     }

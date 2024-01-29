@@ -141,7 +141,7 @@ boolean startWiFi() {
   #endif
   preferences.end();
 
-  if(wifi_ssid != "" && wifi_pass != "") {
+  if(wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
     uint8_t attemptCount = 0;
 
     while (attemptCount < maxAttempts) {
@@ -213,7 +213,7 @@ IPAddress convertToIP(String ipAddressString) {
 
 void configureNetwork() {
   // If connected to WiFi and the network information is available, set as necessary.
-  if(WiFi.status() == WL_CONNECTED && wifi_address != "" && wifi_subnet != "" && wifi_gateway != "") {
+  if(WiFi.status() == WL_CONNECTED && wifi_address.length() >= 7 && wifi_subnet.length() >= 7 && wifi_gateway.length() >= 7) {
     IPAddress staticIP = convertToIP(wifi_address);
     IPAddress gateway = convertToIP(wifi_subnet);
     IPAddress subnet = convertToIP(wifi_gateway);
