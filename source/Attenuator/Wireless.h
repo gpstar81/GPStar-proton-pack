@@ -190,6 +190,14 @@ bool startWiFi() {
   String wifi_subnet;
   String wifi_gateway;
 
+  // Begin some diagnostic information to console.
+  #if defined(DEBUG_WIRELESS_SETUP)
+    Serial.println();
+    Serial.println("Starting WiFi Configuration");
+    Serial.print("Device WiFi MAC Address: ");
+    Serial.println(WiFi.macAddress());
+  #endif
+
   // Assign an event handler to deal with changes in WiFi status.
   WiFi.onEvent(OnWiFiEvent);
 
@@ -200,14 +208,6 @@ bool startWiFi() {
   if(!b_ap_started) {
     b_ap_started = startAccesPoint();
   }
-
-  // Begin some diagnostic information to console.
-  #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println();
-    Serial.println("Starting WiFi Configuration");
-    Serial.print("Device WiFi MAC Address: ");
-    Serial.println(WiFi.macAddress());
-  #endif
 
   // Check for stored network preferences and attempt to connect as a client.
   preferences.begin("network", true); // Access namespace in read-only mode.
