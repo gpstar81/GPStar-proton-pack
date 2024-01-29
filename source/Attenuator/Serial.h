@@ -200,10 +200,10 @@ void attenuatorSerialSendData(uint16_t i_message) {
 }
 
 // Forward function declaration.
-boolean handleCommand(uint16_t i_command, uint16_t i_value);
+bool handleCommand(uint16_t i_command, uint16_t i_value);
 
 // Handles an API (and data) sent from the Proton Pack
-boolean checkPack() {
+bool checkPack() {
   // Pack communication to the Attenuator device.
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
@@ -304,7 +304,7 @@ boolean checkPack() {
   return false; // Returns false if still here.
 }
 
-boolean handleCommand(uint16_t i_command, uint16_t i_value) {
+bool handleCommand(uint16_t i_command, uint16_t i_value) {
   bool b_state_changed = false; // Indicates when a crucial state change occurred.
 
   switch(i_command) {
