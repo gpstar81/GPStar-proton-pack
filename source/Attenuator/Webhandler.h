@@ -248,7 +248,6 @@ String getEquipmentStatus() {
     jsonBody["volEffects"] = i_volume_effects_percentage;
     jsonBody["volMusic"] = i_volume_music_percentage;
     jsonBody["battVoltage"] = f_batt_volts;
-    jsonBody["ipAddress"] = wifi_address;
   }
 
   // Serialize JSON object to string.
@@ -265,9 +264,9 @@ String getWifiSettings() {
   jsonBody["enabled"] = preferences.getBool("enabled", false);
   jsonBody["network"] = preferences.getString("ssid", "");
   jsonBody["password"] = preferences.getString("password", "");
-  jsonBody["address"] = preferences.getString("address", "");
-  jsonBody["subnet"] = preferences.getString("subnet", "");
-  jsonBody["gateway"] = preferences.getString("gateway", "");
+  jsonBody["address"] = preferences.getString("address", wifi_address);
+  jsonBody["subnet"] = preferences.getString("subnet", wifi_subnet);
+  jsonBody["gateway"] = preferences.getString("gateway", wifi_gateway);
   preferences.end();
 
   // Serialize JSON object to string.
@@ -711,13 +710,13 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
       preferences.putString("password", wifiPasswd);
 
       // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
-      if(localAddr.length() >= 7) {
+      if(localAddr.length() >= 7 && localAddr != wifi_address) {
         preferences.putString("address", localAddr);
       }
-      if(subnetMask.length() >= 7) {
+      if(subnetMask.length() >= 7 && subnetMask != wifi_subnet) {
         preferences.putString("subnet", subnetMask);
       }
-      if(gatewayIP.length() >= 7) {
+      if(gatewayIP.length() >= 7 && gatewayIP != wifi_gateway) {
         preferences.putString("gateway", gatewayIP);
       }
 

@@ -30,7 +30,7 @@ const char PASSWORD_page[] PROGMEM = R"=====(
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Change AP Password</h1>
+  <h1>Secure Device WiFi</h1>
   <div class="block">
     <p>
       This is the password for the built-in WiFi network for your Proton Pack. This secures the device against unwanted connections.
@@ -38,9 +38,9 @@ const char PASSWORD_page[] PROGMEM = R"=====(
       After updating, any devices which previously stored the password for the WiFi network will require you to update to the new password.
     </p>
     <br/>
-    <b>New AP Password:</b> <input type="text" id="password" width="120"/>
+    <b>New AP Password:</b> <input type="text" id="password" width="100"/>
     <br/>
-    <b>Confirm Password:</b> <input type="text" id="password2" width="120"/>
+    <b>Confirm Password:</b> <input type="text" id="password2" width="100"/>
     <br/>
     <br/>
     <a href="/">&laquo; Back</a>

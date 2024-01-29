@@ -39,22 +39,23 @@ const char NETWORK_page[] PROGMEM = R"=====(
     </p>
     <br/>
     <div class="setting">
-      <b class="labelSwitch">Use WiFi Network:</b>
+      <b class="labelSwitch">Use External WiFi Network:</b>
       <label class="switch">
         <input id="enabled" name="enabled" type="checkbox">
         <span class="slider round"></span>
       </label>  
     </div>
     <br/>
-    <b>WiFi Network:</b> <input type="text" id="network" width="120"/>
+    <b>WiFi Network:</b> <input type="text" id="network" width="100"/>
     <br/>
-    <b>WiFi Password:</b> <input type="text" id="password" width="120"/>
+    <b>WiFi Password:</b> <input type="text" id="password" width="100"/>
     <br/>
-    <b>Static IP Address:</b> <input type="text" id="address" width="120"/>
     <br/>
-    <b>Subnet Mask:</b> <input type="text" id="subnet" width="120"/>
+    <b>Static IP Address:</b> <input type="text" id="address" width="100"/>
     <br/>
-    <b>Gateway IP:</b> <input type="text" id="gateway" width="120"/>
+    <b>Subnet Mask:</b> <input type="text" id="subnet" width="100"/>
+    <br/>
+    <b>Gateway IP:</b> <input type="text" id="gateway" width="100"/>
     <br/>
     <br/>
     <a href="/">&laquo; Back</a>

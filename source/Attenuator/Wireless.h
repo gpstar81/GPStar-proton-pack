@@ -259,15 +259,18 @@ bool startWiFi() {
         }
 
         // Get the IP address for this device on the preferred network.
-        wifi_address = String(WiFi.localIP());
-        wifi_subnet = String(WiFi.subnetMask());
-        wifi_gateway = String(WiFi.gatewayIP());
+        IPAddress localIP = WiFi.localIP();
+        IPAddress subnetMask = WiFi.subnetMask();
+        IPAddress gatewayIP = WiFi.gatewayIP();
+        wifi_address = localIP.toString();
+        wifi_subnet = subnetMask.toString();
+        wifi_gateway = gatewayIP.toString();
 
         #if defined(DEBUG_WIRELESS_SETUP)          
-          Serial.print("Static IP Address: ");
-          Serial.print(wifi_address);
-          Serial.print("/");
-          Serial.println(wifi_subnet);
+          Serial.print("WiFi IP Address: ");
+          Serial.print(localIP);
+          Serial.print(" / ");
+          Serial.println(subnetMask);
         #endif
 
         return true; // Exit the loop if connected successfully.
