@@ -725,7 +725,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
     if(!b_errors) {
       jsonBody.clear();
-      jsonBody["status"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
+      jsonBody["status"] = "WiFi settings updated, rebooting controller.";
       serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
       delay(1000); // Pause to allow response to flow.
