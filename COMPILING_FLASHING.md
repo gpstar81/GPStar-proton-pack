@@ -32,6 +32,7 @@ The following libraries are required to be installed. All can be found within th
 - **Ramp** by Sylvain Garnavault
 - **SafeString** by Matthew Ford
 - **SerialTransfer** by PowerBroker2
+- **Simple ht16k33 Library** by Ipaseen
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 
