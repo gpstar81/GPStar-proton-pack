@@ -33,13 +33,28 @@ const char NETWORK_page[] PROGMEM = R"=====(
   <h1>WiFi Settings</h1>
   <div class="block">
     <p>
-      This screen allows you to configure an external network for your Proton Pack to join.
+      This screen allows you to configure a preferred external WiFi network for your Proton Pack to join.
       Enabling this allows you to make use of a mobile hotspot or other preferred WiFi network used by your mobile device.
+      You may optionally configure a static IP address (with a subnet and gateway), if desired.
     </p>
     <br/>
-    <b>New AP Password:</b> <input type="text" id="password" width="120"/>
+    <div class="setting">
+      <b class="labelSwitch">Use WiFi Network:</b>
+      <label class="switch">
+        <input id="enabled" name="enabled" type="checkbox">
+        <span class="slider round"></span>
+      </label>  
+    </div>
     <br/>
-    <b>Confirm Password:</b> <input type="text" id="password2" width="120"/>
+    <b>WiFi Network:</b> <input type="text" id="network" width="120"/>
+    <br/>
+    <b>WiFi Password:</b> <input type="text" id="password" width="120"/>
+    <br/>
+    <b>Static IP Address:</b> <input type="text" id="address" width="120"/>
+    <br/>
+    <b>Subnet Mask:</b> <input type="text" id="subnet" width="120"/>
+    <br/>
+    <b>Gateway IP:</b> <input type="text" id="gateway" width="120"/>
     <br/>
     <br/>
     <a href="/">&laquo; Back</a>
@@ -48,19 +63,53 @@ const char NETWORK_page[] PROGMEM = R"=====(
   </div>
 
   <script type="application/javascript">
+    window.addEventListener("load", onLoad);
+
+    function onLoad(event) {
+      // Wait for page to fully load.
+      setTimeout(getSettings, 50);
+    }
+
+    function getSettings() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          var settings = JSON.parse(this.responseText);
+          if (settings) {
+            document.getElementById("enabled").checked = settings.enabled ? true: false;
+            document.getElementById("network").value = settings.network || "";
+            document.getElementById("password").value = settings.password || "";
+            document.getElementById("address").value = settings.address || "";
+            document.getElementById("subnet").value = settings.subnet || "";
+            document.getElementById("gateway").value = settings.gateway || "";
+          }
+        }
+      };
+      xhttp.open("GET", "/wifi/settings", true);
+      xhttp.send();
+    }
+
     function saveSettings() {
-      var newPass = (document.getElementById("password").value || "").trim();
-      var confPW = (document.getElementById("password2").value || "").trim();
-      if (newPass.length < 8) {
-        alert("Your new password must be a minimum of 8 characters to meet WPA2 requirements.");
-        return;
-      }
-      if (newPass != confPW) {
-        alert("Password and confirmation do not match. Please try again.");
+      var wNetwork = (document.getElementById("network").value || "").trim();
+      if (wNetwork.length < 2) {
+        alert("The WiFi network must be a minimum of 2 characters.");
         return;
       }
 
-      var body = JSON.stringify({password: newPass});
+      var wPassword = (document.getElementById("password").value || "").trim();
+      if (wPassword.length < 8) {
+        alert("The WiFi password must be a minimum of 8 characters to meet WPA2 requirements.");
+        return;
+      }
+
+      var body = JSON.stringify({
+        enabled: document.getElementById("enabled").checked ? 1 : 0,
+        password: wPassword,
+        network: wNetwork,
+        address: document.getElementById("address").value || "",
+        subnet: document.getElementById("subnet").value || "",
+        gateway: document.getElementById("gateway").value || ""
+      });
 
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -69,7 +118,7 @@ const char NETWORK_page[] PROGMEM = R"=====(
           alert(jObj.status); // Always display status returned.
         }
       };
-      xhttp.open("PUT", "/password/update", true);
+      xhttp.open("PUT", "/wifi/update", true);
       xhttp.setRequestHeader("Content-Type", "application/json");
       xhttp.send(body);
     }
