@@ -60,8 +60,14 @@ Preferences preferences;
 // Set up values for the SSID and password for the WiFi access point (AP).
 const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
-String ap_ssid; // Reserved for storing the true SSID for the AP to be set at startup.
-String ap_pass; // Reserved for storing the true AP password set by the user.
+String ap_ssid; // Reserved for storing the built-in SSID for the AP to be set at startup.
+String ap_pass; // Reserved for storing the built-in AP password set by the user.
+String wifi_ssid; // Reserved for storing a preferred SSID to join.
+String wifi_pass; // Reserved for storing the network password.
+String wifi_address; // Reserved for storing the IP address to use for access.
+String wifi_subnet; // Reserved for storing the subnet mask to use for access.
+String wifi_gateway; // Reserved for storing the gateway for the network.
+const uint8_t maxAttempts = 3; // Max attempts to establish a WiFi connection.
 
 // Define an asynchronous web server at TCP port 80.
 // Docs: https://github.com/me-no-dev/ESPAsyncWebServer
@@ -80,17 +86,9 @@ unsigned long i_progress_millis = 0;
 millisDelay ms_cleanup;
 const unsigned int i_websocketCleanup = 5000;
 
-boolean startWiFi() {
-  // Begin some diagnostic information to console.
+boolean startAccesPoint() {
+  // Create an AP name unique to this device, to avoid stepping on similar hardware.
   String macAddr = String(WiFi.macAddress());
-  #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println();
-    Serial.println("Starting Wireless Access Point");
-    Serial.print("Device WiFi MAC Address: ");
-    Serial.println(macAddr);
-  #endif
-
-  // Create an AP name unique to this device, to avoid stepping on others.
   String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
 
   // Prepare to return either stored preferences or a default value for SSID/password.
@@ -118,21 +116,133 @@ boolean startWiFi() {
   return b_ap_started;
 }
 
-void configureNetwork() {
-  // Simple networking info for the AP.
-  IPAddress localIP(192, 168, 1, 2);
-  IPAddress gateway(192, 168, 1, 1);
-  IPAddress subnet(255, 255, 255, 0);
-
-  // Set networking info and report to console.
-  WiFi.softAPConfig(localIP, gateway, subnet);
+boolean startWiFi() {
+  // Begin some diagnostic information to console.
   #if defined(DEBUG_WIRELESS_SETUP)
-    IPAddress deviceIP = WiFi.softAPIP();
-    Serial.print("Access Point IP Address: ");
-    Serial.println(deviceIP);
-    Serial.println("WiFi AP Started as " + ap_ssid);
-    Serial.println("WiFi AP Password: " + ap_pass);
+    Serial.println();
+    Serial.println("Starting WiFi...");
+    Serial.print("Device WiFi MAC Address: ");
+    Serial.println(WiFi.macAddress());
   #endif
+
+  // Check for stored network preferences and attempt to connect as a client.
+  preferences.begin("network", true); // Access namespace in read-only mode.
+  #if defined(RESET_AP_SETTINGS)
+    // Doesn't actually "reset" but forces default values which will allow
+    // the WiFi preferences to be reset by the user, then re-flash after
+    // commenting out the RESET_AP_SETTINGS definition in Configuration.h
+  #else
+    // Use either the stored preferences or an expected default value.
+    wifi_ssid = preferences.getString("ssid", "");
+    wifi_pass = preferences.getString("password", "");
+    wifi_address = preferences.getString("address", "192.168.1.2");
+    wifi_subnet = preferences.getString("subnet", "255.255.255.0");
+    wifi_gateway = preferences.getString("gateway", "192.168.1.1");
+  #endif
+  preferences.end();
+
+  if(wifi_ssid != "" && wifi_pass != "") {
+    uint8_t attemptCount = 0;
+
+    while (attemptCount < maxAttempts) {
+      // Attempt to connect to a specified WiFi network.
+      WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
+
+      // Wait for the connection to be established
+      uint8_t attempt = 0;
+      while (attempt < 30 && WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.println("Connecting to WiFi...");
+        attempt++;
+      }
+
+      if (WiFi.status() == WL_CONNECTED) {
+        // Exit the loop if connected successfully
+        return true;
+      } else {
+        #if defined(DEBUG_WIRELESS_SETUP)
+          Serial.println("Failed to connect to WiFi. Retrying...");
+        #endif
+        attemptCount++;
+      }
+    }
+
+    if (attemptCount == maxAttempts) {
+      #if defined(DEBUG_WIRELESS_SETUP)
+        Serial.println("Max connection attempts reached. Could not connect to WiFi.");
+      #endif
+
+      // As a fallback, start a built-in access point with the preferred credentials.
+      return startAccesPoint();
+    }
+  }
+  else {
+    // Start a built-in access point with the preferred credentials.
+    return startAccesPoint();
+  }
+
+  return false; // Not sure how we'd get here, but just in case return false.
+}
+
+IPAddress convertToIP(String ipAddressString) {
+  uint16_t quads[4]; // Array to store 4 quads for the IP.
+  uint8_t quadStartIndex = 0;
+  int8_t quadEndIndex = 0;
+
+  for (uint8_t i = 0; i < 4; i++) {
+    // Find the index of the next dot
+    quadEndIndex = ipAddressString.indexOf('.', quadStartIndex);
+
+    if (quadEndIndex != -1) {
+      // If a dot is found, extract and store the quad
+      String quad = ipAddressString.substring(quadStartIndex, quadEndIndex);
+      quads[i] = quad.toInt(); // Convert the quad string to an integer
+      quadStartIndex = quadEndIndex + 1;
+    } else {
+      // If the dot is not found, this is the last quad
+      String lastQuad = ipAddressString.substring(quadStartIndex);
+      quads[i] = lastQuad.toInt();
+    }
+  }
+
+  // Create an IPAddress object from the quads
+  IPAddress ipAddress(quads[0], quads[1], quads[2], quads[3]);
+
+  return ipAddress;
+}
+
+void configureNetwork() {
+  // If connected to WiFi and the network information is available, set as necessary.
+  if(WiFi.status() == WL_CONNECTED && wifi_address != "" && wifi_subnet != "" && wifi_gateway != "") {
+    IPAddress staticIP = convertToIP(wifi_address);
+    IPAddress gateway = convertToIP(wifi_subnet);
+    IPAddress subnet = convertToIP(wifi_gateway);
+
+    // Set a static IP for this device via preferences.
+    WiFi.config(staticIP, gateway, subnet);
+    #if defined(DEBUG_WIRELESS_SETUP)
+      IPAddress deviceIP = WiFi.localIP();
+      Serial.println("Connected to WiFi");
+      Serial.print("IP Address: ");
+      Serial.println(deviceIP);
+    #endif
+  }
+  else {
+    // Simple networking info for the AP.
+    IPAddress localIP(192, 168, 1, 2);
+    IPAddress gateway(192, 168, 1, 1);
+    IPAddress subnet(255, 255, 255, 0);
+
+    // Set networking info and report to console.
+    WiFi.softAPConfig(localIP, gateway, subnet);
+    #if defined(DEBUG_WIRELESS_SETUP)
+      IPAddress deviceIP = WiFi.softAPIP();
+      Serial.print("Access Point IP Address: ");
+      Serial.println(deviceIP);
+      Serial.println("WiFi AP Started as " + ap_ssid);
+      Serial.println("WiFi AP Password: " + ap_pass);
+    #endif
+  }
 }
 
 /*

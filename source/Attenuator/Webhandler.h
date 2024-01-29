@@ -616,21 +616,56 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
 
   String result;
   if(jsonBody.containsKey("password")) {
-    String newPasswd = jsonBody["password"];
-    //Serial.println("New AP Password: " + newPasswd);
+    boolean b_success = true; // Assume true until otherwise indicated.
+    String apPassword = jsonBody["password"];
+    String wifiNetwork = jsonBody["network"];
+    String wifiPasswd = jsonBody["wifipass"];
+    String localAddr = jsonBody["address"];
+    String subnetMask = jsonBody["subnet"];
+    String gatewayIP = jsonBody["gateway"];
 
-    if(newPasswd != "") {
+    // Password is used for the built-in Access Point ability, which will be used when a preferred network has not been chosen.
+    if(apPassword.length() >= 8) {
+      // Password must be at least 8 characters in length.
       preferences.begin("credentials", false); // Access namespace in read/write mode.
       preferences.putString("ssid", ap_ssid); // Store SSID in case this was changed.
-      preferences.putString("password", newPasswd); // Store user-provided password.
-      preferences.end();
+      preferences.putString("password", apPassword); // Store user-provided password.
+      preferences.end();      
+    }
+    else {
+      b_success = false; // Cannot proceed as password length is incorrect.
+    }
 
+    // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
+    if(b_success && wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
+      // Continue if network values are 7 characters or more (eg. N.N.N.N)
+      if(localAddr.length() >= 7 && subnetMask.length() >= 7 && gatewayIP.length() >= 7) {
+        preferences.begin("network", false); // Access namespace in read/write mode.
+        preferences.putString("ssid", wifiNetwork);
+        preferences.putString("password", wifiPasswd);
+        preferences.putString("address", localAddr);
+        preferences.putString("subnet", subnetMask);
+        preferences.putString("gateway", gatewayIP);
+        preferences.end();
+      }
+      else {
+        b_success = false; // Cannot proceed as IP information is invalid.
+      }
+    }
+
+    if(b_success) {
       jsonBody.clear();
       jsonBody["status"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
       serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
       delay(1000); // Pause to allow response to flow.
       ESP.restart(); // Reboot device
+    }
+    else {
+      jsonBody.clear();
+      jsonBody["status"] = "One or more errors encountered. Please re-check submitted values and try again.";
+      serializeJson(jsonBody, result); // Serialize to string.
+      request->send(200, "application/json", result);
     }
   }
   else {
