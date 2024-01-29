@@ -234,10 +234,10 @@ bool startWiFi() {
 
       // Wait for the connection to be established
       uint8_t attempt = 0;
-      while (attempt < 30 && WiFi.status() != WL_CONNECTED) {
+      while (attempt < (maxAttempts * 10) && WiFi.status() != WL_CONNECTED) {
         delay(500);
         #if defined(DEBUG_WIRELESS_SETUP)
-          Serial.println("Attempting to connect to WiFi network...");
+          Serial.println("Connecting to WiFi network...");
         #endif
         attempt++;
       }
@@ -245,15 +245,14 @@ bool startWiFi() {
       if (WiFi.status() == WL_CONNECTED) {
         // Configure the device for this network.
         IPAddress staticIP = convertToIP(wifi_address);
-        IPAddress gateway = convertToIP(wifi_subnet);
-        IPAddress subnet = convertToIP(wifi_gateway);
+        IPAddress gateway = convertToIP(wifi_gateway);
+        IPAddress subnet = convertToIP(wifi_subnet);
 
         // Set a static IP for this device.
         WiFi.config(staticIP, gateway, subnet);
         #if defined(DEBUG_WIRELESS_SETUP)
           IPAddress deviceIP = WiFi.localIP();
-          Serial.println("Connected to WiFi");
-          Serial.print("IP Address: ");
+          Serial.print("Static IP Address: ");
           Serial.println(deviceIP);
         #endif
 
