@@ -122,6 +122,7 @@ The following libraries are required to be installed. All but the MillisDelay li
 - **FastLED** by Daniel Garcia
 - **SafeString** by Matthew Ford
 - **SerialTransfer** by PowerBroker2
+- **Simple ht16k33 Library** by Ipaseen
 
 ### Additional ESP32 Libraries
 

@@ -1158,6 +1158,7 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
       }
 
       serial1Send(A_WAND_OFF);
+      serial1Send(A_OVERHEATING_FINISHED);
     break;
 
     case W_BARREL_EXTENDED:
