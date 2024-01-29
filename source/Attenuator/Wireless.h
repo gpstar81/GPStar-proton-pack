@@ -209,11 +209,11 @@ bool startWiFi() {
   #else
     // Use either the stored preferences or an expected default value.
     b_wifi_enabled = preferences.getBool("enabled", false);
-    wifi_ssid = preferences.getString("ssid", "GrauGuest");
-    wifi_pass = preferences.getString("password", "beourguest");
-    wifi_address = preferences.getString("address", "192.168.4.2");
-    wifi_subnet = preferences.getString("subnet", "255.255.255.0");
-    wifi_gateway = preferences.getString("gateway", "192.168.4.1");
+    wifi_ssid = preferences.getString("ssid", "");
+    wifi_pass = preferences.getString("password", "");
+    wifi_address = preferences.getString("address", "");
+    wifi_subnet = preferences.getString("subnet", "");
+    wifi_gateway = preferences.getString("gateway", "");
   #endif
   preferences.end();
 
