@@ -117,11 +117,6 @@ void setup() {
   #if defined(__XTENSA__)
     // ESP - Setup WiFi and WebServer
     if(startWiFi()) {
-      delay(100); // Wait briefly before config.
-
-      // Do the AP network configuration.
-      configureNetwork();
-
       // Start the local web server.
       startWebServer();
 
@@ -197,7 +192,7 @@ void debug(String message) {
 
 void mainLoop() {
   // Monitor for interactions by user.
-  boolean b_notify = checkPack();
+  bool b_notify = checkPack();
   switchLoops();
   checkRotaryPress();
   checkRotaryEncoder();

@@ -248,6 +248,24 @@ String getEquipmentStatus() {
   return equipStatus;
 }
 
+String getWifiSettings() {
+  // Prepare a JSON object with information stored in preferences (or a blank default).
+  String wifiNetwork;
+  jsonBody.clear();
+
+  preferences.begin("network", true); // Access namespace in read-only mode.
+  jsonBody["network"] = preferences.getString("ssid", "");
+  jsonBody["password"] = preferences.getString("password", "");
+  jsonBody["address"] = preferences.getString("address", "");
+  jsonBody["subnet"] = preferences.getString("subnet", "");
+  jsonBody["gateway"] = preferences.getString("gateway", "");
+  preferences.end();
+
+  // Serialize JSON object to string.
+  serializeJson(jsonBody, wifiNetwork);
+  return wifiNetwork;
+}
+
 void handleGetPackConfig(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
   request->send(200, "application/json", getPackConfig());
@@ -266,6 +284,11 @@ void handleGetSmokeConfig(AsyncWebServerRequest *request) {
 void handleGetStatus(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
   request->send(200, "application/json", getEquipmentStatus());
+}
+
+void handleGetWifi(AsyncWebServerRequest *request){
+  // Return current system status as a stringified JSON object.
+  request->send(200, "application/json", getWifiSettings());
 }
 
 void handleRestart(AsyncWebServerRequest *request) {
@@ -616,26 +639,58 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
 
   String result;
   if(jsonBody.containsKey("password")) {
-    boolean b_errors = false; // Assume false until otherwise indicated.
-    boolean b_useCustom = jsonBody["custom"].as<bool>();
-    String apPassword = jsonBody["password"];
+    String newPasswd = jsonBody["password"];
+
+    // Password is used for the built-in Access Point ability, which will be used when a preferred network is not available.
+    if(newPasswd.length() >= 8) {
+      preferences.begin("credentials", false); // Access namespace in read/write mode.
+      preferences.putString("ssid", ap_ssid); // Store SSID in case this was changed.
+      preferences.putString("password", newPasswd); // Store user-provided password.
+      preferences.end();
+
+      jsonBody.clear();
+      jsonBody["status"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
+      serializeJson(jsonBody, result); // Serialize to string.
+      request->send(200, "application/json", result);
+      delay(1000); // Pause to allow response to flow.
+      ESP.restart(); // Reboot device
+    }
+    else {
+      // Password must be at least 8 characters in length.
+      jsonBody.clear();
+      jsonBody["status"] = "Password must be a minimum of 8 characters to meet WPA2 requirements.";
+      serializeJson(jsonBody, result); // Serialize to string.
+      request->send(200, "application/json", result);
+    }
+  }
+  else {
+    debug("No password in JSON body");
+    jsonBody.clear();
+    jsonBody["status"] = "Unable to update password.";
+    serializeJson(jsonBody, result); // Serialize to string.
+    request->send(200, "application/json", result);
+  }
+});
+
+// Handles the JSON body for the wifi network info.
+AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler("/wifi/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
+  jsonBody.clear();
+  if(json.is<JsonObject>()) {
+    jsonBody = json.as<JsonObject>();
+  }
+  else {
+    Serial.print("Body was not a JSON object");
+  }
+
+  String result;
+  if(jsonBody.containsKey("password")) {
+    bool b_errors = false; // Assume false until otherwise indicated.
+    bool b_useCustom = jsonBody["custom"].as<bool>();
     String wifiNetwork = jsonBody["network"];
     String wifiPasswd = jsonBody["wifipass"];
     String localAddr = jsonBody["address"];
     String subnetMask = jsonBody["subnet"];
     String gatewayIP = jsonBody["gateway"];
-
-    // Password is used for the built-in Access Point ability, which will be used when a preferred network has not been chosen.
-    if(apPassword.length() >= 8) {
-      // Password must be at least 8 characters in length.
-      preferences.begin("credentials", false); // Access namespace in read/write mode.
-      preferences.putString("ssid", ap_ssid); // Store SSID in case this was changed.
-      preferences.putString("password", apPassword); // Store user-provided password.
-      preferences.end();      
-    }
-    else {
-      b_errors = true; // Cannot proceed as password length is incorrect.
-    }
 
     // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
     if(!b_errors && b_useCustom) {

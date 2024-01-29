@@ -30,12 +30,12 @@ const char PASSWORD_page[] PROGMEM = R"=====(
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Change WiFi Password</h1>
+  <h1>Change AP Password</h1>
   <div class="block">
     <p>
-      Change your preferred password for WiFi access to this device. Note that this value is stored in controller's permanent memory,
-      and restoring/upgrading firmware will have no effect on resetting this value. After updating, any devices which previously stored
-      the password for the WiFi network will require you to update to the new password.
+      This is the password for the built-in WiFi network this device is able to use as a backup when a preferred network is not provided.
+      Note that this value is stored in controller's permanent memory and restoring/upgrading firmware will have no effect on this value.
+      After updating, any devices which previously stored the password for the WiFi network will require you to update to the new password.
     </p>
     <br/>
     <b>New AP Password:</b> <input type="text" id="password" width="120"/>
@@ -52,7 +52,7 @@ const char PASSWORD_page[] PROGMEM = R"=====(
       var newPass = (document.getElementById("password").value || "").trim();
       var confPW = (document.getElementById("password2").value || "").trim();
       if (newPass.length < 8) {
-        alert("Your new password must be a minimum of 8 characters.");
+        alert("Your new password must be a minimum of 8 characters to meet WPA2 requirements.");
         return;
       }
       if (newPass != confPW) {

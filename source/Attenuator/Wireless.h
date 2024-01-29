@@ -58,16 +58,11 @@
 Preferences preferences;
 
 // Set up values for the SSID and password for the WiFi access point (AP).
+const uint8_t maxAttempts = 3; // Max attempts to establish a external WiFi connection.
 const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
-String ap_ssid; // Reserved for storing the built-in SSID for the AP to be set at startup.
-String ap_pass; // Reserved for storing the built-in AP password set by the user.
-String wifi_ssid; // Reserved for storing a preferred SSID to join.
-String wifi_pass; // Reserved for storing the network password.
-String wifi_address; // Reserved for storing the IP address to use for access.
-String wifi_subnet; // Reserved for storing the subnet mask to use for access.
-String wifi_gateway; // Reserved for storing the gateway for the network.
-const uint8_t maxAttempts = 3; // Max attempts to establish a WiFi connection.
+String ap_ssid; // Reserved for holding the full, local AP name of this device.
+bool b_ap_started = false; // Denotes the softAP network has been started.
 
 // Define an asynchronous web server at TCP port 80.
 // Docs: https://github.com/me-no-dev/ESPAsyncWebServer
@@ -85,104 +80,6 @@ unsigned long i_progress_millis = 0;
 // Create timer for WebSocket cleanup.
 millisDelay ms_cleanup;
 const unsigned int i_websocketCleanup = 5000;
-
-boolean startAccesPoint() {
-  // Create an AP name unique to this device, to avoid stepping on similar hardware.
-  String macAddr = String(WiFi.macAddress());
-  String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
-
-  // Prepare to return either stored preferences or a default value for SSID/password.
-  preferences.begin("credentials", true); // Access namespace in read-only mode.
-  #if defined(RESET_AP_SETTINGS)
-    // Doesn't actually "reset" but forces default values for SSID and password.
-    // Meant to allow the user to reset their credentials then re-flash after
-    // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix;
-    ap_pass = ap_default_passwd;
-  #else
-    // Use either the stored preferences or an expected default value.
-    ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
-    ap_pass = preferences.getString("password", ap_default_passwd);
-  #endif
-  preferences.end();
-
-  // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
-  // Additionally, sets radio to channel 6, don't hide SSID, and max 4 connections.
-  // Note that the WiFi protocols available for use are 802.11b/g/n
-  bool b_ap_started = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 6, false, 4);
-  #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println(b_ap_started ? "AP Ready" : "AP Failed");
-  #endif
-  return b_ap_started;
-}
-
-boolean startWiFi() {
-  // Begin some diagnostic information to console.
-  #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println();
-    Serial.println("Starting WiFi...");
-    Serial.print("Device WiFi MAC Address: ");
-    Serial.println(WiFi.macAddress());
-  #endif
-
-  // Check for stored network preferences and attempt to connect as a client.
-  preferences.begin("network", true); // Access namespace in read-only mode.
-  #if defined(RESET_AP_SETTINGS)
-    // Doesn't actually "reset" but forces default values which will allow
-    // the WiFi preferences to be reset by the user, then re-flash after
-    // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-  #else
-    // Use either the stored preferences or an expected default value.
-    wifi_ssid = preferences.getString("ssid", "");
-    wifi_pass = preferences.getString("password", "");
-    wifi_address = preferences.getString("address", "192.168.1.2");
-    wifi_subnet = preferences.getString("subnet", "255.255.255.0");
-    wifi_gateway = preferences.getString("gateway", "192.168.1.1");
-  #endif
-  preferences.end();
-
-  if(wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
-    uint8_t attemptCount = 0;
-
-    while (attemptCount < maxAttempts) {
-      // Attempt to connect to a specified WiFi network.
-      WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
-
-      // Wait for the connection to be established
-      uint8_t attempt = 0;
-      while (attempt < 30 && WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.println("Connecting to WiFi...");
-        attempt++;
-      }
-
-      if (WiFi.status() == WL_CONNECTED) {
-        // Exit the loop if connected successfully
-        return true;
-      } else {
-        #if defined(DEBUG_WIRELESS_SETUP)
-          Serial.println("Failed to connect to WiFi. Retrying...");
-        #endif
-        attemptCount++;
-      }
-    }
-
-    if (attemptCount == maxAttempts) {
-      #if defined(DEBUG_WIRELESS_SETUP)
-        Serial.println("Max connection attempts reached. Could not connect to WiFi.");
-      #endif
-
-      // As a fallback, start a built-in access point with the preferred credentials.
-      return startAccesPoint();
-    }
-  }
-  else {
-    // Start a built-in access point with the preferred credentials.
-    return startAccesPoint();
-  }
-
-  return false; // Not sure how we'd get here, but just in case return false.
-}
 
 IPAddress convertToIP(String ipAddressString) {
   uint16_t quads[4]; // Array to store 4 quads for the IP.
@@ -211,24 +108,62 @@ IPAddress convertToIP(String ipAddressString) {
   return ipAddress;
 }
 
-void configureNetwork() {
-  // If connected to WiFi and the network information is available, set as necessary.
-  if(WiFi.status() == WL_CONNECTED && wifi_address.length() >= 7 && wifi_subnet.length() >= 7 && wifi_gateway.length() >= 7) {
-    IPAddress staticIP = convertToIP(wifi_address);
-    IPAddress gateway = convertToIP(wifi_subnet);
-    IPAddress subnet = convertToIP(wifi_gateway);
-
-    // Set a static IP for this device via preferences.
-    WiFi.config(staticIP, gateway, subnet);
-    #if defined(DEBUG_WIRELESS_SETUP)
-      IPAddress deviceIP = WiFi.localIP();
-      Serial.println("Connected to WiFi");
-      Serial.print("IP Address: ");
-      Serial.println(deviceIP);
-    #endif
+void OnWiFiEvent(WiFiEvent_t event) {
+  switch (event) {
+    case SYSTEM_EVENT_STA_CONNECTED:
+      Serial.println("ESP32 Connected to WiFi Network");
+    break;
+    case SYSTEM_EVENT_STA_DISCONNECTED:
+      Serial.println("ESP32 Disconnected from WiFi Network");
+    break;
+    case SYSTEM_EVENT_AP_START:
+      Serial.println("ESP32 soft AP started");
+    break;
+    case SYSTEM_EVENT_AP_STACONNECTED:
+      Serial.println("Station connected to ESP32 softAP");
+    break;
+    case SYSTEM_EVENT_AP_STADISCONNECTED:
+      Serial.println("Station disconnected from ESP32 softAP");
+    break;
+    default:
+      // No-op for any other status.
+    break;
   }
-  else {
-    // Simple networking info for the AP.
+}
+
+bool startAccesPoint() {
+  // Create an AP name unique to this device, to avoid stepping on similar hardware.
+  String macAddr = String(WiFi.macAddress());
+  String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
+  String ap_pass; // Local variable for stored AP password.
+
+  // Prepare to return either stored preferences or a default value for SSID/password.
+  preferences.begin("credentials", true); // Access namespace in read-only mode.
+  #if defined(RESET_AP_SETTINGS)
+    // Doesn't actually "reset" but forces default values for SSID and password.
+    // Meant to allow the user to reset their credentials then re-flash after
+    // commenting out the RESET_AP_SETTINGS definition in Configuration.h
+    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix;
+    ap_pass = ap_default_passwd;
+  #else
+    // Use either the stored preferences or an expected default value.
+    ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+    ap_pass = preferences.getString("password", ap_default_passwd);
+  #endif
+  preferences.end();
+
+  // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
+  // Additionally, sets radio to channel 6, don't hide SSID, and max 4 connections.
+  // Note that the WiFi protocols available for use are 802.11b/g/n
+  bool b_success = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 6, false, 4);
+  #if defined(DEBUG_WIRELESS_SETUP)
+    Serial.println(b_success ? "AP Ready" : "AP Failed");
+  #endif
+
+  if(b_success) {
+    delay(100); // Wait briefly before configuring network.
+
+    // Simple networking IP info for the AP.
     IPAddress localIP(192, 168, 1, 2);
     IPAddress gateway(192, 168, 1, 1);
     IPAddress subnet(255, 255, 255, 0);
@@ -243,6 +178,100 @@ void configureNetwork() {
       Serial.println("WiFi AP Password: " + ap_pass);
     #endif
   }
+
+  return b_success;
+}
+
+bool startWiFi() {
+  // Local variables for connecting to a preferred WiFi network (when available).
+  String wifi_ssid;
+  String wifi_pass;
+  String wifi_address;
+  String wifi_subnet;
+  String wifi_gateway;
+
+  // Assign an event handler to deal with changes in WiFi status.
+  WiFi.onEvent(OnWiFiEvent);
+
+  // Configure the WiFi of the ESP32 for simultaneous SoftAP + Station mode.
+  WiFi.mode(WIFI_MODE_APSTA);
+
+  // Start the built-in access point (softAP) with the preferred credentials.
+  if(!b_ap_started) {
+    b_ap_started = startAccesPoint();
+  }
+
+  // Begin some diagnostic information to console.
+  #if defined(DEBUG_WIRELESS_SETUP)
+    Serial.println();
+    Serial.println("Starting WiFi Configuration");
+    Serial.print("Device WiFi MAC Address: ");
+    Serial.println(WiFi.macAddress());
+  #endif
+
+  // Check for stored network preferences and attempt to connect as a client.
+  preferences.begin("network", true); // Access namespace in read-only mode.
+  #if defined(RESET_AP_SETTINGS)
+    // Doesn't actually "reset" but forces default values which will allow
+    // the WiFi preferences to be reset by the user, then re-flash after
+    // commenting out the RESET_AP_SETTINGS definition in Configuration.h
+  #else
+    // Use either the stored preferences or an expected default value.
+    wifi_ssid = preferences.getString("ssid", "GrauGuest");
+    wifi_pass = preferences.getString("password", "beourguest");
+    wifi_address = preferences.getString("address", "192.168.4.2");
+    wifi_subnet = preferences.getString("subnet", "255.255.255.0");
+    wifi_gateway = preferences.getString("gateway", "192.168.4.1");
+  #endif
+  preferences.end();
+
+  if(wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
+    uint8_t attemptCount = 0;
+
+    while (attemptCount < maxAttempts) {
+      // Attempt to connect to a specified WiFi network.
+      WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
+
+      // Wait for the connection to be established
+      uint8_t attempt = 0;
+      while (attempt < 30 && WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.println("Connecting to WiFi...");
+        attempt++;
+      }
+
+      if (WiFi.status() == WL_CONNECTED) {
+        // Configure the device for this network.
+        IPAddress staticIP = convertToIP(wifi_address);
+        IPAddress gateway = convertToIP(wifi_subnet);
+        IPAddress subnet = convertToIP(wifi_gateway);
+
+        // Set a static IP for this device.
+        WiFi.config(staticIP, gateway, subnet);
+        #if defined(DEBUG_WIRELESS_SETUP)
+          IPAddress deviceIP = WiFi.localIP();
+          Serial.println("Connected to WiFi");
+          Serial.print("IP Address: ");
+          Serial.println(deviceIP);
+        #endif
+
+        return true; // Exit the loop if connected successfully.
+      } else {
+        #if defined(DEBUG_WIRELESS_SETUP)
+          Serial.println("Failed to connect to WiFi. Retrying...");
+        #endif
+        attemptCount++;
+      }
+    }
+
+    if (attemptCount == maxAttempts) {
+      #if defined(DEBUG_WIRELESS_SETUP)
+        Serial.println("Max connection attempts reached. Could not connect to external WiFi.");
+      #endif
+    }
+  }
+
+  return b_ap_started; // At least return whether the soft AP started successfully.
 }
 
 /*
@@ -432,12 +461,14 @@ void setupRouting() {
   httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);
   httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
+  httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
 
   // Body Handlers
   httpServer.addHandler(handleSavePackConfig); // /config/pack/save
   httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
   httpServer.addHandler(handleSaveSmokeConfig); // /config/smoke/save
   httpServer.addHandler(passwordChangeHandler); // /password/update
+  httpServer.addHandler(wifiChangeHandler); // /wifi/update
 }
 
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){
