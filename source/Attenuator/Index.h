@@ -112,6 +112,9 @@ const char INDEX_page[] PROGMEM = R"=====(
     <a href="/password">Change WiFi Password</a>
     <br/>
     <br/>
+    <a href="/wifi">Change WiFi Settings</a>
+    <br/>
+    <br/>
     <a href="javascript:doRestart()">Restart/Resync</a>
     <br/>
     <br/>
