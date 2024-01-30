@@ -256,7 +256,7 @@ void mainLoop() {
     // If in pre-overheat warning, overheat, or alarm modes...
     if((b_firing && i_speed_multiplier > 1) || b_overheating || b_pack_alarm) {
       // Sets a timer value proportional to the speed of the cyclotron.
-      unsigned int i_blink_time = int(i_blink_leds / i_speed_multiplier);
+      uint16_t i_blink_time = int(i_blink_leds / i_speed_multiplier);
 
       if(ms_blink_leds.justFinished()) {
         ms_blink_leds.start(i_blink_time);
@@ -338,7 +338,7 @@ void mainLoop() {
   #endif
 }
 
-void buzzOn(unsigned int i_freq) {
+void buzzOn(uint16_t i_freq) {
   if(!b_buzzer_on) {
     tone(BUZZER_PIN, i_freq);
     ms_buzzer.start(i_buzzer_max_time);
@@ -352,7 +352,7 @@ void buzzOff() {
   b_buzzer_on = false;
 }
 
-void useVibration(unsigned int i_duration) {
+void useVibration(uint16_t i_duration) {
   if(!b_vibrate_on) {
     #if defined(__XTENSA__)
       // ESP32

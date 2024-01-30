@@ -33,11 +33,14 @@ const char NETWORK_page[] PROGMEM = R"=====(
   <h1>WiFi Settings</h1>
   <div class="block">
     <p>
-      This screen allows you to configure a preferred external WiFi network for your Proton Pack to join.
-      Enabling this allows you to make use of a mobile hotspot or other preferred WiFi network used by your mobile device.
+      Configure and enable a preferred external WiFi network for this device to join when in range.
+      Enabling this feature allows you to make use of a preferred WiFi network such as those used by your mobile device(s).
       You may optionally configure a static IP address (with a subnet and gateway), if desired.
+      Otherwise, you may return to this screen to view the IP address assigned by your WiFi network.
     </p>
-    <br/>
+  </div>
+
+  <div class="block left">
     <div class="setting">
       <b class="labelSwitch">Use External WiFi Network:</b>
       <label class="switch">
@@ -46,21 +49,25 @@ const char NETWORK_page[] PROGMEM = R"=====(
       </label>  
     </div>
     <br/>
-    <b>WiFi Network:</b> <input type="text" id="network" width="100"/>
+    &nbsp;&nbsp;<b>WiFi Network:</b> <input type="text" id="network" width="100" maxlength="30"/>
     <br/>
-    <b>WiFi Password:</b> <input type="text" id="password" width="100"/>
-    <br/>
-    <br/>
-    <b>Static IP Address:</b> <input type="text" id="address" width="100"/>
-    <br/>
-    <b>Subnet Mask:</b> <input type="text" id="subnet" width="100"/>
-    <br/>
-    <b>Gateway IP:</b> <input type="text" id="gateway" width="100"/>
+    <b>WiFi Password:</b> <input type="text" id="password" width="100" maxlength="30"/>
     <br/>
     <br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Static IP:</b> <input type="text" id="address" width="100" maxlength="15"/>
+    <br/>
+    &nbsp;<b>Subnet Mask:</b> <input type="text" id="subnet" width="100" maxlength="15"/>
+    <br/>
+    &nbsp;&nbsp;&nbsp;<b>Gateway IP:</b> <input type="text" id="gateway" width="100" maxlength="15"/>
+  </div>
+
+  <div class="block">
+    <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;&nbsp;
     <button type="button" class="green" onclick="saveSettings()">Save</button>
+    <br/>
+    <br/>
   </div>
 
   <script type="application/javascript">
@@ -90,26 +97,53 @@ const char NETWORK_page[] PROGMEM = R"=====(
       xhttp.send();
     }
 
+    function isValidIP(ipAddress) {  
+      if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipAddress)) {  
+        return true;
+      }
+      return false;  
+    } 
+
     function saveSettings() {
+      var wEnabled = document.getElementById("enabled").checked ? true : false;
+
       var wNetwork = (document.getElementById("network").value || "").trim();
-      if (wNetwork.length < 2) {
+      if (wEnabled && wNetwork.length < 2) {
         alert("The WiFi network must be a minimum of 2 characters.");
         return;
       }
 
       var wPassword = (document.getElementById("password").value || "").trim();
-      if (wPassword.length < 8) {
+      if (wEnabled && wPassword.length < 8) {
         alert("The WiFi password must be a minimum of 8 characters to meet WPA2 requirements.");
         return;
       }
 
+      var wAddress = (document.getElementById("address").value || "").trim();
+      if (wAddress != "" && !isValidIP(wAddress)) {
+        alert("IP Address is invalid, please correct and try again.");
+        return;
+      }
+
+      var wSubnet = (document.getElementById("subnet").value || "").trim();
+      if (wSubnet != "" && !isValidIP(wSubnet)) {
+        alert("Subnet Mask is invalid, please correct and try again.");
+        return;
+      }
+
+      var wGateway = (document.getElementById("gateway").value || "").trim();
+      if (wGateway != "" && !isValidIP(wGateway)) {
+        alert("Gateway IP is invalid, please correct and try again.");
+        return;
+      }
+
       var body = JSON.stringify({
-        enabled: document.getElementById("enabled").checked ? 1 : 0,
+        enabled: wEnabled,
         password: wPassword,
         network: wNetwork,
-        address: document.getElementById("address").value || "",
-        subnet: document.getElementById("subnet").value || "",
-        gateway: document.getElementById("gateway").value || ""
+        address: wAddress,
+        subnet: wSubnet,
+        gateway: wGateway
       });
 
       var xhttp = new XMLHttpRequest();

@@ -42,7 +42,7 @@ These provide a web interface for managing options which are accessed via the LE
 
 ### Administration
 
-These links allow you to update the WiFi password to one of your choice, or to update the ESP32 software (respectively). Please view [this dedicated guide](ATTENUATOR_FLASHING.md) for updating the firmware and adjusting your WiFi security.
+These links allow you to change the built-in WiFi password to one of your choice, or to update the ESP32 software (respectively). Another feature offered is the ability to specify WiFi settings which allows your Attenuator/Wireless Adapter to join an existing network. Please view [this dedicated guide](ATTENUATOR_FLASHING.md) for updating the firmware and resetting your WiFi security via software.
 
 <div style="clear:both"></div>
 
@@ -81,6 +81,7 @@ Adjust overall smoke effects (toggle on/off) and adjust per-level effects.
 The following URL's will serve the pages as shown above:
 
 	GET / - Standard Index/Landing Page
+	GET /network - External WiFi Settings Page
 	GET /password - WiFi Password Update Page
 	GET /settings/pack - Pack Settings Page
 	GET /settings/wand - Wand Settings Page
@@ -115,3 +116,5 @@ The following URL's are available for managing actions within your devices:
 	PUT /eeprom/app - Stores current smoke preferences to pack/wand EEPROMs
 	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM
 	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM
+	GET /wifi/settings - Returns the current external WiFi settings
+	PUT /wifi/update - Save new/modified external WiFi settings
