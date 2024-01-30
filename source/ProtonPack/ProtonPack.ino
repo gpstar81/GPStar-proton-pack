@@ -1039,7 +1039,7 @@ void checkSwitches() {
           stopEffect(S_VOICE_VIBRATION_DISABLED);
 
           playEffect(S_VOICE_VIBRATION_ENABLED);
-        }
+       }
       }
       else {
         if(b_vibration_enabled == true) {
@@ -1061,7 +1061,7 @@ void checkSwitches() {
     stopEffect(S_BEEPS_BARGRAPH);
     playEffect(S_BEEPS_BARGRAPH);
 
-    // Turn off the year mode override flag controlled by the Neutrona Wand.
+    // Turn off the year mode override flag controlled by the Proton Pack.
     b_switch_mode_override = false;
   }
 

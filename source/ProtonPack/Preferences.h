@@ -97,6 +97,8 @@ struct objConfigEEPROM {
   uint8_t smoke_continuous_mode_3;
   uint8_t smoke_continuous_mode_2;
   uint8_t smoke_continuous_mode_1;
+
+  //uint8_t pack_vibration;
 };
 
 /*
@@ -415,6 +417,39 @@ void readEEPROM() {
         b_smoke_continuous_mode_1 = false;
       }
     }
+
+    /*
+    if(obj_config_eeprom.pack_vibration > 0 && obj_config_eeprom.pack_vibration != 255) {
+      switch(obj_config_eeprom.pack_vibration) {
+        case 4:
+        default:
+          // Do nothing. Readings are taking from the vibration toggle switch.
+          VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+        break;
+        
+        case 3:
+          b_vibration_enabled = false;
+          b_vibration_firing = false;
+          b_vibration = false;
+          VIBRATION_MODE_EEPROM = VIBRATION_NONE;         
+        break;
+
+        case 2:
+          b_vibration_enabled = true;
+          b_vibration = true;
+          b_vibration_firing = true;
+          VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;          
+        break;
+
+        case 1:
+          b_vibration_enabled = true;
+          b_vibration = true;
+          b_vibration_firing = false;
+          VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;          
+        break;
+      }
+    }
+    */
   }
 
   resetContinuousSmoke();
@@ -506,6 +541,8 @@ void saveConfigEEPROM() {
   uint8_t i_smoke_continuous_mode_2 = 1;
   uint8_t i_smoke_continuous_mode_1 = 1;
 
+  //uint8_t i_pack_vibration = 4;
+
   if(b_stream_effects != true) {
     i_proton_stream_effects = 1;
   }
@@ -578,6 +615,27 @@ void saveConfigEEPROM() {
     i_smoke_continuous_mode_1 = 2;
   }
 
+  /*
+  switch(VIBRATION_MODE_EEPROM) {
+    case VIBRATION_ALWAYS:
+      i_pack_vibration = 1;
+    break;
+
+    case VIBRATION_FIRING_ONLY:
+      i_pack_vibration = 2;
+    break;
+
+    case VIBRATION_NONE:
+      i_pack_vibration = 3;
+    break;
+
+    case VIBRATION_DEFAULT:
+    default:
+      i_pack_vibration = 4;
+    break;
+  }
+  */
+
   unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
 
   objConfigEEPROM obj_eeprom = {
@@ -605,6 +663,7 @@ void saveConfigEEPROM() {
     i_smoke_continuous_mode_3,
     i_smoke_continuous_mode_2,
     i_smoke_continuous_mode_1
+    //i_pack_vibration
   };
 
   // Save to the EEPROM.

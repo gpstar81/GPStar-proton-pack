@@ -94,6 +94,8 @@ struct objEEPROM {
   uint8_t overheat_level_3;
   uint8_t overheat_level_2;
   uint8_t overheat_level_1;
+
+  //uint8_t wand_vibration;
 };
 
 /*
@@ -404,6 +406,39 @@ void readEEPROM() {
       }
     }
 
+    /*
+    if(obj_config_eeprom.wand_vibration > 0 && obj_config_eeprom.wand_vibration != 255) {
+      switch(obj_config_eeprom.wand_vibration) {
+        case 4:
+        default:
+          // Do nothing. Readings are taking from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
+          VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+        break;
+        
+        case 3:
+          b_vibration_enabled = false;
+          b_vibration_firing = false;
+          b_vibration_on = false;
+          VIBRATION_MODE_EEPROM = VIBRATION_NONE;         
+        break;
+
+        case 2:
+          b_vibration_enabled = true;
+          b_vibration_on = true;
+          b_vibration_firing = true;
+          VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;          
+        break;
+
+        case 1:
+          b_vibration_enabled = true;
+          b_vibration_on = true;
+          b_vibration_firing = false;
+          VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;          
+        break;
+      }
+    }    
+    */
+
     // Update the bargraph settings again after loading EEPROM setting data for it.
     bargraphYearModeUpdate();
 
@@ -490,6 +525,8 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_level_3 = 1;
   uint8_t i_overheat_level_2 = 1;
   uint8_t i_overheat_level_1 = 1;
+
+  //uint8_t i_wand_vibration = 4;
 
   if(b_cross_the_streams == true) {
     i_cross_the_streams = 2;
@@ -640,6 +677,27 @@ void saveConfigEEPROM() {
     i_overheat_level_1 = 2;
   }
 
+  /*
+  switch(VIBRATION_MODE_EEPROM) {
+    case VIBRATION_ALWAYS:
+      i_wand_vibration = 1;
+    break;
+
+    case VIBRATION_FIRING_ONLY:
+      i_wand_vibration = 2;
+    break;
+
+    case VIBRATION_NONE:
+      i_wand_vibration = 3;
+    break;
+
+    case VIBRATION_DEFAULT:
+    default:
+      i_wand_vibration = 4;
+    break;
+  }
+  */
+
   // Write the data to the EEPROM if any of the values have changed.
   objEEPROM obj_eeprom = {
     i_cross_the_streams,
@@ -669,6 +727,7 @@ void saveConfigEEPROM() {
     i_overheat_level_3,
     i_overheat_level_2,
     i_overheat_level_1
+    //i_wand_vibration
   };
 
   // Save and update our object in the EEPROM.
