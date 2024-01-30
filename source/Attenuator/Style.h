@@ -205,6 +205,10 @@ input[type=range] {
   width: 300px;
 }
 
+input[type=text] {
+  width: 200px;
+}
+
 .swatch {
   border: 1px solid black;
   height: 40px;

@@ -44,9 +44,9 @@
 #include <FastLED.h>
 #include <ezButton.h>
 #include <EEPROM.h>
+#include <ht16k33.h>
 #include <Wire.h>
 #include <SerialTransfer.h>
-#include "ht16k33.h" // Local copy of the "Simple ht16k33 Library"
 
 /**
  ***** IMPORTANT *****
@@ -2128,7 +2128,7 @@ void soundBeepLoop() {
   if(ms_reset_sound_beep.justFinished() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
     if(b_beeping == false) {
       // Quick check to know if effects belong to the next-gen movies (as opposed to the OG 80's themes).
-      boolean b_next_gen = (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE);
+      bool b_next_gen = (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE);
 
       switch(i_power_mode) {
         case 1:

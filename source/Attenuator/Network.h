@@ -34,10 +34,14 @@ const char NETWORK_page[] PROGMEM = R"=====(
   <div class="block">
     <p>
       This screen allows you to configure a preferred external WiFi network for your Proton Pack to join.
-      Enabling this allows you to make use of a mobile hotspot or other preferred WiFi network used by your mobile device.
+      Enabling this allows you to make use of a preferred WiFi network such as those used by your mobile device(s).
       You may optionally configure a static IP address (with a subnet and gateway), if desired.
+      Otherwise, you may return to this screen to view the IP address assigned by your WiFi network.
     </p>
     <br/>
+  </div>
+
+  <div class="block left">
     <div class="setting">
       <b class="labelSwitch">Use External WiFi Network:</b>
       <label class="switch">
@@ -56,11 +60,15 @@ const char NETWORK_page[] PROGMEM = R"=====(
     <b>Subnet Mask:</b> <input type="text" id="subnet" width="100"/>
     <br/>
     <b>Gateway IP:</b> <input type="text" id="gateway" width="100"/>
-    <br/>
-    <br/>
+  </div>
+
+  <div class="block">
+    <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;&nbsp;
     <button type="button" class="green" onclick="saveSettings()">Save</button>
+    <br/>
+    <br/>
   </div>
 
   <script type="application/javascript">
@@ -90,6 +98,13 @@ const char NETWORK_page[] PROGMEM = R"=====(
       xhttp.send();
     }
 
+    function isValidIP(ipAddress) {  
+      if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipAddress)) {  
+        return true;
+      }
+      return false;  
+    } 
+
     function saveSettings() {
       var wNetwork = (document.getElementById("network").value || "").trim();
       if (wNetwork.length < 2) {
@@ -103,13 +118,31 @@ const char NETWORK_page[] PROGMEM = R"=====(
         return;
       }
 
+      var wAddress = (document.getElementById("address").value || "").trim();
+      if (wAddress != "" && !isValidIP(wAddress)) {
+        alert("IP Address is invalid, please correct and try again.");
+        return;
+      }
+
+      var wSubnet = (document.getElementById("subnet").value || "").trim();
+      if (wSubnet != "" && !isValidIP(wSubnet)) {
+        alert("Subnet Mask is invalid, please correct and try again.");
+        return;
+      }
+
+      var wGateway = (document.getElementById("gateway").value || "").trim();
+      if (wGateway != "" && !isValidIP(wGateway)) {
+        alert("Gateway IP is invalid, please correct and try again.");
+        return;
+      }
+
       var body = JSON.stringify({
         enabled: document.getElementById("enabled").checked ? 1 : 0,
         password: wPassword,
         network: wNetwork,
-        address: document.getElementById("address").value || "",
-        subnet: document.getElementById("subnet").value || "",
-        gateway: document.getElementById("gateway").value || ""
+        address: wAddress,
+        subnet: wSubnet,
+        gateway: wGateway
       });
 
       var xhttp = new XMLHttpRequest();

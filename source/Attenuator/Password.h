@@ -38,14 +38,21 @@ const char PASSWORD_page[] PROGMEM = R"=====(
       After updating, any devices which previously stored the password for the WiFi network will require you to update to the new password.
     </p>
     <br/>
+  </div>
+
+  <div class="block left">
     <b>New AP Password:</b> <input type="text" id="password" width="100"/>
     <br/>
     <b>Confirm Password:</b> <input type="text" id="password2" width="100"/>
-    <br/>
-    <br/>
+  </div>
+
+  <div class="block">
+    <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;&nbsp;
     <button type="button" class="green" onclick="updatePassword()">Update</button>
+    <br/>
+    <br/>
   </div>
 
   <script type="application/javascript">

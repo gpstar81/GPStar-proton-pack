@@ -62,16 +62,16 @@ Preferences preferences;
 const uint8_t maxAttempts = 3; // Max attempts to establish a external WiFi connection.
 const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
-String ap_ssid; // Reserved for holding the full, local AP name of this device.
+String ap_ssid; // Reserved for holding the full, private AP name for this device.
 bool b_ap_started = false; // Denotes the softAP network has been started.
 
 // Local variables for connecting to a preferred WiFi network (when available).
 bool b_wifi_enabled = false; // Denotes user wishes to join/use external WiFi.
-String wifi_ssid;
-String wifi_pass;
-String wifi_address;
-String wifi_subnet;
-String wifi_gateway;
+String wifi_ssid;    // Preferred network SSID for external WiFi
+String wifi_pass;    // Preferred network password for external WiFi
+String wifi_address; // Static IP for external WiFi network
+String wifi_subnet;  // Subnet for external WiFi network
+String wifi_gateway; // Gateway IP for external WiFi network
 
 // Define an asynchronous web server at TCP port 80.
 // Docs: https://github.com/me-no-dev/ESPAsyncWebServer
@@ -120,19 +120,19 @@ IPAddress convertToIP(String ipAddressString) {
 void OnWiFiEvent(WiFiEvent_t event) {
   switch (event) {
     case SYSTEM_EVENT_STA_CONNECTED:
-      Serial.println("Connected to WiFi Network");
+      debug("Connected to WiFi Network");
     break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
-      Serial.println("Disconnected from WiFi Network");
+      debug("Disconnected from WiFi Network");
     break;
     case SYSTEM_EVENT_AP_START:
-      Serial.println("Soft AP started");
+      debug("Soft AP started");
     break;
     case SYSTEM_EVENT_AP_STACONNECTED:
-      Serial.println("Station connected to softAP");
+      debug("Station connected to softAP");
     break;
     case SYSTEM_EVENT_AP_STADISCONNECTED:
-      Serial.println("Station disconnected from softAP");
+      debug("Station disconnected from softAP");
     break;
     default:
       // No-op for any other status.
@@ -153,7 +153,7 @@ bool startAccesPoint() {
     // Meant to allow the user to reset their credentials then re-flash after
     // commenting out the RESET_AP_SETTINGS definition in Configuration.h
     ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update global variable.
-    ap_pass = ap_default_passwd;
+    ap_pass = ap_default_passwd; // Force use of the default WiFi password.
   #else
     // Use either the stored preferences or an expected default value.
     ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
