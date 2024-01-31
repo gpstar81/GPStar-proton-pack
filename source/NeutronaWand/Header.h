@@ -179,7 +179,11 @@ static uint16_t store = 0;
 
 /*
  * Vibration
+ *
+ * Vibration default is based on the toggle switch position from the Proton Pack. These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
+enum VIBRATION_MODES_EEPROM { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
+enum VIBRATION_MODES_EEPROM VIBRATION_MODE_EEPROM; 
 const uint8_t vibration = 11;
 const uint8_t i_vibration_level_min = 65;
 uint8_t i_vibration_level = i_vibration_level_min;

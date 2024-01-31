@@ -49,6 +49,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
   uint8_t defaultSystemVolume;
+  uint8_t packVibration;
   uint8_t cyclotronDirection;
   uint8_t demoLightMode;
   uint8_t protonStreamEffects;
@@ -255,6 +256,22 @@ void serial1SendData(uint16_t i_message) {
       packConfig.overheatLightsOff = b_overheat_lights_off;
       packConfig.overheatSyncToFan = b_overheat_sync_to_fan;
       packConfig.demoLightMode = b_demo_light_mode;
+
+      switch(VIBRATION_MODE_EEPROM) {
+        case VIBRATION_ALWAYS:
+          packConfig.packVibration = 1;
+        break;
+        case VIBRATION_FIRING_ONLY:
+          packConfig.packVibration = 2;
+        break;
+        case VIBRATION_NONE:
+          packConfig.packVibration = 3;
+        break;
+        case VIBRATION_DEFAULT:
+        default:
+          packConfig.packVibration = 4;
+        break;
+      }
 
       // Cyclotron Lid
       packConfig.ledCycLidCount = i_cyclotron_leds;
@@ -472,6 +489,32 @@ void checkSerial1() {
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_FROZEN_EMPIRE);
               serial1Send(A_YEAR_FROZEN_EMPIRE);
+            break;
+          }
+
+          switch(packConfig.packVibration) {
+            case 1:
+              b_vibration_enabled = true;
+              b_vibration = true;
+              b_vibration_firing = false;
+              VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;          
+            break;
+            case 2:
+              b_vibration_enabled = true;
+              b_vibration = true;
+              b_vibration_firing = true;
+              VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;          
+            break;
+            case 3:
+              b_vibration_enabled = false;
+              b_vibration_firing = false;
+              b_vibration = false;
+              VIBRATION_MODE_EEPROM = VIBRATION_NONE;         
+            break;
+            case 4:
+            default:
+              // Readings are taken from the vibration toggle switch.
+              VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
             break;
           }
 

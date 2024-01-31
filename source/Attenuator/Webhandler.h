@@ -99,6 +99,7 @@ String getPackConfig() {
     jsonBody["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
     jsonBody["defaultYearThemePack"] = packConfig.defaultYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
     jsonBody["defaultSystemVolume"] = packConfig.defaultSystemVolume; // 0-100
+      
     jsonBody["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
     jsonBody["overheatStrobeNF"] = packConfig.overheatStrobeNF; // true|false
     jsonBody["overheatLightsOff"] = packConfig.overheatLightsOff; // true|false
@@ -146,6 +147,7 @@ String getWandConfig() {
     jsonBody["spectralHolidayMode"] = wandConfig.spectralHolidayMode; // true|false
 
     // Neutrona Wand Runtime Options
+    jsonBody["wandVibration"] = wandConfig.wandVibration; // [1=ALWAYS,2=FIRING,3=NONE,4=DEFAULT]
     jsonBody["overheatEnabled"] = wandConfig.overheatEnabled; // true|false
     jsonBody["defaultFiringMode"] = wandConfig.defaultFiringMode; // [0=VG,1=CTS,2=SYSTEM]
     jsonBody["wandSoundsToPack"] = wandConfig.wandSoundsToPack; // true|false
@@ -454,6 +456,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.defaultSystemModePack = jsonBody["defaultSystemModePack"].as<uint8_t>();
       packConfig.defaultYearThemePack = jsonBody["defaultYearThemePack"].as<uint8_t>();
       packConfig.defaultSystemVolume = jsonBody["defaultSystemVolume"].as<uint8_t>();
+      packConfig.packVibration = jsonBody["packVibration"].as<uint8_t>();
       packConfig.protonStreamEffects = jsonBody["protonStreamEffects"].as<uint8_t>();
       packConfig.overheatStrobeNF = jsonBody["overheatStrobeNF"].as<uint8_t>();
       packConfig.overheatLightsOff = jsonBody["overheatLightsOff"].as<uint8_t>();
@@ -538,6 +541,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.spectralHolidayMode = jsonBody["spectralHolidayMode"].as<uint8_t>();
       wandConfig.overheatEnabled = jsonBody["overheatEnabled"].as<uint8_t>();
       wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();
+      wandConfig.wandVibration = jsonBody["wandVibration"].as<uint8_t>();
       wandConfig.wandSoundsToPack = jsonBody["wandSoundsToPack"].as<uint8_t>();
       wandConfig.quickVenting = jsonBody["quickVenting"].as<uint8_t>();
       wandConfig.autoVentLight = jsonBody["autoVentLight"].as<uint8_t>();

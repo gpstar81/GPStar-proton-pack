@@ -56,6 +56,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
   uint8_t defaultSystemVolume;
+  uint8_t packVibration;
   uint8_t cyclotronDirection;
   uint8_t demoLightMode;
   uint8_t protonStreamEffects;
@@ -86,6 +87,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t spectralHolidayMode;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
+  uint8_t wandVibration;
   uint8_t wandSoundsToPack;
   uint8_t quickVenting;
   uint8_t autoVentLight;

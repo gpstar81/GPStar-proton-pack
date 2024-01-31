@@ -94,6 +94,8 @@ struct objEEPROM {
   uint8_t overheat_level_3;
   uint8_t overheat_level_2;
   uint8_t overheat_level_1;
+
+  uint8_t wand_vibration;
 };
 
 /*
@@ -107,11 +109,11 @@ void readEEPROM() {
   // Check if the calculated CRC matches the stored CRC value in the EEPROM.
   if(eepromCRC() == l_crc_check) {
     // Read our object from the EEPROM.
-    objEEPROM obj_eeprom;
-    EEPROM.get(i_eepromAddress, obj_eeprom);
+    objEEPROM obj_config_eeprom;
+    EEPROM.get(i_eepromAddress, obj_config_eeprom);
 
-    if(obj_eeprom.cross_the_streams > 0 && obj_eeprom.cross_the_streams != 255) {
-      if(obj_eeprom.cross_the_streams > 1) {
+    if(obj_config_eeprom.cross_the_streams > 0 && obj_config_eeprom.cross_the_streams != 255) {
+      if(obj_config_eeprom.cross_the_streams > 1) {
         b_cross_the_streams = true;
       }
       else {
@@ -119,8 +121,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.cross_the_streams_mix > 0 && obj_eeprom.cross_the_streams_mix != 255) {
-      if(obj_eeprom.cross_the_streams_mix > 1) {
+    if(obj_config_eeprom.cross_the_streams_mix > 0 && obj_config_eeprom.cross_the_streams_mix != 255) {
+      if(obj_config_eeprom.cross_the_streams_mix > 1) {
         b_cross_the_streams_mix = true;
       }
       else {
@@ -128,8 +130,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.overheating > 0 && obj_eeprom.overheating != 255) {
-      if(obj_eeprom.overheating > 1) {
+    if(obj_config_eeprom.overheating > 0 && obj_config_eeprom.overheating != 255) {
+      if(obj_config_eeprom.overheating > 1) {
         b_overheat_enabled = true;
       }
       else {
@@ -137,8 +139,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.neutrona_wand_sounds > 0 && obj_eeprom.neutrona_wand_sounds != 255) {
-      if(obj_eeprom.neutrona_wand_sounds > 1) {
+    if(obj_config_eeprom.neutrona_wand_sounds > 0 && obj_config_eeprom.neutrona_wand_sounds != 255) {
+      if(obj_config_eeprom.neutrona_wand_sounds > 1) {
         b_extra_pack_sounds = true;
       }
       else {
@@ -146,8 +148,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.spectral_mode > 0 && obj_eeprom.spectral_mode != 255) {
-      if(obj_eeprom.spectral_mode > 1) {
+    if(obj_config_eeprom.spectral_mode > 0 && obj_config_eeprom.spectral_mode != 255) {
+      if(obj_config_eeprom.spectral_mode > 1) {
         b_spectral_mode_enabled = true;
         b_spectral_custom_mode_enabled = true;
       }
@@ -157,8 +159,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.holiday_mode > 0 && obj_eeprom.holiday_mode != 255) {
-      if(obj_eeprom.holiday_mode > 1) {
+    if(obj_config_eeprom.holiday_mode > 0 && obj_config_eeprom.holiday_mode != 255) {
+      if(obj_config_eeprom.holiday_mode > 1) {
         b_holiday_mode_enabled = true;
       }
       else {
@@ -166,8 +168,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.quick_vent > 0 && obj_eeprom.quick_vent != 255) {
-      if(obj_eeprom.quick_vent > 1) {
+    if(obj_config_eeprom.quick_vent > 0 && obj_config_eeprom.quick_vent != 255) {
+      if(obj_config_eeprom.quick_vent > 1) {
         b_quick_vent = true;
       }
       else {
@@ -175,8 +177,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.wand_boot_errors > 0 && obj_eeprom.wand_boot_errors != 255) {
-      if(obj_eeprom.wand_boot_errors > 1) {
+    if(obj_config_eeprom.wand_boot_errors > 0 && obj_config_eeprom.wand_boot_errors != 255) {
+      if(obj_config_eeprom.wand_boot_errors > 1) {
         b_wand_boot_errors = true;
       }
       else {
@@ -184,8 +186,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.vent_light_auto_intensity > 0 && obj_eeprom.vent_light_auto_intensity != 255) {
-      if(obj_eeprom.vent_light_auto_intensity > 1) {
+    if(obj_config_eeprom.vent_light_auto_intensity > 0 && obj_config_eeprom.vent_light_auto_intensity != 255) {
+      if(obj_config_eeprom.vent_light_auto_intensity > 1) {
         b_vent_light_control = true;
       }
       else {
@@ -193,8 +195,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.num_barrel_leds > 0 && obj_eeprom.num_barrel_leds != 255) {
-      i_num_barrel_leds = obj_eeprom.num_barrel_leds; // Keep it disabled for now until new barrel leds are ready.
+    if(obj_config_eeprom.num_barrel_leds > 0 && obj_config_eeprom.num_barrel_leds != 255) {
+      i_num_barrel_leds = obj_config_eeprom.num_barrel_leds; // Keep it disabled for now until new barrel leds are ready.
 
       switch(i_num_barrel_leds) {
         case 5:
@@ -212,8 +214,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.invert_bargraph > 0 && obj_eeprom.invert_bargraph != 255) {
-      if(obj_eeprom.invert_bargraph > 1) {
+    if(obj_config_eeprom.invert_bargraph > 0 && obj_config_eeprom.invert_bargraph != 255) {
+      if(obj_config_eeprom.invert_bargraph > 1) {
         b_bargraph_invert = true;
       }
       else {
@@ -223,8 +225,8 @@ void readEEPROM() {
       setBargraphOrientation();
     }
 
-    if(obj_eeprom.bargraph_mode > 0 && obj_eeprom.bargraph_mode != 255) {
-      switch(obj_eeprom.bargraph_mode) {
+    if(obj_config_eeprom.bargraph_mode > 0 && obj_config_eeprom.bargraph_mode != 255) {
+      switch(obj_config_eeprom.bargraph_mode) {
         case 1:
         default:
           BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
@@ -242,8 +244,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.bargraph_firing_animation > 0 && obj_eeprom.bargraph_mode != 255) {
-      switch(obj_eeprom.bargraph_firing_animation) {
+    if(obj_config_eeprom.bargraph_firing_animation > 0 && obj_config_eeprom.bargraph_mode != 255) {
+      switch(obj_config_eeprom.bargraph_firing_animation) {
         case 1:
         default:
           BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
@@ -261,8 +263,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.bargraph_overheat_blinking > 0 && obj_eeprom.bargraph_overheat_blinking != 255) {
-      if(obj_eeprom.bargraph_overheat_blinking > 1) {
+    if(obj_config_eeprom.bargraph_overheat_blinking > 0 && obj_config_eeprom.bargraph_overheat_blinking != 255) {
+      if(obj_config_eeprom.bargraph_overheat_blinking > 1) {
         b_overheat_bargraph_blink = true;
       }
       else {
@@ -270,8 +272,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.neutrona_wand_year_mode > 0 && obj_eeprom.neutrona_wand_year_mode != 255) {
-      switch(obj_eeprom.neutrona_wand_year_mode) {
+    if(obj_config_eeprom.neutrona_wand_year_mode > 0 && obj_config_eeprom.neutrona_wand_year_mode != 255) {
+      switch(obj_config_eeprom.neutrona_wand_year_mode) {
         case 1:
         default:
           WAND_YEAR_MODE = YEAR_DEFAULT;
@@ -295,8 +297,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.CTS_mode > 0 && obj_eeprom.CTS_mode != 255) {
-      switch(obj_eeprom.CTS_mode) {
+    if(obj_config_eeprom.CTS_mode > 0 && obj_config_eeprom.CTS_mode != 255) {
+      switch(obj_config_eeprom.CTS_mode) {
         case 1:
         default:
           WAND_YEAR_CTS = CTS_DEFAULT;
@@ -320,8 +322,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.beep_loop > 0 && obj_eeprom.beep_loop != 255) {
-      if(obj_eeprom.beep_loop > 1) {
+    if(obj_config_eeprom.beep_loop > 0 && obj_config_eeprom.beep_loop != 255) {
+      if(obj_config_eeprom.beep_loop > 1) {
         b_beep_loop = true;
       }
       else {
@@ -329,38 +331,38 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.overheat_start_timer_level_5 > 0 && obj_eeprom.overheat_start_timer_level_5 != 255) {
-      i_ms_overheat_initiate_mode_5 = obj_eeprom.overheat_start_timer_level_5 * 1000;
+    if(obj_config_eeprom.overheat_start_timer_level_5 > 0 && obj_config_eeprom.overheat_start_timer_level_5 != 255) {
+      i_ms_overheat_initiate_mode_5 = obj_config_eeprom.overheat_start_timer_level_5 * 1000;
 
       i_ms_overheat_initiate[4] = i_ms_overheat_initiate_mode_5;
     }
 
-    if(obj_eeprom.overheat_start_timer_level_4 > 0 && obj_eeprom.overheat_start_timer_level_4 != 255) {
-      i_ms_overheat_initiate_mode_4 = obj_eeprom.overheat_start_timer_level_4 * 1000;
+    if(obj_config_eeprom.overheat_start_timer_level_4 > 0 && obj_config_eeprom.overheat_start_timer_level_4 != 255) {
+      i_ms_overheat_initiate_mode_4 = obj_config_eeprom.overheat_start_timer_level_4 * 1000;
 
       i_ms_overheat_initiate[3] = i_ms_overheat_initiate_mode_4;
     }
 
-    if(obj_eeprom.overheat_start_timer_level_3 > 0 && obj_eeprom.overheat_start_timer_level_3 != 255) {
-      i_ms_overheat_initiate_mode_3 = obj_eeprom.overheat_start_timer_level_3 * 1000;
+    if(obj_config_eeprom.overheat_start_timer_level_3 > 0 && obj_config_eeprom.overheat_start_timer_level_3 != 255) {
+      i_ms_overheat_initiate_mode_3 = obj_config_eeprom.overheat_start_timer_level_3 * 1000;
 
       i_ms_overheat_initiate[2] = i_ms_overheat_initiate_mode_3;
     }
 
-    if(obj_eeprom.overheat_start_timer_level_2 > 0 && obj_eeprom.overheat_start_timer_level_2 != 255) {
-      i_ms_overheat_initiate_mode_2 = obj_eeprom.overheat_start_timer_level_2 * 1000;
+    if(obj_config_eeprom.overheat_start_timer_level_2 > 0 && obj_config_eeprom.overheat_start_timer_level_2 != 255) {
+      i_ms_overheat_initiate_mode_2 = obj_config_eeprom.overheat_start_timer_level_2 * 1000;
 
       i_ms_overheat_initiate[1] = i_ms_overheat_initiate_mode_2;
     }
 
-    if(obj_eeprom.overheat_start_timer_level_1 > 0 && obj_eeprom.overheat_start_timer_level_1 != 255) {
-      i_ms_overheat_initiate_mode_1 = obj_eeprom.overheat_start_timer_level_1 * 1000;
+    if(obj_config_eeprom.overheat_start_timer_level_1 > 0 && obj_config_eeprom.overheat_start_timer_level_1 != 255) {
+      i_ms_overheat_initiate_mode_1 = obj_config_eeprom.overheat_start_timer_level_1 * 1000;
 
       i_ms_overheat_initiate[0] = i_ms_overheat_initiate_mode_1;
     }
 
-    if(obj_eeprom.overheat_level_5 > 0 && obj_eeprom.overheat_level_5 != 255) {
-      if(obj_eeprom.overheat_level_5 > 1) {
+    if(obj_config_eeprom.overheat_level_5 > 0 && obj_config_eeprom.overheat_level_5 != 255) {
+      if(obj_config_eeprom.overheat_level_5 > 1) {
         b_overheat_mode_5 = true;
       }
       else {
@@ -368,8 +370,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.overheat_level_4 > 0 && obj_eeprom.overheat_level_4 != 255) {
-      if(obj_eeprom.overheat_level_4 > 1) {
+    if(obj_config_eeprom.overheat_level_4 > 0 && obj_config_eeprom.overheat_level_4 != 255) {
+      if(obj_config_eeprom.overheat_level_4 > 1) {
         b_overheat_mode_4 = true;
       }
       else {
@@ -377,8 +379,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.overheat_level_3 > 0 && obj_eeprom.overheat_level_3 != 255) {
-      if(obj_eeprom.overheat_level_3 > 1) {
+    if(obj_config_eeprom.overheat_level_3 > 0 && obj_config_eeprom.overheat_level_3 != 255) {
+      if(obj_config_eeprom.overheat_level_3 > 1) {
         b_overheat_mode_3 = true;
       }
       else {
@@ -386,8 +388,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.overheat_level_2 > 0 && obj_eeprom.overheat_level_2 != 255) {
-      if(obj_eeprom.overheat_level_2 > 1) {
+    if(obj_config_eeprom.overheat_level_2 > 0 && obj_config_eeprom.overheat_level_2 != 255) {
+      if(obj_config_eeprom.overheat_level_2 > 1) {
         b_overheat_mode_2 = true;
       }
       else {
@@ -395,12 +397,43 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.overheat_level_1 > 0 && obj_eeprom.overheat_level_1 != 255) {
-      if(obj_eeprom.overheat_level_1 > 1) {
+    if(obj_config_eeprom.overheat_level_1 > 0 && obj_config_eeprom.overheat_level_1 != 255) {
+      if(obj_config_eeprom.overheat_level_1 > 1) {
         b_overheat_mode_1 = true;
       }
       else {
         b_overheat_mode_1 = false;
+      }
+    }
+
+    if(obj_config_eeprom.wand_vibration > 0 && obj_config_eeprom.wand_vibration != 255) {
+      switch(obj_config_eeprom.wand_vibration) {
+        case 4:
+        default:
+          // Do nothing. Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
+          VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+        break;
+        
+        case 3:
+          b_vibration_enabled = false;
+          b_vibration_firing = false;
+          b_vibration_on = false;
+          VIBRATION_MODE_EEPROM = VIBRATION_NONE;         
+        break;
+
+        case 2:
+          b_vibration_enabled = true;
+          b_vibration_on = true;
+          b_vibration_firing = true;
+          VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;          
+        break;
+
+        case 1:
+          b_vibration_enabled = true;
+          b_vibration_on = true;
+          b_vibration_firing = false;
+          VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;          
+        break;
       }
     }
 
@@ -442,13 +475,13 @@ void saveLedEEPROM() {
   unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
 
   // For now we are just saving the Spectral Custom colour.
-  objLEDEEPROM obj_eeprom = {
+  objLEDEEPROM obj_led_eeprom = {
     i_spectral_wand_custom_colour,
     i_spectral_wand_custom_saturation,
   };
 
   // Save to the EEPROM.
-  EEPROM.put(i_eepromLEDAddress, obj_eeprom);
+  EEPROM.put(i_eepromLEDAddress, obj_led_eeprom);
 
   updateCRCEEPROM();
 }
@@ -490,6 +523,7 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_level_3 = 1;
   uint8_t i_overheat_level_2 = 1;
   uint8_t i_overheat_level_1 = 1;
+  uint8_t i_wand_vibration = 4;
 
   if(b_cross_the_streams == true) {
     i_cross_the_streams = 2;
@@ -640,8 +674,27 @@ void saveConfigEEPROM() {
     i_overheat_level_1 = 2;
   }
 
+  switch(VIBRATION_MODE_EEPROM) {
+    case VIBRATION_ALWAYS:
+      i_wand_vibration = 1;
+    break;
+
+    case VIBRATION_FIRING_ONLY:
+      i_wand_vibration = 2;
+    break;
+
+    case VIBRATION_NONE:
+      i_wand_vibration = 3;
+    break;
+
+    case VIBRATION_DEFAULT:
+    default:
+      i_wand_vibration = 4;
+    break;
+  }
+
   // Write the data to the EEPROM if any of the values have changed.
-  objEEPROM obj_eeprom = {
+  objEEPROM obj_config_eeprom = {
     i_cross_the_streams,
     i_cross_the_streams_mix,
     i_overheating,
@@ -668,11 +721,12 @@ void saveConfigEEPROM() {
     i_overheat_level_4,
     i_overheat_level_3,
     i_overheat_level_2,
-    i_overheat_level_1
+    i_overheat_level_1,
+    i_wand_vibration
   };
 
   // Save and update our object in the EEPROM.
-  EEPROM.put(i_eepromAddress, obj_eeprom);
+  EEPROM.put(i_eepromAddress, obj_config_eeprom);
 
   updateCRCEEPROM();
 }

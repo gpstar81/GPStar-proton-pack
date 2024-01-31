@@ -48,6 +48,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t spectralHolidayMode;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
+  uint8_t wandVibration;
   uint8_t wandSoundsToPack;
   uint8_t quickVenting;
   uint8_t autoVentLight;
@@ -200,6 +201,22 @@ void wandSerialSendData(uint16_t i_message) {
           break;
           case CTS_FROZEN_EMPIRE:
             wandConfig.defaultYearModeCTS = 5;
+          break;
+        }
+
+        switch(VIBRATION_MODE_EEPROM) {
+          case VIBRATION_ALWAYS:
+            wandConfig.wandVibration = 1;
+          break;
+          case VIBRATION_FIRING_ONLY:
+            wandConfig.wandVibration = 2;
+          break;
+          case VIBRATION_NONE:
+            wandConfig.wandVibration = 3;
+          break;
+          case VIBRATION_DEFAULT:
+          default:
+            wandConfig.wandVibration = 4;
           break;
         }
 
@@ -366,7 +383,33 @@ void checkPack() {
               b_vg_mode = true;
             break;
           }          
-          
+
+          switch(wandConfig.wandVibration) {
+            case 1:
+              b_vibration_enabled = true;
+              b_vibration_on = true;
+              b_vibration_firing = false;
+              VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;          
+            break;
+            case 2:
+              b_vibration_enabled = true;
+              b_vibration_on = true;
+              b_vibration_firing = true;
+              VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;          
+            break;
+            case 3:
+              b_vibration_enabled = false;
+              b_vibration_firing = false;
+              b_vibration_on = false;
+              VIBRATION_MODE_EEPROM = VIBRATION_NONE;         
+            break;
+            case 4:
+            default:
+              // Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
+              VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+            break;
+          }
+
           b_extra_pack_sounds = wandConfig.wandSoundsToPack;
           b_quick_vent = wandConfig.quickVenting;
           b_vent_light_control = wandConfig.autoVentLight;

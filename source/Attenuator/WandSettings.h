@@ -72,6 +72,15 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
+      <b>&nbsp;&nbsp;&nbsp;Vibration:</b>
+      <select id="wandVibration" name="wandVibration">
+        <option value="1">Always</option>
+        <option value="2">Firing</option>
+        <option value="3">None</option>
+        <option value="4">Default</option>
+      </select>
+    </div>
+    <div class="setting">
       <b class="labelSwitch">Wand Boot Errors:</b>
       <label class="switch">
         <input id="wandBootError" name="wandBootError" type="checkbox">
@@ -278,6 +287,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("spectralHolidayMode").checked = settings.spectralHolidayMode ? true: false;
             document.getElementById("overheatEnabled").checked = settings.overheatEnabled ? true: false;
             document.getElementById("defaultFiringMode").value = settings.defaultFiringMode || 1;
+            document.getElementById("wandVibration").value = settings.wandVibration || 4;
             document.getElementById("wandSoundsToPack").checked = settings.wandSoundsToPack ? true: false;
             document.getElementById("quickVenting").checked = settings.quickVenting ? true: false;
             document.getElementById("autoVentLight").checked = settings.autoVentLight ? true: false;
@@ -310,6 +320,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         spectralHolidayMode: document.getElementById("spectralHolidayMode").checked ? 1 : 0,
         overheatEnabled: document.getElementById("overheatEnabled").checked ? 1 : 0,
         defaultFiringMode: parseInt(document.getElementById("defaultFiringMode").value || 1, 10),
+        wandVibration: parseInt(document.getElementById("wandVibration").value || 4, 10),
         wandSoundsToPack: document.getElementById("wandSoundsToPack").checked ? 1 : 0,
         quickVenting: document.getElementById("quickVenting").checked ? 1 : 0,
         autoVentLight: document.getElementById("autoVentLight").checked ? 1 : 0,
