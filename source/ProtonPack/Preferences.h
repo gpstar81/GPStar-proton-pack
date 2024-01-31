@@ -98,7 +98,7 @@ struct objConfigEEPROM {
   uint8_t smoke_continuous_mode_2;
   uint8_t smoke_continuous_mode_1;
 
-  //uint8_t pack_vibration;
+  uint8_t pack_vibration;
 };
 
 /*
@@ -418,12 +418,11 @@ void readEEPROM() {
       }
     }
 
-    /*
     if(obj_config_eeprom.pack_vibration > 0 && obj_config_eeprom.pack_vibration != 255) {
       switch(obj_config_eeprom.pack_vibration) {
         case 4:
         default:
-          // Do nothing. Readings are taking from the vibration toggle switch.
+          // Do nothing. Readings are taken from the vibration toggle switch.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
         break;
         
@@ -449,7 +448,6 @@ void readEEPROM() {
         break;
       }
     }
-    */
   }
 
   resetContinuousSmoke();
@@ -541,7 +539,7 @@ void saveConfigEEPROM() {
   uint8_t i_smoke_continuous_mode_2 = 1;
   uint8_t i_smoke_continuous_mode_1 = 1;
 
-  //uint8_t i_pack_vibration = 4;
+  uint8_t i_pack_vibration = 4;
 
   if(b_stream_effects != true) {
     i_proton_stream_effects = 1;
@@ -615,7 +613,6 @@ void saveConfigEEPROM() {
     i_smoke_continuous_mode_1 = 2;
   }
 
-  /*
   switch(VIBRATION_MODE_EEPROM) {
     case VIBRATION_ALWAYS:
       i_pack_vibration = 1;
@@ -634,7 +631,6 @@ void saveConfigEEPROM() {
       i_pack_vibration = 4;
     break;
   }
-  */
 
   unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
 
@@ -662,8 +658,8 @@ void saveConfigEEPROM() {
     i_smoke_continuous_mode_4,
     i_smoke_continuous_mode_3,
     i_smoke_continuous_mode_2,
-    i_smoke_continuous_mode_1
-    //i_pack_vibration
+    i_smoke_continuous_mode_1,
+    i_pack_vibration
   };
 
   // Save to the EEPROM.

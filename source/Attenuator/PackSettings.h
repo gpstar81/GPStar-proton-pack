@@ -61,6 +61,15 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
+      <select id="packVibration" name="packVibration">
+        <option value="1">Always</option>
+        <option value="2">When Firing</option>
+        <option value="3">Never</option>
+        <option value="4">Via Toggle</option>
+      </select>
+    </div>
+    <div class="setting">
       <b>Startup Volume %:</b><br/>
       <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="0" max="100" value="100" step="5"
        oninput="masterVolOut.value=defaultSystemVolume.value"/>
@@ -238,8 +247,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      // Wait 0.5s for serial communications between devices.
-      setTimeout(getSettings, 500);
+      // Wait 0.4s for serial communications between devices.
+      setTimeout(getSettings, 400);
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -302,6 +311,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("defaultSystemModePack").value = settings.defaultSystemModePack || 0;
             document.getElementById("defaultYearThemePack").value = settings.defaultYearThemePack || 1; // Value cannot be 0.
             document.getElementById("defaultSystemVolume").value = settings.defaultSystemVolume || 100; // Default to full volume.
+            document.getElementById("packVibration").value = settings.packVibration || 4;
             document.getElementById("masterVolOut").innerHTML = document.getElementById("defaultSystemVolume").value;
             document.getElementById("protonStreamEffects").checked = settings.protonStreamEffects || 0;
             document.getElementById("overheatStrobeNF").checked = settings.overheatStrobeNF ? true: false;
@@ -345,6 +355,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         defaultSystemModePack: parseInt(document.getElementById("defaultSystemModePack").value || 0, 10),
         defaultYearThemePack: parseInt(document.getElementById("defaultYearThemePack").value || 1, 10),
         defaultSystemVolume: parseInt(document.getElementById("defaultSystemVolume").value || 0, 10),
+        packVibration: parseInt(document.getElementById("packVibration").value || 4, 10),
         protonStreamEffects: document.getElementById("protonStreamEffects").checked ? 1 : 0,
         overheatStrobeNF: document.getElementById("overheatStrobeNF").checked ? 1 : 0,
         overheatLightsOff: document.getElementById("overheatLightsOff").checked ? 1 : 0,
