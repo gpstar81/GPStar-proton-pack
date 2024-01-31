@@ -61,12 +61,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;Vibration:</b>
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
       <select id="packVibration" name="packVibration">
         <option value="1">Always</option>
-        <option value="2">Firing</option>
-        <option value="3">None</option>
-        <option value="4">Default</option>
+        <option value="2">When Firing</option>
+        <option value="3">Never</option>
+        <option value="4">Via Toggle</option>
       </select>
     </div>
     <div class="setting">
@@ -247,8 +247,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      // Wait 0.5s for serial communications between devices.
-      setTimeout(getSettings, 500);
+      // Wait 0.4s for serial communications between devices.
+      setTimeout(getSettings, 400);
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])

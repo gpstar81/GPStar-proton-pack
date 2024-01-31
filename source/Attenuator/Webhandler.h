@@ -99,7 +99,7 @@ String getPackConfig() {
     jsonBody["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
     jsonBody["defaultYearThemePack"] = packConfig.defaultYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
     jsonBody["defaultSystemVolume"] = packConfig.defaultSystemVolume; // 0-100
-      
+    jsonBody["packVibration"] = packConfig.packVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE]
     jsonBody["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
     jsonBody["overheatStrobeNF"] = packConfig.overheatStrobeNF; // true|false
     jsonBody["overheatLightsOff"] = packConfig.overheatLightsOff; // true|false
@@ -147,9 +147,9 @@ String getWandConfig() {
     jsonBody["spectralHolidayMode"] = wandConfig.spectralHolidayMode; // true|false
 
     // Neutrona Wand Runtime Options
-    jsonBody["wandVibration"] = wandConfig.wandVibration; // [1=ALWAYS,2=FIRING,3=NONE,4=DEFAULT]
     jsonBody["overheatEnabled"] = wandConfig.overheatEnabled; // true|false
     jsonBody["defaultFiringMode"] = wandConfig.defaultFiringMode; // [0=VG,1=CTS,2=SYSTEM]
+    jsonBody["wandVibration"] = wandConfig.wandVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE]
     jsonBody["wandSoundsToPack"] = wandConfig.wandSoundsToPack; // true|false
     jsonBody["quickVenting"] = wandConfig.quickVenting; // true|false (Super-Hero Mode Only)
     jsonBody["autoVentLight"] = wandConfig.autoVentLight; // true|false
