@@ -2,6 +2,8 @@
 
 This guide will cover the web interface available via an ESP32 chip used as either the **Attenuator** or **Wireless Adapter** devices, and is capable of controlling some operations of your Proton Pack and Neutrona Wand.
 
+Before proceeding, it is worth noting that the ESP32 device is only capable of operating on the 2.4GHz band for WiFi communications. While it does support the 801.11B, G, and N networking standards, any computer/phone/tablet which connects to this device as it's network or will be connected to by this device as a client must offer the 2.4GHz frequency. For secured networks, only the WPA2 standard is allowed.
+
 ## Firmware Flashing
 
 Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details on compiling and/or uploading software to your Wireless Adapter controller.
@@ -14,7 +16,9 @@ In order to view the state of the pack and control it remotely, the two devices 
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main.jpg"/>
 
-When using the ESP32 controller for either the Attenuator or Wireless Adapter, a web-based user interface is available to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
+When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network which begins with the prefix **"ProtonPack_"** and secured with a default password of **"555-2368"**.
+
+A web-based user interface is available at [http://10.0.0.2](http://10.0.0.2) to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
 
 ### Equipment Status
 
@@ -42,7 +46,12 @@ These provide a web interface for managing options which are accessed via the LE
 
 ### Administration
 
-These links allow you to change the built-in WiFi password to one of your choice, or to update the ESP32 software (respectively). Another feature offered is the ability to specify WiFi settings which allows your Attenuator/Wireless Adapter to join an existing network. Please view [this dedicated guide](ATTENUATOR_FLASHING.md) for updating the firmware and resetting your WiFi security via software.
+These links allow you to change or control aspects of the device.
+
+- **Update ESP32 Firmware** - Allows you to update the ESP32 firmware using Over-the-Air updates. See the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details
+- **Secure Device WiFi**- Allows changing of the default password for the private WiFi network
+- **Change WiFi Settings** - Provides an optional means of joining an existing WiFi network for access of your device
+- **Restart/Resync** - Allows a remote restart of the software by performing a reboot of the ESP32 device
 
 <div style="clear:both"></div>
 
@@ -76,9 +85,24 @@ Adjust overall smoke effects (toggle on/off) and adjust per-level effects.
 
 <div style="clear:both"></div>
 
+## External WiFi Settings
+
+It is possible to have your device join an existing WiFi network which may provide a more stable network connection.
+
+1. Access the "Change WiFi Settings" page via [http://10.0.0.2/wifi](http://10.0.0.2/wifi) URL to make the necessary device modifications.
+1. Enable the external WiFi options and supply the preferred WiFi network name (SSID) and WPA2 password for access.
+	- Optionally, you may specify an IP address, subnet mask, and gateway IP if you wish to use static values. Otherwise, the ESP32 will obtain these values automatically from your chosen network via DHCP.
+1. Save the changes, which will cause the device to reboot and attempt to connect to the network (up to 3 tries).
+1. Return to the URL above to observe the IP address information. If the connection was successful, an IP address, subnet mask, and gateway IP will be shown.
+1. While connected to the same WiFi network on your computer/phone/tablet, use the IP address shown to connect to your device's web interface.
+
+Use of an unsecured WiFi network is not supported and not recommended.
+
 ## Web API
 
-The following URL's will serve the pages as shown above:
+The web UI is built as a single-page application, using single HTML pages for the interface elements and performing actions using an API layer. These API endpoints are available for use if you wish to build your own interface. They pass data in JSON format though the exact structure is not described here at this time.
+
+The following URL's will serve the informational/maintenance pages as shown previously in this guide:
 
 	GET / - Standard Index/Landing Page
 	GET /network - External WiFi Settings Page

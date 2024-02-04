@@ -173,9 +173,9 @@ bool startAccesPoint() {
     delay(100); // Wait briefly before configuring network.
 
     // Simple networking IP info for the AP.
-    IPAddress localIP(192, 168, 1, 2);
-    IPAddress gateway(192, 168, 1, 1);
-    IPAddress subnet(255, 255, 255, 0);
+    IPAddress localIP(10, 0, 0, 2);
+    IPAddress gateway(10, 0, 0, 1);
+    IPAddress subnet(255, 0, 0, 0);
 
     // Set networking info and report to console.
     WiFi.softAPConfig(localIP, gateway, subnet);
