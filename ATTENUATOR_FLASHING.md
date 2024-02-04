@@ -68,17 +68,17 @@ These guides may be of some help as a reference:
 * [Expressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
 * [Expressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
 
-### ESP32: Additional/Future Updates
+### ESP32: Standard Updates (After the First-Time Upload)
 
-This applies to any updates after the first-time upload of the firmware for the device, when the WiFi network for the Proton Pack is enabled and available.
+This applies to ALL updates after the first-time upload of the firmware for the device, when the private WiFi network for the Proton Pack is available via the custom firmware.
 
 1. Power up your Proton Pack and device.
-1. Open the WiFi preferences on your computer and look for the SSID which begins "ProtonPack_".
-	* If this is your first connection to the access point, use the default password "555-2368".
-1. Navigate directly to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
+1. Open the WiFi preferences on your computer/device and look for the SSID which begins **"ProtonPack_"**.
+	* If this is your first connection to this access point, use the default password **"555-2368"**.
+1. Navigate directly to the URL: [http://10.0.0.2/update](http://10.0.0.2/update)
 1. Use the "Select File" button and select the [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) file from the `/binaries/attenuator` directory.
 1. The upload will begin immediately. Once at 100% the device will reboot.
-1. Navigate to [http://192.168.1.2](http://192.168.1.2) to confirm that the device is able to communicate with the Proton Pack PCB.
+1. Navigate to [http://10.0.0.2](http://10.0.0.2) to confirm that the device is able to communicate with the Proton Pack PCB.
 
 ![](images/WebUI-Update1.jpg)
 
@@ -94,15 +94,23 @@ While every device gets a unique SSID for the wireless network, the password is 
 
 ### Setting a WiFi Password
 
-Once you are able to reach the web UI at [http://192.168.1.2](http://192.168.1.2) scroll to the bottom of the page to find the "Change WiFi Password" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled. Passwords must only be at least 8 characters and you will be required to enter a matching password as confirmation to ensure you entered the expected string of characters.
+Since this device will make use of a private WiFi network with a default password, it is STRONGLY encouraged that you take a moment to change the password to something you prefer to avoid unauthorized access of your equipment.
 
-![](images/WebUI-Password.jpg)
+📝 **Note:** This device previously used a Class C network of 192.168.1.X but was changed to a Class A to avoid conflict with most home WiFi networks. Please note that any saved (read: bookmarked) locations using "192.168.1.2" will need to be adjusted to use the new IP address with the private WiFi network.
+
+Once you are able to reach the web UI at [http://10.0.0.2](http://10.0.0.2) scroll to the bottom of the page to find the "Secure Device WiFi" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled. Passwords must only be at least 8 characters and you will be required to enter a matching password as confirmation to ensure you entered the expected string of characters.
+
+The password you choose will be stored in an area of the device's flash memory that is unaffected by future firmware updates. Therefore, if you forget your password you may need to load a special version of the firmware which can bypass that stored value and allow you to use the default password again. This process is covered in the next section.
 
 ### Forgot Your WiFi Password?
 
-Since you won't have the ability to use the OTA update process above, you will need to follow a manual process using a USB cable and a utility for your OS of choice. Since you will not have access to the OTA update capability, this will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
+![](images/WebUI-Password.jpg)
 
-Once flashed, this will allow you to get back into the web UI at `http://192.168.1.2` using the default password ("555-2368") and change to your choice of password. **Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password while this firmware is loaded**! The new password will be used automatically to secure the WiFi access point once the regular firmware is in use.
+If you have forgotten the password to the private WiFi network, you will need to load a special firmware to allow you to access the device and reset the password. Though if you have opted to connect your device to a preferred WiFi network using the built-in WiFi settings, simply return to your device's IP address on that network and change the password for the private WiFi network as desired.
+
+In the case where you do not have access to your device via an external WiFi network, you will need to follow a manual process using a USB cable and a utility for your OS of choice. This will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
+
+Once flashed, this will allow you to get back into the web UI at `http://10.0.0.2` using the default password ("555-2368") and change to your choice of password. **Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password while this firmware is loaded**! The new password will be used automatically to secure the WiFi access point once the regular firmware is in use.
 
 📝 **Note:** When using this firmware there will be additional debug messages enabled for the device. Therefore, this firmware image may also be used to help debug WiFi issues by checking the output via the Arduino IDE's serial console. Be sure to set the baud rate to 112500 to view the output correctly.
 
