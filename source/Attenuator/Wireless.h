@@ -80,6 +80,9 @@ AsyncWebServer httpServer(80);
 // Define a websocket endpoint for the async web server.
 AsyncWebSocket ws("/ws");
 
+// Track the number of connected WiFi (AP) clients.
+uint8_t i_ap_client_count = 0;
+
 // Track the number of connected WebSocket clients.
 uint8_t i_ws_client_count = 0;
 
@@ -179,12 +182,18 @@ bool startAccesPoint() {
 
     // Set networking info and report to console.
     WiFi.softAPConfig(localIP, gateway, subnet);
+    WiFi.softAPsetHostname(ap_ssid.c_str());
     #if defined(DEBUG_WIRELESS_SETUP)
-      IPAddress deviceIP = WiFi.softAPIP();
-      Serial.print("Access Point IP Address: ");
-      Serial.println(deviceIP);
-      Serial.println("WiFi AP Started as " + ap_ssid);
-      Serial.println("WiFi AP Password: " + ap_pass);
+      Serial.print("AP Name SSID: ");
+      Serial.println(WiFi.softAPSSID());
+      Serial.print("AP IP Address: ");
+      Serial.println(WiFi.softAPIP());
+      Serial.print("AP Hostname: ");
+      Serial.println(WiFi.softAPgetHostname());
+      Serial.print("AP Mac Address: ");
+      Serial.println(WiFi.softAPmacAddress());
+      Serial.print("AP Subnet Mask: ");
+      Serial.println(WiFi.softAPSubnetCIDR());
     #endif
   }
 

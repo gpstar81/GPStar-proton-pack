@@ -145,6 +145,9 @@ void loop() {
 
     // Handle device reboot after an OTA update.
     ElegantOTA.loop();
+
+    // Update the current count of AP clients.
+    i_ap_client_count = WiFi.softAPgetStationNum();
   #endif
 
   if(b_wait_for_pack) {
@@ -386,7 +389,7 @@ void vibrateOff() {
 void updateLEDs() {
   #if defined(__XTENSA__)
     // ESP - Change top LED color based on wireless connections.
-    if(i_ws_client_count > 0) {
+    if(i_ap_client_count > 0 || i_ws_client_count > 0) {
       // Change to green when clients are connected remotely.
       i_top_led_color = C_GREEN;
     }
