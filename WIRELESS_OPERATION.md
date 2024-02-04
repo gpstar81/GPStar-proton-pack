@@ -2,7 +2,7 @@
 
 This guide will cover the web interface available via an ESP32 chip used as either the **Attenuator** or **Wireless Adapter** devices, and is capable of controlling some operations of your Proton Pack and Neutrona Wand.
 
-Before proceeding, it is worth noting that the ESP32 device is only capable of operating on the 2.4GHz band for WiFi communications. While it does support the 801.11B, G, and N networking standards, any computer/phone/tablet which connects to this device as it's network or will be connected to by this device as a client must offer the 2.4GHz frequency. For secured networks, only the WPA2 standard is allowed.
+Before proceeding, it is worth noting that the ESP32 device is only capable of operating on the 2.4GHz band for WiFi communications. While it does support the 801.11b/g/n networking standards, any computer/phone/tablet which connects to this device as it's network or will be connected to by this device as a client must offer the 2.4GHz frequency. For secured networks, only the WPA2 standard is allowed.
 
 ## Firmware Flashing
 
@@ -17,6 +17,10 @@ In order to view the state of the pack and control it remotely, the two devices 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main.jpg"/>
 
 When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network which begins with the prefix **"ProtonPack_"** and secured with a default password of **"555-2368"**.
+
+Once connected, you will need to configure an IP address for your computer/phone/tablet using the preferences for that device's operating system. You may pick an IP address from the range of **"10.0.0.100" through "10.0.0.200"** with a subnet of **"255.0.0.0"**. Please remember that if you intent to have multiple devices connect via this private WiFi network you will need a unique IP for each device.
+
+**Note:** The IP range of "10.0.0.3-10.0.0.99" is reserved for potential future devices which may connect to this private WiFi network. Use of those IP's is not advised.
 
 A web-based user interface is available at [http://10.0.0.2](http://10.0.0.2) to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
 
