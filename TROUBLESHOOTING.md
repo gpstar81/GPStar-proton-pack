@@ -18,11 +18,16 @@ Before continuing, be certain whether the following items have been reviewed:
 - Music files should start with a file having a prefix of `500_` and increment by 1.
 - Switch to SanDisk brand media as these SD cards have proven reliable in every use-case.
 
-**Blinking Patterns:**
+**Startup Blinking Patterns:**
 
-- 10x - This indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
-- 3x - This is the normal pattern at initial power-up to indicate the device has initialized without issues.
+- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far. 
+- 3x (quick) - 3 quick blinks in succession is the normal pattern at initial power-up to indicate the device has initialized without issues.
+
+**Post Startup Blinking Patterns**
 - 1x - The WavTrigger will blink once every ~4 seconds when the PCB and device are powered on. This indicates a regular serial connection checking the status of the WavTrigger and is to be expected.
+
+## IMPORTANT
+When adding extra music to your system, many audio software tend to add Meta Data information into the file. This will prevent the file from playing. As simple as importing the file into Audacity and re-exporting will solve the issue, or you can use any other software to remove the Meta Data information.
 
 ## Proton Pack
 

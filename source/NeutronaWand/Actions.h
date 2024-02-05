@@ -1314,6 +1314,9 @@ void checkWandAction() {
                 }
               }
               else {
+                // Tell the pack to stop music. In case we are hot swapping Neturona Wands and the Pack is already playing music.
+                wandSerialSend(W_MUSIC_STOP);
+
                 // Tell the pack to play music.
                 wandSerialSend(W_MUSIC_START);
 
