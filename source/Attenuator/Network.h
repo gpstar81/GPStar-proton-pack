@@ -48,21 +48,22 @@ const char NETWORK_page[] PROGMEM = R"=====(
         <span class="slider round"></span>
       </label>  
     </div>
+    &nbsp;&nbsp;&nbsp;<b>WiFi Network:</b> <input type="text" id="network" width="100" maxlength="30"/>
     <br/>
-    &nbsp;&nbsp;<b>WiFi Network:</b> <input type="text" id="network" width="100" maxlength="30"/>
-    <br/>
-    <b>WiFi Password:</b> <input type="text" id="password" width="100" maxlength="30"/>
+    &nbsp;<b>WiFi Password:</b> <input type="text" id="password" width="100" maxlength="30"/>
     <br/>
     <br/>
-    If necessary to set static IP values, flip the toggle to edit the values below.
+    <br/>
+    If necessary, you may toggle the switch below to specify a static IP address, subnet,
+    and gateway to be used by the controller on the preferred WiFi network. Note that any
+    changes to the network name or password will clear previously-entered values.
     <div class="setting">
-      <b class="labelSwitch">Edit IP Values:</b>
+      <b class="labelSwitch">Edit IP Address Values:</b>
       <label class="switch">
         <input id="editIP" name="editIP" type="checkbox">
         <span class="slider round"></span>
       </label>  
     </div>
-    <br/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Static IP:</b> <input type="text" id="address" width="100" maxlength="15" disabled/>
     <br/>
     &nbsp;<b>Subnet Mask:</b> <input type="text" id="subnet" width="100" maxlength="15" disabled/>
@@ -119,15 +120,17 @@ const char NETWORK_page[] PROGMEM = R"=====(
     var gatewayInput = document.getElementById("gateway");
 
     document.getElementById("network").addEventListener("input", function() {
-      // Get the value of the trigger field
-      var triggerValue = this.value;
-      
-      // Clear fields based on trigger value
-      if (triggerValue === 'clear') {
-        addressInput.value = "";
-        subnetInput.value = "";
-        gatewayInput.value = "";
-      }
+      // Clear fields based on input changes.
+      addressInput.value = "";
+      subnetInput.value = "";
+      gatewayInput.value = "";
+    });
+
+    document.getElementById("password").addEventListener("input", function() {
+      // Clear fields based on input changes.
+      addressInput.value = "";
+      subnetInput.value = "";
+      gatewayInput.value = "";
     });
 
     document.getElementById("editIP").addEventListener("change", function() {
