@@ -2,7 +2,14 @@
 
 This guide will cover the web interface available via an ESP32 chip used as either the **Attenuator** or **Wireless Adapter** devices, and is capable of controlling some operations of your Proton Pack and Neutrona Wand.
 
-Before proceeding, it is worth noting that the ESP32 device is only capable of operating on the 2.4GHz band for WiFi communications. While it does support the 801.11b/g/n networking standards, any computer/phone/tablet which connects to this device as its network or will be connected to by this device as a client must support the 2.4GHz frequency. For secured networks, only the WPA2 standard is allowed.
+## Requirements
+
+Before proceeding, it is worth noting that the ESP32 device is only capable of operating on the 2.4GHz band for WiFi communications. While it does support the 801.11b/g/n networking standards, any computer/phone/tablet which connects to this device via external WiFi network, or will be connected via the private WiFi network on this device as a client, must support the 2.4GHz band. For secured networks, only the WPA2 standard is allowed (joining an open networks is not supported nor advised).
+
+Connectivity options include either a private WiFi network from the device, and the ability to join an external WiFi network. For the latter this may be your home network or a cellular hotspot, though this is subject to some factors which are vendor-specific:
+
+- For **Android** devices offering a cellular hotspot, by default a feature called "Client Isolation Mode" is enabled which will prevent hotspot clients from seeing each other. Unless you can disable this option (via a rooted device) you will not be able to reach the web UI via the hotspot network.
+- For **iOS** devices offering a cellular hotspot, please make sure that the "Maximize Compatibility" option is enabled. This will ensure your device offers the 2.4GHz radio and will be seen by the ESP32 device. At this time there are no other security restrictions between hotspot clients such as found on Android.
 
 ## Firmware Flashing
 
@@ -20,7 +27,7 @@ When using the ESP32 controller for either the Attenuator or Wireless Adapter, i
 
 Once connected, you will need to configure an IP address for your computer/phone/tablet using the preferences for that device's operating system. You may pick an IP address from the range of **"10.0.0.100" through "10.0.0.200"** with a subnet of **"255.0.0.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will need a unique IP address for each device.
 
-**Note:** The IP range of "10.0.0.3-10.0.0.99" is reserved for potential future devices which may connect to this private WiFi network. Use of those IPs is not advised.
+**Note:** The IP range of "10.0.0.3-10.0.0.99" should be reserved for potential future devices which may connect to this private WiFi network. **Use of those IPs is not advised.**
 
 A web-based user interface is available at [http://10.0.0.2](http://10.0.0.2) to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
 
@@ -91,6 +98,8 @@ Adjust overall smoke effects (toggle on/off) and adjust per-level effects.
 
 ## External WiFi Settings
 
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-WiFi.jpg"/>
+
 It is possible to have your device join an existing WiFi network which may provide a more stable network connection.
 
 1. Access the "Change WiFi Settings" page via [http://10.0.0.2/wifi](http://10.0.0.2/wifi) URL to make the necessary device modifications.
@@ -101,6 +110,8 @@ It is possible to have your device join an existing WiFi network which may provi
 1. While connected to the same WiFi network on your computer/phone/tablet, use the IP address shown to connect to your device's web interface.
 
 Use of an unsecured WiFi network is not supported and not recommended.
+
+<div style="clear:both"></div>
 
 ## Web API
 
