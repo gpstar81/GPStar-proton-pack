@@ -708,6 +708,13 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
       preferences.begin("network", false); // Access namespace in read/write mode.
 
+      // Clear old network IP info if SSID or password have been changed.
+      if(preferences.getString("ssid") != wifiNetwork || preferences.getString("password") != wifiPasswd) {
+        preferences.putString("address", "");
+        preferences.putString("subnet", "");
+        preferences.putString("gateway", "");
+      }
+
       // Store the critical values to enable/disable the external WiFi.
       preferences.putBool("enabled", b_enabled);
       preferences.putString("ssid", wifiNetwork);

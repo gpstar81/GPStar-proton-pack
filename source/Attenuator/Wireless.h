@@ -45,6 +45,7 @@
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <WiFi.h>
+#include <WiFiAP.h>
 
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
@@ -175,14 +176,15 @@ bool startAccesPoint() {
   if(b_success) {
     delay(100); // Wait briefly before configuring network.
 
-    // Simple networking IP info for the AP.
-    IPAddress localIP(10, 0, 0, 2);
-    IPAddress gateway(10, 0, 0, 1);
-    IPAddress subnet(255, 0, 0, 0);
+    // Simple networking IP info exclusively for the AP.
+    IPAddress localIP(192, 168, 1, 2);
+    IPAddress gateway(192, 168, 1, 1);
+    IPAddress subnet(255, 255, 255, 0);
+    IPAddress dhcpStart(192, 168, 1, 100);
 
     // Set networking info and report to console.
-    WiFi.softAPConfig(localIP, gateway, subnet);
-    WiFi.softAPsetHostname(ap_ssid.c_str());
+    WiFi.softAPConfig(localIP, gateway, subnet, dhcpStart);
+    WiFi.softAPsetHostname(ap_ssid_prefix.c_str());
     #if defined(DEBUG_WIRELESS_SETUP)
       Serial.print("AP Name SSID: ");
       Serial.println(WiFi.softAPSSID());

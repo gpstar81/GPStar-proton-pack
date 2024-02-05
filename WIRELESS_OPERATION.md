@@ -8,8 +8,8 @@ Before proceeding, it is worth noting that the ESP32 device is only capable of o
 
 Connectivity options include either a private WiFi network from the device, and the ability to join an external WiFi network. For the latter this may be your home network or a cellular hotspot, though this is subject to some factors which are vendor-specific:
 
-- For **Android** devices offering a cellular hotspot, by default a feature called "Client Isolation Mode" is enabled which will prevent hotspot clients from seeing each other. Unless you can disable this option (via a rooted device) you will not be able to reach the web UI via the hotspot network.
-- For **iOS** devices offering a cellular hotspot, please make sure that the "Maximize Compatibility" option is enabled. This will ensure your device offers the 2.4GHz radio and will be seen by the ESP32 device. At this time there are no other security restrictions between hotspot clients such as found on Android.
+- For **Android** devices offering a cellular hotspot, these devices may utilize a feature called "Client Isolation Mode" which will prevent hotspot clients from seeing each other. Unless you can disable this option (via a rooted device) you will not be able to reach the web UI via the hotspot network.
+- For **iOS** devices offering a cellular hotspot, please make sure that the "Maximize Compatibility" option is enabled. This will ensure your device offers the 2.4GHz radio and will be seen by the ESP32 device.
 
 ## Firmware Flashing
 
@@ -25,11 +25,9 @@ In order to view the state of the pack and control it remotely, the two devices 
 
 When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network which begins with the prefix **"ProtonPack_"** and secured with a default password of **"555-2368"**.
 
-Once connected, you will need to configure an IP address for your computer/phone/tablet using the preferences for that device's operating system. You may pick an IP address from the range of **"10.0.0.100" through "10.0.0.200"** with a subnet of **"255.0.0.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will need a unique IP address for each device.
+Once connected, your computer/phone/table should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each device.
 
-**Note:** The IP range of "10.0.0.3-10.0.0.99" should be reserved for potential future devices which may connect to this private WiFi network. **Use of those IPs is not advised.**
-
-A web-based user interface is available at [http://10.0.0.2](http://10.0.0.2) to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
+A web-based user interface is available at [http://192.168.1.2](http://192.168.1.2) to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
 
 ### Equipment Status
 
@@ -102,7 +100,7 @@ Adjust overall smoke effects (toggle on/off) and adjust per-level effects.
 
 It is possible to have your device join an existing WiFi network which may provide a more stable network connection.
 
-1. Access the "Change WiFi Settings" page via [http://10.0.0.2/wifi](http://10.0.0.2/wifi) URL to make the necessary device modifications.
+1. Access the "Change WiFi Settings" page via [http://192.168.1.2/network](http://192.168.1.2/network) URL to make the necessary device modifications.
 1. Enable the external WiFi options and supply the preferred WiFi network name (SSID) and WPA2 password for access.
 	- Optionally, you may specify an IP address, subnet mask, and gateway IP if you wish to use static values. Otherwise, the ESP32 will obtain these values automatically from your chosen network via DHCP.
 1. Save the changes, which will cause the device to reboot and attempt to connect to the network (up to 3 tries).
