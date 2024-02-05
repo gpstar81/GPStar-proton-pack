@@ -54,11 +54,20 @@ const char NETWORK_page[] PROGMEM = R"=====(
     <b>WiFi Password:</b> <input type="text" id="password" width="100" maxlength="30"/>
     <br/>
     <br/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Static IP:</b> <input type="text" id="address" width="100" maxlength="15"/>
+    If necessary to set static IP values, flip the toggle to edit the values below.
+    <div class="setting">
+      <b class="labelSwitch">Edit IP Values:</b>
+      <label class="switch">
+        <input id="editIP" name="editIP" type="checkbox">
+        <span class="slider round"></span>
+      </label>  
+    </div>
     <br/>
-    &nbsp;<b>Subnet Mask:</b> <input type="text" id="subnet" width="100" maxlength="15"/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Static IP:</b> <input type="text" id="address" width="100" maxlength="15" disabled/>
     <br/>
-    &nbsp;&nbsp;&nbsp;<b>Gateway IP:</b> <input type="text" id="gateway" width="100" maxlength="15"/>
+    &nbsp;<b>Subnet Mask:</b> <input type="text" id="subnet" width="100" maxlength="15" disabled/>
+    <br/>
+    &nbsp;&nbsp;&nbsp;<b>Gateway IP:</b> <input type="text" id="gateway" width="100" maxlength="15" disabled/>
   </div>
 
   <div class="block">
@@ -103,6 +112,33 @@ const char NETWORK_page[] PROGMEM = R"=====(
       }
       return false;  
     } 
+
+    // Set up some variables to fields which will be controlled via certain actions.
+    var addressInput = document.getElementById("address");
+    var subnetInput = document.getElementById("subnet");
+    var gatewayInput = document.getElementById("gateway");
+
+    document.getElementById("network").addEventListener("input", function() {
+      // Get the value of the trigger field
+      var triggerValue = this.value;
+      
+      // Clear fields based on trigger value
+      if (triggerValue === 'clear') {
+        addressInput.value = "";
+        subnetInput.value = "";
+        gatewayInput.value = "";
+      }
+    });
+
+    document.getElementById("editIP").addEventListener("change", function() {
+      // Get the checkbox state to enable the IP fields.
+      var editEnabled = document.getElementById("editIP").checked;
+
+      // Enable or disable based on checkbox state.
+      addressInput.disabled = !editEnabled;
+      subnetInput.disabled = !editEnabled;
+      gatewayInput.disabled = !editEnabled;
+    });
 
     function saveSettings() {
       var wEnabled = document.getElementById("enabled").checked ? true : false;
