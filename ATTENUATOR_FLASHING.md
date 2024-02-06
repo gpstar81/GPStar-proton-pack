@@ -10,7 +10,7 @@ Just as you used the gpstar flashing utility for Windows or MacOS to upload to y
 
 ## For ESP32
 
-This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller. **However, the software which enables the WiFi access point isn't yet loaded so you'll need to follow a specific process for the initial upload to your device.**
+This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller (prefix: "ProtonPack_"). **However, the software which enables the WiFi access point isn't yet loaded so you'll need to follow a specific process for the initial upload to your device.**
 
 **Troubleshooting:** If your ESP32 controller does not appear as a serial device it may be required to install a driver for the "CP210x USB to UART Bridge" onto your computer. A driver for Windows and macOS is available [via Silicon Labs](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads) and has proved useful.
 
@@ -18,9 +18,9 @@ This device supports Over-The-Air (OTA) updates for firmware, meaning you will n
 
 ### ESP32: First-Time Upload
 
-If you do not see a WiFi network for your Proton Pack, the device has likely not been flashed with the GPStar firmware to enable that feature. You will need to upload the software using a USB cable via either of the 2 methods listed here.
+If you are using your own ESP32 controller or do not see a WiFi network for your Proton Pack when the device is powered up, then the microcontroller has likely not been flashed with the GPStar firmware to enable that feature. You will need to upload the software using a USB cable via **either** of the 2 methods listed here.
 
-**Via Web Uploader**
+**Option 1: Via Web Uploader**
 
 This uses a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.
 
@@ -38,7 +38,7 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 	* 0x10000 &rarr; [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
 1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
 
-**Via Command-Line**
+**Option 2: Via Command-Line**
 
 You will need to utilize a command-line tool to upload the firmware to your device from your local computer.
 
@@ -60,7 +60,6 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 	python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m
 	0x1000 Attenuator-ESP32-bootloader.bin 0x8000 Attenuator-ESP32-partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
 	`
-
 📝 **Tip:** To find your device on Linux it may be necessary to use the `lsusb` utility to list attached USB devices. For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices. For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
 
 These guides may be of some help as a reference:
@@ -70,9 +69,9 @@ These guides may be of some help as a reference:
 
 ### ESP32: Standard Updates (After the First-Time Upload)
 
-This applies to ALL updates after the first-time upload of the firmware for the device, when the private WiFi network for the Proton Pack is available via the custom firmware.
+This applies to all updates you will perform AFTER the first-time upload of the firmware for the device, when the private WiFi network for the Proton Pack is available via the custom firmware.
 
-1. Power up your Proton Pack and device.
+1. Power up your Proton Pack and ESP32 device (whether standalone or as part of the Attenuator hardware).
 1. Open the WiFi preferences on your computer/device and look for the SSID which begins **"ProtonPack_"**.
 	* If this is your first connection to this access point, use the default password **"555-2368"**.
 1. Navigate directly to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
