@@ -68,6 +68,8 @@ uint8_t i_curr_colour[4] = { 0, 0, 0, 0 };
 uint8_t i_count[4] = { 0, 0, 0, 0 };
 
 uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) {
+  // Toggle indicates use of Video Game colors, which is based on the firing mode.
+  // Otherwise a default color will be used based on the device itself.
   if(b_toggle == true) {
     switch(i_firing_mode) {
         case PROTON:

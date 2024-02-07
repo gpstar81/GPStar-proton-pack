@@ -40,7 +40,12 @@
 #define FRUTTO_CYCLOTRON_LED_COUNT 20
 
 /*
- * Set the number of steps for the Outer Cyclotron.
+ * Set the number of steps for the Inner Cyclotron (cake).
+ */
+#define INNER_CYCLOTRON_CAKE_LED_MAX 35
+
+/*
+ * Set the number of steps for the Outer Cyclotron (lid).
  */
 #define OUTER_CYCLOTRON_LED_MAX 40
 
@@ -50,7 +55,7 @@
 #define JEWEL_NFILTER_LED_COUNT 7
 
  /*
- * Total number of LEDs in the Proton Pack
+ * Total number of LEDs in the standard Proton Pack configuration.
  * Power Cell and Cyclotron Lid LEDs + optional N-Filter NeoPixel.
  * 25 LEDs in the stock HasLab kit. 13 in the Power Cell and 12 in the Cyclotron lid.
  * 7 additional (32 in total) for a NeoPixel jewel that you can put into the N-Filter (optional).
@@ -59,7 +64,7 @@
  */
 const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
-const uint8_t i_max_inner_cyclotron_leds = 35;
+const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX;
 
 /*
  * Updated count of all the LEDs plus the N-Filter jewel.
@@ -72,11 +77,6 @@ uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_
  * This gets updated by the system if the wand changes the LED count in the EEPROM menu system.
  */
 uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
-
-/*
- * The HasLab Cyclotron Lid has 12 LEDs.
- */
-#define HASLAB_CYCLOTRON_LED_COUNT 12
 
 // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in the Configuration.h
 unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for the Frutto Technology Cyclotron or 7 for a 40 LED NeoPixel ring.
@@ -93,15 +93,11 @@ CRGB pack_leds[i_max_pack_leds + i_nfilter_jewel_leds];
 /*
  * Inner Cyclotron LEDs (optional).
  * Max number of LEDs supported = 35.
+ * Maximum allowed LEDs for the Inner Cyclotron Cake is 35.
  * Uses pin 13.
- * Maximum allowed LEDs for the Inner Cyclotron is 35.
  */
-#define CYCLOTRON_NUM_LEDS 35
 #define CYCLOTRON_LED_PIN 13
-CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
-
-#define HASLAB_CYCLOTRON_LEDS 12
-#define HASLAB_POWERCELL_LEDS 13
+CRGB cyclotron_leds[i_max_inner_cyclotron_leds];
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -109,9 +105,9 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
  * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
  */
 const uint8_t i_fast_led_delay = 6;
+const uint16_t i_fast_led_bounce_delay = 200;
 millisDelay ms_fast_led;
 millisDelay ms_fast_led_bounce;
-const unsigned int i_fast_led_bounce_delay = 200;
 
 /*
  * Power Cell LEDs control.
