@@ -106,8 +106,8 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, i_max_pack_leds + i_nfilter_jewel_leds);
 
   // Inner Cyclotron LEDs.
-  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, CYCLOTRON_NUM_LEDS);
-  //FastLED.setMaxPowerInVoltsAndMilliamps(5, 800);  // Limit draw to 800mA at 5v of power. Enabling this can cause some flickering of the LEDs.
+  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, i_max_inner_cyclotron_leds);
+  //FastLED.setMaxPowerInVoltsAndMilliamps(5, 800); // Limit draw to 800mA at 5v of power. Enabling this can cause some flickering of the LEDs.
 
   // Cyclotron Switch Panel LEDs
   pinMode(cyclotron_sw_plate_led_r1, OUTPUT);
@@ -1573,7 +1573,7 @@ void spectralLightsOff() {
     pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
   }
 
-  for(int i = 0; i < i_max_inner_cyclotron_leds; i++) {
+  for(int i = 0; i < i_inner_cyclotron_num_leds; i++) {
     if(b_grb_cyclotron == true) {
       cyclotron_leds[i] = getHueAsGRB(CYCLOTRON_INNER, C_BLACK);
     }
@@ -3068,7 +3068,6 @@ void innerCyclotronRing(int cDelay) {
     if(b_clockwise == true) {
       if(b_cyclotron_lid_on != true) {
         if(b_grb_cyclotron == true) {
-          // For GRB LEDs.
           cyclotron_leds[i_led_cyclotron_ring] = getHueAsGRB(CYCLOTRON_INNER, i_colour_scheme, i_brightness);
         }
         else {
@@ -3091,7 +3090,6 @@ void innerCyclotronRing(int cDelay) {
     }
     else {
       if(b_cyclotron_lid_on != true) {
-        // For GRB LEDs.
         if(b_grb_cyclotron == true) {
           cyclotron_leds[i_led_cyclotron_ring] = getHueAsGRB(CYCLOTRON_INNER, i_colour_scheme, i_brightness);
         }
