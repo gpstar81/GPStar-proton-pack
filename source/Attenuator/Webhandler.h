@@ -264,11 +264,20 @@ String getWifiSettings() {
 
   preferences.begin("network", true); // Access namespace in read-only mode.
   jsonBody["enabled"] = preferences.getBool("enabled", false);
-  jsonBody["network"] = preferences.getString("ssid", "");
-  jsonBody["password"] = preferences.getString("password", "");
-  jsonBody["address"] = preferences.getString("address", wifi_address);
-  jsonBody["subnet"] = preferences.getString("subnet", wifi_subnet);
-  jsonBody["gateway"] = preferences.getString("gateway", wifi_gateway);
+  jsonBody["network"] = preferences.getString("ssid");
+  jsonBody["password"] = preferences.getString("password");
+  jsonBody["address"] = preferences.getString("address");
+  if(jsonBody["address"] == ""){
+    jsonBody["address"] = wifi_address;
+  }
+  jsonBody["subnet"] = preferences.getString("subnet");
+  if(jsonBody["subnet"] == ""){
+    jsonBody["subnet"] = wifi_subnet;
+  }
+  jsonBody["gateway"] = preferences.getString("gateway");
+  if(jsonBody["gateway"] == ""){
+    jsonBody["gateway"] = wifi_gateway;
+  }
   preferences.end();
 
   // Serialize JSON object to string.

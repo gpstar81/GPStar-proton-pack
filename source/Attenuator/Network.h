@@ -94,7 +94,7 @@ const char NETWORK_page[] PROGMEM = R"=====(
         if (this.readyState == 4 && this.status == 200) {
           var settings = JSON.parse(this.responseText);
           if (settings) {
-            document.getElementById("enabled").checked = settings.enabled ? true: false;
+            document.getElementById("enabled").checked = settings.enabled ? true : false;
             document.getElementById("network").value = settings.network || "";
             document.getElementById("password").value = settings.password || "";
             document.getElementById("address").value = settings.address || "";

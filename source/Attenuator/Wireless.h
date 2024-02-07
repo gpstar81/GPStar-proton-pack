@@ -186,7 +186,7 @@ bool startAccesPoint() {
     WiFi.softAPConfig(localIP, gateway, subnet, dhcpStart);
     WiFi.softAPsetHostname(ap_ssid_prefix.c_str());
     #if defined(DEBUG_WIRELESS_SETUP)
-      Serial.print("AP Name SSID: ");
+      Serial.print("AP Name/SSID: ");
       Serial.println(WiFi.softAPSSID());
       Serial.print("AP IP Address: ");
       Serial.println(WiFi.softAPIP());
@@ -261,6 +261,17 @@ bool startWiFi() {
       if (WiFi.status() == WL_CONNECTED) {
         // Configure static IP values for tis device on the preferred network.
         if(wifi_address.length() >= 7 && wifi_subnet.length() >= 7 && wifi_gateway.length() >= 7) {
+          #if defined(DEBUG_WIRELESS_SETUP)          
+            Serial.print("Using Stored IP: ");
+            Serial.print(wifi_address);
+            Serial.print(" / ");
+            Serial.println(wifi_subnet);
+          #endif
+
+          if(wifi_gateway.length() < 7) {
+            wifi_gateway = wifi_address;
+          }
+
           IPAddress staticIP = convertToIP(wifi_address);
           IPAddress gateway = convertToIP(wifi_gateway);
           IPAddress subnet = convertToIP(wifi_subnet);
