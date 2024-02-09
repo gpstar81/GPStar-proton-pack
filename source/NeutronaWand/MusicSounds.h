@@ -354,10 +354,12 @@ enum sound_fx {
   S_MESON_FIRE_PULSE,
   S_MESON_IDLE_LOOP,
   S_WAND_SHUTDOWN_ALT,
-  S_WAND_BOOTUP
+  S_WAND_BOOTUP,
+  S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT,
+  S_VOICE_PROTON_PACK_VIBRATION_DEFAULT
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_WAND_BOOTUP;
+const unsigned int i_last_effects_track = S_VOICE_PROTON_PACK_VIBRATION_DEFAULT;

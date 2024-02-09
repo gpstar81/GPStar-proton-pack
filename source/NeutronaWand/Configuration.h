@@ -81,10 +81,9 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 bool b_bargraph_invert = false;
 
 /*
- * If the Frutto vent light has been installed, uncomment the line below
- * to enable special brightness controls during idle and firing modes.
+ * Enables special brightness controls during idle and firing modes if set to true.
  */
-bool b_vent_light_control = false;
+bool b_vent_light_control = true;
 
 /*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.

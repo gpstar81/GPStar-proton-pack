@@ -245,7 +245,7 @@ To access the Menu Level 2, use the `Top Dial` on the top of the wand to move do
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
 | 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>4</sup> | Cycle through VG colour modes <sup>5</sup> |
-| 4 | Smoke/Overheat&nbsp;Toggles | Enable/Disable Smoke Effects | Enable/Disable Overheating |
+| 4 | Overheating / Smoke | Enable/Disable Overheating Ability | Enable/Disable Smoke Effects |
 | 3 | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron Rotation | Toggle between 1 (centered) or 3 LEDs in the Cyclotron Lid for 1984/1989 modes |
 | 2 | Vibration Settings | Enable/Disable Proton Pack vibration or vibration during firing | Enable/Disable Neutrona Wand vibration or vibration during firing |
 | 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes | Enable/Disable the Proton Stream impact sound effects |

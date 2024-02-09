@@ -485,8 +485,8 @@ void checkWandAction() {
 
         // Menu Level 1: Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
         // Menu Level 1: Barrel Wing Button: Enable Spectral and Holiday modes.
-        // Menu Level 2: Intensify: Vent Light Auto Intensity.
-        // Menu Level 2: Barrel Wing Button: 5 / 48 / 60 barrel LEDs.
+        // Menu Level 2: Intensify: Enable pack vibration, enable pack vibration while firing only, disable pack vibration, reset to defaults. *Note that the pack vibration switch will toggle both pack and wand vibration on or off*
+        // Menu Level 2: Barrel Wing Button: Enable wand vibration, enable wand vibration while firing only, disable wand vibration, reset to defaults.
         // Menu Level 3: Intensify: Invert Bargraph
         // Menu Level 3: Barrel Wing Button: Toggle Bargraph Overheat Blinking enabled/disabled
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 4
@@ -501,24 +501,7 @@ void checkWandAction() {
               toggleWandModes();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              if(b_vent_light_control == true) {
-                b_vent_light_control= false;
-
-                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-                playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-
-                wandSerialSend(W_VENT_LIGHT_INTENSITY_DISABLED);
-              }
-              else {
-                b_vent_light_control = true;
-
-                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-                playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-
-                wandSerialSend(W_VENT_LIGHT_INTENSITY_ENABLED);
-              }
+              wandSerialSend(W_VIBRATION_CYCLE_TOGGLE_EEPROM);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               if(b_bargraph_invert == true) {
@@ -606,29 +589,80 @@ void checkWandAction() {
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              switch(WAND_BARREL_LED_COUNT) {
-                case LEDS_5:
+              stopEffect(S_BEEPS_ALT);
+
+              playEffect(S_BEEPS_ALT);
+
+              switch(VIBRATION_MODE_EEPROM) {
+                case VIBRATION_DEFAULT:
                 default:
-                  i_num_barrel_leds = 48;
-                  WAND_BARREL_LED_COUNT = LEDS_48;
+                  VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+                  b_vibration_firing = false;
+                  b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  stopEffect(S_VOICE_BARREL_LED_48);
-                  playEffect(S_VOICE_BARREL_LED_48);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
-                  wandSerialSend(W_BARREL_LEDS_48);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+
+                  wandSerialSend(W_VIBRATION_ENABLED);
+
+                  analogWrite(vibration, 150);
+                  delay(250);
+                  analogWrite(vibration, 0);
                 break;
+                case VIBRATION_ALWAYS:
+                  VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+                  b_vibration_firing = true;
+                  b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
-                // 48 LED wand barrel board coming soon.
-                case LEDS_48:
-                  i_num_barrel_leds = 5;
-                  WAND_BARREL_LED_COUNT = LEDS_5;
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  stopEffect(S_VOICE_BARREL_LED_48);
-                  playEffect(S_VOICE_BARREL_LED_5);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
 
-                  wandSerialSend(W_BARREL_LEDS_5);
+                  wandSerialSend(W_VIBRATION_FIRING_ENABLED);
+
+                  analogWrite(vibration, 150);
+                  delay(250);
+                  analogWrite(vibration, 0);
+                break;
+                case VIBRATION_FIRING_ONLY:
+                  VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+                  b_vibration_on = false;
+                  b_vibration_firing = false;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+
+                  wandSerialSend(W_VIBRATION_DISABLED);
+                break;
+                case VIBRATION_NONE:
+                  VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+                  b_vibration_on = true;
+                  b_vibration_firing = true;
+                  b_vibration_enabled = true; // TODO: Figure out how to ask Proton Pack for its switch state?
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
+
+                  wandSerialSend(W_VIBRATION_DEFAULT);
+
+                  analogWrite(vibration, 150);
+                  delay(250);
+                  analogWrite(vibration, 0);
                 break;
               }
             }
@@ -1146,8 +1180,8 @@ void checkWandAction() {
 
         // Menu Level 1: (Intensify + Top dial) -> Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
         // Menu Level 1: (Barrel Wing Button) -> Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
-        // Menu Level 2: (Intensify) -> Enable or disable smoke for the Proton Pack.
-        // Menu Level 2: (Barrel Wing Button) -> Enable or disable overheating.
+        // Menu Level 2: (Intensify) -> Enable or disable overheating.
+        // Menu Level 2: (Barrel Wing Button) -> Enable or disable smoke for the Proton Pack.
         case 4:
           // Adjust the Proton Pack / Neutrona Wand sound effects volume.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1158,17 +1192,17 @@ void checkWandAction() {
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-            // Enable or disable smoke for the Proton Pack.
+            // Enable or disable overheating.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              // Tell the Proton Pack to toggle the smoke on or off.
-              wandSerialSend(W_SMOKE_TOGGLE);
+              toggleOverHeating();
             }
 
-            // Enable or disable overheating.
+            // Enable or disable smoke for the Proton Pack.
             if(switchMode() == true) {
-              toggleOverHeating();
+              // Tell the Proton Pack to toggle the smoke on or off.
+              wandSerialSend(W_SMOKE_TOGGLE);
             }
           }
         break;
@@ -1196,7 +1230,7 @@ void checkWandAction() {
 
         // Menu Level 1: (Intensify) -> Go to next music track.
         // Menu Level 1: (Barrel Wing Button) -> Go to previous music track.
-        // Menu Level 2: (Intensify) -> Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
+        // Menu Level 2: (Intensify) -> Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibration on or off*
         // Menu Level 2: (Barrel Wing Button) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
         case 2:
           // Change music tracks.
@@ -1236,9 +1270,6 @@ void checkWandAction() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              stopEffect(S_BEEPS_ALT);
-              playEffect(S_BEEPS_ALT);
-
               wandSerialSend(W_VIBRATION_CYCLE_TOGGLE);
             }
 
@@ -1261,7 +1292,7 @@ void checkWandAction() {
 
                 analogWrite(vibration, 150);
                 delay(250);
-                analogWrite(vibration,0);
+                analogWrite(vibration, 0);
               }
               else if(b_vibration_on == true && b_vibration_firing != true) {
                 b_vibration_firing = true;
@@ -1277,7 +1308,7 @@ void checkWandAction() {
 
                 analogWrite(vibration, 150);
                 delay(250);
-                analogWrite(vibration,0);
+                analogWrite(vibration, 0);
               }
               else {
                 b_vibration_on = false;
