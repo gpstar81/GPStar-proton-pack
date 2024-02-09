@@ -33,7 +33,7 @@
 /*
  * Function prototypes.
  */
-void readLedEEPROM();
+void readEEPROM();
 void clearConfigEEPROM();
 void clearLedEEPROM();
 void saveConfigEEPROM();
@@ -104,7 +104,7 @@ struct objConfigEEPROM {
 /*
  * Read all user preferences from Proton Pack controller EEPROM.
  */
-void readLedEEPROM() {
+void readEEPROM() {
   // Get the stored CRC from the EEPROM.
   unsigned long l_crc_check;
   EEPROM.get(EEPROM.length() - sizeof(l_crc_size), l_crc_check);
@@ -429,20 +429,20 @@ void readLedEEPROM() {
         case 3:
           b_vibration_enabled = false;
           b_vibration_firing = false;
-          b_vibration = false;
+          b_vibration_on = false;
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;         
         break;
 
         case 2:
           b_vibration_enabled = true;
-          b_vibration = true;
+          b_vibration_on = true;
           b_vibration_firing = true;
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;          
         break;
 
         case 1:
           b_vibration_enabled = true;
-          b_vibration = true;
+          b_vibration_on = true;
           b_vibration_firing = false;
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;          
         break;

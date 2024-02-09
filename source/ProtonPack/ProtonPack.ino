@@ -135,6 +135,9 @@ void setup() {
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
   SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
+  
+  // Set default vibration mode.
+  VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
 
   resetRampSpeeds();
 
@@ -182,7 +185,7 @@ void setup() {
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
-    readLedEEPROM();
+    readEEPROM();
   }
 
   if(SYSTEM_MODE == MODE_SUPER_HERO) {
@@ -3703,7 +3706,7 @@ void cyclotronSwitchPlateLEDs() {
       digitalWrite(cyclotron_switch_led_green, HIGH);
     }
 
-    if(b_vibration == true) {
+    if(b_vibration_on == true) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
         digitalWrite(cyclotron_switch_led_yellow, HIGH);
       }
@@ -3727,7 +3730,7 @@ void cyclotronSwitchPlateLEDs() {
 }
 
 void vibrationPack(int i_level) {
-  if(b_vibration == true && b_vibration_enabled == true) {
+  if(b_vibration_on == true && b_vibration_enabled == true) {
     if(b_vibration_firing == true) {
       if(b_wand_firing == true) {
         if(i_level != i_vibration_level_prev) {

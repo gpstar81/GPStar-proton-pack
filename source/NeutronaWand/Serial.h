@@ -947,6 +947,7 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
 
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
     break;
@@ -960,6 +961,7 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
 
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
     break;
@@ -973,8 +975,23 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
 
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+    break;
+
+    case P_PACK_VIBRATION_DEFAULT:
+      // Proton Pack Vibration EEPROM reset to default.
+      stopEffect(S_BEEPS_ALT);
+
+      playEffect(S_BEEPS_ALT);
+
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+
+      playEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
     break;
 
     case P_YEAR_1984:

@@ -495,20 +495,20 @@ void checkSerial1() {
           switch(packConfig.packVibration) {
             case 1:
               b_vibration_enabled = true;
-              b_vibration = true;
+              b_vibration_on = true;
               b_vibration_firing = false;
               VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;          
             break;
             case 2:
               b_vibration_enabled = true;
-              b_vibration = true;
+              b_vibration_on = true;
               b_vibration_firing = true;
               VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;          
             break;
             case 3:
               b_vibration_enabled = false;
               b_vibration_firing = false;
-              b_vibration = false;
+              b_vibration_on = false;
               VIBRATION_MODE_EEPROM = VIBRATION_NONE;         
             break;
             case 4:
@@ -2141,6 +2141,7 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
       stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
       stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
       playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
     break;
@@ -2154,6 +2155,7 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
       stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
       stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
       playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
     break;
@@ -2167,8 +2169,31 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
       stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
       stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
       playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+    break;
+
+    case W_VIBRATION_DEFAULT:
+      // Neutrona Wand vibration reset to defaults.
+      stopEffect(S_BEEPS_ALT);
+
+      playEffect(S_BEEPS_ALT);
+
+      stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+      stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+      stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
+
+      playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
+
+      // Tell the Wand what state the vibration switch is in
+      if(switch_vibration.getState() == LOW) {
+        packSerialSend(P_VIBRATION_ENABLED);
+      }
+      else {
+        packSerialSend(P_VIBRATION_DISABLED);
+      }
     break;
 
     case W_VIBRATION_CYCLE_TOGGLE:
@@ -2176,8 +2201,8 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
 
       playEffect(S_BEEPS_ALT);
 
-      if(b_vibration == false) {
-        b_vibration = true;
+      if(b_vibration_on == false) {
+        b_vibration_on = true;
         b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
         // Proton Pack vibration enabled.
@@ -2191,9 +2216,9 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
 
         analogWrite(vibration, 150);
         delay(250);
-        analogWrite(vibration,0);
+        analogWrite(vibration, 0);
       }
-      else if(b_vibration == true && b_vibration_firing != true) {
+      else if(b_vibration_on == true && b_vibration_firing != true) {
         b_vibration_firing = true;
         b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
@@ -2208,11 +2233,11 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
 
         analogWrite(vibration, 150);
         delay(250);
-        analogWrite(vibration,0);
+        analogWrite(vibration, 0);
       }
       else {
         b_vibration_firing = false;
-        b_vibration = false;
+        b_vibration_on = false;
 
         // Proton Pack vibration disabled.
         stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
@@ -2222,6 +2247,96 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
         playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
 
         packSerialSend(P_PACK_VIBRATION_DISABLED);
+      }
+    break;
+
+    case W_VIBRATION_CYCLE_TOGGLE_EEPROM:
+      stopEffect(S_BEEPS_ALT);
+
+      playEffect(S_BEEPS_ALT);
+
+      switch(VIBRATION_MODE_EEPROM) {
+        case VIBRATION_DEFAULT:
+        default:
+          VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+          b_vibration_firing = false;
+          b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+
+          // Proton Pack vibration enabled.
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+
+          playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+
+          packSerialSend(P_PACK_VIBRATION_ENABLED);
+
+          analogWrite(vibration, 150);
+          delay(250);
+          analogWrite(vibration, 0);
+        break;
+        case VIBRATION_ALWAYS:
+          VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+          b_vibration_firing = true;
+          b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+
+          // Proton Pack vibration firing enabled.
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+
+          playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+
+          packSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
+
+          analogWrite(vibration, 150);
+          delay(250);
+          analogWrite(vibration, 0);
+        break;
+        case VIBRATION_FIRING_ONLY:
+          VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+          b_vibration_on = false;
+          b_vibration_firing = false;
+
+          // Proton Pack vibration disabled.
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+
+          playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+
+          packSerialSend(P_PACK_VIBRATION_DISABLED);
+        break;
+        case VIBRATION_NONE:
+          VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+          b_vibration_on = true;
+          b_vibration_firing = true;
+
+          // Reset the vibration state.
+          if(switch_vibration.getState() == LOW) {
+            b_vibration_enabled = true;
+          }
+          else {
+            b_vibration_enabled = false;
+          }
+
+          // Proton Pack vibration firing enabled.
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+
+          playEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+
+          packSerialSend(P_PACK_VIBRATION_DEFAULT);
+
+          analogWrite(vibration, 150);
+          delay(250);
+          analogWrite(vibration, 0);
+        break;
       }
     break;
 
