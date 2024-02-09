@@ -362,49 +362,6 @@ void packSerialSendData(uint16_t i_message) {
 
   // Provide additional data with certain messages.
   switch(i_message) {
-    case P_SYNC_START:
-      // Send crucial mode/theme data with this packet.
-      switch(SYSTEM_MODE) {
-        case MODE_ORIGINAL:
-          sendDataW.d[0] = 1;
-
-          if(switch_power.getState() == LOW) {
-            sendDataW.d[1] = 1; // Tell the Neutrona Wand that power to the Proton Pack is on.
-          }
-          else {
-            sendDataW.d[1] = 0; // Tell the Neutrona Wand that power to the Proton Pack is off.
-          }
-        break;
-
-        case MODE_SUPER_HERO:
-        default:
-          sendDataW.d[0] = 0;
-          sendDataW.d[1] = 0; // This is only applicable to the Mode Original, so default to off.
-        break;
-      }
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_1984:
-          sendDataW.d[2] = 0;
-        break;
-
-        case SYSTEM_1989:
-          sendDataW.d[2] = 1;
-        break;
-
-        case SYSTEM_AFTERLIFE:
-        default:
-          sendDataW.d[2] = 2;
-        break;
-
-        case SYSTEM_FROZEN_EMPIRE:
-          sendDataW.d[2] = 3;
-        break;
-      }
-
-      i_send_size = packComs.txObj(sendDataW);
-      packComs.sendData(i_send_size, (uint8_t) PACKET_DATA);
-    break;
-
     case P_VOLUME_SYNC:
       // Send the current volume levels.
       sendDataW.d[0] = i_volume_master_percentage;
@@ -1042,13 +999,59 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
         // This will be cleared once the wand responds back that it has been synchronized.
         b_wand_syncing = true;
 
+        if(b_diagnostic == true) {
+          // While in diagnostic mode, play a sound to indicate the wand is synchronized.
+          playEffect(S_BEEPS);
+        }
+
         // Begin the synchronization process which tells the wand the pack got the handshake.
         debugln("Wand Sync Start");
-        packSerialSendData(P_SYNC_START);
+        packSerialSend(P_SYNC_START);
 
         // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
         if(b_overheating == true) {
           packOverHeatingFinished();
+        }
+
+        // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
+        switch(SYSTEM_MODE) {
+          case MODE_ORIGINAL:
+            packSerialSend(P_MODE_ORIGINAL);
+
+            if(switch_power.getState() == LOW) {
+              // Tell the Neutrona Wand that power to the Proton Pack is on.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
+            }
+            else {
+              // Tell the Neutrona Wand that power to the Proton Pack is off.
+              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+            }
+          break;
+
+          case MODE_SUPER_HERO:
+          default:
+            packSerialSend(P_MODE_SUPER_HERO);
+
+            // This is only applicable to the Mode Original, so default to off.
+            packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+          break;
+        }
+
+        // Make sure to send this after the system (operation) mode is sent.
+        switch(SYSTEM_YEAR) {
+          case SYSTEM_1984:
+            packSerialSend(P_YEAR_1984);
+          break;
+          case SYSTEM_1989:
+            packSerialSend(P_YEAR_1989);
+          break;
+          case SYSTEM_AFTERLIFE:
+          default:
+            packSerialSend(P_YEAR_AFTERLIFE);
+          break;
+          case SYSTEM_FROZEN_EMPIRE:
+            packSerialSend(P_YEAR_FROZEN_EMPIRE);
+          break;
         }
 
         // Sync the current music track.
@@ -1168,17 +1171,15 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
         packSerialSend(P_SYNC_END);
         debugln("Wand Sync End");
 
+        b_wand_connected = true; // Remember that a wand has been connected.
+        b_wand_syncing = false; // Indicate completion of wand sync process.
+
         // Tell the serial1 device the wand is (re-)connected.
         serial1Send(A_WAND_CONNECTED);
-
-        if(b_diagnostic == true) {
-          // While in diagnostic mode, play a sound to indicate the wand is synchronized.
-          playEffect(S_BEEPS);
-        }
       }
       else if(b_wand_connected) {
-        debugln("Recv. Wand Handshake");
-        b_wand_syncing = true; // No longer attempting to force a sync w/ wand.
+        // debugln("Recv. Wand Handshake");
+        b_wand_syncing = false; // No longer attempting to force a sync w/ wand.
 
         // Wand was connected and still present, so reset the disconnection delay.
         ms_wand_check.start(i_wand_disconnect_delay);
@@ -1195,8 +1196,7 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
 
     case W_SYNCHRONIZED:
       debugln("Wand Synchronized");
-      b_wand_connected = true; // Remember that a wand has been connected.
-      b_wand_syncing = false; // Indicate completion of wand sync process.
+      b_wand_connected = true; // Truly indicates the wand responded.
     break;
 
     case W_ON:
