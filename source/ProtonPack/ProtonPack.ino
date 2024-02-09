@@ -142,8 +142,8 @@ void setup() {
   ms_cyclotron.start(i_current_ramp_speed);
   ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
-  ms_wand_disconnect.start(int(i_wand_disconnect_delay / 4));
-  ms_serial1_handshake.start(int(i_serial1_handshake_delay / 2));
+  ms_wand_check.start(i_wand_disconnect_delay);
+  ms_serial1_handshake.start(i_serial1_handshake_delay);
   ms_fast_led.start(i_fast_led_delay);
   ms_battcheck.start(500);
 
@@ -182,7 +182,7 @@ void setup() {
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
-    readEEPROM();
+    readLedEEPROM();
   }
 
   if(SYSTEM_MODE == MODE_SUPER_HERO) {
@@ -465,7 +465,7 @@ void loop() {
           // Turn on some smoke and play some vent sounds if smoke is enabled.
           if(b_smoke_enabled == true) {
             // Turn on some smoke.
-            smokeControl(true);
+            smokeNFilter(true);
 
             // Play some sounds with the smoke and vent lighting.
             if(b_vent_sounds == true) {
@@ -474,7 +474,7 @@ void loop() {
               b_vent_sounds = false;
             }
 
-            fanControl(true);
+            fanNFilter(true);
             fanBooster(true);
           }
 
@@ -496,10 +496,10 @@ void loop() {
           ventLightLEDW(true);
         }
         else {
-          smokeControl(false);
+          smokeNFilter(false);
           ventLight(false);
           ventLightLEDW(false);
-          fanControl(false);
+          fanNFilter(false);
           fanBooster(false);
         }
       }
@@ -837,12 +837,12 @@ void packShutdown() {
   ms_vent_light_on.stop();
 
   // Turn off any smoke.
-  smokeControl(false);
+  smokeNFilter(false);
   ms_smoke_timer.stop();
   ms_smoke_on.stop();
 
   // Turn off the fans.
-  fanControl(false);
+  fanNFilter(false);
   fanBooster(false);
 
   // Turn off the Cyclotron auto speed timer.
@@ -1396,7 +1396,7 @@ void cyclotronSwitchLEDLoop() {
 }
 
 void powercellRampDown() {
- if(ms_powercell.justFinished()) {
+  if(ms_powercell.justFinished()) {
     int i_extra_delay = 0;
 
     // Power Cell
@@ -1764,11 +1764,11 @@ void cyclotronControl() {
 
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       cyclotron1984(i_current_ramp_speed);
-      innerCyclotronRing(i_inner_current_ramp_speed);
+      innerCyclotronRingUpdate(i_inner_current_ramp_speed);
     }
     else {
       cyclotron2021(i_current_ramp_speed);
-      innerCyclotronRing(i_inner_current_ramp_speed);
+      innerCyclotronRingUpdate(i_inner_current_ramp_speed);
     }
   }
 
@@ -2659,7 +2659,7 @@ void cyclotron84LightOff(int cLed) {
 
 void cyclotronOverHeating() {
   if(b_overheat_sync_to_fan != true) {
-    smokeControl(true);
+    smokeNFilter(true);
   }
 
   if(ms_overheating.justFinished()) {
@@ -2693,7 +2693,7 @@ void cyclotronOverHeating() {
     }
 
     if(b_overheat_sync_to_fan != true) {
-      smokeControl(false);
+      smokeNFilter(false);
     }
   }
 
@@ -2717,12 +2717,12 @@ void cyclotronOverHeating() {
         }
       }
 
-      innerCyclotronRing(i_2021_inner_delay * 14);
+      innerCyclotronRingUpdate(i_2021_inner_delay * 14);
     break;
 
     case SYSTEM_1984:
     case SYSTEM_1989:
-      innerCyclotronRing(i_2021_inner_delay * 14);
+      innerCyclotronRingUpdate(i_2021_inner_delay * 14);
 
       if(ms_alarm.justFinished()) {
         ms_alarm.start(i_1984_delay / 2);
@@ -2759,11 +2759,11 @@ void cyclotronOverHeating() {
   //if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
   if(ms_overheating_length.isRunning()) {
     if(b_overheat_sync_to_fan == true) {
-      smokeControl(true);
+      smokeNFilter(true);
     }
 
     // Turn the fans on.
-    fanControl(true);
+    fanNFilter(true);
     fanBooster(true);
 
     // For strobing the vent light.
@@ -2814,10 +2814,10 @@ void packOverHeatingFinished() {
   b_overheating = false;
 
   // Turn off the smoke.
-  smokeControl(false);
+  smokeNFilter(false);
 
   // Stop the fans.
-  fanControl(false);
+  fanNFilter(false);
   fanBooster(false);
 
   // Reset the LEDs before resetting the alarm flag.
@@ -2853,7 +2853,7 @@ void cyclotronNoCable() {
     case SYSTEM_FROZEN_EMPIRE:
     default:
       cyclotron2021(i_2021_delay * 10);
-      innerCyclotronRing(i_2021_inner_delay * 14);
+      innerCyclotronRingUpdate(i_2021_inner_delay * 14);
 
       if(ms_alarm.justFinished()) {
         ventLight(false);
@@ -2872,7 +2872,7 @@ void cyclotronNoCable() {
 
     case SYSTEM_1984:
     case SYSTEM_1989:
-      innerCyclotronRing(i_2021_inner_delay * 14);
+      innerCyclotronRingUpdate(i_2021_inner_delay * 14);
       cyclotron1984(i_1984_delay * 3);
 
       if(ms_alarm.justFinished()) {
@@ -2983,7 +2983,7 @@ void innerCyclotronOff() {
 }
 
 // For NeoPixel rings, ramp up and ramp down the LEDs in the ring and set the speed. (optional)
-void innerCyclotronRing(int cDelay) {
+void innerCyclotronRingUpdate(int cDelay) {
   if(ms_cyclotron_ring.justFinished()) {
     if(b_inner_ramp_up == true) {
       if(r_inner_ramp.isFinished()) {
@@ -3026,10 +3026,6 @@ void innerCyclotronRing(int cDelay) {
       ms_cyclotron_ring.start(cDelay);
     }
 
-    // Colour control for the Inner Cyclotron LEDs.
-    uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
-    uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, FIRING_MODE, b_cyclotron_colour_toggle);
-
     if(i_cyclotron_multiplier > 1) {
       switch(i_cyclotron_multiplier) {
         case 6:
@@ -3064,6 +3060,10 @@ void innerCyclotronRing(int cDelay) {
     if(cDelay < 2) {
       cDelay = 2;
     }
+
+    // Colour control for the Inner Cyclotron LEDs.
+    uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
+    uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, FIRING_MODE, b_cyclotron_colour_toggle);
 
     if(b_clockwise == true) {
       if(b_cyclotron_lid_on != true) {
@@ -3386,7 +3386,7 @@ void wandFiring() {
   }
 
   // Turn off any smoke.
-  smokeControl(false);
+  smokeNFilter(false);
 
   // Start a smoke timer to play a little bit of smoke while firing.
   ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
@@ -3483,10 +3483,10 @@ void wandStoppedFiring() {
   b_vent_sounds = true;
 
   // Turn off any smoke.
-  smokeControl(false);
+  smokeNFilter(false);
 
   // Turn off the fans.
-  fanControl(false);
+  fanNFilter(false);
   fanBooster(false);
 
   ms_firing_length_timer.stop();
@@ -4016,7 +4016,7 @@ void checkRotaryEncoder() {
 }
 
 // Smoke # 1. N-Filter cone outlet.
-void smokeControl(bool b_smoke_on) {
+void smokeNFilter(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_smoke_1_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
@@ -4057,6 +4057,28 @@ void smokeBooster(bool b_smoke_on) {
   }
 }
 
+// N-Filter Fan.
+// Fan control. You can use this to switch on any device when properly hooked up with a transistor etc.
+// A fan is a good idea for the N-Filter for example.
+void fanNFilter(bool b_fan_on) {
+  if(b_smoke_enabled == true) {
+    if(b_fan_on == true) {
+      if(b_wand_firing == true && b_overheating != true && b_fan_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(fan_pin, HIGH);
+      }
+      else if(b_overheating == true && b_wand_firing != true && b_fan_overheat == true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
+        digitalWrite(fan_pin, HIGH);
+      }
+      else {
+        digitalWrite(fan_pin, LOW);
+      }
+    }
+    else {
+      digitalWrite(fan_pin, LOW);
+    }
+  }
+}
+
 void fanBooster(bool b_fan_on) {
   if(b_smoke_enabled == true) {
     if(b_fan_on == true) {
@@ -4072,28 +4094,6 @@ void fanBooster(bool b_fan_on) {
     }
     else {
       digitalWrite(fan_booster_pin, LOW);
-    }
-  }
-}
-
-// N-Filter Fan.
-// Fan control. You can use this to switch on any device when properly hooked up with a transistor etc.
-// A fan is a good idea for the N-Filter for example.
-void fanControl(bool b_fan_on) {
-  if(b_smoke_enabled == true) {
-    if(b_fan_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_fan_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
-        digitalWrite(fan_pin, HIGH);
-      }
-      else if(b_overheating == true && b_wand_firing != true && b_fan_overheat == true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
-        digitalWrite(fan_pin, HIGH);
-      }
-      else {
-        digitalWrite(fan_pin, LOW);
-      }
-    }
-    else {
-      digitalWrite(fan_pin, LOW);
     }
   }
 }
@@ -4128,17 +4128,23 @@ void serial1HandShake() {
 
 // Check if the wand is still connected.
 void wandDisconnectCheck() {
+  // A wand was previously considered to be connected.
   if(b_wand_connected == true) {
-    // A wand was previously considered to be connected.
-    if(ms_wand_disconnect.justFinished()) {
-      // Timeout has expired, so we must assume the wand was disconnected.
-      debugln("Wand Disconnected");
+    if(ms_wand_check.justFinished()) {
+      // Timer just ran out, so we must assume the wand was disconnected.
+      // Serial.println("Wand Disconnected");
+
+      if(b_diagnostic == true) {
+        // While in diagnostic mode, play a sound to indicate the wand is disconnected.
+        playEffect(S_VENT_BEEP);
+      }
+
+      b_wand_connected = false; // Cause the next handshake to trigger a sync.
+      b_wand_syncing = true; // No longer attempting to force a sync w/ wand.
+      b_wand_on = false; // No wand means the device is no longer powered on.
 
       // Tell the serial1 device the wand was disconnected.
       serial1Send(A_WAND_DISCONNECTED);
-
-      b_wand_connected = false; // Cause the next handshake to trigger a sync.
-      b_wand_on = false; // No wand means the device is no longer powered on.
 
       if(b_wand_firing == true) {
         // Reset the pack to a non-firing state.
@@ -4159,11 +4165,21 @@ void wandDisconnectCheck() {
       }
     }
     else {
-      // Wand is connected and timer is still running, so do with that info what you will.
-      if(b_diagnostic == true) {
-        // Play a beep sound to know if the wand is connected while in diagnostic mode.
-        playEffect(S_VENT_BEEP, true);
+      if(ms_wand_check.remaining() < (i_wand_disconnect_delay / 4) && !b_wand_syncing) {
+        // At less than a quarter of the disconnect timeout, force a handshake with the wand.
+        b_wand_syncing = true;
+        packSerialSend(P_HANDSHAKE);
       }
+    }
+  }
+  else {
+    // Wand was disconnected or never present, so perform a routine check.
+    if(ms_wand_check.remaining() < 1) {
+      ms_wand_check.start(i_wand_disconnect_delay);
+
+      b_wand_syncing = false; // Not a true sync event yet.
+
+      packSerialSend(P_HANDSHAKE);
     }
   }
 }
