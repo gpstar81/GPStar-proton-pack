@@ -130,11 +130,11 @@ select {
   height: 40px;
   margin: 5px;
   padding: 6px 8px;
-  max-width: 200px;
-  min-width: 200px;
+  max-width: 180px;
+  min-width: 180px;
   text-align: center;
   touch-action: manipulation;
-  width: 200px;
+  width: 180px;
 }
 
 .custom-select {

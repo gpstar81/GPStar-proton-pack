@@ -372,8 +372,8 @@ bool b_wand_syncing = false;
 bool b_wand_on = false;
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
 uint8_t i_wand_power_level = 1; // Power level of the wand.
-millisDelay ms_wand_disconnect; // Timer used to determine whether the wand has been disconnected.
-const unsigned int i_wand_disconnect_delay = 3000; // Time until the pack considers a wand as disconnected.
+millisDelay ms_wand_check; // Timer used to determine whether the wand has been disconnected.
+const unsigned int i_wand_disconnect_delay = 4000; // Time until the pack considers a wand as disconnected.
 
 /*
  * Serial1 Status

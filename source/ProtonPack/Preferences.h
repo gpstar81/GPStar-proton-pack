@@ -33,7 +33,7 @@
 /*
  * Function prototypes.
  */
-void readEEPROM();
+void readLedEEPROM();
 void clearConfigEEPROM();
 void clearLedEEPROM();
 void saveConfigEEPROM();
@@ -104,7 +104,7 @@ struct objConfigEEPROM {
 /*
  * Read all user preferences from Proton Pack controller EEPROM.
  */
-void readEEPROM() {
+void readLedEEPROM() {
   // Get the stored CRC from the EEPROM.
   unsigned long l_crc_check;
   EEPROM.get(EEPROM.length() - sizeof(l_crc_size), l_crc_check);

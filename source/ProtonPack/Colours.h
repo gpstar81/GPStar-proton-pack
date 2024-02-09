@@ -226,6 +226,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
   // For colour cycles, i_cycle indicates how often to change colour.
   // This is device-dependent in order to provide a noticeable change.
+  // Value must be >0 as this is used with modulo (cannot mod by 0).
   uint8_t i_cycle = 2;
 
   switch(i_device){
