@@ -44,7 +44,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <h1>General Options</h1>
   <div class="block left">
     <div class="setting">
-      <b>Default Firing Mode:</b>
+      <b>Stream/Firing Mode:</b>
       <select id="defaultFiringMode" name="defaultFiringMode">
         <option value="1">Video Game</option>
         <option value="2">CTS</option>
@@ -52,9 +52,9 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Default Year Theme:</b>
+      &nbsp;&nbsp;<b>Wand Year Theme:</b>
       <select id="defaultYearModeWand" name="defaultYearModeWand">
-        <option value="1">Toggle</option>
+        <option value="1">Via Toggle</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
         <option value="4">Afterlife</option>
@@ -62,9 +62,9 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;Default CTS Mode:</b>
+      &nbsp;&nbsp;&nbsp;<b>Default CTS Mode:</b>
       <select id="defaultYearModeCTS" name="defaultYearModeCTS">
-        <option value="1">Toggle</option>
+        <option value="1">Via Toggle</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
         <option value="4">Afterlife</option>
@@ -72,7 +72,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Use Vibration:</b>
       <select id="wandVibration" name="wandVibration">
         <option value="1">Always</option>
         <option value="2">When Firing</option>
