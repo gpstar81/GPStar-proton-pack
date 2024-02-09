@@ -303,6 +303,43 @@ void checkPack() {
           debugln("Recv. Message: " + String(recvData.m));
 
           switch(recvData.m) {
+            case P_SYNC_START:
+              debugln("Sync Start");
+              b_synchronizing = true; // Sync process has begun, set a semaphore to avoid another sync attempt.
+
+              switch(recvData.d[0]){
+                case 0:
+                  SYSTEM_MODE = MODE_ORIGINAL;
+                break;
+
+                case 1:
+                default:
+                  SYSTEM_MODE = MODE_SUPER_HERO;
+                break;
+              }
+
+              b_pack_ion_arm_switch_on = (recvData.d[1] == 1) ? true : false;
+
+              switch(recvData.d[2]){
+                case 0:
+                  SYSTEM_YEAR = SYSTEM_1984;
+                break;
+
+                case 1:
+                  SYSTEM_YEAR = SYSTEM_1989;
+                break;
+
+                case 2:
+                default:
+                  SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+                break;
+
+                case 3:
+                  SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+                break;
+              }
+            break;
+
             case P_VOLUME_SYNC:
               // Set the percentage volume.
               i_volume_master_percentage = recvData.d[0];
@@ -530,11 +567,6 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
         // The wand already synchronized with the pack, so respond as such.
         wandSerialSend(W_SYNCHRONIZED);
       }
-    break;
-
-    case P_SYNC_START:
-      debugln("Sync Start");
-      b_synchronizing = true; // Sync process has begun, set a semaphore to avoid another sync attempt.
     break;
 
     case P_SYNC_END:

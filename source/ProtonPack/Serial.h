@@ -362,6 +362,49 @@ void packSerialSendData(uint16_t i_message) {
 
   // Provide additional data with certain messages.
   switch(i_message) {
+    case P_SYNC_START:
+      // Send crucial mode/theme data with this packet.
+      switch(SYSTEM_MODE) {
+        case MODE_ORIGINAL:
+          sendDataW.d[0] = 1;
+
+          if(switch_power.getState() == LOW) {
+            sendDataW.d[1] = 1; // Tell the Neutrona Wand that power to the Proton Pack is on.
+          }
+          else {
+            sendDataW.d[1] = 0; // Tell the Neutrona Wand that power to the Proton Pack is off.
+          }
+        break;
+
+        case MODE_SUPER_HERO:
+        default:
+          sendDataW.d[0] = 0;
+          sendDataW.d[1] = 0; // This is only applicable to the Mode Original, so default to off.
+        break;
+      }
+      switch(SYSTEM_YEAR) {
+        case SYSTEM_1984:
+          sendDataW.d[2] = 0;
+        break;
+
+        case SYSTEM_1989:
+          sendDataW.d[2] = 1;
+        break;
+
+        case SYSTEM_AFTERLIFE:
+        default:
+          sendDataW.d[2] = 2;
+        break;
+
+        case SYSTEM_FROZEN_EMPIRE:
+          sendDataW.d[2] = 3;
+        break;
+      }
+
+      i_send_size = packComs.txObj(sendDataW);
+      packComs.sendData(i_send_size, (uint8_t) PACKET_DATA);
+    break;
+
     case P_VOLUME_SYNC:
       // Send the current volume levels.
       sendDataW.d[0] = i_volume_master_percentage;
@@ -1001,56 +1044,12 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
 
         // Begin the synchronization process which tells the wand the pack got the handshake.
         debugln("Wand Sync Start");
-        packSerialSend(P_SYNC_START);
+        packSerialSendData(P_SYNC_START);
 
         // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
         if(b_overheating == true) {
           packOverHeatingFinished();
         }
-
-        // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
-        switch(SYSTEM_MODE) {
-          case MODE_ORIGINAL:
-            packSerialSend(P_MODE_ORIGINAL);
-
-            if(switch_power.getState() == LOW) {
-              // Tell the Neutrona Wand that power to the Proton Pack is on.
-              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
-            }
-            else {
-              // Tell the Neutrona Wand that power to the Proton Pack is off.
-              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-            }
-          break;
-
-          case MODE_SUPER_HERO:
-          default:
-            packSerialSend(P_MODE_SUPER_HERO);
-
-            // This is only applicable to the Mode Original, so default to off.
-            packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-          break;
-        }
-
-        // Make sure to send this after the system (operation) mode is sent.
-        switch(SYSTEM_YEAR) {
-          case SYSTEM_1984:
-            packSerialSend(P_YEAR_1984);
-          break;
-          case SYSTEM_1989:
-            packSerialSend(P_YEAR_1989);
-          break;
-          case SYSTEM_AFTERLIFE:
-          default:
-            packSerialSend(P_YEAR_AFTERLIFE);
-          break;
-          case SYSTEM_FROZEN_EMPIRE:
-            packSerialSend(P_YEAR_FROZEN_EMPIRE);
-          break;
-        }
-
-        // Stop any music. Mainly for when flashing while connected to a computer with a running wand.
-        //packSerialSend(P_MUSIC_STOP);
 
         // Sync the current music track.
         // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
