@@ -143,7 +143,7 @@ void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
   sendCmd.c = i_command;
   sendCmd.d1 = i_value;
 
-  i_send_size = packComs.txObj(sendCmd, i_send_size);
+  i_send_size = packComs.txObj(sendCmd, sizeof(sendCmd), i_send_size);
   packComs.sendData(i_send_size, PACKET_COMMAND);
 }
 
@@ -168,7 +168,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
           debug("Saving Pack Preferences");
         #endif
 
-        i_send_size = packComs.txObj(packConfig, i_send_size);
+        i_send_size = packComs.txObj(packConfig, sizeof(packConfig), i_send_size);
         packComs.sendData(i_send_size, PACKET_PACK);
       #endif
     break;
@@ -179,7 +179,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
           debug("Saving Wand Preferences");
         #endif
 
-        i_send_size = packComs.txObj(wandConfig, i_send_size);
+        i_send_size = packComs.txObj(wandConfig, sizeof(wandConfig), i_send_size);
         packComs.sendData(i_send_size, PACKET_WAND);
       #endif
     break;
@@ -190,7 +190,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
           debug("Saving Smoke Preferences");
         #endif
 
-        i_send_size = packComs.txObj(smokeConfig, i_send_size);
+        i_send_size = packComs.txObj(smokeConfig, sizeof(smokeConfig), i_send_size);
         packComs.sendData(i_send_size, PACKET_SMOKE);
       #endif
     break;

@@ -103,7 +103,7 @@ void wandSerialSend(uint16_t i_command, uint16_t i_value) {
     sendCmd.c = i_command;
     sendCmd.d1 = i_value;
 
-    i_send_size = wandComs.txObj(sendCmd, i_send_size);
+    i_send_size = wandComs.txObj(sendCmd, sizeof(sendCmd), i_send_size);
     wandComs.sendData(i_send_size, PACKET_COMMAND);
   }
 }
@@ -249,7 +249,7 @@ void wandSerialSendData(uint16_t i_message) {
           break;
         }
 
-        i_send_size = wandComs.txObj(wandConfig, i_send_size);
+        i_send_size = wandComs.txObj(wandConfig, sizeof(wandConfig), i_send_size);
         wandComs.sendData(i_send_size, PACKET_WAND);
       break;
 
@@ -268,7 +268,7 @@ void wandSerialSendData(uint16_t i_message) {
         smokeConfig.overheatDelay2 = i_ms_overheat_initiate_mode_2 / 1000;
         smokeConfig.overheatDelay1 = i_ms_overheat_initiate_mode_1 / 1000;
 
-        i_send_size = wandComs.txObj(smokeConfig, i_send_size);
+        i_send_size = wandComs.txObj(smokeConfig, sizeof(smokeConfig), i_send_size);
         wandComs.sendData(i_send_size, PACKET_SMOKE);
       break;
 
@@ -524,6 +524,7 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
       // The pack is asking us if we are still here so respond accordingly.
       if(b_wait_for_pack) {
         // If still waiting for the pack, trigger a synchronization handshake.
+        b_synchronizing = false;
         wandSerialSend(W_HANDSHAKE);
       }
       else {

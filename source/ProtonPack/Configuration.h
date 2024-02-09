@@ -127,13 +127,25 @@ uint8_t i_powercell_delay_2021 = 40;
  * 24 -> For a 24 LED NeoPixel Ring
  * 35 -> For a 35 LED NeoPixel Ring. (Recommended ring size)
  */
-uint8_t i_inner_cyclotron_num_leds = 35;
+uint8_t i_inner_cyclotron_cake_num_leds = 35;
+
+/*
+ * (OPTIONAL) Inner Cyclotron (cavity) effects
+ * If you are not using any, then this can be left alone.
+ * Leave at least one in place even if you are not using this optional item.
+ * You can use up to 50 LEDs.
+ * 50 -> For addressable fairy lights. (Recommended device)
+ */
+bool b_use_cyclotron_cavity_leds = true;
+uint8_t i_inner_cyclotron_cavity_num_leds = 50;
 
 /*
  * If you use GRB (green/red/blue) instead of RGB (red/green/blue) addressable LEDs for your Inner Cyclotron LEDs, then set to true.
- * Any settings saved in the EEPROM menu will overwrite these settings.
+ * Likewise for the cyclotron cavity LEDs if those are GBR instead of RGB set the flag true to adjust the color order.
+ * Any settings, if saved in the EEPROM, will overwrite these settings.
  */
-bool b_grb_cyclotron = false; // Default is false
+bool b_grb_cyclotron_cake = false; // Default is false
+bool b_gbr_cyclotron_cavity = true; // Default is true
 
 /*
  * The CHSV colour value for the Spectral Custom mode.

@@ -206,7 +206,7 @@ void serial1Send(uint16_t i_command, uint16_t i_value) {
   sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
 
-  i_send_size = serial1Coms.txObj(sendCmdS, i_send_size);
+  i_send_size = serial1Coms.txObj(sendCmdS, sizeof(sendCmdS), i_send_size);
   serial1Coms.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
@@ -232,7 +232,7 @@ void serial1SendData(uint16_t i_message) {
       sendDataS.d[0] = i_spectral_cyclotron_custom_colour;
       sendDataS.d[1] = i_spectral_cyclotron_custom_saturation;
 
-      i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
+      i_send_size = serial1Coms.txObj(sendDataS, sizeof(sendDataS), i_send_size);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
@@ -242,7 +242,7 @@ void serial1SendData(uint16_t i_message) {
       sendDataS.d[1] = i_volume_effects_percentage;
       sendDataS.d[2] = i_volume_music_percentage;
 
-      i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
+      i_send_size = serial1Coms.txObj(sendDataS, sizeof(sendDataS), i_send_size);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
@@ -283,10 +283,10 @@ void serial1SendData(uint16_t i_message) {
       packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring;
 
       // Inner Cyclotron
-      packConfig.ledCycCakeCount = i_inner_cyclotron_num_leds;
+      packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
-      packConfig.ledCycCakeGRB = b_grb_cyclotron;
+      packConfig.ledCycCakeGRB = b_grb_cyclotron_cake;
 
       // Power Cell
       packConfig.ledPowercellCount = i_powercell_leds;
@@ -294,13 +294,13 @@ void serial1SendData(uint16_t i_message) {
       packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
       packConfig.ledVGPowercell = b_powercell_colour_toggle;
 
-      i_send_size = serial1Coms.txObj(packConfig, i_send_size);
+      i_send_size = serial1Coms.txObj(packConfig, sizeof(packConfig), i_send_size);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_PACK);
     break;
 
     case A_SEND_PREFERENCES_WAND:
       // Any ENUM or boolean types will simply translate as numeric values.
-      i_send_size = serial1Coms.txObj(wandConfig, i_send_size);
+      i_send_size = serial1Coms.txObj(wandConfig, sizeof(wandConfig), i_send_size);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
@@ -322,7 +322,7 @@ void serial1SendData(uint16_t i_message) {
       // Enable or disable smoke effects overall.
       smokeConfig.smokeEnabled = b_smoke_enabled;
 
-      i_send_size = serial1Coms.txObj(smokeConfig, i_send_size);
+      i_send_size = serial1Coms.txObj(smokeConfig, sizeof(smokeConfig), i_send_size);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 
@@ -341,7 +341,7 @@ void packSerialSend(uint16_t i_command, uint16_t i_value) {
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
 
-  i_send_size = packComs.txObj(sendCmdW, i_send_size);
+  i_send_size = packComs.txObj(sendCmdW, sizeof(sendCmdW), i_send_size);
   packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
@@ -368,17 +368,17 @@ void packSerialSendData(uint16_t i_message) {
       sendDataW.d[1] = i_volume_effects_percentage;
       sendDataW.d[2] = i_volume_music_percentage;
 
-      i_send_size = packComs.txObj(sendDataW, i_send_size);
+      i_send_size = packComs.txObj(sendDataW, sizeof(sendDataW), i_send_size);
       packComs.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
     case P_SAVE_PREFERENCES_WAND:
-      i_send_size = packComs.txObj(wandConfig, i_send_size);
+      i_send_size = packComs.txObj(wandConfig, sizeof(wandConfig), i_send_size);
       packComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
     case P_SAVE_PREFERENCES_SMOKE:
-      i_send_size = packComs.txObj(smokeConfig, i_send_size);
+      i_send_size = packComs.txObj(smokeConfig, sizeof(smokeConfig), i_send_size);
       packComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 
@@ -535,10 +535,10 @@ void checkSerial1() {
           b_cyclotron_simulate_ring = packConfig.ledCycLidSimRing;
 
           // Inner Cyclotron
-          i_inner_cyclotron_num_leds = packConfig.ledCycCakeCount;
+          i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
-          b_grb_cyclotron = packConfig.ledCycCakeGRB;
+          b_grb_cyclotron_cake = packConfig.ledCycCakeGRB;
 
           // Power Cell
           i_powercell_leds = packConfig.ledPowercellCount;
@@ -3263,10 +3263,10 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_INNER_CYCLOTRON_23);
       stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
-      switch(i_inner_cyclotron_num_leds) {
+      switch(i_inner_cyclotron_cake_num_leds) {
         case 12:
           // Switch to 23 LEDs.
-          i_inner_cyclotron_num_leds = 23;
+          i_inner_cyclotron_cake_num_leds = 23;
           i_2021_inner_delay = 8;
           i_1984_inner_delay = 12;
 
@@ -3276,7 +3276,7 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
 
         case 23:
           // Switch to 24 LEDs.
-          i_inner_cyclotron_num_leds = 24;
+          i_inner_cyclotron_cake_num_leds = 24;
           i_2021_inner_delay = 8;
           i_1984_inner_delay = 12;
 
@@ -3287,7 +3287,7 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
         case 24:
         default:
           // Switch to 35 LEDs.
-          i_inner_cyclotron_num_leds = 35;
+          i_inner_cyclotron_cake_num_leds = 35;
           i_2021_inner_delay = 5;
           i_1984_inner_delay = 9;
 
@@ -3297,7 +3297,7 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
 
         case 35:
           // Switch to 12 LEDs.
-          i_inner_cyclotron_num_leds = 12;
+          i_inner_cyclotron_cake_num_leds = 12;
           i_2021_inner_delay = 12;
           i_1984_inner_delay = 15;
 
@@ -3393,14 +3393,14 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
       stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
 
-      if(b_grb_cyclotron == true) {
-        b_grb_cyclotron = false;
+      if(b_grb_cyclotron_cake == true) {
+        b_grb_cyclotron_cake = false;
         playEffect(S_VOICE_RGB_INNER_CYCLOTRON);
 
         packSerialSend(P_RGB_INNER_CYCLOTRON_LEDS);
       }
       else {
-        b_grb_cyclotron = true;
+        b_grb_cyclotron_cake = true;
         playEffect(S_VOICE_GRB_INNER_CYCLOTRON);
 
         packSerialSend(P_GRB_INNER_CYCLOTRON_LEDS);

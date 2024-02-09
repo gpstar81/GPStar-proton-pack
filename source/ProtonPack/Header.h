@@ -45,6 +45,11 @@
 #define INNER_CYCLOTRON_CAKE_LED_MAX 35
 
 /*
+ * Set the number of steps for the Inner Cyclotron (cavity).
+ */
+#define INNER_CYCLOTRON_CAVITY_LED_MAX 50
+
+/*
  * Set the number of steps for the Outer Cyclotron (lid).
  */
 #define OUTER_CYCLOTRON_LED_MAX 40
@@ -64,7 +69,7 @@
  */
 const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
-const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX;
+const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
 
 /*
  * Updated count of all the LEDs plus the N-Filter jewel.
@@ -92,8 +97,9 @@ CRGB pack_leds[i_max_pack_leds + i_nfilter_jewel_leds];
 
 /*
  * Inner Cyclotron LEDs (optional).
- * Max number of LEDs supported = 35.
+ * Max number of LEDs supported = 85.
  * Maximum allowed LEDs for the Inner Cyclotron Cake is 35.
+ * Maximum allowed LEDs for the Inner Cyclotron Cavity is 50.
  * Uses pin 13.
  */
 #define CYCLOTRON_LED_PIN 13
@@ -142,8 +148,8 @@ enum PACK_ACTION_STATES PACK_ACTION_STATE;
 /*
  * Cyclotron lid LEDs control and lid detection.
  */
-uint8_t cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
-uint8_t i_led_cyclotron = cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
+uint8_t i_cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
+uint8_t i_led_cyclotron = i_cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
 const unsigned int i_2021_ramp_delay = 300;
 const unsigned int i_2021_ramp_length = 6000;
 const unsigned int i_1984_ramp_length = 3000;
@@ -182,6 +188,7 @@ rampInt r_inner_ramp;
 const unsigned int i_inner_delay = i_2021_inner_delay;
 const unsigned int i_inner_ramp_delay = 300;
 int i_led_cyclotron_ring = 0;
+int i_led_cyclotron_cavity = 0;
 bool b_inner_ramp_up = true;
 bool b_inner_ramp_down = false;
 unsigned int i_inner_current_ramp_speed = i_inner_ramp_delay;
@@ -426,6 +433,7 @@ enum device {
   POWERCELL,
   CYCLOTRON_OUTER,
   CYCLOTRON_INNER,
+  CYCLOTRON_CAVITY,
   VENT_LIGHT
 };
 

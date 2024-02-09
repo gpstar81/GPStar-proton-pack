@@ -140,9 +140,9 @@ void readEEPROM() {
     }
 
     if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {
-      i_inner_cyclotron_num_leds = obj_eeprom.inner_cyclotron_count;
+      i_inner_cyclotron_cake_num_leds = obj_eeprom.inner_cyclotron_count;
 
-      switch(i_inner_cyclotron_num_leds) {
+      switch(i_inner_cyclotron_cake_num_leds) {
         case 12:
           i_2021_inner_delay = 12;
           i_1984_inner_delay = 15;
@@ -164,10 +164,10 @@ void readEEPROM() {
 
     if(obj_eeprom.grb_inner_cyclotron > 0 && obj_eeprom.grb_inner_cyclotron != 255) {
       if(obj_eeprom.grb_inner_cyclotron > 1) {
-        b_grb_cyclotron = true;
+        b_grb_cyclotron_cake = true;
       }
       else {
-        b_grb_cyclotron = false;
+        b_grb_cyclotron_cake = false;
       }
     }
 
@@ -470,18 +470,18 @@ void saveLedEEPROM() {
   // Inner Cyclotron LEDs
   // GRB / RGB Inner Cyclotron toggle flag
 
-  uint8_t i_grb_cyclotron = 1;
+  uint8_t i_grb_cyclotron_cake = 1;
 
-  if(b_grb_cyclotron == true) {
-    i_grb_cyclotron = 2;
+  if(b_grb_cyclotron_cake == true) {
+    i_grb_cyclotron_cake = 2;
   }
 
   // Write the data to the EEPROM if any of the values have changed.
   objLEDEEPROM obj_eeprom = {
     i_powercell_leds,
     i_cyclotron_leds,
-    i_inner_cyclotron_num_leds,
-    i_grb_cyclotron,
+    i_inner_cyclotron_cake_num_leds,
+    i_grb_cyclotron_cake,
     i_spectral_powercell_custom_colour,
     i_spectral_cyclotron_custom_colour,
     i_spectral_cyclotron_inner_custom_colour,
