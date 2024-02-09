@@ -206,8 +206,7 @@ void serial1Send(uint16_t i_command, uint16_t i_value) {
   sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
 
-  serial1Coms.reset(); // Reset before next packet.
-  i_send_size = serial1Coms.txObj(sendCmdS, i_send_size);
+  i_send_size = serial1Coms.txObj(sendCmdS);
   serial1Coms.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
@@ -226,8 +225,6 @@ void serial1SendData(uint16_t i_message) {
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
 
-  serial1Coms.reset(); // Reset before next packet.
-
   // Provide additional data with certain messages.
   switch(i_message) {
     case A_SPECTRAL_CUSTOM_MODE:
@@ -235,7 +232,7 @@ void serial1SendData(uint16_t i_message) {
       sendDataS.d[0] = i_spectral_cyclotron_custom_colour;
       sendDataS.d[1] = i_spectral_cyclotron_custom_saturation;
 
-      i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
+      i_send_size = serial1Coms.txObj(sendDataS);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
@@ -245,7 +242,7 @@ void serial1SendData(uint16_t i_message) {
       sendDataS.d[1] = i_volume_effects_percentage;
       sendDataS.d[2] = i_volume_music_percentage;
 
-      i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
+      i_send_size = serial1Coms.txObj(sendDataS);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
@@ -297,13 +294,13 @@ void serial1SendData(uint16_t i_message) {
       packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
       packConfig.ledVGPowercell = b_powercell_colour_toggle;
 
-      i_send_size = serial1Coms.txObj(packConfig, i_send_size);
+      i_send_size = serial1Coms.txObj(packConfig);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_PACK);
     break;
 
     case A_SEND_PREFERENCES_WAND:
       // Any ENUM or boolean types will simply translate as numeric values.
-      i_send_size = serial1Coms.txObj(wandConfig, i_send_size);
+      i_send_size = serial1Coms.txObj(wandConfig);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
@@ -325,7 +322,7 @@ void serial1SendData(uint16_t i_message) {
       // Enable or disable smoke effects overall.
       smokeConfig.smokeEnabled = b_smoke_enabled;
 
-      i_send_size = serial1Coms.txObj(smokeConfig, i_send_size);
+      i_send_size = serial1Coms.txObj(smokeConfig);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 
@@ -344,8 +341,7 @@ void packSerialSend(uint16_t i_command, uint16_t i_value) {
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
 
-  packComs.reset(); // Reset before next packet.
-  i_send_size = packComs.txObj(sendCmdW, i_send_size);
+  i_send_size = packComs.txObj(sendCmdW);
   packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
@@ -364,8 +360,6 @@ void packSerialSendData(uint16_t i_message) {
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
 
-  packComs.reset(); // Reset before next packet.
-
   // Provide additional data with certain messages.
   switch(i_message) {
     case P_VOLUME_SYNC:
@@ -374,17 +368,17 @@ void packSerialSendData(uint16_t i_message) {
       sendDataW.d[1] = i_volume_effects_percentage;
       sendDataW.d[2] = i_volume_music_percentage;
 
-      i_send_size = packComs.txObj(sendDataW, i_send_size);
+      i_send_size = packComs.txObj(sendDataW);
       packComs.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
     case P_SAVE_PREFERENCES_WAND:
-      i_send_size = packComs.txObj(wandConfig, i_send_size);
+      i_send_size = packComs.txObj(wandConfig);
       packComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
     case P_SAVE_PREFERENCES_SMOKE:
-      i_send_size = packComs.txObj(smokeConfig, i_send_size);
+      i_send_size = packComs.txObj(smokeConfig);
       packComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 

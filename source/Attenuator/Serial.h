@@ -143,8 +143,7 @@ void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
   sendCmd.c = i_command;
   sendCmd.d1 = i_value;
 
-  packComs.reset(); // Reset before next packet.
-  i_send_size = packComs.txObj(sendCmd, i_send_size);
+  i_send_size = packComs.txObj(sendCmd);
   packComs.sendData(i_send_size, PACKET_COMMAND);
 }
 
@@ -162,8 +161,6 @@ void attenuatorSerialSendData(uint16_t i_message) {
   // Set all elements of the data array to 0
   memset(sendData.d, 0, sizeof(sendData.d));
 
-  packComs.reset(); // Reset before next packet.
-
   switch(i_message) {
     case A_SAVE_PREFERENCES_PACK:
       #if defined(__XTENSA__)
@@ -171,7 +168,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
           debug("Saving Pack Preferences");
         #endif
 
-        i_send_size = packComs.txObj(packConfig, i_send_size);
+        i_send_size = packComs.txObj(packConfig);
         packComs.sendData(i_send_size, PACKET_PACK);
       #endif
     break;
@@ -182,7 +179,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
           debug("Saving Wand Preferences");
         #endif
 
-        i_send_size = packComs.txObj(wandConfig, i_send_size);
+        i_send_size = packComs.txObj(wandConfig);
         packComs.sendData(i_send_size, PACKET_WAND);
       #endif
     break;
@@ -193,7 +190,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
           debug("Saving Smoke Preferences");
         #endif
 
-        i_send_size = packComs.txObj(smokeConfig, i_send_size);
+        i_send_size = packComs.txObj(smokeConfig);
         packComs.sendData(i_send_size, PACKET_SMOKE);
       #endif
     break;
