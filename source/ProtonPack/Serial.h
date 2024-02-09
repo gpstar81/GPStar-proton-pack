@@ -2186,6 +2186,14 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
       playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
+
+      // Tell the Wand what state the vibration switch is in
+      if(switch_vibration.getState() == LOW) {
+        packSerialSend(P_VIBRATION_ENABLED);
+      }
+      else {
+        packSerialSend(P_VIBRATION_DISABLED);
+      }
     break;
 
     case W_VIBRATION_CYCLE_TOGGLE:
@@ -2306,7 +2314,14 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
           b_vibration_on = true;
           b_vibration_firing = true;
-          b_vibration_enabled = true; // TODO: Get the current state of the pack's vibration switch
+
+          // Reset the vibration state.
+          if(switch_vibration.getState() == LOW) {
+            b_vibration_enabled = true;
+          }
+          else {
+            b_vibration_enabled = false;
+          }
 
           // Proton Pack vibration firing enabled.
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);

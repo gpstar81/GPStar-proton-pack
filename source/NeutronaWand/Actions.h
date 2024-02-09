@@ -649,7 +649,11 @@ void checkWandAction() {
                   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
                   b_vibration_on = true;
                   b_vibration_firing = true;
-                  b_vibration_enabled = true; // TODO: Figure out how to ask Proton Pack for its switch state?
+                  
+                  // If there's no Pack, reset b_vibration_enabled to true
+                  if(b_gpstar_benchtest == true) {
+                    b_vibration_enabled = true;
+                  }
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
