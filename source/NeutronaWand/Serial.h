@@ -98,12 +98,13 @@ void wandSerialSend(uint16_t i_command, uint16_t i_value) {
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    debugln("wandSerialSend: " + String(i_command));
+    debugln("Command to Pack: " + String(i_command));
 
     sendCmd.c = i_command;
     sendCmd.d1 = i_value;
 
-    i_send_size = wandComs.txObj(sendCmd, sizeof(sendCmd), i_send_size);
+    wandComs.reset(); // Reset before next packet.
+    i_send_size = wandComs.txObj(sendCmd, i_send_size);
     wandComs.sendData(i_send_size, PACKET_COMMAND);
   }
 }
@@ -118,12 +119,14 @@ void wandSerialSendData(uint16_t i_message) {
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    debugln("wandSerialSendData: " + String(i_message));
+    debugln("Data to Pack: " + String(i_message));
 
     sendData.m = i_message;
 
     // Set all elements of the data array to 0
     memset(sendData.d, 0, sizeof(sendData.d));
+
+    wandComs.reset(); // Reset before next packet.
 
     switch(i_message) {
       case W_SEND_PREFERENCES_WAND:
@@ -249,7 +252,7 @@ void wandSerialSendData(uint16_t i_message) {
           break;
         }
 
-        i_send_size = wandComs.txObj(wandConfig, sizeof(wandConfig), i_send_size);
+        i_send_size = wandComs.txObj(wandConfig, i_send_size);
         wandComs.sendData(i_send_size, PACKET_WAND);
       break;
 
@@ -268,7 +271,7 @@ void wandSerialSendData(uint16_t i_message) {
         smokeConfig.overheatDelay2 = i_ms_overheat_initiate_mode_2 / 1000;
         smokeConfig.overheatDelay1 = i_ms_overheat_initiate_mode_1 / 1000;
 
-        i_send_size = wandComs.txObj(smokeConfig, sizeof(smokeConfig), i_send_size);
+        i_send_size = wandComs.txObj(smokeConfig, i_send_size);
         wandComs.sendData(i_send_size, PACKET_SMOKE);
       break;
 
@@ -524,12 +527,13 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
       // The pack is asking us if we are still here so respond accordingly.
       if(b_wait_for_pack) {
         // If still waiting for the pack, trigger a synchronization handshake.
-        b_synchronizing = false;
         wandSerialSend(W_HANDSHAKE);
       }
       else {
         // The wand already synchronized with the pack, so respond as such.
-        wandSerialSend(W_SYNCHRONIZED);
+        if(!b_synchronizing) {
+          wandSerialSend(W_SYNCHRONIZED);
+        }
       }
     break;
 
