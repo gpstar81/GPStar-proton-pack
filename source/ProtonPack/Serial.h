@@ -206,7 +206,7 @@ void serial1Send(uint16_t i_command, uint16_t i_value) {
   sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
 
-  i_send_size = serial1Coms.txObj(sendCmdS, i_send_size);
+  i_send_size = serial1Coms.txObj(sendCmdS);
   serial1Coms.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
@@ -232,7 +232,7 @@ void serial1SendData(uint16_t i_message) {
       sendDataS.d[0] = i_spectral_cyclotron_custom_colour;
       sendDataS.d[1] = i_spectral_cyclotron_custom_saturation;
 
-      i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
+      i_send_size = serial1Coms.txObj(sendDataS);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
@@ -242,7 +242,7 @@ void serial1SendData(uint16_t i_message) {
       sendDataS.d[1] = i_volume_effects_percentage;
       sendDataS.d[2] = i_volume_music_percentage;
 
-      i_send_size = serial1Coms.txObj(sendDataS, i_send_size);
+      i_send_size = serial1Coms.txObj(sendDataS);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
@@ -294,13 +294,13 @@ void serial1SendData(uint16_t i_message) {
       packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
       packConfig.ledVGPowercell = b_powercell_colour_toggle;
 
-      i_send_size = serial1Coms.txObj(packConfig, i_send_size);
+      i_send_size = serial1Coms.txObj(packConfig);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_PACK);
     break;
 
     case A_SEND_PREFERENCES_WAND:
       // Any ENUM or boolean types will simply translate as numeric values.
-      i_send_size = serial1Coms.txObj(wandConfig, i_send_size);
+      i_send_size = serial1Coms.txObj(wandConfig);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
@@ -322,7 +322,7 @@ void serial1SendData(uint16_t i_message) {
       // Enable or disable smoke effects overall.
       smokeConfig.smokeEnabled = b_smoke_enabled;
 
-      i_send_size = serial1Coms.txObj(smokeConfig, i_send_size);
+      i_send_size = serial1Coms.txObj(smokeConfig);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 
@@ -341,7 +341,7 @@ void packSerialSend(uint16_t i_command, uint16_t i_value) {
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
 
-  i_send_size = packComs.txObj(sendCmdW, i_send_size);
+  i_send_size = packComs.txObj(sendCmdW);
   packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
@@ -368,17 +368,17 @@ void packSerialSendData(uint16_t i_message) {
       sendDataW.d[1] = i_volume_effects_percentage;
       sendDataW.d[2] = i_volume_music_percentage;
 
-      i_send_size = packComs.txObj(sendDataW, i_send_size);
+      i_send_size = packComs.txObj(sendDataW);
       packComs.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
     case P_SAVE_PREFERENCES_WAND:
-      i_send_size = packComs.txObj(wandConfig, i_send_size);
+      i_send_size = packComs.txObj(wandConfig);
       packComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
     case P_SAVE_PREFERENCES_SMOKE:
-      i_send_size = packComs.txObj(smokeConfig, i_send_size);
+      i_send_size = packComs.txObj(smokeConfig);
       packComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 
@@ -403,13 +403,13 @@ void checkSerial1() {
       switch(i_packet_id) {
         case PACKET_COMMAND:
           serial1Coms.rxObj(recvCmdS);
-          // debugln("Recv. Serial1 Command: " + String(recvCmdS.c));
+          debugln("Recv. Serial1 Command: " + String(recvCmdS.c));
           handleSerialCommand(recvCmdS.c, recvCmdS.d1);
         break;
 
         case PACKET_DATA:
           serial1Coms.rxObj(recvDataS);
-          // debugln("Recv. Serial1 Message: " + String(recvDataS.m));
+          debugln("Recv. Serial1 Message: " + String(recvDataS.m));
           // No handlers at this time.
         break;
 
@@ -615,7 +615,7 @@ void handleSerialCommand(uint16_t i_command, uint16_t i_value) {
         b_serial1_syncing = true; // Sync has begun; do not try to start this command again.
 
         // Begin the synchronization process.
-        // debugln("Serial1 Sync Start");
+        debugln("Serial1 Sync Start");
         serial1Send(A_SYNC_START);
 
         // Tell the Attenuator that the pack is here.
@@ -766,7 +766,7 @@ void handleSerialCommand(uint16_t i_command, uint16_t i_value) {
     break;
 
     case A_SYNC_END:
-      // debugln("Serial1 Sync End");
+      debugln("Serial1 Sync End");
     break;
 
     case A_TURN_PACK_ON:
@@ -958,13 +958,13 @@ void checkWand() {
       switch(i_packet_id) {
         case PACKET_COMMAND:
           packComs.rxObj(recvCmdW);
-          // debugln("Recv. Wand Command: " + String(recvCmdW.c));
+          debugln("Recv. Wand Command: " + String(recvCmdW.c));
           handleWandCommand(recvCmdW.c, recvCmdW.d1);
         break;
 
         case PACKET_DATA:
           packComs.rxObj(recvDataW);
-          // debugln("Recv. Wand Data: " + String(recvDataW.m));
+          debugln("Recv. Wand Data: " + String(recvDataW.m));
           // No handlers at this time.
         break;
 
@@ -999,8 +999,13 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
         // This will be cleared once the wand responds back that it has been synchronized.
         b_wand_syncing = true;
 
+        if(b_diagnostic == true) {
+          // While in diagnostic mode, play a sound to indicate the wand is synchronized.
+          playEffect(S_BEEPS);
+        }
+
         // Begin the synchronization process which tells the wand the pack got the handshake.
-        // debugln("Wand Sync Start");
+        debugln("Wand Sync Start");
         packSerialSend(P_SYNC_START);
 
         // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
@@ -1048,9 +1053,6 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
             packSerialSend(P_YEAR_FROZEN_EMPIRE);
           break;
         }
-
-        // Stop any music. Mainly for when flashing while connected to a computer with a running wand.
-        //packSerialSend(P_MUSIC_STOP);
 
         // Sync the current music track.
         // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
@@ -1167,19 +1169,17 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
 
         // Tell the wand that we've reached the end of settings to be sync'd.
         packSerialSend(P_SYNC_END);
-        // debugln("Wand Sync End");
+        debugln("Wand Sync End");
+
+        b_wand_connected = true; // Remember that a wand has been connected.
+        b_wand_syncing = false; // Indicate completion of wand sync process.
 
         // Tell the serial1 device the wand is (re-)connected.
         serial1Send(A_WAND_CONNECTED);
-
-        if(b_diagnostic == true) {
-          // While in diagnostic mode, play a sound to indicate the wand is synchronized.
-          playEffect(S_BEEPS);
-        }
       }
       else if(b_wand_connected) {
         // debugln("Recv. Wand Handshake");
-        b_wand_syncing = true; // No longer attempting to force a sync w/ wand.
+        b_wand_syncing = false; // No longer attempting to force a sync w/ wand.
 
         // Wand was connected and still present, so reset the disconnection delay.
         ms_wand_check.start(i_wand_disconnect_delay);
@@ -1195,9 +1195,8 @@ void handleWandCommand(uint16_t i_command, uint16_t i_value) {
     break;
 
     case W_SYNCHRONIZED:
-      // debugln("Wand Synchronized");
-      b_wand_connected = true; // Remember that a wand has been connected.
-      b_wand_syncing = false; // Indicate completion of wand sync process.
+      debugln("Wand Synchronized");
+      b_wand_connected = true; // Truly indicates the wand responded.
     break;
 
     case W_ON:

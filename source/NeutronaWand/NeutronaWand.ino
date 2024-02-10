@@ -68,11 +68,11 @@
 #include "Preferences.h"
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // Standard serial (USB) console.
 
   // Enable communication to the Proton Pack.
-  Serial1.begin(9600);
-  wandComs.begin(Serial1, true, Serial);
+  Serial1.begin(4800); // Communication to the Proton Pack.
+  wandComs.begin(Serial1, false);
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz

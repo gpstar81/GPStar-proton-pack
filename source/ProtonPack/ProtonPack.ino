@@ -59,7 +59,7 @@
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600); // Add-on Serial1 communication.
-  Serial2.begin(9600); // Communication to the Neutrona Wand.
+  Serial2.begin(4800); // Communication to the Neutrona Wand.
 
   // Connect the serial ports.
   serial1Coms.begin(Serial1, false); // Attenuator/Wireless
@@ -135,7 +135,7 @@ void setup() {
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
   SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
-  
+
   // Set default vibration mode.
   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
 

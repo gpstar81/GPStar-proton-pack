@@ -52,7 +52,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      &nbsp;&nbsp;<b>Wand Year Theme:</b>
+      &nbsp;&nbsp;&nbsp;<b>Wand Year Theme:</b>
       <select id="defaultYearModeWand" name="defaultYearModeWand">
         <option value="1">Via Toggle</option>
         <option value="2">1984</option>
@@ -62,7 +62,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      &nbsp;&nbsp;&nbsp;<b>Default CTS Mode:</b>
+      &nbsp;&nbsp;&nbsp;&nbsp;<b>Default CTS Mode:</b>
       <select id="defaultYearModeCTS" name="defaultYearModeCTS">
         <option value="1">Via Toggle</option>
         <option value="2">1984</option>
@@ -72,7 +72,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Use Vibration:</b>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Use Vibration:</b>
       <select id="wandVibration" name="wandVibration">
         <option value="1">Always</option>
         <option value="2">When Firing</option>

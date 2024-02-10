@@ -98,12 +98,14 @@ void wandSerialSend(uint16_t i_command, uint16_t i_value) {
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    debugln("wandSerialSend: " + String(i_command));
+    debugln("Command to Pack: " + String(i_command));
 
     sendCmd.c = i_command;
     sendCmd.d1 = i_value;
 
-    i_send_size = wandComs.txObj(sendCmd, i_send_size);
+    ms_handshake.restart(); // Restart heartbeat timer.
+
+    i_send_size = wandComs.txObj(sendCmd);
     wandComs.sendData(i_send_size, PACKET_COMMAND);
   }
 }
@@ -118,7 +120,7 @@ void wandSerialSendData(uint16_t i_message) {
 
   // Only sends when pack is present.
   if(b_gpstar_benchtest != true) {
-    debugln("wandSerialSendData: " + String(i_message));
+    debugln("Data to Pack: " + String(i_message));
 
     sendData.m = i_message;
 
@@ -249,7 +251,7 @@ void wandSerialSendData(uint16_t i_message) {
           break;
         }
 
-        i_send_size = wandComs.txObj(wandConfig, i_send_size);
+        i_send_size = wandComs.txObj(wandConfig);
         wandComs.sendData(i_send_size, PACKET_WAND);
       break;
 
@@ -268,7 +270,7 @@ void wandSerialSendData(uint16_t i_message) {
         smokeConfig.overheatDelay2 = i_ms_overheat_initiate_mode_2 / 1000;
         smokeConfig.overheatDelay1 = i_ms_overheat_initiate_mode_1 / 1000;
 
-        i_send_size = wandComs.txObj(smokeConfig, i_send_size);
+        i_send_size = wandComs.txObj(smokeConfig);
         wandComs.sendData(i_send_size, PACKET_SMOKE);
       break;
 
@@ -533,12 +535,12 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
     break;
 
     case P_SYNC_START:
-      debugln("Sync Start");
+      debugln("Pack Sync Start");
       b_synchronizing = true; // Sync process has begun, set a semaphore to avoid another sync attempt.
     break;
 
     case P_SYNC_END:
-      debugln("Sync End");
+      debugln("Pack Sync End");
       b_synchronizing = false; // Sync process has completed so remove the semaphore.
       b_wait_for_pack = false; // Initial handshake is complete, no longer waiting on the pack.
 

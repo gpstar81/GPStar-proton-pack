@@ -398,8 +398,8 @@ bool b_synchronizing = false; // Indicates whether a synchronization with the pa
 bool b_sync_light = false; // Toggle the white LED beside the vent light as the sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
 millisDelay ms_handshake; // Timer for attempting a new handshake while initializing pack communications.
-const unsigned int i_handshake_initial_delay = 250; // Delay to re-try the initial handshake with a proton pack.
-const unsigned int i_heartbeat_delay = 2000; // Delay to send a heartbeat (handshake) to a connected proton pack.
+const unsigned int i_handshake_initial_delay = 500; // Delay to re-try the initial handshake with a proton pack.
+const unsigned int i_heartbeat_delay = 2250; // Delay to send a heartbeat (handshake) to a connected proton pack.
 
 /*
  * Wand menu & music
