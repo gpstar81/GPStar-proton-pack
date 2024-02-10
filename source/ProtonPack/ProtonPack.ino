@@ -59,7 +59,7 @@
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600); // Add-on Serial1 communication.
-  Serial2.begin(4800); // Communication to the Neutrona Wand.
+  Serial2.begin(9600); // Communication to the Neutrona Wand.
 
   // Connect the serial ports.
   serial1Coms.begin(Serial1, false); // Attenuator/Wireless
@@ -4259,8 +4259,9 @@ void wandDisconnectCheck() {
       }
     }
     else {
-      if(ms_wand_check.remaining() < (i_wand_disconnect_delay / 4) && !b_wand_syncing) {
-        // At less than a quarter of the disconnect timeout, force a handshake with the wand.
+      if(ms_wand_check.remaining() < 1000 && !b_wand_syncing) {
+        // If within 1 second of the disconnect timeout, force a handshake with the wand.
+        // This should be a last-resort check to make sure it's available and responding.
         b_wand_syncing = true;
         packSerialSend(P_HANDSHAKE);
       }

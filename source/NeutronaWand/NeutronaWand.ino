@@ -71,7 +71,7 @@ void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
 
   // Enable communication to the Proton Pack.
-  Serial1.begin(4800); // Communication to the Proton Pack.
+  Serial1.begin(9600); // Communication to the Proton Pack.
   wandComs.begin(Serial1, false);
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.

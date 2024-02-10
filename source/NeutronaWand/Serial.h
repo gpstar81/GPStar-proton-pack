@@ -525,8 +525,8 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
     case P_HANDSHAKE:
       // The pack is asking us if we are still here so respond accordingly.
       if(b_wait_for_pack) {
-        // If still waiting for the pack, trigger a synchronization handshake.
-        wandSerialSend(W_HANDSHAKE);
+        // If still waiting for the pack, trigger an immediate synchronization.
+        wandSerialSend(W_SYNC_NOW);
       }
       else {
         // The wand already synchronized with the pack, so respond as such.
