@@ -249,9 +249,9 @@ bool b_firing = false;
 bool b_overheating = false;
 
 // Flags for denoting when requested data was received.
-bool b_received_prefs_pack;
-bool b_received_prefs_wand;
-bool b_received_prefs_smoke;
+bool b_received_prefs_pack = false;
+bool b_received_prefs_wand = false;
+bool b_received_prefs_smoke = false;
 
 // Battery Voltage
 float f_batt_volts;
