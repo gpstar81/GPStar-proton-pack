@@ -190,6 +190,7 @@ const char NETWORK_page[] PROGMEM = R"=====(
         if (this.readyState == 4 && this.status == 200) {
           var jObj = JSON.parse(this.responseText);
           alert(jObj.status); // Always display status returned.
+          getSettings(); // Refresh the current network settings.
         }
       };
       xhttp.open("PUT", "/wifi/update", true);

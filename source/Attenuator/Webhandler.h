@@ -20,6 +20,10 @@
 
 #pragma once
 
+// Forward function declarations.
+bool startAccesPoint();
+bool startExternalWifi();
+
 /*
  * Web Handler Functions - Performs actions or returns data for web UI
  */
@@ -50,6 +54,7 @@ void handlePassword(AsyncWebServerRequest *request) {
 
 void handlePackSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest pack EEPROM values.
+  b_received_prefs_pack = false;
   attenuatorSerialSend(A_REQUEST_PREFERENCES_PACK);
 
   // Used for the settings page from the web server.
@@ -60,6 +65,7 @@ void handlePackSettings(AsyncWebServerRequest *request) {
 
 void handleWandSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest wand EEPROM values.
+  b_received_prefs_wand = false;
   attenuatorSerialSend(A_REQUEST_PREFERENCES_WAND);
 
   // Used for the settings page from the web server.
@@ -70,6 +76,7 @@ void handleWandSettings(AsyncWebServerRequest *request) {
 
 void handleSmokeSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest smoke EEPROM values.
+  b_received_prefs_smoke = false;
   attenuatorSerialSend(A_REQUEST_PREFERENCES_SMOKE);
 
   // Used for the settings page from the web server.
@@ -91,6 +98,9 @@ String getPackConfig() {
   jsonBody.clear();
 
   if(!b_wait_for_pack) {
+    // Provide a flag to indicate prefs were received via serial coms.
+    jsonBody["prefsAvailable"] = b_received_prefs_pack;
+
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on ? true : false);
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
@@ -135,6 +145,9 @@ String getWandConfig() {
   jsonBody.clear();
 
   if(!b_wait_for_pack) {
+    // Provide a flag to indicate prefs were received via serial coms.
+    jsonBody["prefsAvailable"] = b_received_prefs_wand;
+
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on ? true : false);
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
@@ -174,6 +187,9 @@ String getSmokeConfig() {
   jsonBody.clear();
 
   if(!b_wait_for_pack) {
+    // Provide a flag to indicate prefs were received via serial coms.
+    jsonBody["prefsAvailable"] = b_received_prefs_smoke;
+
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on ? true : false);
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
@@ -665,16 +681,25 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     // Password is used for the built-in Access Point ability, which will be used when a preferred network is not available.
     if(newPasswd.length() >= 8) {
       preferences.begin("credentials", false); // Access namespace in read/write mode.
-      preferences.putString("ssid", ap_ssid); // Store SSID in case this was changed.
+      preferences.putString("ssid", ap_ssid); // Store SSID in case this was altered.
       preferences.putString("password", newPasswd); // Store user-provided password.
       preferences.end();
 
+      bool b_restarted_ap = false;
+      if(WiFi.softAPdisconnect(false)) {
+        b_restarted_ap = startAccesPoint();
+      }
+
       jsonBody.clear();
-      jsonBody["status"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
+      if(b_restarted_ap) {
+        jsonBody["status"] = "Password updated, restarted private network. Please enter your new WiFi password when prompted by your device.";
+      }
+      else {
+        jsonBody["status"] = "Password updated, but could not restart the private network. Please try again by pressing the 'Update' button.";
+      }
+
       serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
-      delay(1000); // Pause to allow response to flow.
-      ESP.restart(); // Reboot device
     }
     else {
       // Password must be at least 8 characters in length.
@@ -706,6 +731,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
   String result;
   if(jsonBody.containsKey("network") && jsonBody.containsKey("password")) {
     bool b_errors = false; // Assume false until otherwise indicated.
+    bool b_reconnected = false; // Assume the worst case for restart.
     bool b_enabled = jsonBody["enabled"].as<bool>();
     String wifiNetwork = jsonBody["network"];
     String wifiPasswd = jsonBody["password"];
@@ -744,12 +770,20 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     }
 
     if(!b_errors) {
+      // Disconnect from the WiFi network and re-apply any changes.
+      WiFi.disconnect();
+      b_reconnected = startExternalWifi();
+
       jsonBody.clear();
-      jsonBody["status"] = "WiFi settings updated, rebooting controller.";
+      if(b_reconnected) {
+        jsonBody["status"] = "Settings updated, WiFi connection restarted successfully.";
+      }
+      else {
+        jsonBody["status"] = "Settings updated, but WiFi connection was not successful.";
+      }
+
       serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
-      delay(1000); // Pause to allow response to flow.
-      ESP.restart(); // Reboot device
     }
     else {
       jsonBody.clear();

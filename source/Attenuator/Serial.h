@@ -280,6 +280,7 @@ bool checkPack() {
           // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Pack Preferences Received");
+            b_received_prefs_pack = true;
             packComs.rxObj(packConfig);
           #endif
         break;
@@ -288,6 +289,7 @@ bool checkPack() {
           // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Wand Preferences Received");
+            b_received_prefs_wand = true;
             packComs.rxObj(wandConfig);
           #endif
         break;
@@ -296,6 +298,7 @@ bool checkPack() {
           // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Smoke Preferences Received");
+            b_received_prefs_smoke = true;
             packComs.rxObj(smokeConfig);
           #endif
         break;
