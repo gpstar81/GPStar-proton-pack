@@ -21,7 +21,14 @@
 #pragma once
 
 // Types of packets to be sent.
-enum PACKET_TYPE { PACKET_UNKNOWN, PACKET_COMMAND, PACKET_DATA, PACKET_PACK, PACKET_WAND, PACKET_SMOKE };
+enum PACKET_TYPE : uint8_t {
+  PACKET_UNKNOWN = 0,
+  PACKET_COMMAND = 1,
+  PACKET_DATA = 2,
+  PACKET_PACK = 3,
+  PACKET_WAND = 4,
+  PACKET_SMOKE = 5
+};
 
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
