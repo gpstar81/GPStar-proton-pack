@@ -30,9 +30,9 @@ enum PACKET_TYPE : uint8_t {
   PACKET_SMOKE = 5
 };
 
-// For command signals (2 byte ID, 2 byte optional data).
+// For command signals (1 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
-  uint16_t c;
+  uint8_t c;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
@@ -41,9 +41,9 @@ struct CommandPacket recvCmdW;
 struct CommandPacket sendCmdS;
 struct CommandPacket recvCmdS;
 
-// For generic data communication (2 byte ID, 4 byte array).
+// For generic data communication (1 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
-  uint16_t m;
+  uint8_t m;
   uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
 };
 
@@ -87,6 +87,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t spectralHolidayMode;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
+  uint8_t wandVibration;
   uint8_t wandSoundsToPack;
   uint8_t quickVenting;
   uint8_t autoVentLight;
@@ -205,7 +206,7 @@ void toggleYearModes() {
  */
 
 // Outgoing commands to the Serial1 device
-void serial1Send(uint16_t i_command, uint16_t i_value) {
+void serial1Send(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
   // debugln("Command to Serial1: " + String(i_command));
@@ -217,12 +218,12 @@ void serial1Send(uint16_t i_command, uint16_t i_value) {
   serial1Coms.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
-void serial1Send(uint16_t i_command) {
+void serial1Send(uint8_t i_command) {
   serial1Send(i_command, 0);
 }
 
 // Outgoing payloads to the Serial1 device
-void serial1SendData(uint16_t i_message) {
+void serial1SendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
   // debugln("Data to Serial1: " + String(i_message));
@@ -340,7 +341,7 @@ void serial1SendData(uint16_t i_message) {
 }
 
 // Outgoing commands to the wand
-void packSerialSend(uint16_t i_command, uint16_t i_value) {
+void packSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
   // debugln("Command to Wand: " + String(i_command));
@@ -352,12 +353,12 @@ void packSerialSend(uint16_t i_command, uint16_t i_value) {
   packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
-void packSerialSend(uint16_t i_command) {
+void packSerialSend(uint8_t i_command) {
   packSerialSend(i_command, 0);
 }
 
 // Outgoing payloads to the wand
-void packSerialSendData(uint16_t i_message) {
+void packSerialSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
   // debugln("Data to Wand: " + String(i_message));
@@ -396,8 +397,8 @@ void packSerialSendData(uint16_t i_message) {
 }
 
 // Forward function declaration.
-void handleSerialCommand(uint16_t i_command, uint16_t i_value);
-void handleWandCommand(uint16_t i_command, uint16_t i_value);
+void handleSerialCommand(uint8_t i_command, uint16_t i_value);
+void handleWandCommand(uint8_t i_command, uint16_t i_value);
 
 // Incoming messages from the extra Serial1 port.
 void checkSerial1() {
@@ -607,7 +608,7 @@ void checkSerial1() {
   }
 }
 
-void handleSerialCommand(uint16_t i_command, uint16_t i_value) {
+void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
   switch(i_command) {
     case A_HANDSHAKE:
       // The Attenuator is still here.
@@ -1181,7 +1182,7 @@ void doWandSync() {
   serial1Send(A_WAND_CONNECTED);
 }
 
-void handleWandCommand(uint16_t i_command, uint16_t i_value) {
+void handleWandCommand(uint8_t i_command, uint16_t i_value) {
   switch(i_command) {
     case W_SYNC_NOW:
       // Wand has explicitly asked to be synchronized, so treat as not yet connected.

@@ -41,18 +41,18 @@ enum PACKET_TYPE : uint8_t {
   PACKET_SMOKE = 5
 };
 
-// For command signals (2 byte ID, 2 byte optional data).
+// For command signals (1 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
-  uint16_t c;
+  uint8_t c;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
 struct CommandPacket sendCmd;
 struct CommandPacket recvCmd;
 
-// For generic data communication (2 byte ID, 4 byte array).
+// For generic data communication (1 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
-  uint16_t m;
+  uint8_t m;
   uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
 };
 
@@ -139,7 +139,7 @@ struct __attribute__((packed)) SmokePrefs {
  */
 
 // Sends an API to the Proton Pack
-void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
+void attenuatorSerialSend(uint8_t i_command, uint16_t i_value = 0) {
   uint16_t i_send_size = 0;
 
   #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
@@ -155,7 +155,7 @@ void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
 }
 
 // Sends an API to the Proton Pack
-void attenuatorSerialSendData(uint16_t i_message) {
+void attenuatorSerialSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
   #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
@@ -209,7 +209,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
 }
 
 // Forward function declaration.
-bool handleCommand(uint16_t i_command, uint16_t i_value);
+bool handleCommand(uint8_t i_command, uint16_t i_value);
 
 // Handles an API (and data) sent from the Proton Pack
 bool checkPack() {
@@ -316,7 +316,7 @@ bool checkPack() {
   return false; // Returns false if still here.
 }
 
-bool handleCommand(uint16_t i_command, uint16_t i_value) {
+bool handleCommand(uint8_t i_command, uint16_t i_value) {
   bool b_state_changed = false; // Indicates when a crucial state change occurred.
 
   switch(i_command) {

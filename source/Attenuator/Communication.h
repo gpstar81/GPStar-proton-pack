@@ -20,7 +20,13 @@
 
 #pragma once
 
-enum api_messages {
+/*
+ * These enum definitions must be kept in sync across the devices they communicate with, using the same dataype and ordering.
+ * Enum values are internally considered integer values and here they are being given a distinct underlying datatype of uint8_t.
+ * It is therefore important that the total number of elements per enum must remain below 254 to not overflow that (byte) type.
+ */
+
+enum api_messages : uint8_t {
   A_NULL,
   A_HANDSHAKE,
   A_SYNC_START,

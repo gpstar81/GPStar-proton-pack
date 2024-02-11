@@ -29,18 +29,18 @@ enum PACKET_TYPE : uint8_t {
   PACKET_SMOKE = 5
 };
 
-// For command signals (2 byte ID, 2 byte optional data).
+// For command signals (1 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
-  uint16_t c;
+  uint8_t c;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
 };
 
 struct CommandPacket sendCmd;
 struct CommandPacket recvCmd;
 
-// For generic data communication (2 byte ID, 4 byte array).
+// For generic data communication (1 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
-  uint16_t m;
+  uint8_t m;
   uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
 };
 
@@ -100,7 +100,7 @@ struct __attribute__((packed)) SmokePrefs {
  */
 
 // Outgoing commands to the pack.
-void wandSerialSend(uint16_t i_command, uint16_t i_value) {
+void wandSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
   // Only sends when pack is present.
@@ -117,12 +117,12 @@ void wandSerialSend(uint16_t i_command, uint16_t i_value) {
   }
 }
 // Override function to handle calls with a single parameter.
-void wandSerialSend(uint16_t i_command) {
+void wandSerialSend(uint8_t i_command) {
   wandSerialSend(i_command, 0);
 }
 
 // Outgoing payloads to the pack.
-void wandSerialSendData(uint16_t i_message) {
+void wandSerialSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
   // Only sends when pack is present.
@@ -289,7 +289,7 @@ void wandSerialSendData(uint16_t i_message) {
 }
 
 // Forward function declaration.
-void handlePackCommand(uint16_t i_command, uint16_t i_value);
+void handlePackCommand(uint8_t i_command, uint16_t i_value);
 
 // Pack communication to the wand.
 void checkPack() {
@@ -527,7 +527,7 @@ void checkPack() {
   }
 }
 
-void handlePackCommand(uint16_t i_command, uint16_t i_value) {
+void handlePackCommand(uint8_t i_command, uint16_t i_value) {
   switch(i_command) {
     case P_HANDSHAKE:
       // The pack is asking us if we are still here so respond accordingly.
