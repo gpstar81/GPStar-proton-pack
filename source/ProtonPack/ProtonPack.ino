@@ -4259,8 +4259,8 @@ void wandDisconnectCheck() {
       }
     }
     else {
-      if(ms_wand_check.remaining() < 1000 && !b_wand_syncing) {
-        // If within 1 second of the disconnect timeout, force a handshake with the wand.
+      if(ms_wand_check.remaining() < 2000 && !b_wand_syncing) {
+        // If within 2 seconds of the disconnect timeout, force a handshake with the wand.
         // This should be a last-resort check to make sure it's available and responding.
         b_wand_syncing = true;
         packSerialSend(P_HANDSHAKE);
