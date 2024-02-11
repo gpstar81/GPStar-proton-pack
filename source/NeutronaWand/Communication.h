@@ -19,7 +19,13 @@
 
 #pragma once
 
-enum pack_messages {
+/*
+ * These enum definitions must be kept in sync across the devices they communicate with, using the same dataype and ordering.
+ * Enum values are internally considered integer values and here they are being given a distinct underlying datatype of uint8_t.
+ * It is therefore important that the total number of elements per enum must remain below 254 to not overflow that (byte) type.
+ */
+
+enum pack_messages : uint8_t {
   P_NULL,
   P_HANDSHAKE,
   P_SYNC_START,
@@ -137,7 +143,7 @@ enum pack_messages {
   P_SAVE_EEPROM_WAND
 };
 
-enum wand_messages {
+enum wand_messages : uint8_t {
   W_NULL,
   W_HANDSHAKE,
   W_SYNC_NOW,

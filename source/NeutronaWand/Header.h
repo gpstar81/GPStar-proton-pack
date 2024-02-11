@@ -459,9 +459,9 @@ const unsigned int i_ms_power_indicator_blink = 1000;
 /*
  * Function prototypes.
  */
-void wandSerialSend(uint16_t i_command, uint16_t i_value);
-void wandSerialSend(uint16_t i_command);
-void wandSerialSendData(uint16_t i_message);
+void wandSerialSend(uint8_t i_command, uint16_t i_value);
+void wandSerialSend(uint8_t i_command);
+void wandSerialSendData(uint8_t i_message);
 void checkPack();
 void checkWandAction();
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
