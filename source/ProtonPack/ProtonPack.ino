@@ -59,7 +59,7 @@
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600); // Add-on Serial1 communication.
-  Serial2.begin(4800); // Communication to the Neutrona Wand.
+  Serial2.begin(9600); // Communication to the Neutrona Wand.
 
   // Connect the serial ports.
   serial1Coms.begin(Serial1, false); // Attenuator/Wireless

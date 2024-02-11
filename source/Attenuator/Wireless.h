@@ -121,28 +121,9 @@ IPAddress convertToIP(String ipAddressString) {
   return ipAddress;
 }
 
-void OnWiFiEvent(WiFiEvent_t event) {
-  switch (event) {
-    case SYSTEM_EVENT_STA_CONNECTED:
-      debug("Connected to WiFi Network");
-    break;
-    case SYSTEM_EVENT_STA_DISCONNECTED:
-      debug("Disconnected from WiFi Network");
-    break;
-    case SYSTEM_EVENT_AP_START:
-      debug("Soft AP started");
-    break;
-    case SYSTEM_EVENT_AP_STACONNECTED:
-      debug("Station connected to softAP");
-    break;
-    case SYSTEM_EVENT_AP_STADISCONNECTED:
-      debug("Station disconnected from softAP");
-    break;
-    default:
-      // No-op for any other status.
-    break;
-  }
-}
+/*
+ * WiFi Management Functions
+ */
 
 bool startAccesPoint() {
   // Create an AP name unique to this device, to avoid stepping on similar hardware.
@@ -202,15 +183,7 @@ bool startAccesPoint() {
   return b_success;
 }
 
-bool startWiFi() {
-  // Begin some diagnostic information to console.
-  #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println();
-    Serial.println("Starting WiFi Configuration");
-    Serial.print("Device WiFi MAC Address: ");
-    Serial.println(WiFi.macAddress());
-  #endif
-
+bool startExternalWifi() {
   // Check for stored network preferences and attempt to connect as a client.
   preferences.begin("network", true); // Access namespace in read-only mode.
   #if defined(RESET_AP_SETTINGS)
@@ -228,19 +201,7 @@ bool startWiFi() {
   #endif
   preferences.end();
 
-  // Assign an event handler to deal with changes in WiFi status.
-  WiFi.onEvent(OnWiFiEvent);
-
-  if(b_wifi_enabled) {
-    // When external WiFi is desired, enable simultaneous SoftAP + Station mode.
-    WiFi.mode(WIFI_MODE_APSTA);
-  }
-
-  // Start the built-in access point (softAP) with the preferred credentials.
-  if(!b_ap_started) {
-    b_ap_started = startAccesPoint();
-  }
-
+  // User wants to utilize the external WiFi network and has valid SSID and password.
   if(b_wifi_enabled && wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
     uint8_t attemptCount = 0;
 
@@ -310,6 +271,56 @@ bool startWiFi() {
       #endif
     }
   }
+
+  return false; // If we reach this point the connection has failed.
+}
+
+void OnWiFiEvent(WiFiEvent_t event) {
+  switch (event) {
+    case SYSTEM_EVENT_STA_CONNECTED:
+      debug("Connected to WiFi Network");
+    break;
+    case SYSTEM_EVENT_STA_DISCONNECTED:
+      debug("Disconnected from WiFi Network");
+    break;
+    case SYSTEM_EVENT_AP_START:
+      debug("Soft AP started");
+    break;
+    case SYSTEM_EVENT_AP_STACONNECTED:
+      debug("Station connected to softAP");
+    break;
+    case SYSTEM_EVENT_AP_STADISCONNECTED:
+      debug("Station disconnected from softAP");
+    break;
+    default:
+      // No-op for any other status.
+    break;
+  }
+}
+
+bool startWiFi() {
+  // Begin some diagnostic information to console.
+  #if defined(DEBUG_WIRELESS_SETUP)
+    Serial.println();
+    Serial.println("Starting WiFi Configuration");
+    Serial.print("Device WiFi MAC Address: ");
+    Serial.println(WiFi.macAddress());
+  #endif
+
+  // Assign an event handler to deal with changes in WiFi status.
+  WiFi.onEvent(OnWiFiEvent);
+
+  if(b_wifi_enabled) {
+    // When external WiFi is desired, enable simultaneous SoftAP + Station mode.
+    WiFi.mode(WIFI_MODE_APSTA);
+  }
+
+  // Start the built-in access point (softAP) with the preferred credentials.
+  if(!b_ap_started) {
+    b_ap_started = startAccesPoint();
+  }
+
+  startExternalWifi(); // Connect to the external (preferred) WiFi as a client.
 
   return b_ap_started; // At least return whether the soft AP started successfully.
 }

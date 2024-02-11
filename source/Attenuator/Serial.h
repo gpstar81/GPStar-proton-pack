@@ -32,7 +32,14 @@ SerialTransfer packComs;
 bool b_sync_start = false; // Denotes pack communications have begun.
 
 // Types of packets to be sent.
-enum PACKET_TYPE { PACKET_UNKNOWN, PACKET_COMMAND, PACKET_DATA, PACKET_PACK, PACKET_WAND, PACKET_SMOKE };
+enum PACKET_TYPE : uint8_t {
+  PACKET_UNKNOWN = 0,
+  PACKET_COMMAND = 1,
+  PACKET_DATA = 2,
+  PACKET_PACK = 3,
+  PACKET_WAND = 4,
+  PACKET_SMOKE = 5
+};
 
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
@@ -144,7 +151,7 @@ void attenuatorSerialSend(uint16_t i_command, uint16_t i_value = 0) {
   sendCmd.d1 = i_value;
 
   i_send_size = packComs.txObj(sendCmd);
-  packComs.sendData(i_send_size, PACKET_COMMAND);
+  packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 
 // Sends an API to the Proton Pack
@@ -169,7 +176,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
         #endif
 
         i_send_size = packComs.txObj(packConfig);
-        packComs.sendData(i_send_size, PACKET_PACK);
+        packComs.sendData(i_send_size, (uint8_t) PACKET_PACK);
       #endif
     break;
 
@@ -180,7 +187,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
         #endif
 
         i_send_size = packComs.txObj(wandConfig);
-        packComs.sendData(i_send_size, PACKET_WAND);
+        packComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
       #endif
     break;
 
@@ -191,7 +198,7 @@ void attenuatorSerialSendData(uint16_t i_message) {
         #endif
 
         i_send_size = packComs.txObj(smokeConfig);
-        packComs.sendData(i_send_size, PACKET_SMOKE);
+        packComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
       #endif
     break;
 
@@ -280,6 +287,7 @@ bool checkPack() {
           // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Pack Preferences Received");
+            b_received_prefs_pack = true;
             packComs.rxObj(packConfig);
           #endif
         break;
@@ -288,6 +296,7 @@ bool checkPack() {
           // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Wand Preferences Received");
+            b_received_prefs_wand = true;
             packComs.rxObj(wandConfig);
           #endif
         break;
@@ -296,6 +305,7 @@ bool checkPack() {
           // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Smoke Preferences Received");
+            b_received_prefs_smoke = true;
             packComs.rxObj(smokeConfig);
           #endif
         break;

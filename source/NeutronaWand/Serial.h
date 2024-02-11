@@ -20,7 +20,14 @@
 #pragma once
 
 // Types of packets to be sent.
-enum PACKET_TYPE { PACKET_UNKNOWN, PACKET_COMMAND, PACKET_DATA, PACKET_PACK, PACKET_WAND, PACKET_SMOKE };
+enum PACKET_TYPE : uint8_t {
+  PACKET_UNKNOWN = 0,
+  PACKET_COMMAND = 1,
+  PACKET_DATA = 2,
+  PACKET_PACK = 3,
+  PACKET_WAND = 4,
+  PACKET_SMOKE = 5
+};
 
 // For command signals (2 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
@@ -106,7 +113,7 @@ void wandSerialSend(uint16_t i_command, uint16_t i_value) {
     ms_handshake.restart(); // Restart heartbeat timer.
 
     i_send_size = wandComs.txObj(sendCmd);
-    wandComs.sendData(i_send_size, PACKET_COMMAND);
+    wandComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
   }
 }
 // Override function to handle calls with a single parameter.
@@ -252,7 +259,7 @@ void wandSerialSendData(uint16_t i_message) {
         }
 
         i_send_size = wandComs.txObj(wandConfig);
-        wandComs.sendData(i_send_size, PACKET_WAND);
+        wandComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
       break;
 
       case W_SEND_PREFERENCES_SMOKE:
@@ -271,7 +278,7 @@ void wandSerialSendData(uint16_t i_message) {
         smokeConfig.overheatDelay1 = i_ms_overheat_initiate_mode_1 / 1000;
 
         i_send_size = wandComs.txObj(smokeConfig);
-        wandComs.sendData(i_send_size, PACKET_SMOKE);
+        wandComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
       break;
 
       default:
@@ -525,8 +532,8 @@ void handlePackCommand(uint16_t i_command, uint16_t i_value) {
     case P_HANDSHAKE:
       // The pack is asking us if we are still here so respond accordingly.
       if(b_wait_for_pack) {
-        // If still waiting for the pack, trigger a synchronization handshake.
-        wandSerialSend(W_HANDSHAKE);
+        // If still waiting for the pack, trigger an immediate synchronization.
+        wandSerialSend(W_SYNC_NOW);
       }
       else {
         // The wand already synchronized with the pack, so respond as such.
