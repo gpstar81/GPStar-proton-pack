@@ -423,7 +423,7 @@ void checkSerial1() {
 
         case PACKET_PACK:
           serial1Coms.rxObj(packConfig);
-          // debugln("Recv. Prefs Pack");
+          debugln("Recv. Pack Config");
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -567,7 +567,7 @@ void checkSerial1() {
 
         case PACKET_WAND:
           serial1Coms.rxObj(wandConfig);
-          // debugln("Recv. Prefs Wand");
+          debugln("Recv. Wand Config");
 
           // This will pass values from the wandConfig object
           packSerialSendData(P_SAVE_PREFERENCES_WAND);
@@ -579,7 +579,7 @@ void checkSerial1() {
 
         case PACKET_SMOKE:
           serial1Coms.rxObj(smokeConfig);
-          // debugln("Recv. Prefs Smoke");
+          debugln("Recv. Smoke Config");
   
           // Save local and remote (wand) smoke timing settings
           i_ms_overheating_length_5 = smokeConfig.overheatDuration5 * 1000;
@@ -978,7 +978,7 @@ void checkWand() {
 
         case PACKET_WAND:
           packComs.rxObj(wandConfig);
-          // debugln("Recv. Wand Config Prefs");
+          debugln("Recv. Wand Config Prefs");
 
           // Send the EEPROM preferences just returned by the wand.
           serial1SendData(A_SEND_PREFERENCES_WAND);
@@ -986,7 +986,7 @@ void checkWand() {
 
         case PACKET_SMOKE:
           packComs.rxObj(smokeConfig);
-          // debugln("Recv. Wand Smoke Prefs");
+          debugln("Recv. Wand Smoke Prefs");
 
           // Send the EEPROM preferences just returned by the wand.
           // This data will combine with the pack's smoke settings.
@@ -1192,12 +1192,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_HANDSHAKE:
       // Check if the wand is telling us it is here after connecting it to the pack.
-      // If first connected, synchronize some basic settings between the pack and the wand.
       if(!b_wand_connected && !b_wand_syncing) {
-        doWandSync();
+        doWandSync(); // On first connect synchronize some basic settings between the pack and the wand.
       }
       else if(b_wand_connected) {
-        // debugln("Recv. Wand Handshake");
         b_wand_syncing = false; // No longer attempting to force a sync w/ wand.
 
         // Wand was connected and still present, so reset the disconnection delay.
