@@ -1,4 +1,3 @@
-#include <unistd.h>
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
