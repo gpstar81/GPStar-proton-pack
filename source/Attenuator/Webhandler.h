@@ -1,3 +1,4 @@
+#include <unistd.h>
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
@@ -685,21 +686,14 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
       preferences.putString("password", newPasswd); // Store user-provided password.
       preferences.end();
 
-      bool b_restarted_ap = false;
-      if(WiFi.softAPdisconnect(false)) {
-        b_restarted_ap = startAccesPoint();
-      }
-
       jsonBody.clear();
-      if(b_restarted_ap) {
-        jsonBody["status"] = "Password updated, restarted private network. Please enter your new WiFi password when prompted by your device.";
-      }
-      else {
-        jsonBody["status"] = "Password updated, but could not restart the private network. Please try again by pressing the 'Update' button.";
-      }
-
+      jsonBody["status"] = "Password updated, restarting controller. Please enter your new WiFi password when prompted by your device.";
       serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
+
+      // Pause to allow response to flow, then restart the device.
+      delay(1000);
+      ESP.restart();
     }
     else {
       // Password must be at least 8 characters in length.
@@ -731,7 +725,6 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
   String result;
   if(jsonBody.containsKey("network") && jsonBody.containsKey("password")) {
     bool b_errors = false; // Assume false until otherwise indicated.
-    bool b_reconnected = false; // Assume the worst case for restart.
     bool b_enabled = jsonBody["enabled"].as<bool>();
     String wifiNetwork = jsonBody["network"];
     String wifiPasswd = jsonBody["password"];
@@ -770,16 +763,21 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     }
 
     if(!b_errors) {
+      jsonBody.clear();
+
       // Disconnect from the WiFi network and re-apply any changes.
       WiFi.disconnect();
-      b_reconnected = startExternalWifi();
-
-      jsonBody.clear();
-      if(b_reconnected) {
-        jsonBody["status"] = "Settings updated, WiFi connection restarted successfully.";
+      delay(100);
+      if(b_enabled) {
+        if(startExternalWifi()) {
+          jsonBody["status"] = "Settings updated, WiFi connection restarted successfully.";
+        }
+        else {
+          jsonBody["status"] = "Settings updated, but WiFi connection was not successful.";
+        }
       }
       else {
-        jsonBody["status"] = "Settings updated, but WiFi connection was not successful.";
+        jsonBody["status"] = "Settings updated, and external WiFi has been disconnected.";
       }
 
       serializeJson(jsonBody, result); // Serialize to string.
