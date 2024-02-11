@@ -74,10 +74,10 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Use Vibration:</b>
       <select id="wandVibration" name="wandVibration">
-        <option value="1">Always</option>
-        <option value="2">When Firing</option>
-        <option value="3">Never</option>
         <option value="4">Via Toggle</option>
+        <option value="3">Never</option>
+        <option value="2">When Firing</option>
+        <option value="1">Always</option>
       </select>
     </div>
     <div class="setting">

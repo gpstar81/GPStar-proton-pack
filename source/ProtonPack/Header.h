@@ -142,8 +142,8 @@ enum PACK_ACTION_STATES PACK_ACTION_STATE;
 /*
  * Cyclotron lid LEDs control and lid detection.
  */
-uint8_t cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
-uint8_t i_led_cyclotron = cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
+uint8_t i_cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
+uint8_t i_led_cyclotron = i_cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
 const unsigned int i_2021_ramp_delay = 300;
 const unsigned int i_2021_ramp_length = 6000;
 const unsigned int i_1984_ramp_length = 3000;
@@ -373,7 +373,7 @@ bool b_wand_on = false;
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
 uint8_t i_wand_power_level = 1; // Power level of the wand.
 millisDelay ms_wand_check; // Timer used to determine whether the wand has been disconnected.
-const unsigned int i_wand_disconnect_delay = 4000; // Time until the pack considers a wand as disconnected.
+const unsigned int i_wand_disconnect_delay = 8000; // Time until the pack considers a wand as disconnected.
 
 /*
  * Serial1 Status
@@ -458,12 +458,12 @@ millisDelay ms_battcheck; // Timer for checking battery voltage on a regular int
 /*
  * Function prototypes.
  */
-void packSerialSend(uint16_t i_command, uint16_t i_value);
-void packSerialSend(uint16_t i_command);
-void packSerialSendData(uint16_t i_message);
-void serial1Send(uint16_t i_command, uint16_t i_value);
-void serial1Send(uint16_t i_command);
-void serial1SendData(uint16_t i_message);
+void packSerialSend(uint8_t i_command, uint16_t i_value);
+void packSerialSend(uint8_t i_command);
+void packSerialSendData(uint8_t i_message);
+void serial1Send(uint8_t i_command, uint16_t i_value);
+void serial1Send(uint8_t i_command);
+void serial1SendData(uint8_t i_message);
 void checkSerial1();
 void checkWand();
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
