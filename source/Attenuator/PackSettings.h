@@ -290,6 +290,11 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         if (this.readyState == 4 && this.status == 200) {
           var settings = JSON.parse(this.responseText);
           if (settings) {
+            if (!settings.prefsAvailable) {
+              alert("An unexpected error occurred and preferences could not be downloaded. Please refresh the page to try again.");
+              return;
+            }
+
             if (settings.packPowered || settings.wandPowered) {
               alert("Pack and/or Wand are currently powered up. Changes to settings will not be allowed. Turn off system via toggle switches and reload the page to obtain the latest settings.");
             }

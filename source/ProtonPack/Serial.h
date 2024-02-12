@@ -971,12 +971,22 @@ void checkWand() {
         break;
 
         case PACKET_DATA:
+          if(!b_wand_connected) {
+            // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
+            return;
+          }
+
           packComs.rxObj(recvDataW);
           debugln("Recv. Wand Data: " + String(recvDataW.m));
           // No handlers at this time.
         break;
 
         case PACKET_WAND:
+          if(!b_wand_connected) {
+            // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
+            return;
+          }
+
           packComs.rxObj(wandConfig);
           debugln("Recv. Wand Config Prefs");
 
@@ -985,6 +995,11 @@ void checkWand() {
         break;
 
         case PACKET_SMOKE:
+          if(!b_wand_connected) {
+            // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
+            return;
+          }
+
           packComs.rxObj(smokeConfig);
           debugln("Recv. Wand Smoke Prefs");
 
@@ -1183,11 +1198,21 @@ void doWandSync() {
 }
 
 void handleWandCommand(uint8_t i_command, uint16_t i_value) {
+  if(!b_wand_connected) {
+    // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
+    if(i_command != W_SYNC_NOW && i_command != W_HANDSHAKE && i_command != W_SYNCHRONIZED) {
+      // This applies for any action other than those responsible for sync operations.
+      return;
+    }
+  }
+
   switch(i_command) {
     case W_SYNC_NOW:
       // Wand has explicitly asked to be synchronized, so treat as not yet connected.
       b_wand_connected = false;
-      doWandSync();
+      if(!b_wand_syncing) {
+        doWandSync();
+      }
     break;
 
     case W_HANDSHAKE:
