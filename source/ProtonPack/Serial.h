@@ -344,7 +344,7 @@ void serial1SendData(uint8_t i_message) {
 void packSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
-  // debugln("Command to Wand: " + String(i_command));
+  debugln("Command to Wand: " + String(i_command));
 
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;

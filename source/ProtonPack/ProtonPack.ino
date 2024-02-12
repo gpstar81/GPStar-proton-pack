@@ -18,7 +18,7 @@
  */
 
 // Set to 1 to enable built-in debug messages
-#define DEBUG 0
+#define DEBUG 1
 
 // Debug macros
 #if DEBUG == 1

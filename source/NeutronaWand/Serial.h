@@ -535,11 +535,29 @@ void checkPack() {
   }
 }
 
+void doPostConnect() {
+  delay(100);
+debugln("1");
+  digitalWrite(led_white, HIGH); // Turn off the sync indicator LED as the wand is now connected.
+debugln("2");
+  // Acknowledgement that the wand is now synchronized.
+  wandSerialSend(W_SYNCHRONIZED);
+debugln("3");
+  // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
+  // Otherwise the switchBarrel() will tell it if it's retracted during bootup.
+  if(switchBarrel() == true) {
+    wandSerialSend(W_BARREL_EXTENDED);
+  }
+debugln("4");
+  b_waiting_for_pack = false; // No longer waiting on the pack to be connected.
+debugln("5");
+}
+
 void handlePackCommand(uint8_t i_command, uint16_t i_value) {
   switch(i_command) {
     case P_HANDSHAKE:
       // The pack is asking us if we are still here so respond accordingly.
-      if(b_wait_for_pack) {
+      if(b_waiting_for_pack == true) {
         // If still waiting for the pack, trigger an immediate synchronization.
         wandSerialSend(W_SYNC_NOW);
       }
@@ -551,26 +569,12 @@ void handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_SYNC_START:
       debugln("Pack Sync Start");
-      b_synchronizing = true; // Sync process has begun, set a semaphore to avoid another sync attempt.
+      ms_handshake.stop(); // Stop the handshake timer until synchronization has completed.
     break;
 
     case P_SYNC_END:
       debugln("Pack Sync End");
-      b_synchronizing = false; // Sync process has completed so remove the semaphore.
-      b_wait_for_pack = false; // Initial handshake is complete, no longer waiting on the pack.
-
-      digitalWrite(led_white, HIGH); // Turn off the sync indicator LED. The wand is now connected.
-
-      switchBarrel(); // Determine the state of the barrel safety switch.
-
-      // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
-      // Otherwise the switchBarrel() will tell it if it's retracted during bootup.
-      if(b_switch_barrel_extended == true) {
-        wandSerialSend(W_BARREL_EXTENDED);
-      }
-
-      // Acknowledgement that the wand is now synchronized.
-      wandSerialSend(W_SYNCHRONIZED);
+      doPostConnect(); // Set up state for post-sync actions, indicating a connected wand.
     break;
 
     case P_PACK_BOOTUP:
@@ -924,7 +928,7 @@ void handlePackCommand(uint8_t i_command, uint16_t i_value) {
       b_vibration_enabled = true;
 
       // Only play the voice if we are not doing a Proton Pack / Neutrona Wand synchronisation.
-      if(b_wait_for_pack != true) {
+      if(b_waiting_for_pack != true) {
         stopEffect(S_BEEPS_ALT);
 
         playEffect(S_BEEPS_ALT);
@@ -941,7 +945,7 @@ void handlePackCommand(uint8_t i_command, uint16_t i_value) {
       b_vibration_enabled = false;
 
       // Only play the voice if we are not doing a Proton Pack / Neutrona Wand synchronisation.
-      if(b_wait_for_pack != true) {
+      if(b_waiting_for_pack != true) {
         stopEffect(S_BEEPS_ALT);
 
         playEffect(S_BEEPS_ALT);

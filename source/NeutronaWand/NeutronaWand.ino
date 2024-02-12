@@ -28,7 +28,7 @@
 #endif
 
 // Set to 1 to enable built-in debug messages
-#define DEBUG 0
+#define DEBUG 1
 
 // Debug macros
 #if DEBUG == 1
@@ -203,9 +203,9 @@ void setup() {
   ms_handshake.start(1);
 
   if(b_gpstar_benchtest == true) {
-    b_wait_for_pack = false;
-    b_pack_on = true;
-    b_pack_ion_arm_switch_on = true;
+    b_waiting_for_pack = false; // Not waiting on a pack (as it will never be connected in this mode).
+    b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
+    b_pack_ion_arm_switch_on = true; // Pretend the red arming switch has been set to on.
 
     // Check music timer for bench test mode only.
     ms_check_music.start(i_music_check_delay);
@@ -213,24 +213,21 @@ void setup() {
 }
 
 void loop() {
-  if(b_wait_for_pack == true) {
+  if(b_waiting_for_pack == true) {
     // While waiting for a proton pack, issue a request for synchronization.
     if(ms_handshake.justFinished()) {
       // If not already doing so, explicitly tell the pack a wand is here to sync.
-      if(!b_synchronizing) {
-        wandSerialSend(W_SYNC_NOW);
-      }
+      wandSerialSend(W_SYNC_NOW);
       ms_handshake.start(i_handshake_initial_delay); // Prepare for the next sync attempt.
       b_sync_light = !b_sync_light; // Toggle a white LED while attempting to sync.
       digitalWrite(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
     }
 
-    // Check for any response from the pack while still waiting.
-    checkPack();
+    checkPack(); // Check for any response from the pack while still waiting.
   }
   else {
     // If connected to a pack, prepare to send a regular handshake to indicate presence.
-    if(!b_gpstar_benchtest && ms_handshake.justFinished()) {
+    if(!b_gpstar_benchtest && (!ms_handshake.isRunning() || ms_handshake.justFinished())) {
       wandSerialSend(W_HANDSHAKE); // Remind the pack that a wand is still present.
       ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
     }
@@ -7332,7 +7329,7 @@ void switchModePressedReset() {
 // Barrel safety switch is connected to analog pin 7.
 // PCB builds is pulled high as digital input.
 // Maybe switch it to a ezButton later??
-void switchBarrel() {
+bool switchBarrel() {
   if(digitalRead(switch_barrel) == LOW && ms_switch_barrel_debounce.remaining() < 1) {
     ms_switch_barrel_debounce.start(switch_debounce_time * 5);
 
@@ -7359,6 +7356,8 @@ void switchBarrel() {
 
     b_switch_barrel_extended = true;
   }
+
+  return b_switch_barrel_extended; // Immediate return of state.
 }
 
 void stopAfterLifeSounds() {
@@ -7405,23 +7404,21 @@ void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b
     i_track_volume = i_volume_abs_max;
   }
 
-  if(b_synchronizing != true) {
-    if(b_fade_in == true) {
-      w_trig.trackGain(i_track_id, i_volume_abs_min);
-      w_trig.trackPlayPoly(i_track_id, true);
-      w_trig.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
-    }
-    else {
-      w_trig.trackGain(i_track_id, i_track_volume);
-      w_trig.trackPlayPoly(i_track_id, true);
-    }
+  if(b_fade_in == true) {
+    w_trig.trackGain(i_track_id, i_volume_abs_min);
+    w_trig.trackPlayPoly(i_track_id, true);
+    w_trig.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+  }
+  else {
+    w_trig.trackGain(i_track_id, i_track_volume);
+    w_trig.trackPlayPoly(i_track_id, true);
+  }
 
-    if(b_track_loop == true) {
-      w_trig.trackLoop(i_track_id, 1);
-    }
-    else {
-      w_trig.trackLoop(i_track_id, 0);
-    }
+  if(b_track_loop == true) {
+    w_trig.trackLoop(i_track_id, 1);
+  }
+  else {
+    w_trig.trackLoop(i_track_id, 0);
   }
 }
 

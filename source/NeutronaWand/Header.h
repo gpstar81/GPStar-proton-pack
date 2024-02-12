@@ -392,10 +392,9 @@ SerialTransfer wandComs;
  */
 bool b_pack_on = false; // Denotes the pack has been powered on.
 bool b_pack_alarm = false; // Denotes the alarm (ribbon cable) has been disconnected.
-bool b_wait_for_pack = true; // Denotes the wand is waiting for response by a connected pack (is set to false when b_gpstar_benchtest is true).
-bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the Proton Pack and Neutrona Wand.
-bool b_synchronizing = false; // Indicates whether a synchronization with the pack is in process (between SYNC_START and SYNC_END).
-bool b_sync_light = false; // Toggle the white LED beside the vent light as the sync operation is attempted.
+bool b_waiting_for_pack = true; // Denotes the wand is waiting for response by a connected pack (is set to false when b_gpstar_benchtest is true).
+bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
+bool b_sync_light = false; // Toggle for the state of the white LED beside the vent light which gets blinked as a sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
 millisDelay ms_handshake; // Timer for attempting a new handshake while initializing pack communications.
 const unsigned int i_handshake_initial_delay = 750; // Delay to re-try the initial handshake with a proton pack.
