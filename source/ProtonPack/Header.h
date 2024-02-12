@@ -259,7 +259,7 @@ millisDelay ms_volume_check; // Put some timing on the master volume gain to not
  * Vibration motor settings
  *
  * Vibration default is based on the toggle switch position. These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
- */ 
+ */
 enum VIBRATION_MODES_EEPROM { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
 enum VIBRATION_MODES_EEPROM VIBRATION_MODE_EEPROM;
 const uint8_t vibration = 45;

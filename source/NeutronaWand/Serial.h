@@ -391,26 +391,26 @@ void checkPack() {
               b_cross_the_streams = false;
               b_vg_mode = true;
             break;
-          }          
+          }
 
           switch(wandConfig.wandVibration) {
             case 1:
               b_vibration_enabled = true;
               b_vibration_on = true;
               b_vibration_firing = false;
-              VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;          
+              VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
             break;
             case 2:
               b_vibration_enabled = true;
               b_vibration_on = true;
               b_vibration_firing = true;
-              VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;          
+              VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
             break;
             case 3:
               b_vibration_enabled = false;
               b_vibration_firing = false;
               b_vibration_on = false;
-              VIBRATION_MODE_EEPROM = VIBRATION_NONE;         
+              VIBRATION_MODE_EEPROM = VIBRATION_NONE;
             break;
             case 4:
             default:
@@ -801,10 +801,10 @@ void handlePackCommand(uint8_t i_command, uint16_t i_value) {
           default:
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);                
-              
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+
               wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-            }   
+            }
 
             stopEffect(S_WAND_SHUTDOWN);
             playEffect(S_WAND_SHUTDOWN);

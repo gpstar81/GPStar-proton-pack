@@ -222,7 +222,7 @@ bool startExternalWifi() {
       if (WiFi.status() == WL_CONNECTED) {
         // Configure static IP values for tis device on the preferred network.
         if(wifi_address.length() >= 7 && wifi_subnet.length() >= 7 && wifi_gateway.length() >= 7) {
-          #if defined(DEBUG_WIRELESS_SETUP)          
+          #if defined(DEBUG_WIRELESS_SETUP)
             Serial.print("Using Stored IP: ");
             Serial.print(wifi_address);
             Serial.print(" / ");
@@ -249,7 +249,7 @@ bool startExternalWifi() {
         wifi_subnet = subnetMask.toString();
         wifi_gateway = gatewayIP.toString();
 
-        #if defined(DEBUG_WIRELESS_SETUP)          
+        #if defined(DEBUG_WIRELESS_SETUP)
           Serial.print("WiFi IP Address: ");
           Serial.print(localIP);
           Serial.print(" / ");

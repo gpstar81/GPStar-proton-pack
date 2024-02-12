@@ -46,7 +46,7 @@ const char NETWORK_page[] PROGMEM = R"=====(
       <label class="switch">
         <input id="enabled" name="enabled" type="checkbox">
         <span class="slider round"></span>
-      </label>  
+      </label>
     </div>
     &nbsp;&nbsp;&nbsp;<b>WiFi Network:</b> <input type="text" id="network" width="100" maxlength="30"/>
     <br/>
@@ -62,7 +62,7 @@ const char NETWORK_page[] PROGMEM = R"=====(
       <label class="switch">
         <input id="editIP" name="editIP" type="checkbox">
         <span class="slider round"></span>
-      </label>  
+      </label>
     </div>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Static IP:</b> <input type="text" id="address" width="100" maxlength="15" disabled/>
     <br/>
@@ -107,12 +107,12 @@ const char NETWORK_page[] PROGMEM = R"=====(
       xhttp.send();
     }
 
-    function isValidIP(ipAddress) {  
-      if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipAddress)) {  
+    function isValidIP(ipAddress) {
+      if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipAddress)) {
         return true;
       }
-      return false;  
-    } 
+      return false;
+    }
 
     // Set up some variables to fields which will be controlled via certain actions.
     var addressInput = document.getElementById("address");

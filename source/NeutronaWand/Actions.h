@@ -137,7 +137,7 @@ void checkWandAction() {
           if(b_extra_pack_sounds == true) {
             wandSerialSend(W_WAND_BEEP_SOUNDS);
           }
-          
+
           ms_blink_sound_timer_1.start(i_blink_sound_timer);
 
           playEffect(S_BEEPS_LOW);
@@ -278,13 +278,12 @@ void checkWandAction() {
 
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to clear its current configuration from the EEPROM.
-              // Proton Stream Impact Effects / 3 LED mode in 1984/1989
               wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
 
               stopEffect(S_VOICE_EEPROM_ERASE);
               playEffect(S_VOICE_EEPROM_ERASE);
 
-              // Clear wand EEPROM. (CTS/VGA, Overheating)
+              // Clear wand EEPROM.
               clearConfigEEPROM();
 
               wandExitEEPROMMenu();
@@ -649,7 +648,7 @@ void checkWandAction() {
                   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
                   b_vibration_on = true;
                   b_vibration_firing = true;
-                  
+
                   // If there's no Pack, reset b_vibration_enabled to true
                   if(b_gpstar_benchtest == true) {
                     b_vibration_enabled = true;
@@ -712,9 +711,9 @@ void checkWandAction() {
 
         // Menu Level 1: Intensify: Enable or Disable overheating settings.
         // Menu Level 1: Barrel Wing Button: Enable or disable smoke.
-        // Menu Level 2: Intensify: Enable/Disable MODE_ORIGINAL toggle switch sound effects.
+        // Menu Level 2: Intensify: Enable/Disable Wand beeping in Afterlife / Frozen Empire modes.
         // Menu Level 2: Barrel Wing Button: Cycle through VG color modes to disable them. (see operational guide for more details on this).
-        // Menu Level 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default
+        // Menu Level 3: Intensify: Bargraph Idle Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 3
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 3
@@ -728,7 +727,6 @@ void checkWandAction() {
               toggleOverHeating();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              // Enable/Disable MODE_ORIGINAL toggle switch sound effects. b_mode_original_toggle_sounds_enabled
               if(b_beep_loop == true) {
                 b_beep_loop = false;
 
@@ -985,8 +983,8 @@ void checkWandAction() {
           }
         break;
 
-        // Menu Level 1: Intensify: Enable or disable Proton Stream Impact Effects.
-        // Menu Level 1: Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
+        // Menu Level 1: Intensify: Enable or disable extra Neutrona Wand Sounds.
+        // Menu Level 1: Barrel Wing Button: Enable or disable Proton Stream Impact Effects.
         // Menu Level 2: Intensify: 1984 / 1989 / Afterlife / Default (Proton Pack toggle switch) year mode selection.
         // Menu Level 2: Barrel Wing Button: Overheat sync to fan.
         // Menu Level 3: Intensify: Toggle between Super Hero and Original Mode.
@@ -1000,8 +998,20 @@ void checkWandAction() {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              // Tell the Proton Pack to toggle the Proton Stream impact effects.
-              wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+              if(b_extra_pack_sounds == true) {
+                b_extra_pack_sounds = false;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+              }
+              else {
+                b_extra_pack_sounds = true;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+              }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Sub menu.
@@ -1010,6 +1020,16 @@ void checkWandAction() {
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               // Toggle between Super Hero and Mode Original.
               wandSerialSend(W_MODE_TOGGLE);
+
+              // If there is no Pack, we need to cycle modes manually.
+              if(b_gpstar_benchtest == true) {
+                if(SYSTEM_MODE == MODE_SUPER_HERO) {
+                  SYSTEM_MODE = MODE_ORIGINAL;
+                }
+                else {
+                  SYSTEM_MODE = MODE_SUPER_HERO;
+                }
+              }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Overheat smoke duration level 1.
@@ -1049,20 +1069,8 @@ void checkWandAction() {
 
           if(switchMode() == true) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              if(b_extra_pack_sounds == true) {
-                b_extra_pack_sounds = false;
-
-                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
-
-                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
-              }
-              else {
-                b_extra_pack_sounds = true;
-
-                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
-
-                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
-              }
+              // Tell the Proton Pack to toggle the Proton Stream impact effects.
+              wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
@@ -1141,6 +1149,7 @@ void checkWandAction() {
 
       switch(i_wand_menu) {
         // Menu Level 1: (Intensify) -> Music track loop setting.
+        // Menu Level 1: (Barrel Wing Button) -> Exit menu. <--handled by altWingButtonCheck() if wand is on, or wandExitMenu() is wand is off
         // Menu Level 2: (Intensify) -> Enable or disable crossing the streams / video game modes.
         // Menu Level 2: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
         case 5:
@@ -1211,8 +1220,9 @@ void checkWandAction() {
           }
         break;
 
-        // Menu Level 1: (Intensify + Top dial) -> Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
-        // Menu Level 1: (Intensify) -> Toggle Cyclotron rotation direction.
+        // Menu Level 1: (Intensify + Top dial) -> Adjust Proton Pack / Neutrona Wand sound effects.
+        // Menu Level 1: (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
+        // Menu Level 2: (Intensify) -> Toggle Cyclotron rotation direction.
         // Menu Level 2: (Barrel Wing Button) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
         case 3:
           // Top menu code is handled in checkRotary();
@@ -1361,7 +1371,7 @@ void checkWandAction() {
               }
             }
 
-            // Silence the Proton Pack or Neutrona Wand or revert back.
+            // Silence the Proton Pack and Neutrona Wand or revert back to previously-selected volume.
             if(switchMode() == true) {
               if(i_volume_master == i_volume_abs_min) {
                 wandSerialSend(W_VOLUME_REVERT);
@@ -1409,7 +1419,6 @@ void checkWandAction() {
                   break;
 
                   case SYSTEM_1989:
-                  default:
                     // 1989 -> Afterlife
                     WAND_YEAR_MODE = YEAR_AFTERLIFE;
 
@@ -1424,6 +1433,7 @@ void checkWandAction() {
                   break;
 
                   case SYSTEM_AFTERLIFE:
+                  default:
                     // Afterlife -> Frozen Empire
                     WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
 

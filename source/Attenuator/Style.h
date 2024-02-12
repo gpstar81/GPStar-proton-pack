@@ -104,10 +104,10 @@ button[disabled] {
   color: #555 !important;
 }
 
-button:active { 
-  box-shadow: 7px 6px 28px 1px rgba(0, 0, 0, 0.24); 
+button:active {
+  box-shadow: 7px 6px 28px 1px rgba(0, 0, 0, 0.24);
   transform: translateY(4px);
-} 
+}
 
 input {
   border: 2px solid #333;

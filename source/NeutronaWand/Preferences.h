@@ -413,26 +413,26 @@ void readEEPROM() {
           // Do nothing. Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
         break;
-        
+
         case 3:
           b_vibration_enabled = false;
           b_vibration_firing = false;
           b_vibration_on = false;
-          VIBRATION_MODE_EEPROM = VIBRATION_NONE;         
+          VIBRATION_MODE_EEPROM = VIBRATION_NONE;
         break;
 
         case 2:
           b_vibration_enabled = true;
           b_vibration_on = true;
           b_vibration_firing = true;
-          VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;          
+          VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
         break;
 
         case 1:
           b_vibration_enabled = true;
           b_vibration_on = true;
           b_vibration_firing = false;
-          VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;          
+          VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
         break;
       }
     }

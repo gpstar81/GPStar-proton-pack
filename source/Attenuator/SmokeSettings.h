@@ -59,7 +59,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       <label class="switch">
         <input id="overheatLevel5" name="overheatLevel5" type="checkbox">
         <span class="slider round"></span>
-      </label>  
+      </label>
     </div>
     <div class="setting">
       <b class="labelSwitch">Continuous Firing Smoke:</b>
