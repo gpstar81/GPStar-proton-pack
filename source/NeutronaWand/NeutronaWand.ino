@@ -214,16 +214,18 @@ void setup() {
 
 void loop() {
   if(b_wait_for_pack == true) {
-    // While waiting for a proton pack, issue a handshake to a connected device.
-    // Immediately after, check for a response and handle any synchronization.
+    // While waiting for a proton pack, issue a request for synchronization.
     if(ms_handshake.justFinished()) {
-      wandSerialSend(W_HANDSHAKE); // Poke the pack to tell it the wand is here.
-      ms_handshake.start(i_handshake_initial_delay); // Wait to try again, if necessary.
+      // If not already doing so, explicitly tell the pack a wand is here to sync.
+      if(!b_synchronizing) {
+        wandSerialSend(W_SYNC_NOW);
+      }
+      ms_handshake.start(i_handshake_initial_delay); // Prepare for the next sync attempt.
       b_sync_light = !b_sync_light; // Toggle a white LED while attempting to sync.
       digitalWrite(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
     }
 
-    // Check for any response from the pack.
+    // Check for any response from the pack while still waiting.
     checkPack();
   }
   else {

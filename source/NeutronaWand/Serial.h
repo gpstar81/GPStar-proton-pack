@@ -103,18 +103,20 @@ struct __attribute__((packed)) SmokePrefs {
 void wandSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
-  // Only sends when pack is present.
-  if(b_gpstar_benchtest != true) {
-    debugln("Command to Pack: " + String(i_command));
-
-    sendCmd.c = i_command;
-    sendCmd.d1 = i_value;
-
-    ms_handshake.restart(); // Restart heartbeat timer.
-
-    i_send_size = wandComs.txObj(sendCmd);
-    wandComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
+  // Leave when a pack is not intended to be connected.
+  if(b_gpstar_benchtest == true) {
+    return;
   }
+
+  debugln("Command to Pack: " + String(i_command));
+
+  sendCmd.c = i_command;
+  sendCmd.d1 = i_value;
+
+  ms_handshake.restart(); // Restart heartbeat timer.
+
+  i_send_size = wandComs.txObj(sendCmd);
+  wandComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
 void wandSerialSend(uint8_t i_command) {
@@ -125,166 +127,168 @@ void wandSerialSend(uint8_t i_command) {
 void wandSerialSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
-  // Only sends when pack is present.
-  if(b_gpstar_benchtest != true) {
-    debugln("Data to Pack: " + String(i_message));
+  // Leave when a pack is not intended to be connected.
+  if(b_gpstar_benchtest == true) {
+    return;
+  }
 
-    sendData.m = i_message;
+  debugln("Data to Pack: " + String(i_message));
 
-    // Set all elements of the data array to 0
-    memset(sendData.d, 0, sizeof(sendData.d));
+  sendData.m = i_message;
 
-    switch(i_message) {
-      case W_SEND_PREFERENCES_WAND:
-        // Boolean types will simply translate as 1/0, ENUMs should be converted.
-        switch(WAND_BARREL_LED_COUNT) {
-          case LEDS_5:
-          default:
-            wandConfig.ledWandCount = 0;
-          break;
-          case LEDS_29:
-            wandConfig.ledWandCount = 1;
-          break;
-          case LEDS_48:
-            wandConfig.ledWandCount = 2;
-          break;
-        }
+  // Set all elements of the data array to 0
+  memset(sendData.d, 0, sizeof(sendData.d));
 
-        wandConfig.ledWandHue = i_spectral_wand_custom_colour;
-        wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
-        wandConfig.spectralModeEnabled = b_spectral_mode_enabled;
-        wandConfig.spectralHolidayMode = b_holiday_mode_enabled;
-        wandConfig.overheatEnabled = b_overheat_enabled;
+  switch(i_message) {
+    case W_SEND_PREFERENCES_WAND:
+      // Boolean types will simply translate as 1/0, ENUMs should be converted.
+      switch(WAND_BARREL_LED_COUNT) {
+        case LEDS_5:
+        default:
+          wandConfig.ledWandCount = 0;
+        break;
+        case LEDS_29:
+          wandConfig.ledWandCount = 1;
+        break;
+        case LEDS_48:
+          wandConfig.ledWandCount = 2;
+        break;
+      }
 
-        if(b_cross_the_streams_mix) {
-          // More significant, implies b_cross_the_streams.
-          wandConfig.defaultFiringMode = 3;
-        }
-        else if(b_cross_the_streams) {
-          // Implies that b_cross_the_streams_mix was false.
-          wandConfig.defaultFiringMode = 2;
-        }
-        else {
-          // Use VG modes as default.
-          wandConfig.defaultFiringMode = 1;
-        }
+      wandConfig.ledWandHue = i_spectral_wand_custom_colour;
+      wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
+      wandConfig.spectralModeEnabled = b_spectral_mode_enabled;
+      wandConfig.spectralHolidayMode = b_holiday_mode_enabled;
+      wandConfig.overheatEnabled = b_overheat_enabled;
 
-        wandConfig.wandSoundsToPack = b_extra_pack_sounds;
-        wandConfig.quickVenting = b_quick_vent;
-        wandConfig.autoVentLight = b_vent_light_control;
-        wandConfig.wandBeepLoop = b_beep_loop;
-        wandConfig.wandBootError = b_wand_boot_errors;
+      if(b_cross_the_streams_mix) {
+        // More significant, implies b_cross_the_streams.
+        wandConfig.defaultFiringMode = 3;
+      }
+      else if(b_cross_the_streams) {
+        // Implies that b_cross_the_streams_mix was false.
+        wandConfig.defaultFiringMode = 2;
+      }
+      else {
+        // Use VG modes as default.
+        wandConfig.defaultFiringMode = 1;
+      }
 
-        switch(WAND_YEAR_MODE) {
-          case YEAR_DEFAULT:
-          default:
-            wandConfig.defaultYearModeWand = 1;
-          break;
-          case YEAR_1984:
-            wandConfig.defaultYearModeWand = 2;
-          break;
-          case YEAR_1989:
-            wandConfig.defaultYearModeWand = 3;
-          break;
-          case YEAR_AFTERLIFE:
-            wandConfig.defaultYearModeWand = 4;
-          break;
-          case YEAR_FROZEN_EMPIRE:
-            wandConfig.defaultYearModeWand = 5;
-          break;
-        }
+      wandConfig.wandSoundsToPack = b_extra_pack_sounds;
+      wandConfig.quickVenting = b_quick_vent;
+      wandConfig.autoVentLight = b_vent_light_control;
+      wandConfig.wandBeepLoop = b_beep_loop;
+      wandConfig.wandBootError = b_wand_boot_errors;
 
-        switch(WAND_YEAR_CTS) {
-          case CTS_DEFAULT:
-          default:
-            wandConfig.defaultYearModeCTS = 1;
-          break;
-          case CTS_1984:
-            wandConfig.defaultYearModeCTS = 2;
-          break;
-          case CTS_1989:
-            wandConfig.defaultYearModeCTS = 3;
-          break;
-          case CTS_AFTERLIFE:
-            wandConfig.defaultYearModeCTS = 4;
-          break;
-          case CTS_FROZEN_EMPIRE:
-            wandConfig.defaultYearModeCTS = 5;
-          break;
-        }
+      switch(WAND_YEAR_MODE) {
+        case YEAR_DEFAULT:
+        default:
+          wandConfig.defaultYearModeWand = 1;
+        break;
+        case YEAR_1984:
+          wandConfig.defaultYearModeWand = 2;
+        break;
+        case YEAR_1989:
+          wandConfig.defaultYearModeWand = 3;
+        break;
+        case YEAR_AFTERLIFE:
+          wandConfig.defaultYearModeWand = 4;
+        break;
+        case YEAR_FROZEN_EMPIRE:
+          wandConfig.defaultYearModeWand = 5;
+        break;
+      }
 
-        switch(VIBRATION_MODE_EEPROM) {
-          case VIBRATION_ALWAYS:
-            wandConfig.wandVibration = 1;
-          break;
-          case VIBRATION_FIRING_ONLY:
-            wandConfig.wandVibration = 2;
-          break;
-          case VIBRATION_NONE:
-            wandConfig.wandVibration = 3;
-          break;
-          case VIBRATION_DEFAULT:
-          default:
-            wandConfig.wandVibration = 4;
-          break;
-        }
+      switch(WAND_YEAR_CTS) {
+        case CTS_DEFAULT:
+        default:
+          wandConfig.defaultYearModeCTS = 1;
+        break;
+        case CTS_1984:
+          wandConfig.defaultYearModeCTS = 2;
+        break;
+        case CTS_1989:
+          wandConfig.defaultYearModeCTS = 3;
+        break;
+        case CTS_AFTERLIFE:
+          wandConfig.defaultYearModeCTS = 4;
+        break;
+        case CTS_FROZEN_EMPIRE:
+          wandConfig.defaultYearModeCTS = 5;
+        break;
+      }
 
-        wandConfig.invertWandBargraph = b_bargraph_invert;
-        wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink;
+      switch(VIBRATION_MODE_EEPROM) {
+        case VIBRATION_ALWAYS:
+          wandConfig.wandVibration = 1;
+        break;
+        case VIBRATION_FIRING_ONLY:
+          wandConfig.wandVibration = 2;
+        break;
+        case VIBRATION_NONE:
+          wandConfig.wandVibration = 3;
+        break;
+        case VIBRATION_DEFAULT:
+        default:
+          wandConfig.wandVibration = 4;
+        break;
+      }
 
-        switch(BARGRAPH_MODE_EEPROM) {
-          case BARGRAPH_EEPROM_DEFAULT:
-          default:
-            wandConfig.bargraphIdleAnimation = 1;
-          break;
-          case BARGRAPH_EEPROM_SUPER_HERO:
-            wandConfig.bargraphIdleAnimation = 2;
-          break;
-          case BARGRAPH_EEPROM_ORIGINAL:
-            wandConfig.bargraphIdleAnimation = 3;
-          break;
-        }
+      wandConfig.invertWandBargraph = b_bargraph_invert;
+      wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink;
 
-        switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
-          case BARGRAPH_EEPROM_ANIMATION_DEFAULT:
-          default:
-            wandConfig.bargraphFireAnimation = 1;
-          break;
-          case BARGRAPH_EEPROM_ANIMATION_SUPER_HERO:
-            wandConfig.bargraphFireAnimation = 2;
-          break;
-          case BARGRAPH_EEPROM_ANIMATION_ORIGINAL:
-            wandConfig.bargraphFireAnimation = 3;
-          break;
-        }
+      switch(BARGRAPH_MODE_EEPROM) {
+        case BARGRAPH_EEPROM_DEFAULT:
+        default:
+          wandConfig.bargraphIdleAnimation = 1;
+        break;
+        case BARGRAPH_EEPROM_SUPER_HERO:
+          wandConfig.bargraphIdleAnimation = 2;
+        break;
+        case BARGRAPH_EEPROM_ORIGINAL:
+          wandConfig.bargraphIdleAnimation = 3;
+        break;
+      }
 
-        i_send_size = wandComs.txObj(wandConfig);
-        wandComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
-      break;
+      switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
+        case BARGRAPH_EEPROM_ANIMATION_DEFAULT:
+        default:
+          wandConfig.bargraphFireAnimation = 1;
+        break;
+        case BARGRAPH_EEPROM_ANIMATION_SUPER_HERO:
+          wandConfig.bargraphFireAnimation = 2;
+        break;
+        case BARGRAPH_EEPROM_ANIMATION_ORIGINAL:
+          wandConfig.bargraphFireAnimation = 3;
+        break;
+      }
 
-      case W_SEND_PREFERENCES_SMOKE:
-        // Determines whether overheating is enabled for a power level.
-        smokeConfig.overheatLevel5 = b_overheat_mode_5;
-        smokeConfig.overheatLevel4 = b_overheat_mode_4;
-        smokeConfig.overheatLevel3 = b_overheat_mode_3;
-        smokeConfig.overheatLevel2 = b_overheat_mode_2;
-        smokeConfig.overheatLevel1 = b_overheat_mode_1;
+      i_send_size = wandComs.txObj(wandConfig);
+      wandComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
+    break;
 
-        // Time (seconds) before an overheat event takes place by level.
-        smokeConfig.overheatDelay5 = i_ms_overheat_initiate_mode_5 / 1000;
-        smokeConfig.overheatDelay4 = i_ms_overheat_initiate_mode_4 / 1000;
-        smokeConfig.overheatDelay3 = i_ms_overheat_initiate_mode_3 / 1000;
-        smokeConfig.overheatDelay2 = i_ms_overheat_initiate_mode_2 / 1000;
-        smokeConfig.overheatDelay1 = i_ms_overheat_initiate_mode_1 / 1000;
+    case W_SEND_PREFERENCES_SMOKE:
+      // Determines whether overheating is enabled for a power level.
+      smokeConfig.overheatLevel5 = b_overheat_mode_5;
+      smokeConfig.overheatLevel4 = b_overheat_mode_4;
+      smokeConfig.overheatLevel3 = b_overheat_mode_3;
+      smokeConfig.overheatLevel2 = b_overheat_mode_2;
+      smokeConfig.overheatLevel1 = b_overheat_mode_1;
 
-        i_send_size = wandComs.txObj(smokeConfig);
-        wandComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
-      break;
+      // Time (seconds) before an overheat event takes place by level.
+      smokeConfig.overheatDelay5 = i_ms_overheat_initiate_mode_5 / 1000;
+      smokeConfig.overheatDelay4 = i_ms_overheat_initiate_mode_4 / 1000;
+      smokeConfig.overheatDelay3 = i_ms_overheat_initiate_mode_3 / 1000;
+      smokeConfig.overheatDelay2 = i_ms_overheat_initiate_mode_2 / 1000;
+      smokeConfig.overheatDelay1 = i_ms_overheat_initiate_mode_1 / 1000;
 
-      default:
-        // No-op for all other actions.
-      break;
-    }
+      i_send_size = wandComs.txObj(smokeConfig);
+      wandComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
+    break;
+
+    default:
+      // No-op for all other actions.
+    break;
   }
 }
 
@@ -293,8 +297,12 @@ void handlePackCommand(uint8_t i_command, uint16_t i_value);
 
 // Pack communication to the wand.
 void checkPack() {
-  // Only checks when pack is present.
-  if(b_gpstar_benchtest != true && wandComs.available() > 0) {
+  // Leave when a pack is not intended to be connected.
+  if(b_gpstar_benchtest == true) {
+    return;
+  }
+
+  if(wandComs.available() > 0) {
     uint8_t i_packet_id = wandComs.currentPacketID();
     // debugln("PacketID: " + String(i_packet_id));
 
@@ -536,7 +544,7 @@ void handlePackCommand(uint8_t i_command, uint16_t i_value) {
         wandSerialSend(W_SYNC_NOW);
       }
       else {
-        // The wand already synchronized with the pack, so respond as such.
+        // The wand had already synchronized with the pack, so respond as such.
         wandSerialSend(W_SYNCHRONIZED);
       }
     break;

@@ -617,8 +617,8 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_SYNC_START:
-      // Check if the Attenuator is telling us it is here after connecting it to the pack.
-      // Then synchronise some settings between the pack and the Attenuator.
+      // Check if the serial1 device is telling us it is here after connecting it to the pack.
+      // Then synchronise some settings between the pack and the serial1 device.
       if(!b_serial1_connected && !b_serial1_syncing) {
         b_serial1_syncing = true; // Sync has begun; do not try to start this command again.
 
@@ -626,8 +626,16 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         debugln("Serial1 Sync Start");
         serial1Send(A_SYNC_START);
 
-        // Tell the Attenuator that the pack is here.
+        // Tell the serial1 device that the pack is here (obviously).
         serial1Send(A_PACK_CONNECTED);
+
+        // Tell the serial1 device whether a wand is connected.
+        if(b_wand_connected){
+          serial1Send(A_WAND_CONNECTED);
+        }
+        else {
+          serial1Send(A_WAND_DISCONNECTED);
+        }
 
         // Make sure this is called before the A_YEAR is sent over to the Attenuator/Wireless.
         switch(SYSTEM_MODE) {
