@@ -163,7 +163,7 @@ void attenuatorSerialSendData(uint8_t i_message) {
     debug("Send Data: " + String(i_message));
   #endif
 
-  sendData.m = i_message;  
+  sendData.m = i_message;
 
   // Set all elements of the data array to 0
   memset(sendData.d, 0, sizeof(sendData.d));

@@ -252,7 +252,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
-    function convertRange(value, r1, r2) { 
+    function convertRange(value, r1, r2) {
       return Math.round((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);
     }
 

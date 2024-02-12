@@ -505,19 +505,19 @@ void checkSerial1() {
               b_vibration_enabled = true;
               b_vibration_on = true;
               b_vibration_firing = false;
-              VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;          
+              VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
             break;
             case 2:
               b_vibration_enabled = true;
               b_vibration_on = true;
               b_vibration_firing = true;
-              VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;          
+              VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
             break;
             case 3:
               b_vibration_enabled = false;
               b_vibration_firing = false;
               b_vibration_on = false;
-              VIBRATION_MODE_EEPROM = VIBRATION_NONE;         
+              VIBRATION_MODE_EEPROM = VIBRATION_NONE;
             break;
             case 4:
             default:
@@ -580,7 +580,7 @@ void checkSerial1() {
         case PACKET_SMOKE:
           serial1Coms.rxObj(smokeConfig);
           debugln("Recv. Smoke Config");
-  
+
           // Save local and remote (wand) smoke timing settings
           i_ms_overheating_length_5 = smokeConfig.overheatDuration5 * 1000;
           i_ms_overheating_length_4 = smokeConfig.overheatDuration4 * 1000;
@@ -1341,7 +1341,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
             playEffect(S_AFTERLIFE_BEEP_WAND_S5);
           break;
         }
-      }    
+      }
     break;
 
     case W_WAND_BEEP_START:
@@ -1401,7 +1401,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
       playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
     break;
-    
+
     case W_AFTERLIFE_RAMP_LOOP_STOP:
       stopEffect(S_AFTERLIFE_WAND_IDLE_1);
     break;
