@@ -113,7 +113,10 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
   sendCmd.c = i_command;
   sendCmd.d1 = i_value;
 
-  ms_handshake.restart(); // Restart heartbeat timer.
+  if(b_pack_connected) {
+    // Once connected, each send of data should restart the timer.
+    ms_handshake.restart();
+  }
 
   i_send_size = wandComs.txObj(sendCmd);
   wandComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);

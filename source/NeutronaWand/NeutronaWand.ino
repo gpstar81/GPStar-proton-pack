@@ -201,6 +201,7 @@ void setup() {
 
   // Initialize the timer for initial handshake.
   ms_packsync.start(1);
+  ms_handshake.stop();
 
   if(b_gpstar_benchtest == true) {
     b_waiting_for_pack = false; // Not waiting on a pack (as it will never be connected in this mode).
@@ -213,11 +214,7 @@ void setup() {
 }
 
 void loop() {
-  if(ms_handshake.remaining() > 0 && b_pack_connected) {
-    b_waiting_for_pack = false;
-  }
-
-  if(b_waiting_for_pack) {
+  if(!ms_handshake.isRunning()) {
     // While waiting for a proton pack, issue a request for synchronization.
     if(ms_packsync.justFinished()) {
       // If not already doing so, explicitly tell the pack a wand is here to sync.
@@ -228,6 +225,7 @@ void loop() {
     }
 
     checkPack(); // Check for any response from the pack while still waiting.
+
     if(b_pack_connected) {
       ms_handshake.start(i_heartbeat_delay); // Begin regular handshakes.
     }
