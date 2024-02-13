@@ -293,7 +293,7 @@ void wandSerialSendData(uint8_t i_message) {
 }
 
 // Forward function declaration.
-void handlePackCommand(uint8_t i_command, uint16_t i_value);
+bool handlePackCommand(uint8_t i_command, uint16_t i_value);
 
 // Pack communication to the wand.
 void checkPack() {
@@ -312,7 +312,16 @@ void checkPack() {
         case PACKET_COMMAND:
           wandComs.rxObj(recvCmd);
           debugln("Recv. Command: " + String(recvCmd.c));
-          handlePackCommand(recvCmd.c, recvCmd.d1);
+          if(handlePackCommand(recvCmd.c, recvCmd.d1)) {
+            // Begin timer for future keepalive handshakes from the wand.
+            ms_handshake.start(i_heartbeat_delay);
+
+            // Turn off the sync indicator LED as the sync is completed.
+            digitalWrite(led_white, HIGH);
+
+            // Indicate that a pack is now connected.
+            b_pack_connected = true;
+          }
         break;
 
         case PACKET_DATA:
@@ -535,19 +544,19 @@ void checkPack() {
   }
 }
 
-void handlePackCommand(uint8_t i_command, uint16_t i_value) {
+bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
+  // This function returns true only when the synchronization process is completed.
+
   switch(i_command) {
     case P_HANDSHAKE:
-      debugln("HANDSHAKE");
       // The pack is asking us if we are still here so respond accordingly.
-      if(b_waiting_for_pack == true) {
+      if(b_waiting_for_pack) {
         // If still waiting for the pack, trigger an immediate synchronization.
-        debugln("SYNC_NOW");
         wandSerialSend(W_SYNC_NOW);
+        b_pack_connected = false;
       }
       else {
         // The wand had already synchronized with the pack, so respond as such.
-        debugln("SYNCHRONIZED");
         wandSerialSend(W_SYNCHRONIZED);
       }
     break;
@@ -571,8 +580,7 @@ void handlePackCommand(uint8_t i_command, uint16_t i_value) {
         wandSerialSend(W_BARREL_EXTENDED);
       }
 
-      // Begin a timer to make regular handshakes with the pack.
-      // ms_handshake.start(i_heartbeat_delay);
+      return true;
     break;
 
     case P_PACK_BOOTUP:
@@ -1565,4 +1573,6 @@ void handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // No-op for anything else.
     break;
   }
+
+  return false; // Default return value.
 }

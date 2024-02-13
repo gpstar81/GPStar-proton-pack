@@ -213,14 +213,8 @@ void setup() {
 }
 
 void loop() {
-  if(ms_handshake.remaining() > 0) {
-    if(b_waiting_for_pack) {
-      // Turn off the sync indicator LED as the wand is now connected.
-      digitalWrite(led_white, HIGH);
-
-      // Indicate we are no longer waiting on a pack to connect.
-      b_waiting_for_pack = false;
-    }
+  if(ms_handshake.remaining() > 0 && b_pack_connected) {
+    b_waiting_for_pack = false;
   }
 
   if(b_waiting_for_pack) {
@@ -234,6 +228,9 @@ void loop() {
     }
 
     checkPack(); // Check for any response from the pack while still waiting.
+    if(b_pack_connected) {
+      ms_handshake.start(i_heartbeat_delay); // Begin regular handshakes.
+    }
   }
   else {
     // If connected to a pack, prepare to send a regular handshake to indicate presence.
