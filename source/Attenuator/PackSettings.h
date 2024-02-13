@@ -171,10 +171,10 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>LED Count:</b>
       <select id="ledCycCakeCount" name="ledCycCakeCount">
-        <option value="12">12</option>
-        <option value="23">23</option>
+        <option value="35">35 - GPStar</option>
         <option value="24">24</option>
-        <option value="35">35</option>
+        <option value="23">23</option>
+        <option value="12">12</option>
       </select>
     </div>
     <div class="setting">
@@ -296,7 +296,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             }
 
             if (settings.packPowered || settings.wandPowered) {
-              alert("Pack and/or Wand are currently powered up. Changes to settings will not be allowed. Turn off system via toggle switches and reload the page to obtain the latest settings.");
+              alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
             }
 
             /**

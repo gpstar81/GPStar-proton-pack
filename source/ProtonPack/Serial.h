@@ -1228,6 +1228,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_SYNC_NOW:
       // Wand has explicitly asked to be synchronized, so treat as not yet connected.
       b_wand_connected = false;
+
+      // Stop any wand sounds which are playing on the pack.
+      wandExtraSoundsStop();
+      wandExtraSoundsBeepLoopStop();
+
       if(!b_wand_syncing) {
         doWandSync();
       }
