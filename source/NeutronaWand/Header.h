@@ -396,8 +396,9 @@ bool b_waiting_for_pack = true; // Denotes the wand is waiting for response by a
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
 bool b_sync_light = false; // Toggle for the state of the white LED beside the vent light which gets blinked as a sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
-millisDelay ms_handshake; // Timer for attempting a new handshake while initializing pack communications.
-const unsigned int i_handshake_initial_delay = 750; // Delay to re-try the initial handshake with a proton pack.
+millisDelay ms_packsync; // Timer for attempting synchronization with a connected pack.
+millisDelay ms_handshake; // Timer for attempting a keepalive handshake with a connected pack.
+const unsigned int i_sync_initial_delay = 750; // Delay to re-try the initial handshake with a proton pack.
 const unsigned int i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake) to a connected proton pack.
 
 /*

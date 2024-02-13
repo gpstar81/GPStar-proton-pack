@@ -200,7 +200,7 @@ void setup() {
   ms_slo_blo_blink.start(i_slo_blo_blink_delay);
 
   // Initialize the timer for initial handshake.
-  ms_handshake.start(1);
+  ms_packsync.start(1);
 
   if(b_gpstar_benchtest == true) {
     b_waiting_for_pack = false; // Not waiting on a pack (as it will never be connected in this mode).
@@ -213,12 +213,22 @@ void setup() {
 }
 
 void loop() {
-  if(b_waiting_for_pack == true) {
+  if(ms_handshake.remaining() > 0) {
+    if(b_waiting_for_pack) {
+      // Turn off the sync indicator LED as the wand is now connected.
+      digitalWrite(led_white, HIGH);
+
+      // Indicate we are no longer waiting on a pack to connect.
+      b_waiting_for_pack = false;
+    }
+  }
+
+  if(b_waiting_for_pack) {
     // While waiting for a proton pack, issue a request for synchronization.
-    if(ms_handshake.justFinished()) {
+    if(ms_packsync.justFinished()) {
       // If not already doing so, explicitly tell the pack a wand is here to sync.
       wandSerialSend(W_SYNC_NOW);
-      ms_handshake.start(i_handshake_initial_delay); // Prepare for the next sync attempt.
+      ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
       b_sync_light = !b_sync_light; // Toggle a white LED while attempting to sync.
       digitalWrite(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
     }
@@ -227,7 +237,7 @@ void loop() {
   }
   else {
     // If connected to a pack, prepare to send a regular handshake to indicate presence.
-    if(!b_gpstar_benchtest && (!ms_handshake.isRunning() || ms_handshake.justFinished())) {
+    if(!b_gpstar_benchtest && ms_handshake.justFinished()) {
       wandSerialSend(W_HANDSHAKE); // Remind the pack that a wand is still present.
       ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
     }

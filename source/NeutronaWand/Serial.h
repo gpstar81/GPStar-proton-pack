@@ -535,46 +535,44 @@ void checkPack() {
   }
 }
 
-void doPostConnect() {
-  delay(100);
-debugln("1");
-  digitalWrite(led_white, HIGH); // Turn off the sync indicator LED as the wand is now connected.
-debugln("2");
-  // Acknowledgement that the wand is now synchronized.
-  wandSerialSend(W_SYNCHRONIZED);
-debugln("3");
-  // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
-  // Otherwise the switchBarrel() will tell it if it's retracted during bootup.
-  if(switchBarrel() == true) {
-    wandSerialSend(W_BARREL_EXTENDED);
-  }
-debugln("4");
-  b_waiting_for_pack = false; // No longer waiting on the pack to be connected.
-debugln("5");
-}
-
 void handlePackCommand(uint8_t i_command, uint16_t i_value) {
   switch(i_command) {
     case P_HANDSHAKE:
+      debugln("HANDSHAKE");
       // The pack is asking us if we are still here so respond accordingly.
       if(b_waiting_for_pack == true) {
         // If still waiting for the pack, trigger an immediate synchronization.
+        debugln("SYNC_NOW");
         wandSerialSend(W_SYNC_NOW);
       }
       else {
         // The wand had already synchronized with the pack, so respond as such.
+        debugln("SYNCHRONIZED");
         wandSerialSend(W_SYNCHRONIZED);
       }
     break;
 
     case P_SYNC_START:
       debugln("Pack Sync Start");
-      ms_handshake.stop(); // Stop the handshake timer until synchronization has completed.
+
+      // Stop regular sync attempts while communicating with the pack.
+      ms_packsync.stop();
     break;
 
     case P_SYNC_END:
       debugln("Pack Sync End");
-      doPostConnect(); // Set up state for post-sync actions, indicating a connected wand.
+
+      // Acknowledgement that the wand is now synchronized.
+      wandSerialSend(W_SYNCHRONIZED);
+
+      // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
+      // Otherwise the switchBarrel() will tell it if it's retracted during bootup.
+      if(switchBarrel() == true) {
+        wandSerialSend(W_BARREL_EXTENDED);
+      }
+
+      // Begin a timer to make regular handshakes with the pack.
+      // ms_handshake.start(i_heartbeat_delay);
     break;
 
     case P_PACK_BOOTUP:
