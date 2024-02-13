@@ -70,24 +70,10 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Startup Volume %:</b><br/>
+      <b>Master Volume % at Startup:</b><br/>
       <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="0" max="100" value="100" step="5"
        oninput="masterVolOut.value=defaultSystemVolume.value"/>
       <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume"></output>
-    </div>
-    <div class="setting">
-      <b class="labelSwitch">Proton Stream Impact Effects:</b>
-      <label class="switch">
-        <input id="protonStreamEffects" name="protonStreamEffects" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
-    <div class="setting">
-      <b class="labelSwitch">Strobe N-Filter on Overheat:</b>
-      <label class="switch">
-        <input id="overheatStrobeNF" name="overheatStrobeNF" type="checkbox">
-        <span class="slider round"></span>
-      </label>
     </div>
     <div class="setting">
       <b class="labelSwitch">Lights Off During Overheat:</b>
@@ -104,9 +90,23 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Startup Light Mode:</b>
+      <b class="labelSwitch">Proton Stream Impact Effects:</b>
+      <label class="switch">
+        <input id="protonStreamEffects" name="protonStreamEffects" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Startup Light Mode Enabled:</b>
       <label class="switch">
         <input id="demoLightMode" name="demoLightMode" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Strobe N-Filter on Overheat:</b>
+      <label class="switch">
+        <input id="overheatStrobeNF" name="overheatStrobeNF" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>

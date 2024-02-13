@@ -942,15 +942,13 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Vibration enabled (from Proton Pack vibration toggle switch).
       b_vibration_enabled = true;
 
-      // Only play the voice if we are not doing a Proton Pack / Neutrona Wand synchronisation.
-      if(WAND_CONN_STATE != SYNCHRONIZING) {
+      // Only play the voice if the Proton Pack has been fully connected (not during a sync operation).
+      if(WAND_CONN_STATE == PACK_CONNECTED) {
         stopEffect(S_BEEPS_ALT);
-
         playEffect(S_BEEPS_ALT);
 
         stopEffect(S_VOICE_VIBRATION_ENABLED);
         stopEffect(S_VOICE_VIBRATION_DISABLED);
-
         playEffect(S_VOICE_VIBRATION_ENABLED);
       }
     break;
@@ -959,15 +957,13 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Vibration disabled (from Proton Pack vibration toggle switch).
       b_vibration_enabled = false;
 
-      // Only play the voice if we are not doing a Proton Pack / Neutrona Wand synchronisation.
-      if(WAND_CONN_STATE != SYNCHRONIZING) {
+      // Only play the voice if the Proton Pack has been fully connected (not during a sync operation).
+      if(WAND_CONN_STATE == PACK_CONNECTED) {
         stopEffect(S_BEEPS_ALT);
-
         playEffect(S_BEEPS_ALT);
 
         stopEffect(S_VOICE_VIBRATION_DISABLED);
         stopEffect(S_VOICE_VIBRATION_ENABLED);
-
         playEffect(S_VOICE_VIBRATION_DISABLED);
       }
 
@@ -977,56 +973,48 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     case P_PACK_VIBRATION_ENABLED:
       // Proton Pack Vibration enabled.
       stopEffect(S_BEEPS_ALT);
-
       playEffect(S_BEEPS_ALT);
 
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
-
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
     break;
 
     case P_PACK_VIBRATION_DISABLED:
       // Proton Pack Vibration disabled.
       stopEffect(S_BEEPS_ALT);
-
       playEffect(S_BEEPS_ALT);
 
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
-
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
     break;
 
     case P_PACK_VIBRATION_FIRING_ENABLED:
       // Proton Pack Vibration firing enabled.
       stopEffect(S_BEEPS_ALT);
-
       playEffect(S_BEEPS_ALT);
 
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
-
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
     break;
 
     case P_PACK_VIBRATION_DEFAULT:
       // Proton Pack Vibration EEPROM reset to default.
       stopEffect(S_BEEPS_ALT);
-
       playEffect(S_BEEPS_ALT);
 
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
-
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
     break;
 
