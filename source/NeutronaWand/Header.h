@@ -388,12 +388,18 @@ uint8_t i_power_mode_prev = 1;
 SerialTransfer wandComs;
 
 /*
+ * Wand Connection State
+ * Used to identify the state of the wand as it connects to a Proton Pack.
+ * These should be mutually exclusive and non-overlapping states for the wand communications.
+ */
+enum WAND_CONN_STATES { NC_BENCHTEST, PACK_DISCONNECTED, SYNCHRONIZING, PACK_CONNECTED };
+enum WAND_CONN_STATES WAND_CONN_STATE;
+
+/*
  * Some pack flags which get transmitted to the wand depending on the pack status.
  */
 bool b_pack_on = false; // Denotes the pack has been powered on.
 bool b_pack_alarm = false; // Denotes the alarm (ribbon cable) has been disconnected.
-bool b_waiting_for_pack = true; // Denotes the wand is waiting for response by a connected pack (is set to false when b_gpstar_benchtest is true).
-bool b_pack_connected = false; // Denotes that a pack is successfully connected and synchronized with the wand.
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
 bool b_sync_light = false; // Toggle for the state of the white LED beside the vent light which gets blinked as a sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.

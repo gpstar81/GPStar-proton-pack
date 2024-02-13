@@ -204,41 +204,54 @@ void setup() {
   ms_handshake.stop();
 
   if(b_gpstar_benchtest == true) {
-    b_waiting_for_pack = false; // Not waiting on a pack (as it will never be connected in this mode).
+    WAND_CONN_STATE = NC_BENCHTEST;
+
     b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
     b_pack_ion_arm_switch_on = true; // Pretend the red arming switch has been set to on.
 
     // Check music timer for bench test mode only.
     ms_check_music.start(i_music_check_delay);
+    
   }
+  else {
+    WAND_CONN_STATE = PACK_DISCONNECTED;
+  }
+
+  debugln(F("completed setup"));
 }
 
 void loop() {
-  if(!ms_handshake.isRunning()) {
-    // While waiting for a proton pack, issue a request for synchronization.
-    if(ms_packsync.justFinished()) {
-      // If not already doing so, explicitly tell the pack a wand is here to sync.
-      wandSerialSend(W_SYNC_NOW);
-      ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
-      b_sync_light = !b_sync_light; // Toggle a white LED while attempting to sync.
-      digitalWrite(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
-    }
+  switch(WAND_CONN_STATE) {
+    case PACK_DISCONNECTED:
+      // While waiting for a proton pack, issue a request for synchronization.
+      if(ms_packsync.justFinished()) {
+        // If not already doing so, explicitly tell the pack a wand is here to sync.
+        wandSerialSend(W_SYNC_NOW);
+        ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
+        b_sync_light = !b_sync_light; // Toggle a white LED while attempting to sync.
+        digitalWrite(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
+      }
 
-    checkPack(); // Check for any response from the pack while still waiting.
+      checkPack(); // Check for any response from the pack while still waiting.
+    break;
 
-    if(b_pack_connected) {
-      ms_handshake.start(i_heartbeat_delay); // Begin regular handshakes.
-    }
-  }
-  else {
-    // If connected to a pack, prepare to send a regular handshake to indicate presence.
-    if(!b_gpstar_benchtest && ms_handshake.justFinished()) {
-      wandSerialSend(W_HANDSHAKE); // Remind the pack that a wand is still present.
-      ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
-    }
+    case SYNCHRONIZING:
+      // No-op for now, we're communicating with the pack.
+    break;
 
-    // When not waiting for the pack, move directly into the main loop.
-    mainLoop();
+    case PACK_CONNECTED:
+      // When connected to a pack, prepare to send a regular handshake to indicate presence.
+      if(ms_handshake.justFinished()) {
+        wandSerialSend(W_HANDSHAKE); // Remind the pack that a wand is still present.
+        ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
+      }
+
+      mainLoop(); // Continue on to the main loop.
+    break;
+
+    case NC_BENCHTEST:
+      mainLoop(); // Continue on to the main loop.
+    break;
   }
 }
 

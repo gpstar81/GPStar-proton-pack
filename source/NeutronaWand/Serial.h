@@ -108,12 +108,13 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
     return;
   }
 
-  debugln("Command to Pack: " + String(i_command));
+  debug(F("Command to Pack: "));
+  debugln(i_command);
 
   sendCmd.c = i_command;
   sendCmd.d1 = i_value;
 
-  if(b_pack_connected) {
+  if(WAND_CONN_STATE == PACK_CONNECTED) {
     // Once connected, each send of data should restart the timer.
     ms_handshake.restart();
   }
@@ -135,7 +136,8 @@ void wandSerialSendData(uint8_t i_message) {
     return;
   }
 
-  debugln("Data to Pack: " + String(i_message));
+  debug(F("Data to Pack: "));
+  debugln(i_message);
 
   sendData.m = i_message;
 
@@ -307,14 +309,16 @@ void checkPack() {
 
   if(wandComs.available() > 0) {
     uint8_t i_packet_id = wandComs.currentPacketID();
-    // debugln("PacketID: " + String(i_packet_id));
+    // debug(F("PacketID: "));
+    // debugln(i_packet_id);
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
           wandComs.rxObj(recvCmd);
-          debugln("Recv. Command: " + String(recvCmd.c));
+          debug(F("Recv. Command: "));
+          debugln(recvCmd.c);
           if(handlePackCommand(recvCmd.c, recvCmd.d1)) {
             // Begin timer for future keepalive handshakes from the wand.
             ms_handshake.start(i_heartbeat_delay);
@@ -323,13 +327,14 @@ void checkPack() {
             digitalWrite(led_white, HIGH);
 
             // Indicate that a pack is now connected.
-            b_pack_connected = true;
+            WAND_CONN_STATE = PACK_CONNECTED;
           }
         break;
 
         case PACKET_DATA:
           wandComs.rxObj(recvData);
-          debugln("Recv. Message: " + String(recvData.m));
+          debug(F("Recv. Message: "));
+          debugln(recvData.m);
 
           switch(recvData.m) {
             case P_VOLUME_SYNC:
@@ -353,7 +358,7 @@ void checkPack() {
 
         case PACKET_WAND:
           wandComs.rxObj(wandConfig);
-          debugln("Recv. Wand Config");
+          debugln(F("Recv. Wand Config"));
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -524,7 +529,7 @@ void checkPack() {
 
         case PACKET_SMOKE:
           wandComs.rxObj(smokeConfig);
-          debugln("Recv. Smoke Config");
+          debugln(F("Recv. Smoke Config"));
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -553,26 +558,27 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
   switch(i_command) {
     case P_HANDSHAKE:
       // The pack is asking us if we are still here so respond accordingly.
-      if(b_waiting_for_pack) {
+      if(WAND_CONN_STATE != PACK_CONNECTED) {
         // If still waiting for the pack, trigger an immediate synchronization.
         wandSerialSend(W_SYNC_NOW);
-        b_pack_connected = false;
+        WAND_CONN_STATE = SYNCHRONIZING;
       }
       else {
         // The wand had already synchronized with the pack, so respond as such.
         wandSerialSend(W_SYNCHRONIZED);
+        WAND_CONN_STATE = PACK_CONNECTED;
       }
     break;
 
     case P_SYNC_START:
-      debugln("Pack Sync Start");
+      debugln(F("Pack Sync Start"));
 
       // Stop regular sync attempts while communicating with the pack.
       ms_packsync.stop();
     break;
 
     case P_SYNC_END:
-      debugln("Pack Sync End");
+      debugln(F("Pack Sync End"));
 
       // Acknowledgement that the wand is now synchronized.
       wandSerialSend(W_SYNCHRONIZED);
@@ -937,7 +943,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       b_vibration_enabled = true;
 
       // Only play the voice if we are not doing a Proton Pack / Neutrona Wand synchronisation.
-      if(b_waiting_for_pack != true) {
+      if(WAND_CONN_STATE != SYNCHRONIZING) {
         stopEffect(S_BEEPS_ALT);
 
         playEffect(S_BEEPS_ALT);
@@ -954,7 +960,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       b_vibration_enabled = false;
 
       // Only play the voice if we are not doing a Proton Pack / Neutrona Wand synchronisation.
-      if(b_waiting_for_pack != true) {
+      if(WAND_CONN_STATE != SYNCHRONIZING) {
         stopEffect(S_BEEPS_ALT);
 
         playEffect(S_BEEPS_ALT);
