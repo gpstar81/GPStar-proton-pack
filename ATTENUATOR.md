@@ -28,6 +28,10 @@ Credit to [ShapeforgeProps](https://www.etsy.com/shop/ShapeforgeProps) for their
 
 Please see the dedicated [ATTENUATOR_DIY](ATTENUATOR_DIY.md) guide for how to construct the electronics for your own device.
 
+## GPStar Kits
+
+Please see the [ATTENUATOR_FINISHING](ATTENUATOR_FINISHING) guide for advice on how to assemble and finish your device.
+
 ## Firmware Flashing
 
 Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details on compiling and/or uploading software to your Attenuator controller.

@@ -13,7 +13,8 @@ echo ""
 
 # Proton Pack
 echo "Building Proton Pack Binary..."
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --warnings none --export-binaries ${SRCDIR}/ProtonPack/ProtonPack.ino
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/ProtonPack/ProtonPack.ino
 
 rm -f ${BINDIR}/*.bin
 rm -f ${BINDIR}/*.eep
@@ -26,7 +27,8 @@ echo ""
 
 # Neutrona Wand
 echo "Building Neutrona Wand Binary..."
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --warnings none --export-binaries ${SRCDIR}/NeutronaWand/NeutronaWand.ino
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/NeutronaWand/NeutronaWand.ino
 
 rm -f ${BINDIR}/*.bin
 rm -f ${BINDIR}/*.eep
@@ -39,7 +41,8 @@ echo ""
 
 # Attenuator (Arduino)
 echo "Building Attenuator Binary (Arduino)..."
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:nano --warnings none --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:nano --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
 
 rm -f ${BINDIR}/*.bin
 rm -f ${BINDIR}/*.eep
@@ -52,7 +55,8 @@ echo ""
 
 # Attenuator (ESP32)
 echo "Building Attenuator Binary (ESP32)..."
-arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --warnings none --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
 
 # Keep any .bin files
 rm -f ${BINDIR}/*.eep
@@ -72,8 +76,8 @@ echo "Building Attenuator Binary (ESP32 - WiFi Reset)..."
 sed -i -e 's/\/\/\#define DEBUG_WIRELESS_SETUP/\#define DEBUG_WIRELESS_SETUP/' ${SRCDIR}/Attenuator/Configuration.h
 sed -i -e 's/\/\/\#define DEBUG_SEND_TO_CONSOLE/\#define DEBUG_SEND_TO_CONSOLE/' ${SRCDIR}/Attenuator/Configuration.h
 sed -i -e 's/\/\/\#define RESET_AP_SETTINGS/\#define RESET_AP_SETTINGS/' ${SRCDIR}/Attenuator/Configuration.h
-
-arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --warnings none --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
 
 # Keep any .bin files
 rm -f ${BINDIR}/*.eep
@@ -99,8 +103,8 @@ echo "Building Neutrona Wand (Bench Test) Binary..."
 
 # Change flag(s) for compilation
 sed -i -e 's/b_gpstar_benchtest = false/b_gpstar_benchtest = true/' ${SRCDIR}/NeutronaWand/Configuration.h
-
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --warnings none --export-binaries ${SRCDIR}/NeutronaWand/NeutronaWand.ino
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/NeutronaWand/NeutronaWand.ino
 
 rm -f ${BINDIR}/*.bin
 rm -f ${BINDIR}/*.eep
