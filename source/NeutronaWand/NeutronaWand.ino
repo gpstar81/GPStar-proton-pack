@@ -28,7 +28,7 @@
 #endif
 
 // Set to 1 to enable built-in debug messages
-#define DEBUG 1
+#define DEBUG 0
 
 // Debug macros
 #if DEBUG == 1
@@ -216,8 +216,6 @@ void setup() {
   else {
     WAND_CONN_STATE = PACK_DISCONNECTED;
   }
-
-  debugln(F("completed setup"));
 }
 
 void loop() {
@@ -236,7 +234,7 @@ void loop() {
     break;
 
     case SYNCHRONIZING:
-      // No-op for now, we're communicating with the pack.
+      checkPack(); // Keep checking for responses from the pack while synchronizing.
     break;
 
     case PACK_CONNECTED:
@@ -246,28 +244,28 @@ void loop() {
         ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
       }
 
+      w_trig.update(); // Update the state of the WavTrigger.
+
+      checkPack(); // Get the latest communications from the connected Proton Pack.
+
       mainLoop(); // Continue on to the main loop.
     break;
 
     case NC_BENCHTEST:
+      w_trig.update(); // Update the state of the WavTrigger.
+
+      checkMusic(); // Music control is here since pack is not present.
+
       mainLoop(); // Continue on to the main loop.
     break;
   }
 }
 
 void mainLoop() {
-  w_trig.update();
-
-  checkPack(); // Get the latest communications from a proton pack, if connected.
-
-  if(b_gpstar_benchtest == true) {
-    checkMusic();
-  }
-
   // Get the current state of any input devices (toggles, buttons, and switches).
   switchLoops();
-  checkRotary();
   checkSwitches();
+  checkRotaryEncoder();
 
   if(ms_firing_stop_sound_delay.justFinished()) {
     modeFireStopSounds();
@@ -6407,8 +6405,8 @@ void overheatTimerDecrement(uint8_t i_tmp_power_level) {
 }
 
 // Top rotary dial on the wand.
-void checkRotary() {
-  static int8_t c,val;
+void checkRotaryEncoder() {
+  static int8_t c, val;
 
   if((val = readRotary())) {
     c += val;
@@ -7324,7 +7322,7 @@ void wandExitEEPROMMenu() {
 // PCB builds is pulled high as digital input.
 // At some point, switch this to a ezButton.
 bool switchMode() {
-  if(switchMode() == true && ms_switch_mode_debounce.remaining() < 1 && b_switch_mode_pressed != true) {
+  if(digitalRead(switch_mode) == LOW && ms_switch_mode_debounce.remaining() < 1 && b_switch_mode_pressed != true) {
     ms_switch_mode_debounce.start(switch_debounce_time * 5);
 
     b_switch_mode_pressed = true;
