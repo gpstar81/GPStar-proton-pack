@@ -209,7 +209,8 @@ void toggleYearModes() {
 void serial1Send(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
-  // debugln("Command to Serial1: " + String(i_command));
+  // debug(F("Command to Serial1: "));
+  // debugln(i_command);
 
   sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
@@ -226,7 +227,8 @@ void serial1Send(uint8_t i_command) {
 void serial1SendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
-  // debugln("Data to Serial1: " + String(i_message));
+  // debug(F("Data to Serial1: "))
+  // debugln(i_message);
 
   sendDataS.m = i_message;
 
@@ -344,7 +346,8 @@ void serial1SendData(uint8_t i_message) {
 void packSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
-  // debugln("Command to Wand: " + String(i_command));
+  debug(F("Command to Wand: "));
+  debugln(i_command);
 
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
@@ -361,7 +364,8 @@ void packSerialSend(uint8_t i_command) {
 void packSerialSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
-  // debugln("Data to Wand: " + String(i_message));
+  // debug(F("Data to Wand: "));
+  // debugln(i_message);
 
   sendDataW.m = i_message;
 
@@ -404,26 +408,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value);
 void checkSerial1() {
   if(serial1Coms.available() > 0) {
     uint8_t i_packet_id = serial1Coms.currentPacketID();
-    // debugln("Serial PacketID: " + String(i_packet_id));
+    // debug(F("Serial PacketID: "));
+    // debugln(i_packet_id);
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
           serial1Coms.rxObj(recvCmdS);
-          debugln("Recv. Serial1 Command: " + String(recvCmdS.c));
+          debug(F("Recv. Serial1 Command: "));
+          debugln(recvCmdS.c);
           handleSerialCommand(recvCmdS.c, recvCmdS.d1);
         break;
 
         case PACKET_DATA:
           serial1Coms.rxObj(recvDataS);
-          debugln("Recv. Serial1 Message: " + String(recvDataS.m));
+          debug(F("Recv. Serial1 Message: "));
+          debugln(recvDataS.m);
           // No handlers at this time.
         break;
 
         case PACKET_PACK:
           serial1Coms.rxObj(packConfig);
-          debugln("Recv. Pack Config");
+          debugln(F("Recv. Pack Config"));
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -567,7 +574,7 @@ void checkSerial1() {
 
         case PACKET_WAND:
           serial1Coms.rxObj(wandConfig);
-          debugln("Recv. Wand Config");
+          debugln(F("Recv. Wand Config"));
 
           // This will pass values from the wandConfig object
           packSerialSendData(P_SAVE_PREFERENCES_WAND);
@@ -579,7 +586,7 @@ void checkSerial1() {
 
         case PACKET_SMOKE:
           serial1Coms.rxObj(smokeConfig);
-          debugln("Recv. Smoke Config");
+          debugln(F("Recv. Smoke Config"));
 
           // Save local and remote (wand) smoke timing settings
           i_ms_overheating_length_5 = smokeConfig.overheatDuration5 * 1000;
@@ -617,17 +624,25 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_SYNC_START:
-      // Check if the Attenuator is telling us it is here after connecting it to the pack.
-      // Then synchronise some settings between the pack and the Attenuator.
+      // Check if the serial1 device is telling us it is here after connecting it to the pack.
+      // Then synchronise some settings between the pack and the serial1 device.
       if(!b_serial1_connected && !b_serial1_syncing) {
         b_serial1_syncing = true; // Sync has begun; do not try to start this command again.
 
         // Begin the synchronization process.
-        debugln("Serial1 Sync Start");
+        debugln(F("Serial1 Sync Start"));
         serial1Send(A_SYNC_START);
 
-        // Tell the Attenuator that the pack is here.
+        // Tell the serial1 device that the pack is here (obviously).
         serial1Send(A_PACK_CONNECTED);
+
+        // Tell the serial1 device whether a wand is connected.
+        if(b_wand_connected){
+          serial1Send(A_WAND_CONNECTED);
+        }
+        else {
+          serial1Send(A_WAND_DISCONNECTED);
+        }
 
         // Make sure this is called before the A_YEAR is sent over to the Attenuator/Wireless.
         switch(SYSTEM_MODE) {
@@ -774,7 +789,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_SYNC_END:
-      debugln("Serial1 Sync End");
+      debugln(F("Serial1 Sync End"));
     break;
 
     case A_TURN_PACK_ON:
@@ -954,7 +969,8 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
 void checkWand() {
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
-    // debugln("Wand PacketID: " + String(i_packet_id));
+    // debug(F("Wand PacketID: "));
+    // debugln(i_packet_id);
 
     if(i_packet_id > 0) {
       if(ms_wand_check.isRunning()) {
@@ -966,27 +982,44 @@ void checkWand() {
       switch(i_packet_id) {
         case PACKET_COMMAND:
           packComs.rxObj(recvCmdW);
-          debugln("Recv. Wand Command: " + String(recvCmdW.c));
+          debug(F("Recv. Wand Command: "));
+          debugln(recvCmdW.c);
           handleWandCommand(recvCmdW.c, recvCmdW.d1);
         break;
 
         case PACKET_DATA:
+          if(!b_wand_connected) {
+            // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
+            return;
+          }
+
           packComs.rxObj(recvDataW);
-          debugln("Recv. Wand Data: " + String(recvDataW.m));
+          debug(F("Recv. Wand Data: "));
+          debugln(recvDataW.m);
           // No handlers at this time.
         break;
 
         case PACKET_WAND:
+          if(!b_wand_connected) {
+            // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
+            return;
+          }
+
           packComs.rxObj(wandConfig);
-          debugln("Recv. Wand Config Prefs");
+          debugln(F("Recv. Wand Config Prefs"));
 
           // Send the EEPROM preferences just returned by the wand.
           serial1SendData(A_SEND_PREFERENCES_WAND);
         break;
 
         case PACKET_SMOKE:
+          if(!b_wand_connected) {
+            // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
+            return;
+          }
+
           packComs.rxObj(smokeConfig);
-          debugln("Recv. Wand Smoke Prefs");
+          debugln(F("Recv. Wand Smoke Prefs"));
 
           // Send the EEPROM preferences just returned by the wand.
           // This data will combine with the pack's smoke settings.
@@ -1009,7 +1042,7 @@ void doWandSync() {
   }
 
   // Begin the synchronization process which tells the wand the pack got the handshake.
-  debugln("Wand Sync Start");
+  debugln(F("Wand Sync Start"));
   packSerialSend(P_SYNC_START);
 
   // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
@@ -1173,7 +1206,7 @@ void doWandSync() {
 
   // Tell the wand that we've reached the end of settings to be sync'd.
   packSerialSend(P_SYNC_END);
-  debugln("Wand Sync End");
+  debugln(F("Wand Sync End"));
 
   b_wand_connected = true; // Remember that a wand has been connected.
   b_wand_syncing = false; // Indicate completion of wand sync process.
@@ -1183,11 +1216,26 @@ void doWandSync() {
 }
 
 void handleWandCommand(uint8_t i_command, uint16_t i_value) {
+  if(!b_wand_connected) {
+    // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
+    if(i_command != W_SYNC_NOW && i_command != W_HANDSHAKE && i_command != W_SYNCHRONIZED) {
+      // This applies for any action other than those responsible for sync operations.
+      return;
+    }
+  }
+
   switch(i_command) {
     case W_SYNC_NOW:
       // Wand has explicitly asked to be synchronized, so treat as not yet connected.
       b_wand_connected = false;
-      doWandSync();
+
+      // Stop any wand sounds which are playing on the pack.
+      wandExtraSoundsStop();
+      wandExtraSoundsBeepLoopStop();
+
+      if(!b_wand_syncing) {
+        doWandSync();
+      }
     break;
 
     case W_HANDSHAKE:
@@ -1212,7 +1260,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SYNCHRONIZED:
-      debugln("Wand Synchronized");
+      debugln(F("Wand Synchronized"));
       b_wand_connected = true; // Truly indicates the wand responded.
     break;
 

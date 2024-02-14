@@ -81,23 +81,30 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Wand Boot Errors:</b>
+      <b class="labelSwitch">Auto Vent Light Brightness:</b>
       <label class="switch">
-        <input id="wandBootError" name="wandBootError" type="checkbox">
+        <input id="autoVentLight" name="autoVentLight" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">&nbsp;Wand Beep Loop:</b>
+      <b class="labelSwitch">Lights Off During Overheat:</b>
       <label class="switch">
-        <input id="wandBeepLoop" name="wandBeepLoop" type="checkbox">
+        <input id="overheatLightsOff" name="overheatLightsOff" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Send Sounds to Pack:</b>
+      <b class="labelSwitch">Spectral Modes Enabled:</b>
       <label class="switch">
-        <input id="wandSoundsToPack" name="wandSoundsToPack" type="checkbox">
+        <input id="spectralModeEnabled" name="spectralModeEnabled" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Spectral Mode - Holiday:</b>
+      <label class="switch">
+        <input id="spectralHolidayMode" name="spectralHolidayMode" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -116,16 +123,23 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Auto Vent Light Brightness:</b>
+      <b class="labelSwitch">Send Sounds to Pack:</b>
       <label class="switch">
-        <input id="autoVentLight" name="autoVentLight" type="checkbox">
+        <input id="wandSoundsToPack" name="wandSoundsToPack" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Lights Off During Overheat:</b>
+      <b class="labelSwitch">&nbsp;Wand Beep Loop:</b>
       <label class="switch">
-        <input id="overheatLightsOff" name="overheatLightsOff" type="checkbox">
+        <input id="wandBeepLoop" name="wandBeepLoop" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Wand Boot Errors:</b>
+      <label class="switch">
+        <input id="wandBootError" name="wandBootError" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -150,16 +164,16 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Invert Animations:</b>
+      <b class="labelSwitch">Blink on Overheat:</b>
       <label class="switch">
-        <input id="invertWandBargraph" name="invertWandBargraph" type="checkbox">
+        <input id="bargraphOverheatBlink" name="bargraphOverheatBlink" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Blink on Overheat:</b>
+      <b class="labelSwitch">Invert Animations:</b>
       <label class="switch">
-        <input id="bargraphOverheatBlink" name="bargraphOverheatBlink" type="checkbox">
+        <input id="invertWandBargraph" name="invertWandBargraph" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -188,20 +202,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       <input type="range" id="ledWandSat" name="ledWandSat" min="0" max="100" value="100" step="2"
        oninput="updateColor('wandColorPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
       <output class="labelSlider" id="wandSatOut" for="ledWandSat"></output>
-    </div>
-    <div class="setting">
-      <b class="labelSwitch">Spectral Modes Enabled:</b>
-      <label class="switch">
-        <input id="spectralModeEnabled" name="spectralModeEnabled" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
-    <div class="setting">
-      <b class="labelSwitch">Spectral Holiday Mode:</b>
-      <label class="switch">
-        <input id="spectralHolidayMode" name="spectralHolidayMode" type="checkbox">
-        <span class="slider round"></span>
-      </label>
     </div>
   </div>
 
@@ -269,7 +269,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             }
 
             if (settings.packPowered || settings.wandPowered) {
-              alert("Pack and/or Wand are currently powered up. Changes to settings will not be allowed. Turn off system via toggle switches and reload the page to obtain the latest settings.");
+              alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
             }
 
             /**

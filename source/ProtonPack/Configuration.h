@@ -219,7 +219,7 @@ const uint8_t STARTUP_VOLUME_EFFECTS = 100;
  * If your pack is overpowering the wand at lower volumes, you can either increase the minimum value in the wand,
  * or decrease the minimum value for the pack.
  */
-const int MINIMUM_VOLUME = -50;
+const int MINIMUM_VOLUME = -60;
 
 /*
  * Percentage increments of main volume change.

@@ -253,7 +253,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
             }
 
             if (settings.packPowered || settings.wandPowered) {
-              alert("Pack and/or Wand are currently powered up. Changes to settings will not be allowed. Turn off system via toggle switches and reload the page to obtain the latest settings.");
+              alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
             }
 
             document.getElementById("smokeEnabled").checked = settings.smokeEnabled ? true: false;
