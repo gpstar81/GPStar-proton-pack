@@ -81,9 +81,11 @@ void setup() {
   // RGB LEDs for effects (upper/lower) and user status (top).
   FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
 
-  // Change top indicator to red when device is on and ready.
+  // Change top indicator to red when device is on and ready, all others are off (black).
   i_top_led_color = C_RED;
   device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
+  device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+  device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
 
   // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);

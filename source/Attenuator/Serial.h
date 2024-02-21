@@ -29,7 +29,7 @@
   #define TXD2 17
 #endif
 SerialTransfer packComs;
-bool b_sync_start = false; // Denotes pack communications have begun.
+bool b_sync_start = false; // Denotes whether pack communications have begun (initial: false).
 
 // Types of packets to be sent.
 enum PACKET_TYPE : uint8_t {
@@ -218,7 +218,7 @@ bool checkPack() {
     uint8_t i_packet_id = packComs.currentPacketID();
     #if defined(__XTENSA__)
       // Advanced debugging message, only enable if absolutely needed!
-      //debug("PacketID: " + String(i_packet_id));
+      // debug("PacketID: " + String(i_packet_id));
     #endif
 
     if(i_packet_id > 0) {
