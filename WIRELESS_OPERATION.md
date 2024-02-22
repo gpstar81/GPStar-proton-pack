@@ -115,7 +115,7 @@ Use of an unsecured WiFi network is not supported and not recommended.
 
 The web UI is built as a single-page application, using single HTML pages for the interface elements and performing actions using an API layer. These API endpoints are available for use if you wish to build your own interface. They pass data in JSON format though the exact structure is not described here at this time.
 
-The following URL's will serve the informational/maintenance pages as shown previously in this guide:
+The following URI's will serve the informational/maintenance pages as shown previously in this guide:
 
 	GET / - Standard Index/Landing Page
 	GET /network - External WiFi Settings Page
@@ -125,33 +125,48 @@ The following URL's will serve the informational/maintenance pages as shown prev
 	GET /settings/smoke - Smoke Settings Page
 	GET /style.css - Common Stylesheet
 
-For real-time updates, a special url exists at `/ws` to support [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API). When connected, the ESP32 device will "push" any relevant information direct to clients. Note that this data may be in the form of a JSON object or a plain string, so check the contents of the data carefully before usage.
+For real-time updates, the built-in web server offers a special URI `/ws` to support [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API). When connected to that endpoint, the ESP32 device will "push" any relevant information direct to clients in real-time. Note that this data may be in the form of a JSON object or just a plain string, so check the contents of the text data carefully before usage.
 
-The following URL's are available for managing actions within your devices:
+The following URI's are API endpoints available for managing actions within your devices. You may use these to create your own UI or control your pack/wand via other hardware devices. For instance, you can monitor the `/status` endpoint for changes, or use the volume/music endpoints to create your own jukebox interface. All data should use the `application/json` content type for sending or receiving of data. Where applicable for body data to be sent to the device a footnote describes where to find a sample of the JSON payload.
 
-	GET /status - Obtain the current equipment status
+	GET /status - Obtain all current equipment status (pack + wand)
+	DELETE /restart - Perform a software restart of the ESP32 controller
+
 	PUT /pack/on - Turn the pack on (subject to system state)
 	PUT /pack/off - Turn the pack onf (subject to system state)
 	PUT /pack/attenuate - Cancel pack overheat via "attenuation"
 	PUT /pack/vent - Perform manual vent (subject to system state)
+
 	PUT /volume/toggle - Toggle mute for all devices
 	PUT /volume/master/up - Increase master volume
 	PUT /volume/master/down - Decrease master volume
 	PUT /volume/effects/up - Increase effects volume
 	PUT /volume/effects/down - Decrease effects volume
+
 	PUT /music/startstop - Toggle music playback via start/stop
 	PUT /music/pauseresume - Toggle music playback via resume/pause
 	PUT /music/next - Move to next track
 	PUT /music/prev - Move to previous track
 	PUT /music/select?track=[INTEGER] - Select a specific music track (Min Value: 500)
-	GET /config/pack - Obtain the current pack equipment settings
-	PUT /config/pack/save - Sends latest pack settings for evaluation
-	GET /config/wand - Obtain the current wand equipment settings
-	PUT /config/wand/save - Sends latest wand settings for evaluation
-	GET /config/smoke - Obtain the current pack/wand smoke settings
-	PUT /config/smoke/save - Sends latest smoke settings for evaluation
-	PUT /eeprom/app - Stores current smoke preferences to pack/wand EEPROMs
-	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM
-	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM
+
 	GET /wifi/settings - Returns the current external WiFi settings
 	PUT /wifi/update - Save new/modified external WiFi settings
+		Body: Send same JSON body as returned by /wifi/settings
+
+	GET /config/pack - Obtain the current pack equipment settings
+	PUT /config/pack/save - Saves pack settings for evaluation
+		Body: Send same JSON body as returned by /config/pack
+
+	GET /config/wand - Obtain the current wand equipment settings
+	PUT /config/wand/save - Saves wand settings for evaluation
+		Body: Send same JSON body as returned by /config/wand
+
+	GET /config/smoke - Obtain the current pack/wand smoke settings
+	PUT /config/smoke/save - Saves smoke settings for evaluation
+		Body: Send same JSON body as returned by /config/smoke
+
+	WARNING: Only call these API's as necessary as these cause write cycles to the EEPROM!
+
+	PUT /eeprom/all - Stores all current preferences to pack/wand EEPROMs (eg. smoke settings)
+	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM
+	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM
