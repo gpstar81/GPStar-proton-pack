@@ -20,8 +20,18 @@
 
 #pragma once
 
-enum api_messages {
-  A_COM_START,
+/*
+ * These enum definitions must be kept in sync across the devices they communicate with, using the same dataype and ordering.
+ * Enum values are internally considered integer values and here they are being given a distinct underlying datatype of uint8_t.
+ * It is therefore important that the total number of elements per enum must remain below 254 to not overflow that (byte) type.
+ */
+
+enum api_messages : uint8_t {
+  A_NULL,
+  A_HANDSHAKE,
+  A_SYNC_START,
+  A_SYNC_END,
+  A_PACK_BOOTUP,
   A_WAND_ON,
   A_WAND_OFF,
   A_FIRING,
@@ -40,7 +50,6 @@ enum api_messages {
   A_WARNING_CANCELLED,
   A_CYCLOTRON_NORMAL_SPEED,
   A_CYCLOTRON_INCREASE_SPEED,
-  A_HANDSHAKE,
   A_BEEP_START,
   A_POWER_LEVEL_1,
   A_POWER_LEVEL_2,
@@ -86,14 +95,17 @@ enum api_messages {
   A_MUSIC_PREV_TRACK,
   A_VOLUME_DECREASE,
   A_VOLUME_INCREASE,
+  A_VOLUME_SYNC,
   A_MENU_LEVEL_CHANGE,
   A_VGA_OVERHEAT_LIGHTS,
   A_DIMMING_TOGGLE,
   A_DIMMING_INCREASE,
   A_DIMMING_DECREASE,
   A_PROTON_STREAM_IMPACT_TOGGLE,
-  A_CLEAR_EEPROM_SETTINGS,
-  A_SAVE_EEPROM_SETTINGS,
+  A_CLEAR_EEPROM_SETTINGS_PACK,
+  A_CLEAR_EEPROM_SETTINGS_WAND,
+  A_SAVE_EEPROM_SETTINGS_PACK,
+  A_SAVE_EEPROM_SETTINGS_WAND,
   A_TOGGLE_CYCLOTRON_LEDS,
   A_TOGGLE_POWERCELL_LEDS,
   A_TOGGLE_INNER_CYCLOTRON_LEDS,
@@ -128,9 +140,6 @@ enum api_messages {
   A_YEAR_AFTERLIFE,
   A_YEAR_1989,
   A_YEAR_1984,
-  A_PACK_BOOTUP,
-  A_SYNC_START,
-  A_SYNC_END,
   A_ALARM_ON,
   A_ALARM_OFF,
   A_PACK_ON,
@@ -155,5 +164,16 @@ enum api_messages {
   A_MUSIC_IS_PAUSED,
   A_MUSIC_IS_NOT_PAUSED,
   A_MUSIC_PLAY_TRACK,
-  A_COM_END
+  A_BATTERY_VOLTAGE_PACK,
+  A_WAND_CONNECTED,
+  A_WAND_DISCONNECTED,
+  A_REQUEST_PREFERENCES_PACK,
+  A_REQUEST_PREFERENCES_WAND,
+  A_REQUEST_PREFERENCES_SMOKE,
+  A_SEND_PREFERENCES_PACK,
+  A_SEND_PREFERENCES_WAND,
+  A_SEND_PREFERENCES_SMOKE,
+  A_SAVE_PREFERENCES_PACK,
+  A_SAVE_PREFERENCES_WAND,
+  A_SAVE_PREFERENCES_SMOKE
 };

@@ -40,7 +40,12 @@
 #define FRUTTO_CYCLOTRON_LED_COUNT 20
 
 /*
- * Set the number of steps for the Outer Cyclotron.
+ * Set the number of steps for the Inner Cyclotron (cake).
+ */
+#define INNER_CYCLOTRON_CAKE_LED_MAX 35
+
+/*
+ * Set the number of steps for the Outer Cyclotron (lid).
  */
 #define OUTER_CYCLOTRON_LED_MAX 40
 
@@ -50,7 +55,7 @@
 #define JEWEL_NFILTER_LED_COUNT 7
 
  /*
- * Total number of LEDs in the Proton Pack
+ * Total number of LEDs in the standard Proton Pack configuration.
  * Power Cell and Cyclotron Lid LEDs + optional N-Filter NeoPixel.
  * 25 LEDs in the stock HasLab kit. 13 in the Power Cell and 12 in the Cyclotron lid.
  * 7 additional (32 in total) for a NeoPixel jewel that you can put into the N-Filter (optional).
@@ -59,7 +64,7 @@
  */
 const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
-const uint8_t i_max_inner_cyclotron_leds = 35;
+const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX;
 
 /*
  * Updated count of all the LEDs plus the N-Filter jewel.
@@ -72,11 +77,6 @@ uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_
  * This gets updated by the system if the wand changes the LED count in the EEPROM menu system.
  */
 uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
-
-/*
- * The HasLab Cyclotron Lid has 12 LEDs.
- */
-#define HASLAB_CYCLOTRON_LED_COUNT 12
 
 // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in the Configuration.h
 unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for the Frutto Technology Cyclotron or 7 for a 40 LED NeoPixel ring.
@@ -93,15 +93,11 @@ CRGB pack_leds[i_max_pack_leds + i_nfilter_jewel_leds];
 /*
  * Inner Cyclotron LEDs (optional).
  * Max number of LEDs supported = 35.
+ * Maximum allowed LEDs for the Inner Cyclotron Cake is 35.
  * Uses pin 13.
- * Maximum allowed LEDs for the Inner Cyclotron is 35.
  */
-#define CYCLOTRON_NUM_LEDS 35
 #define CYCLOTRON_LED_PIN 13
-CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
-
-#define HASLAB_CYCLOTRON_LEDS 12
-#define HASLAB_POWERCELL_LEDS 13
+CRGB cyclotron_leds[i_max_inner_cyclotron_leds];
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -109,9 +105,9 @@ CRGB cyclotron_leds[CYCLOTRON_NUM_LEDS];
  * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
  */
 const uint8_t i_fast_led_delay = 6;
+const uint16_t i_fast_led_bounce_delay = 200;
 millisDelay ms_fast_led;
 millisDelay ms_fast_led_bounce;
-const unsigned int i_fast_led_bounce_delay = 200;
 
 /*
  * Power Cell LEDs control.
@@ -146,8 +142,8 @@ enum PACK_ACTION_STATES PACK_ACTION_STATE;
 /*
  * Cyclotron lid LEDs control and lid detection.
  */
-uint8_t cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
-uint8_t i_led_cyclotron = cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
+uint8_t i_cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
+uint8_t i_led_cyclotron = i_cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
 const unsigned int i_2021_ramp_delay = 300;
 const unsigned int i_2021_ramp_length = 6000;
 const unsigned int i_1984_ramp_length = 3000;
@@ -226,8 +222,8 @@ ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defa
  * WAV Trigger
  */
 wavTrigger w_trig;
-unsigned int i_music_count = 0;
-unsigned int i_current_music_track = 0;
+uint16_t i_music_count = 0;
+uint16_t i_current_music_track = 0;
 const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
@@ -247,9 +243,9 @@ millisDelay ms_music_status_check;
 /*
  *  Volume (0 = loudest, -70 = quietest)
  */
-int i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
-int i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-int i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
+uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
+uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
+uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
 int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
@@ -261,7 +257,11 @@ millisDelay ms_volume_check; // Put some timing on the master volume gain to not
 
 /*
  * Vibration motor settings
+ *
+ * Vibration default is based on the toggle switch position. These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
+enum VIBRATION_MODES_EEPROM { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
+enum VIBRATION_MODES_EEPROM VIBRATION_MODE_EEPROM;
 const uint8_t vibration = 45;
 int i_vibration_level = 0;
 int i_vibration_level_prev = 0;
@@ -368,22 +368,25 @@ bool b_firing_intensify = false;
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_wand_connected = false;
+bool b_wand_syncing = false;
 bool b_wand_on = false;
-millisDelay ms_wand_handshake;
-const unsigned int i_wand_handshake_delay = 3000;
-millisDelay ms_wand_handshake_checking;
-uint8_t i_wand_power_level = 1; // Power level of the wand.
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
+uint8_t i_wand_power_level = 1; // Power level of the wand.
+millisDelay ms_wand_check; // Timer used to determine whether the wand has been disconnected.
+const unsigned int i_wand_disconnect_delay = 8000; // Time until the pack considers a wand as disconnected.
 
 /*
  * Serial1 Status
  */
 bool b_serial1_connected = false;
+bool b_serial1_syncing = false;
 millisDelay ms_serial1_handshake;
-const unsigned int i_serial1_handshake_delay = 3000;
+const unsigned int i_serial1_handshake_delay = 4000;
 millisDelay ms_serial1_handshake_checking;
-bool b_serial_1_syncing = false;
 
+/*
+ * Define Serial Communication Buffers
+ */
 SerialTransfer serial1Coms;
 SerialTransfer packComs;
 
@@ -446,10 +449,21 @@ bool b_fade_out = false;
 millisDelay ms_fadeout;
 
 /*
+ * Voltage reference.
+ */
+uint16_t i_batt_volts; // Current voltage value (Vcc) using internal bandgap reference.
+const unsigned int i_ms_battcheck_delay = 5000; // Time between battery voltage checks.
+millisDelay ms_battcheck; // Timer for checking battery voltage on a regular interval.
+
+/*
  * Function prototypes.
  */
-void packSerialSend(uint16_t i_message);
-void serial1Send(uint16_t i_message);
+void packSerialSend(uint8_t i_command, uint16_t i_value);
+void packSerialSend(uint8_t i_command);
+void packSerialSendData(uint8_t i_message);
+void serial1Send(uint8_t i_command, uint16_t i_value);
+void serial1Send(uint8_t i_command);
+void serial1SendData(uint8_t i_message);
 void checkSerial1();
 void checkWand();
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);

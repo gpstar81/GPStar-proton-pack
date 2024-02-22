@@ -18,11 +18,16 @@ Before continuing, be certain whether the following items have been reviewed:
 - Music files should start with a file having a prefix of `500_` and increment by 1.
 - Switch to SanDisk brand media as these SD cards have proven reliable in every use-case.
 
-**Blinking Patterns:**
+**Startup Blinking Patterns:**
 
-- 10x - This indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
-- 3x - This is the normal pattern at initial power-up to indicate the device has initialized without issues.
+- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far. 
+- 3x (quick) - 3 quick blinks in succession is the normal pattern at initial power-up to indicate the device has initialized without issues.
+
+**Post Startup Blinking Patterns**
 - 1x - The WavTrigger will blink once every ~4 seconds when the PCB and device are powered on. This indicates a regular serial connection checking the status of the WavTrigger and is to be expected.
+
+## IMPORTANT
+When adding extra music to your system, many audio software tend to add Meta Data information into the file. This will prevent the file from playing. As simple as importing the file into Audacity and re-exporting will solve the issue, or you can use any other software to remove the Meta Data information.
 
 ## Proton Pack
 
@@ -55,7 +60,16 @@ The wand assumes successful operation of the pack, so please only proceed once t
 
 The wand is expects to communicate with the pack and will only power on when that connection is successfully established. If no lights or audio are observed when using the Activate switch, please consider the following options.
 
-### Wand has lights but does not play audio
+* Re-check the Power/GND connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply fold them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
+* If you are using the 28 Segment bargraph from Frutto Technology, make sure the connection cables are plugged into the proper connectors. If the power cable for the bargraph is plugged into the SCL/SDA connector on the wand board and the communication cable is plugged into the 5V power connector on the wand board, then the wand will not start up.
+
+### Wand has a blinking vent light but does not start up
+
+When the wand is trying to establish communication to the GPStar Proton Pack controller, the LED beside the vent light blinks. When a successful connection is made, the light will stop blinking.
+
+* Re-check the TX/RX serial connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply fold them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
+
+### Wand has no audio
 
 Troubleshooting will be similar to the process used with the pack, though there will not be an external amplifier or audio cable in use. With the wand attached to the pack, press the test button on the WavTrigger to play the first audio file on the SD card and observe the status LED state.
 
@@ -70,6 +84,12 @@ If the red LED does not illuminate, this could mean a connection or data problem
 * Reformat the microSD card as FAT32 using the provided utility and re-copy the audio files to the microSD card.
 * Re-check the connections to the WavTrigger, taking note of the power and Rx/Tx connections. Note that is it normal to see some empty pins/sockets on the connecting wire.
 * Re-check the power connection to the wand. If you have a digital multimeter available, set the device to the DC power measurement and check that the 5V-OUT connection is supplying the expected voltage. Be careful to not short out the pins and mind the polarity.
+
+### The music I added is not playing back
+
+* Make sure to following the naming conventions that are indicated in the [Loading The Audio Files](AUDIO.md) guide.
+* Remove any metadata that may be embedded in your wav files. This can cause problems with loading the music.
+* The Proton Pack at a minimum must contain all the music, however it is advised for the Neutrona Wand to have the same files as well if you want music to also play back from the Neutrona Wand audio system.
 
 ### Bench Test Mode
 

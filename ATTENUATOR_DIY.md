@@ -280,3 +280,7 @@ Please see the notes above for the correct pin names for connections based on yo
 The dimensions of the project housing allows for easy access into all areas of the device. It should be no problem to fit the available components within the final device. Note that you will want to build the connection cable in full and run it through the strain relief before attached to the device housing.
 
 For assembly, the shell contains 4 holes meant to take heat-set inserts which provide metal-threaded junctions for screws to hold on the bottom plate. Because the plat must then be attached to the ALICE pack strap these should be secure but removable in the case of re-flashing software updates to the device.
+
+## External Finishing
+
+View [the guide here](ATTENUATOR_FINISHING.md) for parts and materials for finishing the exterior of your device.

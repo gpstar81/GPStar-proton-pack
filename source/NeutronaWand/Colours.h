@@ -238,15 +238,17 @@ CRGB getHueAsGRB(uint8_t i_colour, uint8_t i_brightness = 255) {
   return getHueAsRGB(i_colour, i_brightness, true);
 }
 
-CRGB getHueColour(uint8_t i_colour, uint8_t i_num_leds, uint8_t i_brightness = 255) {
-  switch(i_num_leds) {
+CRGB getHueColour(uint8_t i_colour, WAND_BARREL_LED_COUNTS NUM_LEDS_ENUM, uint8_t i_brightness = 255) {
+  switch(NUM_LEDS_ENUM) {
+    case LEDS_29:
     case LEDS_48:
-    case LEDS_60:
-      return getHueAsRGB(i_colour, i_brightness, false);
+      // All other LEDs are considered RGB
+      return getHueAsRGB(i_colour, i_brightness);
     break;
 
     case LEDS_5:
     default:
+      // Stock LEDs are GRB
       return getHueAsRGB(i_colour, i_brightness, true);
     break;
   }

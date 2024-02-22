@@ -111,12 +111,12 @@ void checkWandAction() {
           }
         }
 
-        // Overheating.
+        // Overheating check, start vent sequence if expected for power level and timer delay is completed.
         if(ms_overheat_initiate.justFinished() && b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
           startVentSequence();
         }
         else {
-          modeFiring();
+          modeFiring(); // Tell the pack whether firing has started/stopped.
 
           // Stop firing if any of the main switches are turned off or the barrel is retracted.
           if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH || b_switch_barrel_extended != true) {
@@ -134,6 +134,10 @@ void checkWandAction() {
         settingsBlinkingLights();
 
         if(ms_blink_sound_timer_1.justFinished()) {
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_WAND_BEEP_SOUNDS);
+          }
+
           ms_blink_sound_timer_1.start(i_blink_sound_timer);
 
           playEffect(S_BEEPS_LOW);
@@ -141,6 +145,10 @@ void checkWandAction() {
         }
 
         if(ms_blink_sound_timer_2.justFinished()) {
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_WAND_BEEP_BARGRAPH);
+          }
+
           playEffect(S_BEEPS_BARGRAPH);
 
           ms_blink_sound_timer_2.start(i_blink_sound_timer * 4);
@@ -153,8 +161,9 @@ void checkWandAction() {
         }
       }
 
-      if(b_no_pack == true) {
-        // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
+      if(b_gpstar_benchtest == true) {
+        // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is
+        // running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
         if(ms_overheating.justFinished()) {
           overHeatingFinished();
         }
@@ -269,13 +278,12 @@ void checkWandAction() {
 
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to clear its current configuration from the EEPROM.
-              // Proton Stream Impact Effects / 3 LED mode in 1984/1989
               wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
 
               stopEffect(S_VOICE_EEPROM_ERASE);
               playEffect(S_VOICE_EEPROM_ERASE);
 
-              // Clear wand EEPROM. (CTS/VGA, Overheating)
+              // Clear wand EEPROM.
               clearConfigEEPROM();
 
               wandExitEEPROMMenu();
@@ -379,13 +387,14 @@ void checkWandAction() {
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               switch(WAND_YEAR_MODE) {
                 case YEAR_1984:
+                  // 1984 -> 1989
                   WAND_YEAR_MODE = YEAR_1989;
 
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
 
                   playEffect(S_VOICE_NEUTRONA_WAND_1989);
 
@@ -393,13 +402,14 @@ void checkWandAction() {
                 break;
 
                 case YEAR_1989:
+                  // 1989 -> Afterlife
                   WAND_YEAR_MODE = YEAR_AFTERLIFE;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
                   stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
 
                   playEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
 
@@ -407,13 +417,29 @@ void checkWandAction() {
                 break;
 
                 case YEAR_AFTERLIFE:
+                  // Afterlife -> Frozen Empire
+                  WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
+
+                  wandSerialSend(W_NEUTRONA_WAND_FROZEN_EMPIRE_MODE);
+                break;
+
+                case YEAR_FROZEN_EMPIRE:
+                  // Frozen Empire -> Default (Toggle)
                   WAND_YEAR_MODE = YEAR_DEFAULT;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
                   stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
 
                   playEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
 
@@ -421,15 +447,15 @@ void checkWandAction() {
                 break;
 
                 case YEAR_DEFAULT:
-                case YEAR_FROZEN_EMPIRE:
                 default:
+                  // Default (Toggle) -> 1984
                   WAND_YEAR_MODE = YEAR_1984;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_DEFAULT_MODE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_NEUTRONA_WAND_AFTERLIFE);
-                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
                   stopEffect(S_VOICE_NEUTRONA_WAND_1989);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_1984);
 
                   playEffect(S_VOICE_NEUTRONA_WAND_1984);
 
@@ -445,6 +471,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
               playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_5);
 
               wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_5);
@@ -457,8 +484,8 @@ void checkWandAction() {
 
         // Menu Level 1: Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
         // Menu Level 1: Barrel Wing Button: Enable Spectral and Holiday modes.
-        // Menu Level 2: Intensify: Vent Light Auto Intensity.
-        // Menu Level 2: Barrel Wing Button: 5 / 48 / 60 barrel LEDs.
+        // Menu Level 2: Intensify: Enable pack vibration, enable pack vibration while firing only, disable pack vibration, reset to defaults. *Note that the pack vibration switch will toggle both pack and wand vibration on or off*
+        // Menu Level 2: Barrel Wing Button: Enable wand vibration, enable wand vibration while firing only, disable wand vibration, reset to defaults.
         // Menu Level 3: Intensify: Invert Bargraph
         // Menu Level 3: Barrel Wing Button: Toggle Bargraph Overheat Blinking enabled/disabled
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 4
@@ -473,24 +500,7 @@ void checkWandAction() {
               toggleWandModes();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              if(b_vent_light_control == true) {
-                b_vent_light_control= false;
-
-                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-                playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-
-                wandSerialSend(W_VENT_LIGHT_INTENSITY_DISABLED);
-              }
-              else {
-                b_vent_light_control = true;
-
-                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-                stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
-                playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
-
-                wandSerialSend(W_VENT_LIGHT_INTENSITY_ENABLED);
-              }
+              wandSerialSend(W_VIBRATION_CYCLE_TOGGLE_EEPROM);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               if(b_bargraph_invert == true) {
@@ -578,66 +588,84 @@ void checkWandAction() {
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              switch(WAND_BARREL_LED_COUNT) {
-                case LEDS_5:
+              stopEffect(S_BEEPS_ALT);
+
+              playEffect(S_BEEPS_ALT);
+
+              switch(VIBRATION_MODE_EEPROM) {
+                case VIBRATION_DEFAULT:
                 default:
-                  /*
-                  i_num_barrel_leds = 48;
-                  WAND_BARREL_LED_COUNT = LEDS_48;
+                  VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+                  b_vibration_firing = false;
+                  b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  stopEffect(S_VOICE_BARREL_LED_48);
-                  stopEffect(S_VOICE_BARREL_LED_60);
-                  playEffect(S_VOICE_BARREL_LED_48);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
-                  wandSerialSend(W_BARREL_LEDS_48);
-                  */
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  playEffect(S_VOICE_BARREL_LED_5);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
 
-                  wandSerialSend(W_BARREL_LEDS_5);
+                  wandSerialSend(W_VIBRATION_ENABLED);
+
+                  analogWrite(vibration, 150);
+                  delay(250);
+                  analogWrite(vibration, 0);
                 break;
+                case VIBRATION_ALWAYS:
+                  VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+                  b_vibration_firing = true;
+                  b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
 
-                // 48 LED wand barrel board coming soon.
-                case LEDS_48:
-                  /*
-                  i_num_barrel_leds = 5;
-                  WAND_BARREL_LED_COUNT = LEDS_5;
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  stopEffect(S_VOICE_BARREL_LED_48);
-                  stopEffect(S_VOICE_BARREL_LED_60);
-                  playEffect(S_VOICE_BARREL_LED_5);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
 
-                  wandSerialSend(W_BARREL_LEDS_5);
-                  */
+                  wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
-                  /*
-                  i_num_barrel_leds = 60;
-                  WAND_BARREL_LED_COUNT = LEDS_60;
-
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  stopEffect(S_VOICE_BARREL_LED_48);
-                  stopEffect(S_VOICE_BARREL_LED_60);
-                  playEffect(S_VOICE_BARREL_LED_60);
-
-                  wandSerialSend(W_BARREL_LEDS_60);
-                  */
+                  analogWrite(vibration, 150);
+                  delay(250);
+                  analogWrite(vibration, 0);
                 break;
+                case VIBRATION_FIRING_ONLY:
+                  VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+                  b_vibration_on = false;
+                  b_vibration_firing = false;
 
-                // The 60 LED flexi-pcb may come one day in the future.
-                case LEDS_60:
-                /*
-                  i_num_barrel_leds = 5;
-                  WAND_BARREL_LED_COUNT = LEDS_5;
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
-                  stopEffect(S_VOICE_BARREL_LED_5);
-                  stopEffect(S_VOICE_BARREL_LED_48);
-                  stopEffect(S_VOICE_BARREL_LED_60);
-                  playEffect(S_VOICE_BARREL_LED_5);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                  wandSerialSend(W_BARREL_LEDS_5);
-                  */
+                  wandSerialSend(W_VIBRATION_DISABLED);
+                break;
+                case VIBRATION_NONE:
+                  VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+                  b_vibration_on = true;
+                  b_vibration_firing = true;
+
+                  // If there's no Pack, reset b_vibration_enabled to true
+                  if(b_gpstar_benchtest == true) {
+                    b_vibration_enabled = true;
+                  }
+
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
+
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
+
+                  wandSerialSend(W_VIBRATION_DEFAULT);
+
+                  analogWrite(vibration, 150);
+                  delay(250);
+                  analogWrite(vibration, 0);
                 break;
               }
             }
@@ -670,6 +698,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
               playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_4);
 
               wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_4);
@@ -682,9 +711,9 @@ void checkWandAction() {
 
         // Menu Level 1: Intensify: Enable or Disable overheating settings.
         // Menu Level 1: Barrel Wing Button: Enable or disable smoke.
-        // Menu Level 2: Intensify: Enable/Disable MODE_ORIGINAL toggle switch sound effects.
+        // Menu Level 2: Intensify: Enable/Disable Wand beeping in Afterlife / Frozen Empire modes.
         // Menu Level 2: Barrel Wing Button: Cycle through VG color modes to disable them. (see operational guide for more details on this).
-        // Menu Level 3: Intensify: Bargraph Animation Toggle setting: Super Hero / Bargraph Original / System Default
+        // Menu Level 3: Intensify: Bargraph Idle Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 3
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 3
@@ -698,7 +727,6 @@ void checkWandAction() {
               toggleOverHeating();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              // Enable/Disable MODE_ORIGINAL toggle switch sound effects. b_mode_original_toggle_sounds_enabled
               if(b_beep_loop == true) {
                 b_beep_loop = false;
 
@@ -851,6 +879,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
               playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
 
               wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_3);
@@ -943,6 +972,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
               playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
 
               wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_2);
@@ -953,8 +983,8 @@ void checkWandAction() {
           }
         break;
 
-        // Menu Level 1: Intensify: Enable or disable Proton Stream Impact Effects.
-        // Menu Level 1: Barrel Wing Button: Enable or disable extra Neutrona Wand Sounds.
+        // Menu Level 1: Intensify: Enable or disable extra Neutrona Wand Sounds.
+        // Menu Level 1: Barrel Wing Button: Enable or disable Proton Stream Impact Effects.
         // Menu Level 2: Intensify: 1984 / 1989 / Afterlife / Default (Proton Pack toggle switch) year mode selection.
         // Menu Level 2: Barrel Wing Button: Overheat sync to fan.
         // Menu Level 3: Intensify: Toggle between Super Hero and Original Mode.
@@ -968,8 +998,20 @@ void checkWandAction() {
             ms_intensify_timer.start(i_intensify_delay / 2);
 
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              // Tell the Proton Pack to toggle the Proton Stream impact effects.
-              wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+              if(b_extra_pack_sounds == true) {
+                b_extra_pack_sounds = false;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
+              }
+              else {
+                b_extra_pack_sounds = true;
+
+                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+
+                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
+              }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               // Sub menu.
@@ -978,6 +1020,16 @@ void checkWandAction() {
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               // Toggle between Super Hero and Mode Original.
               wandSerialSend(W_MODE_TOGGLE);
+
+              // If there is no Pack, we need to cycle modes manually.
+              if(b_gpstar_benchtest == true) {
+                if(SYSTEM_MODE == MODE_SUPER_HERO) {
+                  SYSTEM_MODE = MODE_ORIGINAL;
+                }
+                else {
+                  SYSTEM_MODE = MODE_SUPER_HERO;
+                }
+              }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Overheat smoke duration level 1.
@@ -1017,20 +1069,8 @@ void checkWandAction() {
 
           if(switchMode() == true) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              if(b_extra_pack_sounds == true) {
-                b_extra_pack_sounds = false;
-
-                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
-
-                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
-              }
-              else {
-                b_extra_pack_sounds = true;
-
-                playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
-
-                wandSerialSend(W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED);
-              }
+              // Tell the Proton Pack to toggle the Proton Stream impact effects.
+              wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
@@ -1041,10 +1081,10 @@ void checkWandAction() {
                 case CTS_1989:
                   WAND_YEAR_CTS = CTS_AFTERLIFE;
 
-                  stopEffect(S_VOICE_CTS_AFTERLIFE);
                   stopEffect(S_VOICE_CTS_1984);
-                  //stopEffect(S_VOICE_CTS_1989);
-                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_1989);
+                  stopEffect(S_VOICE_CTS_AFTERLIFE);
+                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_AFTERLIFE);
@@ -1056,11 +1096,11 @@ void checkWandAction() {
                 case CTS_FROZEN_EMPIRE:
                   WAND_YEAR_CTS = CTS_DEFAULT;
 
-                  stopEffect(S_VOICE_CTS_DEFAULT);
-                  stopEffect(S_VOICE_CTS_AFTERLIFE);
                   stopEffect(S_VOICE_CTS_1984);
-                  //stopEffect(S_VOICE_CTS_1989);
-                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_1989);
+                  stopEffect(S_VOICE_CTS_AFTERLIFE);
+                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_DEFAULT);
 
@@ -1072,10 +1112,10 @@ void checkWandAction() {
                   WAND_YEAR_CTS = CTS_1984;
 
                   stopEffect(S_VOICE_CTS_1984);
-                  stopEffect(S_VOICE_CTS_DEFAULT);
+                  stopEffect(S_VOICE_CTS_1989);
                   stopEffect(S_VOICE_CTS_AFTERLIFE);
-                  //stopEffect(S_VOICE_CTS_1989);
-                  //stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
+                  stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_1984);
 
@@ -1091,6 +1131,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_3);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_2);
               stopEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
+
               playEffect(S_VOICE_OVERHEAT_START_TIMER_LEVEL_1);
 
               wandSerialSend(W_SOUND_OVERHEAT_START_TIMER_LEVEL_1);
@@ -1108,6 +1149,7 @@ void checkWandAction() {
 
       switch(i_wand_menu) {
         // Menu Level 1: (Intensify) -> Music track loop setting.
+        // Menu Level 1: (Barrel Wing Button) -> Exit menu. <--handled by altWingButtonCheck() if wand is on, or wandExitMenu() is wand is off
         // Menu Level 2: (Intensify) -> Enable or disable crossing the streams / video game modes.
         // Menu Level 2: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
         case 5:
@@ -1151,8 +1193,8 @@ void checkWandAction() {
 
         // Menu Level 1: (Intensify + Top dial) -> Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
         // Menu Level 1: (Barrel Wing Button) -> Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
-        // Menu Level 2: (Intensify) -> Enable or disable smoke for the Proton Pack.
-        // Menu Level 2: (Barrel Wing Button) -> Enable or disable overheating.
+        // Menu Level 2: (Intensify) -> Enable or disable overheating.
+        // Menu Level 2: (Barrel Wing Button) -> Enable or disable smoke for the Proton Pack.
         case 4:
           // Adjust the Proton Pack / Neutrona Wand sound effects volume.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1163,23 +1205,24 @@ void checkWandAction() {
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-            // Enable or disable smoke for the Proton Pack.
+            // Enable or disable overheating.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              // Tell the Proton Pack to toggle the smoke on or off.
-              wandSerialSend(W_SMOKE_TOGGLE);
+              toggleOverHeating();
             }
 
-            // Enable or disable overheating.
+            // Enable or disable smoke for the Proton Pack.
             if(switchMode() == true) {
-              toggleOverHeating();
+              // Tell the Proton Pack to toggle the smoke on or off.
+              wandSerialSend(W_SMOKE_TOGGLE);
             }
           }
         break;
 
-        // Menu Level 1: (Intensify + Top dial) -> Adjust Proton Pack / Neutrona Wand sound effects. (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
-        // Menu Level 1: (Intensify) -> Toggle Cyclotron rotation direction.
+        // Menu Level 1: (Intensify + Top dial) -> Adjust Proton Pack / Neutrona Wand sound effects.
+        // Menu Level 1: (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
+        // Menu Level 2: (Intensify) -> Toggle Cyclotron rotation direction.
         // Menu Level 2: (Barrel Wing Button) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
         case 3:
           // Top menu code is handled in checkRotary();
@@ -1201,7 +1244,7 @@ void checkWandAction() {
 
         // Menu Level 1: (Intensify) -> Go to next music track.
         // Menu Level 1: (Barrel Wing Button) -> Go to previous music track.
-        // Menu Level 2: (Intensify) -> Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibiration on or off*
+        // Menu Level 2: (Intensify) -> Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibration on or off*
         // Menu Level 2: (Barrel Wing Button) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
         case 2:
           // Change music tracks.
@@ -1209,7 +1252,7 @@ void checkWandAction() {
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
 
-              if(b_no_pack == true) {
+              if(b_gpstar_benchtest == true) {
                 musicNextTrack();
               }
               else {
@@ -1223,7 +1266,7 @@ void checkWandAction() {
             }
 
             if(switchMode() == true) {
-              if(b_no_pack == true) {
+              if(b_gpstar_benchtest == true) {
                 musicPrevTrack();
               }
               else {
@@ -1240,9 +1283,6 @@ void checkWandAction() {
             // Enable or disable vibration for the pack or during firing only.
             if(switch_intensify.isPressed() && ms_intensify_timer.isRunning() != true) {
               ms_intensify_timer.start(i_intensify_delay);
-
-              stopEffect(S_BEEPS_ALT);
-              playEffect(S_BEEPS_ALT);
 
               wandSerialSend(W_VIBRATION_CYCLE_TOGGLE);
             }
@@ -1266,7 +1306,7 @@ void checkWandAction() {
 
                 analogWrite(vibration, 150);
                 delay(250);
-                analogWrite(vibration,0);
+                analogWrite(vibration, 0);
               }
               else if(b_vibration_on == true && b_vibration_firing != true) {
                 b_vibration_firing = true;
@@ -1282,7 +1322,7 @@ void checkWandAction() {
 
                 analogWrite(vibration, 150);
                 delay(250);
-                analogWrite(vibration,0);
+                analogWrite(vibration, 0);
               }
               else {
                 b_vibration_on = false;
@@ -1314,21 +1354,24 @@ void checkWandAction() {
                 // Tell the pack to stop music.
                 wandSerialSend(W_MUSIC_STOP);
 
-                if(b_no_pack == true) {
+                if(b_gpstar_benchtest == true) {
                   stopMusic();
                 }
               }
               else {
+                // Tell the pack to stop music. In case we are hot swapping Neturona Wands and the Pack is already playing music.
+                wandSerialSend(W_MUSIC_STOP);
+
                 // Tell the pack to play music.
                 wandSerialSend(W_MUSIC_START);
 
-                if(b_no_pack == true) {
+                if(b_gpstar_benchtest == true) {
                   playMusic();
                 }
               }
             }
 
-            // Silence the Proton Pack or Neutrona Wand or revert back.
+            // Silence the Proton Pack and Neutrona Wand or revert back to previously-selected volume.
             if(switchMode() == true) {
               if(i_volume_master == i_volume_abs_min) {
                 wandSerialSend(W_VOLUME_REVERT);
@@ -1359,15 +1402,16 @@ void checkWandAction() {
               playEffect(S_BEEPS_BARGRAPH);
 
               // There is no pack connected; let's change the years.
-              if(b_no_pack == true) {
+              if(b_gpstar_benchtest == true) {
                 switch(getNeutronaWandYearMode()) {
                   case SYSTEM_1984:
+                    // 1984 -> 1989
                     WAND_YEAR_MODE = YEAR_1989;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
-                    stopEffect(S_VOICE_1984);
                     stopEffect(S_VOICE_1989);
+                    stopEffect(S_VOICE_1984);
 
                     playEffect(S_VOICE_1989);
 
@@ -1375,12 +1419,13 @@ void checkWandAction() {
                   break;
 
                   case SYSTEM_1989:
+                    // 1989 -> Afterlife
                     WAND_YEAR_MODE = YEAR_AFTERLIFE;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);
                     stopEffect(S_VOICE_AFTERLIFE);
-                    stopEffect(S_VOICE_1984);
                     stopEffect(S_VOICE_1989);
+                    stopEffect(S_VOICE_1984);
 
                     playEffect(S_VOICE_AFTERLIFE);
 
@@ -1388,8 +1433,22 @@ void checkWandAction() {
                   break;
 
                   case SYSTEM_AFTERLIFE:
-                  case SYSTEM_FROZEN_EMPIRE:
                   default:
+                    // Afterlife -> Frozen Empire
+                    WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+
+                    stopEffect(S_VOICE_FROZEN_EMPIRE);
+                    stopEffect(S_VOICE_AFTERLIFE);
+                    stopEffect(S_VOICE_1989);
+                    stopEffect(S_VOICE_1984);
+
+                    playEffect(S_VOICE_FROZEN_EMPIRE);
+
+                    bargraphYearModeUpdate();
+                  break;
+
+                  case SYSTEM_FROZEN_EMPIRE:
+                    // Frozen Empire -> 1984
                     WAND_YEAR_MODE = YEAR_1984;
 
                     stopEffect(S_VOICE_FROZEN_EMPIRE);

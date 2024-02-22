@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: arduino/compile-sketches@v1
         with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
             enable-deltas-report: true
             fqbn: arduino:avr:mega
             sketch-paths: |
@@ -22,10 +23,9 @@ jobs:
               - name: ezButton
               - name: FastLED
               - name: Ramp
-              - name: simple ht16k33 library
-              - name: AltSoftSerial
+              - name: SafeString
               - name: SerialTransfer
-              - source-url: https://github.com/ansonhe97/millisDelay.git
+              - name: Simple ht16k33 Library
             verbose: false
       # This step is needed to pass the size data to the report job
       - name: Upload sketches report to workflow artifact
@@ -39,6 +39,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: arduino/compile-sketches@v1
         with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
             enable-deltas-report: true
             fqbn: arduino:avr:nano
             sketch-paths: |
@@ -47,10 +48,9 @@ jobs:
               - name: ezButton
               - name: FastLED
               - name: Ramp
-              - name: simple ht16k33 library
-              - name: AltSoftSerial
+              - name: SafeString
               - name: SerialTransfer
-              - source-url: https://github.com/ansonhe97/millisDelay.git
+              - name: Simple ht16k33 Library
             verbose: false
       # This step is needed to pass the size data to the report job
       - name: Upload sketches report to workflow artifact
@@ -64,23 +64,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: arduino/compile-sketches@v1
         with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
             enable-deltas-report: true
             fqbn: esp32:esp32:esp32
             sketch-paths: |
               - source/Attenuator
             libraries: |
+              - name: ArduinoJson
+              - name: AsyncTCP
+              - name: ESP Async WebServer
               - name: ezButton
               - name: FastLED
               - name: Ramp
-              - name: simple ht16k33 library
-              - name: AltSoftSerial
+              - name: SafeString
               - name: SerialTransfer
-              - name: ArduinoJson
-              - name: Preferences
-              - name: AsyncTCP
+              - name: Simple ht16k33 Library
               - source-url: https://github.com/DustinGrau/ElegantOTA.git
-              - source-url: https://github.com/me-no-dev/ESPAsyncWebServer.git
-              - source-url: https://github.com/ansonhe97/millisDelay.git
             verbose: false
             # Need this to ensure any warnings do not impede compilation
             cli-compile-flags: |

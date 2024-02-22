@@ -81,10 +81,9 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 bool b_bargraph_invert = false;
 
 /*
- * If the Frutto vent light has been installed, uncomment the line below
- * to enable special brightness controls during idle and firing modes.
+ * Enables special brightness controls during idle and firing modes if set to true.
  */
-bool b_vent_light_control = false;
+bool b_vent_light_control = true;
 
 /*
  * When set to true, the mode switch button to change firing modes changes to a alternate firing button.
@@ -216,7 +215,8 @@ unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 const bool b_onboard_amp_enabled = true;
 
 /*
- * When set to true, the Neutrona Wand will tell the Proton Pack to play the Afterlife Neutrona Wand ramp sounds.
+ * When set to true, the Neutrona Wand will tell the Proton Pack to play the Neutrona Wand sound effects.
+ * Perfect if you want louder Neutrona Wand sounds or if your Neutrona Wand does not have a audio board.
  * The default setting is false.
  */
 bool b_extra_pack_sounds = false;

@@ -131,15 +131,15 @@ uint8_t i_inner_cyclotron_num_leds = 35;
 
 /*
  * If you use GRB (green/red/blue) instead of RGB (red/green/blue) addressable LEDs for your Inner Cyclotron LEDs, then set to true.
- * Default is false.
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
-bool b_grb_cyclotron = false;
+bool b_grb_cyclotron = false; // Default is false
 
 /*
  * The CHSV colour value for the Spectral Custom mode.
  * This can be adjusted in the EEPROM LED menu. Any EEPROM settings will overwrite these values.
- * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. The Neutrona Wand custom spectral colours are stored on the Neutrona Wand. So it is possible to mix and match different wands' colours to different pack settings.
+ * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. The Neutrona Wand custom spectral colours are stored on the Neutrona Wand.
+ * So it is possible to mix and match different wands' colours to different pack settings.
  * Value range: 1 <--> 254
  */
 uint8_t i_spectral_powercell_custom_colour = 200;
@@ -202,12 +202,12 @@ const uint8_t STARTUP_VOLUME_EFFECTS = 100;
 
 /*
  * Minimum volume that the pack can achieve.
- * Values must be from 0 to -70. 0 = the loudest and -70 = the quietest.
- * Volume changes are based on percentages.
+ * Values must be from 0 to -70. 0 = the loudest and -70 = the quietest (no audible sound).
+ * Volume changes are based on percentages which are converted to the appropriate decibel value.
  * If your pack is overpowering the wand at lower volumes, you can either increase the minimum value in the wand,
- * or decrease the minimum value for the pack.
+ * or decrease the minimum value for the pack. By default the pack will be nearly silent at 0% volume, but not off.
  */
-const int MINIMUM_VOLUME = -50;
+const int MINIMUM_VOLUME = -60;
 
 /*
  * Percentage increments of main volume change.
@@ -252,10 +252,10 @@ bool b_clockwise = true;
  * Note that turning off the vibration toggle switch will disable all individual vibration settings.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
  */
-bool b_vibration = true;
+bool b_vibration_on = true;
 
 /*
- * When set to true, when b_vibration is also set to true, the Proton Pack will only vibrate while the Neutrona Wand is firing.
+ * When set to true, when b_vibration_on is also set to true, the Proton Pack will only vibrate while the Neutrona Wand is firing.
  * Note that turning off the vibration toggle switch will disable all individual vibration settings.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
  */

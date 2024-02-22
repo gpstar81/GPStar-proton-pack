@@ -55,7 +55,7 @@ const uint8_t i_fast_led_delay = 3;
  * Manage the color and blink pattern for the top LED.
  */
 millisDelay ms_top_blink; // Allows the top LED to blink for a menu state.
-const unsigned int i_top_blink_delay = 800; // Duration for blink pattern.
+const uint16_t i_top_blink_delay = 800; // Duration for blink pattern.
 uint8_t i_top_led_color; // Remember the last color for the top LED.
 uint8_t i_top_led_brightness = 128; // Max brightness for this LED.
 bool b_top_led_off = false; // Denotes when top LED is mid-blink.
@@ -88,15 +88,15 @@ bool b_buzzer_on = false;
 bool b_vibrate_on = false;
 const uint8_t i_min_power = 0;
 const uint8_t i_max_power = 255;
-const unsigned int i_buzzer_max_time = 300; // Longest duration for a standalone "beep".
-const unsigned int i_vibrate_min_time = 500; // Minimum runtime for vibration motor.
-const unsigned int i_vibrate_max_time = 1500; // Maximum runtime for vibration motor.
+const uint16_t i_buzzer_max_time = 300; // Longest duration for a standalone "beep".
+const uint16_t i_vibrate_min_time = 500; // Minimum runtime for vibration motor.
+const uint16_t i_vibrate_max_time = 1500; // Maximum runtime for vibration motor.
 
 /*
  * For the alarm and venting/overheat, set the blink/buzz/vibrate interval.
  */
 millisDelay ms_blink_leds;
-const unsigned int i_blink_leds = 600;
+const uint16_t i_blink_leds = 600;
 bool b_blink_blank = false; // Denotes when upper/lower LEDs are mid-blink.
 
 /*
@@ -141,15 +141,15 @@ uint8_t i_speed_multiplier = 1;
 /*
  * System Mode
  */
-enum ARMING_MODES { MODE_SUPERHERO, MODE_ORIGINAL };
-enum ARMING_MODES ARMING_MODE;
+enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
+enum SYSTEM_MODES SYSTEM_MODE;
 enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
 enum RED_SWITCH_MODES RED_SWITCH_MODE;
 
 /*
  * Year Theme
  */
-enum SYSTEM_YEARS { SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
+enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
 enum SYSTEM_YEARS SYSTEM_YEAR;
 
 /*
@@ -208,8 +208,8 @@ millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not ov
 millisDelay ms_center_double_tap; // Timer for determinine when a double-tap was detected.
 millisDelay ms_center_long_press; // Timer for determining when a long press was detected.
 bool b_center_pressed = false;
-const unsigned int i_center_double_tap_delay = 300; // When to consider the center dial has a "double tap".
-const unsigned int i_center_long_press_delay = 600; // When to consider the center dial has a "long" press.
+const uint16_t i_center_double_tap_delay = 300; // When to consider the center dial has a "double tap".
+const uint16_t i_center_long_press_delay = 600; // When to consider the center dial has a "long" press.
 uint8_t i_press_count = 0;
 uint8_t i_rotary_count = 0;
 int i_encoder_pos = 0;
@@ -227,50 +227,34 @@ enum MENU_LEVELS MENU_LEVEL;
 /*
 * Music Track Info and Playback States
 */
-const unsigned int i_music_track_offset = 500; // Music tracks always start at index 500.
-unsigned int i_music_track_count = 0; // Count of tracks as returned by the pack.
-unsigned int i_music_track_current = 0;
-unsigned int i_music_track_min = 0; // Min value for music track index (0 = unset).
-unsigned int i_music_track_max = 0; // Max value for music track index (0 = unset).
+const uint16_t i_music_track_offset = 500; // Music tracks always start at index 500.
+uint16_t i_music_track_count = 0; // Count of tracks as returned by the pack.
+uint16_t i_music_track_current = 0;
+uint16_t i_music_track_min = 0; // Min value for music track index (0 = unset).
+uint16_t i_music_track_max = 0; // Max value for music track index (0 = unset).
+uint8_t i_volume_master_percentage = 100; // Master overall volume
+uint8_t i_volume_effects_percentage = 100; // Sound effects
+uint8_t i_volume_music_percentage = 100; // Music volume
 bool b_playing_music = false;
 bool b_music_paused = false;
-
-/*
- * Pack Communication
- */
-#if defined(__XTENSA__)
-  // ESP32 - Hardware Serial2 Pins
-  #define RXD2 16
-  #define TXD2 17
-#endif
-SerialTransfer packComs;
-bool b_a_sync_start = false; // Denotes pack communications have begun.
-
-struct __attribute__((packed)) STRUCT {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1; // Data 1
-  uint16_t d2; // Data 2
-  uint16_t e;
-} comStruct;
-
-struct __attribute__((packed)) STRUCTSEND {
-  uint16_t s;
-  uint16_t i;
-  uint16_t d1; // Data 1
-  uint16_t d2; // Data 2
-  uint16_t e;
-} sendStruct;
 
 /*
  * Some pack flags which get transmitted to the attenuator depending on the pack status.
  */
 bool b_pack_on = false;
+bool b_wand_present = false;
 bool b_wand_on = false;
 bool b_pack_alarm = false;
 bool b_firing = false;
 bool b_overheating = false;
 
+// Flags for denoting when requested data was received.
+bool b_received_prefs_pack = false;
+bool b_received_prefs_wand = false;
+bool b_received_prefs_smoke = false;
+
+// Battery Voltage
+float f_batt_volts;
+
 // Forward declarations.
-void attenuatorSerialSend(uint16_t i_message);
 void debug(String message);

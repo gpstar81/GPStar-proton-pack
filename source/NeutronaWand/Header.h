@@ -31,9 +31,6 @@ enum WAND_STATE WAND_STATUS;
 enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_LED_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
-enum SYSTEM_YEARS { SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
-enum SYSTEM_YEARS SYSTEM_YEAR;
-
 /*
  * System modes.
  * Super Hero: A idealised system based on the close up of the Super Hero Proton Pack and Neutrona Wand in the 1984 Rooftop closeup scene and what is shown in Afterlife. (Different toggle switch sequences for turning on the pack and wand)
@@ -42,6 +39,13 @@ enum SYSTEM_YEARS SYSTEM_YEAR;
  */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
+
+/*
+ * Which year mode the Proton Pack is set into which may not be the same the user prefers for the wand.
+ * Though this can/will be used if YEAR_DEFAULT is specified by the user as the WAND_YEAR_MODE.
+ */
+enum SYSTEM_YEARS { SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
+enum SYSTEM_YEARS SYSTEM_YEAR;
 
 /*
  * Which year mode the Neutrona Wand is set into, regardless of which year the Proton Pack is in.
@@ -107,23 +111,23 @@ const unsigned int i_meson_blast_delay_level_2 = 200;
 const unsigned int i_meson_blast_delay_level_1 = 220;
 
 /*
- * Barrel LEDs.
+ * Barrel LEDs
  * The Hasbro Neutrona Wand has 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
- * Support for up to 60 LEDs. With the options of 48 and 60 from Frutto Technology, with the 48 option coming soon.
+ * Support for up to 60 LEDs. With the options of 48 and 60 from Frutto Technology, with the 48 option first.
+ * Note: The 48/60 LED options include built-in strobe for the tip which will supersede the dedicated white LED.
  */
-#define BARREL_LEDS_MAX 60 // The maximum number of barrel LEDs supported.
+#define BARREL_LEDS_MAX 61 // The maximum number of barrel LEDs supported.
 #define BARREL_LED_PIN 10
 CRGB barrel_leds[BARREL_LEDS_MAX];
 
 /*
  * How many LEDs are in your Neutrona Wand Barrel.
  * Default setting is 5: for the Hasbro Neturona Wand.
- * Supported options: 5, 48 and 60.
+ * Supported options: 5, with experimental support for 48. (29 is for internal testing only)
  */
 uint8_t i_num_barrel_leds = 5;
-enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_48, LEDS_60 };
+enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_29, LEDS_48 };
 enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
-
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -134,20 +138,30 @@ const uint8_t i_fast_led_delay = 3;
 millisDelay ms_fast_led;
 
 /*
+ * Non-addressable LEDs
+ */
+const uint8_t led_slo_blo = 8;
+const uint8_t led_front_left = 9;
+const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
+const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Red LED)
+const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
+
+/*
  * WAV Trigger
  */
 wavTrigger w_trig;
-unsigned int i_music_count = 0;
-unsigned int i_current_music_track = 0;
+uint16_t i_music_count = 0;
+uint16_t i_current_music_track = 0;
 const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
+// bool b_wand_audio_board_here = false; // Unused for now.
 
 /*
  * Volume (0 = loudest, -70 = quietest)
  */
-uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
+uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
 int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects
@@ -165,7 +179,11 @@ static uint16_t store = 0;
 
 /*
  * Vibration
+ *
+ * Vibration default is based on the toggle switch position from the Proton Pack. These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
+enum VIBRATION_MODES_EEPROM { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
+enum VIBRATION_MODES_EEPROM VIBRATION_MODE_EEPROM;
 const uint8_t vibration = 11;
 const uint8_t i_vibration_level_min = 65;
 uint8_t i_vibration_level = i_vibration_level_min;
@@ -319,7 +337,7 @@ const uint8_t i_hat_1_delay = 100;
 const unsigned int i_hat_2_delay = 400;
 
 /*
- * A timer for controlling the wand beep in 2021 mode.
+ * A timer for controlling the wand beep in Afterlife & Frozen Empire mode.
  */
 millisDelay ms_reset_sound_beep;
 const uint8_t i_sound_timer = 150;
@@ -370,21 +388,25 @@ uint8_t i_power_mode_prev = 1;
 SerialTransfer wandComs;
 
 /*
- * Some pack flags which get transmitted to the wand depending on the pack status.
+ * Wand Connection State
+ * Used to identify the state of the wand as it connects to a Proton Pack.
+ * These should be mutually exclusive and non-overlapping states for the wand communications.
  */
-bool b_pack_on = false;
-bool b_pack_alarm = false;
-bool b_wait_for_pack = true;
-bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the Proton Pack and Neutrona Wand.
-bool b_volume_sync_wait = false;
-bool b_sync = false;
-uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
+enum WAND_CONN_STATES { NC_BENCHTEST, PACK_DISCONNECTED, SYNCHRONIZING, PACK_CONNECTED };
+enum WAND_CONN_STATES WAND_CONN_STATE;
 
 /*
- * Volume sync status with the pack.
+ * Some pack flags which get transmitted to the wand depending on the pack status.
  */
-enum VOLUME_SYNC { EFFECTS, MASTER, MUSIC, SILENT };
-enum VOLUME_SYNC VOLUME_SYNC_WAIT;
+bool b_pack_on = false; // Denotes the pack has been powered on.
+bool b_pack_alarm = false; // Denotes the alarm (ribbon cable) has been disconnected.
+bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
+bool b_sync_light = false; // Toggle for the state of the white LED beside the vent light which gets blinked as a sync operation is attempted.
+uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
+millisDelay ms_packsync; // Timer for attempting synchronization with a connected pack.
+millisDelay ms_handshake; // Timer for attempting a keepalive handshake with a connected pack.
+const unsigned int i_sync_initial_delay = 750; // Delay to re-try the initial handshake with a proton pack.
+const unsigned int i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake) to a connected proton pack.
 
 /*
  * Wand menu & music
@@ -442,24 +464,14 @@ const unsigned long int i_ms_power_indicator = 60000; // 1 Minute -> 60000
 const unsigned int i_ms_power_indicator_blink = 1000;
 
 /*
- * Used for standalone wand functionality.
- * Set b_gpstar_benchtest in Configuration.h to true rather than modifying this setting as this is not the only setting involved.
- */
-bool b_no_pack = false;
-
-/*
  * Function prototypes.
  */
-void wandSerialSend(uint16_t i_message, bool b_sound = false);
+void wandSerialSend(uint8_t i_command, uint16_t i_value);
+void wandSerialSend(uint8_t i_command);
+void wandSerialSendData(uint8_t i_message);
 void checkPack();
 void checkWandAction();
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
 void stopEffect(int i_track_id);
 void stopMusic();
 void playMusic();
-
-const uint8_t led_slo_blo = 8;
-const uint8_t led_front_left = 9;
-const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
-const uint8_t led_hat_2 = 23; // Hat light at top of the wand body. (Red LED)
-const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).

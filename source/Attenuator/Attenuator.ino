@@ -50,7 +50,7 @@ void setup() {
     // ESP - Serial Console for messages and Device Comms via Serial2
     Serial.begin(115200);
     Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
-    packComs.begin(Serial2);
+    packComs.begin(Serial2, false);
     pinMode(BUILT_IN_LED, OUTPUT);
   #else
     // Nano - Utilizes the only Serial connection
@@ -59,7 +59,7 @@ void setup() {
   #endif
 
   // Assume the Super Hero arming mode with Afterlife (default for Haslab).
-  ARMING_MODE = MODE_SUPERHERO;
+  SYSTEM_MODE = MODE_SUPER_HERO;
   RED_SWITCH_MODE = SWITCH_OFF;
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
@@ -81,9 +81,11 @@ void setup() {
   // RGB LEDs for effects (upper/lower) and user status (top).
   FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
 
-  // Change top indicator to red when device is on and ready.
+  // Change top indicator to red when device is on and ready, all others are off (black).
   i_top_led_color = C_RED;
   device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
+  device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+  device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
 
   // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);
@@ -117,11 +119,6 @@ void setup() {
   #if defined(__XTENSA__)
     // ESP - Setup WiFi and WebServer
     if(startWiFi()) {
-      delay(100); // Wait briefly before config.
-
-      // Do the AP network configuration.
-      configureNetwork();
-
       // Start the local web server.
       startWebServer();
 
@@ -150,6 +147,9 @@ void loop() {
 
     // Handle device reboot after an OTA update.
     ElegantOTA.loop();
+
+    // Update the current count of AP clients.
+    i_ap_client_count = WiFi.softAPgetStationNum();
   #endif
 
   if(b_wait_for_pack) {
@@ -197,7 +197,7 @@ void debug(String message) {
 
 void mainLoop() {
   // Monitor for interactions by user.
-  boolean b_notify = checkPack();
+  bool b_notify = checkPack();
   switchLoops();
   checkRotaryPress();
   checkRotaryEncoder();
@@ -261,7 +261,7 @@ void mainLoop() {
     // If in pre-overheat warning, overheat, or alarm modes...
     if((b_firing && i_speed_multiplier > 1) || b_overheating || b_pack_alarm) {
       // Sets a timer value proportional to the speed of the cyclotron.
-      unsigned int i_blink_time = int(i_blink_leds / i_speed_multiplier);
+      uint16_t i_blink_time = int(i_blink_leds / i_speed_multiplier);
 
       if(ms_blink_leds.justFinished()) {
         ms_blink_leds.start(i_blink_time);
@@ -343,7 +343,7 @@ void mainLoop() {
   #endif
 }
 
-void buzzOn(unsigned int i_freq) {
+void buzzOn(uint16_t i_freq) {
   if(!b_buzzer_on) {
     tone(BUZZER_PIN, i_freq);
     ms_buzzer.start(i_buzzer_max_time);
@@ -357,7 +357,7 @@ void buzzOff() {
   b_buzzer_on = false;
 }
 
-void useVibration(unsigned int i_duration) {
+void useVibration(uint16_t i_duration) {
   if(!b_vibrate_on) {
     #if defined(__XTENSA__)
       // ESP32
@@ -391,7 +391,7 @@ void vibrateOff() {
 void updateLEDs() {
   #if defined(__XTENSA__)
     // ESP - Change top LED color based on wireless connections.
-    if(i_ws_client_count > 0) {
+    if(i_ap_client_count > 0 || i_ws_client_count > 0) {
       // Change to green when clients are connected remotely.
       i_top_led_color = C_GREEN;
     }
@@ -595,7 +595,7 @@ void checkRotaryPress() {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
           #if defined(__XTENSA__)
-            debug("Changed to Menu 2");
+            debug("Menu 2");
           #endif
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
@@ -603,7 +603,7 @@ void checkRotaryPress() {
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
           #if defined(__XTENSA__)
-            debug("Changed to Menu 1");
+            debug("Menu 1");
           #endif
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(440); // Tone as note A4
@@ -656,7 +656,7 @@ void checkRotaryEncoder() {
             // Tell pack to increase overall volume.
             attenuatorSerialSend(A_VOLUME_INCREASE);
             #if defined(__XTENSA__)
-              debug("Increase Master Volume");
+              debug("Master Volume+");
             #endif
           break;
 
@@ -664,7 +664,7 @@ void checkRotaryEncoder() {
             // Tell pack to increase effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
             #if defined(__XTENSA__)
-              debug("Increase Effects Volume");
+              debug("Effects Volume+");
             #endif
           break;
         }
@@ -696,7 +696,7 @@ void checkRotaryEncoder() {
             // Tell pack to decrease overall volume.
             attenuatorSerialSend(A_VOLUME_DECREASE);
             #if defined(__XTENSA__)
-              debug("Decrease Master Volume");
+              debug("Master Volume-");
             #endif
           break;
 
@@ -704,7 +704,7 @@ void checkRotaryEncoder() {
             // Tell pack to decrease effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
             #if defined(__XTENSA__)
-              debug("Decrease Effects Volume");
+              debug("Effects Volume-");
             #endif
           break;
         }

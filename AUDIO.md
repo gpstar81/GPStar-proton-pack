@@ -40,6 +40,8 @@ Sound effects are prefixed with numbers 001-499 while music files will be prefix
 
 To add more music, copy stereo wav tracks (16-bit 44khz stereo wav files) onto the SD card of the pack and wand. File naming of the music tracks start at 500. So for example, `500_somesong.wav`, `501_somesong.wav`, `502_somesong.wav`, etc. **Do not leave any gaps in the number sequencing!** (For example of what NOT to do, `500_somesong.wav` followed by `502_somesong.wav` leaving off `501_somesong.wav` on the SD card.) The most and only important part in the naming is the XXX_ prefix for all tracks.
 
+`Please remove any metadata that may be in the music wav files that you add. This can cause problems with loading and playing back your music tracks`
+
 `The below photo is a example of the prefixing and music sequencing`
 
 ![audio example](images/audioexample.jpg)
@@ -59,3 +61,6 @@ If you have problems, here are a few things to check:
 1. Low quality SD Cards sometimes provide issues such as sounds not playing. Please consider using high quality SD Cards. We recommend the Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.
 
 1. If you’ve gotten this far and tracks won’t play, then it’s most likely that your WAV files are not the correct format. The WAV Trigger will only play WAV files formatted as 16-bit, stereo, 44.1kHz, and there can be no meta-data (non-audio data) in the file before the audio data. It seems that many Mac audio applications insert a meta-data chunk prior to the audio, and this will prevent the track from playing. In such cases, simply importing the file and re-exporting with Audacity will likely fix the problem.
+
+1. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
+

@@ -45,20 +45,34 @@
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <WiFi.h>
+#include <WiFiAP.h>
 
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
+#include "Network.h" // NETWORK_page
 #include "Password.h" // PASSWORD_page
+#include "PackSettings.h" // PACK_SETTINGS_page
+#include "WandSettings.h" // WAND_SETTINGS_page
+#include "SmokeSettings.h" // SMOKE_SETTINGS_page
 #include "Style.h" // STYLE_page
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
 
-// Set up values for the SSID and password for the WiFi access point (AP).
+// Set up values for the SSID and password for the built-in WiFi access point (AP).
+const uint8_t maxAttempts = 3; // Max attempts to establish a external WiFi connection.
 const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
-String ap_ssid; // Reserved for storing the true SSID for the AP to be set at startup.
-String ap_pass; // Reserved for storing the true AP password set by the user.
+String ap_ssid; // Reserved for holding the full, private AP name for this device.
+bool b_ap_started = false; // Denotes the softAP network has been started.
+
+// Local variables for connecting to a preferred WiFi network (when available).
+bool b_wifi_enabled = false; // Denotes user wishes to join/use external WiFi.
+String wifi_ssid;    // Preferred network SSID for external WiFi
+String wifi_pass;    // Preferred network password for external WiFi
+String wifi_address; // Static IP for external WiFi network
+String wifi_subnet;  // Subnet for external WiFi network
+String wifi_gateway; // Gateway IP for external WiFi network
 
 // Define an asynchronous web server at TCP port 80.
 // Docs: https://github.com/me-no-dev/ESPAsyncWebServer
@@ -66,6 +80,9 @@ AsyncWebServer httpServer(80);
 
 // Define a websocket endpoint for the async web server.
 AsyncWebSocket ws("/ws");
+
+// Track the number of connected WiFi (AP) clients.
+uint8_t i_ap_client_count = 0;
 
 // Track the number of connected WebSocket clients.
 uint8_t i_ws_client_count = 0;
@@ -77,18 +94,42 @@ unsigned long i_progress_millis = 0;
 millisDelay ms_cleanup;
 const unsigned int i_websocketCleanup = 5000;
 
-boolean startWiFi() {
-  // Begin some diagnostic information to console.
-  String macAddr = String(WiFi.macAddress());
-  #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println();
-    Serial.println("Starting Wireless Access Point");
-    Serial.print("Device WiFi MAC Address: ");
-    Serial.println(macAddr);
-  #endif
+IPAddress convertToIP(String ipAddressString) {
+  uint16_t quads[4]; // Array to store 4 quads for the IP.
+  uint8_t quadStartIndex = 0;
+  int8_t quadEndIndex = 0;
 
-  // Create an AP name unique to this device, to avoid stepping on others.
+  for (uint8_t i = 0; i < 4; i++) {
+    // Find the index of the next dot
+    quadEndIndex = ipAddressString.indexOf('.', quadStartIndex);
+
+    if (quadEndIndex != -1) {
+      // If a dot is found, extract and store the quad
+      String quad = ipAddressString.substring(quadStartIndex, quadEndIndex);
+      quads[i] = quad.toInt(); // Convert the quad string to an integer
+      quadStartIndex = quadEndIndex + 1;
+    } else {
+      // If the dot is not found, this is the last quad
+      String lastQuad = ipAddressString.substring(quadStartIndex);
+      quads[i] = lastQuad.toInt();
+    }
+  }
+
+  // Create an IPAddress object from the quads
+  IPAddress ipAddress(quads[0], quads[1], quads[2], quads[3]);
+
+  return ipAddress;
+}
+
+/*
+ * WiFi Management Functions
+ */
+
+bool startAccesPoint() {
+  // Create an AP name unique to this device, to avoid stepping on similar hardware.
+  String macAddr = String(WiFi.macAddress());
   String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
+  String ap_pass; // Local variable for stored AP password.
 
   // Prepare to return either stored preferences or a default value for SSID/password.
   preferences.begin("credentials", true); // Access namespace in read-only mode.
@@ -96,8 +137,8 @@ boolean startWiFi() {
     // Doesn't actually "reset" but forces default values for SSID and password.
     // Meant to allow the user to reset their credentials then re-flash after
     // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix;
-    ap_pass = ap_default_passwd;
+    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update global variable.
+    ap_pass = ap_default_passwd; // Force use of the default WiFi password.
   #else
     // Use either the stored preferences or an expected default value.
     ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
@@ -108,28 +149,180 @@ boolean startWiFi() {
   // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
   // Additionally, sets radio to channel 6, don't hide SSID, and max 4 connections.
   // Note that the WiFi protocols available for use are 802.11b/g/n
-  bool b_ap_started = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 6, false, 4);
+  bool b_success = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 6, false, 4);
   #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println(b_ap_started ? "AP Ready" : "AP Failed");
+    Serial.println(b_success ? "AP Ready" : "AP Failed");
   #endif
-  return b_ap_started;
+
+  if(b_success) {
+    delay(100); // Wait briefly before configuring network.
+
+    // Simple networking IP info exclusively for the AP.
+    IPAddress localIP(192, 168, 1, 2);
+    IPAddress gateway(192, 168, 1, 1);
+    IPAddress subnet(255, 255, 255, 0);
+    IPAddress dhcpStart(192, 168, 1, 100);
+
+    // Set networking info and report to console.
+    WiFi.softAPConfig(localIP, gateway, subnet, dhcpStart);
+    WiFi.softAPsetHostname(ap_ssid_prefix.c_str());
+    #if defined(DEBUG_WIRELESS_SETUP)
+      Serial.print("AP Name/SSID: ");
+      Serial.println(WiFi.softAPSSID());
+      Serial.print("AP IP Address: ");
+      Serial.println(WiFi.softAPIP());
+      Serial.print("AP Hostname: ");
+      Serial.println(WiFi.softAPgetHostname());
+      Serial.print("AP Mac Address: ");
+      Serial.println(WiFi.softAPmacAddress());
+      Serial.print("AP Subnet Mask: ");
+      Serial.println(WiFi.softAPSubnetCIDR());
+    #endif
+  }
+
+  return b_success;
 }
 
-void configureNetwork() {
-  // Simple networking info for the AP.
-  IPAddress localIP(192, 168, 1, 2);
-  IPAddress gateway(192, 168, 1, 1);
-  IPAddress subnet(255, 255, 255, 0);
-
-  // Set networking info and report to console.
-  WiFi.softAPConfig(localIP, gateway, subnet);
-  #if defined(DEBUG_WIRELESS_SETUP)
-    IPAddress deviceIP = WiFi.softAPIP();
-    Serial.print("Access Point IP Address: ");
-    Serial.println(deviceIP);
-    Serial.println("WiFi AP Started as " + ap_ssid);
-    Serial.println("WiFi AP Password: " + ap_pass);
+bool startExternalWifi() {
+  // Check for stored network preferences and attempt to connect as a client.
+  preferences.begin("network", true); // Access namespace in read-only mode.
+  #if defined(RESET_AP_SETTINGS)
+    // Doesn't actually "reset" but forces default values which will allow
+    // the WiFi preferences to be reset by the user, then re-flash after
+    // commenting out the RESET_AP_SETTINGS definition in Configuration.h
+  #else
+    // Use either the stored preferences or an expected default value.
+    b_wifi_enabled = preferences.getBool("enabled", false);
+    wifi_ssid = preferences.getString("ssid", "");
+    wifi_pass = preferences.getString("password", "");
+    wifi_address = preferences.getString("address", "");
+    wifi_subnet = preferences.getString("subnet", "");
+    wifi_gateway = preferences.getString("gateway", "");
   #endif
+  preferences.end();
+
+  // User wants to utilize the external WiFi network and has valid SSID and password.
+  if(b_wifi_enabled && wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
+    uint8_t attemptCount = 0;
+
+    while (attemptCount < maxAttempts) {
+      // Attempt to connect to a specified WiFi network.
+      WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
+
+      // Wait for the connection to be established
+      uint8_t attempt = 0;
+      while (attempt < (maxAttempts * 10) && WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        #if defined(DEBUG_WIRELESS_SETUP)
+          Serial.println("Connecting to WiFi network...");
+        #endif
+        attempt++;
+      }
+
+      if (WiFi.status() == WL_CONNECTED) {
+        // Configure static IP values for tis device on the preferred network.
+        if(wifi_address.length() >= 7 && wifi_subnet.length() >= 7 && wifi_gateway.length() >= 7) {
+          #if defined(DEBUG_WIRELESS_SETUP)
+            Serial.print("Using Stored IP: ");
+            Serial.print(wifi_address);
+            Serial.print(" / ");
+            Serial.println(wifi_subnet);
+          #endif
+
+          if(wifi_gateway.length() < 7) {
+            wifi_gateway = wifi_address;
+          }
+
+          IPAddress staticIP = convertToIP(wifi_address);
+          IPAddress gateway = convertToIP(wifi_gateway);
+          IPAddress subnet = convertToIP(wifi_subnet);
+
+          // Set a static IP for this device.
+          WiFi.config(staticIP, gateway, subnet);
+        }
+
+        // Get the IP address for this device on the preferred network.
+        IPAddress localIP = WiFi.localIP();
+        IPAddress subnetMask = WiFi.subnetMask();
+        IPAddress gatewayIP = WiFi.gatewayIP();
+        wifi_address = localIP.toString();
+        wifi_subnet = subnetMask.toString();
+        wifi_gateway = gatewayIP.toString();
+
+        #if defined(DEBUG_WIRELESS_SETUP)
+          Serial.print("WiFi IP Address: ");
+          Serial.print(localIP);
+          Serial.print(" / ");
+          Serial.println(subnetMask);
+        #endif
+
+        return true; // Exit the loop if connected successfully.
+      } else {
+        #if defined(DEBUG_WIRELESS_SETUP)
+          Serial.println("Failed to connect to WiFi. Retrying...");
+        #endif
+        attemptCount++;
+      }
+    }
+
+    if (attemptCount == maxAttempts) {
+      #if defined(DEBUG_WIRELESS_SETUP)
+        Serial.println("Max connection attempts reached. Could not connect to external WiFi.");
+      #endif
+    }
+  }
+
+  return false; // If we reach this point the connection has failed.
+}
+
+void OnWiFiEvent(WiFiEvent_t event) {
+  switch (event) {
+    case SYSTEM_EVENT_STA_CONNECTED:
+      debug("Connected to WiFi Network");
+    break;
+    case SYSTEM_EVENT_STA_DISCONNECTED:
+      debug("Disconnected from WiFi Network");
+    break;
+    case SYSTEM_EVENT_AP_START:
+      debug("Soft AP started");
+    break;
+    case SYSTEM_EVENT_AP_STACONNECTED:
+      debug("Station connected to softAP");
+    break;
+    case SYSTEM_EVENT_AP_STADISCONNECTED:
+      debug("Station disconnected from softAP");
+    break;
+    default:
+      // No-op for any other status.
+    break;
+  }
+}
+
+bool startWiFi() {
+  // Begin some diagnostic information to console.
+  #if defined(DEBUG_WIRELESS_SETUP)
+    Serial.println();
+    Serial.println("Starting WiFi Configuration");
+    Serial.print("Device WiFi MAC Address: ");
+    Serial.println(WiFi.macAddress());
+  #endif
+
+  // Assign an event handler to deal with changes in WiFi status.
+  WiFi.onEvent(OnWiFiEvent);
+
+  if(b_wifi_enabled) {
+    // When external WiFi is desired, enable simultaneous SoftAP + Station mode.
+    WiFi.mode(WIFI_MODE_APSTA);
+  }
+
+  // Start the built-in access point (softAP) with the preferred credentials.
+  if(!b_ap_started) {
+    b_ap_started = startAccesPoint();
+  }
+
+  startExternalWifi(); // Connect to the external (preferred) WiFi as a client.
+
+  return b_ap_started; // At least return whether the soft AP started successfully.
 }
 
 /*
@@ -137,8 +330,8 @@ void configureNetwork() {
  */
 
 String getMode() {
-  switch(ARMING_MODE) {
-    case MODE_SUPERHERO:
+  switch(SYSTEM_MODE) {
+    case MODE_SUPER_HERO:
       return "Super Hero";
     break;
     case MODE_ORIGINAL:
@@ -171,7 +364,7 @@ String getTheme() {
 }
 
 String getRedSwitch() {
-  if(ARMING_MODE == MODE_ORIGINAL) {
+  if(SYSTEM_MODE == MODE_ORIGINAL) {
     // Switch state only matters for mode "Original".
     switch(RED_SWITCH_MODE) {
       case SWITCH_ON:
@@ -275,210 +468,36 @@ String getCyclotronState() {
       return "Warning";
     break;
     default:
+      // For anything above level 3.
       return "Critical";
     break;
   }
 }
 
-/*
- * Web Handler Functions - Performs actions or returns data for web UI
- */
-StaticJsonDocument<512> jsonDoc; // Used for processing JSON body data.
-StaticJsonDocument<16> jsonSuccess; // Used for sending JSON status as success.
-String status; // Holder for simple "status: success" response.
-
-void handleRoot(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  //debug("Web Root HTML Requested");
-  String s = INDEX_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
-}
-
-void handlePassword(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  //debug("Password HTML Requested");
-  String s = PASSWORD_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
-}
-
-void handleStyle(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  //debug("Main StyleSheet Requested");
-  String s = STYLE_page; // Read CSS page into String.
-  request->send(200, "text/css", s); // Serve page content.
-}
-
-String getEquipmentStatus() {
-  // Prepare a JSON object with information we have gleamed from the system.
-  String equipStatus;
-  jsonDoc.clear();
-
-  if(!b_wait_for_pack) {
-    // Only prepare status when not waiting on the pack
-    jsonDoc["mode"] = getMode();
-    jsonDoc["theme"] = getTheme();
-    jsonDoc["switch"] = getRedSwitch();
-    jsonDoc["pack"] = (b_pack_on ? "Powered" : "Idle");
-    jsonDoc["power"] = getPower();
-    jsonDoc["safety"] = getSafety();
-    jsonDoc["wand"] = (b_wand_on ? "Powered" : "Idle");
-    jsonDoc["wandMode"] = getWandMode();
-    jsonDoc["firing"] = (b_firing ? "Firing" : "Idle");
-    jsonDoc["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
-    jsonDoc["cyclotron"] = getCyclotronState();
-    jsonDoc["temperature"] = (b_overheating ? "Venting" : "Normal");
-    jsonDoc["musicPlaying"] = b_playing_music;
-    jsonDoc["musicPaused"] = b_music_paused;
-    jsonDoc["musicCurrent"] = i_music_track_current;
-    jsonDoc["musicStart"] = i_music_track_min;
-    jsonDoc["musicEnd"] = i_music_track_max;
-  }
-
-  // Serialize JSON object to string.
-  serializeJson(jsonDoc, equipStatus);
-  return equipStatus;
-}
-
-void handleStatus(AsyncWebServerRequest *request) {
-  // Return current system status as a stringified JSON object.
-  request->send(200, "application/json", getEquipmentStatus());
-}
-
-void handleRestart(AsyncWebServerRequest *request) {
-  // Performs a restart of the device.
-  request->send(204, "application/json", status);
-  delay(1000);
-  ESP.restart();
-}
-
-void handlePackOn(AsyncWebServerRequest *request) {
-  debug("Turn Pack On");
-  attenuatorSerialSend(A_TURN_PACK_ON);
-  request->send(200, "application/json", status);
-}
-
-void handlePackOff(AsyncWebServerRequest *request) {
-  debug("Turn Pack Off");
-  attenuatorSerialSend(A_TURN_PACK_OFF);
-  request->send(200, "application/json", status);
-}
-
-void handleAttenuatePack(AsyncWebServerRequest *request) {
-  if(i_speed_multiplier > 1) {
-    // Only send command to pack if cyclotron is not "normal".
-    debug("Cancel Overheat Warning");
-    attenuatorSerialSend(A_WARNING_CANCELLED);
-    request->send(200, "application/json", status);
-  } else {
-    // Tell the user why the requested action failed.
-    String result;
-    jsonDoc.clear();
-    jsonDoc["status"] = "System not in overheat warning";
-    serializeJson(jsonDoc, result); // Serialize to string.
-    request->send(200, "application/json", result);
-  }
-}
-
-void handleManualVent(AsyncWebServerRequest *request) {
-  debug("Manual Vent Triggered");
-  attenuatorSerialSend(A_MANUAL_OVERHEAT);
-  request->send(200, "application/json", status);
-}
-
-void handleToggleMute(AsyncWebServerRequest *request) {
-  debug("Toggle Mute");
-  attenuatorSerialSend(A_TOGGLE_MUTE);
-  request->send(200, "application/json", status);
-}
-
-void handleMasterVolumeUp(AsyncWebServerRequest *request) {
-  debug("Master Volume Up");
-  attenuatorSerialSend(A_VOLUME_INCREASE);
-  request->send(200, "application/json", status);
-}
-
-void handleMasterVolumeDown(AsyncWebServerRequest *request) {
-  debug("Master Volume Down");
-  attenuatorSerialSend(A_VOLUME_DECREASE);
-  request->send(200, "application/json", status);
-}
-
-void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
-  debug("Effects Volume Up");
-  attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-  request->send(200, "application/json", status);
-}
-
-void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
-  debug("Effects Volume Down");
-  attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-  request->send(200, "application/json", status);
-}
-
-void handleMusicStartStop(AsyncWebServerRequest *request) {
-  debug("Music Start/Stop");
-  attenuatorSerialSend(A_MUSIC_START_STOP);
-  request->send(200, "application/json", status);
-}
-
-void handleMusicPauseResume(AsyncWebServerRequest *request) {
-  debug("Music Pause/Resume");
-  attenuatorSerialSend(A_MUSIC_PAUSE_RESUME);
-  request->send(200, "application/json", status);
-}
-
-void handleNextMusicTrack(AsyncWebServerRequest *request) {
-  debug("Next Music Track");
-  attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
-  request->send(200, "application/json", status);
-}
-
-void handlePrevMusicTrack(AsyncWebServerRequest *request) {
-  debug("Prev Music Track");
-  attenuatorSerialSend(A_MUSIC_PREV_TRACK);
-  request->send(200, "application/json", status);
-}
-
-void handleSelectMusicTrack(AsyncWebServerRequest *request) {
-  String c_music_track = "";
-
-  if(request->hasParam("track")) {
-    // Get the parameter "track" if it exists (will be a String).
-    c_music_track = request->getParam("track")->value();
-  }
-
-  if(c_music_track.toInt() != 0 && c_music_track.toInt() >= i_music_track_min) {
-    uint16_t i_music_track = c_music_track.toInt();
-    debug("Selected Music Track: " + String(i_music_track));
-    attenuatorSerialSend(i_music_track); // Inform the pack of the new track.
-    request->send(200, "application/json", status);
-  }
-  else {
-    // Tell the user why the requested action failed.
-    String result;
-    jsonDoc.clear();
-    jsonDoc["status"] = "Invalid track number requested";
-    serializeJson(jsonDoc, result); // Serialize to string.
-    request->send(200, "application/json", result);
-  }
-}
-
-void handleNotFound(AsyncWebServerRequest *request) {
-  // Returned for any invalid URL requested.
-  debug("Web page not found");
-  request->send(404, "text/plain", "Not Found");
-}
+// Provide all handler functions for the API layer.
+#include "Webhandler.h"
 
 void setupRouting() {
   // Define the endpoints for the web server.
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
+  httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
-  httpServer.on("/style.css", HTTP_GET, handleStyle);
+  httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
+  httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
+  httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
+  httpServer.on("/style.css", HTTP_GET, handleStylesheet);
+  httpServer.onNotFound(handleNotFound);
 
-  // AJAX Handlers (Web API)
-  httpServer.on("/status", HTTP_GET, handleStatus);
+  // Get/Set Handlers
+  httpServer.on("/config/pack", HTTP_GET, handleGetPackConfig);
+  httpServer.on("/config/wand", HTTP_GET, handleGetWandConfig);
+  httpServer.on("/config/smoke", HTTP_GET, handleGetSmokeConfig);
+  httpServer.on("/eeprom/all", HTTP_PUT, handleSaveAllEEPROM);
+  httpServer.on("/eeprom/pack", HTTP_PUT, handleSavePackEEPROM);
+  httpServer.on("/eeprom/wand", HTTP_PUT, handleSaveWandEEPROM);
+  httpServer.on("/status", HTTP_GET, handleGetStatus);
   httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/pack/on", HTTP_PUT, handlePackOn);
   httpServer.on("/pack/off", HTTP_PUT, handlePackOff);
@@ -494,47 +513,14 @@ void setupRouting() {
   httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);
   httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
+  httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
 
-  // Handles the JSON body for the password change request.
-  AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
-    StaticJsonDocument<256> jsonBody;
-    if(json.is<JsonObject>()) {
-      jsonBody = json.as<JsonObject>();
-    }
-    else {
-      Serial.print("Body was not a JSON object");
-    }
-
-    String result;
-    if(jsonBody.containsKey("password")) {
-      String newPasswd = jsonBody["password"];
-      //Serial.println("New AP Password: " + newPasswd);
-
-      if(newPasswd != "") {
-        preferences.begin("credentials", false); // Access namespace in read/write mode.
-        preferences.putString("ssid", ap_ssid); // Store SSID in case this was changed.
-        preferences.putString("password", newPasswd); // Store user-provided password.
-        preferences.end();
-
-        jsonBody.clear();
-        jsonBody["status"] = "Password updated, rebooting controller. Please enter your new WiFi password when prompted by your device.";
-        serializeJson(jsonBody, result); // Serialize to string.
-        request->send(200, "application/json", result);
-        delay(1000); // Pause to allow response to flow.
-        ESP.restart(); // Reboot device
-      }
-    }
-    else {
-      debug("No password in JSON body");
-      jsonBody.clear();
-      jsonBody["status"] = "Unable to update password.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
-    }
-  });
-  httpServer.addHandler(passwordChangeHandler);
-
-  httpServer.onNotFound(handleNotFound);
+  // Body Handlers
+  httpServer.addHandler(handleSavePackConfig); // /config/pack/save
+  httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
+  httpServer.addHandler(handleSaveSmokeConfig); // /config/smoke/save
+  httpServer.addHandler(passwordChangeHandler); // /password/update
+  httpServer.addHandler(wifiChangeHandler); // /wifi/update
 }
 
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){

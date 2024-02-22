@@ -22,22 +22,25 @@
 
 const char STYLE_page[] PROGMEM = R"=====(
 html {
-  font-family: Tahoma, Verdana, Arial;
   display: inline-block;
+  font-family: Tahoma, Verdana, Arial;
   margin: 0px;
+  overflow-x: hidden;
   text-align: center;
+  width: 100%;
 }
 
 body {
   margin: 0px 0px 20px 0px;
+  position: relative;
 }
 
 h1 {
-    background: #222;
-    color: #eee;
-    margin: 0px;
-    padding: 8px;
-    width: 100%;
+  background: #222;
+  color: #eee;
+  margin: 0px;
+  padding: 8px;
+  width: 100%;
 }
 
 h3 { color: #333; margin: 10px; }
@@ -46,25 +49,39 @@ a { text-decoration: none; }
 
 p { font-size: 18px; margin-bottom: 5px; }
 
+.left {
+  text-align: left;
+}
+
 .block {
   margin: 10px 5px 30px 5px;
   padding: 10px 5px 10px 5px;
+  width: 99%;
 }
 
 .card {
   background: #ddd;
+  border-radius: 12px;
   box-sizing: border-box;
   box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
   color: #444;
   margin: 20px auto;
-  max-width: 400px;
+  max-width: 360px;
   min-height: 200px;
-  padding: 10px 20px 10px 20px;
+  padding: 10px 15px 10px 15px;
   text-align: left;
+  width: 360px;
 }
 
-.info {
-  font-family: courier, courier new, serif;
+.infoLabel {
+  font-family: Tahoma, Verdana, Arial;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.infoState {
+  font-family: courier new, courier, sans-serif;
+  font-size: 1em;
 }
 
 button {
@@ -87,6 +104,11 @@ button[disabled] {
   color: #555 !important;
 }
 
+button:active {
+  box-shadow: 7px 6px 28px 1px rgba(0, 0, 0, 0.24);
+  transform: translateY(4px);
+}
+
 input {
   border: 2px solid #333;
   border-radius: 4px;
@@ -105,14 +127,14 @@ select {
   color: white;
   cursor: pointer;
   font-size: 1.15rem;
-  height: 50px;
+  height: 40px;
   margin: 5px;
   padding: 6px 8px;
-  max-width: 260px;
-  min-width: 260px;
+  max-width: 160px;
+  min-width: 160px;
   text-align: center;
   touch-action: manipulation;
-  width: 260px;
+  width: 160px;
 }
 
 .custom-select {
@@ -160,5 +182,100 @@ select {
 .blue {
   background-color: #008CBA;
   border: 2px solid #006C9A;
+}
+
+.setting {
+  margin: 10px 0;
+}
+
+.labelSlider {
+  top: -10px;
+  position: relative;
+}
+
+.labelSwitch {
+  display: inline-block;
+  position: relative;
+  text-align: right;
+  top: 6px;
+  width: 280px;
+}
+
+input[type=range] {
+  width: 300px;
+}
+
+input[type=text] {
+  width: 200px;
+}
+
+.swatch {
+  border: 1px solid black;
+  height: 40px;
+  max-width: 60px;
+  width: 60px:
+}
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
 }
 )=====";

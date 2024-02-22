@@ -10,7 +10,7 @@ Just as you used the gpstar flashing utility for Windows or MacOS to upload to y
 
 ## For ESP32
 
-This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller. **However, the software which enables the WiFi access point isn't yet loaded so you'll need to follow a specific process for the initial upload to your device.**
+This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller (prefix: "ProtonPack_"). **However, the software which enables the WiFi access point isn't yet loaded so you'll need to follow a specific process for the initial upload to your device.**
 
 **Troubleshooting:** If your ESP32 controller does not appear as a serial device it may be required to install a driver for the "CP210x USB to UART Bridge" onto your computer. A driver for Windows and macOS is available [via Silicon Labs](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads) and has proved useful.
 
@@ -18,9 +18,9 @@ This device supports Over-The-Air (OTA) updates for firmware, meaning you will n
 
 ### ESP32: First-Time Upload
 
-If you do not see a WiFi network for your Proton Pack, the device has likely not been flashed with the GPStar firmware to enable that feature. You will need to upload the software using a USB cable via either of the 2 methods listed here.
+If you are using your own ESP32 controller or do not see a WiFi network for your Proton Pack when the device is powered up, then the microcontroller has likely not been flashed with the GPStar firmware to enable that feature. You will need to upload the software using a USB cable via **either** of the 2 methods listed here.
 
-**Via Web Uploader**
+**Option 1: Via Web Uploader**
 
 This uses a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.
 
@@ -38,7 +38,7 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 	* 0x10000 &rarr; [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
 1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
 
-**Via Command-Line**
+**Option 2: Via Command-Line**
 
 You will need to utilize a command-line tool to upload the firmware to your device from your local computer.
 
@@ -60,7 +60,6 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 	python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m
 	0x1000 Attenuator-ESP32-bootloader.bin 0x8000 Attenuator-ESP32-partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
 	`
-
 📝 **Tip:** To find your device on Linux it may be necessary to use the `lsusb` utility to list attached USB devices. For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices. For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
 
 These guides may be of some help as a reference:
@@ -68,13 +67,13 @@ These guides may be of some help as a reference:
 * [Expressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
 * [Expressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
 
-### ESP32: Additional/Future Updates
+### ESP32: Standard Updates (After the First-Time Upload)
 
-This applies to any updates after the first-time upload of the firmware for the device, when the WiFi network for the Proton Pack is enabled and available.
+This applies to all updates you will perform AFTER the first-time upload of the firmware for the device, when the private WiFi network for the Proton Pack is available via the custom firmware.
 
-1. Power up your Proton Pack and device.
-1. Open the WiFi preferences on your computer and look for the SSID which begins "ProtonPack_".
-	* If this is your first connection to the access point, use the default password "555-2368".
+1. Power up your Proton Pack and ESP32 device (whether standalone or as part of the Attenuator hardware).
+1. Open the WiFi preferences on your computer/device and look for the SSID which begins **"ProtonPack_"**.
+	* If this is your first connection to this access point, use the default password **"555-2368"**.
 1. Navigate directly to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
 1. Use the "Select File" button and select the [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) file from the `/binaries/attenuator` directory.
 1. The upload will begin immediately. Once at 100% the device will reboot.
@@ -94,13 +93,19 @@ While every device gets a unique SSID for the wireless network, the password is 
 
 ### Setting a WiFi Password
 
-Once you are able to reach the web UI at [http://192.168.1.2](http://192.168.1.2) scroll to the bottom of the page to find the "Change WiFi Password" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled. Passwords must only be at least 8 characters and you will be required to enter a matching password as confirmation to ensure you entered the expected string of characters.
+Since this device will make use of a private WiFi network with a default password, it is STRONGLY encouraged that you take a moment to change the password to something you prefer to avoid unauthorized access of your equipment.
 
-![](images/WebUI-Password.jpg)
+Once you are able to reach the web UI at [http://192.168.1.2](http://192.168.1.2) scroll to the bottom of the page to find the "Secure Device WiFi" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled. Passwords must only be at least 8 characters and you will be required to enter a matching password as confirmation to ensure you entered the expected string of characters.
+
+The password you choose will be stored in an area of the device's flash memory that is unaffected by future firmware updates. Therefore, if you forget your password you may need to load a special version of the firmware which can bypass that stored value and allow you to use the default password again. This process is covered in the next section.
 
 ### Forgot Your WiFi Password?
 
-Since you won't have the ability to use the OTA update process above, you will need to follow a manual process using a USB cable and a utility for your OS of choice. Since you will not have access to the OTA update capability, this will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
+![](images/WebUI-Password.jpg)
+
+If you have forgotten the password to the private WiFi network, you will need to load a special firmware to allow you to access the device and reset the password. Though if you have opted to connect your device to a preferred WiFi network using the built-in WiFi settings, simply return to your device's IP address on that network and change the password for the private WiFi network as desired.
+
+In the case where you do not have access to your device via an external WiFi network, you will need to follow a manual process using a USB cable and a utility for your OS of choice. This will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
 
 Once flashed, this will allow you to get back into the web UI at `http://192.168.1.2` using the default password ("555-2368") and change to your choice of password. **Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password while this firmware is loaded**! The new password will be used automatically to secure the WiFi access point once the regular firmware is in use.
 
@@ -118,23 +123,20 @@ The following libraries are required to be installed. All but the MillisDelay li
 
 ### Common Libraries (Nano+ESP32)
 
-- **FastLED** by Daniel Garcia
 - **ezButton** by ArduinoGetStarted.com
-- **simple ht16k33 library** by lpaseen
+- **FastLED** by Daniel Garcia
+- **SafeString** by Matthew Ford
 - **SerialTransfer** by PowerBroker2
-- **millisDelay** `See Below`
+- **Simple ht16k33 Library** by Ipaseen
 
 ### Additional ESP32 Libraries
 
 - **ArduinoJSON** by Benoit Blanchon
 - **AsyncTCP** by dvarrel
-- **ESPAsyncTCP** by dvarrel
-- **ESPAsyncWebSrv** by dvarrel
-- **Preferences** by Volodymyr Shymanskyy
-- **ElegantOTA** `See Below`
-- **ESPAsyncWebServer** `See Below`
+- **ESP Async WebServer** by Mathieu Carbou (note spaces in library name)
+- **ElegantOTA** by Ayush Sharma `See Below`
 
-To build for the ESP32 controller you will need to use the `Boards Manager` to install the `esp32 by Expressif Systems` package. When selecting a board for compilation and upload, simply use the board `ESP32 Dev Module` for satisfactory results. For reference, the FQBN for builds is "esp32:esp32:esp32".
+To build for the ESP32 hardware you will need to use the `Boards Manager` to install the `esp32 by Expressif Systems` package. When selecting a board for compilation and upload, simply use the board `ESP32 Dev Module` for satisfactory results. For reference, the FQBN for builds is "esp32:esp32:esp32".
 
 ### ElegantOTA
 
@@ -146,16 +148,9 @@ The ElegantOTA library must be enabled to utilize the Asynchronous Web Server.
 	`#define ELEGANTOTA_USE_ASYNC_WEBSERVER 1`
 1. Save the changes to the `ElegantOTA.h` file.
 
-### ESPAsyncWebServer
+**Alternative:**
 
-The ESPAsyncWebServer library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/me-no-dev/ESPAsyncWebServer.git](https://github.com/me-no-dev/ESPAsyncWebServer.git)
-
-No further configuration is needed for this library.
-
-### MillisDelay
-
-The MillisDelay library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/ansonhe97/millisDelay.git](https://github.com/ansonhe97/millisDelay.git)
+A fork of the `ElegantOTA` library can be downloaded from GitHub which contains the above modifications for use with the ESPAsyncWebServer package. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
+[https://github.com/DustinGrau/ElegantOTA.git](https://github.com/DustinGrau/ElegantOTA.git)
 
 No further configuration is needed for this library.

@@ -27,22 +27,13 @@ Download and install the Arduino IDE 2.x or higher. This will be used to compile
 
 The following libraries are required to be installed. All but the MillisDelay library can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
 
-- **FastLED** by Daniel Garcia
 - **ezButton** by ArduinoGetStarted.com
+- **FastLED** by Daniel Garcia
 - **Ramp** by Sylvain Garnavault
-- **AltSoftSerial** by Paul Stoffregen
-- **simple ht16k33 library** by lpaseen
+- **SafeString** by Matthew Ford
 - **SerialTransfer** by PowerBroker2
-- **millisDelay** `See Below`
 
 For reference, the FQBN for builds is "arduino:avr:mega" for the GPStar PCB's while "arduino:avr:nano" would be used for a Nano controller as part of the DIY builds.
-
-### MillisDelay
-
-The MillisDelay library must be downloaded from the project GitHub page. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/ansonhe97/millisDelay](https://github.com/ansonhe97/millisDelay)
-
-No further configuration is needed for this library.
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 
@@ -63,7 +54,7 @@ This is a legacy flag, for people who originally put the Cyclotron Lid detection
 
 The **final** release compatible with the Arduino Nano was **v2.2.0** in November of 2023. Releases after this date no longer support that device due primarily to system memory limitations. Please consider migrating to the official GPStar Neutrona Wand PCB to continue to receive additional software updates for your devices.
 
-**In other words, since the software for the pack and wand must be updated in tandem, this implies that updates cannot be made to a Proton Pack (whether DIY or PCB) without the accompanying change to the Neutrona Wand.**
+**In other words: since the software for the pack and wand must be updated in tandem, this implies that updates cannot be made to a Proton Pack (whether DIY or PCB) without the accompanying change to the Neutrona Wand.**
 
 ## Advanced User Configurations
 

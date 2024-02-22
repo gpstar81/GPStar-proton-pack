@@ -53,6 +53,8 @@ These apply to the normal operation and usage of the equipment, as well as add-o
 
 1. [Operation Manual](OPERATION.md)
 
+1. [EEPROM Menus](OPERATION_EEPROM.md)
+
 1. [Advanced Configuration](ADVCONFIG.md)
 
 1. [Audio Output](SOUND.md)
@@ -84,7 +86,7 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Power Requirements](POWER.md)
 
-1. [Compiling and Uploading the code](ARDUINO_FLASHING.md)
+1. [Compiling and Uploading the code](DIY_FLASHING.md)
 
 1. [WAV Trigger Configuration](WAVTRIGGER.md)
 
