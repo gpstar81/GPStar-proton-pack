@@ -129,6 +129,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 - There are 4 power levels in mode original. When the Neutrona Wand is in stand by mode (see toggle switch behaviours below), the bargraph settles on the first level.
 - The switch under the Ion Arm on the Proton Pack must be switched on. This gives power to the entire system. The slo-blo light on the Neutrona Wand will turn solid red to indicate power to the system.
+	- If you are using a standalone Neutrona Wand without a Proton Pack, pressing the Intensify switch twice while the Neutrona Wand is turned off will imitate flipping the switch under the Ion Arm.
 - While firing, the default bargraph animations slide the bargraph up and down small increments to indicate the instability and power of the proton stream.
 
 ### Right-Hand Toggle Switch Behaviours

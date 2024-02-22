@@ -1025,6 +1025,9 @@ void checkWandAction() {
               if(b_gpstar_benchtest == true) {
                 if(SYSTEM_MODE == MODE_SUPER_HERO) {
                   SYSTEM_MODE = MODE_ORIGINAL;
+
+                  // Also need to make sure to reset the "ion arm switch" to off
+                  b_pack_ion_arm_switch_on = false;
                 }
                 else {
                   SYSTEM_MODE = MODE_SUPER_HERO;
