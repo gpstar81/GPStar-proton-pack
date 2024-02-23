@@ -1958,7 +1958,7 @@ void postActivation() {
         case SYSTEM_FROZEN_EMPIRE:
         default:
           if(b_gpstar_benchtest == true) {
-            playEffect(W_WAND_BOOTUP_SOUND);
+            playEffect(S_WAND_BOOTUP);
           }
 
           soundIdleLoop(true);
