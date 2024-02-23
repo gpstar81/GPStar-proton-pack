@@ -318,7 +318,18 @@ void mainLoop() {
             b_pack_ion_arm_switch_on = true;
           }
 
+          ms_intensify_doubleclick.stop();
           switch_intensify.resetCount();
+        }
+        else if(FIRING_MODE != SETTINGS && b_gpstar_benchtest == true && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.getCount() == 1) {
+          // This "times out" the Intensify click after 3 seconds so that a double-click is always required
+          if(ms_intensify_doubleclick.justFinished()) {
+            switch_intensify.resetCount();
+            ms_intensify_doubleclick.stop();
+          }
+          else if(!ms_intensify_doubleclick.isRunning() && !ms_intensify_doubleclick.justFinished()) {
+            ms_intensify_doubleclick.start(i_doubleclick_delay);
+          }
         }
 
         if(switchMode() == true || b_pack_alarm == true) {

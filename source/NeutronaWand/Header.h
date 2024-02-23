@@ -216,9 +216,11 @@ millisDelay ms_switch_barrel_debounce;
 millisDelay ms_switch_mode_debounce;
 millisDelay ms_switch_mode_firing;
 millisDelay ms_intensify_timer;
+millisDelay ms_intensify_doubleclick;
 millisDelay ms_firing_debounce;
 const unsigned int i_firing_debounce = 50;
 const unsigned int i_intensify_delay = 400;
+const unsigned int i_doubleclick_delay = 3000;
 
 /*
  * Wand lights
