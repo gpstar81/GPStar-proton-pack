@@ -28,7 +28,6 @@
 enum pack_messages : uint8_t {
   P_NULL,
   P_COM_START,
-  P_COM_END,
   P_HANDSHAKE,
   P_SYNC_START,
   P_SYNC_END,
@@ -142,13 +141,13 @@ enum pack_messages : uint8_t {
   P_SEND_PREFERENCES_SMOKE,
   P_SAVE_PREFERENCES_WAND,
   P_SAVE_PREFERENCES_SMOKE,
-  P_SAVE_EEPROM_WAND
+  P_SAVE_EEPROM_WAND,
+  P_COM_END
 };
 
 enum wand_messages : uint8_t {
   W_NULL,
   W_COM_START,
-  W_COM_END,
   W_HANDSHAKE,
   W_SYNC_NOW,
   W_SYNCHRONIZED,
@@ -356,13 +355,13 @@ enum wand_messages : uint8_t {
   W_WAND_BEEP_STOP,
   W_WAND_BEEP_START,
   W_WAND_BEEP,
-  W_COM_SOUND_NUMBER
+  W_COM_SOUND_NUMBER,
+  W_COM_END
 };
 
 enum api_messages : uint8_t {
   A_NULL,
   A_COM_START,
-  A_COM_END,
   A_HANDSHAKE,
   A_SYNC_START,
   A_SYNC_END,
@@ -510,5 +509,6 @@ enum api_messages : uint8_t {
   A_SEND_PREFERENCES_SMOKE,
   A_SAVE_PREFERENCES_PACK,
   A_SAVE_PREFERENCES_WAND,
-  A_SAVE_PREFERENCES_SMOKE
+  A_SAVE_PREFERENCES_SMOKE,
+  A_COM_END
 };
