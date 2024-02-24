@@ -207,11 +207,12 @@ void setup() {
     WAND_CONN_STATE = NC_BENCHTEST;
 
     b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
-    b_pack_ion_arm_switch_on = true; // Pretend the red arming switch has been set to on.
+
+    // Stop the pack sync timer since we are no longer syncing to a pack.
+    ms_packsync.stop();
 
     // Check music timer for bench test mode only.
     ms_check_music.start(i_music_check_delay);
-    
   }
   else {
     WAND_CONN_STATE = PACK_DISCONNECTED;
@@ -308,6 +309,29 @@ void mainLoop() {
   switch(WAND_STATUS) {
     case MODE_OFF:
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+        if(FIRING_MODE != SETTINGS && b_gpstar_benchtest == true && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.getCount() >= 2) {
+          // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
+          if(b_pack_ion_arm_switch_on == true) {
+            b_pack_ion_arm_switch_on = false;
+          }
+          else {
+            b_pack_ion_arm_switch_on = true;
+          }
+
+          ms_intensify_doubleclick.stop();
+          switch_intensify.resetCount();
+        }
+        else if(FIRING_MODE != SETTINGS && b_gpstar_benchtest == true && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.getCount() == 1) {
+          // This "times out" the Intensify click after 3 seconds so that a double-click is always required
+          if(ms_intensify_doubleclick.justFinished()) {
+            switch_intensify.resetCount();
+            ms_intensify_doubleclick.stop();
+          }
+          else if(!ms_intensify_doubleclick.isRunning() && !ms_intensify_doubleclick.justFinished()) {
+            ms_intensify_doubleclick.start(i_doubleclick_delay);
+          }
+        }
+
         if(switchMode() == true || b_pack_alarm == true) {
           if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
             playEffect(S_CLICK);
@@ -1526,6 +1550,7 @@ void wandOff() {
     break;
   }
 
+  switch_intensify.resetCount();
   switch_wand.resetCount();
   switch_vent.resetCount();
 
@@ -1933,7 +1958,7 @@ void postActivation() {
         case SYSTEM_FROZEN_EMPIRE:
         default:
           if(b_gpstar_benchtest == true) {
-            playEffect(W_WAND_BOOTUP_SOUND);
+            playEffect(S_WAND_BOOTUP);
           }
 
           soundIdleLoop(true);
@@ -7301,6 +7326,7 @@ void wandExitMenu() {
 // Exit the wand menu EEPROM system while the wand is off.
 void wandExitEEPROMMenu() {
   playEffect(S_BEEPS_BARGRAPH);
+  switch_intensify.resetCount();
   switch_wand.resetCount();
   switch_vent.resetCount();
 
