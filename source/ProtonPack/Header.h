@@ -107,13 +107,12 @@ CRGB cyclotron_leds[i_max_inner_cyclotron_leds];
 
 /*
  * Delay for fastled to update the addressable LEDs.
- * We have up to 90 addressable LEDs if using NeoPixel jewels in the Inner Cyclotron and N-Filter.
+ * We have up to 90 addressable LEDs if using NeoPixel jewel in the N-Filter, a ring
+ * in the Inner Cyclotron, and the optionalal "sparking" cyclotron cavity LEDs.
  * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
  */
-const uint8_t i_fast_led_delay = 6;
-const uint16_t i_fast_led_bounce_delay = 200;
+const uint8_t i_fast_led_delay = 10;
 millisDelay ms_fast_led;
-millisDelay ms_fast_led_bounce;
 
 /*
  * Power Cell LEDs control.
