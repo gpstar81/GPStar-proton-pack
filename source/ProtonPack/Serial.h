@@ -32,8 +32,10 @@ enum PACKET_TYPE : uint8_t {
 
 // For command signals (1 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
+  uint8_t s;
   uint8_t c;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
+  uint8_t e;
 };
 
 struct CommandPacket sendCmdW;
@@ -43,8 +45,10 @@ struct CommandPacket recvCmdS;
 
 // For generic data communication (1 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
+  uint8_t s;
   uint8_t m;
   uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
+  uint8_t e;
 };
 
 struct MessagePacket sendDataW;
@@ -212,8 +216,10 @@ void serial1Send(uint8_t i_command, uint16_t i_value) {
   // debug(F("Command to Serial1: "));
   // debugln(i_command);
 
+  sendCmdS.s = A_COM_START;
   sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
+  sendCmdS.e = A_COM_END;
 
   i_send_size = serial1Coms.txObj(sendCmdS);
   serial1Coms.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
@@ -230,7 +236,9 @@ void serial1SendData(uint8_t i_message) {
   // debug(F("Data to Serial1: "))
   // debugln(i_message);
 
+  sendDataS.s = A_COM_START;
   sendDataS.m = i_message;
+  sendDataS.e = A_COM_END;
 
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
@@ -349,8 +357,10 @@ void packSerialSend(uint8_t i_command, uint16_t i_value) {
   debug(F("Command to Wand: "));
   debugln(i_command);
 
+  sendCmdW.s = P_COM_START;
   sendCmdW.c = i_command;
   sendCmdW.d1 = i_value;
+  sendCmdW.e = P_COM_END;
 
   i_send_size = packComs.txObj(sendCmdW);
   packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
@@ -367,7 +377,9 @@ void packSerialSendData(uint8_t i_message) {
   // debug(F("Data to Wand: "));
   // debugln(i_message);
 
+  sendDataW.s = P_COM_START;
   sendDataW.m = i_message;
+  sendDataW.s = P_COM_END;
 
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
@@ -416,16 +428,20 @@ void checkSerial1() {
       switch(i_packet_id) {
         case PACKET_COMMAND:
           serial1Coms.rxObj(recvCmdS);
-          debug(F("Recv. Serial1 Command: "));
-          debugln(recvCmdS.c);
-          handleSerialCommand(recvCmdS.c, recvCmdS.d1);
+          if(recvCmdS.c > 0 && recvCmdS.s == A_COM_START && recvCmdS.e == A_COM_END) {
+            debug(F("Recv. Serial1 Command: "));
+            debugln(recvCmdS.c);
+            handleSerialCommand(recvCmdS.c, recvCmdS.d1);
+          }
         break;
 
         case PACKET_DATA:
           serial1Coms.rxObj(recvDataS);
-          debug(F("Recv. Serial1 Message: "));
-          debugln(recvDataS.m);
-          // No handlers at this time.
+          if(recvDataS.m > 0 && recvDataS.s == A_COM_START && recvDataS.e == A_COM_END) {
+            debug(F("Recv. Serial1 Message: "));
+            debugln(recvDataS.m);
+            // No handlers at this time.
+          }
         break;
 
         case PACKET_PACK:
@@ -982,9 +998,11 @@ void checkWand() {
       switch(i_packet_id) {
         case PACKET_COMMAND:
           packComs.rxObj(recvCmdW);
-          debug(F("Recv. Wand Command: "));
-          debugln(recvCmdW.c);
-          handleWandCommand(recvCmdW.c, recvCmdW.d1);
+          if(recvCmdW.c > 0 && recvCmdW.s == W_COM_START && recvCmdW.e == W_COM_END) {
+            debug(F("Recv. Wand Command: "));
+            debugln(recvCmdW.c);
+            handleWandCommand(recvCmdW.c, recvCmdW.d1);
+          }
         break;
 
         case PACKET_DATA:
@@ -994,9 +1012,11 @@ void checkWand() {
           }
 
           packComs.rxObj(recvDataW);
-          debug(F("Recv. Wand Data: "));
-          debugln(recvDataW.m);
-          // No handlers at this time.
+          if(recvDataW.m > 0 && recvDataW.s == W_COM_START && recvDataW.e == W_COM_END) {
+            debug(F("Recv. Wand Data: "));
+            debugln(recvDataW.m);
+            // No handlers at this time.
+          }
         break;
 
         case PACKET_WAND:

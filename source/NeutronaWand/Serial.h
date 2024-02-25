@@ -31,8 +31,10 @@ enum PACKET_TYPE : uint8_t {
 
 // For command signals (1 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
+  uint8_t s;
   uint8_t c;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
+  uint8_t e;
 };
 
 struct CommandPacket sendCmd;
@@ -40,8 +42,10 @@ struct CommandPacket recvCmd;
 
 // For generic data communication (1 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
+  uint8_t s;
   uint8_t m;
   uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
+  uint8_t e;
 };
 
 struct MessagePacket sendData;
@@ -111,8 +115,10 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
   debug(F("Command to Pack: "));
   debugln(i_command);
 
+  sendCmd.s = W_COM_START;
   sendCmd.c = i_command;
   sendCmd.d1 = i_value;
+  sendCmd.e = W_COM_END;
 
   if(WAND_CONN_STATE == PACK_CONNECTED) {
     // Once connected, each send of data should restart the timer.
@@ -139,7 +145,9 @@ void wandSerialSendData(uint8_t i_message) {
   debug(F("Data to Pack: "));
   debugln(i_message);
 
+  sendData.s = W_COM_START;
   sendData.m = i_message;
+  sendData.e = W_COM_END;
 
   // Set all elements of the data array to 0
   memset(sendData.d, 0, sizeof(sendData.d));
@@ -317,42 +325,46 @@ void checkPack() {
       switch(i_packet_id) {
         case PACKET_COMMAND:
           wandComs.rxObj(recvCmd);
-          debug(F("Recv. Command: "));
-          debugln(recvCmd.c);
-          if(handlePackCommand(recvCmd.c, recvCmd.d1)) {
-            // Begin timer for future keepalive handshakes from the wand.
-            ms_handshake.start(i_heartbeat_delay);
+          if(recvCmd.c > 0 && recvCmd.s == P_COM_START && recvCmd.e == P_COM_END) {
+            debug(F("Recv. Command: "));
+            debugln(recvCmd.c);
+            if(handlePackCommand(recvCmd.c, recvCmd.d1)) {
+              // Begin timer for future keepalive handshakes from the wand.
+              ms_handshake.start(i_heartbeat_delay);
 
-            // Turn off the sync indicator LED as the sync is completed.
-            digitalWrite(led_white, HIGH);
+              // Turn off the sync indicator LED as the sync is completed.
+              digitalWrite(led_white, HIGH);
 
-            // Indicate that a pack is now connected.
-            WAND_CONN_STATE = PACK_CONNECTED;
+              // Indicate that a pack is now connected.
+              WAND_CONN_STATE = PACK_CONNECTED;
+            }
           }
         break;
 
         case PACKET_DATA:
           wandComs.rxObj(recvData);
-          debug(F("Recv. Message: "));
-          debugln(recvData.m);
+          if(recvData.m > 0 && recvData.s == P_COM_START && recvData.e == P_COM_END) {
+            debug(F("Recv. Message: "));
+            debugln(recvData.m);
 
-          switch(recvData.m) {
-            case P_VOLUME_SYNC:
-              // Set the percentage volume.
-              i_volume_master_percentage = recvData.d[0];
-              i_volume_effects_percentage = recvData.d[1];
-              i_volume_music_percentage = recvData.d[2];
+            switch(recvData.m) {
+              case P_VOLUME_SYNC:
+                // Set the percentage volume.
+                i_volume_master_percentage = recvData.d[0];
+                i_volume_effects_percentage = recvData.d[1];
+                i_volume_music_percentage = recvData.d[2];
 
-              // Set the decibel volume.
-              i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-              i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+                // Set the decibel volume.
+                i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+                i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
+                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-              // Update volume levels.
-              i_volume_revert = i_volume_master;
-              w_trig.masterGain(i_volume_master);
-              adjustVolumeEffectsGain();
-            break;
+                // Update volume levels.
+                i_volume_revert = i_volume_master;
+                w_trig.masterGain(i_volume_master);
+                adjustVolumeEffectsGain();
+              break;
+            }
           }
         break;
 

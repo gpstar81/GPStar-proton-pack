@@ -43,8 +43,10 @@ enum PACKET_TYPE : uint8_t {
 
 // For command signals (1 byte ID, 2 byte optional data).
 struct __attribute__((packed)) CommandPacket {
+  uint8_t s;
   uint8_t c;
   uint16_t d1; // Reserved for values over 255 (eg. current music track)
+  uint8_t e;
 };
 
 struct CommandPacket sendCmd;
@@ -52,8 +54,10 @@ struct CommandPacket recvCmd;
 
 // For generic data communication (1 byte ID, 4 byte array).
 struct __attribute__((packed)) MessagePacket {
+  uint8_t s;
   uint8_t m;
   uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
+  uint8_t e;
 };
 
 struct MessagePacket sendData;
@@ -147,8 +151,10 @@ void attenuatorSerialSend(uint8_t i_command, uint16_t i_value = 0) {
     debug("Send Command: " + String(i_command));
   #endif
 
+  sendCmd.s = A_COM_START;
   sendCmd.c = i_command;
   sendCmd.d1 = i_value;
+  sendCmd.e = A_COM_END;
 
   i_send_size = packComs.txObj(sendCmd);
   packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
@@ -163,7 +169,9 @@ void attenuatorSerialSendData(uint8_t i_message) {
     debug("Send Data: " + String(i_message));
   #endif
 
+  sendData.s = A_COM_START;
   sendData.m = i_message;
+  sendData.s = A_COM_END;
 
   // Set all elements of the data array to 0
   memset(sendData.d, 0, sizeof(sendData.d));
@@ -225,61 +233,66 @@ bool checkPack() {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
-          #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
-            debug("Recv. Command: " + String(recvCmd.c));
-          #endif
-
           packComs.rxObj(recvCmd);
-          return handleCommand(recvCmd.c, recvCmd.d1);
+          if(recvCmd.c > 0 && recvCmd.s == A_COM_START && recvCmd.e == A_COM_END) {
+            #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
+              debug("Recv. Command: " + String(recvCmd.c));
+            #endif
+            return handleCommand(recvCmd.c, recvCmd.d1);
+          }
+          else {
+            return false;
+          }
         break;
 
         case PACKET_DATA:
-          #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
-            debug("Recv. Message: " + String(recvData.m));
-          #endif
-
           packComs.rxObj(recvData);
+          if(recvData.m > 0 && recvData.s == A_COM_START && recvData.e == A_COM_END) {
+            #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
+              debug("Recv. Message: " + String(recvData.m));
+            #endif
 
-          switch(recvData.m) {
-            case A_VOLUME_SYNC:
-              // Only applies to ESP32 for the web UI.
-              #if defined(__XTENSA__)
-                try {
-                  i_volume_master_percentage = recvData.d[0];
-                  i_volume_effects_percentage = recvData.d[1];
-                  i_volume_music_percentage = recvData.d[2];
+            switch(recvData.m) {
+              case A_VOLUME_SYNC:
+                // Only applies to ESP32 for the web UI.
+                #if defined(__XTENSA__)
+                  try {
+                    i_volume_master_percentage = recvData.d[0];
+                    i_volume_effects_percentage = recvData.d[1];
+                    i_volume_music_percentage = recvData.d[2];
+                  }
+                  catch (...) {
+                    debug("Error during volume sync");
+                  }
+
+                  return true; // Indicates a status change.
+                #endif
+              break;
+
+              case A_SPECTRAL_CUSTOM_MODE:
+                FIRING_MODE = SPECTRAL_CUSTOM;
+
+                // Applies to both Arduino Nano and ESP32.
+                if(recvData.d[0] > 0) {
+                  i_spectral_custom_colour = recvData.d[0];
                 }
-                catch (...) {
-                  debug("Error during volume sync");
+                if(recvData.d[1] > 0) {
+                  i_spectral_custom_saturation = recvData.d[1];
                 }
 
                 return true; // Indicates a status change.
-              #endif
-            break;
+              break;
 
-            case A_SPECTRAL_CUSTOM_MODE:
-              FIRING_MODE = SPECTRAL_CUSTOM;
-
-              // Applies to both Arduino Nano and ESP32.
-              if(recvData.d[0] > 0) {
-                i_spectral_custom_colour = recvData.d[0];
-              }
-              if(recvData.d[1] > 0) {
-                i_spectral_custom_saturation = recvData.d[1];
-              }
-
-              return true; // Indicates a status change.
-            break;
-
-            case A_SPECTRAL_COLOUR_DATA:
-              // Applies to both Arduino Nano and ESP32.
-              if(recvData.d[0] > 0) {
-                i_spectral_custom_colour = recvData.d[0];
-              }
-              if(recvData.d[1] > 0) {
-                i_spectral_custom_saturation = recvData.d[1];
-              }
-            break;
+              case A_SPECTRAL_COLOUR_DATA:
+                // Applies to both Arduino Nano and ESP32.
+                if(recvData.d[0] > 0) {
+                  i_spectral_custom_colour = recvData.d[0];
+                }
+                if(recvData.d[1] > 0) {
+                  i_spectral_custom_saturation = recvData.d[1];
+                }
+              break;
+            }
           }
         break;
 

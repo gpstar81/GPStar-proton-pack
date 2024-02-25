@@ -214,10 +214,10 @@ const uint8_t STARTUP_VOLUME_EFFECTS = 100;
 
 /*
  * Minimum volume that the pack can achieve.
- * Values must be from 0 to -70. 0 = the loudest and -70 = the quietest.
- * Volume changes are based on percentages.
+ * Values must be from 0 to -70. 0 = the loudest and -70 = the quietest (no audible sound).
+ * Volume changes are based on percentages which are converted to the appropriate decibel value.
  * If your pack is overpowering the wand at lower volumes, you can either increase the minimum value in the wand,
- * or decrease the minimum value for the pack.
+ * or decrease the minimum value for the pack. By default the pack will be nearly silent at 0% volume, but not off.
  */
 const int MINIMUM_VOLUME = -60;
 
