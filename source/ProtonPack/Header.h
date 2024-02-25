@@ -47,7 +47,7 @@
 /*
  * Set the number of steps for the Inner Cyclotron (cavity).
  */
-#define INNER_CYCLOTRON_CAVITY_LED_MAX 50
+#define INNER_CYCLOTRON_CAVITY_LED_MAX 0
 
 /*
  * Set the number of steps for the Outer Cyclotron (lid).
@@ -108,10 +108,10 @@ CRGB cyclotron_leds[i_max_inner_cyclotron_leds];
 /*
  * Delay for fastled to update the addressable LEDs.
  * We have up to 90 addressable LEDs if using NeoPixel jewel in the N-Filter, a ring
- * in the Inner Cyclotron, and the optionalal "sparking" cyclotron cavity LEDs.
+ * for the Inner Cyclotron, and the optionalal "sparking" cyclotron cavity LEDs.
  * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
  */
-const uint8_t i_fast_led_delay = 10;
+const uint8_t i_fast_led_delay = 6;
 millisDelay ms_fast_led;
 
 /*
