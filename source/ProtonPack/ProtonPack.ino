@@ -107,6 +107,9 @@ void setup() {
 
   // Inner Cyclotron LEDs.
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, i_max_inner_cyclotron_leds);
+
+  // Other FastLED Options
+  FastLED.setDither(0); // Disables the "temporal dithering" feature as this software will set brightness on a per-pixel level by device.
   //FastLED.setMaxPowerInVoltsAndMilliamps(5, 800); // Limit draw to 800mA at 5v of power. Enabling this can cause some flickering of the LEDs.
 
   // Cyclotron Switch Panel LEDs
@@ -245,7 +248,9 @@ void loop() {
         // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
         if(b_spectral_lights_on == true) {
           packOffReset();
-          spectralLightsOn();
+          if(b_cyclotron_lid_on == true) {
+            spectralLightsOn();
+          }
         }
         else {
           cyclotronSwitchLEDLoop();
@@ -1775,7 +1780,9 @@ void cyclotronControl() {
     }
   }
 
-  cyclotronFade();
+  if(b_cyclotron_lid_on == true) {
+    cyclotronFade();
+  }
 }
 
 void cyclotronFade() {
@@ -2712,7 +2719,6 @@ void cyclotronOverHeating() {
       else if(b_overheat_lights_off == true) {
         if(i_powercell_led > 0) {
           cyclotron2021(i_2021_delay * 10);
-
           vibrationPack(i_vibration_lowest_level);
         }
         else {

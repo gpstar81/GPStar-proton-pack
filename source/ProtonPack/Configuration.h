@@ -136,7 +136,7 @@ uint8_t i_inner_cyclotron_cake_num_leds = 35;
  * You can use up to 50 LEDs.
  * 50 -> For addressable fairy lights. (Recommended device)
  */
-bool b_use_cyclotron_cavity_leds = false;
+bool b_use_cyclotron_cavity_leds = true;
 uint8_t i_inner_cyclotron_cavity_num_leds = 50;
 
 /*
