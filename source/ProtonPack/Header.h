@@ -47,7 +47,7 @@
 /*
  * Set the number of steps for the Inner Cyclotron (cavity).
  */
-#define INNER_CYCLOTRON_CAVITY_LED_MAX 20
+#define INNER_CYCLOTRON_CAVITY_LED_MAX 30
 
 /*
  * Set the number of steps for the Outer Cyclotron (lid).
@@ -60,15 +60,22 @@
 #define JEWEL_NFILTER_LED_COUNT 7
 
  /*
- * Total number of LEDs in the standard Proton Pack configuration.
- * Power Cell and Cyclotron Lid LEDs + optional N-Filter NeoPixel.
- * 25 LEDs in the stock HasLab kit. 13 in the Power Cell and 12 in the Cyclotron lid.
- * 7 additional (32 in total) for a NeoPixel jewel that you can put into the N-Filter (optional).
- * This jewel chains off Cyclotron lens #4 in the lid (top left lens).
- * Max amount of LEDs allowed: 15 for the Power Cell and 40 for the Cyclotron lid.
- */
+  * Total number of LEDs in the standard Proton Pack configuration.
+  * Power Cell and Cyclotron Lid LEDs + optional N-Filter NeoPixel.
+  *    25 LEDs in the stock HasLab kit: 13 in the Power Cell and 12 in the Cyclotron lid.
+  *    Add 7 (now 32 in total) for a NeoPixel jewel that you can put into the N-Filter (optional)
+  *    That jewel chains off Cyclotron lens assembly #4 in the lid (top left lens).
+  * Max 62 LEDs: 15 for the Power Cell, 40 for the Cyclotron lid, and 7 for the jewel.
+  */
 const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
+
+ /*
+  * Total number of LEDs in the optional inner cycltron configuration.
+  * Up to 35 LEDs for the ring (due to diameter of the ring).
+  * Optionally, up to 30 LEDs for the "sparking" effect in the cavity.
+  * Max 65 LEDs is possible before degredation of serial communications.
+  */
 const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
 
 /*
