@@ -47,7 +47,7 @@
 /*
  * Set the number of steps for the Inner Cyclotron (cavity).
  */
-#define INNER_CYCLOTRON_CAVITY_LED_MAX 50
+#define INNER_CYCLOTRON_CAVITY_LED_MAX 20
 
 /*
  * Set the number of steps for the Outer Cyclotron (lid).
