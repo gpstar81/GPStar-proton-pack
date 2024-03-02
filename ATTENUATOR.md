@@ -14,9 +14,7 @@ The device was rediscovered by Phoebe Spengler from notes in her grandfather’s
 
 The attenuator device alters the magnetic field to maintain a correct “rate of feed” of positrons into the cyclotron, thus allowing the user to extend the time to ensnare a ghost by preventing an overheat event within the Proton Pack. Ahead of an overheat (aka. vent sequence) the device will provide physical and audiovisual cues as to the impending event. Interacting with the device will cancel the warning and stave off the venting sequence.
 
-### Special Notes
-
-Credit to [ShapeforgeProps](https://www.etsy.com/shop/ShapeforgeProps) for their excellent reproduction of this device as a 3D print and served as inspiration for taking this to a new level with the GPStar kit.
+### Reference Videos
 
 [Attenuator Preview Demonstration](https://www.youtube.com/watch?v=k-u7S7Ctcbc) (YouTube, August 2023).
 [![Attenuator Preview Demonstration Video](https://img.youtube.com/vi/k-u7S7Ctcbc/maxresdefault.jpg)](https://www.youtube.com/watch?v=k-u7S7Ctcbc)
@@ -30,7 +28,7 @@ Please see the dedicated [ATTENUATOR_DIY](ATTENUATOR_DIY.md) guide for how to co
 
 ## GPStar Kits
 
-Please see the [ATTENUATOR_FINISHING](ATTENUATOR_FINISHING) guide for advice on how to assemble and finish your device.
+Please see the [ATTENUATOR_FINISHING](ATTENUATOR_FINISHING.md) guide for advice on how to assemble and finish your device.
 
 ## Firmware Flashing
 
@@ -42,7 +40,7 @@ Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details o
 
 While not attached to a compatible Proton Pack (read: standalone mode) the device will simply provide some lights and effects. The left toggle switch will turn on the bargraph animations while the right toggle switch will turn on the LEDs.
 
-Ideally, the device should be connected to the GPStar Proton Pack Controller which will allow it to provide some extended functionality. Under normal use the main dial will allow adjusting the overall volume, starting/stopping music tracks, navigating to the next track, and adjusting the effects volume.
+Ideally, the device is intended be connected to the GPStar Proton Pack Controller which will allow it to provide all extended functionality. Under normal use the main dial will allow adjusting the overall volume, starting/stopping music tracks, navigating to the next track, and adjusting the effects volume.
 
 ![](images/Attenuator_Render.png	)
 

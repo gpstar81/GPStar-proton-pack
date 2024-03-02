@@ -5,6 +5,10 @@ This guide is intended to document the parts and processes required to build the
 [Video Assembly Guide](https://www.youtube.com/watch?v=iuZ5ij_PN44) (YouTube, December 2023).
 [![Video Assembly Guide](https://img.youtube.com/vi/iuZ5ij_PN44/maxresdefault.jpg)](https://www.youtube.com/watch?v=iuZ5ij_PN44)
 
+### Printing a Shell
+
+The STL files are available [through this repository](stl/attenuator) if you have the capability of printing your own Attenuator shell. Please see the accompanying [PDF](stl/attenuator/README-GB_Pack_Attenuator_Shell.pdf) in that directory for more details.
+
 ## Bill of Materials
 
 This device has it's own BOM which is separate from any other build items related to the pack or wand. This utilizes the same ArduinoIDE for writing software as the other controllers and we'll be using the same type of serial protocol as used between the pack and wand.
