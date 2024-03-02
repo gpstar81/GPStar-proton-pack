@@ -2994,8 +2994,10 @@ void innerCyclotronCakeOff() {
 }
 
 void innerCyclotronCavityOff() {
-  for(int i = i_inner_cyclotron_cake_num_leds; i < i_max_inner_cyclotron_leds; i++) {
-    cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_CAVITY, C_BLACK);
+  if(b_use_cyclotron_cavity_leds) {
+    for(int i = i_inner_cyclotron_cake_num_leds; i < i_max_inner_cyclotron_leds; i++) {
+      cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_CAVITY, C_BLACK);
+    }
   }
 }
 
