@@ -104,9 +104,9 @@ CRGB pack_leds[i_max_pack_leds + i_nfilter_jewel_leds];
 
 /*
  * Inner Cyclotron LEDs (optional).
- * Max number of LEDs supported = 85.
+ * Max number of LEDs supported = 65.
  * Maximum allowed LEDs for the Inner Cyclotron Cake is 35.
- * Maximum allowed LEDs for the Inner Cyclotron Cavity is 50.
+ * Maximum allowed LEDs for the Inner Cyclotron Cavity is 30.
  * Uses pin 13.
  */
 #define CYCLOTRON_LED_PIN 13
