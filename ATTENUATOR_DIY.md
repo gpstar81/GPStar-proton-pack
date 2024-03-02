@@ -7,7 +7,7 @@ This guide is intended to document the parts and processes required to build the
 
 ### Printing a Shell
 
-The STL files are available [through this repository](stl/attenuator) if you have the capability of printing your own Attenuator shell. Please see the accompanying [PDF](stl/attenuator/README - GB Pack Attenuator Shell.pdf) in that directory for more details.
+The STL files are available [through this repository](stl/attenuator) if you have the capability of printing your own Attenuator shell. Please see the accompanying [PDF](README-GB_Pack_Attenuator_Shell.pdf) in that directory for more details.
 
 ## Bill of Materials
 
