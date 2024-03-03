@@ -318,7 +318,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("defaultSystemVolume").value = settings.defaultSystemVolume || 100; // Default to full volume.
             document.getElementById("packVibration").value = settings.packVibration || 4;
             document.getElementById("masterVolOut").innerHTML = document.getElementById("defaultSystemVolume").value;
-            document.getElementById("protonStreamEffects").checked = settings.protonStreamEffects || 0;
+            document.getElementById("protonStreamEffects").checked = settings.protonStreamEffects ? true: false;
             document.getElementById("overheatStrobeNF").checked = settings.overheatStrobeNF ? true: false;
             document.getElementById("overheatLightsOff").checked = settings.overheatLightsOff ? true: false;
             document.getElementById("overheatSyncToFan").checked = settings.overheatSyncToFan ? true: false;

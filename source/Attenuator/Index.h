@@ -95,6 +95,9 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <h1>Preferences</h1>
   <div class="block">
+    <a href="/device">Attenuator Settings</a>
+    <br/>
+    <br/>
     <a href="/settings/pack">Proton Pack Settings</a>
     <br/>
     <br/>

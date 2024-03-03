@@ -31,17 +31,19 @@
   // Nano
   #define DEVICE_LED_PIN 9
 #endif
+// States there are 3 LEDs: Top, Upper, and Lower
 #define DEVICE_NUM_LEDS 3
 CRGB device_leds[DEVICE_NUM_LEDS];
 
 /*
- * LED Devices
+ * LED Device Ordering - Top, Upper, and Lower
+ * Creates a simple byte array of N elements for the ID of each of the 3 LEDs.
+ * Due to space constraints, users may have had to install the LEDs in reverse.
+ * Therefore, the order of this list may change depending on user preference.
+ * This feature will only be available for the ESP32-based controller.
  */
-enum device {
-  TOP_LED,
-  UPPER_LED,
-  LOWER_LED
-};
+boolean b_invert_leds = false; // Denotes whether the order should be reversed.
+uint8_t i_device_led[DEVICE_NUM_LEDS] = {0, 1, 2}; // Default Order
 
 /*
  * Delay for fastled to update the addressable LEDs.
