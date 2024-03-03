@@ -74,7 +74,7 @@ const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
   * Total number of LEDs in the optional inner cycltron configuration.
   * Up to 35 LEDs for the ring (due to diameter of the ring).
   * Optionally, up to 30 LEDs for the "sparking" effect in the cavity.
-  * Max 65 LEDs is possible before degredation of serial communications.
+  * Max 65 LEDs is possible before degradation of serial communications.
   */
 const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
 

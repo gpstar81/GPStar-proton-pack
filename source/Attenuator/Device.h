@@ -41,13 +41,6 @@ const char DEVICE_page[] PROGMEM = R"=====(
   <h1>General Options</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Standalone Mode:</b>
-      <label class="switch">
-        <input id="standaloneMode" name="standaloneMode" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
-    <div class="setting">
       <b class="labelSwitch">Invert Device LED Order:</b>
       <label class="switch">
         <input id="invertLEDs" name="invertLEDs" type="checkbox">
