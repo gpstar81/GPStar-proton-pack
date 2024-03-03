@@ -93,7 +93,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
           var settings = JSON.parse(this.responseText);
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
-            document.getElementById("invertLEDs").value = settings.invertLEDs || false;
+            document.getElementById("invertLEDs").checked = settings.invertLEDs ? true : false;
           }
         }
       };
