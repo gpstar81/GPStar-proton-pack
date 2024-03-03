@@ -511,7 +511,7 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     preferences.end();
 
     jsonBody.clear();
-    jsonBody["status"] = "Settings updated to Attenuator";
+    jsonBody["status"] = "Settings updated on Attenuator";
     serializeJson(jsonBody, result); // Serialize to string.
     request->send(200, "application/json", result);
   }

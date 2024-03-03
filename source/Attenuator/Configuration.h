@@ -44,7 +44,7 @@
 /*
  * Wait for pack communication or operate without pack integration.
  */
-bool b_wait_for_pack = false;
+bool b_wait_for_pack = true;
 
 /*
  * Custom values from pack EEPROM.
