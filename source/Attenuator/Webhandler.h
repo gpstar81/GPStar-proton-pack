@@ -38,9 +38,16 @@ void handleRoot(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Serve page content.
 }
 
+void handleDevice(AsyncWebServerRequest *request) {
+  // Used for the device page from the web server.
+  //debug("Device HTML Requested");
+  String s = DEVICE_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
+}
+
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
-  //debug("Metwprl HTML Requested");
+  //debug("Network HTML Requested");
   String s = NETWORK_page; // Read HTML page into String.
   request->send(200, "text/html", s); // Serve page content.
 }
@@ -90,6 +97,21 @@ void handleStylesheet(AsyncWebServerRequest *request) {
   //debug("Main StyleSheet Requested");
   String s = STYLE_page; // Read CSS page into String.
   request->send(200, "text/css", s); // Serve page content.
+}
+
+String getAttenuatorConfig() {
+  // Prepare a JSON object with information we have gleamed from the system.
+  String equipSettings;
+  jsonBody.clear();
+
+  if(!b_wait_for_pack) {
+    // Provide a flag to indicate prefs were received via serial coms.
+    jsonBody["invertLEDs"] = b_invert_leds;
+  }
+
+  // Serialize JSON object to string.
+  serializeJson(jsonBody, equipSettings);
+  return equipSettings;
 }
 
 String getPackConfig() {
@@ -301,18 +323,23 @@ String getWifiSettings() {
   return wifiNetwork;
 }
 
+void handleGetAttenuatorConfig(AsyncWebServerRequest *request) {
+  // Return current attenuator settings as a stringified JSON object.
+  request->send(200, "application/json", getAttenuatorConfig());
+}
+
 void handleGetPackConfig(AsyncWebServerRequest *request) {
-  // Return current system status as a stringified JSON object.
+  // Return current pack settings as a stringified JSON object.
   request->send(200, "application/json", getPackConfig());
 }
 
 void handleGetWandConfig(AsyncWebServerRequest *request) {
-  // Return current system status as a stringified JSON object.
+  // Return current wand settings as a stringified JSON object.
   request->send(200, "application/json", getWandConfig());
 }
 
 void handleGetSmokeConfig(AsyncWebServerRequest *request) {
-  // Return current system status as a stringified JSON object.
+  // Return current smoke settings as a stringified JSON object.
   request->send(200, "application/json", getSmokeConfig());
 }
 
@@ -463,6 +490,38 @@ void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
   attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS_WAND);
   request->send(200, "application/json", status);
 }
+
+// Handles the JSON body for the pack settings save request.
+AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonWebHandler("/config/attenuator/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
+  jsonBody.clear();
+  if(json.is<JsonObject>()) {
+    jsonBody = json.as<JsonObject>();
+  }
+  else {
+    Serial.print("Body was not a JSON object");
+  }
+
+  String result;
+  try {
+    // General Options
+    b_invert_leds = jsonBody["invertLEDs"].as<boolean>();
+
+    preferences.begin("device", false); // Access namespace in read/write mode.
+    preferences.putBool("invert_led", b_invert_leds); // Store current value.
+    preferences.end();
+
+    jsonBody.clear();
+    jsonBody["status"] = "Settings updated to Attenuator";
+    serializeJson(jsonBody, result); // Serialize to string.
+    request->send(200, "application/json", result);
+  }
+  catch (...) {
+    jsonBody.clear();
+    jsonBody["status"] = "An error was encountered while saving settings.";
+    serializeJson(jsonBody, result); // Serialize to string.
+    request->send(200, "application/json", result);
+  }
+});
 
 // Handles the JSON body for the pack settings save request.
 AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHandler("/config/pack/save", [](AsyncWebServerRequest *request, JsonVariant &json) {

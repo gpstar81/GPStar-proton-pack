@@ -49,6 +49,7 @@
 
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
+#include "Device.h" // DEVICE_page
 #include "Network.h" // NETWORK_page
 #include "Password.h" // PASSWORD_page
 #include "PackSettings.h" // PACK_SETTINGS_page
@@ -482,6 +483,7 @@ void setupRouting() {
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
+  httpServer.on("/device", HTTP_GET, handleDevice);
   httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
   httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
@@ -491,6 +493,7 @@ void setupRouting() {
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers
+  httpServer.on("/config/attenuator", HTTP_GET, handleGetAttenuatorConfig);
   httpServer.on("/config/pack", HTTP_GET, handleGetPackConfig);
   httpServer.on("/config/wand", HTTP_GET, handleGetWandConfig);
   httpServer.on("/config/smoke", HTTP_GET, handleGetSmokeConfig);
@@ -516,6 +519,7 @@ void setupRouting() {
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
 
   // Body Handlers
+  httpServer.addHandler(handleSaveAttenuatorConfig); // /config/attenuator/save
   httpServer.addHandler(handleSavePackConfig); // /config/pack/save
   httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
   httpServer.addHandler(handleSaveSmokeConfig); // /config/smoke/save
