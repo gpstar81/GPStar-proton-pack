@@ -81,11 +81,10 @@ void setup() {
   // RGB LEDs for effects (upper/lower) and user status (top).
   FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
 
-  // Change top indicator to red when device is on and ready, all others are off (black).
-  i_top_led_color = C_RED;
-  device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
-  device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
-  device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+  // Set all LEDs as off (black) until the device is ready.
+  device_leds[0] = getHueAsRGB(0, C_BLACK);
+  device_leds[1] = getHueAsRGB(1, C_BLACK);
+  device_leds[2] = getHueAsRGB(2, C_BLACK);
 
   // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);
@@ -132,9 +131,31 @@ void setup() {
 
   // Initialize critical timers.
   ms_fast_led.start(1);
+
+  #if defined(__XTENSA__)
+    // ESP - Get Special Device Preferences
+    preferences.begin("device", true); // Access namespace in read-only mode.
+    b_invert_leds = preferences.getBool("invert_led", false);
+    preferences.end();
+  #endif
 }
 
 void loop() {
+  // Call this on each loop in case the user changed their preference.
+  if(b_invert_leds){
+    // Flip the identification of the LEDs.
+    i_device_led[0] = 2; // Top
+    i_device_led[1] = 1; // Upper
+    i_device_led[2] = 0; // Lower
+  }
+  else {
+    // Use the expected order for the LEDs.
+    // aka. Defaults for the Arduino Nano and ESP32.
+    i_device_led[0] = 0; // Top
+    i_device_led[1] = 1; // Upper
+    i_device_led[2] = 2; // Lower
+  }
+
   #if defined(__XTENSA__)
     // ESP - Manage cleanup for old WebSocket clients.
     if(ms_cleanup.remaining() < 1) {
@@ -298,11 +319,11 @@ void mainLoop() {
     b_right_toggle_on = false;
     b_blink_blank = false;
     // Turn off the LEDs by setting to black.
-    if(device_leds[UPPER_LED] != CRGB::Black) {
-      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+    if(device_leds[i_device_led[1]] != CRGB::Black) {
+      device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_BLACK);
     }
-    if(device_leds[LOWER_LED] != CRGB::Black) {
-      device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    if(device_leds[i_device_led[2]] != CRGB::Black) {
+      device_leds[i_device_led[2]] = getHueAsRGB(i_device_led[2], C_BLACK);
     }
   }
 
@@ -407,7 +428,7 @@ void updateLEDs() {
       // Keep indicator solid.
       ms_top_blink.stop(); // Stop the blink timer which won't be used at this menu level.
       b_top_led_off = false; // Denotes LED is not in an off (blinking) state, but solid.
-      device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
+      device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_color, i_top_led_brightness);
     break;
 
     case MENU_2:
@@ -419,11 +440,11 @@ void updateLEDs() {
 
       if(b_top_led_off) {
         // Not completely dark but very dim (1/10th of the normal brightness).
-        device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, int(i_top_led_brightness / 10));
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_color, int(i_top_led_brightness / 10));
       }
       else {
         // Return to normal brightness for the current top LED color.
-        device_leds[TOP_LED] = getHueAsRGB(TOP_LED, i_top_led_color, i_top_led_brightness);
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_color, i_top_led_brightness);
       }
     break;
   }
@@ -432,15 +453,15 @@ void updateLEDs() {
     // Set upper LED based on alarm or overheating state, when connected.
     // Otherwise, use the standard pattern/color for illumination.
     if(b_pack_alarm || b_overheating) {
-      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_RED_FADE);
+      device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_RED_FADE);
     }
     else {
-      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_AMBER_PULSE);
+      device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_AMBER_PULSE);
     }
   }
   else {
-    if(device_leds[UPPER_LED] != CRGB::Black) {
-      device_leds[UPPER_LED] = getHueAsRGB(UPPER_LED, C_BLACK);
+    if(device_leds[i_device_led[1]] != CRGB::Black) {
+      device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_BLACK);
     }
   }
 
@@ -485,12 +506,12 @@ void updateLEDs() {
   // Update the lower LED based on the scheme determined above.
   if(!b_right_toggle_on || b_blink_blank) {
     // Turn off when right toggle is off or when mid-blink.
-    if(device_leds[LOWER_LED] != CRGB::Black) {
-      device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, C_BLACK);
+    if(device_leds[i_device_led[2]] != CRGB::Black) {
+      device_leds[i_device_led[2]] = getHueAsRGB(i_device_led[2], C_BLACK);
     }
   }
   else {
-    device_leds[LOWER_LED] = getHueAsRGB(LOWER_LED, i_scheme);
+    device_leds[i_device_led[2]] = getHueAsRGB(i_device_led[2], i_scheme);
   }
 }
 
