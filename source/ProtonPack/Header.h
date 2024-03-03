@@ -20,6 +20,12 @@
 #pragma once
 
 /*
+ * Audio
+*/
+enum AUDIO_DEVICES { A_NONE, A_GPSTAR_AUDIO, A_WAV_TRIGGER };
+enum AUDIO_DEVICES AUDIO_DEVICE;
+
+/*
  * The HasLab Power Cell has 13 LEDs.
  */
 #define HASLAB_POWERCELL_LED_COUNT 13
@@ -271,6 +277,12 @@ millisDelay ms_music_next_track;
 millisDelay ms_music_status_check;
 
 /*
+ * GPStar Audio
+ */
+const float f_gpstarAudio_volume_abs_min = 0.1f; // System (absolute) minimum volume possible.
+const float f_gpstarAudio_volume_abs_max = 1.0f; // System (absolute) maximum volume possible.
+
+/*
  *  Volume (0 = loudest, -70 = quietest)
  */
 uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
@@ -503,6 +515,7 @@ void playMusic();
 void stopMusic();
 void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
 void powercellDraw(uint8_t i_start = 0);
+float gpstarTrackVolumeCalc(int8_t i_track_volume, bool b_tmp_music = false);
 
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
