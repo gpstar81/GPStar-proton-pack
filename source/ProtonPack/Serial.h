@@ -1451,6 +1451,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_WAND_BEEP_SOUNDS:
+      //stopEffect(S_BEEPS_LOW);
+      //stopEffect(S_BEEPS);
+
       playEffect(S_BEEPS_LOW);
       playEffect(S_BEEPS);
     break;
