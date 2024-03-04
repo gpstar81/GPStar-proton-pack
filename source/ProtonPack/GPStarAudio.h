@@ -54,6 +54,7 @@ extern "C"
 #define GPSTAR_AUDIO_CMD_RESUME_TRACK               0x19
 #define GPSTAR_AUDIO_CMD_STOP_TRACK                 0x20
 #define GPSTAR_AUDIO_CMD_IS_TRACK_PLAYING           0x21
+#define GPSTAR_AUDIO_CMD_SET_TRACK_LOOP             0x22
 
 #define GPSTAR_AUDIO_ERROR_NONE					            0x00
 #define GPSTAR_AUDIO_ERROR_NOT_ENOUGH_BUFFER        0x01
@@ -103,6 +104,7 @@ uint8_t gpstarPlayTrack(uint16_t i_track, uint8_t mode);
 uint8_t gpstarTrackVolume(uint16_t i_track, float volume);
 uint8_t gpstarTrackFade(uint16_t i_track, float volume_target, uint16_t duration);
 uint8_t gpstarPullPacket(gpstarPacket* packet, uint32_t timeout);
+uint8_t gpstarSetTrackLoop(uint16_t i_track, bool b_loop);
 uint16_t gpstarGetTrackCount();
 
 bool gpstarIsTrackPlaying(uint16_t i_track);
@@ -215,6 +217,12 @@ public:
 
 		return (last_error == GPSTAR_AUDIO_ERROR_NONE);
 	}
+
+  void onSetLoop(uint16_t i_track, bool b_loop) {
+		last_error = gpstarSetTrackLoop(i_track, b_loop);
+
+		return (last_error == GPSTAR_AUDIO_ERROR_NONE);
+  }
 
 	inline uint8_t getLastError() { 
     return last_error; 
