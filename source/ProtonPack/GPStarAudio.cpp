@@ -638,6 +638,37 @@ uint8_t gpstarStopTrack(uint16_t track) {
   return GPSTAR_AUDIO_ERROR_NONE;
 }
 
+uint8_t gpstarSetTrackLoop(uint16_t track, bool b_loop) {
+	uint8_t cmd = GPSTAR_AUDIO_CMD_SET_TRACK_LOOP;
+  uint16_t len = 3;
+  uint8_t data;
+  uint8_t res;
+
+  uint8_t track1 = (uint8_t)track;
+  uint8_t track2 = (uint8_t)(track >> 8);
+  
+  uint8_t i_loop = 0;
+
+  if(b_loop == true) {
+    i_loop = 1;
+  }
+
+  gpstarStartOutput();
+  gpstarOutput(&cmd, 1);
+
+  if(!little_endian) {
+    len = SWAP16(len);
+  }
+
+  gpstarOutput((uint8_t*) &len, 2);
+  gpstarOutput(&track1, 1);
+  gpstarOutput(&track2, 1);
+  gpstarOutput(&i_loop, 1);
+  gpstarEndOutput();
+
+  return GPSTAR_AUDIO_ERROR_NONE;
+}
+
 uint8_t gpstarPlayTrack(uint16_t track, uint8_t mode) {
 	uint8_t cmd = GPSTAR_AUDIO_CMD_PLAY_GPSTAR_FILE;
   uint16_t len = 3;

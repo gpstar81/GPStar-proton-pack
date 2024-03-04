@@ -2724,14 +2724,39 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_MUSIC_TRACK_LOOP_TOGGLE:
-      // Loop the music track.
-      if(b_repeat_track == false) {
-        b_repeat_track = true;
-        w_trig.trackLoop(i_current_music_track, 1);
-      }
-      else {
-        b_repeat_track = false;
-        w_trig.trackLoop(i_current_music_track, 0);
+      switch(AUDIO_DEVICE) {
+        case A_WAV_TRIGGER:
+          // Loop the music track.
+          if(b_repeat_track == false) {
+            b_repeat_track = true;
+            w_trig.trackLoop(i_current_music_track, 1);
+          }
+          else {
+            b_repeat_track = false;
+            w_trig.trackLoop(i_current_music_track, 0);
+          }
+        break;
+
+        case A_GPSTAR_AUDIO:
+          // Loop the music track.
+          if(b_repeat_track == false) {
+            b_repeat_track = true;
+            GPStarAudio.onSetLoop(i_current_music_track, true);
+          }
+          else {
+            b_repeat_track = false;
+            GPStarAudio.onSetLoop(i_current_music_track, false);
+          }
+        break;
+
+        case A_NONE:
+          if(b_repeat_track == false) {
+            b_repeat_track = true;
+          }
+          else {
+            b_repeat_track = false;
+          }
+        break;
       }
     break;
 
