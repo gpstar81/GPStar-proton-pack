@@ -29,6 +29,10 @@
 #define debugln(x)
 #endif
 
+// For experimentation only, must be defined prior to the FastLED library inclusion.
+//#define FASTLED_ALLOW_INTERRUPTS 0
+//#define FASTLED_INTERRUPT_RETRY_COUNT 1
+
 // 3rd-Party Libraries
 #include <EEPROM.h>
 #include <millisDelay.h>
@@ -69,6 +73,8 @@ void setup() {
   setupWavTrigger();
 
   // Rotary encoder for volume control.
+  // Uses an ISR (interrupt service routine) to know when the rotary encoder
+  // has been turned, and compares pin readings to get a +/- value changed.
   pinMode(encoder_pin_a, INPUT_PULLUP);
   pinMode(encoder_pin_b, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(encoder_pin_a), readEncoder, CHANGE);
