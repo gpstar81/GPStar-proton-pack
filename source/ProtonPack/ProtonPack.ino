@@ -220,11 +220,11 @@ void setup() {
     break;
 
     case A_GPSTAR_AUDIO:
-      // Nothing for now.
+      GPStarAudio.setVolume(i_volume_master);
     break;
 
     case A_NONE:
-      // None
+      // Nothing.
     break;
   }
 }
@@ -240,7 +240,7 @@ void loop() {
     break;
 
     case A_NONE:
-      // None
+      // Nothing.
     break;
   }
   
@@ -4006,7 +4006,7 @@ void adjustVolumeEffectsGain() {
       w_trig.trackGain(S_PACK_RIBBON_ALARM_1, i_volume_effects);
       w_trig.trackGain(S_ALARM_LOOP, i_volume_effects);
       w_trig.trackGain(S_RIBBON_CABLE_START, i_volume_effects);
-      w_trig.trackGain(S_PACK_BEEPING, i_volume_effects); // Not used.
+      w_trig.trackGain(S_PACK_BEEPING, i_volume_effects); // Not used ?
       w_trig.trackGain(S_BEEP_8, i_volume_effects);
       w_trig.trackGain(S_SHUTDOWN, i_volume_effects);
       w_trig.trackGain(S_GB2_PACK_START, i_volume_effects);
@@ -4035,7 +4035,50 @@ void adjustVolumeEffectsGain() {
     break;
 
     case A_GPSTAR_AUDIO:
-      // Nothing for now.
+      float f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_effects);
+
+      GPStarAudio.trackVolume(S_BEEPS, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_BEEPS_ALT, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_BEEPS_LOW, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_BEEPS_BARGRAPH, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_WAND_BOOTUP, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_BEEP_WAND_S1, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_BEEP_WAND_S2, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_BEEP_WAND_S3, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_BEEP_WAND_S4, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_BEEP_WAND_S5, f_gpstar_track_volume);
+
+      GPStarAudio.trackVolume(S_PACK_RIBBON_ALARM_1, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_ALARM_LOOP, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_RIBBON_CABLE_START, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_PACK_BEEPING, f_gpstar_track_volume); // Not used ?
+      GPStarAudio.trackVolume(S_BEEP_8, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_SHUTDOWN, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_GB2_PACK_START, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_GB2_PACK_LOOP, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_GB2_PACK_OFF, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_PACK_SHUTDOWN, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_PACK_SHUTDOWN_AFTERLIFE, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_IDLE_LOOP, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_BOOTUP, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_PACK_STARTUP, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_PACK_IDLE_LOOP, f_gpstar_track_volume);
+
+      GPStarAudio.trackVolume(S_PACK_SLIME_TANK_LOOP, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_STASIS_IDLE_LOOP, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_MESON_IDLE_LOOP, f_gpstar_track_volume);
+
+      f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_effects - 10);
+      
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_IDLE_2, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_1, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_2, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_IDLE_1, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_IDLE_2, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_DOWN_2, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_DOWN_1, f_gpstar_track_volume);
     break;
 
     case A_NONE:
@@ -4743,7 +4786,7 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
   }
 }
 
-float gpstarTrackVolumeCalc(int8_t i_track_volume, bool b_tmp_music) {
+float gpstarTrackVolumeCalc(int8_t i_track_volume) {
   if(i_track_volume > 0) {
     i_track_volume = 0;
   }
@@ -4752,15 +4795,7 @@ float gpstarTrackVolumeCalc(int8_t i_track_volume, bool b_tmp_music) {
     i_track_volume = -100;
   }
 
-  float f_track_volume = i_track_volume * -1;
-  float f_gpstar_track_volume = 0.0f;
-
-  if(b_tmp_music == true) {
-    f_gpstar_track_volume = (float)((i_volume_music_percentage / 100) - (f_track_volume / 100));
-  }
-  else {
-    f_gpstar_track_volume = (float)((i_volume_effects_percentage / 100) - (f_track_volume / 100));
-  }
+  float f_gpstar_track_volume = (float)1.00 + (float)i_track_volume / 100;
 
   if(f_gpstar_track_volume < f_gpstarAudio_volume_abs_min) {
     f_gpstar_track_volume = f_gpstarAudio_volume_abs_min;
@@ -4796,7 +4831,7 @@ void playMusic() {
       break;
 
       case A_GPSTAR_AUDIO:
-        float f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music, true);
+        float f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
 
         uint8_t i_tmp_playback_style = GPSTAR_PLAY_NORMAL;
         

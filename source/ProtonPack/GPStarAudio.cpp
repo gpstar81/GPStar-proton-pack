@@ -554,6 +554,7 @@ uint16_t gpstarGetTrackCount() {
 }
 
 uint8_t gpstarSetVolume(int16_t volume) {
+  // 0 is default volume. Range is from -60 to +25.
   uint8_t cmd = GPSTAR_AUDIO_CMD_SET_VOLUME;
 	uint8_t res;
 

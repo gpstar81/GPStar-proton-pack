@@ -515,7 +515,7 @@ void playMusic();
 void stopMusic();
 void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
 void powercellDraw(uint8_t i_start = 0);
-float gpstarTrackVolumeCalc(int8_t i_track_volume, bool b_tmp_music = false);
+float gpstarTrackVolumeCalc(int8_t i_track_volume);
 
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
