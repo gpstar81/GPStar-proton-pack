@@ -47,6 +47,27 @@ const char DEVICE_page[] PROGMEM = R"=====(
         <span class="slider round"></span>
       </label>
     </div>
+    <div class="setting">
+      <b class="labelSwitch">Enable Piezo Buzzer:</b>
+      <label class="switch">
+        <input id="buzzer" name="buzzer" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Enable Vibration:</b>
+      <label class="switch">
+        <input id="vibration" name="vibration" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Feedback on Overheat:</b>
+      <label class="switch">
+        <input id="overheat" name="overheat" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
   </div>
 
   <div class="block">
@@ -62,8 +83,8 @@ const char DEVICE_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      // Wait 0.4s for serial communications between devices.
-      setTimeout(getSettings, 400);
+      // Wait 0.1s for page to fully load.
+      setTimeout(getSettings, 100);
     }
 
     function isJsonString(str) {
@@ -94,6 +115,9 @@ const char DEVICE_page[] PROGMEM = R"=====(
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
             document.getElementById("invertLEDs").checked = settings.invertLEDs ? true : false;
+            document.getElementById("buzzer").checked = settings.buzzer ? true : false;
+            document.getElementById("vibration").checked = settings.vibration ? true : false;
+            document.getElementById("overheat").checked = settings.overheat ? true : false;
           }
         }
       };
@@ -104,7 +128,10 @@ const char DEVICE_page[] PROGMEM = R"=====(
     function saveSettings() {
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
-        invertLEDs: document.getElementById("invertLEDs").checked ? 1 : 0
+        invertLEDs: document.getElementById("invertLEDs").checked ? 1 : 0,
+        buzzer: document.getElementById("buzzer").checked ? 1 : 0,
+        vibration: document.getElementById("vibration").checked ? 1 : 0,
+        overheat: document.getElementById("overheat").checked ? 1 : 0
       };
       var body = JSON.stringify(settings);
 
