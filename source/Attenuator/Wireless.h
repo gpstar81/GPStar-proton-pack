@@ -186,27 +186,29 @@ bool startAccesPoint() {
 
 bool startExternalWifi() {
   // Check for stored network preferences and attempt to connect as a client.
-  preferences.begin("network", true); // Access namespace in read-only mode.
   #if defined(RESET_AP_SETTINGS)
     // Doesn't actually "reset" but forces default values which will allow
     // the WiFi preferences to be reset by the user, then re-flash after
     // commenting out the RESET_AP_SETTINGS definition in Configuration.h
   #else
     // Use either the stored preferences or an expected default value.
+    preferences.begin("network", true); // Access namespace in read-only mode.
     b_wifi_enabled = preferences.getBool("enabled", false);
     wifi_ssid = preferences.getString("ssid", "");
     wifi_pass = preferences.getString("password", "");
     wifi_address = preferences.getString("address", "");
     wifi_subnet = preferences.getString("subnet", "");
     wifi_gateway = preferences.getString("gateway", "");
+    preferences.end();
   #endif
-  preferences.end();
 
   // User wants to utilize the external WiFi network and has valid SSID and password.
   if(b_wifi_enabled && wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
     uint8_t attemptCount = 0;
 
     while (attemptCount < maxAttempts) {
+      WiFi.persistent(false); // Don't write SSID/Password to flash memory.
+
       // Attempt to connect to a specified WiFi network.
       WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
 
@@ -256,6 +258,8 @@ bool startExternalWifi() {
           Serial.print(" / ");
           Serial.println(subnetMask);
         #endif
+
+        WiFi.setAutoReconnect(true); // Reconnect if disconnected.
 
         return true; // Exit the loop if connected successfully.
       } else {
