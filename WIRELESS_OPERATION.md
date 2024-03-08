@@ -64,11 +64,21 @@ These links allow you to change or control aspects of the device.
 
 <div style="clear:both"></div>
 
+## Attenuator Preferences
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Attenuator.jpg"/>
+
+Set options related specifically to the Attenuator.
+
+**Note:** If you installed the Frutto Technology electronics into your DIY or GPStar Attenuator shell and found that the top and lower LEDs are displaying the wrong colors, you can use the "Invert" option to put the 3 lights into the correct order.
+
+<div style="clear:both"></div>
+
 ## Pack Preferences
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Pack.jpg"/>
 
-Set options related specifically to the Proton Pack.
+Set options related specifically to the Proton Pack. Options such as the color/saturation sliders will only take effect if you have installed the Frutto Technology powercell and cyclotron lid light kits. Similarly, the Video Game mode option will have no effect on the stock Haslab LEDs.
 
 **Note:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
 
@@ -88,7 +98,7 @@ Set options related specifically to the Neutrona Wand.
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Smoke.jpg"/>
 
-Adjust overall smoke effects (toggle on/off) and adjust per-level effects.
+Adjust overall smoke effects (toggle on/off) and adjust per-level effects. Naturally, these options will have no effect on operation without a smoke kit installed.
 
 **Note:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
 
