@@ -109,6 +109,7 @@ String getAttenuatorConfig() {
   jsonBody["buzzer"] = b_enable_buzzer;
   jsonBody["vibration"] = b_enable_vibration;
   jsonBody["overheat"] = b_overheat_feedback;
+  jsonBody["radLensIdle"] = RAD_LENS_IDLE;
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -505,16 +506,42 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
   String result;
   try {
     // General Options
-    b_invert_leds = jsonBody["invertLEDs"].as<boolean>();
-    b_enable_buzzer = jsonBody["buzzer"].as<boolean>();
-    b_enable_vibration = jsonBody["vibration"].as<boolean>();
-    b_overheat_feedback = jsonBody["overheat"].as<boolean>();
+    if(jsonBody["invertLEDs"].is<boolean>()) {
+      // Inverts the order of the LEDs as seen by the device.
+      b_invert_leds = jsonBody["invertLEDs"].as<boolean>();
+    }
+    if(jsonBody["buzzer"].is<boolean>()) {
+      // Enable/disable the buzzer completely.
+      b_enable_buzzer = jsonBody["buzzer"].as<boolean>();
+    }
+    if(jsonBody["vibration"].is<boolean>()) {
+      // Enable/disable vibration completely.
+      b_enable_vibration = jsonBody["vibration"].as<boolean>();
+    }
+    if(jsonBody["overheat"].is<boolean>()) {
+      // Enable/disable all buzzer/vibration feedback during overheat/alarm.
+      b_overheat_feedback = jsonBody["overheat"].as<boolean>();
+    }
+    if(jsonBody["radLensIdle"].is<unsigned short>()) {
+      switch(jsonBody["radLensIdle"].as<unsigned short>()) {
+        case 0:
+          RAD_LENS_IDLE = AMBER_PULSE;
+        break;
+        case 1:
+          RAD_LENS_IDLE = ORANGE_FADE;
+        break;
+        case 2:
+          RAD_LENS_IDLE = RED_FADE;
+        break;
+      }
+    }
 
     preferences.begin("device", false); // Access namespace in read/write mode.
     preferences.putBool("invert_led", b_invert_leds);
     preferences.putBool("buzzer_enabled", b_enable_buzzer);
     preferences.putBool("vibration_enabled", b_enable_vibration);
     preferences.putBool("overheat_feedback", b_overheat_feedback);
+    preferences.putShort("radiation_idle", RAD_LENS_IDLE);
     preferences.end();
 
     jsonBody.clear();

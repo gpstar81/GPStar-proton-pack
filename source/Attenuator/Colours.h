@@ -39,6 +39,7 @@ enum colours {
   C_BLUE,
   C_PURPLE,
   C_AMBER_PULSE,
+  C_ORANGE_FADE,
   C_RED_FADE,
   C_REDGREEN,
   C_RAINBOW,
@@ -117,8 +118,8 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
     case C_AMBER_PULSE:
       // Fade between amber (24) and orange (32).
-      if(i_curr_colour[i_device] < 24 || i_curr_colour[i_device] > 32) {
-        i_curr_colour[i_device] = 24; // Reset if out of range.
+      if(i_curr_colour[i_device] < 20 || i_curr_colour[i_device] > 32) {
+        i_curr_colour[i_device] = 20; // Reset if out of range.
       }
 
       // Set the time delay for color changes per device.
@@ -128,12 +129,36 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         i_count[i_device]++;
         if(i_count[i_device] % 32 == 0) {
           i_curr_colour[i_device] = (i_curr_colour[i_device] + 1) % 32;
-          i_count[i_device] = 24; // Reset counter.
+          i_count[i_device] = 20; // Reset counter.
         }
         ms_color_change[i_device].start(i_change_delay[i_device]);
       }
 
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
+    break;
+
+    case C_ORANGE_FADE:
+      // Set the time delay for color changes per device.
+      i_change_delay[i_device] = 10;
+
+      // Increments brightness by X steps every X milliseconds.
+      // Uses the +/- value to increment or decrement by the given value.
+      if(ms_color_change[i_device].remaining() < 1) {
+        if(i_curr_bright[i_device] <= 1) {
+          // Prime for the climb back to full brightness.
+          i_curr_bright[i_device] = 1;
+          i_next_bright[i_device] = 3;
+        }
+        if(i_curr_bright[i_device] >= 254) {
+          // Prime for the climb back to full darkness.
+          i_curr_bright[i_device] = 254;
+          i_next_bright[i_device] = -3;
+        }
+        i_curr_bright[i_device] = i_curr_bright[i_device] + i_next_bright[i_device];
+        ms_color_change[i_device].start(i_change_delay[i_device]);
+      }
+
+      return CHSV(28, 255, i_curr_bright[i_device]);
     break;
 
     case C_RED_FADE:

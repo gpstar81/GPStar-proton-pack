@@ -66,6 +66,9 @@ void setup() {
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
 
+  // Set a default animation for the radiation indicator.
+  RAD_LENS_IDLE = AMBER_PULSE;
+
   if(!b_wait_for_pack) {
     // If not waiting for the pack set power level to 5.
     POWER_LEVEL = LEVEL_5;
@@ -140,6 +143,17 @@ void setup() {
     b_enable_buzzer = preferences.getBool("buzzer_enabled", true);
     b_enable_vibration = preferences.getBool("vibration_enabled", true);
     b_overheat_feedback = preferences.getBool("overheat_feedback", true);
+    switch(preferences.getShort("radiation_idle", 0)) {
+      case 0:
+        RAD_LENS_IDLE = AMBER_PULSE;
+      break;
+      case 1:
+        RAD_LENS_IDLE = ORANGE_FADE;
+      break;
+      case 2:
+        RAD_LENS_IDLE = RED_FADE;
+      break;
+    }
     preferences.end();
   #endif
 }
@@ -468,7 +482,15 @@ void updateLEDs() {
       device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_RED_FADE);
     }
     else {
-      device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_AMBER_PULSE);
+      switch(RAD_LENS_IDLE) {
+        case ORANGE_FADE:
+          device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_ORANGE_FADE);
+        break;
+        case AMBER_PULSE:
+        default:
+          device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_AMBER_PULSE);
+        break;
+      }
     }
   }
   else {
