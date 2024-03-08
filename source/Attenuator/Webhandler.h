@@ -104,13 +104,11 @@ String getAttenuatorConfig() {
   String equipSettings;
   jsonBody.clear();
 
-  if(!b_wait_for_pack) {
-    // Provide current values for the Attenuator device.
-    jsonBody["invertLEDs"] = b_invert_leds;
-    jsonBody["buzzer"] = b_enable_buzzer;
-    jsonBody["vibration"] = b_enable_vibration;
-    jsonBody["overheat"] = b_overheat_feedback;
-  }
+  // Provide current values for the Attenuator device.
+  jsonBody["invertLEDs"] = b_invert_leds;
+  jsonBody["buzzer"] = b_enable_buzzer;
+  jsonBody["vibration"] = b_enable_vibration;
+  jsonBody["overheat"] = b_overheat_feedback;
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);

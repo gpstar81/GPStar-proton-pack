@@ -373,6 +373,7 @@ void mainLoop() {
 void buzzOn(uint16_t i_freq) {
   if(b_enable_buzzer) {
     if(!b_buzzer_on) {
+      // Ensures only a single tone is emitted per call to this method.
       tone(BUZZER_PIN, i_freq);
       ms_buzzer.start(i_buzzer_max_time);
     }
@@ -389,6 +390,7 @@ void buzzOff() {
 void useVibration(uint16_t i_duration) {
   if(b_enable_vibration) {
     if(!b_vibrate_on) {
+      // Ensures only vibration is started once per call to this method.
       #if defined(__XTENSA__)
         // ESP32
         ledcWrite(PWM_CHANNEL, i_max_power);
