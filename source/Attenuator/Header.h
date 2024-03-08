@@ -54,6 +54,16 @@ millisDelay ms_fast_led;
 const uint8_t i_fast_led_delay = 3;
 
 /*
+ * LED Animation Options
+ */
+enum LED_ANIMATION : uint16_t {
+  AMBER_PULSE = 0,
+  ORANGE_FADE = 1,
+  RED_FADE = 2
+};
+enum LED_ANIMATION RAD_LENS_IDLE;
+
+/*
  * Manage the color and blink pattern for the top LED.
  */
 millisDelay ms_top_blink; // Allows the top LED to blink for a menu state.

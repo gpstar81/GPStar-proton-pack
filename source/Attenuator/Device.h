@@ -68,6 +68,13 @@ const char DEVICE_page[] PROGMEM = R"=====(
         <span class="slider round"></span>
       </label>
     </div>
+    <div class="setting">
+      <b>Rad Lens Idle:</b>
+      <select id="radLensIdle" name="radLensIdle">
+        <option value="0">Amber Pulse</option>
+        <option value="1">Orange Fade</option>
+      </select>
+    </div>
   </div>
 
   <div class="block">
@@ -118,6 +125,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
             document.getElementById("buzzer").checked = settings.buzzer ? true : false;
             document.getElementById("vibration").checked = settings.vibration ? true : false;
             document.getElementById("overheat").checked = settings.overheat ? true : false;
+            document.getElementById("radLensIdle").value = settings.radLensIdle || 0; // Default: 0 [Amber Pulse]
           }
         }
       };
@@ -131,7 +139,8 @@ const char DEVICE_page[] PROGMEM = R"=====(
         invertLEDs: document.getElementById("invertLEDs").checked ? 1 : 0,
         buzzer: document.getElementById("buzzer").checked ? 1 : 0,
         vibration: document.getElementById("vibration").checked ? 1 : 0,
-        overheat: document.getElementById("overheat").checked ? 1 : 0
+        overheat: document.getElementById("overheat").checked ? 1 : 0,
+        radLensIdle: parseInt(document.getElementById("radLensIdle").value || 0, 10)
       };
       var body = JSON.stringify(settings);
 
