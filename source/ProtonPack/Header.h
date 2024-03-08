@@ -54,13 +54,30 @@
  */
 #define JEWEL_NFILTER_LED_COUNT 7
 
- /*
+/*
+ * The FastLED library disables interrupts when it changes values on addressable LEDs.
+ * This takes ~30μs (about 30 microseconds) per LED for changes for common 3-wire circuits,
+ * such as the WS281* type LEDs which are commonly used across this kit. Essentially this
+ * means "mo' lights, mo' problems" in terms of disrupting things like serial data.
+ * https://github.com/FastLED/FastLED/wiki/Interrupt-problems
+ *
+ * In the case of the Proton Pack we have 2 chains of addressable LEDs:
+ *  1) The "pack" lights which consist of the Powercell, Cyclotron, and N-Filter.
+ *  2) The inner cyclotron "cake" plus anything beyond that point.
+ *
+ * So for every 100 LEDs at 30μs each to update, that's 0.1ms of interrupt disruption. For
+ * a microcontroller that's a lot of time so we need to keep those updates to a minimum.
+ * The best way to do that while still providing all of the lights desired is to keep those
+ * chains of lights to a minimum where possible. Thus, we only support a certain # of LEDs.
+ */
+
+/*
  * Total number of LEDs in the standard Proton Pack configuration.
  * Power Cell and Cyclotron Lid LEDs + optional N-Filter NeoPixel.
- * 25 LEDs in the stock HasLab kit. 13 in the Power Cell and 12 in the Cyclotron lid.
- * 7 additional (32 in total) for a NeoPixel jewel that you can put into the N-Filter (optional).
- * This jewel chains off Cyclotron lens #4 in the lid (top left lens).
- * Max amount of LEDs allowed: 15 for the Power Cell and 40 for the Cyclotron lid.
+ *    25 LEDs in the stock HasLab kit: 13 in the Power Cell and 12 in the Cyclotron lid.
+ *    Add 7 (now 32 in total) for a NeoPixel jewel that you can put into the N-Filter (optional)
+ *    That jewel chains off Cyclotron lens assembly #4 in the lid (top left lens).
+ * Max 62 LEDs: 15 for the Power Cell, 40 for the Cyclotron lid, and 7 for the jewel.
  */
 const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
@@ -105,9 +122,7 @@ CRGB cyclotron_leds[i_max_inner_cyclotron_leds];
  * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
  */
 const uint8_t i_fast_led_delay = 6;
-const uint16_t i_fast_led_bounce_delay = 200;
 millisDelay ms_fast_led;
-millisDelay ms_fast_led_bounce;
 
 /*
  * Power Cell LEDs control.

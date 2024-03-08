@@ -135,7 +135,11 @@ void setup() {
   #if defined(__XTENSA__)
     // ESP - Get Special Device Preferences
     preferences.begin("device", true); // Access namespace in read-only mode.
+    // Return stored values if available, otherwise use a default value.
     b_invert_leds = preferences.getBool("invert_led", false);
+    b_enable_buzzer = preferences.getBool("buzzer_enabled", true);
+    b_enable_vibration = preferences.getBool("vibration_enabled", true);
+    b_overheat_feedback = preferences.getBool("overheat_feedback", true);
     preferences.end();
   #endif
 }
@@ -305,8 +309,10 @@ void mainLoop() {
         else {
           // Denote that certain LEDs should be in the lit phase of blinking.
           b_blink_blank = false;
-          useVibration(i_vibrate_min_time); // Provide physical feedback.
-          buzzOn(523); // Tone as note C4
+          if(b_overheat_feedback) {
+            useVibration(i_vibrate_min_time); // Provide physical feedback.
+            buzzOn(523); // Tone as note C4
+          }
         }
       }
     }
@@ -365,11 +371,14 @@ void mainLoop() {
 }
 
 void buzzOn(uint16_t i_freq) {
-  if(!b_buzzer_on) {
-    tone(BUZZER_PIN, i_freq);
-    ms_buzzer.start(i_buzzer_max_time);
+  if(b_enable_buzzer) {
+    if(!b_buzzer_on) {
+      // Ensures only a single tone is emitted per call to this method.
+      tone(BUZZER_PIN, i_freq);
+      ms_buzzer.start(i_buzzer_max_time);
+    }
+    b_buzzer_on = true;
   }
-  b_buzzer_on = true;
 }
 
 void buzzOff() {
@@ -379,19 +388,22 @@ void buzzOff() {
 }
 
 void useVibration(uint16_t i_duration) {
-  if(!b_vibrate_on) {
-    #if defined(__XTENSA__)
-      // ESP32
-      ledcWrite(PWM_CHANNEL, i_max_power);
-    #else
-      // Nano
-      analogWrite(VIBRATION_PIN, i_max_power);
-    #endif
+  if(b_enable_vibration) {
+    if(!b_vibrate_on) {
+      // Ensures only vibration is started once per call to this method.
+      #if defined(__XTENSA__)
+        // ESP32
+        ledcWrite(PWM_CHANNEL, i_max_power);
+      #else
+        // Nano
+        analogWrite(VIBRATION_PIN, i_max_power);
+      #endif
 
-    // Set timer for shorter of given duration or max runtime.
-    ms_vibrate.start(min(i_duration, i_vibrate_max_time));
+      // Set timer for shorter of given duration or max runtime.
+      ms_vibrate.start(min(i_duration, i_vibrate_max_time));
+    }
+    b_vibrate_on = true;
   }
-  b_vibrate_on = true;
 }
 
 void vibrateOff() {

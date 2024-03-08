@@ -104,10 +104,11 @@ String getAttenuatorConfig() {
   String equipSettings;
   jsonBody.clear();
 
-  if(!b_wait_for_pack) {
-    // Provide a flag to indicate prefs were received via serial coms.
-    jsonBody["invertLEDs"] = b_invert_leds;
-  }
+  // Provide current values for the Attenuator device.
+  jsonBody["invertLEDs"] = b_invert_leds;
+  jsonBody["buzzer"] = b_enable_buzzer;
+  jsonBody["vibration"] = b_enable_vibration;
+  jsonBody["overheat"] = b_overheat_feedback;
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -505,9 +506,15 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
   try {
     // General Options
     b_invert_leds = jsonBody["invertLEDs"].as<boolean>();
+    b_enable_buzzer = jsonBody["buzzer"].as<boolean>();
+    b_enable_vibration = jsonBody["vibration"].as<boolean>();
+    b_overheat_feedback = jsonBody["overheat"].as<boolean>();
 
     preferences.begin("device", false); // Access namespace in read/write mode.
-    preferences.putBool("invert_led", b_invert_leds); // Store current value.
+    preferences.putBool("invert_led", b_invert_leds);
+    preferences.putBool("buzzer_enabled", b_enable_buzzer);
+    preferences.putBool("vibration_enabled", b_enable_vibration);
+    preferences.putBool("overheat_feedback", b_overheat_feedback);
     preferences.end();
 
     jsonBody.clear();

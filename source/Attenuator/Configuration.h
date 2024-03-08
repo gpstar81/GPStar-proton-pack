@@ -42,6 +42,13 @@
 //#define RESET_AP_SETTINGS
 
 /*
+ * Enable feedback effects
+ */
+bool b_enable_buzzer = true; // Enable/disable all buzzing via the local piezo buzzer
+bool b_enable_vibration = true; // Enable/disable all effects via the vibration motor
+bool b_overheat_feedback = true; // Enable/disable buzzing/vibration on pack overheat
+
+/*
  * Wait for pack communication or operate without pack integration.
  */
 bool b_wait_for_pack = true;
