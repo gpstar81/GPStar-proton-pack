@@ -293,8 +293,7 @@ const unsigned int i_1984_fade_in_delay = 210;
 
 /*
  * Set to true to enable the onboard amplifier on the WAV Trigger.
- * Turning off the onboard amp draws less power.
- * If using the AUX cable jack, the amp can be disabled to save power.
+ * This is for the Wav Trigger only and does not affect GPStar Audio.
  * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */
