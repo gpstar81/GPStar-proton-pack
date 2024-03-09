@@ -376,7 +376,7 @@ void handlePackOff(AsyncWebServerRequest *request) {
 }
 
 void handleAttenuatePack(AsyncWebServerRequest *request) {
-  if(i_speed_multiplier > 1) {
+  if(i_speed_multiplier > 2) {
     // Only send command to pack if cyclotron is not "normal".
     debug("Cancel Overheat Warning");
     attenuatorSerialSend(A_WARNING_CANCELLED);
@@ -506,25 +506,25 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
 
   String result;
   try {
-    // General Options
-    if(jsonBody["invertLEDs"].is<boolean>()) {
+    // General Options - Returned as unsigned integers
+    if(jsonBody["invertLEDs"].is<unsigned short>()) {
       // Inverts the order of the LEDs as seen by the device.
       b_invert_leds = jsonBody["invertLEDs"].as<boolean>();
     }
-    if(jsonBody["buzzer"].is<boolean>()) {
+    if(jsonBody["buzzer"].is<unsigned short>()) {
       // Enable/disable the buzzer completely.
       b_enable_buzzer = jsonBody["buzzer"].as<boolean>();
     }
-    if(jsonBody["vibration"].is<boolean>()) {
+    if(jsonBody["vibration"].is<unsigned short>()) {
       // Enable/disable vibration completely.
       b_enable_vibration = jsonBody["vibration"].as<boolean>();
     }
-    if(jsonBody["overheat"].is<boolean>()) {
+    if(jsonBody["overheat"].is<unsigned short>()) {
       // Enable/disable all buzzer/vibration feedback during overheat/alarm.
       b_overheat_feedback = jsonBody["overheat"].as<boolean>();
     }
-    if(jsonBody["firing"].is<boolean>()) {
-      // Enable/disable all buzzer/vibration feedback during overheat/alarm.
+    if(jsonBody["firing"].is<unsigned short>()) {
+      // Enable/disable vibration when throwing a stream.
       b_firing_feedback = jsonBody["firing"].as<boolean>();
     }
     if(jsonBody["radLensIdle"].is<unsigned short>()) {

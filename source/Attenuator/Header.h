@@ -98,8 +98,8 @@ millisDelay ms_buzzer;
 millisDelay ms_vibrate;
 bool b_buzzer_on = false;
 bool b_vibrate_on = false;
-const uint8_t i_min_power = 0;
-const uint8_t i_max_power = 255;
+const uint8_t i_min_power = 0; // Essentially a "low" state (off).
+const uint8_t i_max_power = 255; // Essentially a "high" state (on).
 const uint16_t i_buzzer_max_time = 300; // Longest duration for a standalone "beep".
 const uint16_t i_vibrate_min_time = 500; // Minimum runtime for vibration motor.
 const uint16_t i_vibrate_max_time = 1500; // Maximum runtime for vibration motor.

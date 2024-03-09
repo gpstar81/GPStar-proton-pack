@@ -464,17 +464,16 @@ String getPower() {
 String getCyclotronState() {
   switch(i_speed_multiplier) {
     case 1:
-      return (b_overheating ? "Recovery" : "Normal");
+      return (b_overheating ? "Recovery" : "Normal"); // An "idle" state.
     break;
     case 2:
-      return "Active";
+      return "Active"; // Typical for throwing a stream for an extended period.
     break;
     case 3:
-      return "Warning";
+      return "Warning"; // Considered to be in a "pre-overheat" state.
     break;
     default:
-      // For anything above level 3.
-      return "Critical";
+      return "Critical"; // For anything above a 3x speed increase.
     break;
   }
 }
