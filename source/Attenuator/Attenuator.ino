@@ -66,6 +66,9 @@ void setup() {
   // Bootup into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
 
+  // Set a default animation for the radiation indicator.
+  RAD_LENS_IDLE = AMBER_PULSE;
+
   if(!b_wait_for_pack) {
     // If not waiting for the pack set power level to 5.
     POWER_LEVEL = LEVEL_5;
@@ -135,7 +138,23 @@ void setup() {
   #if defined(__XTENSA__)
     // ESP - Get Special Device Preferences
     preferences.begin("device", true); // Access namespace in read-only mode.
+    // Return stored values if available, otherwise use a default value.
     b_invert_leds = preferences.getBool("invert_led", false);
+    b_enable_buzzer = preferences.getBool("buzzer_enabled", true);
+    b_enable_vibration = preferences.getBool("vibration_enabled", true);
+    b_overheat_feedback = preferences.getBool("overheat_feedback", true);
+    b_firing_feedback = preferences.getBool("firing_feedback", false);
+    switch(preferences.getShort("radiation_idle", 0)) {
+      case 0:
+        RAD_LENS_IDLE = AMBER_PULSE;
+      break;
+      case 1:
+        RAD_LENS_IDLE = ORANGE_FADE;
+      break;
+      case 2:
+        RAD_LENS_IDLE = RED_FADE;
+      break;
+    }
     preferences.end();
   #endif
 }
@@ -279,8 +298,13 @@ void mainLoop() {
   if(switch_right.getState() == LOW) {
     b_right_toggle_on = true;
 
-    // If in pre-overheat warning, overheat, or alarm modes...
-    if((b_firing && i_speed_multiplier > 1) || b_overheating || b_pack_alarm) {
+    if(b_firing && i_speed_multiplier <= 2 && b_firing_feedback && !b_overheating && !b_pack_alarm) {
+      // Give physical feedback through vibration while wand is firing, but not in an overheat/alarm state.
+      useVibration(i_vibrate_min_time); // Use short bursts as this may be called multiple times in a row.
+    }
+    else if((b_firing && i_speed_multiplier > 2) || b_overheating || b_pack_alarm) {
+      // If in pre-overheat warning, overheat, or alarm modes...
+
       // Sets a timer value proportional to the speed of the cyclotron.
       uint16_t i_blink_time = int(i_blink_leds / i_speed_multiplier);
 
@@ -289,7 +313,7 @@ void mainLoop() {
       }
 
       if(ms_blink_leds.isRunning()) {
-        if(b_firing && i_speed_multiplier > 1 && !b_overheating) {
+        if(b_firing && i_speed_multiplier >= 3 && !b_overheating) {
           // Switch to a modified bargraph pattern for the pre-overheat (venting)
           // warning while the wand is still firing.
           BARGRAPH_PATTERN = BG_INNER_PULSE;
@@ -305,8 +329,10 @@ void mainLoop() {
         else {
           // Denote that certain LEDs should be in the lit phase of blinking.
           b_blink_blank = false;
-          useVibration(i_vibrate_min_time); // Provide physical feedback.
-          buzzOn(523); // Tone as note C4
+          if(b_overheat_feedback) {
+            useVibration(i_vibrate_min_time); // Provide physical feedback.
+            buzzOn(523); // Tone as note C4
+          }
         }
       }
     }
@@ -331,12 +357,12 @@ void mainLoop() {
   updateLEDs();
 
   // Turn off buzzer if timer finished.
-  if(b_buzzer_on && ms_buzzer.justFinished()) {
+  if(ms_buzzer.justFinished() || ms_buzzer.remaining() < 1) {
     buzzOff();
   }
 
   // Turn off vibration if timer finished.
-  if(b_vibrate_on && ms_vibrate.justFinished()) {
+  if(ms_vibrate.justFinished() || ms_vibrate.remaining() < 1) {
     vibrateOff();
   }
 
@@ -365,45 +391,55 @@ void mainLoop() {
 }
 
 void buzzOn(uint16_t i_freq) {
-  if(!b_buzzer_on) {
-    tone(BUZZER_PIN, i_freq);
-    ms_buzzer.start(i_buzzer_max_time);
+  if(b_enable_buzzer) {
+    if(!b_buzzer_on) {
+      // Ensures only a single tone is emitted per call to this method.
+      tone(BUZZER_PIN, i_freq);
+      ms_buzzer.start(i_buzzer_max_time);
+    }
+    b_buzzer_on = true;
   }
-  b_buzzer_on = true;
 }
 
 void buzzOff() {
-  noTone(BUZZER_PIN);
-  ms_buzzer.stop();
-  b_buzzer_on = false;
+  if(b_buzzer_on) {
+    noTone(BUZZER_PIN);
+    ms_buzzer.stop();
+    b_buzzer_on = false;
+  }
 }
 
 void useVibration(uint16_t i_duration) {
-  if(!b_vibrate_on) {
-    #if defined(__XTENSA__)
-      // ESP32
-      ledcWrite(PWM_CHANNEL, i_max_power);
-    #else
-      // Nano
-      analogWrite(VIBRATION_PIN, i_max_power);
-    #endif
+  if(b_enable_vibration) {
+    if(!b_vibrate_on) {
+      // Ensures only vibration is started once per call to this method.
+      #if defined(__XTENSA__)
+        // ESP32
+        ledcWrite(PWM_CHANNEL, i_max_power);
+      #else
+        // Nano
+        analogWrite(VIBRATION_PIN, i_max_power);
+      #endif
 
-    // Set timer for shorter of given duration or max runtime.
-    ms_vibrate.start(min(i_duration, i_vibrate_max_time));
+      // Set timer for shorter of given duration or max runtime.
+      ms_vibrate.start(min(i_duration, i_vibrate_max_time));
+    }
+    b_vibrate_on = true;
   }
-  b_vibrate_on = true;
 }
 
 void vibrateOff() {
-  #if defined(__XTENSA__)
-    // ESP32
-    ledcWrite(PWM_CHANNEL, i_min_power);
-  #else
-    // Nano
-    analogWrite(VIBRATION_PIN, i_min_power);
-  #endif
-  ms_vibrate.stop();
-  b_vibrate_on = false;
+  if(b_vibrate_on) {
+    #if defined(__XTENSA__)
+      // ESP32
+      ledcWrite(PWM_CHANNEL, i_min_power);
+    #else
+      // Nano
+      analogWrite(VIBRATION_PIN, i_min_power);
+    #endif
+    ms_vibrate.stop();
+    b_vibrate_on = false;
+  }
 }
 
 /*
@@ -456,7 +492,15 @@ void updateLEDs() {
       device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_RED_FADE);
     }
     else {
-      device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_AMBER_PULSE);
+      switch(RAD_LENS_IDLE) {
+        case ORANGE_FADE:
+          device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_ORANGE_FADE);
+        break;
+        case AMBER_PULSE:
+        default:
+          device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_AMBER_PULSE);
+        break;
+      }
     }
   }
   else {
@@ -661,7 +705,7 @@ void checkRotaryEncoder() {
   // Take action if rotary encoder value was turned CW.
   if(i_val_rotary > i_last_val_rotary) {
     if(!ms_rotary_debounce.isRunning()) {
-      if(b_firing && i_speed_multiplier > 1) {
+      if(b_firing && i_speed_multiplier > 2) {
         // Tell the pack to cancel the current overheat warning.
         // Only do so after 5 turns of the dial (CW).
         i_rotary_count++;
@@ -698,7 +742,7 @@ void checkRotaryEncoder() {
   // Take action if rotary encoder value was turned CCW.
   if(i_val_rotary < i_last_val_rotary) {
     if(!ms_rotary_debounce.isRunning()) {
-      if(b_firing && i_speed_multiplier > 1) {
+      if(b_firing && i_speed_multiplier > 2) {
         // Tell the pack to cancel the current overheat warning.
         // Only do so after 5 turns of the dial (CCW).
         i_rotary_count++;

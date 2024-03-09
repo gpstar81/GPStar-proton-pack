@@ -38,13 +38,6 @@ void handleRoot(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Serve page content.
 }
 
-void handleDevice(AsyncWebServerRequest *request) {
-  // Used for the device page from the web server.
-  //debug("Device HTML Requested");
-  String s = DEVICE_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
-}
-
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
   //debug("Network HTML Requested");
@@ -56,6 +49,13 @@ void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
   //debug("Password HTML Requested");
   String s = PASSWORD_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
+}
+
+void handleAttenuatorSettings(AsyncWebServerRequest *request) {
+  // Used for the device page from the web server.
+  //debug("Attenuator Settings HTML Requested");
+  String s = DEVICE_page; // Read HTML page into String.
   request->send(200, "text/html", s); // Serve page content.
 }
 
@@ -104,10 +104,13 @@ String getAttenuatorConfig() {
   String equipSettings;
   jsonBody.clear();
 
-  if(!b_wait_for_pack) {
-    // Provide a flag to indicate prefs were received via serial coms.
-    jsonBody["invertLEDs"] = b_invert_leds;
-  }
+  // Provide current values for the Attenuator device.
+  jsonBody["invertLEDs"] = b_invert_leds;
+  jsonBody["buzzer"] = b_enable_buzzer;
+  jsonBody["vibration"] = b_enable_vibration;
+  jsonBody["overheat"] = b_overheat_feedback;
+  jsonBody["firing"] = b_firing_feedback;
+  jsonBody["radLensIdle"] = RAD_LENS_IDLE;
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -373,7 +376,7 @@ void handlePackOff(AsyncWebServerRequest *request) {
 }
 
 void handleAttenuatePack(AsyncWebServerRequest *request) {
-  if(i_speed_multiplier > 1) {
+  if(i_speed_multiplier > 2) {
     // Only send command to pack if cyclotron is not "normal".
     debug("Cancel Overheat Warning");
     attenuatorSerialSend(A_WARNING_CANCELLED);
@@ -503,11 +506,48 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
 
   String result;
   try {
-    // General Options
-    b_invert_leds = jsonBody["invertLEDs"].as<boolean>();
+    // General Options - Returned as unsigned integers
+    if(jsonBody["invertLEDs"].is<unsigned short>()) {
+      // Inverts the order of the LEDs as seen by the device.
+      b_invert_leds = jsonBody["invertLEDs"].as<boolean>();
+    }
+    if(jsonBody["buzzer"].is<unsigned short>()) {
+      // Enable/disable the buzzer completely.
+      b_enable_buzzer = jsonBody["buzzer"].as<boolean>();
+    }
+    if(jsonBody["vibration"].is<unsigned short>()) {
+      // Enable/disable vibration completely.
+      b_enable_vibration = jsonBody["vibration"].as<boolean>();
+    }
+    if(jsonBody["overheat"].is<unsigned short>()) {
+      // Enable/disable all buzzer/vibration feedback during overheat/alarm.
+      b_overheat_feedback = jsonBody["overheat"].as<boolean>();
+    }
+    if(jsonBody["firing"].is<unsigned short>()) {
+      // Enable/disable vibration when throwing a stream.
+      b_firing_feedback = jsonBody["firing"].as<boolean>();
+    }
+    if(jsonBody["radLensIdle"].is<unsigned short>()) {
+      switch(jsonBody["radLensIdle"].as<unsigned short>()) {
+        case 0:
+          RAD_LENS_IDLE = AMBER_PULSE;
+        break;
+        case 1:
+          RAD_LENS_IDLE = ORANGE_FADE;
+        break;
+        case 2:
+          RAD_LENS_IDLE = RED_FADE;
+        break;
+      }
+    }
 
     preferences.begin("device", false); // Access namespace in read/write mode.
-    preferences.putBool("invert_led", b_invert_leds); // Store current value.
+    preferences.putBool("invert_led", b_invert_leds);
+    preferences.putBool("buzzer_enabled", b_enable_buzzer);
+    preferences.putBool("vibration_enabled", b_enable_vibration);
+    preferences.putBool("overheat_feedback", b_overheat_feedback);
+    preferences.putBool("firing_feedback", b_firing_feedback);
+    preferences.putShort("radiation_idle", RAD_LENS_IDLE);
     preferences.end();
 
     jsonBody.clear();

@@ -80,6 +80,8 @@ void setup() {
   }
 
   // Rotary encoder for volume control.
+  // Uses an ISR (interrupt service routine) to know when the rotary encoder
+  // has been turned, and compares pin readings to get a +/- value changed.
   pinMode(encoder_pin_a, INPUT_PULLUP);
   pinMode(encoder_pin_b, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(encoder_pin_a), readEncoder, CHANGE);
@@ -280,7 +282,9 @@ void loop() {
         // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
         if(b_spectral_lights_on == true) {
           packOffReset();
-          spectralLightsOn();
+          if(b_cyclotron_lid_on == true) {
+            spectralLightsOn();
+          }
         }
         else {
           cyclotronSwitchLEDLoop();
@@ -1669,8 +1673,8 @@ void spectralLightsOff() {
     pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
   }
 
-  for(int i = 0; i < i_inner_cyclotron_num_leds; i++) {
-    if(b_grb_cyclotron == true) {
+  for(int i = 0; i < i_inner_cyclotron_cake_num_leds; i++) {
+    if(b_grb_cyclotron_cake == true) {
       cyclotron_leds[i] = getHueAsGRB(CYCLOTRON_INNER, C_BLACK);
     }
     else {
@@ -1694,8 +1698,8 @@ void spectralLightsOn() {
   }
 
   i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, SPECTRAL_CUSTOM, true);
-  for(int i = 0; i < i_inner_cyclotron_num_leds; i++) {
-    if(b_grb_cyclotron == true) {
+  for(int i = 0; i < i_inner_cyclotron_cake_num_leds; i++) {
+    if(b_grb_cyclotron_cake == true) {
       cyclotron_leds[i] = getHueAsGRB(CYCLOTRON_INNER, i_colour_scheme);
     }
     else {
@@ -2807,7 +2811,6 @@ void cyclotronOverHeating() {
       else if(b_overheat_lights_off == true) {
         if(i_powercell_led > 0) {
           cyclotron2021(i_2021_delay * 10);
-
           vibrationPack(i_vibration_lowest_level);
         }
         else {
@@ -3057,10 +3060,10 @@ void resetCyclotronState() {
 
   // Tell the Inner Cyclotron to turn off the LEDs.
   if(b_cyclotron_lid_on == true) {
-    innerCyclotronOff();
+    innerCyclotronCakeOff();
   }
   else if(b_alarm != true || PACK_STATE == MODE_OFF) {
-    innerCyclotronOff();
+    innerCyclotronCakeOff();
   }
 
   cyclotronSpeedRevert();
@@ -3074,8 +3077,8 @@ void clearCyclotronFades() {
   }
 }
 
-void innerCyclotronOff() {
-  for(int i = 0; i < i_inner_cyclotron_num_leds; i++) {
+void innerCyclotronCakeOff() {
+  for(int i = 0; i < i_inner_cyclotron_cake_num_leds; i++) {
     cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
   }
 }
@@ -3160,20 +3163,21 @@ void innerCyclotronRingUpdate(int cDelay) {
     }
 
     // Colour control for the Inner Cyclotron LEDs.
+    uint8_t i_start = 0; // Starting point for this LED device.
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, FIRING_MODE, b_cyclotron_colour_toggle);
 
     if(b_clockwise == true) {
       if(b_cyclotron_lid_on != true) {
-        if(b_grb_cyclotron == true) {
+        if(b_grb_cyclotron_cake == true) {
           cyclotron_leds[i_led_cyclotron_ring] = getHueAsGRB(CYCLOTRON_INNER, i_colour_scheme, i_brightness);
         }
         else {
           cyclotron_leds[i_led_cyclotron_ring] = getHueAsRGB(CYCLOTRON_INNER, i_colour_scheme, i_brightness);
         }
 
-        if(i_led_cyclotron_ring == 0) {
-          cyclotron_leds[i_inner_cyclotron_num_leds - 1] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
+        if(i_led_cyclotron_ring == i_start) {
+          cyclotron_leds[i_inner_cyclotron_cake_num_leds - 1] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
         }
         else {
           cyclotron_leds[i_led_cyclotron_ring - 1] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
@@ -3182,21 +3186,21 @@ void innerCyclotronRingUpdate(int cDelay) {
 
       i_led_cyclotron_ring++;
 
-      if(i_led_cyclotron_ring > i_inner_cyclotron_num_leds - 1) {
-        i_led_cyclotron_ring = 0;
+      if(i_led_cyclotron_ring > i_inner_cyclotron_cake_num_leds - 1) {
+        i_led_cyclotron_ring = i_start;
       }
     }
     else {
       if(b_cyclotron_lid_on != true) {
-        if(b_grb_cyclotron == true) {
+        if(b_grb_cyclotron_cake == true) {
           cyclotron_leds[i_led_cyclotron_ring] = getHueAsGRB(CYCLOTRON_INNER, i_colour_scheme, i_brightness);
         }
         else {
           cyclotron_leds[i_led_cyclotron_ring] = getHueAsRGB(CYCLOTRON_INNER, i_colour_scheme, i_brightness);
         }
 
-        if(i_led_cyclotron_ring + 1 > i_inner_cyclotron_num_leds - 1) {
-          cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
+        if(i_led_cyclotron_ring + 1 > i_inner_cyclotron_cake_num_leds - 1) {
+          cyclotron_leds[i_start] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
         }
         else {
           cyclotron_leds[i_led_cyclotron_ring + 1] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
@@ -3205,8 +3209,8 @@ void innerCyclotronRingUpdate(int cDelay) {
 
       i_led_cyclotron_ring--;
 
-      if(i_led_cyclotron_ring < 0) {
-        i_led_cyclotron_ring = i_inner_cyclotron_num_leds -1;
+      if(i_led_cyclotron_ring < i_start) {
+        i_led_cyclotron_ring = i_inner_cyclotron_cake_num_leds - 1;
       }
     }
   }
@@ -3773,7 +3777,7 @@ void cyclotronSwitchPlateLEDs() {
       b_cyclotron_lid_on = true;
 
       // Turn off Inner Cyclotron LEDs.
-      innerCyclotronOff();
+      innerCyclotronCakeOff();
     }
   }
   else {
