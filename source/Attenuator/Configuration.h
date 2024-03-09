@@ -47,6 +47,7 @@
 bool b_enable_buzzer = true; // Enable/disable all buzzing via the local piezo buzzer
 bool b_enable_vibration = true; // Enable/disable all effects via the vibration motor
 bool b_overheat_feedback = true; // Enable/disable buzzing/vibration on pack overheat
+bool b_firing_feedback = false; // Enable/disable vibration when throwing a stream
 
 /*
  * Wait for pack communication or operate without pack integration.

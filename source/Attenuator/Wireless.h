@@ -464,17 +464,16 @@ String getPower() {
 String getCyclotronState() {
   switch(i_speed_multiplier) {
     case 1:
-      return (b_overheating ? "Recovery" : "Normal");
+      return (b_overheating ? "Recovery" : "Normal"); // An "idle" state.
     break;
     case 2:
-      return "Active";
+      return "Active"; // Typical for throwing a stream for an extended period.
     break;
     case 3:
-      return "Warning";
+      return "Warning"; // Considered to be in a "pre-overheat" state.
     break;
     default:
-      // For anything above level 3.
-      return "Critical";
+      return "Critical"; // For anything above a 3x speed increase.
     break;
   }
 }
@@ -487,9 +486,9 @@ void setupRouting() {
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
-  httpServer.on("/device", HTTP_GET, handleDevice);
   httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
+  httpServer.on("/settings/attenuator", HTTP_GET, handleAttenuatorSettings);
   httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
   httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
