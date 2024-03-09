@@ -37,7 +37,9 @@
 #include <Ramp.h>
 #include <SerialTransfer.h>
 
+// Special Libraries
 #include "GPStarAudio.h"
+
 /**
  ***** IMPORTANT *****
  * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
@@ -68,7 +70,7 @@ void setup() {
   serial1Coms.begin(Serial1, false); // Attenuator/Wireless
   packComs.begin(Serial2, false); // Neutrona Wand
 
-  // Setup the audio devices.
+  // Setup the audio device for this controller.
   if(setupWavTrigger() == true) {
     AUDIO_DEVICE = A_WAV_TRIGGER;
   }
@@ -4881,7 +4883,6 @@ void stopMusic() {
     case A_NONE:
       // Nothing.
     break;
-
   }
 
   b_music_paused = false;
@@ -4920,7 +4921,6 @@ void pauseMusic() {
       case A_NONE:
         // Nothing.
       break;
-
     }
 
     b_music_paused = true;
@@ -4953,7 +4953,6 @@ void resumeMusic() {
       case A_NONE:
         // Nothing.
       break;
-
     }    
 
     b_music_paused = false;
