@@ -364,7 +364,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_WAND_CONNECTED:
       #if defined(__XTENSA__)
-        debug("Wand Connected");
+        // debug("Wand Connected");
       #endif
 
       b_wand_present = true;
@@ -373,7 +373,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_WAND_DISCONNECTED:
       #if defined(__XTENSA__)
-        debug("Wand Disconnected");
+        // debug("Wand Disconnected");
       #endif
 
       b_wand_present = false;

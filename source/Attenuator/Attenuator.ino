@@ -300,7 +300,6 @@ void mainLoop() {
 
     if(b_firing && i_speed_multiplier <= 2 && b_firing_feedback && !b_overheating && !b_pack_alarm) {
       // Give physical feedback through vibration while wand is firing, but not in an overheat/alarm state.
-      debug("vibration while firing");
       useVibration(i_vibrate_min_time); // Use short bursts as this may be called multiple times in a row.
     }
     else if((b_firing && i_speed_multiplier > 2) || b_overheating || b_pack_alarm) {
@@ -358,12 +357,12 @@ void mainLoop() {
   updateLEDs();
 
   // Turn off buzzer if timer finished.
-  if(b_buzzer_on && ms_buzzer.justFinished()) {
+  if(ms_buzzer.justFinished() || ms_buzzer.remaining() < 1) {
     buzzOff();
   }
 
   // Turn off vibration if timer finished.
-  if(b_vibrate_on && ms_vibrate.justFinished()) {
+  if(ms_vibrate.justFinished() || ms_vibrate.remaining() < 1) {
     vibrateOff();
   }
 
@@ -403,9 +402,11 @@ void buzzOn(uint16_t i_freq) {
 }
 
 void buzzOff() {
-  noTone(BUZZER_PIN);
-  ms_buzzer.stop();
-  b_buzzer_on = false;
+  if(b_buzzer_on) {
+    noTone(BUZZER_PIN);
+    ms_buzzer.stop();
+    b_buzzer_on = false;
+  }
 }
 
 void useVibration(uint16_t i_duration) {
@@ -421,7 +422,6 @@ void useVibration(uint16_t i_duration) {
       #endif
 
       // Set timer for shorter of given duration or max runtime.
-      ms_vibrate.stop(); // Stop the old timer, if running.
       ms_vibrate.start(min(i_duration, i_vibrate_max_time));
     }
     b_vibrate_on = true;
@@ -429,15 +429,17 @@ void useVibration(uint16_t i_duration) {
 }
 
 void vibrateOff() {
-  #if defined(__XTENSA__)
-    // ESP32
-    ledcWrite(PWM_CHANNEL, i_min_power);
-  #else
-    // Nano
-    analogWrite(VIBRATION_PIN, i_min_power);
-  #endif
-  ms_vibrate.stop();
-  b_vibrate_on = false;
+  if(b_vibrate_on) {
+    #if defined(__XTENSA__)
+      // ESP32
+      ledcWrite(PWM_CHANNEL, i_min_power);
+    #else
+      // Nano
+      analogWrite(VIBRATION_PIN, i_min_power);
+    #endif
+    ms_vibrate.stop();
+    b_vibrate_on = false;
+  }
 }
 
 /*

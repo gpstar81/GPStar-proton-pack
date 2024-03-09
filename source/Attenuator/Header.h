@@ -96,8 +96,8 @@ bool b_top_led_off = false; // Denotes when top LED is mid-blink.
 #endif
 millisDelay ms_buzzer;
 millisDelay ms_vibrate;
-bool b_buzzer_on = false;
-bool b_vibrate_on = false;
+bool b_buzzer_on = false; // Denotes when pieze buzzer is active.
+bool b_vibrate_on = false; // Denotes when vibration moter is active.
 const uint8_t i_min_power = 0; // Essentially a "low" state (off).
 const uint8_t i_max_power = 255; // Essentially a "high" state (on).
 const uint16_t i_buzzer_max_time = 300; // Longest duration for a standalone "beep".
@@ -108,7 +108,7 @@ const uint16_t i_vibrate_max_time = 1500; // Maximum runtime for vibration motor
  * For the alarm and venting/overheat, set the blink/buzz/vibrate interval.
  */
 millisDelay ms_blink_leds;
-const uint16_t i_blink_leds = 600;
+const uint16_t i_blink_leds = 800;
 bool b_blink_blank = false; // Denotes when upper/lower LEDs are mid-blink.
 
 /*
