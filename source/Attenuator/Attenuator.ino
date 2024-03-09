@@ -143,6 +143,7 @@ void setup() {
     b_enable_buzzer = preferences.getBool("buzzer_enabled", true);
     b_enable_vibration = preferences.getBool("vibration_enabled", true);
     b_overheat_feedback = preferences.getBool("overheat_feedback", true);
+    b_firing_feedback = preferences.getBool("firing_feedback", false);
     switch(preferences.getShort("radiation_idle", 0)) {
       case 0:
         RAD_LENS_IDLE = AMBER_PULSE;
@@ -301,6 +302,16 @@ void mainLoop() {
     if((b_firing && i_speed_multiplier > 1) || b_overheating || b_pack_alarm) {
       // Sets a timer value proportional to the speed of the cyclotron.
       uint16_t i_blink_time = int(i_blink_leds / i_speed_multiplier);
+
+      // Give physical feedback through vibration while wand is firing.
+      if(b_firing && b_firing_feedback) {
+        if(!b_overheating && !b_pack_alarm) {
+          useVibration(i_vibrate_max_time); // Provide physical feedback.
+        }
+        else {
+          vibrateOff(); // Stop vibration.
+        }
+      }
 
       if(ms_blink_leds.justFinished()) {
         ms_blink_leds.start(i_blink_time);

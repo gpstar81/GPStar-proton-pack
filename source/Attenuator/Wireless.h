@@ -487,9 +487,9 @@ void setupRouting() {
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
-  httpServer.on("/device", HTTP_GET, handleDevice);
   httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
+  httpServer.on("/settings/attenuator", HTTP_GET, handleAttenuatorSettings);
   httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
   httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);

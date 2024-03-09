@@ -38,13 +38,6 @@ void handleRoot(AsyncWebServerRequest *request) {
   request->send(200, "text/html", s); // Serve page content.
 }
 
-void handleDevice(AsyncWebServerRequest *request) {
-  // Used for the device page from the web server.
-  //debug("Device HTML Requested");
-  String s = DEVICE_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
-}
-
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
   //debug("Network HTML Requested");
@@ -56,6 +49,13 @@ void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
   //debug("Password HTML Requested");
   String s = PASSWORD_page; // Read HTML page into String.
+  request->send(200, "text/html", s); // Serve page content.
+}
+
+void handleAttenuatorSettings(AsyncWebServerRequest *request) {
+  // Used for the device page from the web server.
+  //debug("Attenuator Settings HTML Requested");
+  String s = DEVICE_page; // Read HTML page into String.
   request->send(200, "text/html", s); // Serve page content.
 }
 
@@ -109,6 +109,7 @@ String getAttenuatorConfig() {
   jsonBody["buzzer"] = b_enable_buzzer;
   jsonBody["vibration"] = b_enable_vibration;
   jsonBody["overheat"] = b_overheat_feedback;
+  jsonBody["firing"] = b_firing_feedback;
   jsonBody["radLensIdle"] = RAD_LENS_IDLE;
 
   // Serialize JSON object to string.
@@ -522,6 +523,10 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
       // Enable/disable all buzzer/vibration feedback during overheat/alarm.
       b_overheat_feedback = jsonBody["overheat"].as<boolean>();
     }
+    if(jsonBody["firing"].is<boolean>()) {
+      // Enable/disable all buzzer/vibration feedback during overheat/alarm.
+      b_firing_feedback = jsonBody["firing"].as<boolean>();
+    }
     if(jsonBody["radLensIdle"].is<unsigned short>()) {
       switch(jsonBody["radLensIdle"].as<unsigned short>()) {
         case 0:
@@ -541,6 +546,7 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     preferences.putBool("buzzer_enabled", b_enable_buzzer);
     preferences.putBool("vibration_enabled", b_enable_vibration);
     preferences.putBool("overheat_feedback", b_overheat_feedback);
+    preferences.putBool("firing_feedback", b_firing_feedback);
     preferences.putShort("radiation_idle", RAD_LENS_IDLE);
     preferences.end();
 

@@ -130,6 +130,7 @@ The following URI's will serve the informational/maintenance pages as shown prev
 	GET / - Standard Index/Landing Page
 	GET /network - External WiFi Settings Page
 	GET /password - WiFi Password Update Page
+	GET /settings/attenuator = Attenuator Settings Page
 	GET /settings/pack - Pack Settings Page
 	GET /settings/wand - Wand Settings Page
 	GET /settings/smoke - Smoke Settings Page
@@ -162,6 +163,10 @@ The following URI's are API endpoints available for managing actions within your
 	GET /wifi/settings - Returns the current external WiFi settings
 	PUT /wifi/update - Save new/modified external WiFi settings
 		Body: Send same JSON body as returned by /wifi/settings
+
+	GET /config/attenuator - Obtain the current attenuator device settings
+	PUT /config/attenuator/save - Saves attenuator settings
+		Body: Send same JSON body as returned by /config/pack
 
 	GET /config/pack - Obtain the current pack equipment settings
 	PUT /config/pack/save - Saves pack settings for evaluation
