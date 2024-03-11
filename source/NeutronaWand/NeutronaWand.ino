@@ -93,7 +93,7 @@ void setup() {
   WAND_MENU_LEVEL = MENU_LEVEL_1;
   WAND_YEAR_MODE = YEAR_DEFAULT;
   WAND_YEAR_CTS = CTS_DEFAULT;
-  SYSTEM_YEAR = SYSTEM_1984;
+  SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   WAND_BARREL_LED_COUNT = LEDS_5;
 
   switch_intensify.setDebounceTime(i_switch_debounce);
