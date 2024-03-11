@@ -212,7 +212,6 @@ bool b_switch_barrel_extended = true; // Set to true for bootup to prevent sound
  */
 millisDelay ms_intensify_doubleclick;
 const unsigned int i_switch_debounce = 50;
-const unsigned int i_switch_delay = 400;
 const unsigned int i_doubleclick_delay = 3000;
 
 /*

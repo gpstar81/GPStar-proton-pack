@@ -93,7 +93,7 @@ void setup() {
   WAND_MENU_LEVEL = MENU_LEVEL_1;
   WAND_YEAR_MODE = YEAR_DEFAULT;
   WAND_YEAR_CTS = CTS_DEFAULT;
-  SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+  SYSTEM_YEAR = SYSTEM_1984;
   WAND_BARREL_LED_COUNT = LEDS_5;
 
   switch_intensify.setDebounceTime(i_switch_debounce);
@@ -101,7 +101,7 @@ void setup() {
   switch_vent.setDebounceTime(i_switch_debounce);
   switch_wand.setDebounceTime(i_switch_debounce);
   switch_mode.setDebounceTime(i_switch_debounce);
-  switch_barrel.setDebounceTime(i_switch_debounce * 5); // Barrel safety switch is less precise more settle time prevents false triggers
+  switch_barrel.setDebounceTime(i_switch_debounce * 5); // Barrel safety switch is less precise; more settle time prevents false triggers
 
   // Rotary encoder on the top of the wand.
   pinMode(r_encoderA, INPUT_PULLUP);
