@@ -199,27 +199,20 @@ bool b_vibration_enabled = true;
 /*
  * Various Switches on the wand.
  */
-ezButton switch_wand(A0); // Controls the beeping. Top right switch on the wand.
 ezButton switch_intensify(2);
 ezButton switch_activate(3);
 ezButton switch_vent(4); // Turns on the vent light. Bottom right switch.
-const int switch_mode = A6; // Changes firing modes or to reach the settings menu.
-const int switch_barrel = A7; // Barrel extension/open switch.
-bool b_switch_mode_pressed = false;
-bool b_switch_barrel_extended = true; // Set to true for bootup. The Neutrona Wand will adjust as necessary, to prevent the barrel extension sound from playing during bootup when it's not supposed to.
+ezButton switch_wand(A0); // Controls the beeping. Top right switch on the wand.
+ezButton switch_mode(A6); // Changes firing modes, crosses streams, or used in settings menus.
+ezButton switch_barrel(A7); // Checks whether barrel is retracted or not.
+bool b_switch_barrel_extended = true; // Set to true for bootup to prevent sound from playing erroneously. The Neutrona Wand will adjust as necessary.
 
 /*
  * Some switch settings.
  */
-const uint8_t switch_debounce_time = 50;
-millisDelay ms_switch_barrel_debounce;
-millisDelay ms_switch_mode_debounce;
-millisDelay ms_switch_mode_firing;
-millisDelay ms_intensify_timer;
 millisDelay ms_intensify_doubleclick;
-millisDelay ms_firing_debounce;
-const unsigned int i_firing_debounce = 50;
-const unsigned int i_intensify_delay = 400;
+const unsigned int i_switch_debounce = 50;
+const unsigned int i_switch_delay = 400;
 const unsigned int i_doubleclick_delay = 3000;
 
 /*
