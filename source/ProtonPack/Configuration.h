@@ -414,6 +414,11 @@ const bool b_diagnostic = false;
 bool b_additional_wand_sounds = false;
 
 /*
+ * Set to true to disable the Proton Pack Ribbon Alarm switch.
+ */
+bool b_disable_ribbon_cable = false;
+
+/*
  * Set to false to ignore reading data from the EEPROM.
  */
 const bool b_eeprom = true;
