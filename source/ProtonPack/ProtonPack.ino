@@ -29,10 +29,6 @@
 #define debugln(x)
 #endif
 
-// For experimentation only, must be defined prior to the FastLED library inclusion.
-//#define FASTLED_ALLOW_INTERRUPTS 0
-//#define FASTLED_INTERRUPT_RETRY_COUNT 1
-
 // 3rd-Party Libraries
 #include <EEPROM.h>
 #include <millisDelay.h>
@@ -779,14 +775,16 @@ void checkMusic() {
 }
 
 void checkRibbonCableSwitch() {
-  if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
-    if(switch_alarm.getState() == LOW) {
-      // Ribbon cable is attached.
-      packSerialSend(P_RIBBON_CABLE_ON);
-    }
-    else {
-      // Ribbon cable is detached.
-      packSerialSend(P_RIBBON_CABLE_OFF);
+  if(b_use_ribbon_cable == true) {
+    if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
+      if(switch_alarm.getState() == LOW) {
+        // Ribbon cable is attached.
+        packSerialSend(P_RIBBON_CABLE_ON);
+      }
+      else {
+        // Ribbon cable is detached.
+        packSerialSend(P_RIBBON_CABLE_OFF);
+      }
     }
   }
 }
