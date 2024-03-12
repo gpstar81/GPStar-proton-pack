@@ -98,7 +98,8 @@ struct objConfigEEPROM {
   uint8_t smoke_continuous_mode_2;
   uint8_t smoke_continuous_mode_1;
 
-  uint8_t pack_vibration;
+  uint8_t pack_vibration; // Sets the vibration mode for the pack (multi-option).
+  uint8_t use_ribbon_cable; // Enable/disable the ribbon cable alarm (useful for DIY packs).
 };
 
 /*
@@ -337,6 +338,15 @@ void readEEPROM() {
       }
     }
 
+    if(obj_config_eeprom.use_ribbon_cable > 0 && obj_config_eeprom.use_ribbon_cable != 255) {
+      if(obj_config_eeprom.use_ribbon_cable > 1) {
+        b_use_ribbon_cable = true;
+      }
+      else {
+        b_use_ribbon_cable = false;
+      }
+    }
+
     if(obj_config_eeprom.cyclotron_three_led_toggle > 0 && obj_config_eeprom.cyclotron_three_led_toggle != 255) {
       if(obj_config_eeprom.cyclotron_three_led_toggle > 1) {
         b_cyclotron_single_led = false;
@@ -525,6 +535,7 @@ void saveConfigEEPROM() {
   uint8_t i_vga_powercell = 1;
   uint8_t i_vga_cyclotron = 1;
   uint8_t i_demo_light_mode = 1;
+  uint8_t i_use_ribbon_cable = 1;
   uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led. 2 = three leds.
   uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
   uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
@@ -583,6 +594,10 @@ void saveConfigEEPROM() {
 
   if(b_demo_light_mode == true) {
     i_demo_light_mode = 2;
+  }
+
+  if(b_use_ribbon_cable == true) {
+    i_use_ribbon_cable = 2;
   }
 
   if(b_cyclotron_single_led != true) {
@@ -659,7 +674,8 @@ void saveConfigEEPROM() {
     i_smoke_continuous_mode_3,
     i_smoke_continuous_mode_2,
     i_smoke_continuous_mode_1,
-    i_pack_vibration
+    i_pack_vibration,
+    i_use_ribbon_cable
   };
 
   // Save to the EEPROM.
