@@ -677,7 +677,7 @@ void checkMusic() {
 }
 
 void checkRibbonCableSwitch() {
-  if(b_disable_ribbon_cable != true) {
+  if(b_use_ribbon_cable == true) {
     if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
       if(switch_alarm.getState() == LOW) {
         // Ribbon cable is attached.
@@ -1678,7 +1678,7 @@ void cyclotronControl() {
     }
   }
 
-  if(switch_alarm.getState() == HIGH && PACK_STATE != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false && b_disable_ribbon_cable != true) {
+  if(switch_alarm.getState() == HIGH && PACK_STATE != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false && b_use_ribbon_cable == true) {
     if(b_alarm == false) {
       stopEffect(S_BEEP_8);
 
