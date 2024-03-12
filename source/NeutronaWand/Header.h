@@ -116,9 +116,10 @@ const unsigned int i_meson_blast_delay_level_1 = 220;
  * Support for up to 60 LEDs. With the options of 48 and 60 from Frutto Technology, with the 48 option first.
  * Note: The 48/60 LED options include built-in strobe for the tip which will supersede the dedicated white LED.
  */
-#define BARREL_LEDS_MAX 61 // The maximum number of barrel LEDs supported.
+#define BARREL_LEDS_MAX 49 // The maximum number of barrel LEDs supported (Frutto = 48 + strobe tip).
 #define BARREL_LED_PIN 10
 CRGB barrel_leds[BARREL_LEDS_MAX];
+const uint16_t frutto_barrel[] = {0, 25, 24, 48, 1, 26, 23, 47, 2, 27, 22, 46, 3, 28, 21, 45, 4, 29, 20, 44, 5, 30, 19, 43, 6, 31, 18, 42, 7, 32, 17, 41, 8, 33, 16, 40, 9, 34, 15, 39, 10, 35, 14, 38, 11, 36, 13, 37, 12};
 
 /*
  * How many LEDs are in your Neutrona Wand Barrel.
@@ -126,7 +127,7 @@ CRGB barrel_leds[BARREL_LEDS_MAX];
  * Supported options: 5, with experimental support for 48. (29 is for internal testing only)
  */
 uint8_t i_num_barrel_leds = 5;
-enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_29, LEDS_48 };
+enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_48 };
 enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
 
 /*
