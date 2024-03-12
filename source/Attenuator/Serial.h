@@ -68,6 +68,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t defaultYearThemePack;
   uint8_t defaultSystemVolume;
   uint8_t packVibration;
+  uint8_t ribbonCableAlarm;
   uint8_t cyclotronDirection;
   uint8_t demoLightMode;
   uint8_t protonStreamEffects;

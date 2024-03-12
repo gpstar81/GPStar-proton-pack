@@ -61,6 +61,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t defaultYearThemePack;
   uint8_t defaultSystemVolume;
   uint8_t packVibration;
+  uint8_t ribbonCableAlarm;
   uint8_t cyclotronDirection;
   uint8_t demoLightMode;
   uint8_t protonStreamEffects;
@@ -274,6 +275,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.overheatLightsOff = b_overheat_lights_off;
       packConfig.overheatSyncToFan = b_overheat_sync_to_fan;
       packConfig.demoLightMode = b_demo_light_mode;
+      packConfig.ribbonCableAlarm = b_use_ribbon_cable;
 
       switch(VIBRATION_MODE_EEPROM) {
         case VIBRATION_ALWAYS:
@@ -555,6 +557,7 @@ void checkSerial1() {
           b_overheat_lights_off = packConfig.overheatLightsOff;
           b_overheat_sync_to_fan = packConfig.overheatSyncToFan;
           b_demo_light_mode = packConfig.demoLightMode;
+          b_use_ribbon_cable = packConfig.ribbonCableAlarm;
 
           // Cyclotron Lid
           i_cyclotron_leds = packConfig.ledCycLidCount;
