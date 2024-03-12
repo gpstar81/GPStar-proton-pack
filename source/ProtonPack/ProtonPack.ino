@@ -671,7 +671,7 @@ void checkMusic() {
     ms_music_next_track.stop();
     ms_check_music.start(i_music_check_delay);
 
-    // Play the appropriate track on pack and wand, and notify the serial1 device.
+    // Play the appropriate track on the pack and wand, and notify the serial1 device.
     playMusic();
   }
 }
@@ -4392,7 +4392,7 @@ void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b
     i_track_volume = i_volume_abs_min;
   }
 
-  if(i_track_volume > 10) {
+  if(i_track_volume > i_volume_abs_max) {
     i_track_volume = i_volume_abs_max;
   }
 
