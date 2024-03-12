@@ -156,7 +156,7 @@ bool startAccesPoint() {
   #endif
 
   if(b_success) {
-    delay(100); // Wait briefly before configuring network.
+    delay(250); // Wait briefly before configuring network.
 
     // Simple networking IP info exclusively for the AP.
     IPAddress localIP(192, 168, 1, 2);
@@ -318,6 +318,7 @@ bool startWiFi() {
   if(b_wifi_enabled) {
     // When external WiFi is desired, enable simultaneous SoftAP + Station mode.
     WiFi.mode(WIFI_MODE_APSTA);
+    delay(250);
   }
 
   // Start the built-in access point (softAP) with the preferred credentials.
