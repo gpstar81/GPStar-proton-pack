@@ -1297,7 +1297,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       wandExtraSoundsBeepLoopStop();
 
       // Update which firing mode we should be in according to the wand.
-      WAND_YEAR_MODE = (WAND_YEAR_MODES)i_value;
       switch(i_value) {
         case 0:
         default:
