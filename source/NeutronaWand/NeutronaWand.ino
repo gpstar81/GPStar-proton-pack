@@ -7215,12 +7215,6 @@ void wandExitMenu() {
   bargraphClearAlt();
 
   switch(PREV_FIRING_MODE) {
-    case PROTON:
-    default:
-      // Tell the pack we are in proton mode.
-      wandSerialSend(W_PROTON_MODE);
-    break;
-
     case MESON:
       // Tell the pack we are in meson mode.
       wandSerialSend(W_MESON_MODE);
@@ -7254,6 +7248,12 @@ void wandExitMenu() {
     case VENTING:
       // Tell the pakc we are in venting mode.
       wandSerialSend(W_VENTING_MODE);
+    break;
+
+    case PROTON:
+    default:
+      // Tell the pack we are in proton mode.
+      wandSerialSend(W_PROTON_MODE);
     break;
   }
 
