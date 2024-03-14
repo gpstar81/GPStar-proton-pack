@@ -599,7 +599,24 @@ void checkSerial1() {
           packSerialSendData(P_SAVE_PREFERENCES_WAND);
 
           // Update our firing mode according to the new wand configuration.
-          WAND_YEAR_MODE = (WAND_YEAR_MODES)(wandConfig.defaultYearModeWand - 1);
+          switch(wandConfig.defaultYearModeWand) {
+            case 1:
+            default:
+              WAND_YEAR_MODE = YEAR_DEFAULT;
+            break;
+            case 2:
+              WAND_YEAR_MODE = YEAR_1984;
+            break;
+            case 3:
+              WAND_YEAR_MODE = YEAR_1989;
+            break;
+            case 4:
+              WAND_YEAR_MODE = YEAR_AFTERLIFE;
+            break;
+            case 5:
+              WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+            break;
+          }
 
           // Offer some feedback to the user
           stopEffect(S_VENT_DRY);
@@ -1035,7 +1052,24 @@ void checkWand() {
           debugln(F("Recv. Wand Config Prefs"));
 
           // Update our firing mode according to the new wand configuration.
-          WAND_YEAR_MODE = (WAND_YEAR_MODES)(wandConfig.defaultYearModeWand - 1);
+          switch(wandConfig.defaultYearModeWand) {
+            case 1:
+            default:
+              WAND_YEAR_MODE = YEAR_DEFAULT;
+            break;
+            case 2:
+              WAND_YEAR_MODE = YEAR_1984;
+            break;
+            case 3:
+              WAND_YEAR_MODE = YEAR_1989;
+            break;
+            case 4:
+              WAND_YEAR_MODE = YEAR_AFTERLIFE;
+            break;
+            case 5:
+              WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+            break;
+          }
 
           // Send the EEPROM preferences just returned by the wand.
           serial1SendData(A_SEND_PREFERENCES_WAND);
@@ -1264,6 +1298,24 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Update which firing mode we should be in according to the wand.
       WAND_YEAR_MODE = (WAND_YEAR_MODES)i_value;
+      switch(i_value) {
+        case 0:
+        default:
+          WAND_YEAR_MODE = YEAR_DEFAULT;
+        break;
+        case 1:
+          WAND_YEAR_MODE = YEAR_1984;
+        break;
+        case 2:
+          WAND_YEAR_MODE = YEAR_1989;
+        break;
+        case 3:
+          WAND_YEAR_MODE = YEAR_AFTERLIFE;
+        break;
+        case 4:
+          WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+        break;
+      }
 
       if(!b_wand_syncing) {
         doWandSync();
