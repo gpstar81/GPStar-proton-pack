@@ -454,6 +454,13 @@ enum SYSTEM_YEARS SYSTEM_YEAR_TEMP;
 enum SYSTEM_YEARS SYSTEM_EEPROM_YEAR;
 
 /*
+ * The year the Neutrona Wand is operating in.
+ * This is used to sync firing sounds in case the Wand year doesn't match the Pack's SYSTEM_YEAR.
+ */
+enum WAND_YEAR_MODES { YEAR_DEFAULT, YEAR_1984, YEAR_1989, YEAR_AFTERLIFE, YEAR_FROZEN_EMPIRE };
+enum WAND_YEAR_MODES WAND_YEAR_MODE;
+
+/*
  * Misc.
  */
 bool b_switch_mode_override = false; // Year mode override flag controlled by the Neutrona Wand. This resets when you flip the mode year toggle switch on the pack.

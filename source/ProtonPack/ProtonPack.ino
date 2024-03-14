@@ -168,6 +168,10 @@ void setup() {
     SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   }
 
+  // Set the wand year mode to default.
+  // This will get overridden as soon as a wand is connected.
+  WAND_YEAR_MODE = YEAR_DEFAULT;
+
   // Check some LED brightness settings for various LEDs.
   // The datatype used should avoid checks for negative values.
   if(i_powercell_brightness > 100) {
@@ -3235,7 +3239,7 @@ void modeFireStartSounds() {
   }
 
   if(FIRING_MODE != MESON) {
-    if(SYSTEM_YEAR == SYSTEM_1989) {
+    if((WAND_YEAR_MODE == YEAR_DEFAULT && SYSTEM_YEAR == SYSTEM_1989) || WAND_YEAR_MODE == YEAR_1989) {
       playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
     }
     else {
@@ -3246,7 +3250,7 @@ void modeFireStartSounds() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(SYSTEM_YEAR == SYSTEM_1989 && b_firing_intensify == true) {
+      if(((WAND_YEAR_MODE == YEAR_DEFAULT && SYSTEM_YEAR == SYSTEM_1989) || WAND_YEAR_MODE == YEAR_1989) && b_firing_intensify == true) {
         int8_t i_v_fire_start = i_volume_effects - 10;
 
         if(i_v_fire_start < i_volume_abs_min) {
@@ -3262,7 +3266,7 @@ void modeFireStartSounds() {
       switch(i_wand_power_level) {
         case 1 ... 4:
           if(b_firing_intensify == true) {
-            if(SYSTEM_YEAR == SYSTEM_1989) {
+            if((WAND_YEAR_MODE == YEAR_DEFAULT && SYSTEM_YEAR == SYSTEM_1989) || WAND_YEAR_MODE == YEAR_1989) {
               playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
               playEffect(S_GB2_FIRE_START);
             }
@@ -3280,7 +3284,7 @@ void modeFireStartSounds() {
           if(b_firing_alt == true) {
             playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
 
-            if(SYSTEM_YEAR == SYSTEM_1989) {
+            if((WAND_YEAR_MODE == YEAR_DEFAULT && SYSTEM_YEAR == SYSTEM_1989) || WAND_YEAR_MODE == YEAR_1989) {
               playEffect(S_GB2_FIRE_START);
             }
 
@@ -3292,21 +3296,41 @@ void modeFireStartSounds() {
         break;
 
         case 5:
-          switch(SYSTEM_YEAR) {
-            case SYSTEM_1989:
-              playEffect(S_GB2_FIRE_START);
-            break;
+          if(WAND_YEAR_MODE == YEAR_DEFAULT) {
+            switch(SYSTEM_YEAR) {
+              case SYSTEM_1989:
+                playEffect(S_GB2_FIRE_START);
+              break;
 
-            case SYSTEM_1984:
-              playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
-              playEffect(S_GB1_FIRE_START);
-            break;
+              case SYSTEM_1984:
+                playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
+                playEffect(S_GB1_FIRE_START);
+              break;
 
-            case SYSTEM_AFTERLIFE:
-            case SYSTEM_FROZEN_EMPIRE:
-            default:
-              playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
-            break;
+              case SYSTEM_AFTERLIFE:
+              case SYSTEM_FROZEN_EMPIRE:
+              default:
+                playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
+              break;
+            }
+          }
+          else {
+            switch(WAND_YEAR_MODE) {
+              case YEAR_1989:
+                playEffect(S_GB2_FIRE_START);
+              break;
+
+              case YEAR_1984:
+                playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
+                playEffect(S_GB1_FIRE_START);
+              break;
+
+              case YEAR_AFTERLIFE:
+              case YEAR_FROZEN_EMPIRE:
+              default:
+                playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
+              break;
+            }
           }
 
           if(b_firing_intensify == true) {
@@ -3510,7 +3534,7 @@ void wandStopFiringSounds() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(SYSTEM_YEAR == SYSTEM_1989) {
+      if((WAND_YEAR_MODE == YEAR_DEFAULT && SYSTEM_YEAR == SYSTEM_1989) || WAND_YEAR_MODE == YEAR_1989) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
       }
@@ -3519,7 +3543,7 @@ void wandStopFiringSounds() {
         stopEffect(S_GB1_FIRE_LOOP);
       }
 
-      if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      if((WAND_YEAR_MODE == YEAR_DEFAULT && (SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) || WAND_YEAR_MODE == YEAR_AFTERLIFE || WAND_YEAR_MODE == YEAR_FROZEN_EMPIRE) {
         stopEffect(S_AFTERLIFE_FIRE_START);
       }
 

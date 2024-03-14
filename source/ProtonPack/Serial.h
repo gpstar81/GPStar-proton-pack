@@ -598,6 +598,9 @@ void checkSerial1() {
           // This will pass values from the wandConfig object
           packSerialSendData(P_SAVE_PREFERENCES_WAND);
 
+          // Update our firing mode according to the new wand configuration.
+          WAND_YEAR_MODE = (WAND_YEAR_MODES)(wandConfig.defaultYearModeWand - 1);
+
           // Offer some feedback to the user
           stopEffect(S_VENT_DRY);
           playEffect(S_VENT_DRY);
@@ -1031,6 +1034,9 @@ void checkWand() {
           packComs.rxObj(wandConfig);
           debugln(F("Recv. Wand Config Prefs"));
 
+          // Update our firing mode according to the new wand configuration.
+          WAND_YEAR_MODE = (WAND_YEAR_MODES)(wandConfig.defaultYearModeWand - 1);
+
           // Send the EEPROM preferences just returned by the wand.
           serial1SendData(A_SEND_PREFERENCES_WAND);
         break;
@@ -1255,6 +1261,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop any wand sounds which are playing on the pack.
       wandExtraSoundsStop();
       wandExtraSoundsBeepLoopStop();
+
+      // Update which firing mode we should be in according to the wand.
+      WAND_YEAR_MODE = (WAND_YEAR_MODES)i_value;
 
       if(!b_wand_syncing) {
         doWandSync();

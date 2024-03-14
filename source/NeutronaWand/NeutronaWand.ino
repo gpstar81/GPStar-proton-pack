@@ -218,7 +218,7 @@ void loop() {
       // While waiting for a proton pack, issue a request for synchronization.
       if(ms_packsync.justFinished()) {
         // If not already doing so, explicitly tell the pack a wand is here to sync.
-        wandSerialSend(W_SYNC_NOW);
+        wandSerialSend(W_SYNC_NOW, WAND_YEAR_MODE);
         ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
         b_sync_light = !b_sync_light; // Toggle a white LED while attempting to sync.
         digitalWrite(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
@@ -7215,6 +7215,12 @@ void wandExitMenu() {
   bargraphClearAlt();
 
   switch(PREV_FIRING_MODE) {
+    case PROTON:
+    default:
+      // Tell the pack we are in proton mode.
+      wandSerialSend(W_PROTON_MODE);
+    break;
+
     case MESON:
       // Tell the pack we are in meson mode.
       wandSerialSend(W_MESON_MODE);
@@ -7228,11 +7234,6 @@ void wandExitMenu() {
     case SLIME:
       // Tell the pack we are in slime mode.
       wandSerialSend(W_SLIME_MODE);
-    break;
-
-    case PROTON:
-      // Tell the pack we are in proton mode.
-      wandSerialSend(W_PROTON_MODE);
     break;
 
     case SPECTRAL:
@@ -7253,11 +7254,6 @@ void wandExitMenu() {
     case VENTING:
       // Tell the pakc we are in venting mode.
       wandSerialSend(W_VENTING_MODE);
-    break;
-
-    default:
-      // Tell the pack we are in proton mode.
-      wandSerialSend(W_PROTON_MODE);
     break;
   }
 
