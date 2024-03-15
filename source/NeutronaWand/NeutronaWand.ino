@@ -218,7 +218,12 @@ void loop() {
       // While waiting for a proton pack, issue a request for synchronization.
       if(ms_packsync.justFinished()) {
         // If not already doing so, explicitly tell the pack a wand is here to sync.
-        wandSerialSend(W_SYNC_NOW, WAND_YEAR_MODE);
+        if(b_year_mode_firing_sounds == true) {
+          wandSerialSend(W_SYNC_NOW, WAND_YEAR_MODE);
+        }
+        else {
+          wandSerialSend(W_SYNC_NOW);
+        }
         ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
         b_sync_light = !b_sync_light; // Toggle a white LED while attempting to sync.
         digitalWrite(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
@@ -2238,9 +2243,19 @@ void soundBeepLoop() {
 void modeFireStartSounds() {
   ms_firing_start_sound_delay.stop();
 
+  SYSTEM_YEARS firingYear; // Declare temporary variable for later use
+  if(b_year_mode_firing_sounds == true) {
+    // If firing sounds set to follow wand, get the wand's current year mode
+    firingYear = getNeutronaWandYearMode();
+  }
+  else {
+    // If firing sounds set to follow pack, get the pack's current year mode
+    firingYear = getSystemYearMode();
+  }
+
   if(FIRING_MODE != MESON) {
     // Some sparks for firing start.
-    if(getSystemYearMode() == SYSTEM_1989) {
+    if(firingYear == SYSTEM_1989) {
       playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
     }
     else {
@@ -2259,7 +2274,7 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_intensify_trigger = true;
 
-              if(getSystemYearMode() == SYSTEM_1989) {
+              if(firingYear == SYSTEM_1989) {
                 playEffect(S_GB2_FIRE_START);
                 playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
               }
@@ -2276,7 +2291,7 @@ void modeFireStartSounds() {
               // Reset some sound triggers.
               b_sound_firing_alt_trigger = true;
 
-              if(getSystemYearMode() == SYSTEM_1989) {
+              if(firingYear == SYSTEM_1989) {
                 playEffect(S_GB2_FIRE_START);
               }
 
@@ -2288,7 +2303,7 @@ void modeFireStartSounds() {
           break;
 
           case 5:
-            switch(getSystemYearMode()) {
+            switch(firingYear) {
               case SYSTEM_1989:
                 playEffect(S_GB2_FIRE_START);
               break;
@@ -2423,7 +2438,7 @@ void modeFireStart() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(getSystemYearMode() == SYSTEM_1989) {
+      if((b_year_mode_firing_sounds == true && getNeutronaWandYearMode() == SYSTEM_1989) || (b_year_mode_firing_sounds != true && getSystemYearMode() == SYSTEM_1989)) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
       }
@@ -2526,6 +2541,16 @@ void modeFireStopSounds() {
   b_sound_firing_cross_the_streams = false;
   b_sound_firing_cross_the_streams_mix = false;
 
+  SYSTEM_YEARS firingYear; // Declare temporary variable for later use
+  if(b_year_mode_firing_sounds == true) {
+    // If firing sounds set to follow wand, get the wand's current year mode
+    firingYear = getNeutronaWandYearMode();
+  }
+  else {
+    // If firing sounds set to follow pack, get the pack's current year mode
+    firingYear = getSystemYearMode();
+  }
+
   ms_firing_stop_sound_delay.stop();
 
  switch(FIRING_MODE) {
@@ -2572,7 +2597,7 @@ void modeFireStopSounds() {
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
       default:
-        switch(getSystemYearMode()) {
+        switch(firingYear) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -2684,7 +2709,7 @@ void modeFireStop() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(getSystemYearMode() == SYSTEM_1989) {
+      if((b_year_mode_firing_sounds == true && getNeutronaWandYearMode() == SYSTEM_1989) || (b_year_mode_firing_sounds != true && getSystemYearMode() == SYSTEM_1989)) {
         stopEffect(S_GB2_FIRE_START);
         stopEffect(S_GB2_FIRE_LOOP);
       }
@@ -2729,6 +2754,16 @@ void modeFireStop() {
 }
 
 void modeFiring() {
+  SYSTEM_YEARS firingYear; // Declare temporary variable for later use
+  if(b_year_mode_firing_sounds == true) {
+    // If firing sounds set to follow wand, get the wand's current year mode
+    firingYear = getNeutronaWandYearMode();
+  }
+  else {
+    // If firing sounds set to follow pack, get the pack's current year mode
+    firingYear = getSystemYearMode();
+  }
+
   // Sound trigger flags.
   if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
     b_sound_firing_intensify_trigger = true;
@@ -2739,7 +2774,7 @@ void modeFiring() {
 
       switch(i_power_mode) {
         case 1 ... 4:
-          if(getSystemYearMode() == SYSTEM_1989) {
+          if(firingYear == SYSTEM_1989) {
             playEffect(S_GB2_FIRE_START);
             playEffect(S_GB2_FIRE_LOOP, true);
           }
@@ -2769,7 +2804,7 @@ void modeFiring() {
 
       switch(i_power_mode) {
         case 1 ... 4:
-          if(getSystemYearMode() == SYSTEM_1989) {
+          if(firingYear == SYSTEM_1989) {
             stopEffect(S_GB2_FIRE_LOOP);
             stopEffect(S_GB2_FIRE_START);
           }
@@ -2863,7 +2898,7 @@ void modeFiring() {
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
       default:
-        switch(getSystemYearMode()) {
+        switch(firingYear) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -2945,7 +2980,7 @@ void modeFiring() {
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
       default:
-        switch(getSystemYearMode()) {
+        switch(firingYear) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
@@ -3000,7 +3035,7 @@ void modeFiring() {
       case CTS_DEFAULT:
       case CTS_FROZEN_EMPIRE:
       default:
-        switch(getSystemYearMode()) {
+        switch(firingYear) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:

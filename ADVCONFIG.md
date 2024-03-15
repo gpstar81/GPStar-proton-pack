@@ -129,6 +129,7 @@ Refer to the [Operation Manual](OPERATION.md) for more information on how to ent
 | bool b&#95;overheat&#95;bargraph&#95;blink | Set to true to have your Neutrona Wand bargraph blink on and off during the overheat sequence. When set to false, it will ramp down instead.  | false |
 | bool b&#95;extra&#95;pack&#95;sounds | When set to true, the Proton Pack will play sounds that the Neutrona Wand would normally play alone. Useful when running a Neutrona Wand build without a speaker.  | false |
 | bool b&#95;mode&#95;original&#95;toggle&#95;sounds&#95;enabled | When set to true, the Neutrona Wand plays sound effects with the toggle switches only in MODE_ORIGINAL. This does not affect MODE_SUPER_HERO mode.  | true |
+| bool b&#95;year&#95;mode&#95;firing&#95;sounds | When set to true, changing the Neutrona Wand Year Mode will cause all firing sounds to match the Wand's year setting in addition to the startup, shutdown, and idle sounds.  | true |
 | bool b&#95;beep&#95;loop | When set to false, the Neutrona Wand will no longer loop the beep sound effect in Afterlife mode. | true |
 | bool b&#95;overheat&#95;mode&#95;1 | Set to true if you want the Neutrona Wand and Proton Pack to overheat in **wand power mode 1** | false |
 | bool b&#95;overheat&#95;mode&#95;2 | Set to true if you want the Neutrona Wand and Proton Pack to overheat in **wand power mode 2** | false |

@@ -572,7 +572,12 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // The pack is asking us if we are still here so respond accordingly.
       if(WAND_CONN_STATE != PACK_CONNECTED) {
         // If still waiting for the pack, trigger an immediate synchronization.
-        wandSerialSend(W_SYNC_NOW, WAND_YEAR_MODE);
+        if(b_year_mode_firing_sounds == true) {
+          wandSerialSend(W_SYNC_NOW, WAND_YEAR_MODE);
+        }
+        else {
+          wandSerialSend(W_SYNC_NOW);
+        }
         WAND_CONN_STATE = SYNCHRONIZING;
       }
       else {

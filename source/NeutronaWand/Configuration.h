@@ -227,6 +227,11 @@ bool b_extra_pack_sounds = false;
 bool b_mode_original_toggle_sounds_enabled = true;
 
 /*
+ * When set to true, changing the Neutrona Wand Year Mode will cause all firing sounds to match the Wand's year setting in addition to the startup, shutdown, and idle sounds.
+ */
+bool b_year_mode_firing_sounds = true;
+
+/*
  * Set to false to ignore reading data from the EEPROM.
  */
 const bool b_eeprom = true;
