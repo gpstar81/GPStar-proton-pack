@@ -3121,7 +3121,7 @@ void modeFiring() {
         break;
       }
 
-      fireStream(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
+      fireStream(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
     break;
 
     case SLIME:
@@ -3135,7 +3135,7 @@ void modeFiring() {
     break;
 
     case MESON:
-      //fireStreamStart(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
+      // Does not initiate the "stream start" (provides pulse effect)
       fireStream(getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT));
     break;
 
@@ -3697,14 +3697,23 @@ void barrelLightsOff() {
 
 void fireStreamStart(CRGB c_colour) {
   if(ms_firing_lights.justFinished() && i_barrel_light < i_num_barrel_leds) {
-    barrel_leds[i_barrel_light] = c_colour;
+    switch(WAND_BARREL_LED_COUNT) {
+      case LEDS_48:
+        barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
+      break;
+
+      case LEDS_5:
+      default:
+        barrel_leds[i_barrel_light] = c_colour;
+      break;
+    }
 
     ms_fast_led.start(i_fast_led_delay);
 
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
         // More LEDs means a faster firing rate.    
-        ms_firing_lights.start(d_firing_lights / 5);
+        ms_firing_lights.start(d_firing_lights / 4);
       break;
 
       case LEDS_5:
@@ -3746,7 +3755,7 @@ void fireStreamEnd(CRGB c_colour) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
         // More LEDs means a faster firing rate.
-        ms_firing_lights_end.start(d_firing_lights / 10);
+        ms_firing_lights_end.start(d_firing_lights / 4);
       break;
 
       case LEDS_5:
