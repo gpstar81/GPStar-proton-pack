@@ -630,6 +630,36 @@ void vgModeCheck() {
   }
 }
 
+void wandTipOn() {
+  switch(WAND_BARREL_LED_COUNT) {
+    case LEDS_48:
+      // Set the tip of the Frutto LED array to white.
+      barrel_leds[12] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+    break;
+
+    case LEDS_5:
+    default:
+      // Illuminate the wand barrel tip LED.
+      digitalWrite(led_barrel_tip, HIGH);
+    break;
+  }
+}
+
+void wandTipOff() {
+  switch(WAND_BARREL_LED_COUNT) {
+    case LEDS_48:
+      // Set the tip of the Frutto LED array to black.
+      barrel_leds[12] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+    break;
+
+    case LEDS_5:
+    default:
+      // Turn off the wand barrel tip LED.
+      digitalWrite(led_barrel_tip, LOW);
+    break;
+  }
+}
+
 // Controlled from the Neutrona Wand EEPROM Menu system.
 void toggleWandModes() {
   stopEffect(S_CLICK);
@@ -2496,7 +2526,7 @@ void modeFireStart() {
 
   if(FIRING_MODE == MESON) {
     ms_firing_lights.stop();
-    ms_firing_stream_blue.start(1);
+    ms_firing_stream_effects.start(1);
   }
   else {
     ms_firing_lights.start(10);
@@ -2666,7 +2696,7 @@ void modeFireStop() {
     break;
   }
 
-  ms_firing_stream_blue.stop();
+  ms_firing_stream_effects.stop();
   ms_firing_lights.stop();
 
   ms_impact.stop();
@@ -2676,7 +2706,7 @@ void modeFireStop() {
 
   // If using optional items on the gpstar Neutrona Wand microcontroller.
   digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
-  digitalWrite(led_barrel_tip, LOW); // Turn off the wand barrel tip LED.
+  wandTipOff();
 
   ms_hat_1.stop();
 
@@ -3303,11 +3333,26 @@ void wandBarrelHeatDown() {
 }
 
 void fireStream(CRGB c_colour) {
+  uint8_t i_firing_stream; // Stores a calculated value based on LED count.
+
+  switch(WAND_BARREL_LED_COUNT) {
+    case LEDS_48:
+      // More LEDs means a faster firing rate.
+      i_firing_stream = d_firing_stream / 10;
+    break;
+
+    case LEDS_5:
+    default:
+      // Firing at "normal" speed.
+      i_firing_stream = d_firing_stream;
+    break;
+  }
+
   switch(WAND_BARREL_LED_COUNT) {
     case LEDS_48:
       // Frutto Technology - 48 LED + Strobe Tip
-      if(ms_firing_stream_blue.justFinished()) {
-        if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < i_num_barrel_leds) {
+      if(ms_firing_stream_effects.justFinished()) {
+        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
             case PROTON:
             default:
@@ -3374,7 +3419,7 @@ void fireStream(CRGB c_colour) {
             break;
           }
 
-          ms_fast_led.start(i_fast_led_delay);
+          ms_fast_led.start(i_fast_led_delay - 1);
         }
 
         if(i_barrel_light == i_num_barrel_leds) {
@@ -3384,27 +3429,27 @@ void fireStream(CRGB c_colour) {
             default:
               switch(i_power_mode) {
                 case 1:
-                  ms_firing_stream_blue.start(d_firing_stream);
+                  ms_firing_stream_effects.start(i_firing_stream);
                 break;
 
                 case 2:
-                  ms_firing_stream_blue.start(d_firing_stream - 15);
+                  ms_firing_stream_effects.start(i_firing_stream - 2);
                 break;
 
                 case 3:
-                  ms_firing_stream_blue.start(d_firing_stream - 30);
+                  ms_firing_stream_effects.start(i_firing_stream - 3);
                 break;
 
                 case 4:
-                  ms_firing_stream_blue.start(d_firing_stream - 45);
+                  ms_firing_stream_effects.start(i_firing_stream - 4);
                 break;
 
                 case 5:
-                  ms_firing_stream_blue.start(d_firing_stream - 60);
+                  ms_firing_stream_effects.start(i_firing_stream - 6);
                 break;
 
                 default:
-                  ms_firing_stream_blue.start(d_firing_stream);
+                  ms_firing_stream_effects.start(i_firing_stream);
                 break;
               }
             break;
@@ -3417,33 +3462,33 @@ void fireStream(CRGB c_colour) {
             default:
               switch(i_power_mode) {
                 case 1:
-                  ms_firing_stream_blue.start(d_firing_lights + 10);
+                  ms_firing_stream_effects.start(d_firing_lights + 5);
                 break;
 
                 case 2:
-                  ms_firing_stream_blue.start(d_firing_lights + 8);
+                  ms_firing_stream_effects.start(d_firing_lights + 4);
                 break;
 
                 case 3:
-                  ms_firing_stream_blue.start(d_firing_lights + 6);
+                  ms_firing_stream_effects.start(d_firing_lights + 3);
                 break;
 
                 case 4:
-                  ms_firing_stream_blue.start(d_firing_lights + 5);
+                  ms_firing_stream_effects.start(d_firing_lights + 2);
                 break;
 
                 case 5:
-                  ms_firing_stream_blue.start(d_firing_lights + 4);
+                  ms_firing_stream_effects.start(d_firing_lights + 1);
                 break;
 
                 default:
-                  ms_firing_stream_blue.start(d_firing_lights);
+                  ms_firing_stream_effects.start(d_firing_lights);
                 break;
               }
             break;
           }
 
-          ms_fast_led.start(i_fast_led_delay);
+          ms_fast_led.start(i_fast_led_delay - 1);
 
           i_barrel_light++;
         }
@@ -3452,8 +3497,8 @@ void fireStream(CRGB c_colour) {
 
     case LEDS_5:
     default:
-      if(ms_firing_stream_blue.justFinished()) {
-        if(i_barrel_light - 1 > -1 && i_barrel_light - 1 < i_num_barrel_leds) {
+      if(ms_firing_stream_effects.justFinished()) {
+        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
             case PROTON:
             default:
@@ -3530,27 +3575,27 @@ void fireStream(CRGB c_colour) {
             default:
               switch(i_power_mode) {
                 case 1:
-                  ms_firing_stream_blue.start(d_firing_stream);
+                  ms_firing_stream_effects.start(i_firing_stream);
                 break;
 
                 case 2:
-                  ms_firing_stream_blue.start(d_firing_stream - 15);
+                  ms_firing_stream_effects.start(i_firing_stream - 15);
                 break;
 
                 case 3:
-                  ms_firing_stream_blue.start(d_firing_stream - 30);
+                  ms_firing_stream_effects.start(i_firing_stream - 30);
                 break;
 
                 case 4:
-                  ms_firing_stream_blue.start(d_firing_stream - 45);
+                  ms_firing_stream_effects.start(i_firing_stream - 45);
                 break;
 
                 case 5:
-                  ms_firing_stream_blue.start(d_firing_stream - 60);
+                  ms_firing_stream_effects.start(i_firing_stream - 60);
                 break;
 
                 default:
-                  ms_firing_stream_blue.start(d_firing_stream);
+                  ms_firing_stream_effects.start(i_firing_stream);
                 break;
               }
             break;
@@ -3563,27 +3608,27 @@ void fireStream(CRGB c_colour) {
             default:
               switch(i_power_mode) {
                 case 1:
-                  ms_firing_stream_blue.start(d_firing_lights + 10);
+                  ms_firing_stream_effects.start(d_firing_lights + 10);
                 break;
 
                 case 2:
-                  ms_firing_stream_blue.start(d_firing_lights + 8);
+                  ms_firing_stream_effects.start(d_firing_lights + 8);
                 break;
 
                 case 3:
-                  ms_firing_stream_blue.start(d_firing_lights + 6);
+                  ms_firing_stream_effects.start(d_firing_lights + 6);
                 break;
 
                 case 4:
-                  ms_firing_stream_blue.start(d_firing_lights + 5);
+                  ms_firing_stream_effects.start(d_firing_lights + 5);
                 break;
 
                 case 5:
-                  ms_firing_stream_blue.start(d_firing_lights + 4);
+                  ms_firing_stream_effects.start(d_firing_lights + 4);
                 break;
 
                 default:
-                  ms_firing_stream_blue.start(d_firing_lights);
+                  ms_firing_stream_effects.start(d_firing_lights);
                 break;
               }
             break;
@@ -3596,8 +3641,6 @@ void fireStream(CRGB c_colour) {
       }
     break;
   }
-
-
 }
 
 void barrelLightsOff() {
@@ -3606,11 +3649,22 @@ void barrelLightsOff() {
   i_heatdown_counter = 100;
 
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
-    barrel_leds[i] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+    switch(WAND_BARREL_LED_COUNT) {
+      case LEDS_48:
+        // Set the tip of the Frutto LED array to white.
+        barrel_leds[frutto_barrel[i]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+      break;
+
+      case LEDS_5:
+      default:
+        // Illuminate the wand barrel tip LED.
+        barrel_leds[i] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+      break;
+    }
   }
 
   // Turn off the wand barrel tip LED.
-  digitalWrite(led_barrel_tip, LOW);
+  wandTipOff();
 
   ms_fast_led.start(i_fast_led_delay);
 }
@@ -3619,17 +3673,18 @@ void fireStreamStart(CRGB c_colour) {
   if(ms_firing_lights.justFinished() && i_barrel_light < i_num_barrel_leds) {
     barrel_leds[i_barrel_light] = c_colour;
 
-    ms_fast_led.start(i_fast_led_delay);
 
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
         // More LEDs means a faster firing rate.
+        ms_fast_led.start(i_fast_led_delay - 1);
         ms_firing_lights.start(d_firing_lights / 5);
       break;
 
       case LEDS_5:
       default:
         // Firing at "normal" speed.
+        ms_fast_led.start(i_fast_led_delay);
         ms_firing_lights.start(d_firing_lights);
       break;
     }
@@ -3640,7 +3695,19 @@ void fireStreamStart(CRGB c_colour) {
       i_barrel_light = 0;
 
       ms_firing_lights.stop();
-      ms_firing_stream_blue.start(d_firing_stream);
+
+      switch(WAND_BARREL_LED_COUNT) {
+        case LEDS_48:
+          // More LEDs means a faster firing rate.
+          ms_firing_stream_effects.start(d_firing_stream / 10);
+        break;
+
+        case LEDS_5:
+        default:
+          // Firing at "normal" speed.
+          ms_firing_stream_effects.start(d_firing_stream);
+        break;
+      }
     }
   }
 }
@@ -3649,17 +3716,17 @@ void fireStreamEnd(CRGB c_colour) {
   if(i_barrel_light < i_num_barrel_leds) {
     barrel_leds[i_barrel_light] = c_colour;
 
-    ms_fast_led.start(i_fast_led_delay);
-
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
         // More LEDs means a faster firing rate.
-        ms_firing_lights_end.start(d_firing_lights / 6);
+        ms_fast_led.start(i_fast_led_delay - 1);
+        ms_firing_lights_end.start(d_firing_lights / 10);
       break;
 
       case LEDS_5:
       default:
         // Firing at a "normal" rate
+        ms_fast_led.start(i_fast_led_delay);
         ms_firing_lights_end.start(d_firing_lights);
       break;
     }
@@ -3728,7 +3795,7 @@ void bargraphSuperHeroRampFiringAnimation() {
 
         b_bargraph_up = true;
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
 
       case 1:
@@ -3759,7 +3826,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
 
       case 2:
@@ -3790,7 +3857,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, LOW);
+        wandTipOff();
       break;
 
       case 3:
@@ -3821,7 +3888,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, LOW);
+        wandTipOff();
       break;
 
       case 4:
@@ -3852,7 +3919,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
 
       case 5:
@@ -3883,7 +3950,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
 
       case 6:
@@ -3914,7 +3981,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, LOW);
+        wandTipOff();
       break;
 
       case 7:
@@ -3945,7 +4012,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, LOW);
+        wandTipOff();
       break;
 
       case 8:
@@ -3976,7 +4043,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
 
       case 9:
@@ -4007,7 +4074,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
 
       case 10:
@@ -4038,7 +4105,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, LOW);
+        wandTipOff();
       break;
 
       case 11:
@@ -4069,7 +4136,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, LOW);
+        wandTipOff();
       break;
 
       case 12:
@@ -4100,7 +4167,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           i_bargraph_status_alt--;
         }
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
 
       case 13:
@@ -4122,7 +4189,7 @@ void bargraphSuperHeroRampFiringAnimation() {
 
         b_bargraph_up = false;
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
     }
   }
@@ -4139,7 +4206,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         digitalWrite(i_bargraph_5_led[5-1], LOW);
         i_bargraph_status++;
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
 
       case 2:
@@ -4152,7 +4219,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         digitalWrite(i_bargraph_5_led[5-1], HIGH);
         i_bargraph_status++;
 
-        digitalWrite(led_barrel_tip, LOW);
+        wandTipOff();
       break;
 
       case 3:
@@ -4165,7 +4232,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         digitalWrite(i_bargraph_5_led[5-1], HIGH);
         i_bargraph_status++;
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
 
       case 4:
@@ -4178,7 +4245,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         digitalWrite(i_bargraph_5_led[5-1], HIGH);
         i_bargraph_status++;
 
-        digitalWrite(led_barrel_tip, LOW);
+        wandTipOff();
       break;
 
       case 5:
@@ -4191,7 +4258,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         digitalWrite(i_bargraph_5_led[5-1], LOW);
         i_bargraph_status = 1;
 
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       break;
     }
   }
@@ -5073,10 +5140,10 @@ void bargraphRampFiring() {
 
       // Strobe the optional tip light on even barrel lights numbers.
       if((i_barrel_light & 0x01) == 0) {
-        digitalWrite(led_barrel_tip, HIGH);
+        wandTipOn();
       }
       else {
-        digitalWrite(led_barrel_tip, LOW);
+        wandTipOff();
       }
     break;
   }
@@ -6229,7 +6296,7 @@ void wandLightsOff() {
 
   digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
   digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
-  digitalWrite(led_barrel_tip, LOW); // Turn off the wand barrel tip LED.
+  wandTipOff();
 
   digitalWrite(led_vent, HIGH);
   digitalWrite(led_white, HIGH);
@@ -7327,7 +7394,18 @@ void switchLoops() {
 
 void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
-    barrel_leds[i] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+    switch(WAND_BARREL_LED_COUNT) {
+      case LEDS_48:
+        // Set the tip of the Frutto LED array to white.
+        barrel_leds[frutto_barrel[i]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+      break;
+
+      case LEDS_5:
+      default:
+        // Illuminate the wand barrel tip LED.
+        barrel_leds[i] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+      break;
+    }
   }
 
   ms_fast_led.start(i_fast_led_delay);

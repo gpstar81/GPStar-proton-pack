@@ -374,12 +374,12 @@ void checkPack() {
           switch(wandConfig.ledWandCount) {
             case 0:
             default:
-              i_num_barrel_leds = 5;
               WAND_BARREL_LED_COUNT = LEDS_5;
+              i_num_barrel_leds = 5;
             break;
             case 1:
-              i_num_barrel_leds = 48;
               WAND_BARREL_LED_COUNT = LEDS_48;
+              i_num_barrel_leds = 48;
             break;
           }
 
