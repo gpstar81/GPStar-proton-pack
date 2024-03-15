@@ -3525,27 +3525,27 @@ void fireStreamEffect(CRGB c_colour) {
             default:
               switch(i_power_mode) {
                 case 1:
-                  ms_firing_stream_effects.start((d_firing_stream / 20) + 5);
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 5);
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 20) + 4);
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 4);
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 20) + 3);
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 3);
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 20) + 2);
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2);
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 20) + 1);
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1);
                 break;
 
                 default:
-                  ms_firing_stream_effects.start(d_firing_stream / 20);
+                  ms_firing_stream_effects.start(d_firing_stream / 25);
                 break;
               }
             break;
@@ -3757,7 +3757,7 @@ void fireStreamStart(CRGB c_colour) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
         // More LEDs means a faster firing rate.    
-        ms_firing_lights.start(d_firing_stream / 20);
+        ms_firing_lights.start(d_firing_stream / 25);
       break;
 
       case LEDS_5:
@@ -3800,7 +3800,7 @@ void fireStreamEnd(CRGB c_colour) {
         barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
 
         // More LEDs means a faster firing rate.
-        ms_firing_lights_end.start(d_firing_stream / 20);
+        ms_firing_lights_end.start(d_firing_stream / 25);
       break;
 
       case LEDS_5:
