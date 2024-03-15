@@ -598,24 +598,29 @@ void checkSerial1() {
           // This will pass values from the wandConfig object
           packSerialSendData(P_SAVE_PREFERENCES_WAND);
 
-          // Update our firing mode according to the new wand configuration.
-          switch(wandConfig.defaultYearModeWand) {
-            case 1:
-            default:
-              WAND_YEAR_MODE = YEAR_DEFAULT;
-            break;
-            case 2:
-              WAND_YEAR_MODE = YEAR_1984;
-            break;
-            case 3:
-              WAND_YEAR_MODE = YEAR_1989;
-            break;
-            case 4:
-              WAND_YEAR_MODE = YEAR_AFTERLIFE;
-            break;
-            case 5:
-              WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
-            break;
+          // Update our firing mode according to the new wand configuration if configured to do so
+          if(b_year_mode_firing_sounds == true) {
+            switch(wandConfig.defaultYearModeWand) {
+              case 1:
+              default:
+                WAND_YEAR_MODE = YEAR_DEFAULT;
+              break;
+              case 2:
+                WAND_YEAR_MODE = YEAR_1984;
+              break;
+              case 3:
+                WAND_YEAR_MODE = YEAR_1989;
+              break;
+              case 4:
+                WAND_YEAR_MODE = YEAR_AFTERLIFE;
+              break;
+              case 5:
+                WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+              break;
+            }
+          }
+          else {
+            WAND_YEAR_MODE = YEAR_DEFAULT;
           }
 
           // Offer some feedback to the user
@@ -1051,24 +1056,29 @@ void checkWand() {
           packComs.rxObj(wandConfig);
           debugln(F("Recv. Wand Config Prefs"));
 
-          // Update our firing mode according to the new wand configuration.
-          switch(wandConfig.defaultYearModeWand) {
-            case 1:
-            default:
-              WAND_YEAR_MODE = YEAR_DEFAULT;
-            break;
-            case 2:
-              WAND_YEAR_MODE = YEAR_1984;
-            break;
-            case 3:
-              WAND_YEAR_MODE = YEAR_1989;
-            break;
-            case 4:
-              WAND_YEAR_MODE = YEAR_AFTERLIFE;
-            break;
-            case 5:
-              WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
-            break;
+          // Update our firing mode according to the new wand configuration if configured to do so
+          if(b_year_mode_firing_sounds == true) {
+            switch(wandConfig.defaultYearModeWand) {
+              case 1:
+              default:
+                WAND_YEAR_MODE = YEAR_DEFAULT;
+              break;
+              case 2:
+                WAND_YEAR_MODE = YEAR_1984;
+              break;
+              case 3:
+                WAND_YEAR_MODE = YEAR_1989;
+              break;
+              case 4:
+                WAND_YEAR_MODE = YEAR_AFTERLIFE;
+              break;
+              case 5:
+                WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
+              break;
+            }
+          }
+          else {
+            WAND_YEAR_MODE = YEAR_DEFAULT;
           }
 
           // Send the EEPROM preferences just returned by the wand.
