@@ -362,8 +362,7 @@ millisDelay ms_firing_stream_effects;
 millisDelay ms_impact; // Mix some impact sounds while firing.
 millisDelay ms_firing_start_sound_delay;
 millisDelay ms_firing_stop_sound_delay;
-const uint8_t d_firing_lights = 20; // 20 milliseconds. Timer for adjusting the firing stream colours.
-const uint8_t d_firing_stream = 100; // 100 milliseconds. Used by the firing timers to adjust stream colours.
+const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // using this to keep track which LED in the barrel is currently lighting up.
 const uint8_t i_fire_start_sound_delay = 50; // Delay for starting firing sounds.
 const uint8_t i_fire_stop_sound_delay = 100; // Delay for stopping fire sounds.
