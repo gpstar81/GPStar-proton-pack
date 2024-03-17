@@ -104,11 +104,11 @@ void setup() {
   // Another optional N-Filter LED.
   pinMode(i_nfilter_led_pin, OUTPUT);
 
-  // Power Cell and Cyclotron Lid.
-  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, i_max_pack_leds + i_nfilter_jewel_leds);
+  // Power Cell, Cyclotron Lid, and N-Filter.
+  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT);
 
-  // Inner Cyclotron LEDs.
-  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, i_max_inner_cyclotron_leds);
+  // Inner Cyclotron LEDs (Cake + Cavity).
+  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX);
 
   // Other FastLED Options
   FastLED.setDither(0); // Disables the "temporal dithering" feature as this software will set brightness on a per-pixel level by device.
@@ -4447,6 +4447,7 @@ void updateProtonPackLEDCounts() {
   i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_leds;
   i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
   i_cyclotron_led_start = i_powercell_leds;
+  i_max_inner_cyclotron_leds = i_inner_cyclotron_cake_num_leds + i_inner_cyclotron_cavity_num_leds;
 }
 
 void resetCyclotronLEDs() {

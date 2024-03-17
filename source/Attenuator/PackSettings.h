@@ -185,6 +185,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
+      <b class="labelSwitch">Swap Red/Green LEDs (GRB):</b>
+      <label class="switch">
+        <input id="ledCycCakeGRB" name="ledCycCakeGRB" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
       <b>Custom Color (Hue):</b><br/>
       <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="0" max="360" value="360" step="2"
        oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
@@ -197,13 +204,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <input type="range" id="ledCycCakeSat" name="ledCycCakeSat" min="0" max="100" value="100" step="2"
        oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
       <output class="labelSlider" id="cakeSatOut" for="ledCycCakeSat"></output>
-    </div>
-      <div class="setting">
-      <b class="labelSwitch">Swap Red/Green LEDs (GRB):</b>
-      <label class="switch">
-        <input id="ledCycCakeGRB" name="ledCycCakeGRB" type="checkbox">
-        <span class="slider round"></span>
-      </label>
     </div>
     <div class="setting">
       <b>Cyclotron Cavity Lights:</b><br/>
