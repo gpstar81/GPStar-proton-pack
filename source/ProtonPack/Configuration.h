@@ -135,8 +135,7 @@ uint8_t i_inner_cyclotron_cake_num_leds = 35;
  * Leave at least one in place even if you are not using this optional item.
  * You can use up to 30 LEDs (eg. addressable fairy lights as recommended device)
  */
-bool b_use_cyclotron_cavity_leds = true;
-uint8_t i_inner_cyclotron_cavity_num_leds = 30;
+uint8_t i_inner_cyclotron_cavity_num_leds = 0;
 
 /*
  * If you use GRB (green/red/blue) instead of RGB (red/green/blue) addressable LEDs for your Inner Cyclotron LEDs, then set to true.

@@ -2998,7 +2998,7 @@ void innerCyclotronCakeOff() {
 }
 
 void innerCyclotronCavityOff() {
-  if(b_use_cyclotron_cavity_leds && i_max_inner_cyclotron_leds > i_inner_cyclotron_cake_num_leds) {
+  if(i_inner_cyclotron_cavity_num_leds > 0 && i_max_inner_cyclotron_leds > i_inner_cyclotron_cake_num_leds) {
     for(int i = i_inner_cyclotron_cake_num_leds; i < i_max_inner_cyclotron_leds; i++) {
       cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_CAVITY, C_BLACK);
     }
@@ -3207,7 +3207,7 @@ void innerCyclotronRingUpdate(int cDelay) {
       }
     }
 
-    if(b_use_cyclotron_cavity_leds && i_max_inner_cyclotron_leds > i_inner_cyclotron_cake_num_leds) {
+    if(i_inner_cyclotron_cavity_num_leds > 0 && i_max_inner_cyclotron_leds > i_inner_cyclotron_cake_num_leds) {
       // Update the inner cyclotron cavity LEDs.
       innerCyclotronCavityUpdate(cDelay);
     }

@@ -113,20 +113,22 @@ const unsigned int i_meson_blast_delay_level_1 = 220;
 /*
  * Barrel LEDs
  * The Hasbro Neutrona Wand has 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
- * Support for up to 60 LEDs. With the options of 48 and 60 from Frutto Technology, with the 48 option first.
- * Note: The 48/60 LED options include built-in strobe for the tip which will supersede the dedicated white LED.
+ * Support for up to 49 LEDs from Frutto Technology (body of 48 with a "strobe tip" which is also RGB).
+ * When using the 48 LED option the standard white LED will be swapped for the 49th LED of the Frutto option.
  */
-#define BARREL_LEDS_MAX 61 // The maximum number of barrel LEDs supported.
+#define BARREL_LEDS_MAX 49 // The maximum number of barrel LEDs supported (Frutto = 48 + Strobe Tip).
 #define BARREL_LED_PIN 10
 CRGB barrel_leds[BARREL_LEDS_MAX];
+// This is the array of LEDs in the order by which they should be illuminated for effects. LED number 12 is the very tip which will be white (by default).
+const uint16_t frutto_barrel[48] = {0, 25, 24, 48, 1, 26, 23, 47, 2, 27, 22, 46, 3, 28, 21, 45, 4, 29, 20, 44, 5, 30, 19, 43, 6, 31, 18, 42, 7, 32, 17, 41, 8, 33, 16, 40, 9, 34, 15, 39, 10, 35, 14, 38, 11, 36, 13, 37};
 
 /*
  * How many LEDs are in your Neutrona Wand Barrel.
  * Default setting is 5: for the Hasbro Neturona Wand.
- * Supported options: 5, with experimental support for 48. (29 is for internal testing only)
+ * Supported options: Stock (5) and Frutto Technology (48 + Strobe Tip)
  */
 uint8_t i_num_barrel_leds = 5;
-enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_29, LEDS_48 };
+enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_48 };
 enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
 
 /*
@@ -356,13 +358,11 @@ enum FIRING_MODES PREV_FIRING_MODE;
  */
 millisDelay ms_firing_lights;
 millisDelay ms_firing_lights_end;
-millisDelay ms_firing_stream_blue;
-millisDelay ms_firing_stream_orange;
+millisDelay ms_firing_stream_effects;
 millisDelay ms_impact; // Mix some impact sounds while firing.
 millisDelay ms_firing_start_sound_delay;
 millisDelay ms_firing_stop_sound_delay;
-const uint8_t d_firing_lights = 20; // 20 milliseconds. Timer for adjusting the firing stream colours.
-const uint8_t d_firing_stream = 100; // 100 milliseconds. Used by the firing timers to adjust stream colours.
+const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // using this to keep track which LED in the barrel is currently lighting up.
 const uint8_t i_fire_start_sound_delay = 50; // Delay for starting firing sounds.
 const uint8_t i_fire_stop_sound_delay = 100; // Delay for stopping fire sounds.

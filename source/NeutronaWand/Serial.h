@@ -160,11 +160,8 @@ void wandSerialSendData(uint8_t i_message) {
         default:
           wandConfig.ledWandCount = 0;
         break;
-        case LEDS_29:
-          wandConfig.ledWandCount = 1;
-        break;
         case LEDS_48:
-          wandConfig.ledWandCount = 2;
+          wandConfig.ledWandCount = 1;
         break;
       }
 
@@ -377,16 +374,12 @@ void checkPack() {
           switch(wandConfig.ledWandCount) {
             case 0:
             default:
-              i_num_barrel_leds = 5;
               WAND_BARREL_LED_COUNT = LEDS_5;
+              i_num_barrel_leds = 5;
             break;
             case 1:
-              i_num_barrel_leds = 29;
-              WAND_BARREL_LED_COUNT = LEDS_29;
-            break;
-            case 2:
-              i_num_barrel_leds = 48;
               WAND_BARREL_LED_COUNT = LEDS_48;
+              i_num_barrel_leds = 48;
             break;
           }
 
