@@ -117,11 +117,14 @@ void setup() {
   // Another optional N-Filter LED.
   pinMode(i_nfilter_led_pin, OUTPUT);
 
-  // Power Cell and Cyclotron Lid.
-  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, i_max_pack_leds + i_nfilter_jewel_leds);
+  // Power Cell, Cyclotron Lid, and N-Filter.
+  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT);
 
-  // Inner Cyclotron LEDs.
-  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, i_max_inner_cyclotron_leds);
+  // Inner Cyclotron LEDs (Cake + Cavity).
+  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX);
+
+  // Other FastLED Options
+  FastLED.setDither(0); // Disables the "temporal dithering" feature as this software will set brightness on a per-pixel level by device.
   //FastLED.setMaxPowerInVoltsAndMilliamps(5, 800); // Limit draw to 800mA at 5v of power. Enabling this can cause some flickering of the LEDs.
 
   // Cyclotron Switch Panel LEDs
@@ -3065,9 +3068,11 @@ void resetCyclotronState() {
   // Tell the Inner Cyclotron to turn off the LEDs.
   if(b_cyclotron_lid_on == true) {
     innerCyclotronCakeOff();
+    innerCyclotronCavityOff();
   }
   else if(b_alarm != true || PACK_STATE == MODE_OFF) {
     innerCyclotronCakeOff();
+    innerCyclotronCavityOff();
   }
 
   cyclotronSpeedRevert();
@@ -3087,6 +3092,83 @@ void innerCyclotronCakeOff() {
   }
 }
 
+void innerCyclotronCavityOff() {
+  if(i_inner_cyclotron_cavity_num_leds > 0 && i_max_inner_cyclotron_leds > i_inner_cyclotron_cake_num_leds) {
+    for(int i = i_inner_cyclotron_cake_num_leds; i < i_max_inner_cyclotron_leds; i++) {
+      cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_CAVITY, C_BLACK);
+    }
+  }
+}
+
+void innerCyclotronCavityUpdate(int cDelay) {
+  // Map the value from the inner cake to the cavity lights to get current position.
+  uint8_t i_start = i_inner_cyclotron_cake_num_leds;
+  uint8_t i_finish = i_max_inner_cyclotron_leds;
+  uint8_t i_midpoint = i_start + (i_inner_cyclotron_cavity_num_leds / 2);
+  uint8_t i_colour_scheme; // Color scheme for lighting, to be set later.
+  uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
+
+  // Cannot go lower than the starting point for this segment of LEDs.
+  if(i_led_cyclotron_cavity < i_start) {
+    i_led_cyclotron_cavity = i_start;
+  }
+
+  if(i_led_cyclotron_cavity < i_midpoint) {
+    i_colour_scheme = C_YELLOW; // Always keep the lower half of LEDs yellow.
+  }
+  else {
+    // Light spiraling higher than the lower half will have variable colors.
+    i_colour_scheme = getDeviceColour(CYCLOTRON_CAVITY, FIRING_MODE, false);
+  }
+
+  if(b_clockwise == true) {
+    if(cDelay < 30 && b_cyclotron_lid_on != true) {
+      if(b_gbr_cyclotron_cavity == true) {
+        cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGBR(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+      }
+      else {
+        cyclotron_leds[i_led_cyclotron_cavity] = getHueAsRGB(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+      }
+
+      if(i_led_cyclotron_cavity == i_start) {
+        cyclotron_leds[i_finish - 1] = getHueAsRGB(CYCLOTRON_CAVITY, C_BLACK);
+      }
+      else {
+        cyclotron_leds[i_led_cyclotron_cavity - 1] = getHueAsRGB(CYCLOTRON_CAVITY, C_BLACK);
+      }
+    }
+
+    i_led_cyclotron_cavity++;
+
+    if(i_led_cyclotron_cavity > i_finish - 1) {
+      i_led_cyclotron_cavity = i_start;
+    }
+  }
+  else {
+    if(cDelay < 30 && b_cyclotron_lid_on != true) {
+      if(b_gbr_cyclotron_cavity == true) {
+        cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGBR(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+      }
+      else {
+        cyclotron_leds[i_led_cyclotron_cavity] = getHueAsRGB(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+      }
+
+      if(i_led_cyclotron_cavity + 1 > i_finish - 1) {
+        cyclotron_leds[i_start] = getHueAsRGB(CYCLOTRON_CAVITY, C_BLACK);
+      }
+      else {
+        cyclotron_leds[i_led_cyclotron_cavity + 1] = getHueAsRGB(CYCLOTRON_CAVITY, C_BLACK);
+      }
+    }
+
+    i_led_cyclotron_cavity--;
+
+    if(i_led_cyclotron_cavity < i_start) {
+      i_led_cyclotron_cavity = i_finish - 1;
+    }
+  }
+}
+
 // For NeoPixel rings, ramp up and ramp down the LEDs in the ring and set the speed. (optional)
 void innerCyclotronRingUpdate(int cDelay) {
   if(ms_cyclotron_ring.justFinished()) {
@@ -3103,6 +3185,8 @@ void innerCyclotronRingUpdate(int cDelay) {
       }
     }
     else if(b_inner_ramp_down == true) {
+      innerCyclotronCavityOff(); // Turn off (sparking) cavity lights.
+
       if(r_inner_ramp.isFinished()) {
         b_inner_ramp_down = false;
       }
@@ -3216,6 +3300,11 @@ void innerCyclotronRingUpdate(int cDelay) {
       if(i_led_cyclotron_ring < i_start) {
         i_led_cyclotron_ring = i_inner_cyclotron_cake_num_leds - 1;
       }
+    }
+
+    if(i_inner_cyclotron_cavity_num_leds > 0 && i_max_inner_cyclotron_leds > i_inner_cyclotron_cake_num_leds) {
+      // Update the inner cyclotron cavity LEDs.
+      innerCyclotronCavityUpdate(cDelay);
     }
   }
 }
@@ -3738,6 +3827,11 @@ void packAlarm() {
       break;
     }
   }
+
+  // Turn of LEDs within the cyclotron cavity, if lid is not attached.
+  if(b_cyclotron_lid_on != true) {
+    innerCyclotronCavityOff();
+  }
 }
 
 // LEDs for the 1984/2021 and vibration switches.
@@ -3782,6 +3876,7 @@ void cyclotronSwitchPlateLEDs() {
 
       // Turn off Inner Cyclotron LEDs.
       innerCyclotronCakeOff();
+      innerCyclotronCavityOff();
     }
   }
   else {
@@ -4549,6 +4644,7 @@ void updateProtonPackLEDCounts() {
   i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_leds;
   i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
   i_cyclotron_led_start = i_powercell_leds;
+  i_max_inner_cyclotron_leds = i_inner_cyclotron_cake_num_leds + i_inner_cyclotron_cavity_num_leds;
 }
 
 void resetCyclotronLEDs() {

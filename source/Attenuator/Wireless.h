@@ -61,7 +61,7 @@
 Preferences preferences;
 
 // Set up values for the SSID and password for the built-in WiFi access point (AP).
-const uint8_t maxAttempts = 3; // Max attempts to establish a external WiFi connection.
+const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi connection.
 const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
@@ -147,16 +147,23 @@ bool startAccesPoint() {
   #endif
   preferences.end();
 
+  #if defined(DEBUG_WIRELESS_SETUP)
+    Serial.print(F("Stored Private SSID: "));
+    Serial.println(ap_ssid);
+    Serial.print(F("Stored Private PASS: "));
+    Serial.println(ap_pass);
+  #endif
+
   // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
-  // Additionally, sets radio to channel 6, don't hide SSID, and max 4 connections.
+  // Additionally, sets radio to channel 11, don't hide SSID, and max 4 connections.
   // Note that the WiFi protocols available for use are 802.11b/g/n
-  bool b_success = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 6, false, 4);
+  bool b_success = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 11, false, 4);
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println(b_success ? "AP Ready" : "AP Failed");
   #endif
 
   if(b_success) {
-    delay(100); // Wait briefly before configuring network.
+    delay(250); // Wait briefly before configuring network.
 
     // Simple networking IP info exclusively for the AP.
     IPAddress localIP(192, 168, 1, 2);
@@ -168,15 +175,15 @@ bool startAccesPoint() {
     WiFi.softAPConfig(localIP, gateway, subnet, dhcpStart);
     WiFi.softAPsetHostname(ap_ssid_prefix.c_str());
     #if defined(DEBUG_WIRELESS_SETUP)
-      Serial.print("AP Name/SSID: ");
+      Serial.print(F("AP Name/SSID: "));
       Serial.println(WiFi.softAPSSID());
-      Serial.print("AP IP Address: ");
+      Serial.print(F("AP IP Address: "));
       Serial.println(WiFi.softAPIP());
-      Serial.print("AP Hostname: ");
+      Serial.print(F("AP Hostname: "));
       Serial.println(WiFi.softAPgetHostname());
-      Serial.print("AP Mac Address: ");
+      Serial.print(F("AP Mac Address: "));
       Serial.println(WiFi.softAPmacAddress());
-      Serial.print("AP Subnet Mask: ");
+      Serial.print(F("AP Subnet Mask: "));
       Serial.println(WiFi.softAPSubnetCIDR());
     #endif
   }
@@ -194,8 +201,8 @@ bool startExternalWifi() {
     // Use either the stored preferences or an expected default value.
     preferences.begin("network", true); // Access namespace in read-only mode.
     b_wifi_enabled = preferences.getBool("enabled", false);
-    wifi_ssid = preferences.getString("ssid", "");
-    wifi_pass = preferences.getString("password", "");
+    wifi_ssid = preferences.getString("ssid", user_wifi_ssid);
+    wifi_pass = preferences.getString("password", user_wifi_pass);
     wifi_address = preferences.getString("address", "");
     wifi_subnet = preferences.getString("subnet", "");
     wifi_gateway = preferences.getString("gateway", "");
@@ -204,9 +211,16 @@ bool startExternalWifi() {
 
   // User wants to utilize the external WiFi network and has valid SSID and password.
   if(b_wifi_enabled && wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
-    uint8_t attemptCount = 0;
+    uint8_t i_curr_attempt = 0;
 
-    while (attemptCount < maxAttempts) {
+    #if defined(DEBUG_WIRELESS_SETUP)
+      Serial.print(F("Stored External SSID: "));
+      Serial.println(wifi_ssid);
+      Serial.print(F("Stored External PASS: "));
+      Serial.println(wifi_pass);
+    #endif
+
+    while (i_curr_attempt < i_max_attempts) {
       WiFi.persistent(false); // Don't write SSID/Password to flash memory.
 
       // Attempt to connect to a specified WiFi network.
@@ -214,10 +228,10 @@ bool startExternalWifi() {
 
       // Wait for the connection to be established
       uint8_t attempt = 0;
-      while (attempt < (maxAttempts * 10) && WiFi.status() != WL_CONNECTED) {
+      while (attempt < (i_max_attempts * 10) && WiFi.status() != WL_CONNECTED) {
         delay(500);
         #if defined(DEBUG_WIRELESS_SETUP)
-          Serial.println("Connecting to WiFi network...");
+          Serial.println(F("Connecting to WiFi network..."));
         #endif
         attempt++;
       }
@@ -226,9 +240,9 @@ bool startExternalWifi() {
         // Configure static IP values for tis device on the preferred network.
         if(wifi_address.length() >= 7 && wifi_subnet.length() >= 7 && wifi_gateway.length() >= 7) {
           #if defined(DEBUG_WIRELESS_SETUP)
-            Serial.print("Using Stored IP: ");
+            Serial.print(F("Using Stored IP: "));
             Serial.print(wifi_address);
-            Serial.print(" / ");
+            Serial.print(F(" / "));
             Serial.println(wifi_subnet);
           #endif
 
@@ -253,26 +267,26 @@ bool startExternalWifi() {
         wifi_gateway = gatewayIP.toString();
 
         #if defined(DEBUG_WIRELESS_SETUP)
-          Serial.print("WiFi IP Address: ");
+          Serial.print(F("WiFi IP Address: "));
           Serial.print(localIP);
-          Serial.print(" / ");
+          Serial.print(F(" / "));
           Serial.println(subnetMask);
         #endif
 
-        WiFi.setAutoReconnect(true); // Reconnect if disconnected.
+        WiFi.setAutoReconnect(false); // Don't try to reconnect, wait for a power cycle.
 
         return true; // Exit the loop if connected successfully.
       } else {
         #if defined(DEBUG_WIRELESS_SETUP)
-          Serial.println("Failed to connect to WiFi. Retrying...");
+          Serial.println(F("Failed to connect to WiFi. Retrying..."));
         #endif
-        attemptCount++;
+        i_curr_attempt++;
       }
     }
 
-    if (attemptCount == maxAttempts) {
+    if (i_curr_attempt == i_max_attempts) {
       #if defined(DEBUG_WIRELESS_SETUP)
-        Serial.println("Max connection attempts reached. Could not connect to external WiFi.");
+        Serial.println(F("Max connection attempts reached. Could not connect to external WiFi."));
       #endif
     }
   }
@@ -283,19 +297,19 @@ bool startExternalWifi() {
 void OnWiFiEvent(WiFiEvent_t event) {
   switch (event) {
     case SYSTEM_EVENT_STA_CONNECTED:
-      debug("Connected to WiFi Network");
+      debug(F("Connected to WiFi Network"));
     break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
-      debug("Disconnected from WiFi Network");
+      debug(F("Disconnected from WiFi Network"));
     break;
     case SYSTEM_EVENT_AP_START:
-      debug("Soft AP started");
+      debug(F("Soft AP started"));
     break;
     case SYSTEM_EVENT_AP_STACONNECTED:
-      debug("Station connected to softAP");
+      debug(F("Station connected to softAP"));
     break;
     case SYSTEM_EVENT_AP_STADISCONNECTED:
-      debug("Station disconnected from softAP");
+      debug(F("Station disconnected from softAP"));
     break;
     default:
       // No-op for any other status.
@@ -307,10 +321,13 @@ bool startWiFi() {
   // Begin some diagnostic information to console.
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println();
-    Serial.println("Starting WiFi Configuration");
-    Serial.print("Device WiFi MAC Address: ");
+    Serial.println(F("Starting WiFi Configuration"));
+    Serial.print(F("Device WiFi MAC Address: "));
     Serial.println(WiFi.macAddress());
   #endif
+
+  // Disable WiFi power save mode (via the esp_wifi_set_ps function).
+  WiFi.setSleep(false);
 
   // Assign an event handler to deal with changes in WiFi status.
   WiFi.onEvent(OnWiFiEvent);
@@ -318,6 +335,7 @@ bool startWiFi() {
   if(b_wifi_enabled) {
     // When external WiFi is desired, enable simultaneous SoftAP + Station mode.
     WiFi.mode(WIFI_MODE_APSTA);
+    delay(250);
   }
 
   // Start the built-in access point (softAP) with the preferred credentials.
@@ -562,7 +580,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
     case WS_EVT_DATA:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.println("WebSocket Data Received");
+        Serial.println(F("WebSocket Data Received"));
       #endif
       // Do something when data is received via WebSocket.
     break;
@@ -585,9 +603,9 @@ void onOTAProgress(size_t current, size_t final) {
 void onOTAEnd(bool success) {
   // Log when OTA has finished
   if (success) {
-    debug("OTA update finished successfully!");
+    debug(F("OTA update finished successfully!"));
   } else {
-    debug("There was an error during OTA update!");
+    debug(F("There was an error during OTA update!"));
   }
 }
 

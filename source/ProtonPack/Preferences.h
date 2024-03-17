@@ -64,6 +64,7 @@ struct objLEDEEPROM {
   uint8_t powercell_spectral_saturation_custom;
   uint8_t cyclotron_spectral_saturation_custom;
   uint8_t cyclotron_inner_spectral_saturation_custom;
+  uint8_t cyclotron_cavity_count;
 };
 
 /*
@@ -161,6 +162,10 @@ void readEEPROM() {
           i_1984_inner_delay = 9;
         break;
       }
+    }
+
+    if(obj_eeprom.cyclotron_cavity_count > 0 && obj_eeprom.cyclotron_cavity_count != 255) {
+      i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
     }
 
     if(obj_eeprom.grb_inner_cyclotron > 0 && obj_eeprom.grb_inner_cyclotron != 255) {
@@ -498,6 +503,7 @@ void saveLedEEPROM() {
     i_spectral_powercell_custom_saturation,
     i_spectral_cyclotron_custom_saturation,
     i_spectral_cyclotron_inner_custom_saturation,
+    i_inner_cyclotron_cavity_num_leds
   };
 
   // Save and update our object in the EEPROM.

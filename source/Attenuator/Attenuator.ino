@@ -69,6 +69,36 @@ void setup() {
   // Set a default animation for the radiation indicator.
   RAD_LENS_IDLE = AMBER_PULSE;
 
+  #if defined(__XTENSA__)
+    // ESP - Get Special Device Preferences
+
+    preferences.begin("device", true); // Access namespace in read-only mode.
+    // Return stored values if available, otherwise use a default value.
+    b_invert_leds = preferences.getBool("invert_led", false);
+    b_enable_buzzer = preferences.getBool("buzzer_enabled", true);
+    b_enable_vibration = preferences.getBool("vibration_enabled", true);
+    b_overheat_feedback = preferences.getBool("overheat_feedback", true);
+    b_firing_feedback = preferences.getBool("firing_feedback", false);
+    switch(preferences.getShort("radiation_idle", 0)) {
+      case 0:
+        RAD_LENS_IDLE = AMBER_PULSE;
+      break;
+      case 1:
+        RAD_LENS_IDLE = ORANGE_FADE;
+      break;
+      case 2:
+        RAD_LENS_IDLE = RED_FADE;
+      break;
+    }
+    preferences.end();
+
+    // CPU Frequency MHz: 80, 160, 240 [Default]
+    // Lower frequency means less power consumption.
+    setCpuFrequencyMhz(160);
+    Serial.print(F("CPU Freq (MHz): "));
+    Serial.println(getCpuFrequencyMhz());
+  #endif
+
   if(!b_wait_for_pack) {
     // If not waiting for the pack set power level to 5.
     POWER_LEVEL = LEVEL_5;
@@ -134,29 +164,6 @@ void setup() {
 
   // Initialize critical timers.
   ms_fast_led.start(1);
-
-  #if defined(__XTENSA__)
-    // ESP - Get Special Device Preferences
-    preferences.begin("device", true); // Access namespace in read-only mode.
-    // Return stored values if available, otherwise use a default value.
-    b_invert_leds = preferences.getBool("invert_led", false);
-    b_enable_buzzer = preferences.getBool("buzzer_enabled", true);
-    b_enable_vibration = preferences.getBool("vibration_enabled", true);
-    b_overheat_feedback = preferences.getBool("overheat_feedback", true);
-    b_firing_feedback = preferences.getBool("firing_feedback", false);
-    switch(preferences.getShort("radiation_idle", 0)) {
-      case 0:
-        RAD_LENS_IDLE = AMBER_PULSE;
-      break;
-      case 1:
-        RAD_LENS_IDLE = ORANGE_FADE;
-      break;
-      case 2:
-        RAD_LENS_IDLE = RED_FADE;
-      break;
-    }
-    preferences.end();
-  #endif
 }
 
 void loop() {
