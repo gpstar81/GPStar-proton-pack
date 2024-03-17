@@ -61,7 +61,7 @@
 Preferences preferences;
 
 // Set up values for the SSID and password for the built-in WiFi access point (AP).
-const uint8_t maxAttempts = 3; // Max attempts to establish a external WiFi connection.
+const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi connection.
 const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
@@ -211,7 +211,7 @@ bool startExternalWifi() {
 
   // User wants to utilize the external WiFi network and has valid SSID and password.
   if(b_wifi_enabled && wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
-    uint8_t attemptCount = 0;
+    uint8_t i_curr_attempt = 0;
 
     #if defined(DEBUG_WIRELESS_SETUP)
       Serial.print(F("Stored External SSID: "));
@@ -220,7 +220,7 @@ bool startExternalWifi() {
       Serial.println(wifi_pass);
     #endif
 
-    while (attemptCount < maxAttempts) {
+    while (i_curr_attempt < i_max_attempts) {
       WiFi.persistent(false); // Don't write SSID/Password to flash memory.
 
       // Attempt to connect to a specified WiFi network.
@@ -228,7 +228,7 @@ bool startExternalWifi() {
 
       // Wait for the connection to be established
       uint8_t attempt = 0;
-      while (attempt < (maxAttempts * 10) && WiFi.status() != WL_CONNECTED) {
+      while (attempt < (i_max_attempts * 10) && WiFi.status() != WL_CONNECTED) {
         delay(500);
         #if defined(DEBUG_WIRELESS_SETUP)
           Serial.println(F("Connecting to WiFi network..."));
@@ -273,18 +273,18 @@ bool startExternalWifi() {
           Serial.println(subnetMask);
         #endif
 
-        WiFi.setAutoReconnect(true); // Reconnect if disconnected.
+        WiFi.setAutoReconnect(false); // Don't try to reconnect, wait for a power cycle.
 
         return true; // Exit the loop if connected successfully.
       } else {
         #if defined(DEBUG_WIRELESS_SETUP)
           Serial.println(F("Failed to connect to WiFi. Retrying..."));
         #endif
-        attemptCount++;
+        i_curr_attempt++;
       }
     }
 
-    if (attemptCount == maxAttempts) {
+    if (i_curr_attempt == i_max_attempts) {
       #if defined(DEBUG_WIRELESS_SETUP)
         Serial.println(F("Max connection attempts reached. Could not connect to external WiFi."));
       #endif

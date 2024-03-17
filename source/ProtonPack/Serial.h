@@ -1,3 +1,4 @@
+#include "Configuration.h"
 #include "Header.h"
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
@@ -77,6 +78,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycCakeHue;
   uint8_t ledCycCakeSat;
   uint8_t ledCycCakeGRB;
+  uint8_t ledCycCavCount;
   uint8_t ledVGCyclotron;
   uint8_t ledPowercellCount;
   uint8_t ledPowercellHue;
@@ -307,6 +309,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
       packConfig.ledCycCakeGRB = b_grb_cyclotron_cake;
+      packConfig.ledCycCavCount = i_inner_cyclotron_cavity_num_leds;
 
       // Power Cell
       packConfig.ledPowercellCount = i_powercell_leds;
@@ -573,6 +576,7 @@ void checkSerial1() {
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
           b_grb_cyclotron_cake = packConfig.ledCycCakeGRB;
+          i_inner_cyclotron_cavity_num_leds = packConfig.ledCycCavCount;
 
           // Power Cell
           i_powercell_leds = packConfig.ledPowercellCount;

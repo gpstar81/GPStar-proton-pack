@@ -205,6 +205,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         <span class="slider round"></span>
       </label>
     </div>
+    <div class="setting">
+      <b>Cyclotron Cavity Lights:</b><br/>
+      <input type="range" id="ledCycCavCount" name="ledCycCavCount" min="0" max="30" value="0" step="2"
+       oninput="ledCycCavCountOut.value=ledCycCavCount.value"/>
+      <output class="labelSlider" id="ledCycCavCountOut" for="ledCycCavCount"></output>
+    </div>
   </div>
 
   <h1>Power Cell</h1>
@@ -344,6 +350,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360]); // Default: Red
             document.getElementById("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
             document.getElementById("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true: false;
+            document.getElementById("ledCycCavCount").value = settings.ledCycCavCount || 0; // Default: 0
 
             document.getElementById("ledPowercellCount").value = settings.ledPowercellCount || 13; // Haslab: 13
             document.getElementById("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [1,254], [0,360]); // Default: Blue
@@ -388,6 +395,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycCakeHue: convertRange(parseInt(document.getElementById("ledCycCakeHue").value || 360, 10), [0,360], [1,254]),
         ledCycCakeSat: convertRange(parseInt(document.getElementById("ledCycCakeSat").value || 100, 10), [0,100], [1,254]),
         ledCycCakeGRB: document.getElementById("ledCycCakeGRB").checked ? 1 : 0,
+        ledCycCavCount: parseInt(document.getElementById("ledCycCavCount").value || 0, 10),
 
         ledPowercellCount: parseInt(document.getElementById("ledPowercellCount").value || 13, 10),
         ledPowercellHue: convertRange(parseInt(document.getElementById("ledPowercellHue").value || 200, 10), [0,360], [1,254]),
