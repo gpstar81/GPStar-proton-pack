@@ -42,7 +42,18 @@
 //#define RESET_AP_SETTINGS
 
 /*
- * Enable feedback effects
+ * Preferred WiFi Network Defaults
+ * When a network name/password is not specified via the web UI, these
+ * values may be used to provide defaults for joining a known network.
+ * Set these manually to have your device connect automatically to a
+ * known wireless network without needing to access the private WiFi.
+ * Note: Applies only to usage with the ESP32 not the Arduino Nano.
+ */
+String user_wifi_ssid = ""; // Preferred network SSID for external WiFi
+String user_wifi_pass = ""; // Preferred network password for external WiFi
+
+/*
+ * Enable Physical Feedback Effects (Sound + Vibration)
  */
 bool b_enable_buzzer = true; // Enable/disable all buzzing via the local piezo buzzer
 bool b_enable_vibration = true; // Enable/disable all effects via the vibration motor

@@ -45,6 +45,11 @@
 #define INNER_CYCLOTRON_CAKE_LED_MAX 35
 
 /*
+ * Set the number of steps for the Inner Cyclotron (cavity).
+ */
+#define INNER_CYCLOTRON_CAVITY_LED_MAX 30
+
+/*
  * Set the number of steps for the Outer Cyclotron (lid).
  */
 #define OUTER_CYCLOTRON_LED_MAX 40
@@ -81,7 +86,14 @@
  */
 const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
-const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX;
+
+/*
+ * Total number of LEDs in the optional inner cycltron configuration.
+ * Up to 35 LEDs for the ring (due to diameter of the ring).
+ * Optionally, up to 30 LEDs for the "sparking" effect in the cavity.
+ * Max 65 LEDs is possible before degradation of serial communications.
+ */
+uint8_t i_max_inner_cyclotron_leds = (uint8_t) INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
 
 /*
  * Updated count of all the LEDs plus the N-Filter jewel.
@@ -105,20 +117,22 @@ uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
  * Proton Pack Power Cell and Cyclotron lid LED pin.
  */
 #define PACK_LED_PIN 53
-CRGB pack_leds[i_max_pack_leds + i_nfilter_jewel_leds];
+CRGB pack_leds[FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT];
 
 /*
  * Inner Cyclotron LEDs (optional).
- * Max number of LEDs supported = 35.
+ * Max number of LEDs supported = 65.
  * Maximum allowed LEDs for the Inner Cyclotron Cake is 35.
+ * Maximum allowed LEDs for the Inner Cyclotron Cavity is 30.
  * Uses pin 13.
  */
 #define CYCLOTRON_LED_PIN 13
-CRGB cyclotron_leds[i_max_inner_cyclotron_leds];
+CRGB cyclotron_leds[INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX];
 
 /*
  * Delay for fastled to update the addressable LEDs.
- * We have up to 90 addressable LEDs if using NeoPixel jewels in the Inner Cyclotron and N-Filter.
+ * We have up to 90 addressable LEDs if using NeoPixel jewel in the N-Filter, a ring
+ * for the Inner Cyclotron, and the optionalal "sparking" cyclotron cavity LEDs.
  * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
  */
 const uint8_t i_fast_led_delay = 6;
@@ -197,6 +211,7 @@ rampInt r_inner_ramp;
 const unsigned int i_inner_delay = i_2021_inner_delay;
 const unsigned int i_inner_ramp_delay = 300;
 int i_led_cyclotron_ring = 0;
+int i_led_cyclotron_cavity = 0;
 bool b_inner_ramp_up = true;
 bool b_inner_ramp_down = false;
 unsigned int i_inner_current_ramp_speed = i_inner_ramp_delay;
@@ -441,6 +456,7 @@ enum device {
   POWERCELL,
   CYCLOTRON_OUTER,
   CYCLOTRON_INNER,
+  CYCLOTRON_CAVITY,
   VENT_LIGHT
 };
 

@@ -130,10 +130,19 @@ uint8_t i_powercell_delay_2021 = 40;
 uint8_t i_inner_cyclotron_cake_num_leds = 35;
 
 /*
+ * (OPTIONAL) Inner Cyclotron (cavity) effects
+ * If you are not using any, then this can be left alone (Default: 0).
+ * You can use up to 30 LEDs (eg. addressable fairy lights as recommended device)
+ */
+uint8_t i_inner_cyclotron_cavity_num_leds = 0;
+
+/*
  * If you use GRB (green/red/blue) instead of RGB (red/green/blue) addressable LEDs for your Inner Cyclotron LEDs, then set to true.
+ * Likewise for the cyclotron cavity LEDs if those are GBR instead of RGB set the flag true to adjust the color order.
  * Any settings, if saved in the EEPROM, will overwrite these settings.
  */
-bool b_grb_cyclotron_cake = false; // Default is false
+bool b_grb_cyclotron_cake = false; // Default is false (assumed to be RGB)
+bool b_gbr_cyclotron_cavity = true; // Default is true (set false for RGB)
 
 /*
  * The CHSV colour value for the Spectral Custom mode.
