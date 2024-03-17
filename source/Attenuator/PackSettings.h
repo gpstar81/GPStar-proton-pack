@@ -351,6 +351,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
             document.getElementById("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true: false;
             document.getElementById("ledCycCavCount").value = settings.ledCycCavCount || 0; // Default: 0
+            document.getElementById("ledCycCavCountOut").innerHTML = document.getElementById("ledCycCavCount").value;
 
             document.getElementById("ledPowercellCount").value = settings.ledPowercellCount || 13; // Haslab: 13
             document.getElementById("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [1,254], [0,360]); // Default: Blue
