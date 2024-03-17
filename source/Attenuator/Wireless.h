@@ -326,6 +326,9 @@ bool startWiFi() {
     Serial.println(WiFi.macAddress());
   #endif
 
+  // Disable WiFi power save mode (via the esp_wifi_set_ps function).
+  WiFi.setSleep(false);
+
   // Assign an event handler to deal with changes in WiFi status.
   WiFi.onEvent(OnWiFiEvent);
 
