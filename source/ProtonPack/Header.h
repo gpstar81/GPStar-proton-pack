@@ -93,7 +93,7 @@ const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
  * Optionally, up to 30 LEDs for the "sparking" effect in the cavity.
  * Max 65 LEDs is possible before degradation of serial communications.
  */
-const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
+uint8_t i_max_inner_cyclotron_leds = (uint8_t) INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
 
 /*
  * Updated count of all the LEDs plus the N-Filter jewel.
@@ -117,7 +117,7 @@ uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
  * Proton Pack Power Cell and Cyclotron lid LED pin.
  */
 #define PACK_LED_PIN 53
-CRGB pack_leds[i_max_pack_leds + i_nfilter_jewel_leds];
+CRGB pack_leds[FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT];
 
 /*
  * Inner Cyclotron LEDs (optional).
@@ -127,7 +127,7 @@ CRGB pack_leds[i_max_pack_leds + i_nfilter_jewel_leds];
  * Uses pin 13.
  */
 #define CYCLOTRON_LED_PIN 13
-CRGB cyclotron_leds[i_max_inner_cyclotron_leds];
+CRGB cyclotron_leds[INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX];
 
 /*
  * Delay for fastled to update the addressable LEDs.
