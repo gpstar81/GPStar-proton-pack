@@ -7823,9 +7823,20 @@ void checkMusic() {
   }
 }
 
-void setupWavTrigger() {
+void buildMusicCount(uint16_t i_num_tracks) {
+  // Build the music track count.
+  i_music_count = i_num_tracks - i_last_effects_track;
+
+  if(i_music_count > 0) {
+    i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
+  }
+}
+
+bool setupWavTrigger() {
   // If the controller is powering the WAV Trigger, we should wait for the WAV Trigger to finish reset before trying to send commands.
   delay(1000);
+
+  char gWTrigVersion[VERSION_STRING_LEN];
 
   // WAV Trigger's startup at 57600
   w_trig.start();
@@ -7838,29 +7849,24 @@ void setupWavTrigger() {
   // Reset the sample rate offset, in case we have reset while the WAV Trigger was already playing.
   w_trig.samplerateOffset(0);
 
-  w_trig.masterGain(i_volume_master); // Reset the master gain db. 0db is default. Range is -70 to 0.
-  w_trig.setAmpPwr(b_onboard_amp_enabled); // Turn on the onboard amp.
+  w_trig.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
+  w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(false);
+  w_trig.setReporting(true);
 
   // Allow time for the WAV Trigger to respond with the version string and number of tracks.
   delay(350);
 
-  unsigned int w_num_tracks = w_trig.getNumTracks();
+  if(w_trig.getVersion(gWTrigVersion)) {
+    // We found a WavTrigger. Build the music track count.
+    buildMusicCount((uint16_t) w_trig.getNumTracks());
 
-  /*
-  // Unused for now.
-  if(w_num_tracks > 0) {
-    b_wand_audio_board_here = true;
+    return true;
   }
-  */
-
-  // Build the music track count.
-  i_music_count = w_num_tracks - i_last_effects_track;
-
-  if(i_music_count > 0) {
-    i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
+  else {
+    // No Wav Trigger.
+    return false;
   }
 }
 
