@@ -526,7 +526,7 @@ void clearConfigEEPROM() {
 }
 
 void saveConfigEEPROM() {
-  // 1 = false, 2 = true;
+  // 1 = false, 2 = true.
   uint8_t i_proton_stream_effects = 2;
   uint8_t i_simulate_ring = 2;
   uint8_t i_cyclotron_direction = 2;
@@ -536,13 +536,13 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_lights_off = 2;
   uint8_t i_overheat_sync_to_fan = 2;
   uint8_t i_year_mode_eeprom = SYSTEM_EEPROM_YEAR;
-  uint8_t i_system_mode = 1;
+  uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
 
   uint8_t i_vga_powercell = 1;
   uint8_t i_vga_cyclotron = 1;
   uint8_t i_demo_light_mode = 1;
   uint8_t i_use_ribbon_cable = 1;
-  uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led. 2 = three leds.
+  uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led, 2 = three leds.
   uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
   uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
   uint8_t i_overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;

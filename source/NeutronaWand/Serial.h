@@ -658,7 +658,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_OVERHEATING_FINISHED:
       if(WAND_STATUS != MODE_OFF) {
-        overHeatingFinished();
+        overheatingFinished();
       }
     break;
 

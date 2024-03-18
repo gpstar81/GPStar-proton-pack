@@ -1083,7 +1083,7 @@ void doWandSync() {
 
   // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
   if(b_overheating == true) {
-    packOverHeatingFinished();
+    packOverheatingFinished();
   }
 
   // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
@@ -1829,7 +1829,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     // No longer used.
     case W_OVERHEATING_FINISHED:
       // Overheating finished
-      packOverHeatingFinished();
+      packOverheatingFinished();
 
       serial1Send(A_OVERHEATING_FINISHED);
     break;
