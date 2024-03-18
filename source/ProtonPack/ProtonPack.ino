@@ -1835,7 +1835,7 @@ void cyclotronControl() {
       packAlarm();
     }
 
-    cyclotronOverHeating();
+    cyclotronOverheating();
   }
   else {
     if(b_2021_ramp_up_start == true) {
@@ -2769,7 +2769,7 @@ void cyclotron84LightOff(int cLed) {
   }
 }
 
-void cyclotronOverHeating() {
+void cyclotronOverheating() {
   if(b_overheat_sync_to_fan != true) {
     smokeNFilter(true);
   }
@@ -2908,11 +2908,11 @@ void cyclotronOverHeating() {
 
   if(ms_overheating_length.justFinished()) {
     // Tell the Neutrona Wand the overheating is finished.
-    packOverHeatingFinished();
+    packOverheatingFinished();
   }
 }
 
-void packOverHeatingFinished() {
+void packOverheatingFinished() {
   packSerialSend(P_OVERHEATING_FINISHED);
   serial1Send(A_OVERHEATING_FINISHED);
 
@@ -4472,7 +4472,7 @@ void wandDisconnectCheck() {
 
       // Turn off overheating if the wand gets disconnected.
       if(b_overheating == true) {
-        packOverHeatingFinished();
+        packOverheatingFinished();
       }
 
       if(b_spectral_lights_on == true) {
