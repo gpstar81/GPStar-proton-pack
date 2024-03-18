@@ -862,6 +862,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case A_NONE:
+        default:
           // Nothing.
         break;
       }      
@@ -1251,6 +1252,8 @@ void doWandSync() {
 }
 
 void handleWandCommand(uint8_t i_command, uint16_t i_value) {
+  float f_gpstar_track_volume = 0;
+
   if(!b_wand_connected) {
     // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
     if(i_command != W_SYNC_NOW && i_command != W_HANDSHAKE && i_command != W_SYNCHRONIZED) {
@@ -2705,12 +2708,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           break;
 
           case A_GPSTAR_AUDIO:
-            float f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
+            f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
 
             GPStarAudio.trackVolume(i_current_music_track, f_gpstar_track_volume);
           break;
 
           case A_NONE:
+          default:
             // Nothing.
           break;
         }
@@ -2741,12 +2745,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           break;
 
           case A_GPSTAR_AUDIO:
-            float f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
+            f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
 
             GPStarAudio.trackVolume(i_current_music_track, f_gpstar_track_volume);
           break;
 
           case A_NONE:
+          default:
             // Nothing.
           break;
         }
@@ -2792,6 +2797,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case A_NONE:
+        default:
           if(b_repeat_track == false) {
             b_repeat_track = true;
           }
@@ -2819,6 +2825,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case A_NONE:
+        default:
           // Nothing.
         break;
       }
@@ -2838,6 +2845,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case A_NONE:
+        default:
           // Nothing.
         break;
       }      

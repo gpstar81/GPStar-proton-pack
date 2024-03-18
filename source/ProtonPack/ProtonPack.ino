@@ -226,6 +226,7 @@ void setup() {
     break;
 
     case A_NONE:
+    default:
       // Nothing.
     break;
   }
@@ -238,10 +239,8 @@ void loop() {
     break;
 
     case A_GPSTAR_AUDIO:
-      // Nothing for now.
-    break;
-
     case A_NONE:
+    default:
       // Nothing.
     break;
   }
@@ -685,6 +684,7 @@ bool musicGetTrackCounter() {
     break;
 
     case A_NONE:
+    default:
       return false;
     break;
   }
@@ -701,6 +701,7 @@ void musicTrackPlayingStatus() {
     break;
 
     case A_NONE:
+    default:
       // Do nothing.
     break;
   }
@@ -717,6 +718,7 @@ bool musicTrackStatus() {
     break;
 
     case A_NONE:
+    default:
       return false;
     break;
   }
@@ -759,6 +761,7 @@ void checkMusic() {
       break;
 
       case A_NONE:
+      default:
         // None
       break;
     }
@@ -3991,6 +3994,8 @@ void cyclotronSpeedIncrease() {
 }
 
 void adjustVolumeEffectsGain() {
+  float f_gpstar_track_volume = 0;
+
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
       // Since adjusting only from the wand, only certain effects need to be adjusted on the fly.
@@ -4037,7 +4042,7 @@ void adjustVolumeEffectsGain() {
     break;
 
     case A_GPSTAR_AUDIO:
-      float f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_effects);
+      f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_effects);
 
       GPStarAudio.trackVolume(S_BEEPS, f_gpstar_track_volume);
       GPStarAudio.trackVolume(S_BEEPS_ALT, f_gpstar_track_volume);
@@ -4084,6 +4089,7 @@ void adjustVolumeEffectsGain() {
     break;
 
     case A_NONE:
+    default:
       // No audio device connected.
     break;
   }
@@ -4158,6 +4164,7 @@ void increaseVolumeEEPROM() {
     break;
 
     case A_NONE:
+    default:
       // No audio device connected.
     break;
   }
@@ -4190,6 +4197,7 @@ void decreaseVolumeEEPROM() {
       break;
 
       case A_NONE:
+      default:
         // No audio device connected.
       break;
     }
@@ -4233,6 +4241,7 @@ void increaseVolume() {
     break;
 
     case A_NONE:
+    default:
       // No audio device connected.
     break;
   }
@@ -4265,6 +4274,7 @@ void decreaseVolume() {
       break;
 
       case A_NONE:
+      default:
         // No audio device connected.
       break;
     }
@@ -4437,6 +4447,8 @@ void wandDisconnectCheck() {
   if(b_wand_connected == true) {
     if(ms_wand_check.justFinished()) {
       // Timer just ran out, so we must assume the wand was disconnected.
+      // Serial.println("Wand Disconnected");
+
       if(b_diagnostic == true) {
         // While in diagnostic mode, play a sound to indicate the wand is disconnected.
         playEffect(S_VENT_BEEP);
@@ -4681,6 +4693,9 @@ void resetCyclotronLEDs() {
 
 // Helper method to play a sound effect using certain defaults.
 void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
+  float f_gpstar_track_volume = 0;
+  uint8_t i_tmp_playback_style = GPSTAR_PLAY_NORMAL;
+  
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
@@ -4710,9 +4725,7 @@ void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b
     break;
 
     case A_GPSTAR_AUDIO:
-      float f_gpstar_track_volume = gpstarTrackVolumeCalc(i_track_volume);
-
-      uint8_t i_tmp_playback_style = GPSTAR_PLAY_NORMAL;
+      f_gpstar_track_volume = gpstarTrackVolumeCalc(i_track_volume);
       
       if(b_track_loop == true) {
         i_tmp_playback_style = GPSTAR_PLAY_LOOP;
@@ -4730,6 +4743,7 @@ void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b
     break;
 
     case A_NONE:
+    default:
       // No audio device connected.
     break;
   }
@@ -4746,6 +4760,7 @@ void stopEffect(int i_track_id) {
     break;
 
     case A_NONE:
+    default:
       // No audio device connected.
     break;
   }
@@ -4753,6 +4768,8 @@ void stopEffect(int i_track_id) {
 
 // Adjust the gain of a single track.
 void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsigned int i_fade_time) {
+  float f_gpstar_track_volume = 0;
+
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
@@ -4772,7 +4789,7 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
     break;
 
     case A_GPSTAR_AUDIO:
-      float f_gpstar_track_volume = gpstarTrackVolumeCalc(i_track_volume);
+      f_gpstar_track_volume = gpstarTrackVolumeCalc(i_track_volume);
 
       if(b_fade == true) {
         GPStarAudio.trackFade(i_track_id, f_gpstar_track_volume, i_fade_time);
@@ -4783,6 +4800,7 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
     break;
 
     case A_NONE:
+    default:
       // No audio device connected.
     break;
   }
@@ -4812,6 +4830,9 @@ float gpstarTrackVolumeCalc(int8_t i_track_volume) {
 
 // Helper method to play a music track using certain defaults.
 void playMusic() {
+  float f_gpstar_track_volume = 0;
+  uint8_t i_tmp_playback_style = GPSTAR_PLAY_NORMAL;
+
   if(b_music_paused != true && i_music_count > 0 && i_current_music_track >= i_music_track_start) {
     b_playing_music = true;
 
@@ -4833,10 +4854,8 @@ void playMusic() {
       break;
 
       case A_GPSTAR_AUDIO:
-        float f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
+        f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
 
-        uint8_t i_tmp_playback_style = GPSTAR_PLAY_NORMAL;
-        
         // Loop the music track.
         if(b_repeat_track == true) {
           i_tmp_playback_style = GPSTAR_PLAY_LOOP;
@@ -4847,6 +4866,7 @@ void playMusic() {
       break;
 
       case A_NONE:
+      default:
         // Nothing.
       break;
 
@@ -4881,6 +4901,7 @@ void stopMusic() {
     break;
 
     case A_NONE:
+    default:
       // Nothing.
     break;
   }
@@ -4919,6 +4940,7 @@ void pauseMusic() {
       break;
 
       case A_NONE:
+      default:
         // Nothing.
       break;
     }
@@ -4931,7 +4953,7 @@ void resumeMusic() {
   if(b_playing_music == true) {
     // Reset the music check timer.
     ms_music_status_check.start(i_music_check_delay * 10);
-    
+
     // Resume music playback on the Proton Pack
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
@@ -4951,6 +4973,7 @@ void resumeMusic() {
       break;
 
       case A_NONE:
+      default:
         // Nothing.
       break;
     }    
