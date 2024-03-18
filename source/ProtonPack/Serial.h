@@ -2776,14 +2776,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           // Loop the music track.
           if(b_repeat_track == false) {
             b_repeat_track = true;
-            
+
             if(i_music_count > 0) {
               w_trig.trackLoop(i_current_music_track, 1);
             }
           }
           else {
             b_repeat_track = false;
-            
+                        
             if(i_music_count > 0) {
               w_trig.trackLoop(i_current_music_track, 0);
             }

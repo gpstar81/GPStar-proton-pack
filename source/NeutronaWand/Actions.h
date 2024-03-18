@@ -1159,10 +1159,10 @@ void checkWandAction() {
                 w_trig.trackLoop(i_current_music_track, 0);
               }
             }
-          }
 
-          // Tell pack to loop the music track.
-          wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);
+            // Tell pack to loop the music track.
+            wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);            
+          }
         }
         else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
           if(switch_intensify.isPressed()) {
