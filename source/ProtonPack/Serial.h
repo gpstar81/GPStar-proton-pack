@@ -2776,11 +2776,17 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           // Loop the music track.
           if(b_repeat_track == false) {
             b_repeat_track = true;
-            w_trig.trackLoop(i_current_music_track, 1);
+            
+            if(i_music_count > 0) {
+              w_trig.trackLoop(i_current_music_track, 1);
+            }
           }
           else {
             b_repeat_track = false;
-            w_trig.trackLoop(i_current_music_track, 0);
+            
+            if(i_music_count > 0) {
+              w_trig.trackLoop(i_current_music_track, 0);
+            }
           }
         break;
 
@@ -2788,11 +2794,17 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           // Loop the music track.
           if(b_repeat_track == false) {
             b_repeat_track = true;
-            GPStarAudio.onSetLoop(i_current_music_track, true);
+            
+            if(i_music_count > 0) {
+              GPStarAudio.onSetLoop(i_current_music_track, true);
+            }
           }
           else {
             b_repeat_track = false;
-            GPStarAudio.onSetLoop(i_current_music_track, false);
+
+            if(i_music_count > 0) {
+              GPStarAudio.onSetLoop(i_current_music_track, false);
+            }
           }
         break;
 

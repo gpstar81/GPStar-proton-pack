@@ -7927,7 +7927,7 @@ bool setupWavTrigger() {
   w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(false);
+  w_trig.setReporting(true);
 
   // Allow time for the WAV Trigger to respond with the version string and number of tracks.
   delay(350);
