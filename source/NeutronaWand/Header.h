@@ -20,6 +20,12 @@
 #pragma once
 
 /*
+ * Audio
+ */
+enum AUDIO_DEVICES { A_NONE, A_GPSTAR_AUDIO, A_WAV_TRIGGER };
+enum AUDIO_DEVICES AUDIO_DEVICE;
+
+/*
  * Wand state.
  */
 enum WAND_STATE { MODE_OFF, MODE_ON, MODE_ERROR };

@@ -17,11 +17,11 @@
  *
  */
 
-/*
-  Please note, due to limitations of the ATMega328P, Arduino Nano builds are no longer supported for the Neutrona Wand.
-  The last supported version is 2.2.0
-  https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.2.0
-*/
+/**
+ * Please note, due to limitations of the ATMega328P, Arduino Nano builds are no longer supported for the Neutrona Wand.
+ * The last supported version is 2.2.0
+ * https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.2.0
+ */
 
 #if defined(__AVR_ATmega2560__)
   #define GPSTAR_NEUTRONA_WAND_PCB
@@ -40,13 +40,16 @@
 #endif
 
 // 3rd-Party Libraries
+#include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
-#include <EEPROM.h>
 #include <ht16k33.h>
 #include <Wire.h>
 #include <SerialTransfer.h>
+
+// Special Libraries
+#include "GPStarAudio.h"
 
 /**
  ***** IMPORTANT *****
@@ -67,18 +70,27 @@
 #include "Colours.h"
 #include "Preferences.h"
 
+GPStarAudio GPStarAudio(Serial3);
+
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
 
-  // Enable communication to the Proton Pack.
   Serial1.begin(9600); // Communication to the Proton Pack.
   wandComs.begin(Serial1, false);
 
+  // Setup the audio device for this controller.
+  if(setupWavTrigger() == true) {
+    AUDIO_DEVICE = A_WAV_TRIGGER;
+  }
+  else if(setupGPStarAudio() == true) {
+    AUDIO_DEVICE = A_GPSTAR_AUDIO;
+  }
+  else {
+    AUDIO_DEVICE = A_NONE;
+  }
+
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
-
-  // Setup the WAV Trigger.
-  setupWavTrigger();
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX);
@@ -7811,9 +7823,20 @@ void checkMusic() {
   }
 }
 
-void setupWavTrigger() {
+void buildMusicCount(uint16_t i_num_tracks) {
+  // Build the music track count.
+  i_music_count = i_num_tracks - i_last_effects_track;
+
+  if(i_music_count > 0) {
+    i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
+  }
+}
+
+bool setupWavTrigger() {
   // If the controller is powering the WAV Trigger, we should wait for the WAV Trigger to finish reset before trying to send commands.
   delay(1000);
+
+  char gWTrigVersion[VERSION_STRING_LEN];
 
   // WAV Trigger's startup at 57600
   w_trig.start();
@@ -7826,29 +7849,46 @@ void setupWavTrigger() {
   // Reset the sample rate offset, in case we have reset while the WAV Trigger was already playing.
   w_trig.samplerateOffset(0);
 
-  w_trig.masterGain(i_volume_master); // Reset the master gain db. 0db is default. Range is -70 to 0.
-  w_trig.setAmpPwr(b_onboard_amp_enabled); // Turn on the onboard amp.
+  w_trig.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
+  w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(false);
+  w_trig.setReporting(true);
 
   // Allow time for the WAV Trigger to respond with the version string and number of tracks.
   delay(350);
 
-  unsigned int w_num_tracks = w_trig.getNumTracks();
+  if(w_trig.getVersion(gWTrigVersion)) {
+    // We found a WavTrigger. Build the music track count.
+    buildMusicCount((uint16_t) w_trig.getNumTracks());
 
-  /*
-  // Unused for now.
-  if(w_num_tracks > 0) {
-    b_wand_audio_board_here = true;
+    return true;
   }
-  */
+  else {
+    // No Wav Trigger.
+    return false;
+  }
+}
 
-  // Build the music track count.
-  i_music_count = w_num_tracks - i_last_effects_track;
+bool setupGPStarAudio() {
+  Serial3.begin(115200);
 
-  if(i_music_count > 0) {
-    i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
+  GPStarAudio.begin();
+
+  GPStarAudio.stopAll();
+  GPStarAudio.setVolume(0);
+
+  if(GPStarAudio.hello()) {
+    // GPStar Audio is here. Build the music track count.
+    buildMusicCount((uint16_t) GPStarAudio.getTrackCount());
+
+    return true;
+  }
+  else {
+    Serial3.end();
+
+    // No GPStar Audio.
+    return false;
   }
 }
 
