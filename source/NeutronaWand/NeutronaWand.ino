@@ -7923,11 +7923,11 @@ bool setupWavTrigger() {
   // Reset the sample rate offset, in case we have reset while the WAV Trigger was already playing.
   w_trig.samplerateOffset(0);
 
-  w_trig.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
+  w_trig.masterGain(i_volume_master); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
   w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(true);
+  w_trig.setReporting(false);
 
   // Allow time for the WAV Trigger to respond with the version string and number of tracks.
   delay(350);
