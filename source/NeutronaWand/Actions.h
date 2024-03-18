@@ -165,7 +165,7 @@ void checkWandAction() {
         // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is
         // running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
         if(ms_overheating.justFinished()) {
-          overHeatingFinished();
+          overheatingFinished();
         }
       }
 
@@ -708,7 +708,7 @@ void checkWandAction() {
         case 3:
           if(switch_intensify.isPressed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              toggleOverHeating();
+              toggleOverheating();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               if(b_beep_loop == true) {
@@ -1006,11 +1006,16 @@ void checkWandAction() {
                 if(SYSTEM_MODE == MODE_SUPER_HERO) {
                   SYSTEM_MODE = MODE_ORIGINAL;
 
-                  // Also need to make sure to reset the "ion arm switch" to off
-                  b_pack_ion_arm_switch_on = false;
+                  stopEffect(S_VOICE_MODE_ORIGINAL);
+                  stopEffect(S_VOICE_MODE_SUPER_HERO);
+                  playEffect(S_VOICE_MODE_ORIGINAL);
                 }
                 else {
                   SYSTEM_MODE = MODE_SUPER_HERO;
+
+                  stopEffect(S_VOICE_MODE_SUPER_HERO);
+                  stopEffect(S_VOICE_MODE_ORIGINAL);
+                  playEffect(S_VOICE_MODE_SUPER_HERO);
                 }
               }
             }
@@ -1186,7 +1191,7 @@ void checkWandAction() {
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
             // Enable or disable overheating.
             if(switch_intensify.isPressed()) {
-              toggleOverHeating();
+              toggleOverheating();
             }
 
             // Enable or disable smoke for the Proton Pack.

@@ -417,11 +417,6 @@ unsigned int i_ms_overheating_length_5 = 6000; // Time in milliseconds (6 second
 const bool b_diagnostic = false;
 
 /*
- * Set to true to have the Proton Pack play additional wand sounds such as beeps and idling sounds.
- */
-bool b_additional_wand_sounds = false;
-
-/*
  * Set to false to disable the Proton Pack Ribbon Alarm switch.
  */
 bool b_use_ribbon_cable = true;
