@@ -1144,21 +1144,7 @@ void checkWandAction() {
         // Music track loop setting.
         if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
           if(switch_intensify.isPressed()) {
-            if(b_repeat_track == false) {
-              // Loop the track.
-              b_repeat_track = true;
-              
-              if(i_music_count > 0) {
-                w_trig.trackLoop(i_current_music_track, 1);
-              }
-            }
-            else {
-              b_repeat_track = false;
-
-              if(i_music_count > 0) {
-                w_trig.trackLoop(i_current_music_track, 0);
-              }
-            }
+            toggleMusicLoop();
 
             // Tell pack to loop the music track.
             wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);            
@@ -1331,7 +1317,7 @@ void checkWandAction() {
               if(b_playing_music == true) {
                 // Tell the pack to stop music.
                 wandSerialSend(W_MUSIC_STOP);
-                
+
                 if(b_gpstar_benchtest == true) {
                   stopMusic();
                 }
@@ -1365,7 +1351,7 @@ void checkWandAction() {
                 wandSerialSend(W_SILENT_MODE);
               }
 
-              w_trig.masterGain(i_volume_master); // Reset the master gain.
+              resetMasterVolume();
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
