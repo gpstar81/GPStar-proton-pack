@@ -1147,7 +1147,7 @@ void checkWandAction() {
             toggleMusicLoop();
 
             // Tell pack to loop the music track.
-            wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);            
+            wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);
           }
         }
         else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {

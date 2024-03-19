@@ -779,7 +779,7 @@ void toggleMusicLoop() {
       }
       else {
         b_repeat_track = false;
-                    
+
         if(i_music_count > 0) {
           w_trig.trackLoop(i_current_music_track, 0);
         }
@@ -790,7 +790,7 @@ void toggleMusicLoop() {
       // Loop the music track.
       if(b_repeat_track == false) {
         b_repeat_track = true;
-        
+
         if(i_music_count > 0) {
           GPStarAudio.onSetLoop(i_current_music_track, true);
         }

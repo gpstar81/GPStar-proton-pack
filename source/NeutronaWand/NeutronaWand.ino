@@ -1283,7 +1283,7 @@ void checkSwitches() {
         case MODE_ORIGINAL:
           altWingButtonCheck();
 
-          // Do we shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
+          // We shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
           if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH) {
               bargraphYearModeUpdate();
               // If any of the right toggle switches are turned off, we must turn the cyclotron off and shuts the Neutrona Wand down to a off idle status. MODE_OFF.
@@ -1403,7 +1403,11 @@ void wandOff() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        // Nothing for now.
+        // Proton Pack plays shutdown sound, but standalone Wand needs to play its own
+        if(b_gpstar_benchtest == true && switch_vent.getState() == HIGH) {
+          stopEffect(S_WAND_HEATDOWN);
+          playEffect(S_WAND_HEATDOWN);
+        }
       break;
 
       case SYSTEM_AFTERLIFE:
@@ -1940,6 +1944,7 @@ void postActivation() {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
+          stopEffect(S_WAND_HEATDOWN);
           stopEffect(S_WAND_BOOTUP_SHORT);
           playEffect(S_WAND_BOOTUP_SHORT);
         break;
@@ -5925,14 +5930,23 @@ void bargraphRampUp() {
             case BARGRAPH_ORIGINAL:
               switch(i_power_mode) {
                 case 5:
-                  // Stop any power check if we are already in level 5.
-                  ms_bargraph_alt.stop();
+                  if(i_bargraph_status_alt == 55) {
+                    ms_bargraph_alt.stop();
+                    ms_bargraph.stop();
+                    b_bargraph_up = false;
+                    i_bargraph_status_alt = 27;
+                    bargraphYearModeUpdate();
 
-                  ms_bargraph.stop();
-                  b_bargraph_up = false;
-                  i_bargraph_status_alt = 27;
-                  bargraphYearModeUpdate();
-                  vibrationWand(i_vibration_level + 25);
+                    vibrationWand(i_vibration_level + 25);
+                  }
+                  else {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 25);
+                  }
                 break;
 
                 case 4:
@@ -5940,6 +5954,14 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 22;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 30);
+                  }
+                  else if(i_bargraph_status_alt > 32) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     bargraphYearModeUpdate();
 
                     vibrationWand(i_vibration_level + 30);
@@ -5961,6 +5983,14 @@ void bargraphRampUp() {
 
                     vibrationWand(i_vibration_level + 10);
                   }
+                  else if(i_bargraph_status_alt > 38) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 10);
+                  }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
@@ -5974,6 +6004,14 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 11;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 5);
+                  }
+                  else if(i_bargraph_status_alt > 43) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     bargraphYearModeUpdate();
 
                     vibrationWand(i_vibration_level + 5);
@@ -5993,6 +6031,12 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 5;
+                    bargraphYearModeUpdate();
+                  }
+                  else if(i_bargraph_status_alt > 50) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     bargraphYearModeUpdate();
                   }
                   else {
