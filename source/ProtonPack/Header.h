@@ -20,12 +20,6 @@
 #pragma once
 
 /*
- * Audio
- */
-enum AUDIO_DEVICES { A_NONE, A_GPSTAR_AUDIO, A_WAV_TRIGGER };
-enum AUDIO_DEVICES AUDIO_DEVICE;
-
-/*
  * The HasLab Power Cell has 13 LEDs.
  */
 #define HASLAB_POWERCELL_LED_COUNT 13
@@ -237,7 +231,8 @@ millisDelay ms_cyclotron_switch_plate_leds;
 const unsigned int i_cyclotron_switch_plate_leds_delay = 1000;
 
 /*
- * Alarm. Used during overheating and/or ribbon cable removal.
+ * Alarm
+ * Used during overheating and/or ribbon cable removal.
  */
 const unsigned int i_alarm_delay = 500;
 bool b_alarm = false;
@@ -253,49 +248,6 @@ ezButton switch_cyclotron_direction(29); // Newly added switch for controlling t
 ezButton switch_power(31); // Red power switch under the Ion Arm.
 ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
 //bool b_neutrona_wand_barrel_extended = false; // Unused at the moment.
-
-/*
- * WAV Trigger
- */
-wavTrigger w_trig;
-uint16_t i_music_count = 0;
-uint16_t i_current_music_track = 0;
-const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
-const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
-const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
-bool b_playing_music = false;
-bool b_music_paused = false;
-bool b_repeat_track = false;
-
-/*
- * Music control and checking.
- */
-const unsigned int i_music_check_delay = 2000;
-const unsigned int i_music_next_track_delay = 2000;
-millisDelay ms_check_music;
-millisDelay ms_music_next_track;
-millisDelay ms_music_status_check;
-
-/*
- * GPStar Audio
- */
-const float f_gpstarAudio_volume_abs_min = 0.1f; // System (absolute) minimum volume possible.
-const float f_gpstarAudio_volume_abs_max = 1.0f; // System (absolute) maximum volume possible.
-
-/*
- *  Volume (0 = loudest, -70 = quietest)
- */
-uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
-uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
-
-int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
-int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
-int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects
-int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
-int8_t i_volume_revert = i_volume_master;
-
-millisDelay ms_volume_check; // Put some timing on the master volume gain to not overload the WAV Trigger serial communication.
 
 /*
  * Vibration motor settings
@@ -509,13 +461,7 @@ void serial1Send(uint8_t i_command);
 void serial1SendData(uint8_t i_message);
 void checkSerial1();
 void checkWand();
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
-void stopEffect(int i_track_id);
-void playMusic();
-void stopMusic();
-void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
 void powercellDraw(uint8_t i_start = 0);
-float gpstarTrackVolumeCalc(int8_t i_track_volume);
 
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.

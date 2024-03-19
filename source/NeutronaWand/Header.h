@@ -20,12 +20,6 @@
 #pragma once
 
 /*
- * Audio
- */
-enum AUDIO_DEVICES { A_NONE, A_GPSTAR_AUDIO, A_WAV_TRIGGER };
-enum AUDIO_DEVICES AUDIO_DEVICE;
-
-/*
  * Wand state.
  */
 enum WAND_STATE { MODE_OFF, MODE_ON, MODE_ERROR };
@@ -155,29 +149,6 @@ const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (R
 const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
 
 /*
- * WAV Trigger
- */
-wavTrigger w_trig;
-uint16_t i_music_count = 0;
-uint16_t i_current_music_track = 0;
-const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
-const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
-const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
-// bool b_wand_audio_board_here = false; // Unused for now.
-
-/*
- * Volume (0 = loudest, -70 = quietest)
- */
-uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
-uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
-int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
-int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup in standalone mode
-int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects
-int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
-int8_t i_volume_revert = i_volume_master;
-
-/*
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
  * Also controls independent music volume while the pack/wand is off and if music is playing.
  */
@@ -283,16 +254,6 @@ HT16K33 ht_bargraph;
  * Part #: BL28Z-3005SA04Y
  */
 bool b_28segment_bargraph = false;
-
-/*
- * Music control and checking.
- * Only for bench test mode. When bench test mode is disabled, the Pack controls the music checking and playback.
- */
-const unsigned int i_music_check_delay = 2000;
-const unsigned int i_music_next_track_delay = 2000;
-millisDelay ms_check_music;
-millisDelay ms_music_next_track;
-millisDelay ms_music_status_check;
 
 /*
  * Flag check for video game mode.
@@ -411,14 +372,12 @@ const unsigned int i_sync_initial_delay = 750; // Delay to re-try the initial ha
 const unsigned int i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake) to a connected proton pack.
 
 /*
- * Wand menu & music
+ * Wand Menu
  */
 enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3, MENU_LEVEL_4, MENU_LEVEL_5 };
 enum WAND_MENU_LEVELS WAND_MENU_LEVEL;
 uint8_t i_wand_menu = 5;
 const unsigned int i_settings_blinking_delay = 350;
-bool b_playing_music = false;
-bool b_repeat_track = false;
 millisDelay ms_settings_blinking;
 
 /*
@@ -473,7 +432,3 @@ void wandSerialSend(uint8_t i_command);
 void wandSerialSendData(uint8_t i_message);
 void checkPack();
 void checkWandAction();
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
-void stopEffect(int i_track_id);
-void stopMusic();
-void playMusic();

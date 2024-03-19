@@ -852,20 +852,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
       }
 
-      switch(AUDIO_DEVICE) {
-        case A_WAV_TRIGGER:    
-          w_trig.masterGain(i_volume_master); // Reset the master gain.
-        break;
-
-        case A_GPSTAR_AUDIO:
-          GPStarAudio.setVolume(i_volume_master);
-        break;
-
-        case A_NONE:
-        default:
-          // Nothing.
-        break;
-      }      
+      resetMasterVolume();
     break;
 
     case A_VOLUME_DECREASE:
@@ -1252,8 +1239,6 @@ void doWandSync() {
 }
 
 void handleWandCommand(uint8_t i_command, uint16_t i_value) {
-  float f_gpstar_track_volume = 0;
-
   if(!b_wand_connected) {
     // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
     if(i_command != W_SYNC_NOW && i_command != W_HANDSHAKE && i_command != W_SYNCHRONIZED) {
@@ -2702,22 +2687,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-        switch(AUDIO_DEVICE) {
-          case A_WAV_TRIGGER:    
-            w_trig.trackGain(i_current_music_track, i_volume_music);
-          break;
-
-          case A_GPSTAR_AUDIO:
-            f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
-
-            GPStarAudio.trackVolume(i_current_music_track, f_gpstar_track_volume);
-          break;
-
-          case A_NONE:
-          default:
-            // Nothing.
-          break;
-        }
+        updateMusicVolume();
 
         serial1SendData(A_VOLUME_SYNC);
       }
@@ -2739,22 +2709,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-        switch(AUDIO_DEVICE) {
-          case A_WAV_TRIGGER:    
-            w_trig.trackGain(i_current_music_track, i_volume_music);
-          break;
-
-          case A_GPSTAR_AUDIO:
-            f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
-
-            GPStarAudio.trackVolume(i_current_music_track, f_gpstar_track_volume);
-          break;
-
-          case A_NONE:
-          default:
-            // Nothing.
-          break;
-        }
+        updateMusicVolume();
 
         serial1SendData(A_VOLUME_SYNC);
       }
@@ -2771,53 +2726,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_MUSIC_TRACK_LOOP_TOGGLE:
-      switch(AUDIO_DEVICE) {
-        case A_WAV_TRIGGER:
-          // Loop the music track.
-          if(b_repeat_track == false) {
-            b_repeat_track = true;
-
-            if(i_music_count > 0) {
-              w_trig.trackLoop(i_current_music_track, 1);
-            }
-          }
-          else {
-            b_repeat_track = false;
-                        
-            if(i_music_count > 0) {
-              w_trig.trackLoop(i_current_music_track, 0);
-            }
-          }
-        break;
-
-        case A_GPSTAR_AUDIO:
-          // Loop the music track.
-          if(b_repeat_track == false) {
-            b_repeat_track = true;
-            
-            if(i_music_count > 0) {
-              GPStarAudio.onSetLoop(i_current_music_track, true);
-            }
-          }
-          else {
-            b_repeat_track = false;
-
-            if(i_music_count > 0) {
-              GPStarAudio.onSetLoop(i_current_music_track, false);
-            }
-          }
-        break;
-
-        case A_NONE:
-        default:
-          if(b_repeat_track == false) {
-            b_repeat_track = true;
-          }
-          else {
-            b_repeat_track = false;
-          }
-        break;
-      }
+      toggleMusicLoop();
     break;
 
     case W_SILENT_MODE:
@@ -2827,40 +2736,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Set the master volume to silent.
       i_volume_master = i_volume_abs_min;
 
-      switch(AUDIO_DEVICE) {
-        case A_WAV_TRIGGER:        
-          w_trig.masterGain(i_volume_master); // Reset the master gain.
-        break;
-
-        case A_GPSTAR_AUDIO:
-          GPStarAudio.setVolume(i_volume_master);
-        break;
-
-        case A_NONE:
-        default:
-          // Nothing.
-        break;
-      }
+      resetMasterVolume();
     break;
 
     case W_VOLUME_REVERT:
       // Restore the master volume to previous level.
       i_volume_master = i_volume_revert;
 
-      switch(AUDIO_DEVICE) {
-        case A_WAV_TRIGGER:        
-          w_trig.masterGain(i_volume_master); // Reset the master gain.
-        break;
-
-        case A_GPSTAR_AUDIO:
-          GPStarAudio.setVolume(i_volume_master);
-        break;
-
-        case A_NONE:
-        default:
-          // Nothing.
-        break;
-      }      
+      resetMasterVolume();  
     break;
 
     case W_VOLUME_DECREASE:

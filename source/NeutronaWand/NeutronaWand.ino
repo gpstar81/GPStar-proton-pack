@@ -48,29 +48,14 @@
 #include <Wire.h>
 #include <SerialTransfer.h>
 
-// Special Libraries
-#include "GPStarAudio.h"
-
-/**
- ***** IMPORTANT *****
- * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
- * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
- * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
- *
- * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
- * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
- */
-#include "wavTrigger.h"
-
 // Local Files
 #include "Configuration.h"
 #include "MusicSounds.h"
 #include "Communication.h"
 #include "Header.h"
 #include "Colours.h"
+#include "Audio.h"
 #include "Preferences.h"
-
-GPStarAudio GPStarAudio(Serial3);
 
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
@@ -79,15 +64,7 @@ void setup() {
   wandComs.begin(Serial1, false);
 
   // Setup the audio device for this controller.
-  if(setupWavTrigger() == true) {
-    AUDIO_DEVICE = A_WAV_TRIGGER;
-  }
-  else if(setupGPStarAudio() == true) {
-    AUDIO_DEVICE = A_GPSTAR_AUDIO;
-  }
-  else {
-    AUDIO_DEVICE = A_NONE;
-  }
+  selectAudioDevice();
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
@@ -249,24 +226,19 @@ void loop() {
         ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
       }
 
-      w_trig.update(); // Update the state of the WavTrigger.
-
-      checkPack(); // Get the latest communications from the connected Proton Pack.
-
       mainLoop(); // Continue on to the main loop.
     break;
 
     case NC_BENCHTEST:
-      w_trig.update(); // Update the state of the WavTrigger.
-
-      checkMusic(); // Music control is here since pack is not present.
-
       mainLoop(); // Continue on to the main loop.
     break;
   }
 }
 
 void mainLoop() {
+  updateAudio(); // Update the state of the audio device.
+  checkMusic(); // Music control is here since pack is not present.
+
   // Get the current state of any input devices (toggles, buttons, and switches).
   switchLoops();
   checkSwitches();
@@ -3761,7 +3733,7 @@ void fireStreamStart(CRGB c_colour) {
 
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
-        // More LEDs means a faster firing rate.    
+        // More LEDs means a faster firing rate.
         ms_firing_lights.start(d_firing_stream / 25);
       break;
 
@@ -3796,7 +3768,7 @@ void fireStreamStart(CRGB c_colour) {
 }
 
 void fireStreamEnd(CRGB c_colour) {
-  if(i_barrel_light < i_num_barrel_leds) {    
+  if(i_barrel_light < i_num_barrel_leds) {
     ms_fast_led.start(i_fast_led_delay);
 
     switch(WAND_BARREL_LED_COUNT) {
@@ -6416,158 +6388,6 @@ void vibrationOff() {
   analogWrite(vibration, 0);
 }
 
-void adjustVolumeEffectsGain() {
-  // Since adjusting only happens while in the menu mode, only certain effects need to be adjusted on the fly.
-  w_trig.trackGain(S_BEEPS, i_volume_effects);
-  w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
-  w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
-  w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
-
-  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 1); // Special volume in use.
-
-  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
-
-  w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_3, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_4, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
-}
-
-void increaseVolumeEffects() {
-  if(i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
-    i_volume_effects_percentage = 100;
-
-    // Provide feedback at maximum volume.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
-  }
-  else {
-    i_volume_effects_percentage = i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER;
-  }
-
-  i_volume_effects_percentage = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-
-  adjustVolumeEffectsGain();
-}
-
-void decreaseVolumeEffects() {
-  if(i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
-    i_volume_effects_percentage = 0;
-
-    // Provide feedback at minimum volume.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
-  }
-  else {
-    i_volume_effects_percentage = i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER;
-  }
-
-  i_volume_effects_percentage = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-
-  adjustVolumeEffectsGain();
-}
-
-void increaseVolumeEEPROM() {
-  if(i_volume_master_eeprom == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master_eeprom) {
-    i_volume_master_eeprom = MINIMUM_VOLUME;
-  }
-
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = 100;
-  }
-  else {
-    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
-  }
-
-  i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-  i_volume_revert = i_volume_master_eeprom;
-
-  stopEffect(S_BEEPS_ALT);
-  playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
-
-  i_volume_master = i_volume_master_eeprom;
-
-  w_trig.masterGain(i_volume_master_eeprom);
-}
-
-void decreaseVolumeEEPROM() {
-  if(i_volume_master_eeprom == i_volume_abs_min) {
-    // Cannot go any lower.
-  }
-  else {
-    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
-      i_volume_master_percentage = 0;
-    }
-    else {
-      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
-    }
-
-    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-    i_volume_revert = i_volume_master_eeprom;
-
-    i_volume_master = i_volume_master_eeprom;
-
-    w_trig.masterGain(i_volume_master_eeprom);
-  }
-
-  stopEffect(S_BEEPS_ALT);
-  playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
-}
-
-void increaseVolume() {
-  if(i_volume_master == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master) {
-    i_volume_master = MINIMUM_VOLUME;
-  }
-
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = 100;
-
-    // Provide feedback at maximum volume.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
-  }
-  else {
-    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
-  }
-
-  i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-  i_volume_revert = i_volume_master;
-
-  w_trig.masterGain(i_volume_master);
-}
-
-void decreaseVolume() {
-  if(i_volume_master == i_volume_abs_min) {
-    // Cannot go any lower.
-  }
-  else {
-    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
-      i_volume_master_percentage = 0;
-    }
-    else {
-      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
-    }
-
-    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-    i_volume_revert = i_volume_master;
-
-    w_trig.masterGain(i_volume_master);
-  }
-}
-
 int8_t readRotary() {
   static int8_t rot_enc_table[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
 
@@ -7180,9 +7000,7 @@ void checkRotaryEncoder() {
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-            if(i_music_count > 0) {
-              w_trig.trackGain(i_current_music_track, i_volume_music);
-            }
+            updateMusicVolume();
 
             // Tell pack to lower the music volume.
             wandSerialSend(W_VOLUME_MUSIC_DECREASE);
@@ -7258,9 +7076,7 @@ void checkRotaryEncoder() {
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-            if(i_music_count > 0) {
-              w_trig.trackGain(i_current_music_track, i_volume_music);
-            }
+            updateMusicVolume();
 
             // Tell pack to increase music volume.
             wandSerialSend(W_VOLUME_MUSIC_INCREASE);
@@ -7377,9 +7193,7 @@ void checkRotaryEncoder() {
 
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-              if(i_music_count > 0) {
-                w_trig.trackGain(i_current_music_track, i_volume_music);
-              }
+              updateMusicVolume();
 
               // Tell pack to lower music volume.
               wandSerialSend(W_VOLUME_MUSIC_DECREASE);
@@ -7442,9 +7256,7 @@ void checkRotaryEncoder() {
 
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-              if(i_music_count > 0) {
-                w_trig.trackGain(i_current_music_track, i_volume_music);
-              }
+              updateMusicVolume();
 
               // Tell pack to increase music volume.
               wandSerialSend(W_VOLUME_MUSIC_INCREASE);
@@ -7632,7 +7444,7 @@ void wandExitEEPROMMenu() {
   switch_intensify.resetCount();
   switch_wand.resetCount();
   switch_vent.resetCount();
-  
+
   if(b_gpstar_benchtest == true) {
     // Also need to make sure to reset the "ion arm switch" to off if standalone
     b_pack_ion_arm_switch_on = false;
@@ -7715,255 +7527,6 @@ void resetOverHeatModes() {
   b_overheat_mode[2] = b_overheat_mode_3;
   b_overheat_mode[3] = b_overheat_mode_4;
   b_overheat_mode[4] = b_overheat_mode_5;
-}
-
-// Helper method to play a sound effect using certain defaults.
-void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
-  if(i_track_volume < i_volume_abs_min) {
-    i_track_volume = i_volume_abs_min;
-  }
-  if(i_track_volume > i_volume_abs_max) {
-    i_track_volume = i_volume_abs_max;
-  }
-
-  if(b_fade_in == true) {
-    w_trig.trackGain(i_track_id, i_volume_abs_min);
-    w_trig.trackPlayPoly(i_track_id, true);
-    w_trig.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
-  }
-  else {
-    w_trig.trackGain(i_track_id, i_track_volume);
-    w_trig.trackPlayPoly(i_track_id, true);
-  }
-
-  if(b_track_loop == true) {
-    w_trig.trackLoop(i_track_id, 1);
-  }
-  else {
-    w_trig.trackLoop(i_track_id, 0);
-  }
-}
-
-void stopEffect(int i_track_id) {
-  w_trig.trackStop(i_track_id);
-}
-
-// Helper method to play a music track using certain defaults.
-void playMusic() {
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-    b_playing_music = true;
-
-    // Loop the music track.
-    if(b_repeat_track == true) {
-      w_trig.trackLoop(i_current_music_track, 1);
-    }
-    else {
-      w_trig.trackLoop(i_current_music_track, 0);
-    }
-
-    w_trig.trackGain(i_current_music_track, i_volume_music);
-    w_trig.trackPlayPoly(i_current_music_track, true);
-    w_trig.update();
-
-    if(b_gpstar_benchtest == true) {
-      // Keep track of music playback on the wand directly.
-      ms_music_status_check.start(i_music_check_delay * 10);
-      w_trig.resetTrackCounter(true);
-    }
-  }
-}
-
-void stopMusic() {
-  b_playing_music = false;
-
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-    w_trig.trackStop(i_current_music_track);
-  }
-
-  w_trig.update();
-}
-
-void pauseMusic() {
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-    w_trig.trackPause(i_current_music_track);
-  }
-
-  w_trig.update();
-}
-
-void resumeMusic() {
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-    w_trig.trackResume(i_current_music_track);
-  }
-
-  w_trig.update();
-}
-
-void musicNextTrack() {
-  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
-
-  // Determine the next track.
-  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-    // Start at the first track if already on the last.
-    i_temp_track = i_music_track_start;
-  }
-  else {
-    i_temp_track++;
-  }
-
-  // Switch to the next track.
-  if(b_playing_music == true) {
-    // Stops music using the current track.
-    stopMusic();
-
-    i_current_music_track = i_temp_track;
-
-    // Begin playing the new track.
-    playMusic();
-  }
-  else {
-    // Set the new track.
-    i_current_music_track = i_temp_track;
-  }
-}
-
-void musicPrevTrack() {
-  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
-
-  // Determine the previous track.
-  if(i_current_music_track - 1 < i_music_track_start) {
-    // Start at the last track if already on the first.
-    i_temp_track = i_music_track_start + (i_music_count - 1);
-  }
-  else {
-    i_temp_track--;
-  }
-
-  // Switch to the previous track.
-  if(b_playing_music == true) {
-    // Stops music using the current track.
-    stopMusic();
-
-    // Set the new track.
-    i_current_music_track = i_temp_track;
-
-    // Begin playing the new track.
-    playMusic();
-  }
-  else {
-    // Set the new track.
-    i_current_music_track = i_temp_track;
-  }
-}
-
-void checkMusic() {
-  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
-    ms_check_music.start(i_music_check_delay);
-    w_trig.trackPlayingStatus(i_current_music_track);
-
-    // Loop through all the tracks if the music is not set to repeat a track.
-    if(b_playing_music == true && b_repeat_track == false) {
-      if(w_trig.currentMusicTrackStatus(i_current_music_track) != true && ms_music_status_check.justFinished() && w_trig.trackCounterReset() != true) {
-        ms_check_music.stop();
-        ms_music_status_check.stop();
-
-        stopMusic();
-
-        // Switch to the next track.
-        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-          i_current_music_track = i_music_track_start;
-        }
-        else {
-          i_current_music_track++;
-        }
-
-        // Start timer to prepare to play music again.
-        ms_music_next_track.start(i_music_next_track_delay);
-      }
-      else {
-        if(ms_music_status_check.justFinished()) {
-          ms_music_status_check.start(i_music_check_delay * 4);
-        }
-      }
-    }
-  }
-
-  // Start playing music again.
-  if(ms_music_next_track.justFinished()) {
-    ms_music_next_track.stop();
-    ms_check_music.start(i_music_check_delay);
-
-    playMusic();
-  }
-}
-
-void buildMusicCount(uint16_t i_num_tracks) {
-  // Build the music track count.
-  i_music_count = i_num_tracks - i_last_effects_track;
-
-  if(i_music_count > 0) {
-    i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
-  }
-}
-
-bool setupWavTrigger() {
-  // If the controller is powering the WAV Trigger, we should wait for the WAV Trigger to finish reset before trying to send commands.
-  delay(1000);
-
-  char gWTrigVersion[VERSION_STRING_LEN];
-
-  // WAV Trigger's startup at 57600
-  w_trig.start();
-
-  delay(10);
-
-  // Stop all tracks.
-  w_trig.stopAllTracks();
-
-  // Reset the sample rate offset, in case we have reset while the WAV Trigger was already playing.
-  w_trig.samplerateOffset(0);
-
-  w_trig.masterGain(i_volume_master); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
-  w_trig.setAmpPwr(b_onboard_amp_enabled);
-
-  // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(true);
-
-  // Allow time for the WAV Trigger to respond with the version string and number of tracks.
-  delay(350);
-
-  if(w_trig.getVersion(gWTrigVersion)) {
-    // We found a WavTrigger. Build the music track count.
-    buildMusicCount((uint16_t) w_trig.getNumTracks());
-
-    return true;
-  }
-  else {
-    // No Wav Trigger.
-    return false;
-  }
-}
-
-bool setupGPStarAudio() {
-  Serial3.begin(115200);
-
-  GPStarAudio.begin();
-
-  GPStarAudio.stopAll();
-  GPStarAudio.setVolume(0);
-
-  if(GPStarAudio.hello()) {
-    // GPStar Audio is here. Build the music track count.
-    buildMusicCount((uint16_t) GPStarAudio.getTrackCount());
-
-    return true;
-  }
-  else {
-    Serial3.end();
-
-    // No GPStar Audio.
-    return false;
-  }
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.
