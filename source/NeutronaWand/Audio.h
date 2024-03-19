@@ -37,7 +37,7 @@ wavTrigger w_trig;
  */
 #include "GPStarAudio.h"
 
-GPStarAudio GPStarAudio(Serial3);
+GPStarAudio GPStarAudio(Serial2);
 
 /*
  * Audio Devices
@@ -528,7 +528,7 @@ void increaseVolumeEEPROM() {
     break;
 
     case A_GPSTAR_AUDIO:
-      // Nothing for now.
+      GPStarAudio.setVolume(i_volume_master_eeprom);
     break;
 
     case A_NONE:
@@ -561,7 +561,7 @@ void decreaseVolumeEEPROM() {
       break;
 
       case A_GPSTAR_AUDIO:
-        // Nothing for now.
+        GPStarAudio.setVolume(i_volume_master_eeprom);
       break;
 
       case A_NONE:
@@ -605,7 +605,7 @@ void increaseVolume() {
     break;
 
     case A_GPSTAR_AUDIO:
-      // Nothing for now.
+      GPStarAudio.setVolume(i_volume_master);
     break;
 
     case A_NONE:
@@ -855,7 +855,7 @@ bool setupWavTrigger() {
 }
 
 bool setupGPStarAudio() {
-  Serial3.begin(115200);
+  Serial2.begin(115200);
 
   GPStarAudio.begin();
 
@@ -869,7 +869,7 @@ bool setupGPStarAudio() {
     return true;
   }
   else {
-    Serial3.end();
+    Serial2.end();
 
     // No GPStar Audio.
     return false;
@@ -900,12 +900,15 @@ float gpstarTrackVolumeCalc(int8_t i_track_volume) {
 
 void selectAudioDevice() {
   if(setupWavTrigger() == true) {
+    debugln(F("Using WavTrigger"));
     AUDIO_DEVICE = A_WAV_TRIGGER;
   }
   else if(setupGPStarAudio() == true) {
+    debugln(F("Using GPStar Audio"));
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
   }
   else {
+    debugln(F("No Audio Device"));
     AUDIO_DEVICE = A_NONE;
   }
 }

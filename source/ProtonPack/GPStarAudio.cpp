@@ -698,7 +698,7 @@ uint8_t gpstarTrackVolume(uint16_t track, float volume) {
   }
 
   vol = (uint16_t) (volume * 100.0f);
-  
+
   if(!little_endian) {
     vol = SWAP16(vol);
   }
