@@ -627,7 +627,7 @@ void increaseVolumeEEPROM() {
     break;
 
     case A_GPSTAR_AUDIO:
-      // Nothing for now.
+      GPStarAudio.setVolume(i_volume_master_eeprom + 15);
     break;
 
     case A_NONE:
@@ -660,7 +660,7 @@ void decreaseVolumeEEPROM() {
       break;
 
       case A_GPSTAR_AUDIO:
-        // Nothing for now.
+        GPStarAudio.setVolume(i_volume_master_eeprom + 15);
       break;
 
       case A_NONE:
@@ -704,7 +704,7 @@ void increaseVolume() {
     break;
 
     case A_GPSTAR_AUDIO:
-      // Nothing for now.
+      GPStarAudio.setVolume(i_volume_master + 15);
     break;
 
     case A_NONE:
@@ -737,7 +737,7 @@ void decreaseVolume() {
       break;
 
       case A_GPSTAR_AUDIO:
-        // Nothing for now.
+        GPStarAudio.setVolume(i_volume_master + 15);
       break;
 
       case A_NONE:
@@ -936,7 +936,7 @@ bool setupWavTrigger() {
   // Reset the sample rate offset, in case we have reset while the WAV Trigger was already playing.
   w_trig.samplerateOffset(0);
 
-  w_trig.masterGain(i_volume_master); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
+  w_trig.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
   w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger
@@ -963,7 +963,7 @@ bool setupGPStarAudio() {
   GPStarAudio.begin();
 
   GPStarAudio.stopAll();
-  GPStarAudio.setVolume(0);
+  GPStarAudio.setVolume(-70);
 
   if(GPStarAudio.hello()) {
     // GPStar Audio is here. Build the music track count.
@@ -1020,7 +1020,7 @@ void resetMasterVolume() {
     break;
 
     case A_GPSTAR_AUDIO:
-      GPStarAudio.setVolume(i_volume_master);
+      GPStarAudio.setVolume(i_volume_master + 15);
     break;
 
     case A_NONE:
