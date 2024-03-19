@@ -224,8 +224,8 @@ public:
 		return (last_error == GPSTAR_AUDIO_ERROR_NONE);
     }
 
-	inline uint8_t getLastError() { 
-    return last_error; 
+	inline uint8_t getLastError() {
+    return last_error;
   }
 
 private:

@@ -2743,7 +2743,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Restore the master volume to previous level.
       i_volume_master = i_volume_revert;
 
-      resetMasterVolume();  
+      resetMasterVolume();
     break;
 
     case W_VOLUME_DECREASE:
