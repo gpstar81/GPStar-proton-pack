@@ -1192,6 +1192,7 @@ void checkSwitches() {
 
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
+                    stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
                   else if((switch_vent.isPressed() || switch_vent.isReleased()) && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
@@ -1202,6 +1203,7 @@ void checkSwitches() {
 
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
+                    stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
                 }
@@ -1404,7 +1406,7 @@ void wandOff() {
       case SYSTEM_1984:
       case SYSTEM_1989:
         // Proton Pack plays shutdown sound, but standalone Wand needs to play its own
-        if(b_gpstar_benchtest == true && switch_vent.getState() == HIGH) {
+        if(b_gpstar_benchtest == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_vent.getState() == HIGH) {
           stopEffect(S_WAND_HEATDOWN);
           playEffect(S_WAND_HEATDOWN);
         }
