@@ -1005,16 +1005,19 @@ float gpstarTrackVolumeCalc(int8_t i_track_volume) {
 
 void selectAudioDevice() {
   if(setupWavTrigger() == true) {
+    debugln(F("Using WavTrigger"));
     AUDIO_DEVICE = A_WAV_TRIGGER;
 
     i_wand_sound_level = 10;
   }
   else if(setupGPStarAudio() == true) {
+    debugln(F("Using GPStar Audio"));
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
 
     i_wand_sound_level = 30;
   }
   else {
+    debugln(F("No Audio Device"));
     AUDIO_DEVICE = A_NONE;
   }
 }
