@@ -1483,42 +1483,42 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_AFTERLIFE_GUN_RAMP_1:
       stopEffect(S_AFTERLIFE_WAND_RAMP_1);
-      playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_2:
       stopEffect(S_AFTERLIFE_WAND_RAMP_2);
-      playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_2_FADE_IN:
       stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
-      playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_LOOP_1:
       stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-      playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_LOOP_2:
       stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2:
       stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT:
       stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
-      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_1:
       stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
-      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_EXTRA_WAND_SOUNDS_STOP:
@@ -2679,7 +2679,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           // Provide feedback at minimum volume.
           stopEffect(S_BEEPS_ALT);
-          playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
+          playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_sound_level);
         }
         else {
           i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
@@ -2701,7 +2701,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           // Provide feedback at maximum volume.
           stopEffect(S_BEEPS_ALT);
-          playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
+          playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_sound_level);
         }
         else {
           i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
