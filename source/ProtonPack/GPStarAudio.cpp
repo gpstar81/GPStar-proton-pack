@@ -555,6 +555,8 @@ uint8_t gpstarSetVolume(int16_t volume) {
   // 0 is default volume. Range is from -60 to +25.
   uint8_t cmd = GPSTAR_AUDIO_CMD_SET_VOLUME;
 
+  Serial.println(volume);
+  
   if(!little_endian) {
     volume = SWAP16(volume);
   }
@@ -696,7 +698,7 @@ uint8_t gpstarTrackVolume(uint16_t track, float volume) {
   }
 
   vol = (uint16_t) (volume * 100.0f);
-
+  
   if(!little_endian) {
     vol = SWAP16(vol);
   }
