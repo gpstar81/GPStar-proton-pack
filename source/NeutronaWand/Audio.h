@@ -37,7 +37,7 @@ wavTrigger w_trig;
  */
 #include "GPStarAudio.h"
 
-GPStarAudio GPStarAudio(Serial2);
+GPStarAudio GPStarAudio(Serial3);
 
 /*
  * Audio Devices
@@ -56,6 +56,8 @@ const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible
 bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
+uint8_t i_wand_sound_level = 10; // 10 for Wav Trigger. 30 for GPStar Audio.
+uint8_t i_gpstar_audio_volume_factor = 10; // Main volume gain factor for the GPStar Audio.
 
 /*
  * Music Control/Checking
@@ -384,6 +386,11 @@ void resumeMusic() {
     }
 
     b_music_paused = false;
+
+    if(b_gpstar_benchtest == true) {
+      // Keep track of music playback on the wand directly.
+      ms_music_status_check.start(i_music_check_delay * 10);
+    }
   }
 }
 
@@ -466,7 +473,7 @@ void decreaseVolumeEffects() {
 
     // Provide feedback at minimum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_sound_level);
   }
   else {
     i_volume_effects_percentage = i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER;
@@ -528,7 +535,7 @@ void increaseVolumeEEPROM() {
     break;
 
     case A_GPSTAR_AUDIO:
-      GPStarAudio.setVolume(i_volume_master_eeprom);
+      GPStarAudio.setVolume(i_volume_master_eeprom + i_gpstar_audio_volume_factor);
     break;
 
     case A_NONE:
@@ -561,7 +568,7 @@ void decreaseVolumeEEPROM() {
       break;
 
       case A_GPSTAR_AUDIO:
-        GPStarAudio.setVolume(i_volume_master_eeprom);
+        GPStarAudio.setVolume(i_volume_master_eeprom + i_gpstar_audio_volume_factor);
       break;
 
       case A_NONE:
@@ -605,7 +612,7 @@ void increaseVolume() {
     break;
 
     case A_GPSTAR_AUDIO:
-      GPStarAudio.setVolume(i_volume_master);
+      GPStarAudio.setVolume(i_volume_master + i_gpstar_audio_volume_factor);
     break;
 
     case A_NONE:
@@ -636,7 +643,7 @@ void decreaseVolume() {
       break;
 
       case A_GPSTAR_AUDIO:
-        // Nothing for now.
+        GPStarAudio.setVolume(i_volume_master + i_gpstar_audio_volume_factor);
       break;
 
       case A_NONE:
@@ -833,7 +840,7 @@ bool setupWavTrigger() {
   // Reset the sample rate offset, in case we have reset while the WAV Trigger was already playing.
   w_trig.samplerateOffset(0);
 
-  w_trig.masterGain(i_volume_master); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
+  w_trig.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
   w_trig.setAmpPwr(b_onboard_amp_enabled);
 
   // Enable track reporting from the WAV Trigger
@@ -855,7 +862,7 @@ bool setupWavTrigger() {
 }
 
 bool setupGPStarAudio() {
-  Serial2.begin(115200);
+  Serial3.begin(115200);
 
   GPStarAudio.begin();
 
@@ -869,7 +876,7 @@ bool setupGPStarAudio() {
     return true;
   }
   else {
-    Serial2.end();
+    Serial3.end();
 
     // No GPStar Audio.
     return false;
@@ -902,10 +909,14 @@ void selectAudioDevice() {
   if(setupWavTrigger() == true) {
     debugln(F("Using WavTrigger"));
     AUDIO_DEVICE = A_WAV_TRIGGER;
+
+    i_wand_sound_level = 10;
   }
   else if(setupGPStarAudio() == true) {
     debugln(F("Using GPStar Audio"));
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
+
+    i_wand_sound_level = 30;
   }
   else {
     debugln(F("No Audio Device"));
@@ -920,7 +931,7 @@ void resetMasterVolume() {
     break;
 
     case A_GPSTAR_AUDIO:
-      GPStarAudio.setVolume(i_volume_master);
+      GPStarAudio.setVolume(i_volume_master + i_gpstar_audio_volume_factor);
     break;
 
     case A_NONE:
