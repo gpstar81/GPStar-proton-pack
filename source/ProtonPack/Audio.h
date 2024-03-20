@@ -965,7 +965,7 @@ bool setupGPStarAudio() {
   GPStarAudio.begin();
 
   GPStarAudio.stopAll();
-  GPStarAudio.setVolume(-70);
+  GPStarAudio.setVolume(0);
 
   if(GPStarAudio.hello()) {
     // GPStar Audio is here. Build the music track count.
