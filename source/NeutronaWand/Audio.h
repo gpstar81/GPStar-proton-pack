@@ -1,0 +1,945 @@
+/**
+ *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
+ *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program; if not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+#pragma once
+
+/**
+ ***** IMPORTANT *****
+ * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
+ * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
+ * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
+ *
+ * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
+ * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
+ */
+#include "wavTrigger.h"
+
+wavTrigger w_trig;
+
+/**
+ * GPStar Audio
+ */
+#include "GPStarAudio.h"
+
+GPStarAudio GPStarAudio(Serial2);
+
+/*
+ * Audio Devices
+ */
+enum AUDIO_DEVICES { A_NONE, A_GPSTAR_AUDIO, A_WAV_TRIGGER };
+enum AUDIO_DEVICES AUDIO_DEVICE;
+
+/*
+ * Audio Variables
+ */
+uint16_t i_music_count = 0;
+uint16_t i_current_music_track = 0;
+const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
+const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
+const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
+bool b_playing_music = false;
+bool b_music_paused = false;
+bool b_repeat_track = false;
+
+/*
+ * Music Control/Checking
+ * Only for bench test mode. When bench test mode is disabled, the Pack controls the music checking and playback.
+ */
+const unsigned int i_music_check_delay = 2000;
+const unsigned int i_music_next_track_delay = 2000;
+millisDelay ms_check_music;
+millisDelay ms_music_next_track;
+millisDelay ms_music_status_check;
+
+/*
+ * GPStar Audio - Volume (0.1 = quietest, 1.0 = loudest)
+ */
+const float f_gpstarAudio_volume_abs_min = 0.1f; // System (absolute) minimum volume possible.
+const float f_gpstarAudio_volume_abs_max = 1.0f; // System (absolute) maximum volume possible.
+
+/*
+ * WavTrigger - Volume (-70 = quietest, 0 = loudest)
+ */
+uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
+uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
+uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
+
+/*
+ * General Volume
+ */
+int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
+int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup in standalone mode
+int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects
+int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
+int8_t i_volume_revert = i_volume_master;
+
+/*
+ * Function Prototypes
+ */
+float gpstarTrackVolumeCalc(int8_t i_track_volume);
+void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
+void stopEffect(int i_track_id);
+void playMusic();
+void stopMusic();
+
+/*
+ * Helper Functions
+ */
+
+// Play a sound effect using certain defaults.
+void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
+  float f_gpstar_track_volume = 0;
+  uint8_t i_tmp_playback_style = GPSTAR_PLAY_NORMAL;
+
+  if(i_track_volume < i_volume_abs_min) {
+    i_track_volume = i_volume_abs_min;
+  }
+
+  if(i_track_volume > i_volume_abs_max) {
+    i_track_volume = i_volume_abs_max;
+  }
+
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      if(b_fade_in == true) {
+        w_trig.trackGain(i_track_id, i_volume_abs_min);
+        w_trig.trackPlayPoly(i_track_id, true);
+        w_trig.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+      }
+      else {
+        w_trig.trackGain(i_track_id, i_track_volume);
+        w_trig.trackPlayPoly(i_track_id, true);
+      }
+
+      if(b_track_loop == true) {
+        w_trig.trackLoop(i_track_id, 1);
+      }
+      else {
+        w_trig.trackLoop(i_track_id, 0);
+      }
+    break;
+
+    case A_GPSTAR_AUDIO:
+      f_gpstar_track_volume = gpstarTrackVolumeCalc(i_track_volume);
+
+      if(b_track_loop == true) {
+        i_tmp_playback_style = GPSTAR_PLAY_LOOP;
+      }
+
+      if(b_fade_in == true) {
+        GPStarAudio.trackVolume(i_track_id, 0.0);
+        GPStarAudio.playTrack(i_track_id, i_tmp_playback_style);
+        GPStarAudio.trackFade(i_track_id, f_gpstar_track_volume, i_fade_time);
+      }
+      else {
+        GPStarAudio.trackVolume(i_track_id, f_gpstar_track_volume);
+        GPStarAudio.playTrack(i_track_id, i_tmp_playback_style);
+      }
+    break;
+
+    case A_NONE:
+    default:
+      // No audio device connected.
+    break;
+  }
+}
+
+void stopEffect(int i_track_id) {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      w_trig.trackStop(i_track_id);
+    break;
+
+    case A_GPSTAR_AUDIO:
+      GPStarAudio.stopTrack(i_track_id);
+    break;
+
+    case A_NONE:
+    default:
+      // No audio device connected.
+    break;
+  }
+}
+
+
+void updateEffectsVolume() {
+  float f_gpstar_track_volume = 0;
+
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      // Since adjusting only happens while in the menu mode, only certain effects need to be adjusted on the fly.
+      w_trig.trackGain(S_BEEPS, i_volume_effects);
+      w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
+      w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
+      w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
+
+      w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects);
+      w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects);
+      w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects);
+      w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
+      w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
+
+      w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
+      w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
+      w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
+      w_trig.trackGain(S_IDLE_LOOP_GUN_3, i_volume_effects);
+      w_trig.trackGain(S_IDLE_LOOP_GUN_4, i_volume_effects);
+      w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
+
+      // Special volume in use.
+      w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - 1);
+      w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 1);
+      w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 1);
+      w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 1);
+      w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 1);
+      w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 1);
+      w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 1);
+      w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 1);
+    break;
+
+    case A_GPSTAR_AUDIO:
+      f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_effects);
+
+      GPStarAudio.trackVolume(S_BEEPS, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_BEEPS_ALT, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_BEEPS_LOW, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_BEEPS_BARGRAPH, f_gpstar_track_volume);
+
+      GPStarAudio.trackVolume(S_AFTERLIFE_BEEP_WAND_S1, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_BEEP_WAND_S2, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_BEEP_WAND_S3, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_BEEP_WAND_S4, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_BEEP_WAND_S5, f_gpstar_track_volume);
+
+      GPStarAudio.trackVolume(S_IDLE_LOOP_GUN, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_IDLE_LOOP_GUN_1, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_IDLE_LOOP_GUN_2, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_IDLE_LOOP_GUN_3, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_IDLE_LOOP_GUN_4, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_IDLE_LOOP_GUN_5, f_gpstar_track_volume);
+
+      f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_effects - 1);
+
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_IDLE_1, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_IDLE_2, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_1, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_2, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_DOWN_1, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_DOWN_2, f_gpstar_track_volume);
+      GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, f_gpstar_track_volume);
+    break;
+
+    case A_NONE:
+    default:
+      // No audio device connected.
+    break;
+  }
+}
+
+// Play a music track using certain defaults.
+void playMusic() {
+  float f_gpstar_track_volume = 0;
+  uint8_t i_tmp_playback_style = GPSTAR_PLAY_NORMAL;
+
+  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+    b_playing_music = true;
+
+    switch(AUDIO_DEVICE) {
+      case A_WAV_TRIGGER:
+        // Loop the music track.
+        if(b_repeat_track == true) {
+          w_trig.trackLoop(i_current_music_track, 1);
+        }
+        else {
+          w_trig.trackLoop(i_current_music_track, 0);
+        }
+
+        w_trig.trackGain(i_current_music_track, i_volume_music);
+        w_trig.trackPlayPoly(i_current_music_track, true);
+        w_trig.update();
+
+        w_trig.resetTrackCounter(true);
+      break;
+
+      case A_GPSTAR_AUDIO:
+        f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
+
+        // Loop the music track.
+        if(b_repeat_track == true) {
+          i_tmp_playback_style = GPSTAR_PLAY_LOOP;
+        }
+
+        GPStarAudio.trackVolume(i_current_music_track, f_gpstar_track_volume);
+        GPStarAudio.playTrack(i_current_music_track, i_tmp_playback_style);
+      break;
+
+      case A_NONE:
+      default:
+        // Nothing.
+      break;
+    }
+
+    if(b_gpstar_benchtest == true) {
+      // Keep track of music playback on the wand directly.
+      ms_music_status_check.start(i_music_check_delay * 10);
+    }
+  }
+}
+
+void stopMusic() {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+        w_trig.trackStop(i_current_music_track);
+      }
+
+      w_trig.update();
+    break;
+
+    case A_GPSTAR_AUDIO:
+      if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+        GPStarAudio.stopTrack(i_current_music_track);
+      }
+    break;
+
+    case A_NONE:
+    default:
+      // Nothing.
+    break;
+  }
+
+  b_music_paused = false;
+  b_playing_music = false;
+
+}
+
+void pauseMusic() {
+  if(b_playing_music == true) {
+    // Pause music playback on the Neutrona Wand
+    switch(AUDIO_DEVICE) {
+      case A_WAV_TRIGGER:
+        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+          w_trig.trackPause(i_current_music_track);
+        }
+
+        w_trig.update();
+      break;
+
+      case A_GPSTAR_AUDIO:
+        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+          GPStarAudio.pauseTrack(i_current_music_track);
+        }
+      break;
+
+      case A_NONE:
+      default:
+        // Nothing.
+      break;
+    }
+
+    b_music_paused = true;
+  }
+}
+
+void resumeMusic() {
+  if(b_playing_music == true) {
+    switch(AUDIO_DEVICE) {
+      case A_WAV_TRIGGER:
+        w_trig.resetTrackCounter(true);
+
+        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+          w_trig.trackResume(i_current_music_track);
+        }
+
+        w_trig.update();
+      break;
+
+      case A_GPSTAR_AUDIO:
+        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+          GPStarAudio.resumeTrack(i_current_music_track);
+        }
+      break;
+
+      case A_NONE:
+      default:
+        // Nothing.
+      break;
+    }
+
+    b_music_paused = false;
+  }
+}
+
+void musicNextTrack() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the next track.
+  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+    // Start at the first track if already on the last.
+    i_temp_track = i_music_track_start;
+  }
+  else {
+    i_temp_track++;
+  }
+
+  // Switch to the next track.
+  if(b_playing_music == true) {
+    // Stops music using the current track number as the identifier.
+    stopMusic();
+
+    i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
+
+    // Begin playing the new track.
+    playMusic();
+  }
+  else {
+    // Set the new track.
+    i_current_music_track = i_temp_track;
+  }
+}
+
+void musicPrevTrack() {
+  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the previous track.
+  if(i_current_music_track - 1 < i_music_track_start) {
+    // Start at the last track if already on the first.
+    i_temp_track = i_music_track_start + (i_music_count - 1);
+  }
+  else {
+    i_temp_track--;
+  }
+
+  // Switch to the previous track.
+  if(b_playing_music == true) {
+    // Stops music using the current track number as the identifier.
+    stopMusic();
+
+    i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
+
+    // Begin playing the new track.
+    playMusic();
+  }
+  else {
+    // Set the new track.
+    i_current_music_track = i_temp_track;
+  }
+}
+
+void increaseVolumeEffects() {
+  if(i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
+    i_volume_effects_percentage = 100;
+
+    // Provide feedback at maximum volume.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT);
+  }
+  else {
+    i_volume_effects_percentage = i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER;
+  }
+
+  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
+
+  updateEffectsVolume();
+}
+
+void decreaseVolumeEffects() {
+  if(i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
+    i_volume_effects_percentage = 0;
+
+    // Provide feedback at minimum volume.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
+  }
+  else {
+    i_volume_effects_percentage = i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER;
+  }
+
+  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
+
+  updateEffectsVolume();
+}
+
+void updateMusicVolume() {
+  float f_gpstar_track_volume = 0;
+
+  if(i_music_count > 0) {
+    switch(AUDIO_DEVICE) {
+      case A_WAV_TRIGGER:
+        w_trig.trackGain(i_current_music_track, i_volume_music);
+      break;
+
+      case A_GPSTAR_AUDIO:
+        f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_music);
+        GPStarAudio.trackVolume(i_current_music_track, f_gpstar_track_volume);
+      break;
+
+      case A_NONE:
+      default:
+        // Nothing.
+      break;
+    }
+  }
+}
+
+void increaseVolumeEEPROM() {
+  if(i_volume_master_eeprom == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master_eeprom) {
+    i_volume_master_eeprom = MINIMUM_VOLUME;
+  }
+
+  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+    i_volume_master_percentage = 100;
+  }
+  else {
+    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
+  }
+
+  i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+  i_volume_revert = i_volume_master_eeprom;
+
+  if(b_pack_on != true) {
+    // Provide feedback when the pack is not running.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
+  }
+
+  i_volume_master = i_volume_master_eeprom;
+
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      w_trig.masterGain(i_volume_master_eeprom);
+    break;
+
+    case A_GPSTAR_AUDIO:
+      GPStarAudio.setVolume(i_volume_master_eeprom);
+    break;
+
+    case A_NONE:
+    default:
+      // No audio device connected.
+    break;
+  }
+}
+
+void decreaseVolumeEEPROM() {
+  if(i_volume_master_eeprom == i_volume_abs_min) {
+    // Cannot go any lower.
+  }
+  else {
+    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
+      i_volume_master_percentage = 0;
+    }
+    else {
+      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master_eeprom;
+
+    i_volume_master = i_volume_master_eeprom;
+
+    switch(AUDIO_DEVICE) {
+      case A_WAV_TRIGGER:
+        w_trig.masterGain(i_volume_master_eeprom);
+      break;
+
+      case A_GPSTAR_AUDIO:
+        GPStarAudio.setVolume(i_volume_master_eeprom);
+      break;
+
+      case A_NONE:
+      default:
+        // No audio device connected.
+      break;
+    }
+  }
+
+  if(b_pack_on != true) {
+    // Provide feedback when the pack is not running.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
+  }
+}
+
+void increaseVolume() {
+  if(i_volume_master == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master) {
+    i_volume_master = MINIMUM_VOLUME;
+  }
+
+  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+    i_volume_master_percentage = 100;
+  }
+  else {
+    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
+  }
+
+  i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+  i_volume_revert = i_volume_master;
+
+  if(b_pack_on != true) {
+    // Provide feedback when the pack is not running.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master);
+  }
+
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      w_trig.masterGain(i_volume_master);
+    break;
+
+    case A_GPSTAR_AUDIO:
+      GPStarAudio.setVolume(i_volume_master);
+    break;
+
+    case A_NONE:
+    default:
+      // No audio device connected.
+    break;
+  }
+}
+
+void decreaseVolume() {
+  if(i_volume_master == i_volume_abs_min) {
+    // Cannot go any lower.
+  }
+  else {
+    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
+      i_volume_master_percentage = 0;
+    }
+    else {
+      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master;
+
+    switch(AUDIO_DEVICE) {
+      case A_WAV_TRIGGER:
+        w_trig.masterGain(i_volume_master);
+      break;
+
+      case A_GPSTAR_AUDIO:
+        // Nothing for now.
+      break;
+
+      case A_NONE:
+      default:
+        // No audio device connected.
+      break;
+    }
+  }
+
+  if(b_pack_on != true) {
+    // Provide feedback when the pack is not running.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master);
+  }
+}
+
+void buildMusicCount(uint16_t i_num_tracks) {
+  // Build the music track count.
+  i_music_count = i_num_tracks - i_last_effects_track;
+
+  if(i_music_count > 0) {
+    i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
+  }
+}
+
+bool musicGetTrackCounter() {
+    switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      return w_trig.trackCounterReset();
+    break;
+
+    case A_GPSTAR_AUDIO:
+      return false;
+    break;
+
+    case A_NONE:
+    default:
+      return false;
+    break;
+  }
+}
+
+void musicTrackPlayingStatus() {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      w_trig.trackPlayingStatus(i_current_music_track);
+    break;
+
+    case A_GPSTAR_AUDIO:
+      // Do nothing.
+    break;
+
+    case A_NONE:
+    default:
+      // Do nothing.
+    break;
+  }
+}
+
+bool musicTrackStatus() {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      return w_trig.currentMusicTrackStatus(i_current_music_track);
+    break;
+
+    case A_GPSTAR_AUDIO:
+      return GPStarAudio.isTrackPlaying(i_current_music_track);
+    break;
+
+    case A_NONE:
+    default:
+      return false;
+    break;
+  }
+}
+
+void checkMusic() {
+  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
+    switch(AUDIO_DEVICE) {
+      case A_WAV_TRIGGER:
+      case A_GPSTAR_AUDIO:
+        ms_check_music.start(i_music_check_delay);
+
+        musicTrackPlayingStatus();
+
+        // Loop through all the tracks if the music is not set to repeat a track.
+        if(b_playing_music == true && b_repeat_track == false && b_music_paused != true) {
+          if(musicTrackStatus() != true && ms_music_status_check.justFinished() && musicGetTrackCounter() != true) {
+            ms_check_music.stop();
+            ms_music_status_check.stop();
+
+            stopMusic();
+
+            // Switch to the next track.
+            if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+              i_current_music_track = i_music_track_start;
+            }
+            else {
+              i_current_music_track++;
+            }
+
+            // Start timer to prepare to play music again.
+            ms_music_next_track.start(i_music_next_track_delay);
+          }
+          else {
+            if(ms_music_status_check.justFinished()) {
+              ms_music_status_check.start(i_music_check_delay * 4);
+            }
+          }
+        }
+      break;
+
+      case A_NONE:
+      default:
+        // None
+      break;
+    }
+  }
+
+  // Start playing music again.
+  if(ms_music_next_track.justFinished()) {
+    ms_music_next_track.stop();
+    ms_check_music.start(i_music_check_delay);
+
+    // Play the appropriate track on the wand.
+    playMusic();
+  }
+}
+
+void toggleMusicLoop() {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      // Loop the music track.
+      if(b_repeat_track == false) {
+        b_repeat_track = true;
+
+        if(i_music_count > 0) {
+          w_trig.trackLoop(i_current_music_track, 1);
+        }
+      }
+      else {
+        b_repeat_track = false;
+
+        if(i_music_count > 0) {
+          w_trig.trackLoop(i_current_music_track, 0);
+        }
+      }
+    break;
+
+    case A_GPSTAR_AUDIO:
+      // Loop the music track.
+      if(b_repeat_track == false) {
+        b_repeat_track = true;
+
+        if(i_music_count > 0) {
+          GPStarAudio.onSetLoop(i_current_music_track, true);
+        }
+      }
+      else {
+        b_repeat_track = false;
+
+        if(i_music_count > 0) {
+          GPStarAudio.onSetLoop(i_current_music_track, false);
+        }
+      }
+    break;
+
+    case A_NONE:
+    default:
+
+    break;
+  }
+}
+
+/*
+ * Audio Setup Routines
+ * Used to detect, update, and reset the available audio device
+ */
+
+bool setupWavTrigger() {
+  // If the controller is powering the WAV Trigger, we should wait for the WAV Trigger to finish reset before trying to send commands.
+  delay(1000);
+
+  char gWTrigVersion[VERSION_STRING_LEN];
+
+  // WAV Trigger's startup at 57600
+  w_trig.start();
+
+  delay(10);
+
+  // Stop all tracks.
+  w_trig.stopAllTracks();
+
+  // Reset the sample rate offset, in case we have reset while the WAV Trigger was already playing.
+  w_trig.samplerateOffset(0);
+
+  w_trig.masterGain(i_volume_master); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
+  w_trig.setAmpPwr(b_onboard_amp_enabled);
+
+  // Enable track reporting from the WAV Trigger
+  w_trig.setReporting(true);
+
+  // Allow time for the WAV Trigger to respond with the version string and number of tracks.
+  delay(350);
+
+  if(w_trig.getVersion(gWTrigVersion)) {
+    // We found a WavTrigger. Build the music track count.
+    buildMusicCount((uint16_t) w_trig.getNumTracks());
+
+    return true;
+  }
+  else {
+    // No Wav Trigger.
+    return false;
+  }
+}
+
+bool setupGPStarAudio() {
+  Serial2.begin(115200);
+
+  GPStarAudio.begin();
+
+  GPStarAudio.stopAll();
+  GPStarAudio.setVolume(0);
+
+  if(GPStarAudio.hello()) {
+    // GPStar Audio is here. Build the music track count.
+    buildMusicCount((uint16_t) GPStarAudio.getTrackCount());
+
+    return true;
+  }
+  else {
+    Serial2.end();
+
+    // No GPStar Audio.
+    return false;
+  }
+}
+
+float gpstarTrackVolumeCalc(int8_t i_track_volume) {
+  if(i_track_volume > 0) {
+    i_track_volume = 0;
+  }
+
+  if(i_track_volume <= i_volume_abs_min) {
+    i_track_volume = -100;
+  }
+
+  float f_gpstar_track_volume = (float)1.00 + (float)i_track_volume / 100;
+
+  if(f_gpstar_track_volume < f_gpstarAudio_volume_abs_min) {
+    f_gpstar_track_volume = f_gpstarAudio_volume_abs_min;
+  }
+
+  if(f_gpstar_track_volume > f_gpstarAudio_volume_abs_max) {
+    f_gpstar_track_volume = f_gpstarAudio_volume_abs_max;
+  }
+
+  return f_gpstar_track_volume;
+}
+
+void selectAudioDevice() {
+  if(setupWavTrigger() == true) {
+    debugln(F("Using WavTrigger"));
+    AUDIO_DEVICE = A_WAV_TRIGGER;
+  }
+  else if(setupGPStarAudio() == true) {
+    debugln(F("Using GPStar Audio"));
+    AUDIO_DEVICE = A_GPSTAR_AUDIO;
+  }
+  else {
+    debugln(F("No Audio Device"));
+    AUDIO_DEVICE = A_NONE;
+  }
+}
+
+void resetMasterVolume() {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      w_trig.masterGain(i_volume_master);
+    break;
+
+    case A_GPSTAR_AUDIO:
+      GPStarAudio.setVolume(i_volume_master);
+    break;
+
+    case A_NONE:
+    default:
+      // Nothing.
+    break;
+  }
+}
+
+void updateAudio() {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+      w_trig.update();
+    break;
+
+    case A_GPSTAR_AUDIO:
+    case A_NONE:
+    default:
+      // Nothing.
+    break;
+  }
+}

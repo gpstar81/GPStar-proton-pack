@@ -48,29 +48,14 @@
 #include <Wire.h>
 #include <SerialTransfer.h>
 
-// Special Libraries
-#include "GPStarAudio.h"
-
-/**
- ***** IMPORTANT *****
- * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
- * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
- * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
- *
- * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
- * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
- */
-#include "wavTrigger.h"
-
 // Local Files
 #include "Configuration.h"
 #include "MusicSounds.h"
 #include "Communication.h"
 #include "Header.h"
 #include "Colours.h"
+#include "Audio.h"
 #include "Preferences.h"
-
-GPStarAudio GPStarAudio(Serial3);
 
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
@@ -79,15 +64,7 @@ void setup() {
   wandComs.begin(Serial1, false);
 
   // Setup the audio device for this controller.
-  if(setupWavTrigger() == true) {
-    AUDIO_DEVICE = A_WAV_TRIGGER;
-  }
-  else if(setupGPStarAudio() == true) {
-    AUDIO_DEVICE = A_GPSTAR_AUDIO;
-  }
-  else {
-    AUDIO_DEVICE = A_NONE;
-  }
+  selectAudioDevice();
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
@@ -113,7 +90,7 @@ void setup() {
   switch_vent.setDebounceTime(i_switch_debounce);
   switch_wand.setDebounceTime(i_switch_debounce);
   switch_mode.setDebounceTime(i_switch_debounce);
-  switch_barrel.setDebounceTime(i_switch_debounce * 5); // Barrel safety switch is less precise; more settle time prevents false triggers
+  switch_barrel.setDebounceTime(i_switch_debounce);
 
   // Rotary encoder on the top of the wand.
   pinMode(r_encoderA, INPUT_PULLUP);
@@ -162,8 +139,7 @@ void setup() {
 
   pinMode(led_slo_blo, OUTPUT);
 
-  // Extra optional items if using them with the gpstar Neutrona Wand microcontroller.
-  pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand microcontroller, it is wired to its own pin. When using an Arduino Nano, it is linked with led_slo_blo.
+  pinMode(led_front_left, OUTPUT); // Front left LED underneath the Clippard valve.
   pinMode(led_hat_1, OUTPUT); // Hat light at front of the wand near the barrel tip.
   pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body (gun box).
   pinMode(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
@@ -250,24 +226,19 @@ void loop() {
         ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
       }
 
-      w_trig.update(); // Update the state of the WavTrigger.
-
-      checkPack(); // Get the latest communications from the connected Proton Pack.
-
       mainLoop(); // Continue on to the main loop.
     break;
 
     case NC_BENCHTEST:
-      w_trig.update(); // Update the state of the WavTrigger.
-
-      checkMusic(); // Music control is here since pack is not present.
-
       mainLoop(); // Continue on to the main loop.
     break;
   }
 }
 
 void mainLoop() {
+  updateAudio(); // Update the state of the audio device.
+  checkMusic(); // Music control is here since pack is not present.
+
   // Get the current state of any input devices (toggles, buttons, and switches).
   switchLoops();
   checkSwitches();
@@ -297,6 +268,7 @@ void mainLoop() {
             wandSerialSend(W_WAND_BOOTUP_SOUND);
           }
 
+          stopEffect(S_WAND_BOOTUP);
           playEffect(S_WAND_BOOTUP);
         }
 
@@ -726,7 +698,7 @@ void toggleWandModes() {
 }
 
 // Controlled from the the Wand Sub Menu and Wand EEPROM Menu system.
-void toggleOverHeating() {
+void toggleOverheating() {
   if(b_overheat_enabled == true) {
     b_overheat_enabled = false;
 
@@ -754,7 +726,7 @@ void toggleOverHeating() {
 }
 
 // Overheating starting is signaled by the Neutrona Wand. However the overheating timing sequence itself it handled on the Proton Pack side.
-void overHeatingFinished() {
+void overheatingFinished() {
   bargraphClearAlt();
 
   // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is
@@ -859,12 +831,12 @@ void startVentSequence() {
   }
 
   playEffect(S_VENT_DRY);
-  playEffect(S_CLICK);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_WAND_SHUTDOWN_SOUND);
   }
 
+  stopEffect(S_WAND_SHUTDOWN);
   playEffect(S_WAND_SHUTDOWN);
 
   // Tell the pack we are overheating.
@@ -1220,6 +1192,7 @@ void checkSwitches() {
 
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
+                    stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
                   else if((switch_vent.isPressed() || switch_vent.isReleased()) && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
@@ -1230,12 +1203,13 @@ void checkSwitches() {
 
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
+                    stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
                 }
 
                 if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-                  analogWrite(led_front_left, 255); // The front right orange LED, turn it on.
+                  analogWrite(led_front_left, 255); // Turn on the front left LED under the Clippard valve.
 
                   // Turn on the vent lights.
                   if(b_vent_light_control == true) {
@@ -1263,7 +1237,7 @@ void checkSwitches() {
                     wandBargraphControl(0);
                   }
 
-                  analogWrite(led_front_left, 0); // The front right orange LED, turn it off.
+                  analogWrite(led_front_left, 0); // Turn off the front left LED under the Clippard valve.
 
                   // Turn off the Neutrona Wand vent lights.
                   digitalWrite(led_vent, HIGH);
@@ -1311,7 +1285,7 @@ void checkSwitches() {
         case MODE_ORIGINAL:
           altWingButtonCheck();
 
-          // Do we shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
+          // We shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
           if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH) {
               bargraphYearModeUpdate();
               // If any of the right toggle switches are turned off, we must turn the cyclotron off and shuts the Neutrona Wand down to a off idle status. MODE_OFF.
@@ -1431,7 +1405,11 @@ void wandOff() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        // Nothing for now.
+        // Proton Pack plays shutdown sound, but standalone Wand needs to play its own
+        if(b_gpstar_benchtest == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_vent.getState() == HIGH) {
+          stopEffect(S_WAND_HEATDOWN);
+          playEffect(S_WAND_HEATDOWN);
+        }
       break;
 
       case SYSTEM_AFTERLIFE:
@@ -1465,6 +1443,8 @@ void wandOff() {
   }
 
   stopEffect(S_WAND_BOOTUP);
+  stopEffect(S_WAND_BOOTUP_SHORT);
+  stopEffect(S_GB2_WAND_START);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -1945,14 +1925,17 @@ void postActivation() {
 
         case MODE_SUPER_HERO:
           bargraphRampUp();
+          if(switch_vent.getState() == LOW) {
+            b_all_switch_activation = true; // If vent switch is already on when Activate is flipped, set to true for soundIdleLoop() to use
+          }
         break;
       }
     }
 
-    // Turn on slo-blo light (and front left LED if using a Ardunio Nano).
+    // Turn on slo-blo light.
     analogWrite(led_slo_blo, 255);
 
-    // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
+    // Turn on the Clippard LED.
     analogWrite(led_front_left, 255);
 
     // Top white light.
@@ -1963,13 +1946,16 @@ void postActivation() {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          playEffect(S_CLICK);
+          stopEffect(S_WAND_HEATDOWN);
+          stopEffect(S_WAND_BOOTUP_SHORT);
+          playEffect(S_WAND_BOOTUP_SHORT);
         break;
 
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
         default:
           if(b_gpstar_benchtest == true) {
+            stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
           }
 
@@ -2026,7 +2012,22 @@ void soundIdleStart() {
           wandSerialSend(W_WAND_BOOTUP_SOUND);
         }
 
-        playEffect(S_WAND_BOOTUP);
+        if(getNeutronaWandYearMode() == SYSTEM_1989 && b_gpstar_benchtest == true) {
+          stopEffect(S_WAND_BOOTUP);
+          stopEffect(S_WAND_BOOTUP_SHORT);
+          stopEffect(S_GB2_WAND_START);
+          playEffect(S_GB2_WAND_START);
+        }
+        else if(b_all_switch_activation == true) {
+          stopEffect(S_WAND_BOOTUP);
+          stopEffect(S_WAND_BOOTUP_SHORT);
+          playEffect(S_WAND_BOOTUP_SHORT);
+        }
+        else {
+          stopEffect(S_WAND_BOOTUP);
+          stopEffect(S_WAND_BOOTUP_SHORT);
+          playEffect(S_WAND_BOOTUP);
+        }
 
         soundIdleLoop(true);
 
@@ -2086,6 +2087,8 @@ void soundIdleStart() {
       }
     }
   }
+
+  b_all_switch_activation = false;
 }
 
 void soundIdleStop() {
@@ -2093,7 +2096,7 @@ void soundIdleStop() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        if(WAND_ACTION_STATUS != ACTION_OFF) {
+        if(WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           if(b_extra_pack_sounds == true) {
             wandSerialSend(W_WAND_SHUTDOWN_SOUND);
           }
@@ -2139,6 +2142,8 @@ void soundIdleStop() {
       case SYSTEM_1984:
       case SYSTEM_1989:
         stopEffect(S_WAND_BOOTUP);
+        stopEffect(S_WAND_BOOTUP_SHORT);
+        stopEffect(S_GB2_WAND_START);
         soundIdleLoopStop();
       break;
 
@@ -3735,7 +3740,7 @@ void fireStreamStart(CRGB c_colour) {
 
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
-        // More LEDs means a faster firing rate.    
+        // More LEDs means a faster firing rate.
         ms_firing_lights.start(d_firing_stream / 25);
       break;
 
@@ -3770,7 +3775,7 @@ void fireStreamStart(CRGB c_colour) {
 }
 
 void fireStreamEnd(CRGB c_colour) {
-  if(i_barrel_light < i_num_barrel_leds) {    
+  if(i_barrel_light < i_num_barrel_leds) {
     ms_fast_led.start(i_fast_led_delay);
 
     switch(WAND_BARREL_LED_COUNT) {
@@ -5927,14 +5932,23 @@ void bargraphRampUp() {
             case BARGRAPH_ORIGINAL:
               switch(i_power_mode) {
                 case 5:
-                  // Stop any power check if we are already in level 5.
-                  ms_bargraph_alt.stop();
+                  if(i_bargraph_status_alt == 55) {
+                    ms_bargraph_alt.stop();
+                    ms_bargraph.stop();
+                    b_bargraph_up = false;
+                    i_bargraph_status_alt = 27;
+                    bargraphYearModeUpdate();
 
-                  ms_bargraph.stop();
-                  b_bargraph_up = false;
-                  i_bargraph_status_alt = 27;
-                  bargraphYearModeUpdate();
-                  vibrationWand(i_vibration_level + 25);
+                    vibrationWand(i_vibration_level + 25);
+                  }
+                  else {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 25);
+                  }
                 break;
 
                 case 4:
@@ -5942,6 +5956,14 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 22;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 30);
+                  }
+                  else if(i_bargraph_status_alt > 32) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     bargraphYearModeUpdate();
 
                     vibrationWand(i_vibration_level + 30);
@@ -5963,6 +5985,14 @@ void bargraphRampUp() {
 
                     vibrationWand(i_vibration_level + 10);
                   }
+                  else if(i_bargraph_status_alt > 38) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 10);
+                  }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
@@ -5976,6 +6006,14 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 11;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 5);
+                  }
+                  else if(i_bargraph_status_alt > 43) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     bargraphYearModeUpdate();
 
                     vibrationWand(i_vibration_level + 5);
@@ -5995,6 +6033,12 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 5;
+                    bargraphYearModeUpdate();
+                  }
+                  else if(i_bargraph_status_alt > 50) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     bargraphYearModeUpdate();
                   }
                   else {
@@ -6353,7 +6397,7 @@ void wandLightsOff() {
   }
 
   analogWrite(led_slo_blo, 0);
-  analogWrite(led_front_left, 0); // The front right orange LED.
+  analogWrite(led_front_left, 0); // Turn off the front left LED under the Clippard valve.
 
   digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
   digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
@@ -6388,111 +6432,6 @@ void wandLightsOffMenuSystem() {
 void vibrationOff() {
   i_vibration_level_prev = 0;
   analogWrite(vibration, 0);
-}
-
-void adjustVolumeEffectsGain() {
-  // Since adjusting only happens while in the menu mode, only certain effects need to be adjusted on the fly.
-  w_trig.trackGain(S_BEEPS, i_volume_effects);
-  w_trig.trackGain(S_BEEPS_ALT, i_volume_effects);
-  w_trig.trackGain(S_BEEPS_LOW, i_volume_effects);
-  w_trig.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
-
-  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 1); // Special volume in use.
-  w_trig.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 1); // Special volume in use.
-
-  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects);
-  w_trig.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects);
-
-  w_trig.trackGain(S_IDLE_LOOP_GUN, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_1, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_2, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_3, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_4, i_volume_effects);
-  w_trig.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
-}
-
-void increaseVolumeEffects() {
-  if(i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
-    i_volume_effects_percentage = 100;
-
-    // Provide feedback at maximum volume.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
-  }
-  else {
-    i_volume_effects_percentage = i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER;
-  }
-
-  i_volume_effects_percentage = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-
-  adjustVolumeEffectsGain();
-}
-
-void decreaseVolumeEffects() {
-  if(i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER < 0) {
-    i_volume_effects_percentage = 0;
-
-    // Provide feedback at minimum volume.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
-  }
-  else {
-    i_volume_effects_percentage = i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER;
-  }
-
-  i_volume_effects_percentage = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-
-  adjustVolumeEffectsGain();
-}
-
-void increaseVolume() {
-  if(i_volume_master == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master) {
-    i_volume_master = MINIMUM_VOLUME;
-  }
-
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = 100;
-
-    // Provide feedback at maximum volume.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
-  }
-  else {
-    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
-  }
-
-  i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-  i_volume_revert = i_volume_master;
-
-  w_trig.masterGain(i_volume_master);
-}
-
-void decreaseVolume() {
-  if(i_volume_master == i_volume_abs_min) {
-    // Cannot go any lower.
-  }
-  else {
-    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
-      i_volume_master_percentage = 0;
-    }
-    else {
-      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
-    }
-
-    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-    i_volume_revert = i_volume_master;
-
-    w_trig.masterGain(i_volume_master);
-  }
 }
 
 int8_t readRotary() {
@@ -6666,7 +6605,7 @@ void checkRotaryEncoder() {
 
             // If there is no Pack, we need to adjust the volume manually
             if(b_gpstar_benchtest == true) {
-              decreaseVolume();
+              decreaseVolumeEEPROM();
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
@@ -6831,7 +6770,7 @@ void checkRotaryEncoder() {
 
             // If there is no Pack, we need to adjust the volume manually
             if(b_gpstar_benchtest == true) {
-              increaseVolume();
+              increaseVolumeEEPROM();
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
@@ -7107,9 +7046,7 @@ void checkRotaryEncoder() {
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-            if(i_music_count > 0) {
-              w_trig.trackGain(i_current_music_track, i_volume_music);
-            }
+            updateMusicVolume();
 
             // Tell pack to lower the music volume.
             wandSerialSend(W_VOLUME_MUSIC_DECREASE);
@@ -7185,9 +7122,7 @@ void checkRotaryEncoder() {
 
             i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-            if(i_music_count > 0) {
-              w_trig.trackGain(i_current_music_track, i_volume_music);
-            }
+            updateMusicVolume();
 
             // Tell pack to increase music volume.
             wandSerialSend(W_VOLUME_MUSIC_INCREASE);
@@ -7304,9 +7239,7 @@ void checkRotaryEncoder() {
 
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-              if(i_music_count > 0) {
-                w_trig.trackGain(i_current_music_track, i_volume_music);
-              }
+              updateMusicVolume();
 
               // Tell pack to lower music volume.
               wandSerialSend(W_VOLUME_MUSIC_DECREASE);
@@ -7369,9 +7302,7 @@ void checkRotaryEncoder() {
 
               i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
-              if(i_music_count > 0) {
-                w_trig.trackGain(i_current_music_track, i_volume_music);
-              }
+              updateMusicVolume();
 
               // Tell pack to increase music volume.
               wandSerialSend(W_VOLUME_MUSIC_INCREASE);
@@ -7500,11 +7431,6 @@ void wandExitMenu() {
       wandSerialSend(W_SLIME_MODE);
     break;
 
-    case PROTON:
-      // Tell the pack we are in proton mode.
-      wandSerialSend(W_PROTON_MODE);
-    break;
-
     case SPECTRAL:
       // Tell the pack we are in spectral mode.
       wandSerialSend(W_SPECTRAL_MODE);
@@ -7525,6 +7451,7 @@ void wandExitMenu() {
       wandSerialSend(W_VENTING_MODE);
     break;
 
+    case PROTON:
     default:
       // Tell the pack we are in proton mode.
       wandSerialSend(W_PROTON_MODE);
@@ -7563,6 +7490,11 @@ void wandExitEEPROMMenu() {
   switch_intensify.resetCount();
   switch_wand.resetCount();
   switch_vent.resetCount();
+
+  if(b_gpstar_benchtest == true) {
+    // Also need to make sure to reset the "ion arm switch" to off if standalone
+    b_pack_ion_arm_switch_on = false;
+  }
 
   i_wand_menu = 5;
 
@@ -7641,255 +7573,6 @@ void resetOverHeatModes() {
   b_overheat_mode[2] = b_overheat_mode_3;
   b_overheat_mode[3] = b_overheat_mode_4;
   b_overheat_mode[4] = b_overheat_mode_5;
-}
-
-// Helper method to play a sound effect using certain defaults.
-void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
-  if(i_track_volume < i_volume_abs_min) {
-    i_track_volume = i_volume_abs_min;
-  }
-  if(i_track_volume > i_volume_abs_max) {
-    i_track_volume = i_volume_abs_max;
-  }
-
-  if(b_fade_in == true) {
-    w_trig.trackGain(i_track_id, i_volume_abs_min);
-    w_trig.trackPlayPoly(i_track_id, true);
-    w_trig.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
-  }
-  else {
-    w_trig.trackGain(i_track_id, i_track_volume);
-    w_trig.trackPlayPoly(i_track_id, true);
-  }
-
-  if(b_track_loop == true) {
-    w_trig.trackLoop(i_track_id, 1);
-  }
-  else {
-    w_trig.trackLoop(i_track_id, 0);
-  }
-}
-
-void stopEffect(int i_track_id) {
-  w_trig.trackStop(i_track_id);
-}
-
-// Helper method to play a music track using certain defaults.
-void playMusic() {
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-    b_playing_music = true;
-
-    // Loop the music track.
-    if(b_repeat_track == true) {
-      w_trig.trackLoop(i_current_music_track, 1);
-    }
-    else {
-      w_trig.trackLoop(i_current_music_track, 0);
-    }
-
-    w_trig.trackGain(i_current_music_track, i_volume_music);
-    w_trig.trackPlayPoly(i_current_music_track, true);
-    w_trig.update();
-
-    if(b_gpstar_benchtest == true) {
-      // Keep track of music playback on the wand directly.
-      ms_music_status_check.start(i_music_check_delay * 10);
-      w_trig.resetTrackCounter(true);
-    }
-  }
-}
-
-void stopMusic() {
-  b_playing_music = false;
-
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-    w_trig.trackStop(i_current_music_track);
-  }
-
-  w_trig.update();
-}
-
-void pauseMusic() {
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-    w_trig.trackPause(i_current_music_track);
-  }
-
-  w_trig.update();
-}
-
-void resumeMusic() {
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-    w_trig.trackResume(i_current_music_track);
-  }
-
-  w_trig.update();
-}
-
-void musicNextTrack() {
-  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
-
-  // Determine the next track.
-  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-    // Start at the first track if already on the last.
-    i_temp_track = i_music_track_start;
-  }
-  else {
-    i_temp_track++;
-  }
-
-  // Switch to the next track.
-  if(b_playing_music == true) {
-    // Stops music using the current track.
-    stopMusic();
-
-    i_current_music_track = i_temp_track;
-
-    // Begin playing the new track.
-    playMusic();
-  }
-  else {
-    // Set the new track.
-    i_current_music_track = i_temp_track;
-  }
-}
-
-void musicPrevTrack() {
-  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
-
-  // Determine the previous track.
-  if(i_current_music_track - 1 < i_music_track_start) {
-    // Start at the last track if already on the first.
-    i_temp_track = i_music_track_start + (i_music_count - 1);
-  }
-  else {
-    i_temp_track--;
-  }
-
-  // Switch to the previous track.
-  if(b_playing_music == true) {
-    // Stops music using the current track.
-    stopMusic();
-
-    // Set the new track.
-    i_current_music_track = i_temp_track;
-
-    // Begin playing the new track.
-    playMusic();
-  }
-  else {
-    // Set the new track.
-    i_current_music_track = i_temp_track;
-  }
-}
-
-void checkMusic() {
-  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
-    ms_check_music.start(i_music_check_delay);
-    w_trig.trackPlayingStatus(i_current_music_track);
-
-    // Loop through all the tracks if the music is not set to repeat a track.
-    if(b_playing_music == true && b_repeat_track == false) {
-      if(w_trig.currentMusicTrackStatus(i_current_music_track) != true && ms_music_status_check.justFinished() && w_trig.trackCounterReset() != true) {
-        ms_check_music.stop();
-        ms_music_status_check.stop();
-
-        stopMusic();
-
-        // Switch to the next track.
-        if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-          i_current_music_track = i_music_track_start;
-        }
-        else {
-          i_current_music_track++;
-        }
-
-        // Start timer to prepare to play music again.
-        ms_music_next_track.start(i_music_next_track_delay);
-      }
-      else {
-        if(ms_music_status_check.justFinished()) {
-          ms_music_status_check.start(i_music_check_delay * 4);
-        }
-      }
-    }
-  }
-
-  // Start playing music again.
-  if(ms_music_next_track.justFinished()) {
-    ms_music_next_track.stop();
-    ms_check_music.start(i_music_check_delay);
-
-    playMusic();
-  }
-}
-
-void buildMusicCount(uint16_t i_num_tracks) {
-  // Build the music track count.
-  i_music_count = i_num_tracks - i_last_effects_track;
-
-  if(i_music_count > 0) {
-    i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
-  }
-}
-
-bool setupWavTrigger() {
-  // If the controller is powering the WAV Trigger, we should wait for the WAV Trigger to finish reset before trying to send commands.
-  delay(1000);
-
-  char gWTrigVersion[VERSION_STRING_LEN];
-
-  // WAV Trigger's startup at 57600
-  w_trig.start();
-
-  delay(10);
-
-  // Stop all tracks.
-  w_trig.stopAllTracks();
-
-  // Reset the sample rate offset, in case we have reset while the WAV Trigger was already playing.
-  w_trig.samplerateOffset(0);
-
-  w_trig.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
-  w_trig.setAmpPwr(b_onboard_amp_enabled);
-
-  // Enable track reporting from the WAV Trigger
-  w_trig.setReporting(true);
-
-  // Allow time for the WAV Trigger to respond with the version string and number of tracks.
-  delay(350);
-
-  if(w_trig.getVersion(gWTrigVersion)) {
-    // We found a WavTrigger. Build the music track count.
-    buildMusicCount((uint16_t) w_trig.getNumTracks());
-
-    return true;
-  }
-  else {
-    // No Wav Trigger.
-    return false;
-  }
-}
-
-bool setupGPStarAudio() {
-  Serial3.begin(115200);
-
-  GPStarAudio.begin();
-
-  GPStarAudio.stopAll();
-  GPStarAudio.setVolume(0);
-
-  if(GPStarAudio.hello()) {
-    // GPStar Audio is here. Build the music track count.
-    buildMusicCount((uint16_t) GPStarAudio.getTrackCount());
-
-    return true;
-  }
-  else {
-    Serial3.end();
-
-    // No GPStar Audio.
-    return false;
-  }
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.

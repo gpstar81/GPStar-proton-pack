@@ -57,7 +57,7 @@ static uint16_t gpstarCRC16(void* data, uint32_t len, uint16_t partial) {
 			if(crc & 0x8000) {
 				crc <<= 1;
 				crc ^= 0x1021;
-			} 
+			}
       else {
 				crc <<= 1;
 			}
@@ -218,13 +218,13 @@ static uint8_t gpstarPullData(uint8_t* cmd, uint8_t* data, uint16_t* len) {
 
         if(!rx_len) {
           rx_state = 6;
-        } 
+        }
         else {
           if(!len || *len < rx_len || !data) {
             // Check if it is an error code. Use the 'error' variable if the user did not provide any data.
             if (*cmd == GPSTAR_AUDIO_CMD_ERROR && !data && rx_len == 1) {
               data = &error;
-            } 
+            }
             else {
               return GPSTAR_AUDIO_ERROR_NOT_ENOUGH_BUFFER;
             }
@@ -366,7 +366,7 @@ uint8_t gpstarPullPacket(gpstarPacket* packet, uint32_t timeout) {
         else {
           rx_state++;
         }
-        
+
         rx_calc_crc = gpstarCRC16(&c, 1, rx_calc_crc);
       break;
 
@@ -406,7 +406,7 @@ uint8_t gpstarPullPacket(gpstarPacket* packet, uint32_t timeout) {
 
         c = (rx_crc == rx_calc_crc) ? 1 : 0;
         resetRx();
-        
+
         return c;
     }
 
@@ -476,7 +476,7 @@ uint8_t gpstarHello() {
   if(cmd != GPSTAR_AUDIO_CMD_HELLO) {
     return GPSTAR_AUDIO_ERROR_ON_RX;
   }
-  
+
   return GPSTAR_AUDIO_ERROR_NONE;
 }
 
@@ -513,7 +513,7 @@ bool gpstarIsTrackPlaying(uint16_t i_track) {
   if(res != GPSTAR_AUDIO_ERROR_NONE) {
     return false;
   }
-  
+
   if(cmd != GPSTAR_AUDIO_CMD_IS_TRACK_PLAYING) {
     return false;
   }
@@ -539,7 +539,7 @@ uint16_t gpstarGetTrackCount() {
   if(res != GPSTAR_AUDIO_ERROR_NONE) {
     return res;
   }
-  
+
   if(cmd != GPSTAR_AUDIO_CMD_GET_TRACK_COUNT) {
     return GPSTAR_AUDIO_ERROR_ON_RX;
   }
@@ -636,7 +636,7 @@ uint8_t gpstarSetTrackLoop(uint16_t track, bool b_loop) {
 
   uint8_t track1 = (uint8_t)track;
   uint8_t track2 = (uint8_t)(track >> 8);
-  
+
   uint8_t i_loop = 0;
 
   if(b_loop == true) {
@@ -735,6 +735,6 @@ uint8_t gpstarTrackFade(uint16_t track, float volume_target, uint16_t duration) 
   data[4] = volume;
 
   gpstarSendCommand(cmd, data, 5);
-  
+
 	return GPSTAR_AUDIO_ERROR_NONE;
 }

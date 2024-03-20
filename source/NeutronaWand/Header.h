@@ -20,12 +20,6 @@
 #pragma once
 
 /*
- * Audio
- */
-enum AUDIO_DEVICES { A_NONE, A_GPSTAR_AUDIO, A_WAV_TRIGGER };
-enum AUDIO_DEVICES AUDIO_DEVICE;
-
-/*
  * Wand state.
  */
 enum WAND_STATE { MODE_OFF, MODE_ON, MODE_ERROR };
@@ -93,8 +87,8 @@ enum BARGRAPH_EEPROM_FIRING_ANIMATIONS { BARGRAPH_EEPROM_ANIMATION_DEFAULT, BARG
 enum BARGRAPH_EEPROM_FIRING_ANIMATIONS BARGRAPH_EEPROM_FIRING_ANIMATION;
 
 /*
- * Which CTS "Cross The Streams" year mode the Neutrona Wand is set into. The Proton Pack will match this when set.
- * This affects which CTS "Cross The Streams" is used. The sound effects are different depending on the year.
+ * Which CTS "Cross The Streams" year mode the Neutrona Wand is set to. The Proton Pack will match this when set.
+ * This affects which CTS "Cross The Streams" sounds are used as the sound effects are different depending on the year.
  * CTS_DEFAULT lets the system choose based on the year setting of the Proton Pack.
  */
 enum WAND_YEAR_CTS_SETTING { CTS_DEFAULT, CTS_1984, CTS_1989, CTS_AFTERLIFE, CTS_FROZEN_EMPIRE };
@@ -149,32 +143,10 @@ millisDelay ms_fast_led;
  * Non-addressable LEDs
  */
 const uint8_t led_slo_blo = 8;
-const uint8_t led_front_left = 9;
+const uint8_t led_front_left = 9; // LED underneath the Clippard valve.
 const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
 const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Red LED)
 const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
-
-/*
- * WAV Trigger
- */
-wavTrigger w_trig;
-uint16_t i_music_count = 0;
-uint16_t i_current_music_track = 0;
-const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
-const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
-const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
-// bool b_wand_audio_board_here = false; // Unused for now.
-
-/*
- * Volume (0 = loudest, -70 = quietest)
- */
-uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
-uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
-int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
-int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects
-int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
-int8_t i_volume_revert = i_volume_master;
 
 /*
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
@@ -214,6 +186,7 @@ ezButton switch_wand(A0); // Controls the beeping. Top right switch on the wand.
 ezButton switch_mode(A6); // Changes firing modes, crosses streams, or used in settings menus.
 ezButton switch_barrel(A7); // Checks whether barrel is retracted or not.
 bool b_switch_barrel_extended = true; // Set to true for bootup to prevent sound from playing erroneously. The Neutrona Wand will adjust as necessary.
+bool b_all_switch_activation = false; // Used to check if Activate was flipped to on while the vent switch was already in the on position for sound purposes.
 
 /*
  * Some switch settings.
@@ -281,16 +254,6 @@ HT16K33 ht_bargraph;
  * Part #: BL28Z-3005SA04Y
  */
 bool b_28segment_bargraph = false;
-
-/*
- * Music control and checking.
- * Only for bench test mode. When bench test mode is disabled, the Pack controls the music checking and playback.
- */
-const unsigned int i_music_check_delay = 2000;
-const unsigned int i_music_next_track_delay = 2000;
-millisDelay ms_check_music;
-millisDelay ms_music_next_track;
-millisDelay ms_music_status_check;
 
 /*
  * Flag check for video game mode.
@@ -409,14 +372,12 @@ const unsigned int i_sync_initial_delay = 750; // Delay to re-try the initial ha
 const unsigned int i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake) to a connected proton pack.
 
 /*
- * Wand menu & music
+ * Wand Menu
  */
 enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3, MENU_LEVEL_4, MENU_LEVEL_5 };
 enum WAND_MENU_LEVELS WAND_MENU_LEVEL;
 uint8_t i_wand_menu = 5;
 const unsigned int i_settings_blinking_delay = 350;
-bool b_playing_music = false;
-bool b_repeat_track = false;
 millisDelay ms_settings_blinking;
 
 /*
@@ -471,7 +432,3 @@ void wandSerialSend(uint8_t i_command);
 void wandSerialSendData(uint8_t i_message);
 void checkPack();
 void checkWandAction();
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
-void stopEffect(int i_track_id);
-void stopMusic();
-void playMusic();
