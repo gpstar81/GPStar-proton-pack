@@ -7419,8 +7419,6 @@ void wandExitMenu() {
   }
 
   switch_intensify.resetCount();
-  switch_wand.resetCount();
-  switch_vent.resetCount();
 
   switch(PREV_FIRING_MODE) {
     case MESON:
