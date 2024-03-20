@@ -311,7 +311,7 @@ void mainLoop() {
           }
         }
 
-        if((switch_mode.isReleased()) || b_pack_alarm == true) {
+        if(switch_mode.isReleased() || b_pack_alarm == true) {
           if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
             playEffect(S_CLICK);
 
