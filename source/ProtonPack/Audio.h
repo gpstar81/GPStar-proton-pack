@@ -57,7 +57,7 @@ bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
 uint8_t i_wand_sound_level = 10; // 10 for Wav Trigger. 30 for GPStar Audio.
-uint8_t i_gpstar_audio_volume_factor = 10; // Main volume gain factor for the GPStar Audio.
+uint8_t i_gpstar_audio_volume_factor = 0; // Main volume gain factor for the GPStar Audio.
 
 /*
  * Music Control/Checking

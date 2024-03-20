@@ -130,6 +130,8 @@ void checkWandAction() {
     break;
 
     case ACTION_OVERHEATING:
+      b_sound_afterlife_idle_2_fade = true;
+
       if(b_overheat_bargraph_blink == true) {
         settingsBlinkingLights();
 

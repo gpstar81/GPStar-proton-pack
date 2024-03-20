@@ -1834,6 +1834,7 @@ void altWingButtonCheck() {
 
 void modeError() {
   wandOff();
+  b_sound_afterlife_idle_2_fade = true;
 
   WAND_STATUS = MODE_ERROR;
   WAND_ACTION_STATUS = ACTION_ERROR;
