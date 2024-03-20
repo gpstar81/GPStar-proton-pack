@@ -226,19 +226,24 @@ void loop() {
         ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
       }
 
+      w_trig.update(); // Update the state of the WavTrigger.
+
+      checkPack(); // Get the latest communications from the connected Proton Pack.
+
       mainLoop(); // Continue on to the main loop.
     break;
 
     case NC_BENCHTEST:
+      w_trig.update(); // Update the state of the WavTrigger.
+
+      checkMusic(); // Music control is here since pack is not present.
+
       mainLoop(); // Continue on to the main loop.
     break;
   }
 }
 
 void mainLoop() {
-  updateAudio(); // Update the state of the audio device.
-  checkMusic(); // Music control is here since pack is not present.
-
   // Get the current state of any input devices (toggles, buttons, and switches).
   switchLoops();
   checkSwitches();
