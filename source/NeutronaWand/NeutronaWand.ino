@@ -17,11 +17,11 @@
  *
  */
 
-/*
-  Please note, due to limitations of the ATMega328P, Arduino Nano builds are no longer supported for the Neutrona Wand.
-  The last supported version is 2.2.0
-  https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.2.0
-*/
+/**
+ * Please note, due to limitations of the ATMega328P, Arduino Nano builds are no longer supported for the Neutrona Wand.
+ * The last supported version is 2.2.0
+ * https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.2.0
+ */
 
 #if defined(__AVR_ATmega2560__)
   #define GPSTAR_NEUTRONA_WAND_PCB
@@ -40,24 +40,13 @@
 #endif
 
 // 3rd-Party Libraries
+#include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
-#include <EEPROM.h>
 #include <ht16k33.h>
 #include <Wire.h>
 #include <SerialTransfer.h>
-
-/**
- ***** IMPORTANT *****
- * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
- * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
- * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
- *
- * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
- * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
- */
-#include "wavTrigger.h"
 
 // Local Files
 #include "Configuration.h"
@@ -65,20 +54,20 @@
 #include "Communication.h"
 #include "Header.h"
 #include "Colours.h"
+#include "Audio.h"
 #include "Preferences.h"
 
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
 
-  // Enable communication to the Proton Pack.
   Serial1.begin(9600); // Communication to the Proton Pack.
   wandComs.begin(Serial1, false);
 
+  // Setup the audio device for this controller.
+  setupWavTrigger();
+
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
-
-  // Setup the WAV Trigger.
-  setupWavTrigger();
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX);
@@ -101,7 +90,7 @@ void setup() {
   switch_vent.setDebounceTime(i_switch_debounce);
   switch_wand.setDebounceTime(i_switch_debounce);
   switch_mode.setDebounceTime(i_switch_debounce);
-  switch_barrel.setDebounceTime(i_switch_debounce * 5); // Barrel safety switch is less precise; more settle time prevents false triggers
+  switch_barrel.setDebounceTime(i_switch_debounce);
 
   // Rotary encoder on the top of the wand.
   pinMode(r_encoderA, INPUT_PULLUP);
@@ -150,8 +139,7 @@ void setup() {
 
   pinMode(led_slo_blo, OUTPUT);
 
-  // Extra optional items if using them with the gpstar Neutrona Wand microcontroller.
-  pinMode(led_front_left, OUTPUT); // Front left LED. When using the gpstar Neutrona Wand microcontroller, it is wired to its own pin. When using an Arduino Nano, it is linked with led_slo_blo.
+  pinMode(led_front_left, OUTPUT); // Front left LED underneath the Clippard valve.
   pinMode(led_hat_1, OUTPUT); // Hat light at front of the wand near the barrel tip.
   pinMode(led_hat_2, OUTPUT); // Hat light at top of the wand body (gun box).
   pinMode(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
@@ -285,6 +273,7 @@ void mainLoop() {
             wandSerialSend(W_WAND_BOOTUP_SOUND);
           }
 
+          stopEffect(S_WAND_BOOTUP);
           playEffect(S_WAND_BOOTUP);
         }
 
@@ -714,7 +703,7 @@ void toggleWandModes() {
 }
 
 // Controlled from the the Wand Sub Menu and Wand EEPROM Menu system.
-void toggleOverHeating() {
+void toggleOverheating() {
   if(b_overheat_enabled == true) {
     b_overheat_enabled = false;
 
@@ -742,7 +731,7 @@ void toggleOverHeating() {
 }
 
 // Overheating starting is signaled by the Neutrona Wand. However the overheating timing sequence itself it handled on the Proton Pack side.
-void overHeatingFinished() {
+void overheatingFinished() {
   bargraphClearAlt();
 
   // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is
@@ -847,12 +836,12 @@ void startVentSequence() {
   }
 
   playEffect(S_VENT_DRY);
-  playEffect(S_CLICK);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_WAND_SHUTDOWN_SOUND);
   }
 
+  stopEffect(S_WAND_SHUTDOWN);
   playEffect(S_WAND_SHUTDOWN);
 
   // Tell the pack we are overheating.
@@ -1208,6 +1197,7 @@ void checkSwitches() {
 
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
+                    stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
                   else if((switch_vent.isPressed() || switch_vent.isReleased()) && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
@@ -1218,12 +1208,13 @@ void checkSwitches() {
 
                     stopEffect(S_WAND_HEATUP_ALT);
                     stopEffect(S_WAND_HEATUP);
+                    stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
                 }
 
                 if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
-                  analogWrite(led_front_left, 255); // The front right orange LED, turn it on.
+                  analogWrite(led_front_left, 255); // Turn on the front left LED under the Clippard valve.
 
                   // Turn on the vent lights.
                   if(b_vent_light_control == true) {
@@ -1251,7 +1242,7 @@ void checkSwitches() {
                     wandBargraphControl(0);
                   }
 
-                  analogWrite(led_front_left, 0); // The front right orange LED, turn it off.
+                  analogWrite(led_front_left, 0); // Turn off the front left LED under the Clippard valve.
 
                   // Turn off the Neutrona Wand vent lights.
                   digitalWrite(led_vent, HIGH);
@@ -1299,7 +1290,7 @@ void checkSwitches() {
         case MODE_ORIGINAL:
           altWingButtonCheck();
 
-          // Do we shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
+          // We shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
           if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH) {
               bargraphYearModeUpdate();
               // If any of the right toggle switches are turned off, we must turn the cyclotron off and shuts the Neutrona Wand down to a off idle status. MODE_OFF.
@@ -1419,7 +1410,11 @@ void wandOff() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        // Nothing for now.
+        // Proton Pack plays shutdown sound, but standalone Wand needs to play its own
+        if(b_gpstar_benchtest == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_vent.getState() == HIGH) {
+          stopEffect(S_WAND_HEATDOWN);
+          playEffect(S_WAND_HEATDOWN);
+        }
       break;
 
       case SYSTEM_AFTERLIFE:
@@ -1453,6 +1448,8 @@ void wandOff() {
   }
 
   stopEffect(S_WAND_BOOTUP);
+  stopEffect(S_WAND_BOOTUP_SHORT);
+  stopEffect(S_GB2_WAND_START);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -1933,14 +1930,17 @@ void postActivation() {
 
         case MODE_SUPER_HERO:
           bargraphRampUp();
+          if(switch_vent.getState() == LOW) {
+            b_all_switch_activation = true; // If vent switch is already on when Activate is flipped, set to true for soundIdleLoop() to use
+          }
         break;
       }
     }
 
-    // Turn on slo-blo light (and front left LED if using a Ardunio Nano).
+    // Turn on slo-blo light.
     analogWrite(led_slo_blo, 255);
 
-    // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
+    // Turn on the Clippard LED.
     analogWrite(led_front_left, 255);
 
     // Top white light.
@@ -1951,13 +1951,16 @@ void postActivation() {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          playEffect(S_CLICK);
+          stopEffect(S_WAND_HEATDOWN);
+          stopEffect(S_WAND_BOOTUP_SHORT);
+          playEffect(S_WAND_BOOTUP_SHORT);
         break;
 
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
         default:
           if(b_gpstar_benchtest == true) {
+            stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
           }
 
@@ -2014,7 +2017,22 @@ void soundIdleStart() {
           wandSerialSend(W_WAND_BOOTUP_SOUND);
         }
 
-        playEffect(S_WAND_BOOTUP);
+        if(getNeutronaWandYearMode() == SYSTEM_1989 && b_gpstar_benchtest == true) {
+          stopEffect(S_WAND_BOOTUP);
+          stopEffect(S_WAND_BOOTUP_SHORT);
+          stopEffect(S_GB2_WAND_START);
+          playEffect(S_GB2_WAND_START);
+        }
+        else if(b_all_switch_activation == true) {
+          stopEffect(S_WAND_BOOTUP);
+          stopEffect(S_WAND_BOOTUP_SHORT);
+          playEffect(S_WAND_BOOTUP_SHORT);
+        }
+        else {
+          stopEffect(S_WAND_BOOTUP);
+          stopEffect(S_WAND_BOOTUP_SHORT);
+          playEffect(S_WAND_BOOTUP);
+        }
 
         soundIdleLoop(true);
 
@@ -2074,6 +2092,8 @@ void soundIdleStart() {
       }
     }
   }
+
+  b_all_switch_activation = false;
 }
 
 void soundIdleStop() {
@@ -2081,7 +2101,7 @@ void soundIdleStop() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        if(WAND_ACTION_STATUS != ACTION_OFF) {
+        if(WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           if(b_extra_pack_sounds == true) {
             wandSerialSend(W_WAND_SHUTDOWN_SOUND);
           }
@@ -2127,6 +2147,8 @@ void soundIdleStop() {
       case SYSTEM_1984:
       case SYSTEM_1989:
         stopEffect(S_WAND_BOOTUP);
+        stopEffect(S_WAND_BOOTUP_SHORT);
+        stopEffect(S_GB2_WAND_START);
         soundIdleLoopStop();
       break;
 
@@ -3723,7 +3745,7 @@ void fireStreamStart(CRGB c_colour) {
 
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
-        // More LEDs means a faster firing rate.    
+        // More LEDs means a faster firing rate.
         ms_firing_lights.start(d_firing_stream / 25);
       break;
 
@@ -3758,7 +3780,7 @@ void fireStreamStart(CRGB c_colour) {
 }
 
 void fireStreamEnd(CRGB c_colour) {
-  if(i_barrel_light < i_num_barrel_leds) {    
+  if(i_barrel_light < i_num_barrel_leds) {
     ms_fast_led.start(i_fast_led_delay);
 
     switch(WAND_BARREL_LED_COUNT) {
@@ -5915,14 +5937,23 @@ void bargraphRampUp() {
             case BARGRAPH_ORIGINAL:
               switch(i_power_mode) {
                 case 5:
-                  // Stop any power check if we are already in level 5.
-                  ms_bargraph_alt.stop();
+                  if(i_bargraph_status_alt == 55) {
+                    ms_bargraph_alt.stop();
+                    ms_bargraph.stop();
+                    b_bargraph_up = false;
+                    i_bargraph_status_alt = 27;
+                    bargraphYearModeUpdate();
 
-                  ms_bargraph.stop();
-                  b_bargraph_up = false;
-                  i_bargraph_status_alt = 27;
-                  bargraphYearModeUpdate();
-                  vibrationWand(i_vibration_level + 25);
+                    vibrationWand(i_vibration_level + 25);
+                  }
+                  else {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 25);
+                  }
                 break;
 
                 case 4:
@@ -5930,6 +5961,14 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 22;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 30);
+                  }
+                  else if(i_bargraph_status_alt > 32) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     bargraphYearModeUpdate();
 
                     vibrationWand(i_vibration_level + 30);
@@ -5951,6 +5990,14 @@ void bargraphRampUp() {
 
                     vibrationWand(i_vibration_level + 10);
                   }
+                  else if(i_bargraph_status_alt > 38) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 10);
+                  }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
@@ -5964,6 +6011,14 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 11;
+                    bargraphYearModeUpdate();
+
+                    vibrationWand(i_vibration_level + 5);
+                  }
+                  else if(i_bargraph_status_alt > 43) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     bargraphYearModeUpdate();
 
                     vibrationWand(i_vibration_level + 5);
@@ -5983,6 +6038,12 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 5;
+                    bargraphYearModeUpdate();
+                  }
+                  else if(i_bargraph_status_alt > 50) {
+                    ms_bargraph.stop();
+                    b_bargraph_up = true;
+                    i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     bargraphYearModeUpdate();
                   }
                   else {
@@ -6341,7 +6402,7 @@ void wandLightsOff() {
   }
 
   analogWrite(led_slo_blo, 0);
-  analogWrite(led_front_left, 0); // The front right orange LED.
+  analogWrite(led_front_left, 0); // Turn off the front left LED under the Clippard valve.
 
   digitalWrite(led_hat_1, LOW); // Turn off hat light 1.
   digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
@@ -7488,11 +7549,6 @@ void wandExitMenu() {
       wandSerialSend(W_SLIME_MODE);
     break;
 
-    case PROTON:
-      // Tell the pack we are in proton mode.
-      wandSerialSend(W_PROTON_MODE);
-    break;
-
     case SPECTRAL:
       // Tell the pack we are in spectral mode.
       wandSerialSend(W_SPECTRAL_MODE);
@@ -7513,6 +7569,7 @@ void wandExitMenu() {
       wandSerialSend(W_VENTING_MODE);
     break;
 
+    case PROTON:
     default:
       // Tell the pack we are in proton mode.
       wandSerialSend(W_PROTON_MODE);
@@ -7551,6 +7608,11 @@ void wandExitEEPROMMenu() {
   switch_intensify.resetCount();
   switch_wand.resetCount();
   switch_vent.resetCount();
+
+  if(b_gpstar_benchtest == true) {
+    // Also need to make sure to reset the "ion arm switch" to off if standalone
+    b_pack_ion_arm_switch_on = false;
+  }
 
   i_wand_menu = 5;
 

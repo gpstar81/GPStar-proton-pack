@@ -37,23 +37,13 @@
 #include <Ramp.h>
 #include <SerialTransfer.h>
 
-/**
- ***** IMPORTANT *****
- * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
- * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
- * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
- *
- * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
- * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
- */
-#include "wavTrigger.h"
-
 // Local Files
 #include "Configuration.h"
 #include "MusicSounds.h"
 #include "Communication.h"
 #include "Header.h"
 #include "Colours.h"
+#include "Audio.h"
 #include "Preferences.h"
 
 void setup() {
@@ -65,7 +55,7 @@ void setup() {
   serial1Coms.begin(Serial1, false); // Attenuator/Wireless
   packComs.begin(Serial2, false); // Neutrona Wand
 
-  // Setup the WAV Trigger.
+  // Setup the audio device for this controller.
   setupWavTrigger();
 
   // Rotary encoder for volume control.
@@ -741,7 +731,7 @@ void packStartup() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        playEffect(S_AFTERLIFE_PACK_STARTUP);
+        playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects);
         playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
         ms_idle_fire_fade.start(18000);
       break;
@@ -1737,7 +1727,7 @@ void cyclotronControl() {
       packAlarm();
     }
 
-    cyclotronOverHeating();
+    cyclotronOverheating();
   }
   else {
     if(b_2021_ramp_up_start == true) {
@@ -2671,7 +2661,7 @@ void cyclotron84LightOff(int cLed) {
   }
 }
 
-void cyclotronOverHeating() {
+void cyclotronOverheating() {
   if(b_overheat_sync_to_fan != true) {
     smokeNFilter(true);
   }
@@ -2810,11 +2800,11 @@ void cyclotronOverHeating() {
 
   if(ms_overheating_length.justFinished()) {
     // Tell the Neutrona Wand the overheating is finished.
-    packOverHeatingFinished();
+    packOverheatingFinished();
   }
 }
 
-void packOverHeatingFinished() {
+void packOverheatingFinished() {
   packSerialSend(P_OVERHEATING_FINISHED);
   serial1Send(A_OVERHEATING_FINISHED);
 
@@ -4263,7 +4253,7 @@ void wandDisconnectCheck() {
 
       // Turn off overheating if the wand gets disconnected.
       if(b_overheating == true) {
-        packOverHeatingFinished();
+        packOverheatingFinished();
       }
 
       if(b_spectral_lights_on == true) {

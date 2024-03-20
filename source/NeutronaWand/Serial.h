@@ -658,7 +658,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_OVERHEATING_FINISHED:
       if(WAND_STATUS != MODE_OFF) {
-        overHeatingFinished();
+        overheatingFinished();
       }
     break;
 
@@ -1543,6 +1543,11 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       if(i_music_count > 0 && i_value >= i_music_track_start) {
         // Update the music track number to be played.
         i_current_music_track = i_value;
+      }
+
+      // The pack is playing music, so we need to make sure the wand knows this, even if the wand does not have any music or a audio device.
+      if(b_gpstar_benchtest != true) {
+        b_playing_music = true;
       }
 
       playMusic();

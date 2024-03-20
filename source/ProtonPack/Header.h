@@ -231,7 +231,8 @@ millisDelay ms_cyclotron_switch_plate_leds;
 const unsigned int i_cyclotron_switch_plate_leds_delay = 1000;
 
 /*
- * Alarm. Used during overheating and/or ribbon cable removal.
+ * Alarm
+ * Used during overheating and/or ribbon cable removal.
  */
 const unsigned int i_alarm_delay = 500;
 bool b_alarm = false;

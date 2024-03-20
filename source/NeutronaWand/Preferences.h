@@ -81,7 +81,9 @@ struct objEEPROM {
 
   uint8_t neutrona_wand_year_mode;
   uint8_t CTS_mode;
+  uint8_t system_mode;
   uint8_t beep_loop;
+  uint8_t default_system_volume;
 
   uint8_t overheat_start_timer_level_5;
   uint8_t overheat_start_timer_level_4;
@@ -318,6 +320,15 @@ void readEEPROM() {
       }
     }
 
+    if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode != 255 && b_gpstar_benchtest == true) {
+      if(obj_config_eeprom.system_mode > 1) {
+        SYSTEM_MODE = MODE_ORIGINAL;
+      }
+      else {
+        SYSTEM_MODE = MODE_SUPER_HERO;
+      }
+    }
+
     if(obj_config_eeprom.beep_loop > 0 && obj_config_eeprom.beep_loop != 255) {
       if(obj_config_eeprom.beep_loop > 1) {
         b_beep_loop = true;
@@ -325,6 +336,13 @@ void readEEPROM() {
       else {
         b_beep_loop = false;
       }
+    }
+
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume != 255 && b_gpstar_benchtest == true) {
+      i_volume_master_percentage = obj_config_eeprom.default_system_volume;
+      i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+      i_volume_revert = i_volume_master_eeprom;
+      i_volume_master = i_volume_master_eeprom;
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_5 > 0 && obj_config_eeprom.overheat_start_timer_level_5 != 255) {
@@ -508,7 +526,9 @@ void saveConfigEEPROM() {
   uint8_t i_bargraph_overheat_blinking = 1;
   uint8_t i_neutrona_wand_year_mode = 1;
   uint8_t i_CTS_mode = 1;
+  uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
   uint8_t i_beep_loop = 2;
+  uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
   uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_mode_5 / 1000;
   uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_mode_4 / 1000;
   uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_mode_3 / 1000;
@@ -646,6 +666,14 @@ void saveConfigEEPROM() {
     break;
   }
 
+  if(SYSTEM_MODE == MODE_ORIGINAL) {
+    i_system_mode = 2;
+  }
+
+  if(i_volume_master_percentage > 0 && i_volume_master_percentage < 255) {
+    i_default_system_volume = i_volume_master_percentage;
+  }
+
   if(b_beep_loop != true) {
     i_beep_loop = 1;
   }
@@ -707,7 +735,9 @@ void saveConfigEEPROM() {
     i_bargraph_overheat_blinking,
     i_neutrona_wand_year_mode,
     i_CTS_mode,
+    i_system_mode,
     i_beep_loop,
+    i_default_system_volume,
     i_overheat_start_timer_level_5,
     i_overheat_start_timer_level_4,
     i_overheat_start_timer_level_3,

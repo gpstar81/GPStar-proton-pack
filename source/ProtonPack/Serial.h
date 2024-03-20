@@ -841,8 +841,6 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
       if(i_volume_master == i_volume_abs_min) {
         i_volume_master = i_volume_revert;
 
-        w_trig.masterGain(i_volume_master); // Reset the master gain.
-
         packSerialSend(P_MASTER_AUDIO_NORMAL);
       }
       else {
@@ -851,10 +849,10 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         // Set the master volume to silent.
         i_volume_master = i_volume_abs_min;
 
-        w_trig.masterGain(i_volume_master); // Reset the master gain.
-
         packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
       }
+
+      w_trig.masterGain(i_volume_master); // Reset the master gain.
     break;
 
     case A_VOLUME_DECREASE:
@@ -1072,7 +1070,7 @@ void doWandSync() {
 
   // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
   if(b_overheating == true) {
-    packOverHeatingFinished();
+    packOverheatingFinished();
   }
 
   // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
@@ -1485,42 +1483,42 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_AFTERLIFE_GUN_RAMP_1:
       stopEffect(S_AFTERLIFE_WAND_RAMP_1);
-      playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_2:
       stopEffect(S_AFTERLIFE_WAND_RAMP_2);
-      playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_2_FADE_IN:
       stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
-      playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_LOOP_1:
       stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-      playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_LOOP_2:
       stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2:
       stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT:
       stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
-      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_1:
       stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
-      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 10);
+      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_wand_sound_level);
     break;
 
     case W_EXTRA_WAND_SOUNDS_STOP:
@@ -1816,7 +1814,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     // No longer used.
     case W_OVERHEATING_FINISHED:
       // Overheating finished
-      packOverHeatingFinished();
+      packOverheatingFinished();
 
       serial1Send(A_OVERHEATING_FINISHED);
     break;
@@ -2681,7 +2679,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           // Provide feedback at minimum volume.
           stopEffect(S_BEEPS_ALT);
-          playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
+          playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_sound_level);
         }
         else {
           i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
@@ -2690,6 +2688,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
         w_trig.trackGain(i_current_music_track, i_volume_music);
+
         serial1SendData(A_VOLUME_SYNC);
       }
     break;
@@ -2702,7 +2701,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           // Provide feedback at maximum volume.
           stopEffect(S_BEEPS_ALT);
-          playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
+          playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_sound_level);
         }
         else {
           i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
@@ -2711,6 +2710,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
         w_trig.trackGain(i_current_music_track, i_volume_music);
+
         serial1SendData(A_VOLUME_SYNC);
       }
     break;

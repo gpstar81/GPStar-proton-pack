@@ -87,8 +87,8 @@ enum BARGRAPH_EEPROM_FIRING_ANIMATIONS { BARGRAPH_EEPROM_ANIMATION_DEFAULT, BARG
 enum BARGRAPH_EEPROM_FIRING_ANIMATIONS BARGRAPH_EEPROM_FIRING_ANIMATION;
 
 /*
- * Which CTS "Cross The Streams" year mode the Neutrona Wand is set into. The Proton Pack will match this when set.
- * This affects which CTS "Cross The Streams" is used. The sound effects are different depending on the year.
+ * Which CTS "Cross The Streams" year mode the Neutrona Wand is set to. The Proton Pack will match this when set.
+ * This affects which CTS "Cross The Streams" sounds are used as the sound effects are different depending on the year.
  * CTS_DEFAULT lets the system choose based on the year setting of the Proton Pack.
  */
 enum WAND_YEAR_CTS_SETTING { CTS_DEFAULT, CTS_1984, CTS_1989, CTS_AFTERLIFE, CTS_FROZEN_EMPIRE };
@@ -143,7 +143,7 @@ millisDelay ms_fast_led;
  * Non-addressable LEDs
  */
 const uint8_t led_slo_blo = 8;
-const uint8_t led_front_left = 9;
+const uint8_t led_front_left = 9; // LED underneath the Clippard valve.
 const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
 const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Red LED)
 const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
@@ -208,6 +208,7 @@ ezButton switch_wand(A0); // Controls the beeping. Top right switch on the wand.
 ezButton switch_mode(A6); // Changes firing modes, crosses streams, or used in settings menus.
 ezButton switch_barrel(A7); // Checks whether barrel is retracted or not.
 bool b_switch_barrel_extended = true; // Set to true for bootup to prevent sound from playing erroneously. The Neutrona Wand will adjust as necessary.
+bool b_all_switch_activation = false; // Used to check if Activate was flipped to on while the vent switch was already in the on position for sound purposes.
 
 /*
  * Some switch settings.
@@ -403,7 +404,7 @@ const unsigned int i_sync_initial_delay = 750; // Delay to re-try the initial ha
 const unsigned int i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake) to a connected proton pack.
 
 /*
- * Wand menu & music
+ * Wand Menu
  */
 enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3, MENU_LEVEL_4, MENU_LEVEL_5 };
 enum WAND_MENU_LEVELS WAND_MENU_LEVEL;
