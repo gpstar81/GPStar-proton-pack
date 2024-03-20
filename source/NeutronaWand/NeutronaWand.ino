@@ -285,9 +285,6 @@ void mainLoop() {
     }
   }
 
-  // Handle button press events based on current wand state and menu level (for config/EEPROM purposes).
-  checkWandAction();
-
   switch(WAND_STATUS) {
     case MODE_OFF:
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
@@ -314,7 +311,7 @@ void mainLoop() {
           }
         }
 
-        if(switch_mode.isPressed() || b_pack_alarm == true) {
+        if((switch_mode.isReleased()) || b_pack_alarm == true) {
           if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
             playEffect(S_CLICK);
 
@@ -337,7 +334,7 @@ void mainLoop() {
             wandSerialSend(W_SETTINGS_MODE);
           }
           else {
-            // Only exit the settings menu when on menu #5 in the top menu.
+            // Only exit the settings menu when on menu #5 in the top menu or the pack alarm is active.
             if(i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_1 && FIRING_MODE == SETTINGS) {
               wandExitMenu();
             }
@@ -586,6 +583,9 @@ void mainLoop() {
     break;
   }
 
+  // Handle button press events based on current wand state and menu level (for config/EEPROM purposes).
+  checkWandAction();
+
   if(b_firing == true && WAND_ACTION_STATUS != ACTION_FIRING) {
     modeFireStop();
   }
@@ -789,7 +789,7 @@ void startVentSequence() {
   // Turn on hat light 2.
   digitalWrite(led_hat_2, HIGH);
 
-  delay(100);
+  delay(100); // Really should avoid this if possible since it will corrupt our ezButton states
 
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
@@ -1673,7 +1673,7 @@ void fireControlCheck() {
 void altWingButtonCheck() {
   // This is for when the Wand Barrel Switch is enabled for video game mode. b_cross_the_streams must not be enabled.
   if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_cross_the_streams_mix != true && b_pack_alarm != true) {
-    if(switch_mode.isPressed()) {
+    if(switch_mode.isReleased()) {
       // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
       if(i_wand_menu == 5) {
         // Cycle through the firing modes and setting menu.
@@ -7418,7 +7418,9 @@ void wandExitMenu() {
     playEffect(S_CLICK);
   }
 
-  bargraphClearAlt();
+  switch_intensify.resetCount();
+  switch_wand.resetCount();
+  switch_vent.resetCount();
 
   switch(PREV_FIRING_MODE) {
     case MESON:
@@ -7496,14 +7498,14 @@ void wandExitEEPROMMenu() {
   switch_wand.resetCount();
   switch_vent.resetCount();
 
+  analogWrite(vibration, 0); // Make sure we stop any menu-related vibration, if any
+
   if(b_gpstar_benchtest == true) {
     // Also need to make sure to reset the "ion arm switch" to off if standalone
     b_pack_ion_arm_switch_on = false;
   }
 
   i_wand_menu = 5;
-
-  bargraphClearAlt();
 
   WAND_ACTION_STATUS = ACTION_IDLE;
 
@@ -7578,6 +7580,18 @@ void resetOverHeatModes() {
   b_overheat_mode[2] = b_overheat_mode_3;
   b_overheat_mode[3] = b_overheat_mode_4;
   b_overheat_mode[4] = b_overheat_mode_5;
+}
+
+void checkMenuVibration() {
+  if(b_menu_vibration_active == false && ms_menu_vibration.isRunning()) {
+    analogWrite(vibration, 150);
+    b_menu_vibration_active = true;
+  }
+  else if(ms_menu_vibration.justFinished() && b_menu_vibration_active == true) {
+    ms_menu_vibration.stop();
+    analogWrite(vibration, 0);
+    b_menu_vibration_active = false;
+  }
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.
