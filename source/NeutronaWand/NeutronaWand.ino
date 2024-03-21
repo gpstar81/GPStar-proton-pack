@@ -162,7 +162,7 @@ void setup() {
   FIRING_MODE = PROTON;
   PREV_FIRING_MODE = SETTINGS;
 
-  // Load any saved settings stored in the EEPROM memory of the gpstar Neutrona Wand.
+  // Load any saved settings stored in the EEPROM memory of the GPStar Neutrona Wand.
   if(b_eeprom == true) {
     readEEPROM();
   }
@@ -194,6 +194,9 @@ void setup() {
 
     // Check music timer for bench test mode only.
     ms_check_music.start(i_music_check_delay);
+
+    // No pack to do a volume sync with, so reset our master volume manually.
+    resetMasterVolume();
   }
   else {
     WAND_CONN_STATE = PACK_DISCONNECTED;
@@ -226,7 +229,7 @@ void loop() {
         ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
       }
 
-      w_trig.update(); // Update the state of the WavTrigger.
+      updateAudio(); // Update the state of the selected sound board.
 
       checkPack(); // Get the latest communications from the connected Proton Pack.
 
@@ -234,7 +237,7 @@ void loop() {
     break;
 
     case NC_BENCHTEST:
-      w_trig.update(); // Update the state of the WavTrigger.
+      updateAudio(); // Update the state of the selected sound board.
 
       checkMusic(); // Music control is here since pack is not present.
 
