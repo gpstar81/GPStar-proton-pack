@@ -529,7 +529,7 @@ void checkPack() {
           // Update and reset wand components.
           setBargraphOrientation();
           bargraphYearModeUpdate();
-          resetOverHeatModes();
+          resetOverheatModes();
         break;
 
         case PACKET_SMOKE:
@@ -550,7 +550,7 @@ void checkPack() {
           i_ms_overheat_initiate_mode_1 = smokeConfig.overheatDelay1;
 
           // Update and reset wand components.
-          resetOverHeatModes();
+          resetOverheatModes();
         break;
       }
     }

@@ -339,7 +339,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_5_ENABLED);
               }
 
-              resetOverHeatModes();
+              resetOverheatModes();
             }
           }
           else if(switch_mode.isReleased()) {
@@ -545,7 +545,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_4_ENABLED);
               }
 
-              resetOverHeatModes();
+              resetOverheatModes();
             }
           }
 
@@ -769,9 +769,6 @@ void checkWandAction() {
                   wandSerialSend(W_MODE_ORIGINAL_BARGRAPH);
                 break;
               }
-
-              // Reset the bargraph.
-              bargraphYearModeUpdate();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Overheat smoke duration level .
@@ -805,7 +802,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_3_ENABLED);
               }
 
-              resetOverHeatModes();
+              resetOverheatModes();
             }
           }
 
@@ -854,9 +851,6 @@ void checkWandAction() {
                   wandSerialSend(W_MODE_ORIGINAL_FIRING_ANIMATIONS_BARGRAPH);
                 break;
               }
-
-              // Reset the bargraph.
-              bargraphYearModeUpdate();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Handled in checkRotaryEncoder()
@@ -932,7 +926,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_2_ENABLED);
               }
 
-              resetOverHeatModes();
+              resetOverheatModes();
             }
           }
 
@@ -1054,7 +1048,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_1_ENABLED);
               }
 
-              resetOverHeatModes();
+              resetOverheatModes();
             }
           }
 
@@ -1379,8 +1373,6 @@ void checkWandAction() {
                     stopEffect(S_VOICE_1984);
 
                     playEffect(S_VOICE_1989);
-
-                    bargraphYearModeUpdate();
                   break;
 
                   case SYSTEM_1989:
@@ -1393,8 +1385,6 @@ void checkWandAction() {
                     stopEffect(S_VOICE_1984);
 
                     playEffect(S_VOICE_AFTERLIFE);
-
-                    bargraphYearModeUpdate();
                   break;
 
                   case SYSTEM_AFTERLIFE:
@@ -1408,8 +1398,6 @@ void checkWandAction() {
                     stopEffect(S_VOICE_1984);
 
                     playEffect(S_VOICE_FROZEN_EMPIRE);
-
-                    bargraphYearModeUpdate();
                   break;
 
                   case SYSTEM_FROZEN_EMPIRE:
@@ -1422,8 +1410,6 @@ void checkWandAction() {
                     stopEffect(S_VOICE_1984);
 
                     playEffect(S_VOICE_1984);
-
-                    bargraphYearModeUpdate();
                   break;
                 }
               }

@@ -306,7 +306,7 @@ void updateEffectsVolume() {
       GPStarAudio.trackVolume(S_MESON_IDLE_LOOP, f_gpstar_track_volume);
 
       f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_effects - i_wand_sound_level);
-      
+
       GPStarAudio.trackVolume(S_AFTERLIFE_WAND_IDLE_2, f_gpstar_track_volume);
       GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_1, f_gpstar_track_volume);
       GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_2, f_gpstar_track_volume);

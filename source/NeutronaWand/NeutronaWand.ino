@@ -763,17 +763,20 @@ void overheatingFinished() {
     }
   }
 
-  playEffect(S_WAND_BOOTUP);
-
-  if(switch_vent.getState() == LOW) {
-    soundIdleLoop(true);
+  switch(getNeutronaWandYearMode()) {
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+      playEffect(S_WAND_BOOTUP_SHORT);
+    break;
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
+      playEffect(S_WAND_BOOTUP);
+    break;
   }
-  else {
-    soundIdleLoop(true);
 
-    if(switch_vent.getState() == HIGH && (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
-      afterLifeRamp1();
-    }
+  if(switch_vent.getState() == HIGH && (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
+    afterLifeRamp1();
   }
 
   bargraphRampUp();
@@ -837,8 +840,6 @@ void startVentSequence() {
 
     ms_bargraph.start(d_bargraph_ramp_interval);
   }
-
-  playEffect(S_VENT_DRY);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_WAND_SHUTDOWN_SOUND);
@@ -1250,6 +1251,8 @@ void checkSwitches() {
                   // Turn off the Neutrona Wand vent lights.
                   digitalWrite(led_vent, HIGH);
                   digitalWrite(led_white, HIGH);
+
+                  vibrationOff(); // Turn off vibration, if any.
                 }
               }
             }
@@ -1562,6 +1565,7 @@ void wandOff() {
     break;
   }
 
+  ms_intensify_doubleclick.stop();
   switch_intensify.resetCount();
   switch_wand.resetCount();
   switch_vent.resetCount();
@@ -2001,6 +2005,23 @@ void soundIdleLoop(bool fadeIn) {
       playEffect(S_IDLE_LOOP_GUN_5, true, i_volume_effects, fadeIn, 1000);
     break;
   }
+
+  if(b_gpstar_benchtest == true) {
+    switch(FIRING_MODE) {
+      case SLIME:
+        playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, fadeIn, 900);
+      break;
+      case STASIS:
+        playEffect(S_STASIS_IDLE_LOOP, true, 0, fadeIn, 900);
+      break;
+      case MESON:
+        playEffect(S_MESON_IDLE_LOOP, true, 0, fadeIn, 900);
+      break;
+      default:
+        // Do nothing.
+      break;
+    }
+  }
 }
 
 void soundIdleLoopStop() {
@@ -2010,6 +2031,9 @@ void soundIdleLoopStop() {
   stopEffect(S_IDLE_LOOP_GUN_3);
   stopEffect(S_IDLE_LOOP_GUN_4);
   stopEffect(S_IDLE_LOOP_GUN_5);
+  stopEffect(S_PACK_SLIME_TANK_LOOP);
+  stopEffect(S_STASIS_IDLE_LOOP);
+  stopEffect(S_MESON_IDLE_LOOP);
 }
 
 void soundIdleStart() {
@@ -3207,8 +3231,11 @@ void modeFiring() {
 void wandHeatUp() {
   stopEffect(S_FIRE_START_SPARK);
   stopEffect(S_PACK_SLIME_OPEN);
+  stopEffect(S_PACK_SLIME_TANK_LOOP);
   stopEffect(S_STASIS_OPEN);
+  stopEffect(S_STASIS_IDLE_LOOP);
   stopEffect(S_MESON_OPEN);
+  stopEffect(S_MESON_IDLE_LOOP);
   stopEffect(S_VENT_DRY);
   stopEffect(S_VENT_SMOKE);
   stopEffect(S_MODE_SWITCH);
@@ -3221,14 +3248,26 @@ void wandHeatUp() {
 
     case SLIME:
       playEffect(S_PACK_SLIME_OPEN);
+
+      if(b_gpstar_benchtest == true) {
+        playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
+      }
     break;
 
     case STASIS:
       playEffect(S_STASIS_OPEN);
+
+      if(b_gpstar_benchtest == true) {
+        playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
+      }
     break;
 
     case MESON:
       playEffect(S_MESON_OPEN);
+
+      if(b_gpstar_benchtest == true) {
+        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
+      }
     break;
 
     case VENTING:
@@ -4770,6 +4809,16 @@ void bargraphModeOriginalRampFiringAnimation() {
         }
       break;
     }
+
+    if(i_bargraph_status_alt > 22) {
+      vibrationWand(i_vibration_level + 115);
+    }
+    else if(i_bargraph_status_alt > 11) {
+      vibrationWand(i_vibration_level + 112);
+    }
+    else {
+      vibrationWand(i_vibration_level + 110);
+    }
   }
   else {
     // When firing starts, i_bargraph_status resets to 0 in modeFireStart();
@@ -5199,6 +5248,16 @@ void bargraphModeOriginalRampFiringAnimation() {
         }
       break;
     }
+  }
+
+  if(i_bargraph_status > 3) {
+    vibrationWand(i_vibration_level + 115);
+  }
+  else if(i_bargraph_status > 1) {
+    vibrationWand(i_vibration_level + 112);
+  }
+  else {
+    vibrationWand(i_vibration_level + 110);
   }
 }
 
@@ -5896,10 +5955,8 @@ void bargraphRampUp() {
         i_tmp = i_bargraph_segments - i_tmp;
 
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
-          vibrationOff();
-        }
+            vibrationOff();
 
-        if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
             ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
             b_bargraph_status[i_tmp] = false;
 
@@ -7422,6 +7479,7 @@ void wandExitMenu() {
     playEffect(S_CLICK);
   }
 
+  ms_intensify_doubleclick.stop();
   switch_intensify.resetCount();
 
   switch(PREV_FIRING_MODE) {
@@ -7471,6 +7529,9 @@ void wandExitMenu() {
 
   wandLightsOff();
 
+  // Reset the bargraph in case it was changed.
+  bargraphYearModeUpdate();
+
   // In original mode, we need to re-initalise the 28 segment bargraph if some switches are already toggled on.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
     if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
@@ -7496,6 +7557,8 @@ void wandExitMenu() {
 // Exit the wand menu EEPROM system while the wand is off.
 void wandExitEEPROMMenu() {
   playEffect(S_BEEPS_BARGRAPH);
+
+  ms_intensify_doubleclick.stop();
   switch_intensify.resetCount();
   switch_wand.resetCount();
   switch_vent.resetCount();
@@ -7513,6 +7576,9 @@ void wandExitEEPROMMenu() {
 
   wandLightsOff();
   wandBarrelLightsOff();
+
+  // Reset the bargraph in case it was changed.
+  bargraphYearModeUpdate();
 
   // Send current preferences to the pack for use by the serial1 device.
   wandSerialSend(W_SEND_PREFERENCES_WAND);
@@ -7576,7 +7642,7 @@ void afterLifeRamp1() {
 }
 
 // Rebuilds the overheat enable array.
-void resetOverHeatModes() {
+void resetOverheatModes() {
   b_overheat_mode[0] = b_overheat_mode_1;
   b_overheat_mode[1] = b_overheat_mode_2;
   b_overheat_mode[2] = b_overheat_mode_3;
