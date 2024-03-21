@@ -1259,6 +1259,7 @@ void checkSwitches() {
           }
           else {
             if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_SETTINGS) {
+              vibrationOff(); // Turn off vibration, if any.
               wandLightsOff();
             }
           }
