@@ -41,7 +41,7 @@ void saveLedEEPROM();
 void updateCRCEEPROM();
 unsigned long eepromCRC(void);
 void bargraphYearModeUpdate();
-void resetOverHeatModes();
+void resetOverheatModes();
 void setBargraphOrientation();
 
 /*
@@ -455,7 +455,7 @@ void readEEPROM() {
     bargraphYearModeUpdate();
 
     // Rebuild the over heat enabled modes.
-    resetOverHeatModes();
+    resetOverheatModes();
 
     // Read our LED object from the EEPROM.
     objLEDEEPROM obj_led_eeprom;
