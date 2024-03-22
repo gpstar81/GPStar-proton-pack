@@ -2961,6 +2961,12 @@ void innerCyclotronCavityUpdate(int cDelay) {
   uint8_t i_colour_scheme; // Color scheme for lighting, to be set later.
   uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
 
+  if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE){
+    // As this produces the "sparking" effect as seen in GB:FE
+    // effect is disabled for themes other than Frozen Empire.
+    return;
+  }
+
   // Cannot go lower than the starting point for this segment of LEDs.
   if(i_led_cyclotron_cavity < i_start) {
     i_led_cyclotron_cavity = i_start;
