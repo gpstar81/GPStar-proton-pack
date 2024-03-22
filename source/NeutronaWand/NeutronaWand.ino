@@ -2608,6 +2608,7 @@ void modeFireStopSounds() {
   b_sound_firing_cross_the_streams_mix = false;
 
   ms_firing_stop_sound_delay.stop();
+  ms_meson_blast.stop();
 
  switch(FIRING_MODE) {
     case PROTON:
