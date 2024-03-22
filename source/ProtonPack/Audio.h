@@ -57,7 +57,7 @@ bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
 uint8_t i_wand_sound_level = 10; // 10 for Wav Trigger. 30 for GPStar Audio.
-uint8_t i_gpstar_audio_volume_factor = 10; // Main volume gain factor for the GPStar Audio.
+uint8_t i_gpstar_audio_volume_factor = 0; // Main volume gain factor for the GPStar Audio.
 
 /*
  * Music Control/Checking
@@ -306,7 +306,7 @@ void updateEffectsVolume() {
       GPStarAudio.trackVolume(S_MESON_IDLE_LOOP, f_gpstar_track_volume);
 
       f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_effects - i_wand_sound_level);
-      
+
       GPStarAudio.trackVolume(S_AFTERLIFE_WAND_IDLE_2, f_gpstar_track_volume);
       GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_1, f_gpstar_track_volume);
       GPStarAudio.trackVolume(S_AFTERLIFE_WAND_RAMP_2, f_gpstar_track_volume);

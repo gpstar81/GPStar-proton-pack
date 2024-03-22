@@ -162,7 +162,7 @@ void setup() {
   FIRING_MODE = PROTON;
   PREV_FIRING_MODE = SETTINGS;
 
-  // Load any saved settings stored in the EEPROM memory of the gpstar Neutrona Wand.
+  // Load any saved settings stored in the EEPROM memory of the GPStar Neutrona Wand.
   if(b_eeprom == true) {
     readEEPROM();
   }
@@ -194,6 +194,9 @@ void setup() {
 
     // Check music timer for bench test mode only.
     ms_check_music.start(i_music_check_delay);
+
+    // No pack to do a volume sync with, so reset our master volume manually.
+    resetMasterVolume();
   }
   else {
     WAND_CONN_STATE = PACK_DISCONNECTED;
@@ -226,7 +229,7 @@ void loop() {
         ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
       }
 
-      w_trig.update(); // Update the state of the WavTrigger.
+      updateAudio(); // Update the state of the selected sound board.
 
       checkPack(); // Get the latest communications from the connected Proton Pack.
 
@@ -234,7 +237,7 @@ void loop() {
     break;
 
     case NC_BENCHTEST:
-      w_trig.update(); // Update the state of the WavTrigger.
+      updateAudio(); // Update the state of the selected sound board.
 
       checkMusic(); // Music control is here since pack is not present.
 
@@ -285,9 +288,6 @@ void mainLoop() {
     }
   }
 
-  // Handle button press events based on current wand state and menu level (for config/EEPROM purposes).
-  checkWandAction();
-
   switch(WAND_STATUS) {
     case MODE_OFF:
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
@@ -314,7 +314,7 @@ void mainLoop() {
           }
         }
 
-        if(switch_mode.isPressed() || b_pack_alarm == true) {
+        if(switch_mode.isReleased() || b_pack_alarm == true) {
           if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
             playEffect(S_CLICK);
 
@@ -337,7 +337,7 @@ void mainLoop() {
             wandSerialSend(W_SETTINGS_MODE);
           }
           else {
-            // Only exit the settings menu when on menu #5 in the top menu.
+            // Only exit the settings menu when on menu #5 in the top menu or the pack alarm is active.
             if(i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_1 && FIRING_MODE == SETTINGS) {
               wandExitMenu();
             }
@@ -586,6 +586,9 @@ void mainLoop() {
     break;
   }
 
+  // Handle button press events based on current wand state and menu level (for config/EEPROM purposes).
+  checkWandAction();
+
   if(b_firing == true && WAND_ACTION_STATUS != ACTION_FIRING) {
     modeFireStop();
   }
@@ -760,17 +763,20 @@ void overheatingFinished() {
     }
   }
 
-  playEffect(S_WAND_BOOTUP);
-
-  if(switch_vent.getState() == LOW) {
-    soundIdleLoop(true);
+  switch(getNeutronaWandYearMode()) {
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+      playEffect(S_WAND_BOOTUP_SHORT);
+    break;
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
+      playEffect(S_WAND_BOOTUP);
+    break;
   }
-  else {
-    soundIdleLoop(true);
 
-    if(switch_vent.getState() == HIGH && (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
-      afterLifeRamp1();
-    }
+  if(switch_vent.getState() == HIGH && (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
+    afterLifeRamp1();
   }
 
   bargraphRampUp();
@@ -789,7 +795,7 @@ void startVentSequence() {
   // Turn on hat light 2.
   digitalWrite(led_hat_2, HIGH);
 
-  delay(100);
+  delay(100); // Really should avoid this if possible since it will corrupt our ezButton states
 
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
@@ -834,8 +840,6 @@ void startVentSequence() {
 
     ms_bargraph.start(d_bargraph_ramp_interval);
   }
-
-  playEffect(S_VENT_DRY);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_WAND_SHUTDOWN_SOUND);
@@ -1247,12 +1251,15 @@ void checkSwitches() {
                   // Turn off the Neutrona Wand vent lights.
                   digitalWrite(led_vent, HIGH);
                   digitalWrite(led_white, HIGH);
+
+                  vibrationOff(); // Turn off vibration, if any.
                 }
               }
             }
           }
           else {
             if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_SETTINGS) {
+              vibrationOff(); // Turn off vibration, if any.
               wandLightsOff();
             }
           }
@@ -1559,6 +1566,7 @@ void wandOff() {
     break;
   }
 
+  ms_intensify_doubleclick.stop();
   switch_intensify.resetCount();
   switch_wand.resetCount();
   switch_vent.resetCount();
@@ -1673,7 +1681,7 @@ void fireControlCheck() {
 void altWingButtonCheck() {
   // This is for when the Wand Barrel Switch is enabled for video game mode. b_cross_the_streams must not be enabled.
   if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_cross_the_streams_mix != true && b_pack_alarm != true) {
-    if(switch_mode.isPressed()) {
+    if(switch_mode.isReleased()) {
       // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
       if(i_wand_menu == 5) {
         // Cycle through the firing modes and setting menu.
@@ -1834,6 +1842,7 @@ void altWingButtonCheck() {
 
 void modeError() {
   wandOff();
+  b_sound_afterlife_idle_2_fade = true;
 
   WAND_STATUS = MODE_ERROR;
   WAND_ACTION_STATUS = ACTION_ERROR;
@@ -1997,6 +2006,23 @@ void soundIdleLoop(bool fadeIn) {
       playEffect(S_IDLE_LOOP_GUN_5, true, i_volume_effects, fadeIn, 1000);
     break;
   }
+
+  if(b_gpstar_benchtest == true) {
+    switch(FIRING_MODE) {
+      case SLIME:
+        playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, fadeIn, 900);
+      break;
+      case STASIS:
+        playEffect(S_STASIS_IDLE_LOOP, true, 0, fadeIn, 900);
+      break;
+      case MESON:
+        playEffect(S_MESON_IDLE_LOOP, true, 0, fadeIn, 900);
+      break;
+      default:
+        // Do nothing.
+      break;
+    }
+  }
 }
 
 void soundIdleLoopStop() {
@@ -2006,6 +2032,9 @@ void soundIdleLoopStop() {
   stopEffect(S_IDLE_LOOP_GUN_3);
   stopEffect(S_IDLE_LOOP_GUN_4);
   stopEffect(S_IDLE_LOOP_GUN_5);
+  stopEffect(S_PACK_SLIME_TANK_LOOP);
+  stopEffect(S_STASIS_IDLE_LOOP);
+  stopEffect(S_MESON_IDLE_LOOP);
 }
 
 void soundIdleStart() {
@@ -3203,8 +3232,11 @@ void modeFiring() {
 void wandHeatUp() {
   stopEffect(S_FIRE_START_SPARK);
   stopEffect(S_PACK_SLIME_OPEN);
+  stopEffect(S_PACK_SLIME_TANK_LOOP);
   stopEffect(S_STASIS_OPEN);
+  stopEffect(S_STASIS_IDLE_LOOP);
   stopEffect(S_MESON_OPEN);
+  stopEffect(S_MESON_IDLE_LOOP);
   stopEffect(S_VENT_DRY);
   stopEffect(S_VENT_SMOKE);
   stopEffect(S_MODE_SWITCH);
@@ -3217,14 +3249,26 @@ void wandHeatUp() {
 
     case SLIME:
       playEffect(S_PACK_SLIME_OPEN);
+
+      if(b_gpstar_benchtest == true) {
+        playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
+      }
     break;
 
     case STASIS:
       playEffect(S_STASIS_OPEN);
+
+      if(b_gpstar_benchtest == true) {
+        playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
+      }
     break;
 
     case MESON:
       playEffect(S_MESON_OPEN);
+
+      if(b_gpstar_benchtest == true) {
+        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
+      }
     break;
 
     case VENTING:
@@ -4766,6 +4810,16 @@ void bargraphModeOriginalRampFiringAnimation() {
         }
       break;
     }
+
+    if(i_bargraph_status_alt > 22) {
+      vibrationWand(i_vibration_level + 115);
+    }
+    else if(i_bargraph_status_alt > 11) {
+      vibrationWand(i_vibration_level + 112);
+    }
+    else {
+      vibrationWand(i_vibration_level + 110);
+    }
   }
   else {
     // When firing starts, i_bargraph_status resets to 0 in modeFireStart();
@@ -5195,6 +5249,16 @@ void bargraphModeOriginalRampFiringAnimation() {
         }
       break;
     }
+  }
+
+  if(i_bargraph_status > 3) {
+    vibrationWand(i_vibration_level + 115);
+  }
+  else if(i_bargraph_status > 1) {
+    vibrationWand(i_vibration_level + 112);
+  }
+  else {
+    vibrationWand(i_vibration_level + 110);
   }
 }
 
@@ -5892,10 +5956,8 @@ void bargraphRampUp() {
         i_tmp = i_bargraph_segments - i_tmp;
 
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
-          vibrationOff();
-        }
+            vibrationOff();
 
-        if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
             ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
             b_bargraph_status[i_tmp] = false;
 
@@ -7418,7 +7480,8 @@ void wandExitMenu() {
     playEffect(S_CLICK);
   }
 
-  bargraphClearAlt();
+  ms_intensify_doubleclick.stop();
+  switch_intensify.resetCount();
 
   switch(PREV_FIRING_MODE) {
     case MESON:
@@ -7467,6 +7530,9 @@ void wandExitMenu() {
 
   wandLightsOff();
 
+  // Reset the bargraph in case it was changed.
+  bargraphYearModeUpdate();
+
   // In original mode, we need to re-initalise the 28 segment bargraph if some switches are already toggled on.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
     if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
@@ -7492,9 +7558,13 @@ void wandExitMenu() {
 // Exit the wand menu EEPROM system while the wand is off.
 void wandExitEEPROMMenu() {
   playEffect(S_BEEPS_BARGRAPH);
+
+  ms_intensify_doubleclick.stop();
   switch_intensify.resetCount();
   switch_wand.resetCount();
   switch_vent.resetCount();
+
+  analogWrite(vibration, 0); // Make sure we stop any menu-related vibration, if any
 
   if(b_gpstar_benchtest == true) {
     // Also need to make sure to reset the "ion arm switch" to off if standalone
@@ -7503,12 +7573,13 @@ void wandExitEEPROMMenu() {
 
   i_wand_menu = 5;
 
-  bargraphClearAlt();
-
   WAND_ACTION_STATUS = ACTION_IDLE;
 
   wandLightsOff();
   wandBarrelLightsOff();
+
+  // Reset the bargraph in case it was changed.
+  bargraphYearModeUpdate();
 
   // Send current preferences to the pack for use by the serial1 device.
   wandSerialSend(W_SEND_PREFERENCES_WAND);
@@ -7572,12 +7643,24 @@ void afterLifeRamp1() {
 }
 
 // Rebuilds the overheat enable array.
-void resetOverHeatModes() {
+void resetOverheatModes() {
   b_overheat_mode[0] = b_overheat_mode_1;
   b_overheat_mode[1] = b_overheat_mode_2;
   b_overheat_mode[2] = b_overheat_mode_3;
   b_overheat_mode[3] = b_overheat_mode_4;
   b_overheat_mode[4] = b_overheat_mode_5;
+}
+
+void checkMenuVibration() {
+  if(b_menu_vibration_active == false && ms_menu_vibration.isRunning()) {
+    analogWrite(vibration, 150);
+    b_menu_vibration_active = true;
+  }
+  else if(ms_menu_vibration.justFinished() && b_menu_vibration_active == true) {
+    ms_menu_vibration.stop();
+    analogWrite(vibration, 0);
+    b_menu_vibration_active = false;
+  }
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.
