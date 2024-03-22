@@ -3161,7 +3161,7 @@ void modeFiring() {
           fireStreamEffect(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
         }
         else {
-          fireStreamStart(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+          fireStreamStart(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
           fireStreamEffect(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
         }
       }
@@ -3474,9 +3474,11 @@ void fireStreamEffect(CRGB c_colour) {
               if(b_firing_cross_streams == true) {
                 if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == YEAR_FROZEN_EMPIRE) {
                   barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
+                  barrel_leds[frutto_barrel[i_barrel_light - 2]] = c_colour;
                 }
                 else {
-                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+                  barrel_leds[frutto_barrel[i_barrel_light - 2]] = c_colour;
                 }
               }
               else {
