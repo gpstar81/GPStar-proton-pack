@@ -2961,27 +2961,28 @@ void innerCyclotronCavityUpdate(int cDelay) {
   uint8_t i_colour_scheme; // Color scheme for lighting, to be set later.
   uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
 
-  if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE){
-    // As this produces the "sparking" effect as seen in GB:FE
-    // effect is disabled for themes other than Frozen Empire.
-    return;
-  }
-
   // Cannot go lower than the starting point for this segment of LEDs.
   if(i_led_cyclotron_cavity < i_start) {
     i_led_cyclotron_cavity = i_start;
   }
 
-  if(i_led_cyclotron_cavity < i_midpoint) {
-    i_colour_scheme = C_YELLOW; // Always keep the lower half of LEDs yellow.
+  if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE || FIRING_MODE != PROTON){
+    // This produces the "sparking" effect as seen in GB:FE only for the Proton stream,
+    // so the effect is essentially disabled for all other themes and firing modes.
+    i_colour_scheme = C_BLACK;
   }
   else {
-    // Light spiraling higher than the lower half will have variable colors.
-    i_colour_scheme = getDeviceColour(CYCLOTRON_CAVITY, FIRING_MODE, false);
+    if(i_led_cyclotron_cavity < i_midpoint) {
+      i_colour_scheme = C_YELLOW; // Always keep the lower half of LEDs yellow.
+    }
+    else {
+      // Light spiraling higher than the lower half will have variable colors.
+      i_colour_scheme = getDeviceColour(CYCLOTRON_CAVITY, FIRING_MODE, false);
+    }
   }
 
   if(b_clockwise == true) {
-    if(cDelay < 30 && b_cyclotron_lid_on != true) {
+    if(cDelay < 40 && b_cyclotron_lid_on != true) {
       if(b_gbr_cyclotron_cavity == true) {
         cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGBR(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
       }
@@ -3113,6 +3114,13 @@ void innerCyclotronRingUpdate(int cDelay) {
     uint8_t i_start = 0; // Starting point for this LED device.
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, FIRING_MODE, b_cyclotron_colour_toggle);
+
+    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && FIRING_MODE == PROTON){
+      // As a "sparking" effect is predominant in GB:FE during the Proton stream,
+      // the inner LED color/brightness is altered for this mode.
+      i_brightness = getBrightness(i_cyclotron_inner_brightness / 2);
+      i_colour_scheme = C_ORANGE;
+    }
 
     if(b_clockwise == true) {
       if(b_cyclotron_lid_on != true) {
