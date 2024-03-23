@@ -3554,6 +3554,9 @@ void wandStoppedFiring() {
   ms_firing_length_timer.stop();
   ms_smoke_timer.stop();
   ms_smoke_on.stop();
+
+  // Stop overheat beeps.
+  stopEffect(S_BEEP_8);
 }
 
 void wandStopFiringSounds() {
@@ -3822,9 +3825,6 @@ void vibrationPack(int i_level) {
 }
 
 void cyclotronSpeedRevert() {
-  // Stop overheat beeps.
-  stopEffect(S_BEEP_8);
-
   i_cyclotron_multiplier = 1;
   i_cyclotron_switch_led_mulitplier = 1;
   i_powercell_multiplier = 1;
@@ -4015,8 +4015,6 @@ void wandDisconnectCheck() {
   if(b_wand_connected == true) {
     if(ms_wand_check.justFinished()) {
       // Timer just ran out, so we must assume the wand was disconnected.
-      // Serial.println("Wand Disconnected");
-
       if(b_diagnostic == true) {
         // While in diagnostic mode, play a sound to indicate the wand is disconnected.
         playEffect(S_VENT_BEEP);
