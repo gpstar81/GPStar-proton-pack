@@ -659,7 +659,7 @@ void packStartup() {
 
     packAlarm();
 
-    // Tell the wand the pack alarm is off.
+    // Tell the wand the pack alarm is on.
     packSerialSend(P_ALARM_ON);
     serial1Send(A_ALARM_ON);
   }
