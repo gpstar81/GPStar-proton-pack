@@ -626,7 +626,7 @@ void wandTipOn() {
   switch(WAND_BARREL_LED_COUNT) {
     case LEDS_48:
       // Set the tip of the Frutto LED array to white.
-      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == YEAR_FROZEN_EMPIRE) {
+      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
         if(b_firing_cross_streams == true) {
           barrel_leds[12] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
         }
@@ -3157,7 +3157,7 @@ void modeFiring() {
     case PROTON:
     default:
       if(b_firing_cross_streams == true) {
-        if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == YEAR_FROZEN_EMPIRE) {
+        if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
           fireStreamStart(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
           fireStreamEffect(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
         }
@@ -3473,7 +3473,7 @@ void fireStreamEffect(CRGB c_colour) {
             case PROTON:
             default:
               if(b_firing_cross_streams == true) {
-                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == YEAR_FROZEN_EMPIRE) {
+                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
                   barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
                   barrel_leds[frutto_barrel[i_barrel_light - 2]] = c_colour;
                 }
