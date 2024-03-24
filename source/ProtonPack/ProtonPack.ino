@@ -18,10 +18,10 @@
  */
 
 // Set to 1 to enable built-in debug messages
-#define DEBUG 0
+#define DEBUG 1
 
 // Debug macros
-#if DEBUG == 1
+#if DEBUG == 0
 #define debug(x) Serial.print(x)
 #define debugln(x) Serial.println(x)
 #else
@@ -56,7 +56,7 @@ void setup() {
   packComs.begin(Serial2, false); // Neutrona Wand
 
   // Setup the audio device for this controller.
-  selectAudioDevice();
+  setupAudioDevice();
 
   // Rotary encoder for volume control.
   // Uses an ISR (interrupt service routine) to know when the rotary encoder
