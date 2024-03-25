@@ -30,6 +30,7 @@ enum pack_messages : uint8_t {
   P_COM_START,
   P_HANDSHAKE,
   P_SYNC_START,
+  P_SYNC_DATA,
   P_SYNC_END,
   P_PACK_BOOTUP,
   P_ON,

@@ -18,10 +18,10 @@
  */
 
 // Set to 1 to enable built-in debug messages
-#define DEBUG 1
+#define DEBUG 0
 
 // Debug macros
-#if DEBUG == 0
+#if DEBUG == 1
 #define debug(x) Serial.print(x)
 #define debugln(x) Serial.println(x)
 #else
@@ -140,7 +140,6 @@ void setup() {
   ms_cyclotron.start(i_current_ramp_speed);
   ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
-  ms_wand_check.start(i_wand_disconnect_delay);
   ms_serial1_handshake.start(i_serial1_handshake_delay);
   ms_fast_led.start(i_fast_led_delay);
   ms_battcheck.start(500);
@@ -4021,7 +4020,6 @@ void wandDisconnectCheck() {
       }
 
       b_wand_connected = false; // Cause the next handshake to trigger a sync.
-      b_wand_syncing = true; // No longer attempting to force a sync w/ wand.
       b_wand_on = false; // No wand means the device is no longer powered on.
 
       // Tell the serial1 device the wand was disconnected.
@@ -4046,22 +4044,13 @@ void wandDisconnectCheck() {
       }
     }
     else {
-      if(ms_wand_check.remaining() < 2000 && !b_wand_syncing) {
-        // If within 2 seconds of the disconnect timeout, force a handshake with the wand.
+      if(ms_wand_check.remaining() < 1500 && !b_wand_syncing) {
+        // If we haven't received a handshake from the wand in over 6.5 seconds, force a handshake with the wand.
+        // This is because the wand is supposed to handshake every 3.25 seconds and we haven't heard back in two pings.
         // This should be a last-resort check to make sure it's available and responding.
         b_wand_syncing = true;
         packSerialSend(P_HANDSHAKE);
       }
-    }
-  }
-  else {
-    // Wand was disconnected or never present, so perform a routine check.
-    if(ms_wand_check.remaining() < 1) {
-      ms_wand_check.start(i_wand_disconnect_delay);
-
-      b_wand_syncing = false; // Not a true sync event yet.
-
-      packSerialSend(P_HANDSHAKE);
     }
   }
 }

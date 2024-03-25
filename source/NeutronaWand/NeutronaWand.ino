@@ -182,7 +182,6 @@ void setup() {
 
   // Initialize the timer for initial handshake.
   ms_packsync.start(1);
-  ms_handshake.stop();
 
   if(b_gpstar_benchtest == true) {
     WAND_CONN_STATE = NC_BENCHTEST;
@@ -219,6 +218,7 @@ void loop() {
     break;
 
     case SYNCHRONIZING:
+      // Currently unused
       checkPack(); // Keep checking for responses from the pack while synchronizing.
     break;
 

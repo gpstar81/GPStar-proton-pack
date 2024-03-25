@@ -26,7 +26,8 @@ enum PACKET_TYPE : uint8_t {
   PACKET_DATA = 2,
   PACKET_PACK = 3,
   PACKET_WAND = 4,
-  PACKET_SMOKE = 5
+  PACKET_SMOKE = 5,
+  PACKET_SYNC = 6
 };
 
 // For command signals (1 byte ID, 2 byte optional data).
@@ -98,6 +99,23 @@ struct __attribute__((packed)) SmokePrefs {
   uint8_t overheatDelay2;
   uint8_t overheatDelay1;
 } smokeConfig;
+
+struct __attribute__((packed)) syncPacket {
+  uint8_t systemMode;
+  uint8_t ionArmSwitch;
+  uint8_t systemYear;
+  uint8_t ribbonCable;
+  uint8_t packOn;
+  uint8_t powerLevel;
+  uint8_t firingMode;
+  uint8_t vibrationEnabled;
+  uint8_t masterVolume;
+  uint8_t effectsVolume;
+  uint8_t musicVolume;
+  uint8_t masterMuted;
+  uint16_t currentMusicTrack;
+  uint8_t repeatMusicTrack;
+} packSync;
 
 /*
  * Serial API Communication Handlers
@@ -552,6 +570,199 @@ void checkPack() {
           // Update and reset wand components.
           resetOverheatModes();
         break;
+
+        case PACKET_SYNC:
+          wandComs.rxObj(packSync);
+          debugln(F("Recv. Sync Payload"));
+
+          // Write the received data to runtime variables.
+          // This will not save to the EEPROM!
+          switch(packSync.systemMode) {
+            case 1:
+            default:
+              SYSTEM_MODE = MODE_SUPER_HERO;
+            break;
+            case 2:
+              SYSTEM_MODE = MODE_ORIGINAL;
+            break;
+          }
+
+          // Set whether the switch under the ion arm is on or off.
+          switch(packSync.ionArmSwitch) {
+            case 1:
+            default:
+              b_pack_ion_arm_switch_on = false;
+              ms_power_indicator.start(i_ms_power_indicator);
+            break;
+            case 2:
+              b_pack_ion_arm_switch_on = true;
+            break;
+          }
+
+          // Update the System Year setting.
+          switch(packSync.systemYear) {
+            case 1:
+              SYSTEM_YEAR = SYSTEM_1984;
+            break;
+            case 2:
+              SYSTEM_YEAR = SYSTEM_1989;
+            break;
+            case 3:
+            default:
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+            break;
+            case 4:
+              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+            break;
+          }
+
+          // Reset the bargraph now that we have our SYSTEM_MODE and SYSTEM_YEAR set.
+          bargraphYearModeUpdate();
+
+          // Set whether the ribbon cable on the Pack is connected or not.
+          switch(packSync.ribbonCable) {
+            case 1:
+              b_pack_ribbon_cable_on = false;
+            break;
+            case 2:
+            default:
+              b_pack_ribbon_cable_on = true;
+            break;
+          }
+
+          // Set whether the Proton Pack is currently on or off.
+          switch(packSync.packOn) {
+            case 1:
+            default:
+              // Pack is off.
+              if(b_pack_on == true) {
+                // Turn wand off.
+                if(WAND_STATUS != MODE_OFF) {
+                  if(WAND_STATUS == MODE_ERROR) {
+                    b_wand_mash_error = false;
+                    wandOff();
+                  }
+                  else {
+                    b_wand_mash_error = false;
+                    WAND_ACTION_STATUS = ACTION_OFF;
+                  }
+                }
+              }
+
+              b_pack_on = false;
+            break;
+            case 2:
+              // Pack is on.
+              b_pack_on = true;
+            break;
+          }
+
+          // Set our starting power level.
+          i_power_mode = packSync.powerLevel;
+          i_power_mode_prev = i_power_mode;
+
+          // Set our firing mode.
+          switch(packSync.firingMode) {
+            case 1:
+            default:
+              FIRING_MODE = PROTON;
+              PREV_FIRING_MODE = SETTINGS;
+              setVGMode();
+            break;
+            case 2:
+              FIRING_MODE = SLIME;
+              PREV_FIRING_MODE = PROTON;
+              setVGMode();
+            break;
+            case 3:
+              FIRING_MODE = STASIS;
+              PREV_FIRING_MODE = SLIME;
+              setVGMode();
+            break;
+            case 4:
+              FIRING_MODE = MESON;
+              PREV_FIRING_MODE = STASIS;
+              setVGMode();
+            break;
+            case 5:
+              FIRING_MODE = SPECTRAL;
+              PREV_FIRING_MODE = MESON;
+              setVGMode();
+            break;
+            case 6:
+              FIRING_MODE = HOLIDAY;
+              PREV_FIRING_MODE = SPECTRAL;
+              setVGMode();
+            break;
+            case 7:
+              FIRING_MODE = SPECTRAL_CUSTOM;
+              PREV_FIRING_MODE = HOLIDAY;
+              setVGMode();
+            break;
+            case 8:
+              FIRING_MODE = VENTING;
+              PREV_FIRING_MODE = SPECTRAL_CUSTOM;
+              setVGMode();
+            break;
+          }
+
+          // Set up master vibration switch.
+          switch(packSync.vibrationEnabled) {
+            case 1:
+              b_vibration_enabled = false;
+              vibrationOff();
+            break;
+            case 2:
+            default:
+              b_vibration_enabled = true;
+            break;
+          }
+
+          // Set the percentage volume.
+          i_volume_master_percentage = packSync.masterVolume;
+          i_volume_effects_percentage = packSync.effectsVolume;
+          i_volume_music_percentage = packSync.musicVolume;
+
+          // Set the decibel volume.
+          i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+          i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
+          i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+          // Update volume levels.
+          i_volume_revert = i_volume_master;
+          resetMasterVolume();
+          updateEffectsVolume();
+
+          switch(packSync.masterMuted) {
+            case 1:
+            default:
+              // Do nothing; we already have our volumes set correctly.
+            break;
+            case 2:
+              // Remember the current master volume level.
+              i_volume_revert = i_volume_master;
+
+              // The pack is telling us to be silent.
+              i_volume_master = i_volume_abs_min;
+              resetMasterVolume();
+            break;
+          }
+
+          // Reset current music track.
+          if(i_music_count > 0 && packSync.currentMusicTrack >= i_music_track_start) {
+            i_current_music_track = packSync.currentMusicTrack;
+          }
+
+          switch(packSync.repeatMusicTrack) {
+            case 1:
+            default:
+              b_repeat_track = false;
+            break;
+            case 2:
+              b_repeat_track = true;
+            break;
+          }
+        break;
       }
     }
   }
@@ -566,12 +777,12 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       if(WAND_CONN_STATE != PACK_CONNECTED) {
         // If still waiting for the pack, trigger an immediate synchronization.
         wandSerialSend(W_SYNC_NOW);
-        WAND_CONN_STATE = SYNCHRONIZING;
+        //WAND_CONN_STATE = SYNCHRONIZING;
       }
       else {
-        // The wand had already synchronized with the pack, so respond as such.
-        wandSerialSend(W_SYNCHRONIZED);
-        WAND_CONN_STATE = PACK_CONNECTED;
+        // The wand had already synchronized with the pack, so respond with handshake.
+        wandSerialSend(W_HANDSHAKE);
+        //WAND_CONN_STATE = PACK_CONNECTED;
       }
     break;
 
@@ -802,20 +1013,17 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       if(WAND_STATUS != MODE_ERROR) {
         if(WAND_STATUS == MODE_ON) {
           digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
+          prepBargraphRampDown();
+
+          if(FIRING_MODE == SETTINGS) {
+            // If the wand is in settings mode while the alarm is activated, exit the settings mode.
+            wandSerialSend(W_PROTON_MODE);
+            FIRING_MODE = PROTON;
+            WAND_ACTION_STATUS = ACTION_IDLE;
+          }
         }
 
         ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
-
-        if(WAND_STATUS == MODE_ON && FIRING_MODE == SETTINGS) {
-          // If the wand is in settings mode while the alarm is activated, exit the settings mode.
-          wandSerialSend(W_PROTON_MODE);
-          FIRING_MODE = PROTON;
-          WAND_ACTION_STATUS = ACTION_IDLE;
-        }
-
-        if(WAND_STATUS == MODE_ON) {
-          prepBargraphRampDown();
-        }
       }
 
       if(WAND_STATUS == MODE_ON && b_pack_ribbon_cable_on != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
@@ -947,30 +1155,24 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Vibration enabled (from Proton Pack vibration toggle switch).
       b_vibration_enabled = true;
 
-      // Only play the voice if the Proton Pack has been fully connected (not during a sync operation).
-      if(WAND_CONN_STATE == PACK_CONNECTED) {
-        stopEffect(S_BEEPS_ALT);
-        playEffect(S_BEEPS_ALT);
+      stopEffect(S_BEEPS_ALT);
+      playEffect(S_BEEPS_ALT);
 
-        stopEffect(S_VOICE_VIBRATION_ENABLED);
-        stopEffect(S_VOICE_VIBRATION_DISABLED);
-        playEffect(S_VOICE_VIBRATION_ENABLED);
-      }
+      stopEffect(S_VOICE_VIBRATION_ENABLED);
+      stopEffect(S_VOICE_VIBRATION_DISABLED);
+      playEffect(S_VOICE_VIBRATION_ENABLED);
     break;
 
     case P_VIBRATION_DISABLED:
       // Vibration disabled (from Proton Pack vibration toggle switch).
       b_vibration_enabled = false;
 
-      // Only play the voice if the Proton Pack has been fully connected (not during a sync operation).
-      if(WAND_CONN_STATE == PACK_CONNECTED) {
-        stopEffect(S_BEEPS_ALT);
-        playEffect(S_BEEPS_ALT);
+      stopEffect(S_BEEPS_ALT);
+      playEffect(S_BEEPS_ALT);
 
-        stopEffect(S_VOICE_VIBRATION_DISABLED);
-        stopEffect(S_VOICE_VIBRATION_ENABLED);
-        playEffect(S_VOICE_VIBRATION_DISABLED);
-      }
+      stopEffect(S_VOICE_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_VIBRATION_ENABLED);
+      playEffect(S_VOICE_VIBRATION_DISABLED);
 
       vibrationOff();
     break;
