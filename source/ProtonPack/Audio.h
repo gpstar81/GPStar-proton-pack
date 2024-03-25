@@ -61,13 +61,7 @@ millisDelay ms_music_next_track;
 millisDelay ms_music_status_check;
 
 /*
- * GPStar Audio - Volume (0.1 = quietest, 1.0 = loudest)
- */
-const float f_gpstarAudio_volume_abs_min = 0.1f; // System (absolute) minimum volume possible.
-const float f_gpstarAudio_volume_abs_max = 1.0f; // System (absolute) maximum volume possible.
-
-/*
- * WavTrigger - Volume (-70 = quietest, 0 = loudest)
+ * Volume (-70 = quietest, 0 = loudest)
  */
 uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
 uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
@@ -87,7 +81,6 @@ millisDelay ms_volume_check; // Put some timing on the master volume gain to not
 /*
  * Function Prototypes
  */
-//float gpstarTrackVolumeCalc(int8_t i_track_volume);
 void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
 void stopEffect(int i_track_id);
 void playMusic();
@@ -95,13 +88,10 @@ void stopMusic();
 void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
 
 /*
- * Helper Functions
+ * Audio playback functions.
  */
-
 // Play a sound effect using certain defaults.
 void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
-  float f_gpstar_track_volume = 0;
-
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
@@ -131,23 +121,6 @@ void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b
       }
     break;
 
-    /*
-    case A_GPSTAR_AUDIO:
-      f_gpstar_track_volume = gpstarTrackVolumeCalc(i_track_volume);
-
-      
-      if(b_fade_in == true) {
-        GPStarAudioTmp.trackVolume(i_track_id, 0.0);
-        GPStarAudioTmp.playTrack(i_track_id, i_tmp_playback_style);
-        GPStarAudioTmp.trackFade(i_track_id, f_gpstar_track_volume, i_fade_time);
-      }
-      else {
-        GPStarAudioTmp.trackVolume(i_track_id, f_gpstar_track_volume);
-        GPStarAudioTmp.playTrack(i_track_id, i_tmp_playback_style);
-      }
-    break;
-    */
-
     case A_NONE:
     default:
       // No audio device connected.
@@ -171,8 +144,6 @@ void stopEffect(int i_track_id) {
 
 // Adjust the gain of a single track.
 void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsigned int i_fade_time) {
-  float f_gpstar_track_volume = 0;
-
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
@@ -192,19 +163,6 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
       }
     break;
 
-    /*
-    case A_GPSTAR_AUDIO:
-      //f_gpstar_track_volume = gpstarTrackVolumeCalc(i_track_volume);
-
-      if(b_fade == true) {
-        //GPStarAudioTmp.trackFade(i_track_id, f_gpstar_track_volume, i_fade_time);
-      }
-      else {
-        //GPStarAudioTmp.trackVolume(i_track_id, f_gpstar_track_volume);
-      }
-    break;
-    */
-    
     case A_NONE:
     default:
       // No audio device connected.
@@ -213,8 +171,6 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsign
 }
 
 void updateEffectsVolume() {
-  float f_gpstar_track_volume = 0;
-
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
@@ -262,55 +218,6 @@ void updateEffectsVolume() {
       audio.trackGain(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, i_volume_effects - i_wand_sound_level);
       audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - i_wand_sound_level);
     break;
-
-    /*
-    case A_GPSTAR_AUDIO:
-      //f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_effects);
-
-      GPStarAudioTmp.trackVolume(S_BEEPS, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_BEEPS_ALT, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_BEEPS_LOW, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_BEEPS_BARGRAPH, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_WAND_BOOTUP, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_BEEP_WAND_S1, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_BEEP_WAND_S2, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_BEEP_WAND_S3, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_BEEP_WAND_S4, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_BEEP_WAND_S5, f_gpstar_track_volume);
-
-      GPStarAudioTmp.trackVolume(S_PACK_RIBBON_ALARM_1, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_ALARM_LOOP, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_RIBBON_CABLE_START, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_PACK_BEEPING, f_gpstar_track_volume); // Not used ?
-      GPStarAudioTmp.trackVolume(S_BEEP_8, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_SHUTDOWN, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_GB2_PACK_START, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_GB2_PACK_LOOP, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_GB2_PACK_OFF, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_PACK_SHUTDOWN, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_PACK_SHUTDOWN_AFTERLIFE, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_IDLE_LOOP, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_BOOTUP, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_PACK_STARTUP, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_PACK_IDLE_LOOP, f_gpstar_track_volume);
-
-      GPStarAudioTmp.trackVolume(S_PACK_SLIME_TANK_LOOP, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_STASIS_IDLE_LOOP, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_MESON_IDLE_LOOP, f_gpstar_track_volume);
-
-      f_gpstar_track_volume = gpstarTrackVolumeCalc(i_volume_effects - i_wand_sound_level);
-
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_WAND_IDLE_2, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_WAND_RAMP_1, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_WAND_RAMP_2, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_WAND_IDLE_1, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_WAND_IDLE_2, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_WAND_RAMP_DOWN_2, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, f_gpstar_track_volume);
-      GPStarAudioTmp.trackVolume(S_AFTERLIFE_WAND_RAMP_DOWN_1, f_gpstar_track_volume);
-    break;
-    */
 
     case A_NONE:
     default:
@@ -915,30 +822,6 @@ bool setupAudioDevice() {
     return false;
   }
 }
-
-/*
-float gpstarTrackVolumeCalc(int8_t i_track_volume) {
-  if(i_track_volume > 0) {
-    i_track_volume = 0;
-  }
-
-  if(i_track_volume <= i_volume_abs_min) {
-    i_track_volume = -100;
-  }
-
-  float f_gpstar_track_volume = (float)1.00 + (float)i_track_volume / 100;
-
-  if(f_gpstar_track_volume < f_gpstarAudio_volume_abs_min) {
-    f_gpstar_track_volume = f_gpstarAudio_volume_abs_min;
-  }
-
-  if(f_gpstar_track_volume > f_gpstarAudio_volume_abs_max) {
-    f_gpstar_track_volume = f_gpstarAudio_volume_abs_max;
-  }
-
-  return f_gpstar_track_volume;
-}
-*/
 
 void resetMasterVolume() {
   switch(AUDIO_DEVICE) {
