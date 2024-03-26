@@ -687,7 +687,6 @@ void checkMusic() {
         // Loop through all the tracks if the music is not set to repeat a track.
         if(b_playing_music == true && b_repeat_track == false && b_music_paused != true) {
           if(musicTrackStatus() != true && ms_music_status_check.justFinished() && musicGetTrackCounter() != true) {
-            Serial.println("not playing, go to next track");
             ms_check_music.stop();
             ms_music_status_check.stop();
 
@@ -705,7 +704,6 @@ void checkMusic() {
             ms_music_next_track.start(i_music_next_track_delay);
           }
           else {
-            Serial.println("still playing, check again");
             if(ms_music_status_check.justFinished()) {
               ms_music_status_check.start(i_music_check_delay * 4);
             }
