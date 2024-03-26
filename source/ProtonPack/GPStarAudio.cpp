@@ -282,7 +282,7 @@ bool gpstarAudio::getVersion(char *pDst) {
   if(!versionRcvd) {
     return false;
   }
-  
+
   for(i = 0; i < (VERSION_STRING_LEN - 1); i++) {
     pDst[i] = version[i];
   }
