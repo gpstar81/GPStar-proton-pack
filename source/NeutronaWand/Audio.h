@@ -712,8 +712,8 @@ bool setupAudioDevice() {
   // Onboard amplifier on or off. Only for the Wav Trigger.
   audio.setAmpPwr(b_onboard_amp_enabled);
 
-  // Enable track reporting. Only for the Wav Trigger.
-  audio.setReporting(true);
+  // Enable track reporting if in bench test mode. Only for the Wav Trigger.
+  audio.setReporting(b_gpstar_benchtest);
 
   // Allow time for hello command and other data to return back.
   delay(350);
