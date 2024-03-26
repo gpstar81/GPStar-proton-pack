@@ -54,11 +54,11 @@ void gpstarAudio::flush(void) {
   rxCount = 0;
   rxLen = 0;
   rxMsgReady = false;
-  
-  for (i = 0; i < MAX_NUM_VOICES; i++) {
+
+  for(i = 0; i < MAX_NUM_VOICES; i++) {
     voiceTable[i] = 0xffff;
   }
-  
+
   while(GPStarSerial.available()) {
     GPStarSerial.read();
   }
@@ -180,14 +180,13 @@ void gpstarAudio::update(void) {
           numTracks = rxMessage[3];
           numTracks = (numTracks << 8) + rxMessage[2];
           sysinfoRcvd = true;
-        break;        
-
+        break;
       }
 
       rxCount = 0;
       rxLen = 0;
       rxMsgReady = false;
-    } 
+    }
   }
 }
 
@@ -471,6 +470,6 @@ void gpstarAudio::hello(void) {
 
 bool gpstarAudio::gpstarAudioHello(void) {
   update();
-  
+
   return sysinfoRcvd;
 }
