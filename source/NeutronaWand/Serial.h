@@ -777,10 +777,12 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       if(WAND_CONN_STATE != PACK_CONNECTED) {
         // If still waiting for the pack, trigger an immediate synchronization.
         wandSerialSend(W_SYNC_NOW);
+        //WAND_CONN_STATE = SYNCHRONIZING;
       }
       else {
         // The wand had already synchronized with the pack, so respond with handshake.
         wandSerialSend(W_HANDSHAKE);
+        //WAND_CONN_STATE = PACK_CONNECTED;
       }
     break;
 

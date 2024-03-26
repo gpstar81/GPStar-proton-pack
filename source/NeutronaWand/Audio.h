@@ -56,7 +56,7 @@ uint8_t i_gpstar_audio_volume_factor = 10; // Main volume gain factor for the GP
  * Only for bench test mode. When bench test mode is disabled, the Pack controls the music checking and playback.
  */
 const unsigned int i_music_check_delay = 2000;
-const unsigned int i_music_next_track_delay = 500;
+const unsigned int i_music_next_track_delay = 2000;
 millisDelay ms_check_music;
 millisDelay ms_music_next_track;
 millisDelay ms_music_status_check;
@@ -288,7 +288,7 @@ void resumeMusic() {
 
     if(b_gpstar_benchtest == true) {
       // Keep track of music playback on the wand directly.
-      ms_music_status_check.start(i_music_check_delay * 4);
+      ms_music_status_check.start(i_music_check_delay * 10);
     }
   }
 }
@@ -682,7 +682,12 @@ void toggleMusicLoop() {
 
     case A_NONE:
     default:
-
+      if(b_repeat_track == false) {
+        b_repeat_track = true;
+      }
+      else {
+        b_repeat_track = false;
+      }
     break;
   }
 }
@@ -708,12 +713,12 @@ bool setupAudioDevice() {
   audio.samplerateOffset(0);
 
   audio.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
-
+  
   // Onboard amplifier on or off. Only for the Wav Trigger.
   audio.setAmpPwr(b_onboard_amp_enabled);
 
-  // Enable track reporting if in bench test mode. Only for the Wav Trigger.
-  audio.setReporting(b_gpstar_benchtest);
+  // Enable track reporting. Only for the Wav Trigger.
+  audio.setReporting(true);
 
   // Allow time for hello command and other data to return back.
   delay(350);
@@ -725,7 +730,7 @@ bool setupAudioDevice() {
     AUDIO_DEVICE = A_WAV_TRIGGER;
 
     debugln(F("Using WavTrigger"));
-
+    
     return true;
   }
 

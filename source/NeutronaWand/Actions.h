@@ -1140,7 +1140,7 @@ void checkWandAction() {
         case 5:
         // Music track loop setting.
         if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             toggleMusicLoop();
 
             // Tell pack to loop the music track.
@@ -1148,7 +1148,7 @@ void checkWandAction() {
           }
         }
         else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             toggleWandModes();
           }
 

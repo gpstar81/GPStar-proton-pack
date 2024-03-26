@@ -751,7 +751,12 @@ void toggleMusicLoop() {
 
     case A_NONE:
     default:
-
+      if(b_repeat_track == false) {
+        b_repeat_track = true;
+      }
+      else {
+        b_repeat_track = false;
+      }
     break;
   }
 }
