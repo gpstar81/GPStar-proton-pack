@@ -55,7 +55,7 @@ void gpstarAudio::flush(void) {
   rxLen = 0;
   rxMsgReady = false;
 
-  for (i = 0; i < MAX_NUM_VOICES; i++) {
+  for(i = 0; i < MAX_NUM_VOICES; i++) {
     voiceTable[i] = 0xffff;
   }
 
@@ -76,76 +76,62 @@ void gpstarAudio::update(void) {
 
   rxMsgReady = false;
 
-  while (GPStarSerial.available() > 0) {
+  while(GPStarSerial.available() > 0) {
     dat = GPStarSerial.read();
 
-    if ((rxCount == 0) && (dat == SOM1)) {
+    if((rxCount == 0) && (dat == SOM1)) {
       rxCount++;
     }
     else if (rxCount == 1) {
-      if (dat == SOM2)
+      if(dat == SOM2) {
         rxCount++;
+      }
       else {
-        rxCount = 0;
-        //Serial.print("Bad msg 1\n");
+        rxCount = 0; // Bad serial data.
       }
     }
     else if (rxCount == 2) {
-      if (dat == SOM1 || dat == SOM2 || dat == EOM) {
-        rxCount = 0;
-        //Serial.print("Bad msg \n");
+      if(dat == SOM1 || dat == SOM2 || dat == EOM) {
+        rxCount = 0; // Bad serial data.
       }
       else if (dat <= MAX_MESSAGE_LEN) {
         rxCount++;
         rxLen = dat - 1;
       }
       else {
-        rxCount = 0;
-        //Serial.print("Bad msg 2\n");
+        rxCount = 0; // Bad serial data.
       }
     }
     else if ((rxCount > 2) && (rxCount < rxLen)) {
-      if (dat == SOM1 || dat == SOM2 || dat == EOM) {
-        rxCount = 0;
-        //Serial.print("Bad msg \n");
+      if(dat == SOM1 || dat == SOM2 || dat == EOM) {
+        rxCount = 0; // Bad serial data.
       }
       else {
         rxMessage[rxCount - 3] = dat;
         rxCount++;
       }
     }
-    else if (rxCount == rxLen) {
-      if (dat == EOM) {
+    else if(rxCount == rxLen) {
+      if(dat == EOM) {
         rxMsgReady = true;
       }
       else {
-        rxCount = 0;
-        //Serial.print("Bad msg 3\n");
+        rxCount = 0; // Bad serial data.
       }
     }
     else {
-      rxCount = 0;
-      //Serial.print("Bad msg 4\n");
+      rxCount = 0; // Bad serial data.
     }
 
     if(rxMsgReady) {
       switch (rxMessage[0]) {
         case RSP_TRACK_REPORT_EX:
-          /*
-          rxMessage
-          0 = RSP_TRACK_REPORT_EX -> 133
-          1 = track # lsb
-          2 = track # msb
-          3 = state -> 1 = playing, 0 = not playing
-          */
-
           track = rxMessage[2];
           track = (track << 8) + rxMessage[1];
 
           currentMusicTrack = track;
 
-          //Serial.println(rxMessage[3]);
-
+          // 0 = not playing. 1 = playing.
           if(rxMessage[3] == 0) {
             currentMusicStatus = false;
           }
@@ -157,6 +143,7 @@ void gpstarAudio::update(void) {
         break;
 
         case RSP_TRACK_REPORT:
+          // Specific for Wav Triggers.
           track = rxMessage[2];
           track = (track << 8) + rxMessage[1] + 1;
           voice = rxMessage[3];
@@ -168,48 +155,32 @@ void gpstarAudio::update(void) {
             else
               voiceTable[voice] = track;
           }
-          // ==========================
-          //Serial.print("Track ");
-          //Serial.print(track);
-          //if (rxMessage[4] == 0)
-            //Serial.print(" off\n");
-          //else
-            //Serial.print(" on\n");
-          // ==========================
         break;
 
         case RSP_VERSION_STRING:
+          // Specific for Wav Triggers.
           for (i = 0; i < (VERSION_STRING_LEN - 1); i++) {
             version[i] = rxMessage[i + 1];
           }
           version[VERSION_STRING_LEN - 1] = 0;
           versionRcvd = true;
-          // ==========================
-          //Serial.write(version);
-          //Serial.write("\n");
-          // ==========================
         break;
 
         case RSP_SYSTEM_INFO:
+          // Specific for Wav Triggers.
           numVoices = rxMessage[1];
           numTracks = rxMessage[3];
           numTracks = (numTracks << 8) + rxMessage[2];
           sysinfoRcvd = true;
-          // ==========================
-          ///\Serial.print("Sys info received\n");
-          // ==========================
         break;
 
         case RSP_GPSTAR_HELLO:
+          // Specific for GPStar Audio.
           numVoices = rxMessage[1];
           numTracks = rxMessage[3];
           numTracks = (numTracks << 8) + rxMessage[2];
           sysinfoRcvd = true;
-          // ==========================
-          ///\Serial.print("Sys info received\n");
-          // ==========================
         break;
-
       }
 
       rxCount = 0;
@@ -255,10 +226,13 @@ bool gpstarAudio::isTrackPlaying(int trk) {
   bool fResult = false;
 
   update();
-  for (i = 0; i < MAX_NUM_VOICES; i++) {
-    if (voiceTable[i] == (uint16_t)trk)
+
+  for(i = 0; i < MAX_NUM_VOICES; i++) {
+    if(voiceTable[i] == (uint16_t)trk) {
       fResult = true;
+    }
   }
+
   return fResult;
 }
 
@@ -280,13 +254,13 @@ void gpstarAudio::masterGain(int gain) {
 void gpstarAudio::setAmpPwr(bool enable) {
   uint8_t txbuf[6];
 
-    txbuf[0] = SOM1;
-    txbuf[1] = SOM2;
-    txbuf[2] = 0x06;
-    txbuf[3] = CMD_AMP_POWER;
-    txbuf[4] = enable;
-    txbuf[5] = EOM;
-    GPStarSerial.write(txbuf, 6);
+  txbuf[0] = SOM1;
+  txbuf[1] = SOM2;
+  txbuf[2] = 0x06;
+  txbuf[3] = CMD_AMP_POWER;
+  txbuf[4] = enable;
+  txbuf[5] = EOM;
+  GPStarSerial.write(txbuf, 6);
 }
 
 void gpstarAudio::setReporting(bool enable) {
@@ -305,12 +279,15 @@ bool gpstarAudio::getVersion(char *pDst) {
   int i;
 
   update();
-  if (!versionRcvd) {
+
+  if(!versionRcvd) {
     return false;
   }
-  for (i = 0; i < (VERSION_STRING_LEN - 1); i++) {
+
+  for(i = 0; i < (VERSION_STRING_LEN - 1); i++) {
     pDst[i] = version[i];
   }
+
   return true;
 }
 
