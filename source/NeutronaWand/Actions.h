@@ -189,7 +189,7 @@ void checkWandAction() {
         // Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
         case 5:
           // Tell the Proton Pack to clear the EEPROM settings and exit.
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             // Tell pack to clear the EEPROM and exit.
             wandSerialSend(W_CLEAR_LED_EEPROM_SETTINGS);
             wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
@@ -218,7 +218,7 @@ void checkWandAction() {
         // Intensify: Cycle through the different Cyclotron LED counts.
         // Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotaryEncoder()
         case 4:
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
           }
         break;
@@ -226,7 +226,7 @@ void checkWandAction() {
         // Intensify: Cycle through the different Power Cell LED counts.
         // Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotaryEncoder()
         case 3:
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             wandSerialSend(W_TOGGLE_POWERCELL_LEDS);
           }
         break;
@@ -234,7 +234,7 @@ void checkWandAction() {
         // Intensify: Cycle through the different inner Cyclotron LED counts.
         // Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
         case 2:
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_LEDS);
           }
         break;
@@ -242,7 +242,7 @@ void checkWandAction() {
         // Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
         // Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
         case 1:
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             wandSerialSend(W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS);
           }
         break;
@@ -266,7 +266,7 @@ void checkWandAction() {
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #5
         case 5:
           // Tell the Neutrona Wand to clear the EEPROM settings and exit.
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to clear its current configuration from the EEPROM.
               wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
@@ -484,7 +484,7 @@ void checkWandAction() {
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #4
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #4
         case 4:
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               toggleWandModes();
             }
@@ -709,7 +709,7 @@ void checkWandAction() {
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #3
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #3
         case 3:
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               toggleOverheating();
             }
@@ -882,7 +882,7 @@ void checkWandAction() {
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #2
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #2
         case 2:
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to change the Cyclotron rotation direction.
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
@@ -973,7 +973,7 @@ void checkWandAction() {
         // Menu Level 5: Intensify: Enable/Disable overheat in power mode #1
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #1
         case 1:
-          if(switch_intensify.isPressed()) {
+          if(switch_intensify.isReleased()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               if(b_extra_pack_sounds == true) {
                 b_extra_pack_sounds = false;
@@ -1177,7 +1177,7 @@ void checkWandAction() {
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
             // Enable or disable overheating.
-            if(switch_intensify.isPressed()) {
+            if(switch_intensify.isReleased()) {
               toggleOverheating();
             }
 
@@ -1197,7 +1197,7 @@ void checkWandAction() {
           // Top menu code is handled in checkRotaryEncoder()
           // Sub menu. Adjust Cyclotron settings.
           if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-            if(switch_intensify.isPressed()) {
+            if(switch_intensify.isReleased()) {
               // Tell the Proton Pack to change the Cyclotron rotation direction.
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
@@ -1216,7 +1216,7 @@ void checkWandAction() {
         case 2:
           // Change music tracks.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-            if(switch_intensify.isPressed()) {
+            if(switch_intensify.isReleased()) {
               if(b_gpstar_benchtest == true) {
                 musicNextTrack();
               }
@@ -1246,7 +1246,7 @@ void checkWandAction() {
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
             // Enable or disable vibration for the pack or during firing only.
-            if(switch_intensify.isPressed()) {
+            if(switch_intensify.isReleased()) {
               wandSerialSend(W_VIBRATION_CYCLE_TOGGLE);
             }
 
@@ -1310,7 +1310,7 @@ void checkWandAction() {
         case 1:
           // Play or stop the current music track.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-            if(switch_intensify.isPressed()) {
+            if(switch_intensify.isReleased()) {
               if(b_playing_music == true) {
                 // Tell the pack to stop music.
                 wandSerialSend(W_MUSIC_STOP);
@@ -1353,7 +1353,7 @@ void checkWandAction() {
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
             // Switch between 1984/1989/Afterlife mode.
-            if(switch_intensify.isPressed()) {
+            if(switch_intensify.isReleased()) {
               // Tell the Proton Pack to cycle through year modes.
               wandSerialSend(W_YEAR_MODES_CYCLE);
 
