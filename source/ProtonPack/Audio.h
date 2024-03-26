@@ -55,7 +55,7 @@ uint8_t i_gpstar_audio_volume_factor = 0; // Main volume gain factor for the GPS
  * Music Control/Checking
  */
 const unsigned int i_music_check_delay = 2000;
-const unsigned int i_music_next_track_delay = 2000;
+const unsigned int i_music_next_track_delay = 500;
 millisDelay ms_check_music;
 millisDelay ms_music_next_track;
 millisDelay ms_music_status_check;
@@ -327,7 +327,7 @@ void pauseMusic() {
 void resumeMusic() {
   if(b_playing_music == true) {
     // Reset the music check timer.
-    ms_music_status_check.start(i_music_check_delay * 10);
+    ms_music_status_check.start(i_music_check_delay * 4);
 
     // Resume music playback on the Proton Pack
     switch(AUDIO_DEVICE) {
@@ -777,7 +777,7 @@ bool setupAudioDevice() {
   audio.samplerateOffset(0);
 
   audio.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
-  
+
   // Onboard amplifier on or off. Only for the Wav Trigger.
   audio.setAmpPwr(b_onboard_amp_enabled);
 
@@ -794,7 +794,7 @@ bool setupAudioDevice() {
     AUDIO_DEVICE = A_WAV_TRIGGER;
 
     debugln(F("Using WavTrigger"));
-    
+
     return true;
   }
 
