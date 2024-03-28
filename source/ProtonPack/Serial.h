@@ -2151,7 +2151,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_CROSS_STREAMS_END);
       
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 5);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
       }
       else {
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
@@ -2185,7 +2185,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_CROSS_STREAMS_END);
       
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 5);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
       }
       else {
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
