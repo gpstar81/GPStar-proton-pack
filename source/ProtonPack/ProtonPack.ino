@@ -59,11 +59,8 @@ void setup() {
   setupAudioDevice();
 
   // Rotary encoder for volume control.
-  // Uses an ISR (interrupt service routine) to know when the rotary encoder
-  // has been turned, and compares pin readings to get a +/- value changed.
   pinMode(encoder_pin_a, INPUT_PULLUP);
   pinMode(encoder_pin_b, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(encoder_pin_a), readEncoder, CHANGE);
 
   // Configure the various switches on the pack.
   switch_alarm.setDebounceTime(50);
@@ -3856,41 +3853,92 @@ void cyclotronSpeedIncrease() {
   }
 }
 
+/*
 void readEncoder() {
   if(digitalRead(encoder_pin_a) == digitalRead(encoder_pin_b)) {
     i_encoder_pos++;
+    Serial.println("clockwise");
   }
   else {
     i_encoder_pos--;
+    Serial.println("counter clockwise");
   }
 
   i_val_rotary = i_encoder_pos / 2.5;
+
+  Serial.println("pos --> ");
+  Serial.print(i_encoder_pos);  
+  Serial.print(" | val --> ");
+  Serial.print(i_val_rotary);
+}
+*/
+
+int8_t readRotary() {
+  static int8_t rot_enc_table[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
+
+  prev_next_code <<= 2;
+
+  if(digitalRead(encoder_pin_b)) {
+    prev_next_code |= 0x02;
+  }
+
+  if(digitalRead(encoder_pin_a)) {
+    prev_next_code |= 0x01;
+  }
+
+  prev_next_code &= 0x0f;
+
+  // If valid then store as 16 bit data.
+  if(rot_enc_table[prev_next_code]) {
+    store <<= 4;
+    store |= prev_next_code;
+
+    if((store&0xff) == 0x2b) {
+      return -1;
+    }
+
+    if((store&0xff) == 0x17) {
+      return 1;
+    }
+  }
+
+  return 0;
 }
 
 void checkRotaryEncoder() {
-  if(i_val_rotary > i_last_val_rotary) {
-    if(ms_volume_check.isRunning() != true) {
-      increaseVolume();
+ static int8_t c, val;
 
-      // Tell wand to increase volume.
-      packSerialSend(P_VOLUME_INCREASE);
+  if((val = readRotary())) {
+    c += val;
 
-      ms_volume_check.start(50);
+    // Clockwise
+    if(prev_next_code == 0x0b) {
+      Serial.println("clockwise");
+
+      if(ms_volume_check.isRunning() != true) {
+        increaseVolume();
+
+        // Tell wand to increase volume.
+        packSerialSend(P_VOLUME_INCREASE);
+
+        ms_volume_check.start(50);
+      }
+    }
+
+    // Counter Clockwise
+    if(prev_next_code == 0x07) {
+      Serial.println("counter clockwise");
+
+      if(ms_volume_check.isRunning() != true) {
+        decreaseVolume();
+
+        // Tell wand to decrease volume.
+        packSerialSend(P_VOLUME_DECREASE);
+
+        ms_volume_check.start(50);
+      }
     }
   }
-
-  if(i_val_rotary < i_last_val_rotary) {
-    if(ms_volume_check.isRunning() != true) {
-      decreaseVolume();
-
-      // Tell wand to decrease volume.
-      packSerialSend(P_VOLUME_DECREASE);
-
-      ms_volume_check.start(50);
-    }
-  }
-
-  i_last_val_rotary = i_val_rotary;
 
   if(ms_volume_check.justFinished()) {
     ms_volume_check.stop();

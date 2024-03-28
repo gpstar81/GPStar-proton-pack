@@ -314,7 +314,7 @@ void mainLoop() {
           }
         }
 
-        if(switch_mode.isReleased() || b_pack_alarm == true) {
+        if(switch_mode.isPressed() || b_pack_alarm == true) {
           if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
             playEffect(S_CLICK);
 
@@ -1691,7 +1691,7 @@ void fireControlCheck() {
 void altWingButtonCheck() {
   // This is for when the Wand Barrel Switch is enabled for video game mode. b_cross_the_streams must not be enabled.
   if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_cross_the_streams_mix != true && b_pack_alarm != true) {
-    if(switch_mode.isReleased()) {
+    if(switch_mode.isPressed()) {
       // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
       if(i_wand_menu == 5) {
         // Cycle through the firing modes and setting menu.
@@ -3156,6 +3156,35 @@ void modeFiring() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
+      // Shift the stream from red to orange on higher power modes.
+      switch(i_power_mode) {
+        case 1:
+        default:
+          fireStreamStart(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
+        break;
+
+        case 2:
+          fireStreamStart(getHueColour(C_RED2, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
+        break;
+
+        case 3:
+          fireStreamStart(getHueColour(C_RED3, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+        break;
+
+        case 4:
+          fireStreamStart(getHueColour(C_RED4, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+        break;
+
+        case 5:
+          fireStreamStart(getHueColour(C_RED5, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+        break;
+      }
+      /*    
       if(b_firing_cross_streams == true) {
         if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
           fireStreamStart(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
@@ -3196,6 +3225,7 @@ void modeFiring() {
           break;
         }
       }
+      */
     break;
 
     case SLIME:
@@ -3623,7 +3653,12 @@ void fireStreamEffect(CRGB c_colour) {
             case PROTON:
             default:
               if(b_firing_cross_streams == true) {
-                barrel_leds[i_barrel_light - 1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+                  barrel_leds[i_barrel_light - 1] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
+                }
+                else {
+                  barrel_leds[i_barrel_light - 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+                }
               }
               else {
                 // Shift the stream from red to orange on higher power modes.

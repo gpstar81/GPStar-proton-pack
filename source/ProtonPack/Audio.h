@@ -49,8 +49,8 @@ bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
 uint8_t i_wand_sound_level = 10; // 10 for Wav Trigger. 30 for GPStar Audio.
-uint8_t i_gpstar_audio_volume_factor = 0; // Main volume gain factor for the GPStar Audio.
-
+uint8_t i_gpstar_audio_volume_factor = 0; // Main volume gain factor for the GPStar Audio. This is applied to certain sound effects only.
+uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume. For GPStar Audio we increase this.
 /*
  * Music Control/Checking
  */
@@ -545,14 +545,9 @@ void increaseVolume() {
   if(i_volume_master == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master) {
     i_volume_master = MINIMUM_VOLUME;
   }
-  uint8_t i_max_volume_tmp = 100;
 
-  if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-    i_max_volume_tmp = 110;
-  }
-
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > i_max_volume_tmp) {
-    i_volume_master_percentage = 100;
+  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+    i_volume_master_percentage = i_volume_master_percentage_max;
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -805,8 +800,9 @@ bool setupAudioDevice() {
   if(audio.gpstarAudioHello()) {
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
 
-    i_wand_sound_level = 50; // Special setting to adjust certain wand sounds on the pack side as they can be too loud.
-    i_gpstar_audio_volume_factor = 20; // Special setting to amplify certain pack sounds.
+    i_wand_sound_level = 60; // Special setting to adjust certain wand sounds on the pack side as they can be too loud.
+    i_gpstar_audio_volume_factor = 0; // Special setting to amplify certain pack sounds.
+    i_volume_master_percentage_max = 150; // Increase the overall max gain the GPStar Audio can amplify.
 
     debugln(F("Using GPStar Audio"));
 

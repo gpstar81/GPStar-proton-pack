@@ -253,7 +253,7 @@ CRGB getHueColour(uint8_t i_colour, WAND_BARREL_LED_COUNTS NUM_LEDS_ENUM, uint8_
     case LEDS_5:
     default:
       // Stock LEDs are GRB
-      return getHueAsRGB(i_colour, i_brightness, true);
+      return getHueAsGRB(i_colour, i_brightness);
     break;
   }
 }
