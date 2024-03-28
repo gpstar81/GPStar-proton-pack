@@ -688,8 +688,8 @@ void packStartup() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects);
-        playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
+        playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects + i_gpstar_audio_volume_factor);
+        playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 18000);
         ms_idle_fire_fade.start(18000);
       break;
     }
@@ -3277,10 +3277,10 @@ void modeFireStartSounds() {
   // Adjust the gain with the Afterlife idling sound effect while firing.
   if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
     if(ms_idle_fire_fade.remaining() < 3000) {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, 100);
+      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects + i_gpstar_audio_volume_factor - 2, true, 100);
     }
     else {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
+      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects + i_gpstar_audio_volume_factor - 2, true, ms_idle_fire_fade.remaining());
     }
   }
 
@@ -3471,10 +3471,10 @@ void modeFireStopSounds() {
     // Adjust the gain with the Afterlife idling track.
     if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
       if(ms_idle_fire_fade.remaining() < 1000) {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects + i_gpstar_audio_volume_factor, true, 30);
       }
       else {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects + i_gpstar_audio_volume_factor, true, ms_idle_fire_fade.remaining());
       }
     }
 
@@ -4060,23 +4060,23 @@ void wandExtraSoundsBeepLoop() {
   if(b_overheating != true) {
     switch(i_wand_power_level) {
       case 1:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S1, true, i_volume_effects - i_wand_sound_level);
       break;
 
       case 2:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S2, true, i_volume_effects - i_wand_sound_level);
       break;
 
       case 3:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S3, true, i_volume_effects - i_wand_sound_level);
       break;
 
       case 4:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S4, true, i_volume_effects - i_wand_sound_level);
       break;
 
       case 5:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S5, true, i_volume_effects - i_wand_sound_level);
       break;
     }
   }
