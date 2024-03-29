@@ -3184,7 +3184,7 @@ void modeFiring() {
           fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
         break;
       }
-      /*    
+      /*
       if(b_firing_cross_streams == true) {
         if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
           fireStreamStart(getHueColour(C_RED, WAND_BARREL_LED_COUNT));

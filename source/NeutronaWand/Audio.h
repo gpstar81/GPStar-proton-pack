@@ -410,8 +410,6 @@ void decreaseVolumeEffects() {
 }
 
 void updateMusicVolume() {
-  float f_gpstar_track_volume = 0;
-
   if(i_music_count > 0) {
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:

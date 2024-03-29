@@ -3615,7 +3615,7 @@ void wandStopFiringSounds() {
 
       stopEffect(S_CROSS_STREAMS_START);
       stopEffect(S_CROSS_STREAMS_END);
-      
+
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
       }
@@ -3882,7 +3882,7 @@ void readEncoder() {
   i_val_rotary = i_encoder_pos / 2.5;
 
   Serial.println("pos --> ");
-  Serial.print(i_encoder_pos);  
+  Serial.print(i_encoder_pos);
   Serial.print(" | val --> ");
   Serial.print(i_val_rotary);
 }
