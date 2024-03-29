@@ -39,6 +39,6 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 
 | Label | Pins | Notes |
 |-------|------|-------|
-| ST-LINK | GND/3.3V/SWCLK/SWDIO | ****Not Labelled**** These 4 pins grouped together can be connected to a ST-LINK for debugging or as a altenative way to flash updated firmware. |
+| ST-LINK | GND/3.3V/SWCLK/SWDIO | ****Not Labelled**** These 4 pins grouped together can be connected to a ST-LINK for debugging or as a alternative way to flash updated firmware. |
 | TX2/RX2 | TX2/RX2 | Alternative serial communication port used for debugging. |
 | TEST |  | A button located on the lower right corner of the board. Currently unused. |
