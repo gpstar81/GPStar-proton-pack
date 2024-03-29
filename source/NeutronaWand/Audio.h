@@ -48,8 +48,8 @@ const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible
 bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
-uint8_t i_wand_sound_level = 10; // 10 for Wav Trigger. 30 for GPStar Audio.
-uint8_t i_gpstar_audio_volume_factor = 10; // Main volume gain factor for the GPStar Audio.
+uint8_t i_wand_sound_level = 0; // 1 for Wav Trigger.
+uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume. For GPStar Audio we increase this.
 
 /*
  * Music Control/Checking
@@ -141,6 +141,33 @@ void stopEffect(int i_track_id) {
   }
 }
 
+// Adjust the gain of a single track.
+void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsigned int i_fade_time) {
+  if(i_track_volume < i_volume_abs_min) {
+    i_track_volume = i_volume_abs_min;
+  }
+
+  if(i_track_volume > i_volume_abs_max) {
+    i_track_volume = i_volume_abs_max;
+  }
+
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+    case A_GPSTAR_AUDIO:
+      if(b_fade == true) {
+        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+      }
+      else {
+        audio.trackGain(i_track_id, i_track_volume);
+      }
+    break;
+
+    case A_NONE:
+    default:
+      // No audio device connected.
+    break;
+  }
+}
 
 void updateEffectsVolume() {
   switch(AUDIO_DEVICE) {
@@ -166,14 +193,14 @@ void updateEffectsVolume() {
       audio.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
 
       // Special volume in use.
-      audio.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - 1);
-      audio.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - 1);
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - 1);
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - 1);
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - 1);
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - 1);
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - 1);
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - 1);
+      audio.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - i_wand_sound_level);
+      audio.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - i_wand_sound_level);
+      audio.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - i_wand_sound_level);
+      audio.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - i_wand_sound_level);
+      audio.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - i_wand_sound_level);
+      audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - i_wand_sound_level);
+      audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - i_wand_sound_level);
+      audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - i_wand_sound_level);
     break;
 
     case A_NONE:
@@ -238,7 +265,6 @@ void stopMusic() {
 
   b_music_paused = false;
   b_playing_music = false;
-
 }
 
 void pauseMusic() {
@@ -372,7 +398,7 @@ void decreaseVolumeEffects() {
 
     // Provide feedback at minimum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_sound_level);
+    playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
   else {
     i_volume_effects_percentage = i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER;
@@ -426,11 +452,8 @@ void increaseVolumeEEPROM() {
 
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
-      audio.masterGain(i_volume_master_eeprom);
-    break;
-
     case A_GPSTAR_AUDIO:
-      audio.masterGain(i_volume_master_eeprom + i_gpstar_audio_volume_factor);
+      audio.masterGain(i_volume_master_eeprom);
     break;
 
     case A_NONE:
@@ -459,11 +482,8 @@ void decreaseVolumeEEPROM() {
 
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
-        audio.masterGain(i_volume_master_eeprom);
-      break;
-
       case A_GPSTAR_AUDIO:
-        audio.masterGain(i_volume_master_eeprom + i_gpstar_audio_volume_factor);
+        audio.masterGain(i_volume_master_eeprom);
       break;
 
       case A_NONE:
@@ -486,7 +506,7 @@ void increaseVolume() {
   }
 
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = 100;
+    i_volume_master_percentage = i_volume_master_percentage_max;
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -503,11 +523,8 @@ void increaseVolume() {
 
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
-      audio.masterGain(i_volume_master);
-    break;
-
     case A_GPSTAR_AUDIO:
-      audio.masterGain(i_volume_master + i_gpstar_audio_volume_factor);
+      audio.masterGain(i_volume_master);
     break;
 
     case A_NONE:
@@ -534,11 +551,8 @@ void decreaseVolume() {
 
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
-        audio.masterGain(i_volume_master);
-      break;
-
       case A_GPSTAR_AUDIO:
-        audio.masterGain(i_volume_master + i_gpstar_audio_volume_factor);
+        audio.masterGain(i_volume_master);
       break;
 
       case A_NONE:
@@ -728,6 +742,7 @@ bool setupAudioDevice() {
     buildMusicCount((uint16_t) audio.getNumTracks());
 
     AUDIO_DEVICE = A_WAV_TRIGGER;
+    i_wand_sound_level = 1; // This gets subtracted from certain sounds volume level.
 
     debugln(F("Using WavTrigger"));
 
@@ -741,7 +756,8 @@ bool setupAudioDevice() {
   if(audio.gpstarAudioHello()) {
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
 
-    i_wand_sound_level = 30;
+    i_wand_sound_level = 0; // Special setting to adjust certain wand sounds, usually lower.
+    i_volume_master_percentage_max = 150; // Increase the overall max gain the GPStar Audio can amplify.
 
     debugln(F("Using GPStar Audio"));
 
@@ -762,11 +778,8 @@ bool setupAudioDevice() {
 void resetMasterVolume() {
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
-      audio.masterGain(i_volume_master);
-    break;
-
     case A_GPSTAR_AUDIO:
-      audio.masterGain(i_volume_master + i_gpstar_audio_volume_factor);
+      audio.masterGain(i_volume_master);
     break;
 
     case A_NONE:

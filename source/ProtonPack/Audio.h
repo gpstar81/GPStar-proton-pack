@@ -51,6 +51,7 @@ bool b_repeat_track = false;
 uint8_t i_wand_sound_level = 10; // 10 for Wav Trigger. 30 for GPStar Audio.
 uint8_t i_gpstar_audio_volume_factor = 0; // Main volume gain factor for the GPStar Audio. This is applied to certain sound effects only.
 uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume. For GPStar Audio we increase this.
+
 /*
  * Music Control/Checking
  */
