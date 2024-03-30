@@ -801,7 +801,7 @@ bool setupAudioDevice() {
   if(audio.gpstarAudioHello()) {
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
 
-    i_wand_sound_level = 60; // Special setting to adjust certain wand sounds on the pack side as they can be too loud.
+    i_wand_sound_level = 40; // Special setting to adjust certain wand sounds on the pack side as they can be too loud.
     i_gpstar_audio_volume_factor = 0; // Special setting to amplify certain pack sounds.
     i_volume_master_percentage_max = 150; // Increase the overall max gain the GPStar Audio can amplify.
 

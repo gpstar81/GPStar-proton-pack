@@ -77,7 +77,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
         case PROTON:
           switch(i_device) {
             case POWERCELL:
-              return C_BLUE;
+              return C_MID_BLUE;
             break;
 
             case CYCLOTRON_OUTER:
@@ -199,14 +199,14 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
         break;
 
         default:
-          return C_BLUE;
+          return C_MID_BLUE;
         break;
       }
   }
   else {
     switch(i_device) {
       case POWERCELL:
-        return C_BLUE;
+        return C_MID_BLUE;
       break;
 
       case CYCLOTRON_OUTER:
