@@ -1,7 +1,6 @@
 ## <img src='images/gpstar_logo.png' width=50 align="left"/>GPStar Audio - Connection Details
 
-GPStar Audio is a polyphonic audio player capable of playing and mixing together up to 14 audio tracks together at the same time to create a rich and fluid experience. 
-Support for GPStar Audio was introduced in Proton Pack and Neutrona Wand firmware versions V5.0.0
+GPStar Audio is a polyphonic audio player capable of playing and mixing together multiple audio tracks at the same time to create a smooth, rich and fluid audio experience. Support for GPStar Audio was introduced in GPStar Proton Pack and Neutrona Wand firmware versions V5.0.0
  
 ![](images/GPStarAudioPCB.png)
 
@@ -24,7 +23,7 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 
 | Label | Notes |
 |-------|-------|
-| BOOT/LOAD | A slide switch button located next to the JST-XH 6 pin UART connector. When set to BOOT, the system will operate, however when set to LOAD, then the system enters a programming mode and allows you to flash updated firmware over the UART connection. Make sure it is set to BOOT when using you board.|
+| BOOT/LOAD | A slide switch button located next to the JST-XH 6 pin UART connector. When set to BOOT, the system will operate, however when set to LOAD, then the system enters a programming mode and allows you to flash updated firmware over the UART connection. Make sure it is set to BOOT afterwards for it to operate. |
 | SPKR-R | Right Speaker output from the on-board stereo amplifier. Capable of powering either a 4Ω 2.5W or 8Ω 1.25W speaker at 5V. ****See Below**** <br><br>`Connector type: 2pin Terminal Block` |
 | SPKR-L | Left Speaker output from the on-board stereo amplifier. Capable of powering either a 4Ω 2.5W or 8Ω 1.25W speaker at 5V. ****See Below**** <br><br>`Connector type: 2pin Terminal Block` |
 | AUX | ****Not labelled**** The on-board stereo auxiliary headphone jack outputs stereo sound and can be fed to any type of amplifier or audio device with a 3.5mm auxiliary input port. When a cable is inserted, the system will turn off the on-board stereo amplifier and output sound from this port instead. 
