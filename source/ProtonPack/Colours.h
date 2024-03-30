@@ -41,6 +41,7 @@ enum colours {
   C_GREEN,
   C_MINT,
   C_AQUA,
+  C_MID_BLUE,
   C_LIGHT_BLUE,
   C_BLUE,
   C_PURPLE,
@@ -340,8 +341,12 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       return CHSV(145, i_saturation, i_brightness);
     break;
 
-    case C_BLUE:
+    case C_MID_BLUE:
       return CHSV(160, i_saturation, i_brightness);
+    break;
+
+    case C_BLUE:
+      return CHSV(180, i_saturation, i_brightness);
     break;
 
     case C_PURPLE:

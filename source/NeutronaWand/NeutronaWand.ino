@@ -3171,17 +3171,17 @@ void modeFiring() {
 
         case 3:
           fireStreamStart(getHueColour(C_RED3, WAND_BARREL_LED_COUNT));
-          fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT));
         break;
 
         case 4:
           fireStreamStart(getHueColour(C_RED4, WAND_BARREL_LED_COUNT));
-          fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT));
         break;
 
         case 5:
           fireStreamStart(getHueColour(C_RED5, WAND_BARREL_LED_COUNT));
-          fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
         break;
       }
       /*
