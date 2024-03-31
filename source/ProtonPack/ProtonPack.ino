@@ -690,8 +690,14 @@ void packStartup() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects + i_gpstar_audio_volume_factor);
-        playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 18000);
+        playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects);
+        playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
+
+        // Cyclotron lid is off, play the Frozen Empire sound effect.
+        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && switch_cyclotron_lid.getState() == HIGH) {
+          playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
+        }
+
         ms_idle_fire_fade.start(18000);
       break;
     }
@@ -766,6 +772,10 @@ void packShutdown() {
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE);
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
     stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+    }
   }
 
   if(b_alarm != true) {
@@ -3279,10 +3289,10 @@ void modeFireStartSounds() {
   // Adjust the gain with the Afterlife idling sound effect while firing.
   if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
     if(ms_idle_fire_fade.remaining() < 3000) {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects + i_gpstar_audio_volume_factor - 2, true, 100);
+      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, 100);
     }
     else {
-      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects + i_gpstar_audio_volume_factor - 2, true, ms_idle_fire_fade.remaining());
+      adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
     }
   }
 
@@ -3309,6 +3319,10 @@ void modeFireStartSounds() {
       }
       else {
         playEffect(S_FIRE_START);
+      }
+
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+        playEffect(S_FROZEN_EMPIRE_FIRE_START);
       }
 
       switch(i_wand_power_level) {
@@ -3473,10 +3487,10 @@ void modeFireStopSounds() {
     // Adjust the gain with the Afterlife idling track.
     if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
       if(ms_idle_fire_fade.remaining() < 1000) {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects + i_gpstar_audio_volume_factor, true, 30);
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
       }
       else {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects + i_gpstar_audio_volume_factor, true, ms_idle_fire_fade.remaining());
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
       }
     }
 
@@ -3576,6 +3590,10 @@ void wandStopFiringSounds() {
 
       if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         stopEffect(S_AFTERLIFE_FIRE_START);
+
+        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          stopEffect(S_FROZEN_EMPIRE_FIRE_START);
+        }
       }
 
       stopEffect(S_FIRING_LOOP_GB1);
@@ -3662,6 +3680,10 @@ void packAlarm() {
   else {
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
     stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+    }
   }
 
   playEffect(S_SHUTDOWN);
@@ -3732,6 +3754,11 @@ void cyclotronSwitchPlateLEDs() {
     // Play some spark sounds if the pack is running and the lid is removed.
     if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
+      
+      // Cyclotron lid is off, play the Frozen Empire sound effect.
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+        playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
+      }
     }
   }
 
@@ -3747,6 +3774,10 @@ void cyclotronSwitchPlateLEDs() {
     // Play some spark sounds if the pack is running and the lid is put back on.
     if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
+
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+        stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+      }      
     }
   }
 

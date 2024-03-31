@@ -202,8 +202,12 @@ void updateEffectsVolume() {
       audio.trackGain(S_PACK_SHUTDOWN_AFTERLIFE, i_volume_effects);
       audio.trackGain(S_IDLE_LOOP, i_volume_effects);
       audio.trackGain(S_BOOTUP, i_volume_effects);
-      audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects + i_gpstar_audio_volume_factor);
-      audio.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects + i_gpstar_audio_volume_factor);
+      audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
+      audio.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
+
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+        audio.trackGain(S_FROZEN_EMPIRE_BOOT_EFFECT, i_volume_effects + i_gpstar_audio_volume_factor);
+      }
 
       audio.trackGain(S_PACK_SLIME_TANK_LOOP, i_volume_effects);
 
@@ -802,7 +806,7 @@ bool setupAudioDevice() {
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
 
     i_wand_sound_level = 40; // Special setting to adjust certain wand sounds on the pack side as they can be too loud.
-    i_gpstar_audio_volume_factor = 0; // Special setting to amplify certain pack sounds.
+    i_gpstar_audio_volume_factor = 30; // Special setting to amplify certain pack sounds.
     i_volume_master_percentage_max = 150; // Increase the overall max gain the GPStar Audio can amplify.
 
     debugln(F("Using GPStar Audio"));
