@@ -194,6 +194,7 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
 #endif
 bool b_left_toggle_on = false;
 bool b_right_toggle_on = false;
+bool b_right_toggle_center_start = false;
 
 /*
  * Debounce Settings
@@ -220,6 +221,7 @@ millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not ov
 millisDelay ms_center_double_tap; // Timer for determinine when a double-tap was detected.
 millisDelay ms_center_long_press; // Timer for determining when a long press was detected.
 bool b_center_pressed = false;
+bool b_center_lockout = false;
 const uint16_t i_center_double_tap_delay = 300; // When to consider the center dial has a "double tap".
 const uint16_t i_center_long_press_delay = 600; // When to consider the center dial has a "long" press.
 uint8_t i_press_count = 0;

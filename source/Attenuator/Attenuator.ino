@@ -247,7 +247,9 @@ void mainLoop() {
   bool b_notify = checkPack();
   switchLoops();
   checkRotaryPress();
-  checkRotaryEncoder();
+  if(!b_center_lockout) {
+    checkRotaryEncoder();
+  }
 
   /*
    * Left Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
@@ -582,7 +584,10 @@ void checkRotaryPress() {
     // Start all timers when the rotary dial is pressed.
     ms_center_double_tap.start(i_center_double_tap_delay);
     ms_center_long_press.start(i_center_long_press_delay);
-    b_center_pressed = true;
+    b_center_pressed = true; // Denote the dial center button was pressed.
+
+    // Track what state the right toggle was in at the start of the center press.
+    b_right_toggle_center_start = b_right_toggle_on;
   }
 
   if(b_center_pressed) {
@@ -606,11 +611,22 @@ void checkRotaryPress() {
       ms_center_long_press.stop();
     }
     else if(ms_center_long_press.remaining() < 1) {
-      // Consider a long-press event if the timer is run out before released.
-      CENTER_STATE = LONG_PRESS;
-      b_center_pressed = false;
-      i_press_count = 0;
+      if(b_right_toggle_center_start != b_right_toggle_on) {
+        // A state change occurred for the right toggle, which we interpret as a lock-out toggle.
+        b_center_lockout = !b_center_lockout;
+      }
+      else {
+        // Consider a long-press event if the timer is run out before released.
+        CENTER_STATE = LONG_PRESS;
+        b_center_pressed = false;
+        i_press_count = 0;
+      }
     }
+  }
+
+  // If in a lockout state, don't proceed with any changes.
+  if(b_center_lockout) {
+    return;
   }
 
   switch(CENTER_STATE) {
