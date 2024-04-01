@@ -141,7 +141,7 @@ struct __attribute__((packed)) SmokePrefs {
   uint8_t overheatDelay1;
 } smokeConfig;
 
-struct __attribute__((packed)) syncPacket {
+struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
   uint8_t systemYear;
