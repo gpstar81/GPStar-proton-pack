@@ -1,18 +1,17 @@
 ## Loading The Audio Files
 
-This repository (for somewhat obvious reasons) does not provide music tracks for your project other than a single track which was graciously approved by the independent artist for inclusion. You will need to prepare any music tracks for use by exporting MP3 or AAC audio files as 44.1kHz 16-bit WAV files. This can be done easily using a program such as [Audacity](https://www.audacityteam.org/) to open the music file and export to WAV format. See the instructions below for how to name your files for loading onto the SD cards used by the WAV Trigger boards.
+This repository (for somewhat obvious reasons) does not provide music tracks for your project other than a single track which was graciously approved by the independent artist for inclusion. You will need to prepare any music tracks for use by exporting MP3 or AAC audio files as 44.1kHz 16-bit WAV files. This can be done easily using a program such as [Audacity](https://www.audacityteam.org/) to open the music file and export to WAV format. See the instructions below for how to name your files for loading onto the SD cards.
 
 ## Format your SD Card to FAT32
 `Please consider high quality SD Cards. We recommend Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.`
 
-Your SD cards **MUST** be formatted as FAT32 using 32KB block size per the WAV Trigger manual. Use a full formatting option for the SD cards not a quick formatting for best results.
+Your SD cards **MUST** be formatted as FAT32 using 32KB block size. Use a full formatting option for the SD cards not a quick formatting for best results.
 
 ## SD Cards with capacities larger than 32GB in FAT32.
 
 ### MAC and Linux
 Mac and Linux users can format SD Cards larger than 32GB as FAT32 normally with their standard disk utility software.
 ![Mac and Linux Formatting](images/macfat32.jpg)
-
 
 ### WINDOWS
 SD Cards with capacities of **32GB OR LESS** can be formatted normally in the Windows Explorer.
@@ -47,10 +46,26 @@ To add more music, copy stereo wav tracks (16-bit 44khz stereo wav files) onto t
 ![audio example](images/audioexample.jpg)
 
 ## Troubleshooting
+Depending on which audio board you are using in your system, following the troubleshooting guides below.
 
+---
+
+
+### <img src='images/gpstar_logo.png' width=35 align="left"/>GPStar Audio Trouble Shooting
+1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals.
+
+2. If there’s no activity on the status LED whatsoever when you power up GPStar Audio, check the “BOOT/LOAD” switch next to the 6 pin jst-xh connector is in the “BOOT” position.
+
+3. Low quality SD Cards sometimes provide issues such as sounds not playing. Please consider using high quality SD Cards. We recommend the Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.
+
+4. If you’ve gotten this far and tracks won’t play, then it’s most likely that your WAV files are not the correct format. GPStar Audio will only play WAV files formatted as 16-bit, stereo, 44.1kHz, and there can be no meta-data (non-audio data) in the file before the audio data. It seems that many Mac audio applications insert a meta-data chunk prior to the audio, and this will prevent the track from playing. In such cases, simply importing the file and re-exporting with Audacity will likely fix the problem.
+
+5. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
+
+---
+
+### Wav Trigger Trouble Shooting
 [Manual for the WAV Trigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/WT_UserGuide_20230602.pdf)
-
-If you have problems, here are a few things to check:
 
 1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on the WAV Trigger, it will locate and index the files and then blink 3 times to indicate that it found at least one WAV file. One long blink means that it either couldn’t read the card or it didn’t find any WAV files.
 

@@ -64,7 +64,7 @@ void setup() {
   wandComs.begin(Serial1, false);
 
   // Setup the audio device for this controller.
-  selectAudioDevice();
+  setupAudioDevice();
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
@@ -182,7 +182,6 @@ void setup() {
 
   // Initialize the timer for initial handshake.
   ms_packsync.start(1);
-  ms_handshake.stop();
 
   if(b_gpstar_benchtest == true) {
     WAND_CONN_STATE = NC_BENCHTEST;
@@ -219,6 +218,7 @@ void loop() {
     break;
 
     case SYNCHRONIZING:
+      // Currently unused
       checkPack(); // Keep checking for responses from the pack while synchronizing.
     break;
 
@@ -314,7 +314,7 @@ void mainLoop() {
           }
         }
 
-        if(switch_mode.isReleased() || b_pack_alarm == true) {
+        if(switch_mode.isPressed() || b_pack_alarm == true) {
           if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
             playEffect(S_CLICK);
 
@@ -626,7 +626,17 @@ void wandTipOn() {
   switch(WAND_BARREL_LED_COUNT) {
     case LEDS_48:
       // Set the tip of the Frutto LED array to white.
-      barrel_leds[12] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+        if(b_firing_cross_streams == true) {
+          barrel_leds[12] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
+        }
+        else {
+          barrel_leds[12] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+        }
+      }
+      else {
+        barrel_leds[12] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+      }
     break;
 
     case LEDS_5:
@@ -1681,7 +1691,7 @@ void fireControlCheck() {
 void altWingButtonCheck() {
   // This is for when the Wand Barrel Switch is enabled for video game mode. b_cross_the_streams must not be enabled.
   if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_cross_the_streams_mix != true && b_pack_alarm != true) {
-    if(switch_mode.isReleased()) {
+    if(switch_mode.isPressed()) {
       // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
       if(i_wand_menu == 5) {
         // Cycle through the firing modes and setting menu.
@@ -2608,6 +2618,7 @@ void modeFireStopSounds() {
   b_sound_firing_cross_the_streams_mix = false;
 
   ms_firing_stop_sound_delay.stop();
+  ms_meson_blast.stop();
 
  switch(FIRING_MODE) {
     case PROTON:
@@ -3160,19 +3171,61 @@ void modeFiring() {
 
         case 3:
           fireStreamStart(getHueColour(C_RED3, WAND_BARREL_LED_COUNT));
-          fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT));
         break;
 
         case 4:
           fireStreamStart(getHueColour(C_RED4, WAND_BARREL_LED_COUNT));
-          fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT));
         break;
 
         case 5:
           fireStreamStart(getHueColour(C_RED5, WAND_BARREL_LED_COUNT));
-          fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
         break;
       }
+      /*
+      if(b_firing_cross_streams == true) {
+        if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+          fireStreamStart(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
+        }
+        else {
+          fireStreamStart(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
+        }
+      }
+      else {
+        // Shift the stream from red to orange on higher power modes.
+        switch(i_power_mode) {
+          case 1:
+          default:
+            fireStreamStart(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
+            fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
+          break;
+
+          case 2:
+            fireStreamStart(getHueColour(C_RED2, WAND_BARREL_LED_COUNT));
+            fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
+          break;
+
+          case 3:
+            fireStreamStart(getHueColour(C_RED3, WAND_BARREL_LED_COUNT));
+            fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+          break;
+
+          case 4:
+            fireStreamStart(getHueColour(C_RED4, WAND_BARREL_LED_COUNT));
+            fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+          break;
+
+          case 5:
+            fireStreamStart(getHueColour(C_RED5, WAND_BARREL_LED_COUNT));
+            fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+          break;
+        }
+      }
+      */
     break;
 
     case SLIME:
@@ -3450,9 +3503,13 @@ void fireStreamEffect(CRGB c_colour) {
             case PROTON:
             default:
               if(b_firing_cross_streams == true) {
-                barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-                if(i_barrel_light - 2 >= 0 && i_barrel_light - 2 < i_num_barrel_leds) {
-                  barrel_leds[frutto_barrel[i_barrel_light - 2]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
+                  barrel_leds[frutto_barrel[i_barrel_light - 2]] = c_colour;
+                }
+                else {
+                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+                  barrel_leds[frutto_barrel[i_barrel_light - 2]] = c_colour;
                 }
               }
               else {
@@ -3550,9 +3607,6 @@ void fireStreamEffect(CRGB c_colour) {
         }
         else if(i_barrel_light < i_num_barrel_leds) {
           barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
-          // if(i_barrel_light + 1 >= 0 && i_barrel_light + 1 < i_num_barrel_leds) {
-          //   barrel_leds[frutto_barrel[i_barrel_light + 1]] = c_colour;
-          // }
 
           switch(FIRING_MODE) {
             default:
@@ -3599,7 +3653,12 @@ void fireStreamEffect(CRGB c_colour) {
             case PROTON:
             default:
               if(b_firing_cross_streams == true) {
-                barrel_leds[i_barrel_light - 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+                  barrel_leds[i_barrel_light - 1] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
+                }
+                else {
+                  barrel_leds[i_barrel_light - 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+                }
               }
               else {
                 // Shift the stream from red to orange on higher power modes.
@@ -5907,11 +5966,11 @@ void bargraphRampUp() {
 
   if(b_28segment_bargraph == true) {
     /*
-      5: full: 23 - 27	(5 segments)
-      4: 3/4: 17 - 22	(6 segments)
-      3: 1/2: 12 - 16	(5 segments)
-      2: 1/4: 5 - 11	(7 segments)
-      1: none: 0 - 4	(5 segments)
+      5: full: 23 - 27 (5 segments)
+      4: 3/4: 17 - 22  (6 segments)
+      3: 1/2: 12 - 16  (5 segments)
+      2: 1/4: 5 - 11   (7 segments)
+      1: none: 0 - 4   (5 segments)
     */
 
     switch(i_bargraph_status_alt) {

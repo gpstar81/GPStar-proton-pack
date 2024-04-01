@@ -398,9 +398,8 @@ millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound wit
  */
 #define encoder_pin_a 2
 #define encoder_pin_b 3
-int i_encoder_pos = 0;
-int i_val_rotary;
-int i_last_val_rotary;
+static uint8_t prev_next_code = 0;
+static uint16_t store = 0;
 
 /*
  * LED Dimming / Brightness Control.

@@ -37,10 +37,12 @@ enum colours {
   C_RED5,
   C_ORANGE,
   C_YELLOW,
+  C_CHARTREUSE,
   C_GREEN,
   C_MINT,
   C_AQUA,
   C_LIGHT_BLUE,
+  C_MID_BLUE,
   C_BLUE,
   C_PURPLE,
   C_REDGREEN,
@@ -120,6 +122,10 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       return CHSV(64, i_saturation, i_brightness);
     break;
 
+    case C_CHARTREUSE:
+      return CHSV(80, i_saturation, i_brightness);
+    break;
+
     case C_GREEN:
       return CHSV(96, i_saturation, i_brightness);
     break;
@@ -136,8 +142,12 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       return CHSV(145, i_saturation, i_brightness);
     break;
 
-    case C_BLUE:
+    case C_MID_BLUE:
       return CHSV(160, i_saturation, i_brightness);
+    break;
+
+    case C_BLUE:
+      return CHSV(180, i_saturation, i_brightness);
     break;
 
     case C_PURPLE:
@@ -245,10 +255,10 @@ CRGB getHueColour(uint8_t i_colour, WAND_BARREL_LED_COUNTS NUM_LEDS_ENUM, uint8_
       return getHueAsRGB(i_colour, i_brightness);
     break;
 
-    case LEDS_5:
+    //case LEDS_5:
     default:
       // Stock LEDs are GRB
-      return getHueAsRGB(i_colour, i_brightness, true);
+      return getHueAsGRB(i_colour, i_brightness);
     break;
   }
 }

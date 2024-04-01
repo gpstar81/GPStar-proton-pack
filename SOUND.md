@@ -6,13 +6,23 @@ Sound is a huge component of this build and the options are relatively open for 
 
 ## Wand Audio
 
-Let's begin with the most restrictive of spaces, the wand. Due to the additional components and wiring to be added, there is little room for options but replacements can be made. The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--essentially more of a tweeter than a full-range speaker. By default, the WAV Trigger to be used in the wand will enable its on-board mono amplifier which is rated for 2W @ 4Ω or 1W @ 8Ω, so it is advised that if you would like better sound you will want a better speaker. Otherwise, you can still use the original Hasbro wand speaker successfully with the on-board amplifier.
+Let's begin with the most restrictive of spaces, the wand. Due to the additional components and wiring to be added, there is little room for options but replacements can be made. The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--essentially more of a tweeter than a full-range speaker, so it is advised that if you would like better sound you will want a better speaker. Otherwise, you can still use the original Hasbro wand speaker. Below are the listed specifications of the on-board amplifiers depending on which audio board you are using.
 
-There has been success in using [this 40mm speaker](https://a.co/d/93sbe2V) rated for 3W @ 4Ω. While this does not fit in the standard speaker location under the heatsink (its size interferes with the retraction of the wand) it can be mounted within the base of the gun box and offers just enough sound to be heard (indoors at least) and can double as a rumble motor due to being able to reproduce the low-end sounds which the stock speaker cannot. YMMV with any other choice of speaker, though there are many options for 40mm speakers on Amazon and Adafruit.
+---
 
-A potential example of how the WAV Trigger and an upgraded 40mm speaker might be installed into the gun box is shown below. Note that in order to fit these components as shown the barrel connector for power was CAREFULLY removed (as it will not be used), and the screw posts for the wand mount were filed down to ensure they do not interfere with fitment behind the WAV Trigger once mounted on the gun box.
+####<img src='images/gpstar_logo.png' width=30 align="left"/> GPStar Audio on-board amplifier (stereo or mono output)###
+Rated for 2.5W @ 4Ω or 1.5W @ 8Ω per channel. 
 
-Other users in the community have reported satisfactory results with the Visaton speakers available through DigiKey which are both of identical specs (300 Hz to 20 kHz) and closer in size to the stock speaker:
+####WAV Trigger on-board amplifier (mono output only)###
+Rated for 2W @ 4Ω or 1W @ 8Ω.
+
+---
+
+There has been success in using [this 40mm speaker](https://a.co/d/93sbe2V) rated for 3W @ 4Ω. While this does not fit in the standard speaker location under the heatsink (its size interferes with the retraction of the wand) it can be mounted within the base of the gun box and offers just enough sound to be heard (indoors at least) and can double as a rumble motor due to being able to reproduce the low-end sounds which the stock speaker cannot. This larger speaker can also be fitted into a optional Heatsink located in the STL folder of this repository.
+
+A potential example of how the upgraded 40mm speaker might be installed into the gun box is shown below in a DIY build. Note that in order to fit these components as shown the barrel connector for power was CAREFULLY removed (as it will not be used), and the screw posts for the wand mount were filed down to ensure they do not interfere with fitment.
+
+Other users in the community have reported satisfactory results with the Visaton speakers available through DigiKey which are both of identical specs (300 Hz to 20 kHz) and closer in size to the stock speaker. The Visaton speaker fits in the standard heatsink with little modifications or it can fit in a alternative heatsink which is provided in the STL folder of this repository:
 
 * [K-36-WP 8ohm](https://www.digikey.com/en/products/detail/visaton-gmbh-co-kg/K-36-WP-8-OHM/9842373)
 * [K-36-MO 8ohm](https://www.digikey.com/en/products/detail/visaton-gmbh-co-kg/K-36-MO-8-OHM/9842375)

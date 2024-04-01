@@ -56,14 +56,11 @@ void setup() {
   packComs.begin(Serial2, false); // Neutrona Wand
 
   // Setup the audio device for this controller.
-  selectAudioDevice();
+  setupAudioDevice();
 
   // Rotary encoder for volume control.
-  // Uses an ISR (interrupt service routine) to know when the rotary encoder
-  // has been turned, and compares pin readings to get a +/- value changed.
   pinMode(encoder_pin_a, INPUT_PULLUP);
   pinMode(encoder_pin_b, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(encoder_pin_a), readEncoder, CHANGE);
 
   // Configure the various switches on the pack.
   switch_alarm.setDebounceTime(50);
@@ -140,7 +137,6 @@ void setup() {
   ms_cyclotron.start(i_current_ramp_speed);
   ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
-  ms_wand_check.start(i_wand_disconnect_delay);
   ms_serial1_handshake.start(i_serial1_handshake_delay);
   ms_fast_led.start(i_fast_led_delay);
   ms_battcheck.start(500);
@@ -409,39 +405,44 @@ void loop() {
           }
 
           unsigned int i_s_random = random(2,4) * 1000;
+          uint8_t i_amplify_tmp = 5;
+
+          if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+            i_amplify_tmp = 30;
+          }
 
           switch (i_random) {
             case 3:
-              playEffect(S_FIRE_SPARKS, false, i_volume_effects + 5);
+              playEffect(S_FIRE_SPARKS, false, i_volume_effects + i_amplify_tmp);
               i_last_firing_effect_mix = S_FIRE_SPARKS;
 
               ms_firing_sound_mix.start(i_s_random * 10);
             break;
 
             case 2:
-              playEffect(S_FIRE_SPARKS_4, false, i_volume_effects + 5);
+              playEffect(S_FIRE_SPARKS_4, false, i_volume_effects + i_amplify_tmp);
               i_last_firing_effect_mix = S_FIRE_SPARKS_4;
 
               ms_firing_sound_mix.start(i_s_random);
             break;
 
             case 1:
-              playEffect(S_FIRE_SPARKS_3, false, i_volume_effects + 5);
+              playEffect(S_FIRE_SPARKS_3, false, i_volume_effects + i_amplify_tmp);
               i_last_firing_effect_mix = S_FIRE_SPARKS_3;
 
               ms_firing_sound_mix.start(i_s_random);
             break;
 
             case 0:
-              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects + 5);
-              playEffect(S_FIRE_SPARKS_5, false, i_volume_effects + 5);
+              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects + i_amplify_tmp);
+              playEffect(S_FIRE_SPARKS_5, false, i_volume_effects + i_amplify_tmp);
               i_last_firing_effect_mix = S_FIRE_SPARKS_5;
 
               ms_firing_sound_mix.start(1800);
             break;
 
             default:
-              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects + 5);
+              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects + i_amplify_tmp);
               i_last_firing_effect_mix = S_FIRE_SPARKS_2;
 
               ms_firing_sound_mix.start(500);
@@ -659,7 +660,7 @@ void packStartup() {
 
     packAlarm();
 
-    // Tell the wand the pack alarm is off.
+    // Tell the wand the pack alarm is on.
     packSerialSend(P_ALARM_ON);
     serial1Send(A_ALARM_ON);
   }
@@ -691,6 +692,12 @@ void packStartup() {
       default:
         playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects);
         playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
+
+        // Cyclotron lid is off, play the Frozen Empire sound effect.
+        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && switch_cyclotron_lid.getState() == HIGH) {
+          playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
+        }
+
         ms_idle_fire_fade.start(18000);
       break;
     }
@@ -765,6 +772,10 @@ void packShutdown() {
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE);
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
     stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+    }
   }
 
   if(b_alarm != true) {
@@ -2966,16 +2977,23 @@ void innerCyclotronCavityUpdate(int cDelay) {
     i_led_cyclotron_cavity = i_start;
   }
 
-  if(i_led_cyclotron_cavity < i_midpoint) {
-    i_colour_scheme = C_YELLOW; // Always keep the lower half of LEDs yellow.
+  if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE || FIRING_MODE != PROTON){
+    // This produces the "sparking" effect as seen in GB:FE only for the Proton stream,
+    // so the effect is essentially disabled for all other themes and firing modes.
+    i_colour_scheme = C_BLACK;
   }
   else {
-    // Light spiraling higher than the lower half will have variable colors.
-    i_colour_scheme = getDeviceColour(CYCLOTRON_CAVITY, FIRING_MODE, false);
+    if(i_led_cyclotron_cavity < i_midpoint) {
+      i_colour_scheme = C_YELLOW; // Always keep the lower half of LEDs yellow.
+    }
+    else {
+      // Light spiraling higher than the lower half will have variable colors.
+      i_colour_scheme = getDeviceColour(CYCLOTRON_CAVITY, FIRING_MODE, false);
+    }
   }
 
   if(b_clockwise == true) {
-    if(cDelay < 30 && b_cyclotron_lid_on != true) {
+    if(cDelay < 40 && b_cyclotron_lid_on != true) {
       if(b_gbr_cyclotron_cavity == true) {
         cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGBR(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
       }
@@ -3107,6 +3125,13 @@ void innerCyclotronRingUpdate(int cDelay) {
     uint8_t i_start = 0; // Starting point for this LED device.
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, FIRING_MODE, b_cyclotron_colour_toggle);
+
+    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && FIRING_MODE == PROTON){
+      // As a "sparking" effect is predominant in GB:FE during the Proton stream,
+      // the inner LED color/brightness is altered for this mode.
+      i_brightness = getBrightness(i_cyclotron_inner_brightness / 2);
+      i_colour_scheme = C_ORANGE;
+    }
 
     if(b_clockwise == true) {
       if(b_cyclotron_lid_on != true) {
@@ -3294,6 +3319,10 @@ void modeFireStartSounds() {
       }
       else {
         playEffect(S_FIRE_START);
+      }
+
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+        playEffect(S_FROZEN_EMPIRE_FIRE_START);
       }
 
       switch(i_wand_power_level) {
@@ -3540,6 +3569,9 @@ void wandStoppedFiring() {
   ms_firing_length_timer.stop();
   ms_smoke_timer.stop();
   ms_smoke_on.stop();
+
+  // Stop overheat beeps.
+  stopEffect(S_BEEP_8);
 }
 
 void wandStopFiringSounds() {
@@ -3558,6 +3590,10 @@ void wandStopFiringSounds() {
 
       if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         stopEffect(S_AFTERLIFE_FIRE_START);
+
+        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          stopEffect(S_FROZEN_EMPIRE_FIRE_START);
+        }
       }
 
       stopEffect(S_FIRING_LOOP_GB1);
@@ -3598,7 +3634,12 @@ void wandStopFiringSounds() {
       stopEffect(S_CROSS_STREAMS_START);
       stopEffect(S_CROSS_STREAMS_END);
 
-      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
+      }
+      else {
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+      }
     break;
 
     case CTS_FIRING_2021:
@@ -3607,7 +3648,12 @@ void wandStopFiringSounds() {
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 5);
+      }
+      else {
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+      }
     break;
 
     case CTS_NOT_FIRING:
@@ -3634,6 +3680,10 @@ void packAlarm() {
   else {
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
     stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+    }
   }
 
   playEffect(S_SHUTDOWN);
@@ -3704,6 +3754,11 @@ void cyclotronSwitchPlateLEDs() {
     // Play some spark sounds if the pack is running and the lid is removed.
     if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
+      
+      // Cyclotron lid is off, play the Frozen Empire sound effect.
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+        playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
+      }
     }
   }
 
@@ -3719,6 +3774,10 @@ void cyclotronSwitchPlateLEDs() {
     // Play some spark sounds if the pack is running and the lid is put back on.
     if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
+
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+        stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+      }      
     }
   }
 
@@ -3808,9 +3867,6 @@ void vibrationPack(int i_level) {
 }
 
 void cyclotronSpeedRevert() {
-  // Stop overheat beeps.
-  stopEffect(S_BEEP_8);
-
   i_cyclotron_multiplier = 1;
   i_cyclotron_switch_led_mulitplier = 1;
   i_powercell_multiplier = 1;
@@ -3843,41 +3899,92 @@ void cyclotronSpeedIncrease() {
   }
 }
 
+/*
 void readEncoder() {
   if(digitalRead(encoder_pin_a) == digitalRead(encoder_pin_b)) {
     i_encoder_pos++;
+    Serial.println("clockwise");
   }
   else {
     i_encoder_pos--;
+    Serial.println("counter clockwise");
   }
 
   i_val_rotary = i_encoder_pos / 2.5;
+
+  Serial.println("pos --> ");
+  Serial.print(i_encoder_pos);
+  Serial.print(" | val --> ");
+  Serial.print(i_val_rotary);
+}
+*/
+
+int8_t readRotary() {
+  static int8_t rot_enc_table[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
+
+  prev_next_code <<= 2;
+
+  if(digitalRead(encoder_pin_b)) {
+    prev_next_code |= 0x02;
+  }
+
+  if(digitalRead(encoder_pin_a)) {
+    prev_next_code |= 0x01;
+  }
+
+  prev_next_code &= 0x0f;
+
+  // If valid then store as 16 bit data.
+  if(rot_enc_table[prev_next_code]) {
+    store <<= 4;
+    store |= prev_next_code;
+
+    if((store&0xff) == 0x2b) {
+      return -1;
+    }
+
+    if((store&0xff) == 0x17) {
+      return 1;
+    }
+  }
+
+  return 0;
 }
 
 void checkRotaryEncoder() {
-  if(i_val_rotary > i_last_val_rotary) {
-    if(ms_volume_check.isRunning() != true) {
-      increaseVolume();
+ static int8_t c, val;
 
-      // Tell wand to increase volume.
-      packSerialSend(P_VOLUME_INCREASE);
+  if((val = readRotary())) {
+    c += val;
 
-      ms_volume_check.start(50);
+    // Clockwise
+    if(prev_next_code == 0x0b) {
+      Serial.println("clockwise");
+
+      if(ms_volume_check.isRunning() != true) {
+        increaseVolume();
+
+        // Tell wand to increase volume.
+        packSerialSend(P_VOLUME_INCREASE);
+
+        ms_volume_check.start(50);
+      }
+    }
+
+    // Counter Clockwise
+    if(prev_next_code == 0x07) {
+      Serial.println("counter clockwise");
+
+      if(ms_volume_check.isRunning() != true) {
+        decreaseVolume();
+
+        // Tell wand to decrease volume.
+        packSerialSend(P_VOLUME_DECREASE);
+
+        ms_volume_check.start(50);
+      }
     }
   }
-
-  if(i_val_rotary < i_last_val_rotary) {
-    if(ms_volume_check.isRunning() != true) {
-      decreaseVolume();
-
-      // Tell wand to decrease volume.
-      packSerialSend(P_VOLUME_DECREASE);
-
-      ms_volume_check.start(50);
-    }
-  }
-
-  i_last_val_rotary = i_val_rotary;
 
   if(ms_volume_check.justFinished()) {
     ms_volume_check.stop();
@@ -4001,15 +4108,13 @@ void wandDisconnectCheck() {
   if(b_wand_connected == true) {
     if(ms_wand_check.justFinished()) {
       // Timer just ran out, so we must assume the wand was disconnected.
-      // Serial.println("Wand Disconnected");
-
       if(b_diagnostic == true) {
         // While in diagnostic mode, play a sound to indicate the wand is disconnected.
         playEffect(S_VENT_BEEP);
       }
 
       b_wand_connected = false; // Cause the next handshake to trigger a sync.
-      b_wand_syncing = true; // No longer attempting to force a sync w/ wand.
+      b_wand_syncing = false; // If there is no wand we cannot be syncing with one.
       b_wand_on = false; // No wand means the device is no longer powered on.
 
       // Tell the serial1 device the wand was disconnected.
@@ -4034,22 +4139,13 @@ void wandDisconnectCheck() {
       }
     }
     else {
-      if(ms_wand_check.remaining() < 2000 && !b_wand_syncing) {
-        // If within 2 seconds of the disconnect timeout, force a handshake with the wand.
+      if(ms_wand_check.remaining() < 1500 && !b_wand_syncing) {
+        // If we haven't received a handshake from the wand in over 6.5 seconds, force a handshake with the wand.
+        // This is because the wand is supposed to handshake every 3.25 seconds and we haven't heard back in two pings.
         // This should be a last-resort check to make sure it's available and responding.
         b_wand_syncing = true;
         packSerialSend(P_HANDSHAKE);
       }
-    }
-  }
-  else {
-    // Wand was disconnected or never present, so perform a routine check.
-    if(ms_wand_check.remaining() < 1) {
-      ms_wand_check.start(i_wand_disconnect_delay);
-
-      b_wand_syncing = false; // Not a true sync event yet.
-
-      packSerialSend(P_HANDSHAKE);
     }
   }
 }
@@ -4058,23 +4154,23 @@ void wandExtraSoundsBeepLoop() {
   if(b_overheating != true) {
     switch(i_wand_power_level) {
       case 1:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S1, true, i_volume_effects - i_wand_sound_level);
       break;
 
       case 2:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S2, true, i_volume_effects - i_wand_sound_level);
       break;
 
       case 3:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S3, true, i_volume_effects - i_wand_sound_level);
       break;
 
       case 4:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S4, true, i_volume_effects - i_wand_sound_level);
       break;
 
       case 5:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S5, true, i_volume_effects - i_wand_sound_level);
       break;
     }
   }

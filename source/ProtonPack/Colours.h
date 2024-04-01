@@ -37,9 +37,11 @@ enum colours {
   C_RED5,
   C_ORANGE,
   C_YELLOW,
+  C_CHARTREUSE,
   C_GREEN,
   C_MINT,
   C_AQUA,
+  C_MID_BLUE,
   C_LIGHT_BLUE,
   C_BLUE,
   C_PURPLE,
@@ -75,7 +77,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
         case PROTON:
           switch(i_device) {
             case POWERCELL:
-              return C_BLUE;
+              return C_MID_BLUE;
             break;
 
             case CYCLOTRON_OUTER:
@@ -197,14 +199,14 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
         break;
 
         default:
-          return C_BLUE;
+          return C_MID_BLUE;
         break;
       }
   }
   else {
     switch(i_device) {
       case POWERCELL:
-        return C_BLUE;
+        return C_MID_BLUE;
       break;
 
       case CYCLOTRON_OUTER:
@@ -319,6 +321,10 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       return CHSV(64, i_saturation, i_brightness);
     break;
 
+    case C_CHARTREUSE:
+      return CHSV(80, i_saturation, i_brightness);
+    break;
+
     case C_GREEN:
       return CHSV(96, i_saturation, i_brightness);
     break;
@@ -335,8 +341,12 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       return CHSV(145, i_saturation, i_brightness);
     break;
 
-    case C_BLUE:
+    case C_MID_BLUE:
       return CHSV(160, i_saturation, i_brightness);
+    break;
+
+    case C_BLUE:
+      return CHSV(180, i_saturation, i_brightness);
     break;
 
     case C_PURPLE:

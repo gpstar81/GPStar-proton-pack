@@ -38,7 +38,8 @@ enum PACKET_TYPE : uint8_t {
   PACKET_DATA = 2,
   PACKET_PACK = 3,
   PACKET_WAND = 4,
-  PACKET_SMOKE = 5
+  PACKET_SMOKE = 5,
+  PACKET_SYNC = 6
 };
 
 // For command signals (1 byte ID, 2 byte optional data).
@@ -139,6 +140,23 @@ struct __attribute__((packed)) SmokePrefs {
   uint8_t overheatDelay2;
   uint8_t overheatDelay1;
 } smokeConfig;
+
+struct __attribute__((packed)) SyncData {
+  uint8_t systemMode;
+  uint8_t ionArmSwitch;
+  uint8_t systemYear;
+  uint8_t ribbonCable;
+  uint8_t packOn;
+  uint8_t powerLevel;
+  uint8_t firingMode;
+  uint8_t vibrationEnabled;
+  uint8_t masterVolume;
+  uint8_t effectsVolume;
+  uint8_t musicVolume;
+  uint8_t masterMuted;
+  uint16_t currentMusicTrack;
+  uint8_t repeatMusicTrack;
+} packSync;
 
 /*
  * Serial API Communication Handlers
