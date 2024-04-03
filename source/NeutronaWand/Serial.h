@@ -62,6 +62,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t defaultFiringMode;
   uint8_t wandVibration;
   uint8_t wandSoundsToPack;
+  uint8_t amplifyWandSpeaker;
   uint8_t quickVenting;
   uint8_t autoVentLight;
   uint8_t wandBeepLoop;
@@ -202,6 +203,7 @@ void wandSerialSendData(uint8_t i_message) {
         wandConfig.defaultFiringMode = 1;
       }
 
+      wandConfig.amplifyWandSpeaker = b_amplify_wand_speaker;
       wandConfig.wandSoundsToPack = b_extra_pack_sounds;
       wandConfig.quickVenting = b_quick_vent;
       wandConfig.autoVentLight = b_vent_light_control;
@@ -467,6 +469,7 @@ void checkPack() {
             break;
           }
 
+          b_amplify_wand_speaker = wandConfig.amplifyWandSpeaker;
           b_extra_pack_sounds = wandConfig.wandSoundsToPack;
           b_quick_vent = wandConfig.quickVenting;
           b_vent_light_control = wandConfig.autoVentLight;
