@@ -125,8 +125,9 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <b>LED Count:</b>
       <select id="ledCycLidCount" name="ledCycLidCount">
         <option value="12">12 - Stock</option>
-        <option value="20">20 - Frutto</option>
-        <option value="40">40 - Ring</option>
+        <option value="20">20 - Frutto (4x5)</option>
+        <option value="36">36 - Frutto (4x9)</option>
+        <option value="40">40 - RGB Ring</option>
       </select>
     </div>
     <div class="setting">
