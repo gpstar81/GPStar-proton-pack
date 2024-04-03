@@ -181,21 +181,16 @@ bool b_vibration_enabled = true;
 /*
  * Various Switches on the wand.
  */
-ezButton switch_intensify(2);
-ezButton switch_activate(3);
-ezButton switch_vent(4); // Turns on the vent light. Bottom right switch.
-ezButton switch_wand(A0); // Controls the beeping. Top right switch on the wand.
-ezButton switch_mode(A6); // Changes firing modes, crosses streams, or used in settings menus.
-ezButton switch_barrel(A7); // Checks whether barrel is retracted or not.
+Switch switch_intensify(2);
+Switch switch_activate(3);
+Switch switch_vent(4); // Turns on the vent light. Bottom right switch on the wand.
+Switch switch_wand(A0); // Controls the beeping. Top right switch on the wand.
+Switch switch_mode(A6); // Changes firing modes, crosses streams, or used in settings menus.
+Switch switch_barrel(A7); // Checks whether barrel is retracted or not.
 bool b_switch_barrel_extended = true; // Set to true for bootup to prevent sound from playing erroneously. The Neutrona Wand will adjust as necessary.
 bool b_all_switch_activation = false; // Used to check if Activate was flipped to on while the vent switch was already in the on position for sound purposes.
-
-/*
- * Some switch settings.
- */
-millisDelay ms_intensify_doubleclick;
-const unsigned int i_switch_debounce = 50;
-const unsigned int i_doubleclick_delay = 3000;
+uint8_t ventSwitchedCount = 0;
+uint8_t wandSwitchedCount = 0;
 
 /*
  * Wand lights
@@ -434,3 +429,5 @@ void wandSerialSend(uint8_t i_command);
 void wandSerialSendData(uint8_t i_message);
 void checkPack();
 void checkWandAction();
+void ventSwitched(void* n = nullptr);
+void wandSwitched(void* n = nullptr);

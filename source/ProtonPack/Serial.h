@@ -494,7 +494,7 @@ void checkSerial1() {
               packSerialSend(P_MODE_ORIGINAL);
               serial1Send(A_MODE_ORIGINAL);
 
-              if(switch_power.getState() == LOW) {
+              if(switch_power.on() == true) {
                 // Tell the Neutrona Wand that power to the Proton Pack is on.
                 packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
                 serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
@@ -795,7 +795,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
 
         serial1SendData(A_SPECTRAL_COLOUR_DATA);
 
-        if(switch_power.getState() == LOW) {
+        if(switch_power.on() == true) {
           // Tell the Attenuator or any other device that the power to the Proton Pack is on.
           serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
         }
@@ -1101,7 +1101,7 @@ void doWandSync() {
     case MODE_ORIGINAL:
       packSync.systemMode = 2; // MODE_ORIGINAL.
 
-      if(switch_power.getState() == LOW) {
+      if(switch_power.on() == true) {
         packSync.ionArmSwitch = 2; // ion arm switch on.
       }
       else {
@@ -1204,7 +1204,7 @@ void doWandSync() {
   }
 
   // Tell the wand the status of the Proton Pack ribbon cable.
-  if(switch_alarm.getState() == LOW) {
+  if(switch_alarm.on() == true) {
     // Ribbon cable is attached.
     packSync.ribbonCable = 2; // 2 = On.
   }
@@ -2311,7 +2311,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
       // Tell the Wand what state the vibration switch is in
-      if(switch_vibration.getState() == LOW) {
+      if(switch_vibration.on() == true) {
         packSerialSend(P_VIBRATION_ENABLED);
       }
       else {
@@ -2439,7 +2439,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           b_vibration_firing = true;
 
           // Reset the vibration state.
-          if(switch_vibration.getState() == LOW) {
+          if(switch_vibration.on() == true) {
             b_vibration_enabled = true;
           }
           else {

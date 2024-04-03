@@ -48,7 +48,7 @@ const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible
 bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
-uint8_t i_wand_sound_level = 0; // 1 for Wav Trigger.
+uint8_t i_wand_sound_level = 0; // 1 for WAV Trigger.
 uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume. For GPStar Audio we increase this.
 
 /*
@@ -721,15 +721,15 @@ bool setupAudioDevice() {
   // Stop all tracks.
   audio.stopAllTracks();
 
-  // Reset the sample rate offset. Only for the Wav Trigger.
+  // Reset the sample rate offset. Only for the WAV Trigger.
   audio.samplerateOffset(0);
 
   audio.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
 
-  // Onboard amplifier on or off. Only for the Wav Trigger.
+  // Onboard amplifier on or off. Only for the WAV Trigger.
   audio.setAmpPwr(b_onboard_amp_enabled);
 
-  // Enable track reporting if in bench test mode. Only for the Wav Trigger.
+  // Enable track reporting if in bench test mode. Only for the WAV Trigger.
   audio.setReporting(b_gpstar_benchtest);
 
   // Allow time for hello command and other data to return back.

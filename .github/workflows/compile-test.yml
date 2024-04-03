@@ -20,7 +20,7 @@ jobs:
               - source/NeutronaWand
               - source/ProtonPack
             libraries: |
-              - name: ezButton
+              - name: Switch
               - name: FastLED
               - name: Ramp
               - name: SafeString

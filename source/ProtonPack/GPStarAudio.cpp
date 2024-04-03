@@ -3,7 +3,7 @@
  *   Copyright (C) 2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   Based on the serial protocol library by Jamie Robertson.
- *   Compatible with both the GPStar Audio and Robertonics Wav Trigger audio devices.
+ *   Compatible with both the GPStar Audio and Robertonics WAV Trigger audio devices.
  *   Copyright (c) 2014
 
  *   This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@ void gpstarAudio::start(void) {
   GPStarSerial.begin(57600);
   flush();
 
-  // Request version string from a Wav Trigger.
+  // Request version string from a WAV Trigger.
   txbuf[0] = SOM1;
   txbuf[1] = SOM2;
   txbuf[2] = 0x05;
@@ -39,7 +39,7 @@ void gpstarAudio::start(void) {
   txbuf[4] = EOM;
   GPStarSerial.write(txbuf, 5);
 
-  // Request system info from a Wav Trigger.
+  // Request system info from a WAV Trigger.
   txbuf[0] = SOM1;
   txbuf[1] = SOM2;
   txbuf[2] = 0x05;
@@ -142,7 +142,7 @@ void gpstarAudio::update(void) {
         break;
 
         case RSP_TRACK_REPORT:
-          // Specific for Wav Triggers.
+          // Specific for WAV Triggers.
           track = rxMessage[2];
           track = (track << 8) + rxMessage[1] + 1;
           voice = rxMessage[3];
@@ -157,7 +157,7 @@ void gpstarAudio::update(void) {
         break;
 
         case RSP_VERSION_STRING:
-          // Specific for Wav Triggers.
+          // Specific for WAV Triggers.
           for (i = 0; i < (VERSION_STRING_LEN - 1); i++) {
             version[i] = rxMessage[i + 1];
           }
@@ -166,7 +166,7 @@ void gpstarAudio::update(void) {
         break;
 
         case RSP_SYSTEM_INFO:
-          // Specific for Wav Triggers.
+          // Specific for WAV Triggers.
           numVoices = rxMessage[1];
           numTracks = rxMessage[3];
           numTracks = (numTracks << 8) + rxMessage[2];

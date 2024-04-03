@@ -241,12 +241,12 @@ millisDelay ms_alarm;
 /*
  * Switches
  */
-ezButton switch_alarm(23); // Ribbon cable removal switch
-ezButton switch_mode(25); // 1984 / 2021 mode toggle switch
-ezButton switch_vibration(27); // Vibration toggle switch
-ezButton switch_cyclotron_direction(29); // Newly added switch for controlling the direction of the Cyclotron lights. Not required. Defaults to clockwise.
-ezButton switch_power(31); // Red power switch under the Ion Arm.
-ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
+Switch switch_alarm(23); // Ribbon cable removal switch
+Switch switch_mode(25); // 1984 / 2021 mode toggle switch
+Switch switch_vibration(27); // Vibration toggle switch
+Switch switch_cyclotron_direction(29); // Newly added switch for controlling the direction of the Cyclotron lights. Not required. Defaults to clockwise.
+Switch switch_power(31); // Red power switch under the Ion Arm.
+Switch switch_smoke(37); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
 //bool b_neutrona_wand_barrel_extended = false; // Unused at the moment.
 
 /*
@@ -466,7 +466,7 @@ void powercellDraw(uint8_t i_start = 0);
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
  */
 #ifdef GPSTAR_PROTON_PACK_PCB
-  ezButton switch_cyclotron_lid(43); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
+  Switch switch_cyclotron_lid(43); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
 #else
-  ezButton switch_cyclotron_lid(51); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
+  Switch switch_cyclotron_lid(51); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
 #endif
