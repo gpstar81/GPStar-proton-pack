@@ -206,7 +206,7 @@ unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
 unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
 
 /*
- * Set to false to disable the onboard amplifier on the wav trigger.
+ * Set to false to disable the onboard amplifier on the WAV Trigger.
  * Turning off the onboard amp draws less power.
  * If using the AUX cable jack, the amp can be disabled to save power.
  * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
