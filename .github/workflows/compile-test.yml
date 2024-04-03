@@ -21,6 +21,7 @@ jobs:
               - source/ProtonPack
             libraries: |
               - name: Switch
+              - name: ezButton
               - name: FastLED
               - name: Ramp
               - name: SafeString

@@ -33,7 +33,7 @@
 #include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>
-#include <avdweb_Switch.h>
+#include <ezButton.h>
 #include <Ramp.h>
 #include <SerialTransfer.h>
 
@@ -61,6 +61,14 @@ void setup() {
   // Rotary encoder for volume control.
   pinMode(encoder_pin_a, INPUT_PULLUP);
   pinMode(encoder_pin_b, INPUT_PULLUP);
+
+  // Configure the various switches on the pack.
+  switch_alarm.setDebounceTime(50);
+  switch_mode.setDebounceTime(50);
+  switch_vibration.setDebounceTime(50);
+  switch_cyclotron_direction.setDebounceTime(50);
+  switch_cyclotron_lid.setDebounceTime(50);
+  switch_smoke.setDebounceTime(50);
 
   // Adjust the PWM frequency of the vibration motor.
   TCCR5B = (TCCR5B & B11111000) | (B00000100);  // for PWM frequency of 122.55 Hz
@@ -134,7 +142,7 @@ void setup() {
   ms_battcheck.start(500);
 
   // Configure the vibration state.
-  if(switch_vibration.on() == true) {
+  if(switch_vibration.getState() == LOW) {
     b_vibration_enabled = true;
   }
   else {
@@ -142,7 +150,7 @@ void setup() {
   }
 
   // Configure the year mode.
-  if(switch_mode.on() == true) {
+  if(switch_mode.getState() == LOW) {
     SYSTEM_YEAR = SYSTEM_1984;
   }
   else {
@@ -257,7 +265,7 @@ void loop() {
       if(b_pack_on == true) {
         switch(SYSTEM_MODE) {
           case MODE_ORIGINAL:
-            if(switch_power.on() == false) {
+            if(switch_power.getState() == HIGH) {
               // Tell the Neutrona Wand that power to the Proton Pack is off.
               if(b_wand_connected) {
                 packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
@@ -311,7 +319,7 @@ void loop() {
         reset2021RampUp();
       }
 
-      if(switch_alarm.on() == true && b_overheating == false) {
+      if(switch_alarm.getState() == LOW && b_overheating == false) {
         if(b_alarm == true) {
           if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
             // Reset the LEDs before resetting the alarm flag.
@@ -622,8 +630,8 @@ bool fadeOutLights() {
 
 void checkRibbonCableSwitch() {
   if(b_use_ribbon_cable == true) {
-    if(switch_alarm.switched()) {
-      if(switch_alarm.on() == true) {
+    if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
+      if(switch_alarm.getState() == LOW) {
         // Ribbon cable is attached.
         packSerialSend(P_RIBBON_CABLE_ON);
       }
@@ -686,7 +694,7 @@ void packStartup() {
         playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
 
         // Cyclotron lid is off, play the Frozen Empire sound effect.
-        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && switch_cyclotron_lid.on() == false) {
+        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && switch_cyclotron_lid.getState() == HIGH) {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
         }
 
@@ -880,7 +888,7 @@ void packOffReset() {
 
 void setYearModeByToggle() {
   // We have 4 year modes but only 2 toggle states, so these get grouped by their Haslab defaults.
-  if(switch_mode.on() == true) {
+  if(switch_mode.getState() == LOW) {
     if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
       // When currently in Afterlife/FrozenEmpire we switch to 1984.
       SYSTEM_YEAR = SYSTEM_1984;
@@ -906,19 +914,19 @@ void setYearModeByToggle() {
 
 void checkSwitches() {
   // Perform loop() needed by ezButton.
-  switch_alarm.poll();
-  switch_cyclotron_lid.poll();
-  switch_cyclotron_direction.poll();
-  switch_mode.poll();
-  switch_power.poll();
-  switch_smoke.poll();
-  switch_vibration.poll();
+  switch_alarm.loop();
+  switch_cyclotron_lid.loop();
+  switch_cyclotron_direction.loop();
+  switch_mode.loop();
+  switch_power.loop();
+  switch_smoke.loop();
+  switch_vibration.loop();
 
   checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
 
   // Cyclotron direction toggle switch.
-  if(switch_cyclotron_direction.switched()) {
+  if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
     if(b_clockwise == true) {
       b_clockwise = false;
 
@@ -952,7 +960,7 @@ void checkSwitches() {
   }
 
   // Smoke
-  if(switch_smoke.switched()) {
+  if(switch_smoke.isPressed() || switch_smoke.isReleased()) {
     if(b_smoke_enabled == true) {
       b_smoke_enabled = false;
 
@@ -986,12 +994,12 @@ void checkSwitches() {
   }
 
   // Vibration toggle switch.
-  if(switch_vibration.switched()) {
+  if(switch_vibration.isPressed() || switch_vibration.isReleased()) {
       stopEffect(S_BEEPS_ALT);
 
       playEffect(S_BEEPS_ALT);
 
-      if(switch_vibration.on() == true) {
+      if(switch_vibration.getState() == LOW) {
         if(b_vibration_enabled == false) {
           // Tell the wand to enable vibration.
           packSerialSend(P_VIBRATION_ENABLED);
@@ -1020,7 +1028,7 @@ void checkSwitches() {
   }
 
   // Play a sound when the year mode switch is pressed or released.
-  if(switch_mode.switched()) {
+  if(switch_mode.isPressed() || switch_mode.isReleased()) {
     stopEffect(S_BEEPS_BARGRAPH);
     playEffect(S_BEEPS_BARGRAPH);
 
@@ -1032,8 +1040,8 @@ void checkSwitches() {
     case MODE_OFF:
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
-          if(switch_power.switched()) {
-            if(switch_power.on() == true) {
+          if(switch_power.isPressed() || switch_power.isReleased()) {
+            if(switch_power.getState() == LOW) {
               // Tell the Neutrona Wand that power to the Proton Pack is on.
               if(b_wand_connected) {
                 packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
@@ -1060,7 +1068,7 @@ void checkSwitches() {
 
         case MODE_SUPER_HERO:
         default:
-          if(switch_power.switched()) {
+          if(switch_power.isPressed() || switch_power.isReleased()) {
             // Turn the pack on.
             PACK_ACTION_STATE = ACTION_ACTIVATE;
           }
@@ -1144,7 +1152,7 @@ void checkSwitches() {
     break;
 
     case MODE_ON:
-      if(switch_power.switched()) {
+      if(switch_power.isReleased() || switch_power.isPressed()) {
         // Turn the pack off.
         PACK_ACTION_STATE = ACTION_OFF;
       }
@@ -1632,7 +1640,7 @@ void cyclotronControl() {
     }
   }
 
-  if(switch_alarm.on() == false && PACK_STATE != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false && b_use_ribbon_cable == true) {
+  if(switch_alarm.getState() == HIGH && PACK_STATE != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false && b_use_ribbon_cable == true) {
     if(b_alarm == false) {
       stopEffect(S_BEEP_8);
 
@@ -3731,7 +3739,7 @@ void packAlarm() {
 
 // LEDs for the 1984/2021 and vibration switches.
 void cyclotronSwitchPlateLEDs() {
-  if(switch_cyclotron_lid.released()) {
+  if(switch_cyclotron_lid.isReleased()) {
     // Play sounds when lid is removed.
     stopEffect(S_VENT_SMOKE);
     stopEffect(S_MODE_SWITCH);
@@ -3746,7 +3754,7 @@ void cyclotronSwitchPlateLEDs() {
     // Play some spark sounds if the pack is running and the lid is removed.
     if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
-
+      
       // Cyclotron lid is off, play the Frozen Empire sound effect.
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
@@ -3754,7 +3762,7 @@ void cyclotronSwitchPlateLEDs() {
     }
   }
 
-  if(switch_cyclotron_lid.pushed()) {
+  if(switch_cyclotron_lid.isPressed()) {
     // Play sounds when lid is mounted.
     stopEffect(S_CLICK);
     stopEffect(S_VENT_DRY);
@@ -3769,11 +3777,11 @@ void cyclotronSwitchPlateLEDs() {
 
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
-      }
+      }      
     }
   }
 
-  if(switch_cyclotron_lid.on() == true) {
+  if(switch_cyclotron_lid.getState() == LOW) {
     if(b_cyclotron_lid_on != true) {
       // The Cyclotron Lid is now on.
       b_cyclotron_lid_on = true;

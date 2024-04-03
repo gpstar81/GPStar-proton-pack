@@ -27,6 +27,7 @@ Download and install the Arduino IDE 2.x or higher. This will be used to compile
 
 The following libraries are required to be installed. All can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
 
+- **ezButton** by ArduinoGetStarted.com
 - **FastLED** by Daniel Garcia
 - **Ramp** by Sylvain Garnavault
 - **SafeString** by Matthew Ford
