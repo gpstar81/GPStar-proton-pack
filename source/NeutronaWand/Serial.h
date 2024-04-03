@@ -1657,14 +1657,25 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_CYCLOTRON_LEDS_40:
       stopEffect(S_VOICE_CYCLOTRON_40);
+      stopEffect(S_VOICE_CYCLOTRON_36);
       stopEffect(S_VOICE_CYCLOTRON_20);
       stopEffect(S_VOICE_CYCLOTRON_12);
 
       playEffect(S_VOICE_CYCLOTRON_40);
     break;
 
+    case P_CYCLOTRON_LEDS_36:
+      stopEffect(S_VOICE_CYCLOTRON_40);
+      stopEffect(S_VOICE_CYCLOTRON_36);
+      stopEffect(S_VOICE_CYCLOTRON_20);
+      stopEffect(S_VOICE_CYCLOTRON_12);
+
+      playEffect(S_VOICE_CYCLOTRON_36);
+    break;
+
     case P_CYCLOTRON_LEDS_20:
       stopEffect(S_VOICE_CYCLOTRON_40);
+      stopEffect(S_VOICE_CYCLOTRON_36);
       stopEffect(S_VOICE_CYCLOTRON_20);
       stopEffect(S_VOICE_CYCLOTRON_12);
 
@@ -1673,6 +1684,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_CYCLOTRON_LEDS_12:
       stopEffect(S_VOICE_CYCLOTRON_40);
+      stopEffect(S_VOICE_CYCLOTRON_36);
       stopEffect(S_VOICE_CYCLOTRON_20);
       stopEffect(S_VOICE_CYCLOTRON_12);
 

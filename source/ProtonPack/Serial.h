@@ -2256,6 +2256,18 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
     break;
 
+    case W_SOUND_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_ENABLED:
+      stopEffect(S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_ENABLED);
+      stopEffect(S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_DISABLED);
+      playEffect(S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_ENABLED);
+    break;
+
+    case W_SOUND_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_DISABLED:
+      stopEffect(S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_DISABLED);
+      stopEffect(S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_ENABLED);
+      playEffect(S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_DISABLED);
+    break;
+
     case W_VIBRATION_DISABLED:
       // Neutrona Wand vibration disabled.
       stopEffect(S_BEEPS_ALT);
@@ -3470,6 +3482,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
+          // Switch to 36 LEDs. Frutto Technology Max.
+          i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
+
+          resetCyclotronState();
+
+          playEffect(S_VOICE_CYCLOTRON_36);
+          packSerialSend(P_CYCLOTRON_LEDS_36);
+        break;
+
+        case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
           // Switch to 20 LEDs. Frutto Technology.
           i_cyclotron_leds = FRUTTO_CYCLOTRON_LED_COUNT;
 
@@ -3478,7 +3500,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           playEffect(S_VOICE_CYCLOTRON_20);
           packSerialSend(P_CYCLOTRON_LEDS_20);
         break;
-
+        
         case FRUTTO_CYCLOTRON_LED_COUNT:
         default:
           // Switch to 12 LEDs. Default HasLab.
