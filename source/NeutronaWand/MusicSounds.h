@@ -360,10 +360,13 @@ enum sound_fx {
   S_WAND_BOOTUP_SHORT,
   S_GB2_WAND_START,
   S_FROZEN_EMPIRE_BOOT_EFFECT,
-  S_FROZEN_EMPIRE_FIRE_START
+  S_FROZEN_EMPIRE_FIRE_START,
+  S_VOICE_CYCLOTRON_36,
+  S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_ENABLED,
+  S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_DISABLED
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_FROZEN_EMPIRE_FIRE_START;
+const unsigned int i_last_effects_track = S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_DISABLED;

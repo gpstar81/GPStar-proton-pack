@@ -43,7 +43,7 @@
 #include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>
-#include <ezButton.h>
+#include <avdweb_Switch.h>
 #include <ht16k33.h>
 #include <Wire.h>
 #include <SerialTransfer.h>
@@ -85,12 +85,8 @@ void setup() {
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   WAND_BARREL_LED_COUNT = LEDS_5;
 
-  switch_intensify.setDebounceTime(i_switch_debounce);
-  switch_activate.setDebounceTime(i_switch_debounce);
-  switch_vent.setDebounceTime(i_switch_debounce);
-  switch_wand.setDebounceTime(i_switch_debounce);
-  switch_mode.setDebounceTime(i_switch_debounce);
-  switch_barrel.setDebounceTime(i_switch_debounce);
+  switch_vent.setPushedCallback(&ventSwitched);
+  switch_wand.setPushedCallback(&wandSwitched);
 
   // Rotary encoder on the top of the wand.
   pinMode(r_encoderA, INPUT_PULLUP);
@@ -226,7 +222,7 @@ void loop() {
       // When connected to a pack, prepare to send a regular handshake to indicate presence.
       if(ms_handshake.justFinished()) {
         wandSerialSend(W_HANDSHAKE); // Remind the pack that a wand is still present.
-        ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
+        ms_handshake.restart(); // Restart the handshake timer.
       }
 
       updateAudio(); // Update the state of the selected sound board.
@@ -291,7 +287,7 @@ void mainLoop() {
   switch(WAND_STATUS) {
     case MODE_OFF:
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
-        if(FIRING_MODE != SETTINGS && b_gpstar_benchtest == true && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.getCount() >= 2) {
+        if(FIRING_MODE != SETTINGS && b_gpstar_benchtest == true && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.doubleClick()) {
           // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
           if(b_pack_ion_arm_switch_on == true) {
             b_pack_ion_arm_switch_on = false;
@@ -299,22 +295,9 @@ void mainLoop() {
           else {
             b_pack_ion_arm_switch_on = true;
           }
-
-          ms_intensify_doubleclick.stop();
-          switch_intensify.resetCount();
-        }
-        else if(FIRING_MODE != SETTINGS && b_gpstar_benchtest == true && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.getCount() == 1) {
-          // This "times out" the Intensify click after 3 seconds so that a double-click is always required
-          if(ms_intensify_doubleclick.justFinished()) {
-            switch_intensify.resetCount();
-            ms_intensify_doubleclick.stop();
-          }
-          else if(!ms_intensify_doubleclick.isRunning() && !ms_intensify_doubleclick.justFinished()) {
-            ms_intensify_doubleclick.start(i_doubleclick_delay);
-          }
         }
 
-        if(switch_mode.isPressed() || b_pack_alarm == true) {
+        if(switch_mode.pushed() || b_pack_alarm == true) {
           if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
             playEffect(S_CLICK);
 
@@ -351,12 +334,12 @@ void mainLoop() {
       }
 
       // Reset the count of the wand switch
-      if(switch_intensify.getState() == HIGH) {
-        switch_wand.resetCount();
-        switch_vent.resetCount();
+      if(switch_intensify.on() == false) {
+        wandSwitchedCount = 0;
+        ventSwitchedCount = 0;
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_gpstar_benchtest == true) && switch_intensify.getState() == LOW && switch_wand.getCount() >= 5) {
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_gpstar_benchtest == true) && switch_intensify.on() == true && wandSwitchedCount >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -385,7 +368,7 @@ void mainLoop() {
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU
-         && (b_pack_on != true || b_gpstar_benchtest == true) && switch_intensify.getState() == LOW && switch_vent.getCount() >= 5) {
+         && (b_pack_on != true || b_gpstar_benchtest == true) && switch_intensify.on() == true && ventSwitchedCount >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -435,7 +418,7 @@ void mainLoop() {
               }
               else {
                 // When the top right wand switch is off, then we make sure the led is off as the Slo-Blo LED will be on or blinking at this point.
-                if(switch_wand.getState() == HIGH) {
+                if(switch_wand.on() == false) {
                   analogWrite(led_front_left, 0);
                 }
               }
@@ -564,7 +547,7 @@ void mainLoop() {
         }
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          if(ms_gun_loop_1.justFinished() && switch_vent.getState() == HIGH) {
+          if(ms_gun_loop_1.justFinished() && switch_vent.on() == false) {
             playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - 1);
             b_sound_afterlife_idle_2_fade = false;
             ms_gun_loop_1.stop();
@@ -785,7 +768,7 @@ void overheatingFinished() {
     break;
   }
 
-  if(switch_vent.getState() == HIGH && (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
+  if(switch_vent.on() == false && (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
     afterLifeRamp1();
   }
 
@@ -1127,7 +1110,7 @@ void checkSwitches() {
 
             if(WAND_ACTION_STATUS == ACTION_IDLE) {
               // We are going to handle the toggle switch sequence for the MODE_ORIGINAL here.
-              if(switch_activate.getState() == LOW && switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+              if(switch_activate.on() == true && switch_vent.on() == true && switch_wand.on() == true) {
                 // Reset the power mode back to what it should be.
                 i_power_mode = i_power_mode_prev;
 
@@ -1155,7 +1138,7 @@ void checkSwitches() {
                   updatePackPowerLevel();
                 }
 
-                if(switch_vent.getState() == LOW) {
+                if(switch_vent.on() == true) {
                   // When the bottom right toggle is on, we start flashing the slo-blo light.
                   if(ms_slo_blo_blink.remaining() < i_slo_blo_blink_delay / 2) {
                     analogWrite(led_slo_blo, 0);
@@ -1169,9 +1152,9 @@ void checkSwitches() {
                   analogWrite(led_slo_blo, 255);
                 }
 
-                if(switch_wand.isPressed() || switch_wand.isReleased() || switch_vent.isPressed() || switch_vent.isReleased()) {
-                  if(switch_vent.isPressed() || switch_vent.isReleased()) {
-                    if(switch_vent.getState() == LOW) {
+                if(switch_wand.switched() || switch_vent.switched()) {
+                  if(switch_vent.switched()) {
+                    if(switch_vent.on() == true) {
                       if(b_mode_original_toggle_sounds_enabled == true) {
                         if(b_extra_pack_sounds == true) {
                           wandSerialSend(W_BEEPS_ALT);
@@ -1183,7 +1166,7 @@ void checkSwitches() {
                     }
                   }
 
-                  if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                  if(switch_vent.on() == true && switch_wand.on() == true) {
                     if(b_mode_original_toggle_sounds_enabled == true) {
                       if(b_extra_pack_sounds == true) {
                         wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
@@ -1203,7 +1186,7 @@ void checkSwitches() {
 
                     prepBargraphRampUp();
                   }
-                  else if((switch_wand.isPressed() || switch_wand.isReleased()) && switch_vent.getState() == LOW && switch_wand.getState() == HIGH && b_mode_original_toggle_sounds_enabled == true) {
+                  else if(switch_wand.switched() == true && switch_vent.on() == true && switch_wand.on() == false && b_mode_original_toggle_sounds_enabled == true) {
                     if(b_extra_pack_sounds == true) {
                       wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
                       wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
@@ -1214,7 +1197,7 @@ void checkSwitches() {
                     stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
-                  else if((switch_vent.isPressed() || switch_vent.isReleased()) && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
+                  else if(switch_vent.switched() == true && switch_wand.on() == true && b_mode_original_toggle_sounds_enabled == true) {
                     if(b_extra_pack_sounds == true) {
                       wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
                       wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
@@ -1227,7 +1210,7 @@ void checkSwitches() {
                   }
                 }
 
-                if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                if(switch_vent.on() == true && switch_wand.on() == true) {
                   analogWrite(led_front_left, 255); // Turn on the front left LED under the Clippard valve.
 
                   // Turn on the vent lights.
@@ -1277,7 +1260,7 @@ void checkSwitches() {
 
         case MODE_SUPER_HERO:
         default:
-          if(switch_activate.isPressed() && WAND_ACTION_STATUS == ACTION_IDLE) {
+          if(switch_activate.pushed() && WAND_ACTION_STATUS == ACTION_IDLE) {
               // Turn wand and pack on.
               WAND_ACTION_STATUS = ACTION_ACTIVATE;
             }
@@ -1294,7 +1277,7 @@ void checkSwitches() {
 
         case MODE_SUPER_HERO:
         default:
-          if(switch_activate.getState() == HIGH) {
+          if(switch_activate.on() == false) {
             b_wand_mash_error = false;
             wandOff();
           }
@@ -1308,7 +1291,7 @@ void checkSwitches() {
           altWingButtonCheck();
 
           // We shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
-          if(switch_vent.getState() == HIGH || switch_wand.getState() == HIGH) {
+          if(switch_vent.on() == false || switch_wand.on() == false) {
               bargraphYearModeUpdate();
               // If any of the right toggle switches are turned off, we must turn the cyclotron off and shuts the Neutrona Wand down to a off idle status. MODE_OFF.
               WAND_ACTION_STATUS = ACTION_OFF;
@@ -1341,7 +1324,7 @@ void checkSwitches() {
 void wandLightControlCheck() {
   if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
     // Vent light and first stage of the safety system.
-    if(switch_vent.getState() == LOW) {
+    if(switch_vent.on() == true) {
       if(b_vent_light_control == true) {
         // Vent light and top white light on, power dependent on mode.
         if(WAND_ACTION_STATUS == ACTION_FIRING) {
@@ -1374,7 +1357,7 @@ void wandLightControlCheck() {
 
       soundIdleStart();
 
-      if(switch_wand.getState() == LOW) {
+      if(switch_wand.on() == true) {
         if(b_beeping != true) {
           // Beep loop.
           soundBeepLoop();
@@ -1384,7 +1367,7 @@ void wandLightControlCheck() {
         soundBeepLoopStop();
       }
     }
-    else if(switch_vent.getState() == HIGH) {
+    else if(switch_vent.on() == false) {
       // Vent light and top white light off.
       digitalWrite(led_vent, HIGH);
 
@@ -1428,7 +1411,7 @@ void wandOff() {
       case SYSTEM_1984:
       case SYSTEM_1989:
         // Proton Pack plays shutdown sound, but standalone Wand needs to play its own
-        if(b_gpstar_benchtest == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_vent.getState() == HIGH) {
+        if(b_gpstar_benchtest == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_vent.on() == false) {
           stopEffect(S_WAND_HEATDOWN);
           playEffect(S_WAND_HEATDOWN);
         }
@@ -1486,7 +1469,7 @@ void wandOff() {
     case SYSTEM_1984:
     case SYSTEM_1989:
       if(SYSTEM_MODE == MODE_SUPER_HERO) {
-        if(switch_vent.getState() == LOW) {
+        if(switch_vent.on() == true) {
           if(b_extra_pack_sounds == true) {
             wandSerialSend(W_WAND_SHUTDOWN_SOUND);
           }
@@ -1576,10 +1559,8 @@ void wandOff() {
     break;
   }
 
-  ms_intensify_doubleclick.stop();
-  switch_intensify.resetCount();
-  switch_wand.resetCount();
-  switch_vent.resetCount();
+  wandSwitchedCount = 0;
+  ventSwitchedCount = 0;
 
   // Start the timer for the power on indicator option.
   if(b_power_on_indicator == true) {
@@ -1598,7 +1579,7 @@ void fireControlCheck() {
       ms_bmash.start(i_bmash_cool_down);
     }
     else {
-      if(switch_intensify.getState() == LOW && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
+      if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
         if(WAND_ACTION_STATUS != ACTION_FIRING) {
           WAND_ACTION_STATUS = ACTION_FIRING;
         }
@@ -1619,7 +1600,7 @@ void fireControlCheck() {
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
       if(b_cross_the_streams == true) {
-        if(switch_mode.getState() == LOW && switch_wand.getState() == LOW && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
+        if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
           if(WAND_ACTION_STATUS != ACTION_FIRING) {
             WAND_ACTION_STATUS = ACTION_FIRING;
           }
@@ -1637,7 +1618,7 @@ void fireControlCheck() {
 
           b_firing_alt = true;
         }
-        else if(switch_mode.getState() == HIGH) {
+        else if(switch_mode.on() == false) {
           if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
             WAND_ACTION_STATUS = ACTION_IDLE;
           }
@@ -1647,7 +1628,7 @@ void fireControlCheck() {
       }
       else if(b_vg_mode == true) {
         if(FIRING_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
-          if(switch_mode.getState() == LOW) {
+          if(switch_mode.on() == true) {
             b_firing_alt = true;
 
             if(ms_bmash.remaining() < 1) {
@@ -1659,7 +1640,7 @@ void fireControlCheck() {
         }
       }
 
-      if(switch_intensify.getState() == HIGH && b_firing == true && b_firing_intensify == true) {
+      if(switch_intensify.on() == false && b_firing == true && b_firing_intensify == true) {
         if(b_firing_alt != true || b_vg_mode == true) {
           WAND_ACTION_STATUS = ACTION_IDLE;
         }
@@ -1668,20 +1649,20 @@ void fireControlCheck() {
       }
     }
 
-    if(switch_activate.getState() == HIGH) {
+    if(switch_activate.on() == false) {
       WAND_ACTION_STATUS = ACTION_OFF;
     }
 
     // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
     // Super Hero Mode only, because mode original uses different toggle switch combinations which makes this not possible.
     if(b_quick_vent == true && SYSTEM_MODE == MODE_SUPER_HERO) {
-      if(switch_intensify.isPressed() && switch_wand.getState() == HIGH && switch_vent.getState() == LOW && switch_activate.getState() == LOW && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
+      if(switch_intensify.pushed() && switch_wand.on() == false && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true && b_quick_vent == true && b_overheat_enabled == true) {
         startVentSequence();
       }
     }
   }
   else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
-    if(switch_activate.getState() == HIGH) {
+    if(switch_activate.on() == false) {
       WAND_ACTION_STATUS = ACTION_OFF;
     }
   }
@@ -1691,7 +1672,7 @@ void fireControlCheck() {
 void altWingButtonCheck() {
   // This is for when the Wand Barrel Switch is enabled for video game mode. b_cross_the_streams must not be enabled.
   if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_cross_the_streams_mix != true && b_pack_alarm != true) {
-    if(switch_mode.isPressed()) {
+    if(switch_mode.pushed()) {
       // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
       if(i_wand_menu == 5) {
         // Cycle through the firing modes and setting menu.
@@ -1886,7 +1867,7 @@ void modeActivate() {
       WAND_ACTION_STATUS = ACTION_IDLE;
 
       // If starting up directly from any of the non-toggle-sequence switches, play the wand heatup sound.
-      if(switch_activate.isPressed() != true && switch_activate.isReleased() != true && b_mode_original_toggle_sounds_enabled == true) {
+      if(switch_activate.switched() == false && b_mode_original_toggle_sounds_enabled == true) {
         if(b_extra_pack_sounds == true) {
           wandSerialSend(W_MODE_ORIGINAL_HEATUP);
         }
@@ -1905,7 +1886,7 @@ void modeActivate() {
     case MODE_SUPER_HERO:
     default:
       // The wand was started while the top switch was already on, so let's put the wand into a startup error mode.
-      if(switch_wand.getState() == LOW && b_wand_boot_errors == true) {
+      if(switch_wand.on() == true && b_wand_boot_errors == true) {
         b_wand_mash_error = true;
         modeError();
       }
@@ -1949,7 +1930,7 @@ void postActivation() {
 
         case MODE_SUPER_HERO:
           bargraphRampUp();
-          if(switch_vent.getState() == LOW) {
+          if(switch_vent.on() == true) {
             b_all_switch_activation = true; // If vent switch is already on when Activate is flipped, set to true for soundIdleLoop() to use
           }
         break;
@@ -1985,7 +1966,7 @@ void postActivation() {
 
           soundIdleLoop(true);
 
-          if(switch_vent.getState() == HIGH && b_pack_ribbon_cable_on == true) {
+          if(switch_vent.on() == false && b_pack_ribbon_cable_on == true) {
             afterLifeRamp1();
           }
         break;
@@ -2052,7 +2033,7 @@ void soundIdleStart() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        if(b_extra_pack_sounds == true && switch_vent.getState() == LOW && (switch_vent.isPressed() || switch_vent.isReleased())) {
+        if(b_extra_pack_sounds == true && switch_vent.on() && switch_vent.switched()) {
           wandSerialSend(W_WAND_BOOTUP_SOUND);
         }
 
@@ -6725,7 +6706,7 @@ void checkRotaryEncoder() {
       case ACTION_CONFIG_EEPROM_MENU:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.on() == true && switch_mode.on() == false) {
             // Adjust the default bootup system volume.
             wandSerialSend(W_VOLUME_DECREASE_EEPROM);
 
@@ -6734,34 +6715,34 @@ void checkRotaryEncoder() {
               decreaseVolumeEEPROM();
             }
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() == true && switch_mode.on() == false) {
             wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_5);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.on() == true && switch_mode.on() == false) {
             wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_4);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.on() == true && switch_mode.on() == false) {
             wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_3);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.on() == true && switch_mode.on() == false) {
             wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_2);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.on() == true && switch_mode.on() == false) {
             wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_1);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() == false && switch_mode.on() == true) {
             overheatTimerDecrement(5);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
             overheatTimerDecrement(4);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
             overheatTimerDecrement(3);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
             overheatTimerDecrement(2);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
             overheatTimerDecrement(1);
           }
           else if(i_wand_menu - 1 < 1) {
@@ -6890,7 +6871,7 @@ void checkRotaryEncoder() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.on() == true && switch_mode.on() == false) {
             // Adjust the default bootup system volume.
             wandSerialSend(W_VOLUME_INCREASE_EEPROM);
 
@@ -6899,34 +6880,34 @@ void checkRotaryEncoder() {
               increaseVolumeEEPROM();
             }
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() == true && switch_mode.on() == false) {
             wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_5);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.on() == true && switch_mode.on() == false) {
             wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_4);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.on() == true && switch_mode.on() == false) {
             wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_3);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.on() == true && switch_mode.on() == false) {
             wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_2);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.on() == true && switch_mode.on() == false) {
             wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_1);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() == false && switch_mode.on() == true) {
             overheatTimerIncrement(5);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
             overheatTimerIncrement(4);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
             overheatTimerIncrement(3);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
             overheatTimerIncrement(2);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
             overheatTimerIncrement(1);
           }
           else if(i_wand_menu + 1 > 5) {
@@ -7057,7 +7038,7 @@ void checkRotaryEncoder() {
       case ACTION_LED_EEPROM_MENU:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          if(i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the wand barrel spectral custom colour.
             if(i_spectral_wand_custom_colour > 1 && i_spectral_wand_custom_saturation > 253) {
               i_spectral_wand_custom_colour--;
@@ -7075,15 +7056,15 @@ void checkRotaryEncoder() {
 
             wandBarrelSpectralCustomConfigOn();
           }
-          else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Power Cell Spectral custom colour.
             wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_DECREASE);
           }
-          else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE);
           }
-          else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
           }
@@ -7097,7 +7078,7 @@ void checkRotaryEncoder() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(i_wand_menu == 4 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          if(i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Wand Barrel Spectral custom colour.
             if(i_spectral_wand_custom_saturation < 254) {
               i_spectral_wand_custom_saturation++;
@@ -7122,15 +7103,15 @@ void checkRotaryEncoder() {
 
             wandBarrelSpectralCustomConfigOn();
           }
-          else if(i_wand_menu == 3 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Power Cell Spectral custom colour.
             wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_INCREASE);
           }
-          else if(i_wand_menu == 2 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE);
           }
-          else if(i_wand_menu == 1 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW) {
+          else if(i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
           }
@@ -7146,18 +7127,18 @@ void checkRotaryEncoder() {
       case ACTION_SETTINGS:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(i_wand_menu == 4 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          if(i_wand_menu == 4 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == true && switch_mode.on() == false) {
             // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
             wandSerialSend(W_DIMMING_DECREASE);
           }
-          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == true && switch_mode.on() == false) {
             // Lower the sound effects volume.
             decreaseVolumeEffects();
 
             // Tell pack to lower the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
           }
-          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW && b_playing_music == true) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == false && switch_mode.on() == true && b_playing_music == true) {
             // Decrease the music volume.
             if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
               i_volume_music_percentage = 0;
@@ -7222,18 +7203,18 @@ void checkRotaryEncoder() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(i_wand_menu == 4 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          if(i_wand_menu == 4 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == true && switch_mode.on() == false) {
             // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
             wandSerialSend(W_DIMMING_INCREASE);
           }
-          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == LOW && switch_mode.getState() == HIGH) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == true && switch_mode.on() == false) {
             // Increase sound effects volume.
             increaseVolumeEffects();
 
             // Tell pack to increase the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
           }
-          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.getState() == HIGH && switch_mode.getState() == LOW && b_playing_music == true) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == false && switch_mode.on() == true && b_playing_music == true) {
             // Increase music volume.
             if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
               i_volume_music_percentage = 100;
@@ -7337,7 +7318,7 @@ void checkRotaryEncoder() {
               switch(getSystemYearMode()) {
                 case SYSTEM_1984:
                 case SYSTEM_1989:
-                  if(switch_vent.getState() == LOW) {
+                  if(switch_vent.on() == true) {
                     soundIdleLoopStop();
                     soundIdleLoop(false);
                   }
@@ -7399,7 +7380,7 @@ void checkRotaryEncoder() {
                 switch(getNeutronaWandYearMode()) {
                   case SYSTEM_1984:
                   case SYSTEM_1989:
-                    if(switch_vent.getState() == LOW) {
+                    if(switch_vent.on() == true) {
                       soundIdleLoopStop();
                       soundIdleLoop(false);
                     }
@@ -7502,12 +7483,22 @@ void vibrationSetting() {
 }
 
 void switchLoops() {
-  switch_intensify.loop();
-  switch_activate.loop();
-  switch_vent.loop();
-  switch_wand.loop();
-  switch_mode.loop();
-  switch_barrel.loop();
+  switch_intensify.poll();
+  switch_activate.poll();
+  switch_vent.poll();
+  switch_wand.poll();
+  switch_mode.poll();
+  switch_barrel.poll();
+}
+
+void ventSwitched(void* n) {
+  (void)(n); // Suppress unused variable warning
+  ventSwitchedCount++;
+}
+
+void wandSwitched(void* n) {
+  (void)(n); // Suppress unused variable warning
+  wandSwitchedCount++;
 }
 
 void wandBarrelLightsOff() {
@@ -7538,9 +7529,6 @@ void wandExitMenu() {
   if(b_pack_alarm != true) {
     playEffect(S_CLICK);
   }
-
-  ms_intensify_doubleclick.stop();
-  switch_intensify.resetCount();
 
   switch(PREV_FIRING_MODE) {
     case MESON:
@@ -7594,7 +7582,7 @@ void wandExitMenu() {
 
   // In original mode, we need to re-initalise the 28 segment bargraph if some switches are already toggled on.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
-    if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+    if(switch_vent.on() == true && switch_wand.on() == true) {
       if(b_pack_ion_arm_switch_on == true && b_28segment_bargraph == true && b_mode_original_toggle_sounds_enabled == true) {
         if(b_extra_pack_sounds == true) {
           wandSerialSend(W_MODE_ORIGINAL_HEATUP);
@@ -7618,10 +7606,8 @@ void wandExitMenu() {
 void wandExitEEPROMMenu() {
   playEffect(S_BEEPS_BARGRAPH);
 
-  ms_intensify_doubleclick.stop();
-  switch_intensify.resetCount();
-  switch_wand.resetCount();
-  switch_vent.resetCount();
+  wandSwitchedCount = 0;
+  ventSwitchedCount = 0;
 
   analogWrite(vibration, 0); // Make sure we stop any menu-related vibration, if any
 
@@ -7647,14 +7633,14 @@ void wandExitEEPROMMenu() {
 
 // Barrel safety switch is connected to analog pin 7.
 bool switchBarrel() {
-  if(switch_barrel.getState() == LOW) {
+  if(switch_barrel.on() == true) {
     if(b_switch_barrel_extended == true) {
       wandSerialSend(W_BARREL_RETRACTED);
     }
 
     b_switch_barrel_extended = false;
   }
-  else if(switch_barrel.getState() == HIGH) {
+  else if(switch_barrel.on() == false) {
     // Play the Afterlife Barrel extension sound effect.
     if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_switch_barrel_extended != true) {
       if(b_extra_pack_sounds == true) {

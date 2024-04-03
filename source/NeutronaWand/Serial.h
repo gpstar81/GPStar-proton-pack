@@ -880,7 +880,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
           case MODE_OFF:
             switch(SYSTEM_MODE) {
               case MODE_ORIGINAL:
-                if(switch_vent.getState() == LOW && switch_wand.getState() == LOW) {
+                if(switch_vent.on() == true && switch_wand.on() == true) {
                   if(b_mode_original_toggle_sounds_enabled == true) {
                     if(b_extra_pack_sounds == true) {
                       wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
@@ -921,7 +921,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
-          if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && b_mode_original_toggle_sounds_enabled == true) {
+          if(switch_vent.on() == true && switch_wand.on() == true && b_mode_original_toggle_sounds_enabled == true) {
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
               wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
@@ -963,7 +963,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
                   stopEffect(S_WAND_SHUTDOWN);
                   playEffect(S_WAND_SHUTDOWN);
 
-                if(switch_vent.getState() == HIGH) {
+                if(switch_vent.on() == false) {
                   stopAfterLifeSounds();
                   playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
 
@@ -1047,7 +1047,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
             stopEffect(S_WAND_SHUTDOWN);
             playEffect(S_WAND_SHUTDOWN);
 
-            if(switch_vent.getState() == HIGH) {
+            if(switch_vent.on() == false) {
               stopAfterLifeSounds();
             }
 
@@ -1066,7 +1066,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
         if(WAND_STATUS == MODE_ON) {
           switch(SYSTEM_MODE) {
             case MODE_ORIGINAL:
-              if(switch_vent.getState() == LOW && switch_wand.getState() == LOW && switch_activate.getState() == LOW && b_pack_alarm == true) {
+              if(switch_vent.on() == true && switch_wand.on() == true && switch_activate.on() == true && b_pack_alarm == true) {
                 b_pack_alarm = false;
 
                 prepBargraphRampUp();
@@ -1093,7 +1093,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
           stopEffect(S_WAND_BOOTUP);
           playEffect(S_WAND_BOOTUP);
 
-          if(switch_vent.getState() == HIGH) {
+          if(switch_vent.on() == false) {
             afterLifeRamp1();
           }
         }
@@ -1657,14 +1657,25 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_CYCLOTRON_LEDS_40:
       stopEffect(S_VOICE_CYCLOTRON_40);
+      stopEffect(S_VOICE_CYCLOTRON_36);
       stopEffect(S_VOICE_CYCLOTRON_20);
       stopEffect(S_VOICE_CYCLOTRON_12);
 
       playEffect(S_VOICE_CYCLOTRON_40);
     break;
 
+    case P_CYCLOTRON_LEDS_36:
+      stopEffect(S_VOICE_CYCLOTRON_40);
+      stopEffect(S_VOICE_CYCLOTRON_36);
+      stopEffect(S_VOICE_CYCLOTRON_20);
+      stopEffect(S_VOICE_CYCLOTRON_12);
+
+      playEffect(S_VOICE_CYCLOTRON_36);
+    break;
+
     case P_CYCLOTRON_LEDS_20:
       stopEffect(S_VOICE_CYCLOTRON_40);
+      stopEffect(S_VOICE_CYCLOTRON_36);
       stopEffect(S_VOICE_CYCLOTRON_20);
       stopEffect(S_VOICE_CYCLOTRON_12);
 
@@ -1673,6 +1684,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_CYCLOTRON_LEDS_12:
       stopEffect(S_VOICE_CYCLOTRON_40);
+      stopEffect(S_VOICE_CYCLOTRON_36);
       stopEffect(S_VOICE_CYCLOTRON_20);
       stopEffect(S_VOICE_CYCLOTRON_12);
 

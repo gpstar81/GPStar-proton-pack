@@ -48,8 +48,11 @@ const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible
 bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
-uint8_t i_wand_sound_level = 0; // 1 for Wav Trigger.
-uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume. For GPStar Audio we increase this.
+uint8_t i_wand_sound_level = 0; // 1 for WAV Trigger. 0 For GPStar Audio.
+const uint8_t i_volume_master_percentage_wav_trigger = 100;
+const uint8_t i_volume_gpstar_amplification_low = 70; // GPStar. Subtracts this from i_volume_master_percentage_max.
+const uint8_t i_volume_gpstar_amplification_high = 150; // GPStar audio. Gets added to i_volume_master_percentage_max.
+uint8_t i_volume_master_percentage_max = i_volume_master_percentage_wav_trigger; // Max percentage of master volume. For GPStar Audio we increase this.
 
 /*
  * Music Control/Checking
@@ -84,6 +87,7 @@ void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume
 void stopEffect(int i_track_id);
 void playMusic();
 void stopMusic();
+void calculateAmplificationGain();
 
 /*
  * Helper Functions
@@ -721,15 +725,15 @@ bool setupAudioDevice() {
   // Stop all tracks.
   audio.stopAllTracks();
 
-  // Reset the sample rate offset. Only for the Wav Trigger.
+  // Reset the sample rate offset. Only for the WAV Trigger.
   audio.samplerateOffset(0);
 
   audio.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
 
-  // Onboard amplifier on or off. Only for the Wav Trigger.
+  // Onboard amplifier on or off. Only for the WAV Trigger.
   audio.setAmpPwr(b_onboard_amp_enabled);
 
-  // Enable track reporting if in bench test mode. Only for the Wav Trigger.
+  // Enable track reporting if in bench test mode. Only for the WAV Trigger.
   audio.setReporting(b_gpstar_benchtest);
 
   // Allow time for hello command and other data to return back.
@@ -741,6 +745,8 @@ bool setupAudioDevice() {
 
     AUDIO_DEVICE = A_WAV_TRIGGER;
     i_wand_sound_level = 1; // This gets subtracted from certain sounds volume level.
+
+    calculateAmplificationGain();
 
     debugln(F("Using WavTrigger"));
 
@@ -755,7 +761,8 @@ bool setupAudioDevice() {
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
 
     i_wand_sound_level = 0; // Special setting to adjust certain wand sounds, usually lower.
-    i_volume_master_percentage_max = 150; // Increase the overall max gain the GPStar Audio can amplify.
+    
+    calculateAmplificationGain();
 
     debugln(F("Using GPStar Audio"));
 
@@ -770,6 +777,20 @@ bool setupAudioDevice() {
     debugln(F("No Audio Device"));
 
     return false;
+  }
+}
+
+void calculateAmplificationGain() {
+  if(AUDIO_DEVICE = A_GPSTAR_AUDIO) {
+    if(b_amplify_wand_speaker == true) {
+      i_volume_master_percentage_max = i_volume_gpstar_amplification_high; // Increase the overall max gain the GPStar Audio can amplify.
+    }
+    else {
+      i_volume_master_percentage_max = i_volume_gpstar_amplification_low;
+    }
+  }
+  else {
+    i_volume_master_percentage_max = i_volume_master_percentage_wav_trigger;
   }
 }
 

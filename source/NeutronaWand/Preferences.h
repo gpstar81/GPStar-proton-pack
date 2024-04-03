@@ -98,6 +98,7 @@ struct objEEPROM {
   uint8_t overheat_level_1;
 
   uint8_t wand_vibration;
+  uint8_t amplify_wand_speaker;
 };
 
 /*
@@ -451,6 +452,19 @@ void readEEPROM() {
       }
     }
 
+    if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+      if(obj_config_eeprom.amplify_wand_speaker > 0 && obj_config_eeprom.amplify_wand_speaker != 255) {
+        if(obj_config_eeprom.amplify_wand_speaker > 1) {
+          b_amplify_wand_speaker = true;
+        }
+        else {
+          b_amplify_wand_speaker = false;
+        }
+      }
+
+      calculateAmplificationGain();
+    }
+
     // Update the bargraph settings again after loading EEPROM setting data for it.
     bargraphYearModeUpdate();
 
@@ -540,6 +554,7 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_level_2 = 1;
   uint8_t i_overheat_level_1 = 1;
   uint8_t i_wand_vibration = 4;
+  uint8_t i_amplify_wand_speaker = 1;
 
   if(b_cross_the_streams == true) {
     i_cross_the_streams = 2;
@@ -717,6 +732,10 @@ void saveConfigEEPROM() {
     break;
   }
 
+  if(b_amplify_wand_speaker == true) {
+    i_amplify_wand_speaker = 2;
+  }
+
   // Write the data to the EEPROM if any of the values have changed.
   objEEPROM obj_config_eeprom = {
     i_cross_the_streams,
@@ -748,7 +767,8 @@ void saveConfigEEPROM() {
     i_overheat_level_3,
     i_overheat_level_2,
     i_overheat_level_1,
-    i_wand_vibration
+    i_wand_vibration,
+    i_amplify_wand_speaker
   };
 
   // Save and update our object in the EEPROM.

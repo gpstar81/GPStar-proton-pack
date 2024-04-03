@@ -84,6 +84,7 @@ bool b_powercell_colour_toggle = true;
 const unsigned int i_1984_delay = 1050;
 #define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs
 #define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs
+#define CYCLOTRON_DELAY_2021_36_LED 8 // For 36 LEDs
 #define CYCLOTRON_DELAY_2021_40_LED 7 // For 40 LEDs
 
 /*
@@ -92,10 +93,12 @@ const unsigned int i_1984_delay = 1050;
 
  * i_1984_cyclotron_12_leds is for the stock Haslab 12 LED setup.
  * i_1984_cyclotron_20_leds is for the Frutto Technology 20 LED setup.
+ * i_1984_cyclotron_36_leds is for the Frutto Technology Max 36 LED setup.
  * i_1984_cyclotron_40_leds is for a 40 LED NeoPixel ring.
  */
 const uint8_t i_1984_cyclotron_12_leds[4] = { 1, 4, 7, 10 };
 const uint8_t i_1984_cyclotron_20_leds[4] = { 2, 7, 12, 17 };
+const uint8_t i_1984_cyclotron_36_leds[4] = { 5, 14, 23, 32 };
 const uint8_t i_1984_cyclotron_40_leds[4] = { 0, 10, 18, 28 };
 
 /*
@@ -291,7 +294,7 @@ const unsigned int i_1984_fade_in_delay = 210;
 
 /*
  * Set to true to enable the onboard amplifier on the WAV Trigger.
- * This is for the Wav Trigger only and does not affect GPStar Audio.
+ * This is for the WAV Trigger only and does not affect GPStar Audio.
  * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */

@@ -40,6 +40,11 @@
 #define FRUTTO_CYCLOTRON_LED_COUNT 20
 
 /*
+ * The Frutto Max Cyclotron Lid has 36 LEDs.
+ */
+#define FRUTTO_MAX_CYCLOTRON_LED_COUNT 36
+
+/*
  * Set the number of steps for the Inner Cyclotron (cake).
  */
 #define INNER_CYCLOTRON_CAKE_LED_MAX 35
@@ -200,6 +205,7 @@ uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = { 0, 0, 0, 0, 0, 0, 0, 
 // For the Afterlife Cyclotron matrix pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
 const uint8_t i_cyclotron_12led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 0, 0, 0, 0, 0, 0, 0 };
 const uint8_t i_cyclotron_20led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 16, 17, 18, 19, 20, 0, 0, 0, 0, 0 };
+const uint8_t i_cyclotron_36led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 0, 19, 20, 21, 22, 23, 24, 25, 26, 27, 0, 28, 29, 30, 31, 32, 33, 34, 35, 36, 0 };
 const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40 };
 
 /*

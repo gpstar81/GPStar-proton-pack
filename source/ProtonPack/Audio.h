@@ -21,7 +21,7 @@
 
 /**
  ***** IMPORTANT *****
- * If using a Wav Trigger, please make sure they are running the custom gpstar version firmware version 1.40 or higher.
+ * If using a WAV Trigger, please make sure they are running the custom gpstar version firmware version 1.40 or higher.
  * You can download the latest directly from the GPStar github repository.
  * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
  *
@@ -48,7 +48,7 @@ const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible
 bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
-uint8_t i_wand_sound_level = 10; // 10 for Wav Trigger. 40 for GPStar Audio. This lowers the volume of certain wand sounds that the Proton Pack can play.
+uint8_t i_wand_sound_level = 10; // 10 for WAV Trigger. 40 for GPStar Audio. This lowers the volume of certain wand sounds that the Proton Pack can play.
 uint8_t i_gpstar_audio_volume_factor = 0; // Main volume gain factor for the GPStar Audio. This is applied to certain sound effects only.
 uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume. For GPStar Audio we increase this.
 
@@ -773,15 +773,15 @@ bool setupAudioDevice() {
   // Stop all tracks.
   audio.stopAllTracks();
 
-  // Reset the sample rate offset. Only for the Wav Trigger.
+  // Reset the sample rate offset. Only for the WAV Trigger.
   audio.samplerateOffset(0);
 
   audio.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
 
-  // Onboard amplifier on or off. Only for the Wav Trigger.
+  // Onboard amplifier on or off. Only for the WAV Trigger.
   audio.setAmpPwr(b_onboard_amp_enabled);
 
-  // Enable track reporting. Only for the Wav Trigger.
+  // Enable track reporting. Only for the WAV Trigger.
   audio.setReporting(true);
 
   // Allow time for hello command and other data to return back.
