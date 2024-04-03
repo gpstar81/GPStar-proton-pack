@@ -1280,6 +1280,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       debugln(F("Wand Synchronized"));
       b_wand_syncing = false; // Stop trying to sync since we've successfully synchronized.
       b_wand_connected = true; // Wand sent sync confirmation, so it must be connected.
+      ms_wand_check.start(i_wand_disconnect_delay); // Wand is synchronized, so start the keep-alive timer.
       serial1Send(A_WAND_CONNECTED); // Tell the serial1 device the wand is (re-)connected.
     break;
 

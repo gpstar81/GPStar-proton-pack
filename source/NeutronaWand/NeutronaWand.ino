@@ -222,7 +222,7 @@ void loop() {
       // When connected to a pack, prepare to send a regular handshake to indicate presence.
       if(ms_handshake.justFinished()) {
         wandSerialSend(W_HANDSHAKE); // Remind the pack that a wand is still present.
-        ms_handshake.start(i_heartbeat_delay); // Delay after initial connection.
+        ms_handshake.restart(); // Restart the handshake timer.
       }
 
       updateAudio(); // Update the state of the selected sound board.
