@@ -50,8 +50,8 @@ bool b_music_paused = false;
 bool b_repeat_track = false;
 uint8_t i_wand_sound_level = 0; // 1 for WAV Trigger. 0 For GPStar Audio.
 const uint8_t i_volume_master_percentage_wav_trigger = 100;
-const uint8_t i_volume_gpstar_amplification_low = 70; // GPStar. Subtracts this from i_volume_master_percentage_max.
-const uint8_t i_volume_gpstar_amplification_high = 150; // GPStar audio. Gets added to i_volume_master_percentage_max.
+const uint8_t i_volume_gpstar_amplification_low = 60; // GPStar Audio.
+const uint8_t i_volume_gpstar_amplification_high = 150; // GPStar Audio high amplification.
 uint8_t i_volume_master_percentage_max = i_volume_master_percentage_wav_trigger; // Max percentage of master volume. For GPStar Audio we increase this.
 
 /*
@@ -435,7 +435,7 @@ void increaseVolumeEEPROM() {
   }
 
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = 100;
+    i_volume_master_percentage = i_volume_master_percentage_max;;
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -507,7 +507,7 @@ void increaseVolume() {
     i_volume_master = MINIMUM_VOLUME;
   }
 
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+  if(i_volume_master_percentage + VOLUME_MULTIPLIER > i_volume_master_percentage_max) {
     i_volume_master_percentage = i_volume_master_percentage_max;
   }
   else {
@@ -585,7 +585,7 @@ void buildMusicCount(uint16_t i_num_tracks) {
 }
 
 bool musicGetTrackCounter() {
-    switch(AUDIO_DEVICE) {
+  switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
       return audio.trackCounterReset();
@@ -802,9 +802,15 @@ void calculateAmplificationGain() {
   else {
     i_volume_master_percentage_max = i_volume_master_percentage_wav_trigger;
   }
+
+  if(i_volume_master_percentage > i_volume_master_percentage_max) {
+    i_volume_master_percentage = i_volume_master_percentage_max;
+  }
 }
 
 void resetMasterVolume() {
+  calculateAmplificationGain();
+
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
