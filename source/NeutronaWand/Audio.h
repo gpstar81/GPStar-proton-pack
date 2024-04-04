@@ -781,7 +781,7 @@ bool setupAudioDevice() {
 }
 
 void calculateAmplificationGain() {
-  if(AUDIO_DEVICE = A_GPSTAR_AUDIO) {
+  if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
     if(b_amplify_wand_speaker == true) {
       i_volume_master_percentage_max = i_volume_gpstar_amplification_high; // Increase the overall max gain the GPStar Audio can amplify.
     }
