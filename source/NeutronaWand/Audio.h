@@ -50,7 +50,7 @@ bool b_music_paused = false;
 bool b_repeat_track = false;
 uint8_t i_wand_sound_level = 0; // 1 for WAV Trigger. 0 For GPStar Audio.
 const uint8_t i_volume_master_percentage_wav_trigger = 100;
-const uint8_t i_volume_gpstar_amplification_low = 60; // GPStar Audio.
+const uint8_t i_volume_gpstar_amplification_low = 100; // GPStar Audio.
 const uint8_t i_volume_gpstar_amplification_high = 150; // GPStar Audio high amplification.
 uint8_t i_volume_master_percentage_max = i_volume_master_percentage_wav_trigger; // Max percentage of master volume. For GPStar Audio we increase this.
 
