@@ -946,12 +946,12 @@ void checkWandAction() {
               if(b_amplify_wand_speaker == true) {
                 b_amplify_wand_speaker = false;
 
-                wandSerialSend(S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_DISABLED);
+                wandSerialSend(W_SOUND_NEUTRONA_WAND_SPEAKER_AMP_DISABLED);
               }
               else {
                 b_amplify_wand_speaker = true;
 
-                wandSerialSend(S_VOICE_NEUTRONA_WAND_SPEAKER_AMPLIFICATION_ENABLED);
+                wandSerialSend(W_SOUND_NEUTRONA_WAND_SPEAKER_AMP_ENABLED);
               }
 
               calculateAmplificationGain();
