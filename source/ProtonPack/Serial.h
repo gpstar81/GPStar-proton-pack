@@ -3501,7 +3501,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           playEffect(S_VOICE_CYCLOTRON_20);
           packSerialSend(P_CYCLOTRON_LEDS_20);
         break;
-        
+
         case FRUTTO_CYCLOTRON_LED_COUNT:
         default:
           // Switch to 12 LEDs. Default HasLab.

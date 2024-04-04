@@ -2020,7 +2020,7 @@ void cyclotron2021(int cDelay) {
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
             case FRUTTO_CYCLOTRON_LED_COUNT:
             case HASLAB_CYCLOTRON_LED_COUNT:
-            default:            
+            default:
               if(i_cyclotron_matrix_led > 0) {
                 ms_cyclotron.start(i_current_ramp_speed);
               }
@@ -2089,7 +2089,7 @@ void cyclotron2021(int cDelay) {
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
             case FRUTTO_CYCLOTRON_LED_COUNT:
             case HASLAB_CYCLOTRON_LED_COUNT:
-            default:            
+            default:
               if(i_cyclotron_matrix_led > 0) {
                 ms_cyclotron.start(i_current_ramp_speed);
               }
@@ -2145,7 +2145,7 @@ void cyclotron2021(int cDelay) {
           case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
           case FRUTTO_CYCLOTRON_LED_COUNT:
           case HASLAB_CYCLOTRON_LED_COUNT:
-          default:          
+          default:
             if(i_cyclotron_matrix_led > 0) {
               ms_cyclotron.start(t_cDelay);
             }
@@ -3790,7 +3790,7 @@ void cyclotronSwitchPlateLEDs() {
     // Play some spark sounds if the pack is running and the lid is removed.
     if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
-      
+
       // Cyclotron lid is off, play the Frozen Empire sound effect.
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
@@ -3813,7 +3813,7 @@ void cyclotronSwitchPlateLEDs() {
 
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
-      }      
+      }
     }
   }
 
