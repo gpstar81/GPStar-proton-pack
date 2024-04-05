@@ -1787,12 +1787,22 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Overheating
       stopEffect(S_BEEP_8);
 
-      playEffect(S_VENT_SLOW);
+      if(FIRING_MODE == SLIME) {
+        playEffect(S_SLIME_EMPTY);
+      }
+      else {
+        playEffect(S_VENT_OPEN);
+      }
 
       b_overheating = true;
 
       // Start timer for a second smoke sound.
-      ms_overheating.start(i_overheating_delay);
+      if(FIRING_MODE == SLIME) {
+        ms_overheating.start(i_overheating_delay - 1000);
+      }
+      else {
+        ms_overheating.start(i_overheating_delay);
+      }
 
       // Reset some vent light timers.
       ms_vent_light_off.stop();
