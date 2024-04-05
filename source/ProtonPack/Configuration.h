@@ -84,7 +84,7 @@ bool b_powercell_colour_toggle = true;
 const unsigned int i_1984_delay = 1050;
 #define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs
 #define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs
-#define CYCLOTRON_DELAY_2021_36_LED 8 // For 36 LEDs
+#define CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs
 #define CYCLOTRON_DELAY_2021_40_LED 7 // For 40 LEDs
 
 /*
