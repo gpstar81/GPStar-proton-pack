@@ -2058,6 +2058,14 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 10);
+              }
+            break;
+
             case FRUTTO_CYCLOTRON_LED_COUNT:
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
@@ -2099,6 +2107,14 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 10);
+              }
+            break;
+
             case FRUTTO_CYCLOTRON_LED_COUNT:
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
@@ -2155,6 +2171,17 @@ void cyclotron2021(int cDelay) {
           break;
 
           case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+            if(i_cyclotron_matrix_led > 0) {
+              ms_cyclotron.start(t_cDelay);
+            }
+            else if(i_current_ramp_speed > i_2021_delay) {
+              ms_cyclotron.start((t_cDelay - i_2021_delay) * 10); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
+            }
+            else {
+              ms_cyclotron.start(t_cDelay - t_cDelay);
+            }
+          break;
+
           case FRUTTO_CYCLOTRON_LED_COUNT:
           case HASLAB_CYCLOTRON_LED_COUNT:
           default:
@@ -4363,7 +4390,9 @@ void overheatDecrement(uint8_t i_tmp_power_level) {
 void updateProtonPackLEDCounts() {
   i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_leds;
   i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
+
   i_cyclotron_led_start = i_powercell_leds;
+
   i_max_inner_cyclotron_leds = i_inner_cyclotron_cake_num_leds + i_inner_cyclotron_cavity_num_leds;
 }
 
