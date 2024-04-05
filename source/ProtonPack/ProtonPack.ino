@@ -795,7 +795,9 @@ void packShutdown() {
     // Need to play the 'close' SFX if we already played the open one
     stopEffect(S_SLIME_EMPTY);
     stopEffect(S_VENT_OPEN);
-    playEffect(S_VENT_CLOSE);
+    if(FIRING_MODE != SLIME) {
+      playEffect(S_VENT_CLOSE);
+    }
   }
 
   if(b_alarm != true) {
@@ -2826,8 +2828,11 @@ void packOverheatingFinished() {
 
   stopEffect(S_STEAM_LOOP);
   stopEffect(S_SLIME_REFILL);
-  playEffect(S_VENT_CLOSE);
-  playEffect(S_STEAM_LOOP_FADE_OUT);
+
+  if(FIRING_MODE != SLIME) {
+    playEffect(S_VENT_CLOSE);
+    playEffect(S_STEAM_LOOP_FADE_OUT);
+  }
 
   b_overheating = false;
 
