@@ -258,7 +258,9 @@ void loop() {
             }
           }
 
-          packOffReset();
+          if(b_reset_start_led == false) {
+            packOffReset();
+          }
         }
       }
 
@@ -761,6 +763,7 @@ void packShutdown() {
   stopEffect(S_BEEP_8);
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
+  stopEffect(S_SLIME_REFILL);
 
   stopEffect(S_PACK_SLIME_TANK_LOOP);
   stopEffect(S_STASIS_IDLE_LOOP);
@@ -785,6 +788,15 @@ void packShutdown() {
 
     if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
       stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+    }
+  }
+
+  if(b_overheating == true) {
+    // Need to play the 'close' SFX if we already played the open one
+    stopEffect(S_SLIME_EMPTY);
+    stopEffect(S_VENT_OPEN);
+    if(FIRING_MODE != SLIME) {
+      playEffect(S_VENT_CLOSE);
     }
   }
 
@@ -837,18 +849,6 @@ void packOffReset() {
   powercellOff();
   cyclotronSwitchLEDOff();
 
-  // Reset the Power Cell timer.
-  ms_powercell.stop();
-  ms_powercell.start(i_powercell_delay);
-
-  // Reset the Cyclotron LED switch timer.
-  ms_cyclotron_switch_led.stop();
-  ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
-
-  // Need to reset the Cyclotron timers.
-  ms_cyclotron.start(i_2021_delay);
-  ms_cyclotron_ring.start(i_inner_ramp_delay);
-
   ms_overheating_length.stop();
   b_overheating = false;
   b_2021_ramp_down = false;
@@ -874,6 +874,18 @@ void packOffReset() {
       i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base * 4;
     break;
   }
+
+  // Reset the Power Cell timer.
+  ms_powercell.stop();
+  ms_powercell.start(i_powercell_delay);
+
+  // Reset the Cyclotron LED switch timer.
+  ms_cyclotron_switch_led.stop();
+  ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
+
+  // Need to reset the Cyclotron timers.
+  ms_cyclotron.start(i_2021_delay);
+  ms_cyclotron_ring.start(i_inner_ramp_delay);
 
   // Vibration motor off.
   vibrationPack(0);
@@ -2662,13 +2674,19 @@ void cyclotron84LightOff(int cLed) {
 }
 
 void cyclotronOverheating() {
-  if(b_overheat_sync_to_fan != true) {
+  if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
     smokeNFilter(true);
   }
 
   if(ms_overheating.justFinished()) {
-    playEffect(S_AIR_RELEASE);
-    playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+    if(FIRING_MODE == SLIME) {
+      // Play the sound of slime refilling the tank.
+      playEffect(S_SLIME_REFILL, true);
+    }
+    else {
+      playEffect(S_AIR_RELEASE);
+      playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+    }
 
     // Fade in the steam release loop.
     playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
@@ -2758,9 +2776,7 @@ void cyclotronOverheating() {
     break;
   }
 
-  // Time the N-Filter light to when the fan is running.
-  //if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
-  if(ms_overheating_length.isRunning()) {
+  if(ms_overheating_length.isRunning() && FIRING_MODE != SLIME) {
     if(b_overheat_sync_to_fan == true) {
       smokeNFilter(true);
     }
@@ -2811,8 +2827,12 @@ void packOverheatingFinished() {
   ms_overheating_length.stop();
 
   stopEffect(S_STEAM_LOOP);
-  playEffect(S_VENT_DRY);
-  playEffect(S_STEAM_LOOP_FADE_OUT);
+  stopEffect(S_SLIME_REFILL);
+
+  if(FIRING_MODE != SLIME) {
+    playEffect(S_VENT_CLOSE);
+    playEffect(S_STEAM_LOOP_FADE_OUT);
+  }
 
   b_overheating = false;
 
@@ -3502,8 +3522,10 @@ void wandFiring() {
   smokeNFilter(false);
 
   // Start a smoke timer to play a little bit of smoke while firing.
-  ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
-  ms_smoke_on.stop();
+  if(FIRING_MODE != SLIME) {
+    ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
+    ms_smoke_on.stop();
+  }
 
   vibrationPack(255);
 

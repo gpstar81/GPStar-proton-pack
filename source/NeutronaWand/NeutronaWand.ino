@@ -743,9 +743,6 @@ void overheatingFinished() {
 
   WAND_ACTION_STATUS = ACTION_IDLE;
 
-  stopEffect(S_CLICK);
-  stopEffect(S_VENT_DRY);
-
   // Prepare a few things before ramping the bargraph back up from a full ramp down.
   if(b_overheat_bargraph_blink != true) {
     if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
@@ -839,6 +836,7 @@ void startVentSequence() {
   }
 
   stopEffect(S_WAND_SHUTDOWN);
+  stopEffect(S_BEEP_8);
   playEffect(S_WAND_SHUTDOWN);
 
   // Tell the pack we are overheating.
@@ -1456,14 +1454,13 @@ void wandOff() {
     wandSerialSend(W_WAND_BEEP_STOP);
   }
 
-  // Turn off any overheating sounds.
-  stopEffect(S_CLICK);
-  stopEffect(S_VENT_DRY);
-
+  // Turn off any lingering mode switch sounds.
   stopEffect(S_FIRE_START_SPARK);
   stopEffect(S_PACK_SLIME_OPEN);
-  stopEffect(S_STASIS_START);
-  stopEffect(S_MESON_START);
+  stopEffect(S_STASIS_OPEN);
+  stopEffect(S_MESON_OPEN);
+  stopEffect(S_VENT_DRY);
+  stopEffect(S_MODE_SWITCH);
 
   switch(getNeutronaWandYearMode()) {
     case SYSTEM_1984:
@@ -3272,7 +3269,6 @@ void wandHeatUp() {
   stopEffect(S_MESON_OPEN);
   stopEffect(S_MESON_IDLE_LOOP);
   stopEffect(S_VENT_DRY);
-  stopEffect(S_VENT_SMOKE);
   stopEffect(S_MODE_SWITCH);
 
   switch(FIRING_MODE) {
