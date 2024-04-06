@@ -129,19 +129,19 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 - There are 4 power levels in mode original. When the Neutrona Wand is in stand by mode (see toggle switch behaviours below), the bargraph settles on the first level.
 - The switch under the Ion Arm on the Proton Pack must be switched on. This gives power to the entire system. The slo-blo light on the Neutrona Wand will turn solid red to indicate power to the system.
-	- If you are using a standalone Neutrona Wand without a Proton Pack, pressing the Intensify switch twice while the Neutrona Wand is turned off will imitate flipping the switch under the Ion Arm.
+	- If you are using a standalone Neutrona Wand without a Proton Pack, double-clicking the Intensify switch while the Neutrona Wand is turned off will imitate flipping the switch under the Ion Arm.
 - While firing, the default bargraph animations slide the bargraph up and down small increments to indicate the instability and power of the proton stream.
 
 ### Right-Hand Toggle Switch Behaviours
 ![](images/OperationNeutrona13.jpg)
 
-- The bottom toggle will put the Neutrona Wand into standby mode. The slo-blo LED will begin to blink, and the vent lights will turn on.
-- The top toggle turns on the bargraph. It will ramp up and back down to the lowest level setting.
+- The bottom toggle will put the Neutrona Wand into standby mode with an audible beep, and the slo-blo LED will begin to blink.
+- If the bottom toggle is on the top toggle turns on the bargraph, the vent light, and Clippard LED and the heatup sound will play. The bargraph will ramp up and back down to the lowest level setting.
 
 ### Activate Toggle
 
-- Activate toggle on the gun box turns on the cyclotron of the Proton Pack. To activate the cyclotron, all the right hand toggle switches on the Neutrona Wand must be activated.
-	- The Cyclotron will not turn on unless all the toggle switches on the Neutrona Wand are activated and the Ion Arm switch on the Pack is in the ON position.
+- Activate toggle on the gun box turns on the cyclotron of the Proton Pack. To activate the cyclotron, both right hand toggle switches on the Neutrona Wand must be activated.
+	- The Cyclotron will not turn on unless both toggle switches on the Neutrona Wand are activated and the Ion Arm switch on the Pack is in the ON position.
 - The lever switch near the gunbox acts as a safety switch and it must be pulled to extend the barrel before firing.
 
 <div class="page-break"></div>
@@ -158,7 +158,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 	1. Proton Stream (Default)
 	1. Slime Blower
 	1. Stasis Stream
-	1. Meson Collider
+	1. Overload Pulse
 	1. <sup>1</sup> `Spectral (Rainbow)`
 	1. <sup>2</sup> `Spectral (Holiday)`
 	1. <sup>3</sup> `Spectral (Custom)`

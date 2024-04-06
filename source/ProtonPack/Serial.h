@@ -1389,27 +1389,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_WAND_BEEP:
       if(b_overheating != true) {
-        switch(i_wand_power_level) {
-          case 1:
-            playEffect(S_AFTERLIFE_BEEP_WAND_S1, false, i_volume_effects - i_wand_sound_level);
-          break;
-
-          case 2:
-            playEffect(S_AFTERLIFE_BEEP_WAND_S2, false, i_volume_effects - i_wand_sound_level);
-          break;
-
-          case 3:
-            playEffect(S_AFTERLIFE_BEEP_WAND_S3, false, i_volume_effects - i_wand_sound_level);
-          break;
-
-          case 4:
-            playEffect(S_AFTERLIFE_BEEP_WAND_S4, false, i_volume_effects - i_wand_sound_level);
-          break;
-
-          case 5:
-            playEffect(S_AFTERLIFE_BEEP_WAND_S5, false, i_volume_effects - i_wand_sound_level);
-          break;
-        }
+        playEffect(S_AFTERLIFE_BEEP_WAND_S5, false, i_volume_effects - i_wand_sound_level);
       }
     break;
 
@@ -1437,13 +1417,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_MODE_ORIGINAL_HEATUP_STOP:
       stopEffect(S_WAND_HEATUP_ALT);
-      stopEffect(S_WAND_HEATUP);
     break;
 
     case W_MODE_ORIGINAL_HEATUP:
       stopEffect(S_WAND_HEATUP_ALT);
-      stopEffect(S_WAND_HEATUP);
-      playEffect(S_WAND_HEATUP);
       playEffect(S_WAND_HEATUP_ALT);
     break;
 
