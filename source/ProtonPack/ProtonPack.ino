@@ -236,6 +236,7 @@ void loop() {
         // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
         if(b_spectral_lights_on == true) {
           packOffReset();
+
           if(b_cyclotron_lid_on == true) {
             spectralLightsOn();
           }
@@ -2020,7 +2021,6 @@ void cyclotron2021(int cDelay) {
     if(b_2021_ramp_up == true) {
       if(r_2021_ramp.isFinished()) {
         b_2021_ramp_up = false;
-
         i_current_ramp_speed = cDelay;
 
         if(b_cyclotron_simulate_ring == true) {
@@ -2030,6 +2030,14 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 9);
+              }
+            break;
+
             case FRUTTO_CYCLOTRON_LED_COUNT:
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
@@ -2057,16 +2065,24 @@ void cyclotron2021(int cDelay) {
               ms_cyclotron.start(i_current_ramp_speed);
             break;
 
-            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:              
               if(i_cyclotron_matrix_led > 0) {
                 ms_cyclotron.start(i_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed * 10);
+                ms_cyclotron.start(i_current_ramp_speed * 9);
               }
             break;
 
             case FRUTTO_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 5);
+              }
+            break;
+
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
               if(i_cyclotron_matrix_led > 0) {
@@ -2111,11 +2127,19 @@ void cyclotron2021(int cDelay) {
                 ms_cyclotron.start(i_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed * 10);
+                ms_cyclotron.start(i_current_ramp_speed * 9);
               }
             break;
 
             case FRUTTO_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 5);
+              }
+            break;
+
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
               if(i_cyclotron_matrix_led > 0) {
@@ -2175,7 +2199,7 @@ void cyclotron2021(int cDelay) {
               ms_cyclotron.start(t_cDelay);
             }
             else if(i_current_ramp_speed > i_2021_delay) {
-              ms_cyclotron.start((t_cDelay - i_2021_delay) * 10); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
+              ms_cyclotron.start((t_cDelay - i_2021_delay) * 9); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
             }
             else {
               ms_cyclotron.start(t_cDelay - t_cDelay);
@@ -2183,6 +2207,17 @@ void cyclotron2021(int cDelay) {
           break;
 
           case FRUTTO_CYCLOTRON_LED_COUNT:
+            if(i_cyclotron_matrix_led > 0) {
+              ms_cyclotron.start(t_cDelay);
+            }
+            else if(i_current_ramp_speed > i_2021_delay) {
+              ms_cyclotron.start((t_cDelay - i_2021_delay) * 5); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
+            }
+            else {
+              ms_cyclotron.start(t_cDelay - t_cDelay);
+            }
+          break;
+
           case HASLAB_CYCLOTRON_LED_COUNT:
           default:
             if(i_cyclotron_matrix_led > 0) {
@@ -2207,8 +2242,23 @@ void cyclotron2021(int cDelay) {
     }
 
     switch(i_cyclotron_leds) {
-      case OUTER_CYCLOTRON_LED_MAX:
       case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+        if(i_cyclotron_multiplier > 1) {
+          cDelay = cDelay - i_cyclotron_multiplier;
+        }
+        else {
+          cDelay = cDelay / i_cyclotron_multiplier;
+
+          if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
+            cDelay = cDelay * 1;
+          }
+          else {
+            cDelay = cDelay * 3;
+          }
+        }
+      break;
+
+      case OUTER_CYCLOTRON_LED_MAX:
       case FRUTTO_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
           cDelay = cDelay - i_cyclotron_multiplier;
@@ -2986,10 +3036,10 @@ void cyclotronLidLedsOff() {
     }
 
     for(int i = 0; i < i_cyclotron_leds_total; i++) {
-        ms_cyclotron_led_fade_out[i].go(0);
-        ms_cyclotron_led_fade_in[i].go(0);
+      ms_cyclotron_led_fade_out[i].go(0);
+      ms_cyclotron_led_fade_in[i].go(0);
 
-        i_cyclotron_led_on_status[i] = false;
+      i_cyclotron_led_on_status[i] = false;
     }
   }
 }
@@ -3026,11 +3076,13 @@ void resetCyclotronState() {
 }
 
 void clearCyclotronFades() {
-  if(b_fade_out != true) {
+  //if(b_fade_out != true) {
     for(int i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
       i_cyclotron_led_value[i] = 0;
+      ms_cyclotron_led_fade_out[i].go(0);
+      ms_cyclotron_led_fade_in[i].go(0);
     }
-  }
+  //}
 }
 
 void innerCyclotronCakeOff() {
@@ -3984,26 +4036,6 @@ void cyclotronSpeedIncrease() {
   }
 }
 
-/*
-void readEncoder() {
-  if(digitalRead(encoder_pin_a) == digitalRead(encoder_pin_b)) {
-    i_encoder_pos++;
-    Serial.println("clockwise");
-  }
-  else {
-    i_encoder_pos--;
-    Serial.println("counter clockwise");
-  }
-
-  i_val_rotary = i_encoder_pos / 2.5;
-
-  Serial.println("pos --> ");
-  Serial.print(i_encoder_pos);
-  Serial.print(" | val --> ");
-  Serial.print(i_val_rotary);
-}
-*/
-
 int8_t readRotary() {
   static int8_t rot_enc_table[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
 
@@ -4044,8 +4076,6 @@ void checkRotaryEncoder() {
 
     // Clockwise
     if(prev_next_code == 0x0b) {
-      Serial.println("clockwise");
-
       if(ms_volume_check.isRunning() != true) {
         increaseVolume();
 
@@ -4058,8 +4088,6 @@ void checkRotaryEncoder() {
 
     // Counter Clockwise
     if(prev_next_code == 0x07) {
-      Serial.println("counter clockwise");
-
       if(ms_volume_check.isRunning() != true) {
         decreaseVolume();
 

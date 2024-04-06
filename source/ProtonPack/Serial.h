@@ -3535,6 +3535,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       updateProtonPackLEDCounts();
+      
+      resetCyclotronLEDs();
 
       spectralLightsOff();
       spectralLightsOn();

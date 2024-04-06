@@ -185,7 +185,7 @@ const unsigned int i_2021_ramp_down_length = 10500;
 const unsigned int i_1984_ramp_down_length = 2500;
 unsigned int i_current_ramp_speed = i_2021_ramp_delay;
 uint8_t i_cyclotron_multiplier = 1;
-millisDelay ms_cyclotron_auto_speed_timer; // A timer that is active while firing only. Used to speed up the Cyclotron by small increments based on the power modes in Afterlife (2021) only.
+millisDelay ms_cyclotron_auto_speed_timer; // A timer that is active while firing only. Used to speed up the Cyclotron by small increments based on the power modes.
 const unsigned int i_cyclotron_auto_speed_timer_length = 4500;
 bool b_2021_ramp_up = true;
 bool b_2021_ramp_up_start = true;
@@ -202,7 +202,7 @@ rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 rampInt ms_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
 uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-// For the Afterlife Cyclotron matrix pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
+// For the Afterlife and Frozen Empire Cyclotron matrix pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
 const uint8_t i_cyclotron_12led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 0, 0, 0, 0, 0, 0, 0 };
 const uint8_t i_cyclotron_20led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 16, 17, 18, 19, 20, 0, 0, 0, 0, 0 };
 const uint8_t i_cyclotron_36led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 0, 19, 20, 21, 22, 23, 24, 25, 26, 27, 0, 28, 29, 30, 31, 32, 33, 34, 35, 36, 0 };
