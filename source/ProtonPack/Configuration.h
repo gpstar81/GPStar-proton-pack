@@ -84,7 +84,7 @@ bool b_powercell_colour_toggle = true;
 const unsigned int i_1984_delay = 1050;
 #define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs
 #define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs
-#define CYCLOTRON_DELAY_2021_36_LED 8 // For 36 LEDs
+#define CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
 #define CYCLOTRON_DELAY_2021_40_LED 7 // For 40 LEDs
 
 /*
@@ -98,13 +98,13 @@ const unsigned int i_1984_delay = 1050;
  */
 const uint8_t i_1984_cyclotron_12_leds[4] = { 1, 4, 7, 10 };
 const uint8_t i_1984_cyclotron_20_leds[4] = { 2, 7, 12, 17 };
-const uint8_t i_1984_cyclotron_36_leds[4] = { 5, 14, 23, 32 };
+const uint8_t i_1984_cyclotron_36_leds[4] = { 4, 13, 22, 31 };
 const uint8_t i_1984_cyclotron_40_leds[4] = { 0, 10, 18, 28 };
 
 /*
- * Afterlife mode (2021) only.
+ * Afterlife and Frozen Empire only.
  * When set to true, using LEDs that are not a ring will simulate a ring rotation for the Cyclotron LEDs in the lid.
- * For example, for the 12 or 15 LED options, extra LEDs will be simulated to provide a delay/spinning effect.
+ * For example, for the 12, 20 or 36 LED options, extra LEDs will be simulated to provide a delay/spinning effect.
  * The 40 LED ring option is unaffected as it is a true ring.
  * This setting will be overridden by the EEPROM settings.
  */
@@ -115,7 +115,7 @@ bool b_cyclotron_simulate_ring = true;
  * 1000 = 1 second.
  * The lower the number the faster the Power Cell lights cycle.
  * For the stock HasLab Power Cell with 13 leds, 1984 at 75 and 2021 at 40 is a good setting.
- * For a Power Cell with 15 LEDS such as from Frutto Technology, 1984 at 60 and 2021 at 34 is a good setting.
+ * For a Power Cell with 15 LEDS such as from Frutto Technology, 1984 at 60, then for Afterlife and Frozen Empire at 34 is a good setting.
  * If you add more Power Cell LEDs, it is suggested to lower the values a little bit.
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */

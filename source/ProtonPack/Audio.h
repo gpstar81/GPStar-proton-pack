@@ -623,8 +623,12 @@ void buildMusicCount(uint16_t i_num_tracks) {
   // Build the music track count.
   i_music_count = i_num_tracks - i_last_effects_track;
 
-  if(i_music_count > 0) {
+  if(i_music_count > 0 && i_music_count < 5000) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
+  }
+  else {
+    i_music_count = 0; // If the music count is corrupt, make it 0
+    debugln(F("Warning: Calculated music count exceeds 5000; SD card corruption likely!"))
   }
 }
 
@@ -788,12 +792,18 @@ bool setupAudioDevice() {
   delay(350);
 
   if(audio.getVersion(gVersion)) {
-    // We found a WavTrigger. Build the music track count.
-    buildMusicCount((uint16_t) audio.getNumTracks());
+    // We found a WAV Trigger. Build the music track count.
+    if(audio.gpstarAudioHello()) {
+      // Only attempt to build a music track count if the WAV Trigger responded with RSP_SYSTEM_INFO.
+      buildMusicCount((uint16_t) audio.getNumTracks());
+    }
+    else {
+      debugln(F("Warning: RSP_SYSTEM_INFO not received!"));
+    }
 
     AUDIO_DEVICE = A_WAV_TRIGGER;
 
-    debugln(F("Using WavTrigger"));
+    debugln(F("Using WAV Trigger"));
 
     return true;
   }

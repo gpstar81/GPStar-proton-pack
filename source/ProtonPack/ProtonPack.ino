@@ -236,6 +236,7 @@ void loop() {
         // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
         if(b_spectral_lights_on == true) {
           packOffReset();
+
           if(b_cyclotron_lid_on == true) {
             spectralLightsOn();
           }
@@ -258,7 +259,9 @@ void loop() {
             }
           }
 
-          packOffReset();
+          if(b_reset_start_led == false) {
+            packOffReset();
+          }
         }
       }
 
@@ -761,6 +764,7 @@ void packShutdown() {
   stopEffect(S_BEEP_8);
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
+  stopEffect(S_SLIME_REFILL);
 
   stopEffect(S_PACK_SLIME_TANK_LOOP);
   stopEffect(S_STASIS_IDLE_LOOP);
@@ -785,6 +789,15 @@ void packShutdown() {
 
     if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
       stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+    }
+  }
+
+  if(b_overheating == true) {
+    // Need to play the 'close' SFX if we already played the open one
+    stopEffect(S_SLIME_EMPTY);
+    stopEffect(S_VENT_OPEN);
+    if(FIRING_MODE != SLIME) {
+      playEffect(S_VENT_CLOSE);
     }
   }
 
@@ -837,18 +850,6 @@ void packOffReset() {
   powercellOff();
   cyclotronSwitchLEDOff();
 
-  // Reset the Power Cell timer.
-  ms_powercell.stop();
-  ms_powercell.start(i_powercell_delay);
-
-  // Reset the Cyclotron LED switch timer.
-  ms_cyclotron_switch_led.stop();
-  ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
-
-  // Need to reset the Cyclotron timers.
-  ms_cyclotron.start(i_2021_delay);
-  ms_cyclotron_ring.start(i_inner_ramp_delay);
-
   ms_overheating_length.stop();
   b_overheating = false;
   b_2021_ramp_down = false;
@@ -874,6 +875,18 @@ void packOffReset() {
       i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base * 4;
     break;
   }
+
+  // Reset the Power Cell timer.
+  ms_powercell.stop();
+  ms_powercell.start(i_powercell_delay);
+
+  // Reset the Cyclotron LED switch timer.
+  ms_cyclotron_switch_led.stop();
+  ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
+
+  // Need to reset the Cyclotron timers.
+  ms_cyclotron.start(i_2021_delay);
+  ms_cyclotron_ring.start(i_inner_ramp_delay);
 
   // Vibration motor off.
   vibrationPack(0);
@@ -2008,7 +2021,6 @@ void cyclotron2021(int cDelay) {
     if(b_2021_ramp_up == true) {
       if(r_2021_ramp.isFinished()) {
         b_2021_ramp_up = false;
-
         i_current_ramp_speed = cDelay;
 
         if(b_cyclotron_simulate_ring == true) {
@@ -2018,9 +2030,17 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 9);
+              }
+            break;
+
             case FRUTTO_CYCLOTRON_LED_COUNT:
             case HASLAB_CYCLOTRON_LED_COUNT:
-            default:            
+            default:
               if(i_cyclotron_matrix_led > 0) {
                 ms_cyclotron.start(i_current_ramp_speed);
               }
@@ -2046,7 +2066,23 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 9);
+              }
+            break;
+
             case FRUTTO_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 5);
+              }
+            break;
+
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
               if(i_cyclotron_matrix_led > 0) {
@@ -2087,9 +2123,25 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 9);
+              }
+            break;
+
             case FRUTTO_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 5);
+              }
+            break;
+
             case HASLAB_CYCLOTRON_LED_COUNT:
-            default:            
+            default:
               if(i_cyclotron_matrix_led > 0) {
                 ms_cyclotron.start(i_current_ramp_speed);
               }
@@ -2143,9 +2195,31 @@ void cyclotron2021(int cDelay) {
           break;
 
           case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+            if(i_cyclotron_matrix_led > 0) {
+              ms_cyclotron.start(t_cDelay);
+            }
+            else if(i_current_ramp_speed > i_2021_delay) {
+              ms_cyclotron.start((t_cDelay - i_2021_delay) * 9); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
+            }
+            else {
+              ms_cyclotron.start(t_cDelay - t_cDelay);
+            }
+          break;
+
           case FRUTTO_CYCLOTRON_LED_COUNT:
+            if(i_cyclotron_matrix_led > 0) {
+              ms_cyclotron.start(t_cDelay);
+            }
+            else if(i_current_ramp_speed > i_2021_delay) {
+              ms_cyclotron.start((t_cDelay - i_2021_delay) * 5); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
+            }
+            else {
+              ms_cyclotron.start(t_cDelay - t_cDelay);
+            }
+          break;
+
           case HASLAB_CYCLOTRON_LED_COUNT:
-          default:          
+          default:
             if(i_cyclotron_matrix_led > 0) {
               ms_cyclotron.start(t_cDelay);
             }
@@ -2168,8 +2242,23 @@ void cyclotron2021(int cDelay) {
     }
 
     switch(i_cyclotron_leds) {
-      case OUTER_CYCLOTRON_LED_MAX:
       case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+        if(i_cyclotron_multiplier > 1) {
+          cDelay = cDelay - i_cyclotron_multiplier;
+        }
+        else {
+          cDelay = cDelay / i_cyclotron_multiplier;
+
+          if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
+            cDelay = cDelay * 1;
+          }
+          else {
+            cDelay = cDelay * 3;
+          }
+        }
+      break;
+
+      case OUTER_CYCLOTRON_LED_MAX:
       case FRUTTO_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
           cDelay = cDelay - i_cyclotron_multiplier;
@@ -2662,13 +2751,19 @@ void cyclotron84LightOff(int cLed) {
 }
 
 void cyclotronOverheating() {
-  if(b_overheat_sync_to_fan != true) {
+  if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
     smokeNFilter(true);
   }
 
   if(ms_overheating.justFinished()) {
-    playEffect(S_AIR_RELEASE);
-    playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+    if(FIRING_MODE == SLIME) {
+      // Play the sound of slime refilling the tank.
+      playEffect(S_SLIME_REFILL, true);
+    }
+    else {
+      playEffect(S_AIR_RELEASE);
+      playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+    }
 
     // Fade in the steam release loop.
     playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
@@ -2758,9 +2853,7 @@ void cyclotronOverheating() {
     break;
   }
 
-  // Time the N-Filter light to when the fan is running.
-  //if(ms_fan_stop_timer.isRunning() && ms_fan_stop_timer.remaining() < 3000) {
-  if(ms_overheating_length.isRunning()) {
+  if(ms_overheating_length.isRunning() && FIRING_MODE != SLIME) {
     if(b_overheat_sync_to_fan == true) {
       smokeNFilter(true);
     }
@@ -2811,8 +2904,12 @@ void packOverheatingFinished() {
   ms_overheating_length.stop();
 
   stopEffect(S_STEAM_LOOP);
-  playEffect(S_VENT_DRY);
-  playEffect(S_STEAM_LOOP_FADE_OUT);
+  stopEffect(S_SLIME_REFILL);
+
+  if(FIRING_MODE != SLIME) {
+    playEffect(S_VENT_CLOSE);
+    playEffect(S_STEAM_LOOP_FADE_OUT);
+  }
 
   b_overheating = false;
 
@@ -2939,10 +3036,10 @@ void cyclotronLidLedsOff() {
     }
 
     for(int i = 0; i < i_cyclotron_leds_total; i++) {
-        ms_cyclotron_led_fade_out[i].go(0);
-        ms_cyclotron_led_fade_in[i].go(0);
+      ms_cyclotron_led_fade_out[i].go(0);
+      ms_cyclotron_led_fade_in[i].go(0);
 
-        i_cyclotron_led_on_status[i] = false;
+      i_cyclotron_led_on_status[i] = false;
     }
   }
 }
@@ -2979,11 +3076,13 @@ void resetCyclotronState() {
 }
 
 void clearCyclotronFades() {
-  if(b_fade_out != true) {
+  //if(b_fade_out != true) {
     for(int i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
       i_cyclotron_led_value[i] = 0;
+      ms_cyclotron_led_fade_out[i].go(0);
+      ms_cyclotron_led_fade_in[i].go(0);
     }
-  }
+  //}
 }
 
 void innerCyclotronCakeOff() {
@@ -3502,8 +3601,10 @@ void wandFiring() {
   smokeNFilter(false);
 
   // Start a smoke timer to play a little bit of smoke while firing.
-  ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
-  ms_smoke_on.stop();
+  if(FIRING_MODE != SLIME) {
+    ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
+    ms_smoke_on.stop();
+  }
 
   vibrationPack(255);
 
@@ -3790,7 +3891,7 @@ void cyclotronSwitchPlateLEDs() {
     // Play some spark sounds if the pack is running and the lid is removed.
     if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
-      
+
       // Cyclotron lid is off, play the Frozen Empire sound effect.
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
@@ -3813,7 +3914,7 @@ void cyclotronSwitchPlateLEDs() {
 
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
-      }      
+      }
     }
   }
 
@@ -3935,26 +4036,6 @@ void cyclotronSpeedIncrease() {
   }
 }
 
-/*
-void readEncoder() {
-  if(digitalRead(encoder_pin_a) == digitalRead(encoder_pin_b)) {
-    i_encoder_pos++;
-    Serial.println("clockwise");
-  }
-  else {
-    i_encoder_pos--;
-    Serial.println("counter clockwise");
-  }
-
-  i_val_rotary = i_encoder_pos / 2.5;
-
-  Serial.println("pos --> ");
-  Serial.print(i_encoder_pos);
-  Serial.print(" | val --> ");
-  Serial.print(i_val_rotary);
-}
-*/
-
 int8_t readRotary() {
   static int8_t rot_enc_table[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
 
@@ -3995,8 +4076,6 @@ void checkRotaryEncoder() {
 
     // Clockwise
     if(prev_next_code == 0x0b) {
-      Serial.println("clockwise");
-
       if(ms_volume_check.isRunning() != true) {
         increaseVolume();
 
@@ -4009,8 +4088,6 @@ void checkRotaryEncoder() {
 
     // Counter Clockwise
     if(prev_next_code == 0x07) {
-      Serial.println("counter clockwise");
-
       if(ms_volume_check.isRunning() != true) {
         decreaseVolume();
 
@@ -4341,7 +4418,9 @@ void overheatDecrement(uint8_t i_tmp_power_level) {
 void updateProtonPackLEDCounts() {
   i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_leds;
   i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
+
   i_cyclotron_led_start = i_powercell_leds;
+
   i_max_inner_cyclotron_leds = i_inner_cyclotron_cake_num_leds + i_inner_cyclotron_cavity_num_leds;
 }
 

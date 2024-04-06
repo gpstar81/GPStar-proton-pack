@@ -50,8 +50,8 @@ bool b_music_paused = false;
 bool b_repeat_track = false;
 uint8_t i_wand_sound_level = 0; // 1 for WAV Trigger. 0 For GPStar Audio.
 const uint8_t i_volume_master_percentage_wav_trigger = 100;
-const uint8_t i_volume_gpstar_amplification_low = 70; // GPStar. Subtracts this from i_volume_master_percentage_max.
-const uint8_t i_volume_gpstar_amplification_high = 150; // GPStar audio. Gets added to i_volume_master_percentage_max.
+const uint8_t i_volume_gpstar_amplification_low = 100; // GPStar Audio.
+const uint8_t i_volume_gpstar_amplification_high = 150; // GPStar Audio high amplification.
 uint8_t i_volume_master_percentage_max = i_volume_master_percentage_wav_trigger; // Max percentage of master volume. For GPStar Audio we increase this.
 
 /*
@@ -435,7 +435,7 @@ void increaseVolumeEEPROM() {
   }
 
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = 100;
+    i_volume_master_percentage = i_volume_master_percentage_max;;
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -507,7 +507,7 @@ void increaseVolume() {
     i_volume_master = MINIMUM_VOLUME;
   }
 
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+  if(i_volume_master_percentage + VOLUME_MULTIPLIER > i_volume_master_percentage_max) {
     i_volume_master_percentage = i_volume_master_percentage_max;
   }
   else {
@@ -575,13 +575,17 @@ void buildMusicCount(uint16_t i_num_tracks) {
   // Build the music track count.
   i_music_count = i_num_tracks - i_last_effects_track;
 
-  if(i_music_count > 0) {
+  if(i_music_count > 0 && i_music_count < 5000) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
+  }
+  else {
+    i_music_count = 0; // If the music count is corrupt, make it 0
+    debugln(F("Warning: Calculated music count exceeds 5000; SD card corruption likely!"))
   }
 }
 
 bool musicGetTrackCounter() {
-    switch(AUDIO_DEVICE) {
+  switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
       return audio.trackCounterReset();
@@ -740,15 +744,21 @@ bool setupAudioDevice() {
   delay(350);
 
   if(audio.getVersion(gVersion)) {
-    // We found a WavTrigger. Build the music track count.
-    buildMusicCount((uint16_t) audio.getNumTracks());
+    // We found a WAV Trigger. Build the music track count.
+    if(audio.gpstarAudioHello()) {
+      // Only attempt to build a music track count if the WAV Trigger responded with RSP_SYSTEM_INFO.
+      buildMusicCount((uint16_t) audio.getNumTracks());
+    }
+    else {
+      debugln(F("Warning: RSP_SYSTEM_INFO not received!"));
+    }
 
     AUDIO_DEVICE = A_WAV_TRIGGER;
     i_wand_sound_level = 1; // This gets subtracted from certain sounds volume level.
 
     calculateAmplificationGain();
 
-    debugln(F("Using WavTrigger"));
+    debugln(F("Using WAV Trigger"));
 
     return true;
   }
@@ -761,7 +771,7 @@ bool setupAudioDevice() {
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
 
     i_wand_sound_level = 0; // Special setting to adjust certain wand sounds, usually lower.
-    
+
     calculateAmplificationGain();
 
     debugln(F("Using GPStar Audio"));
@@ -792,9 +802,15 @@ void calculateAmplificationGain() {
   else {
     i_volume_master_percentage_max = i_volume_master_percentage_wav_trigger;
   }
+
+  if(i_volume_master_percentage > i_volume_master_percentage_max) {
+    i_volume_master_percentage = i_volume_master_percentage_max;
+  }
 }
 
 void resetMasterVolume() {
+  calculateAmplificationGain();
+
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:

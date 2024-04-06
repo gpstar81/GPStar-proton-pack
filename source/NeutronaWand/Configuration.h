@@ -222,8 +222,8 @@ const bool b_onboard_amp_enabled = true;
 bool b_extra_pack_sounds = true;
 
 /*
- * For GPStar Audio, when using the Hasbro 16ohm 0.25watt speaker, it needs to run at a lower volume to not overpower it.
- * When switching out to a more powerful speaker such as 8ohm 2.5watt or 4ohm 1.5watt, then it can be amplified more.
+ * For GPStar Audio, when using the Hasbro 16ohm 0.25watt speaker it needs to run at a lower volume to not overpower it.
+ * When switching to a more powerful speaker such as 4ohm 2.5W or 8ohm 1.25W it can be amplified more safely.
 */
 bool b_amplify_wand_speaker = false;
 

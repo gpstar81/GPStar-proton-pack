@@ -371,6 +371,8 @@ void checkPack() {
                 i_volume_effects_percentage = recvData.d[1];
                 i_volume_music_percentage = recvData.d[2];
 
+                calculateAmplificationGain();
+
                 // Set the decibel volume.
                 i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
                 i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
@@ -725,6 +727,8 @@ void checkPack() {
           i_volume_master_percentage = packSync.masterVolume;
           i_volume_effects_percentage = packSync.effectsVolume;
           i_volume_music_percentage = packSync.musicVolume;
+
+          calculateAmplificationGain();
 
           // Set the decibel volume.
           i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
