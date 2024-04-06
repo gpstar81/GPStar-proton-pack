@@ -2013,7 +2013,7 @@ void soundIdleLoopStop(bool stopAlts) {
   stopEffect(S_IDLE_LOOP_GUN_3);
   stopEffect(S_IDLE_LOOP_GUN_4);
   stopEffect(S_IDLE_LOOP_GUN_5);
-  
+
   if(stopAlts == true) {
     stopEffect(S_PACK_SLIME_TANK_LOOP);
     stopEffect(S_STASIS_IDLE_LOOP);
