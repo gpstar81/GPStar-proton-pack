@@ -1770,7 +1770,7 @@ void altWingButtonCheck() {
         if(FIRING_MODE != VENTING) {
           digitalWrite(led_slo_blo, HIGH);
 
-          // If using the gpstar Neutrona Wand microcontroller the front left LED is wired separately; let's turn it on.
+          // Turn back on the Clippard LED if it was turned off.
           digitalWrite(led_front_left, HIGH);
         }
 
