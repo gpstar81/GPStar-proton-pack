@@ -35,7 +35,7 @@
  */
 void readEEPROM();
 void clearConfigEEPROM();
-void clearLedEEPROM();
+void clearLEDEEPROM();
 void saveConfigEEPROM();
 void saveLedEEPROM();
 void updateCRCEEPROM();
@@ -464,11 +464,16 @@ void readEEPROM() {
       }
     }
   }
+  else {
+    // CRC doesn't match; let's clear the EEPROMs to be safe.
+    clearConfigEEPROM();
+    clearLEDEEPROM();
+  }
 
   resetContinuousSmoke();
 }
 
-void clearLedEEPROM() {
+void clearLEDEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
   for(unsigned int i = 0 ; i < sizeof(objLEDEEPROM); i++) {
     EEPROM.put(i, 0);

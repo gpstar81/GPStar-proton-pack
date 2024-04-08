@@ -3418,7 +3418,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_VOICE_EEPROM_ERASE);
         playEffect(S_VOICE_EEPROM_ERASE);
 
-        clearLedEEPROM();
+        clearLEDEEPROM();
       }
     break;
 

@@ -35,7 +35,7 @@
  */
 void readEEPROM();
 void clearConfigEEPROM();
-void clearLedEEPROM();
+void clearLEDEEPROM();
 void saveConfigEEPROM();
 void saveLedEEPROM();
 void updateCRCEEPROM();
@@ -493,6 +493,11 @@ void readEEPROM() {
     if(obj_led_eeprom.barrel_spectral_saturation_custom > 0 && obj_led_eeprom.barrel_spectral_saturation_custom != 255) {
       i_spectral_wand_custom_saturation = obj_led_eeprom.barrel_spectral_saturation_custom;
     }
+  }
+  else {
+    // CRC doesn't match; let's clear the EEPROMs to be safe.
+    clearConfigEEPROM();
+    clearLEDEEPROM();
   }
 }
 
