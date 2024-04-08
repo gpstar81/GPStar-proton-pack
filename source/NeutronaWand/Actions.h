@@ -33,7 +33,7 @@ void checkWandAction() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+            if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
               // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
               if(b_switch_barrel_extended == true && switch_vent.on() == true && switch_wand.on() == true) {
                 digitalWrite(led_hat_1, HIGH);
@@ -98,11 +98,9 @@ void checkWandAction() {
 
         if(ms_hat_1.isRunning()) {
           if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
-            digitalWrite(led_hat_1, LOW);
             digitalWrite(led_hat_2, HIGH);
           }
           else {
-            digitalWrite(led_hat_1, HIGH);
             digitalWrite(led_hat_2, LOW);
           }
 
@@ -164,13 +162,21 @@ void checkWandAction() {
       }
 
       if(b_gpstar_benchtest == true) {
-        // Since the Proton Pack tells the Neutrona Wand when overheating is finished, if it is
-        // running with no Proton Pack then the Neutrona Wand needs to calculate when to finish.
+        // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
         if(ms_overheating.justFinished()) {
           overheatingFinished();
         }
       }
 
+    break;
+
+    case ACTION_VENTING:
+      // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
+      if(b_gpstar_benchtest == true) {
+        if(ms_overheating.justFinished()) {
+          quickVentFinished();
+        }
+      }
     break;
 
     case ACTION_ERROR:
@@ -1069,6 +1075,24 @@ void checkWandAction() {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to toggle the Proton Stream impact effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+
+              // Standalone Neutrona Wand has to change this setting on its own.
+              if(b_gpstar_benchtest == true) {
+                if(b_stream_effects == true) {
+                  b_stream_effects = false;
+
+                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
+                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
+                  playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
+                }
+                else {
+                  b_stream_effects = true;
+
+                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
+                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
+                  playEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
+                }
+              }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
               wandSerialSend(W_OVERHEAT_SYNC_TO_FAN_TOGGLE);
@@ -1431,6 +1455,24 @@ void checkWandAction() {
             if(switch_mode.pushed()) {
               // Tell the Proton Pack to toggle the Proton Stream Impact Effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+
+              // Standalone Neutrona Wand has to change this setting on its own.
+              if(b_gpstar_benchtest == true) {
+                if(b_stream_effects == true) {
+                  b_stream_effects = false;
+
+                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
+                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
+                  playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
+                }
+                else {
+                  b_stream_effects = true;
+
+                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
+                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
+                  playEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
+                }
+              }
             }
           }
         break;

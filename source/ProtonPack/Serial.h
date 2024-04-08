@@ -1779,14 +1779,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
       else {
         ms_overheating.start(i_overheating_delay);
-      }
 
-      // Reset some vent light timers.
-      ms_vent_light_off.stop();
-      ms_vent_light_on.stop();
-      //ms_fan_stop_timer.stop();
-      ms_vent_light_off.start(i_vent_light_delay);
-      //ms_fan_stop_timer.start(i_fan_stop_timer);
+        // Reset some vent light timers.
+        ms_vent_light_off.stop();
+        ms_vent_light_on.stop();
+        //ms_fan_stop_timer.stop();
+        ms_vent_light_off.start(i_vent_light_delay);
+        //ms_fan_stop_timer.start(i_fan_stop_timer);
+      }
 
       // Reset the Inner Cyclotron speed.
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
@@ -1794,6 +1794,39 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       serial1Send(A_OVERHEATING);
+    break;
+
+    case W_VENTING:
+      // Quick Vent function
+      stopEffect(S_BEEP_8);
+      stopEffect(S_SLIME_EMPTY);
+      stopEffect(S_PACK_SLIME_TANK_LOOP);
+      stopEffect(S_QUICK_VENT_CLOSE);
+      stopEffect(S_QUICK_VENT_OPEN);
+
+      playEffect(S_QUICK_VENT_OPEN);
+
+      if(FIRING_MODE == SLIME) {
+        playEffect(S_SLIME_EMPTY);
+      }
+      else {
+        // Reset some vent light timers.
+        ms_vent_light_off.stop();
+        ms_vent_light_on.stop();
+        //ms_fan_stop_timer.stop();
+        ms_vent_light_off.start(i_vent_light_delay);
+        //ms_fan_stop_timer.start(i_fan_stop_timer);
+      }
+
+      b_venting = true;
+
+      // Start venting timer.
+      ms_overheating.start(1);
+
+      // Reset Cyclotron speed.
+      cyclotronSpeedRevert();
+
+      serial1Send(A_VENTING);
     break;
 
     // No longer used.
@@ -2042,6 +2075,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand is crossing the streams.
       STATUS_CTS = CTS_FIRING_1984;
 
+      // Stop the impact sound timer.
+      ms_firing_sound_mix.stop();
+
       stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
       playEffect(S_FIRE_SPARKS);
@@ -2060,6 +2096,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand is crossing the streams.
       STATUS_CTS = CTS_FIRING_2021;
 
+      // Stop the impact sound timer.
+      ms_firing_sound_mix.stop();
+
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       playEffect(S_FIRE_SPARKS);
@@ -2077,6 +2116,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_FIRING_CROSSING_THE_STREAMS_MIX_1984:
       // Wand is crossing the streams.
       STATUS_CTS = CTS_FIRING_1984;
+
+      // Stop the impact sound timer.
+      ms_firing_sound_mix.stop();
 
       stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
@@ -2106,6 +2148,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_FIRING_CROSSING_THE_STREAMS_MIX_2021:
       // Wand is crossing the streams.
       STATUS_CTS = CTS_FIRING_2021;
+
+      // Stop the impact sound timer.
+      ms_firing_sound_mix.stop();
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
@@ -2170,6 +2215,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // The wand is no longer crossing the streams.
       STATUS_CTS = CTS_NOT_FIRING;
 
+      // Restart the impact sound timer.
+      if(b_stream_effects == true) {
+        unsigned int i_s_random = random(7,14) * 1000;
+        ms_firing_sound_mix.start(i_s_random);
+      }
+
       stopEffect(S_CROSS_STREAMS_START);
       stopEffect(S_CROSS_STREAMS_END);
 
@@ -2184,6 +2235,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021:
       // The wand is no longer crossing the streams.
       STATUS_CTS = CTS_NOT_FIRING;
+
+      // Restart the impact sound timer.
+      if(b_stream_effects == true) {
+        unsigned int i_s_random = random(7,14) * 1000;
+        ms_firing_sound_mix.start(i_s_random);
+      }
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);

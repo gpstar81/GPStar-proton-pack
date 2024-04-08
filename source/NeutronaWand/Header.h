@@ -28,7 +28,7 @@ enum WAND_STATE WAND_STATUS;
 /*
  * Various wand action states.
  */
-enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_LED_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
+enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_VENTING, ACTION_SETTINGS, ACTION_ERROR, ACTION_LED_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
 /*
@@ -142,11 +142,11 @@ millisDelay ms_fast_led;
 /*
  * Non-addressable LEDs
  */
-const uint8_t led_slo_blo = 8;
-const uint8_t led_front_left = 9; // LED underneath the Clippard valve.
-const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
-const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Red LED)
-const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
+const uint8_t led_slo_blo = 8; // SLO-BLO LED. (Red LED)
+const uint8_t led_front_left = 9; // LED underneath the Clippard valve. (Orange or White LED)
+const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Orange LED)
+const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Orange or White LED)
+const uint8_t led_barrel_tip = 24; // White LED at tip of the wand barrel. (White LED)
 
 /*
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
@@ -326,12 +326,14 @@ millisDelay ms_firing_lights;
 millisDelay ms_firing_lights_end;
 millisDelay ms_firing_stream_effects;
 millisDelay ms_impact; // Mix some impact sounds while firing.
+millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
 millisDelay ms_firing_start_sound_delay;
 millisDelay ms_firing_stop_sound_delay;
 const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // using this to keep track which LED in the barrel is currently lighting up.
 const uint8_t i_fire_start_sound_delay = 50; // Delay for starting firing sounds.
 const uint8_t i_fire_stop_sound_delay = 100; // Delay for stopping fire sounds.
+int i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
 
 /*
  * Wand power mode. Controlled by the rotary encoder on the top of the wand.

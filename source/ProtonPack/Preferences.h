@@ -556,7 +556,7 @@ void saveConfigEEPROM() {
   uint8_t i_smoke_continuous_mode_2 = 1;
   uint8_t i_smoke_continuous_mode_1 = 1;
 
-  uint8_t i_pack_vibration = 4;
+  uint8_t i_pack_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
 
   if(b_stream_effects != true) {
     i_proton_stream_effects = 1;

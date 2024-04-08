@@ -369,10 +369,13 @@ enum sound_fx {
   S_VENT_OPEN,
   S_VENT_CLOSE,
   S_QUICK_VENT_OPEN,
-  S_QUICK_VENT_CLOSE
+  S_QUICK_VENT_CLOSE,
+  S_SLIME_TETHER_FIRE,
+  S_SHOCK_BLAST_FIRE,
+  S_MESON_COLLIDER_FIRE
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_QUICK_VENT_CLOSE;
+const unsigned int i_last_effects_track = S_MESON_COLLIDER_FIRE;

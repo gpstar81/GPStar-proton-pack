@@ -313,6 +313,7 @@ const unsigned int i_meson_blast_delay_level_1 = 220;
 millisDelay ms_overheating;
 const unsigned int i_overheating_delay = 4000;
 bool b_overheating = false;
+bool b_venting = false;
 millisDelay ms_smoke_timer;
 millisDelay ms_smoke_on;
 const unsigned long int i_smoke_timer[5] = { i_smoke_timer_mode_1, i_smoke_timer_mode_2, i_smoke_timer_mode_3, i_smoke_timer_mode_4, i_smoke_timer_mode_5 };

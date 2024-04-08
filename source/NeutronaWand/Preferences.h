@@ -65,6 +65,7 @@ struct objEEPROM {
   uint8_t cross_the_streams;
   uint8_t cross_the_streams_mix;
   uint8_t overheating;
+  uint8_t extra_proton_sounds;
   uint8_t neutrona_wand_sounds;
   uint8_t spectral_mode;
   uint8_t holiday_mode;
@@ -139,6 +140,15 @@ void readEEPROM() {
       }
       else {
         b_overheat_enabled = false;
+      }
+    }
+
+    if(obj_config_eeprom.extra_proton_sounds > 0 && obj_config_eeprom.extra_proton_sounds != 255) {
+      if(obj_config_eeprom.extra_proton_sounds > 1) {
+        b_stream_effects = true;
+      }
+      else {
+        b_stream_effects = false;
       }
     }
 
@@ -524,22 +534,23 @@ void clearConfigEEPROM() {
 }
 
 void saveConfigEEPROM() {
-  // (Video Game Modes) + Cross The Streams / Cross The Streams Mix / Overheating
+  // 1 = false, 2 = true.
   uint8_t i_cross_the_streams = 1;
   uint8_t i_cross_the_streams_mix = 1;
-  uint8_t i_overheating = 1;
-  uint8_t i_neutrona_wand_sounds = 1;
+  uint8_t i_overheating = 2;
+  uint8_t i_extra_proton_sounds = 2;
+  uint8_t i_neutrona_wand_sounds = 2;
   uint8_t i_spectral = 1;
   uint8_t i_holiday = 1;
   uint8_t i_quick_vent = 1;
-  uint8_t i_wand_boot_errors = 1;
-  uint8_t i_vent_light_auto_intensity = 1;
+  uint8_t i_wand_boot_errors = 2;
+  uint8_t i_vent_light_auto_intensity = 2;
   uint8_t i_invert_bargraph = 1;
-  uint8_t i_bargraph_mode = 1;
-  uint8_t i_bargraph_firing_animation = 1;
+  uint8_t i_bargraph_mode = 1; // 1 = default, 2 = super hero, 3 = original.
+  uint8_t i_bargraph_firing_animation = 1; // 1 = default, 2 = super hero, 3 = original.
   uint8_t i_bargraph_overheat_blinking = 1;
-  uint8_t i_neutrona_wand_year_mode = 1;
-  uint8_t i_CTS_mode = 1;
+  uint8_t i_neutrona_wand_year_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
+  uint8_t i_CTS_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
   uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
   uint8_t i_beep_loop = 2;
   uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
@@ -553,7 +564,7 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_level_3 = 1;
   uint8_t i_overheat_level_2 = 1;
   uint8_t i_overheat_level_1 = 1;
-  uint8_t i_wand_vibration = 4;
+  uint8_t i_wand_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
   uint8_t i_amplify_wand_speaker = 1;
 
   if(b_cross_the_streams == true) {
@@ -564,12 +575,16 @@ void saveConfigEEPROM() {
     i_cross_the_streams_mix = 2;
   }
 
-  if(b_overheat_enabled == true) {
-    i_overheating = 2;
+  if(b_overheat_enabled != true) {
+    i_overheating = 1;
   }
 
-  if(b_extra_pack_sounds == true) {
-    i_neutrona_wand_sounds = 2;
+  if(b_stream_effects != true) {
+    i_extra_proton_sounds = 1;
+  }
+
+  if(b_extra_pack_sounds != true) {
+    i_neutrona_wand_sounds = 1;
   }
 
   if(b_spectral_mode_enabled == true || b_holiday_mode_enabled == true) {
@@ -581,12 +596,12 @@ void saveConfigEEPROM() {
     i_quick_vent = 2;
   }
 
-  if(b_wand_boot_errors == true) {
-    i_wand_boot_errors = 2;
+  if(b_wand_boot_errors != true) {
+    i_wand_boot_errors = 1;
   }
 
-  if(b_vent_light_control == true) {
-    i_vent_light_auto_intensity = 2;
+  if(b_vent_light_control != true) {
+    i_vent_light_auto_intensity = 1;
   }
 
   if(b_bargraph_invert == true) {
@@ -741,6 +756,7 @@ void saveConfigEEPROM() {
     i_cross_the_streams,
     i_cross_the_streams_mix,
     i_overheating,
+    i_extra_proton_sounds,
     i_neutrona_wand_sounds,
     i_spectral,
     i_holiday,
