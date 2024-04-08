@@ -896,9 +896,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
                     stopEffect(S_WAND_HEATDOWN);
                     stopEffect(S_WAND_HEATUP_ALT);
-                    stopEffect(S_WAND_HEATUP);
-
-                    playEffect(S_WAND_HEATUP);
                     playEffect(S_WAND_HEATUP_ALT);
                   }
 
@@ -936,7 +933,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
             stopEffect(S_WAND_HEATDOWN);
             stopEffect(S_WAND_HEATUP_ALT);
-            stopEffect(S_WAND_HEATUP);
             playEffect(S_WAND_HEATDOWN);
           }
 

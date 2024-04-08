@@ -3545,7 +3545,6 @@ void modeFireStartSounds() {
     break;
 
     case MESON:
-      playEffect(S_MESON_START);
       playEffect(S_MESON_FIRE_PULSE);
 
       switch(i_wand_power_level) {
@@ -3658,9 +3657,6 @@ void modeFireStopSounds() {
       break;
 
       case MESON:
-        playEffect(S_MESON_END);
-      break;
-
       case VENTING:
       case SETTINGS:
         // Nothing

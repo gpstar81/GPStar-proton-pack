@@ -796,7 +796,7 @@ void startVentSequence() {
 
   soundBeepLoopStop();
   soundIdleStop();
-  soundIdleLoopStop();
+  soundIdleLoopStop(true);
 
   b_sound_idle = false; // REMOVE ??
   b_beeping = false;
@@ -1152,7 +1152,7 @@ void checkSwitches() {
 
                 if(switch_wand.switched() || switch_vent.switched()) {
                   if(switch_vent.switched()) {
-                    if(switch_vent.on() == true) {
+                    if(switch_vent.on() == true && switch_wand.on() == false && switch_intensify.on() == false) {
                       if(b_mode_original_toggle_sounds_enabled == true) {
                         if(b_extra_pack_sounds == true) {
                           wandSerialSend(W_BEEPS_ALT);
@@ -1173,8 +1173,6 @@ void checkSwitches() {
 
                       stopEffect(S_WAND_HEATDOWN);
                       stopEffect(S_WAND_HEATUP_ALT);
-                      stopEffect(S_WAND_HEATUP);
-                      playEffect(S_WAND_HEATUP);
                       playEffect(S_WAND_HEATUP_ALT);
                     }
 
@@ -1191,7 +1189,6 @@ void checkSwitches() {
                     }
 
                     stopEffect(S_WAND_HEATUP_ALT);
-                    stopEffect(S_WAND_HEATUP);
                     stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
@@ -1202,7 +1199,6 @@ void checkSwitches() {
                     }
 
                     stopEffect(S_WAND_HEATUP_ALT);
-                    stopEffect(S_WAND_HEATUP);
                     stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
@@ -1431,7 +1427,7 @@ void wandOff() {
 
   soundBeepLoopStop();
   soundIdleStop();
-  soundIdleLoopStop();
+  soundIdleLoopStop(true);
 
   if(b_wand_mash_error != true) {
     WAND_STATUS = MODE_OFF;
@@ -1870,8 +1866,6 @@ void modeActivate() {
         }
 
         stopEffect(S_WAND_HEATUP_ALT);
-        stopEffect(S_WAND_HEATUP);
-        playEffect(S_WAND_HEATUP);
         playEffect(S_WAND_HEATUP_ALT);
       }
 
@@ -1995,16 +1989,16 @@ void soundIdleLoop(bool fadeIn) {
     break;
   }
 
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest == true && fadeIn == true) {
     switch(FIRING_MODE) {
       case SLIME:
-        playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, fadeIn, 900);
+        playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
       break;
       case STASIS:
-        playEffect(S_STASIS_IDLE_LOOP, true, 0, fadeIn, 900);
+        playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
       break;
       case MESON:
-        playEffect(S_MESON_IDLE_LOOP, true, 0, fadeIn, 900);
+        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
       break;
       default:
         // Do nothing.
@@ -2013,16 +2007,18 @@ void soundIdleLoop(bool fadeIn) {
   }
 }
 
-void soundIdleLoopStop() {
-  stopEffect(S_IDLE_LOOP_GUN);
+void soundIdleLoopStop(bool stopAlts) {
   stopEffect(S_IDLE_LOOP_GUN_1);
   stopEffect(S_IDLE_LOOP_GUN_2);
   stopEffect(S_IDLE_LOOP_GUN_3);
   stopEffect(S_IDLE_LOOP_GUN_4);
   stopEffect(S_IDLE_LOOP_GUN_5);
-  stopEffect(S_PACK_SLIME_TANK_LOOP);
-  stopEffect(S_STASIS_IDLE_LOOP);
-  stopEffect(S_MESON_IDLE_LOOP);
+
+  if(stopAlts == true) {
+    stopEffect(S_PACK_SLIME_TANK_LOOP);
+    stopEffect(S_STASIS_IDLE_LOOP);
+    stopEffect(S_MESON_IDLE_LOOP);
+  }
 }
 
 void soundIdleStart() {
@@ -2166,7 +2162,7 @@ void soundIdleStop() {
         stopEffect(S_WAND_BOOTUP);
         stopEffect(S_WAND_BOOTUP_SHORT);
         stopEffect(S_GB2_WAND_START);
-        soundIdleLoopStop();
+        soundIdleLoopStop(true);
       break;
 
       case SYSTEM_AFTERLIFE:
@@ -2220,11 +2216,13 @@ void soundBeepLoop() {
             playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
           }
           else {
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_WAND_BEEP);
-            }
+            if(switch_wand.switched() == true) {
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_WAND_BEEP);
+              }
 
-            playEffect(S_AFTERLIFE_BEEP_WAND_S1);
+              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
+            }
           }
         break;
 
@@ -2237,11 +2235,13 @@ void soundBeepLoop() {
             playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
           }
           else {
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_WAND_BEEP);
-            }
+            if(switch_wand.switched() == true) {
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_WAND_BEEP);
+              }
 
-            playEffect(S_AFTERLIFE_BEEP_WAND_S2);
+              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
+            }
           }
         break;
 
@@ -2254,11 +2254,13 @@ void soundBeepLoop() {
             playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
           }
           else {
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_WAND_BEEP);
-            }
+            if(switch_wand.switched() == true) {
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_WAND_BEEP);
+              }
 
-            playEffect(S_AFTERLIFE_BEEP_WAND_S3);
+              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
+            }
           }
         break;
 
@@ -2271,11 +2273,13 @@ void soundBeepLoop() {
             playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
           }
           else {
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_WAND_BEEP);
-            }
+            if(switch_wand.switched() == true) {
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_WAND_BEEP);
+              }
 
-            playEffect(S_AFTERLIFE_BEEP_WAND_S4);
+              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
+            }
           }
         break;
 
@@ -2288,11 +2292,13 @@ void soundBeepLoop() {
             playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
           }
           else {
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_WAND_BEEP);
-            }
+            if(switch_wand.switched() == true) {
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_WAND_BEEP);
+              }
 
-            playEffect(S_AFTERLIFE_BEEP_WAND_S5);
+              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
+            }
           }
         break;
       }
@@ -2307,7 +2313,7 @@ void soundBeepLoop() {
 void modeFireStartSounds() {
   ms_firing_start_sound_delay.stop();
 
-  if(FIRING_MODE != MESON) {
+  if(FIRING_MODE == PROTON) {
     // Some sparks for firing start.
     if(getSystemYearMode() == SYSTEM_1989) {
       playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
@@ -2411,8 +2417,6 @@ void modeFireStartSounds() {
     break;
 
     case MESON:
-      playEffect(S_MESON_START);
-
       playEffect(S_MESON_FIRE_PULSE);
 
       switch(i_power_mode) {
@@ -2525,10 +2529,6 @@ void modeFireStart() {
     break;
 
     case MESON:
-      stopEffect(S_MESON_START);
-      stopEffect(S_MESON_END);
-    break;
-
     case VENTING:
     case SETTINGS:
       // Nothing.
@@ -2595,6 +2595,7 @@ void modeFireStopSounds() {
   b_sound_firing_cross_the_streams = false;
   b_sound_firing_cross_the_streams_mix = false;
 
+  ms_firing_start_sound_delay.stop();
   ms_firing_stop_sound_delay.stop();
   ms_meson_blast.stop();
 
@@ -2613,9 +2614,6 @@ void modeFireStopSounds() {
     break;
 
     case MESON:
-      playEffect(S_MESON_END);
-    break;
-
     case VENTING:
     case SETTINGS:
       // Nothing.
@@ -2784,10 +2782,6 @@ void modeFireStop() {
     break;
 
     case MESON:
-      stopEffect(S_MESON_START);
-      stopEffect(S_MESON_END);
-    break;
-
     case VENTING:
     case SETTINGS:
       // Nothing.
@@ -2803,7 +2797,7 @@ void modeFiring() {
   if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
     b_sound_firing_intensify_trigger = true;
 
-    if((b_cross_the_streams_mix == true || b_vg_mode == true) && FIRING_MODE == PROTON) {
+    if(b_cross_the_streams_mix == true && FIRING_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_MIX);
 
@@ -2833,7 +2827,7 @@ void modeFiring() {
   if(b_firing_intensify != true && b_sound_firing_intensify_trigger == true) {
     b_sound_firing_intensify_trigger = false;
 
-    if((b_cross_the_streams_mix == true || b_vg_mode == true) && FIRING_MODE == PROTON) {
+    if(b_cross_the_streams_mix == true && FIRING_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_STOPPED_MIX);
 
@@ -2844,7 +2838,6 @@ void modeFiring() {
             stopEffect(S_GB2_FIRE_START);
           }
           else {
-            stopEffect(S_GB1_FIRE_LOOP);
             stopEffect(S_GB1_FIRE_LOOP);
             stopEffect(S_GB1_FIRE_START);
           }
@@ -2865,7 +2858,7 @@ void modeFiring() {
   if(b_firing_alt == true && b_sound_firing_alt_trigger != true) {
     b_sound_firing_alt_trigger = true;
 
-    if(b_cross_the_streams_mix == true || b_vg_mode == true) {
+    if(b_cross_the_streams_mix == true) {
       playEffect(S_FIRING_LOOP_GB1, true);
 
       // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode mix.
@@ -2880,7 +2873,7 @@ void modeFiring() {
   if(b_firing_alt != true && b_sound_firing_alt_trigger == true) {
     b_sound_firing_alt_trigger = false;
 
-    if(b_cross_the_streams_mix == true || b_vg_mode == true) {
+    if(b_cross_the_streams_mix == true) {
       stopEffect(S_FIRING_LOOP_GB1);
 
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode mix.
@@ -2973,8 +2966,9 @@ void modeFiring() {
     }
 
     playEffect(S_FIRE_START_SPARK);
+    ms_impact.start(random(10,15) * 1000); // Restart the impact timer.
 
-    if(b_cross_the_streams_mix == true || b_vg_mode == true) {
+    if(b_cross_the_streams_mix == true) {
       playEffect(S_FIRING_LOOP_GB1, true);
 
       if(i_power_mode != i_power_mode_max && b_sound_firing_cross_the_streams_mix != true) {
@@ -3042,7 +3036,7 @@ void modeFiring() {
 
     stopEffect(S_FIRING_LOOP_GB1);
   }
-  else if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && (b_cross_the_streams_mix == true || b_vg_mode == true)) {
+  else if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && b_cross_the_streams_mix == true) {
     // Let go of a button and it reverts back to the other firing mode.
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
@@ -3256,7 +3250,7 @@ void modeFiring() {
   // Mix some impact sound every 10-15 seconds while firing.
   if(ms_impact.justFinished()) {
     playEffect(S_FIRE_LOOP_IMPACT);
-    ms_impact.start(15000);
+    ms_impact.start(random(10,15) * 1000);
   }
 }
 
@@ -6286,7 +6280,7 @@ void prepBargraphRampDown() {
     // If bargraph is set to ramp down during overheat, we need to set a few things.
     soundBeepLoopStop();
     soundIdleStop();
-    soundIdleLoopStop();
+    soundIdleLoopStop(true);
 
     b_sound_idle = false; // REMOVE ??
     b_beeping = false;
@@ -7315,7 +7309,7 @@ void checkRotaryEncoder() {
                 case SYSTEM_1984:
                 case SYSTEM_1989:
                   if(switch_vent.on() == true) {
-                    soundIdleLoopStop();
+                    soundIdleLoopStop(false);
                     soundIdleLoop(false);
                   }
                 break;
@@ -7323,7 +7317,7 @@ void checkRotaryEncoder() {
                 case SYSTEM_AFTERLIFE:
                 case SYSTEM_FROZEN_EMPIRE:
                 default:
-                    soundIdleLoopStop();
+                    soundIdleLoopStop(false);
                     soundIdleLoop(false);
                 break;
               }
@@ -7377,7 +7371,7 @@ void checkRotaryEncoder() {
                   case SYSTEM_1984:
                   case SYSTEM_1989:
                     if(switch_vent.on() == true) {
-                      soundIdleLoopStop();
+                      soundIdleLoopStop(false);
                       soundIdleLoop(false);
                     }
                   break;
@@ -7385,7 +7379,7 @@ void checkRotaryEncoder() {
                   case SYSTEM_AFTERLIFE:
                   case SYSTEM_FROZEN_EMPIRE:
                   default:
-                      soundIdleLoopStop();
+                      soundIdleLoopStop(false);
                       soundIdleLoop(false);
                   break;
                 }
@@ -7585,8 +7579,6 @@ void wandExitMenu() {
         }
 
         stopEffect(S_WAND_HEATUP_ALT);
-        stopEffect(S_WAND_HEATUP);
-        playEffect(S_WAND_HEATUP);
         playEffect(S_WAND_HEATUP_ALT);
       }
 
