@@ -2077,7 +2077,7 @@ void cyclotron2021(int cDelay) {
               ms_cyclotron.start(i_current_ramp_speed);
             break;
 
-            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:              
+            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
               if(i_cyclotron_matrix_led > 0) {
                 ms_cyclotron.start(i_current_ramp_speed);
               }
