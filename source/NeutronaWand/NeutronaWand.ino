@@ -823,8 +823,6 @@ void startVentSequence() {
     digitalWrite(led_hat_2, LOW);
   }
 
-  delay(100); // TODO: Really should avoid this if possible since it will corrupt our ezButton states
-
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
   // Since the Proton Pack tells the Neutrona Wand when overheating is finished, standalone wand needs its own timer.

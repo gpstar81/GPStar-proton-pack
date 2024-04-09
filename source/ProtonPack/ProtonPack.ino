@@ -518,6 +518,10 @@ void loop() {
       }
 
       cyclotronControl();
+
+      if(b_venting == true) {
+        packVenting();
+      }
     break;
    }
 
@@ -1730,9 +1734,6 @@ void cyclotronControl() {
 
     cyclotronOverheating();
   }
-  else if(b_venting == true) {
-    cyclotronVenting();
-  }
   else {
     if(b_2021_ramp_up_start == true) {
       b_2021_ramp_up_start = false;
@@ -2762,7 +2763,7 @@ void cyclotron84LightOff(int cLed) {
   }
 }
 
-void cyclotronVenting() {
+void packVenting() {
   if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
     smokeNFilter(true);
   }
