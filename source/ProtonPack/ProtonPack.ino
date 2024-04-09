@@ -134,6 +134,8 @@ void setup() {
   resetRampSpeeds();
 
   // Start some timers
+  ms_powercell.start(i_powercell_delay);
+  ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
   ms_cyclotron.start(i_current_ramp_speed);
   ms_cyclotron_ring.start(i_inner_current_ramp_speed);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
