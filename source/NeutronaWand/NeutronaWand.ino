@@ -734,10 +734,10 @@ void overheatingFinished() {
 
   ms_settings_blinking.stop();
 
-  WAND_ACTION_STATUS = ACTION_IDLE;
-
   // Turn off hat light 2.
   digitalWrite(led_hat_2, LOW);
+
+  WAND_ACTION_STATUS = ACTION_IDLE;
 
   // Prepare a few things before ramping the bargraph back up from a full ramp down.
   if(b_overheat_bargraph_blink != true) {
