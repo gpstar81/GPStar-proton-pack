@@ -121,13 +121,13 @@ void readEEPROM() {
       i_powercell_leds = obj_eeprom.powercell_count;
 
       switch(i_powercell_leds) {
-        case HASLAB_POWERCELL_LED_COUNT:
+        case FRUTTO_POWERCELL_LED_COUNT:
           // 15 Power Cell LEDs.
           i_powercell_delay_1984 = 60;
           i_powercell_delay_2021 = 34;
         break;
 
-        case FRUTTO_POWERCELL_LED_COUNT:
+        case HASLAB_POWERCELL_LED_COUNT:
         default:
           // 13 Power Cell LEDs.
           i_powercell_delay_1984 = 75;

@@ -510,6 +510,10 @@ void loop() {
 
       cyclotronSwitchLEDLoop();
 
+      if(b_venting == true) {
+        packVenting();
+      }
+
       if(b_overheating == true && b_overheat_lights_off == true) {
         powercellRampDown();
       }
@@ -518,10 +522,6 @@ void loop() {
       }
 
       cyclotronControl();
-
-      if(b_venting == true) {
-        packVenting();
-      }
     break;
    }
 
