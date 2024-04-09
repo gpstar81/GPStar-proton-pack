@@ -736,6 +736,9 @@ void overheatingFinished() {
 
   WAND_ACTION_STATUS = ACTION_IDLE;
 
+  // Turn off hat light 2.
+  digitalWrite(led_hat_2, LOW);
+
   // Prepare a few things before ramping the bargraph back up from a full ramp down.
   if(b_overheat_bargraph_blink != true) {
     if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
