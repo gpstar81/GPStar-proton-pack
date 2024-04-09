@@ -3297,7 +3297,7 @@ void modeFiring() {
   }
 
   // Mix some impact sound every 10-15 seconds while firing.
-  if(ms_impact.justFinished() && FIRING_MODE == PROTON && b_stream_effects == true) {
+  if(ms_impact.justFinished() && FIRING_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true) {
     playEffect(S_FIRE_LOOP_IMPACT);
     ms_impact.start(random(10,15) * 1000);
   }
