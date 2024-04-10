@@ -153,15 +153,6 @@ bool b_powercell_updating = false;
 uint8_t i_powercell_multiplier = 1;
 
 /*
- *  Cyclotron Inner Switch Panel LEDs control (optional).
- */
-const uint8_t i_cyclotron_switch_led_delay_base = 150;
-unsigned int i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
-uint8_t i_cyclotron_sw_led = 0;
-uint8_t i_cyclotron_switch_led_mulitplier = 1;
-millisDelay ms_cyclotron_switch_led;
-
-/*
  * State of the pack.
  */
 enum PACK_STATES { MODE_OFF, MODE_ON };
@@ -225,16 +216,22 @@ unsigned int i_inner_current_ramp_speed = i_inner_ramp_delay;
 /*
  * Cyclotron Switch Plate LEDs
  */
-const uint8_t cyclotron_sw_plate_led_r1 = 4;
-const uint8_t cyclotron_sw_plate_led_r2 = 5;
-const uint8_t cyclotron_sw_plate_led_y1 = 6;
-const uint8_t cyclotron_sw_plate_led_y2 = 7;
-const uint8_t cyclotron_sw_plate_led_g1 = 8;
-const uint8_t cyclotron_sw_plate_led_g2 = 9;
-const uint8_t cyclotron_switch_led_green = 10; // 1984/2021 mode switch led.
-const uint8_t cyclotron_switch_led_yellow = 11; // Vibration on/off switch led.
-millisDelay ms_cyclotron_switch_plate_leds;
+uint8_t i_cyclotron_sw_led = 0;
+uint8_t i_cyclotron_switch_led_mulitplier = 1;
+const uint8_t cyclotron_sw_plate_led_r1 = 4; // Decorative red LED 1.
+const uint8_t cyclotron_sw_plate_led_r2 = 5; // Decorative red LED 2.
+const uint8_t cyclotron_sw_plate_led_y1 = 6; // Decorative yellow LED 1.
+const uint8_t cyclotron_sw_plate_led_y2 = 7; // Decorative yellow LED 2.
+const uint8_t cyclotron_sw_plate_led_g1 = 8; // Decorative green LED 1.
+const uint8_t cyclotron_sw_plate_led_g2 = 9; // Decorative green LED 2.
+const uint8_t cyclotron_switch_led_green = 10; // 1984/2021 mode switch LED.
+const uint8_t cyclotron_switch_led_yellow = 11; // Vibration on/off switch LED.
+const uint8_t i_cyclotron_switch_led_delay_base = 150;
 const unsigned int i_cyclotron_switch_plate_leds_delay = 1000;
+unsigned int i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
+millisDelay ms_cyclotron_switch_led; // Timer to control the 6 decorative LED patterns.
+millisDelay ms_cyclotron_switch_plate_leds; // Timer to control the 2 switch status indicator LEDs.
+
 
 /*
  * Alarm

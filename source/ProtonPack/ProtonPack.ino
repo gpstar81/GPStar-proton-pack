@@ -4110,7 +4110,7 @@ void cyclotronSwitchPlateLEDs() {
   }
 
   if(ms_cyclotron_switch_plate_leds.justFinished()) {
-    ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
+    ms_cyclotron_switch_plate_leds.restart();
   }
 }
 
