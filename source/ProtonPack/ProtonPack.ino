@@ -111,9 +111,6 @@ void setup() {
   pinMode(cyclotron_switch_led_green, OUTPUT);
   pinMode(cyclotron_switch_led_yellow, OUTPUT);
 
-  // Misc configuration before startup.
-  resetCyclotronState();
-
   // Default mode is Super Hero (for simpler controls).
   SYSTEM_MODE = MODE_SUPER_HERO;
 
@@ -131,21 +128,6 @@ void setup() {
   // Set default vibration mode.
   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
 
-  // Make sure we set defaults for various lights.
-  powercellOff();
-  resetRampSpeeds();
-  cyclotronSwitchLEDOff();
-
-  // Start some timers
-  ms_powercell.start(i_powercell_delay);
-  ms_cyclotron.start(i_current_ramp_speed);
-  ms_cyclotron_ring.start(i_inner_current_ramp_speed);
-  ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
-  ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
-  ms_serial1_handshake.start(i_serial1_handshake_delay);
-  ms_fast_led.start(i_fast_led_delay);
-  ms_battcheck.start(500);
-
   // Configure the vibration state.
   if(switch_vibration.getState() == LOW) {
     b_vibration_enabled = true;
@@ -162,6 +144,11 @@ void setup() {
     SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   }
 
+  // Load any saved settings stored in the EEPROM memory of the Proton Pack.
+  if(b_eeprom == true) {
+    readEEPROM();
+  }
+
   // Check some LED brightness settings for various LEDs.
   // The datatype used should avoid checks for negative values.
   if(i_powercell_brightness > 100) {
@@ -176,13 +163,18 @@ void setup() {
     i_cyclotron_inner_brightness = 100;
   }
 
-  // Check music timer.
-  ms_check_music.start(i_music_check_delay);
+  // Reset cyclotron ramps.
+  resetRampSpeeds();
 
-  // Load any saved settings stored in the EEPROM memory of the Proton Pack.
-  if(b_eeprom == true) {
-    readEEPROM();
-  }
+  // Start some timers
+  ms_battcheck.start(500);
+  ms_fast_led.start(i_fast_led_delay);
+  ms_check_music.start(i_music_check_delay);
+  ms_serial1_handshake.start(i_serial1_handshake_delay);
+  ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
+
+  // Perform initial pack reset.
+  packOffReset();
 
   if(SYSTEM_MODE == MODE_SUPER_HERO) {
     // Auto start the pack if it is in demo light mode.
@@ -264,7 +256,7 @@ void loop() {
             }
           }
 
-          if(b_reset_start_led == false) {
+          if(b_reset_start_led == false && ms_fadeout.isRunning() != true) {
             packOffReset();
           }
         }
@@ -1128,7 +1120,7 @@ void checkSwitches() {
       }
 
       // Year mode. Best to adjust it only when the pack is off.
-      if(b_2021_ramp_down != true && b_pack_on == false) {
+      if(b_pack_shutting_down != true && b_pack_on == false) {
         // If switching manually by the pack toggle switch.
         if(b_switch_mode_override != true) {
           setYearModeByToggle();
