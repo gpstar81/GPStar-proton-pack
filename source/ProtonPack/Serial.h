@@ -1265,8 +1265,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_wand_syncing = false; // No longer attempting to force a sync w/ wand.
       b_wand_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected
 
-      // Wand was connected and still present, so reset the disconnection delay.
-      ms_wand_check.start(i_wand_disconnect_delay);
+      // Wand was connected and still present, so restart the disconnection check.
+      ms_wand_check.restart();
 
       // Tell the serial1 device the wand is still connected.
       serial1Send(A_WAND_CONNECTED);

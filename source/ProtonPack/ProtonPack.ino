@@ -545,7 +545,7 @@ void loop() {
   if(ms_fast_led.justFinished()) {
     FastLED.show();
 
-    ms_fast_led.start(i_fast_led_delay);
+    ms_fast_led.restart();
 
     if(b_powercell_updating == true) {
       b_powercell_updating = false;
