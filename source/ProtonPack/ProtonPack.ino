@@ -131,8 +131,9 @@ void setup() {
   // Set default vibration mode.
   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
 
-  resetRampSpeeds();
+  // Make sure we set defaults for various lights.
   powercellOff();
+  resetRampSpeeds();
   cyclotronSwitchLEDOff();
 
   // Start some timers

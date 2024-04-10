@@ -37,7 +37,7 @@ void readEEPROM();
 void clearConfigEEPROM();
 void clearLEDEEPROM();
 void saveConfigEEPROM();
-void saveLedEEPROM();
+void saveLEDEEPROM();
 void updateCRCEEPROM();
 unsigned long eepromCRC(void);
 void resetCyclotronLEDs();
@@ -484,7 +484,7 @@ void clearLEDEEPROM() {
   updateProtonPackLEDCounts();
 }
 
-void saveLedEEPROM() {
+void saveLEDEEPROM() {
   // Power Cell LEDs
   // Cyclotron LEDs
   // Inner Cyclotron LEDs
@@ -596,7 +596,7 @@ void saveConfigEEPROM() {
   }
 
   if(b_powercell_colour_toggle == true) {
-    i_vga_powercell = 2; // 1 = false, 2 = true;
+    i_vga_powercell = 2;
   }
 
   if(b_cyclotron_colour_toggle == true) {

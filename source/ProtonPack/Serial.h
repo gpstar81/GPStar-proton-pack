@@ -985,7 +985,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_SAVE_EEPROM_SETTINGS_PACK:
       // Commit changes to the EEPROM in the pack controller
-      saveLedEEPROM();
+      saveLEDEEPROM();
       saveConfigEEPROM();
 
       // Offer some feedback to the user
@@ -1092,10 +1092,19 @@ void doWandSync() {
   debugln(F("Wand Sync Start"));
   packSerialSend(P_SYNC_START);
 
-  // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
+  // Attaching a new wand means we need to stop any prior overheat as the wand initiates this action.
   if(b_overheating == true) {
     packOverheatingFinished();
   }
+
+  // Attaching a new wand means we must forcefully exit the EEPROM LED Menu if we are still in it.
+  if(b_spectral_lights_on == true && b_pack_on != true && b_pack_shutting_down != true) {
+    spectralLightsOff();
+    //saveLEDEEPROM(); // Save any settings that were in progress before wand was hot-swapped.
+  }
+
+  // Attaching a new wand means we must also exit the EEPROM Config Menu if we are still in it.
+  //saveConfigEEPROM(); // Save any settings that were in progress before wand was hot-swapped.
 
   // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
   switch(SYSTEM_MODE) {
@@ -1189,19 +1198,22 @@ void doWandSync() {
 
       FIRING_MODE = PROTON;
 
-      if(b_pack_on != true && b_pack_shutting_down != true) {
-        if(b_cyclotron_colour_toggle == true) {
-          // Reset the Cyclotron LED colours.
-          cyclotronColourReset();
-        }
+      if(b_cyclotron_colour_toggle == true) {
+        // Reset the Cyclotron LED colours.
+        cyclotronColourReset();
+      }
 
-        if(b_powercell_colour_toggle == true) {
-          // Reset the Power Cell colours.
-          b_powercell_updating = true;
-          powercellDraw();
-        }
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
+        b_powercell_updating = true;
+        powercellDraw();
       }
     break;
+  }
+
+  // Make sure the pack is fully reset if it is off while a new wand is connected.
+  if(b_pack_on != true) {
+    b_reset_start_led = false;
   }
 
   // Tell the wand the status of the Proton Pack ribbon cable.
@@ -1531,8 +1543,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1559,10 +1571,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
-
         powercellDraw();
       }
 
@@ -1588,8 +1599,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1616,8 +1627,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1643,8 +1654,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1671,8 +1682,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1699,8 +1710,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1728,8 +1739,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1751,8 +1762,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -3428,7 +3439,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_VOICE_EEPROM_SAVE);
         playEffect(S_VOICE_EEPROM_SAVE);
 
-        saveLedEEPROM();
+        saveLEDEEPROM();
       }
     break;
 

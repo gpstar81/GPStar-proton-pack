@@ -37,7 +37,7 @@ void readEEPROM();
 void clearConfigEEPROM();
 void clearLEDEEPROM();
 void saveConfigEEPROM();
-void saveLedEEPROM();
+void saveLEDEEPROM();
 void updateCRCEEPROM();
 unsigned long eepromCRC(void);
 void bargraphYearModeUpdate();
@@ -514,7 +514,7 @@ void clearLEDEEPROM() {
   updateCRCEEPROM();
 }
 
-void saveLedEEPROM() {
+void saveLEDEEPROM() {
   unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
 
   // For now we are just saving the Spectral Custom colour.

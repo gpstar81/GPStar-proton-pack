@@ -215,7 +215,7 @@ void checkWandAction() {
             stopEffect(S_VOICE_EEPROM_SAVE);
             playEffect(S_VOICE_EEPROM_SAVE);
 
-            saveLedEEPROM();
+            saveLEDEEPROM();
 
             wandExitEEPROMMenu();
           }

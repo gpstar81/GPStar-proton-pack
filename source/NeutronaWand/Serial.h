@@ -1803,7 +1803,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_SAVE_EEPROM_WAND:
       // Commit changes to the EEPROM in the wand controller
-      saveLedEEPROM();
+      saveLEDEEPROM();
       saveConfigEEPROM();
       stopEffect(S_VOICE_EEPROM_SAVE);
       playEffect(S_VOICE_EEPROM_SAVE);
