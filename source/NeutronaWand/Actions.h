@@ -947,20 +947,7 @@ void checkWandAction() {
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
-              //wandSerialSend(W_CYCLOTRON_LED_TOGGLE); // Move this to the LED menu in the future.
-
-              if(b_amplify_wand_speaker == true) {
-                b_amplify_wand_speaker = false;
-
-                wandSerialSend(W_SOUND_NEUTRONA_WAND_SPEAKER_AMP_DISABLED);
-              }
-              else {
-                b_amplify_wand_speaker = true;
-
-                wandSerialSend(W_SOUND_NEUTRONA_WAND_SPEAKER_AMP_ENABLED);
-              }
-
-              calculateAmplificationGain();
+              wandSerialSend(W_CYCLOTRON_LED_TOGGLE); // Move this to the LED menu in the future.
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Handled in checkRotaryEncoder()

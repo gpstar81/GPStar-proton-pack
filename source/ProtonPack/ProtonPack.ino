@@ -258,10 +258,7 @@ void loop() {
         // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
         if(b_spectral_lights_on == true) {
           packOffReset();
-
-          if(b_cyclotron_lid_on == true) {
-            spectralLightsOn();
-          }
+          spectralLightsOn();
         }
         else {
           cyclotronSwitchLEDLoop();
@@ -706,7 +703,7 @@ void packStartup() {
         playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
 
         // Cyclotron lid is off, play the Frozen Empire sound effect.
-        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && switch_cyclotron_lid.getState() == HIGH) {
+        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on != true) {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
         }
 
@@ -4042,6 +4039,10 @@ void cyclotronSwitchPlateLEDs() {
         playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
       }
     }
+    else {
+      // Make sure we reset the cyclotron LED status.
+      b_reset_start_led = false;
+    }
   }
 
   if(switch_cyclotron_lid.isPressed()) {
@@ -4060,6 +4061,10 @@ void cyclotronSwitchPlateLEDs() {
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
       }
+    }
+    else {
+      // Make sure we reset the cyclotron LED status.
+      b_reset_start_led = false;
     }
   }
 

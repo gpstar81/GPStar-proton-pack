@@ -50,6 +50,13 @@ void setBargraphOrientation();
 unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
 unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
 
+const unsigned long crc_table[16] PROGMEM = {
+  0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
+  0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
+  0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
+  0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+};
+
 /*
  * Data structure object for LED settings which are saved into the EEPROM memory.
  */
@@ -61,7 +68,7 @@ struct objLEDEEPROM {
 /*
  * Data structure object for customizations which are saved into the EEPROM memory.
  */
-struct objEEPROM {
+struct objConfigEEPROM {
   uint8_t cross_the_streams;
   uint8_t cross_the_streams_mix;
   uint8_t overheating;
@@ -99,7 +106,6 @@ struct objEEPROM {
   uint8_t overheat_level_1;
 
   uint8_t wand_vibration;
-  uint8_t amplify_wand_speaker;
 };
 
 /*
@@ -113,7 +119,7 @@ void readEEPROM() {
   // Check if the calculated CRC matches the stored CRC value in the EEPROM.
   if(eepromCRC() == l_crc_check) {
     // Read our object from the EEPROM.
-    objEEPROM obj_config_eeprom;
+    objConfigEEPROM obj_config_eeprom;
     EEPROM.get(i_eepromAddress, obj_config_eeprom);
 
     if(obj_config_eeprom.cross_the_streams > 0 && obj_config_eeprom.cross_the_streams != 255) {
@@ -462,19 +468,6 @@ void readEEPROM() {
       }
     }
 
-    if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-      if(obj_config_eeprom.amplify_wand_speaker > 0 && obj_config_eeprom.amplify_wand_speaker != 255) {
-        if(obj_config_eeprom.amplify_wand_speaker > 1) {
-          b_amplify_wand_speaker = true;
-        }
-        else {
-          b_amplify_wand_speaker = false;
-        }
-      }
-
-      calculateAmplificationGain();
-    }
-
     // Update the bargraph settings again after loading EEPROM setting data for it.
     bargraphYearModeUpdate();
 
@@ -483,7 +476,7 @@ void readEEPROM() {
 
     // Read our LED object from the EEPROM.
     objLEDEEPROM obj_led_eeprom;
-    unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
+    unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
     EEPROM.get(i_eepromLEDAddress, obj_led_eeprom);
     if(obj_led_eeprom.barrel_spectral_custom > 0 && obj_led_eeprom.barrel_spectral_custom != 255) {
@@ -503,9 +496,9 @@ void readEEPROM() {
 
 void clearLEDEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
-  unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
+  unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
-  for(unsigned int i = 0 ; i < sizeof(objLEDEEPROM); i++) {
+  for(unsigned int i = 0; i < sizeof(objLEDEEPROM); i++) {
     EEPROM.put(i_eepromLEDAddress, 0);
 
     i_eepromLEDAddress++;
@@ -515,7 +508,7 @@ void clearLEDEEPROM() {
 }
 
 void saveLEDEEPROM() {
-  unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
+  unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
   // For now we are just saving the Spectral Custom colour.
   objLEDEEPROM obj_led_eeprom = {
@@ -531,7 +524,7 @@ void saveLEDEEPROM() {
 
 void clearConfigEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(unsigned int i = 0 ; i < sizeof(objEEPROM); i++) {
+  for(unsigned int i = 0; i < sizeof(objConfigEEPROM); i++) {
     EEPROM.put(i, 0);
   }
 
@@ -570,7 +563,6 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_level_2 = 1;
   uint8_t i_overheat_level_1 = 1;
   uint8_t i_wand_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
-  uint8_t i_amplify_wand_speaker = 1;
 
   if(b_cross_the_streams == true) {
     i_cross_the_streams = 2;
@@ -752,12 +744,8 @@ void saveConfigEEPROM() {
     break;
   }
 
-  if(b_amplify_wand_speaker == true) {
-    i_amplify_wand_speaker = 2;
-  }
-
   // Write the data to the EEPROM if any of the values have changed.
-  objEEPROM obj_config_eeprom = {
+  objConfigEEPROM obj_config_eeprom = {
     i_cross_the_streams,
     i_cross_the_streams_mix,
     i_overheating,
@@ -788,8 +776,7 @@ void saveConfigEEPROM() {
     i_overheat_level_3,
     i_overheat_level_2,
     i_overheat_level_1,
-    i_wand_vibration,
-    i_amplify_wand_speaker
+    i_wand_vibration
   };
 
   // Save and update our object in the EEPROM.
@@ -804,20 +791,12 @@ void updateCRCEEPROM() {
 }
 
 unsigned long eepromCRC(void) {
-  const unsigned long crc_table[16] = {
-    0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
-    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
-    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
-  };
-
   unsigned long crc = l_crc_size;
 
-  for(unsigned int index = 0; index < EEPROM.length() - sizeof(crc); ++index) {
-    crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
-    crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
-    crc = ~crc;
+  for(unsigned int index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); ++index) {
+    crc = pgm_read_dword_near(crc_table[(crc ^ EEPROM[index]) & 0x0f]) ^ (crc >> 4);
+    crc = pgm_read_dword_near(crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f]) ^ (crc >> 4);
   }
 
-  return crc;
+  return ~crc;
 }

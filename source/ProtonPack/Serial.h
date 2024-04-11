@@ -2540,11 +2540,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_smoke_enabled = false;
 
         stopEffect(S_VENT_DRY);
-        playEffect(S_VENT_DRY);
-
         stopEffect(S_VOICE_SMOKE_DISABLED);
         stopEffect(S_VOICE_SMOKE_ENABLED);
 
+        playEffect(S_VENT_DRY);
         playEffect(S_VOICE_SMOKE_DISABLED);
 
         // Tell the wand to play the smoke disabled voice.
@@ -2554,11 +2553,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_smoke_enabled = true;
 
         stopEffect(S_VENT_SMOKE);
-        playEffect(S_VENT_SMOKE);
-
         stopEffect(S_VOICE_SMOKE_ENABLED);
         stopEffect(S_VOICE_SMOKE_DISABLED);
 
+        playEffect(S_VENT_SMOKE);
         playEffect(S_VOICE_SMOKE_ENABLED);
 
         // Tell the wand to play the smoke enabled voice.
