@@ -686,7 +686,7 @@ void packStartup() {
     stopEffect(S_PACK_RIBBON_ALARM_1);
     stopEffect(S_ALARM_LOOP);
     stopEffect(S_RIBBON_CABLE_START);
-    stopEffect(S_PACK_SHUTDOWN_AFTERLIFE); // This is a long track which may still be playing.
+    stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT); // This is a long track which may still be playing.
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
@@ -782,7 +782,7 @@ void packShutdown() {
   }
 
   if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-    stopEffect(S_PACK_SHUTDOWN_AFTERLIFE);
+    stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
     stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
 
@@ -823,7 +823,7 @@ void packShutdown() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        playEffect(S_PACK_SHUTDOWN_AFTERLIFE);
+        playEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
       break;
     }
   }
@@ -1185,6 +1185,21 @@ void checkSwitches() {
       if(switch_power.isReleased() || switch_power.isPressed()) {
         // Turn the pack off.
         PACK_ACTION_STATE = ACTION_OFF;
+
+        // When the ion arm switch is used to turn the Proton Pack off, play a extra sound effect in Afterlife or Frozen Empire.
+        switch(SYSTEM_YEAR) {
+          case SYSTEM_AFTERLIFE:
+          case SYSTEM_FROZEN_EMPIRE:
+            stopEffect(S_ION_ARM_SWITCH);
+            playEffect(S_ION_ARM_SWITCH);
+          break;
+
+          case SYSTEM_1984:
+          case SYSTEM_1989:
+          default:
+            // Nothing.
+          break;
+        }
       }
     break;
   }

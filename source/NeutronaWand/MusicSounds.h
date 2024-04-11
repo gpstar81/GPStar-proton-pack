@@ -373,10 +373,11 @@ enum sound_fx {
   S_SLIME_TETHER_FIRE,
   S_SHOCK_BLAST_FIRE,
   S_MESON_COLLIDER_FIRE,
-  S_PACK_SHUTDOWN_AFTERLIFE_ALT
+  S_PACK_SHUTDOWN_AFTERLIFE_ALT,
+  S_ION_ARM_SWITCH
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_PACK_SHUTDOWN_AFTERLIFE_ALT;
+const unsigned int i_last_effects_track = S_ION_ARM_SWITCH;

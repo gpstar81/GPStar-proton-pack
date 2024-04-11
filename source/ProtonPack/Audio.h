@@ -199,7 +199,7 @@ void updateEffectsVolume() {
       audio.trackGain(S_GB2_PACK_LOOP, i_volume_effects);
       audio.trackGain(S_GB2_PACK_OFF, i_volume_effects);
       audio.trackGain(S_PACK_SHUTDOWN, i_volume_effects);
-      audio.trackGain(S_PACK_SHUTDOWN_AFTERLIFE, i_volume_effects);
+      audio.trackGain(S_PACK_SHUTDOWN_AFTERLIFE_ALT, i_volume_effects);
       audio.trackGain(S_IDLE_LOOP, i_volume_effects);
       audio.trackGain(S_BOOTUP, i_volume_effects);
       audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
