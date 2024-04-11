@@ -1005,8 +1005,6 @@ void checkSwitches() {
       playEffect(S_VENT_DRY);
       playEffect(S_VOICE_SMOKE_DISABLED);
 
-      Serial.println(S_VOICE_SMOKE_DISABLED);
-
       // Tell wand to play smoke disabled voice.
       packSerialSend(P_SMOKE_DISABLED);
     }
@@ -1019,8 +1017,6 @@ void checkSwitches() {
 
       playEffect(S_VENT_SMOKE);
       playEffect(S_VOICE_SMOKE_ENABLED);
-
-      Serial.println(S_VOICE_SMOKE_ENABLED);
 
       // Tell wand to play smoke enabled voice.
       packSerialSend(P_SMOKE_ENABLED);
