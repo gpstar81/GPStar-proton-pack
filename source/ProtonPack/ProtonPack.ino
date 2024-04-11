@@ -999,13 +999,13 @@ void checkSwitches() {
       b_smoke_enabled = false;
 
       stopEffect(S_VENT_DRY);
-
-      playEffect(S_VENT_DRY);
-
       stopEffect(S_VOICE_SMOKE_DISABLED);
       stopEffect(S_VOICE_SMOKE_ENABLED);
 
+      playEffect(S_VENT_DRY);
       playEffect(S_VOICE_SMOKE_DISABLED);
+
+      Serial.println(S_VOICE_SMOKE_DISABLED);
 
       // Tell wand to play smoke disabled voice.
       packSerialSend(P_SMOKE_DISABLED);
@@ -1014,13 +1014,13 @@ void checkSwitches() {
       b_smoke_enabled = true;
 
       stopEffect(S_VENT_SMOKE);
-
-      playEffect(S_VENT_SMOKE);
-
       stopEffect(S_VOICE_SMOKE_ENABLED);
       stopEffect(S_VOICE_SMOKE_DISABLED);
 
+      playEffect(S_VENT_SMOKE);
       playEffect(S_VOICE_SMOKE_ENABLED);
+
+      Serial.println(S_VOICE_SMOKE_ENABLED);
 
       // Tell wand to play smoke enabled voice.
       packSerialSend(P_SMOKE_ENABLED);

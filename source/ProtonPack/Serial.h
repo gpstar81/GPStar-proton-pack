@@ -2546,6 +2546,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_VOICE_SMOKE_DISABLED);
         stopEffect(S_VOICE_SMOKE_ENABLED);
 
+        Serial.println("play smoke disabled");
         playEffect(S_VOICE_SMOKE_DISABLED);
 
         // Tell the wand to play the smoke disabled voice.
@@ -2560,6 +2561,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         stopEffect(S_VOICE_SMOKE_ENABLED);
         stopEffect(S_VOICE_SMOKE_DISABLED);
+        Serial.println("play smoke enabled");
 
         playEffect(S_VOICE_SMOKE_ENABLED);
 
