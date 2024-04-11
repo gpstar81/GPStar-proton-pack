@@ -35,9 +35,9 @@
  */
 void readEEPROM();
 void clearConfigEEPROM();
-void clearLedEEPROM();
+void clearLEDEEPROM();
 void saveConfigEEPROM();
-void saveLedEEPROM();
+void saveLEDEEPROM();
 void updateCRCEEPROM();
 unsigned long eepromCRC(void);
 void resetCyclotronLEDs();
@@ -121,13 +121,13 @@ void readEEPROM() {
       i_powercell_leds = obj_eeprom.powercell_count;
 
       switch(i_powercell_leds) {
-        case HASLAB_POWERCELL_LED_COUNT:
+        case FRUTTO_POWERCELL_LED_COUNT:
           // 15 Power Cell LEDs.
           i_powercell_delay_1984 = 60;
           i_powercell_delay_2021 = 34;
         break;
 
-        case FRUTTO_POWERCELL_LED_COUNT:
+        case HASLAB_POWERCELL_LED_COUNT:
         default:
           // 13 Power Cell LEDs.
           i_powercell_delay_1984 = 75;
@@ -302,10 +302,6 @@ void readEEPROM() {
         b_switch_mode_override = true;
       }
     }
-    else {
-      // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
-      SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
-    }
 
     if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode != 255) {
       if(obj_config_eeprom.system_mode > 1) {
@@ -464,11 +460,16 @@ void readEEPROM() {
       }
     }
   }
+  else {
+    // CRC doesn't match; let's clear the EEPROMs to be safe.
+    clearConfigEEPROM();
+    clearLEDEEPROM();
+  }
 
   resetContinuousSmoke();
 }
 
-void clearLedEEPROM() {
+void clearLEDEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
   for(unsigned int i = 0 ; i < sizeof(objLEDEEPROM); i++) {
     EEPROM.put(i, 0);
@@ -479,7 +480,7 @@ void clearLedEEPROM() {
   updateProtonPackLEDCounts();
 }
 
-void saveLedEEPROM() {
+void saveLEDEEPROM() {
   // Power Cell LEDs
   // Cyclotron LEDs
   // Inner Cyclotron LEDs
@@ -556,7 +557,7 @@ void saveConfigEEPROM() {
   uint8_t i_smoke_continuous_mode_2 = 1;
   uint8_t i_smoke_continuous_mode_1 = 1;
 
-  uint8_t i_pack_vibration = 4;
+  uint8_t i_pack_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
 
   if(b_stream_effects != true) {
     i_proton_stream_effects = 1;
@@ -591,7 +592,7 @@ void saveConfigEEPROM() {
   }
 
   if(b_powercell_colour_toggle == true) {
-    i_vga_powercell = 2; // 1 = false, 2 = true;
+    i_vga_powercell = 2;
   }
 
   if(b_cyclotron_colour_toggle == true) {

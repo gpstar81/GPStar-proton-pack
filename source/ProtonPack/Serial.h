@@ -223,6 +223,9 @@ void toggleYearModes() {
       // Nothing.
     break;
   }
+
+  // Reset the pack variables to match the new year mode.
+  packOffReset();
 }
 
 /*
@@ -985,7 +988,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_SAVE_EEPROM_SETTINGS_PACK:
       // Commit changes to the EEPROM in the pack controller
-      saveLedEEPROM();
+      saveLEDEEPROM();
       saveConfigEEPROM();
 
       // Offer some feedback to the user
@@ -1092,10 +1095,19 @@ void doWandSync() {
   debugln(F("Wand Sync Start"));
   packSerialSend(P_SYNC_START);
 
-  // Attaching a wand means we need to stop any prior overheat as the wand initiates this action.
+  // Attaching a new wand means we need to stop any prior overheat as the wand initiates this action.
   if(b_overheating == true) {
     packOverheatingFinished();
   }
+
+  // Attaching a new wand means we must forcefully exit the EEPROM LED Menu if we are still in it.
+  if(b_spectral_lights_on == true && b_pack_on != true && b_pack_shutting_down != true) {
+    spectralLightsOff();
+    //saveLEDEEPROM(); // Save any settings that were in progress before wand was hot-swapped.
+  }
+
+  // Attaching a new wand means we must also exit the EEPROM Config Menu if we are still in it.
+  //saveConfigEEPROM(); // Save any settings that were in progress before wand was hot-swapped.
 
   // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
   switch(SYSTEM_MODE) {
@@ -1189,19 +1201,22 @@ void doWandSync() {
 
       FIRING_MODE = PROTON;
 
-      if(b_pack_on != true && b_pack_shutting_down != true) {
-        if(b_cyclotron_colour_toggle == true) {
-          // Reset the Cyclotron LED colours.
-          cyclotronColourReset();
-        }
+      if(b_cyclotron_colour_toggle == true) {
+        // Reset the Cyclotron LED colours.
+        cyclotronColourReset();
+      }
 
-        if(b_powercell_colour_toggle == true) {
-          // Reset the Power Cell colours.
-          b_powercell_updating = true;
-          powercellDraw();
-        }
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
+        b_powercell_updating = true;
+        powercellDraw();
       }
     break;
+  }
+
+  // Make sure the pack is fully reset if it is off while a new wand is connected.
+  if(b_pack_on != true) {
+    b_reset_start_led = false;
   }
 
   // Tell the wand the status of the Proton Pack ribbon cable.
@@ -1265,8 +1280,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_wand_syncing = false; // No longer attempting to force a sync w/ wand.
       b_wand_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected
 
-      // Wand was connected and still present, so reset the disconnection delay.
-      ms_wand_check.start(i_wand_disconnect_delay);
+      // Wand was connected and still present, so restart the disconnection check.
+      ms_wand_check.restart();
 
       // Tell the serial1 device the wand is still connected.
       serial1Send(A_WAND_CONNECTED);
@@ -1531,8 +1546,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1559,10 +1574,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
-
         powercellDraw();
       }
 
@@ -1588,8 +1602,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1616,8 +1630,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1643,8 +1657,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1671,8 +1685,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1699,8 +1713,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1728,8 +1742,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1751,8 +1765,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true) {
-        // Reset the Power Cell colours.
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
       }
@@ -1779,14 +1793,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
       else {
         ms_overheating.start(i_overheating_delay);
-      }
 
-      // Reset some vent light timers.
-      ms_vent_light_off.stop();
-      ms_vent_light_on.stop();
-      //ms_fan_stop_timer.stop();
-      ms_vent_light_off.start(i_vent_light_delay);
-      //ms_fan_stop_timer.start(i_fan_stop_timer);
+        // Reset some vent light timers.
+        ms_vent_light_off.stop();
+        ms_vent_light_on.stop();
+        //ms_fan_stop_timer.stop();
+        ms_vent_light_off.start(i_vent_light_delay);
+        //ms_fan_stop_timer.start(i_fan_stop_timer);
+      }
 
       // Reset the Inner Cyclotron speed.
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
@@ -1794,6 +1808,39 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       serial1Send(A_OVERHEATING);
+    break;
+
+    case W_VENTING:
+      // Quick Vent function
+      stopEffect(S_BEEP_8);
+      stopEffect(S_SLIME_EMPTY);
+      stopEffect(S_PACK_SLIME_TANK_LOOP);
+      stopEffect(S_QUICK_VENT_CLOSE);
+      stopEffect(S_QUICK_VENT_OPEN);
+
+      playEffect(S_QUICK_VENT_OPEN);
+
+      if(FIRING_MODE == SLIME) {
+        playEffect(S_SLIME_EMPTY);
+      }
+      else {
+        // Reset some vent light timers.
+        ms_vent_light_off.stop();
+        ms_vent_light_on.stop();
+        //ms_fan_stop_timer.stop();
+        ms_vent_light_off.start(i_vent_light_delay);
+        //ms_fan_stop_timer.start(i_fan_stop_timer);
+      }
+
+      b_venting = true;
+
+      // Start venting timer.
+      ms_overheating.start(1);
+
+      // Reset Cyclotron speed.
+      cyclotronSpeedRevert();
+
+      serial1Send(A_VENTING);
     break;
 
     // No longer used.
@@ -2042,6 +2089,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand is crossing the streams.
       STATUS_CTS = CTS_FIRING_1984;
 
+      // Stop the impact sound timer.
+      ms_firing_sound_mix.stop();
+
       stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
       playEffect(S_FIRE_SPARKS);
@@ -2060,6 +2110,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand is crossing the streams.
       STATUS_CTS = CTS_FIRING_2021;
 
+      // Stop the impact sound timer.
+      ms_firing_sound_mix.stop();
+
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       playEffect(S_FIRE_SPARKS);
@@ -2077,6 +2130,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_FIRING_CROSSING_THE_STREAMS_MIX_1984:
       // Wand is crossing the streams.
       STATUS_CTS = CTS_FIRING_1984;
+
+      // Stop the impact sound timer.
+      ms_firing_sound_mix.stop();
 
       stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
@@ -2106,6 +2162,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_FIRING_CROSSING_THE_STREAMS_MIX_2021:
       // Wand is crossing the streams.
       STATUS_CTS = CTS_FIRING_2021;
+
+      // Stop the impact sound timer.
+      ms_firing_sound_mix.stop();
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
@@ -2170,6 +2229,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // The wand is no longer crossing the streams.
       STATUS_CTS = CTS_NOT_FIRING;
 
+      // Restart the impact sound timer.
+      if(b_stream_effects == true) {
+        unsigned int i_s_random = random(7,14) * 1000;
+        ms_firing_sound_mix.start(i_s_random);
+      }
+
       stopEffect(S_CROSS_STREAMS_START);
       stopEffect(S_CROSS_STREAMS_END);
 
@@ -2184,6 +2249,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021:
       // The wand is no longer crossing the streams.
       STATUS_CTS = CTS_NOT_FIRING;
+
+      // Restart the impact sound timer.
+      if(b_stream_effects == true) {
+        unsigned int i_s_random = random(7,14) * 1000;
+        ms_firing_sound_mix.start(i_s_random);
+      }
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
@@ -3361,7 +3432,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_VOICE_EEPROM_ERASE);
         playEffect(S_VOICE_EEPROM_ERASE);
 
-        clearLedEEPROM();
+        clearLEDEEPROM();
       }
     break;
 
@@ -3371,7 +3442,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_VOICE_EEPROM_SAVE);
         playEffect(S_VOICE_EEPROM_SAVE);
 
-        saveLedEEPROM();
+        saveLEDEEPROM();
       }
     break;
 
@@ -3512,7 +3583,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       updateProtonPackLEDCounts();
-      
+
       resetCyclotronLEDs();
 
       spectralLightsOff();

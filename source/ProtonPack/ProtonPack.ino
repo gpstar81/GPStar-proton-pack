@@ -111,9 +111,6 @@ void setup() {
   pinMode(cyclotron_switch_led_green, OUTPUT);
   pinMode(cyclotron_switch_led_yellow, OUTPUT);
 
-  // Misc configuration before startup.
-  resetCyclotronState();
-
   // Default mode is Super Hero (for simpler controls).
   SYSTEM_MODE = MODE_SUPER_HERO;
 
@@ -131,16 +128,6 @@ void setup() {
   // Set default vibration mode.
   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
 
-  resetRampSpeeds();
-
-  // Start some timers
-  ms_cyclotron.start(i_current_ramp_speed);
-  ms_cyclotron_ring.start(i_inner_current_ramp_speed);
-  ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
-  ms_serial1_handshake.start(i_serial1_handshake_delay);
-  ms_fast_led.start(i_fast_led_delay);
-  ms_battcheck.start(500);
-
   // Configure the vibration state.
   if(switch_vibration.getState() == LOW) {
     b_vibration_enabled = true;
@@ -157,6 +144,11 @@ void setup() {
     SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   }
 
+  // Load any saved settings stored in the EEPROM memory of the Proton Pack.
+  if(b_eeprom == true) {
+    readEEPROM();
+  }
+
   // Check some LED brightness settings for various LEDs.
   // The datatype used should avoid checks for negative values.
   if(i_powercell_brightness > 100) {
@@ -171,13 +163,18 @@ void setup() {
     i_cyclotron_inner_brightness = 100;
   }
 
-  // Check music timer.
-  ms_check_music.start(i_music_check_delay);
+  // Reset cyclotron ramps.
+  resetRampSpeeds();
 
-  // Load any saved settings stored in the EEPROM memory of the Proton Pack.
-  if(b_eeprom == true) {
-    readEEPROM();
-  }
+  // Start some timers
+  ms_battcheck.start(500);
+  ms_fast_led.start(i_fast_led_delay);
+  ms_check_music.start(i_music_check_delay);
+  ms_serial1_handshake.start(i_serial1_handshake_delay);
+  ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
+
+  // Perform initial pack reset.
+  packOffReset();
 
   if(SYSTEM_MODE == MODE_SUPER_HERO) {
     // Auto start the pack if it is in demo light mode.
@@ -230,6 +227,31 @@ void loop() {
         b_pack_shutting_down = true;
 
         ms_fadeout.start(1);
+
+        switch(SYSTEM_MODE) {
+          case MODE_ORIGINAL:
+            if(switch_power.getState() == HIGH) {
+              // Tell the Neutrona Wand that power to the Proton Pack is off.
+              if(b_wand_connected) {
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
+
+              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+              if(b_serial1_connected) {
+                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
+            }
+          break;
+
+          case MODE_SUPER_HERO:
+          default:
+            // Do nothing.
+          break;
+        }
+
+        // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
+        packSerialSend(P_OFF);
+        serial1Send(A_PACK_OFF);
       }
 
       if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
@@ -259,37 +281,10 @@ void loop() {
             }
           }
 
-          if(b_reset_start_led == false) {
+          if(b_reset_start_led == false && ms_fadeout.isRunning() != true) {
             packOffReset();
           }
         }
-      }
-
-      if(b_pack_on == true) {
-        switch(SYSTEM_MODE) {
-          case MODE_ORIGINAL:
-            if(switch_power.getState() == HIGH) {
-              // Tell the Neutrona Wand that power to the Proton Pack is off.
-              if(b_wand_connected) {
-                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-              }
-
-              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-              if(b_serial1_connected) {
-                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
-              }
-            }
-          break;
-
-          case MODE_SUPER_HERO:
-          default:
-            // Do nothing.
-          break;
-        }
-
-        // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
-        packSerialSend(P_OFF);
-        serial1Send(A_PACK_OFF);
       }
 
       b_pack_on = false;
@@ -381,7 +376,7 @@ void loop() {
         }
 
         // Mix some impact sound effects.
-        if(ms_firing_sound_mix.justFinished() && FIRING_MODE == PROTON && b_stream_effects == true) {
+        if(ms_firing_sound_mix.justFinished() && FIRING_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects == true) {
           uint8_t i_random = 0;
 
           switch(i_last_firing_effect_mix) {
@@ -510,6 +505,10 @@ void loop() {
 
       cyclotronSwitchLEDLoop();
 
+      if(b_venting == true) {
+        packVenting();
+      }
+
       if(b_overheating == true && b_overheat_lights_off == true) {
         powercellRampDown();
       }
@@ -539,7 +538,7 @@ void loop() {
   if(ms_fast_led.justFinished()) {
     FastLED.show();
 
-    ms_fast_led.start(i_fast_led_delay);
+    ms_fast_led.restart();
 
     if(b_powercell_updating == true) {
       b_powercell_updating = false;
@@ -792,13 +791,21 @@ void packShutdown() {
     }
   }
 
+  // Need to play the 'close' SFX if we already played the open one
   if(b_overheating == true) {
-    // Need to play the 'close' SFX if we already played the open one
     stopEffect(S_SLIME_EMPTY);
     stopEffect(S_VENT_OPEN);
+    stopEffect(S_VENT_CLOSE);
     if(FIRING_MODE != SLIME) {
       playEffect(S_VENT_CLOSE);
+      playEffect(S_STEAM_LOOP_FADE_OUT);
     }
+  }
+  else if(b_venting == true) {
+    stopEffect(S_SLIME_EMPTY);
+    stopEffect(S_QUICK_VENT_OPEN);
+    stopEffect(S_QUICK_VENT_CLOSE);
+    playEffect(S_QUICK_VENT_CLOSE);
   }
 
   if(b_alarm != true) {
@@ -852,6 +859,7 @@ void packOffReset() {
 
   ms_overheating_length.stop();
   b_overheating = false;
+  b_venting = false;
   b_2021_ramp_down = false;
   b_2021_ramp_down_start = false;
   b_reset_start_led = true; // reset the start LED of the Cyclotron.
@@ -933,6 +941,9 @@ void setYearModeByToggle() {
       serial1Send(A_YEAR_AFTERLIFE);
     }
   }
+
+  // Reset the pack variables to match the new year mode.
+  packOffReset();
 }
 
 void checkSwitches() {
@@ -1110,7 +1121,7 @@ void checkSwitches() {
       }
 
       // Year mode. Best to adjust it only when the pack is off.
-      if(b_2021_ramp_down != true && b_pack_on == false) {
+      if(b_pack_shutting_down != true && b_pack_on == false) {
         // If switching manually by the pack toggle switch.
         if(b_switch_mode_override != true) {
           setYearModeByToggle();
@@ -2065,7 +2076,7 @@ void cyclotron2021(int cDelay) {
               ms_cyclotron.start(i_current_ramp_speed);
             break;
 
-            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:              
+            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
               if(i_cyclotron_matrix_led > 0) {
                 ms_cyclotron.start(i_current_ramp_speed);
               }
@@ -2750,6 +2761,95 @@ void cyclotron84LightOff(int cLed) {
   }
 }
 
+void packVenting() {
+  if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+    smokeNFilter(true);
+  }
+
+  if(ms_overheating.justFinished()) {
+    if(FIRING_MODE == SLIME) {
+      // Play the sound of slime refilling the tank.
+      playEffect(S_SLIME_REFILL, true);
+    }
+    else {
+      playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+
+      // Fade in the steam release loop.
+      playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
+    }
+
+    switch(i_wand_power_level) {
+      case 1:
+      default:
+        ms_overheating_length.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
+      break;
+
+      case 2:
+        ms_overheating_length.start(i_ms_overheating_length_2 >= 4000 ? i_ms_overheating_length_2 / 2 : 2000);
+      break;
+
+      case 3:
+        ms_overheating_length.start(i_ms_overheating_length_3 >= 4000 ? i_ms_overheating_length_3 / 2 : 2000);
+      break;
+
+      case 4:
+        ms_overheating_length.start(i_ms_overheating_length_4 >= 4000 ? i_ms_overheating_length_4 / 2 : 2000);
+      break;
+
+      case 5:
+        ms_overheating_length.start(i_ms_overheating_length_5 >= 4000 ? i_ms_overheating_length_5 / 2 : 2000);
+      break;
+    }
+
+    if(b_overheat_sync_to_fan != true) {
+      smokeNFilter(false);
+    }
+  }
+
+  if(ms_overheating_length.isRunning() && FIRING_MODE != SLIME) {
+    if(b_overheat_sync_to_fan == true) {
+      smokeNFilter(true);
+    }
+
+    // Turn the fans on.
+    fanNFilter(true);
+    fanBooster(true);
+
+    // For strobing the vent light.
+    if(ms_vent_light_off.justFinished()) {
+      ms_vent_light_off.stop();
+      ms_vent_light_on.start(i_vent_light_delay);
+
+      if(b_overheat_strobe == true) {
+        ventLight(true);
+      }
+    }
+    else if(ms_vent_light_on.justFinished()) {
+      ms_vent_light_on.stop();
+      ms_vent_light_off.start(i_vent_light_delay);
+
+      if(b_overheat_strobe == true) {
+        ventLight(false);
+      }
+    }
+
+    // For non-strobing vent light option.
+    if(b_overheat_strobe != true) {
+      if(b_vent_light_on != true) {
+        // Solid light on if strobe option turned off.
+        ventLight(true);
+      }
+    }
+
+    ventLightLEDW(true);
+  }
+
+  if(ms_overheating_length.justFinished()) {
+    // Tell the Neutrona Wand the venting is finished.
+    packVentingFinished();
+  }
+}
+
 void cyclotronOverheating() {
   if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
     smokeNFilter(true);
@@ -2763,10 +2863,10 @@ void cyclotronOverheating() {
     else {
       playEffect(S_AIR_RELEASE);
       playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
-    }
 
-    // Fade in the steam release loop.
-    playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
+      // Fade in the steam release loop.
+      playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
+    }
 
     switch(i_wand_power_level) {
       case 1:
@@ -2898,7 +2998,10 @@ void cyclotronOverheating() {
 }
 
 void packOverheatingFinished() {
-  packSerialSend(P_OVERHEATING_FINISHED);
+  if(b_wand_syncing != true) {
+    packSerialSend(P_OVERHEATING_FINISHED);
+  }
+
   serial1Send(A_OVERHEATING_FINISHED);
 
   ms_overheating_length.stop();
@@ -2945,6 +3048,41 @@ void packOverheatingFinished() {
   ms_vent_light_on.stop();
 
   ms_cyclotron.start(i_2021_delay);
+}
+
+void packVentingFinished() {
+  packSerialSend(P_VENTING_FINISHED);
+  serial1Send(A_VENTING_FINISHED);
+
+  ms_overheating_length.stop();
+
+  stopEffect(S_STEAM_LOOP);
+  stopEffect(S_SLIME_REFILL);
+  stopEffect(S_QUICK_VENT_OPEN);
+  stopEffect(S_QUICK_VENT_CLOSE);
+  playEffect(S_QUICK_VENT_CLOSE);
+
+  if(FIRING_MODE == SLIME) {
+    playEffect(S_PACK_SLIME_TANK_LOOP, true, i_volume_effects, true, 1500);
+  }
+  else {
+    playEffect(S_STEAM_LOOP_FADE_OUT);
+  }
+
+  b_venting = false;
+
+  // Turn off the smoke.
+  smokeNFilter(false);
+
+  // Stop the fans.
+  fanNFilter(false);
+  fanBooster(false);
+
+  // Turn off the vent lights
+  ventLight(false);
+  ventLightLEDW(false);
+  ms_vent_light_off.stop();
+  ms_vent_light_on.stop();
 }
 
 void cyclotronNoCable() {
@@ -3591,7 +3729,7 @@ void wandFiring() {
     ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
   }
 
-  if(b_stream_effects == true) {
+  if(b_stream_effects == true && STATUS_CTS == CTS_NOT_FIRING) {
     unsigned int i_s_random = random(7,14) * 1000;
     ms_firing_sound_mix.start(i_s_random);
   }
@@ -3968,7 +4106,7 @@ void cyclotronSwitchPlateLEDs() {
   }
 
   if(ms_cyclotron_switch_plate_leds.justFinished()) {
-    ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
+    ms_cyclotron_switch_plate_leds.restart();
   }
 }
 

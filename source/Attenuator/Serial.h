@@ -778,6 +778,31 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
+    case A_VENTING:
+      #if defined(__XTENSA__)
+        debug("Quick Venting");
+      #endif
+
+      // Pack is performing quick vent; reset bargraph.
+      i_speed_multiplier = 1;
+      b_overheating = true;
+      b_state_changed = true;
+
+      // Go to the standard power ramp.
+      bargraphClear();
+      BARGRAPH_PATTERN = BG_POWER_RAMP;
+    break;
+
+    case A_VENTING_FINISHED:
+      #if defined(__XTENSA__)
+        debug("Quick Vent Complete");
+      #endif
+
+      // Quick vent process completed.
+      b_overheating = false;
+      b_state_changed = true;
+    break;
+
     case A_OVERHEATING:
       #if defined(__XTENSA__)
         debug("Overheating");

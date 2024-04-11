@@ -878,6 +878,12 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
+    case P_VENTING_FINISHED:
+      if(WAND_STATUS != MODE_OFF) {
+        quickVentFinished();
+      }
+    break;
+
     case P_MODE_ORIGINAL_RED_SWITCH_ON:
       b_pack_ion_arm_switch_on = true;
 
@@ -1114,7 +1120,13 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       if(b_firing == true) {
         // Keep both lights on if still firing.
         digitalWrite(led_hat_1, HIGH);
-        digitalWrite(led_hat_2, HIGH);
+
+        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+          digitalWrite(led_hat_2, HIGH);
+        }
+        else {
+          digitalWrite(led_hat_2, LOW);
+        }
       }
 
       // Next, reset the cyclotron speed on all devices.
@@ -1517,6 +1529,9 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_PROTON_STREAM_IMPACT_ENABLED:
+      // Enables additional Proton Stream sparking sounds.
+      b_stream_effects = true;
+
       stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
       stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
 
@@ -1524,6 +1539,9 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_PROTON_STREAM_IMPACT_DISABLED:
+      // Disables additional Proton Stream sparking sounds.
+      b_stream_effects = false;
+
       stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
       stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
 
@@ -1785,7 +1803,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_SAVE_EEPROM_WAND:
       // Commit changes to the EEPROM in the wand controller
-      saveLedEEPROM();
+      saveLEDEEPROM();
       saveConfigEEPROM();
       stopEffect(S_VOICE_EEPROM_SAVE);
       playEffect(S_VOICE_EEPROM_SAVE);
