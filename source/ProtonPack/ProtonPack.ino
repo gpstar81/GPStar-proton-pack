@@ -227,6 +227,31 @@ void loop() {
         b_pack_shutting_down = true;
 
         ms_fadeout.start(1);
+
+        switch(SYSTEM_MODE) {
+          case MODE_ORIGINAL:
+            if(switch_power.getState() == HIGH) {
+              // Tell the Neutrona Wand that power to the Proton Pack is off.
+              if(b_wand_connected) {
+                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
+
+              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+              if(b_serial1_connected) {
+                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+              }
+            }
+          break;
+
+          case MODE_SUPER_HERO:
+          default:
+            // Do nothing.
+          break;
+        }
+
+        // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
+        packSerialSend(P_OFF);
+        serial1Send(A_PACK_OFF);
       }
 
       if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
@@ -260,33 +285,6 @@ void loop() {
             packOffReset();
           }
         }
-      }
-
-      if(b_pack_on == true) {
-        switch(SYSTEM_MODE) {
-          case MODE_ORIGINAL:
-            if(switch_power.getState() == HIGH) {
-              // Tell the Neutrona Wand that power to the Proton Pack is off.
-              if(b_wand_connected) {
-                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-              }
-
-              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-              if(b_serial1_connected) {
-                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
-              }
-            }
-          break;
-
-          case MODE_SUPER_HERO:
-          default:
-            // Do nothing.
-          break;
-        }
-
-        // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
-        packSerialSend(P_OFF);
-        serial1Send(A_PACK_OFF);
       }
 
       b_pack_on = false;
@@ -943,6 +941,9 @@ void setYearModeByToggle() {
       serial1Send(A_YEAR_AFTERLIFE);
     }
   }
+
+  // Reset the pack variables to match the new year mode.
+  packOffReset();
 }
 
 void checkSwitches() {

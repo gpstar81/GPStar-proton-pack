@@ -302,10 +302,6 @@ void readEEPROM() {
         b_switch_mode_override = true;
       }
     }
-    else {
-      // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
-      SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
-    }
 
     if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode != 255) {
       if(obj_config_eeprom.system_mode > 1) {

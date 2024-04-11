@@ -223,6 +223,9 @@ void toggleYearModes() {
       // Nothing.
     break;
   }
+
+  // Reset the pack variables to match the new year mode.
+  packOffReset();
 }
 
 /*
