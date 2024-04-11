@@ -57,6 +57,8 @@
 #define CMD_SET_TRIGGER_BANK    15
 #define CMD_GET_TRACK_STATUS    16
 #define CMD_GET_GPSTAR_HELLO    17
+#define CMD_LED_ON              18
+#define CMD_LED_OFF             19
 
 #define TRK_PLAY_SOLO            0
 #define TRK_PLAY_POLY            1
@@ -139,6 +141,7 @@ public:
   void resetTrackCounter(bool bReset);
   void serialFlush(void);
   void hello(void);
+  void gpstarLEDStatus(bool status);
   bool gpstarAudioHello(void);
 
 private:

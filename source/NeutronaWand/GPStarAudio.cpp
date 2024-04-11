@@ -468,6 +468,25 @@ void gpstarAudio::hello(void) {
   GPStarSerial.write(txbuf, 5);
 }
 
+// Turn on or off the LED on GPStar Audio. Default is on.
+void gpstarAudio::gpstarLEDStatus(bool status) {
+  uint8_t txbuf[5];
+
+  txbuf[0] = SOM1;
+  txbuf[1] = SOM2;
+  txbuf[2] = 0x05;
+
+  if(status == true) {
+    txbuf[3] = CMD_LED_ON;
+  }
+  else {
+    txbuf[3] = CMD_LED_OFF;
+  }
+
+  txbuf[4] = EOM;
+  GPStarSerial.write(txbuf, 5);
+}
+
 bool gpstarAudio::gpstarAudioHello(void) {
   update();
 
