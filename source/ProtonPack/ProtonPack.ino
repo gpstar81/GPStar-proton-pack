@@ -29,6 +29,9 @@
 #define debugln(x)
 #endif
 
+// PROGMEM macro
+#define PROGMEM_READ(x) pgm_read_dword_near(x)
+
 // 3rd-Party Libraries
 #include <EEPROM.h>
 #include <millisDelay.h>
@@ -353,7 +356,7 @@ void loop() {
               break;
 
               case 4:
-                ms_meson_blast.start(i_meson_blast_delay_level_5);
+                ms_meson_blast.start(i_meson_blast_delay_level_4);
               break;
 
               case 3:
@@ -447,13 +450,13 @@ void loop() {
 
         if(ms_smoke_on.justFinished()) {
           ms_smoke_on.stop();
-          ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
+          ms_smoke_timer.start(PROGMEM_READ(i_smoke_timer[i_wand_power_level - 1]));
           b_vent_sounds = true;
         }
 
         if(ms_smoke_timer.justFinished()) {
           if(ms_smoke_on.isRunning() != true) {
-            ms_smoke_on.start(i_smoke_on_time[i_wand_power_level - 1]);
+            ms_smoke_on.start(PROGMEM_READ(i_smoke_on_time[i_wand_power_level - 1]));
           }
         }
 
@@ -578,23 +581,23 @@ bool fadeOutLights() {
           switch(i_cyclotron_leds) {
             case OUTER_CYCLOTRON_LED_MAX:
               // For 40-element LED ring.
-              pack_leds[i_cyclotron_40led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+              pack_leds[PROGMEM_READ(i_cyclotron_40led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
               // For Frutto Technology 36 LEDs.
-              pack_leds[i_cyclotron_36led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+              pack_leds[PROGMEM_READ(i_cyclotron_36led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
             break;
 
             case FRUTTO_CYCLOTRON_LED_COUNT:
               // For Frutto Technology 20 LEDs.
-              pack_leds[i_cyclotron_20led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+              pack_leds[PROGMEM_READ(i_cyclotron_20led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
             break;
 
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
               // For stock HasLab LEDs.
-              pack_leds[i_cyclotron_12led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+              pack_leds[PROGMEM_READ(i_cyclotron_12led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
             break;
           }
         }
@@ -607,23 +610,23 @@ bool fadeOutLights() {
           switch(i_cyclotron_leds) {
             case OUTER_CYCLOTRON_LED_MAX:
               // For 40-element LED ring.
-              pack_leds[i_cyclotron_40led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
+              pack_leds[PROGMEM_READ(i_cyclotron_40led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
               // For Frutto Technology 36 LEDs.
-              pack_leds[i_cyclotron_36led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
+              pack_leds[PROGMEM_READ(i_cyclotron_36led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
             break;
 
             case FRUTTO_CYCLOTRON_LED_COUNT:
               // For Frutto Technology 20 LEDs.
-              pack_leds[i_cyclotron_20led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
+              pack_leds[PROGMEM_READ(i_cyclotron_20led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
             break;
 
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
               // For stock HasLab LEDs.
-              pack_leds[i_cyclotron_12led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
+              pack_leds[PROGMEM_READ(i_cyclotron_12led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
             break;
           }
         }
@@ -1649,7 +1652,7 @@ void cyclotronColourReset() {
   // Accounts for a total # of LEDs minus the N-Filter jewel and whatever precedes the Cyclotron.
   uint8_t i_max = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
   for(int i = 0; i < i_max; i++) {
-    if(i_cyclotron_led_on_status[i] == true) {
+    if(b_cyclotron_led_on_status[i] == true) {
       // Note: Always assumed to be RGB for built-in or Frutto LEDs.
       // Sets 0-index <i> plus the position of the first Cyclotron LED.
       pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
@@ -1811,7 +1814,7 @@ void cyclotronFade() {
     default:
       for(int i = 0; i < i_cyclotron_leds_total; i++) {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
-          i_cyclotron_led_on_status[i] = true;
+          b_cyclotron_led_on_status[i] = true;
 
           int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
@@ -1820,22 +1823,23 @@ void cyclotronFade() {
             switch(i_cyclotron_leds) {
               case OUTER_CYCLOTRON_LED_MAX:
                 // For 40-element LED ring.
-                pack_leds[i_cyclotron_40led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_40led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
 
               case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
                 // For Frutto Technology 36 LEDs.
-                pack_leds[i_cyclotron_36led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_36led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
 
               case FRUTTO_CYCLOTRON_LED_COUNT:
                 // For Frutto Technology 20 LEDs.
-                pack_leds[i_cyclotron_20led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_20led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
 
               case HASLAB_CYCLOTRON_LED_COUNT:
               default:
-                  pack_leds[i_cyclotron_12led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+                // For stock HasLab LEDs.
+                pack_leds[PROGMEM_READ(i_cyclotron_12led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
             }
           }
@@ -1845,9 +1849,9 @@ void cyclotronFade() {
         }
 
         int i_new_brightness = getBrightness(i_cyclotron_brightness);
-        if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {
+        if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && b_cyclotron_led_on_status[i] == true) {
           i_cyclotron_led_value[i] = i_new_brightness;
-          i_cyclotron_led_on_status[i] = false;
+          b_cyclotron_led_on_status[i] = false;
 
           ms_cyclotron_led_fade_out[i].go(i_new_brightness);
 
@@ -1868,23 +1872,23 @@ void cyclotronFade() {
             switch(i_cyclotron_leds) {
               case OUTER_CYCLOTRON_LED_MAX:
                 // For 40-element LED ring.
-                pack_leds[i_cyclotron_40led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_40led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
               break;
 
               case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
                 // For Frutto Technology 36 LEDs.
-                pack_leds[i_cyclotron_36led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_36led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
               break;
 
               case FRUTTO_CYCLOTRON_LED_COUNT:
                 // For Frutto Technology 20 LEDs.
-                pack_leds[i_cyclotron_20led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_20led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
               break;
 
               case HASLAB_CYCLOTRON_LED_COUNT:
               default:
                 // For stock HasLab LEDs.
-                pack_leds[i_cyclotron_12led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_12led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
               break;
             }
           }
@@ -1893,7 +1897,7 @@ void cyclotronFade() {
           }
         }
 
-        if(ms_cyclotron_led_fade_out[i].isRunning() && i_cyclotron_led_on_status[i] == false) {
+        if(ms_cyclotron_led_fade_out[i].isRunning() && b_cyclotron_led_on_status[i] == false) {
           int i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
 
@@ -1901,23 +1905,23 @@ void cyclotronFade() {
             switch(i_cyclotron_leds) {
               case OUTER_CYCLOTRON_LED_MAX:
                 // For 40-element LED ring.
-                pack_leds[i_cyclotron_40led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_40led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
 
               case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
                 // For Frutto Technology 36 LEDs.
-                pack_leds[i_cyclotron_36led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_36led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
 
               case FRUTTO_CYCLOTRON_LED_COUNT:
                 // For Frutto Technology 20 LEDs.
-                pack_leds[i_cyclotron_20led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_20led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
 
               case HASLAB_CYCLOTRON_LED_COUNT:
               default:
                 // For stock HasLab LEDs.
-                pack_leds[i_cyclotron_12led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+                pack_leds[PROGMEM_READ(i_cyclotron_12led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
               break;
             }
           }
@@ -1926,31 +1930,31 @@ void cyclotronFade() {
           }
         }
 
-        if(ms_cyclotron_led_fade_out[i].isFinished() && i_cyclotron_led_on_status[i] == false) {
+        if(ms_cyclotron_led_fade_out[i].isFinished() && b_cyclotron_led_on_status[i] == false) {
           i_cyclotron_led_value[i] = 0;
-          i_cyclotron_led_on_status[i] = true;
+          b_cyclotron_led_on_status[i] = true;
 
           if(b_cyclotron_simulate_ring == true) {
             switch(i_cyclotron_leds) {
               case OUTER_CYCLOTRON_LED_MAX:
                 // For 40-element LED ring.
-                pack_leds[i_cyclotron_40led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+                pack_leds[PROGMEM_READ(i_cyclotron_40led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
               break;
 
               case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
                 // For Frutto Technology 36 LEDs.
-                pack_leds[i_cyclotron_36led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+                pack_leds[PROGMEM_READ(i_cyclotron_36led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
               break;
 
               case FRUTTO_CYCLOTRON_LED_COUNT:
                 // For Frutto Technology 20 LEDs.
-                pack_leds[i_cyclotron_20led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+                pack_leds[PROGMEM_READ(i_cyclotron_20led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
               break;
 
               case HASLAB_CYCLOTRON_LED_COUNT:
               default:
                 // For stock HasLab LEDs.
-                pack_leds[i_cyclotron_12led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+                pack_leds[PROGMEM_READ(i_cyclotron_12led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
               break;
             }
           }
@@ -1966,7 +1970,7 @@ void cyclotronFade() {
       if(b_fade_cyclotron_led == true) {
         for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
-            i_cyclotron_led_on_status[i] = true;
+            b_cyclotron_led_on_status[i] = true;
             int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
 
             pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
@@ -1975,7 +1979,7 @@ void cyclotronFade() {
           }
 
           int i_new_brightness = getBrightness(i_cyclotron_brightness);
-          if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && i_cyclotron_led_on_status[i] == true) {
+          if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && b_cyclotron_led_on_status[i] == true) {
             pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
 
             i_cyclotron_led_value[i] = i_new_brightness;
@@ -1990,21 +1994,21 @@ void cyclotronFade() {
               pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
               i_cyclotron_led_value[i] = 0;
-              i_cyclotron_led_on_status[i] = true;
+              b_cyclotron_led_on_status[i] = true;
             }
             else {
               pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
 
               i_cyclotron_led_value[i] = i_curr_brightness;
-              i_cyclotron_led_on_status[i] = false;
+              b_cyclotron_led_on_status[i] = false;
             }
           }
 
-          if(ms_cyclotron_led_fade_out[i].isFinished() && i_cyclotron_led_on_status[i] == false) {
+          if(ms_cyclotron_led_fade_out[i].isFinished() && b_cyclotron_led_on_status[i] == false) {
             pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
             i_cyclotron_led_value[i] = 0;
-            i_cyclotron_led_on_status[i] = true;
+            b_cyclotron_led_on_status[i] = true;
           }
         }
       }
@@ -2020,20 +2024,20 @@ void cyclotron2021(int cDelay) {
 
     switch(i_cyclotron_leds) {
       case OUTER_CYCLOTRON_LED_MAX:
-         i_cyclotron_matrix_led = i_cyclotron_40led_matrix[i_led_cyclotron - i_cyclotron_led_start];
+        i_cyclotron_matrix_led = PROGMEM_READ(i_cyclotron_40led_matrix[i_led_cyclotron - i_cyclotron_led_start]);
       break;
 
       case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-        i_cyclotron_matrix_led = i_cyclotron_36led_matrix[i_led_cyclotron - i_cyclotron_led_start];
+        i_cyclotron_matrix_led = PROGMEM_READ(i_cyclotron_36led_matrix[i_led_cyclotron - i_cyclotron_led_start]);
       break;
 
       case FRUTTO_CYCLOTRON_LED_COUNT:
-        i_cyclotron_matrix_led = i_cyclotron_20led_matrix[i_led_cyclotron - i_cyclotron_led_start];
+        i_cyclotron_matrix_led = PROGMEM_READ(i_cyclotron_20led_matrix[i_led_cyclotron - i_cyclotron_led_start]);
       break;
 
       case HASLAB_CYCLOTRON_LED_COUNT:
       default:
-        i_cyclotron_matrix_led = i_cyclotron_12led_matrix[i_led_cyclotron - i_cyclotron_led_start];
+        i_cyclotron_matrix_led = PROGMEM_READ(i_cyclotron_12led_matrix[i_led_cyclotron - i_cyclotron_led_start]);
       break;
     }
 
@@ -2058,6 +2062,14 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_CYCLOTRON_LED_COUNT:
+              if(i_cyclotron_matrix_led > 0) {
+                ms_cyclotron.start(i_current_ramp_speed);
+              }
+              else {
+                ms_cyclotron.start(i_current_ramp_speed * 5);
+              }
+            break;
+
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
               if(i_cyclotron_matrix_led > 0) {
@@ -2325,11 +2337,11 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-              i_cyclotron_matrix_led = i_cyclotron_36led_matrix[i_led_cyclotron - i_cyclotron_led_start];
+              i_cyclotron_matrix_led = PROGMEM_READ(i_cyclotron_36led_matrix[i_led_cyclotron - i_cyclotron_led_start]);
 
               if(i_cyclotron_matrix_led == 0) {
                 for(uint8_t i = i_led_cyclotron; i < OUTER_CYCLOTRON_LED_MAX; i++) {
-                  if(i_cyclotron_36led_matrix[i - i_cyclotron_led_start] > 0) {
+                  if(PROGMEM_READ(i_cyclotron_36led_matrix[i - i_cyclotron_led_start]) > 0) {
                     i_led_cyclotron = i;
                     break;
                   }
@@ -2338,11 +2350,11 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_CYCLOTRON_LED_COUNT:
-              i_cyclotron_matrix_led = i_cyclotron_20led_matrix[i_led_cyclotron - i_cyclotron_led_start];
+              i_cyclotron_matrix_led = PROGMEM_READ(i_cyclotron_20led_matrix[i_led_cyclotron - i_cyclotron_led_start]);
 
               if(i_cyclotron_matrix_led == 0) {
                 for(uint8_t i = i_led_cyclotron; i < OUTER_CYCLOTRON_LED_MAX; i++) {
-                  if(i_cyclotron_20led_matrix[i - i_cyclotron_led_start] > 0) {
+                  if(PROGMEM_READ(i_cyclotron_20led_matrix[i - i_cyclotron_led_start]) > 0) {
                     i_led_cyclotron = i;
                     break;
                   }
@@ -2352,11 +2364,11 @@ void cyclotron2021(int cDelay) {
 
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
-              i_cyclotron_matrix_led = i_cyclotron_12led_matrix[i_led_cyclotron - i_cyclotron_led_start];
+              i_cyclotron_matrix_led = PROGMEM_READ(i_cyclotron_12led_matrix[i_led_cyclotron - i_cyclotron_led_start]);
 
               if(i_cyclotron_matrix_led == 0) {
                 for(uint8_t i = i_led_cyclotron; i < OUTER_CYCLOTRON_LED_MAX; i++) {
-                  if(i_cyclotron_12led_matrix[i - i_cyclotron_led_start] > 0) {
+                  if(PROGMEM_READ(i_cyclotron_12led_matrix[i - i_cyclotron_led_start]) > 0) {
                     i_led_cyclotron = i;
                     break;
                   }
@@ -2391,11 +2403,11 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-              i_cyclotron_matrix_led = i_cyclotron_36led_matrix[i_led_cyclotron - i_cyclotron_led_start];
+              i_cyclotron_matrix_led = PROGMEM_READ(i_cyclotron_36led_matrix[i_led_cyclotron - i_cyclotron_led_start]);
 
               if(i_cyclotron_matrix_led == 0) {
                 for(uint8_t i = i_led_cyclotron; i > i_cyclotron_led_start; i--) {
-                  if(i_cyclotron_36led_matrix[i - i_cyclotron_led_start] > 0) {
+                  if(PROGMEM_READ(i_cyclotron_36led_matrix[i - i_cyclotron_led_start]) > 0) {
                     i_led_cyclotron = i;
                     break;
                   }
@@ -2404,11 +2416,11 @@ void cyclotron2021(int cDelay) {
             break;
 
             case FRUTTO_CYCLOTRON_LED_COUNT:
-              i_cyclotron_matrix_led = i_cyclotron_20led_matrix[i_led_cyclotron - i_cyclotron_led_start];
+              i_cyclotron_matrix_led = PROGMEM_READ(i_cyclotron_20led_matrix[i_led_cyclotron - i_cyclotron_led_start]);
 
               if(i_cyclotron_matrix_led == 0) {
                 for(uint8_t i = i_led_cyclotron; i > i_cyclotron_led_start; i--) {
-                  if(i_cyclotron_20led_matrix[i - i_cyclotron_led_start] > 0) {
+                  if(PROGMEM_READ(i_cyclotron_20led_matrix[i - i_cyclotron_led_start]) > 0) {
                     i_led_cyclotron = i;
                     break;
                   }
@@ -2418,11 +2430,11 @@ void cyclotron2021(int cDelay) {
 
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
-              i_cyclotron_matrix_led = i_cyclotron_12led_matrix[i_led_cyclotron - i_cyclotron_led_start];
+              i_cyclotron_matrix_led = PROGMEM_READ(i_cyclotron_12led_matrix[i_led_cyclotron - i_cyclotron_led_start]);
 
               if(i_cyclotron_matrix_led == 0) {
                 for(uint8_t i = i_led_cyclotron; i > i_cyclotron_led_start; i--) {
-                  if(i_cyclotron_12led_matrix[i - i_cyclotron_led_start] > 0) {
+                  if(PROGMEM_READ(i_cyclotron_12led_matrix[i - i_cyclotron_led_start]) > 0) {
                     i_led_cyclotron = i;
                     break;
                   }
@@ -3157,22 +3169,22 @@ void cyclotronLidLedsOff() {
         switch(i_cyclotron_leds) {
           case OUTER_CYCLOTRON_LED_MAX:
             // For 40-element LED ring.
-            pack_leds[i_cyclotron_40led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+            pack_leds[PROGMEM_READ(i_cyclotron_40led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
           break;
 
           case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
             // For Frutto Technology 36 LEDs.
-            pack_leds[i_cyclotron_36led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+            pack_leds[PROGMEM_READ(i_cyclotron_36led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
           break;
 
           case FRUTTO_CYCLOTRON_LED_COUNT:
             // For Frutto Technology 20 LEDs.
-            pack_leds[i_cyclotron_20led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+            pack_leds[PROGMEM_READ(i_cyclotron_20led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
           break;
 
           case HASLAB_CYCLOTRON_LED_COUNT:
           default:
-              pack_leds[i_cyclotron_12led_matrix[i] + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+              pack_leds[PROGMEM_READ(i_cyclotron_12led_matrix[i]) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
           break;
         }
       }
@@ -3185,7 +3197,7 @@ void cyclotronLidLedsOff() {
       ms_cyclotron_led_fade_out[i].go(0);
       ms_cyclotron_led_fade_in[i].go(0);
 
-      i_cyclotron_led_on_status[i] = false;
+      b_cyclotron_led_on_status[i] = false;
     }
   }
 }
@@ -3699,7 +3711,7 @@ void modeFireStartSounds() {
         break;
 
         case 4:
-          ms_meson_blast.start(i_meson_blast_delay_level_5);
+          ms_meson_blast.start(i_meson_blast_delay_level_4);
         break;
 
         case 3:
@@ -3747,7 +3759,7 @@ void wandFiring() {
 
   // Start a smoke timer to play a little bit of smoke while firing.
   if(FIRING_MODE != SLIME) {
-    ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
+    ms_smoke_timer.start(PROGMEM_READ(i_smoke_timer[i_wand_power_level - 1]));
     ms_smoke_on.stop();
   }
 
@@ -4258,10 +4270,10 @@ void checkRotaryEncoder() {
 void smokeNFilter(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_smoke_1_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
+      if(b_wand_firing == true && b_overheating != true && b_smoke_1_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_pin, HIGH);
       }
-      else if(b_overheating == true && b_wand_firing != true && b_smoke_1_overheat == true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
+      else if(b_overheating == true && b_wand_firing != true && b_smoke_1_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_pin, HIGH);
       }
       else {
@@ -4280,10 +4292,10 @@ void smokeNFilter(bool b_smoke_on) {
 void smokeBooster(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
+      if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_booster_pin, HIGH);
       }
-      else if(b_overheating == true && b_smoke_2_overheat == true && b_wand_firing != true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
+      else if(b_overheating == true && b_smoke_2_overheat == true && b_wand_firing != true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_booster_pin, HIGH);
       }
       else {
@@ -4302,10 +4314,10 @@ void smokeBooster(bool b_smoke_on) {
 void fanNFilter(bool b_fan_on) {
   if(b_smoke_enabled == true) {
     if(b_fan_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_fan_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
+      if(b_wand_firing == true && b_overheating != true && b_fan_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
         digitalWrite(fan_pin, HIGH);
       }
-      else if(b_overheating == true && b_wand_firing != true && b_fan_overheat == true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
+      else if(b_overheating == true && b_wand_firing != true && b_fan_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
         digitalWrite(fan_pin, HIGH);
       }
       else {
@@ -4321,10 +4333,10 @@ void fanNFilter(bool b_fan_on) {
 void fanBooster(bool b_fan_on) {
   if(b_smoke_enabled == true) {
     if(b_fan_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_fan_booster_continuous_firing == true && b_smoke_continuous_mode[i_wand_power_level - 1] == true) {
+      if(b_wand_firing == true && b_overheating != true && b_fan_booster_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
         digitalWrite(fan_booster_pin, HIGH);
       }
-      else if(b_overheating == true && b_wand_firing != true && b_fan_booster_overheat == true && b_smoke_overheat_mode[i_wand_power_level - 1] == true) {
+      else if(b_overheating == true && b_wand_firing != true && b_fan_booster_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
         digitalWrite(fan_booster_pin, HIGH);
       }
       else {
@@ -4616,11 +4628,11 @@ void resetCyclotronLEDs() {
 }
 
 void resetContinuousSmoke() {
-  b_smoke_continuous_mode[0] = b_smoke_continuous_mode_1;
-  b_smoke_continuous_mode[1] = b_smoke_continuous_mode_2;
-  b_smoke_continuous_mode[2] = b_smoke_continuous_mode_3;
-  b_smoke_continuous_mode[3] = b_smoke_continuous_mode_4;
-  b_smoke_continuous_mode[4] = b_smoke_continuous_mode_5;
+  b_smoke_continuous_level[0] = b_smoke_continuous_level_1;
+  b_smoke_continuous_level[1] = b_smoke_continuous_level_2;
+  b_smoke_continuous_level[2] = b_smoke_continuous_level_3;
+  b_smoke_continuous_level[3] = b_smoke_continuous_level_4;
+  b_smoke_continuous_level[4] = b_smoke_continuous_level_5;
 }
 
 // Sourced from https://community.particle.io/t/battery-voltage-checking/5467

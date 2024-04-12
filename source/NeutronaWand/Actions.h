@@ -62,13 +62,13 @@ void checkWandAction() {
           if(ms_meson_blast.justFinished()) {
             playEffect(S_MESON_FIRE_PULSE);
 
-            switch(i_power_mode) {
+            switch(i_power_level) {
               case 5:
                 ms_meson_blast.start(i_meson_blast_delay_level_5);
               break;
 
               case 4:
-                ms_meson_blast.start(i_meson_blast_delay_level_5);
+                ms_meson_blast.start(i_meson_blast_delay_level_4);
               break;
 
               case 3:
@@ -110,7 +110,7 @@ void checkWandAction() {
         }
 
         // Overheating check, start vent sequence if expected for power level and timer delay is completed.
-        if(ms_overheat_initiate.justFinished() && b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
+        if(ms_overheat_initiate.justFinished() && b_overheat_level[i_power_level - 1] == true && b_overheat_enabled == true) {
           startVentSequence();
         }
         else {
@@ -266,10 +266,10 @@ void checkWandAction() {
         // Menu Level 2: Barrel Wing Button: Wand Boot Errors.
         // Menu Level 3: Intensify + top dial: Default main system volume.
         // Menu Level 3: Barrel Wing Button: Set Neutrona Wand to 1984/1989 Mode | Set Neutrona Wand to 2021 Mode | Default (Matches the Proton Pack)
-        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 5
-        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 5
-        // Menu Level 5: Intensify: Enable/Disable overheat in power mode #5
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #5
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 5
+        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 5
+        // Menu Level 5: Intensify: Enable/Disable overheat in power level #5
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #5
         case 5:
           // Tell the Neutrona Wand to clear the EEPROM settings and exit.
           if(switch_intensify.pushed()) {
@@ -326,8 +326,8 @@ void checkWandAction() {
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_mode_5 == true) {
-                b_overheat_mode_5 = false;
+              if(b_overheat_level_5 == true) {
+                b_overheat_level_5 = false;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
@@ -336,7 +336,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_5_DISABLED);
               }
               else {
-                b_overheat_mode_5 = true;
+                b_overheat_level_5 = true;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
@@ -345,7 +345,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_5_ENABLED);
               }
 
-              resetOverheatModes();
+              resetOverheatLevels();
             }
           }
           else if(switch_mode.pushed()) {
@@ -485,10 +485,10 @@ void checkWandAction() {
         // Menu Level 2: Barrel Wing Button: Enable wand vibration, enable wand vibration while firing only, disable wand vibration, reset to defaults.
         // Menu Level 3: Intensify: Invert Bargraph
         // Menu Level 3: Barrel Wing Button: Toggle Bargraph Overheat Blinking enabled/disabled
-        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 4
-        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 4
-        // Menu Level 5: Intensify: Enable/Disable overheat in power mode #4
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #4
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 4
+        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 4
+        // Menu Level 5: Intensify: Enable/Disable overheat in power level #4
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #4
         case 4:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -532,8 +532,8 @@ void checkWandAction() {
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_4);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_mode_4 == true) {
-                b_overheat_mode_4 = false;
+              if(b_overheat_level_4 == true) {
+                b_overheat_level_4 = false;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
@@ -542,7 +542,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_4_DISABLED);
               }
               else {
-                b_overheat_mode_4 = true;
+                b_overheat_level_4 = true;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_4_ENABLED);
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
@@ -551,7 +551,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_4_ENABLED);
               }
 
-              resetOverheatModes();
+              resetOverheatLevels();
             }
           }
 
@@ -710,10 +710,10 @@ void checkWandAction() {
         // Menu Level 2: Barrel Wing Button: Cycle through VG color modes to disable them. (see operational guide for more details on this).
         // Menu Level 3: Intensify: Bargraph Idle Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
-        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 3
-        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 3
-        // Menu Level 5: Intensify: Enable/Disable overheat in power mode #3
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #3
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 3
+        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 3
+        // Menu Level 5: Intensify: Enable/Disable overheat in power level #3
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #3
         case 3:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -789,8 +789,8 @@ void checkWandAction() {
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_3);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_mode_3 == true) {
-                b_overheat_mode_3 = false;
+              if(b_overheat_level_3 == true) {
+                b_overheat_level_3 = false;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
@@ -799,7 +799,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_3_DISABLED);
               }
               else {
-                b_overheat_mode_3 = true;
+                b_overheat_level_3 = true;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_3_ENABLED);
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
@@ -808,7 +808,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_3_ENABLED);
               }
 
-              resetOverheatModes();
+              resetOverheatLevels();
             }
           }
 
@@ -883,10 +883,10 @@ void checkWandAction() {
         // Menu Level 2: Barrel Wing Button: Overheat lights off.
         // Menu Level 3: Intensify: Demo Light Mode Enabled
         // Menu Level 3: Barrel Wing Button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
-        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 2
-        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 2
-        // Menu Level 5: Intensify: Enable/Disable overheat in power mode #2
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #2
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 2
+        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 2
+        // Menu Level 5: Intensify: Enable/Disable overheat in power level #2
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #2
         case 2:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -913,8 +913,8 @@ void checkWandAction() {
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_2);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_mode_2 == true) {
-                b_overheat_mode_2 = false;
+              if(b_overheat_level_2 == true) {
+                b_overheat_level_2 = false;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
@@ -923,7 +923,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_2_DISABLED);
               }
               else {
-                b_overheat_mode_2 = true;
+                b_overheat_level_2 = true;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_2_ENABLED);
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
@@ -932,7 +932,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_2_ENABLED);
               }
 
-              resetOverheatModes();
+              resetOverheatLevels();
             }
           }
 
@@ -974,10 +974,10 @@ void checkWandAction() {
         // Menu Level 2: Barrel Wing Button: Overheat sync to fan.
         // Menu Level 3: Intensify: Toggle between Super Hero and Original Mode.
         // Menu Level 3: Barrel Wing Button: Toggle CTS between: 1984/1989 CTS | 2021 CTS | Default CTS (Based on the year you are in)
-        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Mode 1
-        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Mode 1
-        // Menu Level 5: Intensify: Enable/Disable overheat in power mode #1
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power mode #1
+        // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 1
+        // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 1
+        // Menu Level 5: Intensify: Enable/Disable overheat in power level #1
+        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #1
         case 1:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1035,8 +1035,8 @@ void checkWandAction() {
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_1);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_mode_1 == true) {
-                b_overheat_mode_1 = false;
+              if(b_overheat_level_1 == true) {
+                b_overheat_level_1 = false;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
@@ -1045,7 +1045,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_1_DISABLED);
               }
               else {
-                b_overheat_mode_1 = true;
+                b_overheat_level_1 = true;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_1_ENABLED);
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
@@ -1054,7 +1054,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_1_ENABLED);
               }
 
-              resetOverheatModes();
+              resetOverheatLevels();
             }
           }
 

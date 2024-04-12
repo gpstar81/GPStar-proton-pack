@@ -100,11 +100,11 @@ struct objConfigEEPROM {
   uint8_t overheat_smoke_duration_level_2;
   uint8_t overheat_smoke_duration_level_1;
 
-  uint8_t smoke_continuous_mode_5;
-  uint8_t smoke_continuous_mode_4;
-  uint8_t smoke_continuous_mode_3;
-  uint8_t smoke_continuous_mode_2;
-  uint8_t smoke_continuous_mode_1;
+  uint8_t smoke_continuous_level_5;
+  uint8_t smoke_continuous_level_4;
+  uint8_t smoke_continuous_level_3;
+  uint8_t smoke_continuous_level_2;
+  uint8_t smoke_continuous_level_1;
 
   uint8_t pack_vibration; // Sets the vibration mode for the pack (multi-option).
   uint8_t use_ribbon_cable; // Enable/disable the ribbon cable alarm (useful for DIY packs).
@@ -391,48 +391,48 @@ void readEEPROM() {
       i_ms_overheating_length_1 = obj_config_eeprom.overheat_smoke_duration_level_1 * 1000;
     }
 
-    if(obj_config_eeprom.smoke_continuous_mode_5 > 0 && obj_config_eeprom.smoke_continuous_mode_5 != 255) {
-      if(obj_config_eeprom.smoke_continuous_mode_5 > 1) {
-        b_smoke_continuous_mode_5 = true;
+    if(obj_config_eeprom.smoke_continuous_level_5 > 0 && obj_config_eeprom.smoke_continuous_level_5 != 255) {
+      if(obj_config_eeprom.smoke_continuous_level_5 > 1) {
+        b_smoke_continuous_level_5 = true;
       }
       else {
-        b_smoke_continuous_mode_5 = false;
+        b_smoke_continuous_level_5 = false;
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_mode_4 > 0 && obj_config_eeprom.smoke_continuous_mode_4 != 255) {
-      if(obj_config_eeprom.smoke_continuous_mode_4 > 1) {
-        b_smoke_continuous_mode_4 = true;
+    if(obj_config_eeprom.smoke_continuous_level_4 > 0 && obj_config_eeprom.smoke_continuous_level_4 != 255) {
+      if(obj_config_eeprom.smoke_continuous_level_4 > 1) {
+        b_smoke_continuous_level_4 = true;
       }
       else {
-        b_smoke_continuous_mode_4 = false;
+        b_smoke_continuous_level_4 = false;
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_mode_3 > 0 && obj_config_eeprom.smoke_continuous_mode_3 != 255) {
-      if(obj_config_eeprom.smoke_continuous_mode_3 > 1) {
-        b_smoke_continuous_mode_3 = true;
+    if(obj_config_eeprom.smoke_continuous_level_3 > 0 && obj_config_eeprom.smoke_continuous_level_3 != 255) {
+      if(obj_config_eeprom.smoke_continuous_level_3 > 1) {
+        b_smoke_continuous_level_3 = true;
       }
       else {
-        b_smoke_continuous_mode_3 = false;
+        b_smoke_continuous_level_3 = false;
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_mode_2 > 0 && obj_config_eeprom.smoke_continuous_mode_2 != 255) {
-      if(obj_config_eeprom.smoke_continuous_mode_2 > 1) {
-        b_smoke_continuous_mode_2 = true;
+    if(obj_config_eeprom.smoke_continuous_level_2 > 0 && obj_config_eeprom.smoke_continuous_level_2 != 255) {
+      if(obj_config_eeprom.smoke_continuous_level_2 > 1) {
+        b_smoke_continuous_level_2 = true;
       }
       else {
-        b_smoke_continuous_mode_2 = false;
+        b_smoke_continuous_level_2 = false;
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_mode_1 > 0 && obj_config_eeprom.smoke_continuous_mode_1 != 255) {
-      if(obj_config_eeprom.smoke_continuous_mode_1 > 1) {
-        b_smoke_continuous_mode_1 = true;
+    if(obj_config_eeprom.smoke_continuous_level_1 > 0 && obj_config_eeprom.smoke_continuous_level_1 != 255) {
+      if(obj_config_eeprom.smoke_continuous_level_1 > 1) {
+        b_smoke_continuous_level_1 = true;
       }
       else {
-        b_smoke_continuous_mode_1 = false;
+        b_smoke_continuous_level_1 = false;
       }
     }
 
@@ -558,11 +558,11 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_smoke_duration_level_2 = i_ms_overheating_length_2 / 1000;
   uint8_t i_overheat_smoke_duration_level_1 = i_ms_overheating_length_1 / 1000;
 
-  uint8_t i_smoke_continuous_mode_5 = 1;
-  uint8_t i_smoke_continuous_mode_4 = 1;
-  uint8_t i_smoke_continuous_mode_3 = 1;
-  uint8_t i_smoke_continuous_mode_2 = 1;
-  uint8_t i_smoke_continuous_mode_1 = 1;
+  uint8_t i_smoke_continuous_level_5 = 1;
+  uint8_t i_smoke_continuous_level_4 = 1;
+  uint8_t i_smoke_continuous_level_3 = 1;
+  uint8_t i_smoke_continuous_level_2 = 1;
+  uint8_t i_smoke_continuous_level_1 = 1;
 
   uint8_t i_pack_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
 
@@ -622,24 +622,24 @@ void saveConfigEEPROM() {
     i_default_system_volume = i_volume_master_percentage;
   }
 
-  if(b_smoke_continuous_mode_5 == true) {
-    i_smoke_continuous_mode_5 = 2;
+  if(b_smoke_continuous_level_5 == true) {
+    i_smoke_continuous_level_5 = 2;
   }
 
-  if(b_smoke_continuous_mode_4 == true) {
-    i_smoke_continuous_mode_4 = 2;
+  if(b_smoke_continuous_level_4 == true) {
+    i_smoke_continuous_level_4 = 2;
   }
 
-  if(b_smoke_continuous_mode_3 == true) {
-    i_smoke_continuous_mode_3 = 2;
+  if(b_smoke_continuous_level_3 == true) {
+    i_smoke_continuous_level_3 = 2;
   }
 
-  if(b_smoke_continuous_mode_2 == true) {
-    i_smoke_continuous_mode_2 = 2;
+  if(b_smoke_continuous_level_2 == true) {
+    i_smoke_continuous_level_2 = 2;
   }
 
-  if(b_smoke_continuous_mode_1 == true) {
-    i_smoke_continuous_mode_1 = 2;
+  if(b_smoke_continuous_level_1 == true) {
+    i_smoke_continuous_level_1 = 2;
   }
 
   switch(VIBRATION_MODE_EEPROM) {
@@ -683,11 +683,11 @@ void saveConfigEEPROM() {
     i_overheat_smoke_duration_level_3,
     i_overheat_smoke_duration_level_2,
     i_overheat_smoke_duration_level_1,
-    i_smoke_continuous_mode_5,
-    i_smoke_continuous_mode_4,
-    i_smoke_continuous_mode_3,
-    i_smoke_continuous_mode_2,
-    i_smoke_continuous_mode_1,
+    i_smoke_continuous_level_5,
+    i_smoke_continuous_level_4,
+    i_smoke_continuous_level_3,
+    i_smoke_continuous_level_2,
+    i_smoke_continuous_level_1,
     i_pack_vibration,
     i_use_ribbon_cable
   };
@@ -707,8 +707,8 @@ unsigned long eepromCRC(void) {
   unsigned long crc = l_crc_size;
 
   for(unsigned int index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); ++index) {
-    crc = pgm_read_dword_near(crc_table[(crc ^ EEPROM[index]) & 0x0f]) ^ (crc >> 4);
-    crc = pgm_read_dword_near(crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f]) ^ (crc >> 4);
+    crc = PROGMEM_READ(crc_table[(crc ^ EEPROM[index]) & 0x0f]) ^ (crc >> 4);
+    crc = PROGMEM_READ(crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f]) ^ (crc >> 4);
   }
 
   return ~crc;

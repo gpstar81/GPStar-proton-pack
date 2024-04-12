@@ -223,8 +223,8 @@ const uint8_t d_white_light_interval = 250;
 millisDelay ms_overheat_initiate;
 millisDelay ms_overheating; // This timer is only used when using the Neutrona Wand without a Proton Pack.
 const unsigned int i_ms_overheating = 2500; // Overheating for 2.5 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
-bool b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
-unsigned long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_mode_1, i_ms_overheat_initiate_mode_2, i_ms_overheat_initiate_mode_3, i_ms_overheat_initiate_mode_4, i_ms_overheat_initiate_mode_5 };
+bool b_overheat_level[5] = { b_overheat_level_1, b_overheat_level_2, b_overheat_level_3, b_overheat_level_4, b_overheat_level_5 };
+unsigned long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_level_1, i_ms_overheat_initiate_level_2, i_ms_overheat_initiate_level_3, i_ms_overheat_initiate_level_4, i_ms_overheat_initiate_level_5 };
 const unsigned int i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
 const unsigned int i_overheat_delay_max = 60000; // The max length a overheat can be.
 
@@ -336,13 +336,13 @@ const uint8_t i_fire_stop_sound_delay = 100; // Delay for stopping fire sounds.
 int i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
 
 /*
- * Wand power mode. Controlled by the rotary encoder on the top of the wand.
- * You can enable or disable overheating for each mode individually in the user adjustable values at the top of this file.
+ * Wand power level. Controlled by the rotary encoder on the top of the wand.
+ * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
  */
-const uint8_t i_power_mode_max = 5;
-const uint8_t i_power_mode_min = 1;
-uint8_t i_power_mode = 1;
-uint8_t i_power_mode_prev = 1;
+const uint8_t i_power_level_max = 5;
+const uint8_t i_power_level_min = 1;
+uint8_t i_power_level = 1;
+uint8_t i_power_level_prev = 1;
 
 /*
  * Wand / Pack communication
@@ -406,7 +406,7 @@ unsigned int i_bmash_delay = 3000;     // Time period in which we consider rapid
 unsigned int i_bmash_cool_down = 3200; // Time period for the lock-out of user input
 uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts
 uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out
-bool b_wand_mash_error = false;        // Indicates wand is in a lock-out phase
+bool b_wand_mash_error = false;        // Indicates if wand is in a lock-out phase
 
 /*
  * Used during the overheating sequences.

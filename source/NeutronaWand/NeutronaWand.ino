@@ -30,6 +30,9 @@
 // Set to 1 to enable built-in debug messages
 #define DEBUG 0
 
+// PROGMEM macro
+#define PROGMEM_READ(x) pgm_read_dword_near(x)
+
 // Debug macros
 #if DEBUG == 1
 #define debug(x) Serial.print(x)
@@ -1145,13 +1148,13 @@ void checkSwitches() {
             if(WAND_ACTION_STATUS == ACTION_IDLE) {
               // We are going to handle the toggle switch sequence for the MODE_ORIGINAL here.
               if(switch_activate.on() == true && switch_vent.on() == true && switch_wand.on() == true) {
-                // Reset the power mode back to what it should be.
-                i_power_mode = i_power_mode_prev;
+                // Reset the power level back to what it should be.
+                i_power_level = i_power_level_prev;
 
-                // Force to power mode 2 if it is on power mode 1 for MODE_ORIGINAL.
-                if(i_power_mode < 2) {
-                  i_power_mode = 2;
-                  i_power_mode_prev = 2;
+                // Force to power level 2 if it is on power level 1 for MODE_ORIGINAL.
+                if(i_power_level < 2) {
+                  i_power_level = 2;
+                  i_power_level_prev = 2;
                 }
 
                 updatePackPowerLevel();
@@ -1160,10 +1163,10 @@ void checkSwitches() {
                 modeActivate();
               }
               else {
-                // Set the power mode to 1 (0 circle). Record the power mode so we can restore it when we power everything back up.
-                if(i_power_mode != 1) {
-                  i_power_mode_prev = i_power_mode;
-                  i_power_mode = 1;
+                // Set the power level to 1 (0 circle). Record the power level so we can restore it when we power everything back up.
+                if(i_power_level != 1) {
+                  i_power_level_prev = i_power_level;
+                  i_power_level = 1;
 
                   if(b_28segment_bargraph == true) {
                     bargraphPowerCheck2021Alt(false);
@@ -1362,7 +1365,7 @@ void wandLightControlCheck() {
         }
         else {
           // Adjust brightness based on the power level.
-          switch(i_power_mode) {
+          switch(i_power_level) {
             case 5:
               analogWrite(led_vent, 100);
             break;
@@ -2003,7 +2006,7 @@ void postActivation() {
 }
 
 void soundIdleLoop(bool fadeIn) {
-  switch(i_power_mode) {
+  switch(i_power_level) {
     case 1:
       playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
     break;
@@ -2242,7 +2245,7 @@ void soundBeepLoop() {
       // Quick check to know if effects belong to the next-gen movies (as opposed to the OG 80's themes).
       bool b_next_gen = (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE);
 
-      switch(i_power_mode) {
+      switch(i_power_level) {
         case 1:
           if(b_next_gen && b_beep_loop == true) {
             if(b_extra_pack_sounds == true) {
@@ -2364,7 +2367,7 @@ void modeFireStartSounds() {
     default:
         playEffect(S_FIRE_START);
 
-        switch(i_power_mode) {
+        switch(i_power_level) {
           case 1 ... 4:
             if(b_firing_intensify == true) {
               // Reset some sound triggers.
@@ -2455,13 +2458,13 @@ void modeFireStartSounds() {
     case MESON:
       playEffect(S_MESON_FIRE_PULSE);
 
-      switch(i_power_mode) {
+      switch(i_power_level) {
         case 5:
           ms_meson_blast.start(i_meson_blast_delay_level_5);
         break;
 
         case 4:
-          ms_meson_blast.start(i_meson_blast_delay_level_5);
+          ms_meson_blast.start(i_meson_blast_delay_level_4);
         break;
 
         case 3:
@@ -2586,13 +2589,13 @@ void modeFireStart() {
   }
 
   if(b_overheat_flag == true) {
-    // If in high power mode on the wand, start an overheat timer.
-    if(b_overheat_mode[i_power_mode - 1] == true && b_overheat_enabled == true) {
-      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+    // If in high power level on the wand, start an overheat timer.
+    if(b_overheat_level[i_power_level - 1] == true && b_overheat_enabled == true) {
+      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
     }
     else if(b_cross_the_streams == true) {
       if(b_firing_alt == true) {
-        ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+        ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
       }
     }
   }
@@ -2730,7 +2733,7 @@ void modeFireStop() {
   switch(BARGRAPH_MODE) {
     case BARGRAPH_ORIGINAL:
       // Need to restart the regular bargraph timer.
-      i_bargraph_status = i_power_mode - 1;
+      i_bargraph_status = i_power_level - 1;
       i_bargraph_status_alt = 0;
 
       switch(BARGRAPH_FIRING_ANIMATION) {
@@ -2760,7 +2763,7 @@ void modeFireStop() {
 
     case BARGRAPH_SUPER_HERO:
     default:
-      i_bargraph_status = i_power_mode - 1;
+      i_bargraph_status = i_power_level - 1;
 
       i_bargraph_status_alt = 0;
       bargraphClearAlt();
@@ -2848,7 +2851,7 @@ void modeFiring() {
       // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_MIX);
 
-      switch(i_power_mode) {
+      switch(i_power_level) {
         case 1 ... 4:
           if(getSystemYearMode() == SYSTEM_1989) {
             playEffect(S_GB2_FIRE_START);
@@ -2878,7 +2881,7 @@ void modeFiring() {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_STOPPED_MIX);
 
-      switch(i_power_mode) {
+      switch(i_power_level) {
         case 1 ... 4:
           if(getSystemYearMode() == SYSTEM_1989) {
             stopEffect(S_GB2_FIRE_LOOP);
@@ -3021,7 +3024,7 @@ void modeFiring() {
     if(b_cross_the_streams_mix == true) {
       playEffect(S_FIRING_LOOP_GB1, true);
 
-      if(i_power_mode != i_power_mode_max && b_sound_firing_cross_the_streams_mix != true) {
+      if(i_power_level != i_power_level_max && b_sound_firing_cross_the_streams_mix != true) {
         playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
         b_sound_firing_cross_the_streams_mix = true;
       }
@@ -3149,7 +3152,7 @@ void modeFiring() {
 
   if(b_overheat_flag == true) {
     // If the user changes the wand power output while firing, turn off the overheat timer.
-    if(b_overheat_mode[i_power_mode - 1] != true && ms_overheat_initiate.isRunning()) {
+    if(b_overheat_level[i_power_level - 1] != true && ms_overheat_initiate.isRunning()) {
       ms_overheat_initiate.stop();
 
       // Adjust hat light 1 to stay solid.
@@ -3160,10 +3163,10 @@ void modeFiring() {
       // Tell the pack to revert back to regular Cyclotron speeds.
       wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
     }
-    else if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {
-      // If the user changes back to power mode that overheats while firing, start up a timer.
+    else if(b_overheat_level[i_power_level - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {
+      // If the user changes back to power level that overheats while firing, start up a timer.
       // This currently works only in power levels 1-4. 5 stays locked when firing.
-      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_mode - 1]);
+      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
     }
   }
   else {
@@ -3178,8 +3181,8 @@ void modeFiring() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      // Shift the stream from red to orange on higher power modes.
-      switch(i_power_mode) {
+      // Shift the stream from red to orange on higher power levels.
+      switch(i_power_level) {
         case 1:
         default:
           fireStreamStart(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
@@ -3218,8 +3221,8 @@ void modeFiring() {
         }
       }
       else {
-        // Shift the stream from red to orange on higher power modes.
-        switch(i_power_mode) {
+        // Shift the stream from red to orange on higher power levels.
+        switch(i_power_level) {
           case 1:
           default:
             fireStreamStart(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
@@ -3607,8 +3610,8 @@ void fireStreamEffect(CRGB c_colour) {
                 }
               }
               else {
-                // Shift the stream from red to orange on higher power modes.
-                switch(i_power_mode) {
+                // Shift the stream from red to orange on higher power levels.
+                switch(i_power_level) {
                   case 1:
                   default:
                     barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
@@ -3671,7 +3674,7 @@ void fireStreamEffect(CRGB c_colour) {
 
           switch(FIRING_MODE) {
             default:
-              switch(i_power_mode) {
+              switch(i_power_level) {
                 case 1:
                   ms_firing_stream_effects.start(i_firing_stream);
                 break;
@@ -3704,7 +3707,7 @@ void fireStreamEffect(CRGB c_colour) {
 
           switch(FIRING_MODE) {
             default:
-              switch(i_power_mode) {
+              switch(i_power_level) {
                 case 1:
                   ms_firing_stream_effects.start((d_firing_stream / 25) + 8);
                 break;
@@ -3755,8 +3758,8 @@ void fireStreamEffect(CRGB c_colour) {
                 }
               }
               else {
-                // Shift the stream from red to orange on higher power modes.
-                switch(i_power_mode) {
+                // Shift the stream from red to orange on higher power levels.
+                switch(i_power_level) {
                   case 1:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
                   break;
@@ -3822,7 +3825,7 @@ void fireStreamEffect(CRGB c_colour) {
 
           switch(FIRING_MODE) {
             default:
-              switch(i_power_mode) {
+              switch(i_power_level) {
                 case 1:
                   ms_firing_stream_effects.start(i_firing_stream);
                 break;
@@ -3855,7 +3858,7 @@ void fireStreamEffect(CRGB c_colour) {
 
           switch(FIRING_MODE) {
             default:
-              switch(i_power_mode) {
+              switch(i_power_level) {
                 case 1:
                   ms_firing_stream_effects.start((d_firing_stream / 5) + 10);
                 break;
@@ -4546,7 +4549,7 @@ void bargraphModeOriginalRampFiringAnimation() {
     // When firing starts, i_bargraph_status_alt resets to 0 in modeFireStart();
     if(i_bargraph_status_alt == 0) {
       // Set our target.
-      switch(i_power_mode) {
+      switch(i_power_level) {
         case 5:
           i_bargraph_status_alt = random(18, i_bargraph_segments - 1);
         break;
@@ -4580,7 +4583,7 @@ void bargraphModeOriginalRampFiringAnimation() {
       }
     }
 
-    switch(i_power_mode) {
+    switch(i_power_level) {
       case 5:
         if(b_tmp_down == true) {
           // Moving down.
@@ -4978,7 +4981,7 @@ void bargraphModeOriginalRampFiringAnimation() {
     // When firing starts, i_bargraph_status resets to 0 in modeFireStart();
     if(i_bargraph_status == 0) {
       // Set our target.
-      switch(i_power_mode) {
+      switch(i_power_level) {
         case 5:
           i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
         break;
@@ -5011,7 +5014,7 @@ void bargraphModeOriginalRampFiringAnimation() {
       }
     }
 
-    switch(i_power_mode) {
+    switch(i_power_level) {
       case 5:
         if(b_tmp_down == true) {
           // Moving down.
@@ -5443,9 +5446,9 @@ void bargraphRampFiring() {
     i_ramp_interval = d_bargraph_ramp_interval_alt;
   }
 
-  // If in a power mode on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
-  if(b_overheat_mode[i_power_mode - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
-    if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 6) {
+  // If in a power level on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
+  if(b_overheat_level[i_power_level - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
+    if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 6) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 15);
       }
@@ -5455,7 +5458,7 @@ void bargraphRampFiring() {
 
       cyclotronSpeedUp(6);
     }
-    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 5) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 5) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 9);
       }
@@ -5465,7 +5468,7 @@ void bargraphRampFiring() {
 
       cyclotronSpeedUp(5);
     }
-    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 4) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 4) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 7);
       }
@@ -5475,7 +5478,7 @@ void bargraphRampFiring() {
 
       cyclotronSpeedUp(4);
     }
-    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 3) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 3) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 5);
       }
@@ -5485,7 +5488,7 @@ void bargraphRampFiring() {
 
       cyclotronSpeedUp(3);
     }
-    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_mode - 1] / 2) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 2) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start(i_ramp_interval / 3);
       }
@@ -5497,7 +5500,7 @@ void bargraphRampFiring() {
     }
     else {
       if(b_28segment_bargraph == true) {
-        switch(i_power_mode) {
+        switch(i_power_level) {
           case 5:
             ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
           break;
@@ -5521,7 +5524,7 @@ void bargraphRampFiring() {
       }
       else {
         if(BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
-          switch(i_power_mode) {
+          switch(i_power_level) {
             case 5:
               ms_bargraph_firing.start(i_ramp_interval / 2); // 20
             break;
@@ -5553,7 +5556,7 @@ void bargraphRampFiring() {
   }
   else {
     if(b_28segment_bargraph == true) {
-      switch(i_power_mode) {
+      switch(i_power_level) {
         case 5:
           ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
         break;
@@ -5577,7 +5580,7 @@ void bargraphRampFiring() {
     }
     else {
       if(BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
-        switch(i_power_mode) {
+        switch(i_power_level) {
           case 5:
             ms_bargraph_firing.start(i_ramp_interval / 2); // 20
           break;
@@ -5637,15 +5640,15 @@ void cyclotronSpeedRevert() {
 // Forces the bargraph to redraw itself to the current power level.
 void bargraphPowerCheck2021Alt(bool b_override) {
   if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override == true) {
-    if(i_power_mode != i_power_mode_prev || b_override == true) {
-      if(i_power_mode > i_power_mode_prev) {
+    if(i_power_level != i_power_level_prev || b_override == true) {
+      if(i_power_level > i_power_level_prev) {
         b_bargraph_up = true;
       }
       else {
         b_bargraph_up = false;
       }
 
-      switch(i_power_mode) {
+      switch(i_power_level) {
         case 5:
           ms_bargraph_alt.start(i_bargraph_wait / 3);
         break;
@@ -5720,7 +5723,7 @@ void bargraphRedraw() {
       1: none: 0 - 4    (5 segments)
     */
 
-    switch(i_power_mode) {
+    switch(i_power_level) {
       case 1:
         for(uint8_t i = 0; i < i_bargraph_segments; i++) {
           if(i <= 4) {
@@ -5793,7 +5796,7 @@ void bargraphRedraw() {
   }
   else {
     // Stock haslab bargraph control.
-    switch(i_power_mode) {
+    switch(i_power_level) {
       case 1:
         wandBargraphControl(1);
       break;
@@ -5842,7 +5845,7 @@ void bargraphPowerCheck() {
           b_bargraph_status[i_bargraph_status_alt] = true;
         }
 
-        switch(i_power_mode) {
+        switch(i_power_level) {
           case 5:
             if(i_bargraph_status_alt > 27) {
               b_bargraph_up = false;
@@ -5859,7 +5862,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_level - 1]);
             }
           break;
 
@@ -5877,7 +5880,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_level - 1]);
             }
           break;
 
@@ -5894,7 +5897,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_level - 1]);
             }
           break;
 
@@ -5911,7 +5914,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_level - 1]);
             }
           break;
 
@@ -5931,7 +5934,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_mode - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_level - 1]);
             }
           break;
         }
@@ -5956,7 +5959,7 @@ void bargraphPowerCheck() {
         else {
           i_bargraph_status_alt--;
 
-          switch(i_power_mode) {
+          switch(i_power_level) {
             case 5:
               if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && i_bargraph_status_alt < 28) {
                 // We stop when we reach our target.
@@ -6016,7 +6019,7 @@ void bargraphPowerCheck() {
   }
   else {
     // Stock haslab bargraph control.
-    switch(i_power_mode) {
+    switch(i_power_level) {
       case 1:
         wandBargraphControl(1);
       break;
@@ -6125,7 +6128,7 @@ void bargraphRampUp() {
             }
         }
         else {
-          if((i_power_mode < 5 && BARGRAPH_MODE == BARGRAPH_ORIGINAL) || BARGRAPH_MODE == BARGRAPH_SUPER_HERO) {
+          if((i_power_level < 5 && BARGRAPH_MODE == BARGRAPH_ORIGINAL) || BARGRAPH_MODE == BARGRAPH_SUPER_HERO) {
             ht_bargraph.clearLedNow(i_bargraph[i_tmp]);
             b_bargraph_status[i_tmp] = false;
           }
@@ -6150,7 +6153,7 @@ void bargraphRampUp() {
             break;
 
             case BARGRAPH_ORIGINAL:
-              switch(i_power_mode) {
+              switch(i_power_level) {
                 case 5:
                   if(i_bargraph_status_alt == 55) {
                     ms_bargraph_alt.stop();
@@ -6318,7 +6321,7 @@ void bargraphRampUp() {
 
         wandBargraphControl(5);
 
-        if(i_bargraph_status + 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(i_bargraph_status + 1 == i_power_level && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
@@ -6333,7 +6336,7 @@ void bargraphRampUp() {
 
         wandBargraphControl(4);
 
-        if(i_bargraph_status - 1 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(i_bargraph_status - 1 == i_power_level && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
@@ -6348,7 +6351,7 @@ void bargraphRampUp() {
 
         wandBargraphControl(3);
 
-        if(i_bargraph_status - 3 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(i_bargraph_status - 3 == i_power_level && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
@@ -6363,7 +6366,7 @@ void bargraphRampUp() {
 
         wandBargraphControl(2);
 
-        if(i_bargraph_status - 5 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(i_bargraph_status - 5 == i_power_level && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
@@ -6378,7 +6381,7 @@ void bargraphRampUp() {
 
         wandBargraphControl(1);
 
-        if(i_bargraph_status - 7 == i_power_mode && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(i_bargraph_status - 7 == i_power_level && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
@@ -6712,48 +6715,48 @@ void overheatVoiceIndicator(unsigned int i_tmp_length) {
 void overheatTimerIncrement(uint8_t i_tmp_power_level) {
   switch(i_tmp_power_level) {
     case 5:
-      if(i_ms_overheat_initiate_mode_5 + i_overheat_delay_increment <= i_overheat_delay_max) {
-        i_ms_overheat_initiate_mode_5 = i_ms_overheat_initiate_mode_5 + i_overheat_delay_increment;
-        i_ms_overheat_initiate[4] = i_ms_overheat_initiate_mode_5;
+      if(i_ms_overheat_initiate_level_5 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheat_initiate_level_5 = i_ms_overheat_initiate_level_5 + i_overheat_delay_increment;
+        i_ms_overheat_initiate[4] = i_ms_overheat_initiate_level_5;
 
-        overheatVoiceIndicator(i_ms_overheat_initiate_mode_5);
+        overheatVoiceIndicator(i_ms_overheat_initiate_level_5);
       }
     break;
 
     case 4:
-      if(i_ms_overheat_initiate_mode_4 + i_overheat_delay_increment <= i_overheat_delay_max) {
-        i_ms_overheat_initiate_mode_4 = i_ms_overheat_initiate_mode_4 + i_overheat_delay_increment;
-        i_ms_overheat_initiate[3] = i_ms_overheat_initiate_mode_4;
+      if(i_ms_overheat_initiate_level_4 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheat_initiate_level_4 = i_ms_overheat_initiate_level_4 + i_overheat_delay_increment;
+        i_ms_overheat_initiate[3] = i_ms_overheat_initiate_level_4;
 
-        overheatVoiceIndicator(i_ms_overheat_initiate_mode_4);
+        overheatVoiceIndicator(i_ms_overheat_initiate_level_4);
       }
     break;
 
     case 3:
-      if(i_ms_overheat_initiate_mode_3 + i_overheat_delay_increment <= i_overheat_delay_max) {
-        i_ms_overheat_initiate_mode_3 = i_ms_overheat_initiate_mode_3 + i_overheat_delay_increment;
-        i_ms_overheat_initiate[2] = i_ms_overheat_initiate_mode_3;
+      if(i_ms_overheat_initiate_level_3 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheat_initiate_level_3 = i_ms_overheat_initiate_level_3 + i_overheat_delay_increment;
+        i_ms_overheat_initiate[2] = i_ms_overheat_initiate_level_3;
 
-        overheatVoiceIndicator(i_ms_overheat_initiate_mode_3);
+        overheatVoiceIndicator(i_ms_overheat_initiate_level_3);
       }
     break;
 
     case 2:
-      if(i_ms_overheat_initiate_mode_2 + i_overheat_delay_increment <= i_overheat_delay_max) {
-        i_ms_overheat_initiate_mode_2 = i_ms_overheat_initiate_mode_2 + i_overheat_delay_increment;
-        i_ms_overheat_initiate[1] = i_ms_overheat_initiate_mode_2;
+      if(i_ms_overheat_initiate_level_2 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheat_initiate_level_2 = i_ms_overheat_initiate_level_2 + i_overheat_delay_increment;
+        i_ms_overheat_initiate[1] = i_ms_overheat_initiate_level_2;
 
-        overheatVoiceIndicator(i_ms_overheat_initiate_mode_2);
+        overheatVoiceIndicator(i_ms_overheat_initiate_level_2);
       }
     break;
 
     case 1:
     default:
-      if(i_ms_overheat_initiate_mode_1 + i_overheat_delay_increment <= i_overheat_delay_max) {
-        i_ms_overheat_initiate_mode_1 = i_ms_overheat_initiate_mode_1 + i_overheat_delay_increment;
-        i_ms_overheat_initiate[0] = i_ms_overheat_initiate_mode_1;
+      if(i_ms_overheat_initiate_level_1 + i_overheat_delay_increment <= i_overheat_delay_max) {
+        i_ms_overheat_initiate_level_1 = i_ms_overheat_initiate_level_1 + i_overheat_delay_increment;
+        i_ms_overheat_initiate[0] = i_ms_overheat_initiate_level_1;
 
-        overheatVoiceIndicator(i_ms_overheat_initiate_mode_1);
+        overheatVoiceIndicator(i_ms_overheat_initiate_level_1);
       }
     break;
   }
@@ -6762,48 +6765,48 @@ void overheatTimerIncrement(uint8_t i_tmp_power_level) {
 void overheatTimerDecrement(uint8_t i_tmp_power_level) {
   switch(i_tmp_power_level) {
     case 5:
-      if(i_ms_overheat_initiate_mode_5 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
-        i_ms_overheat_initiate_mode_5 = i_ms_overheat_initiate_mode_5 - i_overheat_delay_increment;
-        i_ms_overheat_initiate[4] = i_ms_overheat_initiate_mode_5;
+      if(i_ms_overheat_initiate_level_5 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheat_initiate_level_5 = i_ms_overheat_initiate_level_5 - i_overheat_delay_increment;
+        i_ms_overheat_initiate[4] = i_ms_overheat_initiate_level_5;
 
-        overheatVoiceIndicator(i_ms_overheat_initiate_mode_5);
+        overheatVoiceIndicator(i_ms_overheat_initiate_level_5);
       }
     break;
 
     case 4:
-      if(i_ms_overheat_initiate_mode_4 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
-        i_ms_overheat_initiate_mode_4 = i_ms_overheat_initiate_mode_4 - i_overheat_delay_increment;
-        i_ms_overheat_initiate[3] = i_ms_overheat_initiate_mode_4;
+      if(i_ms_overheat_initiate_level_4 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheat_initiate_level_4 = i_ms_overheat_initiate_level_4 - i_overheat_delay_increment;
+        i_ms_overheat_initiate[3] = i_ms_overheat_initiate_level_4;
 
-        overheatVoiceIndicator(i_ms_overheat_initiate_mode_4);
+        overheatVoiceIndicator(i_ms_overheat_initiate_level_4);
       }
     break;
 
     case 3:
-      if(i_ms_overheat_initiate_mode_3 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
-        i_ms_overheat_initiate_mode_3 = i_ms_overheat_initiate_mode_3 - i_overheat_delay_increment;
-        i_ms_overheat_initiate[2] = i_ms_overheat_initiate_mode_3;
+      if(i_ms_overheat_initiate_level_3 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheat_initiate_level_3 = i_ms_overheat_initiate_level_3 - i_overheat_delay_increment;
+        i_ms_overheat_initiate[2] = i_ms_overheat_initiate_level_3;
 
-        overheatVoiceIndicator(i_ms_overheat_initiate_mode_3);
+        overheatVoiceIndicator(i_ms_overheat_initiate_level_3);
       }
     break;
 
     case 2:
-      if(i_ms_overheat_initiate_mode_2 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
-        i_ms_overheat_initiate_mode_2 = i_ms_overheat_initiate_mode_2 - i_overheat_delay_increment;
-        i_ms_overheat_initiate[1] = i_ms_overheat_initiate_mode_2;
+      if(i_ms_overheat_initiate_level_2 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheat_initiate_level_2 = i_ms_overheat_initiate_level_2 - i_overheat_delay_increment;
+        i_ms_overheat_initiate[1] = i_ms_overheat_initiate_level_2;
 
-        overheatVoiceIndicator(i_ms_overheat_initiate_mode_2);
+        overheatVoiceIndicator(i_ms_overheat_initiate_level_2);
       }
     break;
 
     case 1:
     default:
-      if(i_ms_overheat_initiate_mode_1 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
-        i_ms_overheat_initiate_mode_1 = i_ms_overheat_initiate_mode_1 - i_overheat_delay_increment;
-        i_ms_overheat_initiate[0] = i_ms_overheat_initiate_mode_1;
+      if(i_ms_overheat_initiate_level_1 - i_overheat_delay_increment >= i_overheat_delay_increment * 2) {
+        i_ms_overheat_initiate_level_1 = i_ms_overheat_initiate_level_1 - i_overheat_delay_increment;
+        i_ms_overheat_initiate[0] = i_ms_overheat_initiate_level_1;
 
-        overheatVoiceIndicator(i_ms_overheat_initiate_mode_1);
+        overheatVoiceIndicator(i_ms_overheat_initiate_level_1);
       }
     break;
   }
@@ -7394,28 +7397,28 @@ void checkRotaryEncoder() {
 
       default:
         if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-          if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_mode == i_power_mode_max) {
-            // Do nothing, we are locked in full power mode while firing.
+          if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
+            // Do nothing, we are locked in full power level while firing.
           }
           // Counter clockwise.
           else if(prev_next_code == 0x0b) {
-            // Check to see the minimal power mode depending on which system mode.
-            uint8_t i_tmp_power_mode_min = i_power_mode_min;
+            // Check to see the minimal power level depending on which system mode.
+            uint8_t i_tmp_power_level_min = i_power_level_min;
 
             switch(SYSTEM_MODE) {
               case MODE_ORIGINAL:
-                i_tmp_power_mode_min = i_power_mode_min + 1;
+                i_tmp_power_level_min = i_power_level_min + 1;
               break;
 
               case MODE_SUPER_HERO:
               default:
-                i_tmp_power_mode_min = i_power_mode_min;
+                i_tmp_power_level_min = i_power_level_min;
               break;
             }
 
-            if(i_power_mode - 1 >= i_tmp_power_mode_min && WAND_STATUS == MODE_ON) {
-              i_power_mode_prev = i_power_mode;
-              i_power_mode--;
+            if(i_power_level - 1 >= i_tmp_power_level_min && WAND_STATUS == MODE_ON) {
+              i_power_level_prev = i_power_level;
+              i_power_level--;
 
               if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && b_28segment_bargraph == true) {
                 bargraphPowerCheck2021Alt(false);
@@ -7466,18 +7469,18 @@ void checkRotaryEncoder() {
             }
           }
 
-          if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_mode == i_power_mode_max) {
-            // Do nothing, we are locked in full power mode while firing.
+          if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
+            // Do nothing, we are locked in full power level while firing.
           }
           // Clockwise.
           else if(prev_next_code == 0x07) {
-            if(i_power_mode + 1 <= i_power_mode_max && WAND_STATUS == MODE_ON) {
-              if(i_power_mode + 1 == i_power_mode_max && WAND_ACTION_STATUS == ACTION_FIRING) {
-                // Do nothing, we do not want to go into max power mode if firing in a lower power mode already.
+            if(i_power_level + 1 <= i_power_level_max && WAND_STATUS == MODE_ON) {
+              if(i_power_level + 1 == i_power_level_max && WAND_ACTION_STATUS == ACTION_FIRING) {
+                // Do nothing, we do not want to go into max power level if firing in a lower power level already.
               }
               else {
-                i_power_mode_prev = i_power_mode;
-                i_power_mode++;
+                i_power_level_prev = i_power_level;
+                i_power_level++;
 
                 if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && b_28segment_bargraph == true) {
                   bargraphPowerCheck2021Alt(false);
@@ -7536,7 +7539,7 @@ void checkRotaryEncoder() {
 
 // Tell the pack which power level the Neutrona Wand is set at.
 void updatePackPowerLevel() {
-  switch(i_power_mode) {
+  switch(i_power_level) {
     case 5:
       // Level 5
       wandSerialSend(W_POWER_LEVEL_5);
@@ -7567,7 +7570,7 @@ void updatePackPowerLevel() {
 void vibrationSetting() {
   if(b_vibration_on == true) {
     if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING) {
-      switch(i_power_mode) {
+      switch(i_power_level) {
         case 1:
           vibrationWand(i_vibration_level);
         break;
@@ -7799,12 +7802,12 @@ void afterLifeRamp1() {
 }
 
 // Rebuilds the overheat enable array.
-void resetOverheatModes() {
-  b_overheat_mode[0] = b_overheat_mode_1;
-  b_overheat_mode[1] = b_overheat_mode_2;
-  b_overheat_mode[2] = b_overheat_mode_3;
-  b_overheat_mode[3] = b_overheat_mode_4;
-  b_overheat_mode[4] = b_overheat_mode_5;
+void resetOverheatLevels() {
+  b_overheat_level[0] = b_overheat_level_1;
+  b_overheat_level[1] = b_overheat_level_2;
+  b_overheat_level[2] = b_overheat_level_3;
+  b_overheat_level[3] = b_overheat_level_4;
+  b_overheat_level[4] = b_overheat_level_5;
 }
 
 void checkMenuVibration() {

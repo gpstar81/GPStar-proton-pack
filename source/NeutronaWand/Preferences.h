@@ -41,7 +41,7 @@ void saveLEDEEPROM();
 void updateCRCEEPROM();
 unsigned long eepromCRC(void);
 void bargraphYearModeUpdate();
-void resetOverheatModes();
+void resetOverheatLevels();
 void setBargraphOrientation();
 
 /*
@@ -363,77 +363,77 @@ void readEEPROM() {
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_5 > 0 && obj_config_eeprom.overheat_start_timer_level_5 != 255) {
-      i_ms_overheat_initiate_mode_5 = obj_config_eeprom.overheat_start_timer_level_5 * 1000;
+      i_ms_overheat_initiate_level_5 = obj_config_eeprom.overheat_start_timer_level_5 * 1000;
 
-      i_ms_overheat_initiate[4] = i_ms_overheat_initiate_mode_5;
+      i_ms_overheat_initiate[4] = i_ms_overheat_initiate_level_5;
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_4 > 0 && obj_config_eeprom.overheat_start_timer_level_4 != 255) {
-      i_ms_overheat_initiate_mode_4 = obj_config_eeprom.overheat_start_timer_level_4 * 1000;
+      i_ms_overheat_initiate_level_4 = obj_config_eeprom.overheat_start_timer_level_4 * 1000;
 
-      i_ms_overheat_initiate[3] = i_ms_overheat_initiate_mode_4;
+      i_ms_overheat_initiate[3] = i_ms_overheat_initiate_level_4;
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_3 > 0 && obj_config_eeprom.overheat_start_timer_level_3 != 255) {
-      i_ms_overheat_initiate_mode_3 = obj_config_eeprom.overheat_start_timer_level_3 * 1000;
+      i_ms_overheat_initiate_level_3 = obj_config_eeprom.overheat_start_timer_level_3 * 1000;
 
-      i_ms_overheat_initiate[2] = i_ms_overheat_initiate_mode_3;
+      i_ms_overheat_initiate[2] = i_ms_overheat_initiate_level_3;
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_2 > 0 && obj_config_eeprom.overheat_start_timer_level_2 != 255) {
-      i_ms_overheat_initiate_mode_2 = obj_config_eeprom.overheat_start_timer_level_2 * 1000;
+      i_ms_overheat_initiate_level_2 = obj_config_eeprom.overheat_start_timer_level_2 * 1000;
 
-      i_ms_overheat_initiate[1] = i_ms_overheat_initiate_mode_2;
+      i_ms_overheat_initiate[1] = i_ms_overheat_initiate_level_2;
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_1 > 0 && obj_config_eeprom.overheat_start_timer_level_1 != 255) {
-      i_ms_overheat_initiate_mode_1 = obj_config_eeprom.overheat_start_timer_level_1 * 1000;
+      i_ms_overheat_initiate_level_1 = obj_config_eeprom.overheat_start_timer_level_1 * 1000;
 
-      i_ms_overheat_initiate[0] = i_ms_overheat_initiate_mode_1;
+      i_ms_overheat_initiate[0] = i_ms_overheat_initiate_level_1;
     }
 
     if(obj_config_eeprom.overheat_level_5 > 0 && obj_config_eeprom.overheat_level_5 != 255) {
       if(obj_config_eeprom.overheat_level_5 > 1) {
-        b_overheat_mode_5 = true;
+        b_overheat_level_5 = true;
       }
       else {
-        b_overheat_mode_5 = false;
+        b_overheat_level_5 = false;
       }
     }
 
     if(obj_config_eeprom.overheat_level_4 > 0 && obj_config_eeprom.overheat_level_4 != 255) {
       if(obj_config_eeprom.overheat_level_4 > 1) {
-        b_overheat_mode_4 = true;
+        b_overheat_level_4 = true;
       }
       else {
-        b_overheat_mode_4 = false;
+        b_overheat_level_4 = false;
       }
     }
 
     if(obj_config_eeprom.overheat_level_3 > 0 && obj_config_eeprom.overheat_level_3 != 255) {
       if(obj_config_eeprom.overheat_level_3 > 1) {
-        b_overheat_mode_3 = true;
+        b_overheat_level_3 = true;
       }
       else {
-        b_overheat_mode_3 = false;
+        b_overheat_level_3 = false;
       }
     }
 
     if(obj_config_eeprom.overheat_level_2 > 0 && obj_config_eeprom.overheat_level_2 != 255) {
       if(obj_config_eeprom.overheat_level_2 > 1) {
-        b_overheat_mode_2 = true;
+        b_overheat_level_2 = true;
       }
       else {
-        b_overheat_mode_2 = false;
+        b_overheat_level_2 = false;
       }
     }
 
     if(obj_config_eeprom.overheat_level_1 > 0 && obj_config_eeprom.overheat_level_1 != 255) {
       if(obj_config_eeprom.overheat_level_1 > 1) {
-        b_overheat_mode_1 = true;
+        b_overheat_level_1 = true;
       }
       else {
-        b_overheat_mode_1 = false;
+        b_overheat_level_1 = false;
       }
     }
 
@@ -472,7 +472,7 @@ void readEEPROM() {
     bargraphYearModeUpdate();
 
     // Rebuild the over heat enabled modes.
-    resetOverheatModes();
+    resetOverheatLevels();
 
     // Read our LED object from the EEPROM.
     objLEDEEPROM obj_led_eeprom;
@@ -552,11 +552,11 @@ void saveConfigEEPROM() {
   uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
   uint8_t i_beep_loop = 2;
   uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
-  uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_mode_5 / 1000;
-  uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_mode_4 / 1000;
-  uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_mode_3 / 1000;
-  uint8_t i_overheat_start_timer_level_2 = i_ms_overheat_initiate_mode_2 / 1000;
-  uint8_t i_overheat_start_timer_level_1 = i_ms_overheat_initiate_mode_1 / 1000;
+  uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_level_5 / 1000;
+  uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_level_4 / 1000;
+  uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_level_3 / 1000;
+  uint8_t i_overheat_start_timer_level_2 = i_ms_overheat_initiate_level_2 / 1000;
+  uint8_t i_overheat_start_timer_level_1 = i_ms_overheat_initiate_level_1 / 1000;
   uint8_t i_overheat_level_5 = 1;
   uint8_t i_overheat_level_4 = 1;
   uint8_t i_overheat_level_3 = 1;
@@ -705,23 +705,23 @@ void saveConfigEEPROM() {
     i_beep_loop = 1;
   }
 
-  if(b_overheat_mode_5 == true) {
+  if(b_overheat_level_5 == true) {
     i_overheat_level_5 = 2;
   }
 
-  if(b_overheat_mode_4 == true) {
+  if(b_overheat_level_4 == true) {
     i_overheat_level_4 = 2;
   }
 
-  if(b_overheat_mode_3 == true) {
+  if(b_overheat_level_3 == true) {
     i_overheat_level_3 = 2;
   }
 
-  if(b_overheat_mode_2 == true) {
+  if(b_overheat_level_2 == true) {
     i_overheat_level_2 = 2;
   }
 
-  if(b_overheat_mode_1 == true) {
+  if(b_overheat_level_1 == true) {
     i_overheat_level_1 = 2;
   }
 
@@ -794,8 +794,8 @@ unsigned long eepromCRC(void) {
   unsigned long crc = l_crc_size;
 
   for(unsigned int index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); ++index) {
-    crc = pgm_read_dword_near(crc_table[(crc ^ EEPROM[index]) & 0x0f]) ^ (crc >> 4);
-    crc = pgm_read_dword_near(crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f]) ^ (crc >> 4);
+    crc = PROGMEM_READ(crc_table[(crc ^ EEPROM[index]) & 0x0f]) ^ (crc >> 4);
+    crc = PROGMEM_READ(crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f]) ^ (crc >> 4);
   }
 
   return ~crc;
