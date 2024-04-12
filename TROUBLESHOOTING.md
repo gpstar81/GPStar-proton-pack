@@ -72,7 +72,7 @@ Depending on which audio board you are using in your system, following the troub
 ---
 
 ### <img src='images/gpstar_logo.png' width=35 align="left"/>GPStar Audio Troubleshooting ###
-![](images/GPStarAudio-debug.jpg)
+![](images/GPStarAudio-Debug.jpg)
 **Troubleshooting**
 
 1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals.
