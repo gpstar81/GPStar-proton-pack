@@ -45,37 +45,4 @@ To add more music, copy stereo wav tracks (16-bit 44khz stereo wav files) onto t
 
 ![audio example](images/audioexample.jpg)
 
-## Troubleshooting
-Depending on which audio board you are using in your system, following the troubleshooting guides below.
-
----
-
-
-### <img src='images/gpstar_logo.png' width=35 align="left"/>GPStar Audio Trouble Shooting
-1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals.
-
-2. If there’s no activity on the status LED whatsoever when you power up GPStar Audio, check the “BOOT/LOAD” switch next to the 6 pin jst-xh connector is in the “BOOT” position.
-
-3. Low quality SD Cards sometimes provide issues such as sounds not playing. Please consider using high quality SD Cards. We recommend the Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.
-
-4. If you’ve gotten this far and tracks won’t play, then it’s most likely that your WAV files are not the correct format. GPStar Audio will only play WAV files formatted as 16-bit, stereo, 44.1kHz, and there can be no meta-data (non-audio data) in the file before the audio data. It seems that many Mac audio applications insert a meta-data chunk prior to the audio, and this will prevent the track from playing. In such cases, simply importing the file and re-exporting with Audacity will likely fix the problem.
-
-5. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
-
----
-
-### Wav Trigger Trouble Shooting
-[Manual for the WAV Trigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/WT_UserGuide_20230602.pdf)
-
-1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on the WAV Trigger, it will locate and index the files and then blink 3 times to indicate that it found at least one WAV file. One long blink means that it either couldn’t read the card or it didn’t find any WAV files.
-
-1. If there’s no activity on the status LED whatsoever when you power up the WAV Trigger, check the “Load/Run” switch next to the power connector and make sure it’s in the “Run” position.
-
-1. Once you get the 3 blinks, pressing the on-board button will play the lowest numbered track on the microSD card. Confirm this by observing the status LED turning on to indicate a track is playing. You should hear the track through the stereo jack. If the audio is not working, try plugging in a set of headphones into the 3.5mm audio port and test again. If you’re using the on-board audio amp and speaker connection, you won’t hear anything unless the onboard amp is enabled using the init file or via software.
-
-1. Low quality SD Cards sometimes provide issues such as sounds not playing. Please consider using high quality SD Cards. We recommend the Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.
-
-1. If you’ve gotten this far and tracks won’t play, then it’s most likely that your WAV files are not the correct format. The WAV Trigger will only play WAV files formatted as 16-bit, stereo, 44.1kHz, and there can be no meta-data (non-audio data) in the file before the audio data. It seems that many Mac audio applications insert a meta-data chunk prior to the audio, and this will prevent the track from playing. In such cases, simply importing the file and re-exporting with Audacity will likely fix the problem.
-
-1. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
 
