@@ -39,7 +39,7 @@ void clearLEDEEPROM();
 void saveConfigEEPROM();
 void saveLEDEEPROM();
 void updateCRCEEPROM();
-unsigned long eepromCRC(void);
+uint32_t eepromCRC(void);
 void bargraphYearModeUpdate();
 void resetOverheatLevels();
 void setBargraphOrientation();
@@ -48,14 +48,6 @@ void setBargraphOrientation();
  * General EEPROM Variables
  */
 unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
-unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
-
-const unsigned long crc_table[16] PROGMEM = {
-  0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
-  0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-  0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
-  0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
-};
 
 /*
  * Data structure object for LED settings which are saved into the EEPROM memory.
@@ -113,8 +105,8 @@ struct objConfigEEPROM {
  */
 void readEEPROM() {
   // Get the stored CRC from the EEPROM.
-  unsigned long l_crc_check;
-  EEPROM.get(EEPROM.length() - sizeof(l_crc_size), l_crc_check);
+  uint32_t l_crc_check;
+  EEPROM.get(EEPROM.length() - sizeof(eepromCRC()), l_crc_check);
 
   // Check if the calculated CRC matches the stored CRC value in the EEPROM.
   if(eepromCRC() == l_crc_check) {
@@ -215,7 +207,7 @@ void readEEPROM() {
     }
 
     if(obj_config_eeprom.num_barrel_leds > 0 && obj_config_eeprom.num_barrel_leds != 255) {
-      i_num_barrel_leds = obj_config_eeprom.num_barrel_leds; // Keep it disabled for now until new barrel leds are ready.
+      i_num_barrel_leds = obj_config_eeprom.num_barrel_leds;
 
       switch(i_num_barrel_leds) {
         case 5:
@@ -499,7 +491,7 @@ void clearLEDEEPROM() {
   unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
   for(unsigned int i = 0; i < sizeof(objLEDEEPROM); i++) {
-    EEPROM.put(i_eepromLEDAddress, 0);
+    EEPROM.update(i_eepromLEDAddress, 0);
 
     i_eepromLEDAddress++;
   }
@@ -525,7 +517,7 @@ void saveLEDEEPROM() {
 void clearConfigEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
   for(unsigned int i = 0; i < sizeof(objConfigEEPROM); i++) {
-    EEPROM.put(i, 0);
+    EEPROM.update(i, 0);
   }
 
   updateCRCEEPROM();
@@ -543,6 +535,7 @@ void saveConfigEEPROM() {
   uint8_t i_quick_vent = 1;
   uint8_t i_wand_boot_errors = 2;
   uint8_t i_vent_light_auto_intensity = 2;
+  uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 48 = Frutto.
   uint8_t i_invert_bargraph = 1;
   uint8_t i_bargraph_mode = 1; // 1 = default, 2 = super hero, 3 = original.
   uint8_t i_bargraph_firing_animation = 1; // 1 = default, 2 = super hero, 3 = original.
@@ -599,6 +592,10 @@ void saveConfigEEPROM() {
 
   if(b_vent_light_control != true) {
     i_vent_light_auto_intensity = 1;
+  }
+
+  if(WAND_BARREL_LED_COUNT == LEDS_48) {
+    i_barrel_led_count = 48;
   }
 
   if(b_bargraph_invert == true) {
@@ -756,7 +753,7 @@ void saveConfigEEPROM() {
     i_quick_vent,
     i_wand_boot_errors,
     i_vent_light_auto_intensity,
-    i_num_barrel_leds,
+    i_barrel_led_count,
     i_invert_bargraph,
     i_bargraph_mode,
     i_bargraph_firing_animation,
@@ -787,16 +784,15 @@ void saveConfigEEPROM() {
 
 // Update the CRC in the EEPROM.
 void updateCRCEEPROM() {
-  EEPROM.put(EEPROM.length() - sizeof(l_crc_size), eepromCRC());
+  EEPROM.put(EEPROM.length() - sizeof(eepromCRC()), eepromCRC());
 }
 
-unsigned long eepromCRC(void) {
-  unsigned long crc = l_crc_size;
+uint32_t eepromCRC(void) {
+  CRC32 crc;
 
-  for(unsigned int index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); ++index) {
-    crc = PROGMEM_READ(crc_table[(crc ^ EEPROM[index]) & 0x0f]) ^ (crc >> 4);
-    crc = PROGMEM_READ(crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f]) ^ (crc >> 4);
+  for(unsigned int index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
+    crc.update(EEPROM[index]);
   }
 
-  return ~crc;
+  return (uint32_t)crc.finalize();
 }

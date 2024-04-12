@@ -33,6 +33,7 @@
 #define PROGMEM_READ(x) pgm_read_dword_near(x)
 
 // 3rd-Party Libraries
+#include <CRC32.h>
 #include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>

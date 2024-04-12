@@ -393,6 +393,7 @@ void checkPack() {
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
+          // Entering the EEPROM menu afterwards and saving settings will.
           switch(wandConfig.ledWandCount) {
             case 0:
             default:

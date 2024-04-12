@@ -22,6 +22,7 @@ jobs:
             libraries: |
               - name: Switch
               - name: ezButton
+              - name: CRC32
               - name: FastLED
               - name: Ramp
               - name: SafeString
