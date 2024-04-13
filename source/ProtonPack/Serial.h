@@ -1453,9 +1453,19 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_WAND_SHUTDOWN);
     break;
 
+    case W_WAND_MASH_ERROR_SOUND:
+      stopEffect(S_WAND_MASH_ERROR);
+      playEffect(S_WAND_MASH_ERROR);
+    break;
+
     case W_WAND_BOOTUP_SOUND:
       stopEffect(S_WAND_BOOTUP);
       playEffect(S_WAND_BOOTUP);
+    break;
+
+    case W_WAND_BOOTUP_SHORT_SOUND:
+      stopEffect(S_WAND_BOOTUP_SHORT);
+      playEffect(S_WAND_BOOTUP_SHORT);
     break;
 
     case W_AFTERLIFE_WAND_BARREL_EXTEND:
@@ -1835,7 +1845,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_venting = true;
 
       // Start venting timer.
-      ms_overheating.start(1);
+      ms_overheating.start(0);
 
       // Reset Cyclotron speed.
       cyclotronSpeedRevert();

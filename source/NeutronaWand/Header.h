@@ -361,7 +361,8 @@ enum WAND_CONN_STATES WAND_CONN_STATE;
  * Some pack flags which get transmitted to the wand depending on the pack status.
  */
 bool b_pack_on = false; // Denotes the pack has been powered on.
-bool b_pack_alarm = false; // Denotes the alarm (ribbon cable) has been disconnected.
+bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected).
+bool b_pack_ribbon_cable_on = true; // Denotes that the pack's ribbon cable is connected.
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
 bool b_sync_light = false; // Toggle for the state of the white LED beside the vent light which gets blinked as a sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
@@ -393,7 +394,7 @@ bool b_sound_firing_cross_the_streams_mix = false;
 bool b_sound_idle = false;
 bool b_beeping = false;
 bool b_sound_afterlife_idle_2_fade = true;
-bool b_pack_ribbon_cable_on = true;
+bool b_wand_boot_error_on = false;
 
 /*
  * Button Mashing Lock-out - Prevents excessive user input via the primary/secondary firing buttons.

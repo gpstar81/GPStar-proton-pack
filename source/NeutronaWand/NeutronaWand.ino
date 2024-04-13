@@ -167,7 +167,8 @@ void setup() {
     readEEPROM();
   }
 
-  ms_bmash.start(i_bmash_delay);
+  // Start the button mash check timer.
+  ms_bmash.start(0);
 
   // Sanity check just in case a user forgot to enable CTS while enabling CTS Mix.
   if(b_cross_the_streams_mix == true && b_cross_the_streams != true) {
@@ -181,7 +182,7 @@ void setup() {
   ms_slo_blo_blink.start(i_slo_blo_blink_delay);
 
   // Initialize the timer for initial handshake.
-  ms_packsync.start(1);
+  ms_packsync.start(0);
 
   if(b_gpstar_benchtest == true) {
     WAND_CONN_STATE = NC_BENCHTEST;
@@ -268,7 +269,6 @@ void mainLoop() {
         WAND_STATUS = MODE_ON;
         WAND_ACTION_STATUS = ACTION_IDLE;
 
-        wandSerialSend(W_ON);
         postActivation();
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
@@ -514,7 +514,7 @@ void mainLoop() {
 
       // Top white light.
       if(ms_white_light.justFinished()) {
-        ms_white_light.start(d_white_light_interval);
+        ms_white_light.repeat();
         if(digitalRead(led_white) == LOW) {
           digitalWrite(led_white, HIGH);
 
@@ -762,6 +762,7 @@ void overheatingFinished() {
     case SYSTEM_FROZEN_EMPIRE:
     default:
       playEffect(S_WAND_BOOTUP);
+      soundIdleLoop(true);
     break;
   }
 
@@ -876,7 +877,6 @@ void startVentSequence() {
   }
 
   stopEffect(S_WAND_SHUTDOWN);
-  stopEffect(S_BEEP_8);
   playEffect(S_WAND_SHUTDOWN);
 
   // Tell the pack we are overheating.
@@ -1312,7 +1312,7 @@ void checkSwitches() {
         case MODE_SUPER_HERO:
         default:
           if(switch_activate.on() == false) {
-            b_wand_mash_error = false;
+            b_wand_boot_error_on = false;
             wandOff();
           }
         break;
@@ -1412,23 +1412,18 @@ void wandLightControlCheck() {
 }
 
 void wandOff() {
-  if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_mash_error != true) {
-    // Tell the pack the wand is turned off.
-    wandSerialSend(W_OFF);
-  }
-  else {
-    // Important to turn off looping on these tracks. Otherwise the bargraph beep or other can be used in the settings menu and be stuck in a loop.
-    stopEffect(S_BEEPS_LOW);
-    stopEffect(S_BEEPS);
-    stopEffect(S_BEEPS_BARGRAPH);
-  }
-
   if(FIRING_MODE == SETTINGS) {
     // If the wand is shut down while we are in settings mode (can happen if the pack is manually turned off), switch the wand and pack to proton mode.
     wandSerialSend(W_PROTON_MODE);
     FIRING_MODE = PROTON;
   }
 
+  stopEffect(S_BEEPS_LOW);
+  stopEffect(S_BEEPS);
+  stopEffect(S_BEEPS_BARGRAPH);
+  stopEffect(S_WAND_BOOTUP);
+  stopEffect(S_WAND_BOOTUP_SHORT);
+  stopEffect(S_GB2_WAND_START);
   stopEffect(S_AFTERLIFE_WAND_IDLE_1);
   stopEffect(S_AFTERLIFE_WAND_IDLE_2);
   stopEffect(S_AFTERLIFE_WAND_RAMP_1);
@@ -1440,28 +1435,69 @@ void wandOff() {
 
   b_sound_afterlife_idle_2_fade = true;
 
-  if(b_pack_ribbon_cable_on == true) {
-    switch(getNeutronaWandYearMode()) {
-      case SYSTEM_1984:
-      case SYSTEM_1989:
-        // Proton Pack plays shutdown sound, but standalone Wand needs to play its own
-        if(b_gpstar_benchtest == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_vent.on() == false) {
-          stopEffect(S_WAND_HEATDOWN);
-          playEffect(S_WAND_HEATDOWN);
-        }
-      break;
+  if(WAND_ACTION_STATUS == ACTION_ERROR && b_wand_boot_error_on != true && b_wand_mash_error != true) {
+    // We are exiting Wand Boot Error, so change wand state back to off/idle without informing Proton Pack.
+    WAND_STATUS = MODE_OFF;
+    WAND_ACTION_STATUS = ACTION_IDLE;
+  }
+  else if(WAND_ACTION_STATUS != ACTION_ERROR && (b_wand_boot_error_on == true || b_wand_mash_error == true)) {
+    // We are entering either Wand Boot Error mode or Button Mash Timeout mode, so do nothing.
+  }
+  else {
+    // Full wand shutdown in all other situations.
+    wandSerialSend(W_OFF);
+    WAND_STATUS = MODE_OFF;
+    WAND_ACTION_STATUS = ACTION_IDLE;
+    b_wand_mash_error = false;
 
-      case SYSTEM_AFTERLIFE:
-      case SYSTEM_FROZEN_EMPIRE:
-      default:
-        if(WAND_ACTION_STATUS != ACTION_ERROR && b_pack_alarm != true) {
-          playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+    if(b_pack_ribbon_cable_on == true) {
+      switch(getNeutronaWandYearMode()) {
+        case SYSTEM_1984:
+        case SYSTEM_1989:
+          // Proton Pack plays shutdown sound, but standalone Wand needs to play its own
+          if(b_gpstar_benchtest == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_vent.on() == false) {
+            stopEffect(S_WAND_HEATDOWN);
+            playEffect(S_WAND_HEATDOWN);
+          }
+          if(SYSTEM_MODE == MODE_SUPER_HERO) {
+            if(switch_vent.on() == true) {
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+              }
+
+              stopEffect(S_WAND_SHUTDOWN);
+              playEffect(S_WAND_SHUTDOWN);
+            }
+          }
+          else {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+            }
+
+            stopEffect(S_WAND_SHUTDOWN);
+            playEffect(S_WAND_SHUTDOWN);
+          }
+        break;
+
+        case SYSTEM_AFTERLIFE:
+        case SYSTEM_FROZEN_EMPIRE:
+        default:
+          if(WAND_ACTION_STATUS != ACTION_ERROR && b_pack_alarm != true) {
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+            }
+          }
 
           if(b_extra_pack_sounds == true) {
-            wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+            wandSerialSend(W_WAND_SHUTDOWN_SOUND);
           }
-        }
-      break;
+
+          stopEffect(S_WAND_SHUTDOWN);
+          playEffect(S_WAND_SHUTDOWN);
+        break;
+      }
     }
   }
 
@@ -1469,21 +1505,12 @@ void wandOff() {
   soundIdleStop();
   soundIdleLoopStop(true);
 
-  if(b_wand_mash_error != true) {
-    WAND_STATUS = MODE_OFF;
-    WAND_ACTION_STATUS = ACTION_IDLE;
-  }
-
   vibrationOff();
 
   // Stop firing if the wand is turned off.
   if(b_firing == true) {
     modeFireStop();
   }
-
-  stopEffect(S_WAND_BOOTUP);
-  stopEffect(S_WAND_BOOTUP_SHORT);
-  stopEffect(S_GB2_WAND_START);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -1498,42 +1525,44 @@ void wandOff() {
   stopEffect(S_VENT_DRY);
   stopEffect(S_MODE_SWITCH);
 
-  switch(getNeutronaWandYearMode()) {
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-      if(SYSTEM_MODE == MODE_SUPER_HERO) {
-        if(switch_vent.on() == true) {
+  if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_mash_error == true) {
+    switch(getNeutronaWandYearMode()) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
+        if(SYSTEM_MODE == MODE_SUPER_HERO) {
+          if(switch_vent.on() == true) {
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_WAND_MASH_ERROR_SOUND);
+            }
+
+            stopEffect(S_WAND_MASH_ERROR);
+            playEffect(S_WAND_MASH_ERROR);
+          }
+        }
+        else {
           if(b_extra_pack_sounds == true) {
-            wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+            wandSerialSend(W_WAND_MASH_ERROR_SOUND);
           }
 
-          stopEffect(S_WAND_SHUTDOWN);
-          playEffect(S_WAND_SHUTDOWN);
+          stopEffect(S_WAND_MASH_ERROR);
+          playEffect(S_WAND_MASH_ERROR);
         }
-      }
-      else {
+      break;
+
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
+      default:
         if(b_extra_pack_sounds == true) {
-          wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+          wandSerialSend(W_WAND_MASH_ERROR_SOUND);
         }
 
-        stopEffect(S_WAND_SHUTDOWN);
-        playEffect(S_WAND_SHUTDOWN);
-      }
-    break;
-
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-    default:
-      if(b_extra_pack_sounds == true) {
-        wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-      }
-
-      stopEffect(S_WAND_SHUTDOWN);
-      playEffect(S_WAND_SHUTDOWN);
-    break;
+        stopEffect(S_WAND_MASH_ERROR);
+        playEffect(S_WAND_MASH_ERROR);
+      break;
+    }
   }
 
-  // Clear counter until user begins firing.
+  // Clear counter until user begins firing again.
   i_bmash_count = 0;
 
   barrelLightsOff();
@@ -1587,23 +1616,24 @@ void wandOff() {
           }
         break;
       }
-    default:
-    // Do nothing if we aren't MODE_OFF
+
+      // Start the timer for the power on indicator option.
+      if(b_power_on_indicator == true) {
+        ms_power_indicator.start(i_ms_power_indicator);
+      }
+
+      wandSwitchedCount = 0;
+      ventSwitchedCount = 0;
     break;
-  }
-
-  wandSwitchedCount = 0;
-  ventSwitchedCount = 0;
-
-  // Start the timer for the power on indicator option.
-  if(b_power_on_indicator == true) {
-    ms_power_indicator.start(i_ms_power_indicator);
+    default:
+      // Do nothing if we aren't MODE_OFF
+    break;
   }
 }
 
 // Called from checkSwitches(); Check if we should fire, or if the wand and pack turn off.
 void fireControlCheck() {
-  // Firing action stuff and shutting cyclotron and the neutrona wand off.
+  // Firing action stuff and shutting cyclotron and the Neutrona Wand off.
   if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
     if(i_bmash_count >= i_bmash_max) {
       // User has exceeded "normal" firing rate.
@@ -1663,12 +1693,6 @@ void fireControlCheck() {
         if(FIRING_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
           if(switch_mode.on() == true) {
             b_firing_alt = true;
-
-            if(ms_bmash.remaining() < 1) {
-              // Clear counter/timer until user begins firing.
-              i_bmash_count = 0;
-              ms_bmash.start(i_bmash_delay);
-            }
           }
         }
       }
@@ -1866,7 +1890,6 @@ void altWingButtonCheck() {
 
 void modeError() {
   wandOff();
-  b_sound_afterlife_idle_2_fade = true;
 
   WAND_STATUS = MODE_ERROR;
   WAND_ACTION_STATUS = ACTION_ERROR;
@@ -1916,9 +1939,9 @@ void modeActivate() {
 
     case MODE_SUPER_HERO:
     default:
-      // The wand was started while the top switch was already on, so let's put the wand into a startup error mode.
+      // The wand was started while the top switch was already on, so let's put the wand into startup error mode.
       if(switch_wand.on() == true && b_wand_boot_errors == true) {
-        b_wand_mash_error = true;
+        b_wand_boot_error_on = true;
         modeError();
       }
       else {
@@ -2154,7 +2177,7 @@ void soundIdleStop() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        if(WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_wand_mash_error != true) {
           if(b_extra_pack_sounds == true) {
             wandSerialSend(W_WAND_SHUTDOWN_SOUND);
           }
@@ -2169,8 +2192,6 @@ void soundIdleStop() {
       default:
         if(b_pack_ribbon_cable_on == true) {
           if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
-            //stopEffect(S_WAND_SHUTDOWN);
-            //playEffect(S_WAND_SHUTDOWN);
 
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 1);
 
@@ -2605,7 +2626,7 @@ void modeFireStart() {
 
   if(FIRING_MODE == MESON) {
     ms_firing_lights.stop();
-    ms_firing_stream_effects.start(1);
+    ms_firing_stream_effects.start(0);
   }
   else {
     ms_firing_lights.start(10);
@@ -2793,6 +2814,10 @@ void modeFireStop() {
 
   if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
     digitalWrite(led_hat_1, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
+    digitalWrite(led_hat_2, LOW); // Make sure we turn off hat light 2 in case it's on as well.
+  }
+  else {
+    digitalWrite(led_hat_2, HIGH); // Make sure we turn on hat light 2 in case it's off as well.
   }
 
   wandTipOff();
@@ -2838,6 +2863,9 @@ void modeFireStop() {
       // Nothing.
     break;
   }
+
+  // Stop overheat beeps.
+  stopEffect(S_BEEP_8);
 
   // A tiny ramp down delay helps with the sounds.
   ms_firing_stop_sound_delay.start(i_fire_stop_sound_delay);
@@ -3462,37 +3490,30 @@ void wandBarrelHeatUp() {
     switch(FIRING_MODE) {
       case PROTON:
         barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case SLIME:
         barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case STASIS:
         barrel_leds[i_barrel_led] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case MESON:
         barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case SPECTRAL:
         barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case HOLIDAY:
         barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case SPECTRAL_CUSTOM:
         barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case VENTING:
@@ -3503,6 +3524,7 @@ void wandBarrelHeatUp() {
     }
 
     i_heatup_counter++;
+    ms_fast_led.start(i_fast_led_delay);
     ms_wand_heatup_fade.start(i_delay_heatup);
   }
 }
@@ -3525,37 +3547,30 @@ void wandBarrelHeatDown() {
     switch(FIRING_MODE) {
       case PROTON:
         barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case SLIME:
         barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case STASIS:
         barrel_leds[i_barrel_led] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case MESON:
         barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case SPECTRAL:
         barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case HOLIDAY:
         barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case SPECTRAL_CUSTOM:
         barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-        ms_fast_led.start(i_fast_led_delay);
       break;
 
       case VENTING:
@@ -3566,7 +3581,7 @@ void wandBarrelHeatDown() {
     }
 
     i_heatdown_counter--;
-
+    ms_fast_led.start(i_fast_led_delay);
     ms_wand_heatup_fade.start(i_delay_heatup);
   }
 

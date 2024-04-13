@@ -230,7 +230,7 @@ void loop() {
 
         b_pack_shutting_down = true;
 
-        ms_fadeout.start(1);
+        ms_fadeout.start(0);
 
         switch(SYSTEM_MODE) {
           case MODE_ORIGINAL:
@@ -539,7 +539,7 @@ void loop() {
   if(ms_fast_led.justFinished()) {
     FastLED.show();
 
-    ms_fast_led.restart();
+    ms_fast_led.repeat();
 
     if(b_powercell_updating == true) {
       b_powercell_updating = false;
@@ -2803,28 +2803,53 @@ void packVenting() {
       case 1:
       default:
         ms_overheating_length.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
+
+        if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+          ms_smoke_on.stop();
+          ms_smoke_on.start(i_ms_overheating_length_1 / 2 > 4000 ? 4000 : i_ms_overheating_length_1 / 2);
+        }
       break;
 
       case 2:
         ms_overheating_length.start(i_ms_overheating_length_2 >= 4000 ? i_ms_overheating_length_2 / 2 : 2000);
+
+        if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+          ms_smoke_on.stop();
+          ms_smoke_on.start(i_ms_overheating_length_2 / 2 > 4000 ? 4000 : i_ms_overheating_length_2 / 2);
+        }
       break;
 
       case 3:
         ms_overheating_length.start(i_ms_overheating_length_3 >= 4000 ? i_ms_overheating_length_3 / 2 : 2000);
+
+        if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+          ms_smoke_on.stop();
+          ms_smoke_on.start(i_ms_overheating_length_3 / 2 > 4000 ? 4000 : i_ms_overheating_length_3 / 2);
+        }
       break;
 
       case 4:
         ms_overheating_length.start(i_ms_overheating_length_4 >= 4000 ? i_ms_overheating_length_4 / 2 : 2000);
+
+        if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+          ms_smoke_on.stop();
+          ms_smoke_on.start(i_ms_overheating_length_4 / 2 > 4000 ? 4000 : i_ms_overheating_length_4 / 2);
+        }
       break;
 
       case 5:
         ms_overheating_length.start(i_ms_overheating_length_5 >= 4000 ? i_ms_overheating_length_5 / 2 : 2000);
+
+        if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+          ms_smoke_on.stop();
+          ms_smoke_on.start(i_ms_overheating_length_5 / 2 > 4000 ? 4000 : i_ms_overheating_length_5 / 2);
+        }
       break;
     }
+  }
 
-    if(b_overheat_sync_to_fan != true) {
-      smokeNFilter(false);
-    }
+  if(ms_smoke_on.remaining() < 1) {
+    smokeNFilter(false);
   }
 
   if(ms_overheating_length.isRunning() && FIRING_MODE != SLIME) {
@@ -3076,6 +3101,7 @@ void packVentingFinished() {
   serial1Send(A_VENTING_FINISHED);
 
   ms_overheating_length.stop();
+  ms_smoke_on.stop();
 
   stopEffect(S_STEAM_LOOP);
   stopEffect(S_SLIME_REFILL);
@@ -4135,7 +4161,7 @@ void cyclotronSwitchPlateLEDs() {
   }
 
   if(ms_cyclotron_switch_plate_leds.justFinished()) {
-    ms_cyclotron_switch_plate_leds.restart();
+    ms_cyclotron_switch_plate_leds.repeat();
   }
 }
 
