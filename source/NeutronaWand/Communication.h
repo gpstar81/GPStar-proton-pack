@@ -158,6 +158,7 @@ enum wand_messages : uint8_t {
   W_OFF,
   W_FIRING,
   W_FIRING_STOPPED,
+  W_BUTTON_MASHING,
   W_PROTON_MODE,
   W_SLIME_MODE,
   W_STASIS_MODE,

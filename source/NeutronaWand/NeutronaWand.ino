@@ -1637,6 +1637,7 @@ void fireControlCheck() {
   if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
     if(i_bmash_count >= i_bmash_max) {
       // User has exceeded "normal" firing rate.
+      wandSerialSend(W_BUTTON_MASHING);
       b_wand_mash_error = true;
       modeError();
       ms_bmash.start(i_bmash_cool_down);
@@ -2668,25 +2669,27 @@ void modeFireStopSounds() {
   ms_firing_stop_sound_delay.stop();
   ms_meson_blast.stop();
 
- switch(FIRING_MODE) {
-    case PROTON:
-    default:
-      playEffect(S_FIRING_END_GUN);
-    break;
+  if(b_wand_mash_error != true) {
+    switch(FIRING_MODE) {
+      case PROTON:
+      default:
+        playEffect(S_FIRING_END_GUN);
+      break;
 
-    case SLIME:
-      playEffect(S_SLIME_END);
-    break;
+      case SLIME:
+        playEffect(S_SLIME_END);
+      break;
 
-    case STASIS:
-      playEffect(S_STASIS_END);
-    break;
+      case STASIS:
+        playEffect(S_STASIS_END);
+      break;
 
-    case MESON:
-    case VENTING:
-    case SETTINGS:
-      // Nothing.
-    break;
+      case MESON:
+      case VENTING:
+      case SETTINGS:
+        // Nothing.
+      break;
+    }
   }
 
   if(b_firing_cross_streams == true) {
@@ -2695,7 +2698,9 @@ void modeFireStopSounds() {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+        if(b_wand_mash_error != true) {
+          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+        }
       break;
 
       case CTS_1984:
@@ -2703,7 +2708,9 @@ void modeFireStopSounds() {
         stopEffect(S_CROSS_STREAMS_START);
         stopEffect(S_CROSS_STREAMS_END);
 
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+        if(b_wand_mash_error != true) {
+          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+        }
       break;
 
       case CTS_DEFAULT:
@@ -2716,7 +2723,9 @@ void modeFireStopSounds() {
             stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
             stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+            if(b_wand_mash_error != true) {
+              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+            }
           break;
 
           case SYSTEM_1984:
@@ -2724,7 +2733,9 @@ void modeFireStopSounds() {
             stopEffect(S_CROSS_STREAMS_START);
             stopEffect(S_CROSS_STREAMS_END);
 
-            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+            if(b_wand_mash_error != true) {
+              playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+            }
           break;
         }
       break;

@@ -3815,41 +3815,44 @@ void modeFireStopSounds() {
       }
     }
 
-    switch(FIRING_MODE) {
-      case PROTON:
-      default:
-        // Play different firing end stream sound depending on how long we have been firing for.
-        if(ms_firing_length_timer.remaining() < 5000) {
-          // Short tail end.
-          playEffect(S_FIRING_END_GUN);
-        }
-        else if(ms_firing_length_timer.remaining() < 10000) {
-          // Mid tail end.
-          playEffect(S_FIRING_END_MID);
-        }
-        else {
-          // Long tail end.
-          playEffect(S_FIRING_END);
-        }
-      break;
+    if(b_wand_mash_lockout != true) {
+      switch(FIRING_MODE) {
+        case PROTON:
+        default:
+          // Play different firing end stream sound depending on how long we have been firing for.
+          if(ms_firing_length_timer.remaining() < 5000) {
+            // Short tail end.
+            playEffect(S_FIRING_END_GUN);
+          }
+          else if(ms_firing_length_timer.remaining() < 10000) {
+            // Mid tail end.
+            playEffect(S_FIRING_END_MID);
+          }
+          else {
+            // Long tail end.
+            playEffect(S_FIRING_END);
+          }
+        break;
 
-      case SLIME:
-        playEffect(S_SLIME_END);
-      break;
+        case SLIME:
+          playEffect(S_SLIME_END);
+        break;
 
-      case STASIS:
-        playEffect(S_STASIS_END);
-      break;
+        case STASIS:
+          playEffect(S_STASIS_END);
+        break;
 
-      case MESON:
-      case VENTING:
-      case SETTINGS:
-        // Nothing
-      break;
+        case MESON:
+        case VENTING:
+        case SETTINGS:
+          // Nothing
+        break;
+      }
     }
   }
 
   wandStopFiringSounds();
+  b_wand_mash_lockout = false;
 }
 
 void wandStoppedFiring() {
@@ -3952,11 +3955,13 @@ void wandStopFiringSounds() {
       stopEffect(S_CROSS_STREAMS_START);
       stopEffect(S_CROSS_STREAMS_END);
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
-      }
-      else {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+      if(b_wand_mash_lockout != true) {
+        if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
+        }
+        else {
+          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+        }
       }
     break;
 
@@ -3966,11 +3971,13 @@ void wandStopFiringSounds() {
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 5);
-      }
-      else {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+      if(b_wand_mash_lockout != true) {
+        if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 5);
+        }
+        else {
+          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+        }
       }
     break;
 

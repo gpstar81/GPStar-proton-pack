@@ -1538,6 +1538,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       cyclotronSpeedRevert();
     break;
 
+    case W_BUTTON_MASHING:
+      b_wand_mash_lockout = true;
+    break;
+
     case W_PROTON_MODE:
       // Proton mode
       FIRING_MODE = PROTON;
