@@ -215,7 +215,6 @@ bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 millisDelay ms_gun_loop_1;
 millisDelay ms_gun_loop_2;
 millisDelay ms_white_light;
-const uint8_t d_white_light_interval = 250;
 
 /*
  * Overheat timers
