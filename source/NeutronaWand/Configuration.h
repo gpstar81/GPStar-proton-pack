@@ -216,7 +216,7 @@ unsigned long int i_ms_overheat_initiate_level_5 = 12000;
  * GB2 Venkman (Vigo), GB2 Zeddemore: 375
  * Afterlife (All props): 146
  */
-const uint8_t d_white_light_interval = 146;
+const uint16_t d_white_light_interval = 146;
 
 /*
  * Set to false to disable the onboard amplifier on the WAV Trigger.
