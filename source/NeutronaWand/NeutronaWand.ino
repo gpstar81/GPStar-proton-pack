@@ -181,6 +181,9 @@ void setup() {
   // Start up some timers for MODE_ORIGINAL.
   ms_slo_blo_blink.start(i_slo_blo_blink_delay);
 
+  // Initialize the fastLED state update timer.
+  ms_fast_led.start(i_fast_led_delay);
+
   // Initialize the timer for initial handshake.
   ms_packsync.start(0);
 
@@ -581,10 +584,10 @@ void mainLoop() {
     fireStreamEnd(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
   }
 
-  // Update the barrel LEDs.
+  // Update the barrel LEDs and restart the timer.
   if(ms_fast_led.justFinished()) {
     FastLED.show();
-    ms_fast_led.stop();
+    ms_fast_led.repeat();
   }
 }
 
@@ -756,11 +759,13 @@ void overheatingFinished() {
   switch(getNeutronaWandYearMode()) {
     case SYSTEM_1984:
     case SYSTEM_1989:
+      stopEffect(S_WAND_BOOTUP_SHORT);
       playEffect(S_WAND_BOOTUP_SHORT);
     break;
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
+      stopEffect(S_WAND_BOOTUP);
       playEffect(S_WAND_BOOTUP);
       soundIdleLoop(true);
     break;
@@ -1973,6 +1978,9 @@ void postActivation() {
     i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
   }
 
+  // Stop the heatdown sound if playing.
+  stopEffect(S_WAND_HEATDOWN);
+
   if(WAND_STATUS != MODE_ERROR) {
     if(b_pack_alarm != true) {
       switch(SYSTEM_MODE) {
@@ -2006,7 +2014,6 @@ void postActivation() {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          stopEffect(S_WAND_HEATDOWN);
           stopEffect(S_WAND_BOOTUP_SHORT);
           playEffect(S_WAND_BOOTUP_SHORT);
         break;
@@ -3535,7 +3542,6 @@ void wandBarrelHeatUp() {
     }
 
     i_heatup_counter++;
-    ms_fast_led.start(i_fast_led_delay);
     ms_wand_heatup_fade.start(i_delay_heatup);
   }
 }
@@ -3592,7 +3598,6 @@ void wandBarrelHeatDown() {
     }
 
     i_heatdown_counter--;
-    ms_fast_led.start(i_fast_led_delay);
     ms_wand_heatup_fade.start(i_delay_heatup);
   }
 
@@ -3692,8 +3697,6 @@ void fireStreamEffect(CRGB c_colour) {
               // Nothing.
             break;
           }
-
-          ms_fast_led.start(i_fast_led_delay);
         }
 
         if(i_barrel_light == i_num_barrel_leds) {
@@ -3761,8 +3764,6 @@ void fireStreamEffect(CRGB c_colour) {
               }
             break;
           }
-
-          ms_fast_led.start(i_fast_led_delay);
 
           i_barrel_light++;
         }
@@ -3843,8 +3844,6 @@ void fireStreamEffect(CRGB c_colour) {
               // Nothing.
             break;
           }
-
-          ms_fast_led.start(i_fast_led_delay);
         }
 
         if(i_barrel_light == i_num_barrel_leds) {
@@ -3913,8 +3912,6 @@ void fireStreamEffect(CRGB c_colour) {
             break;
           }
 
-          ms_fast_led.start(i_fast_led_delay);
-
           i_barrel_light++;
         }
       }
@@ -3944,8 +3941,6 @@ void barrelLightsOff() {
 
   // Turn off the wand barrel tip LED.
   wandTipOff();
-
-  ms_fast_led.start(i_fast_led_delay);
 }
 
 void fireStreamStart(CRGB c_colour) {
@@ -3967,8 +3962,6 @@ void fireStreamStart(CRGB c_colour) {
         barrel_leds[i_barrel_light] = c_colour;
       break;
     }
-
-    ms_fast_led.start(i_fast_led_delay);
 
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
@@ -4008,8 +4001,6 @@ void fireStreamStart(CRGB c_colour) {
 
 void fireStreamEnd(CRGB c_colour) {
   if(i_barrel_light < i_num_barrel_leds) {
-    ms_fast_led.start(i_fast_led_delay);
-
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
         // Set the color for the mapped LED.
@@ -6720,8 +6711,6 @@ void wandBarrelSpectralCustomConfigOn() {
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
     barrel_leds[i] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
   }
-
-  ms_fast_led.start(i_fast_led_delay);
 }
 
 // It is very important that S_1 up to S_60 follow each other in order on the Micro SD Card and sound effects enum.
@@ -7659,8 +7648,6 @@ void wandBarrelLightsOff() {
       break;
     }
   }
-
-  ms_fast_led.start(i_fast_led_delay);
 }
 
 // Exit the wand menu system while the wand is off.

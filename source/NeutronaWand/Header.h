@@ -308,9 +308,9 @@ const uint8_t i_sound_timer = 150;
  * Wand tip heatup timers (when changing firing modes).
  */
 millisDelay ms_wand_heatup_fade;
-const uint8_t i_delay_heatup = 10;
+const uint8_t i_delay_heatup = 5;
 uint8_t i_heatup_counter = 0;
-uint8_t i_heatdown_counter = 100;
+uint8_t i_heatdown_counter = 50;
 
 /*
  * Wand Firing Modes + Settings
