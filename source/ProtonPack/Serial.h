@@ -349,11 +349,11 @@ void serial1SendData(uint8_t i_message) {
 
     case A_SEND_PREFERENCES_SMOKE:
       // Determines whether smoke effects while firing is enabled by power level.
-      smokeConfig.overheatContinuous5 = b_smoke_continuous_mode_5;
-      smokeConfig.overheatContinuous4 = b_smoke_continuous_mode_4;
-      smokeConfig.overheatContinuous3 = b_smoke_continuous_mode_3;
-      smokeConfig.overheatContinuous2 = b_smoke_continuous_mode_2;
-      smokeConfig.overheatContinuous1 = b_smoke_continuous_mode_1;
+      smokeConfig.overheatContinuous5 = b_smoke_continuous_level_5;
+      smokeConfig.overheatContinuous4 = b_smoke_continuous_level_4;
+      smokeConfig.overheatContinuous3 = b_smoke_continuous_level_3;
+      smokeConfig.overheatContinuous2 = b_smoke_continuous_level_2;
+      smokeConfig.overheatContinuous1 = b_smoke_continuous_level_1;
 
       // Duration (in seconds) an overheat event persists once activated.
       smokeConfig.overheatDuration5 = i_ms_overheating_length_5 / 1000;
@@ -643,11 +643,11 @@ void checkSerial1() {
           i_ms_overheating_length_2 = smokeConfig.overheatDuration2 * 1000;
           i_ms_overheating_length_1 = smokeConfig.overheatDuration1 * 1000;
 
-          b_smoke_continuous_mode_5 = smokeConfig.overheatContinuous5;
-          b_smoke_continuous_mode_4 = smokeConfig.overheatContinuous4;
-          b_smoke_continuous_mode_3 = smokeConfig.overheatContinuous3;
-          b_smoke_continuous_mode_2 = smokeConfig.overheatContinuous2;
-          b_smoke_continuous_mode_1 = smokeConfig.overheatContinuous1;
+          b_smoke_continuous_level_5 = smokeConfig.overheatContinuous5;
+          b_smoke_continuous_level_4 = smokeConfig.overheatContinuous4;
+          b_smoke_continuous_level_3 = smokeConfig.overheatContinuous3;
+          b_smoke_continuous_level_2 = smokeConfig.overheatContinuous2;
+          b_smoke_continuous_level_1 = smokeConfig.overheatContinuous1;
           b_smoke_enabled = smokeConfig.smokeEnabled;
           resetContinuousSmoke();
 
@@ -1453,9 +1453,19 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_WAND_SHUTDOWN);
     break;
 
+    case W_WAND_MASH_ERROR_SOUND:
+      stopEffect(S_WAND_MASH_ERROR);
+      playEffect(S_WAND_MASH_ERROR);
+    break;
+
     case W_WAND_BOOTUP_SOUND:
       stopEffect(S_WAND_BOOTUP);
       playEffect(S_WAND_BOOTUP);
+    break;
+
+    case W_WAND_BOOTUP_SHORT_SOUND:
+      stopEffect(S_WAND_BOOTUP_SHORT);
+      playEffect(S_WAND_BOOTUP_SHORT);
     break;
 
     case W_AFTERLIFE_WAND_BARREL_EXTEND:
@@ -1526,6 +1536,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Return cyclotron to normal speed.
       cyclotronSpeedRevert();
+    break;
+
+    case W_BUTTON_MASHING:
+      b_wand_mash_lockout = true;
     break;
 
     case W_PROTON_MODE:
@@ -1835,7 +1849,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_venting = true;
 
       // Start venting timer.
-      ms_overheating.start(1);
+      ms_overheating.start(0);
 
       // Reset Cyclotron speed.
       cyclotronSpeedRevert();
@@ -1879,7 +1893,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
         }
       }
 
@@ -1893,7 +1907,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
         }
       }
 
@@ -1907,7 +1921,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
         }
       }
 
@@ -1921,7 +1935,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
         }
       }
 
@@ -1935,7 +1949,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(i_smoke_timer[i_wand_power_level - 1]);
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
         }
       }
 
@@ -2231,7 +2245,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Restart the impact sound timer.
       if(b_stream_effects == true) {
-        unsigned int i_s_random = random(7,14) * 1000;
+        unsigned int i_s_random = random(7,15) * 1000;
         ms_firing_sound_mix.start(i_s_random);
       }
 
@@ -2252,7 +2266,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Restart the impact sound timer.
       if(b_stream_effects == true) {
-        unsigned int i_s_random = random(7,14) * 1000;
+        unsigned int i_s_random = random(7,15) * 1000;
         ms_firing_sound_mix.start(i_s_random);
       }
 
@@ -2540,11 +2554,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_smoke_enabled = false;
 
         stopEffect(S_VENT_DRY);
-        playEffect(S_VENT_DRY);
-
         stopEffect(S_VOICE_SMOKE_DISABLED);
         stopEffect(S_VOICE_SMOKE_ENABLED);
 
+        playEffect(S_VENT_DRY);
         playEffect(S_VOICE_SMOKE_DISABLED);
 
         // Tell the wand to play the smoke disabled voice.
@@ -2554,11 +2567,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_smoke_enabled = true;
 
         stopEffect(S_VENT_SMOKE);
-        playEffect(S_VENT_SMOKE);
-
         stopEffect(S_VOICE_SMOKE_ENABLED);
         stopEffect(S_VOICE_SMOKE_DISABLED);
 
+        playEffect(S_VENT_SMOKE);
         playEffect(S_VOICE_SMOKE_ENABLED);
 
         // Tell the wand to play the smoke enabled voice.
@@ -3534,6 +3546,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_TOGGLE_CYCLOTRON_LEDS:
       stopEffect(S_VOICE_CYCLOTRON_40);
+      stopEffect(S_VOICE_CYCLOTRON_36);
       stopEffect(S_VOICE_CYCLOTRON_20);
       stopEffect(S_VOICE_CYCLOTRON_12);
 
@@ -3752,8 +3765,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_5:
-      if(b_smoke_continuous_mode_5 == true) {
-        b_smoke_continuous_mode_5 = false;
+      if(b_smoke_continuous_level_5 == true) {
+        b_smoke_continuous_level_5 = false;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_DISABLED);
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_ENABLED);
@@ -3762,7 +3775,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CONTINUOUS_SMOKE_5_DISABLED);
       }
       else {
-        b_smoke_continuous_mode_5 = true;
+        b_smoke_continuous_level_5 = true;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_ENABLED);
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_DISABLED);
@@ -3775,8 +3788,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_4:
-      if(b_smoke_continuous_mode_4 == true) {
-        b_smoke_continuous_mode_4 = false;
+      if(b_smoke_continuous_level_4 == true) {
+        b_smoke_continuous_level_4 = false;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_DISABLED);
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_ENABLED);
@@ -3785,7 +3798,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CONTINUOUS_SMOKE_4_DISABLED);
       }
       else {
-        b_smoke_continuous_mode_4 = true;
+        b_smoke_continuous_level_4 = true;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_ENABLED);
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_DISABLED);
@@ -3798,8 +3811,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_3:
-      if(b_smoke_continuous_mode_3 == true) {
-        b_smoke_continuous_mode_3 = false;
+      if(b_smoke_continuous_level_3 == true) {
+        b_smoke_continuous_level_3 = false;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_DISABLED);
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);
@@ -3808,7 +3821,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CONTINUOUS_SMOKE_3_DISABLED);
       }
       else {
-        b_smoke_continuous_mode_3 = true;
+        b_smoke_continuous_level_3 = true;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_ENABLED);
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_DISABLED);
@@ -3821,8 +3834,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_2:
-      if(b_smoke_continuous_mode_2 == true) {
-        b_smoke_continuous_mode_2 = false;
+      if(b_smoke_continuous_level_2 == true) {
+        b_smoke_continuous_level_2 = false;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_DISABLED);
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);
@@ -3831,7 +3844,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CONTINUOUS_SMOKE_2_DISABLED);
       }
       else {
-        b_smoke_continuous_mode_2 = true;
+        b_smoke_continuous_level_2 = true;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_ENABLED);
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_DISABLED);
@@ -3844,9 +3857,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_1:
-      if(b_smoke_continuous_mode_1 == true) {
-        b_smoke_continuous_mode_1 = false;
-        b_smoke_continuous_mode[0] = false;
+      if(b_smoke_continuous_level_1 == true) {
+        b_smoke_continuous_level_1 = false;
+
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);
         playEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
@@ -3854,7 +3867,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CONTINUOUS_SMOKE_1_DISABLED);
       }
       else {
-        b_smoke_continuous_mode_1 = true;
+        b_smoke_continuous_level_1 = true;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_ENABLED);
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);

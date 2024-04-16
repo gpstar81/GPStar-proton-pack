@@ -184,26 +184,26 @@ bool b_overheat_bargraph_blink = false;
 bool b_beep_loop = true;
 
 /*
- * Which power modes do you want to be able to overheat.
- * Set to true to allow the wand and pack to overheat in that mode.
- * Set to false to disable overheating in that power mode. You will be able to continuously fire instead.
+ * Which power levels do you want to be able to overheat.
+ * Set to true to allow the wand and pack to overheat in that power level.
+ * Set to false to disable overheating in that power level. You will be able to continuously fire instead.
  */
-bool b_overheat_mode_1 = false;
-bool b_overheat_mode_2 = false;
-bool b_overheat_mode_3 = false;
-bool b_overheat_mode_4 = false;
-bool b_overheat_mode_5 = true;
+bool b_overheat_level_1 = false;
+bool b_overheat_level_2 = false;
+bool b_overheat_level_3 = false;
+bool b_overheat_level_4 = false;
+bool b_overheat_level_5 = true;
 
 /*
- * Time in milliseconds for when overheating will initiate if enabled for that power mode.
- * Overheat only happens if enabled for that power mode (see above).
+ * Time in milliseconds for when overheating will initiate if enabled for that power level.
+ * Overheat only happens if enabled for that power level (see above).
  * Example: 12000 = (12 seconds)
  */
-unsigned long int i_ms_overheat_initiate_mode_1 = 60000;
-unsigned long int i_ms_overheat_initiate_mode_2 = 30000;
-unsigned long int i_ms_overheat_initiate_mode_3 = 20000;
-unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
-unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
+unsigned long int i_ms_overheat_initiate_level_1 = 60000;
+unsigned long int i_ms_overheat_initiate_level_2 = 30000;
+unsigned long int i_ms_overheat_initiate_level_3 = 20000;
+unsigned long int i_ms_overheat_initiate_level_4 = 15000;
+unsigned long int i_ms_overheat_initiate_level_5 = 12000;
 
 /*
  * Set to false to disable the onboard amplifier on the WAV Trigger.

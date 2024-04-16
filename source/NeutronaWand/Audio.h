@@ -580,7 +580,7 @@ void buildMusicCount(uint16_t i_num_tracks) {
   }
   else {
     i_music_count = 0; // If the music count is corrupt, make it 0
-    debugln(F("Warning: Calculated music count exceeds 5000; SD card corruption likely!"))
+    debugln(F("Warning: Calculated music count exceeds 5000; SD card corruption likely!"));
   }
 }
 

@@ -39,7 +39,7 @@ void clearLEDEEPROM();
 void saveConfigEEPROM();
 void saveLEDEEPROM();
 void updateCRCEEPROM();
-unsigned long eepromCRC(void);
+uint32_t eepromCRC(void);
 void resetCyclotronLEDs();
 void resetContinuousSmoke();
 void updateProtonPackLEDCounts();
@@ -48,7 +48,6 @@ void updateProtonPackLEDCounts();
  * General EEPROM Variables
  */
 unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
-unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
 
 /*
  * Data structure object for LED settings which are saved into the EEPROM memory.
@@ -93,11 +92,11 @@ struct objConfigEEPROM {
   uint8_t overheat_smoke_duration_level_2;
   uint8_t overheat_smoke_duration_level_1;
 
-  uint8_t smoke_continuous_mode_5;
-  uint8_t smoke_continuous_mode_4;
-  uint8_t smoke_continuous_mode_3;
-  uint8_t smoke_continuous_mode_2;
-  uint8_t smoke_continuous_mode_1;
+  uint8_t smoke_continuous_level_5;
+  uint8_t smoke_continuous_level_4;
+  uint8_t smoke_continuous_level_3;
+  uint8_t smoke_continuous_level_2;
+  uint8_t smoke_continuous_level_1;
 
   uint8_t pack_vibration; // Sets the vibration mode for the pack (multi-option).
   uint8_t use_ribbon_cable; // Enable/disable the ribbon cable alarm (useful for DIY packs).
@@ -108,12 +107,12 @@ struct objConfigEEPROM {
  */
 void readEEPROM() {
   // Get the stored CRC from the EEPROM.
-  unsigned long l_crc_check;
-  EEPROM.get(EEPROM.length() - sizeof(l_crc_size), l_crc_check);
+  uint32_t l_crc_check;
+  EEPROM.get(EEPROM.length() - sizeof(eepromCRC()), l_crc_check);
 
   // Check if the calculated CRC matches the stored CRC value in the EEPROM.
   if(eepromCRC() == l_crc_check) {
-    // Read our object from the EEPROM.
+    // Read our LED object from the EEPROM.
     objLEDEEPROM obj_eeprom;
     EEPROM.get(i_eepromAddress, obj_eeprom);
 
@@ -206,7 +205,7 @@ void readEEPROM() {
 
     // Read our configuration object from the EEPROM.
     objConfigEEPROM obj_config_eeprom;
-    unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
+    unsigned int i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
     EEPROM.get(i_eepromConfigAddress, obj_config_eeprom);
 
@@ -384,48 +383,48 @@ void readEEPROM() {
       i_ms_overheating_length_1 = obj_config_eeprom.overheat_smoke_duration_level_1 * 1000;
     }
 
-    if(obj_config_eeprom.smoke_continuous_mode_5 > 0 && obj_config_eeprom.smoke_continuous_mode_5 != 255) {
-      if(obj_config_eeprom.smoke_continuous_mode_5 > 1) {
-        b_smoke_continuous_mode_5 = true;
+    if(obj_config_eeprom.smoke_continuous_level_5 > 0 && obj_config_eeprom.smoke_continuous_level_5 != 255) {
+      if(obj_config_eeprom.smoke_continuous_level_5 > 1) {
+        b_smoke_continuous_level_5 = true;
       }
       else {
-        b_smoke_continuous_mode_5 = false;
+        b_smoke_continuous_level_5 = false;
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_mode_4 > 0 && obj_config_eeprom.smoke_continuous_mode_4 != 255) {
-      if(obj_config_eeprom.smoke_continuous_mode_4 > 1) {
-        b_smoke_continuous_mode_4 = true;
+    if(obj_config_eeprom.smoke_continuous_level_4 > 0 && obj_config_eeprom.smoke_continuous_level_4 != 255) {
+      if(obj_config_eeprom.smoke_continuous_level_4 > 1) {
+        b_smoke_continuous_level_4 = true;
       }
       else {
-        b_smoke_continuous_mode_4 = false;
+        b_smoke_continuous_level_4 = false;
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_mode_3 > 0 && obj_config_eeprom.smoke_continuous_mode_3 != 255) {
-      if(obj_config_eeprom.smoke_continuous_mode_3 > 1) {
-        b_smoke_continuous_mode_3 = true;
+    if(obj_config_eeprom.smoke_continuous_level_3 > 0 && obj_config_eeprom.smoke_continuous_level_3 != 255) {
+      if(obj_config_eeprom.smoke_continuous_level_3 > 1) {
+        b_smoke_continuous_level_3 = true;
       }
       else {
-        b_smoke_continuous_mode_3 = false;
+        b_smoke_continuous_level_3 = false;
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_mode_2 > 0 && obj_config_eeprom.smoke_continuous_mode_2 != 255) {
-      if(obj_config_eeprom.smoke_continuous_mode_2 > 1) {
-        b_smoke_continuous_mode_2 = true;
+    if(obj_config_eeprom.smoke_continuous_level_2 > 0 && obj_config_eeprom.smoke_continuous_level_2 != 255) {
+      if(obj_config_eeprom.smoke_continuous_level_2 > 1) {
+        b_smoke_continuous_level_2 = true;
       }
       else {
-        b_smoke_continuous_mode_2 = false;
+        b_smoke_continuous_level_2 = false;
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_mode_1 > 0 && obj_config_eeprom.smoke_continuous_mode_1 != 255) {
-      if(obj_config_eeprom.smoke_continuous_mode_1 > 1) {
-        b_smoke_continuous_mode_1 = true;
+    if(obj_config_eeprom.smoke_continuous_level_1 > 0 && obj_config_eeprom.smoke_continuous_level_1 != 255) {
+      if(obj_config_eeprom.smoke_continuous_level_1 > 1) {
+        b_smoke_continuous_level_1 = true;
       }
       else {
-        b_smoke_continuous_mode_1 = false;
+        b_smoke_continuous_level_1 = false;
       }
     }
 
@@ -471,8 +470,8 @@ void readEEPROM() {
 
 void clearLEDEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(unsigned int i = 0 ; i < sizeof(objLEDEEPROM); i++) {
-    EEPROM.put(i, 0);
+  for(unsigned int i = 0; i < sizeof(objLEDEEPROM); i++) {
+    EEPROM.update(i, 0);
   }
 
   updateCRCEEPROM();
@@ -515,10 +514,10 @@ void saveLEDEEPROM() {
 
 void clearConfigEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
-  unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
+  unsigned int i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
-  for(unsigned int i = 0 ; i < sizeof(objConfigEEPROM); i++) {
-    EEPROM.put(i_eepromConfigAddress, 0);
+  for(unsigned int i = 0; i < sizeof(objConfigEEPROM); i++) {
+    EEPROM.update(i_eepromConfigAddress, 0);
 
     i_eepromConfigAddress++;
   }
@@ -551,11 +550,11 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_smoke_duration_level_2 = i_ms_overheating_length_2 / 1000;
   uint8_t i_overheat_smoke_duration_level_1 = i_ms_overheating_length_1 / 1000;
 
-  uint8_t i_smoke_continuous_mode_5 = 1;
-  uint8_t i_smoke_continuous_mode_4 = 1;
-  uint8_t i_smoke_continuous_mode_3 = 1;
-  uint8_t i_smoke_continuous_mode_2 = 1;
-  uint8_t i_smoke_continuous_mode_1 = 1;
+  uint8_t i_smoke_continuous_level_5 = 1;
+  uint8_t i_smoke_continuous_level_4 = 1;
+  uint8_t i_smoke_continuous_level_3 = 1;
+  uint8_t i_smoke_continuous_level_2 = 1;
+  uint8_t i_smoke_continuous_level_1 = 1;
 
   uint8_t i_pack_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
 
@@ -615,24 +614,24 @@ void saveConfigEEPROM() {
     i_default_system_volume = i_volume_master_percentage;
   }
 
-  if(b_smoke_continuous_mode_5 == true) {
-    i_smoke_continuous_mode_5 = 2;
+  if(b_smoke_continuous_level_5 == true) {
+    i_smoke_continuous_level_5 = 2;
   }
 
-  if(b_smoke_continuous_mode_4 == true) {
-    i_smoke_continuous_mode_4 = 2;
+  if(b_smoke_continuous_level_4 == true) {
+    i_smoke_continuous_level_4 = 2;
   }
 
-  if(b_smoke_continuous_mode_3 == true) {
-    i_smoke_continuous_mode_3 = 2;
+  if(b_smoke_continuous_level_3 == true) {
+    i_smoke_continuous_level_3 = 2;
   }
 
-  if(b_smoke_continuous_mode_2 == true) {
-    i_smoke_continuous_mode_2 = 2;
+  if(b_smoke_continuous_level_2 == true) {
+    i_smoke_continuous_level_2 = 2;
   }
 
-  if(b_smoke_continuous_mode_1 == true) {
-    i_smoke_continuous_mode_1 = 2;
+  if(b_smoke_continuous_level_1 == true) {
+    i_smoke_continuous_level_1 = 2;
   }
 
   switch(VIBRATION_MODE_EEPROM) {
@@ -654,7 +653,7 @@ void saveConfigEEPROM() {
     break;
   }
 
-  unsigned int i_eepromConfigAddress = EEPROM.length() / 2;
+  unsigned int i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
   objConfigEEPROM obj_eeprom = {
     i_proton_stream_effects,
@@ -676,16 +675,16 @@ void saveConfigEEPROM() {
     i_overheat_smoke_duration_level_3,
     i_overheat_smoke_duration_level_2,
     i_overheat_smoke_duration_level_1,
-    i_smoke_continuous_mode_5,
-    i_smoke_continuous_mode_4,
-    i_smoke_continuous_mode_3,
-    i_smoke_continuous_mode_2,
-    i_smoke_continuous_mode_1,
+    i_smoke_continuous_level_5,
+    i_smoke_continuous_level_4,
+    i_smoke_continuous_level_3,
+    i_smoke_continuous_level_2,
+    i_smoke_continuous_level_1,
     i_pack_vibration,
     i_use_ribbon_cable
   };
 
-  // Save to the EEPROM.
+  // Save and update our object in the EEPROM.
   EEPROM.put(i_eepromConfigAddress, obj_eeprom);
 
   updateCRCEEPROM();
@@ -693,24 +692,15 @@ void saveConfigEEPROM() {
 
 // Update the CRC in the EEPROM.
 void updateCRCEEPROM() {
-  EEPROM.put(EEPROM.length() - sizeof(l_crc_size), eepromCRC());
+  EEPROM.put(EEPROM.length() - sizeof(eepromCRC()), eepromCRC());
 }
 
-unsigned long eepromCRC(void) {
-  const unsigned long crc_table[16] = {
-    0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
-    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
-    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
-  };
+uint32_t eepromCRC(void) {
+  CRC32 crc;
 
-  unsigned long crc = l_crc_size;
-
-  for(unsigned int index = 0; index < EEPROM.length() - sizeof(crc); ++index) {
-    crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
-    crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
-    crc = ~crc;
+  for(unsigned int index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
+    crc.update(EEPROM[index]);
   }
 
-  return crc;
+  return (uint32_t)crc.finalize();
 }

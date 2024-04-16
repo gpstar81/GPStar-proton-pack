@@ -299,18 +299,18 @@ void wandSerialSendData(uint8_t i_message) {
 
     case W_SEND_PREFERENCES_SMOKE:
       // Determines whether overheating is enabled for a power level.
-      smokeConfig.overheatLevel5 = b_overheat_mode_5;
-      smokeConfig.overheatLevel4 = b_overheat_mode_4;
-      smokeConfig.overheatLevel3 = b_overheat_mode_3;
-      smokeConfig.overheatLevel2 = b_overheat_mode_2;
-      smokeConfig.overheatLevel1 = b_overheat_mode_1;
+      smokeConfig.overheatLevel5 = b_overheat_level_5;
+      smokeConfig.overheatLevel4 = b_overheat_level_4;
+      smokeConfig.overheatLevel3 = b_overheat_level_3;
+      smokeConfig.overheatLevel2 = b_overheat_level_2;
+      smokeConfig.overheatLevel1 = b_overheat_level_1;
 
       // Time (seconds) before an overheat event takes place by level.
-      smokeConfig.overheatDelay5 = i_ms_overheat_initiate_mode_5 / 1000;
-      smokeConfig.overheatDelay4 = i_ms_overheat_initiate_mode_4 / 1000;
-      smokeConfig.overheatDelay3 = i_ms_overheat_initiate_mode_3 / 1000;
-      smokeConfig.overheatDelay2 = i_ms_overheat_initiate_mode_2 / 1000;
-      smokeConfig.overheatDelay1 = i_ms_overheat_initiate_mode_1 / 1000;
+      smokeConfig.overheatDelay5 = i_ms_overheat_initiate_level_5 / 1000;
+      smokeConfig.overheatDelay4 = i_ms_overheat_initiate_level_4 / 1000;
+      smokeConfig.overheatDelay3 = i_ms_overheat_initiate_level_3 / 1000;
+      smokeConfig.overheatDelay2 = i_ms_overheat_initiate_level_2 / 1000;
+      smokeConfig.overheatDelay1 = i_ms_overheat_initiate_level_1 / 1000;
 
       i_send_size = wandComs.txObj(smokeConfig);
       wandComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
@@ -393,6 +393,7 @@ void checkPack() {
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
+          // Entering the EEPROM menu afterwards and saving settings will.
           switch(wandConfig.ledWandCount) {
             case 0:
             default:
@@ -552,7 +553,8 @@ void checkPack() {
           // Update and reset wand components.
           setBargraphOrientation();
           bargraphYearModeUpdate();
-          resetOverheatModes();
+          resetOverheatLevels();
+          resetWhiteLEDBlinkRate();
         break;
 
         case PACKET_SMOKE:
@@ -561,19 +563,19 @@ void checkPack() {
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
-          b_overheat_mode_5 = smokeConfig.overheatLevel5;
-          b_overheat_mode_4 = smokeConfig.overheatLevel4;
-          b_overheat_mode_3 = smokeConfig.overheatLevel3;
-          b_overheat_mode_2 = smokeConfig.overheatLevel2;
-          b_overheat_mode_1 = smokeConfig.overheatLevel1;
-          i_ms_overheat_initiate_mode_5 = smokeConfig.overheatDelay5;
-          i_ms_overheat_initiate_mode_4 = smokeConfig.overheatDelay4;
-          i_ms_overheat_initiate_mode_3 = smokeConfig.overheatDelay3;
-          i_ms_overheat_initiate_mode_2 = smokeConfig.overheatDelay2;
-          i_ms_overheat_initiate_mode_1 = smokeConfig.overheatDelay1;
+          b_overheat_level_5 = smokeConfig.overheatLevel5;
+          b_overheat_level_4 = smokeConfig.overheatLevel4;
+          b_overheat_level_3 = smokeConfig.overheatLevel3;
+          b_overheat_level_2 = smokeConfig.overheatLevel2;
+          b_overheat_level_1 = smokeConfig.overheatLevel1;
+          i_ms_overheat_initiate_level_5 = smokeConfig.overheatDelay5;
+          i_ms_overheat_initiate_level_4 = smokeConfig.overheatDelay4;
+          i_ms_overheat_initiate_level_3 = smokeConfig.overheatDelay3;
+          i_ms_overheat_initiate_level_2 = smokeConfig.overheatDelay2;
+          i_ms_overheat_initiate_level_1 = smokeConfig.overheatDelay1;
 
           // Update and reset wand components.
-          resetOverheatModes();
+          resetOverheatLevels();
         break;
 
         case PACKET_SYNC:
@@ -624,6 +626,9 @@ void checkPack() {
           // Reset the bargraph now that we have our SYSTEM_MODE and SYSTEM_YEAR set.
           bargraphYearModeUpdate();
 
+          // Reset the white LED blink rate in case we changed wand year.
+          resetWhiteLEDBlinkRate();
+
           // Set whether the ribbon cable on the Pack is connected or not.
           switch(packSync.ribbonCable) {
             case 1:
@@ -663,8 +668,8 @@ void checkPack() {
           }
 
           // Set our starting power level.
-          i_power_mode = packSync.powerLevel;
-          i_power_mode_prev = i_power_mode;
+          i_power_level = packSync.powerLevel;
+          i_power_level_prev = i_power_level;
 
           // Set our firing mode.
           switch(packSync.firingMode) {
@@ -1037,25 +1042,12 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
         switch(getNeutronaWandYearMode()) {
           case SYSTEM_1984:
           case SYSTEM_1989:
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-              wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-            }
+            // Do nothing.
           break;
 
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
-
-              wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-            }
-
-            stopEffect(S_WAND_SHUTDOWN);
-            playEffect(S_WAND_SHUTDOWN);
-
             if(switch_vent.on() == false) {
               stopAfterLifeSounds();
             }
@@ -1063,6 +1055,14 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
           break;
         }
+
+        if(b_extra_pack_sounds == true) {
+          wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+          wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+        }
+
+        stopEffect(S_WAND_SHUTDOWN);
+        playEffect(S_WAND_SHUTDOWN);
       }
     break;
 
@@ -1242,24 +1242,28 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Indicates system (pack) year is 1984 mode
       SYSTEM_YEAR = SYSTEM_1984;
       bargraphYearModeUpdate();
+      resetWhiteLEDBlinkRate();
     break;
 
     case P_YEAR_1989:
       // Indicates system (pack) year is 1984 mode
       SYSTEM_YEAR = SYSTEM_1989;
       bargraphYearModeUpdate();
+      resetWhiteLEDBlinkRate();
     break;
 
     case P_YEAR_AFTERLIFE:
       // Indicates system (pack) year is Afterlife mode
       SYSTEM_YEAR = SYSTEM_AFTERLIFE;
       bargraphYearModeUpdate();
+      resetWhiteLEDBlinkRate();
     break;
 
     case P_YEAR_FROZEN_EMPIRE:
       // Indicates system (pack) year is Frozen Empire mode
       SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
       bargraphYearModeUpdate();
+      resetWhiteLEDBlinkRate();
     break;
 
     case P_MODE_FROZEN_EMPIRE:
@@ -1638,28 +1642,28 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_POWER_LEVEL_1:
-      i_power_mode = 1;
-      i_power_mode_prev = 1;
+      i_power_level = 1;
+      i_power_level_prev = 1;
     break;
 
     case P_POWER_LEVEL_2:
-      i_power_mode = 2;
-      i_power_mode_prev = 2;
+      i_power_level = 2;
+      i_power_level_prev = 2;
     break;
 
     case P_POWER_LEVEL_3:
-      i_power_mode = 3;
-      i_power_mode_prev = 3;
+      i_power_level = 3;
+      i_power_level_prev = 3;
     break;
 
     case P_POWER_LEVEL_4:
-      i_power_mode = 4;
-      i_power_mode_prev = 4;
+      i_power_level = 4;
+      i_power_level_prev = 4;
     break;
 
     case P_POWER_LEVEL_5:
-      i_power_mode = 5;
-      i_power_mode_prev = 5;
+      i_power_level = 5;
+      i_power_level_prev = 5;
     break;
 
     case P_RGB_INNER_CYCLOTRON_LEDS:
