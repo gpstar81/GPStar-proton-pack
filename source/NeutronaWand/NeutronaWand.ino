@@ -2606,7 +2606,7 @@ void modeFireStart() {
     break;
   }
 
-  ms_firing_start_sound_delay.start(i_fire_stop_sound_delay);
+  ms_firing_start_sound_delay.start(i_fire_start_sound_delay);
 
   // Tell the pack the wand is firing.
   wandSerialSend(W_FIRING);
@@ -2775,7 +2775,7 @@ void modeFireStop() {
   switch(BARGRAPH_MODE) {
     case BARGRAPH_ORIGINAL:
       // Need to restart the regular bargraph timer.
-      i_bargraph_status = i_power_level;
+      i_bargraph_status = i_power_level - 1;
       i_bargraph_status_alt = 0;
 
       switch(BARGRAPH_FIRING_ANIMATION) {
@@ -2805,7 +2805,7 @@ void modeFireStop() {
 
     case BARGRAPH_SUPER_HERO:
     default:
-      i_bargraph_status = i_power_level;
+      i_bargraph_status = i_power_level - 1;
       i_bargraph_status_alt = 0;
       bargraphClearAlt();
 
