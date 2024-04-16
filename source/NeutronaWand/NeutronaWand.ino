@@ -31,7 +31,8 @@
 #define DEBUG 0
 
 // PROGMEM macro
-#define PROGMEM_READ(x) pgm_read_dword_near(x)
+#define PROGMEM_READU32(x) pgm_read_dword_near(x)
+#define PROGMEM_READU8(x) pgm_read_byte_near(x)
 
 // Debug macros
 #if DEBUG == 1

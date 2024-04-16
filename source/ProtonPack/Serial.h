@@ -1893,7 +1893,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READ(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
         }
       }
 
@@ -1907,7 +1907,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READ(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
         }
       }
 
@@ -1921,7 +1921,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READ(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
         }
       }
 
@@ -1935,7 +1935,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READ(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
         }
       }
 
@@ -1949,7 +1949,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READ(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
         }
       }
 
