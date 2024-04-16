@@ -144,9 +144,28 @@ millisDelay ms_fast_led;
  */
 const uint8_t led_slo_blo = 8; // SLO-BLO LED. (Red LED)
 const uint8_t led_front_left = 9; // LED underneath the Clippard valve. (Orange or White LED)
+const uint8_t led_white = 12; // Blinking white light beside the vent on top of the wand.
+const uint8_t led_vent = 13; // Vent light
 const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Orange LED)
 const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Orange or White LED)
 const uint8_t led_barrel_tip = 24; // White LED at tip of the wand barrel. (White LED)
+
+/*
+ * Time in milliseconds for blinking the top white LED while the wand is on.
+ * By default this is set to the blink cycle used on the Afterlife props.
+ * On first system start a random value will be selected for GB1/GB2 mode.
+ * Common values are as follows:
+ * GB1 Spengler, GB1 Venkman (Sedgewick): 666
+ * GB2 Spengler: 500
+ * GB1/GB2 Stantz, GB2 Venkman (Courtroom): 333
+ * GB1 Venkman (Rooftop): 417
+ * GB2 Venkman (Vigo), GB2 Zeddemore: 375
+ * Afterlife (all props): 146
+ */
+const uint16_t i_afterlife_blink_interval = 146;
+const uint16_t i_classic_blink_intervals[5] = {333, 375, 417, 500, 666};
+uint8_t i_classic_blink_index = 0;
+uint16_t d_white_light_interval = i_afterlife_blink_interval;
 
 /*
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
@@ -193,10 +212,8 @@ uint8_t ventSwitchedCount = 0;
 uint8_t wandSwitchedCount = 0;
 
 /*
- * Wand lights
+ * Hasbro bargraph LEDs.
  */
-const uint8_t led_white = 12; // Blinking white light beside the vent on top of the wand.
-const uint8_t led_vent = 13; // Vent light
 const uint8_t led_bargraph_1 = A1;
 const uint8_t led_bargraph_2 = A2;
 const uint8_t led_bargraph_3 = A3;

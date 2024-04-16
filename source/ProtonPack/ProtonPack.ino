@@ -399,11 +399,12 @@ void loop() {
             break;
 
             default:
+              // If no firing effect has played yet.
               i_random = 3;
             break;
           }
 
-          unsigned int i_s_random = random(2,4) * 1000;
+          unsigned int i_s_random = random(2,4) * 1000; // 2 or 3 seconds
           uint8_t i_amplify_tmp = 5;
 
           if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
@@ -415,7 +416,7 @@ void loop() {
               playEffect(S_FIRE_SPARKS, false, i_volume_effects + i_amplify_tmp);
               i_last_firing_effect_mix = S_FIRE_SPARKS;
 
-              ms_firing_sound_mix.start(i_s_random * 10);
+              ms_firing_sound_mix.start(i_s_random * 10); // Intentional to have a 20 or 30 second delay?
             break;
 
             case 2:
@@ -441,6 +442,7 @@ void loop() {
             break;
 
             default:
+              // This will never trigger because i_random will only ever be 0~3.
               playEffect(S_FIRE_SPARKS_2, false, i_volume_effects + i_amplify_tmp);
               i_last_firing_effect_mix = S_FIRE_SPARKS_2;
 
@@ -3777,7 +3779,7 @@ void wandFiring() {
   }
 
   if(b_stream_effects == true && STATUS_CTS == CTS_NOT_FIRING) {
-    unsigned int i_s_random = random(7,14) * 1000;
+    unsigned int i_s_random = random(7,15) * 1000;
     ms_firing_sound_mix.start(i_s_random);
   }
 

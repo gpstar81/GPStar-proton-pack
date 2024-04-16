@@ -206,19 +206,6 @@ unsigned long int i_ms_overheat_initiate_level_4 = 15000;
 unsigned long int i_ms_overheat_initiate_level_5 = 12000;
 
 /*
- * Time in milliseconds for blinking the top white LED while the wand is on.
- * By default this is set to the blink cycle used on the Afterlife props.
- * Common values are as follows:
- * GB1 Spengler, GB1 Venkman (Sedgewick): 666
- * GB2 Spengler: 500
- * GB1/GB2 Stantz, GB2 Venkman (Courtroom): 333
- * GB1 Venkman (Rooftop): 417
- * GB2 Venkman (Vigo), GB2 Zeddemore: 375
- * Afterlife (All props): 146
- */
-const uint16_t d_white_light_interval = 146;
-
-/*
  * Set to false to disable the onboard amplifier on the WAV Trigger.
  * Turning off the onboard amp draws less power.
  * If using the AUX cable jack, the amp can be disabled to save power.

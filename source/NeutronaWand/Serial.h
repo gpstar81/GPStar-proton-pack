@@ -554,6 +554,7 @@ void checkPack() {
           setBargraphOrientation();
           bargraphYearModeUpdate();
           resetOverheatLevels();
+          resetWhiteLEDBlinkRate();
         break;
 
         case PACKET_SMOKE:
@@ -624,6 +625,9 @@ void checkPack() {
 
           // Reset the bargraph now that we have our SYSTEM_MODE and SYSTEM_YEAR set.
           bargraphYearModeUpdate();
+
+          // Reset the white LED blink rate in case we changed wand year.
+          resetWhiteLEDBlinkRate();
 
           // Set whether the ribbon cable on the Pack is connected or not.
           switch(packSync.ribbonCable) {
@@ -1238,24 +1242,28 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Indicates system (pack) year is 1984 mode
       SYSTEM_YEAR = SYSTEM_1984;
       bargraphYearModeUpdate();
+      resetWhiteLEDBlinkRate();
     break;
 
     case P_YEAR_1989:
       // Indicates system (pack) year is 1984 mode
       SYSTEM_YEAR = SYSTEM_1989;
       bargraphYearModeUpdate();
+      resetWhiteLEDBlinkRate();
     break;
 
     case P_YEAR_AFTERLIFE:
       // Indicates system (pack) year is Afterlife mode
       SYSTEM_YEAR = SYSTEM_AFTERLIFE;
       bargraphYearModeUpdate();
+      resetWhiteLEDBlinkRate();
     break;
 
     case P_YEAR_FROZEN_EMPIRE:
       // Indicates system (pack) year is Frozen Empire mode
       SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
       bargraphYearModeUpdate();
+      resetWhiteLEDBlinkRate();
     break;
 
     case P_MODE_FROZEN_EMPIRE:

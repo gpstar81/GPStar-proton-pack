@@ -2245,7 +2245,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Restart the impact sound timer.
       if(b_stream_effects == true) {
-        unsigned int i_s_random = random(7,14) * 1000;
+        unsigned int i_s_random = random(7,15) * 1000;
         ms_firing_sound_mix.start(i_s_random);
       }
 
@@ -2266,7 +2266,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Restart the impact sound timer.
       if(b_stream_effects == true) {
-        unsigned int i_s_random = random(7,14) * 1000;
+        unsigned int i_s_random = random(7,15) * 1000;
         ms_firing_sound_mix.start(i_s_random);
       }
 

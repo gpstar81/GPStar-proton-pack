@@ -162,6 +162,9 @@ void setup() {
   FIRING_MODE = PROTON;
   PREV_FIRING_MODE = SETTINGS;
 
+  // Select a random GB1/GB2 white LED blink rate for this session.
+  i_classic_blink_index = random(0,5);
+
   // Load any saved settings stored in the EEPROM memory of the GPStar Neutrona Wand.
   if(b_eeprom == true) {
     readEEPROM();
@@ -844,9 +847,6 @@ void startVentSequence() {
   soundIdleStop();
   soundIdleLoopStop(true);
 
-  b_sound_idle = false; // REMOVE ??
-  b_beeping = false;
-
   // Blinking bargraph option for overheat.
   if(b_overheat_bargraph_blink == true) {
     ms_bargraph.stop();
@@ -870,7 +870,7 @@ void startVentSequence() {
   else {
     // Reset some bargraph levels before we ramp the bargraph down.
     i_bargraph_status_alt = i_bargraph_segments; // For 28 segment bargraph
-    i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
+    i_bargraph_status = i_bargraph_segments_5_led; // For Hasbro 5 LED bargraph.
 
     bargraphFull();
 
@@ -2655,11 +2655,11 @@ void modeFireStart() {
   bargraphRampFiring();
 
   if(FIRING_MODE == PROTON && b_stream_effects == true) {
-    ms_impact.start(random(10,15) * 1000);
+    ms_impact.start(random(10,16) * 1000);
 
     // Standalone wand plays additional SFX from Proton Pack.
     if(b_gpstar_benchtest == true) {
-      unsigned int i_s_random = random(7,14) * 1000;
+      unsigned int i_s_random = random(7,15) * 1000;
       ms_firing_sound_mix.start(i_s_random);
     }
   }
@@ -2767,13 +2767,13 @@ void modeFireStop() {
 
   ms_bargraph_firing.stop();
 
-  ms_bargraph_alt.stop(); // Stop the 1984 24 segment optional bargraph timer.
+  ms_bargraph_alt.stop(); // Stop the 1984 28 segment optional bargraph timer.
   b_bargraph_up = false;
 
   switch(BARGRAPH_MODE) {
     case BARGRAPH_ORIGINAL:
       // Need to restart the regular bargraph timer.
-      i_bargraph_status = i_power_level - 1;
+      i_bargraph_status = i_power_level;
       i_bargraph_status_alt = 0;
 
       switch(BARGRAPH_FIRING_ANIMATION) {
@@ -2803,8 +2803,7 @@ void modeFireStop() {
 
     case BARGRAPH_SUPER_HERO:
     default:
-      i_bargraph_status = i_power_level - 1;
-
+      i_bargraph_status = i_power_level;
       i_bargraph_status_alt = 0;
       bargraphClearAlt();
 
@@ -3065,7 +3064,7 @@ void modeFiring() {
     playEffect(S_FIRE_START_SPARK);
 
     if(b_stream_effects == true) {
-      ms_impact.start(random(10,15) * 1000);
+      ms_impact.start(random(10,16) * 1000);
     }
 
     if(b_cross_the_streams_mix == true) {
@@ -3350,7 +3349,7 @@ void modeFiring() {
   // Mix some impact sound every 10-15 seconds while firing.
   if(ms_impact.justFinished() && FIRING_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true) {
     playEffect(S_FIRE_LOOP_IMPACT);
-    ms_impact.start(random(10,15) * 1000);
+    ms_impact.start(random(10,16) * 1000);
   }
 
   // Standalone Neutrona Wand gets additional impact sounds which would normally be played by Proton Pack.
@@ -3376,6 +3375,7 @@ void modeFiring() {
       break;
 
       default:
+        // If no firing effect has played yet.
         i_random = 3;
       break;
     }
@@ -3392,7 +3392,7 @@ void modeFiring() {
         playEffect(S_FIRE_SPARKS, false, i_volume_effects + i_amplify_tmp);
         i_last_firing_effect_mix = S_FIRE_SPARKS;
 
-        ms_firing_sound_mix.start(i_s_random * 10);
+        ms_firing_sound_mix.start(i_s_random * 10); // Intentional to have a 20 or 30 second delay?
       break;
 
       case 2:
@@ -3418,6 +3418,7 @@ void modeFiring() {
       break;
 
       default:
+        // This will never trigger because i_random will only ever be 0~3.
         playEffect(S_FIRE_SPARKS_2, false, i_volume_effects + i_amplify_tmp);
         i_last_firing_effect_mix = S_FIRE_SPARKS_2;
 
@@ -5005,7 +5006,7 @@ void bargraphModeOriginalRampFiringAnimation() {
         break;
 
         case 4:
-          i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+          i_bargraph_status = random(2, i_bargraph_segments_5_led);
         break;
 
         case 3:
@@ -5937,7 +5938,7 @@ void bargraphPowerCheck() {
           break;
 
           case 1:
-            if(i_bargraph_status_alt > 4) {
+            if(i_bargraph_status_alt > 3) {
               b_bargraph_up = false;
               if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
                 // We stop when we reach our target.
@@ -5968,7 +5969,6 @@ void bargraphPowerCheck() {
         }
 
         if(i_bargraph_status_alt == 0) {
-          i_bargraph_status_alt = 0;
           b_bargraph_up = true;
 
           // A little pause when we reach the bottom.
@@ -5979,7 +5979,7 @@ void bargraphPowerCheck() {
 
           switch(i_power_level) {
             case 5:
-              if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && i_bargraph_status_alt < 28) {
+              if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && i_bargraph_status_alt < i_bargraph_segments) {
                 // We stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
@@ -6099,7 +6099,7 @@ void bargraphRampUp() {
         else if(i_bargraph_status_alt > 16) {
           vibrationWand(i_vibration_level + 40);
         }
-        else if(i_bargraph_status_alt > 10) {
+        else if(i_bargraph_status_alt > 11) {
           vibrationWand(i_vibration_level + 30);
         }
         else if(i_bargraph_status_alt > 4) {
@@ -6167,7 +6167,6 @@ void bargraphRampUp() {
                 ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                 i_bargraph_status_alt++;
               }
-
             break;
 
             case BARGRAPH_ORIGINAL:
@@ -6273,7 +6272,7 @@ void bargraphRampUp() {
                   if(i_bargraph_status_alt == 50) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
-                    i_bargraph_status_alt = 5;
+                    i_bargraph_status_alt = 4;
                     bargraphYearModeUpdate();
                   }
                   else if(i_bargraph_status_alt > 50) {
@@ -6426,12 +6425,9 @@ void prepBargraphRampDown() {
     soundIdleStop();
     soundIdleLoopStop(true);
 
-    b_sound_idle = false; // REMOVE ??
-    b_beeping = false;
-
     // Reset some bargraph levels before we ramp the bargraph down.
-    i_bargraph_status_alt = 28; // For 28 segment bargraph
-    i_bargraph_status = 5; // For Hasbro 5 LED bargraph.
+    i_bargraph_status_alt = i_bargraph_segments; // For 28 segment bargraph
+    i_bargraph_status = i_bargraph_segments_5_led; // For Hasbro 5 LED bargraph.
 
     bargraphFull();
 
@@ -7710,6 +7706,9 @@ void wandExitMenu() {
   // Reset the bargraph in case it was changed.
   bargraphYearModeUpdate();
 
+  // Reset the white LED blink rate setting in case we changed years.
+  resetWhiteLEDBlinkRate();
+
   // In original mode, we need to re-initalise the 28 segment bargraph if some switches are already toggled on.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
     if(switch_vent.on() == true && switch_wand.on() == true) {
@@ -7753,6 +7752,9 @@ void wandExitEEPROMMenu() {
 
   // Reset the bargraph in case it was changed.
   bargraphYearModeUpdate();
+
+  // Reset the white LED blink rate setting in case we changed years.
+  resetWhiteLEDBlinkRate();
 
   // Send current preferences to the pack for use by the serial1 device.
   wandSerialSend(W_SEND_PREFERENCES_WAND);
@@ -7812,6 +7814,20 @@ void afterLifeRamp1() {
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
+  }
+}
+
+void resetWhiteLEDBlinkRate() {
+  switch(getNeutronaWandYearMode()) {
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+      d_white_light_interval = i_classic_blink_intervals[i_classic_blink_index];
+    break;
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
+      d_white_light_interval = i_afterlife_blink_interval;
+    break;
   }
 }
 
