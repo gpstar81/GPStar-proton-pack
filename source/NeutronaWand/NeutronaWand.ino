@@ -615,16 +615,18 @@ void vgModeCheck() {
 void wandTipOn() {
   switch(WAND_BARREL_LED_COUNT) {
     case LEDS_48:
-      // Set the tip of the Frutto LED array to white.
-      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
         if(b_firing_cross_streams == true) {
+          // Set the tip of the Frutto LED array to greenish if in Frozen Empire and using CTS mode.
           barrel_leds[12] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
         }
         else {
+          // Set the tip of the Frutto LED array to white.
           barrel_leds[12] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
         }
       }
       else {
+        // Set the tip of the Frutto LED array to white.
         barrel_leds[12] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
       }
     break;
@@ -3257,7 +3259,7 @@ void modeFiring() {
       }
       /*
       if(b_firing_cross_streams == true) {
-        if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+        if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
           fireStreamStart(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
           fireStreamEffect(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
         }
@@ -3633,7 +3635,7 @@ void fireStreamEffect(CRGB c_colour) {
             case PROTON:
             default:
               if(b_firing_cross_streams == true) {
-                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
                   barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
                   barrel_leds[frutto_barrel[i_barrel_light - 2]] = c_colour;
                 }
@@ -3779,7 +3781,7 @@ void fireStreamEffect(CRGB c_colour) {
             case PROTON:
             default:
               if(b_firing_cross_streams == true) {
-                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
                   barrel_leds[i_barrel_light - 1] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
                 }
                 else {
@@ -7443,7 +7445,7 @@ void checkRotaryEncoder() {
 
               soundBeepLoopStop();
 
-              switch(getSystemYearMode()) {
+              switch(getNeutronaWandYearMode()) {
                 case SYSTEM_1984:
                 case SYSTEM_1989:
                   if(switch_vent.on() == true) {
