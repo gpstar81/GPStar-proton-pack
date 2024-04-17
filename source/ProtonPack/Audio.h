@@ -215,7 +215,6 @@ void updateEffectsVolume() {
       audio.trackGain(S_STASIS_IDLE_LOOP, i_volume_effects);
       audio.trackGain(S_MESON_IDLE_LOOP, i_volume_effects);
 
-      audio.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - i_wand_sound_level);
       audio.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - i_wand_sound_level);
       audio.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - i_wand_sound_level);
       audio.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - i_wand_sound_level);
