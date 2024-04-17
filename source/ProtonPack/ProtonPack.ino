@@ -4351,6 +4351,9 @@ void smokeNFilter(bool b_smoke_on) {
       else if(b_overheating == true && b_wand_firing != true && b_smoke_1_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_pin, HIGH);
       }
+      else if(b_venting == true) {
+        digitalWrite(smoke_pin, HIGH);
+      }
       else {
         digitalWrite(smoke_pin, LOW);
       }
