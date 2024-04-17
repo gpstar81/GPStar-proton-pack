@@ -260,10 +260,6 @@ void mainLoop() {
   checkSwitches();
   checkRotaryEncoder();
 
-  if(ms_firing_stop_sound_delay.justFinished()) {
-    modeFireStopSounds();
-  }
-
   if(WAND_ACTION_STATUS != ACTION_FIRING) {
     if(ms_bmash.remaining() < 1) {
       // Clear counter until user begins firing (post any lock-out period).
@@ -2203,7 +2199,6 @@ void soundIdleStop() {
       default:
         if(b_pack_ribbon_cable_on == true) {
           if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
-
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 1);
 
             if(b_extra_pack_sounds == true) {
@@ -2383,8 +2378,6 @@ void soundBeepLoop() {
 }
 
 void modeFireStartSounds() {
-  ms_firing_start_sound_delay.stop();
-
   if(FIRING_MODE == PROTON) {
     // Some sparks for firing start.
     if(getSystemYearMode() == SYSTEM_1989) {
@@ -2607,7 +2600,7 @@ void modeFireStart() {
     break;
   }
 
-  ms_firing_start_sound_delay.start(i_fire_start_sound_delay);
+  modeFireStartSounds();
 
   // Tell the pack the wand is firing.
   wandSerialSend(W_FIRING);
@@ -2675,8 +2668,6 @@ void modeFireStopSounds() {
   b_sound_firing_cross_the_streams = false;
   b_sound_firing_cross_the_streams_mix = false;
 
-  ms_firing_start_sound_delay.stop();
-  ms_firing_stop_sound_delay.stop();
   ms_meson_blast.stop();
 
   if(b_wand_mash_error != true) {
@@ -2887,8 +2878,7 @@ void modeFireStop() {
   // Stop overheat beeps.
   stopEffect(S_BEEP_8);
 
-  // A tiny ramp down delay helps with the sounds.
-  ms_firing_stop_sound_delay.start(i_fire_stop_sound_delay);
+  modeFireStopSounds();
 }
 
 void modeFiring() {

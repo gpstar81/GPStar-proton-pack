@@ -343,12 +343,8 @@ millisDelay ms_firing_lights_end;
 millisDelay ms_firing_stream_effects;
 millisDelay ms_impact; // Mix some impact sounds while firing.
 millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
-millisDelay ms_firing_start_sound_delay;
-millisDelay ms_firing_stop_sound_delay;
 const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // using this to keep track which LED in the barrel is currently lighting up.
-const uint8_t i_fire_start_sound_delay = 50; // Delay for starting firing sounds.
-const uint8_t i_fire_stop_sound_delay = 100; // Delay for stopping fire sounds.
 int i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
 
 /*

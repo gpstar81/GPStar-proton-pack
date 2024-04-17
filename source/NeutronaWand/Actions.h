@@ -87,10 +87,6 @@ void checkWandAction() {
           }
         }
 
-        if(ms_firing_start_sound_delay.justFinished()) {
-          modeFireStartSounds();
-        }
-
         if(b_firing == false) {
           b_firing = true;
           modeFireStart();
