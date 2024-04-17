@@ -4376,6 +4376,9 @@ void smokeBooster(bool b_smoke_on) {
       else if(b_overheating == true && b_smoke_2_overheat == true && b_wand_firing != true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
         digitalWrite(smoke_booster_pin, HIGH);
       }
+      else if(b_venting == true) {
+        digitalWrite(smoke_booster_pin, HIGH);
+      }
       else {
         digitalWrite(smoke_booster_pin, LOW);
       }
@@ -4418,6 +4421,9 @@ void fanBooster(bool b_fan_on) {
         digitalWrite(fan_booster_pin, HIGH);
       }
       else if(b_overheating == true && b_wand_firing != true && b_fan_booster_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
+        digitalWrite(fan_booster_pin, HIGH);
+      }
+      else if(b_venting == true) {
         digitalWrite(fan_booster_pin, HIGH);
       }
       else {
