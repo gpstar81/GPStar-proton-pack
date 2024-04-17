@@ -2441,7 +2441,13 @@ void modeFireStartSounds() {
               case SYSTEM_AFTERLIFE:
               case SYSTEM_FROZEN_EMPIRE:
               default:
-                playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
+                uint8_t i_amplify_tmp = 2;
+
+                if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+                  i_amplify_tmp = 0;
+                }
+
+                playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + i_amplify_tmp);
               break;
             }
 
@@ -3377,7 +3383,7 @@ void modeFiring() {
     uint8_t i_amplify_tmp = 5;
 
     if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-      i_amplify_tmp = 30;
+      i_amplify_tmp = 1;
     }
 
     switch (i_random) {
@@ -3921,13 +3927,11 @@ void barrelLightsOff() {
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
-        // Set the tip of the Frutto LED array to white.
         barrel_leds[frutto_barrel[i]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
       break;
 
       case LEDS_5:
       default:
-        // Illuminate the wand barrel tip LED.
         barrel_leds[i] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
       break;
     }
@@ -7159,7 +7163,7 @@ void checkRotaryEncoder() {
       case ACTION_LED_EEPROM_MENU:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the wand barrel spectral custom colour.
             if(i_spectral_wand_custom_colour > 1 && i_spectral_wand_custom_saturation > 253) {
               i_spectral_wand_custom_colour--;
@@ -7177,20 +7181,54 @@ void checkRotaryEncoder() {
 
             wandBarrelSpectralCustomConfigOn();
           }
-          else if(i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Power Cell Spectral custom colour.
             wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_DECREASE);
           }
-          else if(i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE);
           }
-          else if(i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
           }
           else if(i_wand_menu - 1 < 1) {
-            i_wand_menu = 1;
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_1:
+                WAND_MENU_LEVEL = MENU_LEVEL_2;
+                i_wand_menu = 5;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                digitalWrite(led_slo_blo, HIGH); // Level 2
+
+                // Turn off the other lights.
+                digitalWrite(led_vent, HIGH); // Level 3
+                digitalWrite(led_white, HIGH); // Level 4
+                digitalWrite(led_front_left, LOW); // Level 5
+
+                // Play an indication beep to notify we have changed menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_2);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_2);
+              break;
+
+              // Menu 2 the deepest level.
+              case MENU_LEVEL_2:
+              default:
+                i_wand_menu = 1;
+              break;  
+            }            
           }
           else {
             i_wand_menu--;
@@ -7199,7 +7237,7 @@ void checkRotaryEncoder() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Wand Barrel Spectral custom colour.
             if(i_spectral_wand_custom_saturation < 254) {
               i_spectral_wand_custom_saturation++;
@@ -7224,20 +7262,52 @@ void checkRotaryEncoder() {
 
             wandBarrelSpectralCustomConfigOn();
           }
-          else if(i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Power Cell Spectral custom colour.
             wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_INCREASE);
           }
-          else if(i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE);
           }
-          else if(i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
           }
           else if(i_wand_menu + 1 > 5) {
-            i_wand_menu = 5;
+            switch(WAND_MENU_LEVEL) {            
+              case MENU_LEVEL_2:
+                WAND_MENU_LEVEL = MENU_LEVEL_1;
+                i_wand_menu = 1;
+
+                // Turn off the other lights.
+                digitalWrite(led_slo_blo, LOW); // Level 2
+                digitalWrite(led_vent, HIGH); // Level 3
+                digitalWrite(led_white, HIGH); // Level 4
+                digitalWrite(led_front_left, LOW); // Level 5
+
+                // Play an indication beep to notify we have changed menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_1);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_1);
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                // Cannot go any further than menu level 1.
+                i_wand_menu = 5;
+              break;
+            }
           }
           else {
             i_wand_menu++;

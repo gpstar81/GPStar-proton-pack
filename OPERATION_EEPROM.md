@@ -18,8 +18,11 @@ There are two EEPROM menus available which can be accessed to adjust and save co
 
 The EEPOM LED Menu can be used to configure different LED setups for your Proton Pack. All changes can be saved directly to the Proton Pack EEPROM and will be loaded automatically even if you turn off the power to your devices.
 
-To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggle the right hand `Top Toggle` button 5 times (up and down). You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM LED Menu System. The Neutrona Wand barrel and all the Proton Pack LEDs will light up to the default Spectral Custom colours when you enter the EEPROM LED Menu.
+To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggle the right hand `Top Toggle` button 5 times (up and down). You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM LED Menu System. The Neutrona Wand barrel and all the Proton Pack LEDs will light up to the default Spectral Custom colours when you enter the EEPROM LED Menu. Use the `Top Dial` on the top of the Neutrona Wand to navigate the menu system and options. When you reach a different menu level, the Slo-Blo LED and other lights on the Neutrona Wand will illuminate to indicate these menu levels, along with audio cues from the system.
 
+	Menu Level 1 -> No additional wand lights will be illuminated
+	Menu Level 2 -> Slo-Blo illuminated
+	
 📝 **Note:** EEPROM menus can only be reached while both the Neutrona Wand and Proton Pack are powered down.
 
 ![](images/OperationNeutrona11.jpg)
@@ -29,10 +32,22 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
 | 5 | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you turn the battery power off.** | Save the current settings to the Proton Pack and Neutrona Wand EEPROMs. |
-| 4 | Cyclotron LED Count Toggle / Spectral Custom (Barrel) Colour| Toggle between 40, 36, 20 or 12 LEDs for your Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Neutrona Wand barrel** for the Spectral Custom mode. |
+| 4 | Neutrona Wand Barrel LED Count Toggle / Spectral Custom (Barrel) Colour | Toggle between 5 or 48 LEDs for your Neutrona Wand barrel. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Neutrona Wand barrel** for the Spectral Custom mode. |
 | 3 | Power Cell LED Count Toggle / Spectral Custom (Power Cell) Colour | Toggle between 15 or 13 LEDs for your Power Cell. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Power Cell** for the Spectral Custom mode. |
-| 2 | Inner Cyclotron LED Count Toggle  / Spectral Custom (Cyclotron) Colour | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron Cake. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Cyclotron Lid** for the Spectral Custom mode. |
-| 1 | Inner Cyclotron GRB Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Inner Cyclotron (Cake)** for the Spectral Custom mode. |
+| 2 | Cyclotron LED Count Toggle / Spectral Custom (Cyclotron) Colour | Toggle between 40, 36, 20 or 12 LEDs for your Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Cyclotron** for the Spectral Custom mode. |
+| 1 | Inner Cyclotron LED Count Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Inner Cyclotron** for the Spectral Custom mode. |
+
+<div class="page-break"></div>
+
+**EEPROM LED Menu Level 2**
+
+| Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
+|:------:|---------|------------------|--------------------|
+| 5 | `unused` | `unused` | `unused` |
+| 4 | `unused` | `unused` | `unused` |
+| 3 | `unused` | `unused` | `unused` |
+| 2 | `unused` | `unused` | `unused` |
+| 1 | Inner Cyclotron GRB Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `unused` |
 
 <div class="page-break"></div>
 
@@ -42,7 +57,7 @@ The EEPROM Configuration Menu can be used to save certain behaviours of your Neu
 
 To access the EEPROM Configuration Menu, hold down the `Intensify Button` and toggle the right hand `Bottom Toggle` button 5 times (up and down). You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM Configuration Menu System.
 
-To access the EEPROM Configuration menus, use the `Top Dial` on the top of the wand. When you reach the a new menu level, the Slo-blo LED and other lights on the Neutrona Wand will illuminate to indicate these menu levels, along with audio cues from the system.
+To access the EEPROM Configuration menus, use the `Top Dial` on the top of the wand. When you reach a different menu level, the Slo-Blo LED and other lights on the Neutrona Wand will illuminate to indicate these menu levels, along with audio cues from the system.
 
 	Menu Level 1 -> No additional wand lights will be illuminated
 	Menu Level 2 -> Slo-Blo illuminated

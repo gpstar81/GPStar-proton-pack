@@ -56,6 +56,7 @@ unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading 
 struct objLEDEEPROM {
   uint8_t barrel_spectral_custom;
   uint8_t barrel_spectral_saturation_custom;
+  uint8_t num_barrel_leds;
 };
 
 /*
@@ -73,7 +74,6 @@ struct objConfigEEPROM {
   uint8_t quick_vent;
   uint8_t wand_boot_errors;
   uint8_t vent_light_auto_intensity;
-  uint8_t num_barrel_leds;
 
   uint8_t invert_bargraph;
   uint8_t bargraph_mode;
@@ -108,7 +108,7 @@ void readEEPROM() {
   // Get the stored CRC from the EEPROM.
   uint32_t l_crc_check;
   EEPROM.get(EEPROM.length() - sizeof(eepromCRC()), l_crc_check);
-
+  
   // Check if the calculated CRC matches the stored CRC value in the EEPROM.
   if(eepromCRC() == l_crc_check) {
     // Read our object from the EEPROM.
@@ -204,21 +204,6 @@ void readEEPROM() {
       }
       else {
         b_vent_light_control = false;
-      }
-    }
-
-    if(obj_config_eeprom.num_barrel_leds > 0 && obj_config_eeprom.num_barrel_leds != 255) {
-      i_num_barrel_leds = obj_config_eeprom.num_barrel_leds;
-
-      switch(i_num_barrel_leds) {
-        case 5:
-        default:
-          WAND_BARREL_LED_COUNT = LEDS_5;
-        break;
-
-        case 48:
-          WAND_BARREL_LED_COUNT = LEDS_48;
-        break;
       }
     }
 
@@ -475,6 +460,7 @@ void readEEPROM() {
     unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
     EEPROM.get(i_eepromLEDAddress, obj_led_eeprom);
+
     if(obj_led_eeprom.barrel_spectral_custom > 0 && obj_led_eeprom.barrel_spectral_custom != 255) {
       i_spectral_wand_custom_colour = obj_led_eeprom.barrel_spectral_custom;
     }
@@ -482,9 +468,35 @@ void readEEPROM() {
     if(obj_led_eeprom.barrel_spectral_saturation_custom > 0 && obj_led_eeprom.barrel_spectral_saturation_custom != 255) {
       i_spectral_wand_custom_saturation = obj_led_eeprom.barrel_spectral_saturation_custom;
     }
+
+    if(obj_led_eeprom.num_barrel_leds > 0 && obj_led_eeprom.num_barrel_leds != 255) {
+      if(i_num_barrel_leds != 5 || i_num_barrel_leds != 48) {
+        // Num barrels was moved from config to LED. Wipe the EEPROMS.
+        playEffect(S_VOICE_EEPROM_LOADING_FAILED_RESET);
+        
+        clearConfigEEPROM();
+        clearLEDEEPROM();
+      }
+      else {
+        i_num_barrel_leds = obj_led_eeprom.num_barrel_leds;
+
+        switch(i_num_barrel_leds) {
+          case 5:
+          default:
+            WAND_BARREL_LED_COUNT = LEDS_5;
+          break;
+
+          case 48:
+            WAND_BARREL_LED_COUNT = LEDS_48;
+          break;
+        }
+      }
+    }    
   }
   else {
     // CRC doesn't match; let's clear the EEPROMs to be safe.
+    playEffect(S_VOICE_EEPROM_LOADING_FAILED_RESET);
+
     clearConfigEEPROM();
     clearLEDEEPROM();
   }
@@ -506,10 +518,17 @@ void clearLEDEEPROM() {
 void saveLEDEEPROM() {
   unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
+  uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 48 = Frutto.
+
+  if(WAND_BARREL_LED_COUNT == LEDS_48) {
+    i_barrel_led_count = 48;
+  }
+  
   // For now we are just saving the Spectral Custom colour.
   objLEDEEPROM obj_led_eeprom = {
     i_spectral_wand_custom_colour,
     i_spectral_wand_custom_saturation,
+    i_barrel_led_count
   };
 
   // Save to the EEPROM.
@@ -539,7 +558,6 @@ void saveConfigEEPROM() {
   uint8_t i_quick_vent = 1;
   uint8_t i_wand_boot_errors = 2;
   uint8_t i_vent_light_auto_intensity = 2;
-  uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 48 = Frutto.
   uint8_t i_invert_bargraph = 1;
   uint8_t i_bargraph_mode = 1; // 1 = default, 2 = super hero, 3 = original.
   uint8_t i_bargraph_firing_animation = 1; // 1 = default, 2 = super hero, 3 = original.
@@ -596,10 +614,6 @@ void saveConfigEEPROM() {
 
   if(b_vent_light_control != true) {
     i_vent_light_auto_intensity = 1;
-  }
-
-  if(WAND_BARREL_LED_COUNT == LEDS_48) {
-    i_barrel_led_count = 48;
   }
 
   if(b_bargraph_invert == true) {
@@ -757,7 +771,6 @@ void saveConfigEEPROM() {
     i_quick_vent,
     i_wand_boot_errors,
     i_vent_light_auto_intensity,
-    i_barrel_led_count,
     i_invert_bargraph,
     i_bargraph_mode,
     i_bargraph_firing_animation,

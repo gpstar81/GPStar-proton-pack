@@ -769,7 +769,6 @@ bool setupAudioDevice() {
 
   if(audio.gpstarAudioHello()) {
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
-
     i_wand_sound_level = 0; // Special setting to adjust certain wand sounds, usually lower.
 
     calculateAmplificationGain();

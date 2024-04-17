@@ -187,65 +187,154 @@ void checkWandAction() {
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
-        // Intensify: Clear the Proton Pack EEPROM settings and exit.
-        // Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
+        // Level 2 Intensify: TVG Neutrona Wand lights toggle.
+        // Level 1 Intensify: Clear the Proton Pack EEPROM settings and exit.
+        // Level 1 Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
         case 5:
           // Tell the Proton Pack to clear the EEPROM settings and exit.
           if(switch_intensify.pushed()) {
-            // Tell pack to clear the EEPROM and exit.
-            wandSerialSend(W_CLEAR_LED_EEPROM_SETTINGS);
-            wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+                // Save this space for the TVG video game Neutrona Wand lights.
+              break;
 
-            stopEffect(S_VOICE_EEPROM_ERASE);
-            playEffect(S_VOICE_EEPROM_ERASE);
+              case MENU_LEVEL_1:
+              default:
+                // Tell pack to clear the EEPROM and exit.
+                wandSerialSend(W_CLEAR_LED_EEPROM_SETTINGS);
+                wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
 
-            clearLEDEEPROM();
+                stopEffect(S_VOICE_EEPROM_ERASE);
+                playEffect(S_VOICE_EEPROM_ERASE);
 
-            wandExitEEPROMMenu();
+                clearLEDEEPROM();
+
+                wandExitEEPROMMenu();
+              break;
+            }
           }
           else if(switch_mode.pushed()) {
-            // Tell the Proton Pack to save the current settings to the EEPROM and exit.
-            wandSerialSend(W_SAVE_LED_EEPROM_SETTINGS);
-            wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
 
-            stopEffect(S_VOICE_EEPROM_SAVE);
-            playEffect(S_VOICE_EEPROM_SAVE);
+              break;
 
-            saveLEDEEPROM();
+              case MENU_LEVEL_1:
+              default:            
+                // Tell the Proton Pack to save the current settings to the EEPROM and exit.
+                wandSerialSend(W_SAVE_LED_EEPROM_SETTINGS);
+                wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
 
-            wandExitEEPROMMenu();
+                stopEffect(S_VOICE_EEPROM_SAVE);
+                playEffect(S_VOICE_EEPROM_SAVE);
+
+                saveLEDEEPROM();
+
+                wandExitEEPROMMenu();
+              break;
+            }
           }
         break;
 
-        // Intensify: Cycle through the different Cyclotron LED counts.
-        // Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotaryEncoder()
+        // Level 1 Intensify: Cycle through the different Neutrona Wand barrel LED counts.
+        // Level 1 Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotaryEncoder()
         case 4:
           if(switch_intensify.pushed()) {
-            wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                switch(i_num_barrel_leds) {
+                  case 5:
+                  default:
+                    wandBarrelLightsOff();
+                    wandTipOff();
+
+                    WAND_BARREL_LED_COUNT = LEDS_48;
+                    i_num_barrel_leds = 48;
+
+                    wandBarrelSpectralCustomConfigOn();
+
+                    stopEffect(S_VOICE_BARREL_LED_48);
+                    stopEffect(S_VOICE_BARREL_LED_5);
+
+                    playEffect(S_VOICE_BARREL_LED_48);
+
+                    wandSerialSend(W_BARREL_LEDS_48);
+                  break;
+
+                  case 48:
+                    wandBarrelLightsOff();
+                    wandTipOff();
+
+                    WAND_BARREL_LED_COUNT = LEDS_5;
+                    i_num_barrel_leds = 5;
+
+                    wandBarrelSpectralCustomConfigOn();
+
+                    stopEffect(S_VOICE_BARREL_LED_5);
+                    stopEffect(S_VOICE_BARREL_LED_48);
+                    
+                    playEffect(S_VOICE_BARREL_LED_5);
+
+                    wandSerialSend(W_BARREL_LEDS_5);
+                  break;
+                }
+              break;
+            }   
           }
         break;
 
-        // Intensify: Cycle through the different Power Cell LED counts.
-        // Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotaryEncoder()
+        // Level 1 Intensify: Cycle through the different Power Cell LED counts.
+        // Level 1 Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotaryEncoder()
         case 3:
           if(switch_intensify.pushed()) {
-            wandSerialSend(W_TOGGLE_POWERCELL_LEDS);
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                wandSerialSend(W_TOGGLE_POWERCELL_LEDS);
+              break;
+            }            
           }
         break;
 
-        // Intensify: Cycle through the different inner Cyclotron LED counts.
-        // Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
+        // Level 1 Intensify: Cycle through the different Cyclotron LED counts.
+        // Level 1 Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
         case 2:
           if(switch_intensify.pushed()) {
-            wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_LEDS);
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
+              break;
+            }
           }
         break;
 
-        // Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
-        // Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
+        
+        // Level 2 Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
+        // Level 1 Intensify: Cycle through the different inner Cyclotron LED counts.
+        // Level 1 Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
         case 1:
           if(switch_intensify.pushed()) {
-            wandSerialSend(W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS);
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+                wandSerialSend(W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS);
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_LEDS);
+              break;
+            }
           }
         break;
       }
