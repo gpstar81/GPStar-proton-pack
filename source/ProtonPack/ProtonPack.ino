@@ -4398,6 +4398,9 @@ void fanNFilter(bool b_fan_on) {
       else if(b_overheating == true && b_wand_firing != true && b_fan_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
         digitalWrite(fan_pin, HIGH);
       }
+      else if(b_venting == true) {
+        digitalWrite(fan_pin, HIGH);
+      }
       else {
         digitalWrite(fan_pin, LOW);
       }
