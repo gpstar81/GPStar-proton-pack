@@ -2223,6 +2223,9 @@ void cyclotron2021(int cDelay) {
             if(b_cyclotron_lid_on == true) {
               i_fast_led_delay = FAST_LED_UPDATE_MS + i_cyclotron_multiplier;
             }
+            else {
+              i_fast_led_delay = FAST_LED_UPDATE_MS;
+            }
 
             if(t_cDelay < 1) {
               t_cDelay = 1;
