@@ -542,7 +542,7 @@ void loop() {
   if(ms_fast_led.justFinished()) {
     FastLED.show();
 
-    ms_fast_led.repeat();
+    ms_fast_led.start(i_fast_led_delay);
 
     if(b_powercell_updating == true) {
       b_powercell_updating = false;
@@ -2049,6 +2049,8 @@ void cyclotron2021(int cDelay) {
     }
 
     if(b_2021_ramp_up == true) {
+      i_fast_led_delay = FAST_LED_UPDATE_MS;
+
       if(r_2021_ramp.isFinished()) {
         b_2021_ramp_up = false;
         i_current_ramp_speed = cDelay;
@@ -2148,6 +2150,8 @@ void cyclotron2021(int cDelay) {
       }
     }
     else if(b_2021_ramp_down == true) {
+      i_fast_led_delay = FAST_LED_UPDATE_MS;
+
       if(r_2021_ramp.isFinished()) {
         b_2021_ramp_down = false;
       }
@@ -2213,9 +2217,31 @@ void cyclotron2021(int cDelay) {
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
         case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+          if(i_cyclotron_multiplier > 1) {
+            t_cDelay = t_cDelay - i_cyclotron_multiplier;
+
+            if(b_cyclotron_lid_on == true) {
+              i_fast_led_delay = FAST_LED_UPDATE_MS + i_cyclotron_multiplier;
+            }
+
+            if(t_cDelay < 1) {
+              t_cDelay = 1;
+            }
+          }
+          else {
+            i_fast_led_delay = FAST_LED_UPDATE_MS;
+          }
+
+          if(i_fast_led_delay > 10) {
+            i_fast_led_delay = 10;
+          }
+        break;
+
         case FRUTTO_CYCLOTRON_LED_COUNT:
         case HASLAB_CYCLOTRON_LED_COUNT:
         default:
+          i_fast_led_delay = FAST_LED_UPDATE_MS;
+
           if(i_cyclotron_multiplier > 1) {
             t_cDelay = t_cDelay - i_cyclotron_multiplier;
 
@@ -2462,6 +2488,8 @@ void cyclotron2021(int cDelay) {
 }
 
 void cyclotron1984(int cDelay) {
+  i_fast_led_delay = FAST_LED_UPDATE_MS;
+
   if(ms_cyclotron.justFinished()) {
     cDelay = cDelay / i_cyclotron_multiplier;
 

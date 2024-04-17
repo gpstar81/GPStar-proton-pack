@@ -139,8 +139,10 @@ CRGB cyclotron_leds[INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MA
  * We have up to 90 addressable LEDs if using NeoPixel jewel in the N-Filter, a ring
  * for the Inner Cyclotron, and the optionalal "sparking" cyclotron cavity LEDs.
  * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
+ * For cyclotrons with high density LEDs, increase this based on the cyclotron speed multiplier to simulate a faster spinning cyclotron.
  */
-const uint8_t i_fast_led_delay = 6;
+#define FAST_LED_UPDATE_MS 6
+uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
 millisDelay ms_fast_led;
 
 /*
