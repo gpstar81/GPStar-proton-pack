@@ -3507,31 +3507,122 @@ void wandBarrelHeatUp() {
   else if(ms_wand_heatup_fade.justFinished() && i_heatup_counter <= 100) {
     switch(FIRING_MODE) {
       case PROTON:
-        barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+        }        
       break;
 
       case SLIME:
-        barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+        }         
       break;
 
       case STASIS:
-        barrel_leds[i_barrel_led] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+        }         
       break;
 
       case MESON:
-        barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+        }         
       break;
 
       case SPECTRAL:
-        barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+        }        
       break;
 
       case HOLIDAY:
-        barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+        }         
       break;
 
       case SPECTRAL_CUSTOM:
-        barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          break;
+        }        
       break;
 
       case VENTING:
@@ -3563,31 +3654,122 @@ void wandBarrelHeatDown() {
   if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
     switch(FIRING_MODE) {
       case PROTON:
-        barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+        }      
       break;
 
       case SLIME:
-        barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+        }          
       break;
 
       case STASIS:
-        barrel_leds[i_barrel_led] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+        }     
       break;
 
       case MESON:
-        barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+        }        
       break;
 
       case SPECTRAL:
-        barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+        }         
       break;
 
       case HOLIDAY:
-        barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+        }        
       break;
 
       case SPECTRAL_CUSTOM:
-        barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        switch(WAND_BARREL_LED_COUNT) {
+          case LEDS_48:
+            barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 23] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 24] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led - 25] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            barrel_leds[i_barrel_led + 1] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+
+          case LEDS_5:
+          default:
+            barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          break;
+        }         
       break;
 
       case VENTING:
