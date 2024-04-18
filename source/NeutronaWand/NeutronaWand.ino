@@ -787,7 +787,7 @@ void quickVentFinished() {
     stopEffect(S_QUICK_VENT_CLOSE);
     playEffect(S_QUICK_VENT_CLOSE);
 
-    if(FIRING_MODE == SLIME && WAND_STATUS == MODE_ON) {
+    if(FIRING_MODE == SLIME && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
       playEffect(S_PACK_SLIME_TANK_LOOP, true);
     }
   }
@@ -3447,7 +3447,7 @@ void wandHeatUp() {
     case SLIME:
       playEffect(S_PACK_SLIME_OPEN);
 
-      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON) {
+      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
         playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
       }
     break;
@@ -3455,7 +3455,7 @@ void wandHeatUp() {
     case STASIS:
       playEffect(S_STASIS_OPEN);
 
-      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON) {
+      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
         playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
       }
     break;
@@ -3463,7 +3463,7 @@ void wandHeatUp() {
     case MESON:
       playEffect(S_MESON_OPEN);
 
-      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON) {
+      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
         playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
       }
     break;

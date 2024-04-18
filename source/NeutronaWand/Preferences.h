@@ -801,6 +801,9 @@ uint32_t eepromCRC(void) {
   for(unsigned int index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
     crc.update(EEPROM[index]);
   }
+  
+  crc.update(sizeof(objConfigEEPROM));
+  crc.update(sizeof(objLEDEEPROM));
 
   return (uint32_t)crc.finalize();
 }
