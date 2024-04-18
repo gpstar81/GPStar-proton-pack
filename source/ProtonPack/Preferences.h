@@ -704,5 +704,8 @@ uint32_t eepromCRC(void) {
     crc.update(EEPROM[index]);
   }
 
+  crc.update(sizeof(objConfigEEPROM));
+  crc.update(sizeof(objLEDEEPROM));
+
   return (uint32_t)crc.finalize();
 }
