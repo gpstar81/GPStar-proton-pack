@@ -626,6 +626,9 @@ void wandTipOn() {
         // Set the tip of the Frutto LED array to white.
         barrel_leds[12] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
       }
+
+      // Illuminate the wand barrel tip LED.
+      digitalWrite(led_barrel_tip, HIGH);
     break;
 
     case LEDS_5:
@@ -641,6 +644,9 @@ void wandTipOff() {
     case LEDS_48:
       // Set the tip of the Frutto LED array to black.
       barrel_leds[12] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+
+      // Turn off the wand barrel tip LED.
+      digitalWrite(led_barrel_tip, LOW);      
     break;
 
     case LEDS_5:
