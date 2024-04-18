@@ -108,7 +108,7 @@ void readEEPROM() {
   // Get the stored CRC from the EEPROM.
   uint32_t l_crc_check;
   EEPROM.get(EEPROM.length() - sizeof(eepromCRC()), l_crc_check);
-  
+
   // Check if the calculated CRC matches the stored CRC value in the EEPROM.
   if(eepromCRC() == l_crc_check) {
     // Read our object from the EEPROM.
@@ -470,28 +470,19 @@ void readEEPROM() {
     }
 
     if(obj_led_eeprom.num_barrel_leds > 0 && obj_led_eeprom.num_barrel_leds != 255) {
-      if(i_num_barrel_leds != 5 || i_num_barrel_leds != 48) {
-        // Num barrels was moved from config to LED. Wipe the EEPROMS.
-        playEffect(S_VOICE_EEPROM_LOADING_FAILED_RESET);
-        
-        clearConfigEEPROM();
-        clearLEDEEPROM();
-      }
-      else {
-        i_num_barrel_leds = obj_led_eeprom.num_barrel_leds;
+      i_num_barrel_leds = obj_led_eeprom.num_barrel_leds;
 
-        switch(i_num_barrel_leds) {
-          case 5:
-          default:
-            WAND_BARREL_LED_COUNT = LEDS_5;
-          break;
+      switch(i_num_barrel_leds) {
+        case 5:
+        default:
+          WAND_BARREL_LED_COUNT = LEDS_5;
+        break;
 
-          case 48:
-            WAND_BARREL_LED_COUNT = LEDS_48;
-          break;
-        }
+        case 48:
+          WAND_BARREL_LED_COUNT = LEDS_48;
+        break;
       }
-    }    
+    }
   }
   else {
     // CRC doesn't match; let's clear the EEPROMs to be safe.
@@ -523,7 +514,7 @@ void saveLEDEEPROM() {
   if(WAND_BARREL_LED_COUNT == LEDS_48) {
     i_barrel_led_count = 48;
   }
-  
+
   // For now we are just saving the Spectral Custom colour.
   objLEDEEPROM obj_led_eeprom = {
     i_spectral_wand_custom_colour,

@@ -220,7 +220,7 @@ void checkWandAction() {
               break;
 
               case MENU_LEVEL_1:
-              default:            
+              default:
                 // Tell the Proton Pack to save the current settings to the EEPROM and exit.
                 wandSerialSend(W_SAVE_LED_EEPROM_SETTINGS);
                 wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
@@ -276,14 +276,14 @@ void checkWandAction() {
 
                     stopEffect(S_VOICE_BARREL_LED_5);
                     stopEffect(S_VOICE_BARREL_LED_48);
-                    
+
                     playEffect(S_VOICE_BARREL_LED_5);
 
                     wandSerialSend(W_BARREL_LEDS_5);
                   break;
                 }
               break;
-            }   
+            }
           }
         break;
 
@@ -299,7 +299,7 @@ void checkWandAction() {
               default:
                 wandSerialSend(W_TOGGLE_POWERCELL_LEDS);
               break;
-            }            
+            }
           }
         break;
 
@@ -319,7 +319,7 @@ void checkWandAction() {
           }
         break;
 
-        
+
         // Level 2 Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
         // Level 1 Intensify: Cycle through the different inner Cyclotron LED counts.
         // Level 1 Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotaryEncoder()

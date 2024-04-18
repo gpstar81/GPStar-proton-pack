@@ -462,7 +462,7 @@ void readEEPROM() {
   else {
     // CRC doesn't match; let's clear the EEPROMs to be safe.
     playEffect(S_VOICE_EEPROM_LOADING_FAILED_RESET);
-    
+
     clearConfigEEPROM();
     clearLEDEEPROM();
   }

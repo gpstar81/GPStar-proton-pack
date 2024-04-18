@@ -787,7 +787,7 @@ void quickVentFinished() {
     stopEffect(S_QUICK_VENT_CLOSE);
     playEffect(S_QUICK_VENT_CLOSE);
 
-    if(FIRING_MODE == SLIME) {
+    if(FIRING_MODE == SLIME && WAND_STATUS == MODE_ON) {
       playEffect(S_PACK_SLIME_TANK_LOOP, true);
     }
   }
@@ -3447,7 +3447,7 @@ void wandHeatUp() {
     case SLIME:
       playEffect(S_PACK_SLIME_OPEN);
 
-      if(b_gpstar_benchtest == true) {
+      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON) {
         playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
       }
     break;
@@ -3455,7 +3455,7 @@ void wandHeatUp() {
     case STASIS:
       playEffect(S_STASIS_OPEN);
 
-      if(b_gpstar_benchtest == true) {
+      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON) {
         playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
       }
     break;
@@ -3463,7 +3463,7 @@ void wandHeatUp() {
     case MESON:
       playEffect(S_MESON_OPEN);
 
-      if(b_gpstar_benchtest == true) {
+      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON) {
         playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
       }
     break;
@@ -7227,8 +7227,8 @@ void checkRotaryEncoder() {
               case MENU_LEVEL_2:
               default:
                 i_wand_menu = 1;
-              break;  
-            }            
+              break;
+            }
           }
           else {
             i_wand_menu--;
@@ -7275,7 +7275,7 @@ void checkRotaryEncoder() {
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
           }
           else if(i_wand_menu + 1 > 5) {
-            switch(WAND_MENU_LEVEL) {            
+            switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
                 WAND_MENU_LEVEL = MENU_LEVEL_1;
                 i_wand_menu = 1;
