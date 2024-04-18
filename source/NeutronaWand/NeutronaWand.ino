@@ -587,7 +587,7 @@ void mainLoop() {
   // Update the barrel LEDs and restart the timer.
   if(ms_fast_led.justFinished()) {
     FastLED.show();
-    ms_fast_led.repeat();
+    ms_fast_led.start(i_fast_led_delay);
   }
 }
 
@@ -2522,6 +2522,8 @@ void modeFireStartSounds() {
 }
 
 void modeFireStart() {
+  i_fast_led_delay = FAST_LED_UPDATE_MS;
+
   // Reset some sound triggers.
   b_sound_firing_intensify_trigger = true;
   b_sound_firing_alt_trigger = true;
@@ -3884,64 +3886,218 @@ void fireStreamEffect(CRGB c_colour) {
         if(i_barrel_light == i_num_barrel_leds) {
           i_barrel_light = 0;
 
+          uint8_t i_s_speed = 0;
+
           switch(FIRING_MODE) {
-            default:
+            case MESON:
               switch(i_power_level) {
                 case 1:
-                  ms_firing_stream_effects.start(i_firing_stream);
+                  i_s_speed = 8;
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start(i_firing_stream - 2);
+                  i_s_speed = 8;
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start(i_firing_stream - 4);
+                  i_s_speed = 8;
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start(i_firing_stream - 6);
+                  i_s_speed = 8;
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start(i_firing_stream - 8);
+                  i_s_speed = 9;
                 break;
 
                 default:
-                  ms_firing_stream_effects.start(i_firing_stream);
+                  i_s_speed = 0;
+                break;
+              }
+            break;
+
+            default:
+              switch(i_power_level) {
+                case 1:
+                  i_s_speed = 5;
+                break;
+
+                case 2:
+                  i_s_speed = 6;
+                break;
+
+                case 3:
+                  i_s_speed = 7;
+                break;
+
+                case 4:
+                  i_s_speed = 8;
+                break;
+
+                case 5:
+                  i_s_speed = 9;
+                break;
+
+                default:
+                  i_s_speed = 0;
                 break;
               }
             break;
           }
+
+          ms_firing_stream_effects.start(i_firing_stream - i_s_speed);
         }
         else if(i_barrel_light < i_num_barrel_leds) {
           barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
-
+          
           switch(FIRING_MODE) {
-            default:
+            case MESON:
+              if(i_barrel_light + 1 < i_num_barrel_leds) {
+                barrel_leds[frutto_barrel[i_barrel_light + 1]] = c_colour;
+              }
+
+              if(i_barrel_light + 2 < i_num_barrel_leds) {
+                barrel_leds[frutto_barrel[i_barrel_light + 2]] = c_colour;
+              }
+
+              if(i_barrel_light + 3 < i_num_barrel_leds) {
+                barrel_leds[frutto_barrel[i_barrel_light + 3]] = c_colour;
+              }
+            break;
+
+            case PROTON:
+              uint8_t i_t_rand = random(0, i_num_barrel_leds / 3);
+
               switch(i_power_level) {
-                case 1:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 8);
-                break;
-
-                case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 6);
-                break;
-
-                case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 4);
+                case 5:
+                  i_t_rand = i_t_rand + 10;
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2);
+                  i_t_rand = i_t_rand + 8;
                 break;
 
-                case 5:
+                case 3:
+                  i_t_rand = i_t_rand + 6;
+                break;
+
+                case 2:
+                  i_t_rand = i_t_rand + 3;
+                break;
+
+                case 1:
+                default:
+                i_t_rand = i_t_rand + 2;
+                  // Nothing.
+                break;
+              }
+
+              for(uint8_t i = i_barrel_light; i < i_barrel_light + i_t_rand; i++) {
+                if(i < i_num_barrel_leds) {
+                  barrel_leds[frutto_barrel[i]] = c_colour;
+                }
+              }        
+            break;
+
+            default:
+              uint8_t i_t_rand_def = random(0, i_num_barrel_leds / 4);
+
+              for(uint8_t i = i_barrel_light; i < i_barrel_light + i_t_rand_def; i++) {
+                if(i < i_num_barrel_leds) {
+                  barrel_leds[frutto_barrel[i]] = c_colour;
+                }
+              }  
+            break;
+          }
+
+          switch(FIRING_MODE) {
+            case MESON:
+              switch(i_power_level) {
+                case 1:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS;
                   ms_firing_stream_effects.start((d_firing_stream / 25));
                 break;
 
+                case 2:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS;
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1);
+                break;
+
+                case 3:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 1;
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1);
+                break;
+
+                case 4:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 2;
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1);
+                break;
+
+                case 5:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 3;
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1);
+                break;
+
                 default:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 8);
+                  i_fast_led_delay = FAST_LED_UPDATE_MS;
+                  ms_firing_stream_effects.start((d_firing_stream / 25));
+                break;
+              }
+            break;
+
+            case PROTON:
+              switch(i_power_level) {
+                case 1:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 4); // 8
+                break;
+
+                case 2:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 3); // 6
+                break;
+
+                case 3:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 4
+                break;
+
+                case 4:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 2
+                break;
+
+                case 5:
+                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 0
+                break;
+
+                default:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 4); // 8
+                break;
+              }            
+            break;
+
+            default:
+              switch(i_power_level) {
+                case 1:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 8
+                break;
+
+                case 2:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 6
+                break;
+
+                case 3:
+                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4
+                break;
+
+                case 4:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 2
+                break;
+
+                case 5:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 0
+                break;
+
+                default:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 8
                 break;
               }
             break;
@@ -4127,9 +4283,9 @@ void fireStreamStart(CRGB c_colour) {
   if(ms_firing_lights.justFinished() && i_barrel_light < i_num_barrel_leds) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
-        // Since this arrangement has many more LEDs available, we can make use of extra color changes
+        // Since this arrangement has many more LEDs available, we can make use of extra colour changes
         // to enhance the stream effects. In this case we can darken the lead LED then follow with the
-        // primary color for the stream chosen. Any other color effects will follow this arrangement.
+        // primary colour for the stream chosen. Any other colour effects will follow this arrangement.
         barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
         if(i_barrel_light + 2 >= 0 && i_barrel_light + 2 < i_num_barrel_leds) {
           barrel_leds[frutto_barrel[i_barrel_light + 2]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
@@ -4138,7 +4294,7 @@ void fireStreamStart(CRGB c_colour) {
 
       case LEDS_5:
       default:
-        // Just set the current LED to the expected color.
+        // Just set the current LED to the expected colour.
         barrel_leds[i_barrel_light] = c_colour;
       break;
     }
@@ -4146,7 +4302,7 @@ void fireStreamStart(CRGB c_colour) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
         // More LEDs means a faster firing rate.
-        ms_firing_lights.start(d_firing_stream / 25);
+        ms_firing_lights.start(d_firing_stream / 30);
       break;
 
       case LEDS_5:
@@ -4166,7 +4322,7 @@ void fireStreamStart(CRGB c_colour) {
       switch(WAND_BARREL_LED_COUNT) {
         case LEDS_48:
           // More LEDs means a faster firing rate.
-          ms_firing_stream_effects.start(d_firing_stream / 10);
+          ms_firing_stream_effects.start(d_firing_stream / 25);
         break;
 
         case LEDS_5:
@@ -4183,7 +4339,7 @@ void fireStreamEnd(CRGB c_colour) {
   if(i_barrel_light < i_num_barrel_leds) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
-        // Set the color for the mapped LED.
+        // Set the colour for the mapped LED.
         barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
 
         // More LEDs means a faster firing rate.
@@ -4192,7 +4348,7 @@ void fireStreamEnd(CRGB c_colour) {
 
       case LEDS_5:
       default:
-        // Set the color for the specific LED.
+        // Set the colour for the specific LED.
         barrel_leds[i_barrel_light] = c_colour;
 
         // Firing at a "normal" rate
@@ -4206,6 +4362,8 @@ void fireStreamEnd(CRGB c_colour) {
       i_barrel_light = 0;
 
       ms_firing_lights_end.stop();
+
+      i_fast_led_delay = FAST_LED_UPDATE_MS;
     }
   }
 }

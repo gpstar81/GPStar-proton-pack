@@ -244,7 +244,7 @@ CRGB getHueAsRGB(uint8_t i_colour, uint8_t i_brightness = 255, bool b_grb = fals
 }
 
 CRGB getHueAsGRB(uint8_t i_colour, uint8_t i_brightness = 255) {
-  // Forward to getHueAsRGB() with the flag set for GRB color swap.
+  // Forward to getHueAsRGB() with the flag set for GRB colour swap.
   return getHueAsRGB(i_colour, i_brightness, true);
 }
 

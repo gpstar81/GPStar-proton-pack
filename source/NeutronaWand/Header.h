@@ -136,7 +136,8 @@ enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
  * We have up to 5 addressable LEDs in the wand barrel.
  * 0.03 ms to update 1 LED. So 0.15 ms should be okay? Let's bump it up to 3 just in case.
  */
-const uint8_t i_fast_led_delay = 3;
+#define FAST_LED_UPDATE_MS 3
+uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
 millisDelay ms_fast_led;
 
 /*

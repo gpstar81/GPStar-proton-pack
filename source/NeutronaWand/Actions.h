@@ -792,7 +792,7 @@ void checkWandAction() {
         // Menu Level 1: Intensify: Enable or Disable overheating settings.
         // Menu Level 1: Barrel Wing Button: Enable or disable smoke.
         // Menu Level 2: Intensify: Enable/Disable Wand beeping in Afterlife / Frozen Empire modes.
-        // Menu Level 2: Barrel Wing Button: Cycle through VG color modes to disable them. (see operational guide for more details on this).
+        // Menu Level 2: Barrel Wing Button: Cycle through VG colour modes to disable them. (see operational guide for more details on this).
         // Menu Level 3: Intensify: Bargraph Idle Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 3
