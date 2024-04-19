@@ -1575,8 +1575,6 @@ void wandOff() {
   // Clear counter until user begins firing again.
   i_bmash_count = 0;
 
-  barrelLightsOff();
-
   // Turn off some timers.
   ms_bargraph_firing.stop();
   ms_overheat_initiate.stop();
