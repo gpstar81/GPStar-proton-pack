@@ -153,6 +153,7 @@ int i_powercell_led = 0;
 millisDelay ms_powercell;
 bool b_powercell_updating = false;
 uint8_t i_powercell_multiplier = 1;
+bool b_powercell_sound_loop = false;
 
 /*
  * State of the pack.

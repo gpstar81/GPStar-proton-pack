@@ -376,10 +376,11 @@ enum sound_fx {
   S_PACK_SHUTDOWN_AFTERLIFE_ALT,
   S_ION_ARM_SWITCH,
   S_WAND_MASH_ERROR,
-  S_VOICE_EEPROM_LOADING_FAILED_RESET
+  S_VOICE_EEPROM_LOADING_FAILED_RESET,
+  S_POWERCELL
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_VOICE_EEPROM_LOADING_FAILED_RESET;
+const unsigned int i_last_effects_track = S_POWERCELL;

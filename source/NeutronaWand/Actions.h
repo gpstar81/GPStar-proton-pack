@@ -1461,7 +1461,7 @@ void checkWandAction() {
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-            // Switch between 1984/1989/Afterlife mode.
+            // Switch between 1984/1989/Afterlife/Frozen Empire mode.
             if(switch_intensify.pushed()) {
               // Tell the Proton Pack to cycle through year modes.
               wandSerialSend(W_YEAR_MODES_CYCLE);

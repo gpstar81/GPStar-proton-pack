@@ -224,8 +224,10 @@ void toggleYearModes() {
     break;
   }
 
-  // Reset the pack variables to match the new year mode.
-  packOffReset();
+  if(b_pack_shutting_down != true && b_pack_on == false && b_spectral_lights_on != true) {
+    // Reset the pack variables to match the new year mode.
+    packOffReset();
+  }
 }
 
 /*
@@ -2282,10 +2284,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_YEAR_MODES_CYCLE:
-      toggleYearModes();
-
       // Turn on the year mode override flag. This resets when you flip the year mode toggle switch on the pack.
       b_switch_mode_override = true;
+
+      toggleYearModes();
     break;
 
     case W_RESET_PROTON_STREAM:

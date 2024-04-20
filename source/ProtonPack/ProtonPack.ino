@@ -1181,6 +1181,8 @@ void checkSwitches() {
               }
             break;
           }
+          
+          packOffReset();
         }
 
         // Reset the cyclotron ramp speeds.
@@ -1478,15 +1480,28 @@ void powercellLoop() {
     }
     else {
       if(b_powercell_updating != true) {
+        if((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && b_2021_ramp_up != true && b_2021_ramp_down != true && b_alarm != true && b_wand_firing != true && b_overheating != true) {
+          if(b_powercell_sound_loop != true) {
+            b_powercell_sound_loop = true;
+            stopEffect(S_POWERCELL);
+            playEffect(S_POWERCELL, true, i_volume_effects, true, 1400);
+          }
+        }
+
         powercellDraw(i_powercell_led); // Update starting at a specific LED.
 
-        // Add a small delay to pause the Power Cell when all Power Cell LEDs are lit up, to match the 2021 pack.
+        // Add a small delay to pause the Power Cell when all Power Cell LEDs are lit up, to match Afterlife and Frozen Empire.
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && b_alarm != true && i_powercell_led == i_cyclotron_led_start - 1) {
-          i_extra_delay = 250;
+          i_extra_delay = 350;
         }
 
         i_powercell_led++;
       }
+    }
+
+    if(b_overheating == true && b_powercell_sound_loop == true) {
+      audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
+      b_powercell_sound_loop = false;
     }
 
     // Setup the delays again.
@@ -1511,12 +1526,22 @@ void powercellLoop() {
         }
         else if(b_2021_ramp_down == true) {
           i_pc_delay = i_powercell_delay + r_2021_ramp.update();
+
+          if(b_powercell_sound_loop == true) {
+            b_powercell_sound_loop = false;
+            audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
+          }
         }
       break;
     }
 
     if(b_alarm == true) {
       i_pc_delay = i_powercell_delay * 5;
+
+      if(b_powercell_sound_loop == true) {
+        audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
+        b_powercell_sound_loop = false;
+      }
     }
 
     // Speed up the Power Cell when the cyclotron speeds up before a overheat.
@@ -3801,6 +3826,11 @@ void modeFireStartSounds() {
 }
 
 void wandFiring() {
+  if(b_powercell_sound_loop == true) {
+    b_powercell_sound_loop = false;
+    stopEffect(S_POWERCELL); // Turn off the powercell sound effect.
+  }
+
   modeFireStartSounds();
 
   b_wand_firing = true;
