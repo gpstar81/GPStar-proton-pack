@@ -1201,8 +1201,8 @@ void checkSwitches() {
         switch(SYSTEM_YEAR) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
-            stopEffect(S_ION_ARM_SWITCH);
-            playEffect(S_ION_ARM_SWITCH);
+            stopEffect(S_ION_ARM_SWITCH_ALT);
+            playEffect(S_ION_ARM_SWITCH_ALT);
           break;
 
           case SYSTEM_1984:

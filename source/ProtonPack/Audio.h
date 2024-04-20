@@ -183,46 +183,63 @@ void updateEffectsVolume() {
       audio.trackGain(S_BEEPS_LOW, i_volume_effects);
       audio.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
       audio.trackGain(S_WAND_BOOTUP, i_volume_effects);
-      audio.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects - i_wand_sound_level);
-
       audio.trackGain(S_PACK_RIBBON_ALARM_1, i_volume_effects);
       audio.trackGain(S_ALARM_LOOP, i_volume_effects);
       audio.trackGain(S_RIBBON_CABLE_START, i_volume_effects);
       audio.trackGain(S_PACK_BEEPING, i_volume_effects); // Not used ?
       audio.trackGain(S_BEEP_8, i_volume_effects);
       audio.trackGain(S_SHUTDOWN, i_volume_effects);
-      audio.trackGain(S_GB2_PACK_START, i_volume_effects);
-      audio.trackGain(S_GB2_PACK_LOOP, i_volume_effects);
-      audio.trackGain(S_GB2_PACK_OFF, i_volume_effects);
-      audio.trackGain(S_PACK_SHUTDOWN, i_volume_effects);
-      audio.trackGain(S_PACK_SHUTDOWN_AFTERLIFE_ALT, i_volume_effects);
-      audio.trackGain(S_IDLE_LOOP, i_volume_effects);
-      audio.trackGain(S_BOOTUP, i_volume_effects);
-      audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
-      audio.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
 
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      if(SYSTEM_YEAR == SYSTEM_1989) {
+        audio.trackGain(S_GB2_PACK_START, i_volume_effects);
+        audio.trackGain(S_GB2_PACK_LOOP, i_volume_effects);
+        audio.trackGain(S_GB2_PACK_OFF, i_volume_effects);
+      }
+
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+        audio.trackGain(S_PACK_SHUTDOWN, i_volume_effects);
+      }
+
+      if(SYSTEM_YEAR == SYSTEM_1984) {
+        audio.trackGain(S_IDLE_LOOP, i_volume_effects);
+        audio.trackGain(S_BOOTUP, i_volume_effects);
+      }
+
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE || SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
+        audio.trackGain(S_POWERCELL, i_volume_effects);      
+        audio.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
+        audio.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
+        audio.trackGain(S_PACK_SHUTDOWN_AFTERLIFE_ALT, i_volume_effects);
+        audio.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - i_wand_sound_level);
+        audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - i_wand_sound_level);           
+      }
+
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on != true) {
         audio.trackGain(S_FROZEN_EMPIRE_BOOT_EFFECT, i_volume_effects + i_gpstar_audio_volume_factor);
       }
 
-      audio.trackGain(S_PACK_SLIME_TANK_LOOP, i_volume_effects);
+      if(FIRING_MODE == SLIME) {
+        audio.trackGain(S_PACK_SLIME_TANK_LOOP, i_volume_effects);
+      }
 
-      // Special volume in use.
-      audio.trackGain(S_STASIS_IDLE_LOOP, i_volume_effects);
-      audio.trackGain(S_MESON_IDLE_LOOP, i_volume_effects);
+      if(FIRING_MODE == STASIS) {
+        audio.trackGain(S_STASIS_IDLE_LOOP, i_volume_effects);
+      }
 
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT, i_volume_effects - i_wand_sound_level);
-      audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - i_wand_sound_level);
+      if(FIRING_MODE == MESON) {
+        audio.trackGain(S_MESON_IDLE_LOOP, i_volume_effects);
+      }
     break;
 
     case A_NONE:
