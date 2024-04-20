@@ -1141,6 +1141,7 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_1984);
+                packOffReset();
               }
             break;
 
@@ -1153,6 +1154,7 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_1989);
+                packOffReset();
               }
             break;
 
@@ -1165,6 +1167,7 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_FROZEN_EMPIRE);
+                packOffReset();
               }
             break;
 
@@ -1178,11 +1181,10 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_AFTERLIFE);
+                packOffReset();
               }
             break;
           }
-          
-          packOffReset();
         }
 
         // Reset the cyclotron ramp speeds.
