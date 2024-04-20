@@ -339,6 +339,9 @@ void loop() {
 
           reset2021RampUp();
 
+          stopEffect(S_PACK_RECOVERY);
+          playEffect(S_PACK_RECOVERY);
+          
           packStartup();
         }
       }
@@ -750,6 +753,7 @@ void packShutdown() {
     case SYSTEM_1989:
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
+      stopEffect(S_PACK_RECOVERY);
       stopEffect(S_PACK_RIBBON_ALARM_1);
       stopEffect(S_ALARM_LOOP);
       stopEffect(S_RIBBON_CABLE_START);
@@ -3120,7 +3124,19 @@ void packOverheatingFinished() {
   stopEffect(S_SLIME_REFILL);
 
   if(FIRING_MODE != SLIME) {
-    playEffect(S_VENT_CLOSE);
+    switch(SYSTEM_YEAR) {
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
+        playEffect(S_VENT_CLOSE_ALT);
+      break;
+
+      case SYSTEM_1984:
+      case SYSTEM_1989:
+      default:
+        playEffect(S_VENT_CLOSE);
+      break;
+    }
+
     playEffect(S_STEAM_LOOP_FADE_OUT);
   }
 
