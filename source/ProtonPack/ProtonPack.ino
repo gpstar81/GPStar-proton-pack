@@ -768,14 +768,34 @@ void packShutdown() {
   wandExtraSoundsStop();
   wandExtraSoundsBeepLoopStop();
 
-  stopEffect(S_BEEP_8);
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+      stopEffect(S_PACK_BEEPS_OVERHEAT);
+    break;
+
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+    default:
+      stopEffect(S_BEEP_8);
+    break;
+  }
+      
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
   stopEffect(S_SLIME_REFILL);
 
-  stopEffect(S_PACK_SLIME_TANK_LOOP);
-  stopEffect(S_STASIS_IDLE_LOOP);
-  stopEffect(S_MESON_IDLE_LOOP);
+  if(FIRING_MODE == SLIME) {
+    stopEffect(S_PACK_SLIME_TANK_LOOP);
+  }
+
+  if(FIRING_MODE == STASIS) {
+    stopEffect(S_STASIS_IDLE_LOOP);
+  }
+
+  if(FIRING_MODE == MESON) {
+    stopEffect(S_MESON_IDLE_LOOP);
+  }
 
   if(SYSTEM_YEAR == SYSTEM_1989) {
     stopEffect(S_GB2_PACK_START);
@@ -790,6 +810,9 @@ void packShutdown() {
   }
 
   if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+    b_powercell_sound_loop = false;
+    stopEffect(S_POWERCELL); // Just in case a shutdown happens and not a ramp down.
+
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
     stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
@@ -802,9 +825,17 @@ void packShutdown() {
   // Need to play the 'close' SFX if we already played the open one
   if(b_overheating == true) {
     stopEffect(S_SLIME_EMPTY);
+    
     stopEffect(S_VENT_OPEN);
     stopEffect(S_VENT_CLOSE);
+
     if(FIRING_MODE != SLIME) {
+      stopEffect(S_PACK_PRE_VENT);
+
+      if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+        stopEffect(S_PACK_OVERHEAT_HOT);
+      }
+
       playEffect(S_VENT_CLOSE);
       playEffect(S_STEAM_LOOP_FADE_OUT);
     }
@@ -1145,7 +1176,6 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_1984);
-                packOffReset();
               }
             break;
 
@@ -1158,7 +1188,6 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_1989);
-                packOffReset();
               }
             break;
 
@@ -1171,7 +1200,6 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_FROZEN_EMPIRE);
-                packOffReset();
               }
             break;
 
@@ -1185,10 +1213,11 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_AFTERLIFE);
-                packOffReset();
               }
             break;
           }
+
+          packOffReset();
         }
 
         // Reset the cyclotron ramp speeds.
@@ -1725,7 +1754,18 @@ void cyclotronControl() {
 
   if(switch_alarm.getState() == HIGH && PACK_STATE != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false && b_use_ribbon_cable == true) {
     if(b_alarm == false) {
-      stopEffect(S_BEEP_8);
+      switch(SYSTEM_YEAR) {
+        case SYSTEM_AFTERLIFE:
+        case SYSTEM_FROZEN_EMPIRE:
+          stopEffect(S_PACK_BEEPS_OVERHEAT);
+        break;
+
+        case SYSTEM_1984:
+        case SYSTEM_1989:
+        default:
+          stopEffect(S_BEEP_8);
+        break;
+      }
 
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
@@ -1754,7 +1794,18 @@ void cyclotronControl() {
   }
   else if(b_overheating == true) {
     if(b_alarm == false) {
-      stopEffect(S_BEEP_8);
+      switch(SYSTEM_YEAR) {
+        case SYSTEM_AFTERLIFE:
+        case SYSTEM_FROZEN_EMPIRE:
+          stopEffect(S_PACK_BEEPS_OVERHEAT);
+        break;
+
+        case SYSTEM_1984:
+        case SYSTEM_1989:
+        default:
+          stopEffect(S_BEEP_8);
+        break;
+      }
 
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
@@ -2861,8 +2912,31 @@ void packVenting() {
       playEffect(S_SLIME_REFILL, true);
     }
     else {
-      playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+      uint8_t i_smoke_random = random(4);
 
+      switch(i_smoke_random) {
+        case 4:
+          playEffect(S_VENT_SMOKE_4, false, i_volume_effects, true, 120);
+        break;
+
+        case 3:
+          playEffect(S_VENT_SMOKE_3, false, i_volume_effects, true, 120);
+        break;
+
+        case 2:
+          playEffect(S_VENT_SMOKE_2, false, i_volume_effects, true, 120);
+        break;
+
+        case 1:
+          playEffect(S_VENT_SMOKE_1, false, i_volume_effects, true, 120);
+        break;
+
+        case 0:
+        default:
+          playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+        break;
+      }
+      
       // Fade in the steam release loop.
       playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
     }
@@ -2976,7 +3050,31 @@ void cyclotronOverheating() {
     }
     else {
       playEffect(S_AIR_RELEASE);
-      playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+
+      uint8_t i_smoke_random = random(4);
+
+      switch(i_smoke_random) {
+        case 4:
+          playEffect(S_VENT_SMOKE_4, false, i_volume_effects, true, 120);
+        break;
+
+        case 3:
+          playEffect(S_VENT_SMOKE_3, false, i_volume_effects, true, 120);
+        break;
+
+        case 2:
+          playEffect(S_VENT_SMOKE_2, false, i_volume_effects, true, 120);
+        break;
+
+        case 1:
+          playEffect(S_VENT_SMOKE_1, false, i_volume_effects, true, 120);
+        break;
+
+        case 0:
+        default:
+          playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+        break;
+      }
 
       // Fade in the steam release loop.
       playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
@@ -3135,6 +3233,10 @@ void packOverheatingFinished() {
       default:
         playEffect(S_VENT_CLOSE);
       break;
+    }
+    
+    if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      stopEffect(S_PACK_OVERHEAT_HOT);
     }
 
     playEffect(S_STEAM_LOOP_FADE_OUT);
@@ -3771,7 +3873,7 @@ void modeFireStartSounds() {
             case SYSTEM_AFTERLIFE:
             case SYSTEM_FROZEN_EMPIRE:
             default:
-              playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + 2);
+              playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects);
             break;
           }
 
@@ -3977,7 +4079,18 @@ void wandStoppedFiring() {
   ms_smoke_on.stop();
 
   // Stop overheat beeps.
-  stopEffect(S_BEEP_8);
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+      stopEffect(S_PACK_BEEPS_OVERHEAT);
+    break;
+
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+    default:
+      stopEffect(S_BEEP_8);
+    break;
+  }
 }
 
 void wandStopFiringSounds() {
@@ -4152,6 +4265,10 @@ void cyclotronSwitchPlateLEDs() {
   if(switch_cyclotron_lid.isReleased()) {
     // Play sounds when lid is removed.
     stopEffect(S_VENT_SMOKE);
+    stopEffect(S_VENT_SMOKE_1);
+    stopEffect(S_VENT_SMOKE_2);
+    stopEffect(S_VENT_SMOKE_3);
+    stopEffect(S_VENT_SMOKE_4);
     stopEffect(S_MODE_SWITCH);
     stopEffect(S_CLICK);
     stopEffect(S_SPARKS_LOOP);
@@ -4159,7 +4276,30 @@ void cyclotronSwitchPlateLEDs() {
 
     playEffect(S_MODE_SWITCH);
 
-    playEffect(S_VENT_SMOKE);
+    uint8_t i_smoke_random = random(4);
+
+    switch(i_smoke_random) {
+      case 4:
+        playEffect(S_VENT_SMOKE_4, false, i_volume_effects, true, 120);
+      break;
+
+      case 3:
+        playEffect(S_VENT_SMOKE_3, false, i_volume_effects, true, 120);
+      break;
+
+      case 2:
+        playEffect(S_VENT_SMOKE_2, false, i_volume_effects, true, 120);
+      break;
+
+      case 1:
+        playEffect(S_VENT_SMOKE_1, false, i_volume_effects, true, 120);
+      break;
+
+      case 0:
+      default:
+        playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
+      break;
+    }
 
     // Play some spark sounds if the pack is running and the lid is removed.
     if(PACK_STATE == MODE_ON) {

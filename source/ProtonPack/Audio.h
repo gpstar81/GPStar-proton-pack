@@ -186,8 +186,6 @@ void updateEffectsVolume() {
       audio.trackGain(S_PACK_RIBBON_ALARM_1, i_volume_effects);
       audio.trackGain(S_ALARM_LOOP, i_volume_effects);
       audio.trackGain(S_RIBBON_CABLE_START, i_volume_effects);
-      audio.trackGain(S_PACK_BEEPING, i_volume_effects); // Not used ?
-      audio.trackGain(S_BEEP_8, i_volume_effects);
       audio.trackGain(S_SHUTDOWN, i_volume_effects);
 
       if(SYSTEM_YEAR == SYSTEM_1989) {

@@ -380,10 +380,17 @@ enum sound_fx {
   S_POWERCELL,
   S_ION_ARM_SWITCH_ALT,
   S_PACK_RECOVERY,
-  S_VENT_CLOSE_ALT
+  S_VENT_CLOSE_ALT,
+  S_VENT_SMOKE_1,
+  S_VENT_SMOKE_2,
+  S_VENT_SMOKE_3,
+  S_VENT_SMOKE_4,
+  S_PACK_PRE_VENT,
+  S_PACK_OVERHEAT_HOT,
+  S_PACK_BEEPS_OVERHEAT
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_VENT_CLOSE_ALT;
+const unsigned int i_last_effects_track = S_PACK_BEEPS_OVERHEAT;
