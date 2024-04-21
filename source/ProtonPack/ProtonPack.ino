@@ -4803,6 +4803,11 @@ void wandExtraSoundsStop() {
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 
   stopEffect(S_WAND_BOOTUP);
+
+  if(b_wand_mash_lockout == true || PACK_STATE == MODE_OFF) {
+    stopEffect(S_SMASH_ERROR_LOOP);
+    stopEffect(S_SMASH_ERROR_RESTART);
+  }
 }
 
 // It is very important that S_1 up to S_60 follow each other in order on the Micro SD Card and sound effects enum.

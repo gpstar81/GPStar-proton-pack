@@ -1544,6 +1544,21 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_wand_mash_lockout = true;
     break;
 
+    case W_SMASH_ERROR_LOOP:
+      stopEffect(S_SMASH_ERROR_LOOP);
+      playEffect(S_SMASH_ERROR_LOOP, true);
+    break;
+
+    case W_SMASH_ERROR_LOOP_STOP:
+      stopEffect(S_SMASH_ERROR_LOOP);
+    break;
+
+    case W_SMASH_ERROR_RESTART:
+      stopEffect(S_SMASH_ERROR_LOOP);
+      stopEffect(S_SMASH_ERROR_RESTART);
+      playEffect(S_SMASH_ERROR_RESTART);
+    break;
+
     case W_PROTON_MODE:
       // Proton mode
       FIRING_MODE = PROTON;

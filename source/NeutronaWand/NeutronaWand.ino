@@ -274,6 +274,15 @@ void mainLoop() {
 
         postActivation();
 
+        stopEffect(S_SMASH_ERROR_LOOP);
+        stopEffect(S_SMASH_ERROR_RESTART);
+        playEffect(S_SMASH_ERROR_RESTART);
+
+        if(b_extra_pack_sounds == true) {
+          wandSerialSend(W_SMASH_ERROR_RESTART);
+        }
+        
+        /*
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
           if(b_extra_pack_sounds == true) {
             wandSerialSend(W_WAND_BOOTUP_SOUND);
@@ -282,6 +291,7 @@ void mainLoop() {
           stopEffect(S_WAND_BOOTUP);
           playEffect(S_WAND_BOOTUP);
         }
+        */
 
         bargraphClearAlt();
       }
@@ -465,22 +475,25 @@ void mainLoop() {
       if(ms_hat_2.justFinished()) {
         ms_hat_2.start(i_hat_2_delay);
 
-        if(b_extra_pack_sounds == true) {
-          // Only play this beep on the Proton Pack if the Neutrona Wand has no audio board.
-          wandSerialSend(W_WAND_BEEP_SOUNDS);
-        }
+        if(b_wand_mash_error != true) {
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_WAND_BEEP_SOUNDS);
+          }
 
-        playEffect(S_BEEPS_LOW);
-        playEffect(S_BEEPS);
+          playEffect(S_BEEPS_LOW);
+          playEffect(S_BEEPS);
+        }
       }
 
       if(ms_hat_1.justFinished()) {
-        if(b_extra_pack_sounds == true) {
-          // Only play this beep on the Proton Pack if the Neutrona Wand has no audio board.
-          wandSerialSend(W_WAND_BEEP_BARGRAPH);
-        }
+        if(b_wand_mash_error != true) {
 
-        playEffect(S_BEEPS_BARGRAPH);
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_WAND_BEEP_BARGRAPH);
+          }
+
+          playEffect(S_BEEPS_BARGRAPH);
+        }
 
         ms_hat_1.start(i_hat_2_delay * 4);
       }
@@ -1458,6 +1471,12 @@ void wandOff() {
     wandSerialSend(W_OFF);
     WAND_STATUS = MODE_OFF;
     WAND_ACTION_STATUS = ACTION_IDLE;
+
+    if(b_wand_mash_error == true) {
+      stopEffect(S_SMASH_ERROR_LOOP);
+      stopEffect(S_SMASH_ERROR_RESTART);
+    }
+
     b_wand_mash_error = false;
 
     if(b_pack_ribbon_cable_on == true) {
@@ -1620,7 +1639,30 @@ void fireControlCheck() {
       wandSerialSend(W_BUTTON_MASHING);
       b_wand_mash_error = true;
       modeError();
-      ms_bmash.start(i_bmash_cool_down);
+      
+      // Adjust the cool down lockout period based on the power level.
+      switch(i_power_level) {
+        case 5:
+          ms_bmash.start(i_bmash_cool_down + 4000);
+        break;
+
+        case 4:
+          ms_bmash.start(i_bmash_cool_down + 3000);
+        break;
+
+        case 3:
+          ms_bmash.start(i_bmash_cool_down + 2000);
+        break;
+
+        case 2:
+          ms_bmash.start(i_bmash_cool_down + 1000);
+        break;
+
+        case 1:
+        default:
+          ms_bmash.start(i_bmash_cool_down);
+        break;
+      }
     }
     else {
       if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
@@ -1874,13 +1916,13 @@ void modeError() {
   WAND_STATUS = MODE_ERROR;
   WAND_ACTION_STATUS = ACTION_ERROR;
 
-  if(b_wand_mash_error != true) {
-    ms_hat_2.start(i_hat_2_delay);
+  ms_hat_2.start(i_hat_2_delay);
 
+  ms_settings_blinking.start(i_settings_blinking_delay);
+
+  if(b_wand_mash_error != true) {
     // This is used for controlling a bargraph beep in a boot up error.
     ms_hat_1.start(i_hat_2_delay * 4);
-
-    ms_settings_blinking.start(i_settings_blinking_delay);
 
     if(b_extra_pack_sounds == true) {
       wandSerialSend(W_WAND_BEEP_BARGRAPH);
@@ -1890,6 +1932,13 @@ void modeError() {
     playEffect(S_BEEPS_LOW);
     playEffect(S_BEEPS);
     playEffect(S_BEEPS_BARGRAPH);
+  }
+  else if(b_wand_mash_error == true) {
+    playEffect(S_SMASH_ERROR_LOOP, true);
+
+    if(b_extra_pack_sounds == true) {
+      wandSerialSend(W_SMASH_ERROR_LOOP);
+    }
   }
 }
 
