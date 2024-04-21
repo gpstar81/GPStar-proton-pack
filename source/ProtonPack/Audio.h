@@ -204,7 +204,7 @@ void updateEffectsVolume() {
       }
 
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE || SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
-        audio.trackGain(S_POWERCELL, i_volume_effects);      
+        audio.trackGain(S_POWERCELL, i_volume_effects);
         audio.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects - i_wand_sound_level);
         audio.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects - i_wand_sound_level);
         audio.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects - i_wand_sound_level);
@@ -220,7 +220,7 @@ void updateEffectsVolume() {
         audio.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - i_wand_sound_level);
         audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - i_wand_sound_level);
         audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - i_wand_sound_level);
-        audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - i_wand_sound_level);           
+        audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - i_wand_sound_level);
       }
 
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on != true) {

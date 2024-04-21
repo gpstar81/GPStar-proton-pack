@@ -1803,7 +1803,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         default:
           stopEffect(S_BEEP_8);
         break;
-      }      
+      }
 
       if(FIRING_MODE == SLIME) {
         playEffect(S_SLIME_EMPTY);
@@ -1814,7 +1814,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
           playEffect(S_PACK_OVERHEAT_HOT, true);
         }
-        
+
         playEffect(S_VENT_OPEN);
       }
 
@@ -2058,11 +2058,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           case 1 ... 4:
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_LOOP);
-              playEffect(S_GB2_FIRE_START);
+              //playEffect(S_GB2_FIRE_START);
             }
             else {
               playEffect(S_GB1_FIRE_LOOP, true);
-              playEffect(S_GB1_FIRE_START);
+              //playEffect(S_GB1_FIRE_START);
             }
           break;
 
@@ -2087,11 +2087,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           case 1 ... 4:
             if(SYSTEM_YEAR == SYSTEM_1989) {
               stopEffect(S_GB2_FIRE_LOOP);
-              stopEffect(S_GB2_FIRE_START);
+              //stopEffect(S_GB2_FIRE_START);
             }
             else {
               stopEffect(S_GB1_FIRE_LOOP);
-              stopEffect(S_GB1_FIRE_START);
+              //stopEffect(S_GB1_FIRE_START);
             }
           break;
 
@@ -2190,7 +2190,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      stopEffect(S_CROSS_STREAMS_END);
+      //stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
 
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
@@ -2222,7 +2222,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
@@ -2252,7 +2252,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       STATUS_CTS = CTS_NOT_FIRING;
 
       stopEffect(S_CROSS_STREAMS_START);
-      stopEffect(S_CROSS_STREAMS_END);
+      //stopEffect(S_CROSS_STREAMS_END);
 
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
@@ -2269,7 +2269,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       STATUS_CTS = CTS_NOT_FIRING;
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 5);
@@ -2292,7 +2292,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       stopEffect(S_CROSS_STREAMS_START);
-      stopEffect(S_CROSS_STREAMS_END);
+      //stopEffect(S_CROSS_STREAMS_END);
 
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
@@ -2313,7 +2313,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 5);

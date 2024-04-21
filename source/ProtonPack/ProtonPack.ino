@@ -341,7 +341,7 @@ void loop() {
 
           stopEffect(S_PACK_RECOVERY);
           playEffect(S_PACK_RECOVERY);
-          
+
           packStartup();
         }
       }
@@ -780,7 +780,7 @@ void packShutdown() {
       stopEffect(S_BEEP_8);
     break;
   }
-      
+
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
   stopEffect(S_SLIME_REFILL);
@@ -825,7 +825,7 @@ void packShutdown() {
   // Need to play the 'close' SFX if we already played the open one
   if(b_overheating == true) {
     stopEffect(S_SLIME_EMPTY);
-    
+
     stopEffect(S_VENT_OPEN);
     stopEffect(S_VENT_CLOSE);
 
@@ -2936,7 +2936,7 @@ void packVenting() {
           playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
         break;
       }
-      
+
       // Fade in the steam release loop.
       playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
     }
@@ -3234,7 +3234,7 @@ void packOverheatingFinished() {
         playEffect(S_VENT_CLOSE);
       break;
     }
-    
+
     if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
       stopEffect(S_PACK_OVERHEAT_HOT);
     }
@@ -3798,29 +3798,20 @@ void modeFireStartSounds() {
     }
   }
 
-  if(FIRING_MODE != MESON) {
-    if(SYSTEM_YEAR == SYSTEM_1989) {
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
-    }
-    else {
-      playEffect(S_FIRE_START_SPARK);
-    }
-  }
-
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(SYSTEM_YEAR == SYSTEM_1989 && b_firing_intensify == true) {
-        int8_t i_v_fire_start = i_volume_effects - 10;
+      // Stop proton firing tail sounds in case they're playing.
+      stopEffect(S_FIRING_END_GUN);
+      stopEffect(S_FIRING_END_MID);
+      stopEffect(S_FIRING_END);
 
-        if(i_v_fire_start < i_volume_abs_min) {
-          i_v_fire_start = i_volume_abs_min;
-        }
-
-        playEffect(S_FIRE_START, false, i_v_fire_start);
+      // Some sparks for firing start.
+      if(SYSTEM_YEAR == SYSTEM_1989) {
+        playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
       }
       else {
-        playEffect(S_FIRE_START);
+        playEffect(S_FIRE_START_SPARK);
       }
 
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
@@ -3846,12 +3837,14 @@ void modeFireStartSounds() {
           }
 
           if(b_firing_alt == true) {
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
-
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START);
             }
+            else {
+              playEffect(S_FIRE_START);
+            }
 
+            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
             b_sound_firing_alt_trigger = true;
           }
           else {
@@ -3991,6 +3984,8 @@ void wandFiring() {
 }
 
 void modeFireStopSounds() {
+  wandStopFiringSounds();
+
   if(b_wand_firing == true) {
     // Adjust the gain with the Afterlife idling track.
     if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
@@ -4038,7 +4033,6 @@ void modeFireStopSounds() {
     }
   }
 
-  wandStopFiringSounds();
   b_wand_mash_lockout = false;
 }
 
@@ -4082,48 +4076,60 @@ void wandStoppedFiring() {
   switch(SYSTEM_YEAR) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
+    default:
       stopEffect(S_PACK_BEEPS_OVERHEAT);
     break;
 
     case SYSTEM_1984:
     case SYSTEM_1989:
-    default:
       stopEffect(S_BEEP_8);
     break;
   }
 }
 
 void wandStopFiringSounds() {
-  // Firing sounds.
+  // Stop the Frozen Empire firing sound if playing.
+  if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+    stopEffect(S_FROZEN_EMPIRE_FIRE_START);
+  }
+
+  // Stop all other firing sounds.
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      if(SYSTEM_YEAR == SYSTEM_1989) {
-        stopEffect(S_GB2_FIRE_START);
-        stopEffect(S_GB2_FIRE_LOOP);
+      switch(i_wand_power_level) {
+        case 1 ... 4:
+          if(SYSTEM_YEAR == SYSTEM_1989) {
+            stopEffect(S_GB2_FIRE_START);
+            stopEffect(S_GB2_FIRE_LOOP);
+          }
+          else {
+            stopEffect(S_GB1_FIRE_START);
+            stopEffect(S_GB1_FIRE_LOOP);
+          }
+        break;
+        case 5:
+          switch(SYSTEM_YEAR) {
+            case SYSTEM_1989:
+              stopEffect(S_GB2_FIRE_START);
+            break;
+            case SYSTEM_1984:
+              stopEffect(S_GB1_FIRE_START_HIGH_POWER);
+              stopEffect(S_GB1_FIRE_START);
+            break;
+            case SYSTEM_AFTERLIFE:
+            case SYSTEM_FROZEN_EMPIRE:
+            default:
+              stopEffect(S_AFTERLIFE_FIRE_START);
+            break;
+          }
+
+          stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+        break;
       }
-      else {
-        stopEffect(S_GB1_FIRE_START);
-        stopEffect(S_GB1_FIRE_LOOP);
-      }
 
-      if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-        stopEffect(S_AFTERLIFE_FIRE_START);
-
-        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-          stopEffect(S_FROZEN_EMPIRE_FIRE_START);
-        }
-      }
-
-      stopEffect(S_FIRING_LOOP_GB1);
-      stopEffect(S_GB1_FIRE_START_HIGH_POWER);
-      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
-
-      /*
-      // Keep this for later.
       stopEffect(S_FIRE_START_SPARK);
-      stopEffect(S_FIRE_START);
-      */
+      stopEffect(S_FIRING_LOOP_GB1);
     break;
 
     case SLIME:
@@ -4137,12 +4143,9 @@ void wandStopFiringSounds() {
     break;
 
     case MESON:
-      // Nothing.
-    break;
-
     case VENTING:
     case SETTINGS:
-      // Nothing
+      // Nothing.
     break;
   }
 
@@ -4151,7 +4154,7 @@ void wandStopFiringSounds() {
       STATUS_CTS = CTS_NOT_FIRING;
 
       stopEffect(S_CROSS_STREAMS_START);
-      stopEffect(S_CROSS_STREAMS_END);
+      //stopEffect(S_CROSS_STREAMS_END);
 
       if(b_wand_mash_lockout != true) {
         if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
@@ -4167,7 +4170,7 @@ void wandStopFiringSounds() {
       STATUS_CTS = CTS_NOT_FIRING;
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       if(b_wand_mash_lockout != true) {
         if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
@@ -4936,4 +4939,3 @@ void doVoltageCheck() {
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.
 #include "Serial.h"
-  

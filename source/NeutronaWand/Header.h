@@ -416,10 +416,10 @@ bool b_wand_boot_error_on = false;
  * prolonged firing which would trigger the overheat or venting sequences; only rapid firing bursts.
  */
 millisDelay ms_bmash;
-unsigned int i_bmash_delay = 3000;     // Time period in which we consider rapid firing
+unsigned int i_bmash_delay = 2000;     // Time period in which we consider rapid firing
 unsigned int i_bmash_cool_down = 3200; // Time period for the lock-out of user input
 uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts
-uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out
+uint8_t i_bmash_max = 4;               // Burst count we consider before the lock-out
 bool b_wand_mash_error = false;        // Indicates if wand is in a lock-out phase
 
 /*
