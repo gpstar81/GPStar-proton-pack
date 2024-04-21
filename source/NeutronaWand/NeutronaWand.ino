@@ -3383,37 +3383,32 @@ void modeFiring() {
     }
 
     unsigned int i_s_random = random(2,4) * 1000;
-    uint8_t i_amplify_tmp = 5;
-
-    if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-      i_amplify_tmp = 1;
-    }
 
     switch (i_random) {
       case 3:
-        playEffect(S_FIRE_SPARKS, false, i_volume_effects + i_amplify_tmp);
+        playEffect(S_FIRE_SPARKS, false, i_volume_effects);
         i_last_firing_effect_mix = S_FIRE_SPARKS;
 
-        ms_firing_sound_mix.start(i_s_random * 10); // Intentional to have a 20 or 30 second delay?
+        ms_firing_sound_mix.start(i_s_random * 5);
       break;
 
       case 2:
-        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects + i_amplify_tmp);
+        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects);
         i_last_firing_effect_mix = S_FIRE_SPARKS_4;
 
         ms_firing_sound_mix.start(i_s_random);
       break;
 
       case 1:
-        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects + i_amplify_tmp);
+        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects);
         i_last_firing_effect_mix = S_FIRE_SPARKS_3;
 
         ms_firing_sound_mix.start(i_s_random);
       break;
 
       case 0:
-        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects + i_amplify_tmp);
-        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects + i_amplify_tmp);
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects);
+        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects);
         i_last_firing_effect_mix = S_FIRE_SPARKS_5;
 
         ms_firing_sound_mix.start(1800);
@@ -3421,7 +3416,7 @@ void modeFiring() {
 
       default:
         // This will never trigger because i_random will only ever be 0~3.
-        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects + i_amplify_tmp);
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects);
         i_last_firing_effect_mix = S_FIRE_SPARKS_2;
 
         ms_firing_sound_mix.start(500);
