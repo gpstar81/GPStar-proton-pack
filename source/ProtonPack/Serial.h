@@ -1546,7 +1546,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_SMASH_ERROR_LOOP:
       stopEffect(S_SMASH_ERROR_LOOP);
-      playEffect(S_SMASH_ERROR_LOOP, true);
+      
+      playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
     break;
 
     case W_SMASH_ERROR_LOOP_STOP:

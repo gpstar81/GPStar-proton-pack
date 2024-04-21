@@ -1934,7 +1934,7 @@ void modeError() {
     playEffect(S_BEEPS_BARGRAPH);
   }
   else if(b_wand_mash_error == true) {
-    playEffect(S_SMASH_ERROR_LOOP, true);
+    playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
 
     if(b_extra_pack_sounds == true) {
       wandSerialSend(W_SMASH_ERROR_LOOP);
