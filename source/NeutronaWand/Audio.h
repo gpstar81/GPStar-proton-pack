@@ -754,7 +754,7 @@ bool setupAudioDevice() {
     }
 
     AUDIO_DEVICE = A_WAV_TRIGGER;
-    i_wand_sound_level = 1; // This gets subtracted from certain sounds volume level.
+    i_wand_sound_level = 1; // This gets subtracted from certain sound volume levels.
 
     calculateAmplificationGain();
 
@@ -768,6 +768,8 @@ bool setupAudioDevice() {
   delay(350);
 
   if(audio.gpstarAudioHello()) {
+    audio.gpstarShortTrackOverload(true); // Turn on short track overload protection.
+
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
     i_wand_sound_level = 0; // Special setting to adjust certain wand sounds, usually lower.
 

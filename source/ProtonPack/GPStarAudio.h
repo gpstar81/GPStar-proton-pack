@@ -59,6 +59,10 @@
 #define CMD_GET_GPSTAR_HELLO    17
 #define CMD_LED_ON              18
 #define CMD_LED_OFF             19
+#define CMD_SHORT_OVERLOAD_ON   20
+#define CMD_SHORT_OVERLOAD_OFF  21
+#define CMD_TRACK_FORCE_ON      22
+#define CMD_TRACK_FORCE_OFF     23
 
 #define TRK_PLAY_SOLO            0
 #define TRK_PLAY_POLY            1
@@ -142,6 +146,8 @@ public:
   void serialFlush(void);
   void hello(void);
   void gpstarLEDStatus(bool status);
+  void gpstarShortTrackOverload(bool status);
+  void gpstarTrackForce(bool status);  
   bool gpstarAudioHello(void);
 
 private:

@@ -2358,9 +2358,6 @@ void modeFireStartSounds() {
   switch(FIRING_MODE) {
     case PROTON:
     default:
-      // Stop proton firing tail sound in case it's playing.
-      stopEffect(S_FIRING_END_GUN);
-
       // Some sparks for firing start.
       if(getSystemYearMode() == SYSTEM_1989) {
         playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
@@ -2706,7 +2703,7 @@ void modeFireStopSounds() {
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         if(b_wand_mash_error != true) {
-          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
         }
       break;
 
@@ -2716,7 +2713,7 @@ void modeFireStopSounds() {
         //stopEffect(S_CROSS_STREAMS_END);
 
         if(b_wand_mash_error != true) {
-          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
         }
       break;
 
@@ -2731,7 +2728,7 @@ void modeFireStopSounds() {
             //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
             if(b_wand_mash_error != true) {
-              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
             }
           break;
 
@@ -2741,7 +2738,7 @@ void modeFireStopSounds() {
             //stopEffect(S_CROSS_STREAMS_END);
 
             if(b_wand_mash_error != true) {
-              playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+              playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
             }
           break;
         }
@@ -2948,7 +2945,7 @@ void modeFiring() {
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects);
 
         if(b_cross_the_streams_mix == true) {
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
@@ -2965,7 +2962,7 @@ void modeFiring() {
         //stopEffect(S_CROSS_STREAMS_END);
         stopEffect(S_CROSS_STREAMS_START);
 
-        playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+        playEffect(S_CROSS_STREAMS_START, false, i_volume_effects);
 
         if(b_cross_the_streams_mix == true) {
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
@@ -2987,7 +2984,7 @@ void modeFiring() {
             //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
             stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
-            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects);
 
             if(b_cross_the_streams_mix == true) {
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
@@ -3004,7 +3001,7 @@ void modeFiring() {
             //stopEffect(S_CROSS_STREAMS_END);
             stopEffect(S_CROSS_STREAMS_START);
 
-            playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
+            playEffect(S_CROSS_STREAMS_START, false, i_volume_effects);
 
             if(b_cross_the_streams_mix == true) {
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
@@ -3046,7 +3043,7 @@ void modeFiring() {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
 
         wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_2021);
       break;
@@ -3056,7 +3053,7 @@ void modeFiring() {
         stopEffect(S_CROSS_STREAMS_START);
         //stopEffect(S_CROSS_STREAMS_END);
 
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
 
         wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984);
       break;
@@ -3071,7 +3068,7 @@ void modeFiring() {
             stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
             //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
 
             wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_2021);
           break;
@@ -3081,7 +3078,7 @@ void modeFiring() {
             stopEffect(S_CROSS_STREAMS_START);
             //stopEffect(S_CROSS_STREAMS_END);
 
-            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
 
             wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984);
           break;
@@ -3101,7 +3098,7 @@ void modeFiring() {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
 
         wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021);
       break;
@@ -3111,7 +3108,7 @@ void modeFiring() {
         stopEffect(S_CROSS_STREAMS_START);
         //stopEffect(S_CROSS_STREAMS_END);
 
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
 
         wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_1984);
       break;
@@ -3126,7 +3123,7 @@ void modeFiring() {
             stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
             //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
 
             wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021);
           break;
@@ -3136,7 +3133,7 @@ void modeFiring() {
             stopEffect(S_CROSS_STREAMS_START);
             //stopEffect(S_CROSS_STREAMS_END);
 
-            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
+            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
 
             wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_1984);
           break;

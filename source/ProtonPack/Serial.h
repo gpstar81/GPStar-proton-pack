@@ -1583,6 +1583,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(PACK_STATE == MODE_ON && b_wand_on == true) {
         playEffect(S_PACK_SLIME_OPEN);
         playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
+
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects - 20, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 30, true, 100);
+        }
       }
 
       if(b_cyclotron_colour_toggle == true) {
@@ -1611,6 +1616,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(PACK_STATE == MODE_ON && b_wand_on == true) {
         playEffect(S_STASIS_OPEN);
         playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
+
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
+        }        
       }
 
       if(b_cyclotron_colour_toggle == true) {
@@ -2152,14 +2162,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_CROSS_STREAMS_START);
       playEffect(S_FIRE_SPARKS);
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 5);
-      }
-      else {
-        playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
-      }
-
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
+      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects);
+      playEffect(S_FIRE_START_SPARK, false, i_volume_effects);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_2021:
@@ -2173,14 +2177,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       playEffect(S_FIRE_SPARKS);
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 5);
-      }
-      else {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
-      }
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects);
 
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects + 10);
+      playEffect(S_FIRE_START_SPARK, false, i_volume_effects);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_MIX_1984:
@@ -2193,12 +2192,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       //stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 5);
-      }
-      else {
-        playEffect(S_CROSS_STREAMS_START, false, i_volume_effects + 10);
-      }
+      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects);
 
       playEffect(S_FIRE_START_SPARK);
       playEffect(S_FIRING_LOOP_GB1, true);
@@ -2225,12 +2219,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 5);
-      }
-      else {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects + 10);
-      }
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects);
 
       playEffect(S_FIRE_START_SPARK);
       playEffect(S_FIRING_LOOP_GB1, true);
@@ -2254,12 +2243,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_CROSS_STREAMS_START);
       //stopEffect(S_CROSS_STREAMS_END);
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
-      }
-      else {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
-      }
+      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
 
       stopEffect(S_FIRING_LOOP_GB1);
     break;
@@ -2271,13 +2255,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 5);
-      }
-      else {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
-      }
-
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
       stopEffect(S_FIRING_LOOP_GB1);
     break;
 
@@ -2294,12 +2272,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_CROSS_STREAMS_START);
       //stopEffect(S_CROSS_STREAMS_END);
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
-      }
-      else {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects + 10);
-      }
+      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021:
@@ -2315,12 +2288,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 5);
-      }
-      else {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects + 10);
-      }
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
     break;
 
     case W_YEAR_MODES_CYCLE:
