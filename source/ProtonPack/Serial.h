@@ -1546,7 +1546,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_SMASH_ERROR_LOOP:
       stopEffect(S_SMASH_ERROR_LOOP);
-      
+
       playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
     break;
 
@@ -1636,7 +1636,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
           adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
-        }        
+        }
       }
 
       if(b_cyclotron_colour_toggle == true) {
@@ -1961,7 +1961,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
         }
       }
 
@@ -1975,7 +1975,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
         }
       }
 
@@ -1989,7 +1989,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
         }
       }
 
@@ -2003,7 +2003,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
         }
       }
 
@@ -2017,7 +2017,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
         }
       }
 

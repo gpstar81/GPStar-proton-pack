@@ -36,6 +36,7 @@ enum colours {
   C_RED4,
   C_RED5,
   C_ORANGE,
+  C_BEIGE,
   C_YELLOW,
   C_CHARTREUSE,
   C_GREEN,
@@ -75,6 +76,8 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
   switch(i_colour) {
     case C_HASLAB:
+    case C_WHITE:
+    default:
       return CHSV(100, 0, i_brightness); // Just "on", which is white.
     break;
 
@@ -84,10 +87,6 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
     case C_BLACK:
       return CHSV(0, 0, 0); // Overrides brightness.
-    break;
-
-    case C_WHITE:
-      return CHSV(100, 0, i_brightness);
     break;
 
     case C_PINK:
@@ -116,6 +115,10 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
     case C_ORANGE:
       return CHSV(32, i_saturation, i_brightness);
+    break;
+
+    case C_BEIGE:
+      return CHSV(43, 128, i_brightness);
     break;
 
     case C_YELLOW:
@@ -216,10 +219,6 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       }
 
       return CHSV(i_curr_colour, 255, i_brightness);
-    break;
-
-    default:
-      return CHSV(100, 0, i_brightness); // White on no match.
     break;
   }
 }
