@@ -274,9 +274,7 @@ void mainLoop() {
 
         postActivation();
 
-        if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-          stopEffect(S_SMASH_ERROR_LOOP);
-        }
+        stopEffect(S_SMASH_ERROR_LOOP);
         playEffect(S_SMASH_ERROR_RESTART);
 
         if(b_extra_pack_sounds == true) {
@@ -1512,9 +1510,7 @@ void wandOff() {
     WAND_ACTION_STATUS = ACTION_IDLE;
 
     if(b_wand_mash_error == true) {
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-        stopEffect(S_SMASH_ERROR_LOOP);
-      }
+      stopEffect(S_SMASH_ERROR_LOOP);
       stopEffect(S_SMASH_ERROR_RESTART);
     }
 
@@ -1699,6 +1695,7 @@ void fireControlCheck() {
   if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
     if(i_bmash_count >= i_bmash_max) {
       // User has exceeded "normal" firing rate.
+      stopEffect(S_FIRING_END_GUN);
       wandSerialSend(W_BUTTON_MASHING);
       b_wand_mash_error = true;
       modeError();
@@ -1998,9 +1995,7 @@ void modeError() {
     playEffect(S_BEEPS_BARGRAPH);
   }
   else if(b_wand_mash_error == true) {
-    if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-      playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
-    }
+    playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
 
     if(b_extra_pack_sounds == true) {
       wandSerialSend(W_SMASH_ERROR_LOOP);
@@ -2494,36 +2489,31 @@ void soundBeepLoop() {
 }
 
 void modeFireStartSounds() {
-  if(AUDIO_DEVICE == A_WAV_TRIGGER) {
-    // WAV Trigger can't handle rapid-firing, so stop this sound first.
-    stopEffect(S_FIRING_END_GUN);
-  }
-
   switch(FIRING_MODE) {
     case PROTON:
     default:
       // Some sparks for firing start.
       if(getSystemYearMode() == SYSTEM_1989) {
-        playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
+        playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10, false, 0, false);
       }
       else {
-        playEffect(S_FIRE_START_SPARK);
+        playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
       }
 
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-        playEffect(S_FROZEN_EMPIRE_FIRE_START);
+        playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
       }
 
       switch(i_power_level) {
         case 1 ... 4:
           if(b_firing_intensify == true) {
             if(getSystemYearMode() == SYSTEM_1989) {
-              playEffect(S_GB2_FIRE_START);
-              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
+              playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
+              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500, false);
             }
             else {
-              playEffect(S_GB1_FIRE_START);
-              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000);
+              playEffect(S_GB1_FIRE_START, false, i_volume_effects, false, 0, false);
+              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000, false);
             }
 
             b_sound_firing_intensify_trigger = true;
@@ -2534,13 +2524,13 @@ void modeFireStartSounds() {
 
           if(b_firing_alt == true) {
             if(getSystemYearMode() == SYSTEM_1989) {
-              playEffect(S_GB2_FIRE_START);
+              playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
             }
             else {
-              playEffect(S_FIRE_START);
+              playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
             }
 
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
+            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, false);
             b_sound_firing_alt_trigger = true;
           }
           else {
@@ -2551,12 +2541,12 @@ void modeFireStartSounds() {
         case 5:
           switch(getSystemYearMode()) {
             case SYSTEM_1989:
-              playEffect(S_GB2_FIRE_START);
+              playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
             break;
 
             case SYSTEM_1984:
-              playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
-              playEffect(S_GB1_FIRE_START);
+              playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              playEffect(S_GB1_FIRE_START, false, i_volume_effects, false, 0, false);
             break;
 
             case SYSTEM_AFTERLIFE:
@@ -2569,7 +2559,7 @@ void modeFireStartSounds() {
                 i_amplify_tmp = 0;
               }
 
-              playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + i_amplify_tmp);
+              playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects + i_amplify_tmp, false, 0, false);
             }
             break;
           }
@@ -2577,7 +2567,7 @@ void modeFireStartSounds() {
           if(b_firing_intensify == true) {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700);
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
           }
           else {
             b_sound_firing_intensify_trigger = false;
@@ -2587,7 +2577,7 @@ void modeFireStartSounds() {
             // Reset some sound triggers.
             b_sound_firing_alt_trigger = true;
 
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700);
+            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
           }
           else {
             b_sound_firing_alt_trigger = false;
@@ -2598,14 +2588,14 @@ void modeFireStartSounds() {
 
     case SLIME:
       stopEffect(S_SLIME_END);
-      playEffect(S_SLIME_START);
-      playEffect(S_SLIME_LOOP, true);
+      playEffect(S_SLIME_START, false, i_volume_effects, false, 0, false);
+      playEffect(S_SLIME_LOOP, true, i_volume_effects, false, 0, false);
     break;
 
     case STASIS:
       stopEffect(S_STASIS_END);
-      playEffect(S_STASIS_START);
-      playEffect(S_STASIS_LOOP, true);
+      playEffect(S_STASIS_START, false, i_volume_effects, false, 0, false);
+      playEffect(S_STASIS_LOOP, true, i_volume_effects, false, 0, false);
     break;
 
     case MESON:
@@ -2821,15 +2811,15 @@ void modeFireStopSounds() {
     switch(FIRING_MODE) {
       case PROTON:
       default:
-        playEffect(S_FIRING_END_GUN);
+        playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
       break;
 
       case SLIME:
-        playEffect(S_SLIME_END);
+        playEffect(S_SLIME_END, false, i_volume_effects, false, 0, false);
       break;
 
       case STASIS:
-        playEffect(S_STASIS_END);
+        playEffect(S_STASIS_END, false, i_volume_effects, false, 0, false);
       break;
 
       case MESON:
@@ -2847,7 +2837,7 @@ void modeFireStopSounds() {
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         if(b_wand_mash_error != true) {
-          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
+          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
         }
       break;
 
@@ -2857,7 +2847,7 @@ void modeFireStopSounds() {
         //stopEffect(S_CROSS_STREAMS_END);
 
         if(b_wand_mash_error != true) {
-          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
+          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
         }
       break;
 
@@ -2872,7 +2862,7 @@ void modeFireStopSounds() {
             //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
             if(b_wand_mash_error != true) {
-              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
+              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
             }
           break;
 
@@ -2882,7 +2872,7 @@ void modeFireStopSounds() {
             //stopEffect(S_CROSS_STREAMS_END);
 
             if(b_wand_mash_error != true) {
-              playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
+              playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
             }
           break;
         }
@@ -3087,9 +3077,8 @@ void modeFiring() {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
         if(b_cross_the_streams_mix == true) {
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
@@ -3104,9 +3093,8 @@ void modeFiring() {
       case CTS_1984:
       case CTS_1989:
         //stopEffect(S_CROSS_STREAMS_END);
-        stopEffect(S_CROSS_STREAMS_START);
 
-        playEffect(S_CROSS_STREAMS_START, false, i_volume_effects);
+        playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
         if(b_cross_the_streams_mix == true) {
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
@@ -3126,9 +3114,8 @@ void modeFiring() {
           case SYSTEM_FROZEN_EMPIRE:
           default:
             //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
-            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects);
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
             if(b_cross_the_streams_mix == true) {
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
@@ -3143,9 +3130,8 @@ void modeFiring() {
           case SYSTEM_1984:
           case SYSTEM_1989:
             //stopEffect(S_CROSS_STREAMS_END);
-            stopEffect(S_CROSS_STREAMS_START);
 
-            playEffect(S_CROSS_STREAMS_START, false, i_volume_effects);
+            playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
             if(b_cross_the_streams_mix == true) {
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
@@ -3445,7 +3431,7 @@ void modeFiring() {
 
   // Mix some impact sound every 10-15 seconds while firing.
   if(ms_impact.justFinished() && FIRING_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true) {
-    playEffect(S_FIRE_LOOP_IMPACT);
+    playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
     ms_impact.start(random(10,16) * 1000);
   }
 
@@ -3481,29 +3467,29 @@ void modeFiring() {
 
     switch (i_random) {
       case 3:
-        playEffect(S_FIRE_SPARKS, false, i_volume_effects);
+        playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
         i_last_firing_effect_mix = S_FIRE_SPARKS;
 
         ms_firing_sound_mix.start(i_s_random * 5);
       break;
 
       case 2:
-        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects);
+        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
         i_last_firing_effect_mix = S_FIRE_SPARKS_4;
 
         ms_firing_sound_mix.start(i_s_random);
       break;
 
       case 1:
-        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects);
+        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
         i_last_firing_effect_mix = S_FIRE_SPARKS_3;
 
         ms_firing_sound_mix.start(i_s_random);
       break;
 
       case 0:
-        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects);
-        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects);
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
         i_last_firing_effect_mix = S_FIRE_SPARKS_5;
 
         ms_firing_sound_mix.start(1800);
@@ -3511,7 +3497,7 @@ void modeFiring() {
 
       default:
         // This will never trigger because i_random will only ever be 0~3.
-        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects);
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
         i_last_firing_effect_mix = S_FIRE_SPARKS_2;
 
         ms_firing_sound_mix.start(500);
