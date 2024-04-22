@@ -1638,6 +1638,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       FIRING_MODE = SETTINGS;
       PREV_FIRING_MODE = VENTING;
 
+      barrelLightsOff();
       setVGMode();
     break;
 

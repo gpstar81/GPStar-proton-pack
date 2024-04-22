@@ -147,7 +147,7 @@ public:
   void hello(void);
   void gpstarLEDStatus(bool status);
   void gpstarShortTrackOverload(bool status);
-  void gpstarTrackForce(bool status);  
+  void gpstarTrackForce(bool status);
   bool gpstarAudioHello(void);
 
 private:

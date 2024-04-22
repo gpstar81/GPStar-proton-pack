@@ -1541,12 +1541,25 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_BUTTON_MASHING:
+      switch(FIRING_MODE) {
+        case PROTON:
+        default:
+          stopEffect(S_FIRING_END_GUN);
+          stopEffect(S_FIRING_END_MID);
+          stopEffect(S_FIRING_END);
+        break;
+        case SLIME:
+          stopEffect(S_SLIME_END);
+        break;
+        case STASIS:
+          stopEffect(S_STASIS_END);
+        break;
+      }
       b_wand_mash_lockout = true;
     break;
 
     case W_SMASH_ERROR_LOOP:
       stopEffect(S_SMASH_ERROR_LOOP);
-      
       playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
     break;
 
@@ -1636,7 +1649,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
           adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
-        }        
+        }
       }
 
       if(b_cyclotron_colour_toggle == true) {
@@ -1961,7 +1974,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
         }
       }
 
@@ -1975,7 +1988,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
         }
       }
 
@@ -1989,7 +2002,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
         }
       }
 
@@ -2003,7 +2016,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
         }
       }
 
@@ -2017,7 +2030,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning() == true) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer + (i_wand_power_level - 1)));
+          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
         }
       }
 
@@ -2083,17 +2096,17 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         switch(i_wand_power_level) {
           case 1 ... 4:
             if(SYSTEM_YEAR == SYSTEM_1989) {
-              playEffect(S_GB2_FIRE_LOOP);
+              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
               //playEffect(S_GB2_FIRE_START);
             }
             else {
-              playEffect(S_GB1_FIRE_LOOP, true);
+              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, false, 0, false);
               //playEffect(S_GB1_FIRE_START);
             }
           break;
 
           case 5:
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
           break;
         }
       }
@@ -2147,7 +2160,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
         b_sound_firing_alt_trigger = true;
 
-        playEffect(S_FIRING_LOOP_GB1, true);
+        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
       }
     break;
 
@@ -2176,10 +2189,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
-      playEffect(S_FIRE_SPARKS);
+      playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
 
-      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects);
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects);
+      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
+      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_2021:
@@ -2191,11 +2204,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      playEffect(S_FIRE_SPARKS);
+      playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
 
-      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects);
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects);
+      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_MIX_1984:
@@ -2208,13 +2221,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       //stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
 
-      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects);
+      playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-      playEffect(S_FIRE_START_SPARK);
-      playEffect(S_FIRING_LOOP_GB1, true);
+      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
+      playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
 
       if(i_wand_power_level != i_wand_power_level_max) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
       }
 
       if(SYSTEM_YEAR == SYSTEM_1989) {
@@ -2235,13 +2248,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
-      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects);
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-      playEffect(S_FIRE_START_SPARK);
-      playEffect(S_FIRING_LOOP_GB1, true);
+      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
+      playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
 
       if(i_wand_power_level != i_wand_power_level_max) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
+        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
       }
 
       if(SYSTEM_YEAR == SYSTEM_1989) {
@@ -2259,7 +2272,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_CROSS_STREAMS_START);
       //stopEffect(S_CROSS_STREAMS_END);
 
-      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
+      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
 
       stopEffect(S_FIRING_LOOP_GB1);
     break;
@@ -2271,7 +2284,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
       stopEffect(S_FIRING_LOOP_GB1);
     break;
 
@@ -2288,7 +2301,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_CROSS_STREAMS_START);
       //stopEffect(S_CROSS_STREAMS_END);
 
-      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
+      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021:
@@ -2304,7 +2317,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
-      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
 
     case W_YEAR_MODES_CYCLE:

@@ -134,7 +134,8 @@ enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
 /*
  * Delay for fastled to update the addressable LEDs.
  * We have up to 5 addressable LEDs in the wand barrel.
- * 0.03 ms to update 1 LED. So 0.15 ms should be okay? Let's bump it up to 3 just in case.
+ * The Frutto barrel has up to 49 addressable LEDs.
+ * 0.03 ms to update 1 LED. So 1.47 ms should be okay? Let's bump it up to 3 just in case.
  */
 #define FAST_LED_UPDATE_MS 3
 uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
@@ -415,12 +416,13 @@ bool b_wand_boot_error_on = false;
  * otherwise an error mode will be engaged to provide a cool-down period. This does not apply to any
  * prolonged firing which would trigger the overheat or venting sequences; only rapid firing bursts.
  */
-millisDelay ms_bmash;
-unsigned int i_bmash_delay = 3000;     // Time period in which we consider rapid firing
-unsigned int i_bmash_cool_down = 3200; // Time period for the lock-out of user input
-uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts
-uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out
-bool b_wand_mash_error = false;        // Indicates if wand is in a lock-out phase
+millisDelay ms_bmash;                  // Timer for the button mash lock-out period.
+unsigned int i_bmash_delay = 2000;     // Time period in which we consider rapid firing.
+unsigned int i_bmash_cool_down = 3000; // Time period for the lock-out of user input.
+uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts.
+uint8_t i_bmash_max = 4;               // Burst count we consider before the lock-out.
+uint8_t i_bmash_spark_index = 0;       // Current spark number for the spark effect (0~2).
+bool b_wand_mash_error = false;        // Indicates if wand is in a lock-out phase.
 
 /*
  * Used during the overheating sequences.
