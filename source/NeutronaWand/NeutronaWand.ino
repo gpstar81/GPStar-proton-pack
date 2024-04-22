@@ -3560,7 +3560,6 @@ void wandHeatUp() {
 
     case SETTINGS:
       barrelLightsOff();
-      // Nothing.
     break;
   }
 
