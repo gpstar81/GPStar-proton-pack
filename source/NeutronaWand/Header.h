@@ -234,6 +234,8 @@ bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 millisDelay ms_gun_loop_1;
 millisDelay ms_gun_loop_2;
 millisDelay ms_white_light;
+uint16_t i_gun_loop_1 = 1768; // 1660
+uint16_t i_gun_loop_2 = 1653; // 1500
 
 /*
  * Overheat timers
@@ -420,7 +422,7 @@ millisDelay ms_bmash;                  // Timer for the button mash lock-out per
 unsigned int i_bmash_delay = 2000;     // Time period in which we consider rapid firing.
 unsigned int i_bmash_cool_down = 3000; // Time period for the lock-out of user input.
 uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts.
-uint8_t i_bmash_max = 4;               // Burst count we consider before the lock-out.
+uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out.
 uint8_t i_bmash_spark_index = 0;       // Current spark number for the spark effect (0~2).
 bool b_wand_mash_error = false;        // Indicates if wand is in a lock-out phase.
 

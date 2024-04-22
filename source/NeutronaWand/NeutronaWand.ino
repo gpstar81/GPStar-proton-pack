@@ -2288,7 +2288,7 @@ void soundIdleStart() {
             }
           }
 
-          ms_gun_loop_2.start(1500);
+          ms_gun_loop_2.start(i_gun_loop_2);
 
           b_sound_idle = true;
         }
@@ -2360,7 +2360,7 @@ void soundIdleStop() {
           }
 
           if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-            ms_gun_loop_1.start(1660);
+            ms_gun_loop_1.start(i_gun_loop_1);
             ms_gun_loop_2.stop();
           }
         }
@@ -8512,7 +8512,7 @@ void afterLifeRamp1() {
   playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - 1);
   b_sound_afterlife_idle_2_fade = false;
 
-  ms_gun_loop_1.start(1660);
+  ms_gun_loop_1.start(i_gun_loop_1);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
