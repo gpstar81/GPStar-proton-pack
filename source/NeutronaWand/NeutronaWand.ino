@@ -274,7 +274,9 @@ void mainLoop() {
 
         postActivation();
 
-        stopEffect(S_SMASH_ERROR_LOOP);
+        if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+          stopEffect(S_SMASH_ERROR_LOOP);
+        }
         playEffect(S_SMASH_ERROR_RESTART);
 
         if(b_extra_pack_sounds == true) {
@@ -1510,7 +1512,9 @@ void wandOff() {
     WAND_ACTION_STATUS = ACTION_IDLE;
 
     if(b_wand_mash_error == true) {
-      stopEffect(S_SMASH_ERROR_LOOP);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+        stopEffect(S_SMASH_ERROR_LOOP);
+      }
       stopEffect(S_SMASH_ERROR_RESTART);
     }
 
@@ -1696,7 +1700,6 @@ void fireControlCheck() {
     if(i_bmash_count >= i_bmash_max) {
       // User has exceeded "normal" firing rate.
       wandSerialSend(W_BUTTON_MASHING);
-      stopEffect(S_FIRING_END_GUN);
       b_wand_mash_error = true;
       modeError();
       wandTipSpark();
@@ -1866,6 +1869,7 @@ void altWingButtonCheck() {
         }
         else if(FIRING_MODE == VENTING) {
           FIRING_MODE = SETTINGS;
+          barrelLightsOff();
         }
         else {
           FIRING_MODE = PROTON;
@@ -1994,7 +1998,9 @@ void modeError() {
     playEffect(S_BEEPS_BARGRAPH);
   }
   else if(b_wand_mash_error == true) {
-    playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
+    if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+      playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
+    }
 
     if(b_extra_pack_sounds == true) {
       wandSerialSend(W_SMASH_ERROR_LOOP);
@@ -2488,6 +2494,11 @@ void soundBeepLoop() {
 }
 
 void modeFireStartSounds() {
+  if(AUDIO_DEVICE == A_WAV_TRIGGER) {
+    // WAV Trigger can't handle rapid-firing, so stop this sound first.
+    stopEffect(S_FIRING_END_GUN);
+  }
+
   switch(FIRING_MODE) {
     case PROTON:
     default:
@@ -3559,7 +3570,7 @@ void wandHeatUp() {
     break;
 
     case SETTINGS:
-      barrelLightsOff();
+      // Nothing.
     break;
   }
 
