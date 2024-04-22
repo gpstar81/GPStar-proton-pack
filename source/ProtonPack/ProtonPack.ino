@@ -412,29 +412,29 @@ void loop() {
 
           switch (i_random) {
             case 3:
-              playEffect(S_FIRE_SPARKS, false, i_volume_effects);
+              playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
               i_last_firing_effect_mix = S_FIRE_SPARKS;
 
               ms_firing_sound_mix.start(i_s_random * 5);
             break;
 
             case 2:
-              playEffect(S_FIRE_SPARKS_4, false, i_volume_effects);
+              playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
               i_last_firing_effect_mix = S_FIRE_SPARKS_4;
 
               ms_firing_sound_mix.start(i_s_random);
             break;
 
             case 1:
-              playEffect(S_FIRE_SPARKS_3, false, i_volume_effects);
+              playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
               i_last_firing_effect_mix = S_FIRE_SPARKS_3;
 
               ms_firing_sound_mix.start(i_s_random);
             break;
 
             case 0:
-              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects);
-              playEffect(S_FIRE_SPARKS_5, false, i_volume_effects);
+              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+              playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
               i_last_firing_effect_mix = S_FIRE_SPARKS_5;
 
               ms_firing_sound_mix.start(1800);
@@ -442,7 +442,7 @@ void loop() {
 
             default:
               // This will never trigger because i_random will only ever be 0~3.
-              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects);
+              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
               i_last_firing_effect_mix = S_FIRE_SPARKS_2;
 
               ms_firing_sound_mix.start(500);
@@ -3856,26 +3856,26 @@ void modeFireStartSounds() {
     default:
       // Some sparks for firing start.
       if(SYSTEM_YEAR == SYSTEM_1989) {
-        playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10);
+        playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10, false, 0, false);
       }
       else {
-        playEffect(S_FIRE_START_SPARK);
+        playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
       }
 
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-        playEffect(S_FROZEN_EMPIRE_FIRE_START);
+        playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
       }
 
       switch(i_wand_power_level) {
         case 1 ... 4:
           if(b_firing_intensify == true) {
             if(SYSTEM_YEAR == SYSTEM_1989) {
-              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500);
-              playEffect(S_GB2_FIRE_START);
+              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500, false);
+              playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
             }
             else {
-              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000);
-              playEffect(S_GB1_FIRE_START);
+              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000, false);
+              playEffect(S_GB1_FIRE_START, false, i_volume_effects, false, 0, false);
             }
 
             b_sound_firing_intensify_trigger = true;
@@ -3886,13 +3886,13 @@ void modeFireStartSounds() {
 
           if(b_firing_alt == true) {
             if(SYSTEM_YEAR == SYSTEM_1989) {
-              playEffect(S_GB2_FIRE_START);
+              playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
             }
             else {
-              playEffect(S_FIRE_START);
+              playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
             }
 
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000);
+            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, true);
             b_sound_firing_alt_trigger = true;
           }
           else {
@@ -3903,25 +3903,25 @@ void modeFireStartSounds() {
         case 5:
           switch(SYSTEM_YEAR) {
             case SYSTEM_1989:
-              playEffect(S_GB2_FIRE_START);
+              playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
             break;
 
             case SYSTEM_1984:
-              playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects);
-              playEffect(S_GB1_FIRE_START);
+              playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              playEffect(S_GB1_FIRE_START, false, i_volume_effects, false, 0, false);
             break;
 
             case SYSTEM_AFTERLIFE:
             case SYSTEM_FROZEN_EMPIRE:
             default:
-              playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects);
+              playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects, false, 0, false);
             break;
           }
 
           if(b_firing_intensify == true) {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700);
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
           }
           else {
             b_sound_firing_intensify_trigger = false;
@@ -3931,7 +3931,7 @@ void modeFireStartSounds() {
             // Reset some sound triggers.
             b_sound_firing_alt_trigger = true;
 
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700);
+            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
           }
           else {
             b_sound_firing_alt_trigger = false;
@@ -3942,14 +3942,14 @@ void modeFireStartSounds() {
 
     case SLIME:
       stopEffect(S_SLIME_END);
-      playEffect(S_SLIME_START);
-      playEffect(S_SLIME_LOOP, true, i_volume_effects, true, 1500);
+      playEffect(S_SLIME_START, false, i_volume_effects, false, 0, false);
+      playEffect(S_SLIME_LOOP, true, i_volume_effects, true, 1500, false);
     break;
 
     case STASIS:
       stopEffect(S_STASIS_END);
       playEffect(S_STASIS_START);
-      playEffect(S_STASIS_LOOP, true, i_volume_effects, true, 1000);
+      playEffect(S_STASIS_LOOP, true, i_volume_effects, true, 1000, false);
     break;
 
     case MESON:
@@ -4062,24 +4062,24 @@ void modeFireStopSounds() {
           // Play different firing end stream sound depending on how long we have been firing for.
           if(ms_firing_length_timer.remaining() < 5000) {
             // Short tail end.
-            playEffect(S_FIRING_END_GUN);
+            playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
           }
           else if(ms_firing_length_timer.remaining() < 10000) {
             // Mid tail end.
-            playEffect(S_FIRING_END_MID);
+            playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
           }
           else {
             // Long tail end.
-            playEffect(S_FIRING_END);
+            playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
           }
         break;
 
         case SLIME:
-          playEffect(S_SLIME_END);
+          playEffect(S_SLIME_END, false, i_volume_effects, false, 0, false);
         break;
 
         case STASIS:
-          playEffect(S_STASIS_END);
+          playEffect(S_STASIS_END, false, i_volume_effects, false, 0, false);
         break;
 
         case MESON:

@@ -82,7 +82,7 @@ millisDelay ms_volume_check; // Put some timing on the master volume gain to not
 /*
  * Function Prototypes
  */
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
+void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0, bool b_lock = true);
 void stopEffect(int i_track_id);
 void playMusic();
 void stopMusic();
@@ -91,8 +91,9 @@ void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, 
 /*
  * Audio playback functions.
  */
+
 // Play a sound effect using certain defaults.
-void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time) {
+void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time, bool b_lock) {
   if(AUDIO_DEVICE == A_WAV_TRIGGER) {
     if(i_track_volume < i_volume_abs_min) {
       i_track_volume = i_volume_abs_min;
@@ -108,12 +109,12 @@ void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b
     case A_GPSTAR_AUDIO:
       if(b_fade_in == true) {
         audio.trackGain(i_track_id, i_volume_abs_min);
-        audio.trackPlayPoly(i_track_id, true);
+        audio.trackPlayPoly(i_track_id, b_lock);
         audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
       }
       else {
         audio.trackGain(i_track_id, i_track_volume);
-        audio.trackPlayPoly(i_track_id, true);
+        audio.trackPlayPoly(i_track_id, b_lock);
       }
 
       if(b_track_loop == true) {
