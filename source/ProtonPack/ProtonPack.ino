@@ -3831,26 +3831,6 @@ void checkCyclotronAutoSpeed() {
 }
 
 void modeFireStartSounds() {
-  // Adjust the gain with the Afterlife idling sound effect while firing.
-  if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
-    if(ms_idle_fire_fade.remaining() < 3000) {
-      if(FIRING_MODE == SLIME) {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 32, true, 100);
-      }
-      else {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, 100);
-      }
-    }
-    else {
-      if(FIRING_MODE == SLIME) {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 32, true, ms_idle_fire_fade.remaining());
-      }
-      else {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
-      }
-    }
-  }
-
   switch(FIRING_MODE) {
     case PROTON:
     default:
@@ -3984,6 +3964,26 @@ void modeFireStartSounds() {
       // Nothing.
     break;
   }
+
+  // Adjust the gain with the Afterlife idling sound effect while firing.
+  if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
+    if(ms_idle_fire_fade.remaining() < 3000) {
+      if(FIRING_MODE == SLIME) {
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 32, true, 100);
+      }
+      else {
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, 100);
+      }
+    }
+    else {
+      if(FIRING_MODE == SLIME) {
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 32, true, ms_idle_fire_fade.remaining());
+      }
+      else {
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
+      }
+    }
+  }  
 }
 
 void wandFiring() {
@@ -4035,26 +4035,6 @@ void modeFireStopSounds() {
   wandStopFiringSounds();
 
   if(b_wand_firing == true) {
-    // Adjust the gain with the Afterlife idling track.
-    if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
-      if(ms_idle_fire_fade.remaining() < 1000) {
-        if(FIRING_MODE == SLIME) {
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 30, true, 30);
-        }
-        else {
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
-        }
-      }
-      else {
-        if(FIRING_MODE == SLIME) {
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 30, true, ms_idle_fire_fade.remaining());
-        }
-        else {
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
-        }
-      }
-    }
-
     if(b_wand_mash_lockout != true) {
       switch(FIRING_MODE) {
         case PROTON:
@@ -4089,6 +4069,26 @@ void modeFireStopSounds() {
         break;
       }
     }
+
+    // Adjust the gain with the Afterlife idling track.
+    if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
+      if(ms_idle_fire_fade.remaining() < 1000) {
+        if(FIRING_MODE == SLIME) {
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 30, true, 30);
+        }
+        else {
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
+        }
+      }
+      else {
+        if(FIRING_MODE == SLIME) {
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 30, true, ms_idle_fire_fade.remaining());
+        }
+        else {
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
+        }
+      }
+    }    
   }
 
   b_wand_mash_lockout = false;
