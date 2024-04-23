@@ -705,8 +705,8 @@ void packStartup() {
       case SYSTEM_FROZEN_EMPIRE:
       default:
         if(FIRING_MODE == SLIME) {
-          playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 20);
-          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 30, true, 18000);
+          playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 30);
+          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 18000);
         }
         else {
           playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects);
@@ -1878,6 +1878,7 @@ void cyclotronControl() {
   }
 
   if(b_cyclotron_lid_on == true) {
+    /*
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       cyclotronFade();
     }
@@ -1890,6 +1891,8 @@ void cyclotronControl() {
     else if(FIRING_MODE == SLIME && b_alarm == true) {
       cyclotronLidLedsOff();
     }
+    */
+    cyclotronFade();
   }
 }
 
@@ -2206,12 +2209,16 @@ void cyclotron2021(int cDelay) {
         i_vibration_level = i_vibration_idle_level_2021;
       }
       else {
+        /*
         if(FIRING_MODE == SLIME) {
           i_current_ramp_speed = i_2021_delay;
         }
         else {
           i_current_ramp_speed = r_2021_ramp.update();
         }
+        */
+
+        i_current_ramp_speed = r_2021_ramp.update();
 
         if(b_cyclotron_simulate_ring == true) {
           switch(i_cyclotron_leds) {
@@ -2270,12 +2277,15 @@ void cyclotron2021(int cDelay) {
         b_2021_ramp_down = false;
       }
       else {
+        /*
         if(FIRING_MODE == SLIME) {
           i_current_ramp_speed = i_2021_delay;
         }
         else {
           i_current_ramp_speed = r_2021_ramp.update();
         }
+        */
+        i_current_ramp_speed = r_2021_ramp.update();
 
         if(b_cyclotron_simulate_ring == true) {
           switch(i_cyclotron_leds) {
@@ -2473,6 +2483,7 @@ void cyclotron2021(int cDelay) {
       cDelay = 1;
     }
 
+    /*
     if(FIRING_MODE == SLIME) {
       uint8_t i_max = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
       uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
@@ -2487,6 +2498,7 @@ void cyclotron2021(int cDelay) {
         pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_tmp_brightness);
       }
     }
+    */
 
     if(b_clockwise == true) {
       if((i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
@@ -4050,7 +4062,7 @@ void modeFireStartSounds() {
   if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
     if(ms_idle_fire_fade.remaining() < 3000) {
       if(FIRING_MODE == SLIME) {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 32, true, 100);
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40, true, 100);
       }
       else {
         adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, 100);
@@ -4058,7 +4070,7 @@ void modeFireStartSounds() {
     }
     else {
       if(FIRING_MODE == SLIME) {
-        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 32, true, ms_idle_fire_fade.remaining());
+        adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40, true, ms_idle_fire_fade.remaining());
       }
       else {
         adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
@@ -4155,7 +4167,7 @@ void modeFireStopSounds() {
     if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
       if(ms_idle_fire_fade.remaining() < 1000) {
         if(FIRING_MODE == SLIME) {
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 30, true, 30);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40, true, 30);
         }
         else {
           adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 30);
@@ -4163,7 +4175,7 @@ void modeFireStopSounds() {
       }
       else {
         if(FIRING_MODE == SLIME) {
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 30, true, ms_idle_fire_fade.remaining());
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40, true, ms_idle_fire_fade.remaining());
         }
         else {
           adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());

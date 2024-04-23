@@ -1614,8 +1614,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
-          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects - 20, true, 100);
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 30, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects - 30, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40, true, 100);
         }
       }
 
