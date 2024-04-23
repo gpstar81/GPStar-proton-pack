@@ -2512,7 +2512,7 @@ void modeFireStartSounds() {
         playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
       }
 
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
         playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
       }
 
