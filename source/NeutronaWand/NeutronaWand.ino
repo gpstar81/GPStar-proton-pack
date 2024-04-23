@@ -2654,6 +2654,21 @@ void modeFireStart() {
   b_sound_firing_cross_the_streams = false;
   b_firing_cross_streams = false;
 
+  // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode.
+  if(b_firing_intensify == true) {
+    wandSerialSend(W_FIRING_INTENSIFY);
+  }
+
+  // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode.
+  if(b_firing_alt == true) {
+    wandSerialSend(W_FIRING_ALT);
+  }
+
+  modeFireStartSounds();
+
+  // Tell the pack the wand is firing.
+  wandSerialSend(W_FIRING);
+  
   switch(BARGRAPH_FIRING_ANIMATION) {
     case BARGRAPH_ANIMATION_ORIGINAL:
       // Redraw the bargraph to the current power level before doing the MODE_ORIGINAL firing animation.
@@ -2677,21 +2692,6 @@ void modeFireStart() {
   digitalWrite(led_hat_1, HIGH);
 
   ms_hat_1.stop();
-
-  // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode.
-  if(b_firing_intensify == true) {
-    wandSerialSend(W_FIRING_INTENSIFY);
-  }
-
-  // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode.
-  if(b_firing_alt == true) {
-    wandSerialSend(W_FIRING_ALT);
-  }
-
-  modeFireStartSounds();
-
-  // Tell the pack the wand is firing.
-  wandSerialSend(W_FIRING);
 
   ms_overheat_initiate.stop();
 
