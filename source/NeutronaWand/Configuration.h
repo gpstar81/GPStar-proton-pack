@@ -184,26 +184,26 @@ bool b_overheat_bargraph_blink = false;
 bool b_beep_loop = true;
 
 /*
- * Which power modes do you want to be able to overheat.
- * Set to true to allow the wand and pack to overheat in that mode.
- * Set to false to disable overheating in that power mode. You will be able to continuously fire instead.
+ * Which power levels do you want to be able to overheat.
+ * Set to true to allow the wand and pack to overheat in that power level.
+ * Set to false to disable overheating in that power level. You will be able to continuously fire instead.
  */
-bool b_overheat_mode_1 = false;
-bool b_overheat_mode_2 = false;
-bool b_overheat_mode_3 = false;
-bool b_overheat_mode_4 = false;
-bool b_overheat_mode_5 = true;
+bool b_overheat_level_1 = false;
+bool b_overheat_level_2 = false;
+bool b_overheat_level_3 = false;
+bool b_overheat_level_4 = false;
+bool b_overheat_level_5 = true;
 
 /*
- * Time in milliseconds for when overheating will initiate if enabled for that power mode.
- * Overheat only happens if enabled for that power mode (see above).
+ * Time in milliseconds for when overheating will initiate if enabled for that power level.
+ * Overheat only happens if enabled for that power level (see above).
  * Example: 12000 = (12 seconds)
  */
-unsigned long int i_ms_overheat_initiate_mode_1 = 60000;
-unsigned long int i_ms_overheat_initiate_mode_2 = 30000;
-unsigned long int i_ms_overheat_initiate_mode_3 = 20000;
-unsigned long int i_ms_overheat_initiate_mode_4 = 15000;
-unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
+unsigned long int i_ms_overheat_initiate_level_1 = 60000;
+unsigned long int i_ms_overheat_initiate_level_2 = 30000;
+unsigned long int i_ms_overheat_initiate_level_3 = 20000;
+unsigned long int i_ms_overheat_initiate_level_4 = 15000;
+unsigned long int i_ms_overheat_initiate_level_5 = 12000;
 
 /*
  * Set to false to disable the onboard amplifier on the WAV Trigger.
@@ -213,6 +213,11 @@ unsigned long int i_ms_overheat_initiate_mode_5 = 12000;
  * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */
 const bool b_onboard_amp_enabled = true;
+
+/*
+ * When set to true, various impact and other stream effects will overlap and mix randomly into the Proton Stream for an added experience.
+ */
+bool b_stream_effects = true;
 
 /*
  * When set to true, the Neutrona Wand will tell the Proton Pack to play the Neutrona Wand sound effects.
@@ -225,7 +230,7 @@ bool b_extra_pack_sounds = true;
  * For GPStar Audio, when using the Hasbro 16ohm 0.25watt speaker it needs to run at a lower volume to not overpower it.
  * When switching to a more powerful speaker such as 4ohm 2.5W or 8ohm 1.25W it can be amplified more safely.
 */
-bool b_amplify_wand_speaker = false;
+bool b_amplify_wand_speaker = true;
 
 /*
  * When set to true, the Neutrona Wand plays sound effects with the toggle switches only in MODE_ORIGINAL and not MODE_SUPER_HERO mode.

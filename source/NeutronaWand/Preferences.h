@@ -35,20 +35,20 @@
  */
 void readEEPROM();
 void clearConfigEEPROM();
-void clearLedEEPROM();
+void clearLEDEEPROM();
 void saveConfigEEPROM();
-void saveLedEEPROM();
+void saveLEDEEPROM();
 void updateCRCEEPROM();
-unsigned long eepromCRC(void);
+uint32_t eepromCRC(void);
 void bargraphYearModeUpdate();
-void resetOverheatModes();
+void resetOverheatLevels();
+void resetWhiteLEDBlinkRate();
 void setBargraphOrientation();
 
 /*
  * General EEPROM Variables
  */
 unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
-unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the CRC.
 
 /*
  * Data structure object for LED settings which are saved into the EEPROM memory.
@@ -56,15 +56,17 @@ unsigned long l_crc_size = ~0L; // The 4 last bytes are reserved for storing the
 struct objLEDEEPROM {
   uint8_t barrel_spectral_custom;
   uint8_t barrel_spectral_saturation_custom;
+  uint8_t num_barrel_leds;
 };
 
 /*
  * Data structure object for customizations which are saved into the EEPROM memory.
  */
-struct objEEPROM {
+struct objConfigEEPROM {
   uint8_t cross_the_streams;
   uint8_t cross_the_streams_mix;
   uint8_t overheating;
+  uint8_t extra_proton_sounds;
   uint8_t neutrona_wand_sounds;
   uint8_t spectral_mode;
   uint8_t holiday_mode;
@@ -72,7 +74,6 @@ struct objEEPROM {
   uint8_t quick_vent;
   uint8_t wand_boot_errors;
   uint8_t vent_light_auto_intensity;
-  uint8_t num_barrel_leds;
 
   uint8_t invert_bargraph;
   uint8_t bargraph_mode;
@@ -98,7 +99,6 @@ struct objEEPROM {
   uint8_t overheat_level_1;
 
   uint8_t wand_vibration;
-  uint8_t amplify_wand_speaker;
 };
 
 /*
@@ -106,13 +106,13 @@ struct objEEPROM {
  */
 void readEEPROM() {
   // Get the stored CRC from the EEPROM.
-  unsigned long l_crc_check;
-  EEPROM.get(EEPROM.length() - sizeof(l_crc_size), l_crc_check);
+  uint32_t l_crc_check;
+  EEPROM.get(EEPROM.length() - sizeof(eepromCRC()), l_crc_check);
 
   // Check if the calculated CRC matches the stored CRC value in the EEPROM.
   if(eepromCRC() == l_crc_check) {
     // Read our object from the EEPROM.
-    objEEPROM obj_config_eeprom;
+    objConfigEEPROM obj_config_eeprom;
     EEPROM.get(i_eepromAddress, obj_config_eeprom);
 
     if(obj_config_eeprom.cross_the_streams > 0 && obj_config_eeprom.cross_the_streams != 255) {
@@ -139,6 +139,15 @@ void readEEPROM() {
       }
       else {
         b_overheat_enabled = false;
+      }
+    }
+
+    if(obj_config_eeprom.extra_proton_sounds > 0 && obj_config_eeprom.extra_proton_sounds != 255) {
+      if(obj_config_eeprom.extra_proton_sounds > 1) {
+        b_stream_effects = true;
+      }
+      else {
+        b_stream_effects = false;
       }
     }
 
@@ -195,21 +204,6 @@ void readEEPROM() {
       }
       else {
         b_vent_light_control = false;
-      }
-    }
-
-    if(obj_config_eeprom.num_barrel_leds > 0 && obj_config_eeprom.num_barrel_leds != 255) {
-      i_num_barrel_leds = obj_config_eeprom.num_barrel_leds; // Keep it disabled for now until new barrel leds are ready.
-
-      switch(i_num_barrel_leds) {
-        case 5:
-        default:
-          WAND_BARREL_LED_COUNT = LEDS_5;
-        break;
-
-        case 48:
-          WAND_BARREL_LED_COUNT = LEDS_48;
-        break;
       }
     }
 
@@ -347,77 +341,77 @@ void readEEPROM() {
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_5 > 0 && obj_config_eeprom.overheat_start_timer_level_5 != 255) {
-      i_ms_overheat_initiate_mode_5 = obj_config_eeprom.overheat_start_timer_level_5 * 1000;
+      i_ms_overheat_initiate_level_5 = obj_config_eeprom.overheat_start_timer_level_5 * 1000;
 
-      i_ms_overheat_initiate[4] = i_ms_overheat_initiate_mode_5;
+      i_ms_overheat_initiate[4] = i_ms_overheat_initiate_level_5;
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_4 > 0 && obj_config_eeprom.overheat_start_timer_level_4 != 255) {
-      i_ms_overheat_initiate_mode_4 = obj_config_eeprom.overheat_start_timer_level_4 * 1000;
+      i_ms_overheat_initiate_level_4 = obj_config_eeprom.overheat_start_timer_level_4 * 1000;
 
-      i_ms_overheat_initiate[3] = i_ms_overheat_initiate_mode_4;
+      i_ms_overheat_initiate[3] = i_ms_overheat_initiate_level_4;
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_3 > 0 && obj_config_eeprom.overheat_start_timer_level_3 != 255) {
-      i_ms_overheat_initiate_mode_3 = obj_config_eeprom.overheat_start_timer_level_3 * 1000;
+      i_ms_overheat_initiate_level_3 = obj_config_eeprom.overheat_start_timer_level_3 * 1000;
 
-      i_ms_overheat_initiate[2] = i_ms_overheat_initiate_mode_3;
+      i_ms_overheat_initiate[2] = i_ms_overheat_initiate_level_3;
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_2 > 0 && obj_config_eeprom.overheat_start_timer_level_2 != 255) {
-      i_ms_overheat_initiate_mode_2 = obj_config_eeprom.overheat_start_timer_level_2 * 1000;
+      i_ms_overheat_initiate_level_2 = obj_config_eeprom.overheat_start_timer_level_2 * 1000;
 
-      i_ms_overheat_initiate[1] = i_ms_overheat_initiate_mode_2;
+      i_ms_overheat_initiate[1] = i_ms_overheat_initiate_level_2;
     }
 
     if(obj_config_eeprom.overheat_start_timer_level_1 > 0 && obj_config_eeprom.overheat_start_timer_level_1 != 255) {
-      i_ms_overheat_initiate_mode_1 = obj_config_eeprom.overheat_start_timer_level_1 * 1000;
+      i_ms_overheat_initiate_level_1 = obj_config_eeprom.overheat_start_timer_level_1 * 1000;
 
-      i_ms_overheat_initiate[0] = i_ms_overheat_initiate_mode_1;
+      i_ms_overheat_initiate[0] = i_ms_overheat_initiate_level_1;
     }
 
     if(obj_config_eeprom.overheat_level_5 > 0 && obj_config_eeprom.overheat_level_5 != 255) {
       if(obj_config_eeprom.overheat_level_5 > 1) {
-        b_overheat_mode_5 = true;
+        b_overheat_level_5 = true;
       }
       else {
-        b_overheat_mode_5 = false;
+        b_overheat_level_5 = false;
       }
     }
 
     if(obj_config_eeprom.overheat_level_4 > 0 && obj_config_eeprom.overheat_level_4 != 255) {
       if(obj_config_eeprom.overheat_level_4 > 1) {
-        b_overheat_mode_4 = true;
+        b_overheat_level_4 = true;
       }
       else {
-        b_overheat_mode_4 = false;
+        b_overheat_level_4 = false;
       }
     }
 
     if(obj_config_eeprom.overheat_level_3 > 0 && obj_config_eeprom.overheat_level_3 != 255) {
       if(obj_config_eeprom.overheat_level_3 > 1) {
-        b_overheat_mode_3 = true;
+        b_overheat_level_3 = true;
       }
       else {
-        b_overheat_mode_3 = false;
+        b_overheat_level_3 = false;
       }
     }
 
     if(obj_config_eeprom.overheat_level_2 > 0 && obj_config_eeprom.overheat_level_2 != 255) {
       if(obj_config_eeprom.overheat_level_2 > 1) {
-        b_overheat_mode_2 = true;
+        b_overheat_level_2 = true;
       }
       else {
-        b_overheat_mode_2 = false;
+        b_overheat_level_2 = false;
       }
     }
 
     if(obj_config_eeprom.overheat_level_1 > 0 && obj_config_eeprom.overheat_level_1 != 255) {
       if(obj_config_eeprom.overheat_level_1 > 1) {
-        b_overheat_mode_1 = true;
+        b_overheat_level_1 = true;
       }
       else {
-        b_overheat_mode_1 = false;
+        b_overheat_level_1 = false;
       }
     }
 
@@ -452,30 +446,21 @@ void readEEPROM() {
       }
     }
 
-    if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-      if(obj_config_eeprom.amplify_wand_speaker > 0 && obj_config_eeprom.amplify_wand_speaker != 255) {
-        if(obj_config_eeprom.amplify_wand_speaker > 1) {
-          b_amplify_wand_speaker = true;
-        }
-        else {
-          b_amplify_wand_speaker = false;
-        }
-      }
-
-      calculateAmplificationGain();
-    }
-
     // Update the bargraph settings again after loading EEPROM setting data for it.
     bargraphYearModeUpdate();
 
     // Rebuild the over heat enabled modes.
-    resetOverheatModes();
+    resetOverheatLevels();
+
+    // Reset the blinking white LED interval.
+    resetWhiteLEDBlinkRate();
 
     // Read our LED object from the EEPROM.
     objLEDEEPROM obj_led_eeprom;
-    unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
+    unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
     EEPROM.get(i_eepromLEDAddress, obj_led_eeprom);
+
     if(obj_led_eeprom.barrel_spectral_custom > 0 && obj_led_eeprom.barrel_spectral_custom != 255) {
       i_spectral_wand_custom_colour = obj_led_eeprom.barrel_spectral_custom;
     }
@@ -483,15 +468,37 @@ void readEEPROM() {
     if(obj_led_eeprom.barrel_spectral_saturation_custom > 0 && obj_led_eeprom.barrel_spectral_saturation_custom != 255) {
       i_spectral_wand_custom_saturation = obj_led_eeprom.barrel_spectral_saturation_custom;
     }
+
+    if(obj_led_eeprom.num_barrel_leds > 0 && obj_led_eeprom.num_barrel_leds != 255) {
+      i_num_barrel_leds = obj_led_eeprom.num_barrel_leds;
+
+      switch(i_num_barrel_leds) {
+        case 5:
+        default:
+          WAND_BARREL_LED_COUNT = LEDS_5;
+        break;
+
+        case 48:
+          WAND_BARREL_LED_COUNT = LEDS_48;
+        break;
+      }
+    }
+  }
+  else {
+    // CRC doesn't match; let's clear the EEPROMs to be safe.
+    playEffect(S_VOICE_EEPROM_LOADING_FAILED_RESET);
+
+    clearConfigEEPROM();
+    clearLEDEEPROM();
   }
 }
 
 void clearLEDEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
-  unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
+  unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
-  for(unsigned int i = 0 ; i < sizeof(objLEDEEPROM); i++) {
-    EEPROM.put(i_eepromLEDAddress, 0);
+  for(unsigned int i = 0; i < sizeof(objLEDEEPROM); i++) {
+    EEPROM.update(i_eepromLEDAddress, 0);
 
     i_eepromLEDAddress++;
   }
@@ -499,13 +506,20 @@ void clearLEDEEPROM() {
   updateCRCEEPROM();
 }
 
-void saveLedEEPROM() {
-  unsigned int i_eepromLEDAddress = EEPROM.length() / 2;
+void saveLEDEEPROM() {
+  unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
+
+  uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 48 = Frutto.
+
+  if(WAND_BARREL_LED_COUNT == LEDS_48) {
+    i_barrel_led_count = 48;
+  }
 
   // For now we are just saving the Spectral Custom colour.
   objLEDEEPROM obj_led_eeprom = {
     i_spectral_wand_custom_colour,
     i_spectral_wand_custom_saturation,
+    i_barrel_led_count
   };
 
   // Save to the EEPROM.
@@ -516,45 +530,45 @@ void saveLedEEPROM() {
 
 void clearConfigEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(unsigned int i = 0 ; i < sizeof(objEEPROM); i++) {
-    EEPROM.put(i, 0);
+  for(unsigned int i = 0; i < sizeof(objConfigEEPROM); i++) {
+    EEPROM.update(i, 0);
   }
 
   updateCRCEEPROM();
 }
 
 void saveConfigEEPROM() {
-  // (Video Game Modes) + Cross The Streams / Cross The Streams Mix / Overheating
+  // 1 = false, 2 = true.
   uint8_t i_cross_the_streams = 1;
   uint8_t i_cross_the_streams_mix = 1;
-  uint8_t i_overheating = 1;
-  uint8_t i_neutrona_wand_sounds = 1;
+  uint8_t i_overheating = 2;
+  uint8_t i_extra_proton_sounds = 2;
+  uint8_t i_neutrona_wand_sounds = 2;
   uint8_t i_spectral = 1;
   uint8_t i_holiday = 1;
   uint8_t i_quick_vent = 1;
-  uint8_t i_wand_boot_errors = 1;
-  uint8_t i_vent_light_auto_intensity = 1;
+  uint8_t i_wand_boot_errors = 2;
+  uint8_t i_vent_light_auto_intensity = 2;
   uint8_t i_invert_bargraph = 1;
-  uint8_t i_bargraph_mode = 1;
-  uint8_t i_bargraph_firing_animation = 1;
+  uint8_t i_bargraph_mode = 1; // 1 = default, 2 = super hero, 3 = original.
+  uint8_t i_bargraph_firing_animation = 1; // 1 = default, 2 = super hero, 3 = original.
   uint8_t i_bargraph_overheat_blinking = 1;
-  uint8_t i_neutrona_wand_year_mode = 1;
-  uint8_t i_CTS_mode = 1;
+  uint8_t i_neutrona_wand_year_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
+  uint8_t i_CTS_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
   uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
   uint8_t i_beep_loop = 2;
   uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
-  uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_mode_5 / 1000;
-  uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_mode_4 / 1000;
-  uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_mode_3 / 1000;
-  uint8_t i_overheat_start_timer_level_2 = i_ms_overheat_initiate_mode_2 / 1000;
-  uint8_t i_overheat_start_timer_level_1 = i_ms_overheat_initiate_mode_1 / 1000;
+  uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_level_5 / 1000;
+  uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_level_4 / 1000;
+  uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_level_3 / 1000;
+  uint8_t i_overheat_start_timer_level_2 = i_ms_overheat_initiate_level_2 / 1000;
+  uint8_t i_overheat_start_timer_level_1 = i_ms_overheat_initiate_level_1 / 1000;
   uint8_t i_overheat_level_5 = 1;
   uint8_t i_overheat_level_4 = 1;
   uint8_t i_overheat_level_3 = 1;
   uint8_t i_overheat_level_2 = 1;
   uint8_t i_overheat_level_1 = 1;
-  uint8_t i_wand_vibration = 4;
-  uint8_t i_amplify_wand_speaker = 1;
+  uint8_t i_wand_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
 
   if(b_cross_the_streams == true) {
     i_cross_the_streams = 2;
@@ -564,12 +578,16 @@ void saveConfigEEPROM() {
     i_cross_the_streams_mix = 2;
   }
 
-  if(b_overheat_enabled == true) {
-    i_overheating = 2;
+  if(b_overheat_enabled != true) {
+    i_overheating = 1;
   }
 
-  if(b_extra_pack_sounds == true) {
-    i_neutrona_wand_sounds = 2;
+  if(b_stream_effects != true) {
+    i_extra_proton_sounds = 1;
+  }
+
+  if(b_extra_pack_sounds != true) {
+    i_neutrona_wand_sounds = 1;
   }
 
   if(b_spectral_mode_enabled == true || b_holiday_mode_enabled == true) {
@@ -581,12 +599,12 @@ void saveConfigEEPROM() {
     i_quick_vent = 2;
   }
 
-  if(b_wand_boot_errors == true) {
-    i_wand_boot_errors = 2;
+  if(b_wand_boot_errors != true) {
+    i_wand_boot_errors = 1;
   }
 
-  if(b_vent_light_control == true) {
-    i_vent_light_auto_intensity = 2;
+  if(b_vent_light_control != true) {
+    i_vent_light_auto_intensity = 1;
   }
 
   if(b_bargraph_invert == true) {
@@ -693,23 +711,23 @@ void saveConfigEEPROM() {
     i_beep_loop = 1;
   }
 
-  if(b_overheat_mode_5 == true) {
+  if(b_overheat_level_5 == true) {
     i_overheat_level_5 = 2;
   }
 
-  if(b_overheat_mode_4 == true) {
+  if(b_overheat_level_4 == true) {
     i_overheat_level_4 = 2;
   }
 
-  if(b_overheat_mode_3 == true) {
+  if(b_overheat_level_3 == true) {
     i_overheat_level_3 = 2;
   }
 
-  if(b_overheat_mode_2 == true) {
+  if(b_overheat_level_2 == true) {
     i_overheat_level_2 = 2;
   }
 
-  if(b_overheat_mode_1 == true) {
+  if(b_overheat_level_1 == true) {
     i_overheat_level_1 = 2;
   }
 
@@ -732,22 +750,18 @@ void saveConfigEEPROM() {
     break;
   }
 
-  if(b_amplify_wand_speaker == true) {
-    i_amplify_wand_speaker = 2;
-  }
-
   // Write the data to the EEPROM if any of the values have changed.
-  objEEPROM obj_config_eeprom = {
+  objConfigEEPROM obj_config_eeprom = {
     i_cross_the_streams,
     i_cross_the_streams_mix,
     i_overheating,
+    i_extra_proton_sounds,
     i_neutrona_wand_sounds,
     i_spectral,
     i_holiday,
     i_quick_vent,
     i_wand_boot_errors,
     i_vent_light_auto_intensity,
-    i_num_barrel_leds,
     i_invert_bargraph,
     i_bargraph_mode,
     i_bargraph_firing_animation,
@@ -767,8 +781,7 @@ void saveConfigEEPROM() {
     i_overheat_level_3,
     i_overheat_level_2,
     i_overheat_level_1,
-    i_wand_vibration,
-    i_amplify_wand_speaker
+    i_wand_vibration
   };
 
   // Save and update our object in the EEPROM.
@@ -779,24 +792,18 @@ void saveConfigEEPROM() {
 
 // Update the CRC in the EEPROM.
 void updateCRCEEPROM() {
-  EEPROM.put(EEPROM.length() - sizeof(l_crc_size), eepromCRC());
+  EEPROM.put(EEPROM.length() - sizeof(eepromCRC()), eepromCRC());
 }
 
-unsigned long eepromCRC(void) {
-  const unsigned long crc_table[16] = {
-    0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
-    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
-    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
-  };
+uint32_t eepromCRC(void) {
+  CRC32 crc;
 
-  unsigned long crc = l_crc_size;
-
-  for(unsigned int index = 0; index < EEPROM.length() - sizeof(crc); ++index) {
-    crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
-    crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
-    crc = ~crc;
+  for(unsigned int index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
+    crc.update(EEPROM[index]);
   }
 
-  return crc;
+  crc.update(sizeof(objConfigEEPROM));
+  crc.update(sizeof(objLEDEEPROM));
+
+  return (uint32_t)crc.finalize();
 }

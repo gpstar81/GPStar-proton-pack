@@ -346,38 +346,38 @@ bool b_fan_continuous_firing = true;
 bool b_fan_booster_continuous_firing = true;
 
 /*
- * Enable or disable smoke in individual wand power modes for continuous firing smoke.
- * Example: if b_smoke_continuous_mode_1 is true, smoke will happen in continuous firing in wand power mode 1. If false, no smoke in mode 1.
+ * Enable or disable smoke in individual wand power levels for continuous firing smoke.
+ * Example: if b_smoke_continuous_level_1 is true, smoke will happen in continuous firing in wand power level 1. If false, no smoke in mode 1.
  * This is overridden if b_smoke_enabled or can be by the continuous_firing settings above when they are set to false.
  */
-bool b_smoke_continuous_mode_1 = true;
-bool b_smoke_continuous_mode_2 = true;
-bool b_smoke_continuous_mode_3 = true;
-bool b_smoke_continuous_mode_4 = true;
-bool b_smoke_continuous_mode_5 = true;
+bool b_smoke_continuous_level_1 = true;
+bool b_smoke_continuous_level_2 = true;
+bool b_smoke_continuous_level_3 = true;
+bool b_smoke_continuous_level_4 = true;
+bool b_smoke_continuous_level_5 = true;
 
 /*
- * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power mode (not overheating venting).
+ * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power level (not overheating venting).
  * Example: 30,000 milliseconds (30 seconds)
  */
-const unsigned long int i_smoke_timer_mode_1 = 30000;
-const unsigned long int i_smoke_timer_mode_2 = 15000;
-const unsigned long int i_smoke_timer_mode_3 = 10000;
-const unsigned long int i_smoke_timer_mode_4 = 7500;
-const unsigned long int i_smoke_timer_mode_5 = 6000;
+const unsigned long int i_smoke_timer_level_1 = 30000;
+const unsigned long int i_smoke_timer_level_2 = 15000;
+const unsigned long int i_smoke_timer_level_3 = 10000;
+const unsigned long int i_smoke_timer_level_4 = 7500;
+const unsigned long int i_smoke_timer_level_5 = 6000;
 
 /*
- * How long you want your smoke pins (+ fan) to stay on while firing for each firing power mode. (not overheating venting)
+ * How long you want your smoke pins (+ fan) to stay on while firing for each firing power level. (not overheating venting)
  * When the pins are high (controlled by the i_smoke_timer above), then smoke will be generated if you have smoke machines wired up.
  * Default is 3000 milliseconds (3 seconds).
  * This does not affect smoke during overheat.
  * This only affects how long your smoke stays on after it has been triggered in continuous firing.
  */
-const unsigned long int i_smoke_on_time_mode_1 = 3000;
-const unsigned long int i_smoke_on_time_mode_2 = 3000;
-const unsigned long int i_smoke_on_time_mode_3 = 3500;
-const unsigned long int i_smoke_on_time_mode_4 = 3500;
-const unsigned long int i_smoke_on_time_mode_5 = 4000;
+const unsigned long int i_smoke_on_time_level_1 = 3000;
+const unsigned long int i_smoke_on_time_level_2 = 3000;
+const unsigned long int i_smoke_on_time_level_3 = 3500;
+const unsigned long int i_smoke_on_time_level_4 = 3500;
+const unsigned long int i_smoke_on_time_level_5 = 4000;
 
 /*
  * Enable or disable smoke during overheat sequences.
@@ -390,20 +390,20 @@ bool b_fan_overheat = true;
 bool b_fan_booster_overheat = true;
 
 /*
- * Enable or disable overheat smoke in different wand power modes.
- * Example: If b_smoke_overheat_mode_1 is false, then no smoke will be generated during overheat in wand power mode 1, if overheat is enabled for that power mode in the wand code.
+ * Enable or disable overheat smoke in different wand power levels.
+ * Example: If b_smoke_overheat_level_1 is false, then no smoke will be generated during overheat in wand power level 1, if overheat is enabled for that power level in the wand code.
  * This is overridden if b_smoke_enabled or can be by the b_overheat settings above when they are set to false.
  */
-const bool b_smoke_overheat_mode_1 = true;
-const bool b_smoke_overheat_mode_2 = true;
-const bool b_smoke_overheat_mode_3 = true;
-const bool b_smoke_overheat_mode_4 = true;
-const bool b_smoke_overheat_mode_5 = true;
+const bool b_smoke_overheat_level_1 = true;
+const bool b_smoke_overheat_level_2 = true;
+const bool b_smoke_overheat_level_3 = true;
+const bool b_smoke_overheat_level_4 = true;
+const bool b_smoke_overheat_level_5 = true;
 
 /*
  * This is the length in duration of the overheat sequence when the fan (and smoke if synced to fan) stays on for.
  * This can be adjusted in 1 second increments via the wand menu system.
- * Default setting is for overheat to only happen in power level 5. However this can be adjused on the Neutrona Wand to enable overheating in any power mode.
+ * Default setting is for overheat to only happen in power level 5. However this can be adjused on the Neutrona Wand to enable overheating in any power level.
  * It is recommended not to go below 2000 milliseconds.
  */
 unsigned int i_ms_overheating_length_1 = 2000; // Time in milliseconds (2 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 1.

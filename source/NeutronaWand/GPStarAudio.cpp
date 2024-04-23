@@ -457,6 +457,63 @@ void gpstarAudio::setTriggerBank(int bank) {
   GPStarSerial.write(txbuf, 6);
 }
 
+// Turn on or off the LED on GPStar Audio. Default is on.
+void gpstarAudio::gpstarLEDStatus(bool status) {
+  uint8_t txbuf[5];
+
+  txbuf[0] = SOM1;
+  txbuf[1] = SOM2;
+  txbuf[2] = 0x05;
+
+  if(status == true) {
+    txbuf[3] = CMD_LED_ON;
+  }
+  else {
+    txbuf[3] = CMD_LED_OFF;
+  }
+
+  txbuf[4] = EOM;
+  GPStarSerial.write(txbuf, 5);
+}
+
+// Turn on track short overload or turn it off.
+void gpstarAudio::gpstarShortTrackOverload(bool status) {
+  uint8_t txbuf[5];
+
+  txbuf[0] = SOM1;
+  txbuf[1] = SOM2;
+  txbuf[2] = 0x05;
+
+  if(status == true) {
+    txbuf[3] = CMD_SHORT_OVERLOAD_ON;
+  }
+  else {
+    txbuf[3] = CMD_SHORT_OVERLOAD_OFF;
+  }
+
+  txbuf[4] = EOM;
+  GPStarSerial.write(txbuf, 5);
+}
+
+// Turn on track force or turn it off.
+void gpstarAudio::gpstarTrackForce(bool status) {
+  uint8_t txbuf[5];
+
+  txbuf[0] = SOM1;
+  txbuf[1] = SOM2;
+  txbuf[2] = 0x05;
+
+  if(status == true) {
+    txbuf[3] = CMD_TRACK_FORCE_ON;
+  }
+  else {
+    txbuf[3] = CMD_TRACK_FORCE_OFF;
+  }
+
+  txbuf[4] = EOM;
+  GPStarSerial.write(txbuf, 5);
+}
+
 void gpstarAudio::hello(void) {
   uint8_t txbuf[5];
 

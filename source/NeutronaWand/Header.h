@@ -28,7 +28,7 @@ enum WAND_STATE WAND_STATUS;
 /*
  * Various wand action states.
  */
-enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_LED_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
+enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_VENTING, ACTION_SETTINGS, ACTION_ERROR, ACTION_LED_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
 /*
@@ -134,19 +134,40 @@ enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
 /*
  * Delay for fastled to update the addressable LEDs.
  * We have up to 5 addressable LEDs in the wand barrel.
- * 0.03 ms to update 1 LED. So 0.15 ms should be okay? Let's bump it up to 3 just in case.
+ * The Frutto barrel has up to 49 addressable LEDs.
+ * 0.03 ms to update 1 LED. So 1.47 ms should be okay? Let's bump it up to 3 just in case.
  */
-const uint8_t i_fast_led_delay = 3;
+#define FAST_LED_UPDATE_MS 3
+uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
 millisDelay ms_fast_led;
 
 /*
  * Non-addressable LEDs
  */
-const uint8_t led_slo_blo = 8;
-const uint8_t led_front_left = 9; // LED underneath the Clippard valve.
-const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
-const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Red LED)
-const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
+const uint8_t led_slo_blo = 8; // SLO-BLO LED. (Red LED)
+const uint8_t led_front_left = 9; // LED underneath the Clippard valve. (Orange or White LED)
+const uint8_t led_white = 12; // Blinking white light beside the vent on top of the wand.
+const uint8_t led_vent = 13; // Vent light
+const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Orange LED)
+const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Orange or White LED)
+const uint8_t led_barrel_tip = 24; // White LED at tip of the wand barrel. (White LED)
+
+/*
+ * Time in milliseconds for blinking the top white LED while the wand is on.
+ * By default this is set to the blink cycle used on the Afterlife props.
+ * On first system start a random value will be selected for GB1/GB2 mode.
+ * Common values are as follows:
+ * GB1 Spengler, GB1 Venkman (Sedgewick): 666
+ * GB2 Spengler: 500
+ * GB1/GB2 Stantz, GB2 Venkman (Courtroom): 333
+ * GB1 Venkman (Rooftop): 417
+ * GB2 Venkman (Vigo), GB2 Zeddemore: 375
+ * Afterlife (all props): 146
+ */
+const uint16_t i_afterlife_blink_interval = 146;
+const uint16_t i_classic_blink_intervals[5] = {333, 375, 417, 500, 666};
+uint8_t i_classic_blink_index = 0;
+uint16_t d_white_light_interval = i_afterlife_blink_interval;
 
 /*
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
@@ -193,10 +214,8 @@ uint8_t ventSwitchedCount = 0;
 uint8_t wandSwitchedCount = 0;
 
 /*
- * Wand lights
+ * Hasbro bargraph LEDs.
  */
-const uint8_t led_white = 12; // Blinking white light beside the vent on top of the wand.
-const uint8_t led_vent = 13; // Vent light
 const uint8_t led_bargraph_1 = A1;
 const uint8_t led_bargraph_2 = A2;
 const uint8_t led_bargraph_3 = A3;
@@ -215,7 +234,8 @@ bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 millisDelay ms_gun_loop_1;
 millisDelay ms_gun_loop_2;
 millisDelay ms_white_light;
-const uint8_t d_white_light_interval = 250;
+uint16_t i_gun_loop_1 = 1768; // 1660
+uint16_t i_gun_loop_2 = 1653; // 1500
 
 /*
  * Overheat timers
@@ -223,8 +243,8 @@ const uint8_t d_white_light_interval = 250;
 millisDelay ms_overheat_initiate;
 millisDelay ms_overheating; // This timer is only used when using the Neutrona Wand without a Proton Pack.
 const unsigned int i_ms_overheating = 2500; // Overheating for 2.5 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
-bool b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
-unsigned long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_mode_1, i_ms_overheat_initiate_mode_2, i_ms_overheat_initiate_mode_3, i_ms_overheat_initiate_mode_4, i_ms_overheat_initiate_mode_5 };
+bool b_overheat_level[5] = { b_overheat_level_1, b_overheat_level_2, b_overheat_level_3, b_overheat_level_4, b_overheat_level_5 };
+unsigned long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_level_1, i_ms_overheat_initiate_level_2, i_ms_overheat_initiate_level_3, i_ms_overheat_initiate_level_4, i_ms_overheat_initiate_level_5 };
 const unsigned int i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
 const unsigned int i_overheat_delay_max = 60000; // The max length a overheat can be.
 
@@ -308,9 +328,9 @@ const uint8_t i_sound_timer = 150;
  * Wand tip heatup timers (when changing firing modes).
  */
 millisDelay ms_wand_heatup_fade;
-const uint8_t i_delay_heatup = 10;
+const uint8_t i_delay_heatup = 5;
 uint8_t i_heatup_counter = 0;
-uint8_t i_heatdown_counter = 100;
+uint8_t i_heatdown_counter = 50;
 
 /*
  * Wand Firing Modes + Settings
@@ -326,21 +346,19 @@ millisDelay ms_firing_lights;
 millisDelay ms_firing_lights_end;
 millisDelay ms_firing_stream_effects;
 millisDelay ms_impact; // Mix some impact sounds while firing.
-millisDelay ms_firing_start_sound_delay;
-millisDelay ms_firing_stop_sound_delay;
+millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
 const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // using this to keep track which LED in the barrel is currently lighting up.
-const uint8_t i_fire_start_sound_delay = 50; // Delay for starting firing sounds.
-const uint8_t i_fire_stop_sound_delay = 100; // Delay for stopping fire sounds.
+int i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
 
 /*
- * Wand power mode. Controlled by the rotary encoder on the top of the wand.
- * You can enable or disable overheating for each mode individually in the user adjustable values at the top of this file.
+ * Wand power level. Controlled by the rotary encoder on the top of the wand.
+ * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
  */
-const uint8_t i_power_mode_max = 5;
-const uint8_t i_power_mode_min = 1;
-uint8_t i_power_mode = 1;
-uint8_t i_power_mode_prev = 1;
+const uint8_t i_power_level_max = 5;
+const uint8_t i_power_level_min = 1;
+uint8_t i_power_level = 1;
+uint8_t i_power_level_prev = 1;
 
 /*
  * Wand / Pack communication
@@ -359,7 +377,8 @@ enum WAND_CONN_STATES WAND_CONN_STATE;
  * Some pack flags which get transmitted to the wand depending on the pack status.
  */
 bool b_pack_on = false; // Denotes the pack has been powered on.
-bool b_pack_alarm = false; // Denotes the alarm (ribbon cable) has been disconnected.
+bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected).
+bool b_pack_ribbon_cable_on = true; // Denotes that the pack's ribbon cable is connected.
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
 bool b_sync_light = false; // Toggle for the state of the white LED beside the vent light which gets blinked as a sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
@@ -391,7 +410,7 @@ bool b_sound_firing_cross_the_streams_mix = false;
 bool b_sound_idle = false;
 bool b_beeping = false;
 bool b_sound_afterlife_idle_2_fade = true;
-bool b_pack_ribbon_cable_on = true;
+bool b_wand_boot_error_on = false;
 
 /*
  * Button Mashing Lock-out - Prevents excessive user input via the primary/secondary firing buttons.
@@ -399,12 +418,13 @@ bool b_pack_ribbon_cable_on = true;
  * otherwise an error mode will be engaged to provide a cool-down period. This does not apply to any
  * prolonged firing which would trigger the overheat or venting sequences; only rapid firing bursts.
  */
-millisDelay ms_bmash;
-unsigned int i_bmash_delay = 3000;     // Time period in which we consider rapid firing
-unsigned int i_bmash_cool_down = 3200; // Time period for the lock-out of user input
-uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts
-uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out
-bool b_wand_mash_error = false;        // Indicates wand is in a lock-out phase
+millisDelay ms_bmash;                  // Timer for the button mash lock-out period.
+unsigned int i_bmash_delay = 2000;     // Time period in which we consider rapid firing.
+unsigned int i_bmash_cool_down = 3000; // Time period for the lock-out of user input.
+uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts.
+uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out.
+uint8_t i_bmash_spark_index = 0;       // Current spark number for the spark effect (0~2).
+bool b_wand_mash_error = false;        // Indicates if wand is in a lock-out phase.
 
 /*
  * Used during the overheating sequences.
