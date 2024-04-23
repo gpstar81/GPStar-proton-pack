@@ -1619,6 +1619,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+        resetCyclotronState();
+        clearCyclotronFades();
+
+        ms_cyclotron_slime_on.start(1);
+        ms_cyclotron_slime_off.stop();
+      }
+
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
@@ -1655,6 +1663,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
+      }
+
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron_slime_on.stop();
+        ms_cyclotron_slime_off.stop();
+        ms_cyclotron.start(1);
       }
 
       if(b_powercell_colour_toggle == true && b_pack_on == true) {

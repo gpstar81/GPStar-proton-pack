@@ -189,6 +189,9 @@ bool b_reset_start_led = true;
 bool b_1984_led_start = true;
 rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
+millisDelay ms_cyclotron_slime_on;
+millisDelay ms_cyclotron_slime_off;
+const uint8_t f_slime_divider = 2; // Used for adjusting the slime brightness in 1984 / 1989.
 bool b_cyclotron_lid_on = true;
 int i_1984_counter = 0;
 bool b_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
