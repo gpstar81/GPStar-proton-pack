@@ -2481,7 +2481,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         analogWrite(vibration, 150);
         delay(250);
-        analogWrite(vibration, 0);
+        vibrationOff();;
       }
       else if(b_vibration_on == true && b_vibration_firing != true) {
         b_vibration_firing = true;
@@ -2498,7 +2498,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         analogWrite(vibration, 150);
         delay(250);
-        analogWrite(vibration, 0);
+        vibrationOff();;
       }
       else {
         b_vibration_firing = false;
@@ -2539,7 +2539,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           analogWrite(vibration, 150);
           delay(250);
-          analogWrite(vibration, 0);
+          vibrationOff();;
         break;
         case VIBRATION_ALWAYS:
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
@@ -2558,7 +2558,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           analogWrite(vibration, 150);
           delay(250);
-          analogWrite(vibration, 0);
+          vibrationOff();;
         break;
         case VIBRATION_FIRING_ONLY:
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
@@ -2600,7 +2600,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           analogWrite(vibration, 150);
           delay(250);
-          analogWrite(vibration, 0);
+          vibrationOff();
         break;
       }
     break;

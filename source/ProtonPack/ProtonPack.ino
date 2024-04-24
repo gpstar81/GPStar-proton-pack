@@ -2679,7 +2679,7 @@ void cyclotron1984(int cDelay) {
 
         ms_cyclotron_slime_on.start(cDelay);
       }
-      else if(ms_cyclotron_slime_on.justFinished()) {    
+      else if(ms_cyclotron_slime_on.justFinished()) {
         cyclotron84LightOn(led1);
         cyclotron84LightOn(led2);
         cyclotron84LightOn(led3);
@@ -2687,7 +2687,7 @@ void cyclotron1984(int cDelay) {
 
         if(b_1984_led_start == true) {
           b_1984_led_start = false;
-        }   
+        }
 
         ms_cyclotron_slime_off.start(cDelay * 2);
       }
@@ -2925,7 +2925,7 @@ void cyclotron84LightOn(int cLed) {
   }
   else {
     uint8_t i_brightness_tmp = 0;
-    
+
     if(FIRING_MODE == SLIME && b_1984_led_start != true) {
       i_brightness_tmp = i_brightness / f_slime_divider;
     }
@@ -4076,7 +4076,7 @@ void modeFireStartSounds() {
         adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
       }
     }
-  }  
+  }
 }
 
 void wandFiring() {
@@ -4181,7 +4181,7 @@ void modeFireStopSounds() {
           adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
         }
       }
-    }    
+    }
   }
 
   b_wand_mash_lockout = false;
@@ -4545,7 +4545,7 @@ void cyclotronSwitchPlateLEDs() {
   }
 }
 
-void vibrationPack(int i_level) {
+void vibrationPack(uint8_t i_level) {
   if(b_vibration_on == true && b_vibration_enabled == true) {
     if(b_vibration_firing == true) {
       if(b_wand_firing == true) {
@@ -4555,8 +4555,7 @@ void vibrationPack(int i_level) {
         }
       }
       else {
-        i_vibration_level_prev = 0;
-        analogWrite(vibration, 0);
+        vibrationOff();
       }
     }
     else {
@@ -4567,9 +4566,13 @@ void vibrationPack(int i_level) {
     }
   }
   else {
-    i_vibration_level_prev = 0;
-    analogWrite(vibration, 0);
+    vibrationOff();
   }
+}
+
+void vibrationOff() {
+  i_vibration_level_prev = 0;
+  analogWrite(vibration, 0);
 }
 
 void cyclotronSpeedRevert() {

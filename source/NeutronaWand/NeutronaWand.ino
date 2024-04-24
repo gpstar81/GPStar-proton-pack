@@ -2668,7 +2668,7 @@ void modeFireStart() {
 
   // Tell the pack the wand is firing.
   wandSerialSend(W_FIRING);
-  
+
   switch(BARGRAPH_FIRING_ANIMATION) {
     case BARGRAPH_ANIMATION_ORIGINAL:
       // Redraw the bargraph to the current power level before doing the MODE_ORIGINAL firing animation.
@@ -4678,8 +4678,7 @@ void vibrationWand(uint8_t i_level) {
         }
       }
       else {
-        i_vibration_level_prev = 0;
-        analogWrite(vibration, 0);
+        vibrationOff();
       }
     }
     else {
@@ -4691,8 +4690,7 @@ void vibrationWand(uint8_t i_level) {
     }
   }
   else {
-    i_vibration_level_prev = 0;
-    analogWrite(vibration, 0);
+    vibrationOff();
   }
 }
 
@@ -7303,7 +7301,9 @@ void wandLightsOffMenuSystem() {
 }
 
 void vibrationOff() {
+  ms_menu_vibration.stop();
   i_vibration_level_prev = 0;
+  b_menu_vibration_active = false;
   analogWrite(vibration, 0);
 }
 
@@ -8438,10 +8438,10 @@ void wandExitEEPROMMenu() {
   wandSwitchedCount = 0;
   ventSwitchedCount = 0;
 
-  analogWrite(vibration, 0); // Make sure we stop any menu-related vibration, if any
+  vibrationOff(); // Make sure we stop any menu-related vibration, if any.
 
   if(b_gpstar_benchtest == true) {
-    // Also need to make sure to reset the "ion arm switch" to off if standalone
+    // Also need to make sure to reset the "ion arm switch" to off if standalone.
     b_pack_ion_arm_switch_on = false;
   }
 
@@ -8548,9 +8548,7 @@ void checkMenuVibration() {
     b_menu_vibration_active = true;
   }
   else if(ms_menu_vibration.justFinished() && b_menu_vibration_active == true) {
-    ms_menu_vibration.stop();
-    analogWrite(vibration, 0);
-    b_menu_vibration_active = false;
+    vibrationOff();
   }
 }
 

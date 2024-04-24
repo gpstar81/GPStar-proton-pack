@@ -688,9 +688,7 @@ void checkWandAction() {
 
                   wandSerialSend(W_VIBRATION_ENABLED);
 
-                  ms_menu_vibration.stop(); // Stop any currently running vibration timer
-                  checkMenuVibration(); // Make sure the vibration motor handler resets
-                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms
+                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
                 break;
                 case VIBRATION_ALWAYS:
                   VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
@@ -706,9 +704,7 @@ void checkWandAction() {
 
                   wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
-                  ms_menu_vibration.stop(); // Stop any currently running vibration timer
-                  checkMenuVibration(); // Make sure the vibration motor handler resets
-                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms
+                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
                 break;
                 case VIBRATION_FIRING_ONLY:
                   VIBRATION_MODE_EEPROM = VIBRATION_NONE;
@@ -743,9 +739,7 @@ void checkWandAction() {
 
                   wandSerialSend(W_VIBRATION_DEFAULT);
 
-                  ms_menu_vibration.stop(); // Stop any currently running vibration timer
-                  checkMenuVibration(); // Make sure the vibration motor handler resets
-                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms
+                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
                 break;
               }
             }
@@ -1376,9 +1370,7 @@ void checkWandAction() {
 
                 wandSerialSend(W_VIBRATION_ENABLED);
 
-                ms_menu_vibration.stop(); // Stop any currently running vibration timer
-                checkMenuVibration(); // Make sure the vibration motor handler resets
-                ms_menu_vibration.start(250); // Confirmation buzz for 250ms
+                ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
               }
               else if(b_vibration_on == true && b_vibration_firing != true) {
                 b_vibration_firing = true;
@@ -1392,9 +1384,7 @@ void checkWandAction() {
 
                 wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
-                ms_menu_vibration.stop(); // Stop any currently running vibration timer
-                checkMenuVibration(); // Make sure the vibration motor handler resets
-                ms_menu_vibration.start(250); // Confirmation buzz for 250ms
+                ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
               }
               else {
                 b_vibration_on = false;
