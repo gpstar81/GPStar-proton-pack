@@ -619,7 +619,7 @@ void setVGMode() {
   b_vg_mode = true;
 }
 
-// Checks if VGA mode should be set.
+// Checks if video game mode should be set.
 void vgModeCheck() {
   if(b_cross_the_streams == true || b_cross_the_streams_mix == true) {
     b_vg_mode = false;
@@ -973,6 +973,8 @@ void settingsBlinkingLights() {
 
         ht_bargraph.clearLed(i_bargraph[27]);
         b_bargraph_status[27] = false;
+
+        ht_bargraph.sendLed(); // Commit the changes.
       }
       else if(b_solid_one == true) {
         for(uint8_t i = 0; i < i_bargraph_segments; i++) {
@@ -2665,13 +2667,6 @@ void modeFireStartSounds() {
 void modeFireStart() {
   i_fast_led_delay = FAST_LED_UPDATE_MS;
 
-  // Reset some sound triggers.
-  b_sound_firing_intensify_trigger = true;
-  b_sound_firing_alt_trigger = true;
-  b_sound_firing_cross_the_streams_mix = false;
-  b_sound_firing_cross_the_streams = false;
-  b_firing_cross_streams = false;
-
   // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode.
   if(b_firing_intensify == true) {
     wandSerialSend(W_FIRING_INTENSIFY);
@@ -2810,14 +2805,13 @@ void modeFireStopSounds() {
               stopEffect(S_AFTERLIFE_FIRE_START);
             break;
           }
-
-          stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
         break;
       }
 
       stopEffect(S_FIRE_START_SPARK);
-      stopEffect(S_FIRING_LOOP_GB1);
       stopEffect(S_FIRE_LOOP_IMPACT);
+      stopEffect(S_FIRING_LOOP_GB1);
+      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
     break;
 
     case SLIME:
@@ -2908,7 +2902,6 @@ void modeFireStopSounds() {
         }
       break;
     }
-
 
     b_firing_cross_streams = false;
   }
@@ -3016,27 +3009,10 @@ void modeFiring() {
     if(b_cross_the_streams_mix == true && FIRING_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_MIX);
-
-      switch(i_power_level) {
-        case 1 ... 4:
-          if(getSystemYearMode() == SYSTEM_1989) {
-            //playEffect(S_GB2_FIRE_START);
-            playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
-          }
-          else {
-            //playEffect(S_GB1_FIRE_START);
-            playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, false, 0, false);
-          }
-        break;
-
-        case 5:
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-        break;
-      }
     }
     else {
       // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode.
-      wandSerialSend(W_FIRING_INTENSIFY);
+      //wandSerialSend(W_FIRING_INTENSIFY);
     }
   }
 
@@ -3047,26 +3023,17 @@ void modeFiring() {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_STOPPED_MIX);
 
-      switch(i_power_level) {
-        case 1 ... 4:
-          if(getSystemYearMode() == SYSTEM_1989) {
-            stopEffect(S_GB2_FIRE_LOOP);
-            //stopEffect(S_GB2_FIRE_START);
-          }
-          else {
-            stopEffect(S_GB1_FIRE_LOOP);
-            //stopEffect(S_GB1_FIRE_START);
-          }
-        break;
-
-        case 5:
-          stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
-        break;
+      if(i_power_level == 5) {
+        // Need to stop and restart this loop to prevent overlaps since the barrel wing button is still held.
+        stopEffect(S_FIRING_LOOP_GB1);
+        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
       }
+
+      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
     }
     else {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Intensify mode.
-      wandSerialSend(W_FIRING_INTENSIFY_STOPPED);
+      //wandSerialSend(W_FIRING_INTENSIFY_STOPPED);
     }
   }
 
@@ -3081,7 +3048,7 @@ void modeFiring() {
     }
     else {
       // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode.
-      wandSerialSend(W_FIRING_ALT);
+      //wandSerialSend(W_FIRING_ALT);
     }
   }
 
@@ -3090,13 +3057,30 @@ void modeFiring() {
 
     if(b_cross_the_streams_mix == true) {
       stopEffect(S_FIRING_LOOP_GB1);
+      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+
+      // Since Intensify is still held, turn back on its firing loop sounds.
+      switch(i_power_level) {
+        case 1 ... 4:
+          if(getSystemYearMode() == SYSTEM_1989) {
+            playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
+          }
+          else {
+            playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, false, 0, false);
+          }
+        break;
+
+        case 5:
+          playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        break;
+      }
 
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode mix.
       wandSerialSend(W_FIRING_ALT_STOPPED_MIX);
     }
     else {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode.
-      wandSerialSend(W_FIRING_ALT_STOPPED);
+      //wandSerialSend(W_FIRING_ALT_STOPPED);
     }
   }
 
@@ -3181,75 +3165,36 @@ void modeFiring() {
     }
 
     if(b_cross_the_streams_mix == true) {
-      playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-
+      // Mix in some new proton stream sounds for CTS Mix.
       if(i_power_level != i_power_level_max && b_sound_firing_cross_the_streams_mix != true) {
         playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
         b_sound_firing_cross_the_streams_mix = true;
       }
+      else if (i_power_level == i_power_level_max && b_sound_firing_cross_the_streams_mix != true) {
+        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
+        b_sound_firing_cross_the_streams_mix = true;
+      }
 
-      stopEffect(S_GB2_FIRE_LOOP);
-      stopEffect(S_GB1_FIRE_LOOP);
+      if(getSystemYearMode() == SYSTEM_1989) {
+        stopEffect(S_GB2_FIRE_LOOP);
+      }
+      else {
+        stopEffect(S_GB1_FIRE_LOOP);
+      }
+    }
+    else {
+      // Mix in some new proton stream sounds for normal CTS.
+      if(i_power_level != i_power_level_max) {
+        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+      }
+      else {
+        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
+      }
     }
   }
 
-  if((b_firing_alt != true && b_firing_intensify != true) && b_firing_cross_streams == true && b_cross_the_streams_mix != true) {
-    // Can let go of a button and still fires.
-    b_firing_cross_streams = false;
-    b_sound_firing_cross_the_streams = false;
-
-    switch(WAND_YEAR_CTS) {
-      case CTS_AFTERLIFE:
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-        //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
-
-        wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_2021);
-      break;
-
-      case CTS_1984:
-      case CTS_1989:
-        stopEffect(S_CROSS_STREAMS_START);
-        //stopEffect(S_CROSS_STREAMS_END);
-
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
-
-        wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984);
-      break;
-
-      case CTS_DEFAULT:
-      case CTS_FROZEN_EMPIRE:
-      default:
-        switch(getSystemYearMode()) {
-          case SYSTEM_AFTERLIFE:
-          case SYSTEM_FROZEN_EMPIRE:
-          default:
-            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-            //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-
-            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
-
-            wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_2021);
-          break;
-
-          case SYSTEM_1984:
-          case SYSTEM_1989:
-            stopEffect(S_CROSS_STREAMS_START);
-            //stopEffect(S_CROSS_STREAMS_END);
-
-            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
-
-            wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984);
-          break;
-        }
-      break;
-    }
-
-    stopEffect(S_FIRING_LOOP_GB1);
-  }
-  else if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && b_cross_the_streams_mix == true) {
-    // Let go of a button and it reverts back to the other firing mode.
+  if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && b_cross_the_streams_mix == true) {
+    // In CTS Mix mode, you can release either Intensify or the Barrel Wing Button and firing will revert to the mode for the still-held button.
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
 
@@ -3299,6 +3244,11 @@ void modeFiring() {
           break;
         }
       break;
+    }
+
+    // Restart the impact sound timer for the standalone wand.
+    if(b_stream_effects == true && b_gpstar_benchtest == true) {
+      ms_firing_sound_mix.start(random(7,15) * 1000);
     }
   }
 

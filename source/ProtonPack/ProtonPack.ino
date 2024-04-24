@@ -4275,13 +4275,12 @@ void wandStopFiringSounds() {
               stopEffect(S_AFTERLIFE_FIRE_START);
             break;
           }
-
-          stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
         break;
       }
 
       stopEffect(S_FIRE_START_SPARK);
       stopEffect(S_FIRING_LOOP_GB1);
+      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
     break;
 
     case SLIME:
@@ -4309,7 +4308,7 @@ void wandStopFiringSounds() {
       //stopEffect(S_CROSS_STREAMS_END);
 
       if(b_wand_mash_lockout != true) {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
       }
     break;
 
@@ -4320,7 +4319,7 @@ void wandStopFiringSounds() {
       //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       if(b_wand_mash_lockout != true) {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
       }
     break;
 
