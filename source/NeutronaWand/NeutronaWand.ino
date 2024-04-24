@@ -1016,7 +1016,6 @@ void settingsBlinkingLights() {
     switch(i_wand_menu) {
       case 5:
         if(b_28segment_bargraph == true) {
-          // NOTE: If you draw all 28 segments at once often, you can overflow the serial buffer after around 5 seconds.
           for(uint8_t i = 0; i < i_bargraph_segments; i++) {
             switch(i) {
               case 3:
@@ -1828,6 +1827,12 @@ void fireControlCheck() {
     }
   }
   else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_VENTING || b_pack_alarm == true) {
+    if(switch_activate.on() == false) {
+      WAND_ACTION_STATUS = ACTION_OFF;
+    }
+  }
+  else if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
+    // Shut the wand off if the user is in the settings menu but flips the Activate switch off.
     if(switch_activate.on() == false) {
       WAND_ACTION_STATUS = ACTION_OFF;
     }
