@@ -23,6 +23,7 @@ jobs:
               - name: Switch
               - name: ezButton
               - name: CRC32
+              - name: digitalWriteFast
               - name: FastLED
               - name: Ramp
               - name: SafeString

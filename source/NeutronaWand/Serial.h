@@ -350,7 +350,7 @@ void checkPack() {
               ms_handshake.start(i_heartbeat_delay);
 
               // Turn off the sync indicator LED as the sync is completed.
-              digitalWrite(led_white, HIGH);
+              digitalWriteFast(led_white, HIGH);
 
               // Indicate that a pack is now connected.
               WAND_CONN_STATE = PACK_CONNECTED;
@@ -1024,7 +1024,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       if(WAND_STATUS != MODE_ERROR) {
         if(WAND_STATUS == MODE_ON) {
-          digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
+          digitalWriteFast(led_hat_2, HIGH); // Turn on hat light 2.
           prepBargraphRampDown();
 
           if(FIRING_MODE == SETTINGS) {
@@ -1068,7 +1068,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_ALARM_OFF:
       if(WAND_STATUS != MODE_ERROR) {
-        digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
+        digitalWriteFast(led_hat_2, LOW); // Turn off hat light 2.
 
         ms_hat_2.stop();
 
@@ -1119,13 +1119,13 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       if(b_firing == true) {
         // Keep both lights on if still firing.
-        digitalWrite(led_hat_1, HIGH);
+        digitalWriteFast(led_hat_1, HIGH);
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          digitalWrite(led_hat_2, HIGH);
+          digitalWriteFast(led_hat_2, HIGH);
         }
         else {
-          digitalWrite(led_hat_2, LOW);
+          digitalWriteFast(led_hat_2, LOW);
         }
       }
 
