@@ -11,7 +11,7 @@ Sounds are output via one of the supported polyphonic WAV audio controllers: Rob
 | Controller Device | v1.x | v2.x | v3.x | v4.x | v5.x |
 |-------------------|------|------|------|------|------|
 | Robertsonics WavTrigger | v134 | v134 | v140 | v140 | v140 |
-| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Audio   | &mdash; | &mdash; | &mdash; | &mdash; | v100 |
+| <img src='images/gpstar_logo.png' width=20 align="left"/>GPStar Audio   | &mdash; | &mdash; | &mdash; | &mdash; | v100 |
 
 ## Wand Audio
 
@@ -19,10 +19,10 @@ Let's begin with the most restrictive of spaces, the wand. Due to the additional
 
 ---
 
-####<img src='images/gpstar_logo.png' width=30 align="left"/> GPStar Audio on-board amplifier (stereo or mono output)###
+### <img src='images/gpstar_logo.png' width=30 align="left"/>GPStar Audio on-board amplifier (stereo output) ###
 Rated for 2.5W @ 4Ω or 1.5W @ 8Ω per channel. 
 
-####WAV Trigger on-board amplifier (mono output only)###
+### WAV Trigger on-board amplifier (mono output only) ###
 Rated for 2W @ 4Ω or 1W @ 8Ω.
 
 ---
