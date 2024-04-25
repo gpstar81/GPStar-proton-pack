@@ -8,6 +8,6 @@ Mount the board and wire the connections as indicated in the photo below. Note t
 
 `WARNING: The light is very intense, do not look at it directly.`
 
-`Also available in the pre-compiled binaries for the Neutrona Wand is an alternate pre-compiled Neutrona Wand build which adjusts the intensity of the Frutto Technology vent lights based on power levels and status of the wand.`
+`By default, the intensity of the Frutto Technology vent light is based on the power level and firing status of the wand. If you wish to disable this feature, please see the [Advanced Configuration](ADVCONFIG.md) guide.`
 
 ![](images/frutto-vent-light.png)

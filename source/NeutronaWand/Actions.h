@@ -187,15 +187,15 @@ void checkWandAction() {
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
-        // Level 2 Intensify: TVG Neutrona Wand lights toggle.
         // Level 1 Intensify: Clear the Proton Pack EEPROM settings and exit.
         // Level 1 Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
+        // Level 2 Intensify: Video Game Neutrona Wand lights toggle.
         case 5:
           // Tell the Proton Pack to clear the EEPROM settings and exit.
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
-                // Save this space for the TVG video game Neutrona Wand lights.
+                // Save this space for the video game Neutrona Wand lights.
               break;
 
               case MENU_LEVEL_1:
@@ -216,7 +216,6 @@ void checkWandAction() {
           else if(switch_mode.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
-
               break;
 
               case MENU_LEVEL_1:
@@ -320,9 +319,9 @@ void checkWandAction() {
         break;
 
 
-        // Level 2 Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
         // Level 1 Intensify: Cycle through the different inner Cyclotron LED counts.
         // Level 1 Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
+        // Level 2 Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
         case 1:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
