@@ -146,10 +146,10 @@ void setup() {
   pinModeFast(led_hat_2, OUTPUT); // Hat light at top of the wand body (gun box).
   pinModeFast(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
 
-  pinModeFast(led_vent, OUTPUT);
+  pinMode(led_vent, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
   pinModeFast(led_white, OUTPUT);
 
-  pinModeFast(vibration, OUTPUT);
+  pinMode(vibration, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // Make sure lights are off.
   wandLightsOff();
@@ -1312,7 +1312,7 @@ void checkSwitches() {
                     analogWrite(led_vent, 220); // Low power, level 1 intensity.
                   }
                   else {
-                    digitalWriteFast(led_vent, LOW);
+                    digitalWrite(led_vent, LOW);
                   }
 
                   digitalWriteFast(led_white, LOW);
@@ -1336,7 +1336,7 @@ void checkSwitches() {
                   digitalWriteFast(led_front_left, LOW); // Turn off the front left LED under the Clippard valve.
 
                   // Turn off the Neutrona Wand vent lights.
-                  digitalWriteFast(led_vent, HIGH);
+                  digitalWrite(led_vent, HIGH);
                   digitalWriteFast(led_white, HIGH);
 
                   vibrationOff(); // Turn off vibration, if any.
@@ -1420,7 +1420,7 @@ void wandLightControlCheck() {
     // Vent light and first stage of the safety system.
     if(switch_vent.on() == true) {
       if(b_vent_light_control == true) {
-        // Vent light and top white light on, power dependent on mode.
+        // Vent light on, brightness dependent on mode.
         if(WAND_ACTION_STATUS == ACTION_FIRING) {
           analogWrite(led_vent, 0); // 0 = Full Power
         }
@@ -1446,7 +1446,7 @@ void wandLightControlCheck() {
         }
       }
       else {
-        digitalWriteFast(led_vent, LOW);
+        digitalWrite(led_vent, LOW);
       }
 
       soundIdleStart();
@@ -1463,7 +1463,7 @@ void wandLightControlCheck() {
     }
     else if(switch_vent.on() == false) {
       // Vent light and top white light off.
-      digitalWriteFast(led_vent, HIGH);
+      digitalWrite(led_vent, HIGH);
 
       soundBeepLoopStop();
       soundIdleStop();
@@ -7283,7 +7283,7 @@ void wandLightsOff() {
   digitalWriteFast(led_hat_2, LOW); // Turn off hat light 2.
   wandTipOff();
 
-  digitalWriteFast(led_vent, HIGH);
+  digitalWrite(led_vent, HIGH);
   digitalWriteFast(led_white, HIGH);
 
   i_bargraph_status = 0;
@@ -7299,7 +7299,7 @@ void wandLightsOff() {
 void wandLightsOffMenuSystem() {
   // Make sure some of the wand lights are off, specifically for the Menu systems.
   digitalWriteFast(led_slo_blo, LOW);
-  digitalWriteFast(led_vent, HIGH);
+  digitalWrite(led_vent, HIGH);
   digitalWriteFast(led_white, HIGH);
   digitalWriteFast(led_front_left, LOW);
 
@@ -7528,7 +7528,7 @@ void checkRotaryEncoder() {
                 digitalWriteFast(led_slo_blo, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWriteFast(led_vent, HIGH); // Level 3
+                digitalWrite(led_vent, HIGH); // Level 3
                 digitalWriteFast(led_white, HIGH); // Level 4
                 digitalWriteFast(led_front_left, LOW); // Level 5
 
@@ -7554,7 +7554,7 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(led_slo_blo, HIGH); // Level 2
-                digitalWriteFast(led_vent, LOW); // Level 3
+                digitalWrite(led_vent, LOW); // Level 3
 
                 // Turn off the other lights.
                 digitalWriteFast(led_white, HIGH); // Level 4
@@ -7582,7 +7582,7 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(led_slo_blo, HIGH); // Level 2
-                digitalWriteFast(led_vent, LOW); // Level 3
+                digitalWrite(led_vent, LOW); // Level 3
                 digitalWriteFast(led_white, LOW); // Level 4
 
                 // Turn off the other lights.
@@ -7610,7 +7610,7 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(led_slo_blo, HIGH); // Level 2
-                digitalWriteFast(led_vent, LOW); // Level 3
+                digitalWrite(led_vent, LOW); // Level 3
                 digitalWriteFast(led_white, LOW); // Level 4
                 digitalWriteFast(led_front_left, HIGH); // Level 5
 
@@ -7691,7 +7691,7 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(led_slo_blo, HIGH); // Level 2
-                digitalWriteFast(led_vent, LOW); // Level 3
+                digitalWrite(led_vent, LOW); // Level 3
                 digitalWriteFast(led_white, LOW); // Level 4
 
                 // Turn off the other lights.
@@ -7719,7 +7719,7 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(led_slo_blo, HIGH); // Level 2
-                digitalWriteFast(led_vent, LOW); // Level 3
+                digitalWrite(led_vent, LOW); // Level 3
 
                 // Turn off the other lights.
                 digitalWriteFast(led_white, HIGH); // Level 4
@@ -7749,7 +7749,7 @@ void checkRotaryEncoder() {
                 digitalWriteFast(led_slo_blo, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWriteFast(led_vent, HIGH); // Level 3
+                digitalWrite(led_vent, HIGH); // Level 3
                 digitalWriteFast(led_white, HIGH); // Level 4
                 digitalWriteFast(led_front_left, LOW); // Level 5
 
@@ -7775,7 +7775,7 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 digitalWriteFast(led_slo_blo, LOW); // Level 2
-                digitalWriteFast(led_vent, HIGH); // Level 3
+                digitalWrite(led_vent, HIGH); // Level 3
                 digitalWriteFast(led_white, HIGH); // Level 4
                 digitalWriteFast(led_front_left, LOW); // Level 5
 
@@ -7851,7 +7851,7 @@ void checkRotaryEncoder() {
                 digitalWriteFast(led_slo_blo, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWriteFast(led_vent, HIGH); // Level 3
+                digitalWrite(led_vent, HIGH); // Level 3
                 digitalWriteFast(led_white, HIGH); // Level 4
                 digitalWriteFast(led_front_left, LOW); // Level 5
 
@@ -7930,7 +7930,7 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 digitalWriteFast(led_slo_blo, LOW); // Level 2
-                digitalWriteFast(led_vent, HIGH); // Level 3
+                digitalWrite(led_vent, HIGH); // Level 3
                 digitalWriteFast(led_white, HIGH); // Level 4
                 digitalWriteFast(led_front_left, LOW); // Level 5
 
