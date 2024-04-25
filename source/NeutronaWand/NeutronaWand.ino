@@ -2858,7 +2858,7 @@ void modeFireStopSounds() {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-        //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         if(b_wand_mash_error != true) {
           playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -2868,7 +2868,7 @@ void modeFireStopSounds() {
       case CTS_1984:
       case CTS_1989:
         stopEffect(S_CROSS_STREAMS_START);
-        //stopEffect(S_CROSS_STREAMS_END);
+        stopEffect(S_CROSS_STREAMS_END);
 
         if(b_wand_mash_error != true) {
           playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -2883,7 +2883,7 @@ void modeFireStopSounds() {
           case SYSTEM_FROZEN_EMPIRE:
           default:
             stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-            //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
             if(b_wand_mash_error != true) {
               playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -2893,7 +2893,7 @@ void modeFireStopSounds() {
           case SYSTEM_1984:
           case SYSTEM_1989:
             stopEffect(S_CROSS_STREAMS_START);
-            //stopEffect(S_CROSS_STREAMS_END);
+            stopEffect(S_CROSS_STREAMS_END);
 
             if(b_wand_mash_error != true) {
               playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -3095,6 +3095,8 @@ void modeFiring() {
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
         if(b_cross_the_streams_mix == true) {
+          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
           wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_2021);
         }
@@ -3111,6 +3113,8 @@ void modeFiring() {
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
         if(b_cross_the_streams_mix == true) {
+          stopEffect(S_CROSS_STREAMS_END);
+
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
           wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_1984);
         }
@@ -3132,6 +3136,8 @@ void modeFiring() {
             playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
             if(b_cross_the_streams_mix == true) {
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
               wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_2021);
             }
@@ -3148,6 +3154,8 @@ void modeFiring() {
             playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
             if(b_cross_the_streams_mix == true) {
+              stopEffect(S_CROSS_STREAMS_END);
+
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
               wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_1984);
             }
