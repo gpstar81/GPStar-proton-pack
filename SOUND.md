@@ -4,6 +4,15 @@
 
 Sound is a huge component of this build and the options are relatively open for how best you wish to proceed. For the wand you will be limited by space, but for the pack you can go as big and as bold as you wish. The following options should give you an idea of what is possible with hardware given certain space constraints.
 
+## Audio Controllers
+
+Sounds are output via one of the supported polyphonic WAV audio controllers: Robertsonics WavTrigger or GPStar Audio. The former is a 3rd-party component originally included with all GPStar kits up until early 2024, while the latter is a fully custom solution which is part of the GPStar family of controllers for your cosplay needs. The compatibility matrix below notes whether a device is compatible with major versions of the GPStar software for the Proton Pack and Neutrona Wand controllers. The version number inside each cell is the minimum firmware version required for the respective device. All firmware files for the audio controllers can be found in the [extras folder](/extras/).
+
+| Controller Device | v1.x | v2.x | v3.x | v4.x | v5.x |
+|-------------------|------|------|------|------|------|
+| Robertsonics WavTrigger | v134 | v134 | v140 | v140 | v140 |
+| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Audio   | &mdash; | &mdash; | &mdash; | &mdash; | v100 |
+
 ## Wand Audio
 
 Let's begin with the most restrictive of spaces, the wand. Due to the additional components and wiring to be added, there is little room for options but replacements can be made. The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--essentially more of a tweeter than a full-range speaker, so it is advised that if you would like better sound you will want a better speaker. Otherwise, you can still use the original Hasbro wand speaker. Below are the listed specifications of the on-board amplifiers depending on which audio board you are using.
@@ -48,6 +57,8 @@ The following components were demonstrated in the walkthrough video by JustinDus
   - Take note of your amplifier's recommended ohms rating for speakers
 - [8" Auxiliary Stereo Audio Cable w/ 90&deg; Jack](https://a.co/d/3H4zxZw)
   - Optional: Useful in tight locations, depending on where the amp is mounted
+- [Ground Loop Isolator](https://a.co/d/faBkok9)
+  - Recommended: Prevents unwanted hum and noise from the amplifier due to the LEDs
 
 The placement of your speakers is up to you. Though it is possible to mount a 3" speaker in the location used for the original pack speaker, a mount should be used to help offload some of the added weight from that device. And if the stock vibration motor is not important (as the solution above will provide some physical feedback in that regard), removal of that device opens up a cavity just behind and above the cross-bar of a standard ALICE frame for another speaker. For the latter, it will be necessary to carefully  drill some small holes into the motherboard of the pack for sound output.
 
