@@ -80,7 +80,7 @@ void setup() {
   TCCR5B = (TCCR5B & B11111000) | (B00000100);  // for PWM frequency of 122.55 Hz
 
   // Vibration motor
-  pinModeFast(vibration, OUTPUT);
+  pinMode(vibration, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // Smoke motor for the N-Filter.
   pinModeFast(smoke_pin, OUTPUT);

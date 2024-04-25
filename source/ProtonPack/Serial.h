@@ -2195,10 +2195,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
-      playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
       // Mix in some new proton stream sounds for normal CTS.
@@ -2217,10 +2214,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
 
@@ -2243,7 +2237,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       //stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
 
       // Mix in some new proton stream sounds for CTS Mix.
       if(i_wand_power_level != i_wand_power_level_max) {
@@ -2271,7 +2264,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
 
       // Mix in some new proton stream sounds for CTS Mix.
       if(i_wand_power_level != i_wand_power_level_max) {
