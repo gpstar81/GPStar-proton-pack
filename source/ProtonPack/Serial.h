@@ -1848,19 +1848,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_OVERHEATING:
       // Overheating
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_AFTERLIFE:
-        case SYSTEM_FROZEN_EMPIRE:
-          stopEffect(S_PACK_BEEPS_OVERHEAT);
-        break;
-
-        case SYSTEM_1984:
-        case SYSTEM_1989:
-        default:
-          stopEffect(S_BEEP_8);
-        break;
-      }
-
       if(FIRING_MODE == SLIME) {
         playEffect(S_SLIME_EMPTY);
       }
@@ -1900,24 +1887,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_VENTING:
-      // Quick Vent function
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_AFTERLIFE:
-        case SYSTEM_FROZEN_EMPIRE:
-          stopEffect(S_PACK_BEEPS_OVERHEAT);
-        break;
-
-        case SYSTEM_1984:
-        case SYSTEM_1989:
-        default:
-          stopEffect(S_BEEP_8);
-        break;
-      }
-
+      // Quick Vent function.
       stopEffect(S_SLIME_EMPTY);
       stopEffect(S_PACK_SLIME_TANK_LOOP);
       stopEffect(S_QUICK_VENT_CLOSE);
-      stopEffect(S_QUICK_VENT_OPEN);
 
       playEffect(S_QUICK_VENT_OPEN);
 

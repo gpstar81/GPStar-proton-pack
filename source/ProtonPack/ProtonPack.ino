@@ -770,19 +770,6 @@ void packShutdown() {
   wandExtraSoundsStop();
   wandExtraSoundsBeepLoopStop();
 
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-      stopEffect(S_PACK_BEEPS_OVERHEAT);
-    break;
-
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-    default:
-      stopEffect(S_BEEP_8);
-    break;
-  }
-
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
   stopEffect(S_SLIME_REFILL);
@@ -829,7 +816,6 @@ void packShutdown() {
     stopEffect(S_SLIME_EMPTY);
 
     stopEffect(S_VENT_OPEN);
-    stopEffect(S_VENT_CLOSE);
 
     if(FIRING_MODE != SLIME) {
       stopEffect(S_PACK_PRE_VENT);
@@ -845,7 +831,6 @@ void packShutdown() {
   else if(b_venting == true) {
     stopEffect(S_SLIME_EMPTY);
     stopEffect(S_QUICK_VENT_OPEN);
-    stopEffect(S_QUICK_VENT_CLOSE);
     playEffect(S_QUICK_VENT_CLOSE);
   }
 
@@ -3419,7 +3404,6 @@ void packVentingFinished() {
   stopEffect(S_STEAM_LOOP);
   stopEffect(S_SLIME_REFILL);
   stopEffect(S_QUICK_VENT_OPEN);
-  stopEffect(S_QUICK_VENT_CLOSE);
   playEffect(S_QUICK_VENT_CLOSE);
 
   if(FIRING_MODE == SLIME) {

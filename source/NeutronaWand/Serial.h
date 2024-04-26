@@ -1118,15 +1118,16 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       ms_hat_2.stop();
 
       if(b_firing == true) {
-        // Keep both lights on if still firing.
+        // Keep hat light 1 on if still firing.
         digitalWriteFast(led_hat_1, HIGH);
+      }
 
-        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          digitalWriteFast(led_hat_2, HIGH);
-        }
-        else {
-          digitalWriteFast(led_hat_2, LOW);
-        }
+      // Revert hat light 2 to its normal non-overheat status.
+      if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+        digitalWriteFast(led_hat_2, HIGH);
+      }
+      else {
+        digitalWriteFast(led_hat_2, LOW);
       }
 
       // Next, reset the cyclotron speed on all devices.

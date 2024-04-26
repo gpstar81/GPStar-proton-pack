@@ -827,7 +827,6 @@ void quickVentFinished() {
   if(b_gpstar_benchtest == true) {
     ms_overheating.stop();
     stopEffect(S_QUICK_VENT_OPEN);
-    stopEffect(S_QUICK_VENT_CLOSE);
     playEffect(S_QUICK_VENT_CLOSE);
 
     if(FIRING_MODE == SLIME && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
@@ -847,11 +846,9 @@ void startQuickVent() {
   if(b_gpstar_benchtest == true) {
     ms_overheating.start(i_ms_overheating >= 4000 ? i_ms_overheating / 2 : 2000);
 
-    stopEffect(S_BEEP_8);
     stopEffect(S_SLIME_EMPTY);
     stopEffect(S_PACK_SLIME_TANK_LOOP);
     stopEffect(S_QUICK_VENT_CLOSE);
-    stopEffect(S_QUICK_VENT_OPEN);
     playEffect(S_QUICK_VENT_OPEN);
 
     if(FIRING_MODE == SLIME) {
