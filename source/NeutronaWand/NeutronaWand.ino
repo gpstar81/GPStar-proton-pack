@@ -227,7 +227,7 @@ void loop() {
     break;
 
     case SYNCHRONIZING:
-      // Currently unused
+      // Currently unused.
       checkPack(); // Keep checking for responses from the pack while synchronizing.
     break;
 
@@ -334,7 +334,7 @@ void mainLoop() {
             wandSerialSend(W_SETTINGS_MODE);
           }
           else {
-            // Only exit the settings menu when on menu #5 in the top menu or the pack alarm is active.
+            // Only exit the settings menu when on menu #5 in the top menu or the pack ribbon cable alarm is active.
             if(i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_1 && FIRING_MODE == SETTINGS) {
               wandExitMenu();
             }
@@ -1531,7 +1531,7 @@ void wandOff() {
       b_wand_mash_error = false;
     }
 
-    if(b_pack_ribbon_cable_on == true) {
+    if(b_pack_alarm != true) {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
@@ -2147,7 +2147,7 @@ void postActivation() {
 
           soundIdleLoop(true);
 
-          if(switch_vent.on() == false && b_pack_ribbon_cable_on == true) {
+          if(switch_vent.on() == false && b_pack_alarm != true) {
             afterLifeRamp1();
           }
         break;
@@ -2283,32 +2283,30 @@ void soundIdleStart() {
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 
-        if(b_pack_ribbon_cable_on == true) {
-          if(b_sound_afterlife_idle_2_fade == true) {
-            playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 1);
+        if(b_sound_afterlife_idle_2_fade == true) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - 1);
 
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
 
-              wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
-            }
-
-            b_sound_afterlife_idle_2_fade = false;
-          }
-          else {
-            playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 1);
-
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-
-              wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
-            }
+            wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
           }
 
-          ms_gun_loop_2.start(i_gun_loop_2);
-
-          b_sound_idle = true;
+          b_sound_afterlife_idle_2_fade = false;
         }
+        else {
+          playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - 1);
+
+          if(b_extra_pack_sounds == true) {
+            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+
+            wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
+          }
+        }
+
+        ms_gun_loop_2.start(i_gun_loop_2);
+
+        b_sound_idle = true;
 
         ms_gun_loop_1.stop();
       break;
@@ -2360,7 +2358,7 @@ void soundIdleStop() {
           wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
         }
 
-        if(b_pack_ribbon_cable_on == true) {
+        if(b_pack_alarm != true) {
           if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 1);
 
