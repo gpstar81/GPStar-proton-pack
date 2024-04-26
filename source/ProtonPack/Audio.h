@@ -829,8 +829,6 @@ bool setupAudioDevice() {
   delay(350);
 
   if(audio.gpstarAudioHello()) {
-    audio.gpstarShortTrackOverload(true); // Turn on short track overload protection.
-
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
 
     i_wand_beep_level = 40; // Special setting to adjust certain wand sounds on the pack side as they can be too loud.

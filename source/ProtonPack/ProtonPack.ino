@@ -3931,7 +3931,7 @@ void modeFireStartSounds() {
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
             }
             else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 120, false);
+              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 500, false);
             }
             else {
               playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000, false);
@@ -3947,14 +3947,14 @@ void modeFireStartSounds() {
           if(b_firing_alt == true) {
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, true);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, false);
             }
             else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 120, true);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 500, false);
             }
             else {
               playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, true);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, false);
             }
 
             b_sound_firing_alt_trigger = true;
