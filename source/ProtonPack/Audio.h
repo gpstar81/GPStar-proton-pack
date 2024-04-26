@@ -51,7 +51,7 @@ bool b_repeat_track = false;
 uint8_t i_wand_beep_level = 10; // 10 for WAV Trigger. 40 for GPStar Audio. This lowers the volume of certain Neutrona Wand beep sounds that the Proton Pack can play.
 uint8_t i_wand_idle_level = 20; // This adjusts the volume of certain Afterlife / Frozen Empire Neutrona Wand idle sounds that the Proton pack can play.
 uint8_t i_gpstar_audio_volume_factor = 0; // Main volume gain factor for the GPStar Audio. This is applied to certain sound effects only.
-uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume. For GPStar Audio we increase this.
+const uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume.
 
 /*
  * Music Control/Checking
@@ -833,7 +833,6 @@ bool setupAudioDevice() {
 
     i_wand_beep_level = 40; // Special setting to adjust certain wand sounds on the pack side as they can be too loud.
     i_gpstar_audio_volume_factor = 30; // Special setting to amplify certain pack sounds.
-    i_volume_master_percentage_max = 150; // Increase the overall max gain the GPStar Audio can amplify.
 
     debugln(F("Using GPStar Audio"));
 

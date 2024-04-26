@@ -49,10 +49,7 @@ bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
 uint8_t i_wand_sound_level = 0; // 1 for WAV Trigger. 0 For GPStar Audio.
-const uint8_t i_volume_master_percentage_wav_trigger = 100;
-const uint8_t i_volume_gpstar_amplification_low = 100; // GPStar Audio.
-const uint8_t i_volume_gpstar_amplification_high = 150; // GPStar Audio high amplification.
-uint8_t i_volume_master_percentage_max = i_volume_master_percentage_wav_trigger; // Max percentage of master volume. For GPStar Audio we increase this.
+const uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume.
 
 /*
  * Music Control/Checking
@@ -88,7 +85,6 @@ void stopEffect(int i_track_id);
 void playMusic();
 void stopMusic();
 void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
-void calculateAmplificationGain();
 
 /*
  * Helper Functions
@@ -757,8 +753,6 @@ bool setupAudioDevice() {
     AUDIO_DEVICE = A_WAV_TRIGGER;
     i_wand_sound_level = 1; // This gets subtracted from certain sound volume levels.
 
-    calculateAmplificationGain();
-
     debugln(F("Using WAV Trigger"));
 
     return true;
@@ -771,8 +765,6 @@ bool setupAudioDevice() {
   if(audio.gpstarAudioHello()) {
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
     i_wand_sound_level = 0; // Special setting to adjust certain wand sounds, usually lower.
-
-    calculateAmplificationGain();
 
     debugln(F("Using GPStar Audio"));
 
@@ -790,27 +782,7 @@ bool setupAudioDevice() {
   }
 }
 
-void calculateAmplificationGain() {
-  if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-    if(b_amplify_wand_speaker == true) {
-      i_volume_master_percentage_max = i_volume_gpstar_amplification_high; // Increase the overall max gain the GPStar Audio can amplify.
-    }
-    else {
-      i_volume_master_percentage_max = i_volume_gpstar_amplification_low;
-    }
-  }
-  else {
-    i_volume_master_percentage_max = i_volume_master_percentage_wav_trigger;
-  }
-
-  if(i_volume_master_percentage > i_volume_master_percentage_max) {
-    i_volume_master_percentage = i_volume_master_percentage_max;
-  }
-}
-
 void resetMasterVolume() {
-  calculateAmplificationGain();
-
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
