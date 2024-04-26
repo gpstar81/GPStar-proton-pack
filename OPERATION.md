@@ -50,7 +50,7 @@
 - The Proton Pack will emit smoke effects during longer firing (Default setting: enabled). This can be configured from the Neutrona Wand menu system.
 
 ### System Power Inactivity Indicator
-- The LED at the front of the Neutrona Wand body next to the Clippard valve will start to blink after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered down to indicate the system is still receiving power from the Talentcell battery.
+- The LED at the front of the Neutrona Wand body next to the Clippard valve will start to blink after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered down to indicate the system is still receiving power from the battery.
 
 <div class="page-break"></div>
 
