@@ -118,7 +118,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 - While in 1984/1989 theme modes:
 	- Bottom toggle switch turns on the vent light and plays the wand power up sound.
 	- Top toggle switch plays a single beep sound.
-- While in Afterlife theme mode:
+- While in Afterlife and Frozen Empire theme mode:
 	- Bottom toggle switch turns on the vent light and the wand plays a ramp up sound.
  	- Top toggle switch turns on the looping beeping sounds.
 
