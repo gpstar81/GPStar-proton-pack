@@ -320,7 +320,7 @@ void loop() {
         reset2021RampUp();
       }
 
-      if(switch_alarm.getState() == LOW && b_overheating == false) {
+      if(ribbonCableAttached() == true && b_overheating == false) {
         if(b_alarm == true) {
           if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
             // Reset the LEDs before resetting the alarm flag.
@@ -643,18 +643,20 @@ bool fadeOutLights() {
   return b_return;
 }
 
-void checkRibbonCableSwitch() {
+bool ribbonCableAttached() {
   if(b_use_ribbon_cable == true) {
-    if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
-      if(switch_alarm.getState() == LOW) {
-        // Ribbon cable is attached.
-        packSerialSend(P_RIBBON_CABLE_ON);
-      }
-      else {
-        // Ribbon cable is detached.
-        packSerialSend(P_RIBBON_CABLE_OFF);
-      }
+    if(switch_alarm.getState() == LOW) {
+      // Ribbon cable is attached.
+      return true;
     }
+    else {
+      // Ribbon cable is detached.
+      return false;
+    }
+  }
+  else {
+    // If no ribbon cable switch is used, always return true.
+    return true;
   }
 }
 
@@ -667,7 +669,7 @@ void packStartup() {
   PACK_STATE = MODE_ON;
   PACK_ACTION_STATE = ACTION_IDLE;
 
-  if(b_alarm == true) {
+  if(ribbonCableAttached() != true) {
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       ms_cyclotron.start(0);
       ms_alarm.start(0);
@@ -675,7 +677,7 @@ void packStartup() {
 
     packAlarm();
 
-    // Tell the wand the pack alarm is on.
+    // Tell the wand and add-on device the pack ribbon cable alarm is on.
     packSerialSend(P_ALARM_ON);
     serial1Send(A_ALARM_ON);
   }
@@ -747,24 +749,45 @@ void packShutdown() {
   PACK_STATE = MODE_OFF;
   PACK_ACTION_STATE = ACTION_IDLE;
 
-  // Stop the firing if the pack is doing it.
-  wandStoppedFiring();
-
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
     case SYSTEM_1989:
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
+    default:
       stopEffect(S_PACK_RECOVERY);
       stopEffect(S_PACK_RIBBON_ALARM_1);
       stopEffect(S_ALARM_LOOP);
       stopEffect(S_RIBBON_CABLE_START);
     break;
+  }
 
-    // Not used.
-    default:
-      stopEffect(S_PACK_BEEPING);
-    break;
+  if(b_wand_firing == true) {
+    // Preemptively stop firing.
+    wandStoppedFiring();
+    cyclotronSpeedRevert();
+  }
+  else {
+    // Turn off the vent lights if they were on.
+    ventLight(false);
+    ventLightLEDW(false);
+    ms_vent_light_off.stop();
+    ms_vent_light_on.stop();
+
+    // Turn off any smoke.
+    smokeNFilter(false);
+    ms_smoke_timer.stop();
+    ms_smoke_on.stop();
+
+    // Turn off the fans.
+    fanNFilter(false);
+    fanBooster(false);
+
+    // Turn off the Cyclotron auto speed timer.
+    ms_cyclotron_auto_speed_timer.stop();
+
+    // Reset vent sounds flag.
+    b_vent_sounds = true;
   }
 
   wandExtraSoundsStop();
@@ -811,7 +834,7 @@ void packShutdown() {
     }
   }
 
-  // Need to play the 'close' SFX if we already played the open one
+  // Need to play the 'close' SFX if we already played the open one.
   if(b_overheating == true) {
     stopEffect(S_SLIME_EMPTY);
 
@@ -856,27 +879,6 @@ void packShutdown() {
   else {
     playEffect(S_SHUTDOWN);
   }
-
-  // Turn off the vent lights if they were on.
-  ventLight(false);
-  ventLightLEDW(false);
-  ms_vent_light_off.stop();
-  ms_vent_light_on.stop();
-
-  // Turn off any smoke.
-  smokeNFilter(false);
-  ms_smoke_timer.stop();
-  ms_smoke_on.stop();
-
-  // Turn off the fans.
-  fanNFilter(false);
-  fanBooster(false);
-
-  // Turn off the Cyclotron auto speed timer.
-  ms_cyclotron_auto_speed_timer.stop();
-
-  // Reset vent sounds flag.
-  b_vent_sounds = true;
 }
 
 void packOffReset() {
@@ -985,7 +987,6 @@ void checkSwitches() {
   switch_smoke.loop();
   switch_vibration.loop();
 
-  checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
 
   // Cyclotron direction toggle switch.
@@ -1738,21 +1739,8 @@ void cyclotronControl() {
     }
   }
 
-  if(switch_alarm.getState() == HIGH && PACK_STATE != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false && b_use_ribbon_cable == true) {
+  if(ribbonCableAttached() != true && PACK_STATE != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false) {
     if(b_alarm == false) {
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_AFTERLIFE:
-        case SYSTEM_FROZEN_EMPIRE:
-          stopEffect(S_PACK_BEEPS_OVERHEAT);
-        break;
-
-        case SYSTEM_1984:
-        case SYSTEM_1989:
-        default:
-          stopEffect(S_BEEP_8);
-        break;
-      }
-
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
       b_alarm = true;
@@ -1780,19 +1768,6 @@ void cyclotronControl() {
   }
   else if(b_overheating == true) {
     if(b_alarm == false) {
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_AFTERLIFE:
-        case SYSTEM_FROZEN_EMPIRE:
-          stopEffect(S_PACK_BEEPS_OVERHEAT);
-        break;
-
-        case SYSTEM_1984:
-        case SYSTEM_1989:
-        default:
-          stopEffect(S_BEEP_8);
-        break;
-      }
-
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
 
@@ -4335,9 +4310,13 @@ void wandStopFiringSounds() {
 }
 
 void packAlarm() {
-  modeFireStopSounds();
+  if(b_wand_firing == true) {
+    // Preemptively stop firing sounds.
+    wandStopFiringSounds();
+    cyclotronSpeedRevert();
+  }
 
-  // Pack sounds.
+  // Stop Pack sounds.
   if(SYSTEM_YEAR == SYSTEM_1989) {
     stopEffect(S_GB2_PACK_START);
     stopEffect(S_GB2_PACK_LOOP);
@@ -4388,14 +4367,10 @@ void packAlarm() {
       case SYSTEM_1989:
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
+      default:
         playEffect(S_PACK_RIBBON_ALARM_1, true);
         playEffect(S_ALARM_LOOP, true);
         playEffect(S_RIBBON_CABLE_START);
-      break;
-
-      // Not used.
-      default:
-        playEffect(S_PACK_BEEPING, true);
       break;
     }
   }

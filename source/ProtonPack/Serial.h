@@ -138,7 +138,6 @@ struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
   uint8_t systemYear;
-  uint8_t ribbonCable;
   uint8_t packOn;
   uint8_t powerLevel;
   uint8_t firingMode;
@@ -722,15 +721,12 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
           break;
         }
 
-        // Ribbon cable alarm.
-        if(b_alarm == true) {
+        // Send the ribbon cable alarm status if the ribbon cable is detached.
+        if(b_alarm == true && ribbonCableAttached() != true) {
           serial1Send(A_ALARM_ON);
         }
-        else {
-          serial1Send(A_ALARM_OFF);
-        }
 
-        // Pack status
+        // Pack status.
         if(PACK_STATE != MODE_OFF) {
           serial1Send(A_PACK_ON);
         }
@@ -1221,16 +1217,6 @@ void doWandSync() {
     b_reset_start_led = false;
   }
 
-  // Tell the wand the status of the Proton Pack ribbon cable.
-  if(switch_alarm.getState() == LOW) {
-    // Ribbon cable is attached.
-    packSync.ribbonCable = 2; // 2 = On.
-  }
-  else {
-    // Ribbon cable is detached.
-    packSync.ribbonCable = 1; // 1 = Off.
-  }
-
   // Synchronise the volume settings.
   packSync.masterVolume = i_volume_master_percentage;
   packSync.effectsVolume = i_volume_effects_percentage;
@@ -1247,8 +1233,10 @@ void doWandSync() {
   // Send the completed synchronization packet.
   packSerialSendData(P_SYNC_DATA);
 
-  // Send the ribbon cable alarm status.
-  b_alarm ? packSerialSend(P_ALARM_ON) : packSerialSend(P_ALARM_OFF);
+  // Send the ribbon cable alarm status if the ribbon cable is detached.
+  if(b_alarm == true && ribbonCableAttached() != true) {
+    packSerialSend(P_ALARM_ON);
+  }
 
   // Tell the wand that we've reached the end of settings to be sync'd.
   packSerialSend(P_SYNC_END);
@@ -1534,10 +1522,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_FIRING_STOPPED:
       // Wand just stopped firing.
-      wandStoppedFiring();
+      if(b_wand_firing == true) {
+        wandStoppedFiring();
 
-      // Return cyclotron to normal speed.
-      cyclotronSpeedRevert();
+        // Return cyclotron to normal speed.
+        cyclotronSpeedRevert();
+      }
     break;
 
     case W_BUTTON_MASHING:

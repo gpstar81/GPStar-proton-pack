@@ -105,7 +105,6 @@ struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
   uint8_t systemYear;
-  uint8_t ribbonCable;
   uint8_t packOn;
   uint8_t powerLevel;
   uint8_t firingMode;
@@ -629,17 +628,6 @@ void checkPack() {
           // Reset the white LED blink rate in case we changed wand year.
           resetWhiteLEDBlinkRate();
 
-          // Set whether the ribbon cable on the Pack is connected or not.
-          switch(packSync.ribbonCable) {
-            case 1:
-              b_pack_ribbon_cable_on = false;
-            break;
-            case 2:
-            default:
-              b_pack_ribbon_cable_on = true;
-            break;
-          }
-
           // Set whether the Proton Pack is currently on or off.
           switch(packSync.packOn) {
             case 1:
@@ -1011,11 +999,13 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_RIBBON_CABLE_ON:
-      b_pack_ribbon_cable_on = true;
+      // Currently unused.
+      //b_pack_ribbon_cable_on = true;
     break;
 
     case P_RIBBON_CABLE_OFF:
-      b_pack_ribbon_cable_on = false;
+      // Currently unused.
+      //b_pack_ribbon_cable_on = false;
     break;
 
     case P_ALARM_ON:
@@ -1038,7 +1028,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
         ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
       }
 
-      if(WAND_STATUS == MODE_ON && b_pack_ribbon_cable_on != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         switch(getNeutronaWandYearMode()) {
           case SYSTEM_1984:
           case SYSTEM_1989:
@@ -1076,16 +1066,12 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
           switch(SYSTEM_MODE) {
             case MODE_ORIGINAL:
               if(switch_vent.on() == true && switch_wand.on() == true && switch_activate.on() == true && b_pack_alarm == true) {
-                b_pack_alarm = false;
-
                 prepBargraphRampUp();
               }
             break;
 
             case MODE_SUPER_HERO:
             default:
-              b_pack_alarm = false;
-
               prepBargraphRampUp();
             break;
           }
@@ -1095,7 +1081,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Alarm is off.
       b_pack_alarm = false;
 
-      if(WAND_STATUS == MODE_ON && b_pack_ribbon_cable_on == true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         soundIdleLoop(true);
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
