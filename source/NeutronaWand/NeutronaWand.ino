@@ -1525,8 +1525,8 @@ void wandOff() {
       stopEffect(S_SMASH_ERROR_RESTART);
     }
 
-    // Turn off the barrel effects if shutting off during button mash lockout.
-    if(b_wand_mash_error == true) {
+    // Turn off any barrel spark effects and reset the button mash lockout.
+    if(b_wand_mash_error == true || b_pack_alarm == true) {
       barrelLightsOff();
       b_wand_mash_error = false;
     }
