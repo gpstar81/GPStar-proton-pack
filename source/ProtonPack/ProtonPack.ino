@@ -3916,12 +3916,11 @@ void modeFireStartSounds() {
       if(SYSTEM_YEAR == SYSTEM_1989) {
         playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10, false, 0, false);
       }
+      else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+        playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
+      }
       else {
         playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
-      }
-
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-        playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
       }
 
       switch(i_wand_power_level) {
@@ -3930,6 +3929,9 @@ void modeFireStartSounds() {
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500, false);
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
+            }
+            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 120, false);
             }
             else {
               playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000, false);
@@ -3945,12 +3947,16 @@ void modeFireStartSounds() {
           if(b_firing_alt == true) {
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, true);
+            }
+            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 120, true);
             }
             else {
               playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, true);
             }
 
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, true);
             b_sound_firing_alt_trigger = true;
           }
           else {
@@ -3969,8 +3975,11 @@ void modeFireStartSounds() {
               playEffect(S_GB1_FIRE_START, false, i_volume_effects, false, 0, false);
             break;
 
-            case SYSTEM_AFTERLIFE:
             case SYSTEM_FROZEN_EMPIRE:
+              // Do nothing.
+            break;
+
+            case SYSTEM_AFTERLIFE:
             default:
               playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects, false, 0, false);
             break;
@@ -3979,7 +3988,12 @@ void modeFireStartSounds() {
           if(b_firing_intensify == true) {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
+            if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 120, false);
+            }
+            else {
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
+            }
           }
           else {
             b_sound_firing_intensify_trigger = false;
@@ -3988,8 +4002,12 @@ void modeFireStartSounds() {
           if(b_firing_alt == true) {
             // Reset some sound triggers.
             b_sound_firing_alt_trigger = true;
-
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
+            if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 120, false);
+            }
+            else {
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
+            }
           }
           else {
             b_sound_firing_alt_trigger = false;
@@ -4006,7 +4024,7 @@ void modeFireStartSounds() {
 
     case STASIS:
       stopEffect(S_STASIS_END);
-      playEffect(S_STASIS_START);
+      playEffect(S_STASIS_START, false, i_volume_effects, false, 0, false);
       playEffect(S_STASIS_LOOP, true, i_volume_effects, true, 1000, false);
     break;
 
