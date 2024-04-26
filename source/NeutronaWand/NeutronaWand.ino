@@ -2359,7 +2359,7 @@ void soundIdleStop() {
         }
 
         if(b_pack_alarm != true) {
-          if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+          if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - 1);
 
             if(b_extra_pack_sounds == true) {
