@@ -633,8 +633,8 @@ void wandTipOn() {
   switch(WAND_BARREL_LED_COUNT) {
     case LEDS_48:
       if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
-        if(b_wand_mash_error == true) {
-          // Set the tip of the Frutto LED array to beige if playing the lockout spark animation.
+        if(b_wand_mash_error == true || b_pack_alarm == true) {
+          // Set the tip of the Frutto LED array to beige if playing the lockout/cable spark animation.
           barrel_leds[12] = getHueColour(C_BEIGE, WAND_BARREL_LED_COUNT);
         }
         else if(b_firing_cross_streams == true) {
@@ -647,8 +647,8 @@ void wandTipOn() {
         }
       }
       else {
-        if(b_wand_mash_error == true) {
-          // Set the tip of the Frutto LED array to beige if playing the lockout spark animation.
+        if(b_wand_mash_error == true || b_pack_alarm == true) {
+          // Set the tip of the Frutto LED array to beige if playing the lockout/cable spark animation.
           barrel_leds[12] = getHueColour(C_BEIGE, WAND_BARREL_LED_COUNT);
         }
         else {
@@ -1749,7 +1749,7 @@ void fireControlCheck() {
       }
     }
     else {
-      if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
+      if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_switch_barrel_extended == true) {
         if(WAND_ACTION_STATUS != ACTION_FIRING) {
           WAND_ACTION_STATUS = ACTION_FIRING;
         }
@@ -1770,7 +1770,7 @@ void fireControlCheck() {
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
       if(b_cross_the_streams == true) {
-        if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_switch_barrel_extended == true && b_pack_alarm != true) {
+        if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_switch_barrel_extended == true) {
           if(WAND_ACTION_STATUS != ACTION_FIRING) {
             WAND_ACTION_STATUS = ACTION_FIRING;
           }
@@ -1820,20 +1820,27 @@ void fireControlCheck() {
     // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
     // Super Hero Mode only, because Mode Original uses different toggle switch combinations which makes this not possible.
     if(b_quick_vent == true && SYSTEM_MODE == MODE_SUPER_HERO) {
-      if(switch_intensify.pushed() && switch_wand.on() == false && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_pack_alarm != true && b_overheat_enabled == true) {
+      if(switch_intensify.pushed() && switch_wand.on() == false && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_overheat_enabled == true) {
         startQuickVent();
       }
     }
   }
-  else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_VENTING || b_pack_alarm == true) {
+  else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_VENTING || WAND_ACTION_STATUS == ACTION_SETTINGS || b_pack_alarm == true) {
     if(switch_activate.on() == false) {
       WAND_ACTION_STATUS = ACTION_OFF;
     }
-  }
-  else if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
-    // Shut the wand off if the user is in the settings menu but flips the Activate switch off.
-    if(switch_activate.on() == false) {
-      WAND_ACTION_STATUS = ACTION_OFF;
+
+    if(WAND_ACTION_STATUS == ACTION_IDLE) {
+      // Play a little spark effect if the user tries to fire while the ribbon cable is removed.
+      if((switch_intensify.pushed() || (b_cross_the_streams == true && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning()) {
+        if(b_extra_pack_sounds == true) {
+          wandSerialSend(W_WAND_MASH_ERROR_SOUND);
+        }
+
+        stopEffect(S_WAND_MASH_ERROR);
+        playEffect(S_WAND_MASH_ERROR);
+        wandTipSpark();
+      }
     }
   }
 }
@@ -3586,8 +3593,8 @@ void wandBarrelHeatUp() {
     break;
   }
 
-  if(b_wand_mash_error == true) {
-    // Special spark effect handling for button mash lockout start.
+  if(b_wand_mash_error == true || b_pack_alarm == true) {
+    // Special spark effect handling for button mash lockout and ribbon cable removal.
 
     if((i_bmash_spark_index < 1 && i_heatup_counter > 100) || (i_bmash_spark_index > 0 && i_heatup_counter > 75)) {
       wandBarrelHeatDown();
@@ -3832,8 +3839,8 @@ void wandBarrelHeatDown() {
     break;
   }
 
-  if(b_wand_mash_error == true) {
-    // Special spark effect handling for button mash lockout start.
+  if(b_wand_mash_error == true || b_pack_alarm == true) {
+    // Special spark effect handling for button mash lockout and ribbon cable removal.
 
     if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
       switch(WAND_BARREL_LED_COUNT) {

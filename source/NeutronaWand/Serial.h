@@ -1058,7 +1058,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
         if(WAND_STATUS == MODE_ON) {
           switch(SYSTEM_MODE) {
             case MODE_ORIGINAL:
-              if(switch_vent.on() == true && switch_wand.on() == true && switch_activate.on() == true && b_pack_alarm == true) {
+              if(switch_vent.on() == true && switch_wand.on() == true && switch_activate.on() == true) {
                 prepBargraphRampUp();
               }
             break;
