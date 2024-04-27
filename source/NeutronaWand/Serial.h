@@ -62,7 +62,6 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t defaultFiringMode;
   uint8_t wandVibration;
   uint8_t wandSoundsToPack;
-  uint8_t amplifyWandSpeaker;
   uint8_t quickVenting;
   uint8_t autoVentLight;
   uint8_t wandBeepLoop;
@@ -105,7 +104,6 @@ struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
   uint8_t systemYear;
-  uint8_t ribbonCable;
   uint8_t packOn;
   uint8_t powerLevel;
   uint8_t firingMode;
@@ -203,7 +201,6 @@ void wandSerialSendData(uint8_t i_message) {
         wandConfig.defaultFiringMode = 1;
       }
 
-      wandConfig.amplifyWandSpeaker = b_amplify_wand_speaker;
       wandConfig.wandSoundsToPack = b_extra_pack_sounds;
       wandConfig.quickVenting = b_quick_vent;
       wandConfig.autoVentLight = b_vent_light_control;
@@ -350,7 +347,7 @@ void checkPack() {
               ms_handshake.start(i_heartbeat_delay);
 
               // Turn off the sync indicator LED as the sync is completed.
-              digitalWrite(led_white, HIGH);
+              digitalWriteFast(led_white, HIGH);
 
               // Indicate that a pack is now connected.
               WAND_CONN_STATE = PACK_CONNECTED;
@@ -370,8 +367,6 @@ void checkPack() {
                 i_volume_master_percentage = recvData.d[0];
                 i_volume_effects_percentage = recvData.d[1];
                 i_volume_music_percentage = recvData.d[2];
-
-                calculateAmplificationGain();
 
                 // Set the decibel volume.
                 i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
@@ -472,7 +467,6 @@ void checkPack() {
             break;
           }
 
-          b_amplify_wand_speaker = wandConfig.amplifyWandSpeaker;
           b_extra_pack_sounds = wandConfig.wandSoundsToPack;
           b_quick_vent = wandConfig.quickVenting;
           b_vent_light_control = wandConfig.autoVentLight;
@@ -629,17 +623,6 @@ void checkPack() {
           // Reset the white LED blink rate in case we changed wand year.
           resetWhiteLEDBlinkRate();
 
-          // Set whether the ribbon cable on the Pack is connected or not.
-          switch(packSync.ribbonCable) {
-            case 1:
-              b_pack_ribbon_cable_on = false;
-            break;
-            case 2:
-            default:
-              b_pack_ribbon_cable_on = true;
-            break;
-          }
-
           // Set whether the Proton Pack is currently on or off.
           switch(packSync.packOn) {
             case 1:
@@ -732,8 +715,6 @@ void checkPack() {
           i_volume_master_percentage = packSync.masterVolume;
           i_volume_effects_percentage = packSync.effectsVolume;
           i_volume_music_percentage = packSync.musicVolume;
-
-          calculateAmplificationGain();
 
           // Set the decibel volume.
           i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
@@ -1011,11 +992,13 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_RIBBON_CABLE_ON:
-      b_pack_ribbon_cable_on = true;
+      // Currently unused.
+      //b_pack_ribbon_cable_on = true;
     break;
 
     case P_RIBBON_CABLE_OFF:
-      b_pack_ribbon_cable_on = false;
+      // Currently unused.
+      //b_pack_ribbon_cable_on = false;
     break;
 
     case P_ALARM_ON:
@@ -1024,7 +1007,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       if(WAND_STATUS != MODE_ERROR) {
         if(WAND_STATUS == MODE_ON) {
-          digitalWrite(led_hat_2, HIGH); // Turn on hat light 2.
+          digitalWriteFast(led_hat_2, HIGH); // Turn on hat light 2.
           prepBargraphRampDown();
 
           if(FIRING_MODE == SETTINGS) {
@@ -1038,7 +1021,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
         ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
       }
 
-      if(WAND_STATUS == MODE_ON && b_pack_ribbon_cable_on != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         switch(getNeutronaWandYearMode()) {
           case SYSTEM_1984:
           case SYSTEM_1989:
@@ -1068,24 +1051,20 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_ALARM_OFF:
       if(WAND_STATUS != MODE_ERROR) {
-        digitalWrite(led_hat_2, LOW); // Turn off hat light 2.
+        digitalWriteFast(led_hat_2, LOW); // Turn off hat light 2.
 
         ms_hat_2.stop();
 
         if(WAND_STATUS == MODE_ON) {
           switch(SYSTEM_MODE) {
             case MODE_ORIGINAL:
-              if(switch_vent.on() == true && switch_wand.on() == true && switch_activate.on() == true && b_pack_alarm == true) {
-                b_pack_alarm = false;
-
+              if(switch_vent.on() == true && switch_wand.on() == true && switch_activate.on() == true) {
                 prepBargraphRampUp();
               }
             break;
 
             case MODE_SUPER_HERO:
             default:
-              b_pack_alarm = false;
-
               prepBargraphRampUp();
             break;
           }
@@ -1095,7 +1074,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Alarm is off.
       b_pack_alarm = false;
 
-      if(WAND_STATUS == MODE_ON && b_pack_ribbon_cable_on == true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         soundIdleLoop(true);
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
@@ -1118,15 +1097,16 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       ms_hat_2.stop();
 
       if(b_firing == true) {
-        // Keep both lights on if still firing.
-        digitalWrite(led_hat_1, HIGH);
+        // Keep hat light 1 on if still firing.
+        digitalWriteFast(led_hat_1, HIGH);
+      }
 
-        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          digitalWrite(led_hat_2, HIGH);
-        }
-        else {
-          digitalWrite(led_hat_2, LOW);
-        }
+      // Revert hat light 2 to its normal non-overheat status.
+      if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+        digitalWriteFast(led_hat_2, HIGH);
+      }
+      else {
+        digitalWriteFast(led_hat_2, LOW);
       }
 
       // Next, reset the cyclotron speed on all devices.

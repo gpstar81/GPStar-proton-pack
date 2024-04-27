@@ -227,12 +227,6 @@ bool b_stream_effects = true;
 bool b_extra_pack_sounds = true;
 
 /*
- * For GPStar Audio, when using the Hasbro 16ohm 0.25watt speaker it needs to run at a lower volume to not overpower it.
- * When switching to a more powerful speaker such as 4ohm 2.5W or 8ohm 1.25W it can be amplified more safely.
-*/
-bool b_amplify_wand_speaker = true;
-
-/*
  * When set to true, the Neutrona Wand plays sound effects with the toggle switches only in MODE_ORIGINAL and not MODE_SUPER_HERO mode.
  */
 bool b_mode_original_toggle_sounds_enabled = true;

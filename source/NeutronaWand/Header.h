@@ -257,25 +257,20 @@ const uint8_t d_bargraph_ramp_interval = 120;
 uint8_t i_bargraph_status = 0;
 
 /*
- * (Optional) Barmeter 28 segment bargraph configuration and timers.
+ * (Optional) Barmeter 28-segment bargraph configuration and timers.
  * Part #: BL28Z-3005SA04Y
  */
 HT16K33 ht_bargraph;
 
-// Used to scan the i2c bus and to locate the 28 segment bargraph.
+// Used to scan the i2c bus and to locate the 28-segment bargraph.
 #define WIRE Wire
 
 /*
- * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
- * Set to false if you are using the stock Hasbro bargraph.
+ * Used to change to 28-segment bargraph features.
+ * The Frutto 28-segment bargraph is automatically detected on boot and sets this to true.
  * Part #: BL28Z-3005SA04Y
  */
 bool b_28segment_bargraph = false;
-
-/*
- * Flag check for video game mode.
- */
-bool b_vg_mode = true;
 
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
@@ -288,7 +283,7 @@ const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
 unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
 /*
- * (Optional) Barmeter 28 segment bargraph mapping.
+ * (Optional) Barmeter 28-segment bargraph mapping.
  * Part #: BL28Z-3005SA04Y
 
  * Segment Layout:
@@ -303,6 +298,11 @@ uint8_t i_bargraph[i_bargraph_segments] = {};
 const uint8_t i_bargraph_invert[i_bargraph_segments] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
 const uint8_t i_bargraph_normal[i_bargraph_segments] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 bool b_bargraph_status[i_bargraph_segments] = {};
+
+/*
+ * Flag check for video game mode.
+ */
+bool b_vg_mode = true;
 
 /*
  * (Optional) Support for Video Game Accessories (coming soon)
@@ -344,6 +344,7 @@ enum FIRING_MODES PREV_FIRING_MODE;
  */
 millisDelay ms_firing_lights;
 millisDelay ms_firing_lights_end;
+millisDelay ms_firing_effect_end;
 millisDelay ms_firing_stream_effects;
 millisDelay ms_impact; // Mix some impact sounds while firing.
 millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
@@ -378,7 +379,6 @@ enum WAND_CONN_STATES WAND_CONN_STATE;
  */
 bool b_pack_on = false; // Denotes the pack has been powered on.
 bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected).
-bool b_pack_ribbon_cable_on = true; // Denotes that the pack's ribbon cable is connected.
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
 bool b_sync_light = false; // Toggle for the state of the white LED beside the vent light which gets blinked as a sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.

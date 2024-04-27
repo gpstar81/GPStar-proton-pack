@@ -138,7 +138,6 @@ struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
   uint8_t systemYear;
-  uint8_t ribbonCable;
   uint8_t packOn;
   uint8_t powerLevel;
   uint8_t firingMode;
@@ -722,15 +721,12 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
           break;
         }
 
-        // Ribbon cable alarm.
-        if(b_alarm == true) {
+        // Send the ribbon cable alarm status if the ribbon cable is detached.
+        if(b_alarm == true && ribbonCableAttached() != true) {
           serial1Send(A_ALARM_ON);
         }
-        else {
-          serial1Send(A_ALARM_OFF);
-        }
 
-        // Pack status
+        // Pack status.
         if(PACK_STATE != MODE_OFF) {
           serial1Send(A_PACK_ON);
         }
@@ -1221,16 +1217,6 @@ void doWandSync() {
     b_reset_start_led = false;
   }
 
-  // Tell the wand the status of the Proton Pack ribbon cable.
-  if(switch_alarm.getState() == LOW) {
-    // Ribbon cable is attached.
-    packSync.ribbonCable = 2; // 2 = On.
-  }
-  else {
-    // Ribbon cable is detached.
-    packSync.ribbonCable = 1; // 1 = Off.
-  }
-
   // Synchronise the volume settings.
   packSync.masterVolume = i_volume_master_percentage;
   packSync.effectsVolume = i_volume_effects_percentage;
@@ -1247,8 +1233,10 @@ void doWandSync() {
   // Send the completed synchronization packet.
   packSerialSendData(P_SYNC_DATA);
 
-  // Send the ribbon cable alarm status.
-  b_alarm ? packSerialSend(P_ALARM_ON) : packSerialSend(P_ALARM_OFF);
+  // Send the ribbon cable alarm status if the ribbon cable is detached.
+  if(b_alarm == true && ribbonCableAttached() != true) {
+    packSerialSend(P_ALARM_ON);
+  }
 
   // Tell the wand that we've reached the end of settings to be sync'd.
   packSerialSend(P_SYNC_END);
@@ -1534,10 +1522,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_FIRING_STOPPED:
       // Wand just stopped firing.
-      wandStoppedFiring();
+      if(b_wand_firing == true) {
+        wandStoppedFiring();
 
-      // Return cyclotron to normal speed.
-      cyclotronSpeedRevert();
+        // Return cyclotron to normal speed.
+        cyclotronSpeedRevert();
+      }
     break;
 
     case W_BUTTON_MASHING:
@@ -1848,19 +1838,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_OVERHEATING:
       // Overheating
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_AFTERLIFE:
-        case SYSTEM_FROZEN_EMPIRE:
-          stopEffect(S_PACK_BEEPS_OVERHEAT);
-        break;
-
-        case SYSTEM_1984:
-        case SYSTEM_1989:
-        default:
-          stopEffect(S_BEEP_8);
-        break;
-      }
-
       if(FIRING_MODE == SLIME) {
         playEffect(S_SLIME_EMPTY);
       }
@@ -1900,24 +1877,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_VENTING:
-      // Quick Vent function
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_AFTERLIFE:
-        case SYSTEM_FROZEN_EMPIRE:
-          stopEffect(S_PACK_BEEPS_OVERHEAT);
-        break;
-
-        case SYSTEM_1984:
-        case SYSTEM_1989:
-        default:
-          stopEffect(S_BEEP_8);
-        break;
-      }
-
+      // Quick Vent function.
       stopEffect(S_SLIME_EMPTY);
       stopEffect(S_PACK_SLIME_TANK_LOOP);
       stopEffect(S_QUICK_VENT_CLOSE);
-      stopEffect(S_QUICK_VENT_OPEN);
 
       playEffect(S_QUICK_VENT_OPEN);
 
@@ -2109,52 +2072,26 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
         b_sound_firing_intensify_trigger = true;
-
-        switch(i_wand_power_level) {
-          case 1 ... 4:
-            if(SYSTEM_YEAR == SYSTEM_1989) {
-              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
-              //playEffect(S_GB2_FIRE_START);
-            }
-            else {
-              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, false, 0, false);
-              //playEffect(S_GB1_FIRE_START);
-            }
-          break;
-
-          case 5:
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-          break;
-        }
       }
 
     break;
 
     case W_FIRING_INTENSIFY_STOPPED:
-      // Wand no longer firing in intensify mode.
+      // Wand no longer firing in intensify mode. (UNUSED, uses W_FIRING_STOPPED instead)
       b_firing_intensify = false;
       b_sound_firing_intensify_trigger = false;
     break;
 
     case W_FIRING_INTENSIFY_STOPPED_MIX:
       // Wand no longer firing in intensify mode.
-      if(STATUS_CTS == CTS_NOT_FIRING && b_firing_intensify == true) {
-        switch(i_wand_power_level) {
-          case 1 ... 4:
-            if(SYSTEM_YEAR == SYSTEM_1989) {
-              stopEffect(S_GB2_FIRE_LOOP);
-              //stopEffect(S_GB2_FIRE_START);
-            }
-            else {
-              stopEffect(S_GB1_FIRE_LOOP);
-              //stopEffect(S_GB1_FIRE_START);
-            }
-          break;
-
-          case 5:
-            stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
-          break;
+      if(b_firing_intensify == true) {
+        if(i_wand_power_level == 5) {
+          // Need to stop and restart this loop to prevent overlaps since the barrel wing button is still held.
+          stopEffect(S_FIRING_LOOP_GB1);
+          playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
         }
+
+        stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
       }
 
       b_firing_intensify = false;
@@ -2182,7 +2119,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_FIRING_ALT_STOPPED:
-      // Wand no longer firing in alt mode.
+      // Wand no longer firing in alt mode. (UNUSED, uses W_FIRING_STOPPED instead)
       b_firing_alt = false;
       b_sound_firing_alt_trigger = false;
     break;
@@ -2191,6 +2128,23 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand no longer firing in alt mode mix.
       if(b_firing_alt == true) {
         stopEffect(S_FIRING_LOOP_GB1);
+        stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+
+        // Since Intensify is still held, turn back on its firing loop sounds.
+        switch(i_wand_power_level) {
+          case 1 ... 4:
+            if(SYSTEM_YEAR == SYSTEM_1989) {
+              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
+            }
+            else {
+              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, false, 0, false);
+            }
+          break;
+
+          case 5:
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+          break;
+        }
       }
 
       b_firing_alt = false;
@@ -2204,12 +2158,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
-      playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
-
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
+
+      // Mix in some new proton stream sounds for normal CTS.
+      if(i_wand_power_level != i_wand_power_level_max) {
+        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+      }
+      else {
+        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
+      }
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_2021:
@@ -2219,13 +2177,17 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
-
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
+
+      // Mix in some new proton stream sounds for normal CTS.
+      if(i_wand_power_level != i_wand_power_level_max) {
+        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+      }
+      else {
+        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
+      }
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_MIX_1984:
@@ -2235,16 +2197,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      //stopEffect(S_CROSS_STREAMS_END);
+      stopEffect(S_CROSS_STREAMS_END);
       stopEffect(S_CROSS_STREAMS_START);
-
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
-      playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-
+      // Mix in some new proton stream sounds for CTS Mix.
       if(i_wand_power_level != i_wand_power_level_max) {
         playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+      }
+      else if (i_wand_power_level == i_wand_power_level_max) {
+        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
       }
 
       if(SYSTEM_YEAR == SYSTEM_1989) {
@@ -2262,16 +2224,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-      playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
-      playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-
+      // Mix in some new proton stream sounds for CTS Mix.
       if(i_wand_power_level != i_wand_power_level_max) {
         playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+      }
+      else if (i_wand_power_level == i_wand_power_level_max) {
+        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
       }
 
       if(SYSTEM_YEAR == SYSTEM_1989) {
@@ -2283,26 +2245,23 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984:
-      // The wand is no longer crossing the streams.
+      // The wand is no longer crossing the streams. (UNUSED, uses W_FIRING_STOPPED instead)
       STATUS_CTS = CTS_NOT_FIRING;
 
       stopEffect(S_CROSS_STREAMS_START);
       //stopEffect(S_CROSS_STREAMS_END);
 
       playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
-
-      stopEffect(S_FIRING_LOOP_GB1);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_2021:
-      // The wand is no longer crossing the streams.
+      // The wand is no longer crossing the streams. (UNUSED, uses W_FIRING_STOPPED instead)
       STATUS_CTS = CTS_NOT_FIRING;
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
-      stopEffect(S_FIRING_LOOP_GB1);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_1984:
@@ -2311,8 +2270,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Restart the impact sound timer.
       if(b_stream_effects == true) {
-        unsigned int i_s_random = random(7,15) * 1000;
-        ms_firing_sound_mix.start(i_s_random);
+        ms_firing_sound_mix.start(random(7,15) * 1000);
       }
 
       stopEffect(S_CROSS_STREAMS_START);
@@ -2327,8 +2285,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Restart the impact sound timer.
       if(b_stream_effects == true) {
-        unsigned int i_s_random = random(7,15) * 1000;
-        ms_firing_sound_mix.start(i_s_random);
+        ms_firing_sound_mix.start(random(7,15) * 1000);
       }
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
@@ -2481,7 +2438,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         analogWrite(vibration, 150);
         delay(250);
-        analogWrite(vibration, 0);
+        vibrationOff();;
       }
       else if(b_vibration_on == true && b_vibration_firing != true) {
         b_vibration_firing = true;
@@ -2498,7 +2455,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         analogWrite(vibration, 150);
         delay(250);
-        analogWrite(vibration, 0);
+        vibrationOff();;
       }
       else {
         b_vibration_firing = false;
@@ -2539,7 +2496,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           analogWrite(vibration, 150);
           delay(250);
-          analogWrite(vibration, 0);
+          vibrationOff();;
         break;
         case VIBRATION_ALWAYS:
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
@@ -2558,7 +2515,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           analogWrite(vibration, 150);
           delay(250);
-          analogWrite(vibration, 0);
+          vibrationOff();;
         break;
         case VIBRATION_FIRING_ONLY:
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
@@ -2600,7 +2557,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           analogWrite(vibration, 150);
           delay(250);
-          analogWrite(vibration, 0);
+          vibrationOff();
         break;
       }
     break;

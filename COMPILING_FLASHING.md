@@ -6,12 +6,12 @@ The custom software needed for operation must be compiled and uploaded to your d
 
 Please refer to the table below for a list of devices and their supported software release.
 
-| Controller Device | v1.x | v2.x | v3.x |
-|-------------------|------|------|------|
-| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Proton Pack PCB   | Yes | Yes | Yes |
-| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Neutrona Wand PCB | Yes | Yes | Yes |
-| <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> |
-| <sup>d1</sup> DIY Arduino Nano Neutrona Wand | Yes | Yes <sup>2</sup> | No |
+| Controller Device | v1.x | v2.x | v3.x | v4.x | v5.x |
+|-------------------|------|------|------|------|------|
+| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Proton Pack PCB   | Yes | Yes | Yes | Yes | Yes |
+| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Neutrona Wand PCB | Yes | Yes | Yes | Yes | Yes |
+| <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
+| <sup>d1</sup> DIY Arduino Nano Neutrona Wand | Yes | Yes <sup>2</sup> | No | No | No |
 
 <sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions.
 
@@ -28,6 +28,7 @@ Download and install the Arduino IDE 2.x or higher. This will be used to compile
 The following libraries are required to be installed. All can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
 
 - **CRC32** by Christopher Baker
+- **digitalWriteFast** by Watterott and Armin Joachimsmeyer
 - **ezButton** by ArduinoGetStarted.com
 - **FastLED** by Daniel Garcia
 - **Ramp** by Sylvain Garnavault

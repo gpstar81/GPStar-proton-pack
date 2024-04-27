@@ -35,6 +35,7 @@
 
 // 3rd-Party Libraries
 #include <CRC32.h>
+#include <digitalWriteFast.h>
 #include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>
@@ -64,8 +65,8 @@ void setup() {
   setupAudioDevice();
 
   // Rotary encoder for volume control.
-  pinMode(encoder_pin_a, INPUT_PULLUP);
-  pinMode(encoder_pin_b, INPUT_PULLUP);
+  pinModeFast(encoder_pin_a, INPUT_PULLUP);
+  pinModeFast(encoder_pin_b, INPUT_PULLUP);
 
   // Configure the various switches on the pack.
   switch_alarm.setDebounceTime(50);
@@ -79,22 +80,22 @@ void setup() {
   TCCR5B = (TCCR5B & B11111000) | (B00000100);  // for PWM frequency of 122.55 Hz
 
   // Vibration motor
-  pinMode(vibration, OUTPUT);
+  pinMode(vibration, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // Smoke motor for the N-Filter.
-  pinMode(smoke_pin, OUTPUT);
+  pinModeFast(smoke_pin, OUTPUT);
 
   // Fan pin for the N-Filter smoke.
-  pinMode(fan_pin, OUTPUT);
+  pinModeFast(fan_pin, OUTPUT);
 
   // Second smoke motor (booster tube)
-  pinMode(smoke_booster_pin, OUTPUT);
+  pinModeFast(smoke_booster_pin, OUTPUT);
 
   // A fan pin that goes off at the same time as the booster tube smoke pin.
-  pinMode(fan_booster_pin, OUTPUT);
+  pinModeFast(fan_booster_pin, OUTPUT);
 
   // Another optional N-Filter LED.
-  pinMode(i_nfilter_led_pin, OUTPUT);
+  pinModeFast(i_nfilter_led_pin, OUTPUT);
 
   // Power Cell, Cyclotron Lid, and N-Filter.
   FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT);
@@ -107,14 +108,14 @@ void setup() {
   //FastLED.setMaxPowerInVoltsAndMilliamps(5, 800); // Limit draw to 800mA at 5v of power. Enabling this can cause some flickering of the LEDs.
 
   // Cyclotron Switch Panel LEDs
-  pinMode(cyclotron_sw_plate_led_r1, OUTPUT);
-  pinMode(cyclotron_sw_plate_led_r2, OUTPUT);
-  pinMode(cyclotron_sw_plate_led_y1, OUTPUT);
-  pinMode(cyclotron_sw_plate_led_y2, OUTPUT);
-  pinMode(cyclotron_sw_plate_led_g1, OUTPUT);
-  pinMode(cyclotron_sw_plate_led_g2, OUTPUT);
-  pinMode(cyclotron_switch_led_green, OUTPUT);
-  pinMode(cyclotron_switch_led_yellow, OUTPUT);
+  pinModeFast(cyclotron_sw_plate_led_r1, OUTPUT);
+  pinModeFast(cyclotron_sw_plate_led_r2, OUTPUT);
+  pinModeFast(cyclotron_sw_plate_led_y1, OUTPUT);
+  pinModeFast(cyclotron_sw_plate_led_y2, OUTPUT);
+  pinModeFast(cyclotron_sw_plate_led_g1, OUTPUT);
+  pinModeFast(cyclotron_sw_plate_led_g2, OUTPUT);
+  pinModeFast(cyclotron_switch_led_green, OUTPUT);
+  pinModeFast(cyclotron_switch_led_yellow, OUTPUT);
 
   // Default mode is Super Hero (for simpler controls).
   SYSTEM_MODE = MODE_SUPER_HERO;
@@ -319,7 +320,7 @@ void loop() {
         reset2021RampUp();
       }
 
-      if(switch_alarm.getState() == LOW && b_overheating == false) {
+      if(ribbonCableAttached() == true && b_overheating == false) {
         if(b_alarm == true) {
           if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
             // Reset the LEDs before resetting the alarm flag.
@@ -642,18 +643,20 @@ bool fadeOutLights() {
   return b_return;
 }
 
-void checkRibbonCableSwitch() {
+bool ribbonCableAttached() {
   if(b_use_ribbon_cable == true) {
-    if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
-      if(switch_alarm.getState() == LOW) {
-        // Ribbon cable is attached.
-        packSerialSend(P_RIBBON_CABLE_ON);
-      }
-      else {
-        // Ribbon cable is detached.
-        packSerialSend(P_RIBBON_CABLE_OFF);
-      }
+    if(switch_alarm.getState() == LOW) {
+      // Ribbon cable is attached.
+      return true;
     }
+    else {
+      // Ribbon cable is detached.
+      return false;
+    }
+  }
+  else {
+    // If no ribbon cable switch is used, always return true.
+    return true;
   }
 }
 
@@ -666,7 +669,7 @@ void packStartup() {
   PACK_STATE = MODE_ON;
   PACK_ACTION_STATE = ACTION_IDLE;
 
-  if(b_alarm == true) {
+  if(ribbonCableAttached() != true) {
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       ms_cyclotron.start(0);
       ms_alarm.start(0);
@@ -674,7 +677,7 @@ void packStartup() {
 
     packAlarm();
 
-    // Tell the wand the pack alarm is on.
+    // Tell the wand and add-on device the pack ribbon cable alarm is on.
     packSerialSend(P_ALARM_ON);
     serial1Send(A_ALARM_ON);
   }
@@ -746,41 +749,49 @@ void packShutdown() {
   PACK_STATE = MODE_OFF;
   PACK_ACTION_STATE = ACTION_IDLE;
 
-  // Stop the firing if the pack is doing it.
-  wandStoppedFiring();
-
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
     case SYSTEM_1989:
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
+    default:
       stopEffect(S_PACK_RECOVERY);
       stopEffect(S_PACK_RIBBON_ALARM_1);
       stopEffect(S_ALARM_LOOP);
       stopEffect(S_RIBBON_CABLE_START);
     break;
+  }
 
-    // Not used.
-    default:
-      stopEffect(S_PACK_BEEPING);
-    break;
+  if(b_wand_firing == true) {
+    // Preemptively stop firing.
+    wandStoppedFiring();
+    cyclotronSpeedRevert();
+  }
+  else {
+    // Turn off the vent lights if they were on.
+    ventLight(false);
+    ventLightLEDW(false);
+    ms_vent_light_off.stop();
+    ms_vent_light_on.stop();
+
+    // Turn off any smoke.
+    smokeNFilter(false);
+    ms_smoke_timer.stop();
+    ms_smoke_on.stop();
+
+    // Turn off the fans.
+    fanNFilter(false);
+    fanBooster(false);
+
+    // Turn off the Cyclotron auto speed timer.
+    ms_cyclotron_auto_speed_timer.stop();
+
+    // Reset vent sounds flag.
+    b_vent_sounds = true;
   }
 
   wandExtraSoundsStop();
   wandExtraSoundsBeepLoopStop();
-
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-      stopEffect(S_PACK_BEEPS_OVERHEAT);
-    break;
-
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-    default:
-      stopEffect(S_BEEP_8);
-    break;
-  }
 
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
@@ -823,12 +834,11 @@ void packShutdown() {
     }
   }
 
-  // Need to play the 'close' SFX if we already played the open one
+  // Need to play the 'close' SFX if we already played the open one.
   if(b_overheating == true) {
     stopEffect(S_SLIME_EMPTY);
 
     stopEffect(S_VENT_OPEN);
-    stopEffect(S_VENT_CLOSE);
 
     if(FIRING_MODE != SLIME) {
       stopEffect(S_PACK_PRE_VENT);
@@ -844,7 +854,6 @@ void packShutdown() {
   else if(b_venting == true) {
     stopEffect(S_SLIME_EMPTY);
     stopEffect(S_QUICK_VENT_OPEN);
-    stopEffect(S_QUICK_VENT_CLOSE);
     playEffect(S_QUICK_VENT_CLOSE);
   }
 
@@ -870,27 +879,6 @@ void packShutdown() {
   else {
     playEffect(S_SHUTDOWN);
   }
-
-  // Turn off the vent lights if they were on.
-  ventLight(false);
-  ventLightLEDW(false);
-  ms_vent_light_off.stop();
-  ms_vent_light_on.stop();
-
-  // Turn off any smoke.
-  smokeNFilter(false);
-  ms_smoke_timer.stop();
-  ms_smoke_on.stop();
-
-  // Turn off the fans.
-  fanNFilter(false);
-  fanBooster(false);
-
-  // Turn off the Cyclotron auto speed timer.
-  ms_cyclotron_auto_speed_timer.stop();
-
-  // Reset vent sounds flag.
-  b_vent_sounds = true;
 }
 
 void packOffReset() {
@@ -999,7 +987,6 @@ void checkSwitches() {
   switch_smoke.loop();
   switch_vibration.loop();
 
-  checkRibbonCableSwitch();
   cyclotronSwitchPlateLEDs();
 
   // Cyclotron direction toggle switch.
@@ -1268,14 +1255,14 @@ void resetRampSpeeds() {
 }
 
 void cyclotronSwitchLEDOff() {
-  digitalWrite(cyclotron_sw_plate_led_r1, LOW);
-  digitalWrite(cyclotron_sw_plate_led_r2, LOW);
+  digitalWriteFast(cyclotron_sw_plate_led_r1, LOW);
+  digitalWriteFast(cyclotron_sw_plate_led_r2, LOW);
 
-  digitalWrite(cyclotron_sw_plate_led_y1, LOW);
-  digitalWrite(cyclotron_sw_plate_led_y2, LOW);
+  digitalWriteFast(cyclotron_sw_plate_led_y1, LOW);
+  digitalWriteFast(cyclotron_sw_plate_led_y2, LOW);
 
-  digitalWrite(cyclotron_sw_plate_led_g1, LOW);
-  digitalWrite(cyclotron_sw_plate_led_g2, LOW);
+  digitalWriteFast(cyclotron_sw_plate_led_g1, LOW);
+  digitalWriteFast(cyclotron_sw_plate_led_g2, LOW);
 
   i_cyclotron_sw_led = 0;
 }
@@ -1285,26 +1272,26 @@ void cyclotronSwitchLEDLoop() {
     if(b_cyclotron_lid_on != true) {
       if(b_alarm == true) {
         if(i_cyclotron_sw_led > 0) {
-          digitalWrite(cyclotron_sw_plate_led_r1, HIGH);
-          digitalWrite(cyclotron_sw_plate_led_r2, HIGH);
+          digitalWriteFast(cyclotron_sw_plate_led_r1, HIGH);
+          digitalWriteFast(cyclotron_sw_plate_led_r2, HIGH);
 
-          digitalWrite(cyclotron_sw_plate_led_y1, HIGH);
-          digitalWrite(cyclotron_sw_plate_led_y2, HIGH);
+          digitalWriteFast(cyclotron_sw_plate_led_y1, HIGH);
+          digitalWriteFast(cyclotron_sw_plate_led_y2, HIGH);
 
-          digitalWrite(cyclotron_sw_plate_led_g1, HIGH);
-          digitalWrite(cyclotron_sw_plate_led_g2, HIGH);
+          digitalWriteFast(cyclotron_sw_plate_led_g1, HIGH);
+          digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
           i_cyclotron_sw_led = 0;
         }
         else {
-          digitalWrite(cyclotron_sw_plate_led_r1, LOW);
-          digitalWrite(cyclotron_sw_plate_led_r2, LOW);
+          digitalWriteFast(cyclotron_sw_plate_led_r1, LOW);
+          digitalWriteFast(cyclotron_sw_plate_led_r2, LOW);
 
-          digitalWrite(cyclotron_sw_plate_led_y1, LOW);
-          digitalWrite(cyclotron_sw_plate_led_y2, LOW);
+          digitalWriteFast(cyclotron_sw_plate_led_y1, LOW);
+          digitalWriteFast(cyclotron_sw_plate_led_y2, LOW);
 
-          digitalWrite(cyclotron_sw_plate_led_g1, LOW);
-          digitalWrite(cyclotron_sw_plate_led_g2, LOW);
+          digitalWriteFast(cyclotron_sw_plate_led_g1, LOW);
+          digitalWriteFast(cyclotron_sw_plate_led_g2, LOW);
 
           i_cyclotron_sw_led++;
         }
@@ -1312,105 +1299,105 @@ void cyclotronSwitchLEDLoop() {
       else {
         switch(i_cyclotron_sw_led) {
           case 0:
-            digitalWrite(cyclotron_sw_plate_led_r1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_r2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_r1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_r2, LOW);
 
-            digitalWrite(cyclotron_sw_plate_led_y1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_y2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_y1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_y2, LOW);
 
-            digitalWrite(cyclotron_sw_plate_led_g1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_g2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_g1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_g2, LOW);
 
             i_cyclotron_sw_led++;
           break;
 
           case 1:
-            digitalWrite(cyclotron_sw_plate_led_r1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_r2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_r1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_r2, LOW);
 
-            digitalWrite(cyclotron_sw_plate_led_y1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_y2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_y1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_y2, LOW);
 
-            digitalWrite(cyclotron_sw_plate_led_g1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_g2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_g1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
             i_cyclotron_sw_led++;
           break;
 
           case 2:
-            digitalWrite(cyclotron_sw_plate_led_r1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_r2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_r1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_r2, LOW);
 
-            digitalWrite(cyclotron_sw_plate_led_y1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_y2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_y1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_y2, HIGH);
 
-            digitalWrite(cyclotron_sw_plate_led_g1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_g2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_g1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
             i_cyclotron_sw_led++;
           break;
 
           case 3:
-            digitalWrite(cyclotron_sw_plate_led_r1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_r2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_r1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_r2, HIGH);
 
-            digitalWrite(cyclotron_sw_plate_led_y1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_y2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_y1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_y2, HIGH);
 
-            digitalWrite(cyclotron_sw_plate_led_g1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_g2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_g1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
             i_cyclotron_sw_led++;
           break;
 
           case 4:
-            digitalWrite(cyclotron_sw_plate_led_r1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_r2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_r1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_r2, HIGH);
 
-            digitalWrite(cyclotron_sw_plate_led_y1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_y2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_y1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_y2, HIGH);
 
-            digitalWrite(cyclotron_sw_plate_led_g1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_g2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_g1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
             i_cyclotron_sw_led++;
           break;
 
           case 5:
-            digitalWrite(cyclotron_sw_plate_led_r1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_r2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_r1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_r2, HIGH);
 
-            digitalWrite(cyclotron_sw_plate_led_y1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_y2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_y1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_y2, HIGH);
 
-            digitalWrite(cyclotron_sw_plate_led_g1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_g2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_g1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_g2, LOW);
 
             i_cyclotron_sw_led++;
           break;
 
           case 6:
-            digitalWrite(cyclotron_sw_plate_led_r1, HIGH);
-            digitalWrite(cyclotron_sw_plate_led_r2, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_r1, HIGH);
+            digitalWriteFast(cyclotron_sw_plate_led_r2, HIGH);
 
-            digitalWrite(cyclotron_sw_plate_led_y1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_y2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_y1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_y2, LOW);
 
-            digitalWrite(cyclotron_sw_plate_led_g1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_g2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_g1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_g2, LOW);
 
             i_cyclotron_sw_led++;
           break;
 
           case 7:
-            digitalWrite(cyclotron_sw_plate_led_r1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_r2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_r1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_r2, LOW);
 
-            digitalWrite(cyclotron_sw_plate_led_y1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_y2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_y1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_y2, LOW);
 
-            digitalWrite(cyclotron_sw_plate_led_g1, LOW);
-            digitalWrite(cyclotron_sw_plate_led_g2, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_g1, LOW);
+            digitalWriteFast(cyclotron_sw_plate_led_g2, LOW);
 
             i_cyclotron_sw_led = 0;
           break;
@@ -1752,21 +1739,8 @@ void cyclotronControl() {
     }
   }
 
-  if(switch_alarm.getState() == HIGH && PACK_STATE != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false && b_use_ribbon_cable == true) {
+  if(ribbonCableAttached() != true && PACK_STATE != MODE_OFF && b_2021_ramp_down_start != true && b_overheating == false) {
     if(b_alarm == false) {
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_AFTERLIFE:
-        case SYSTEM_FROZEN_EMPIRE:
-          stopEffect(S_PACK_BEEPS_OVERHEAT);
-        break;
-
-        case SYSTEM_1984:
-        case SYSTEM_1989:
-        default:
-          stopEffect(S_BEEP_8);
-        break;
-      }
-
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
       b_alarm = true;
@@ -1794,19 +1768,6 @@ void cyclotronControl() {
   }
   else if(b_overheating == true) {
     if(b_alarm == false) {
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_AFTERLIFE:
-        case SYSTEM_FROZEN_EMPIRE:
-          stopEffect(S_PACK_BEEPS_OVERHEAT);
-        break;
-
-        case SYSTEM_1984:
-        case SYSTEM_1989:
-        default:
-          stopEffect(S_BEEP_8);
-        break;
-      }
-
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
 
@@ -2679,7 +2640,7 @@ void cyclotron1984(int cDelay) {
 
         ms_cyclotron_slime_on.start(cDelay);
       }
-      else if(ms_cyclotron_slime_on.justFinished()) {    
+      else if(ms_cyclotron_slime_on.justFinished()) {
         cyclotron84LightOn(led1);
         cyclotron84LightOn(led2);
         cyclotron84LightOn(led3);
@@ -2687,7 +2648,7 @@ void cyclotron1984(int cDelay) {
 
         if(b_1984_led_start == true) {
           b_1984_led_start = false;
-        }   
+        }
 
         ms_cyclotron_slime_off.start(cDelay * 2);
       }
@@ -2925,7 +2886,7 @@ void cyclotron84LightOn(int cLed) {
   }
   else {
     uint8_t i_brightness_tmp = 0;
-    
+
     if(FIRING_MODE == SLIME && b_1984_led_start != true) {
       i_brightness_tmp = i_brightness / f_slime_divider;
     }
@@ -3418,7 +3379,6 @@ void packVentingFinished() {
   stopEffect(S_STEAM_LOOP);
   stopEffect(S_SLIME_REFILL);
   stopEffect(S_QUICK_VENT_OPEN);
-  stopEffect(S_QUICK_VENT_CLOSE);
   playEffect(S_QUICK_VENT_CLOSE);
 
   if(FIRING_MODE == SLIME) {
@@ -3549,7 +3509,7 @@ void cyclotronLidLedsOff() {
 
 void resetCyclotronState() {
   // Turn off optional N-Filter LED.
-  digitalWrite(i_nfilter_led_pin, LOW);
+  digitalWriteFast(i_nfilter_led_pin, LOW);
 
   cyclotronLidLedsOff();
 
@@ -3843,10 +3803,10 @@ void reset2021RampDown() {
 
 void ventLightLEDW(bool b_on) {
   if(b_on == true) {
-    digitalWrite(i_nfilter_led_pin, HIGH);
+    digitalWriteFast(i_nfilter_led_pin, HIGH);
   }
   else {
-    digitalWrite(i_nfilter_led_pin, LOW);
+    digitalWriteFast(i_nfilter_led_pin, LOW);
   }
 }
 
@@ -3931,12 +3891,11 @@ void modeFireStartSounds() {
       if(SYSTEM_YEAR == SYSTEM_1989) {
         playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10, false, 0, false);
       }
+      else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+        playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
+      }
       else {
         playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
-      }
-
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-        playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
       }
 
       switch(i_wand_power_level) {
@@ -3945,6 +3904,9 @@ void modeFireStartSounds() {
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500, false);
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
+            }
+            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 500, false);
             }
             else {
               playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000, false);
@@ -3960,12 +3922,16 @@ void modeFireStartSounds() {
           if(b_firing_alt == true) {
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, false);
+            }
+            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
             }
             else {
               playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, false);
             }
 
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, true);
             b_sound_firing_alt_trigger = true;
           }
           else {
@@ -3984,8 +3950,11 @@ void modeFireStartSounds() {
               playEffect(S_GB1_FIRE_START, false, i_volume_effects, false, 0, false);
             break;
 
-            case SYSTEM_AFTERLIFE:
             case SYSTEM_FROZEN_EMPIRE:
+              // Do nothing.
+            break;
+
+            case SYSTEM_AFTERLIFE:
             default:
               playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects, false, 0, false);
             break;
@@ -3994,7 +3963,12 @@ void modeFireStartSounds() {
           if(b_firing_intensify == true) {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
+            if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
+            }
+            else {
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
+            }
           }
           else {
             b_sound_firing_intensify_trigger = false;
@@ -4003,8 +3977,12 @@ void modeFireStartSounds() {
           if(b_firing_alt == true) {
             // Reset some sound triggers.
             b_sound_firing_alt_trigger = true;
-
-            playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
+            if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 120, false);
+            }
+            else {
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
+            }
           }
           else {
             b_sound_firing_alt_trigger = false;
@@ -4021,7 +3999,7 @@ void modeFireStartSounds() {
 
     case STASIS:
       stopEffect(S_STASIS_END);
-      playEffect(S_STASIS_START);
+      playEffect(S_STASIS_START, false, i_volume_effects, false, 0, false);
       playEffect(S_STASIS_LOOP, true, i_volume_effects, true, 1000, false);
     break;
 
@@ -4076,7 +4054,7 @@ void modeFireStartSounds() {
         adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 2, true, ms_idle_fire_fade.remaining());
       }
     }
-  }  
+  }
 }
 
 void wandFiring() {
@@ -4181,7 +4159,7 @@ void modeFireStopSounds() {
           adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, ms_idle_fire_fade.remaining());
         }
       }
-    }    
+    }
   }
 
   b_wand_mash_lockout = false;
@@ -4274,13 +4252,12 @@ void wandStopFiringSounds() {
               stopEffect(S_AFTERLIFE_FIRE_START);
             break;
           }
-
-          stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
         break;
       }
 
       stopEffect(S_FIRE_START_SPARK);
       stopEffect(S_FIRING_LOOP_GB1);
+      stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
     break;
 
     case SLIME:
@@ -4305,10 +4282,10 @@ void wandStopFiringSounds() {
       STATUS_CTS = CTS_NOT_FIRING;
 
       stopEffect(S_CROSS_STREAMS_START);
-      //stopEffect(S_CROSS_STREAMS_END);
+      stopEffect(S_CROSS_STREAMS_END);
 
       if(b_wand_mash_lockout != true) {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects);
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
       }
     break;
 
@@ -4316,10 +4293,10 @@ void wandStopFiringSounds() {
       STATUS_CTS = CTS_NOT_FIRING;
 
       stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       if(b_wand_mash_lockout != true) {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects);
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
       }
     break;
 
@@ -4333,9 +4310,13 @@ void wandStopFiringSounds() {
 }
 
 void packAlarm() {
-  modeFireStopSounds();
+  if(b_wand_firing == true) {
+    // Preemptively stop firing sounds.
+    wandStopFiringSounds();
+    cyclotronSpeedRevert();
+  }
 
-  // Pack sounds.
+  // Stop Pack sounds.
   if(SYSTEM_YEAR == SYSTEM_1989) {
     stopEffect(S_GB2_PACK_START);
     stopEffect(S_GB2_PACK_LOOP);
@@ -4386,14 +4367,10 @@ void packAlarm() {
       case SYSTEM_1989:
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
+      default:
         playEffect(S_PACK_RIBBON_ALARM_1, true);
         playEffect(S_ALARM_LOOP, true);
         playEffect(S_RIBBON_CABLE_START);
-      break;
-
-      // Not used.
-      default:
-        playEffect(S_PACK_BEEPING, true);
       break;
     }
   }
@@ -4512,32 +4489,32 @@ void cyclotronSwitchPlateLEDs() {
   if(b_cyclotron_lid_on != true) {
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
-        digitalWrite(cyclotron_switch_led_green, HIGH);
+        digitalWriteFast(cyclotron_switch_led_green, HIGH);
       }
       else {
-        digitalWrite(cyclotron_switch_led_green, LOW);
+        digitalWriteFast(cyclotron_switch_led_green, LOW);
       }
     }
     else {
-      digitalWrite(cyclotron_switch_led_green, HIGH);
+      digitalWriteFast(cyclotron_switch_led_green, HIGH);
     }
 
     if(b_vibration_on == true) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
-        digitalWrite(cyclotron_switch_led_yellow, HIGH);
+        digitalWriteFast(cyclotron_switch_led_yellow, HIGH);
       }
       else {
-        digitalWrite(cyclotron_switch_led_yellow, LOW);
+        digitalWriteFast(cyclotron_switch_led_yellow, LOW);
       }
     }
     else {
-      digitalWrite(cyclotron_switch_led_yellow, HIGH);
+      digitalWriteFast(cyclotron_switch_led_yellow, HIGH);
     }
   }
   else {
     // Keep the Cyclotron switch LEDs off when the lid is on.
-    digitalWrite(cyclotron_switch_led_green, LOW);
-    digitalWrite(cyclotron_switch_led_yellow, LOW);
+    digitalWriteFast(cyclotron_switch_led_green, LOW);
+    digitalWriteFast(cyclotron_switch_led_yellow, LOW);
   }
 
   if(ms_cyclotron_switch_plate_leds.justFinished()) {
@@ -4545,7 +4522,7 @@ void cyclotronSwitchPlateLEDs() {
   }
 }
 
-void vibrationPack(int i_level) {
+void vibrationPack(uint8_t i_level) {
   if(b_vibration_on == true && b_vibration_enabled == true) {
     if(b_vibration_firing == true) {
       if(b_wand_firing == true) {
@@ -4555,8 +4532,7 @@ void vibrationPack(int i_level) {
         }
       }
       else {
-        i_vibration_level_prev = 0;
-        analogWrite(vibration, 0);
+        vibrationOff();
       }
     }
     else {
@@ -4567,9 +4543,13 @@ void vibrationPack(int i_level) {
     }
   }
   else {
-    i_vibration_level_prev = 0;
-    analogWrite(vibration, 0);
+    vibrationOff();
   }
+}
+
+void vibrationOff() {
+  i_vibration_level_prev = 0;
+  analogWrite(vibration, 0);
 }
 
 void cyclotronSpeedRevert() {
@@ -4610,11 +4590,11 @@ int8_t readRotary() {
 
   prev_next_code <<= 2;
 
-  if(digitalRead(encoder_pin_b)) {
+  if(digitalReadFast(encoder_pin_b)) {
     prev_next_code |= 0x02;
   }
 
-  if(digitalRead(encoder_pin_a)) {
+  if(digitalReadFast(encoder_pin_a)) {
     prev_next_code |= 0x01;
   }
 
@@ -4678,20 +4658,20 @@ void smokeNFilter(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_smoke_1_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
-        digitalWrite(smoke_pin, HIGH);
+        digitalWriteFast(smoke_pin, HIGH);
       }
       else if(b_overheating == true && b_wand_firing != true && b_smoke_1_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
-        digitalWrite(smoke_pin, HIGH);
+        digitalWriteFast(smoke_pin, HIGH);
       }
       else if(b_venting == true) {
-        digitalWrite(smoke_pin, HIGH);
+        digitalWriteFast(smoke_pin, HIGH);
       }
       else {
-        digitalWrite(smoke_pin, LOW);
+        digitalWriteFast(smoke_pin, LOW);
       }
     }
     else {
-      digitalWrite(smoke_pin, LOW);
+      digitalWriteFast(smoke_pin, LOW);
     }
 
     smokeBooster(b_smoke_on);
@@ -4703,20 +4683,20 @@ void smokeBooster(bool b_smoke_on) {
   if(b_smoke_enabled == true) {
     if(b_smoke_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
-        digitalWrite(smoke_booster_pin, HIGH);
+        digitalWriteFast(smoke_booster_pin, HIGH);
       }
       else if(b_overheating == true && b_smoke_2_overheat == true && b_wand_firing != true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
-        digitalWrite(smoke_booster_pin, HIGH);
+        digitalWriteFast(smoke_booster_pin, HIGH);
       }
       else if(b_venting == true) {
-        digitalWrite(smoke_booster_pin, HIGH);
+        digitalWriteFast(smoke_booster_pin, HIGH);
       }
       else {
-        digitalWrite(smoke_booster_pin, LOW);
+        digitalWriteFast(smoke_booster_pin, LOW);
       }
     }
     else {
-      digitalWrite(smoke_booster_pin, LOW);
+      digitalWriteFast(smoke_booster_pin, LOW);
     }
   }
 }
@@ -4728,20 +4708,20 @@ void fanNFilter(bool b_fan_on) {
   if(b_smoke_enabled == true) {
     if(b_fan_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_fan_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
-        digitalWrite(fan_pin, HIGH);
+        digitalWriteFast(fan_pin, HIGH);
       }
       else if(b_overheating == true && b_wand_firing != true && b_fan_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
-        digitalWrite(fan_pin, HIGH);
+        digitalWriteFast(fan_pin, HIGH);
       }
       else if(b_venting == true) {
-        digitalWrite(fan_pin, HIGH);
+        digitalWriteFast(fan_pin, HIGH);
       }
       else {
-        digitalWrite(fan_pin, LOW);
+        digitalWriteFast(fan_pin, LOW);
       }
     }
     else {
-      digitalWrite(fan_pin, LOW);
+      digitalWriteFast(fan_pin, LOW);
     }
   }
 }
@@ -4750,20 +4730,20 @@ void fanBooster(bool b_fan_on) {
   if(b_smoke_enabled == true) {
     if(b_fan_on == true) {
       if(b_wand_firing == true && b_overheating != true && b_fan_booster_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
-        digitalWrite(fan_booster_pin, HIGH);
+        digitalWriteFast(fan_booster_pin, HIGH);
       }
       else if(b_overheating == true && b_wand_firing != true && b_fan_booster_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
-        digitalWrite(fan_booster_pin, HIGH);
+        digitalWriteFast(fan_booster_pin, HIGH);
       }
       else if(b_venting == true) {
-        digitalWrite(fan_booster_pin, HIGH);
+        digitalWriteFast(fan_booster_pin, HIGH);
       }
       else {
-        digitalWrite(fan_booster_pin, LOW);
+        digitalWriteFast(fan_booster_pin, LOW);
       }
     }
     else {
-      digitalWrite(fan_booster_pin, LOW);
+      digitalWriteFast(fan_booster_pin, LOW);
     }
   }
 }

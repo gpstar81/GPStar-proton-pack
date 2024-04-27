@@ -36,10 +36,10 @@ void checkWandAction() {
             if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
               // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
               if(b_switch_barrel_extended == true && switch_vent.on() == true && switch_wand.on() == true) {
-                digitalWrite(led_hat_1, HIGH);
+                digitalWriteFast(led_hat_1, HIGH);
               }
               else {
-                digitalWrite(led_hat_1, LOW);
+                digitalWriteFast(led_hat_1, LOW);
               }
             }
           break;
@@ -94,10 +94,10 @@ void checkWandAction() {
 
         if(ms_hat_1.isRunning()) {
           if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
-            digitalWrite(led_hat_2, HIGH);
+            digitalWriteFast(led_hat_2, HIGH);
           }
           else {
-            digitalWrite(led_hat_2, LOW);
+            digitalWriteFast(led_hat_2, LOW);
           }
 
           if(ms_hat_1.justFinished()) {
@@ -187,15 +187,15 @@ void checkWandAction() {
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
-        // Level 2 Intensify: TVG Neutrona Wand lights toggle.
         // Level 1 Intensify: Clear the Proton Pack EEPROM settings and exit.
         // Level 1 Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
+        // Level 2 Intensify: Video Game Neutrona Wand lights toggle.
         case 5:
           // Tell the Proton Pack to clear the EEPROM settings and exit.
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
-                // Save this space for the TVG video game Neutrona Wand lights.
+                // Save this space for the video game Neutrona Wand lights.
               break;
 
               case MENU_LEVEL_1:
@@ -216,7 +216,6 @@ void checkWandAction() {
           else if(switch_mode.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
-
               break;
 
               case MENU_LEVEL_1:
@@ -320,9 +319,9 @@ void checkWandAction() {
         break;
 
 
-        // Level 2 Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
         // Level 1 Intensify: Cycle through the different inner Cyclotron LED counts.
         // Level 1 Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
+        // Level 2 Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
         case 1:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
@@ -688,9 +687,7 @@ void checkWandAction() {
 
                   wandSerialSend(W_VIBRATION_ENABLED);
 
-                  ms_menu_vibration.stop(); // Stop any currently running vibration timer
-                  checkMenuVibration(); // Make sure the vibration motor handler resets
-                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms
+                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
                 break;
                 case VIBRATION_ALWAYS:
                   VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
@@ -706,9 +703,7 @@ void checkWandAction() {
 
                   wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
-                  ms_menu_vibration.stop(); // Stop any currently running vibration timer
-                  checkMenuVibration(); // Make sure the vibration motor handler resets
-                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms
+                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
                 break;
                 case VIBRATION_FIRING_ONLY:
                   VIBRATION_MODE_EEPROM = VIBRATION_NONE;
@@ -743,9 +738,7 @@ void checkWandAction() {
 
                   wandSerialSend(W_VIBRATION_DEFAULT);
 
-                  ms_menu_vibration.stop(); // Stop any currently running vibration timer
-                  checkMenuVibration(); // Make sure the vibration motor handler resets
-                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms
+                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
                 break;
               }
             }
@@ -1376,9 +1369,7 @@ void checkWandAction() {
 
                 wandSerialSend(W_VIBRATION_ENABLED);
 
-                ms_menu_vibration.stop(); // Stop any currently running vibration timer
-                checkMenuVibration(); // Make sure the vibration motor handler resets
-                ms_menu_vibration.start(250); // Confirmation buzz for 250ms
+                ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
               }
               else if(b_vibration_on == true && b_vibration_firing != true) {
                 b_vibration_firing = true;
@@ -1392,9 +1383,7 @@ void checkWandAction() {
 
                 wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
-                ms_menu_vibration.stop(); // Stop any currently running vibration timer
-                checkMenuVibration(); // Make sure the vibration motor handler resets
-                ms_menu_vibration.start(250); // Confirmation buzz for 250ms
+                ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
               }
               else {
                 b_vibration_on = false;
