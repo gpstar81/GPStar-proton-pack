@@ -1639,7 +1639,6 @@ void wandOff() {
   i_bmash_count = 0;
 
   // Turn off some timers.
-  ms_bargraph_firing.stop();
   ms_overheating.stop();
   ms_settings_blinking.stop();
   ms_hat_1.stop();
@@ -2724,8 +2723,6 @@ void modeFireStart() {
 
   // Turn on hat light 1.
   digitalWriteFast(led_hat_1, HIGH);
-
-  ms_hat_1.stop();
 
   // This will only overheat when enabled by using the alt firing when in crossing the streams mode.
   bool b_overheat_flag = true;
