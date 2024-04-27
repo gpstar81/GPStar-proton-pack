@@ -2749,7 +2749,7 @@ void modeFireStart() {
     ms_firing_stream_effects.start(0);
   }
   else {
-    ms_firing_lights.start(10);
+    ms_firing_lights.start(0);
   }
 
   // Stop any bargraph ramps.
