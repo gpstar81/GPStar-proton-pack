@@ -4687,42 +4687,104 @@ void fireEffectEnd() {
       // Give a slight delay for the final pixel before clearing it.
       uint8_t i_firing_stream; // Stores a calculated value based on LED count.
 
+      uint8_t i_s_speed = 0; // Stores an additional value used for the 48-LED barrel.
+
+      switch(FIRING_MODE) {
+        case MESON:
+          switch(i_power_level) {
+            case 1:
+              i_s_speed = 8;
+            break;
+
+            case 2:
+              i_s_speed = 8;
+            break;
+
+            case 3:
+              i_s_speed = 8;
+            break;
+
+            case 4:
+              i_s_speed = 8;
+            break;
+
+            case 5:
+              i_s_speed = 9;
+            break;
+
+            default:
+              i_s_speed = 0;
+            break;
+          }
+        break;
+
+        default:
+          switch(i_power_level) {
+            case 1:
+              i_s_speed = 5;
+            break;
+
+            case 2:
+              i_s_speed = 6;
+            break;
+
+            case 3:
+              i_s_speed = 7;
+            break;
+
+            case 4:
+              i_s_speed = 8;
+            break;
+
+            case 5:
+              i_s_speed = 9;
+            break;
+
+            default:
+              i_s_speed = 0;
+            break;
+          }
+        break;
+      }
+
       switch(WAND_BARREL_LED_COUNT) {
         case LEDS_48:
           // More LEDs means a faster firing rate.
           i_firing_stream = d_firing_stream / 10;
+          i_firing_stream = i_firing_stream - i_s_speed;
         break;
 
         case LEDS_5:
         default:
           // Firing at "normal" speed.
           i_firing_stream = d_firing_stream;
+
+          switch(i_power_level) {
+            case 1:
+            default:
+              // Do nothing.
+            break;
+
+            case 2:
+              i_firing_stream = i_firing_stream - 15;
+            break;
+
+            case 3:
+              i_firing_stream = i_firing_stream - 30;
+            break;
+
+            case 4:
+              i_firing_stream = i_firing_stream - 45;
+            break;
+
+            case 5:
+              i_firing_stream = i_firing_stream - 60;
+            break;
+          }
         break;
       }
 
-      switch(i_power_level) {
-        case 1:
-        default:
-          ms_firing_effect_end.start(i_firing_stream);
-        break;
-
-        case 2:
-          ms_firing_effect_end.start(i_firing_stream - 15);
-        break;
-
-        case 3:
-          ms_firing_effect_end.start(i_firing_stream - 30);
-        break;
-
-        case 4:
-          ms_firing_effect_end.start(i_firing_stream - 45);
-        break;
-
-        case 5:
-          ms_firing_effect_end.start(i_firing_stream - 60);
-        break;
-      }
-
+      ms_firing_effect_end.start(i_firing_stream);
       ms_firing_stream_effects.stop();
     }
   }
