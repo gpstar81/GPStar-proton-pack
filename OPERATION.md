@@ -83,7 +83,9 @@
 - For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.
 - This dial will be used to navigate the menu systems and adjust volume in certain cases (see "Neutrona Wand Menu System" section).
 
-**Tip:** When music is playing while the pack and wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily access the independent music volume control.
+### Neutrona Wand Quick Audio Volume Adjustment ###
+- When music is playing while the Proton Pack and Neutrona Wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily access the independent music volume control.
+- While the Neutrona Wand is off, you can independently adjust the master volume of the Neutrona Wand by holding the Intensify button down and turning the dial. 
 
 Refer to the [Loading The Audio Files](AUDIO.md) for more information on loading additional music tracks.
 

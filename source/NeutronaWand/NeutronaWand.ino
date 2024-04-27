@@ -8499,7 +8499,7 @@ void checkRotaryEncoder() {
             }
 
             // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-            if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
+            if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true && switch_intensify.on() != true) {
               if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
                 i_volume_music_percentage = 0;
               }
@@ -8513,6 +8513,10 @@ void checkRotaryEncoder() {
 
               // Tell pack to lower music volume.
               wandSerialSend(W_VOLUME_MUSIC_DECREASE);
+            }
+            else if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && switch_intensify.on() == true) {
+              // Decrease the master volume of the Neutrona Wand only.
+              decreaseVolume();
             }
           }
 
@@ -8562,7 +8566,7 @@ void checkRotaryEncoder() {
             }
 
             // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-            if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true) {
+            if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true && switch_intensify.on() != true) {
               if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
                 i_volume_music_percentage = 100;
               }
@@ -8576,6 +8580,10 @@ void checkRotaryEncoder() {
 
               // Tell pack to increase music volume.
               wandSerialSend(W_VOLUME_MUSIC_INCREASE);
+            }
+            else if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && switch_intensify.on() == true) {
+              // Increase the master volume of the Neutrona Wand only.
+              increaseVolume();
             }
           }
         }
