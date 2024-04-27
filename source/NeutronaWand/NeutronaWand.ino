@@ -844,8 +844,6 @@ void quickVentFinished() {
 }
 
 void startQuickVent() {
-  ms_overheat_initiate.stop();
-
   WAND_ACTION_STATUS = ACTION_VENTING;
 
   // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
@@ -866,8 +864,6 @@ void startQuickVent() {
 }
 
 void startVentSequence() {
-  ms_overheat_initiate.stop();
-
   if(WAND_ACTION_STATUS == ACTION_FIRING && b_firing == true) {
     modeFireStop();
   }
@@ -1644,7 +1640,6 @@ void wandOff() {
 
   // Turn off some timers.
   ms_bargraph_firing.stop();
-  ms_overheat_initiate.stop();
   ms_overheating.stop();
   ms_settings_blinking.stop();
   ms_hat_1.stop();
@@ -2731,8 +2726,6 @@ void modeFireStart() {
   digitalWriteFast(led_hat_1, HIGH);
 
   ms_hat_1.stop();
-
-  ms_overheat_initiate.stop();
 
   // This will only overheat when enabled by using the alt firing when in crossing the streams mode.
   bool b_overheat_flag = true;
@@ -6429,50 +6422,50 @@ void bargraphRampFiring() {
   if(b_overheat_level[i_power_level - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 6) {
       if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / 15);
+        ms_bargraph_firing.start((i_ramp_interval / 8) + 2); // 7ms per segment
       }
       else {
-        ms_bargraph_firing.start(i_ramp_interval / 5);
+        ms_bargraph_firing.start(i_ramp_interval / 5); // 24ms per LED
       }
 
       cyclotronSpeedUp(6);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 5) {
       if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / 9);
+        ms_bargraph_firing.start((i_ramp_interval / 8) + 4); // 9ms per segment
       }
       else {
-        ms_bargraph_firing.start(i_ramp_interval / 4);
+        ms_bargraph_firing.start(i_ramp_interval / 4); // 30ms per LED
       }
 
       cyclotronSpeedUp(5);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 4) {
       if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / 7);
+        ms_bargraph_firing.start((i_ramp_interval / 4) + 1); // 11ms per segment
       }
       else {
-        ms_bargraph_firing.start(i_ramp_interval / 3.5);
+        ms_bargraph_firing.start(i_ramp_interval / 3); // 40ms per LED
       }
 
       cyclotronSpeedUp(4);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 3) {
       if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / 5);
+        ms_bargraph_firing.start((i_ramp_interval / 4) + 3); // 13ms per segment
       }
       else {
-        ms_bargraph_firing.start(i_ramp_interval / 3);
+        ms_bargraph_firing.start((i_ramp_interval / 2) - 10); // 50ms per LED
       }
 
       cyclotronSpeedUp(3);
     }
     else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 2) {
       if(b_28segment_bargraph == true) {
-        ms_bargraph_firing.start(i_ramp_interval / 3);
+        ms_bargraph_firing.start((i_ramp_interval / 4) + 5); // 15ms per segment
       }
       else {
-        ms_bargraph_firing.start(i_ramp_interval / 2.5);
+        ms_bargraph_firing.start(i_ramp_interval / 2); // 60ms per LED
       }
 
       cyclotronSpeedUp(2);
@@ -6481,23 +6474,23 @@ void bargraphRampFiring() {
       if(b_28segment_bargraph == true) {
         switch(i_power_level) {
           case 5:
-            ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
+            ms_bargraph_firing.start((i_ramp_interval / 2) - 5); // 15ms per segment
           break;
 
           case 4:
-            ms_bargraph_firing.start((i_ramp_interval / 2) - 3); // 15
+            ms_bargraph_firing.start(i_ramp_interval / 2); // 20ms per segment
           break;
 
           case 3:
-            ms_bargraph_firing.start(i_ramp_interval / 2); // 20
+            ms_bargraph_firing.start((i_ramp_interval / 2) + 5); // 25ms per segment
           break;
 
           case 2:
-            ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 30
+            ms_bargraph_firing.start((i_ramp_interval / 2) + 10); // 30ms per segment
           break;
 
           case 1:
-            ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 35
+            ms_bargraph_firing.start((i_ramp_interval / 2) + 15); // 35ms per segment
           break;
         }
       }
@@ -6505,28 +6498,28 @@ void bargraphRampFiring() {
         if(BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
           switch(i_power_level) {
             case 5:
-              ms_bargraph_firing.start(i_ramp_interval / 2); // 20
+              ms_bargraph_firing.start(i_ramp_interval / 2); // 60ms per LED
             break;
 
             case 4:
-              ms_bargraph_firing.start(i_ramp_interval / 1.5); // 26.6
+              ms_bargraph_firing.start((i_ramp_interval / 2) + 30); // 90ms per LED
             break;
 
             case 3:
-              ms_bargraph_firing.start(i_ramp_interval); // 40
+              ms_bargraph_firing.start(i_ramp_interval); // 120ms per LED
             break;
 
             case 2:
-              ms_bargraph_firing.start(i_ramp_interval * 2); // 80
+              ms_bargraph_firing.start(i_ramp_interval * 2); // 240ms per LED
             break;
 
             case 1:
-              ms_bargraph_firing.start(i_ramp_interval * 3); // 120
+              ms_bargraph_firing.start(i_ramp_interval * 3); // 360ms per LED
             break;
           }
         }
         else {
-          ms_bargraph_firing.start(i_ramp_interval / 2); // 20
+          ms_bargraph_firing.start(i_ramp_interval / 2); // 60ms per LED
         }
       }
 
@@ -6537,23 +6530,23 @@ void bargraphRampFiring() {
     if(b_28segment_bargraph == true) {
       switch(i_power_level) {
         case 5:
-          ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13
+          ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13ms per segment
         break;
 
         case 4:
-          ms_bargraph_firing.start((i_ramp_interval / 2) - 3); // 15
+          ms_bargraph_firing.start((i_ramp_interval / 2) - 3); // 15ms per segment
         break;
 
         case 3:
-          ms_bargraph_firing.start(i_ramp_interval / 2); // 20
+          ms_bargraph_firing.start(i_ramp_interval / 2); // 20ms per segment
         break;
 
         case 2:
-          ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 25
+          ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 25ms per segment
         break;
 
         case 1:
-          ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30
+          ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30ms per segment
         break;
       }
     }
@@ -6561,28 +6554,28 @@ void bargraphRampFiring() {
       if(BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
         switch(i_power_level) {
           case 5:
-            ms_bargraph_firing.start(i_ramp_interval / 2); // 20
+            ms_bargraph_firing.start(i_ramp_interval / 2); // 60ms per LED
           break;
 
           case 4:
-            ms_bargraph_firing.start(i_ramp_interval / 1.5); // 26.6
+            ms_bargraph_firing.start((i_ramp_interval / 2) + 30); // 90ms per LED
           break;
 
           case 3:
-            ms_bargraph_firing.start(i_ramp_interval); // 40
+            ms_bargraph_firing.start(i_ramp_interval); // 120ms per LED
           break;
 
           case 2:
-            ms_bargraph_firing.start(i_ramp_interval * 2); // 80
+            ms_bargraph_firing.start(i_ramp_interval * 2); // 240ms per LED
           break;
 
           case 1:
-            ms_bargraph_firing.start(i_ramp_interval * 3); // 120
+            ms_bargraph_firing.start(i_ramp_interval * 3); // 360ms per LED
           break;
         }
       }
       else {
-        ms_bargraph_firing.start(i_ramp_interval / 2); // 20
+        ms_bargraph_firing.start(i_ramp_interval / 2); // 60ms per LED
       }
     }
   }
