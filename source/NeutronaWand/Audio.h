@@ -441,8 +441,8 @@ void increaseVolumeEEPROM() {
   i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
   i_volume_revert = i_volume_master_eeprom;
 
-  if(b_pack_on != true) {
-    // Provide feedback when the pack is not running.
+  if(WAND_STATUS == MODE_OFF) {
+    // Provide feedback when the Neutrona Wand is not running.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
   }
@@ -492,8 +492,8 @@ void decreaseVolumeEEPROM() {
     }
   }
 
-  if(b_pack_on != true) {
-    // Provide feedback when the pack is not running.
+  if(WAND_STATUS == MODE_OFF) {
+    // Provide feedback when the Neutrona Wand is not running.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
   }
@@ -514,8 +514,8 @@ void increaseVolume() {
   i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
   i_volume_revert = i_volume_master;
 
-  if(b_pack_on != true) {
-    // Provide feedback when the pack is not running.
+  if(WAND_STATUS == MODE_OFF) {
+    // Provide feedback when the Neutrona Wand is not running.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
@@ -561,8 +561,8 @@ void decreaseVolume() {
     }
   }
 
-  if(b_pack_on != true) {
-    // Provide feedback when the pack is not running.
+  if(WAND_STATUS == MODE_OFF) {
+    // Provide feedback when the Neutrona Wand is not running.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
