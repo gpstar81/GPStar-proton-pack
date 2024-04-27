@@ -600,6 +600,12 @@ void mainLoop() {
     modeFireStop();
   }
 
+  // Play the firing effect end animation.
+  if(ms_firing_effect_end.justFinished()) {
+    fireEffectEnd();
+  }
+
+  // Play the firing stream end animation.
   if(ms_firing_lights_end.justFinished()) {
     fireStreamEnd(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
   }
@@ -2994,14 +3000,10 @@ void modeFireStop() {
     break;
   }
 
-  ms_firing_stream_effects.stop();
   ms_firing_lights.stop();
-
   ms_impact.stop();
   ms_firing_sound_mix.stop();
-
-  i_barrel_light = 0;
-  ms_firing_lights_end.start(10);
+  ms_firing_effect_end.start(0);
 
   if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
     digitalWriteFast(led_hat_1, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
@@ -4627,6 +4629,115 @@ void fireStreamStart(CRGB c_colour) {
         break;
       }
     }
+  }
+}
+
+void fireEffectEnd() {
+  if(i_barrel_light < i_num_barrel_leds && ms_firing_stream_effects.isRunning()) {
+    switch(FIRING_MODE) {
+      case PROTON:
+      default:
+        switch(i_power_level) {
+          case 1:
+          default:
+            fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
+          break;
+
+          case 2:
+            fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
+          break;
+
+          case 3:
+            fireStreamEffect(getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT));
+          break;
+
+          case 4:
+            fireStreamEffect(getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT));
+          break;
+
+          case 5:
+            fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+          break;
+        }
+        /*
+        if(b_firing_cross_streams == true) {
+          if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
+            fireStreamEffect(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
+          }
+          else {
+            fireStreamEffect(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
+          }
+        }
+        else {
+          // Shift the stream from red to orange on higher power levels.
+          switch(i_power_level) {
+            case 1:
+            default:
+              fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
+            break;
+
+            case 2:
+              fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
+            break;
+
+            case 3:
+              fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+            break;
+
+            case 4:
+              fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
+            break;
+
+            case 5:
+              fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+            break;
+          }
+        }
+        */
+      break;
+
+      case SLIME:
+        fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+      break;
+
+      case STASIS:
+        fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+      break;
+
+      case MESON:
+        fireStreamEffect(getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT));
+      break;
+
+      case SPECTRAL:
+        fireStreamEffect(getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT));
+      break;
+
+      case HOLIDAY:
+        fireStreamEffect(getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT));
+      break;
+
+      case SPECTRAL_CUSTOM:
+        if(i_spectral_wand_custom_saturation < 254) {
+          fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
+        }
+        else {
+          fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+        }
+      break;
+
+      case VENTING:
+      case SETTINGS:
+        // Nothing.
+      break;
+    }
+
+    ms_firing_effect_end.repeat();
+  }
+  else {
+    i_barrel_light = 0;
+    ms_firing_effect_end.stop();
+    ms_firing_stream_effects.stop();
+    ms_firing_lights_end.start(10);
   }
 }
 

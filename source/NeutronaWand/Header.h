@@ -344,6 +344,7 @@ enum FIRING_MODES PREV_FIRING_MODE;
  */
 millisDelay ms_firing_lights;
 millisDelay ms_firing_lights_end;
+millisDelay ms_firing_effect_end;
 millisDelay ms_firing_stream_effects;
 millisDelay ms_impact; // Mix some impact sounds while firing.
 millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
