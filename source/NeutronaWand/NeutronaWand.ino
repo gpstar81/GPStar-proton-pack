@@ -2756,14 +2756,11 @@ void modeFireStart() {
   barrelLightsOff();
 
   if(FIRING_MODE == MESON) {
-    ms_firing_lights.stop();
     ms_firing_stream_effects.start(0);
   }
   else {
     ms_firing_lights.start(10);
   }
-
-  i_barrel_light = 0;
 
   // Stop any bargraph ramps.
   ms_bargraph.stop();
@@ -4154,13 +4151,7 @@ void fireStreamEffect(CRGB c_colour) {
             break;
 
             case MESON:
-              barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-            break;
-
             case SPECTRAL:
-              barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-            break;
-
             case HOLIDAY:
               barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
             break;
@@ -4424,6 +4415,7 @@ void fireStreamEffect(CRGB c_colour) {
                 // Shift the stream from red to orange on higher power levels.
                 switch(i_power_level) {
                   case 1:
+                  default:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
                   break;
 
@@ -4442,10 +4434,6 @@ void fireStreamEffect(CRGB c_colour) {
                   case 5:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
                   break;
-
-                  default:
-                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-                  break;
                 }
               }
             break;
@@ -4459,13 +4447,7 @@ void fireStreamEffect(CRGB c_colour) {
             break;
 
             case MESON:
-              barrel_leds[i_barrel_light - 1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-            break;
-
             case SPECTRAL:
-              barrel_leds[i_barrel_light - 1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-            break;
-
             case HOLIDAY:
               barrel_leds[i_barrel_light - 1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
             break;
@@ -4488,6 +4470,7 @@ void fireStreamEffect(CRGB c_colour) {
             default:
               switch(i_power_level) {
                 case 1:
+                default:
                   ms_firing_stream_effects.start(i_firing_stream);
                 break;
 
@@ -4505,10 +4488,6 @@ void fireStreamEffect(CRGB c_colour) {
 
                 case 5:
                   ms_firing_stream_effects.start(i_firing_stream - 60);
-                break;
-
-                default:
-                  ms_firing_stream_effects.start(i_firing_stream);
                 break;
               }
             break;
@@ -4555,7 +4534,12 @@ void fireStreamEffect(CRGB c_colour) {
 }
 
 void barrelLightsOff() {
+  ms_firing_lights.stop();
+  ms_firing_stream_effects.stop();
+  ms_firing_effect_end.stop();
+  ms_firing_lights_end.stop();
   ms_wand_heatup_fade.stop();
+  i_barrel_light = 0;
   i_heatup_counter = 0;
   i_heatdown_counter = 100;
 
@@ -4659,41 +4643,6 @@ void fireEffectEnd() {
             fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
           break;
         }
-        /*
-        if(b_firing_cross_streams == true) {
-          if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
-            fireStreamEffect(getHueColour(C_RED, WAND_BARREL_LED_COUNT));
-          }
-          else {
-            fireStreamEffect(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
-          }
-        }
-        else {
-          // Shift the stream from red to orange on higher power levels.
-          switch(i_power_level) {
-            case 1:
-            default:
-              fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
-            break;
-
-            case 2:
-              fireStreamEffect(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
-            break;
-
-            case 3:
-              fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
-            break;
-
-            case 4:
-              fireStreamEffect(getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT));
-            break;
-
-            case 5:
-              fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
-            break;
-          }
-        }
-        */
       break;
 
       case SLIME:
@@ -4731,13 +4680,187 @@ void fireEffectEnd() {
       break;
     }
 
-    ms_firing_effect_end.repeat();
+    if(i_barrel_light < i_num_barrel_leds) {
+      ms_firing_effect_end.repeat();
+    }
+    else {
+      // Give a slight delay for the final pixel before clearing it.
+      uint8_t i_firing_stream; // Stores a calculated value based on LED count.
+
+      switch(WAND_BARREL_LED_COUNT) {
+        case LEDS_48:
+          // More LEDs means a faster firing rate.
+          i_firing_stream = d_firing_stream / 10;
+        break;
+
+        case LEDS_5:
+        default:
+          // Firing at "normal" speed.
+          i_firing_stream = d_firing_stream;
+        break;
+      }
+
+      switch(i_power_level) {
+        case 1:
+        default:
+          ms_firing_effect_end.start(i_firing_stream);
+        break;
+
+        case 2:
+          ms_firing_effect_end.start(i_firing_stream - 15);
+        break;
+
+        case 3:
+          ms_firing_effect_end.start(i_firing_stream - 30);
+        break;
+
+        case 4:
+          ms_firing_effect_end.start(i_firing_stream - 45);
+        break;
+
+        case 5:
+          ms_firing_effect_end.start(i_firing_stream - 60);
+        break;
+      }
+
+      ms_firing_stream_effects.stop();
+    }
   }
   else {
+    switch(WAND_BARREL_LED_COUNT) {
+      case LEDS_48:
+        // Set the final LED back to whatever color it is without the effect.
+        switch(FIRING_MODE) {
+          case PROTON:
+          default:
+            if(b_firing_cross_streams == true) {
+              if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
+                barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
+              }
+              else {
+                barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+              }
+            }
+            else {
+              switch(i_power_level) {
+                case 1:
+                default:
+                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+                break;
+
+                case 2:
+                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+                break;
+
+                case 3:
+                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
+                break;
+
+                case 4:
+                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+                break;
+
+                case 5:
+                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
+                break;
+              }
+            }
+          break;
+
+          case SLIME:
+            barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
+          break;
+
+          case STASIS:
+            barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
+          break;
+
+          case MESON:
+          case SPECTRAL:
+          case HOLIDAY:
+            barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+          break;
+
+          case SPECTRAL_CUSTOM:
+            barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
+          break;
+
+          case VENTING:
+          case SETTINGS:
+            // Nothing.
+          break;
+        }
+      break;
+
+      case LEDS_5:
+      default:
+        // Set the final LED back to whatever color it is without the effect.
+        switch(FIRING_MODE) {
+          case PROTON:
+          default:
+            if(b_firing_cross_streams == true) {
+              if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
+                barrel_leds[i_barrel_light - 1] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
+              }
+              else {
+                barrel_leds[i_barrel_light - 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+              }
+            }
+            else {
+              switch(i_power_level) {
+                case 1:
+                default:
+                  barrel_leds[i_barrel_light - 1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+                break;
+
+                case 2:
+                  barrel_leds[i_barrel_light - 1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+                break;
+
+                case 3:
+                  barrel_leds[i_barrel_light - 1] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
+                break;
+
+                case 4:
+                  barrel_leds[i_barrel_light - 1] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+                break;
+
+                case 5:
+                  barrel_leds[i_barrel_light - 1] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
+                break;
+              }
+            }
+          break;
+
+          case SLIME:
+            barrel_leds[i_barrel_light - 1] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
+          break;
+
+          case STASIS:
+            barrel_leds[i_barrel_light - 1] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
+          break;
+
+          case MESON:
+          case SPECTRAL:
+          case HOLIDAY:
+            barrel_leds[i_barrel_light - 1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+          break;
+
+          case SPECTRAL_CUSTOM:
+            barrel_leds[i_barrel_light - 1] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
+          break;
+
+          case VENTING:
+          case SETTINGS:
+            // Nothing.
+          break;
+        }
+      break;
+    }
+
     i_barrel_light = 0;
     ms_firing_effect_end.stop();
-    ms_firing_stream_effects.stop();
-    ms_firing_lights_end.start(10);
+    ms_firing_lights_end.start(0);
   }
 }
 
