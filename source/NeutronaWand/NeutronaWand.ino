@@ -6566,7 +6566,7 @@ void cyclotronSpeedUp(uint8_t i_switch) {
       // Tell pack to start beeping before we overheat it.
       wandSerialSend(W_BEEP_START);
 
-      switch(SYSTEM_YEAR) {
+      switch(getSystemYearMode()) {
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
           playEffect(S_PACK_BEEPS_OVERHEAT);
@@ -6592,7 +6592,7 @@ void cyclotronSpeedUp(uint8_t i_switch) {
 
 void stopOverHeatBeepWarnings() {
   // Stop overheat beeps.
-  switch(SYSTEM_YEAR) {
+  switch(getSystemYearMode()) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
       stopEffect(S_PACK_BEEPS_OVERHEAT);
