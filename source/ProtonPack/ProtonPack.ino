@@ -2192,7 +2192,12 @@ void cyclotron2021(int cDelay) {
                 ms_cyclotron.start(i_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed * 9);
+                if(i_current_ramp_speed * 9 > 1200) {
+                  ms_cyclotron.start(i_current_ramp_speed * 6);
+                }
+                else {
+                  ms_cyclotron.start(i_current_ramp_speed * 9);
+                }
               }
             break;
 
