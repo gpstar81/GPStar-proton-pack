@@ -36,11 +36,14 @@ enum colours {
   C_RED4,
   C_RED5,
   C_ORANGE,
+  C_BEIGE,
   C_YELLOW,
+  C_CHARTREUSE,
   C_GREEN,
   C_MINT,
   C_AQUA,
   C_LIGHT_BLUE,
+  C_MID_BLUE,
   C_BLUE,
   C_PURPLE,
   C_REDGREEN,
@@ -73,6 +76,8 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
   switch(i_colour) {
     case C_HASLAB:
+    case C_WHITE:
+    default:
       return CHSV(100, 0, i_brightness); // Just "on", which is white.
     break;
 
@@ -82,10 +87,6 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
     case C_BLACK:
       return CHSV(0, 0, 0); // Overrides brightness.
-    break;
-
-    case C_WHITE:
-      return CHSV(100, 0, i_brightness);
     break;
 
     case C_PINK:
@@ -116,8 +117,16 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       return CHSV(32, i_saturation, i_brightness);
     break;
 
+    case C_BEIGE:
+      return CHSV(43, 128, i_brightness);
+    break;
+
     case C_YELLOW:
       return CHSV(64, i_saturation, i_brightness);
+    break;
+
+    case C_CHARTREUSE:
+      return CHSV(80, i_saturation, i_brightness);
     break;
 
     case C_GREEN:
@@ -136,8 +145,12 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       return CHSV(145, i_saturation, i_brightness);
     break;
 
-    case C_BLUE:
+    case C_MID_BLUE:
       return CHSV(160, i_saturation, i_brightness);
+    break;
+
+    case C_BLUE:
+      return CHSV(180, i_saturation, i_brightness);
     break;
 
     case C_PURPLE:
@@ -207,10 +220,6 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
       return CHSV(i_curr_colour, 255, i_brightness);
     break;
-
-    default:
-      return CHSV(100, 0, i_brightness); // White on no match.
-    break;
   }
 }
 
@@ -234,7 +243,7 @@ CRGB getHueAsRGB(uint8_t i_colour, uint8_t i_brightness = 255, bool b_grb = fals
 }
 
 CRGB getHueAsGRB(uint8_t i_colour, uint8_t i_brightness = 255) {
-  // Forward to getHueAsRGB() with the flag set for GRB color swap.
+  // Forward to getHueAsRGB() with the flag set for GRB colour swap.
   return getHueAsRGB(i_colour, i_brightness, true);
 }
 
@@ -245,10 +254,10 @@ CRGB getHueColour(uint8_t i_colour, WAND_BARREL_LED_COUNTS NUM_LEDS_ENUM, uint8_
       return getHueAsRGB(i_colour, i_brightness);
     break;
 
-    case LEDS_5:
+    //case LEDS_5:
     default:
       // Stock LEDs are GRB
-      return getHueAsRGB(i_colour, i_brightness, true);
+      return getHueAsGRB(i_colour, i_brightness);
     break;
   }
 }

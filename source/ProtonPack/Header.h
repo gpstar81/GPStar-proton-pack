@@ -40,6 +40,11 @@
 #define FRUTTO_CYCLOTRON_LED_COUNT 20
 
 /*
+ * The Frutto Max Cyclotron Lid has 36 LEDs.
+ */
+#define FRUTTO_MAX_CYCLOTRON_LED_COUNT 36
+
+/*
  * Set the number of steps for the Inner Cyclotron (cake).
  */
 #define INNER_CYCLOTRON_CAKE_LED_MAX 35
@@ -107,7 +112,7 @@ uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_
  */
 uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
 
-// The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in the Configuration.h
+// The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
 unsigned int i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for the Frutto Technology Cyclotron or 7 for a 40 LED NeoPixel ring.
 
 // The middle centre LED.
@@ -134,8 +139,10 @@ CRGB cyclotron_leds[INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MA
  * We have up to 90 addressable LEDs if using NeoPixel jewel in the N-Filter, a ring
  * for the Inner Cyclotron, and the optionalal "sparking" cyclotron cavity LEDs.
  * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
+ * For cyclotrons with high density LEDs, increase this based on the cyclotron speed multiplier to simulate a faster spinning cyclotron.
  */
-const uint8_t i_fast_led_delay = 6;
+#define FAST_LED_UPDATE_MS 6
+uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
 millisDelay ms_fast_led;
 
 /*
@@ -146,15 +153,7 @@ int i_powercell_led = 0;
 millisDelay ms_powercell;
 bool b_powercell_updating = false;
 uint8_t i_powercell_multiplier = 1;
-
-/*
- *  Cyclotron Inner Switch Panel LEDs control (optional).
- */
-const uint8_t i_cyclotron_switch_led_delay_base = 150;
-unsigned int i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
-uint8_t i_cyclotron_sw_led = 0;
-uint8_t i_cyclotron_switch_led_mulitplier = 1;
-millisDelay ms_cyclotron_switch_led;
+bool b_powercell_sound_loop = false;
 
 /*
  * State of the pack.
@@ -180,7 +179,7 @@ const unsigned int i_2021_ramp_down_length = 10500;
 const unsigned int i_1984_ramp_down_length = 2500;
 unsigned int i_current_ramp_speed = i_2021_ramp_delay;
 uint8_t i_cyclotron_multiplier = 1;
-millisDelay ms_cyclotron_auto_speed_timer; // A timer that is active while firing only. Used to speed up the Cyclotron by small increments based on the power modes in Afterlife (2021) only.
+millisDelay ms_cyclotron_auto_speed_timer; // A timer that is active while firing only. Used to speed up the Cyclotron by small increments based on the power levels.
 const unsigned int i_cyclotron_auto_speed_timer_length = 4500;
 bool b_2021_ramp_up = true;
 bool b_2021_ramp_up_start = true;
@@ -190,17 +189,21 @@ bool b_reset_start_led = true;
 bool b_1984_led_start = true;
 rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
+millisDelay ms_cyclotron_slime_on;
+millisDelay ms_cyclotron_slime_off;
+const uint8_t f_slime_divider = 2; // Used for adjusting the slime brightness in 1984 / 1989.
 bool b_cyclotron_lid_on = true;
 int i_1984_counter = 0;
-bool i_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+bool b_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 rampInt ms_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
 uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-// For the Afterlife Cyclotron matrix pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
-const uint8_t i_cyclotron_12led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 0, 0, 0, 0, 0, 0, 0 };
-const uint8_t i_cyclotron_20led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 16, 17, 18, 19, 20, 0, 0, 0, 0, 0 };
-const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40 };
+// For the Afterlife and Frozen Empire Cyclotron matrix pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
+const uint8_t i_cyclotron_12led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 0, 0, 0, 0, 0, 0, 0 };
+const uint8_t i_cyclotron_20led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 16, 17, 18, 19, 20, 0, 0, 0, 0, 0 };
+const uint8_t i_cyclotron_36led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 0, 19, 20, 21, 22, 23, 24, 25, 26, 27, 0, 28, 29, 30, 31, 32, 33, 34, 35, 36, 0 };
+const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40 };
 
 /*
  * Inner Cyclotron NeoPixel ring ramp control.
@@ -219,19 +222,26 @@ unsigned int i_inner_current_ramp_speed = i_inner_ramp_delay;
 /*
  * Cyclotron Switch Plate LEDs
  */
-const uint8_t cyclotron_sw_plate_led_r1 = 4;
-const uint8_t cyclotron_sw_plate_led_r2 = 5;
-const uint8_t cyclotron_sw_plate_led_y1 = 6;
-const uint8_t cyclotron_sw_plate_led_y2 = 7;
-const uint8_t cyclotron_sw_plate_led_g1 = 8;
-const uint8_t cyclotron_sw_plate_led_g2 = 9;
-const uint8_t cyclotron_switch_led_green = 10; // 1984/2021 mode switch led.
-const uint8_t cyclotron_switch_led_yellow = 11; // Vibration on/off switch led.
-millisDelay ms_cyclotron_switch_plate_leds;
+uint8_t i_cyclotron_sw_led = 0;
+uint8_t i_cyclotron_switch_led_mulitplier = 1;
+const uint8_t cyclotron_sw_plate_led_r1 = 4; // Decorative red LED 1.
+const uint8_t cyclotron_sw_plate_led_r2 = 5; // Decorative red LED 2.
+const uint8_t cyclotron_sw_plate_led_y1 = 6; // Decorative yellow LED 1.
+const uint8_t cyclotron_sw_plate_led_y2 = 7; // Decorative yellow LED 2.
+const uint8_t cyclotron_sw_plate_led_g1 = 8; // Decorative green LED 1.
+const uint8_t cyclotron_sw_plate_led_g2 = 9; // Decorative green LED 2.
+const uint8_t cyclotron_switch_led_green = 10; // 1984/2021 mode switch LED.
+const uint8_t cyclotron_switch_led_yellow = 11; // Vibration on/off switch LED.
+const uint8_t i_cyclotron_switch_led_delay_base = 150;
 const unsigned int i_cyclotron_switch_plate_leds_delay = 1000;
+unsigned int i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
+millisDelay ms_cyclotron_switch_led; // Timer to control the 6 decorative LED patterns.
+millisDelay ms_cyclotron_switch_plate_leds; // Timer to control the 2 switch status indicator LEDs.
+
 
 /*
- * Alarm. Used during overheating and/or ribbon cable removal.
+ * Alarm
+ * Used during overheating and/or ribbon cable removal.
  */
 const unsigned int i_alarm_delay = 500;
 bool b_alarm = false;
@@ -246,44 +256,6 @@ ezButton switch_vibration(27); // Vibration toggle switch
 ezButton switch_cyclotron_direction(29); // Newly added switch for controlling the direction of the Cyclotron lights. Not required. Defaults to clockwise.
 ezButton switch_power(31); // Red power switch under the Ion Arm.
 ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
-//bool b_neutrona_wand_barrel_extended = false; // Unused at the moment.
-
-/*
- * WAV Trigger
- */
-wavTrigger w_trig;
-uint16_t i_music_count = 0;
-uint16_t i_current_music_track = 0;
-const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
-const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
-const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
-bool b_playing_music = false;
-bool b_music_paused = false;
-bool b_repeat_track = false;
-
-/*
- * Music control and checking.
- */
-const unsigned int i_music_check_delay = 2000;
-const unsigned int i_music_next_track_delay = 2000;
-millisDelay ms_check_music;
-millisDelay ms_music_next_track;
-millisDelay ms_music_status_check;
-
-/*
- *  Volume (0 = loudest, -70 = quietest)
- */
-uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
-uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
-
-int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
-int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
-int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects
-int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
-int8_t i_volume_revert = i_volume_master;
-
-millisDelay ms_volume_check; // Put some timing on the master volume gain to not overload the WAV Trigger serial communication.
 
 /*
  * Vibration motor settings
@@ -343,12 +315,13 @@ const unsigned int i_meson_blast_delay_level_1 = 220;
 millisDelay ms_overheating;
 const unsigned int i_overheating_delay = 4000;
 bool b_overheating = false;
+bool b_venting = false;
 millisDelay ms_smoke_timer;
 millisDelay ms_smoke_on;
-const unsigned long int i_smoke_timer[5] = { i_smoke_timer_mode_1, i_smoke_timer_mode_2, i_smoke_timer_mode_3, i_smoke_timer_mode_4, i_smoke_timer_mode_5 };
-const unsigned long int i_smoke_on_time[5] = { i_smoke_on_time_mode_1, i_smoke_on_time_mode_2, i_smoke_on_time_mode_3, i_smoke_on_time_mode_4, i_smoke_on_time_mode_5 };
-bool b_smoke_continuous_mode[5] = { b_smoke_continuous_mode_1, b_smoke_continuous_mode_2, b_smoke_continuous_mode_3, b_smoke_continuous_mode_4, b_smoke_continuous_mode_5 };
-const bool b_smoke_overheat_mode[5] = { b_smoke_overheat_mode_1, b_smoke_overheat_mode_2, b_smoke_overheat_mode_3, b_smoke_overheat_mode_4, b_smoke_overheat_mode_5 };
+const unsigned long int i_smoke_timer[5] PROGMEM = { i_smoke_timer_level_1, i_smoke_timer_level_2, i_smoke_timer_level_3, i_smoke_timer_level_4, i_smoke_timer_level_5 };
+const unsigned long int i_smoke_on_time[5] PROGMEM = { i_smoke_on_time_level_1, i_smoke_on_time_level_2, i_smoke_on_time_level_3, i_smoke_on_time_level_4, i_smoke_on_time_level_5 };
+bool b_smoke_continuous_level[5] = { b_smoke_continuous_level_1, b_smoke_continuous_level_2, b_smoke_continuous_level_3, b_smoke_continuous_level_4, b_smoke_continuous_level_5 };
+const bool b_smoke_overheat_level[5] = { b_smoke_overheat_level_1, b_smoke_overheat_level_2, b_smoke_overheat_level_3, b_smoke_overheat_level_4, b_smoke_overheat_level_5 };
 millisDelay ms_overheating_length; // The total length of the when the fans turn on (or smoke if smoke synced to fan)
 const unsigned int i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
 const unsigned int i_overheat_delay_max = 60000; // The max length a overheat can be.
@@ -400,6 +373,7 @@ bool b_sound_firing_alt_trigger = false;
 bool b_wand_connected = false;
 bool b_wand_syncing = false;
 bool b_wand_on = false;
+bool b_wand_mash_lockout = false;
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
 uint8_t i_wand_power_level = 1; // Power level of the wand.
 millisDelay ms_wand_check; // Timer used to determine whether the wand has been disconnected.
@@ -434,9 +408,8 @@ millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound wit
  */
 #define encoder_pin_a 2
 #define encoder_pin_b 3
-int i_encoder_pos = 0;
-int i_val_rotary;
-int i_last_val_rotary;
+static uint8_t prev_next_code = 0;
+static uint16_t store = 0;
 
 /*
  * LED Dimming / Brightness Control.
@@ -497,11 +470,6 @@ void serial1Send(uint8_t i_command);
 void serial1SendData(uint8_t i_message);
 void checkSerial1();
 void checkWand();
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
-void stopEffect(int i_track_id);
-void playMusic();
-void stopMusic();
-void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
 void powercellDraw(uint8_t i_start = 0);
 
 /*

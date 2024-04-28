@@ -40,7 +40,7 @@
 - Single (centered) LED per Cyclotron lens for 1984/1989 modes by default.
 	- This can be toggled back to 3 LEDs per Cyclotron lens via the Neturona Wand menu system.
 - The Power Cell, Cyclotron and other lighting on the Proton Pack can have the brightness independently adjusted.
-- 1989 sound effects mode is available on the pack, it can be accessed from the Neutrona Wand menu systems or set with the advanced user configuration settings.
+- 1989 and Frozen Empire sound effect modes are available; they can be accessed from the Neutrona Wand menus or set with the advanced user configuration settings.
 - Super Hero and Mode Original system operation modes.
 - Menu system with the ability to customise various settings for both your Proton Pack and Neutrona Wand.
 - Up to 5 different power levels as indicated on the Neutrona Wand bargraph.
@@ -50,7 +50,7 @@
 - The Proton Pack will emit smoke effects during longer firing (Default setting: enabled). This can be configured from the Neutrona Wand menu system.
 
 ### System Power Inactivity Indicator
-- The LED at the front of the Neutrona Wand body next to the Clippard valve will start to blink after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered down to indicate the system still has power.
+- The LED at the front of the Neutrona Wand body next to the Clippard valve will start to blink after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered down to indicate the system is still receiving power from the battery.
 
 <div class="page-break"></div>
 
@@ -81,9 +81,11 @@
    - Clockwise to raise power/volume, counter-clockwise to lower these values.
 - There are 5 wand power levels in Super Hero mode and 4 in Mode Original.
 - For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.
-- This dial will be used to navigate the menu systems and adjust volume in certain cases (see "Wand Settings Menu System" section).
+- This dial will be used to navigate the menu systems and adjust volume in certain cases (see "Neutrona Wand Menu System" section).
 
-**Tip:** When music is playing while the pack and wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily access the independent music volume control.
+### Neutrona Wand Quick Audio Volume Adjustment ###
+- When music is playing while the Proton Pack and Neutrona Wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily access the independent music volume control.
+- While the Neutrona Wand is off, you can independently adjust the master volume of the Neutrona Wand by holding the Intensify button down and turning the dial. 
 
 Refer to the [Loading The Audio Files](AUDIO.md) for more information on loading additional music tracks.
 
@@ -103,13 +105,14 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 ### Activate Toggle
 
-- Activate toggle on the gun box turns on both the Proton Pack and Neutrona wand.
+- Activate toggle on the gun box turns on both the Proton Pack and Neutrona Wand.
 	- The switch under the Proton Pack's Ion Arm does not need to be engaged for this to work. The switch under the Ion Arm will turn the cyclotron on.
 - The lever switch near the gunbox acts as a safety switch and it must be pulled to extend the barrel before firing.
 - Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects.
 	- The Neutrona Wand will not fire unless these switches are turned on.
 	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn the top toggle switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in Neutrona Wand Config EEPROM Menu.
 - While firing, the default bargraph animations slide/split the bargraph in half and scroll up and down simultaneously.
+	- **Button Mash Lockout:** If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level.
 
 ### Right-Hand Toggle Switch Behaviour
 ![](images/OperationNeutrona3.jpg)
@@ -117,7 +120,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 - While in 1984/1989 theme modes:
 	- Bottom toggle switch turns on the vent light and plays the wand power up sound.
 	- Top toggle switch plays a single beep sound.
-- While in Afterlife theme mode:
+- While in Afterlife and Frozen Empire theme mode:
 	- Bottom toggle switch turns on the vent light and the wand plays a ramp up sound.
  	- Top toggle switch turns on the looping beeping sounds.
 
@@ -129,19 +132,20 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 - There are 4 power levels in mode original. When the Neutrona Wand is in stand by mode (see toggle switch behaviours below), the bargraph settles on the first level.
 - The switch under the Ion Arm on the Proton Pack must be switched on. This gives power to the entire system. The slo-blo light on the Neutrona Wand will turn solid red to indicate power to the system.
-	- If you are using a standalone Neutrona Wand without a Proton Pack, pressing the Intensify switch twice while the Neutrona Wand is turned off will imitate flipping the switch under the Ion Arm.
+	- If you are using a standalone Neutrona Wand without a Proton Pack, double-clicking the Intensify switch while the Neutrona Wand is turned off will imitate flipping the switch under the Ion Arm.
 - While firing, the default bargraph animations slide the bargraph up and down small increments to indicate the instability and power of the proton stream.
+	- **Button Mash Lockout:** If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level.
 
 ### Right-Hand Toggle Switch Behaviours
 ![](images/OperationNeutrona13.jpg)
 
-- The bottom toggle will put the Neutrona Wand into standby mode. The slo-blo LED will begin to blink, and the vent lights will turn on.
-- The top toggle turns on the bargraph. It will ramp up and back down to the lowest level setting.
+- The bottom toggle will put the Neutrona Wand into standby mode with an audible beep, and the slo-blo LED will begin to blink.
+- If the bottom toggle is on the top toggle turns on the bargraph, the vent light, and Clippard LED and the heatup sound will play. The bargraph will ramp up and back down to the lowest level setting.
 
 ### Activate Toggle
 
-- Activate toggle on the gun box turns on the cyclotron of the Proton Pack. To activate the cyclotron, all the right hand toggle switches on the Neutrona Wand must be activated.
-	- The Cyclotron will not turn on unless all the toggle switches on the Neutrona Wand are activated and the Ion Arm switch on the Pack is in the ON position.
+- Activate toggle on the gun box turns on the cyclotron of the Proton Pack. To activate the cyclotron, both right hand toggle switches on the Neutrona Wand must be activated.
+	- The Cyclotron will not turn on unless both toggle switches on the Neutrona Wand are activated and the Ion Arm switch on the Pack is in the ON position.
 - The lever switch near the gunbox acts as a safety switch and it must be pulled to extend the barrel before firing.
 
 <div class="page-break"></div>
@@ -158,12 +162,12 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 	1. Proton Stream (Default)
 	1. Slime Blower
 	1. Stasis Stream
-	1. Meson Collider
+	1. Overload Pulse
 	1. <sup>1</sup> `Spectral (Rainbow)`
 	1. <sup>2</sup> `Spectral (Holiday)`
 	1. <sup>3</sup> `Spectral (Custom)`
-	1. Manual Venting Mode (Manual vent your Proton Pack)
-	1. Special: Setting 6 is a settings menu system (see "Wand Settings Menu System" section below).
+	1. Manual Venting Mode (manually vent your Proton Pack)
+	1. Settings: The last firing mode is a settings menu system (see "Neutrona Wand Menu System" section below).
 
 <sup>1</sup> Spectral Mode (Rainbow) is a system mode which gives a RAINBOW effect. If your Proton Pack has RGB LEDs, they will change to match.
 
@@ -177,16 +181,16 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 ![](images/OperationNeutrona6.jpg)
 
-- When in manual venting mode, the Slo-Blo LED and the Orange LED on the front of the wand body will blink to indicate that you are in the manual venting mode. Press Intensify on the wand to manually vent your Proton Pack. (All the toggle and safety switches on the wand must be activated).
+- When in manual venting mode, the Slo-Blo LED and the Clippard LED on the front of the wand body will blink to indicate that you are in the manual venting mode. Press Intensify on the wand to manually vent your Proton Pack. (All the toggle and safety switches on the wand must be activated).
 
 **Alternate System Firing Modes: Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)**
 
-- The Barrel Wing Button at the end of the wand acts as a alternate firing button. When Cross The Streams is enabled, Video Game Modes are disabled and you will only have the Proton Stream.
+- The Barrel Wing Button at the end of the wand acts as a alternate firing button. When Cross The Streams is enabled, Video Game Modes are disabled and you will only have the Proton Stream on both Intensify and the Barrel Wing Button.
 - The overheat features can only be triggered when holding the alternate firing button (Barrel Wing Button) when Cross The Streams mode is enabled.
-- Pressing both the Intensify and Barrel Wing Button at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing one of the 2 firing buttons will continue these effects.
-	- With Cross The Streams Mix, you need to hold both the Intensify and Barrel Wing Button at the same time. Releasing the Barrel Wing Button will end crossing the streams but continue firing a regular proton stream, and releasing Intensify will end firing completely.
+- Pressing both the Intensify and Barrel Wing Button at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing either of the firing buttons will continue these effects as long as one is still held, and will end once both buttons are released.
+	- With Cross The Streams Mix, you need to hold both the Intensify and Barrel Wing Button at the same time to remain in Cross The Streams. Releasing one of the firing buttons will revert to the normal Proton Stream for that button.
 
-To enable Cross The Streams (CTS) or Cross The Streams Mix (CTS Mix) mode by default, you can set this setting from the Wand Settings Menu System.
+To enable Cross The Streams (CTS) or Cross The Streams Mix (CTS Mix) mode by default, you can set this setting from the Neutrona Wand Menu System.
 
 <div class="page-break"></div>
 
@@ -198,7 +202,7 @@ To enable Cross The Streams (CTS) or Cross The Streams Mix (CTS Mix) mode by def
 
 There are 2 ways to enter the Menu System.
 
-- When the Neutrona Wand is in Video Game Mode and powered on, cycle through the various modes with the `Barrel Wing Button` until you reach the Menu System.
+- When the Neutrona Wand is in Video Game Mode and powered on, cycle through the various modes with the `Barrel Wing Button` until you reach the Neutrona Wand Menu System.
 - While the Neutrona Wand and Proton Pack are powered down, press the `Barrel Wing Button`.
 
 <div class="page-break"></div>
@@ -225,7 +229,7 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 | 4 | Proton&nbsp;Pack&nbsp;Light&nbsp;Dimming | `(Intensify + Top Dial)` Increases/Decreases the Proton Pack device LED brightness | Toggles between Power Cell, Cyclotron, or Inner Cyclotron devices |
 | 3 | Music & SFX Volume | `(Intensify + Top Dial)` Increases/Decreases SFX Volume | `(Barrel Wing Button + Top Dial)` Increases/Decreases Music Volume |
 | 2 | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
-| 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music / System Mute | Start/stop playing of music | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3 |
+| 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music / System&nbsp;Mute | Start/stop music playback | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3 |
 
 <sup>1</sup> Note that the LED/segment #5 will stay solid when the single-track loop is enabled while in the top menu system; it will blink on/off when looping is disabled.
 
@@ -237,9 +241,9 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 ### Menu Level 2
 
-📝 **Note:** The Neutrona Wand Menu Level 2 can only be reached while Cyclotron is turned off in Proton Pack.
+📝 **Note:** The Neutrona Wand Menu Level 2 can only be reached while the Neutrona Wand and Proton Pack are both turned off.
 
-To access the Menu Level 2, use the `Top Dial` on the top of the wand to move down and past option 1 on Menu Level 1. When you reach the the next menu level, the Slo-Blo LED will light up to indicate this menu state and also audio cues from the system.
+To access Menu Level 2, use the `Top Dial` on the top of the wand to move down and past option 1 on Menu Level 1. When you reach the the next menu level, the Slo-Blo LED will light up to indicate this menu state and also audio cues from the system.
 
 ![](images/OperationNeutrona10.jpg)
 
@@ -249,18 +253,18 @@ To access the Menu Level 2, use the `Top Dial` on the top of the wand to move do
 | 4 | Overheating / Smoke | Enable/Disable Overheating Ability | Enable/Disable Smoke Effects |
 | 3 | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron Rotation | Toggle between 1 (centered) or 3 LEDs in the Cyclotron Lid for 1984/1989 modes |
 | 2 | Vibration&nbsp;Settings | Enable/Disable Proton Pack vibration or vibration during firing | Enable/Disable Neutrona Wand vibration or vibration during firing |
-| 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through Afterlife (2021), 1984, or 1989 modes | Enable/Disable the Proton Stream impact sound effects |
+| 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through 1984, 1989, Afterlife, and Frozen Empire modes | Enable/Disable the Proton Stream impact sound effects |
 
-<sup>4</sup> Switch between Video Game and Cross the Streams (CTS) operation modes. Note that the LED/segment #5 will stay solid when CTS is enabled while in the sub menu system. Remember that CTS Mix requires holding down both intensify and the alternate firing button at the same time.
+<sup>4</sup> Switch between Video Game and Cross the Streams (CTS) operation modes. Note that the LED/segment #5 will stay solid when CTS or CTS Mix are enabled while in Menu Level 2.
 
 <sup>5</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
 
 - Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
 - Enable only the Power Cell LEDs to change colours (requires RGB Power Cell such as that offered by Frutto Technology).
-- Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as a Neopixel ring).
+- Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as that offered by Frutto Technology).
 - Enable both the Power Cell and Cyclotron to use video game colours.
 
-To exit the menu system, navigate to the top menu in `Option 5` (Slo-blo LED is no longer illuminated) and press the Barrel Wing Button. A small beep will be heard when transitioning between the top and sub menu levels.
+To exit the menu system, navigate to the top menu in `Option 5` (Slo-blo LED is no longer illuminated) and press the Barrel Wing Button. A voice callout will be heard when transitioning between the top and sub menu levels.
 
 <div class="page-break"></div>
 
@@ -282,5 +286,5 @@ Please view the [supplemental operation guide for EEPROM menus](OPERATION_EEPROM
 Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube, July 2023)
 [![Haslab Proton Pack Arduino Powered Demo & Features](https://img.youtube.com/vi/ePXz99UawLQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=ePXz99UawLQ)
 
-Wand Menu Settings Video Demo: [Proton Pack Wand Menu Settings Video Demo](https://www.youtube.com/watch?v=QrevSoQo_3M) (YouTube)
+Neutrona Wand Menu System Video Demo: [Proton Pack Wand Menu Settings Video Demo](https://www.youtube.com/watch?v=QrevSoQo_3M) (YouTube)
 [![Proton Pack Wand Menu Settings Video Demo](https://img.youtube.com/vi/QrevSoQo_3M/maxresdefault.jpg)](https://youtu.be/QrevSoQo_3M)

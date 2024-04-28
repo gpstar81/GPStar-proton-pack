@@ -54,7 +54,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       &nbsp;&nbsp;&nbsp;<b>Wand Year Theme:</b>
       <select id="defaultYearModeWand" name="defaultYearModeWand">
-        <option value="1">Via Toggle</option>
+        <option value="1">Via System</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
         <option value="4">Afterlife</option>
@@ -64,7 +64,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       &nbsp;&nbsp;&nbsp;&nbsp;<b>Default CTS Mode:</b>
       <select id="defaultYearModeCTS" name="defaultYearModeCTS">
-        <option value="1">Via Toggle</option>
+        <option value="1">Via System</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
         <option value="4">Afterlife</option>
@@ -79,6 +79,13 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         <option value="2">When Firing</option>
         <option value="1">Always</option>
       </select>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Amplify Wand Speaker:</b>
+      <label class="switch">
+        <input id="amplifyWandSpeaker" name="amplifyWandSpeaker" type="checkbox">
+        <span class="slider round"></span>
+      </label>
     </div>
     <div class="setting">
       <b class="labelSwitch">Auto Vent Light Brightness:</b>
@@ -293,6 +300,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("defaultFiringMode").value = settings.defaultFiringMode || 1;
             document.getElementById("wandVibration").value = settings.wandVibration || 4;
             document.getElementById("wandSoundsToPack").checked = settings.wandSoundsToPack ? true: false;
+            document.getElementById("amplifyWandSpeaker").checked = settings.amplifyWandSpeaker ? true: false;
             document.getElementById("quickVenting").checked = settings.quickVenting ? true: false;
             document.getElementById("autoVentLight").checked = settings.autoVentLight ? true: false;
             document.getElementById("wandBeepLoop").checked = settings.wandBeepLoop ? true: false;
@@ -326,6 +334,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         defaultFiringMode: parseInt(document.getElementById("defaultFiringMode").value || 1, 10),
         wandVibration: parseInt(document.getElementById("wandVibration").value || 4, 10),
         wandSoundsToPack: document.getElementById("wandSoundsToPack").checked ? 1 : 0,
+        amplifyWandSpeaker: document.getElementById("amplifyWandSpeaker").checked ? 1 : 0,
         quickVenting: document.getElementById("quickVenting").checked ? 1 : 0,
         autoVentLight: document.getElementById("autoVentLight").checked ? 1 : 0,
         wandBeepLoop: document.getElementById("wandBeepLoop").checked ? 1 : 0,

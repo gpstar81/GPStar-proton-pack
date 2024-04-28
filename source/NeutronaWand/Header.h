@@ -28,7 +28,7 @@ enum WAND_STATE WAND_STATUS;
 /*
  * Various wand action states.
  */
-enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_SETTINGS, ACTION_ERROR, ACTION_LED_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
+enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_OVERHEATING, ACTION_VENTING, ACTION_SETTINGS, ACTION_ERROR, ACTION_LED_EEPROM_MENU, ACTION_CONFIG_EEPROM_MENU };
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
 /*
@@ -87,8 +87,8 @@ enum BARGRAPH_EEPROM_FIRING_ANIMATIONS { BARGRAPH_EEPROM_ANIMATION_DEFAULT, BARG
 enum BARGRAPH_EEPROM_FIRING_ANIMATIONS BARGRAPH_EEPROM_FIRING_ANIMATION;
 
 /*
- * Which CTS "Cross The Streams" year mode the Neutrona Wand is set into. The Proton Pack will match this when set.
- * This affects which CTS "Cross The Streams" is used. The sound effects are different depending on the year.
+ * Which CTS "Cross The Streams" year mode the Neutrona Wand is set to. The Proton Pack will match this when set.
+ * This affects which CTS "Cross The Streams" sounds are used as the sound effects are different depending on the year.
  * CTS_DEFAULT lets the system choose based on the year setting of the Proton Pack.
  */
 enum WAND_YEAR_CTS_SETTING { CTS_DEFAULT, CTS_1984, CTS_1989, CTS_AFTERLIFE, CTS_FROZEN_EMPIRE };
@@ -134,41 +134,40 @@ enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
 /*
  * Delay for fastled to update the addressable LEDs.
  * We have up to 5 addressable LEDs in the wand barrel.
- * 0.03 ms to update 1 LED. So 0.15 ms should be okay? Let's bump it up to 3 just in case.
+ * The Frutto barrel has up to 49 addressable LEDs.
+ * 0.03 ms to update 1 LED. So 1.47 ms should be okay? Let's bump it up to 3 just in case.
  */
-const uint8_t i_fast_led_delay = 3;
+#define FAST_LED_UPDATE_MS 3
+uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
 millisDelay ms_fast_led;
 
 /*
  * Non-addressable LEDs
  */
-const uint8_t led_slo_blo = 8;
-const uint8_t led_front_left = 9;
-const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Red LED)
-const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Red LED)
-const uint8_t led_barrel_tip = 24; // White led at tip of the wand barrel. (White LED).
+const uint8_t led_slo_blo = 8; // SLO-BLO LED. (Red LED)
+const uint8_t led_front_left = 9; // LED underneath the Clippard valve. (Orange or White LED)
+const uint8_t led_white = 12; // Blinking white light beside the vent on top of the wand.
+const uint8_t led_vent = 13; // Vent light
+const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Orange LED)
+const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Orange or White LED)
+const uint8_t led_barrel_tip = 24; // White LED at tip of the wand barrel. (White LED)
 
 /*
- * WAV Trigger
+ * Time in milliseconds for blinking the top white LED while the wand is on.
+ * By default this is set to the blink cycle used on the Afterlife props.
+ * On first system start a random value will be selected for GB1/GB2 mode.
+ * Common values are as follows:
+ * GB1 Spengler, GB1 Venkman (Sedgewick): 666
+ * GB2 Spengler: 500
+ * GB1/GB2 Stantz, GB2 Venkman (Courtroom): 333
+ * GB1 Venkman (Rooftop): 417
+ * GB2 Venkman (Vigo), GB2 Zeddemore: 375
+ * Afterlife (all props): 146
  */
-wavTrigger w_trig;
-uint16_t i_music_count = 0;
-uint16_t i_current_music_track = 0;
-const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
-const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
-const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
-// bool b_wand_audio_board_here = false; // Unused for now.
-
-/*
- * Volume (0 = loudest, -70 = quietest)
- */
-uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
-uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
-int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
-int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects
-int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
-int8_t i_volume_revert = i_volume_master;
+const uint16_t i_afterlife_blink_interval = 146;
+const uint16_t i_classic_blink_intervals[5] = {333, 375, 417, 500, 666};
+uint8_t i_classic_blink_index = 0;
+uint16_t d_white_light_interval = i_afterlife_blink_interval;
 
 /*
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
@@ -190,6 +189,8 @@ const uint8_t vibration = 11;
 const uint8_t i_vibration_level_min = 65;
 uint8_t i_vibration_level = i_vibration_level_min;
 uint8_t i_vibration_level_prev = 0;
+bool b_menu_vibration_active = false; // Used to make sure a vibration menu call only occurs once per activation.
+millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*
  * Enable or disable vibration control for the Neutrona Wand.
@@ -201,26 +202,20 @@ bool b_vibration_enabled = true;
 /*
  * Various Switches on the wand.
  */
-ezButton switch_intensify(2);
-ezButton switch_activate(3);
-ezButton switch_vent(4); // Turns on the vent light. Bottom right switch.
-ezButton switch_wand(A0); // Controls the beeping. Top right switch on the wand.
-ezButton switch_mode(A6); // Changes firing modes, crosses streams, or used in settings menus.
-ezButton switch_barrel(A7); // Checks whether barrel is retracted or not.
+Switch switch_intensify(2);
+Switch switch_activate(3);
+Switch switch_vent(4); // Turns on the vent light. Bottom right switch on the wand.
+Switch switch_wand(A0); // Controls the beeping. Top right switch on the wand.
+Switch switch_mode(A6); // Changes firing modes, crosses streams, or used in settings menus.
+Switch switch_barrel(A7); // Checks whether barrel is retracted or not.
 bool b_switch_barrel_extended = true; // Set to true for bootup to prevent sound from playing erroneously. The Neutrona Wand will adjust as necessary.
+bool b_all_switch_activation = false; // Used to check if Activate was flipped to on while the vent switch was already in the on position for sound purposes.
+uint8_t ventSwitchedCount = 0;
+uint8_t wandSwitchedCount = 0;
 
 /*
- * Some switch settings.
+ * Hasbro bargraph LEDs.
  */
-millisDelay ms_intensify_doubleclick;
-const unsigned int i_switch_debounce = 50;
-const unsigned int i_doubleclick_delay = 3000;
-
-/*
- * Wand lights
- */
-const uint8_t led_white = 12; // Blinking white light beside the vent on top of the wand.
-const uint8_t led_vent = 13; // Vent light
 const uint8_t led_bargraph_1 = A1;
 const uint8_t led_bargraph_2 = A2;
 const uint8_t led_bargraph_3 = A3;
@@ -239,16 +234,17 @@ bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 millisDelay ms_gun_loop_1;
 millisDelay ms_gun_loop_2;
 millisDelay ms_white_light;
-const uint8_t d_white_light_interval = 250;
+uint16_t i_gun_loop_1 = 1768; // 1660
+uint16_t i_gun_loop_2 = 1653; // 1500
 
 /*
  * Overheat timers
  */
 millisDelay ms_overheat_initiate;
 millisDelay ms_overheating; // This timer is only used when using the Neutrona Wand without a Proton Pack.
-const unsigned int i_ms_overheating = 6500; // Overheating for 6.5 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
-bool b_overheat_mode[5] = { b_overheat_mode_1, b_overheat_mode_2, b_overheat_mode_3, b_overheat_mode_4, b_overheat_mode_5 };
-unsigned long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_mode_1, i_ms_overheat_initiate_mode_2, i_ms_overheat_initiate_mode_3, i_ms_overheat_initiate_mode_4, i_ms_overheat_initiate_mode_5 };
+const unsigned int i_ms_overheating = 3000; // Overheating for 3 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
+bool b_overheat_level[5] = { b_overheat_level_1, b_overheat_level_2, b_overheat_level_3, b_overheat_level_4, b_overheat_level_5 };
+unsigned long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_level_1, i_ms_overheat_initiate_level_2, i_ms_overheat_initiate_level_3, i_ms_overheat_initiate_level_4, i_ms_overheat_initiate_level_5 };
 const unsigned int i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
 const unsigned int i_overheat_delay_max = 60000; // The max length a overheat can be.
 
@@ -261,35 +257,20 @@ const uint8_t d_bargraph_ramp_interval = 120;
 uint8_t i_bargraph_status = 0;
 
 /*
- * (Optional) Barmeter 28 segment bargraph configuration and timers.
+ * (Optional) Barmeter 28-segment bargraph configuration and timers.
  * Part #: BL28Z-3005SA04Y
  */
 HT16K33 ht_bargraph;
 
-// Used to scan the i2c bus and to locate the 28 segment bargraph.
+// Used to scan the i2c bus and to locate the 28-segment bargraph.
 #define WIRE Wire
 
 /*
- * Set to true if you are replacing the stock Hasbro bargraph with a Barmeter 28 segment bargraph.
- * Set to false if you are using the stock Hasbro bargraph.
+ * Used to change to 28-segment bargraph features.
+ * The Frutto 28-segment bargraph is automatically detected on boot and sets this to true.
  * Part #: BL28Z-3005SA04Y
  */
 bool b_28segment_bargraph = false;
-
-/*
- * Music control and checking.
- * Only for bench test mode. When bench test mode is disabled, the Pack controls the music checking and playback.
- */
-const unsigned int i_music_check_delay = 2000;
-const unsigned int i_music_next_track_delay = 2000;
-millisDelay ms_check_music;
-millisDelay ms_music_next_track;
-millisDelay ms_music_status_check;
-
-/*
- * Flag check for video game mode.
- */
-bool b_vg_mode = true;
 
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
@@ -302,7 +283,7 @@ const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
 unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
 /*
- * (Optional) Barmeter 28 segment bargraph mapping.
+ * (Optional) Barmeter 28-segment bargraph mapping.
  * Part #: BL28Z-3005SA04Y
 
  * Segment Layout:
@@ -317,6 +298,11 @@ uint8_t i_bargraph[i_bargraph_segments] = {};
 const uint8_t i_bargraph_invert[i_bargraph_segments] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
 const uint8_t i_bargraph_normal[i_bargraph_segments] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 bool b_bargraph_status[i_bargraph_segments] = {};
+
+/*
+ * Flag check for video game mode.
+ */
+bool b_vg_mode = true;
 
 /*
  * (Optional) Support for Video Game Accessories (coming soon)
@@ -342,9 +328,9 @@ const uint8_t i_sound_timer = 150;
  * Wand tip heatup timers (when changing firing modes).
  */
 millisDelay ms_wand_heatup_fade;
-const uint8_t i_delay_heatup = 10;
+const uint8_t i_delay_heatup = 5;
 uint8_t i_heatup_counter = 0;
-uint8_t i_heatdown_counter = 100;
+uint8_t i_heatdown_counter = 50;
 
 /*
  * Wand Firing Modes + Settings
@@ -358,23 +344,22 @@ enum FIRING_MODES PREV_FIRING_MODE;
  */
 millisDelay ms_firing_lights;
 millisDelay ms_firing_lights_end;
+millisDelay ms_firing_effect_end;
 millisDelay ms_firing_stream_effects;
 millisDelay ms_impact; // Mix some impact sounds while firing.
-millisDelay ms_firing_start_sound_delay;
-millisDelay ms_firing_stop_sound_delay;
+millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
 const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // using this to keep track which LED in the barrel is currently lighting up.
-const uint8_t i_fire_start_sound_delay = 50; // Delay for starting firing sounds.
-const uint8_t i_fire_stop_sound_delay = 100; // Delay for stopping fire sounds.
+int i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
 
 /*
- * Wand power mode. Controlled by the rotary encoder on the top of the wand.
- * You can enable or disable overheating for each mode individually in the user adjustable values at the top of this file.
+ * Wand power level. Controlled by the rotary encoder on the top of the wand.
+ * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
  */
-const uint8_t i_power_mode_max = 5;
-const uint8_t i_power_mode_min = 1;
-uint8_t i_power_mode = 1;
-uint8_t i_power_mode_prev = 1;
+const uint8_t i_power_level_max = 5;
+const uint8_t i_power_level_min = 1;
+uint8_t i_power_level = 1;
+uint8_t i_power_level_prev = 1;
 
 /*
  * Wand / Pack communication
@@ -393,7 +378,7 @@ enum WAND_CONN_STATES WAND_CONN_STATE;
  * Some pack flags which get transmitted to the wand depending on the pack status.
  */
 bool b_pack_on = false; // Denotes the pack has been powered on.
-bool b_pack_alarm = false; // Denotes the alarm (ribbon cable) has been disconnected.
+bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected).
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
 bool b_sync_light = false; // Toggle for the state of the white LED beside the vent light which gets blinked as a sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
@@ -403,14 +388,12 @@ const unsigned int i_sync_initial_delay = 750; // Delay to re-try the initial ha
 const unsigned int i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake) to a connected proton pack.
 
 /*
- * Wand menu & music
+ * Wand Menu
  */
 enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3, MENU_LEVEL_4, MENU_LEVEL_5 };
 enum WAND_MENU_LEVELS WAND_MENU_LEVEL;
 uint8_t i_wand_menu = 5;
 const unsigned int i_settings_blinking_delay = 350;
-bool b_playing_music = false;
-bool b_repeat_track = false;
 millisDelay ms_settings_blinking;
 
 /*
@@ -427,7 +410,7 @@ bool b_sound_firing_cross_the_streams_mix = false;
 bool b_sound_idle = false;
 bool b_beeping = false;
 bool b_sound_afterlife_idle_2_fade = true;
-bool b_pack_ribbon_cable_on = true;
+bool b_wand_boot_error_on = false;
 
 /*
  * Button Mashing Lock-out - Prevents excessive user input via the primary/secondary firing buttons.
@@ -435,12 +418,13 @@ bool b_pack_ribbon_cable_on = true;
  * otherwise an error mode will be engaged to provide a cool-down period. This does not apply to any
  * prolonged firing which would trigger the overheat or venting sequences; only rapid firing bursts.
  */
-millisDelay ms_bmash;
-unsigned int i_bmash_delay = 3000;     // Time period in which we consider rapid firing
-unsigned int i_bmash_cool_down = 3200; // Time period for the lock-out of user input
-uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts
-uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out
-bool b_wand_mash_error = false;        // Indicates wand is in a lock-out phase
+millisDelay ms_bmash;                  // Timer for the button mash lock-out period.
+unsigned int i_bmash_delay = 2000;     // Time period in which we consider rapid firing.
+unsigned int i_bmash_cool_down = 3000; // Time period for the lock-out of user input.
+uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts.
+uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out.
+uint8_t i_bmash_spark_index = 0;       // Current spark number for the spark effect (0~2).
+bool b_wand_mash_error = false;        // Indicates if wand is in a lock-out phase.
 
 /*
  * Used during the overheating sequences.
@@ -465,7 +449,5 @@ void wandSerialSend(uint8_t i_command);
 void wandSerialSendData(uint8_t i_message);
 void checkPack();
 void checkWandAction();
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0);
-void stopEffect(int i_track_id);
-void stopMusic();
-void playMusic();
+void ventSwitched(void* n = nullptr);
+void wandSwitched(void* n = nullptr);

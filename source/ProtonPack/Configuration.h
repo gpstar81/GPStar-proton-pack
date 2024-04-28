@@ -84,6 +84,7 @@ bool b_powercell_colour_toggle = true;
 const unsigned int i_1984_delay = 1050;
 #define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs
 #define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs
+#define CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
 #define CYCLOTRON_DELAY_2021_40_LED 7 // For 40 LEDs
 
 /*
@@ -92,16 +93,18 @@ const unsigned int i_1984_delay = 1050;
 
  * i_1984_cyclotron_12_leds is for the stock Haslab 12 LED setup.
  * i_1984_cyclotron_20_leds is for the Frutto Technology 20 LED setup.
+ * i_1984_cyclotron_36_leds is for the Frutto Technology Max 36 LED setup.
  * i_1984_cyclotron_40_leds is for a 40 LED NeoPixel ring.
  */
 const uint8_t i_1984_cyclotron_12_leds[4] = { 1, 4, 7, 10 };
 const uint8_t i_1984_cyclotron_20_leds[4] = { 2, 7, 12, 17 };
+const uint8_t i_1984_cyclotron_36_leds[4] = { 4, 13, 22, 31 };
 const uint8_t i_1984_cyclotron_40_leds[4] = { 0, 10, 18, 28 };
 
 /*
- * Afterlife mode (2021) only.
+ * Afterlife and Frozen Empire only.
  * When set to true, using LEDs that are not a ring will simulate a ring rotation for the Cyclotron LEDs in the lid.
- * For example, for the 12 or 15 LED options, extra LEDs will be simulated to provide a delay/spinning effect.
+ * For example, for the 12, 20 or 36 LED options, extra LEDs will be simulated to provide a delay/spinning effect.
  * The 40 LED ring option is unaffected as it is a true ring.
  * This setting will be overridden by the EEPROM settings.
  */
@@ -112,7 +115,7 @@ bool b_cyclotron_simulate_ring = true;
  * 1000 = 1 second.
  * The lower the number the faster the Power Cell lights cycle.
  * For the stock HasLab Power Cell with 13 leds, 1984 at 75 and 2021 at 40 is a good setting.
- * For a Power Cell with 15 LEDS such as from Frutto Technology, 1984 at 60 and 2021 at 34 is a good setting.
+ * For a Power Cell with 15 LEDS such as from Frutto Technology, 1984 at 60, then for Afterlife and Frozen Empire at 34 is a good setting.
  * If you add more Power Cell LEDs, it is suggested to lower the values a little bit.
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
@@ -291,8 +294,7 @@ const unsigned int i_1984_fade_in_delay = 210;
 
 /*
  * Set to true to enable the onboard amplifier on the WAV Trigger.
- * Turning off the onboard amp draws less power.
- * If using the AUX cable jack, the amp can be disabled to save power.
+ * This is for the WAV Trigger only and does not affect GPStar Audio.
  * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */
@@ -344,38 +346,38 @@ bool b_fan_continuous_firing = true;
 bool b_fan_booster_continuous_firing = true;
 
 /*
- * Enable or disable smoke in individual wand power modes for continuous firing smoke.
- * Example: if b_smoke_continuous_mode_1 is true, smoke will happen in continuous firing in wand power mode 1. If false, no smoke in mode 1.
+ * Enable or disable smoke in individual wand power levels for continuous firing smoke.
+ * Example: if b_smoke_continuous_level_1 is true, smoke will happen in continuous firing in wand power level 1. If false, no smoke in mode 1.
  * This is overridden if b_smoke_enabled or can be by the continuous_firing settings above when they are set to false.
  */
-bool b_smoke_continuous_mode_1 = true;
-bool b_smoke_continuous_mode_2 = true;
-bool b_smoke_continuous_mode_3 = true;
-bool b_smoke_continuous_mode_4 = true;
-bool b_smoke_continuous_mode_5 = true;
+bool b_smoke_continuous_level_1 = true;
+bool b_smoke_continuous_level_2 = true;
+bool b_smoke_continuous_level_3 = true;
+bool b_smoke_continuous_level_4 = true;
+bool b_smoke_continuous_level_5 = true;
 
 /*
- * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power mode (not overheating venting).
+ * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power level (not overheating venting).
  * Example: 30,000 milliseconds (30 seconds)
  */
-const unsigned long int i_smoke_timer_mode_1 = 30000;
-const unsigned long int i_smoke_timer_mode_2 = 15000;
-const unsigned long int i_smoke_timer_mode_3 = 10000;
-const unsigned long int i_smoke_timer_mode_4 = 7500;
-const unsigned long int i_smoke_timer_mode_5 = 6000;
+const unsigned long int i_smoke_timer_level_1 = 30000;
+const unsigned long int i_smoke_timer_level_2 = 15000;
+const unsigned long int i_smoke_timer_level_3 = 10000;
+const unsigned long int i_smoke_timer_level_4 = 7500;
+const unsigned long int i_smoke_timer_level_5 = 6000;
 
 /*
- * How long you want your smoke pins (+ fan) to stay on while firing for each firing power mode. (not overheating venting)
+ * How long you want your smoke pins (+ fan) to stay on while firing for each firing power level. (not overheating venting)
  * When the pins are high (controlled by the i_smoke_timer above), then smoke will be generated if you have smoke machines wired up.
  * Default is 3000 milliseconds (3 seconds).
  * This does not affect smoke during overheat.
  * This only affects how long your smoke stays on after it has been triggered in continuous firing.
  */
-const unsigned long int i_smoke_on_time_mode_1 = 3000;
-const unsigned long int i_smoke_on_time_mode_2 = 3000;
-const unsigned long int i_smoke_on_time_mode_3 = 3500;
-const unsigned long int i_smoke_on_time_mode_4 = 3500;
-const unsigned long int i_smoke_on_time_mode_5 = 4000;
+const unsigned long int i_smoke_on_time_level_1 = 3000;
+const unsigned long int i_smoke_on_time_level_2 = 3000;
+const unsigned long int i_smoke_on_time_level_3 = 3500;
+const unsigned long int i_smoke_on_time_level_4 = 3500;
+const unsigned long int i_smoke_on_time_level_5 = 4000;
 
 /*
  * Enable or disable smoke during overheat sequences.
@@ -388,20 +390,20 @@ bool b_fan_overheat = true;
 bool b_fan_booster_overheat = true;
 
 /*
- * Enable or disable overheat smoke in different wand power modes.
- * Example: If b_smoke_overheat_mode_1 is false, then no smoke will be generated during overheat in wand power mode 1, if overheat is enabled for that power mode in the wand code.
+ * Enable or disable overheat smoke in different wand power levels.
+ * Example: If b_smoke_overheat_level_1 is false, then no smoke will be generated during overheat in wand power level 1, if overheat is enabled for that power level in the wand code.
  * This is overridden if b_smoke_enabled or can be by the b_overheat settings above when they are set to false.
  */
-const bool b_smoke_overheat_mode_1 = true;
-const bool b_smoke_overheat_mode_2 = true;
-const bool b_smoke_overheat_mode_3 = true;
-const bool b_smoke_overheat_mode_4 = true;
-const bool b_smoke_overheat_mode_5 = true;
+const bool b_smoke_overheat_level_1 = true;
+const bool b_smoke_overheat_level_2 = true;
+const bool b_smoke_overheat_level_3 = true;
+const bool b_smoke_overheat_level_4 = true;
+const bool b_smoke_overheat_level_5 = true;
 
 /*
  * This is the length in duration of the overheat sequence when the fan (and smoke if synced to fan) stays on for.
  * This can be adjusted in 1 second increments via the wand menu system.
- * Default setting is for overheat to only happen in power level 5. However this can be adjused on the Neutrona Wand to enable overheating in any power mode.
+ * Default setting is for overheat to only happen in power level 5. However this can be adjused on the Neutrona Wand to enable overheating in any power level.
  * It is recommended not to go below 2000 milliseconds.
  */
 unsigned int i_ms_overheating_length_1 = 2000; // Time in milliseconds (2 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 1.
@@ -416,11 +418,6 @@ unsigned int i_ms_overheating_length_5 = 6000; // Time in milliseconds (6 second
  * Set to false to turn off the sound.
  */
 const bool b_diagnostic = false;
-
-/*
- * Set to true to have the Proton Pack play additional wand sounds such as beeps and idling sounds.
- */
-bool b_additional_wand_sounds = false;
 
 /*
  * Set to false to disable the Proton Pack Ribbon Alarm switch.

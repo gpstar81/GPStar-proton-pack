@@ -25,6 +25,8 @@ That's alright, this will help you study. Below you will find the various guides
 
 1. [Wand PCB](WAND_PCB.md)
 
+1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md)
+
 1. [Installation Video & Guide](INSTALL_GUIDE.md)
 
 1. [Loading The Audio Files](AUDIO.md)
@@ -56,8 +58,6 @@ These apply to the normal operation and usage of the equipment, as well as add-o
 1. [EEPROM Menus](OPERATION_EEPROM.md)
 
 1. [Advanced Configuration](ADVCONFIG.md)
-
-1. [Audio Output](SOUND.md)
 
 1. [Smoke Effects](SMOKE.md) (Optional add-ons)
 
@@ -92,14 +92,18 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Loading The Audio Files](AUDIO.md)
 
+1. [Audio Output](SOUND.md)
+
 1. [Pack Setup](PACK.md)
 
 1. [Wand Setup - DEPRECATED](WAND.md)
 
 1. [Hose Connections](HOSE.md)
 
-## Walkthrough Videos ##
+## Feature Reel Demonstration ##
+[![GPStar Proton Pack and Neutrona Wand feature reel demonstration](https://img.youtube.com/vi/ja9vD3nKxQY/maxresdefault.jpg)](https://www.youtube.com/watch?v=ja9vD3nKxQY)
 
+## Walkthrough Videos ##
 *"You know, it just occurred to me that we really haven't had a successful test of this equipment." -Ray Stantz*
 
 Except that we have! Here is a [Walkthrough Video Contributed by JustinDustin](https://www.youtube.com/watch?v=mnfljGd5-uU) (YouTube, March 2023) showcasing several of the stock features in a converted pack/wand combination. Several optional features were implemented as part of this build using the Arduino platform.
