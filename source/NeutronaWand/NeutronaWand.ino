@@ -3005,7 +3005,7 @@ void modeFireStop() {
   ms_hat_1.stop();
 
   // Stop overheat beeps.
-  stopEffect(S_BEEP_8);
+  stopOverHeatBeepWarnings();
 
   modeFireStopSounds();
 }
@@ -6566,8 +6566,19 @@ void cyclotronSpeedUp(uint8_t i_switch) {
       // Tell pack to start beeping before we overheat it.
       wandSerialSend(W_BEEP_START);
 
-      // Beep the wand 8 times.
-      playEffect(S_BEEP_8);
+      switch(SYSTEM_YEAR) {
+        case SYSTEM_AFTERLIFE:
+        case SYSTEM_FROZEN_EMPIRE:
+          playEffect(S_PACK_BEEPS_OVERHEAT);
+        break;
+
+        case SYSTEM_1984:
+        case SYSTEM_1989:
+        default:
+          // Play 8 overheat beeps before we overheat.
+          playEffect(S_BEEP_8);
+        break;
+      }
 
       ms_hat_1.start(i_hat_1_delay);
     }
@@ -6579,9 +6590,25 @@ void cyclotronSpeedUp(uint8_t i_switch) {
   }
 }
 
+void stopOverHeatBeepWarnings() {
+  // Stop overheat beeps.
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+      stopEffect(S_PACK_BEEPS_OVERHEAT);
+    break;
+
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+    default:
+      stopEffect(S_BEEP_8);
+    break;
+  }    
+}
+
 void cyclotronSpeedRevert() {
   // Stop overheat beeps.
-  stopEffect(S_BEEP_8);
+  stopOverHeatBeepWarnings();
 
   i_cyclotron_speed_up = 1;
 }
