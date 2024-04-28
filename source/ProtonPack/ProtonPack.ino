@@ -1241,7 +1241,7 @@ void resetRampSpeeds() {
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
     case SYSTEM_1989:
-      i_current_ramp_speed = i_1984_delay * 1.3;
+      i_current_ramp_speed = (unsigned int)(i_1984_delay * 1.3);
       i_inner_current_ramp_speed = i_inner_ramp_delay;
     break;
 
@@ -1818,7 +1818,7 @@ void cyclotronControl() {
       r_inner_ramp.go(i_inner_current_ramp_speed); // Reset the Inner Cyclotron ramp.
 
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        r_2021_ramp.go(i_1984_delay * 1.3, i_1984_ramp_down_length, CIRCULAR_IN);
+        r_2021_ramp.go((unsigned int)(i_1984_delay * 1.3), i_1984_ramp_down_length, CIRCULAR_IN);
 
         r_inner_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN);
       }
@@ -2192,7 +2192,12 @@ void cyclotron2021(int cDelay) {
                 ms_cyclotron.start(i_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed * 9);
+                if(i_current_ramp_speed * 9 > 1200) {
+                  ms_cyclotron.start(i_current_ramp_speed * 6);
+                }
+                else {
+                  ms_cyclotron.start(i_current_ramp_speed * 9);
+                }
               }
             break;
 
