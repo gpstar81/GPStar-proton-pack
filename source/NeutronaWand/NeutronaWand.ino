@@ -4164,31 +4164,7 @@ void fireStreamEffect(CRGB c_colour) {
 
           switch(FIRING_MODE) {
             case MESON:
-              switch(i_power_level) {
-                case 1:
-                  i_s_speed = 8;
-                break;
-
-                case 2:
-                  i_s_speed = 8;
-                break;
-
-                case 3:
-                  i_s_speed = 8;
-                break;
-
-                case 4:
-                  i_s_speed = 8;
-                break;
-
-                case 5:
-                  i_s_speed = 9;
-                break;
-
-                default:
-                  i_s_speed = 0;
-                break;
-              }
+              // Do nothing; animation is restarted by checkWandAction();
             break;
 
             default:
@@ -4220,7 +4196,9 @@ void fireStreamEffect(CRGB c_colour) {
             break;
           }
 
-          ms_firing_stream_effects.start(i_firing_stream - i_s_speed);
+          if(FIRING_MODE != MESON) {
+            ms_firing_stream_effects.start(i_firing_stream - i_s_speed);
+          }
         }
         else if(i_barrel_light < i_num_barrel_leds) {
           barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
@@ -4457,6 +4435,10 @@ void fireStreamEffect(CRGB c_colour) {
           i_barrel_light = 0;
 
           switch(FIRING_MODE) {
+            case MESON:
+              // Do nothing; animation is restarted by checkWandAction();
+            break;
+
             default:
               switch(i_power_level) {
                 case 1:

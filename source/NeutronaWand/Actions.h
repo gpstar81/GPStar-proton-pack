@@ -61,6 +61,7 @@ void checkWandAction() {
         if(FIRING_MODE == MESON) {
           if(ms_meson_blast.justFinished()) {
             playEffect(S_MESON_FIRE_PULSE);
+            ms_firing_stream_effects.start(0); // Start new barrel animation.
 
             switch(i_power_level) {
               case 5:
