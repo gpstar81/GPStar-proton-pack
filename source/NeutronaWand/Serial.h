@@ -412,7 +412,7 @@ void checkPack() {
 
           switch(wandConfig.defaultFiringMode) {
             case 3:
-              // Default: CTS Mix
+              // CTS Mix
               b_cross_the_streams_mix = true;
               b_cross_the_streams = true;
               b_vg_mode = false;
@@ -423,7 +423,7 @@ void checkPack() {
               PREV_FIRING_MODE = PROTON;
             break;
             case 2:
-              // Default: Cross the Streams
+              // Cross the Streams
               b_cross_the_streams_mix = false;
               b_cross_the_streams = true;
               b_vg_mode = false;
@@ -435,9 +435,7 @@ void checkPack() {
             break;
             default:
               // Default: Video Game
-              b_cross_the_streams_mix = false;
-              b_cross_the_streams = false;
-              b_vg_mode = true;
+              setVGMode();
             break;
           }
 
@@ -659,8 +657,7 @@ void checkPack() {
             case 1:
             default:
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = SETTINGS;
-              setVGMode();
+              PREV_FIRING_MODE = PROTON;
             break;
             case 2:
               FIRING_MODE = SLIME;
