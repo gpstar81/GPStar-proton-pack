@@ -191,7 +191,6 @@ String getWandConfig() {
     jsonBody["defaultFiringMode"] = wandConfig.defaultFiringMode; // [0=VG,1=CTS,2=SYSTEM]
     jsonBody["wandVibration"] = wandConfig.wandVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE]
     jsonBody["wandSoundsToPack"] = wandConfig.wandSoundsToPack; // true|false
-    jsonBody["amplifyWandSpeaker"] = wandConfig.amplifyWandSpeaker; // true|false
     jsonBody["quickVenting"] = wandConfig.quickVenting; // true|false (Super-Hero Mode Only)
     jsonBody["autoVentLight"] = wandConfig.autoVentLight; // true|false
     jsonBody["wandBeepLoop"] = wandConfig.wandBeepLoop; // true|false (Afterlife/Frozen Empire Only)
@@ -672,7 +671,6 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();
       wandConfig.wandVibration = jsonBody["wandVibration"].as<uint8_t>();
       wandConfig.wandSoundsToPack = jsonBody["wandSoundsToPack"].as<uint8_t>();
-      wandConfig.amplifyWandSpeaker = jsonBody["amplifyWandSpeaker"].as<uint8_t>();
       wandConfig.quickVenting = jsonBody["quickVenting"].as<uint8_t>();
       wandConfig.autoVentLight = jsonBody["autoVentLight"].as<uint8_t>();
       wandConfig.wandBeepLoop = jsonBody["wandBeepLoop"].as<uint8_t>();

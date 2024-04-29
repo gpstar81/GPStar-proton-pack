@@ -81,13 +81,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Amplify Wand Speaker:</b>
-      <label class="switch">
-        <input id="amplifyWandSpeaker" name="amplifyWandSpeaker" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
-    <div class="setting">
       <b class="labelSwitch">Auto Vent Light Brightness:</b>
       <label class="switch">
         <input id="autoVentLight" name="autoVentLight" type="checkbox">
@@ -300,7 +293,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             document.getElementById("defaultFiringMode").value = settings.defaultFiringMode || 1;
             document.getElementById("wandVibration").value = settings.wandVibration || 4;
             document.getElementById("wandSoundsToPack").checked = settings.wandSoundsToPack ? true: false;
-            document.getElementById("amplifyWandSpeaker").checked = settings.amplifyWandSpeaker ? true: false;
             document.getElementById("quickVenting").checked = settings.quickVenting ? true: false;
             document.getElementById("autoVentLight").checked = settings.autoVentLight ? true: false;
             document.getElementById("wandBeepLoop").checked = settings.wandBeepLoop ? true: false;
@@ -334,7 +326,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         defaultFiringMode: parseInt(document.getElementById("defaultFiringMode").value || 1, 10),
         wandVibration: parseInt(document.getElementById("wandVibration").value || 4, 10),
         wandSoundsToPack: document.getElementById("wandSoundsToPack").checked ? 1 : 0,
-        amplifyWandSpeaker: document.getElementById("amplifyWandSpeaker").checked ? 1 : 0,
         quickVenting: document.getElementById("quickVenting").checked ? 1 : 0,
         autoVentLight: document.getElementById("autoVentLight").checked ? 1 : 0,
         wandBeepLoop: document.getElementById("wandBeepLoop").checked ? 1 : 0,
