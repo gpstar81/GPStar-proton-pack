@@ -334,6 +334,11 @@ void checkPack() {
     // debug(F("PacketID: "));
     // debugln(i_packet_id);
 
+    // If there are messages from the pack, restart the sync failure timer.
+    if(WAND_CONN_STATE == PACK_CONNECTED) {
+      ms_sync_failure.restart();
+    }
+
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
@@ -345,6 +350,9 @@ void checkPack() {
             if(handlePackCommand(recvCmd.c, recvCmd.d1)) {
               // Begin timer for future keepalive handshakes from the wand.
               ms_handshake.start(i_heartbeat_delay);
+
+              // Start the pack sync loss timer.
+              ms_sync_failure.start(i_sync_failure_delay);
 
               // Turn off the sync indicator LED as the sync is completed.
               digitalWriteFast(led_white, HIGH);
@@ -412,7 +420,7 @@ void checkPack() {
 
           switch(wandConfig.defaultFiringMode) {
             case 3:
-              // Default: CTS Mix
+              // CTS Mix
               b_cross_the_streams_mix = true;
               b_cross_the_streams = true;
               b_vg_mode = false;
@@ -423,7 +431,7 @@ void checkPack() {
               PREV_FIRING_MODE = PROTON;
             break;
             case 2:
-              // Default: Cross the Streams
+              // Cross the Streams
               b_cross_the_streams_mix = false;
               b_cross_the_streams = true;
               b_vg_mode = false;
@@ -435,9 +443,7 @@ void checkPack() {
             break;
             default:
               // Default: Video Game
-              b_cross_the_streams_mix = false;
-              b_cross_the_streams = false;
-              b_vg_mode = true;
+              setVGMode();
             break;
           }
 
@@ -659,8 +665,7 @@ void checkPack() {
             case 1:
             default:
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = SETTINGS;
-              setVGMode();
+              PREV_FIRING_MODE = PROTON;
             break;
             case 2:
               FIRING_MODE = SLIME;

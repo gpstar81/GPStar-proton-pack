@@ -356,7 +356,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume != 255) {
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 100) {
       i_volume_master_percentage = obj_config_eeprom.default_system_volume;
       i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
       i_volume_revert = i_volume_master_eeprom;
@@ -612,8 +612,14 @@ void saveConfigEEPROM() {
     i_cyclotron_three_led_toggle = 2;
   }
 
-  if(i_volume_master_percentage > 0 && i_volume_master_percentage < 255) {
-    i_default_system_volume = i_volume_master_percentage;
+  if(i_volume_master_percentage <= 100) {
+    // Minimum volume in EEPROM is 1; maybe change later?
+    if(i_volume_master_percentage == 0) {
+      i_default_system_volume = 1;
+    }
+    else {
+      i_default_system_volume = i_volume_master_percentage;
+    }
   }
 
   if(b_smoke_continuous_level_5 == true) {

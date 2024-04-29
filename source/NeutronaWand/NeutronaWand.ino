@@ -238,6 +238,14 @@ void loop() {
         ms_handshake.restart(); // Restart the handshake timer.
       }
 
+      if(ms_sync_failure.justFinished()) {
+        // Haven't heard from pack at all, so treat the pack as disconnected.
+        ms_handshake.stop();
+        ms_sync_failure.stop();
+        ms_packsync.start(i_sync_initial_delay);
+        WAND_CONN_STATE = PACK_DISCONNECTED;
+      }
+
       updateAudio(); // Update the state of the selected sound board.
 
       checkPack(); // Get the latest communications from the connected Proton Pack.
@@ -712,10 +720,7 @@ void toggleWandModes() {
   // Enable or disable crossing the streams / crossing the streams mix / video game modes.
   if(b_cross_the_streams == true && b_cross_the_streams_mix == true) {
     // Turn off crossing the streams mix and switch back to video game mode.
-    b_cross_the_streams = false;
-    b_cross_the_streams_mix = false;
-
-    b_vg_mode = true;
+    setVGMode();
 
     playEffect(S_VOICE_VIDEO_GAME_MODES);
 
@@ -6569,12 +6574,12 @@ void cyclotronSpeedUp(uint8_t i_switch) {
       switch(getSystemYearMode()) {
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
+        default:
           playEffect(S_PACK_BEEPS_OVERHEAT);
         break;
 
         case SYSTEM_1984:
         case SYSTEM_1989:
-        default:
           // Play 8 overheat beeps before we overheat.
           playEffect(S_BEEP_8);
         break;
@@ -6595,12 +6600,12 @@ void stopOverHeatBeepWarnings() {
   switch(getSystemYearMode()) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
+    default:
       stopEffect(S_PACK_BEEPS_OVERHEAT);
     break;
 
     case SYSTEM_1984:
     case SYSTEM_1989:
-    default:
       stopEffect(S_BEEP_8);
     break;
   }    
