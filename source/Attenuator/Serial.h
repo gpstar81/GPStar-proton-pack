@@ -103,7 +103,6 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t defaultFiringMode;
   uint8_t wandVibration;
   uint8_t wandSoundsToPack;
-  uint8_t amplifyWandSpeaker;
   uint8_t quickVenting;
   uint8_t autoVentLight;
   uint8_t wandBeepLoop;
@@ -146,7 +145,6 @@ struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
   uint8_t systemYear;
-  uint8_t ribbonCable;
   uint8_t packOn;
   uint8_t powerLevel;
   uint8_t firingMode;
