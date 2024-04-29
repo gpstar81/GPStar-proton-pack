@@ -240,6 +240,7 @@ void loop() {
 
       if(ms_sync_failure.justFinished()) {
         // Haven't heard from pack at all, so treat the pack as disconnected.
+        playEffect(S_VOICE_NEUTRONA_WAND_SPEAKER_AMP_DISABLED);
         ms_handshake.stop();
         ms_sync_failure.stop();
         ms_packsync.start(i_sync_initial_delay);
