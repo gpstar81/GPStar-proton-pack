@@ -238,14 +238,6 @@ void loop() {
         ms_handshake.restart(); // Restart the handshake timer.
       }
 
-      if(ms_sync_failure.justFinished()) {
-        // Haven't heard from pack at all, so treat the pack as disconnected.
-        ms_handshake.stop();
-        ms_sync_failure.stop();
-        ms_packsync.start(i_sync_initial_delay);
-        WAND_CONN_STATE = PACK_DISCONNECTED;
-      }
-
       updateAudio(); // Update the state of the selected sound board.
 
       checkPack(); // Get the latest communications from the connected Proton Pack.

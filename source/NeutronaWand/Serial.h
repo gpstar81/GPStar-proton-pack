@@ -334,11 +334,6 @@ void checkPack() {
     // debug(F("PacketID: "));
     // debugln(i_packet_id);
 
-    // If there are messages from the pack, restart the sync failure timer.
-    if(WAND_CONN_STATE == PACK_CONNECTED) {
-      ms_sync_failure.restart();
-    }
-
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
@@ -350,9 +345,6 @@ void checkPack() {
             if(handlePackCommand(recvCmd.c, recvCmd.d1)) {
               // Begin timer for future keepalive handshakes from the wand.
               ms_handshake.start(i_heartbeat_delay);
-
-              // Start the pack sync loss timer.
-              ms_sync_failure.start(i_sync_failure_delay);
 
               // Turn off the sync indicator LED as the sync is completed.
               digitalWriteFast(led_white, HIGH);
