@@ -170,7 +170,7 @@ void gpstarAudio::update(void) {
           numVoices = rxMessage[1];
           numTracks = rxMessage[3];
           numTracks = (numTracks << 8) + rxMessage[2];
-          sysinfoRcvd = true;
+          //sysinfoRcvd = true;
         break;
 
         case RSP_GPSTAR_HELLO:

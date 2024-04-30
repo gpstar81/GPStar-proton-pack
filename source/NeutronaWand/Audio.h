@@ -729,7 +729,7 @@ bool setupAudioDevice() {
   // Reset the sample rate offset. Only for the WAV Trigger.
   audio.samplerateOffset(0);
 
-  audio.masterGain(0);
+  audio.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
 
   // Onboard amplifier on or off. Only for the WAV Trigger.
   audio.setAmpPwr(b_onboard_amp_enabled);
