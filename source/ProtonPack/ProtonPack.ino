@@ -194,7 +194,25 @@ void setup() {
   // Then the EEPROM reads any settings if required, then we reset the volume.
   resetMasterVolume();
 
-  playEffect(S_POWER_ON);
+  if(b_demo_light_mode != true) {
+    playEffect(S_POWER_ON);
+
+    for(int i = 0; i < i_powercell_leds; i++) {
+      pack_leds[i] = getHueAsRGB(POWERCELL, C_MID_BLUE);
+
+      FastLED.show();
+
+      delay(30);
+    }
+
+    for(int i = 0; i < i_powercell_leds; i++) {
+      pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
+      
+      FastLED.show();
+
+      delay(30);
+    }
+  }
 }
 
 void loop() {
