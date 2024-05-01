@@ -477,8 +477,6 @@ void clearLEDEEPROM() {
   }
 
   updateCRCEEPROM();
-
-  updateProtonPackLEDCounts();
 }
 
 void saveLEDEEPROM() {
