@@ -269,9 +269,9 @@ void loop() {
           spectralLightsOn();
         }
         else {
+          cyclotronControl();
           cyclotronSwitchLEDLoop();
           powercellLoop();
-          cyclotronControl();
         }
       }
       else {
@@ -506,11 +506,13 @@ void loop() {
         }
       }
 
-      cyclotronSwitchLEDLoop();
 
       if(b_venting == true) {
         packVenting();
       }
+
+      cyclotronControl();
+      cyclotronSwitchLEDLoop();
 
       if(b_overheating == true && b_overheat_lights_off == true) {
         powercellRampDown();
@@ -518,8 +520,6 @@ void loop() {
       else {
         powercellLoop();
       }
-
-      cyclotronControl();
     break;
   }
 
