@@ -517,7 +517,6 @@ void checkSerial1() {
               // Just set this enum, as others will be set according to the toggle.
               SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
               b_switch_mode_override = false; // Mode to be determined by toggle switch.
-              setYearModeByToggle(); // Use the toggle to update to the correct year mode.
             break;
             case 2:
               SYSTEM_YEAR = SYSTEM_1984;
@@ -3529,6 +3528,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       switch(i_powercell_leds) {
           case HASLAB_POWERCELL_LED_COUNT:
+          default:
           // Switch to 15 Power Cell LEDs.
           i_powercell_leds = FRUTTO_POWERCELL_LED_COUNT;
           i_powercell_delay_1984 = 60;
@@ -3539,7 +3539,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case FRUTTO_POWERCELL_LED_COUNT:
-          default:
           // Switch to 13 Power Cell LEDs.
           i_powercell_leds = HASLAB_POWERCELL_LED_COUNT;
           i_powercell_delay_1984 = 75;

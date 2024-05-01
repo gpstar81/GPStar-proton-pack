@@ -199,7 +199,7 @@ void loop() {
   updateAudio();
 
   // Voltage Check
-  if(ms_battcheck.remaining() < 1) {
+  if(ms_battcheck.justFinished()) {
     doVoltageCheck(); // Obtains the latest value and pushes the data to serial1, if available.
     ms_battcheck.start(i_ms_battcheck_delay);
   }
@@ -258,6 +258,8 @@ void loop() {
         // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
         packSerialSend(P_OFF);
         serial1Send(A_PACK_OFF);
+
+        b_pack_on = false;
       }
 
       if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
@@ -267,9 +269,9 @@ void loop() {
           spectralLightsOn();
         }
         else {
+          cyclotronControl();
           cyclotronSwitchLEDLoop();
           powercellLoop();
-          cyclotronControl();
         }
       }
       else {
@@ -289,8 +291,6 @@ void loop() {
           }
         }
       }
-
-      b_pack_on = false;
     break;
 
     case MODE_ON:
@@ -506,11 +506,13 @@ void loop() {
         }
       }
 
-      cyclotronSwitchLEDLoop();
 
       if(b_venting == true) {
         packVenting();
       }
+
+      cyclotronControl();
+      cyclotronSwitchLEDLoop();
 
       if(b_overheating == true && b_overheat_lights_off == true) {
         powercellRampDown();
@@ -518,10 +520,8 @@ void loop() {
       else {
         powercellLoop();
       }
-
-      cyclotronControl();
     break;
-   }
+  }
 
   switch(PACK_ACTION_STATE) {
     case ACTION_IDLE:
@@ -890,13 +890,13 @@ void packOffReset() {
   b_venting = false;
   b_2021_ramp_down = false;
   b_2021_ramp_down_start = false;
-  b_reset_start_led = true; // reset the start LED of the Cyclotron.
   b_inner_ramp_down = false;
+  b_reset_start_led = true; // Reset the start LED of the Cyclotron.
 
   resetCyclotronState();
   reset2021RampUp();
 
-  // Update Cyclotron LED timer delay and optional Cyclotron LED switch plate LED timer delays.
+  // Update Power Cell LED timer delay and optional Cyclotron LED switch plate LED timer delays.
   switch(SYSTEM_YEAR) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
@@ -949,7 +949,7 @@ void setYearModeByToggle() {
   // We have 4 year modes but only 2 toggle states, so these get grouped by their Haslab defaults.
   if(switch_mode.getState() == LOW) {
     if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-      // When currently in Afterlife/FrozenEmpire we switch to 1984.
+      // When currently in Afterlife/Frozen Empire we switch to 1984.
       SYSTEM_YEAR = SYSTEM_1984;
       SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
@@ -957,7 +957,11 @@ void setYearModeByToggle() {
       packSerialSend(P_YEAR_1984);
       serial1Send(A_YEAR_1984);
 
+      // Play audio cue confirming the change.
+      playEffect(S_VOICE_1984);
+
       // Reset the pack variables to match the new year mode.
+      resetRampSpeeds();
       packOffReset();
     }
   }
@@ -971,7 +975,11 @@ void setYearModeByToggle() {
       packSerialSend(P_YEAR_AFTERLIFE);
       serial1Send(A_YEAR_AFTERLIFE);
 
+      // Play audio cue confirming the change.
+      playEffect(S_VOICE_AFTERLIFE);
+
       // Reset the pack variables to match the new year mode.
+      resetRampSpeeds();
       packOffReset();
     }
   }
@@ -1055,40 +1063,36 @@ void checkSwitches() {
 
   // Vibration toggle switch.
   if(switch_vibration.isPressed() || switch_vibration.isReleased()) {
-      stopEffect(S_BEEPS_ALT);
+    if(switch_vibration.getState() == LOW) {
+      if(b_vibration_enabled == false) {
+        // Tell the wand to enable vibration.
+        packSerialSend(P_VIBRATION_ENABLED);
 
-      playEffect(S_BEEPS_ALT);
+        b_vibration_enabled = true;
 
-      if(switch_vibration.getState() == LOW) {
-        if(b_vibration_enabled == false) {
-          // Tell the wand to enable vibration.
-          packSerialSend(P_VIBRATION_ENABLED);
+        stopEffect(S_VOICE_VIBRATION_ENABLED);
+        stopEffect(S_VOICE_VIBRATION_DISABLED);
 
-          b_vibration_enabled = true;
-
-          stopEffect(S_VOICE_VIBRATION_ENABLED);
-          stopEffect(S_VOICE_VIBRATION_DISABLED);
-
-          playEffect(S_VOICE_VIBRATION_ENABLED);
-       }
+        playEffect(S_VOICE_VIBRATION_ENABLED);
       }
-      else {
-        if(b_vibration_enabled == true) {
-          // Tell the wand to disable vibration.
-          packSerialSend(P_VIBRATION_DISABLED);
+    }
+    else {
+      if(b_vibration_enabled == true) {
+        // Tell the wand to disable vibration.
+        packSerialSend(P_VIBRATION_DISABLED);
 
-          b_vibration_enabled = false;
+        b_vibration_enabled = false;
 
-          stopEffect(S_VOICE_VIBRATION_DISABLED);
-          stopEffect(S_VOICE_VIBRATION_ENABLED);
+        stopEffect(S_VOICE_VIBRATION_DISABLED);
+        stopEffect(S_VOICE_VIBRATION_ENABLED);
 
-          playEffect(S_VOICE_VIBRATION_DISABLED);
-        }
+        playEffect(S_VOICE_VIBRATION_DISABLED);
       }
+    }
   }
 
-  // Play a sound when the year mode switch is pressed or released.
   if(switch_mode.isPressed() || switch_mode.isReleased()) {
+    // Play a beep confirmation when the switch is flipped.
     stopEffect(S_BEEPS_BARGRAPH);
     playEffect(S_BEEPS_BARGRAPH);
 
@@ -1132,17 +1136,6 @@ void checkSwitches() {
             // Turn the pack on.
             PACK_ACTION_STATE = ACTION_ACTIVATE;
           }
-
-          // @TODO: Is this necessary here, or can we send this from a better point in the logic?
-
-          // The "Red Switch" is not applicable to Super Hero mode, so default to OFF.
-          // if(b_wand_connected) {
-          //   packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-          // }
-
-          // if(b_serial1_connected) {
-          //   serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
-          // }
         break;
       }
 
@@ -1205,11 +1198,9 @@ void checkSwitches() {
             break;
           }
 
+          resetRampSpeeds();
           packOffReset();
         }
-
-        // Reset the cyclotron ramp speeds.
-        resetRampSpeeds();
       }
     break;
 
@@ -1445,9 +1436,6 @@ void cyclotronSwitchLEDLoop() {
 
 void powercellRampDown() {
   if(ms_powercell.justFinished()) {
-    int i_extra_delay = 0;
-
-    // Power Cell
     if(i_powercell_led < 0) {
       // Do Nothing.
     }
@@ -1458,7 +1446,7 @@ void powercellRampDown() {
     }
 
     // Setup the delays again.
-    int i_pc_delay = i_powercell_delay;
+    unsigned int i_pc_delay = i_powercell_delay;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
@@ -1487,13 +1475,13 @@ void powercellRampDown() {
       i_pc_delay = i_powercell_delay * 3;
     }
 
-    ms_powercell.start(i_pc_delay + i_extra_delay);
+    ms_powercell.start(i_pc_delay);
   }
 }
 
 void powercellLoop() {
   if(ms_powercell.justFinished()) {
-    int i_extra_delay = 0;
+    unsigned int i_extra_delay = 0;
 
     // Power Cell
     if(i_powercell_led >= i_powercell_leds) {
@@ -1514,7 +1502,7 @@ void powercellLoop() {
         powercellDraw(i_powercell_led); // Update starting at a specific LED.
 
         // Add a small delay to pause the Power Cell when all Power Cell LEDs are lit up, to match Afterlife and Frozen Empire.
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && b_alarm != true && i_powercell_led == i_cyclotron_led_start - 1) {
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && b_alarm != true && i_powercell_led == i_powercell_leds - 1) {
           i_extra_delay = 350;
         }
 
@@ -1528,7 +1516,7 @@ void powercellLoop() {
     }
 
     // Setup the delays again.
-    int i_pc_delay = i_powercell_delay;
+    unsigned int i_pc_delay = i_powercell_delay;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
@@ -1624,13 +1612,13 @@ void powercellLoop() {
 }
 
 void powercellOn() {
-  i_powercell_led = i_cyclotron_led_start - 1;
+  i_powercell_led = i_powercell_leds - 1;
 
   powercellDraw();
 }
 
 void powercellOff() {
-  for(int i = 0; i <= i_cyclotron_led_start - 1; i++) {
+  for(int i = 0; i < i_powercell_leds; i++) {
     pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
   }
 
@@ -1658,7 +1646,7 @@ void spectralLightsOn() {
   b_spectral_lights_on = true;
 
   uint8_t i_colour_scheme = getDeviceColour(POWERCELL, SPECTRAL_CUSTOM, true);
-  for(int i = 0; i <= i_cyclotron_led_start - 1; i++) {
+  for(int i = 0; i < i_powercell_leds; i++) {
     pack_leds[i] = getHueAsRGB(POWERCELL, i_colour_scheme);
   }
 
