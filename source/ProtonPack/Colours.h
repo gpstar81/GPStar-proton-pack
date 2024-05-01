@@ -94,27 +94,19 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
         break;
 
         case SLIME:
-          if(SYSTEM_YEAR == SYSTEM_1989) {
-            switch(i_device) {
-              case POWERCELL:
-              case CYCLOTRON_OUTER:
-              case CYCLOTRON_INNER:
-              case VENT_LIGHT:
-              default:
+          switch(i_device) {
+            case POWERCELL:
+            case CYCLOTRON_OUTER:
+            case CYCLOTRON_INNER:
+            case VENT_LIGHT:
+            default:
+              if(SYSTEM_YEAR == SYSTEM_1989) {
                 return C_PINK;
-              break;
-            }
-          }
-          else {
-            switch(i_device) {
-              case POWERCELL:
-              case CYCLOTRON_OUTER:
-              case CYCLOTRON_INNER:
-              case VENT_LIGHT:
-              default:
+              }
+              else {
                 return C_GREEN;
-              break;
-            }
+              }
+            break;
           }
         break;
 
