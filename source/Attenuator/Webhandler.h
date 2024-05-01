@@ -310,15 +310,15 @@ String getWifiSettings() {
   jsonBody["network"] = preferences.getString("ssid");
   jsonBody["password"] = preferences.getString("password");
   jsonBody["address"] = preferences.getString("address");
-  if(jsonBody["address"] == ""){
+  if(jsonBody["address"] == "") {
     jsonBody["address"] = wifi_address;
   }
   jsonBody["subnet"] = preferences.getString("subnet");
-  if(jsonBody["subnet"] == ""){
+  if(jsonBody["subnet"] == "") {
     jsonBody["subnet"] = wifi_subnet;
   }
   jsonBody["gateway"] = preferences.getString("gateway");
-  if(jsonBody["gateway"] == ""){
+  if(jsonBody["gateway"] == "") {
     jsonBody["gateway"] = wifi_gateway;
   }
   preferences.end();
@@ -353,7 +353,7 @@ void handleGetStatus(AsyncWebServerRequest *request) {
   request->send(200, "application/json", getEquipmentStatus());
 }
 
-void handleGetWifi(AsyncWebServerRequest *request){
+void handleGetWifi(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
   request->send(200, "application/json", getWifiSettings());
 }

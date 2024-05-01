@@ -30,6 +30,7 @@ enum colours {
   C_BLACK,
   C_WHITE,
   C_PINK,
+  C_PASTELPINK,
   C_RED,
   C_RED2,
   C_RED3,
@@ -91,6 +92,10 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
     case C_PINK:
       return CHSV(244, i_saturation, i_brightness);
+    break;
+
+    case C_PASTELPINK:
+      return CHSV(244, 128, i_brightness);
     break;
 
     case C_RED:
