@@ -197,8 +197,26 @@ void setup() {
   if(b_demo_light_mode != true) {
     playEffect(S_POWER_ON);
 
+    uint8_t i_tmp_led1 = i_cyclotron_led_start + i_1984_cyclotron_leds[0];
+    uint8_t i_tmp_led2 = i_cyclotron_led_start + i_1984_cyclotron_leds[1];
+    uint8_t i_tmp_led3 = i_cyclotron_led_start + i_1984_cyclotron_leds[2];
+    uint8_t i_tmp_led4 = i_cyclotron_led_start + i_1984_cyclotron_leds[3];
+
     for(int i = 0; i < i_powercell_leds; i++) {
       pack_leds[i] = getHueAsRGB(POWERCELL, C_MID_BLUE);
+
+      if((i % 5) == 0) { 
+        pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+        pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+        pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+        pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      }
+      else {
+        pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+        pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+        pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+        pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      }
 
       FastLED.show();
 
@@ -208,10 +226,30 @@ void setup() {
     for(int i = 0; i < i_powercell_leds; i++) {
       pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
       
+      if((i % 5) == 0) { 
+        pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+        pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+        pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+        pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      }
+      else {
+        pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+        pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+        pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+        pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      }
+
       FastLED.show();
 
       delay(30);
     }
+
+    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+
+    FastLED.show();
   }
 }
 
