@@ -398,10 +398,11 @@ enum sound_fx {
   S_AFTERLIFE_WAND_RAMP_DOWN_2_ALT,
   S_AFTERLIFE_WAND_RAMP_2_FADE_IN_ALT,
   S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT_ALT,
-  S_BOSON_DART_FIRE
+  S_BOSON_DART_FIRE,
+  S_POWER_ON
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_BOSON_DART_FIRE;
+const unsigned int i_last_effects_track = S_POWER_ON;
