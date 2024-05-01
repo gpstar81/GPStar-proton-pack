@@ -506,7 +506,6 @@ void loop() {
         }
       }
 
-
       if(b_venting == true) {
         packVenting();
       }
@@ -1397,7 +1396,7 @@ void cyclotronSwitchLEDLoop() {
     }
     else {
       // No need to have the Inner Cyclotron switch plate LEDs on when the lid is on.
-     cyclotronSwitchLEDOff();
+      cyclotronSwitchLEDOff();
     }
 
     // Setup the delays again.
@@ -3512,7 +3511,7 @@ void resetCyclotronState() {
   }
 
   // Keep the fade control fading out a light that is not on during startup.
-  if(PACK_STATE == MODE_OFF){
+  if(PACK_STATE == MODE_OFF) {
     if(b_1984_led_start != true) {
       b_1984_led_start = true;
     }
@@ -3568,7 +3567,7 @@ void innerCyclotronCavityUpdate(int cDelay) {
     i_led_cyclotron_cavity = i_start;
   }
 
-  if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE || FIRING_MODE != PROTON){
+  if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE || FIRING_MODE != PROTON) {
     // This produces the "sparking" effect as seen in GB:FE only for the Proton stream,
     // so the effect is essentially disabled for all other themes and firing modes.
     i_colour_scheme = C_BLACK;
@@ -3717,7 +3716,7 @@ void innerCyclotronRingUpdate(int cDelay) {
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, FIRING_MODE, b_cyclotron_colour_toggle);
 
-    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && FIRING_MODE == PROTON){
+    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && FIRING_MODE == PROTON) {
       // As a "sparking" effect is predominant in GB:FE during the Proton stream,
       // the inner LED color/brightness is altered for this mode.
       i_brightness = getBrightness(i_cyclotron_inner_brightness / 2);

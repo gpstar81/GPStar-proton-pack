@@ -684,7 +684,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         serial1Send(A_PACK_CONNECTED);
 
         // Tell the serial1 device whether a wand is connected.
-        if(b_wand_connected){
+        if(b_wand_connected) {
           serial1Send(A_WAND_CONNECTED);
         }
         else {
@@ -2203,7 +2203,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(i_wand_power_level != i_wand_power_level_max) {
         playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
       }
-      else if (i_wand_power_level == i_wand_power_level_max) {
+      else if(i_wand_power_level == i_wand_power_level_max) {
         playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
       }
 
@@ -2230,7 +2230,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(i_wand_power_level != i_wand_power_level_max) {
         playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
       }
-      else if (i_wand_power_level == i_wand_power_level_max) {
+      else if(i_wand_power_level == i_wand_power_level_max) {
         playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
       }
 
@@ -3527,8 +3527,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_POWERCELL_13);
 
       switch(i_powercell_leds) {
-          case HASLAB_POWERCELL_LED_COUNT:
-          default:
+        case HASLAB_POWERCELL_LED_COUNT:
+        default:
           // Switch to 15 Power Cell LEDs.
           i_powercell_leds = FRUTTO_POWERCELL_LED_COUNT;
           i_powercell_delay_1984 = 60;
