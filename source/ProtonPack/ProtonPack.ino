@@ -193,6 +193,8 @@ void setup() {
   // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
   // Then the EEPROM reads any settings if required, then we reset the volume.
   resetMasterVolume();
+
+  playEffect(S_POWER_ON);
 }
 
 void loop() {
