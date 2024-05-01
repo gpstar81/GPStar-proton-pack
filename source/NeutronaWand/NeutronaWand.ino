@@ -8439,7 +8439,20 @@ void checkRotaryEncoder() {
       break;
 
       default:
-        if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+        if(((WAND_STATUS == MODE_ON && SYSTEM_MODE != MODE_ORIGINAL) || (WAND_STATUS == MODE_OFF && SYSTEM_MODE == MODE_ORIGINAL))  && switch_intensify.on() == true && switch_vent.on() != true && switch_wand.on() != true) {
+            // Counter clockwise.
+            if(prev_next_code == 0x0b) {
+              // Decrease the master system volume of both the Proton Pack and Neutrona Wand.
+              decreaseVolume();
+              wandSerialSend(W_VOLUME_DECREASE);
+            }
+            else if(prev_next_code == 0x07) {
+              // Increase the master system volume of both the Proton Pack and Neutrona Wand.
+              increaseVolume();
+              wandSerialSend(W_VOLUME_INCREASE);
+            }
+        }
+        else if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
           if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
             // Do nothing, we are locked in full power level while firing.
           }
