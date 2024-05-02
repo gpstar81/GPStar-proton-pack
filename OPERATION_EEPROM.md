@@ -124,10 +124,10 @@ Adjust the vent smoke duration during overheat events and overheat start delay f
 
 | Option | Purpose | `Intensify Button + Top Dial` | `Barrel Wing Button + Top Dial` |
 |:------:|---------|------------------|--------------------|
-| 5 | Power&nbsp;Level&nbsp;5 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 6 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 12 seconds` |
-| 4 | Power&nbsp;Level&nbsp;4 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 5 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 15 seconds` |
-| 3 | Power&nbsp;Level&nbsp;3 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 4 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 20 seconds` |
-| 2 | Power&nbsp;Level&nbsp;2 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 3 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 30 seconds` |
+| 5 | Power&nbsp;Level&nbsp;5 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 6 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 30 seconds` |
+| 4 | Power&nbsp;Level&nbsp;4 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 5 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 35 seconds` |
+| 3 | Power&nbsp;Level&nbsp;3 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 4 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 40 seconds` |
+| 2 | Power&nbsp;Level&nbsp;2 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 3 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 50 seconds` |
 | 1 | Power&nbsp;Level&nbsp;1 | Smoke vent duration during overheat<br/>`Range: 2 to 60 seconds` `Default: 2 seconds` | Overheat start delay<br/>`Range: 2 to 60 seconds` `Default: 60 seconds` |
 
 <div class="page-break"></div>

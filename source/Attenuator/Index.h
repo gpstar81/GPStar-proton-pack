@@ -357,7 +357,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 204) {
             // Reload the page after 2 seconds.
-            setTimeout(function(){
+            setTimeout(function() {
               window.location.reload();
             }, 2000);
           }

@@ -36,7 +36,6 @@ enum colours {
   C_RED4,
   C_RED5,
   C_ORANGE,
-  C_BEIGE,
   C_YELLOW,
   C_CHARTREUSE,
   C_GREEN,
@@ -101,7 +100,12 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case CYCLOTRON_INNER:
             case VENT_LIGHT:
             default:
-              return C_GREEN;
+              if(SYSTEM_YEAR == SYSTEM_1989) {
+                return C_PINK;
+              }
+              else {
+                return C_GREEN;
+              }
             break;
           }
         break;
@@ -255,7 +259,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
   // Value must be >0 as this is used with modulo (cannot mod by 0).
   uint8_t i_cycle = 2;
 
-  switch(i_device){
+  switch(i_device) {
     case CYCLOTRON_OUTER:
       i_cycle = 10;
     break;
@@ -314,10 +318,6 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
     case C_ORANGE:
       return CHSV(32, i_saturation, i_brightness);
-    break;
-
-    case C_BEIGE:
-      return CHSV(43, 128, i_brightness);
     break;
 
     case C_YELLOW:

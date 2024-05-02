@@ -548,7 +548,7 @@ void setupRouting() {
   httpServer.addHandler(wifiChangeHandler); // /wifi/update
 }
 
-void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len){
+void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
   switch(type) {
     case WS_EVT_CONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)

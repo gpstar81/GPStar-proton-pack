@@ -168,7 +168,7 @@ void setup() {
 
 void loop() {
   // Call this on each loop in case the user changed their preference.
-  if(b_invert_leds){
+  if(b_invert_leds) {
     // Flip the identification of the LEDs.
     i_device_led[0] = 2; // Top
     i_device_led[1] = 1; // Upper
@@ -288,7 +288,7 @@ void mainLoop() {
     }
   }
   else {
-    if(switch_left.getState() == HIGH && !b_wait_for_pack){
+    if(switch_left.getState() == HIGH && !b_wait_for_pack) {
       bargraphOff(); // Clear all bargraph elements and turn off the device.
     }
   }
