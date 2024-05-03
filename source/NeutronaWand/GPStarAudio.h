@@ -148,6 +148,7 @@ public:
   void gpstarLEDStatus(bool status);
   void gpstarShortTrackOverload(bool status);
   void gpstarTrackForce(bool status);
+  bool wasSysInfoRcvd(void);
   bool gpstarAudioHello(void);
 
 private:
@@ -167,7 +168,8 @@ private:
   uint8_t rxLen;
   bool rxMsgReady;
   bool versionRcvd;
-  bool sysinfoRcvd;
+  bool sysInfoRcvd;
+  bool gpsInfoRcvd;
   int currentMusicTrack;
   bool currentMusicStatus;
   bool trackCounter;
