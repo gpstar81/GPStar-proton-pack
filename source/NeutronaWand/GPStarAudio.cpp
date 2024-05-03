@@ -27,7 +27,8 @@ void gpstarAudio::start(void) {
   uint8_t txbuf[5];
 
   versionRcvd = false;
-  sysinfoRcvd = false;
+  sysInfoRcvd = false;
+  gpsInfoRcvd = false;
   GPStarSerial.begin(57600);
   flush();
 
@@ -79,7 +80,7 @@ void gpstarAudio::update(void) {
     if((rxCount == 0) && (dat == SOM1)) {
       rxCount++;
     }
-    else if (rxCount == 1) {
+    else if(rxCount == 1) {
       if(dat == SOM2) {
         rxCount++;
       }
@@ -87,11 +88,11 @@ void gpstarAudio::update(void) {
         rxCount = 0; // Bad serial data.
       }
     }
-    else if (rxCount == 2) {
+    else if(rxCount == 2) {
       if(dat == SOM1 || dat == SOM2 || dat == EOM) {
         rxCount = 0; // Bad serial data.
       }
-      else if (dat <= MAX_MESSAGE_LEN) {
+      else if(dat <= MAX_MESSAGE_LEN) {
         rxCount++;
         rxLen = dat - 1;
       }
@@ -99,7 +100,7 @@ void gpstarAudio::update(void) {
         rxCount = 0; // Bad serial data.
       }
     }
-    else if ((rxCount > 2) && (rxCount < rxLen)) {
+    else if((rxCount > 2) && (rxCount < rxLen)) {
       if(dat == SOM1 || dat == SOM2 || dat == EOM) {
         rxCount = 0; // Bad serial data.
       }
@@ -144,9 +145,9 @@ void gpstarAudio::update(void) {
           track = rxMessage[2];
           track = (track << 8) + rxMessage[1] + 1;
           voice = rxMessage[3];
-          if (voice < MAX_NUM_VOICES) {
-            if (rxMessage[4] == 0) {
-              if (track == voiceTable[voice])
+          if(voice < MAX_NUM_VOICES) {
+            if(rxMessage[4] == 0) {
+              if(track == voiceTable[voice])
                 voiceTable[voice] = 0xffff;
             }
             else
@@ -168,7 +169,7 @@ void gpstarAudio::update(void) {
           numVoices = rxMessage[1];
           numTracks = rxMessage[3];
           numTracks = (numTracks << 8) + rxMessage[2];
-          //sysinfoRcvd = true;
+          sysInfoRcvd = true;
         break;
 
         case RSP_GPSTAR_HELLO:
@@ -176,7 +177,7 @@ void gpstarAudio::update(void) {
           numVoices = rxMessage[1];
           numTracks = rxMessage[3];
           numTracks = (numTracks << 8) + rxMessage[2];
-          sysinfoRcvd = true;
+          gpsInfoRcvd = true;
         break;
       }
 
@@ -509,8 +510,14 @@ void gpstarAudio::hello(void) {
   GPStarSerial.write(txbuf, 5);
 }
 
+bool gpstarAudio::wasSysInfoRcvd(void) {
+  update();
+
+  return sysInfoRcvd;
+}
+
 bool gpstarAudio::gpstarAudioHello(void) {
   update();
 
-  return sysinfoRcvd;
+  return gpsInfoRcvd;
 }

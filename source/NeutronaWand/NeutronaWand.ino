@@ -3002,7 +3002,7 @@ void modeFireStop() {
   ms_hat_1.stop();
 
   // Stop overheat beeps.
-  stopOverHeatBeepWarnings();
+  stopOverheatBeepWarnings();
 
   modeFireStopSounds();
 }
@@ -3184,7 +3184,7 @@ void modeFiring() {
         playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
         b_sound_firing_cross_the_streams_mix = true;
       }
-      else if (i_power_level == i_power_level_max && b_sound_firing_cross_the_streams_mix != true) {
+      else if(i_power_level == i_power_level_max && b_sound_firing_cross_the_streams_mix != true) {
         playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
         b_sound_firing_cross_the_streams_mix = true;
       }
@@ -6640,7 +6640,7 @@ void cyclotronSpeedUp(uint8_t i_switch) {
   }
 }
 
-void stopOverHeatBeepWarnings() {
+void stopOverheatBeepWarnings() {
   // Stop overheat beeps.
   switch(getSystemYearMode()) {
     case SYSTEM_AFTERLIFE:
@@ -6653,12 +6653,12 @@ void stopOverHeatBeepWarnings() {
     case SYSTEM_1989:
       stopEffect(S_BEEP_8);
     break;
-  }    
+  }
 }
 
 void cyclotronSpeedRevert() {
   // Stop overheat beeps.
-  stopOverHeatBeepWarnings();
+  stopOverheatBeepWarnings();
 
   i_cyclotron_speed_up = 1;
 }
@@ -8552,8 +8552,8 @@ void checkRotaryEncoder() {
                 case SYSTEM_AFTERLIFE:
                 case SYSTEM_FROZEN_EMPIRE:
                 default:
-                    soundIdleLoopStop(false);
-                    soundIdleLoop(false);
+                  soundIdleLoopStop(false);
+                  soundIdleLoop(false);
                 break;
               }
 
@@ -8618,8 +8618,8 @@ void checkRotaryEncoder() {
                   case SYSTEM_AFTERLIFE:
                   case SYSTEM_FROZEN_EMPIRE:
                   default:
-                      soundIdleLoopStop(false);
-                      soundIdleLoop(false);
+                    soundIdleLoopStop(false);
+                    soundIdleLoop(false);
                   break;
                 }
 
