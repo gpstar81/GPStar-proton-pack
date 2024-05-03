@@ -1087,6 +1087,7 @@ void checkWandAction() {
               if(b_gpstar_benchtest == true) {
                 if(SYSTEM_MODE == MODE_SUPER_HERO) {
                   SYSTEM_MODE = MODE_ORIGINAL;
+                  vgModeCheck(); // Assert CTS mode.
 
                   stopEffect(S_VOICE_MODE_ORIGINAL);
                   stopEffect(S_VOICE_MODE_SUPER_HERO);
@@ -1237,7 +1238,7 @@ void checkWandAction() {
 
       switch(i_wand_menu) {
         // Menu Level 1: (Intensify) -> Music track loop setting.
-        // Menu Level 1: (Barrel Wing Button) -> Exit menu. <--handled by altWingButtonCheck() if wand is on, or wandExitMenu() is wand is off
+        // Menu Level 1: (Barrel Wing Button) -> Exit menu. <--handled by altWingButtonCheck() if wand is on, or mainLoop() if wand is off
         // Menu Level 2: (Intensify) -> Enable or disable crossing the streams / video game modes.
         // Menu Level 2: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
         case 5:

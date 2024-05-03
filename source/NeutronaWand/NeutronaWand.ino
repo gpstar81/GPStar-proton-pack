@@ -162,7 +162,7 @@ void setup() {
 
   // We bootup the wand in the classic proton mode.
   FIRING_MODE = PROTON;
-  PREV_FIRING_MODE = SETTINGS;
+  PREV_FIRING_MODE = PROTON;
 
   // Select a random GB1/GB2 white LED blink rate for this session.
   i_classic_blink_index = random(0,5);
@@ -301,7 +301,7 @@ void mainLoop() {
   switch(WAND_STATUS) {
     case MODE_OFF:
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
-        if(FIRING_MODE != SETTINGS && b_gpstar_benchtest == true && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.doubleClick()) {
+        if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_gpstar_benchtest == true && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.doubleClick()) {
           // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
           if(b_pack_ion_arm_switch_on == true) {
             b_pack_ion_arm_switch_on = false;
@@ -312,11 +312,8 @@ void mainLoop() {
         }
 
         if(switch_mode.pushed() || b_pack_alarm == true) {
-          if(FIRING_MODE != SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
+          if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
             playEffect(S_CLICK);
-
-            PREV_FIRING_MODE = FIRING_MODE;
-            FIRING_MODE = SETTINGS;
 
             WAND_ACTION_STATUS = ACTION_SETTINGS;
             WAND_MENU_LEVEL = MENU_LEVEL_1;
@@ -335,7 +332,7 @@ void mainLoop() {
           }
           else {
             // Only exit the settings menu when on menu #5 in the top menu or the pack ribbon cable alarm is active.
-            if(i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_1 && FIRING_MODE == SETTINGS) {
+            if(i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_1 && WAND_ACTION_STATUS == ACTION_SETTINGS) {
               wandExitMenu();
             }
           }
@@ -619,19 +616,23 @@ void mainLoop() {
 
 // Sets the Neutrona Wand to video game mode.
 void setVGMode() {
+  SYSTEM_MODE = MODE_SUPER_HERO;
   b_cross_the_streams = false;
   b_cross_the_streams_mix = false;
-
-  b_vg_mode = true;
 }
 
 // Checks if video game mode should be set.
-void vgModeCheck() {
-  if(b_cross_the_streams == true || b_cross_the_streams_mix == true) {
-    b_vg_mode = false;
+bool vgModeCheck() {
+  if(b_cross_the_streams == true || b_cross_the_streams_mix == true || SYSTEM_MODE == MODE_ORIGINAL) {
+    // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled.
+    if(SYSTEM_MODE == MODE_ORIGINAL && b_cross_the_streams != true) {
+      b_cross_the_streams = true;
+    }
+
+    return false;
   }
   else {
-    b_vg_mode = true;
+    return true;
   }
 }
 
@@ -726,8 +727,6 @@ void toggleWandModes() {
     // Turn on cross the streams mix.
     b_cross_the_streams_mix = true;
 
-    b_vg_mode = false;
-
     playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
 
     // Tell the Proton Pack to reset back to the proton stream.
@@ -737,8 +736,6 @@ void toggleWandModes() {
     // Turn on crossing the streams mode and turn off video game mode.
     b_cross_the_streams = true;
     b_cross_the_streams_mix = false;
-
-    b_vg_mode = false;
 
     playEffect(S_VOICE_CROSS_THE_STREAMS);
 
@@ -1378,8 +1375,6 @@ void checkSwitches() {
     case MODE_ON:
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
-          altWingButtonCheck();
-
           // We shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
           if(switch_vent.on() == false || switch_wand.on() == false) {
               bargraphYearModeUpdate();
@@ -1468,10 +1463,45 @@ void wandLightControlCheck() {
 }
 
 void wandOff() {
-  if(FIRING_MODE == SETTINGS) {
+  if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
     // If the wand is shut down while we are in settings mode (can happen if the pack is manually turned off), switch the wand and pack to proton mode.
-    wandSerialSend(W_PROTON_MODE);
-    FIRING_MODE = PROTON;
+    switch(FIRING_MODE) {
+      case MESON:
+        // Tell the pack we are in meson mode.
+        wandSerialSend(W_MESON_MODE);
+      break;
+
+      case STASIS:
+        // Tell the pack we are in stasis mode.
+        wandSerialSend(W_STASIS_MODE);
+      break;
+
+      case SLIME:
+        // Tell the pack we are in slime mode.
+        wandSerialSend(W_SLIME_MODE);
+      break;
+
+      case SPECTRAL:
+        // Tell the pack we are in spectral mode.
+        wandSerialSend(W_SPECTRAL_MODE);
+      break;
+
+      case HOLIDAY:
+        // Tell the pack we are in holiday mode.
+        wandSerialSend(W_HOLIDAY_MODE);
+      break;
+
+      case SPECTRAL_CUSTOM:
+        // Tell the pack we are in spectral custom mode.
+        wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
+      break;
+
+      case PROTON:
+      default:
+        // Tell the pack we are in proton mode.
+        wandSerialSend(W_PROTON_MODE);
+      break;
+    }
   }
 
   switch(getNeutronaWandYearMode()) {
@@ -1793,7 +1823,7 @@ void fireControlCheck() {
           b_firing_alt = false;
         }
       }
-      else if(b_vg_mode == true) {
+      else if(vgModeCheck() == true) {
         if(FIRING_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
           if(switch_mode.on() == true) {
             b_firing_alt = true;
@@ -1802,7 +1832,7 @@ void fireControlCheck() {
       }
 
       if(switch_intensify.on() == false && b_firing == true && b_firing_intensify == true) {
-        if(b_firing_alt != true || b_vg_mode == true) {
+        if(b_firing_alt != true || vgModeCheck() == true) {
           WAND_ACTION_STATUS = ACTION_IDLE;
         }
 
@@ -1814,11 +1844,14 @@ void fireControlCheck() {
       WAND_ACTION_STATUS = ACTION_OFF;
     }
 
-    // Quick vent feature. When enabled, press intensify while the top right switch on the pack is flipped down will cause the Proton Pack and Neutrona Wand to manually vent.
+    // Quick vent feature. When enabled, clicking Intensify will perform a quick vent, while holding will force the full overheat sequence.
     // Super Hero Mode only, because Mode Original uses different toggle switch combinations which makes this not possible.
-    if(b_quick_vent == true && SYSTEM_MODE == MODE_SUPER_HERO) {
-      if(switch_intensify.pushed() && switch_wand.on() == false && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_overheat_enabled == true) {
+    if(b_quick_vent == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() == false && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_overheat_enabled == true) {
+      if(switch_intensify.singleClick()) {
         startQuickVent();
+      }
+      else if(switch_intensify.longPress()) {
+        startVentSequence();
       }
     }
   }
@@ -1842,167 +1875,145 @@ void fireControlCheck() {
   }
 }
 
-// Called from checkSwitches(); Check if we should fire, or if the wand and pack turn off.
+// Called from checkSwitches(); Used to enter the settings menu in MODE_SUPER_HERO.
 void altWingButtonCheck() {
-  // This is for when the Wand Barrel Switch is enabled for video game mode. b_cross_the_streams must not be enabled.
-  if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_cross_the_streams != true && b_cross_the_streams_mix != true && b_pack_alarm != true) {
-    if(switch_mode.pushed()) {
-      // Only exit the settings menu when on menu #5 and or cycle through modes when the settings menu is on menu #5
+  if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
+    if(switch_wand.on() != true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && switch_mode.pushed()) {
+      // Only exit the settings menu when on menu #5.
       if(i_wand_menu == 5) {
-        // Cycle through the firing modes and setting menu.
-        if(FIRING_MODE == PROTON) {
-          FIRING_MODE = SLIME;
-        }
-        else if(FIRING_MODE == SLIME) {
-          FIRING_MODE = STASIS;
-        }
-        else if(FIRING_MODE == STASIS) {
-          FIRING_MODE = MESON;
-        }
-        else if(FIRING_MODE == MESON) {
-          // Conditional mode advancement
-          if(b_spectral_mode_enabled == true) {
-            FIRING_MODE = SPECTRAL;
-          }
-          else if(b_holiday_mode_enabled == true) {
-            FIRING_MODE = HOLIDAY;
-          }
-          else if(b_spectral_custom_mode_enabled == true) {
-            FIRING_MODE = SPECTRAL_CUSTOM;
-          }
-          else {
-            FIRING_MODE = VENTING;
-          }
-        }
-        else if(FIRING_MODE == SPECTRAL) {
-          // Conditional mode advancement
-          if(b_holiday_mode_enabled == true) {
-            FIRING_MODE = HOLIDAY;
-          }
-          else if(b_spectral_custom_mode_enabled == true) {
-            FIRING_MODE = SPECTRAL_CUSTOM;
-          }
-          else {
-            FIRING_MODE = VENTING;
-          }
-        }
-        else if(FIRING_MODE == HOLIDAY) {
-          if(b_spectral_custom_mode_enabled == true) {
-            FIRING_MODE = SPECTRAL_CUSTOM;
-          }
-          else {
-            FIRING_MODE = VENTING;
-          }
-        }
-        else if(FIRING_MODE == SPECTRAL_CUSTOM) {
-            FIRING_MODE = VENTING;
-        }
-        else if(FIRING_MODE == VENTING) {
-          FIRING_MODE = SETTINGS;
-          barrelLightsOff();
+        // Switch between firing mode and settings mode.
+        if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
+          WAND_ACTION_STATUS = ACTION_SETTINGS;
+
+          ms_settings_blinking.start(i_settings_blinking_delay);
+
+          // Clear the 28 segment bargraph.
+          bargraphClearAlt();
+
+          // Tell the pack we are in settings mode.
+          wandSerialSend(W_SETTINGS_MODE);
         }
         else {
-          FIRING_MODE = PROTON;
-
+          modeCheck();
+          ms_settings_blinking.stop();
           bargraphClearAlt();
 
           // If using the 28 segment bargraph with BARGRAPH_ORIGINAL, we need to redraw the segments.
-          // BARGRAPH_SUPER_HERO auto ramps and do not need a manual refresh.
+          // BARGRAPH_SUPER_HERO auto ramps and does not need a manual refresh.
           if(b_28segment_bargraph == true && BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
             bargraphPowerCheck2021Alt(true);
           }
         }
 
-        // Make sure the slo-blo light is turned back on, as entering venting mode will make it blink.
-        if(FIRING_MODE != VENTING) {
-          digitalWriteFast(led_slo_blo, HIGH);
-
-          // Turn back on the Clippard LED if it was turned off.
-          digitalWriteFast(led_front_left, HIGH);
-        }
-
         playEffect(S_CLICK);
-
-        switch(FIRING_MODE) {
-          case SETTINGS:
-            WAND_ACTION_STATUS = ACTION_SETTINGS;
-            i_wand_menu = 5;
-            ms_settings_blinking.start(i_settings_blinking_delay);
-
-            // Clear the 28 segment bargraph.
-            bargraphClearAlt();
-
-            // Tell the pack we are in settings mode.
-            wandSerialSend(W_SETTINGS_MODE);
-          break;
-
-          case VENTING:
-            WAND_ACTION_STATUS = ACTION_IDLE;
-            wandHeatUp();
-
-            // The the pack we are in venting mode.
-            wandSerialSend(W_VENTING_MODE);
-          break;
-
-          case HOLIDAY:
-            WAND_ACTION_STATUS = ACTION_IDLE;
-            wandHeatUp();
-
-            // Tell the pack we are in holiday mode.
-            wandSerialSend(W_HOLIDAY_MODE);
-          break;
-
-          case SPECTRAL:
-            WAND_ACTION_STATUS = ACTION_IDLE;
-            wandHeatUp();
-
-            // Tell the pack we are in spectral mode.
-            wandSerialSend(W_SPECTRAL_MODE);
-          break;
-
-          case SPECTRAL_CUSTOM:
-            WAND_ACTION_STATUS = ACTION_IDLE;
-            wandHeatUp();
-
-            // Tell the pack we are in spectral custom mode.
-            wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-          break;
-
-          case MESON:
-            WAND_ACTION_STATUS = ACTION_IDLE;
-            wandHeatUp();
-
-            // Tell the pack we are in meson mode.
-            wandSerialSend(W_MESON_MODE);
-          break;
-
-          case STASIS:
-            WAND_ACTION_STATUS = ACTION_IDLE;
-            wandHeatUp();
-
-            // Tell the pack we are in stasis mode.
-            wandSerialSend(W_STASIS_MODE);
-          break;
-
-          case SLIME:
-            WAND_ACTION_STATUS = ACTION_IDLE;
-            wandHeatUp();
-
-            // Tell the pack we are in slime mode.
-            wandSerialSend(W_SLIME_MODE);
-          break;
-
-          case PROTON:
-          default:
-            WAND_ACTION_STATUS = ACTION_IDLE;
-            wandHeatUp();
-
-            // Tell the pack we are in proton mode.
-            wandSerialSend(W_PROTON_MODE);
-          break;
-        }
       }
     }
+    else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_wand.on() == true) {
+      // Exit the settings menu if the user turns the wand switch back on.
+      modeCheck();
+      ms_settings_blinking.stop();
+      bargraphClearAlt();
+
+      // If using the 28 segment bargraph with BARGRAPH_ORIGINAL, we need to redraw the segments.
+      // BARGRAPH_SUPER_HERO auto ramps and does not need a manual refresh.
+      if(b_28segment_bargraph == true && BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
+        bargraphPowerCheck2021Alt(true);
+      }
+    }
+  }
+}
+
+void modeCheck() {
+  switch(FIRING_MODE) {
+    case VENTING:
+      // Do nothing.
+    break;
+
+    case HOLIDAY:
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
+        wandHeatUp();
+      }
+
+      WAND_ACTION_STATUS = ACTION_IDLE;
+
+      // Tell the pack we are in holiday mode.
+      wandSerialSend(W_HOLIDAY_MODE);
+    break;
+
+    case SPECTRAL:
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
+        wandHeatUp();
+      }
+
+      WAND_ACTION_STATUS = ACTION_IDLE;
+
+      // Tell the pack we are in spectral mode.
+      wandSerialSend(W_SPECTRAL_MODE);
+    break;
+
+    case SPECTRAL_CUSTOM:
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
+        wandHeatUp();
+      }
+
+      WAND_ACTION_STATUS = ACTION_IDLE;
+
+      // Tell the pack we are in spectral custom mode.
+      wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
+    break;
+
+    case MESON:
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
+        wandHeatUp();
+      }
+
+      WAND_ACTION_STATUS = ACTION_IDLE;
+
+      // Tell the pack we are in meson mode.
+      wandSerialSend(W_MESON_MODE);
+    break;
+
+    case STASIS:
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
+        wandHeatUp();
+      }
+
+      WAND_ACTION_STATUS = ACTION_IDLE;
+
+      // Tell the pack we are in stasis mode.
+      wandSerialSend(W_STASIS_MODE);
+    break;
+
+    case SLIME:
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
+        wandHeatUp();
+      }
+
+      WAND_ACTION_STATUS = ACTION_IDLE;
+
+      // Tell the pack we are in slime mode.
+      wandSerialSend(W_SLIME_MODE);
+    break;
+
+    case PROTON:
+    default:
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
+        wandHeatUp();
+      }
+
+      WAND_ACTION_STATUS = ACTION_IDLE;
+
+      // Tell the pack we are in proton mode.
+      wandSerialSend(W_PROTON_MODE);
+    break;
+  }
+
+  // Make sure the slo-blo light is turned back on, as entering venting mode will make it blink.
+  if(FIRING_MODE != VENTING) {
+    digitalWriteFast(led_slo_blo, HIGH);
+
+    // Turn back on the Clippard LED if it was turned off.
+    digitalWriteFast(led_front_left, HIGH);
   }
 }
 
@@ -2675,7 +2686,6 @@ void modeFireStartSounds() {
     break;
 
     case VENTING:
-    case SETTINGS:
       // Nothing.
     break;
   }
@@ -2836,7 +2846,6 @@ void modeFireStopSounds() {
 
     case MESON:
     case VENTING:
-    case SETTINGS:
       // Nothing.
     break;
   }
@@ -2858,7 +2867,6 @@ void modeFireStopSounds() {
 
       case MESON:
       case VENTING:
-      case SETTINGS:
         // Nothing.
       break;
     }
@@ -3418,7 +3426,6 @@ void modeFiring() {
     break;
 
     case VENTING:
-    case SETTINGS:
       // Nothing.
     break;
   }
@@ -3553,13 +3560,9 @@ void wandHeatUp() {
       playEffect(S_VENT_DRY);
       playEffect(S_MODE_SWITCH);
     break;
-
-    case SETTINGS:
-      // Nothing.
-    break;
   }
 
-  if(FIRING_MODE != VENTING && FIRING_MODE != SETTINGS) {
+  if(FIRING_MODE != VENTING) {
     wandBarrelPreHeatUp();
   }
 }
@@ -3757,8 +3760,7 @@ void wandBarrelHeatUp() {
       break;
 
       case VENTING:
-      case SETTINGS:
-        if(b_spectral_custom_mode_enabled) {
+        if(PREV_FIRING_MODE == SPECTRAL_CUSTOM) {
           switch(WAND_BARREL_LED_COUNT) {
             case LEDS_48:
               barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
@@ -3774,7 +3776,7 @@ void wandBarrelHeatUp() {
             break;
           }
         }
-        else if(b_holiday_mode_enabled) {
+        else if(PREV_FIRING_MODE == HOLIDAY) {
           switch(WAND_BARREL_LED_COUNT) {
             case LEDS_48:
               barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
@@ -3790,7 +3792,7 @@ void wandBarrelHeatUp() {
             break;
           }
         }
-        else if(b_spectral_mode_enabled) {
+        else if(PREV_FIRING_MODE == SPECTRAL) {
           switch(WAND_BARREL_LED_COUNT) {
             case LEDS_48:
               barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
@@ -3806,7 +3808,7 @@ void wandBarrelHeatUp() {
             break;
           }
         }
-        else {
+        else if(PREV_FIRING_MODE == MESON) {
           switch(WAND_BARREL_LED_COUNT) {
             case LEDS_48:
               barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
@@ -3819,6 +3821,22 @@ void wandBarrelHeatUp() {
             case LEDS_5:
             default:
               barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            break;
+          }
+        }
+        else {
+          switch(WAND_BARREL_LED_COUNT) {
+            case LEDS_48:
+              barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+              barrel_leds[i_barrel_led - 23] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+              barrel_leds[i_barrel_led - 24] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+              barrel_leds[i_barrel_led - 25] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+              barrel_leds[i_barrel_led + 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
+            break;
+
+            case LEDS_5:
+            default:
+              barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
             break;
           }
         }
@@ -4023,8 +4041,7 @@ void wandBarrelHeatDown() {
       break;
 
       case VENTING:
-      case SETTINGS:
-        if(b_spectral_custom_mode_enabled) {
+        if(PREV_FIRING_MODE == SPECTRAL_CUSTOM) {
           switch(WAND_BARREL_LED_COUNT) {
             case LEDS_48:
               barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
@@ -4040,7 +4057,7 @@ void wandBarrelHeatDown() {
             break;
           }
         }
-        else if(b_holiday_mode_enabled) {
+        else if(PREV_FIRING_MODE == HOLIDAY) {
           switch(WAND_BARREL_LED_COUNT) {
             case LEDS_48:
               barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
@@ -4056,7 +4073,7 @@ void wandBarrelHeatDown() {
             break;
           }
         }
-        else if(b_spectral_mode_enabled) {
+        else if(PREV_FIRING_MODE == SPECTRAL) {
           switch(WAND_BARREL_LED_COUNT) {
             case LEDS_48:
               barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
@@ -4072,7 +4089,7 @@ void wandBarrelHeatDown() {
             break;
           }
         }
-        else {
+        else if(PREV_FIRING_MODE == MESON) {
           switch(WAND_BARREL_LED_COUNT) {
             case LEDS_48:
               barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
@@ -4085,6 +4102,22 @@ void wandBarrelHeatDown() {
             case LEDS_5:
             default:
               barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            break;
+          }
+        }
+        else {
+          switch(WAND_BARREL_LED_COUNT) {
+            case LEDS_48:
+              barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+              barrel_leds[i_barrel_led - 23] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+              barrel_leds[i_barrel_led - 24] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+              barrel_leds[i_barrel_led - 25] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+              barrel_leds[i_barrel_led + 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+            break;
+
+            case LEDS_5:
+            default:
+              barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
             break;
           }
         }
@@ -4186,7 +4219,6 @@ void fireStreamEffect(CRGB c_colour) {
             break;
 
             case VENTING:
-            case SETTINGS:
               // Nothing.
             break;
           }
@@ -4465,7 +4497,6 @@ void fireStreamEffect(CRGB c_colour) {
             break;
 
             case VENTING:
-            case SETTINGS:
               // Nothing.
             break;
           }
@@ -4687,7 +4718,6 @@ void fireEffectEnd() {
       break;
 
       case VENTING:
-      case SETTINGS:
         // Nothing.
       break;
     }
@@ -4865,7 +4895,6 @@ void fireEffectEnd() {
           break;
 
           case VENTING:
-          case SETTINGS:
             // Nothing.
           break;
         }
@@ -4935,7 +4964,6 @@ void fireEffectEnd() {
           break;
 
           case VENTING:
-          case SETTINGS:
             // Nothing.
           break;
         }
@@ -7436,7 +7464,7 @@ void bargraphRampUp() {
 
 void prepBargraphRampDown() {
   if((WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) || (WAND_STATUS == MODE_OFF && WAND_ACTION_STATUS == ACTION_IDLE && SYSTEM_MODE == MODE_ORIGINAL)) {
-    // If bargraph is set to ramp down during overheat, we need to set a few things.
+    // If bargraph is set to ramp down during ribbon cable error, we need to set a few things.
     soundBeepLoopStop();
     soundIdleStop();
     soundIdleLoopStop(true);
@@ -8505,101 +8533,36 @@ void checkRotaryEncoder() {
               wandSerialSend(W_VOLUME_INCREASE);
             }
         }
-        else if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+        else if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
           if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
             // Do nothing, we are locked in full power level while firing.
           }
           // Counter clockwise.
           else if(prev_next_code == 0x0b) {
-            // Check to see the minimal power level depending on which system mode.
-            uint8_t i_tmp_power_level_min = i_power_level_min;
+            if((switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true) || SYSTEM_MODE == MODE_ORIGINAL) {
+              // Check to see the minimal power level depending on which system mode.
+              uint8_t i_tmp_power_level_min = i_power_level_min;
 
-            switch(SYSTEM_MODE) {
-              case MODE_ORIGINAL:
-                i_tmp_power_level_min = i_power_level_min + 1;
-              break;
-
-              case MODE_SUPER_HERO:
-              default:
-                i_tmp_power_level_min = i_power_level_min;
-              break;
-            }
-
-            if(i_power_level - 1 >= i_tmp_power_level_min && WAND_STATUS == MODE_ON) {
-              i_power_level_prev = i_power_level;
-              i_power_level--;
-
-              if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && b_28segment_bargraph == true) {
-                bargraphPowerCheck2021Alt(false);
-              }
-
-              // Forces a redraw of the bargraph if firing while changing the power level in the BARGRAPH_ANIMATION_ORIGINAL.
-              if(b_firing == true && b_28segment_bargraph == true && BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
-                bargraphRedraw();
-              }
-
-              soundBeepLoopStop();
-
-              switch(getNeutronaWandYearMode()) {
-                case SYSTEM_1984:
-                case SYSTEM_1989:
-                  if(switch_vent.on() == true) {
-                    soundIdleLoopStop(false);
-                    soundIdleLoop(false);
-                  }
+              switch(SYSTEM_MODE) {
+                case MODE_ORIGINAL:
+                  i_tmp_power_level_min = i_power_level_min + 1;
                 break;
 
-                case SYSTEM_AFTERLIFE:
-                case SYSTEM_FROZEN_EMPIRE:
+                case MODE_SUPER_HERO:
                 default:
-                  soundIdleLoopStop(false);
-                  soundIdleLoop(false);
+                  i_tmp_power_level_min = i_power_level_min;
                 break;
               }
 
-              updatePackPowerLevel();
-            }
-
-            // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-            if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true && switch_intensify.on() != true) {
-              if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
-                i_volume_music_percentage = 0;
-              }
-              else {
-                i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
-              }
-
-              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-              updateMusicVolume();
-
-              // Tell pack to lower music volume.
-              wandSerialSend(W_VOLUME_MUSIC_DECREASE);
-            }
-            else if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && switch_intensify.on() == true) {
-              // Decrease the master volume of the Neutrona Wand only.
-              decreaseVolume();
-            }
-          }
-
-          if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
-            // Do nothing, we are locked in full power level while firing.
-          }
-          // Clockwise.
-          else if(prev_next_code == 0x07) {
-            if(i_power_level + 1 <= i_power_level_max && WAND_STATUS == MODE_ON) {
-              if(i_power_level + 1 == i_power_level_max && WAND_ACTION_STATUS == ACTION_FIRING) {
-                // Do nothing, we do not want to go into max power level if firing in a lower power level already.
-              }
-              else {
+              if(i_power_level - 1 >= i_tmp_power_level_min && WAND_STATUS == MODE_ON) {
                 i_power_level_prev = i_power_level;
-                i_power_level++;
+                i_power_level--;
 
                 if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && b_28segment_bargraph == true) {
                   bargraphPowerCheck2021Alt(false);
                 }
 
-                // Forces a redraw of the bargraph if firing while changing the power level if using BARGRAPH_ANIMATION_ORIGINAL.
+                // Forces a redraw of the bargraph if firing while changing the power level in the BARGRAPH_ANIMATION_ORIGINAL.
                 if(b_firing == true && b_28segment_bargraph == true && BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
                   bargraphRedraw();
                 }
@@ -8626,9 +8589,211 @@ void checkRotaryEncoder() {
                 updatePackPowerLevel();
               }
             }
+            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true) {
+              // Counter clockwise firing mode selection.
+              if(FIRING_MODE == PROTON) {
+                PREV_FIRING_MODE = PROTON;
+                FIRING_MODE = STASIS;
+              }
+              else if(FIRING_MODE == STASIS) {
+                PREV_FIRING_MODE = STASIS;
+                FIRING_MODE = SLIME;
+              }
+              else if(FIRING_MODE == SLIME) {
+                PREV_FIRING_MODE = SLIME;
+                FIRING_MODE = MESON;
+              }
+              else if(FIRING_MODE == MESON) {
+                PREV_FIRING_MODE = MESON;
+
+                // Conditional mode advancement.
+                if(b_spectral_mode_enabled == true) {
+                  FIRING_MODE = SPECTRAL;
+                }
+                else if(b_holiday_mode_enabled == true) {
+                  FIRING_MODE = HOLIDAY;
+                }
+                else if(b_spectral_custom_mode_enabled == true) {
+                  FIRING_MODE = SPECTRAL_CUSTOM;
+                }
+                else {
+                  FIRING_MODE = VENTING;
+                }
+              }
+              else if(FIRING_MODE == SPECTRAL) {
+                PREV_FIRING_MODE = SPECTRAL;
+
+                // Conditional mode advancement.
+                if(b_holiday_mode_enabled == true) {
+                  FIRING_MODE = HOLIDAY;
+                }
+                else if(b_spectral_custom_mode_enabled == true) {
+                  FIRING_MODE = SPECTRAL_CUSTOM;
+                }
+                else {
+                  FIRING_MODE = VENTING;
+                }
+              }
+              else if(FIRING_MODE == HOLIDAY) {
+                PREV_FIRING_MODE = HOLIDAY;
+
+                // Conditional mode advancement.
+                if(b_spectral_custom_mode_enabled == true) {
+                  FIRING_MODE = SPECTRAL_CUSTOM;
+                }
+                else {
+                  FIRING_MODE = VENTING;
+                }
+              }
+              else if(FIRING_MODE == SPECTRAL_CUSTOM) {
+                PREV_FIRING_MODE = SPECTRAL_CUSTOM;
+                FIRING_MODE = VENTING;
+              }
+              else {
+                PREV_FIRING_MODE = PROTON;
+                FIRING_MODE = PROTON;
+              }
+
+              modeCheck();
+            }
+
+            // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
+            if(WAND_STATUS == MODE_OFF && b_playing_music == true && switch_intensify.on() != true) {
+              if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
+                i_volume_music_percentage = 0;
+              }
+              else {
+                i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
+              }
+
+              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+              updateMusicVolume();
+
+              // Tell pack to lower music volume.
+              wandSerialSend(W_VOLUME_MUSIC_DECREASE);
+            }
+            else if(WAND_STATUS == MODE_OFF && switch_intensify.on() == true) {
+              // Decrease the master volume of the Neutrona Wand only.
+              decreaseVolume();
+            }
+          }
+
+          if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
+            // Do nothing, we are locked in full power level while firing.
+          }
+          // Clockwise.
+          else if(prev_next_code == 0x07) {
+            if((switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true) || SYSTEM_MODE == MODE_ORIGINAL) {
+              if(i_power_level + 1 <= i_power_level_max && WAND_STATUS == MODE_ON) {
+                if(i_power_level + 1 == i_power_level_max && WAND_ACTION_STATUS == ACTION_FIRING) {
+                  // Do nothing, we do not want to go into max power level if firing in a lower power level already.
+                }
+                else {
+                  i_power_level_prev = i_power_level;
+                  i_power_level++;
+
+                  if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && b_28segment_bargraph == true) {
+                    bargraphPowerCheck2021Alt(false);
+                  }
+
+                  // Forces a redraw of the bargraph if firing while changing the power level if using BARGRAPH_ANIMATION_ORIGINAL.
+                  if(b_firing == true && b_28segment_bargraph == true && BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
+                    bargraphRedraw();
+                  }
+
+                  soundBeepLoopStop();
+
+                  switch(getNeutronaWandYearMode()) {
+                    case SYSTEM_1984:
+                    case SYSTEM_1989:
+                      if(switch_vent.on() == true) {
+                        soundIdleLoopStop(false);
+                        soundIdleLoop(false);
+                      }
+                    break;
+
+                    case SYSTEM_AFTERLIFE:
+                    case SYSTEM_FROZEN_EMPIRE:
+                    default:
+                      soundIdleLoopStop(false);
+                      soundIdleLoop(false);
+                    break;
+                  }
+
+                  updatePackPowerLevel();
+                }
+              }
+            }
+            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true) {
+              if(FIRING_MODE == PROTON) {
+                PREV_FIRING_MODE = PROTON;
+                FIRING_MODE = VENTING;
+              }
+              else if(FIRING_MODE == VENTING) {
+                PREV_FIRING_MODE = PROTON;
+
+                // Conditional mode advancement.
+                if(b_spectral_custom_mode_enabled == true) {
+                  FIRING_MODE = SPECTRAL_CUSTOM;
+                }
+                else if(b_holiday_mode_enabled == true) {
+                  FIRING_MODE = HOLIDAY;
+                }
+                else if(b_spectral_mode_enabled == true) {
+                  FIRING_MODE = SPECTRAL;
+                }
+                else {
+                  FIRING_MODE = MESON;
+                }
+              }
+              else if(FIRING_MODE == SPECTRAL_CUSTOM) {
+                PREV_FIRING_MODE = SPECTRAL_CUSTOM;
+
+                // Conditional mode advancement.
+                if(b_holiday_mode_enabled == true) {
+                  FIRING_MODE = HOLIDAY;
+                }
+                else if(b_spectral_mode_enabled == true) {
+                  FIRING_MODE = SPECTRAL;
+                }
+                else {
+                  FIRING_MODE = MESON;
+                }
+              }
+              else if(FIRING_MODE == HOLIDAY) {
+                PREV_FIRING_MODE = HOLIDAY;
+
+                // Conditional mode advancement.
+                if(b_spectral_mode_enabled == true) {
+                  FIRING_MODE = SPECTRAL;
+                }
+                else {
+                  FIRING_MODE = MESON;
+                }
+              }
+              else if(FIRING_MODE == SPECTRAL) {
+                PREV_FIRING_MODE = SPECTRAL;
+                FIRING_MODE = MESON;
+              }
+              else if(FIRING_MODE == MESON) {
+                PREV_FIRING_MODE = MESON;
+                FIRING_MODE = SLIME;
+              }
+              else if(FIRING_MODE == SLIME) {
+                PREV_FIRING_MODE = SLIME;
+                FIRING_MODE = STASIS;
+              }
+              else if(FIRING_MODE == STASIS) {
+                PREV_FIRING_MODE = STASIS;
+                FIRING_MODE = PROTON;
+              }
+
+              modeCheck();
+            }
 
             // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-            if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && b_playing_music == true && switch_intensify.on() != true) {
+            if(WAND_STATUS == MODE_OFF && b_playing_music == true && switch_intensify.on() != true) {
               if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
                 i_volume_music_percentage = 100;
               }
@@ -8643,7 +8808,7 @@ void checkRotaryEncoder() {
               // Tell pack to increase music volume.
               wandSerialSend(W_VOLUME_MUSIC_INCREASE);
             }
-            else if(WAND_STATUS == MODE_OFF && FIRING_MODE != SETTINGS && switch_intensify.on() == true) {
+            else if(WAND_STATUS == MODE_OFF && switch_intensify.on() == true) {
               // Increase the master volume of the Neutrona Wand only.
               increaseVolume();
             }
@@ -8753,15 +8918,13 @@ void wandBarrelLightsOff() {
 
 // Exit the wand menu system while the wand is off.
 void wandExitMenu() {
-  FIRING_MODE = PREV_FIRING_MODE;
-
   i_wand_menu = 5;
 
   if(b_pack_alarm != true) {
     playEffect(S_CLICK);
   }
 
-  switch(PREV_FIRING_MODE) {
+  switch(FIRING_MODE) {
     case MESON:
       // Tell the pack we are in meson mode.
       wandSerialSend(W_MESON_MODE);

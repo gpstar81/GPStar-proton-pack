@@ -344,7 +344,7 @@ bool b_vent_light_on = false; // To know if the light is on or off.
 /*
  * Wand Firing Modes + Settings
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING };
 enum FIRING_MODES FIRING_MODE;
 
 /*

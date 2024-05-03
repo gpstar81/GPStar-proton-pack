@@ -300,11 +300,6 @@ const uint8_t i_bargraph_normal[i_bargraph_segments] = {0, 16, 32, 48, 1, 17, 33
 bool b_bargraph_status[i_bargraph_segments] = {};
 
 /*
- * Flag check for video game mode.
- */
-bool b_vg_mode = true;
-
-/*
  * (Optional) Support for Video Game Accessories (coming soon)
  */
 // bool b_overheat_indicators[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false};
@@ -335,7 +330,7 @@ uint8_t i_heatdown_counter = 50;
 /*
  * Wand Firing Modes + Settings
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING };
 enum FIRING_MODES FIRING_MODE;
 enum FIRING_MODES PREV_FIRING_MODE;
 

@@ -193,6 +193,13 @@ void updateEffectsVolume() {
       audio.trackGain(S_IDLE_LOOP_GUN_4, i_volume_effects);
       audio.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
 
+      // Standalone wand has additional idle effects.
+      if(b_gpstar_benchtest) {
+        audio.trackGain(S_PACK_SLIME_TANK_LOOP, i_volume_effects);
+        audio.trackGain(S_STASIS_IDLE_LOOP, i_volume_effects);
+        audio.trackGain(S_MESON_IDLE_LOOP, i_volume_effects);
+      }
+
       // Special volume in use.
       audio.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - i_wand_sound_level);
       audio.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - i_wand_sound_level);

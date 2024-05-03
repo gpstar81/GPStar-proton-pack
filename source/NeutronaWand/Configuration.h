@@ -106,7 +106,7 @@ bool b_cross_the_streams_mix = false;
  * When set to true, you can manually quick vent your Proton Pack and Neutrona Wand by
  * pressing the intensify button if the top right toggle switch is switched off.
  */
-bool b_quick_vent = false;
+bool b_quick_vent = true;
 
 /*
  * When set to true, the LED at the front of the Neutrona Wand body next to the Clippard valve will start blinking after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered off to indicate battery power is still feeding the system.

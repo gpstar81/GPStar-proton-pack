@@ -4099,7 +4099,6 @@ void modeFireStartSounds() {
     break;
 
     case VENTING:
-    case SETTINGS:
       // Nothing.
     break;
   }
@@ -4203,7 +4202,6 @@ void modeFireStopSounds() {
 
         case MESON:
         case VENTING:
-        case SETTINGS:
           // Nothing.
         break;
       }
@@ -4340,7 +4338,6 @@ void wandStopFiringSounds() {
 
     case MESON:
     case VENTING:
-    case SETTINGS:
       // Nothing.
     break;
   }

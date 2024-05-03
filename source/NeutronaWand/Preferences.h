@@ -546,7 +546,7 @@ void saveConfigEEPROM() {
   uint8_t i_neutrona_wand_sounds = 2;
   uint8_t i_spectral = 1;
   uint8_t i_holiday = 1;
-  uint8_t i_quick_vent = 1;
+  uint8_t i_quick_vent = 2;
   uint8_t i_wand_boot_errors = 2;
   uint8_t i_vent_light_auto_intensity = 2;
   uint8_t i_invert_bargraph = 1;
@@ -595,8 +595,8 @@ void saveConfigEEPROM() {
     i_holiday = 2;
   }
 
-  if(b_quick_vent == true) {
-    i_quick_vent = 2;
+  if(b_quick_vent != true) {
+    i_quick_vent = 1;
   }
 
   if(b_wand_boot_errors != true) {

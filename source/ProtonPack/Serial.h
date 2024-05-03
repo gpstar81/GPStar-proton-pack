@@ -787,7 +787,6 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
           break;
 
           case PROTON:
-          case SETTINGS:
           default:
             serial1Send(A_PROTON_MODE);
           break;
@@ -1191,7 +1190,6 @@ void doWandSync() {
     break;
 
     case PROTON:
-    case SETTINGS:
     default:
       packSync.firingMode = 1; // 1 = Proton Mode.
 
@@ -1813,7 +1811,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_SETTINGS_MODE:
       // Settings mode
-      FIRING_MODE = SETTINGS;
       playEffect(S_CLICK);
 
       stopEffect(S_PACK_SLIME_TANK_LOOP);
