@@ -809,13 +809,15 @@ bool setupAudioDevice() {
 
   if(audio.getVersion(gVersion)) {
     // We found a WAV Trigger. Build the music track count.
-    if(audio.gpstarAudioHello()) {
-      // Only attempt to build a music track count if the WAV Trigger responded with RSP_SYSTEM_INFO.
-      buildMusicCount((uint16_t) audio.getNumTracks());
-    }
-    else {
-      debugln(F("Warning: RSP_SYSTEM_INFO not received!"));
-    }
+    debugln(audio.getNumTracks());
+    buildMusicCount((uint16_t) audio.getNumTracks());
+    // if(audio.gpstarAudioHello()) {
+    //   // Only attempt to build a music track count if the WAV Trigger responded with RSP_SYSTEM_INFO.
+    //   buildMusicCount((uint16_t) audio.getNumTracks());
+    // }
+    // else {
+    //   debugln(F("Warning: RSP_SYSTEM_INFO not received!"));
+    // }
 
     AUDIO_DEVICE = A_WAV_TRIGGER;
 
