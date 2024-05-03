@@ -701,7 +701,7 @@ void wandTipSpark() {
   ms_wand_heatup_fade.start(i_delay_heatup);
 }
 
-// Controlled from the Neutrona Wand EEPROM Menu system.
+// Controlled from the Neutrona Wand Menu systems.
 void toggleWandModes() {
   stopEffect(S_CLICK);
   playEffect(S_CLICK);
@@ -711,7 +711,7 @@ void toggleWandModes() {
   stopEffect(S_VOICE_VIDEO_GAME_MODES);
 
   // Enable or disable crossing the streams / crossing the streams mix / video game modes.
-  if(b_cross_the_streams == true && b_cross_the_streams_mix == true) {
+  if(b_cross_the_streams == true && b_cross_the_streams_mix == true && SYSTEM_MODE != MODE_ORIGINAL) {
     // Turn off crossing the streams mix and switch back to video game mode.
     setVGMode();
 
