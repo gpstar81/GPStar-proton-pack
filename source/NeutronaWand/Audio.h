@@ -742,7 +742,7 @@ bool setupAudioDevice() {
 
   if(audio.getVersion(gVersion)) {
     // We found a WAV Trigger. Build the music track count.
-    if(audio.gpstarAudioHello()) {
+    if(audio.wasSysInfoRcvd()) {
       // Only attempt to build a music track count if the WAV Trigger responded with RSP_SYSTEM_INFO.
       buildMusicCount((uint16_t) audio.getNumTracks());
     }
