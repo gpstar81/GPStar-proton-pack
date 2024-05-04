@@ -418,7 +418,6 @@ void checkPack() {
 
               // Force into Proton mode.
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = PROTON;
               wandSerialSend(W_PROTON_MODE);
             break;
             case 2:
@@ -428,7 +427,6 @@ void checkPack() {
 
               // Force into Proton mode.
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = PROTON;
               wandSerialSend(W_PROTON_MODE);
             break;
             default:
@@ -656,36 +654,29 @@ void checkPack() {
             case 1:
             default:
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = PROTON;
             break;
             case 2:
               FIRING_MODE = SLIME;
-              PREV_FIRING_MODE = PROTON;
               setVGMode();
             break;
             case 3:
               FIRING_MODE = STASIS;
-              PREV_FIRING_MODE = SLIME;
               setVGMode();
             break;
             case 4:
               FIRING_MODE = MESON;
-              PREV_FIRING_MODE = STASIS;
               setVGMode();
             break;
             case 5:
               FIRING_MODE = SPECTRAL;
-              PREV_FIRING_MODE = MESON;
               setVGMode();
             break;
             case 6:
               FIRING_MODE = HOLIDAY;
-              PREV_FIRING_MODE = SPECTRAL;
               setVGMode();
             break;
             case 7:
               FIRING_MODE = SPECTRAL_CUSTOM;
-              PREV_FIRING_MODE = HOLIDAY;
               setVGMode();
             break;
           }

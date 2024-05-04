@@ -332,7 +332,6 @@ uint8_t i_heatdown_counter = 50;
  */
 enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
 enum FIRING_MODES FIRING_MODE;
-enum FIRING_MODES PREV_FIRING_MODE;
 
 /*
  * Firing timers.
