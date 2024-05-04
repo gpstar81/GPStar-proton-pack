@@ -168,7 +168,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 ## Video Game Mode (Default)<br>📝 `Super Hero mode only` 
 
-![](images/OperationNeutrona4.jpg)
+![](images/OperationNeutrona8.jpg)
 
 - While the Neutrona Wand is **ON** and the top toggle switch is **DOWN**, rotating the top dial will select from the following weapon modes (listed in counter-clockwise order):
 	1. Proton Stream (Default)
