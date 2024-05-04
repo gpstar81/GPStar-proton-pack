@@ -178,7 +178,6 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 	1. <sup>1</sup> `Spectral (Rainbow)`
 	1. <sup>2</sup> `Spectral (Holiday)`
 	1. <sup>3</sup> `Spectral (Custom)`
-	1. <sup>4</sup> `Manual Venting Mode`
 
 <sup>1</sup> Spectral Mode (Rainbow) is a Proton Stream which gives a RAINBOW effect. If your Proton Pack has RGB LEDs, they will change to match.
 
@@ -187,12 +186,6 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 <sup>3</sup> Spectral (Custom) is a Proton Stream with a user-defined colour mode. You can independently adjust the Neutrona Wand Barrel, Power Cell, Cyclotron and Inner Cyclotron colours directly from the EEPROM LED Menu system. The default colours are purple.
 
 📝 **Note:** Spectral modes are disabled by default but can be enabled from the EEPROM Menu or flashed directly to the Neutrona Wand board. They take advantage of RGB coloured LED add-ons if installed.
-
-<sup>4</sup> Manual Venting Mode
-
-![](images/OperationNeutrona6.jpg)
-
-- When in manual venting mode, the Slo-Blo LED and the Clippard LED on the front of the wand body will blink to indicate that you are in the manual venting mode. Press `Intensify` to manually vent your Proton Pack. (All the toggle and safety switches on the wand must be activated).
 
 ### Proton Stream
 - Holding down `Intensify` will throw your normal Proton Stream.

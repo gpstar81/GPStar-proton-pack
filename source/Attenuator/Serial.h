@@ -680,14 +680,6 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       b_state_changed = true;
     break;
 
-    case A_VENTING_MODE:
-      #if defined(__XTENSA__)
-        debug("Venting");
-      #endif
-      FIRING_MODE = VENTING;
-      b_state_changed = true;
-    break;
-
     case A_SETTINGS_MODE:
       #if defined(__XTENSA__)
         debug("Settings");

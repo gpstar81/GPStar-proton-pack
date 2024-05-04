@@ -444,9 +444,6 @@ String getWandMode() {
     case SPECTRAL_CUSTOM:
       return "Custom";
     break;
-    case VENTING:
-      return "Venting";
-    break;
     case SETTINGS:
       return "Settings";
     break;

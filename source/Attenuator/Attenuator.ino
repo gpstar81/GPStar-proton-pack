@@ -550,7 +550,6 @@ void updateLEDs() {
     break;
 
     case PROTON:
-    case VENTING:
     default:
       i_scheme = C_RED;
     break;

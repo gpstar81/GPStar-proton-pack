@@ -53,11 +53,7 @@ void checkWandAction() {
     break;
 
     case ACTION_FIRING:
-      if(FIRING_MODE == VENTING) {
-        // If we are in venting mode, let's trigger a vent sequence.
-        startVentSequence();
-      }
-      else if(b_pack_on == true && b_pack_alarm == false) {
+      if(b_pack_on == true && b_pack_alarm == false) {
         if(FIRING_MODE == MESON) {
           if(ms_meson_blast.justFinished()) {
             playEffect(S_MESON_FIRE_PULSE);

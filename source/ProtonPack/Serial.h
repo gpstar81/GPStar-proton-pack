@@ -782,10 +782,6 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
             serial1SendData(A_SPECTRAL_CUSTOM_MODE);
           break;
 
-          case VENTING:
-            serial1Send(A_VENTING_MODE);
-          break;
-
           case PROTON:
           default:
             serial1Send(A_PROTON_MODE);
@@ -1183,10 +1179,6 @@ void doWandSync() {
 
     case SPECTRAL_CUSTOM:
       packSync.firingMode = 7; // 7 = Spectral Custom Mode.
-    break;
-
-    case VENTING:
-      packSync.firingMode = 8; // 8 = Quick Vent Mode.
     break;
 
     case PROTON:
@@ -1778,35 +1770,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       serial1SendData(A_SPECTRAL_CUSTOM_MODE);
-    break;
-
-    case W_VENTING_MODE:
-      // Settings mode
-      FIRING_MODE = VENTING;
-      playEffect(S_CLICK);
-
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
-
-      if(PACK_STATE == MODE_ON && b_wand_on == true) {
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
-        playEffect(S_VENT_DRY);
-        playEffect(S_MODE_SWITCH);
-      }
-
-      if(b_cyclotron_colour_toggle == true) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
-
-      serial1Send(A_VENTING_MODE);
     break;
 
     case W_SETTINGS_MODE:

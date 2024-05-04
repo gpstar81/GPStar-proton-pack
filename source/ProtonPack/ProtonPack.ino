@@ -3885,15 +3885,11 @@ void ventLight(bool b_on) {
   if(b_on == true) {
     // If doing firing smoke effects, let's change the light colours.
     if(b_wand_firing == true || b_overheating == true) {
-      if(FIRING_MODE == PROTON || FIRING_MODE == VENTING) {
+      if(FIRING_MODE == PROTON) {
         // Override the N-Filter light colours for a proton stream.
         switch(i_wand_power_level) {
           case 1:
             i_colour_scheme = C_RED;
-
-            if(FIRING_MODE == VENTING) {
-              i_colour_scheme = C_RAINBOW;
-            }
           break;
 
           case 2:
@@ -4097,10 +4093,6 @@ void modeFireStartSounds() {
         break;
       }
     break;
-
-    case VENTING:
-      // Nothing.
-    break;
   }
 
   // Adjust the gain with the Afterlife idling sound effect while firing.
@@ -4201,7 +4193,6 @@ void modeFireStopSounds() {
         break;
 
         case MESON:
-        case VENTING:
           // Nothing.
         break;
       }
@@ -4337,7 +4328,6 @@ void wandStopFiringSounds() {
     break;
 
     case MESON:
-    case VENTING:
       // Nothing.
     break;
   }

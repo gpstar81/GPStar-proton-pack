@@ -162,7 +162,6 @@ void setup() {
 
   // We bootup the wand in the classic proton mode.
   FIRING_MODE = PROTON;
-  PREV_FIRING_MODE = PROTON;
 
   // Select a random GB1/GB2 white LED blink rate for this session.
   i_classic_blink_index = random(0,5);
@@ -537,23 +536,9 @@ void mainLoop() {
         ms_white_light.repeat();
         if(digitalReadFast(led_white) == LOW) {
           digitalWriteFast(led_white, HIGH);
-
-          // We make the slo-blo and Clippard LEDs blink during vent mode.
-          if(FIRING_MODE == VENTING) {
-            digitalWriteFast(led_slo_blo, HIGH);
-
-            digitalWriteFast(led_front_left, HIGH);
-          }
         }
         else {
           digitalWriteFast(led_white, LOW);
-
-          // We make the slo-blo and Clippard LEDs blink during vent mode.
-          if(FIRING_MODE == VENTING) {
-            digitalWriteFast(led_slo_blo, LOW);
-
-            digitalWriteFast(led_front_left, LOW);
-          }
         }
       }
 
@@ -742,9 +727,6 @@ void toggleWandModes() {
     // Tell the Proton Pack to reset back to the proton stream.
     wandSerialSend(W_RESET_PROTON_STREAM);
   }
-
-  // Reset the previous firing mode to the proton stream.
-  PREV_FIRING_MODE = PROTON;
 }
 
 // Controlled from the the Wand Sub Menu and Wand EEPROM Menu system.
@@ -1648,10 +1630,6 @@ void wandOff() {
     case MESON:
       stopEffect(S_MESON_OPEN);
     break;
-
-    case VENTING:
-      stopEffect(S_VENT_DRY);
-    break;
   }
 
   if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_mash_error == true) {
@@ -1925,10 +1903,6 @@ void altWingButtonCheck() {
 
 void modeCheck() {
   switch(FIRING_MODE) {
-    case VENTING:
-      // Do nothing.
-    break;
-
     case HOLIDAY:
       if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
         wandHeatUp();
@@ -2006,14 +1980,6 @@ void modeCheck() {
       // Tell the pack we are in proton mode.
       wandSerialSend(W_PROTON_MODE);
     break;
-  }
-
-  // Make sure the slo-blo light is turned back on, as entering venting mode will make it blink.
-  if(FIRING_MODE != VENTING) {
-    digitalWriteFast(led_slo_blo, HIGH);
-
-    // Turn back on the Clippard LED if it was turned off.
-    digitalWriteFast(led_front_left, HIGH);
   }
 }
 
@@ -2684,10 +2650,6 @@ void modeFireStartSounds() {
         break;
       }
     break;
-
-    case VENTING:
-      // Nothing.
-    break;
   }
 }
 
@@ -2845,7 +2807,6 @@ void modeFireStopSounds() {
     break;
 
     case MESON:
-    case VENTING:
       // Nothing.
     break;
   }
@@ -2866,7 +2827,6 @@ void modeFireStopSounds() {
       break;
 
       case MESON:
-      case VENTING:
         // Nothing.
       break;
     }
@@ -3424,10 +3384,6 @@ void modeFiring() {
         fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
       }
     break;
-
-    case VENTING:
-      // Nothing.
-    break;
   }
 
   // Bargraph loop / scroll.
@@ -3555,16 +3511,9 @@ void wandHeatUp() {
         playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
       }
     break;
-
-    case VENTING:
-      playEffect(S_VENT_DRY);
-      playEffect(S_MODE_SWITCH);
-    break;
   }
 
-  if(FIRING_MODE != VENTING) {
-    wandBarrelPreHeatUp();
-  }
+  wandBarrelPreHeatUp();
 }
 
 void wandBarrelPreHeatUp() {
@@ -3756,89 +3705,6 @@ void wandBarrelHeatUp() {
           default:
             barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
           break;
-        }
-      break;
-
-      case VENTING:
-        if(PREV_FIRING_MODE == SPECTRAL_CUSTOM) {
-          switch(WAND_BARREL_LED_COUNT) {
-            case LEDS_48:
-              barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
-            break;
-
-            case LEDS_5:
-            default:
-              barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatup_counter);
-            break;
-          }
-        }
-        else if(PREV_FIRING_MODE == HOLIDAY) {
-          switch(WAND_BARREL_LED_COUNT) {
-            case LEDS_48:
-              barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
-            break;
-
-            case LEDS_5:
-            default:
-              barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
-            break;
-          }
-        }
-        else if(PREV_FIRING_MODE == SPECTRAL) {
-          switch(WAND_BARREL_LED_COUNT) {
-            case LEDS_48:
-              barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-            break;
-
-            case LEDS_5:
-            default:
-              barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-            break;
-          }
-        }
-        else if(PREV_FIRING_MODE == MESON) {
-          switch(WAND_BARREL_LED_COUNT) {
-            case LEDS_48:
-              barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-            break;
-
-            case LEDS_5:
-            default:
-              barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatup_counter);
-            break;
-          }
-        }
-        else {
-          switch(WAND_BARREL_LED_COUNT) {
-            case LEDS_48:
-              barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
-            break;
-
-            case LEDS_5:
-            default:
-              barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatup_counter);
-            break;
-          }
         }
       break;
     }
@@ -4039,89 +3905,6 @@ void wandBarrelHeatDown() {
           break;
         }
       break;
-
-      case VENTING:
-        if(PREV_FIRING_MODE == SPECTRAL_CUSTOM) {
-          switch(WAND_BARREL_LED_COUNT) {
-            case LEDS_48:
-              barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-            break;
-
-            case LEDS_5:
-            default:
-              barrel_leds[i_barrel_led] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-            break;
-          }
-        }
-        else if(PREV_FIRING_MODE == HOLIDAY) {
-          switch(WAND_BARREL_LED_COUNT) {
-            case LEDS_48:
-              barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-            break;
-
-            case LEDS_5:
-            default:
-              barrel_leds[i_barrel_led] = getHueColour(C_REDGREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-            break;
-          }
-        }
-        else if(PREV_FIRING_MODE == SPECTRAL) {
-          switch(WAND_BARREL_LED_COUNT) {
-            case LEDS_48:
-              barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-            break;
-
-            case LEDS_5:
-            default:
-              barrel_leds[i_barrel_led] = getHueColour(C_RAINBOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-            break;
-          }
-        }
-        else if(PREV_FIRING_MODE == MESON) {
-          switch(WAND_BARREL_LED_COUNT) {
-            case LEDS_48:
-              barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-            break;
-
-            case LEDS_5:
-            default:
-              barrel_leds[i_barrel_led] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-            break;
-          }
-        }
-        else {
-          switch(WAND_BARREL_LED_COUNT) {
-            case LEDS_48:
-              barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-            break;
-
-            case LEDS_5:
-            default:
-              barrel_leds[i_barrel_led] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-            break;
-          }
-        }
-      break;
     }
 
     i_heatdown_counter--;
@@ -4216,10 +3999,6 @@ void fireStreamEffect(CRGB c_colour) {
 
             case SPECTRAL_CUSTOM:
               barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
-            break;
-
-            case VENTING:
-              // Nothing.
             break;
           }
         }
@@ -4495,10 +4274,6 @@ void fireStreamEffect(CRGB c_colour) {
             case SPECTRAL_CUSTOM:
               barrel_leds[i_barrel_light - 1] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
             break;
-
-            case VENTING:
-              // Nothing.
-            break;
           }
         }
 
@@ -4716,10 +4491,6 @@ void fireEffectEnd() {
           fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
         }
       break;
-
-      case VENTING:
-        // Nothing.
-      break;
     }
 
     if(i_barrel_light < i_num_barrel_leds) {
@@ -4893,10 +4664,6 @@ void fireEffectEnd() {
           case SPECTRAL_CUSTOM:
             barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
           break;
-
-          case VENTING:
-            // Nothing.
-          break;
         }
       break;
 
@@ -4961,10 +4728,6 @@ void fireEffectEnd() {
 
           case SPECTRAL_CUSTOM:
             barrel_leds[i_barrel_light - 1] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
-          break;
-
-          case VENTING:
-            // Nothing.
           break;
         }
       break;
@@ -8592,20 +8355,15 @@ void checkRotaryEncoder() {
             else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true) {
               // Counter clockwise firing mode selection.
               if(FIRING_MODE == PROTON) {
-                PREV_FIRING_MODE = PROTON;
                 FIRING_MODE = STASIS;
               }
               else if(FIRING_MODE == STASIS) {
-                PREV_FIRING_MODE = STASIS;
                 FIRING_MODE = SLIME;
               }
               else if(FIRING_MODE == SLIME) {
-                PREV_FIRING_MODE = SLIME;
                 FIRING_MODE = MESON;
               }
               else if(FIRING_MODE == MESON) {
-                PREV_FIRING_MODE = MESON;
-
                 // Conditional mode advancement.
                 if(b_spectral_mode_enabled == true) {
                   FIRING_MODE = SPECTRAL;
@@ -8617,12 +8375,10 @@ void checkRotaryEncoder() {
                   FIRING_MODE = SPECTRAL_CUSTOM;
                 }
                 else {
-                  FIRING_MODE = VENTING;
+                  FIRING_MODE = PROTON;
                 }
               }
               else if(FIRING_MODE == SPECTRAL) {
-                PREV_FIRING_MODE = SPECTRAL;
-
                 // Conditional mode advancement.
                 if(b_holiday_mode_enabled == true) {
                   FIRING_MODE = HOLIDAY;
@@ -8631,26 +8387,19 @@ void checkRotaryEncoder() {
                   FIRING_MODE = SPECTRAL_CUSTOM;
                 }
                 else {
-                  FIRING_MODE = VENTING;
+                  FIRING_MODE = PROTON;
                 }
               }
               else if(FIRING_MODE == HOLIDAY) {
-                PREV_FIRING_MODE = HOLIDAY;
-
                 // Conditional mode advancement.
                 if(b_spectral_custom_mode_enabled == true) {
                   FIRING_MODE = SPECTRAL_CUSTOM;
                 }
                 else {
-                  FIRING_MODE = VENTING;
+                  FIRING_MODE = PROTON;
                 }
               }
-              else if(FIRING_MODE == SPECTRAL_CUSTOM) {
-                PREV_FIRING_MODE = SPECTRAL_CUSTOM;
-                FIRING_MODE = VENTING;
-              }
               else {
-                PREV_FIRING_MODE = PROTON;
                 FIRING_MODE = PROTON;
               }
 
@@ -8727,12 +8476,6 @@ void checkRotaryEncoder() {
             }
             else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true) {
               if(FIRING_MODE == PROTON) {
-                PREV_FIRING_MODE = PROTON;
-                FIRING_MODE = VENTING;
-              }
-              else if(FIRING_MODE == VENTING) {
-                PREV_FIRING_MODE = PROTON;
-
                 // Conditional mode advancement.
                 if(b_spectral_custom_mode_enabled == true) {
                   FIRING_MODE = SPECTRAL_CUSTOM;
@@ -8748,8 +8491,6 @@ void checkRotaryEncoder() {
                 }
               }
               else if(FIRING_MODE == SPECTRAL_CUSTOM) {
-                PREV_FIRING_MODE = SPECTRAL_CUSTOM;
-
                 // Conditional mode advancement.
                 if(b_holiday_mode_enabled == true) {
                   FIRING_MODE = HOLIDAY;
@@ -8762,8 +8503,6 @@ void checkRotaryEncoder() {
                 }
               }
               else if(FIRING_MODE == HOLIDAY) {
-                PREV_FIRING_MODE = HOLIDAY;
-
                 // Conditional mode advancement.
                 if(b_spectral_mode_enabled == true) {
                   FIRING_MODE = SPECTRAL;
@@ -8773,19 +8512,15 @@ void checkRotaryEncoder() {
                 }
               }
               else if(FIRING_MODE == SPECTRAL) {
-                PREV_FIRING_MODE = SPECTRAL;
                 FIRING_MODE = MESON;
               }
               else if(FIRING_MODE == MESON) {
-                PREV_FIRING_MODE = MESON;
                 FIRING_MODE = SLIME;
               }
               else if(FIRING_MODE == SLIME) {
-                PREV_FIRING_MODE = SLIME;
                 FIRING_MODE = STASIS;
               }
-              else if(FIRING_MODE == STASIS) {
-                PREV_FIRING_MODE = STASIS;
+              else {
                 FIRING_MODE = PROTON;
               }
 
@@ -8953,11 +8688,6 @@ void wandExitMenu() {
     case SPECTRAL_CUSTOM:
       // Tell the pack we are in spectral custom mode.
       wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-    break;
-
-    case VENTING:
-      // Tell the pakc we are in venting mode.
-      wandSerialSend(W_VENTING_MODE);
     break;
 
     case PROTON:

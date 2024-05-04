@@ -688,11 +688,6 @@ void checkPack() {
               PREV_FIRING_MODE = HOLIDAY;
               setVGMode();
             break;
-            case 8:
-              FIRING_MODE = VENTING;
-              PREV_FIRING_MODE = SPECTRAL_CUSTOM;
-              setVGMode();
-            break;
           }
 
           // Set up master vibration switch.
