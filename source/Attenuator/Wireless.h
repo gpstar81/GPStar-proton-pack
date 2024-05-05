@@ -346,7 +346,7 @@ bool startWiFi() {
   // Assign an event handler to deal with changes in WiFi status.
   WiFi.onEvent(OnWiFiEvent);
 
-  // Attemp connection to an external (preferred) WiFi as a client.
+  // Attempt connection to an external (preferred) WiFi as a client.
   b_ext_wifi_started = startExternalWifi();
 
   if(!b_wifi_enabled || !b_ext_wifi_started) {
