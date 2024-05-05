@@ -148,6 +148,8 @@ bool startAccesPoint() {
   preferences.end();
 
   #if defined(DEBUG_WIRELESS_SETUP)
+    Serial.println();
+    Serial.println(F("Starting Private WiFi Configuration"));
     Serial.print(F("Stored Private SSID: "));
     Serial.println(ap_ssid);
     Serial.print(F("Stored Private PASS: "));
@@ -175,11 +177,11 @@ bool startAccesPoint() {
     WiFi.softAPConfig(localIP, gateway, subnet, dhcpStart);
     WiFi.softAPsetHostname(ap_ssid_prefix.c_str());
     #if defined(DEBUG_WIRELESS_SETUP)
-      Serial.print(F("AP Name/SSID: "));
+      Serial.print(F("AP Name (SSID): "));
       Serial.println(WiFi.softAPSSID());
-      Serial.print(F("AP IP Address: "));
+      Serial.print(F("AP  IP Address: "));
       Serial.println(WiFi.softAPIP());
-      Serial.print(F("AP Hostname: "));
+      Serial.print(F("AP    Hostname: "));
       Serial.println(WiFi.softAPgetHostname());
       Serial.print(F("AP Mac Address: "));
       Serial.println(WiFi.softAPmacAddress());
@@ -213,25 +215,33 @@ bool startExternalWifi() {
   if(b_wifi_enabled && wifi_ssid.length() >= 2 && wifi_pass.length() >= 8) {
     uint8_t i_curr_attempt = 0;
 
+    // When external WiFi is desired, enable simultaneous SoftAP + Station mode.
+    WiFi.mode(WIFI_MODE_APSTA);
+    delay(250);
+
     #if defined(DEBUG_WIRELESS_SETUP)
+      Serial.println();
+      Serial.println(F("Starting External WiFi Configuration"));
       Serial.print(F("Stored External SSID: "));
       Serial.println(wifi_ssid);
       Serial.print(F("Stored External PASS: "));
       Serial.println(wifi_pass);
     #endif
 
+    // Provide adequate attempts to connect to the external WiFi network.
     while (i_curr_attempt < i_max_attempts) {
       WiFi.persistent(false); // Don't write SSID/Password to flash memory.
 
       // Attempt to connect to a specified WiFi network.
       WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
 
-      // Wait for the connection to be established
+      // Wait for the connection to be established.
       uint8_t attempt = 0;
-      while (attempt < (i_max_attempts * 10) && WiFi.status() != WL_CONNECTED) {
+      while (attempt < i_max_attempts && WiFi.status() != WL_CONNECTED) {
         delay(500);
         #if defined(DEBUG_WIRELESS_SETUP)
-          Serial.println(F("Connecting to WiFi network..."));
+          Serial.print(F("Connecting to external WiFi network, attempt #"));
+          Serial.println(attempt);
         #endif
         attempt++;
       }
@@ -286,7 +296,8 @@ bool startExternalWifi() {
 
     if (i_curr_attempt == i_max_attempts) {
       #if defined(DEBUG_WIRELESS_SETUP)
-        Serial.println(F("Max connection attempts reached. Could not connect to external WiFi."));
+        Serial.println(F("Max connection attempts reached."));
+        Serial.println(F("Cannot connect to external WiFi."));
       #endif
     }
   }
@@ -295,12 +306,13 @@ bool startExternalWifi() {
 }
 
 void OnWiFiEvent(WiFiEvent_t event) {
+  // Useful notifications for WiFi events.
   switch (event) {
     case SYSTEM_EVENT_STA_CONNECTED:
-      debug(F("Connected to WiFi Network"));
+      debug(F("Connected to External WiFi Network"));
     break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
-      debug(F("Disconnected from WiFi Network"));
+      debug(F("External WiFi Network: Disconnected/Unavailable"));
     break;
     case SYSTEM_EVENT_AP_START:
       debug(F("Soft AP started"));
@@ -318,10 +330,12 @@ void OnWiFiEvent(WiFiEvent_t event) {
 }
 
 bool startWiFi() {
+  bool b_ext_wifi_started = false;
+
   // Begin some diagnostic information to console.
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println();
-    Serial.println(F("Starting WiFi Configuration"));
+    Serial.println(F("Begin WiFi Configuration"));
     Serial.print(F("Device WiFi MAC Address: "));
     Serial.println(WiFi.macAddress());
   #endif
@@ -332,18 +346,24 @@ bool startWiFi() {
   // Assign an event handler to deal with changes in WiFi status.
   WiFi.onEvent(OnWiFiEvent);
 
-  if(b_wifi_enabled) {
-    // When external WiFi is desired, enable simultaneous SoftAP + Station mode.
-    WiFi.mode(WIFI_MODE_APSTA);
+  // Attempt connection to an external (preferred) WiFi as a client.
+  b_ext_wifi_started = startExternalWifi();
+
+  if(!b_wifi_enabled || !b_ext_wifi_started) {
+    #if defined(DEBUG_WIRELESS_SETUP)
+      Serial.println(F("External WiFi not available, switching to SoftAP mode..."));
+    #endif
+
+    // When external WiFi is unavailable, switch to only SoftAP mode.
+    WiFi.mode(WIFI_MODE_AP);
     delay(250);
   }
 
   // Start the built-in access point (softAP) with the preferred credentials.
+  // This should ALWAYS be available for direct connections to the device.
   if(!b_ap_started) {
     b_ap_started = startAccesPoint();
   }
-
-  startExternalWifi(); // Connect to the external (preferred) WiFi as a client.
 
   return b_ap_started; // At least return whether the soft AP started successfully.
 }
