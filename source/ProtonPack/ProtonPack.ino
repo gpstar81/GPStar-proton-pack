@@ -427,36 +427,6 @@ void loop() {
 
       // Play a little bit of smoke and N-Filter vent lights while firing and other misc sound effects.
       if(b_wand_firing == true) {
-        // If firing in Meson Blast, control the pulse repeat effect.
-        if(FIRING_MODE == MESON) {
-          if(ms_meson_blast.justFinished()) {
-            playEffect(S_MESON_FIRE_PULSE);
-
-            switch(i_wand_power_level) {
-              case 5:
-                ms_meson_blast.start(i_meson_blast_delay_level_5);
-              break;
-
-              case 4:
-                ms_meson_blast.start(i_meson_blast_delay_level_4);
-              break;
-
-              case 3:
-                ms_meson_blast.start(i_meson_blast_delay_level_3);
-              break;
-
-              case 2:
-                ms_meson_blast.start(i_meson_blast_delay_level_2);
-              break;
-
-              case 1:
-              default:
-                ms_meson_blast.start(i_meson_blast_delay_level_1);
-              break;
-            }
-          }
-        }
-
         // Mix some impact sound effects.
         if(ms_firing_sound_mix.justFinished() && FIRING_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects == true) {
           uint8_t i_random = 0;
@@ -4068,30 +4038,7 @@ void modeFireStartSounds() {
     break;
 
     case MESON:
-      playEffect(S_MESON_FIRE_PULSE);
-
-      switch(i_wand_power_level) {
-        case 5:
-          ms_meson_blast.start(i_meson_blast_delay_level_5);
-        break;
-
-        case 4:
-          ms_meson_blast.start(i_meson_blast_delay_level_4);
-        break;
-
-        case 3:
-          ms_meson_blast.start(i_meson_blast_delay_level_3);
-        break;
-
-        case 2:
-          ms_meson_blast.start(i_meson_blast_delay_level_2);
-        break;
-
-        case 1:
-        default:
-          ms_meson_blast.start(i_meson_blast_delay_level_1);
-        break;
-      }
+      playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
     break;
   }
 
@@ -4223,8 +4170,6 @@ void modeFireStopSounds() {
 }
 
 void wandStoppedFiring() {
-  ms_meson_blast.stop();
-
   modeFireStopSounds();
 
   ms_firing_sound_mix.stop();

@@ -56,7 +56,8 @@ void checkWandAction() {
       if(b_pack_on == true && b_pack_alarm == false) {
         if(FIRING_MODE == MESON) {
           if(ms_meson_blast.justFinished()) {
-            playEffect(S_MESON_FIRE_PULSE);
+            playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
+            wandSerialSend(W_MESON_FIRE_PULSE);
             ms_firing_stream_effects.start(0); // Start new barrel animation.
 
             switch(i_power_level) {

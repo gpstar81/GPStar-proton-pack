@@ -300,16 +300,6 @@ const uint8_t fan_booster_pin = 38;
 const uint8_t fan_pin = 33;
 
 /*
- * Control for the Meson Shock Blast sound effects.
-*/
-millisDelay ms_meson_blast;
-const unsigned int i_meson_blast_delay_level_5 = 140;
-const unsigned int i_meson_blast_delay_level_4 = 160;
-const unsigned int i_meson_blast_delay_level_3 = 180;
-const unsigned int i_meson_blast_delay_level_2 = 200;
-const unsigned int i_meson_blast_delay_level_1 = 220;
-
-/*
  * Overheating and smoke timers for smoke_pin.
  */
 millisDelay ms_overheating;

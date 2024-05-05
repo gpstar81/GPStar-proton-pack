@@ -1503,6 +1503,26 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       wandExtraSoundsStop();
     break;
 
+    case W_BOSON_DART_SOUND:
+      playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    case W_SHOCK_BLAST_SOUND:
+      playEffect(S_SHOCK_BLAST_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    case W_SLIME_TETHER_SOUND:
+      playEffect(S_SLIME_TETHER_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    case W_MESON_COLLIDER_SOUND:
+      playEffect(S_MESON_COLLIDER_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    case W_MESON_FIRE_PULSE:
+      playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
+    break;
+
     case W_FIRING:
       // Wand is firing.
       wandFiring();
@@ -1775,21 +1795,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_SETTINGS_MODE:
       // Settings mode
       playEffect(S_CLICK);
-
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
-
-      if(b_cyclotron_colour_toggle == true) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
 
       serial1Send(A_SETTINGS_MODE);
     break;

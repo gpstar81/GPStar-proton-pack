@@ -340,11 +340,18 @@ millisDelay ms_firing_lights;
 millisDelay ms_firing_lights_end;
 millisDelay ms_firing_effect_end;
 millisDelay ms_firing_stream_effects;
+millisDelay ms_firing_pulse;
 millisDelay ms_impact; // Mix some impact sounds while firing.
 millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
 millisDelay ms_semi_automatic_check; // Timer used for the semi-automatic firing modes.
+const uint16_t i_boson_dart_rate = 2000; // Boson Dart firing rate.
+const uint16_t i_shock_blast_rate = 600; // Shock Blast firing rate.
+const uint16_t i_slime_tether_rate = 750; // Slime Tether firing rate.
+const uint16_t i_meson_collider_rate = 250; // Meson Collider firing rate.
+const uint8_t d_firing_pulse = 150; // Used to drive semi-automatic firing stream effects timers. Default: 150ms.
 const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
-uint8_t i_barrel_light = 0; // using this to keep track which LED in the barrel is currently lighting up.
+uint8_t i_barrel_light = 0; // Used to keep track which LED in the barrel is currently lighting up.
+uint8_t i_slime_tether_count = 0; // Used to keep track of how many slime tethers have been fired.
 int i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
 
 /*
@@ -394,10 +401,11 @@ millisDelay ms_settings_blinking;
 /*
  * Misc wand settings and flags.
  */
-bool b_firing = false;
-bool b_firing_intensify = false;
-bool b_firing_alt = false;
-bool b_firing_cross_streams = false;
+bool b_firing = false; // Check for general firing state.
+bool b_firing_intensify = false; // Check for Intensify button activity.
+bool b_firing_alt = false; // Check for Barrel Wing Button firing activity for CTS.
+bool b_firing_cross_streams = false; // Check for CTS firing activity.
+bool b_firing_semi_automatic = false; // Check for semi-automatic firing modes.
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_sound_firing_cross_the_streams = false;

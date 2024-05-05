@@ -1359,9 +1359,10 @@ void checkSwitches() {
         case MODE_ORIGINAL:
           // We shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
           if(switch_vent.on() == false || switch_wand.on() == false) {
-              bargraphYearModeUpdate();
-              // If any of the right toggle switches are turned off, we must turn the cyclotron off and shut the Neutrona Wand down to a off idle status.
-              WAND_ACTION_STATUS = ACTION_OFF;
+            bargraphYearModeUpdate();
+            // If any of the right toggle switches are turned off, we must turn the cyclotron off and shut the Neutrona Wand down to a off idle status.
+            WAND_ACTION_STATUS = ACTION_OFF;
+            return;
           }
           else {
             // Determine the light status on the wand and any beeps.
@@ -1709,6 +1710,12 @@ void wandOff() {
 void fireControlCheck() {
   // Firing action stuff and shutting cyclotron and the Neutrona Wand off.
   if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
+    // If Activate switch is down, turn wand off.
+    if(switch_activate.on() == false) {
+      WAND_ACTION_STATUS = ACTION_OFF;
+      return;
+    }
+
     if(i_bmash_count >= i_bmash_max) {
       // User has exceeded "normal" firing rate.
       switch(FIRING_MODE) {
@@ -1754,7 +1761,7 @@ void fireControlCheck() {
       }
     }
     else {
-      if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_switch_barrel_extended == true) {
+      if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
         if(WAND_ACTION_STATUS != ACTION_FIRING) {
           WAND_ACTION_STATUS = ACTION_FIRING;
         }
@@ -1775,7 +1782,7 @@ void fireControlCheck() {
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
       if(b_cross_the_streams == true) {
-        if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_switch_barrel_extended == true) {
+        if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
           if(WAND_ACTION_STATUS != ACTION_FIRING) {
             WAND_ACTION_STATUS = ACTION_FIRING;
           }
@@ -1818,13 +1825,9 @@ void fireControlCheck() {
       }
     }
 
-    if(switch_activate.on() == false) {
-      WAND_ACTION_STATUS = ACTION_OFF;
-    }
-
     // Quick vent feature. When enabled, clicking Intensify will perform a quick vent, while holding will force the full overheat sequence.
     // Super Hero Mode only, because Mode Original uses different toggle switch combinations which makes this not possible.
-    if(b_quick_vent == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() == false && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && b_overheat_enabled == true) {
+    if(b_quick_vent == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() == false && switch_vent.on() == true && b_overheat_enabled == true) {
       if(switch_intensify.singleClick()) {
         startQuickVent();
       }
@@ -1834,13 +1837,15 @@ void fireControlCheck() {
     }
   }
   else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_VENTING || WAND_ACTION_STATUS == ACTION_SETTINGS || b_pack_alarm == true) {
+    // If Activate switch is down, turn wand off.
     if(switch_activate.on() == false) {
       WAND_ACTION_STATUS = ACTION_OFF;
+      return;
     }
 
     if(WAND_ACTION_STATUS == ACTION_IDLE) {
       // Play a little spark effect if the user tries to fire while the ribbon cable is removed.
-      if((switch_intensify.pushed() || (b_cross_the_streams == true && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning()) {
+      if((switch_intensify.pushed() || (b_cross_the_streams == true && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning() && switch_vent.on() == true && switch_wand.on() == true) {
         if(b_extra_pack_sounds == true) {
           wandSerialSend(W_WAND_MASH_ERROR_SOUND);
         }
