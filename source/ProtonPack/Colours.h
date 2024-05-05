@@ -37,7 +37,6 @@ enum colours {
   C_RED5,
   C_ORANGE,
   C_YELLOW,
-  C_CHARTREUSE,
   C_GREEN,
   C_MINT,
   C_AQUA,
@@ -56,12 +55,12 @@ enum colours {
   C_HASLAB
 };
 
-int getBrightness(uint8_t i_percent = 100) {
+uint8_t getBrightness(uint8_t i_percent = 100) {
   // Brightness here is a percentage, to be converted to a range 0-255.
   if(i_percent > 100) {
     i_percent = 100;
   }
-  return (int) ((255 * i_percent) / 100);
+  return (uint8_t) ((255 * i_percent) / 100);
 }
 
 // Special values for colour cycles: current hue (colour) and when to change colour.
@@ -298,10 +297,6 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
     case C_YELLOW:
       return CHSV(64, i_saturation, i_brightness);
-    break;
-
-    case C_CHARTREUSE:
-      return CHSV(80, i_saturation, i_brightness);
     break;
 
     case C_GREEN:

@@ -28,9 +28,9 @@
 /*
  * Cyclotron Lid LEDs.
  * For the stock HasLab LEDs, there are 12 LEDs in the cyclotron lid.
- * Use int i_cyclotron_leds = 12; and i_1984_cyclotron_leds 1, 4, 7, 10.
+ * Use uint8_t i_cyclotron_leds = 12; and i_1984_cyclotron_leds 1, 4, 7, 10.
  *
- * For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use int i_cyclotron_leds = 40 and i_1984_cyclotron_leds 0, 10, 18, 28.
+ * For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use uint8_t i_cyclotron_leds = 40 and i_1984_cyclotron_leds 0, 10, 18, 28.
  * Adjust as necessary depending on how you align your NeoPixel ring.
  * You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.
  *

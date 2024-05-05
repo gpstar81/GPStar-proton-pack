@@ -352,7 +352,7 @@ const uint8_t d_firing_pulse = 150; // Used to drive semi-automatic firing strea
 const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // Used to keep track which LED in the barrel is currently lighting up.
 uint8_t i_slime_tether_count = 0; // Used to keep track of how many slime tethers have been fired.
-int i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
+uint16_t i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
 
 /*
  * Wand power level. Controlled by the rotary encoder on the top of the wand.

@@ -46,12 +46,12 @@ enum colours {
   C_SPECTRAL_CUSTOM
 };
 
-int getBrightness(uint8_t i_percent = 100) {
+uint8_t getBrightness(uint8_t i_percent = 100) {
   // Brightness here is a percentage, to be converted to a range 0-255.
   if(i_percent > 100) {
     i_percent = 100;
   }
-  return (int) ((255 * i_percent) / 100);
+  return (uint8_t) ((255 * i_percent) / 100);
 }
 
 // Special values for colour cycles: current hue (colour) and when to change colour.

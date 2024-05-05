@@ -1647,6 +1647,7 @@ void wandOff() {
   // Turn off some timers.
   ms_overheating.stop();
   ms_settings_blinking.stop();
+  ms_semi_automatic_check.stop();
   ms_hat_1.stop();
   ms_hat_2.stop();
 
@@ -1761,23 +1762,61 @@ void fireControlCheck() {
       }
     }
     else {
+      if(i_slime_tether_count > 0 && ms_semi_automatic_check.remaining() < 1) {
+        // Reset the Slime Tether count.
+        i_slime_tether_count = 0;
+      }
+
       if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
-        if(WAND_ACTION_STATUS != ACTION_FIRING) {
-          WAND_ACTION_STATUS = ACTION_FIRING;
-        }
+        switch(FIRING_MODE) {
+          case PROTON:
+          case SLIME:
+          case SPECTRAL:
+          case SPECTRAL_CUSTOM:
+          case HOLIDAY:
+          default:
+            if(WAND_ACTION_STATUS != ACTION_FIRING) {
+              WAND_ACTION_STATUS = ACTION_FIRING;
+            }
 
-        if(ms_bmash.remaining() < 1) {
-          // Clear counter/timer until user begins firing.
-          i_bmash_count = 0;
-          ms_bmash.start(i_bmash_delay);
-        }
+            if(ms_bmash.remaining() < 1) {
+              // Clear counter/timer until user begins firing.
+              i_bmash_count = 0;
+              ms_bmash.start(i_bmash_delay);
+            }
 
-        if(b_firing_intensify != true) {
-          // Increase count each time the user presses a firing button.
-          i_bmash_count++;
-        }
+            if(b_firing_intensify != true) {
+              // Increase count each time the user presses a firing button.
+              i_bmash_count++;
+            }
 
-        b_firing_intensify = true;
+            b_firing_intensify = true;
+          break;
+
+          case STASIS:
+            // Handle Shock Blast fire start here.
+            if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1) {
+              // Start rate-of-fire timer.
+              ms_semi_automatic_check.start(i_shock_blast_rate);
+
+              modePulseStart();
+
+              b_firing_semi_automatic = true;
+            }
+          break;
+
+          case MESON:
+            // Handle Meson Collider fire start here.
+            if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1) {
+              // Start rate-of-fire timer.
+              ms_semi_automatic_check.start(i_meson_collider_rate);
+
+              modePulseStart();
+
+              b_firing_semi_automatic = true;
+            }
+          break;
+        }
       }
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
@@ -1808,20 +1847,121 @@ void fireControlCheck() {
           b_firing_alt = false;
         }
       }
-      else if(vgModeCheck() == true) {
+      else {
         if(FIRING_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
           if(switch_mode.on() == true) {
             b_firing_alt = true;
           }
         }
+        else if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Handle Boson Dart fire start here.
+              if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1) {
+                // Start rate-of-fire timer.
+                ms_semi_automatic_check.start(i_boson_dart_rate);
+
+                modePulseStart();
+
+                b_firing_semi_automatic = true;
+              }
+            break;
+
+            case SLIME:
+              // Handle Slime Tether fire start here.
+              if(b_firing_semi_automatic != true) {
+                if(i_slime_tether_count < 1) {
+                  // Start the rate-of-fire timer.
+                  ms_semi_automatic_check.start(i_slime_tether_rate);
+
+                  modePulseStart();
+
+                  // Increment the Slime Tether counter.
+                  i_slime_tether_count++;
+                }
+                else if (i_slime_tether_count < 2){
+                  modePulseStart();
+
+                  // Increment the Slime Tether counter.
+                  i_slime_tether_count++;
+                }
+
+                b_firing_semi_automatic = true;
+              }
+            break;
+
+            case STASIS:
+            case MESON:
+              if(WAND_ACTION_STATUS != ACTION_FIRING) {
+                WAND_ACTION_STATUS = ACTION_FIRING;
+              }
+
+              if(ms_bmash.remaining() < 1) {
+                // Clear counter/timer until user begins firing.
+                i_bmash_count = 0;
+                ms_bmash.start(i_bmash_delay);
+              }
+
+              if(b_firing_intensify != true) {
+                // Increase count each time the user presses a firing button.
+                i_bmash_count++;
+              }
+
+              b_firing_intensify = true;
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        }
       }
 
-      if(switch_intensify.on() == false && b_firing == true && b_firing_intensify == true) {
-        if(b_firing_alt != true || vgModeCheck() == true) {
-          WAND_ACTION_STATUS = ACTION_IDLE;
-        }
+      if(switch_intensify.on() != true) {
+        switch(FIRING_MODE) {
+          case PROTON:
+          case SLIME:
+          case SPECTRAL:
+          case SPECTRAL_CUSTOM:
+          case HOLIDAY:
+          default:
+            if(b_firing == true && b_firing_intensify == true) {
+              if(b_firing_alt != true || vgModeCheck() == true) {
+                WAND_ACTION_STATUS = ACTION_IDLE;
+              }
 
-        b_firing_intensify = false;
+              b_firing_intensify = false;
+            }
+          break;
+
+          case STASIS:
+          case MESON:
+            // Handle resetting semi-auto bool here.
+            b_firing_semi_automatic = false;
+          break;
+        }
+      }
+
+      if(switch_mode.on() != true && b_cross_the_streams != true) {
+        switch(FIRING_MODE) {
+          case PROTON:
+          case SLIME:
+            // Handle resetting semi-auto bool here.
+            b_firing_semi_automatic = false;
+          break;
+
+          case STASIS:
+          case MESON:
+            if(b_firing == true && b_firing_intensify == true) {
+              WAND_ACTION_STATUS = ACTION_IDLE;
+              b_firing_intensify = false;
+            }
+          break;
+
+          default:
+            // Do nothing.
+          break;
+        }
       }
     }
 
@@ -1986,6 +2126,9 @@ void modeCheck() {
       wandSerialSend(W_PROTON_MODE);
     break;
   }
+
+  // Reset the semi-automatic firing timer.
+  ms_semi_automatic_check.stop();
 }
 
 void modeError() {
@@ -2498,6 +2641,53 @@ void soundBeepLoop() {
 
       ms_reset_sound_beep.stop();
     }
+  }
+}
+
+void modePulseStart() {
+  // Handles all "pulsed" fire modes.
+  i_fast_led_delay = FAST_LED_UPDATE_MS;
+  barrelLightsOff();
+
+  switch(FIRING_MODE) {
+    case PROTON:
+      // Boson Dart.
+      wandSerialSend(W_BOSON_DART_SOUND);
+      playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    case SLIME:
+      // Slime Tether.
+      wandSerialSend(W_SLIME_TETHER_SOUND);
+      playEffect(S_SLIME_TETHER_FIRE, false, i_volume_effects, false, 0, false);
+      ms_firing_stream_effects.start(0); // Start new barrel animation.
+
+      // Draw first pixel.
+      if(getSystemYearMode() == SYSTEM_1989) {
+        fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+      }
+      else {
+        fireStreamEffect(getHueColour(C_DARKGREEN, WAND_BARREL_LED_COUNT));
+      }
+
+      ms_firing_effect_end.start(0); // Immediately end animation.
+    break;
+
+    case STASIS:
+      // Shock Blast.
+      wandSerialSend(W_SHOCK_BLAST_SOUND);
+      playEffect(S_SHOCK_BLAST_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    case MESON:
+      // Meson Collider.
+      wandSerialSend(W_MESON_COLLIDER_SOUND);
+      playEffect(S_MESON_COLLIDER_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    default:
+      // Do nothing.
+    break;
   }
 }
 
@@ -3352,11 +3542,12 @@ void modeFiring() {
     case SLIME:
       if(getSystemYearMode() == SYSTEM_1989) {
         fireStreamStart(getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT));
+        fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
       }
       else {
         fireStreamStart(getHueColour(C_GREEN, WAND_BARREL_LED_COUNT));
+        fireStreamEffect(getHueColour(C_DARKGREEN, WAND_BARREL_LED_COUNT));
       }
-      fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
     break;
 
     case STASIS:
@@ -4469,7 +4660,12 @@ void fireEffectEnd() {
       break;
 
       case SLIME:
-        fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+        if(getSystemYearMode() == SYSTEM_1989) {
+          fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+        }
+        else {
+          fireStreamEffect(getHueColour(C_DARKGREEN, WAND_BARREL_LED_COUNT));
+        }
       break;
 
       case STASIS:
@@ -6236,7 +6432,7 @@ void bargraphRampFiring() {
     break;
   }
 
-  int i_ramp_interval = d_bargraph_ramp_interval;
+  uint8_t i_ramp_interval = d_bargraph_ramp_interval;
 
   if(b_28segment_bargraph == true) {
     // Switch to a different ramp speed if using the (Optional) 28 segment barmeter bargraph.

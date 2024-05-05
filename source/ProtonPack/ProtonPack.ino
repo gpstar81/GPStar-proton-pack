@@ -612,7 +612,7 @@ bool fadeOutLights() {
       i_cyclotron_leds_total = OUTER_CYCLOTRON_LED_MAX;
     }
 
-    for(int i = 0; i < i_cyclotron_leds_total; i++) {
+    for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
       int i_curr_brightness = i_cyclotron_led_value[i] - 10;
 
       if(i_curr_brightness < 0) {
@@ -1446,7 +1446,7 @@ void cyclotronSwitchLEDLoop() {
     }
 
     // Setup the delays again.
-    int i_cyc_led_delay = i_cyclotron_switch_led_delay / i_cyclotron_switch_led_mulitplier;
+    unsigned int i_cyc_led_delay = i_cyclotron_switch_led_delay / i_cyclotron_switch_led_mulitplier;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
@@ -1913,7 +1913,7 @@ void cyclotronFade() {
         if(ms_cyclotron_led_fade_in[i].isRunning()) {
           b_cyclotron_led_on_status[i] = true;
 
-          int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
+          uint8_t i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
 
           if(b_cyclotron_simulate_ring == true) {
@@ -1945,7 +1945,7 @@ void cyclotronFade() {
           }
         }
 
-        int i_new_brightness = getBrightness(i_cyclotron_brightness);
+        uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
         if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && b_cyclotron_led_on_status[i] == true) {
           i_cyclotron_led_value[i] = i_new_brightness;
           b_cyclotron_led_on_status[i] = false;
@@ -1995,7 +1995,7 @@ void cyclotronFade() {
         }
 
         if(ms_cyclotron_led_fade_out[i].isRunning() && b_cyclotron_led_on_status[i] == false) {
-          int i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
+          uint8_t i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
 
           if(b_cyclotron_simulate_ring == true) {
@@ -2074,13 +2074,13 @@ void cyclotronFade() {
         for(int i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start; i++) {
           if(ms_cyclotron_led_fade_in[i].isRunning()) {
             b_cyclotron_led_on_status[i] = true;
-            int i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
+            uint8_t i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
 
             pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
             i_cyclotron_led_value[i] = i_curr_brightness;
           }
 
-          int i_new_brightness = getBrightness(i_cyclotron_brightness);
+          uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
 
           if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && b_cyclotron_led_on_status[i] == true) {
             pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
@@ -2088,7 +2088,7 @@ void cyclotronFade() {
           }
 
           if(ms_cyclotron_led_fade_out[i].isRunning()) {
-            int i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
+            uint8_t i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
 
             if(i_curr_brightness < 30 && FIRING_MODE != SLIME) {
               ms_cyclotron_led_fade_out[i].go(0);

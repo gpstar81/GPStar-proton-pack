@@ -265,11 +265,11 @@ ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defa
 enum VIBRATION_MODES_EEPROM { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
 enum VIBRATION_MODES_EEPROM VIBRATION_MODE_EEPROM;
 const uint8_t vibration = 45;
-int i_vibration_level = 0;
-int i_vibration_level_prev = 0;
-const int i_vibration_idle_level_2021 = 60;
-const int i_vibration_idle_level_1984 = 35;
-const int i_vibration_lowest_level = 15;
+uint8_t i_vibration_level = 0;
+uint8_t i_vibration_level_prev = 0;
+const uint8_t i_vibration_idle_level_2021 = 60;
+const uint8_t i_vibration_idle_level_1984 = 35;
+const uint8_t i_vibration_lowest_level = 15;
 
 /*
  * Enable or disable vibration control for the Proton Pack.
@@ -390,7 +390,7 @@ SerialTransfer packComs;
 millisDelay ms_firing_length_timer;
 const unsigned int i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
 millisDelay ms_firing_sound_mix; // Used to play misc sound effects during firing.
-int i_last_firing_effect_mix = 0;
+uint16_t i_last_firing_effect_mix = 0;
 millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound with firing
 
 /*
