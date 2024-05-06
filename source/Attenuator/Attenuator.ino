@@ -149,6 +149,9 @@ void setup() {
   vibrateOff();
 
   #if defined(__XTENSA__)
+    // Delay before configuring WiFi and web access.
+    delay(100);
+
     // ESP - Setup WiFi and WebServer
     if(startWiFi()) {
       // Start the local web server.
