@@ -348,9 +348,10 @@ const uint16_t i_boson_dart_rate = 2000; // Boson Dart firing rate.
 const uint16_t i_shock_blast_rate = 600; // Shock Blast firing rate.
 const uint16_t i_slime_tether_rate = 750; // Slime Tether firing rate.
 const uint16_t i_meson_collider_rate = 250; // Meson Collider firing rate.
-const uint8_t d_firing_pulse = 150; // Used to drive semi-automatic firing stream effects timers. Default: 150ms.
+const uint8_t d_firing_pulse = 18; // Used to drive semi-automatic firing stream effect timers. Default: 18ms.
 const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // Used to keep track which LED in the barrel is currently lighting up.
+uint8_t i_pulse_step = 0; // Used to keep track of which pulse animation step we are on.
 uint8_t i_slime_tether_count = 0; // Used to keep track of how many slime tethers have been fired.
 uint16_t i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
 

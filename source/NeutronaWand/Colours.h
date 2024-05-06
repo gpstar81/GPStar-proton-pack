@@ -30,8 +30,9 @@ enum colours {
   C_BLACK,
   C_WHITE,
   C_PINK,
-  C_PASTELPINK,
+  C_PASTEL_PINK,
   C_RED,
+  C_LIGHT_RED,
   C_RED2,
   C_RED3,
   C_RED4,
@@ -41,11 +42,12 @@ enum colours {
   C_YELLOW,
   C_CHARTREUSE,
   C_GREEN,
-  C_DARKGREEN,
+  C_DARK_GREEN,
   C_MINT,
   C_AQUA,
   C_LIGHT_BLUE,
   C_MID_BLUE,
+  C_NAVY_BLUE,
   C_BLUE,
   C_PURPLE,
   C_REDGREEN,
@@ -93,12 +95,16 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       return CHSV(244, i_saturation, i_brightness);
     break;
 
-    case C_PASTELPINK:
+    case C_PASTEL_PINK:
       return CHSV(244, 128, i_brightness);
     break;
 
     case C_RED:
       return CHSV(0, i_saturation, i_brightness);
+    break;
+
+    case C_LIGHT_RED:
+      return CHSV(0, 192, i_brightness);
     break;
 
     case C_RED2:
@@ -137,7 +143,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       return CHSV(96, i_saturation, i_brightness);
     break;
 
-    case C_DARKGREEN:
+    case C_DARK_GREEN:
       return CHSV(96, i_saturation, 128);
     break;
 
@@ -155,6 +161,10 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
     case C_MID_BLUE:
       return CHSV(160, i_saturation, i_brightness);
+    break;
+
+    case C_NAVY_BLUE:
+      return CHSV(170, 200, 112);
     break;
 
     case C_BLUE:

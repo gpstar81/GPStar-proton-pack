@@ -1150,6 +1150,21 @@ void checkSwitches() {
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
           if(switch_power.isPressed() || switch_power.isReleased()) {
+            // When the ion arm switch is used to turn the Proton Pack on, play a extra sound effect in Afterlife or Frozen Empire.
+            switch(SYSTEM_YEAR) {
+              case SYSTEM_AFTERLIFE:
+              case SYSTEM_FROZEN_EMPIRE:
+                stopEffect(S_ION_ARM_SWITCH_ALT);
+                playEffect(S_ION_ARM_SWITCH_ALT);
+              break;
+
+              case SYSTEM_1984:
+              case SYSTEM_1989:
+              default:
+                // Do nothing.
+              break;
+            }
+
             if(switch_power.getState() == LOW) {
               // Tell the Neutrona Wand that power to the Proton Pack is on.
               if(b_wand_connected) {
@@ -1178,6 +1193,21 @@ void checkSwitches() {
         case MODE_SUPER_HERO:
         default:
           if(switch_power.isPressed() || switch_power.isReleased()) {
+            // When the ion arm switch is used to turn the Proton Pack on, play a extra sound effect in Afterlife or Frozen Empire.
+            switch(SYSTEM_YEAR) {
+              case SYSTEM_AFTERLIFE:
+              case SYSTEM_FROZEN_EMPIRE:
+                stopEffect(S_ION_ARM_SWITCH_ALT);
+                playEffect(S_ION_ARM_SWITCH_ALT);
+              break;
+
+              case SYSTEM_1984:
+              case SYSTEM_1989:
+              default:
+                // Do nothing.
+              break;
+            }
+
             // Turn the pack on.
             PACK_ACTION_STATE = ACTION_ACTIVATE;
           }
@@ -1265,7 +1295,7 @@ void checkSwitches() {
           case SYSTEM_1984:
           case SYSTEM_1989:
           default:
-            // Nothing.
+            // Do nothing.
           break;
         }
       }

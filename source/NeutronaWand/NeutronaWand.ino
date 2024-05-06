@@ -582,6 +582,11 @@ void mainLoop() {
     modeFireStop();
   }
 
+  // Play the firing pulse effect animation.
+  if(ms_firing_pulse.justFinished()) {
+    firePulseEffect();
+  }
+
   // Play the firing effect end animation.
   if(ms_firing_effect_end.justFinished()) {
     fireEffectEnd();
@@ -2654,6 +2659,7 @@ void modePulseStart() {
       // Boson Dart.
       wandSerialSend(W_BOSON_DART_SOUND);
       playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
+      ms_firing_pulse.start(0);
     break;
 
     case SLIME:
@@ -2667,7 +2673,7 @@ void modePulseStart() {
         fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
       }
       else {
-        fireStreamEffect(getHueColour(C_DARKGREEN, WAND_BARREL_LED_COUNT));
+        fireStreamEffect(getHueColour(C_DARK_GREEN, WAND_BARREL_LED_COUNT));
       }
 
       ms_firing_effect_end.start(0); // Immediately end animation.
@@ -2677,12 +2683,14 @@ void modePulseStart() {
       // Shock Blast.
       wandSerialSend(W_SHOCK_BLAST_SOUND);
       playEffect(S_SHOCK_BLAST_FIRE, false, i_volume_effects, false, 0, false);
+      ms_firing_pulse.start(0);
     break;
 
     case MESON:
       // Meson Collider.
       wandSerialSend(W_MESON_COLLIDER_SOUND);
       playEffect(S_MESON_COLLIDER_FIRE, false, i_volume_effects, false, 0, false);
+      ms_firing_pulse.start(0);
     break;
 
     default:
@@ -3541,18 +3549,18 @@ void modeFiring() {
 
     case SLIME:
       if(getSystemYearMode() == SYSTEM_1989) {
-        fireStreamStart(getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT));
+        fireStreamStart(getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT));
         fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
       }
       else {
         fireStreamStart(getHueColour(C_GREEN, WAND_BARREL_LED_COUNT));
-        fireStreamEffect(getHueColour(C_DARKGREEN, WAND_BARREL_LED_COUNT));
+        fireStreamEffect(getHueColour(C_DARK_GREEN, WAND_BARREL_LED_COUNT));
       }
     break;
 
     case STASIS:
       fireStreamStart(getHueColour(C_BLUE, WAND_BARREL_LED_COUNT));
-      fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+      fireStreamEffect(getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT));
     break;
 
     case MESON:
@@ -3792,11 +3800,11 @@ void wandBarrelHeatUp() {
         switch(WAND_BARREL_LED_COUNT) {
           case LEDS_48:
             if(getSystemYearMode() == SYSTEM_1989) {
-              barrel_leds[i_barrel_led] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
+              barrel_leds[i_barrel_led] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
+              barrel_leds[i_barrel_led - 23] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
+              barrel_leds[i_barrel_led - 24] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
+              barrel_leds[i_barrel_led - 25] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
+              barrel_leds[i_barrel_led + 1] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
             }
             else {
               barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
@@ -3810,7 +3818,7 @@ void wandBarrelHeatUp() {
           case LEDS_5:
           default:
             if(getSystemYearMode() == SYSTEM_1989) {
-              barrel_leds[i_barrel_led] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
+              barrel_leds[i_barrel_led] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatup_counter);
             }
             else {
               barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatup_counter);
@@ -3990,11 +3998,11 @@ void wandBarrelHeatDown() {
         switch(WAND_BARREL_LED_COUNT) {
           case LEDS_48:
             if(getSystemYearMode() == SYSTEM_1989) {
-              barrel_leds[i_barrel_led] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 23] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 24] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led - 25] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
-              barrel_leds[i_barrel_led + 1] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+              barrel_leds[i_barrel_led] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+              barrel_leds[i_barrel_led - 23] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+              barrel_leds[i_barrel_led - 24] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+              barrel_leds[i_barrel_led - 25] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+              barrel_leds[i_barrel_led + 1] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
             }
             else {
               barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
@@ -4008,7 +4016,7 @@ void wandBarrelHeatDown() {
           case LEDS_5:
           default:
             if(getSystemYearMode() == SYSTEM_1989) {
-              barrel_leds[i_barrel_led] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+              barrel_leds[i_barrel_led] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT, i_heatdown_counter);
             }
             else {
               barrel_leds[i_barrel_led] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT, i_heatdown_counter);
@@ -4112,26 +4120,394 @@ void wandBarrelHeatDown() {
   }
 }
 
-void fireStreamEffect(CRGB c_colour) {
-  uint8_t i_firing_stream; // Stores a calculated value based on LED count.
+void firePulseEffect() {
+  uint8_t i_firing_pulse; // Stores a calculated value based on LED count.
 
   switch(WAND_BARREL_LED_COUNT) {
     case LEDS_48:
       // More LEDs means a faster firing rate.
-      i_firing_stream = d_firing_stream / 10;
+      i_firing_pulse = d_firing_pulse / 3;
     break;
 
     case LEDS_5:
     default:
       // Firing at "normal" speed.
-      i_firing_stream = d_firing_stream;
+      i_firing_pulse = d_firing_pulse;
+
+      switch(i_pulse_step) {
+        case 0:
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Boson Dart.
+              barrel_leds[0] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+            break;
+
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[0] = getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[0] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 1:
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Boson Dart.
+              barrel_leds[0] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+            break;
+
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[0] = getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[0] = getHueColour(C_ORANGE, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 2:
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Boson Dart.
+              barrel_leds[0] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+            break;
+
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[0] = getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[0] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 3:
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Boson Dart.
+              barrel_leds[0] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+            break;
+
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[0] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[0] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_ORANGE, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 4:
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Boson Dart.
+              barrel_leds[0] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+            break;
+
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[0] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[0] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 5:
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Boson Dart.
+              barrel_leds[0] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+            break;
+
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[0] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[0] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_ORANGE, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 6:
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Boson Dart.
+              barrel_leds[1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 7:
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Boson Dart.
+              barrel_leds[2] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+            break;
+
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[2] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_ORANGE, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 8:
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Boson Dart.
+              barrel_leds[3] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+            break;
+
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[2] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[2] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 9:
+          switch(FIRING_MODE) {
+            case PROTON:
+              // Boson Dart.
+              barrel_leds[4] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+            break;
+
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[2] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[2] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[3] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_ORANGE, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 10:
+          switch(FIRING_MODE) {
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[3] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[3] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 11:
+          switch(FIRING_MODE) {
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[3] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[3] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[4] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 12:
+          switch(FIRING_MODE) {
+            case STASIS:
+              // Shock Blast.
+              barrel_leds[4] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+              // Meson Collider.
+              barrel_leds[4] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        case 13:
+          barrel_leds[4] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+        break;
+
+        default:
+          // Do nothing if we somehow end up here.
+        break;
+      }
     break;
   }
+
+  i_pulse_step++;
+
+  if(i_pulse_step < 14) {
+    if(FIRING_MODE == PROTON) {
+      // Boson Dart is much slower than the others.
+      i_firing_pulse *= 2;
+    }
+    ms_firing_pulse.start(i_firing_pulse);
+  }
+  else {
+    // Animation has concluded, so reset our timer and variable.
+    ms_firing_pulse.stop();
+    i_pulse_step = 0;
+  }
+}
+
+void fireStreamEffect(CRGB c_colour) {
+  uint8_t i_firing_stream; // Stores a calculated value based on LED count.
 
   switch(WAND_BARREL_LED_COUNT) {
     case LEDS_48:
       // Frutto Technology - 48 LED + Strobe Tip
       // This effect will "wrap" around the device to appear to push the stream forward.
+
+      i_firing_stream = d_firing_stream / 10;
+
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
@@ -4176,7 +4552,7 @@ void fireStreamEffect(CRGB c_colour) {
 
             case SLIME:
               if(getSystemYearMode() == SYSTEM_1989) {
-                barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT);
+                barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT);
               }
               else {
                 barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
@@ -4408,6 +4784,8 @@ void fireStreamEffect(CRGB c_colour) {
 
     case LEDS_5:
     default:
+      i_firing_stream = d_firing_stream;
+
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
@@ -4450,7 +4828,7 @@ void fireStreamEffect(CRGB c_colour) {
 
             case SLIME:
               if(getSystemYearMode() == SYSTEM_1989) {
-                barrel_leds[i_barrel_light - 1] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT);
+                barrel_leds[i_barrel_light - 1] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT);
               }
               else {
                 barrel_leds[i_barrel_light - 1] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
@@ -4548,12 +4926,14 @@ void fireStreamEffect(CRGB c_colour) {
 }
 
 void barrelLightsOff() {
+  ms_firing_pulse.stop();
   ms_firing_lights.stop();
   ms_firing_stream_effects.stop();
   ms_firing_effect_end.stop();
   ms_firing_lights_end.stop();
   ms_wand_heatup_fade.stop();
   i_barrel_light = 0;
+  i_pulse_step = 0;
   i_heatup_counter = 0;
   i_heatdown_counter = 100;
 
@@ -4664,12 +5044,12 @@ void fireEffectEnd() {
           fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
         }
         else {
-          fireStreamEffect(getHueColour(C_DARKGREEN, WAND_BARREL_LED_COUNT));
+          fireStreamEffect(getHueColour(C_DARK_GREEN, WAND_BARREL_LED_COUNT));
         }
       break;
 
       case STASIS:
-        fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+        fireStreamEffect(getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT));
       break;
 
       case MESON:
@@ -4845,7 +5225,7 @@ void fireEffectEnd() {
 
           case SLIME:
             if(getSystemYearMode() == SYSTEM_1989) {
-              barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT);
+              barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT);
             }
             else {
               barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
@@ -4910,7 +5290,7 @@ void fireEffectEnd() {
 
           case SLIME:
             if(getSystemYearMode() == SYSTEM_1989) {
-              barrel_leds[i_barrel_light - 1] = getHueColour(C_PASTELPINK, WAND_BARREL_LED_COUNT);
+              barrel_leds[i_barrel_light - 1] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT);
             }
             else {
               barrel_leds[i_barrel_light - 1] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
