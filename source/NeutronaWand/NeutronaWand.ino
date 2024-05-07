@@ -41,6 +41,7 @@
 
 // PROGMEM macro
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
+#define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
 
 // 3rd-Party Libraries
@@ -4515,12 +4516,12 @@ void fireStreamEffect(CRGB c_colour) {
             default:
               if(b_firing_cross_streams == true) {
                 if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
-                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
-                  barrel_leds[frutto_barrel[i_barrel_light - 2]] = c_colour;
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 2])] = c_colour;
                 }
                 else {
-                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-                  barrel_leds[frutto_barrel[i_barrel_light - 2]] = c_colour;
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 2])] = c_colour;
                 }
               }
               else {
@@ -4528,23 +4529,23 @@ void fireStreamEffect(CRGB c_colour) {
                 switch(i_power_level) {
                   case 1:
                   default:
-                    barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
                   break;
 
                   case 2:
-                    barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
                   break;
 
                   case 3:
-                    barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
                   break;
 
                   case 4:
-                    barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
                   break;
 
                   case 5:
-                    barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
                   break;
                 }
               }
@@ -4552,25 +4553,25 @@ void fireStreamEffect(CRGB c_colour) {
 
             case SLIME:
               if(getSystemYearMode() == SYSTEM_1989) {
-                barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT);
+                barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT);
               }
               else {
-                barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
+                barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
               }
             break;
 
             case STASIS:
-              barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
+              barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
             break;
 
             case MESON:
             case SPECTRAL:
             case HOLIDAY:
-              barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+              barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
             break;
 
             case SPECTRAL_CUSTOM:
-              barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
+              barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
             break;
           }
         }
@@ -4619,20 +4620,20 @@ void fireStreamEffect(CRGB c_colour) {
           }
         }
         else if(i_barrel_light < i_num_barrel_leds) {
-          barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light])] = c_colour;
 
           switch(FIRING_MODE) {
             case MESON:
               if(i_barrel_light + 1 < i_num_barrel_leds) {
-                barrel_leds[frutto_barrel[i_barrel_light + 1]] = c_colour;
+                barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light + 1])] = c_colour;
               }
 
               if(i_barrel_light + 2 < i_num_barrel_leds) {
-                barrel_leds[frutto_barrel[i_barrel_light + 2]] = c_colour;
+                barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light + 2])] = c_colour;
               }
 
               if(i_barrel_light + 3 < i_num_barrel_leds) {
-                barrel_leds[frutto_barrel[i_barrel_light + 3]] = c_colour;
+                barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light + 3])] = c_colour;
               }
             break;
 
@@ -4666,7 +4667,7 @@ void fireStreamEffect(CRGB c_colour) {
 
               for(uint8_t i = i_barrel_light; i < i_barrel_light + i_t_rand; i++) {
                 if(i < i_num_barrel_leds) {
-                  barrel_leds[frutto_barrel[i]] = c_colour;
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = c_colour;
                 }
               }
             }
@@ -4678,7 +4679,7 @@ void fireStreamEffect(CRGB c_colour) {
 
               for(uint8_t i = i_barrel_light; i < i_barrel_light + i_t_rand_def; i++) {
                 if(i < i_num_barrel_leds) {
-                  barrel_leds[frutto_barrel[i]] = c_colour;
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = c_colour;
                 }
               }
             }
@@ -4940,7 +4941,7 @@ void barrelLightsOff() {
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
-        barrel_leds[frutto_barrel[i]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+        barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
       break;
 
       case LEDS_5:
@@ -4963,7 +4964,7 @@ void fireStreamStart(CRGB c_colour) {
         // primary colour for the stream chosen. Any other colour effects will follow this arrangement.
         barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
         if(i_barrel_light + 2 >= 0 && i_barrel_light + 2 < i_num_barrel_leds) {
-          barrel_leds[frutto_barrel[i_barrel_light + 2]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light + 2])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
         }
       break;
 
@@ -5191,33 +5192,33 @@ void fireEffectEnd() {
           default:
             if(b_firing_cross_streams == true) {
               if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
-                barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
+                barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
               }
               else {
-                barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+                barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
               }
             }
             else {
               switch(i_power_level) {
                 case 1:
                 default:
-                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
                 break;
 
                 case 2:
-                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
                 break;
 
                 case 3:
-                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
                 break;
 
                 case 4:
-                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
                 break;
 
                 case 5:
-                  barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
+                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
                 break;
               }
             }
@@ -5225,25 +5226,25 @@ void fireEffectEnd() {
 
           case SLIME:
             if(getSystemYearMode() == SYSTEM_1989) {
-              barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT);
+              barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT);
             }
             else {
-              barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
+              barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
             }
           break;
 
           case STASIS:
-            barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
+            barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
           break;
 
           case MESON:
           case SPECTRAL:
           case HOLIDAY:
-            barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+            barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
           break;
 
           case SPECTRAL_CUSTOM:
-            barrel_leds[frutto_barrel[i_barrel_light - 1]] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
+            barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
           break;
         }
       break;
@@ -5325,7 +5326,7 @@ void fireStreamEnd(CRGB c_colour) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
         // Set the colour for the mapped LED.
-        barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
+        barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light])] = c_colour;
 
         // More LEDs means a faster firing rate.
         ms_firing_lights_end.start(d_firing_stream / 25);
@@ -7093,21 +7094,21 @@ void setBargraphOrientation() {
   if(b_bargraph_invert != true) {
     // Resets the 28 Segment bargraph orientation.
     for(uint8_t i = 0; i < i_bargraph_segments; i++) {
-      i_bargraph[i] = i_bargraph_normal[i];
+      i_bargraph[i] = PROGMEM_READU8(i_bargraph_normal[i]);
     }
 
     for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
-      i_bargraph_5_led[i] = i_bargraph_5_led_normal[i];
+      i_bargraph_5_led[i] = PROGMEM_READU8(i_bargraph_5_led_normal[i]);
     }
   }
   else {
     // Resets the 28 Segment bargraph orientation.
     for(uint8_t i = 0; i < i_bargraph_segments; i++) {
-      i_bargraph[i] = i_bargraph_invert[i];
+      i_bargraph[i] = PROGMEM_READU8(i_bargraph_invert[i]);
     }
 
     for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
-      i_bargraph_5_led[i] = i_bargraph_5_led_invert[i];
+      i_bargraph_5_led[i] = PROGMEM_READU8(i_bargraph_5_led_invert[i]);
     }
   }
 }
@@ -9219,13 +9220,13 @@ void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
-        // Set the tip of the Frutto LED array to white.
-        barrel_leds[frutto_barrel[i]] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+        // Turn off the entire Frutto LED array.
+        barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
       break;
 
       case LEDS_5:
       default:
-        // Illuminate the wand barrel tip LED.
+        // Turn off the entire Hasbro LED array.
         barrel_leds[i] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
       break;
     }
