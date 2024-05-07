@@ -103,6 +103,7 @@ struct __attribute__((packed)) SmokePrefs {
 struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
+  uint8_t cyclotronLidState;
   uint8_t systemYear;
   uint8_t packOn;
   uint8_t powerLevel;
@@ -595,6 +596,17 @@ void checkPack() {
             break;
           }
 
+          switch(packSync.cyclotronLidState) {
+            case 1:
+            default:
+              b_pack_cyclotron_lid_on = false;
+            break;
+
+            case 2:
+              b_pack_cyclotron_lid_on = true;
+            break;
+          }
+
           // Update the System Year setting.
           switch(packSync.systemYear) {
             case 1:
@@ -921,6 +933,14 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
           // Do nothing.
         break;
       }
+    break;
+
+    case P_CYCLOTRON_LID_ON:
+      b_pack_cyclotron_lid_on = true;
+    break;
+
+    case P_CYCLOTRON_LID_OFF:
+      b_pack_cyclotron_lid_on = false;
     break;
 
     case P_MANUAL_OVERHEAT:

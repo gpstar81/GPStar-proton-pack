@@ -136,6 +136,7 @@ struct __attribute__((packed)) SmokePrefs {
 struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
+  uint8_t cyclotronLidState;
   uint8_t systemYear;
   uint8_t packOn;
   uint8_t powerLevel;
@@ -1120,6 +1121,14 @@ void doWandSync() {
       // This is only applicable to the Mode Original, so default to off.
       packSync.ionArmSwitch = 1; // Ion arm switch off.
     break;
+  }
+
+  // Send the state of the cyclotron lid.
+  if(b_cyclotron_lid_on) {
+    packSync.cyclotronLidState = 2; // Lid is on.
+  }
+  else {
+    packSync.cyclotronLidState = 1; // Lid is off.
   }
 
   // Make sure to send this after the system (operation) mode is sent.
