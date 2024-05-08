@@ -175,6 +175,8 @@ uint16_t d_white_light_interval = i_afterlife_blink_interval;
  */
 #define r_encoderA 6
 #define r_encoderB 7
+millisDelay ms_firing_mode_switch; // Timer for rotary firing mode select speed limit.
+const uint8_t i_firing_mode_switch_delay = 50; // Time to delay switching firing modes.
 static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
@@ -325,7 +327,7 @@ const uint8_t i_sound_timer = 150;
 millisDelay ms_wand_heatup_fade;
 const uint8_t i_delay_heatup = 5;
 uint8_t i_heatup_counter = 0;
-uint8_t i_heatdown_counter = 50;
+uint8_t i_heatdown_counter = 100;
 
 /*
  * Wand Firing Modes + Settings

@@ -677,6 +677,12 @@ void checkPack() {
             break;
             case 4:
               FIRING_MODE = MESON;
+
+              if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+                // Tell GPStar Audio we need short audio mode.
+                audio.gpstarShortTrackOverload(false);
+              }
+
               setVGMode();
             break;
             case 5:

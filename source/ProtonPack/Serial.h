@@ -1581,6 +1581,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_PROTON_MODE:
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
+
       // Proton mode
       FIRING_MODE = PROTON;
       playEffect(S_CLICK);
@@ -1608,6 +1613,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SLIME_MODE:
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
+
       // Slime mode
       FIRING_MODE = SLIME;
       playEffect(S_CLICK);
@@ -1649,6 +1659,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_STASIS_MODE:
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
+
       // Stasis mode
       FIRING_MODE = STASIS;
       playEffect(S_CLICK);
@@ -1693,6 +1708,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_MESON_MODE:
       // Meson mode
       FIRING_MODE = MESON;
+
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+        // Tell GPStar Audio we need short audio mode.
+        audio.gpstarShortTrackOverload(false);
+      }
+
       playEffect(S_CLICK);
 
       stopEffect(S_PACK_SLIME_TANK_LOOP);
@@ -1719,6 +1740,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SPECTRAL_MODE:
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
+
       // Proton mode
       FIRING_MODE = SPECTRAL;
       playEffect(S_CLICK);
@@ -1746,6 +1772,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_HOLIDAY_MODE:
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
+
       // Proton mode
       FIRING_MODE = HOLIDAY;
       playEffect(S_CLICK);
@@ -1774,6 +1805,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SPECTRAL_CUSTOM_MODE:
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
+
       // Proton mode
       FIRING_MODE = SPECTRAL_CUSTOM;
       playEffect(S_CLICK);

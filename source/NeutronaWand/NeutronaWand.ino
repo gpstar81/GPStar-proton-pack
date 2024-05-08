@@ -2159,6 +2159,17 @@ void modeCheck() {
     break;
   }
 
+  if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+    if(FIRING_MODE == MESON) {
+      // Tell GPStar Audio we need short audio mode.
+      audio.gpstarShortTrackOverload(false);
+    }
+    else {
+      // Tell GPStar Audio we no longer need short audio.
+      audio.gpstarShortTrackOverload(true);
+    }
+  }
+
   // Reset the semi-automatic firing timer.
   ms_semi_automatic_check.stop();
 }
@@ -9213,7 +9224,7 @@ void checkRotaryEncoder() {
                 updatePackPowerLevel();
               }
             }
-            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && ms_wand_heatup_fade.isRunning() != true && WAND_STATUS == MODE_ON) {
+            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && ms_firing_mode_switch.remaining() < 1 && WAND_STATUS == MODE_ON) {
               // Counter clockwise firing mode selection.
               if(FIRING_MODE == PROTON) {
                 FIRING_MODE = STASIS;
@@ -9265,6 +9276,7 @@ void checkRotaryEncoder() {
               }
 
               modeCheck();
+              ms_firing_mode_switch.start(i_firing_mode_switch_delay);
             }
 
             // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
@@ -9335,7 +9347,7 @@ void checkRotaryEncoder() {
                 }
               }
             }
-            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && ms_wand_heatup_fade.isRunning() != true && WAND_STATUS == MODE_ON) {
+            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && ms_firing_mode_switch.remaining() < 1 && WAND_STATUS == MODE_ON) {
               if(FIRING_MODE == PROTON) {
                 // Conditional mode advancement.
                 if(b_spectral_custom_mode_enabled == true) {
@@ -9386,6 +9398,7 @@ void checkRotaryEncoder() {
               }
 
               modeCheck();
+              ms_firing_mode_switch.start(i_firing_mode_switch_delay);
             }
 
             // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
