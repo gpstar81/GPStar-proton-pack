@@ -2024,7 +2024,7 @@ void fireControlCheck() {
 // Called from checkSwitches(); Used to enter the settings menu in MODE_SUPER_HERO.
 void altWingButtonCheck() {
   if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
-    if(switch_wand.on() != true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true && switch_mode.pushed()) {
+    if(switch_wand.on() != true && switch_mode.pushed()) {
       // Only exit the settings menu when on menu #5.
       if(i_wand_menu == 5) {
         // Switch between firing mode and settings mode.
@@ -2054,7 +2054,7 @@ void altWingButtonCheck() {
         playEffect(S_CLICK);
       }
     }
-    else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_wand.on() == true) {
+    else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_vent.on() == true && switch_wand.on() == true) {
       // Exit the settings menu if the user turns the wand switch back on.
       modeCheck();
       ms_settings_blinking.stop();
@@ -3490,9 +3490,9 @@ void modeFiring() {
     }
   }
 
-    // Initialize temporary colour variables to reduce code complexity.
-    colours c_temp_start = C_WHITE;
-    colours c_temp_effect = C_WHITE;
+  // Initialize temporary colour variables to reduce code complexity.
+  colours c_temp_start = C_WHITE;
+  colours c_temp_effect = C_WHITE;
 
   switch(FIRING_MODE) {
     case PROTON:
