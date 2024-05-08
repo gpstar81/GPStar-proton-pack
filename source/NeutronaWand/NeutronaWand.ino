@@ -663,6 +663,14 @@ void wandTipOn() {
           // Set the tip of the Frutto LED array to beige if playing the lockout/cable spark animation.
           c_temp = C_BEIGE;
         }
+        else if(FIRING_MODE == SLIME) {
+          if(getSystemYearMode() == SYSTEM_1989) {
+            c_temp = C_PASTEL_PINK;
+          }
+          else {
+            c_temp = C_DARK_GREEN;
+          }
+        }
       }
 
       barrel_leds[12] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
