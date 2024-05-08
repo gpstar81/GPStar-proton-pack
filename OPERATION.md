@@ -221,7 +221,7 @@ Cross The Streams (CTS) is the default firing mode for Mode Original. Cross The 
 
 There are 2 ways to enter the Menu System.
 
-- With the Activate and Bottom-right switches **UP** and the Top-right switch **DOWN**, press the `Barrel Wing Button` to enter the Neutrona Wand Menu System. <br>📝 `Super Hero mode only`
+- With the Activate switch **UP** and any right-hand switch **DOWN**, press the `Barrel Wing Button` to enter the Neutrona Wand Menu System. <br>📝 `Super Hero mode only`
 
 - While the Neutrona Wand and Proton Pack are powered down, press the `Barrel Wing Button`.
 

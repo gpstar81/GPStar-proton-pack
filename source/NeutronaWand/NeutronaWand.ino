@@ -2024,7 +2024,7 @@ void fireControlCheck() {
 // Called from checkSwitches(); Used to enter the settings menu in MODE_SUPER_HERO.
 void altWingButtonCheck() {
   if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
-    if(switch_wand.on() != true && switch_mode.pushed()) {
+    if((switch_wand.on() != true || switch_vent.on() != true) && switch_mode.pushed()) {
       // Only exit the settings menu when on menu #5.
       if(i_wand_menu == 5) {
         // Switch between firing mode and settings mode.
@@ -9175,7 +9175,7 @@ void checkRotaryEncoder() {
                 updatePackPowerLevel();
               }
             }
-            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true) {
+            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && ms_wand_heatup_fade.isRunning() != true && WAND_STATUS == MODE_ON) {
               // Counter clockwise firing mode selection.
               if(FIRING_MODE == PROTON) {
                 FIRING_MODE = STASIS;
@@ -9297,7 +9297,7 @@ void checkRotaryEncoder() {
                 }
               }
             }
-            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && switch_activate.on() == true && b_pack_on == true) {
+            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && ms_wand_heatup_fade.isRunning() != true && WAND_STATUS == MODE_ON) {
               if(FIRING_MODE == PROTON) {
                 // Conditional mode advancement.
                 if(b_spectral_custom_mode_enabled == true) {
