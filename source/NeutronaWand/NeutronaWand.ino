@@ -5222,7 +5222,7 @@ void fireStreamStart(CRGB c_colour) {
         // Since this arrangement has many more LEDs available, we can make use of extra colour changes
         // to enhance the stream effects. In this case we can darken the lead LED then follow with the
         // primary colour for the stream chosen. Any other colour effects will follow this arrangement.
-        barrel_leds[frutto_barrel[i_barrel_light]] = c_colour;
+        barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light])] = c_colour;
         if(i_barrel_light + 2 >= 0 && i_barrel_light + 2 < i_num_barrel_leds) {
           barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light + 2])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
         }
