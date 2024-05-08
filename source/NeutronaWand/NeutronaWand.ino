@@ -5240,18 +5240,8 @@ void barrelLightsOff() {
   i_heatup_counter = 0;
   i_heatdown_counter = 100;
 
-  for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
-    switch(WAND_BARREL_LED_COUNT) {
-      case LEDS_48:
-        barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-      break;
-
-      case LEDS_5:
-      default:
-        barrel_leds[i] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-      break;
-    }
-  }
+  // Turn off the barrel LEDs.
+  wandBarrelLightsOff();
 
   // Turn off the wand barrel tip LED.
   wandTipOff();
