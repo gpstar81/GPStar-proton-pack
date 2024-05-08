@@ -1445,6 +1445,7 @@ void wandLightControlCheck() {
               analogWrite(led_vent, 190);
             break;
             case 1:
+            default:
               analogWrite(led_vent, 220);
             break;
           }
@@ -2319,6 +2320,7 @@ void postActivation() {
 void soundIdleLoop(bool fadeIn) {
   switch(i_power_level) {
     case 1:
+    default:
       playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
     break;
 
@@ -2360,6 +2362,7 @@ void soundIdleLoop(bool fadeIn) {
 void soundIdleLoopStop(bool stopAlts) {
   switch(i_power_level) {
     case 1:
+    default:
       stopEffect(S_IDLE_LOOP_GUN_1);
     break;
 
@@ -2573,6 +2576,7 @@ void soundBeepLoop() {
 
       switch(i_power_level) {
         case 1:
+        default:
           if(b_next_gen && b_beep_loop == true) {
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_WAND_BEEP_START);
@@ -2732,6 +2736,7 @@ void modeFireStartSounds() {
 
       switch(i_power_level) {
         case 1 ... 4:
+        default:
           if(b_firing_intensify == true) {
             if(getSystemYearMode() == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
@@ -2982,6 +2987,7 @@ void modeFireStopSounds() {
     default:
       switch(i_power_level) {
         case 1 ... 4:
+        default:
           if(getSystemYearMode() == SYSTEM_1989) {
             stopEffect(S_GB2_FIRE_START);
             stopEffect(S_GB2_FIRE_LOOP);
@@ -3255,6 +3261,7 @@ void modeFiring() {
       // Since Intensify is still held, turn back on its firing loop sounds.
       switch(i_power_level) {
         case 1 ... 4:
+        default:
           if(getSystemYearMode() == SYSTEM_1989) {
             playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
           }
@@ -4904,6 +4911,7 @@ void fireStreamEffect(CRGB c_colour) {
             default:
               switch(i_power_level) {
                 case 1:
+                default:
                   i_s_speed = 5;
                 break;
 
@@ -4921,10 +4929,6 @@ void fireStreamEffect(CRGB c_colour) {
 
                 case 5:
                   i_s_speed = 9;
-                break;
-
-                default:
-                  i_s_speed = 0;
                 break;
               }
             break;
@@ -5418,6 +5422,7 @@ void fireEffectEnd() {
         case MESON:
           switch(i_power_level) {
             case 1:
+            default:
               i_s_speed = 8;
             break;
 
@@ -5436,16 +5441,13 @@ void fireEffectEnd() {
             case 5:
               i_s_speed = 9;
             break;
-
-            default:
-              i_s_speed = 0;
-            break;
           }
         break;
 
         default:
           switch(i_power_level) {
             case 1:
+            default:
               i_s_speed = 5;
             break;
 
@@ -5463,10 +5465,6 @@ void fireEffectEnd() {
 
             case 5:
               i_s_speed = 9;
-            break;
-
-            default:
-              i_s_speed = 0;
             break;
           }
         break;
@@ -6234,11 +6232,8 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status_alt = random(18, i_bargraph_segments - 1);
-                break;
-
                 default:
-                  i_bargraph_status_alt = random(0, i_bargraph_segments - 1);
+                  i_bargraph_status_alt = random(18, i_bargraph_segments - 1);
                 break;
               }
             }
@@ -7165,6 +7160,7 @@ void bargraphRampFiring() {
           break;
 
           case 1:
+          default:
             ms_bargraph_firing.start((i_ramp_interval / 2) + 15); // 35ms per segment
           break;
         }
@@ -7189,6 +7185,7 @@ void bargraphRampFiring() {
             break;
 
             case 1:
+            default:
               ms_bargraph_firing.start(i_ramp_interval * 3); // 360ms per LED
             break;
           }
@@ -7221,6 +7218,7 @@ void bargraphRampFiring() {
         break;
 
         case 1:
+        default:
           ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30ms per segment
         break;
       }
@@ -7245,6 +7243,7 @@ void bargraphRampFiring() {
           break;
 
           case 1:
+          default:
             ms_bargraph_firing.start(i_ramp_interval * 3); // 360ms per LED
           break;
         }
@@ -7340,6 +7339,7 @@ void bargraphPowerCheck2021Alt(bool b_override) {
         break;
 
         case 1:
+        default:
           ms_bargraph_alt.start(i_bargraph_wait / 7);
         break;
       }
@@ -7399,6 +7399,7 @@ void bargraphRedraw() {
 
     switch(i_power_level) {
       case 1:
+      default:
         for(uint8_t i = 0; i < i_bargraph_segments; i++) {
           if(i <= 4) {
             ht_bargraph.setLed(i_bargraph[i]);
@@ -7477,6 +7478,7 @@ void bargraphRedraw() {
     // Stock haslab bargraph control.
     switch(i_power_level) {
       case 1:
+      default:
         wandBargraphControl(1);
       break;
 
@@ -7598,6 +7600,7 @@ void bargraphPowerCheck() {
           break;
 
           case 1:
+          default:
             if(i_bargraph_status_alt > 3) {
               b_bargraph_up = false;
               if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
@@ -7679,6 +7682,7 @@ void bargraphPowerCheck() {
             break;
 
             case 1:
+            default:
               if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && i_bargraph_status_alt < 5) {
                 // We stop when we reach our target.
                 ms_bargraph_alt.stop();
@@ -7699,6 +7703,7 @@ void bargraphPowerCheck() {
     // Stock haslab bargraph control.
     switch(i_power_level) {
       case 1:
+      default:
         wandBargraphControl(1);
       break;
 
@@ -7929,6 +7934,7 @@ void bargraphRampUp() {
                 break;
 
                 case 1:
+                default:
                   vibrationWand(i_vibration_level);
 
                   if(i_bargraph_status_alt == 50) {
@@ -9432,6 +9438,7 @@ void updatePackPowerLevel() {
       wandSerialSend(W_POWER_LEVEL_2);
     break;
 
+    case 1:
     default:
       // Level 1
       wandSerialSend(W_POWER_LEVEL_1);
@@ -9444,6 +9451,7 @@ void vibrationSetting() {
     if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING) {
       switch(i_power_level) {
         case 1:
+        default:
           vibrationWand(i_vibration_level);
         break;
 
