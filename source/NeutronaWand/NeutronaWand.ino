@@ -2684,17 +2684,7 @@ void modePulseStart() {
       // Slime Tether.
       wandSerialSend(W_SLIME_TETHER_SOUND);
       playEffect(S_SLIME_TETHER_FIRE, false, i_volume_effects, false, 0, false);
-      ms_firing_stream_effects.start(0); // Start new barrel animation.
-
-      // Draw first pixel.
-      if(getSystemYearMode() == SYSTEM_1989) {
-        fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
-      }
-      else {
-        fireStreamEffect(getHueColour(C_GREEN, WAND_BARREL_LED_COUNT));
-      }
-
-      ms_firing_effect_end.start(0); // Immediately end animation.
+      ms_firing_pulse.start(0);
     break;
 
     case STASIS:
@@ -4042,6 +4032,63 @@ void barrelLEDTranslation(uint8_t id, colours color) {
 }
 
 void firePulseEffect() {
+  if(i_pulse_step < 1) {
+    // Play bargraph animation when pulse sequence begins.
+    switch(BARGRAPH_MODE) {
+      case BARGRAPH_ORIGINAL:
+        // Need to restart the regular bargraph timer.
+        i_bargraph_status = i_power_level - 1;
+        i_bargraph_status_alt = 0;
+
+        switch(BARGRAPH_FIRING_ANIMATION) {
+          case BARGRAPH_ANIMATION_ORIGINAL:
+            // Reset and redraw all the proper segments for the bargraph.
+            bargraphRedraw();
+
+            // Restart the bargraph idling loop.
+            bargraphPowerCheck();
+          break;
+
+          case BARGRAPH_ANIMATION_SUPER_HERO:
+          default:
+            bargraphClearAlt();
+
+            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+
+            bargraphRampUp();
+          break;
+        }
+      break;
+
+      case BARGRAPH_SUPER_HERO:
+      default:
+        i_bargraph_status = i_power_level - 1;
+        i_bargraph_status_alt = 0;
+        bargraphClearAlt();
+
+        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+
+        // We ramp the bargraph back up after finishing firing.
+        bargraphRampUp();
+      break;
+    }
+  }
+
+  if(FIRING_MODE == SLIME) {
+    ms_firing_stream_effects.start(0); // Start new barrel animation.
+
+    // Draw first pixel.
+    if(getSystemYearMode() == SYSTEM_1989) {
+      fireStreamEffect(getHueColour(C_WHITE, WAND_BARREL_LED_COUNT));
+    }
+    else {
+      fireStreamEffect(getHueColour(C_GREEN, WAND_BARREL_LED_COUNT));
+    }
+
+    ms_firing_effect_end.start(0); // Immediately end animation.
+    i_pulse_step = 14; // Immediately go to end of sequence.
+  }
+
   uint8_t i_firing_pulse = d_firing_pulse; // Stores a calculated value based on LED count.
 
   switch(WAND_BARREL_LED_COUNT) {
