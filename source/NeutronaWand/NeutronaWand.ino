@@ -4832,11 +4832,11 @@ void fireStreamEffect(CRGB c_colour) {
               if(b_firing_cross_streams == true) {
                 if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
                   barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
-                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 2])] = c_colour;
+                  //barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 2])] = c_colour;
                 }
                 else {
                   barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-                  barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 2])] = c_colour;
+                  //barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 2])] = c_colour;
                 }
               }
               else {
@@ -4871,7 +4871,7 @@ void fireStreamEffect(CRGB c_colour) {
                 barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT);
               }
               else {
-                barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_GREEN, WAND_BARREL_LED_COUNT);
+                barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_DARK_GREEN, WAND_BARREL_LED_COUNT);
               }
             break;
 
@@ -4954,7 +4954,7 @@ void fireStreamEffect(CRGB c_colour) {
 
             case PROTON:
             {
-              uint8_t i_t_rand = random(0, i_num_barrel_leds / 3);
+              uint8_t i_t_rand = random(0, i_num_barrel_leds / 3); // from 0 to 15
 
               switch(i_power_level) {
                 case 5:
@@ -4980,7 +4980,7 @@ void fireStreamEffect(CRGB c_colour) {
                 break;
               }
 
-              for(uint8_t i = i_barrel_light; i < i_barrel_light + i_t_rand; i++) {
+              for(uint8_t i = i_barrel_light + 1; i < i_barrel_light + i_t_rand; i++) {
                 if(i < i_num_barrel_leds) {
                   barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = c_colour;
                 }
@@ -4990,9 +4990,9 @@ void fireStreamEffect(CRGB c_colour) {
 
             default:
             {
-              uint8_t i_t_rand_def = random(0, i_num_barrel_leds / 4);
+              uint8_t i_t_rand_def = random(0, i_num_barrel_leds / 4); // from 0 to 11
 
-              for(uint8_t i = i_barrel_light; i < i_barrel_light + i_t_rand_def; i++) {
+              for(uint8_t i = i_barrel_light + 1; i < i_barrel_light + i_t_rand_def; i++) {
                 if(i < i_num_barrel_leds) {
                   barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = c_colour;
                 }
@@ -5005,33 +5005,29 @@ void fireStreamEffect(CRGB c_colour) {
             case MESON:
               switch(i_power_level) {
                 case 1:
-                  i_fast_led_delay = FAST_LED_UPDATE_MS;
-                  ms_firing_stream_effects.start((d_firing_stream / 25));
+                default:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
+                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
                 break;
 
                 case 2:
-                  i_fast_led_delay = FAST_LED_UPDATE_MS;
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1);
+                  i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 3:
-                  i_fast_led_delay = FAST_LED_UPDATE_MS + 1;
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1);
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 1; // 4ms
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 4:
-                  i_fast_led_delay = FAST_LED_UPDATE_MS + 2;
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1);
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 2; // 5ms
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 5:
-                  i_fast_led_delay = FAST_LED_UPDATE_MS + 3;
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1);
-                break;
-
-                default:
-                  i_fast_led_delay = FAST_LED_UPDATE_MS;
-                  ms_firing_stream_effects.start((d_firing_stream / 25));
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 3; // 6ms
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
                 break;
               }
             break;
@@ -5039,27 +5035,24 @@ void fireStreamEffect(CRGB c_colour) {
             case PROTON:
               switch(i_power_level) {
                 case 1:
+                default:
                   ms_firing_stream_effects.start((d_firing_stream / 25) + 4); // 8
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 3); // 6
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 3); // 7
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 4
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 2
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 0
-                break;
-
-                default:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 4); // 8
+                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4
                 break;
               }
             break;
@@ -5067,11 +5060,12 @@ void fireStreamEffect(CRGB c_colour) {
             default:
               switch(i_power_level) {
                 case 1:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 8
+                default:
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 6
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5
                 break;
 
                 case 3:
@@ -5079,15 +5073,11 @@ void fireStreamEffect(CRGB c_colour) {
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 2
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 0
-                break;
-
-                default:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 8
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2
                 break;
               }
             break;
@@ -5179,23 +5169,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start(i_firing_stream);
+                  ms_firing_stream_effects.start(i_firing_stream); // 100ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start(i_firing_stream - 15);
+                  ms_firing_stream_effects.start(i_firing_stream - 15); // 85ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start(i_firing_stream - 30);
+                  ms_firing_stream_effects.start(i_firing_stream - 30); // 70ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start(i_firing_stream - 45);
+                  ms_firing_stream_effects.start(i_firing_stream - 45); // 55ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start(i_firing_stream - 60);
+                  ms_firing_stream_effects.start(i_firing_stream - 60); // 40ms
                 break;
               }
             break;
@@ -5208,27 +5198,24 @@ void fireStreamEffect(CRGB c_colour) {
             default:
               switch(i_power_level) {
                 case 1:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 10);
+                default:
+                  ms_firing_stream_effects.start((d_firing_stream / 5) + 10); // 30ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 8);
+                  ms_firing_stream_effects.start((d_firing_stream / 5) + 8); // 28ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 6);
+                  ms_firing_stream_effects.start((d_firing_stream / 5) + 6); // 26ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 5);
+                  ms_firing_stream_effects.start((d_firing_stream / 5) + 5); // 25ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 4);
-                break;
-
-                default:
-                  ms_firing_stream_effects.start(d_firing_stream / 5);
+                  ms_firing_stream_effects.start((d_firing_stream / 5) + 4); // 24ms
                 break;
               }
             break;

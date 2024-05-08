@@ -206,7 +206,7 @@ void setup() {
     for(uint8_t i = 0; i < i_powercell_leds; i++) {
       pack_leds[i] = getHueAsRGB(POWERCELL, C_MID_BLUE);
 
-      if((i % 5) == 0) { 
+      if((i % 5) == 0) {
         pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
         pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
         pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
@@ -226,8 +226,8 @@ void setup() {
 
     for(uint8_t i = 0; i < i_powercell_leds; i++) {
       pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
-      
-      if((i % 5) == 0) { 
+
+      if((i % 5) == 0) {
         pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
         pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
         pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
@@ -257,7 +257,7 @@ void setup() {
       pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
       pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
-      
+
       FastLED.show();
 
       delay(5);
@@ -268,7 +268,7 @@ void setup() {
     pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
     pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
-    FastLED.show();    
+    FastLED.show();
   }
 }
 
