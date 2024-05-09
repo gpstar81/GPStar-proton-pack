@@ -1827,7 +1827,7 @@ void fireControlCheck() {
 
           case STASIS:
             // Handle Shock Blast fire start here.
-            if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1) {
+            if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
               // Start rate-of-fire timer.
               ms_semi_automatic_check.start(i_shock_blast_rate);
 
@@ -1839,7 +1839,7 @@ void fireControlCheck() {
 
           case MESON:
             // Handle Meson Collider fire start here.
-            if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1) {
+            if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
               // Start rate-of-fire timer.
               ms_semi_automatic_check.start(i_meson_collider_rate);
 
@@ -1889,7 +1889,7 @@ void fireControlCheck() {
           switch(FIRING_MODE) {
             case PROTON:
               // Handle Boson Dart fire start here.
-              if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1) {
+              if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
                 // Start rate-of-fire timer.
                 ms_semi_automatic_check.start(i_boson_dart_rate);
 
@@ -1901,7 +1901,7 @@ void fireControlCheck() {
 
             case SLIME:
               // Handle Slime Tether fire start here.
-              if(b_firing_semi_automatic != true) {
+              if(b_firing_semi_automatic != true && WAND_ACTION_STATUS != ACTION_FIRING) {
                 if(i_slime_tether_count < 1) {
                   // Start the rate-of-fire timer.
                   ms_semi_automatic_check.start(i_slime_tether_rate);
