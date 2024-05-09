@@ -1889,7 +1889,7 @@ void fireControlCheck() {
           switch(FIRING_MODE) {
             case PROTON:
               // Handle Boson Dart fire start here.
-              if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
+              if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1) {
                 // Start rate-of-fire timer.
                 ms_semi_automatic_check.start(i_boson_dart_rate);
 
