@@ -166,7 +166,7 @@ void setup() {
   delay(100);
 
   // Initialize critical timers.
-  ms_fast_led.start(1);
+  ms_fast_led.start(0);
 }
 
 void loop() {

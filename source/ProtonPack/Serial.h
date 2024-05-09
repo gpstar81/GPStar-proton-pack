@@ -1586,6 +1586,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         audio.gpstarShortTrackOverload(true);
       }
 
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron_slime_on.stop();
+        ms_cyclotron_slime_off.stop();
+        ms_cyclotron.start(0);
+      }
+
       // Proton mode
       FIRING_MODE = PROTON;
       playEffect(S_CLICK);
@@ -1640,7 +1649,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         resetCyclotronState();
         clearCyclotronFades();
 
-        ms_cyclotron_slime_on.start(1);
+        ms_cyclotron_slime_on.start(0);
         ms_cyclotron_slime_off.stop();
       }
 
@@ -1662,6 +1671,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
+      }
+
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron_slime_on.stop();
+        ms_cyclotron_slime_off.stop();
+        ms_cyclotron.start(0);
       }
 
       // Stasis mode
@@ -1687,15 +1705,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        resetCyclotronState();
-        clearCyclotronFades();
-        ms_cyclotron_slime_on.stop();
-        ms_cyclotron_slime_off.stop();
-        ms_cyclotron.start(1);
-      }
-
       if(b_powercell_colour_toggle == true && b_pack_on == true) {
         // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
@@ -1706,6 +1715,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_MESON_MODE:
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron_slime_on.stop();
+        ms_cyclotron_slime_off.stop();
+        ms_cyclotron.start(0);
+      }
+
       // Meson mode
       FIRING_MODE = MESON;
 
@@ -1745,6 +1763,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         audio.gpstarShortTrackOverload(true);
       }
 
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron_slime_on.stop();
+        ms_cyclotron_slime_off.stop();
+        ms_cyclotron.start(0);
+      }
+
       // Proton mode
       FIRING_MODE = SPECTRAL;
       playEffect(S_CLICK);
@@ -1775,6 +1802,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
+      }
+
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron_slime_on.stop();
+        ms_cyclotron_slime_off.stop();
+        ms_cyclotron.start(0);
       }
 
       // Proton mode
@@ -1808,6 +1844,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
+      }
+
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron_slime_on.stop();
+        ms_cyclotron_slime_off.stop();
+        ms_cyclotron.start(0);
       }
 
       // Proton mode
