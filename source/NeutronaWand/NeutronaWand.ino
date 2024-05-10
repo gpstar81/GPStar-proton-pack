@@ -4923,23 +4923,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  i_s_speed = 5;
+                  i_s_speed = 5; // 5ms
                 break;
 
                 case 2:
-                  i_s_speed = 6;
+                  i_s_speed = 6; // 4ms
                 break;
 
                 case 3:
-                  i_s_speed = 7;
+                  i_s_speed = 7; // 3ms
                 break;
 
                 case 4:
-                  i_s_speed = 8;
+                  i_s_speed = 8; // 2ms
                 break;
 
                 case 5:
-                  i_s_speed = 9;
+                  i_s_speed = 9; // 1ms
                 break;
               }
             break;
@@ -5036,13 +5036,13 @@ void fireStreamEffect(CRGB c_colour) {
                 break;
 
                 case 4:
-                  i_fast_led_delay = FAST_LED_UPDATE_MS + 2; // 5ms
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 3; // 6ms
                   ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 5:
-                  i_fast_led_delay = FAST_LED_UPDATE_MS + 3; // 6ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 4; // 7ms
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2ms
                 break;
               }
             break;
@@ -5051,24 +5051,55 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 4); // 8
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 4); // 8ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 3); // 7
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 3); // 7ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4
+                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
                 break;
+              }
+            break;
+
+            case SLIME:
+              if(WAND_ACTION_STATUS == ACTION_FIRING) {
+                switch(i_power_level) {
+                  case 1:
+                  default:
+                    ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6ms
+                  break;
+
+                  case 2:
+                    ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5ms
+                  break;
+
+                  case 3:
+                    ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
+                  break;
+
+                  case 4:
+                    ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                  break;
+
+                  case 5:
+                    ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2ms
+                  break;
+                }                
+              }
+              else {
+                // Slime Tether response time is a fixed value.
+                ms_firing_stream_effects.start((d_firing_stream / 25) - 3); // 1ms
               }
             break;
 
@@ -5076,23 +5107,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5
+                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4
+                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2
+                  ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2ms
                 break;
               }
             break;

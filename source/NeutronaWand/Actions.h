@@ -58,6 +58,12 @@ void checkWandAction() {
           if(ms_meson_blast.justFinished()) {
             playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
             wandSerialSend(W_MESON_FIRE_PULSE);
+
+            if(WAND_BARREL_LED_COUNT == LEDS_48) {
+              // Reset the barrel before starting a new pulse.
+              barrelLightsOff();
+            }
+
             ms_firing_stream_effects.start(0); // Start new barrel animation.
 
             switch(i_power_level) {
