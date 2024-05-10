@@ -4015,45 +4015,51 @@ void wandBarrelHeatDown() {
 }
 
 void barrelLEDTranslation(uint8_t id, colours color) {
-  switch(id) {
-    case 0:
-      // Translate to first three rows of LEDs.
-      for(uint8_t i = 0; i < 12; i++) {
-        barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
-      }
-    break;
+  if(WAND_BARREL_LED_COUNT != LEDS_48) {
+    barrel_leds[id] = getHueColour(color, WAND_BARREL_LED_COUNT);
+    return;
+  }
+  else {
+    switch(id) {
+      case 0:
+        // Translate to first three rows of LEDs.
+        for(uint8_t i = 0; i < 12; i++) {
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
+        }
+      break;
 
-    case 1:
-      // Translate to rows 4 and 5 of the LED array.
-      for(uint8_t i = 12; i < 20; i++) {
-        barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
-      }
-    break;
+      case 1:
+        // Translate to rows 4 and 5 of the LED array.
+        for(uint8_t i = 12; i < 20; i++) {
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
+        }
+      break;
 
-    case 2:
-      // Translate to rows 6 and 7 of the LED array.
-      for(uint8_t i = 20; i < 28; i++) {
-        barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
-      }
-    break;
+      case 2:
+        // Translate to rows 6 and 7 of the LED array.
+        for(uint8_t i = 20; i < 28; i++) {
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
+        }
+      break;
 
-    case 3:
-      // Translate to rows 8 and 9 of the LED array.
-      for(uint8_t i = 28; i < 36; i++) {
-        barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
-      }
-    break;
+      case 3:
+        // Translate to rows 8 and 9 of the LED array.
+        for(uint8_t i = 28; i < 36; i++) {
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
+        }
+      break;
 
-    case 4:
-      // Translate to the last three rows of LEDs.
-      for(uint8_t i = 36; i < 48; i++) {
-        barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
-      }
-    break;
+      case 4:
+        // Translate to the last three rows of LEDs.
+        for(uint8_t i = 36; i < 48; i++) {
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
+        }
+      break;
 
-    default:
-      // Do nothing.
-    break;
+      default:
+        // Do nothing.
+      break;
+    }
   }
 }
 
@@ -4115,704 +4121,361 @@ void firePulseEffect() {
     i_pulse_step = 14; // Immediately go to end of sequence.
   }
 
-  uint8_t i_firing_pulse = d_firing_pulse; // Stores a calculated value based on LED count.
+  uint8_t i_firing_pulse = d_firing_pulse; // Stores a calculated value based on firing mode.
 
-  switch(WAND_BARREL_LED_COUNT) {
-    case LEDS_48:
-      switch(i_pulse_step) {
-        case 0:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrelLEDTranslation(0, C_RED);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(0, C_NAVY_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(0, C_YELLOW);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
+  switch(i_pulse_step) {
+    case 0:
+      switch(FIRING_MODE) {
+        case PROTON:
+          // Boson Dart.
+          barrelLEDTranslation(0, C_RED);
         break;
 
-        case 1:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrelLEDTranslation(0, C_RED2);
-              barrelLEDTranslation(1, C_RED);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(0, C_MID_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(0, C_ORANGE);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(0, C_NAVY_BLUE);
         break;
 
-        case 2:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrelLEDTranslation(0, C_WHITE);
-              barrelLEDTranslation(1, C_RED2);
-              barrelLEDTranslation(2, C_RED);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(0, C_LIGHT_BLUE);
-              barrelLEDTranslation(1, C_NAVY_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(0, C_RED4);
-              barrelLEDTranslation(1, C_YELLOW);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 3:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrelLEDTranslation(0, C_RED2);
-              barrelLEDTranslation(1, C_WHITE);
-              barrelLEDTranslation(2, C_RED2);
-              barrelLEDTranslation(3, C_RED);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(0, C_BLUE);
-              barrelLEDTranslation(1, C_MID_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(0, C_RED2);
-              barrelLEDTranslation(1, C_ORANGE);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 4:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrelLEDTranslation(0, C_RED);
-              barrelLEDTranslation(1, C_RED2);
-              barrelLEDTranslation(2, C_WHITE);
-              barrelLEDTranslation(3, C_RED2);
-              barrelLEDTranslation(4, C_RED);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(0, C_WHITE);
-              barrelLEDTranslation(1, C_LIGHT_BLUE);
-              barrelLEDTranslation(2, C_NAVY_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(0, C_RED);
-              barrelLEDTranslation(1, C_RED4);
-              barrelLEDTranslation(2, C_YELLOW);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 5:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrelLEDTranslation(0, C_BLACK);
-              barrelLEDTranslation(1, C_RED);
-              barrelLEDTranslation(2, C_RED2);
-              barrelLEDTranslation(3, C_WHITE);
-              barrelLEDTranslation(4, C_RED2);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(0, C_BLACK);
-              barrelLEDTranslation(1, C_BLUE);
-              barrelLEDTranslation(2, C_MID_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(0, C_BLACK);
-              barrelLEDTranslation(1, C_RED2);
-              barrelLEDTranslation(2, C_ORANGE);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 6:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrelLEDTranslation(1, C_BLACK);
-              barrelLEDTranslation(2, C_RED);
-              barrelLEDTranslation(3, C_RED2);
-              barrelLEDTranslation(4, C_WHITE);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(1, C_WHITE);
-              barrelLEDTranslation(2, C_LIGHT_BLUE);
-              barrelLEDTranslation(3, C_NAVY_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(1, C_RED);
-              barrelLEDTranslation(2, C_RED4);
-              barrelLEDTranslation(3, C_YELLOW);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 7:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrelLEDTranslation(2, C_BLACK);
-              barrelLEDTranslation(3, C_RED);
-              barrelLEDTranslation(4, C_RED2);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(1, C_BLACK);
-              barrelLEDTranslation(2, C_BLUE);
-              barrelLEDTranslation(3, C_MID_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(1, C_BLACK);
-              barrelLEDTranslation(2, C_RED2);
-              barrelLEDTranslation(3, C_ORANGE);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 8:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrelLEDTranslation(3, C_BLACK);
-              barrelLEDTranslation(4, C_RED);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(2, C_WHITE);
-              barrelLEDTranslation(3, C_LIGHT_BLUE);
-              barrelLEDTranslation(4, C_NAVY_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(2, C_RED);
-              barrelLEDTranslation(3, C_RED4);
-              barrelLEDTranslation(4, C_YELLOW);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 9:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrelLEDTranslation(4, C_BLACK);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(2, C_BLACK);
-              barrelLEDTranslation(3, C_BLUE);
-              barrelLEDTranslation(4, C_MID_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(2, C_BLACK);
-              barrelLEDTranslation(3, C_RED2);
-              barrelLEDTranslation(4, C_ORANGE);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 10:
-          switch(FIRING_MODE) {
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(3, C_WHITE);
-              barrelLEDTranslation(4, C_LIGHT_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(3, C_RED);
-              barrelLEDTranslation(4, C_RED4);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 11:
-          switch(FIRING_MODE) {
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(3, C_BLACK);
-              barrelLEDTranslation(4, C_BLUE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(3, C_BLACK);
-              barrelLEDTranslation(4, C_RED2);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 12:
-          switch(FIRING_MODE) {
-            case STASIS:
-              // Shock Blast.
-              barrelLEDTranslation(4, C_WHITE);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrelLEDTranslation(4, C_RED);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 13:
-          barrelLEDTranslation(4, C_BLACK);
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(0, C_YELLOW);
         break;
 
         default:
-          // Do nothing if we somehow end up here.
+          // Do nothing.
         break;
       }
     break;
 
-    case LEDS_5:
-    default:
-      switch(i_pulse_step) {
-        case 0:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrel_leds[0] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[0] = getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[0] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
+    case 1:
+      switch(FIRING_MODE) {
+        case PROTON:
+          // Boson Dart.
+          barrelLEDTranslation(0, C_RED2);
+          barrelLEDTranslation(1, C_RED);
         break;
 
-        case 1:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrel_leds[0] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[0] = getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[0] = getHueColour(C_ORANGE, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(0, C_MID_BLUE);
         break;
 
-        case 2:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrel_leds[0] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[0] = getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[0] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 3:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrel_leds[0] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[0] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[0] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_ORANGE, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 4:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrel_leds[0] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[0] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[0] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 5:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrel_leds[0] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[0] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[0] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_ORANGE, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 6:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrel_leds[1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 7:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrel_leds[2] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[2] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_ORANGE, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 8:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrel_leds[3] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[2] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_NAVY_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[2] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_YELLOW, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 9:
-          switch(FIRING_MODE) {
-            case PROTON:
-              // Boson Dart.
-              barrel_leds[4] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-            break;
-
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[2] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_MID_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[2] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[3] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_ORANGE, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 10:
-          switch(FIRING_MODE) {
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[3] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_LIGHT_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[3] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 11:
-          switch(FIRING_MODE) {
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[3] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[3] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
-              barrel_leds[4] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 12:
-          switch(FIRING_MODE) {
-            case STASIS:
-              // Shock Blast.
-              barrel_leds[4] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
-            break;
-
-            case MESON:
-              // Meson Collider.
-              barrel_leds[4] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
-            break;
-
-            default:
-              // Do nothing.
-            break;
-          }
-        break;
-
-        case 13:
-          barrel_leds[4] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(0, C_ORANGE);
         break;
 
         default:
-          // Do nothing if we somehow end up here.
+          // Do nothing.
         break;
       }
+    break;
+
+    case 2:
+      switch(FIRING_MODE) {
+        case PROTON:
+          // Boson Dart.
+          barrelLEDTranslation(0, C_WHITE);
+          barrelLEDTranslation(1, C_RED2);
+          barrelLEDTranslation(2, C_RED);
+        break;
+
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(0, C_LIGHT_BLUE);
+          barrelLEDTranslation(1, C_NAVY_BLUE);
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(0, C_RED4);
+          barrelLEDTranslation(1, C_YELLOW);
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 3:
+      switch(FIRING_MODE) {
+        case PROTON:
+          // Boson Dart.
+          barrelLEDTranslation(0, C_RED2);
+          barrelLEDTranslation(1, C_WHITE);
+          barrelLEDTranslation(2, C_RED2);
+          barrelLEDTranslation(3, C_RED);
+        break;
+
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(0, C_BLUE);
+          barrelLEDTranslation(1, C_MID_BLUE);
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(0, C_RED2);
+          barrelLEDTranslation(1, C_ORANGE);
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 4:
+      switch(FIRING_MODE) {
+        case PROTON:
+          // Boson Dart.
+          barrelLEDTranslation(0, C_RED);
+          barrelLEDTranslation(1, C_RED2);
+          barrelLEDTranslation(2, C_WHITE);
+          barrelLEDTranslation(3, C_RED2);
+          barrelLEDTranslation(4, C_RED);
+
+          // Bolt has reached barrel tip, so turn on tip light.
+          wandTipOn();
+        break;
+
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(0, C_WHITE);
+          barrelLEDTranslation(1, C_LIGHT_BLUE);
+          barrelLEDTranslation(2, C_NAVY_BLUE);
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(0, C_RED);
+          barrelLEDTranslation(1, C_RED4);
+          barrelLEDTranslation(2, C_YELLOW);
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 5:
+      switch(FIRING_MODE) {
+        case PROTON:
+          // Boson Dart.
+          barrelLEDTranslation(0, C_BLACK);
+          barrelLEDTranslation(1, C_RED);
+          barrelLEDTranslation(2, C_RED2);
+          barrelLEDTranslation(3, C_WHITE);
+          barrelLEDTranslation(4, C_RED2);
+        break;
+
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(0, C_BLACK);
+          barrelLEDTranslation(1, C_BLUE);
+          barrelLEDTranslation(2, C_MID_BLUE);
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(0, C_BLACK);
+          barrelLEDTranslation(1, C_RED2);
+          barrelLEDTranslation(2, C_ORANGE);
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 6:
+      switch(FIRING_MODE) {
+        case PROTON:
+          // Boson Dart.
+          barrelLEDTranslation(1, C_BLACK);
+          barrelLEDTranslation(2, C_RED);
+          barrelLEDTranslation(3, C_RED2);
+          barrelLEDTranslation(4, C_WHITE);
+        break;
+
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(1, C_WHITE);
+          barrelLEDTranslation(2, C_LIGHT_BLUE);
+          barrelLEDTranslation(3, C_NAVY_BLUE);
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(1, C_RED);
+          barrelLEDTranslation(2, C_RED4);
+          barrelLEDTranslation(3, C_YELLOW);
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 7:
+      switch(FIRING_MODE) {
+        case PROTON:
+          // Boson Dart.
+          barrelLEDTranslation(2, C_BLACK);
+          barrelLEDTranslation(3, C_RED);
+          barrelLEDTranslation(4, C_RED2);
+        break;
+
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(1, C_BLACK);
+          barrelLEDTranslation(2, C_BLUE);
+          barrelLEDTranslation(3, C_MID_BLUE);
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(1, C_BLACK);
+          barrelLEDTranslation(2, C_RED2);
+          barrelLEDTranslation(3, C_ORANGE);
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 8:
+      switch(FIRING_MODE) {
+        case PROTON:
+          // Boson Dart.
+          barrelLEDTranslation(3, C_BLACK);
+          barrelLEDTranslation(4, C_RED);
+        break;
+
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(2, C_WHITE);
+          barrelLEDTranslation(3, C_LIGHT_BLUE);
+          barrelLEDTranslation(4, C_NAVY_BLUE);
+
+          // Pulse has reached tip, so turn tip light on.
+          wandTipOn();
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(2, C_RED);
+          barrelLEDTranslation(3, C_RED4);
+          barrelLEDTranslation(4, C_YELLOW);
+
+          // Pulse has reached tip, so turn tip light on.
+          wandTipOn();
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 9:
+      switch(FIRING_MODE) {
+        case PROTON:
+          // Boson Dart.
+          barrelLEDTranslation(4, C_BLACK);
+          i_pulse_step = 14; // Immediately end.
+        break;
+
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(2, C_BLACK);
+          barrelLEDTranslation(3, C_BLUE);
+          barrelLEDTranslation(4, C_MID_BLUE);
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(2, C_BLACK);
+          barrelLEDTranslation(3, C_RED2);
+          barrelLEDTranslation(4, C_ORANGE);
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 10:
+      switch(FIRING_MODE) {
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(3, C_WHITE);
+          barrelLEDTranslation(4, C_LIGHT_BLUE);
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(3, C_RED);
+          barrelLEDTranslation(4, C_RED4);
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 11:
+      switch(FIRING_MODE) {
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(3, C_BLACK);
+          barrelLEDTranslation(4, C_BLUE);
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(3, C_BLACK);
+          barrelLEDTranslation(4, C_RED2);
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 12:
+      switch(FIRING_MODE) {
+        case STASIS:
+          // Shock Blast.
+          barrelLEDTranslation(4, C_WHITE);
+        break;
+
+        case MESON:
+          // Meson Collider.
+          barrelLEDTranslation(4, C_RED);
+        break;
+
+        default:
+          // Do nothing.
+        break;
+      }
+    break;
+
+    case 13:
+      barrelLEDTranslation(4, C_BLACK);
+    break;
+
+    default:
+      // Do nothing if we somehow end up here.
     break;
   }
 
@@ -4827,6 +4490,7 @@ void firePulseEffect() {
   }
   else {
     // Animation has concluded, so reset our timer and variable.
+    wandTipOff();
     ms_firing_pulse.stop();
     i_pulse_step = 0;
   }
@@ -5100,6 +4764,11 @@ void fireStreamEffect(CRGB c_colour) {
               else {
                 // Slime Tether response time is a fixed value.
                 ms_firing_stream_effects.start((d_firing_stream / 25) - 3); // 1ms
+
+                // Let Slime Tether turn on the barrel tip.
+                if(i_barrel_light + 4 == i_num_barrel_leds) {
+                  wandTipOn();
+                }
               }
             break;
 
@@ -5659,6 +5328,11 @@ void fireStreamEnd(CRGB c_colour) {
 
     if(i_barrel_light == i_num_barrel_leds) {
       i_barrel_light = 0;
+
+      if(WAND_BARREL_LED_COUNT != LEDS_5) {
+        // Turn off wand tip in case it's still on.
+        wandTipOff();
+      }
 
       ms_firing_lights_end.stop();
 
