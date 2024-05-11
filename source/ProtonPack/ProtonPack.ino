@@ -198,10 +198,10 @@ void setup() {
   if(b_demo_light_mode != true) {
     playEffect(S_POWER_ON);
 
-    uint8_t i_tmp_led1 = i_cyclotron_led_start + cyclotronLookupTable(0);
-    uint8_t i_tmp_led2 = i_cyclotron_led_start + cyclotronLookupTable(1);
-    uint8_t i_tmp_led3 = i_cyclotron_led_start + cyclotronLookupTable(2);
-    uint8_t i_tmp_led4 = i_cyclotron_led_start + cyclotronLookupTable(3);
+    uint8_t i_tmp_led1 = i_cyclotron_led_start + cyclotron84LookupTable(0);
+    uint8_t i_tmp_led2 = i_cyclotron_led_start + cyclotron84LookupTable(1);
+    uint8_t i_tmp_led3 = i_cyclotron_led_start + cyclotron84LookupTable(2);
+    uint8_t i_tmp_led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
 
     for(uint8_t i = 0; i < i_powercell_leds; i++) {
       pack_leds[i] = getHueAsRGB(POWERCELL, C_MID_BLUE);
@@ -1716,91 +1716,84 @@ void powercellDraw(uint8_t i_start) {
   }
 }
 
-// This function handles returning all Cyclotron lookup table values.
+// This function handles returning 1984 Cyclotron lookup table values.
+uint8_t cyclotron84LookupTable(uint8_t index) {
+  // First include a sanity check that will reject indexes above 3.
+  if(index > 3) {
+    index = 0;
+  }
+
+  if(b_clockwise) {
+    switch(i_cyclotron_leds) {
+      case HASLAB_CYCLOTRON_LED_COUNT:
+      default:
+        // 1984 CW 12 LED array.
+        return PROGMEM_READU8(i_1984_cyclotron_12_leds_cw[index]);
+      break;
+
+      case FRUTTO_CYCLOTRON_LED_COUNT:
+        // 1984 CW 20 LED array.
+        return PROGMEM_READU8(i_1984_cyclotron_20_leds_cw[index]);
+      break;
+
+      case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+        // 1984 CW 36 LED array.
+        return PROGMEM_READU8(i_1984_cyclotron_36_leds_cw[index]);
+      break;
+
+      case OUTER_CYCLOTRON_LED_MAX:
+        // 1984 CW 40 LED array.
+        return PROGMEM_READU8(i_1984_cyclotron_40_leds_cw[index]);
+      break;
+    }
+  }
+  else {
+    switch(i_cyclotron_leds) {
+      case HASLAB_CYCLOTRON_LED_COUNT:
+      default:
+        // 1984 CCW 12 LED array.
+        return PROGMEM_READU8(i_1984_cyclotron_12_leds_ccw[index]);
+      break;
+
+      case FRUTTO_CYCLOTRON_LED_COUNT:
+        // 1984 CCW 20 LED array.
+        return PROGMEM_READU8(i_1984_cyclotron_20_leds_ccw[index]);
+      break;
+
+      case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+        // 1984 CCW 36 LED array.
+        return PROGMEM_READU8(i_1984_cyclotron_36_leds_ccw[index]);
+      break;
+
+      case OUTER_CYCLOTRON_LED_MAX:
+        // 1984 CCW 40 LED array.
+        return PROGMEM_READU8(i_1984_cyclotron_40_leds_ccw[index]);
+      break;
+    }
+  }
+}
+
 uint8_t cyclotronLookupTable(uint8_t index) {
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-      // First include a sanity check that will reject indexes above 3.
-      if(index > 3) {
-        index = 0;
-      }
-
-      if(b_clockwise) {
-        switch(i_cyclotron_leds) {
-          case HASLAB_CYCLOTRON_LED_COUNT:
-          default:
-            // 1984 CW 12 LED array.
-            return PROGMEM_READU8(i_1984_cyclotron_12_leds_cw[index]);
-          break;
-
-          case FRUTTO_CYCLOTRON_LED_COUNT:
-            // 1984 CW 20 LED array.
-            return PROGMEM_READU8(i_1984_cyclotron_20_leds_cw[index]);
-          break;
-
-          case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-            // 1984 CW 36 LED array.
-            return PROGMEM_READU8(i_1984_cyclotron_36_leds_cw[index]);
-          break;
-
-          case OUTER_CYCLOTRON_LED_MAX:
-            // 1984 CW 40 LED array.
-            return PROGMEM_READU8(i_1984_cyclotron_40_leds_cw[index]);
-          break;
-        }
-      }
-      else {
-        switch(i_cyclotron_leds) {
-          case HASLAB_CYCLOTRON_LED_COUNT:
-          default:
-            // 1984 CCW 12 LED array.
-            return PROGMEM_READU8(i_1984_cyclotron_12_leds_ccw[index]);
-          break;
-
-          case FRUTTO_CYCLOTRON_LED_COUNT:
-            // 1984 CCW 20 LED array.
-            return PROGMEM_READU8(i_1984_cyclotron_20_leds_ccw[index]);
-          break;
-
-          case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-            // 1984 CCW 36 LED array.
-            return PROGMEM_READU8(i_1984_cyclotron_36_leds_ccw[index]);
-          break;
-
-          case OUTER_CYCLOTRON_LED_MAX:
-            // 1984 CCW 40 LED array.
-            return PROGMEM_READU8(i_1984_cyclotron_40_leds_ccw[index]);
-          break;
-        }
-      }
+  switch(i_cyclotron_leds) {
+    case HASLAB_CYCLOTRON_LED_COUNT:
+    default:
+      // 2021 CW 12 LED array.
+      return PROGMEM_READU8(i_cyclotron_12led_matrix[index]);
     break;
 
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-    default:
-      switch(i_cyclotron_leds) {
-        case HASLAB_CYCLOTRON_LED_COUNT:
-        default:
-          // 2021 CW 12 LED array.
-          return PROGMEM_READU8(i_cyclotron_12led_matrix[index]);
-        break;
+    case FRUTTO_CYCLOTRON_LED_COUNT:
+      // 2021 CW 20 LED array.
+      return PROGMEM_READU8(i_cyclotron_20led_matrix[index]);
+    break;
 
-        case FRUTTO_CYCLOTRON_LED_COUNT:
-          // 2021 CW 20 LED array.
-          return PROGMEM_READU8(i_cyclotron_20led_matrix[index]);
-        break;
+    case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+      // 2021 CW 36 LED array.
+      return PROGMEM_READU8(i_cyclotron_36led_matrix[index]);
+    break;
 
-        case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-          // 2021 CW 36 LED array.
-          return PROGMEM_READU8(i_cyclotron_36led_matrix[index]);
-        break;
-
-        case OUTER_CYCLOTRON_LED_MAX:
-          // 2021 CW 40 LED array.
-          return PROGMEM_READU8(i_cyclotron_40led_matrix[index]);
-        break;
-      }
+    case OUTER_CYCLOTRON_LED_MAX:
+      // 2021 CW 40 LED array.
+      return PROGMEM_READU8(i_cyclotron_40led_matrix[index]);
     break;
   }
 }
@@ -2102,7 +2095,7 @@ void cyclotronFade() {
           }
 
           if(ms_cyclotron_led_fade_out[i].isFinished() && b_cyclotron_led_on_status[i] == false) {
-            if(FIRING_MODE == SLIME && (i == cyclotronLookupTable(0) || i == cyclotronLookupTable(1) || i == cyclotronLookupTable(2) || i == cyclotronLookupTable(3))) {
+            if(FIRING_MODE == SLIME && (i == cyclotron84LookupTable(0) || i == cyclotron84LookupTable(1) || i == cyclotron84LookupTable(2) || i == cyclotron84LookupTable(3))) {
               pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness_tmp);
               i_cyclotron_led_value[i] = i_brightness_tmp;
             }
@@ -2569,13 +2562,13 @@ void cyclotron1984(int cDelay) {
       i_1984_counter = 0;
     }
 
-    i_led_cyclotron = i_cyclotron_led_start + cyclotronLookupTable(i_1984_counter);
+    i_led_cyclotron = i_cyclotron_led_start + cyclotron84LookupTable(i_1984_counter);
 
     if(FIRING_MODE == SLIME) {
-      uint8_t led1 = i_cyclotron_led_start + cyclotronLookupTable(0);
-      uint8_t led2 = i_cyclotron_led_start + cyclotronLookupTable(1);
-      uint8_t led3 = i_cyclotron_led_start + cyclotronLookupTable(2);
-      uint8_t led4 = i_cyclotron_led_start + cyclotronLookupTable(3);
+      uint8_t led1 = i_cyclotron_led_start + cyclotron84LookupTable(0);
+      uint8_t led2 = i_cyclotron_led_start + cyclotron84LookupTable(1);
+      uint8_t led3 = i_cyclotron_led_start + cyclotron84LookupTable(2);
+      uint8_t led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
 
       if(ms_cyclotron_slime_off.justFinished()) {
         cyclotron84LightOff(led1);
@@ -2647,10 +2640,10 @@ void cyclotron1984(int cDelay) {
 void cyclotron1984Alarm() {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness);
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
-  uint8_t led1 = i_cyclotron_led_start + cyclotronLookupTable(0);
-  uint8_t led2 = i_cyclotron_led_start + cyclotronLookupTable(1);
-  uint8_t led3 = i_cyclotron_led_start + cyclotronLookupTable(2);
-  uint8_t led4 = i_cyclotron_led_start + cyclotronLookupTable(3);
+  uint8_t led1 = i_cyclotron_led_start + cyclotron84LookupTable(0);
+  uint8_t led2 = i_cyclotron_led_start + cyclotron84LookupTable(1);
+  uint8_t led3 = i_cyclotron_led_start + cyclotron84LookupTable(2);
+  uint8_t led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
 
   if(b_fade_cyclotron_led != true && FIRING_MODE != SLIME) {
     pack_leds[led1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
@@ -3177,7 +3170,7 @@ void cyclotronOverheating() {
         }
         else {
           for(uint8_t i = 0; i < 4; i++) {
-            cyclotron84LightOff(cyclotronLookupTable(i) + i_cyclotron_led_start);
+            cyclotron84LightOff(cyclotron84LookupTable(i) + i_cyclotron_led_start);
           }
         }
       }
