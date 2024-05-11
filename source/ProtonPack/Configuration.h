@@ -77,7 +77,7 @@ bool b_powercell_colour_toggle = true;
  * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology 20 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
-const unsigned int i_1984_delay = 1050;
+const uint16_t i_1984_delay = 1050;
 #define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs.
 #define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs.
 #define CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
@@ -219,7 +219,7 @@ const uint8_t STARTUP_VOLUME_EFFECTS = 100;
  * If your pack is overpowering the wand at lower volumes, you can either increase the minimum value in the wand,
  * or decrease the minimum value for the pack. By default the pack will be nearly silent at 0% volume, but not off.
  */
-const int MINIMUM_VOLUME = -60;
+const int8_t MINIMUM_VOLUME = -60;
 
 /*
  * Percentage increments of main volume change.
@@ -289,8 +289,8 @@ bool b_cyclotron_single_led = true;
 /*
  * When fading is enabled for 1984 mode Cyclotron Lid lights, control the delay of the fading.
  */
-const unsigned int i_1984_fade_out_delay = 1110;
-const unsigned int i_1984_fade_in_delay = 210;
+const uint16_t i_1984_fade_out_delay = 1110;
+const uint16_t i_1984_fade_in_delay = 210;
 
 /*
  * Set to true to enable the onboard amplifier on the WAV Trigger.
@@ -360,11 +360,11 @@ bool b_smoke_continuous_level_5 = true;
  * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power level (not overheating venting).
  * Example: 30,000 milliseconds (30 seconds)
  */
-const unsigned long int i_smoke_timer_level_1 = 30000;
-const unsigned long int i_smoke_timer_level_2 = 15000;
-const unsigned long int i_smoke_timer_level_3 = 10000;
-const unsigned long int i_smoke_timer_level_4 = 7500;
-const unsigned long int i_smoke_timer_level_5 = 6000;
+const uint32_t i_smoke_timer_level_1 = 30000;
+const uint32_t i_smoke_timer_level_2 = 15000;
+const uint32_t i_smoke_timer_level_3 = 10000;
+const uint32_t i_smoke_timer_level_4 = 7500;
+const uint32_t i_smoke_timer_level_5 = 6000;
 
 /*
  * How long you want your smoke pins (+ fan) to stay on while firing for each firing power level. (not overheating venting)
@@ -373,11 +373,11 @@ const unsigned long int i_smoke_timer_level_5 = 6000;
  * This does not affect smoke during overheat.
  * This only affects how long your smoke stays on after it has been triggered in continuous firing.
  */
-const unsigned long int i_smoke_on_time_level_1 = 3000;
-const unsigned long int i_smoke_on_time_level_2 = 3000;
-const unsigned long int i_smoke_on_time_level_3 = 3500;
-const unsigned long int i_smoke_on_time_level_4 = 3500;
-const unsigned long int i_smoke_on_time_level_5 = 4000;
+const uint32_t i_smoke_on_time_level_1 = 3000;
+const uint32_t i_smoke_on_time_level_2 = 3000;
+const uint32_t i_smoke_on_time_level_3 = 3500;
+const uint32_t i_smoke_on_time_level_4 = 3500;
+const uint32_t i_smoke_on_time_level_5 = 4000;
 
 /*
  * Enable or disable smoke during overheat sequences.
@@ -406,11 +406,11 @@ const bool b_smoke_overheat_level_5 = true;
  * Default setting is for overheat to only happen in power level 5. However this can be adjused on the Neutrona Wand to enable overheating in any power level.
  * It is recommended not to go below 2000 milliseconds.
  */
-unsigned int i_ms_overheating_length_1 = 2000; // Time in milliseconds (2 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 1.
-unsigned int i_ms_overheating_length_2 = 3000; // Time in milliseconds (3 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 2.
-unsigned int i_ms_overheating_length_3 = 4000; // Time in milliseconds (4 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 3.
-unsigned int i_ms_overheating_length_4 = 5000; // Time in milliseconds (5 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 4.
-unsigned int i_ms_overheating_length_5 = 6000; // Time in milliseconds (6 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 5.
+uint16_t i_ms_overheating_length_1 = 2000; // Time in milliseconds (2 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 1.
+uint16_t i_ms_overheating_length_2 = 3000; // Time in milliseconds (3 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 2.
+uint16_t i_ms_overheating_length_3 = 4000; // Time in milliseconds (4 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 3.
+uint16_t i_ms_overheating_length_4 = 5000; // Time in milliseconds (5 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 4.
+uint16_t i_ms_overheating_length_5 = 6000; // Time in milliseconds (6 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 5.
 
 /*
  * Set this to true if you want to know if your wand and pack are communicating.

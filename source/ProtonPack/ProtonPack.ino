@@ -456,7 +456,7 @@ void loop() {
             break;
           }
 
-          unsigned int i_s_random = random(2,4) * 1000; // 2 or 3 seconds
+          uint16_t i_s_random = random(2,4) * 1000; // 2 or 3 seconds
 
           switch (i_random) {
             case 3:
@@ -1266,7 +1266,7 @@ void resetRampSpeeds() {
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
     case SYSTEM_1989:
-      i_current_ramp_speed = (unsigned int)(i_1984_delay * 1.3);
+      i_current_ramp_speed = (uint16_t)(i_1984_delay * 1.3);
       i_inner_current_ramp_speed = i_inner_ramp_delay;
     break;
 
@@ -1435,7 +1435,7 @@ void cyclotronSwitchLEDLoop() {
     }
 
     // Setup the delays again.
-    unsigned int i_cyc_led_delay = i_cyclotron_switch_led_delay / i_cyclotron_switch_led_mulitplier;
+    uint16_t i_cyc_led_delay = i_cyclotron_switch_led_delay / i_cyclotron_switch_led_mulitplier;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
@@ -1480,7 +1480,7 @@ void powercellRampDown() {
     }
 
     // Setup the delays again.
-    unsigned int i_pc_delay = i_powercell_delay;
+    uint16_t i_pc_delay = i_powercell_delay;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
@@ -1515,7 +1515,7 @@ void powercellRampDown() {
 
 void powercellLoop() {
   if(ms_powercell.justFinished()) {
-    unsigned int i_extra_delay = 0;
+    uint16_t i_extra_delay = 0;
 
     // Power Cell
     if(i_powercell_led >= i_powercell_leds) {
@@ -1550,7 +1550,7 @@ void powercellLoop() {
     }
 
     // Setup the delays again.
-    unsigned int i_pc_delay = i_powercell_delay;
+    uint16_t i_pc_delay = i_powercell_delay;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
@@ -1590,7 +1590,7 @@ void powercellLoop() {
     }
 
     // Speed up the Power Cell when the cyclotron speeds up before a overheat.
-    unsigned int i_multiplier = 0;
+    uint16_t i_multiplier = 0;
 
     if(i_powercell_multiplier > 1) {
       switch(i_powercell_multiplier) {
@@ -1922,7 +1922,7 @@ void cyclotronControl() {
       r_inner_ramp.go(i_inner_current_ramp_speed); // Reset the Inner Cyclotron ramp.
 
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        r_2021_ramp.go((unsigned int)(i_1984_delay * 1.3), i_1984_ramp_down_length, CIRCULAR_IN);
+        r_2021_ramp.go((uint16_t)(i_1984_delay * 1.3), i_1984_ramp_down_length, CIRCULAR_IN);
 
         r_inner_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN);
       }
@@ -3961,7 +3961,7 @@ void wandFiring() {
   }
 
   if(b_stream_effects == true && STATUS_CTS == CTS_NOT_FIRING) {
-    unsigned int i_s_random = random(7,15) * 1000;
+    uint16_t i_s_random = random(7,15) * 1000;
     ms_firing_sound_mix.start(i_s_random);
   }
 
@@ -4764,10 +4764,10 @@ void wandExtraSoundsStop() {
 }
 
 // It is very important that S_1 up to S_60 follow each other in order on the Micro SD Card and sound effects enum.
-void overheatVoiceIndicator(unsigned int i_tmp_length) {
+void overheatVoiceIndicator(uint16_t i_tmp_length) {
   i_tmp_length = i_tmp_length / i_overheat_delay_increment;
 
-  unsigned int i_tmp_sound = (S_1 - 1) + i_tmp_length;
+  uint16_t i_tmp_sound = (S_1 - 1) + i_tmp_length;
 
   stopEffect(i_tmp_sound - 1);
   stopEffect(i_tmp_sound);

@@ -3671,7 +3671,7 @@ void modeFiring() {
       break;
     }
 
-    unsigned int i_s_random = random(2,4) * 1000;
+    uint16_t i_s_random = random(2,4) * 1000;
 
     switch (i_random) {
       case 3:
@@ -8096,7 +8096,7 @@ void wandBarrelSpectralCustomConfigOn() {
 }
 
 // It is very important that S_1 up to S_60 follow each other in order on the Micro SD Card and sound effects enum.
-void overheatVoiceIndicator(unsigned int i_tmp_length) {
+void overheatVoiceIndicator(uint16_t i_tmp_length) {
   i_tmp_length = i_tmp_length / i_overheat_delay_increment;
 
   uint16_t i_tmp_sound = (S_1 - 1) + i_tmp_length;

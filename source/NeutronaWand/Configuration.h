@@ -199,11 +199,11 @@ bool b_overheat_level_5 = true;
  * Overheat only happens if enabled for that power level (see above).
  * Example: 60000 = (60 seconds)
  */
-unsigned long int i_ms_overheat_initiate_level_1 = 60000;
-unsigned long int i_ms_overheat_initiate_level_2 = 50000;
-unsigned long int i_ms_overheat_initiate_level_3 = 40000;
-unsigned long int i_ms_overheat_initiate_level_4 = 35000;
-unsigned long int i_ms_overheat_initiate_level_5 = 30000;
+uint32_t i_ms_overheat_initiate_level_1 = 60000;
+uint32_t i_ms_overheat_initiate_level_2 = 50000;
+uint32_t i_ms_overheat_initiate_level_3 = 40000;
+uint32_t i_ms_overheat_initiate_level_4 = 35000;
+uint32_t i_ms_overheat_initiate_level_5 = 30000;
 
 /*
  * Set to false to disable the onboard amplifier on the WAV Trigger.
