@@ -28,19 +28,15 @@
 /*
  * Cyclotron Lid LEDs.
  * For the stock HasLab LEDs, there are 12 LEDs in the cyclotron lid.
- * Use uint8_t i_cyclotron_leds = 12; and i_1984_cyclotron_leds 1, 4, 7, 10.
+ * Use uint8_t i_cyclotron_leds = 12.
  *
- * For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use uint8_t i_cyclotron_leds = 40 and i_1984_cyclotron_leds 0, 10, 18, 28.
+ * For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use uint8_t i_cyclotron_leds = 40.
  * Adjust as necessary depending on how you align your NeoPixel ring.
  * You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.
- *
- * i_1984_cyclotron_leds is the middle LED aligned in each lens window. (0 is the first LED). Adjust this setting if you use different LED setups and installations.
- * Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as Cyclotron lens #1 and work your way clockwise)
  *
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
 uint8_t i_cyclotron_leds = 12;
-
 
 /*
  * Power Cell LEDs
@@ -76,30 +72,34 @@ bool b_powercell_colour_toggle = true;
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
-
+ *
  * CYCLOTRON_DELAY_2021_12_LED is for the stock Haslab 12 LED setup.
  * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology 20 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
 const unsigned int i_1984_delay = 1050;
-#define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs
-#define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs
+#define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs.
+#define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs.
 #define CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
-#define CYCLOTRON_DELAY_2021_40_LED 7 // For 40 LEDs
+#define CYCLOTRON_DELAY_2021_40_LED 7 // For 40 LEDs.
 
 /*
- * This is the middle LED aligned in each lens window. (0 is the first LED). Adjust this setting if you use different LED setups and installations.
+ * This is the middle LED aligned in each lens window. (0 is the first LED). Adjust these setting if you use different LED setups and installations.
  * Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as Cyclotron lens #1 and work your way clockwise)
-
+ *
  * i_1984_cyclotron_12_leds is for the stock Haslab 12 LED setup.
  * i_1984_cyclotron_20_leds is for the Frutto Technology 20 LED setup.
  * i_1984_cyclotron_36_leds is for the Frutto Technology Max 36 LED setup.
  * i_1984_cyclotron_40_leds is for a 40 LED NeoPixel ring.
  */
-const uint8_t i_1984_cyclotron_12_leds[4] = { 1, 4, 7, 10 };
-const uint8_t i_1984_cyclotron_20_leds[4] = { 2, 7, 12, 17 };
-const uint8_t i_1984_cyclotron_36_leds[4] = { 4, 13, 22, 31 };
-const uint8_t i_1984_cyclotron_40_leds[4] = { 0, 10, 18, 28 };
+const uint8_t i_1984_cyclotron_12_leds_cw[4] PROGMEM = { 1, 4, 7, 10 };
+const uint8_t i_1984_cyclotron_12_leds_ccw[4] PROGMEM = { 1, 10, 7, 4 };
+const uint8_t i_1984_cyclotron_20_leds_cw[4] PROGMEM = { 2, 7, 12, 17 };
+const uint8_t i_1984_cyclotron_20_leds_ccw[4] PROGMEM = { 2, 17, 12, 7 };
+const uint8_t i_1984_cyclotron_36_leds_cw[4] PROGMEM = { 4, 13, 22, 31 };
+const uint8_t i_1984_cyclotron_36_leds_ccw[4] PROGMEM = { 4, 31, 22, 13 };
+const uint8_t i_1984_cyclotron_40_leds_cw[4] PROGMEM = { 0, 10, 18, 28 };
+const uint8_t i_1984_cyclotron_40_leds_ccw[4] PROGMEM = { 0, 28, 18, 10 };
 
 /*
  * Afterlife and Frozen Empire only.
@@ -446,7 +446,7 @@ const bool b_cyclotron_haslab_chsv_colour_change = false;
  * example: //#define GPSTAR_PROTON_PACK_PCB
  * This is a legacy flag, for people who originally put the Cyclotron Lid detection on pin 51 and not pin 43. If your Cyclotron Lid detection is on pin 51, then comment/disable this define.
  * If your home built gpstar Proton Pack was built with pin 43 for the Cyclotron Lid detection, then you can leave this enabled.
-
+ *
  * If you are compiling the code to upload to the gpstar Proton Pack microcontroller, or latest gpstar home built instructions, then enable and uncomment it (default).
  * example: #define GPSTAR_PROTON_PACK_PCB
  * In general, leave this enabled by default as very few people did the pin 51 setup.

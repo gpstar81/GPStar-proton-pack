@@ -1408,7 +1408,7 @@ void checkWandAction() {
 
         // Menu Level 1: (Intensify) -> Play music or stop music.
         // Menu Level 1: (Barrel Wing Button) -> Mute the Proton Pack and Neutrona Wand.
-        // Menu Level 2: (Intensify) -> Switch between 1984/1989/Afterlife mode.
+        // Menu Level 2: (Intensify) -> Switch between 1984/1989/Afterlife/Frozen Empire mode.
         // Menu Level 2: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
         case 1:
           // Play or stop the current music track.

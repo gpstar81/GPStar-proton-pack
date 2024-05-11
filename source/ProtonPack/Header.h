@@ -112,12 +112,6 @@ uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_
  */
 uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
 
-// The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
-uint8_t i_2021_delay = 15; // 15 for stock HasLab LEDs. Change to 10 for the Frutto Technology Cyclotron or 7 for a 40 LED NeoPixel ring.
-
-// The middle centre LED.
-uint8_t i_1984_cyclotron_leds[4] = { 1, 4, 7, 10 };
-
 /*
  * Proton Pack Power Cell and Cyclotron lid LED pin.
  */
@@ -170,6 +164,8 @@ enum PACK_ACTION_STATES PACK_ACTION_STATE;
 /*
  * Cyclotron lid LEDs control and lid detection.
  */
+uint8_t i_1984_counter = 0; // Counter to keep track of which of the four LEDs we are working with in 1984/1989 mode.
+uint8_t i_2021_delay = 15; // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
 uint8_t i_cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
 uint8_t i_led_cyclotron = i_cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
 const uint16_t i_2021_ramp_delay = 300;
@@ -193,7 +189,6 @@ millisDelay ms_cyclotron_slime_on;
 millisDelay ms_cyclotron_slime_off;
 const uint8_t f_slime_divider = 2; // Used for adjusting the slime brightness in 1984 / 1989.
 bool b_cyclotron_lid_on = true;
-int8_t i_1984_counter = 0;
 bool b_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 rampInt ms_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};

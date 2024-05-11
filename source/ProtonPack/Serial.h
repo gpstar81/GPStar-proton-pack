@@ -3638,7 +3638,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case FRUTTO_CYCLOTRON_LED_COUNT:
-        default:
           // Switch to 12 LEDs. Default HasLab.
           i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
 
@@ -3649,6 +3648,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case HASLAB_CYCLOTRON_LED_COUNT:
+        default:
           // Switch to 40 LEDs.
           i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
 

@@ -4759,7 +4759,7 @@ void fireStreamEffect(CRGB c_colour) {
                   case 5:
                     ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2ms
                   break;
-                }                
+                }
               }
               else {
                 // Slime Tether response time is a fixed value.
