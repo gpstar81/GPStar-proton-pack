@@ -1777,22 +1777,22 @@ uint8_t cyclotronLookupTable(uint8_t index) {
   switch(i_cyclotron_leds) {
     case HASLAB_CYCLOTRON_LED_COUNT:
     default:
-      // 2021 CW 12 LED array.
+      // Hasbro 12 LED array.
       return PROGMEM_READU8(i_cyclotron_12led_matrix[index]);
     break;
 
     case FRUTTO_CYCLOTRON_LED_COUNT:
-      // 2021 CW 20 LED array.
+      // Frutto 20 LED array.
       return PROGMEM_READU8(i_cyclotron_20led_matrix[index]);
     break;
 
     case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-      // 2021 CW 36 LED array.
+      // Frutto Max 36 LED array.
       return PROGMEM_READU8(i_cyclotron_36led_matrix[index]);
     break;
 
     case OUTER_CYCLOTRON_LED_MAX:
-      // 2021 CW 40 LED array.
+      // NeoPixel Ring 40 LED array.
       return PROGMEM_READU8(i_cyclotron_40led_matrix[index]);
     break;
   }
