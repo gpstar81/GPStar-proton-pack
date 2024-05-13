@@ -98,7 +98,7 @@ const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
  * Optionally, up to 30 LEDs for the "sparking" effect in the cavity.
  * Max 65 LEDs is possible before degradation of serial communications.
  */
-uint8_t i_max_inner_cyclotron_leds = (uint8_t) INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
+uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
 
 /*
  * Updated count of all the LEDs plus the N-Filter jewel.
@@ -185,9 +185,7 @@ bool b_reset_start_led = true;
 bool b_1984_led_start = true;
 rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
-millisDelay ms_cyclotron_slime_on;
-millisDelay ms_cyclotron_slime_off;
-const uint8_t f_slime_divider = 2; // Used for adjusting the slime brightness in 1984 / 1989.
+millisDelay ms_cyclotron_slime_effect;
 bool b_cyclotron_lid_on = true;
 bool b_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
