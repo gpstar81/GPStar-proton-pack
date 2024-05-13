@@ -54,7 +54,7 @@ void gpstarAudio::flush(void) {
   rxLen = 0;
   rxMsgReady = false;
 
-  for(int i = 0; i < MAX_NUM_VOICES; i++) {
+  for(uint8_t i = 0; i < MAX_NUM_VOICES; i++) {
     voiceTable[i] = 0xffff;
   }
 
@@ -157,7 +157,7 @@ void gpstarAudio::update(void) {
 
         case RSP_VERSION_STRING:
           // Specific for WAV Triggers.
-          for (int i = 0; i < (VERSION_STRING_LEN - 1); i++) {
+          for(uint8_t i = 0; i < (VERSION_STRING_LEN - 1); i++) {
             version[i] = rxMessage[i + 1];
           }
           version[VERSION_STRING_LEN - 1] = 0;
@@ -188,7 +188,7 @@ void gpstarAudio::update(void) {
   }
 }
 
-bool gpstarAudio::currentMusicTrackStatus(int trk) {
+bool gpstarAudio::currentMusicTrackStatus(uint16_t trk) {
   if(trk == currentMusicTrack) {
     if(currentMusicStatus == true) {
       return true;
@@ -206,7 +206,7 @@ void gpstarAudio::resetTrackCounter(bool bReset) {
   trackCounter = bReset;
 }
 
-void gpstarAudio::trackPlayingStatus(int trk) {
+void gpstarAudio::trackPlayingStatus(uint16_t trk) {
   uint8_t txbuf[7];
 
   txbuf[0] = SOM1;
@@ -219,11 +219,11 @@ void gpstarAudio::trackPlayingStatus(int trk) {
   GPStarSerial.write(txbuf, 7);
 }
 
-bool gpstarAudio::isTrackPlaying(int trk) {
+bool gpstarAudio::isTrackPlaying(uint16_t trk) {
   update();
 
-  for(int i = 0; i < MAX_NUM_VOICES; i++) {
-    if(voiceTable[i] == (uint16_t)trk) {
+  for(uint8_t i = 0; i < MAX_NUM_VOICES; i++) {
+    if(voiceTable[i] == trk) {
       return true;
     }
   }
@@ -231,7 +231,7 @@ bool gpstarAudio::isTrackPlaying(int trk) {
   return false;
 }
 
-void gpstarAudio::masterGain(int gain) {
+void gpstarAudio::masterGain(int16_t gain) {
   uint8_t txbuf[7];
 
   txbuf[0] = SOM1;
@@ -275,56 +275,56 @@ bool gpstarAudio::getVersion(char *pDst) {
     return false;
   }
 
-  for(int i = 0; i < (VERSION_STRING_LEN - 1); i++) {
+  for(uint8_t i = 0; i < (VERSION_STRING_LEN - 1); i++) {
     pDst[i] = version[i];
   }
 
   return true;
 }
 
-int gpstarAudio::getNumTracks(void) {
+uint16_t gpstarAudio::getNumTracks(void) {
   update();
 
   return numTracks;
 }
 
-void gpstarAudio::trackPlaySolo(int trk) {
+void gpstarAudio::trackPlaySolo(uint16_t trk) {
   trackControl(trk, TRK_PLAY_SOLO);
 }
 
-void gpstarAudio::trackPlaySolo(int trk, bool lock) {
+void gpstarAudio::trackPlaySolo(uint16_t trk, bool lock) {
   trackControl(trk, TRK_PLAY_SOLO, lock);
 }
 
-void gpstarAudio::trackPlayPoly(int trk) {
+void gpstarAudio::trackPlayPoly(uint16_t trk) {
   trackControl(trk, TRK_PLAY_POLY);
 }
 
-void gpstarAudio::trackPlayPoly(int trk, bool lock) {
+void gpstarAudio::trackPlayPoly(uint16_t trk, bool lock) {
   trackControl(trk, TRK_PLAY_POLY, lock);
 }
 
-void gpstarAudio::trackLoad(int trk) {
+void gpstarAudio::trackLoad(uint16_t trk) {
   trackControl(trk, TRK_LOAD);
 }
 
-void gpstarAudio::trackLoad(int trk, bool lock) {
+void gpstarAudio::trackLoad(uint16_t trk, bool lock) {
   trackControl(trk, TRK_LOAD, lock);
 }
 
-void gpstarAudio::trackStop(int trk) {
+void gpstarAudio::trackStop(uint16_t trk) {
   trackControl(trk, TRK_STOP);
 }
 
-void gpstarAudio::trackPause(int trk) {
+void gpstarAudio::trackPause(uint16_t trk) {
   trackControl(trk, TRK_PAUSE);
 }
 
-void gpstarAudio::trackResume(int trk) {
+void gpstarAudio::trackResume(uint16_t trk) {
   trackControl(trk, TRK_RESUME);
 }
 
-void gpstarAudio::trackLoop(int trk, bool enable) {
+void gpstarAudio::trackLoop(uint16_t trk, bool enable) {
   if(enable) {
     trackControl(trk, TRK_LOOP_ON);
   }
@@ -333,28 +333,28 @@ void gpstarAudio::trackLoop(int trk, bool enable) {
   }
 }
 
-void gpstarAudio::trackControl(int trk, int code) {
+void gpstarAudio::trackControl(uint16_t trk, uint8_t code) {
   uint8_t txbuf[8];
 
   txbuf[0] = SOM1;
   txbuf[1] = SOM2;
   txbuf[2] = 0x08;
   txbuf[3] = CMD_TRACK_CONTROL;
-  txbuf[4] = (uint8_t)code;
+  txbuf[4] = code;
   txbuf[5] = (uint8_t)trk;
   txbuf[6] = (uint8_t)(trk >> 8);
   txbuf[7] = EOM;
   GPStarSerial.write(txbuf, 8);
 }
 
-void gpstarAudio::trackControl(int trk, int code, bool lock) {
+void gpstarAudio::trackControl(uint16_t trk, uint8_t code, bool lock) {
   uint8_t txbuf[9];
 
   txbuf[0] = SOM1;
   txbuf[1] = SOM2;
   txbuf[2] = 0x09;
   txbuf[3] = CMD_TRACK_CONTROL_EX;
-  txbuf[4] = (uint8_t)code;
+  txbuf[4] = code;
   txbuf[5] = (uint8_t)trk;
   txbuf[6] = (uint8_t)(trk >> 8);
   txbuf[7] = lock;
@@ -384,7 +384,7 @@ void gpstarAudio::resumeAllInSync(void) {
   GPStarSerial.write(txbuf, 5);
 }
 
-void gpstarAudio::trackGain(int trk, int gain) {
+void gpstarAudio::trackGain(uint16_t trk, int16_t gain) {
   uint8_t txbuf[9];
 
   txbuf[0] = SOM1;
@@ -399,7 +399,7 @@ void gpstarAudio::trackGain(int trk, int gain) {
   GPStarSerial.write(txbuf, 9);
 }
 
-void gpstarAudio::trackFade(int trk, int gain, int time, bool stopFlag) {
+void gpstarAudio::trackFade(uint16_t trk, int16_t gain, uint16_t time, bool stopFlag) {
   uint8_t txbuf[12];
 
   txbuf[0] = SOM1;
@@ -417,7 +417,7 @@ void gpstarAudio::trackFade(int trk, int gain, int time, bool stopFlag) {
   GPStarSerial.write(txbuf, 12);
 }
 
-void gpstarAudio::samplerateOffset(int offset) {
+void gpstarAudio::samplerateOffset(uint16_t offset) {
   uint8_t txbuf[7];
 
   txbuf[0] = SOM1;
@@ -430,14 +430,14 @@ void gpstarAudio::samplerateOffset(int offset) {
   GPStarSerial.write(txbuf, 7);
 }
 
-void gpstarAudio::setTriggerBank(int bank) {
+void gpstarAudio::setTriggerBank(uint8_t bank) {
   uint8_t txbuf[6];
 
   txbuf[0] = SOM1;
   txbuf[1] = SOM2;
   txbuf[2] = 0x06;
   txbuf[3] = CMD_SET_TRIGGER_BANK;
-  txbuf[4] = (uint8_t)bank;
+  txbuf[4] = bank;
   txbuf[5] = EOM;
   GPStarSerial.write(txbuf, 6);
 }

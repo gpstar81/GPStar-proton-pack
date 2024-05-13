@@ -42,7 +42,7 @@ enum AUDIO_DEVICES AUDIO_DEVICE;
  */
 uint16_t i_music_count = 0;
 uint16_t i_current_music_track = 0;
-const int i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
+const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
 bool b_playing_music = false;
@@ -55,8 +55,8 @@ const uint8_t i_volume_master_percentage_max = 100; // Max percentage of master 
  * Music Control/Checking
  * Only for bench test mode. When bench test mode is disabled, the Pack controls the music checking and playback.
  */
-const unsigned int i_music_check_delay = 2000;
-const unsigned int i_music_next_track_delay = 500;
+const uint16_t i_music_check_delay = 2000;
+const uint16_t i_music_next_track_delay = 500;
 millisDelay ms_check_music;
 millisDelay ms_music_next_track;
 millisDelay ms_music_status_check;
@@ -80,18 +80,18 @@ int8_t i_volume_revert = i_volume_master;
 /*
  * Function Prototypes
  */
-void playEffect(int i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, unsigned int i_fade_time = 0, bool b_lock = true);
-void stopEffect(int i_track_id);
+void playEffect(uint16_t i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, uint16_t i_fade_time = 0, bool b_lock = true);
+void stopEffect(uint16_t i_track_id);
 void playMusic();
 void stopMusic();
-void adjustGainEffect(int i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, unsigned int i_fade_time = 0);
+void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, uint16_t i_fade_time = 0);
 
 /*
  * Helper Functions
  */
 
 // Play a sound effect using certain defaults.
-void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, unsigned int i_fade_time, bool b_lock) {
+void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, uint16_t i_fade_time, bool b_lock) {
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
@@ -128,7 +128,7 @@ void playEffect(int i_track_id, bool b_track_loop, int8_t i_track_volume, bool b
   }
 }
 
-void stopEffect(int i_track_id) {
+void stopEffect(uint16_t i_track_id) {
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
@@ -143,7 +143,7 @@ void stopEffect(int i_track_id) {
 }
 
 // Adjust the gain of a single track.
-void adjustGainEffect(int i_track_id, int8_t i_track_volume, bool b_fade, unsigned int i_fade_time) {
+void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume, bool b_fade, uint16_t i_fade_time) {
   if(i_track_volume < i_volume_abs_min) {
     i_track_volume = i_volume_abs_min;
   }
@@ -328,7 +328,7 @@ void resumeMusic() {
 }
 
 void musicNextTrack() {
-  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+  uint16_t i_temp_track = i_current_music_track; // Used for music navigation.
 
   // Determine the next track.
   if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
@@ -356,7 +356,7 @@ void musicNextTrack() {
 }
 
 void musicPrevTrack() {
-  unsigned int i_temp_track = i_current_music_track; // Used for music navigation.
+  uint16_t i_temp_track = i_current_music_track; // Used for music navigation.
 
   // Determine the previous track.
   if(i_current_music_track - 1 < i_music_track_start) {

@@ -107,7 +107,7 @@ void setup() {
   WIRE.begin();
 
   byte by_error, by_address;
-  unsigned int i_i2c_devices = 0;
+  uint8_t i_i2c_devices = 0;
 
   // Scan i2c for any devices (28 segment bargraph).
   for(by_address = 1; by_address < 127; by_address++ ) {
@@ -2973,8 +2973,7 @@ void modeFireStart() {
 
     // Standalone wand plays additional SFX from Proton Pack.
     if(b_gpstar_benchtest == true) {
-      unsigned int i_s_random = random(7,15) * 1000;
-      ms_firing_sound_mix.start(i_s_random);
+      ms_firing_sound_mix.start(random(7,15) * 1000);
     }
   }
 }

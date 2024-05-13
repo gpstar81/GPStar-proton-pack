@@ -93,7 +93,7 @@ unsigned long i_progress_millis = 0;
 
 // Create timer for WebSocket cleanup.
 millisDelay ms_cleanup;
-const unsigned int i_websocketCleanup = 5000;
+const uint16_t i_websocketCleanup = 5000;
 
 IPAddress convertToIP(String ipAddressString) {
   uint16_t quads[4]; // Array to store 4 quads for the IP.

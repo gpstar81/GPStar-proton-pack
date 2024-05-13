@@ -57,7 +57,7 @@ enum BARGRAPH_STATES BARGRAPH_STATE;
 
 /***** Helper Functions *****/
 
-void bargraphSetElement(int i_element, bool b_power) {
+void bargraphSetElement(int8_t i_element, bool b_power) {
   if(i_element < 0) {
     i_element = 0; // Keep byte value in usable range.
   }
@@ -119,7 +119,7 @@ void setupBargraph() {
   WIRE.begin();
 
   byte by_error, by_address;
-  unsigned int i_i2c_devices = 0;
+  uint8_t i_i2c_devices = 0;
 
   // Scan i2c for any devices (28 segment bargraph).
   for(by_address = 1; by_address < 127; by_address++ ) {
