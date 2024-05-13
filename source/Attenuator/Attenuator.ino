@@ -525,7 +525,12 @@ void updateLEDs() {
   uint8_t i_scheme;
   switch(FIRING_MODE) {
     case SLIME:
-      i_scheme = C_GREEN;
+      if(SYSTEM_YEAR == SYSTEM_1989) {
+        i_scheme = C_PASTEL_PINK;
+      }
+      else {
+        i_scheme = C_GREEN;
+      }
     break;
 
     case STASIS:

@@ -171,10 +171,10 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 ![](images/OperationNeutrona8.jpg)
 
 - While the Neutrona Wand is **ON** and the top toggle switch is **DOWN**, rotating the top dial will select from the following weapon modes (listed in counter-clockwise order):
-	1. Proton Stream (Default)
-	1. Dark Matter Generator
-	1. Plasm Distribution System
-	1. Composite Particle System
+	1. [Proton Stream (Default)](https://ghostbusters.fandom.com/wiki/Proton_Pack/Realistic_Version)
+	1. [Dark Matter Generator](https://ghostbusters.fandom.com/wiki/Dark_Matter_Generator_(realistic_version))
+	1. [Plasm Distribution System](https://ghostbusters.fandom.com/wiki/Plasm_Distribution_System_(realistic_version))
+	1. [Composite Particle System](https://ghostbusters.fandom.com/wiki/Composite_Particle_System_(realistic_version))
 	1. <sup>1</sup> `Spectral (Rainbow)`
 	1. <sup>2</sup> `Spectral (Holiday)`
 	1. <sup>3</sup> `Spectral (Custom)`
@@ -307,4 +307,7 @@ Video Demo: [Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz
 [![Haslab Proton Pack Arduino Powered Demo & Features](https://img.youtube.com/vi/ePXz99UawLQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=ePXz99UawLQ)
 
 Neutrona Wand Menu System Video Demo: [Proton Pack Wand Menu Settings Video Demo](https://www.youtube.com/watch?v=QrevSoQo_3M) (YouTube)
-[![Proton Pack Wand Menu Settings Video Demo](https://img.youtube.com/vi/QrevSoQo_3M/maxresdefault.jpg)](https://youtu.be/QrevSoQo_3M)
+[![Proton Pack Wand Menu Settings Video Demo](https://img.youtube.com/vi/QrevSoQo_3M/maxresdefault.jpg)](https://www.youtube.com/watch?v=QrevSoQo_3M)
+
+Video Game Firing Modes: [Ghostbusters: The Video Game (2009) Firing Modes](https://www.youtube.com/watch?v=5CMfQdIIx04) (YouTube)
+[![Ghostbusters: The Video Game (2009) Firing Modes](https://img.youtube.com/vi/5CMfQdIIx04/maxresdefault.jpg)](https://www.youtube.com/watch?v=5CMfQdIIx04)

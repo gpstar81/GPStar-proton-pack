@@ -444,25 +444,25 @@ String getSafety() {
 String getWandMode() {
   switch(FIRING_MODE) {
     case PROTON:
-      return "Proton";
+      return "Proton Stream";
     break;
     case SLIME:
-      return "Slime";
+      return "Plasm Distribution System";
     break;
     case STASIS:
-      return "Stasis";
+      return "Dark Matter Generator";
     break;
     case MESON:
-      return "Meson";
+      return "Composite Particle System";
     break;
     case SPECTRAL:
-      return "Spectral";
+      return "Spectral Stream";
     break;
     case HOLIDAY:
-      return "Holiday";
+      return "Holiday Stream";
     break;
     case SPECTRAL_CUSTOM:
-      return "Custom";
+      return "Custom Stream";
     break;
     case SETTINGS:
       return "Settings";
