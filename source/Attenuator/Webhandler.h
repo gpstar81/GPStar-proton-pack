@@ -429,6 +429,18 @@ void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
   request->send(200, "application/json", status);
 }
 
+void handleMusicVolumeUp(AsyncWebServerRequest *request) {
+  debug("Music Volume Up");
+  attenuatorSerialSend(A_VOLUME_MUSIC_INCREASE);
+  request->send(200, "application/json", status);
+}
+
+void handleMusicVolumeDown(AsyncWebServerRequest *request) {
+  debug("Music Volume Down");
+  attenuatorSerialSend(A_VOLUME_MUSIC_DECREASE);
+  request->send(200, "application/json", status);
+}
+
 void handleMusicStartStop(AsyncWebServerRequest *request) {
   debug("Music Start/Stop");
   attenuatorSerialSend(A_MUSIC_START_STOP);

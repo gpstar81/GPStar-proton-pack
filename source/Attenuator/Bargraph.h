@@ -57,7 +57,8 @@ enum BARGRAPH_STATES BARGRAPH_STATE;
 
 /***** Helper Functions *****/
 
-void bargraphSetElement(int i_element, bool b_power) {
+void bargraphSetElement(int8_t i_element, bool b_power) {
+  // This saves changes to the bargraph to memory but does not immediately commit them to the bargraph itself.
   if(i_element < 0) {
     i_element = 0; // Keep byte value in usable range.
   }
@@ -70,12 +71,17 @@ void bargraphSetElement(int i_element, bool b_power) {
     // This simplifies the process of turning individual elements on or off.
     // Uses mapping information which accounts for installation orientation.
     if(b_power) {
-      ht_bargraph.setLedNow(i_bargraph[i_element]);
+      ht_bargraph.setLed(i_bargraph[i_element]);
     }
     else {
-      ht_bargraph.clearLedNow(i_bargraph[i_element]);
+      ht_bargraph.clearLed(i_bargraph[i_element]);
     }
   }
+}
+
+void bargraphCommitChanges() {
+  // This commits any changes created by bargraphSetElement to the bargraph.
+  ht_bargraph.sendLed();
 }
 
 void bargraphReset() {
@@ -119,7 +125,7 @@ void setupBargraph() {
   WIRE.begin();
 
   byte by_error, by_address;
-  unsigned int i_i2c_devices = 0;
+  uint8_t i_i2c_devices = 0;
 
   // Scan i2c for any devices (28 segment bargraph).
   for(by_address = 1; by_address < 127; by_address++ ) {
@@ -202,6 +208,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
 
         // Turn on only the current element.
         bargraphSetElement(i_bargraph_element, 1);
+        bargraphCommitChanges();
 
         // Increment to the next element.
         i_bargraph_element++;
@@ -224,6 +231,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
 
         // Turn on only the current element.
         bargraphSetElement(i_bargraph_element, 1);
+        bargraphCommitChanges();
 
         // Increment to the next element.
         i_bargraph_element++;
@@ -246,6 +254,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
 
         // Turn off only the current element.
         bargraphSetElement(i_bargraph_element, 0);
+        bargraphCommitChanges();
 
         // Add a significant slowdown to this ramp-down.
         i_current_delay = i_current_delay * 4;
@@ -271,6 +280,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
 
         // Turn off only the current element.
         bargraphSetElement(i_bargraph_element, 0);
+        bargraphCommitChanges();
 
         if(BARGRAPH_PATTERN == BG_RAMP_DOWN) {
           // Add a significant slowdown to a standalone ramp-down.
@@ -327,6 +337,8 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
             bargraphSetElement(i_bargraph_step + 1, 0);
             bargraphSetElement(i_element_max - 1, 0);
           }
+
+          bargraphCommitChanges();
         }
         else if(i_bargraph_step == i_step_mid) {
           // Denote that we are at the midpoint step, which is technically the endpoint for these patterns.
@@ -339,6 +351,8 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
           // Clear the next middle elements.
           bargraphSetElement(i_step_mid - 1, 0);
           bargraphSetElement(i_step_mid + 2, 0);
+
+          bargraphCommitChanges();
         }
         else {
           // This covers all steps between the starting point and endpoint for the patterns.
@@ -356,6 +370,8 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
             bargraphSetElement(i_bargraph_step + 1, 0);
             bargraphSetElement(i_element_max - (i_bargraph_step + 1), 0);
           }
+
+          bargraphCommitChanges();
         }
 
         if(BARGRAPH_STATE != BG_MID) {

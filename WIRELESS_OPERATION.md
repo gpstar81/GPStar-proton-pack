@@ -153,6 +153,8 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /volume/master/down - Decrease master volume
 	PUT /volume/effects/up - Increase effects volume
 	PUT /volume/effects/down - Decrease effects volume
+	PUT /volume/music/up - Increase music volume
+	PUT /volume/music/down - Decrease music volume
 
 	PUT /music/startstop - Toggle music playback via start/stop
 	PUT /music/pauseresume - Toggle music playback via resume/pause

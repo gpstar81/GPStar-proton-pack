@@ -98,17 +98,17 @@ enum WAND_YEAR_CTS_SETTING WAND_YEAR_CTS;
  * For MODE_ORIGINAL. For blinking the slo-blo light when the cyclotron is not on.
  */
 millisDelay ms_slo_blo_blink;
-const unsigned int i_slo_blo_blink_delay = 500;
+const uint16_t i_slo_blo_blink_delay = 500;
 
 /*
  * Control for the Meson Shock Blast sound effects.
 */
 millisDelay ms_meson_blast;
-const unsigned int i_meson_blast_delay_level_5 = 140;
-const unsigned int i_meson_blast_delay_level_4 = 160;
-const unsigned int i_meson_blast_delay_level_3 = 180;
-const unsigned int i_meson_blast_delay_level_2 = 200;
-const unsigned int i_meson_blast_delay_level_1 = 220;
+const uint16_t i_meson_blast_delay_level_5 = 140;
+const uint16_t i_meson_blast_delay_level_4 = 160;
+const uint16_t i_meson_blast_delay_level_3 = 180;
+const uint16_t i_meson_blast_delay_level_2 = 200;
+const uint16_t i_meson_blast_delay_level_1 = 220;
 
 /*
  * Barrel LEDs
@@ -120,7 +120,7 @@ const unsigned int i_meson_blast_delay_level_1 = 220;
 #define BARREL_LED_PIN 10
 CRGB barrel_leds[BARREL_LEDS_MAX];
 // This is the array of LEDs in the order by which they should be illuminated for effects. LED number 12 is the very tip which will be white (by default).
-const uint16_t frutto_barrel[48] = {0, 25, 24, 48, 1, 26, 23, 47, 2, 27, 22, 46, 3, 28, 21, 45, 4, 29, 20, 44, 5, 30, 19, 43, 6, 31, 18, 42, 7, 32, 17, 41, 8, 33, 16, 40, 9, 34, 15, 39, 10, 35, 14, 38, 11, 36, 13, 37};
+const uint8_t frutto_barrel[48] PROGMEM = {0, 25, 24, 48, 1, 26, 23, 47, 2, 27, 22, 46, 3, 28, 21, 45, 4, 29, 20, 44, 5, 30, 19, 43, 6, 31, 18, 42, 7, 32, 17, 41, 8, 33, 16, 40, 9, 34, 15, 39, 10, 35, 14, 38, 11, 36, 13, 37};
 
 /*
  * How many LEDs are in your Neutrona Wand Barrel.
@@ -175,6 +175,8 @@ uint16_t d_white_light_interval = i_afterlife_blink_interval;
  */
 #define r_encoderA 6
 #define r_encoderB 7
+millisDelay ms_firing_mode_switch; // Timer for rotary firing mode select speed limit.
+const uint8_t i_firing_mode_switch_delay = 50; // Time to delay switching firing modes.
 static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
@@ -224,8 +226,8 @@ const uint8_t led_bargraph_5 = A5;
 
 const uint8_t i_bargraph_segments_5_led = 5;
 uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {};
-const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
-const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
+const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] PROGMEM = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
+const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] PROGMEM = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
 bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 
 /*
@@ -242,11 +244,11 @@ uint16_t i_gun_loop_2 = 1653; // 1500
  */
 millisDelay ms_overheat_initiate;
 millisDelay ms_overheating; // This timer is only used when using the Neutrona Wand without a Proton Pack.
-const unsigned int i_ms_overheating = 3000; // Overheating for 3 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
+const uint16_t i_ms_overheating = 3000; // Overheating for 3 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
 bool b_overheat_level[5] = { b_overheat_level_1, b_overheat_level_2, b_overheat_level_3, b_overheat_level_4, b_overheat_level_5 };
-unsigned long int i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_level_1, i_ms_overheat_initiate_level_2, i_ms_overheat_initiate_level_3, i_ms_overheat_initiate_level_4, i_ms_overheat_initiate_level_5 };
-const unsigned int i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
-const unsigned int i_overheat_delay_max = 60000; // The max length a overheat can be.
+uint32_t i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_level_1, i_ms_overheat_initiate_level_2, i_ms_overheat_initiate_level_3, i_ms_overheat_initiate_level_4, i_ms_overheat_initiate_level_5 };
+const uint16_t i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
+const uint16_t i_overheat_delay_max = 60000; // The max length a overheat can be.
 
 /*
  * Stock Hasbro Bargraph timers
@@ -280,7 +282,7 @@ uint8_t i_bargraph_status_alt = 0;
 const uint8_t d_bargraph_ramp_interval_alt = 40;
 const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
 const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
-unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
+uint16_t i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
 /*
  * (Optional) Barmeter 28-segment bargraph mapping.
@@ -295,14 +297,9 @@ unsigned int i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
  */
 const uint8_t i_bargraph_segments = 28;
 uint8_t i_bargraph[i_bargraph_segments] = {};
-const uint8_t i_bargraph_invert[i_bargraph_segments] = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
-const uint8_t i_bargraph_normal[i_bargraph_segments] = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
+const uint8_t i_bargraph_invert[i_bargraph_segments] PROGMEM = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
+const uint8_t i_bargraph_normal[i_bargraph_segments] PROGMEM = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 bool b_bargraph_status[i_bargraph_segments] = {};
-
-/*
- * Flag check for video game mode.
- */
-bool b_vg_mode = true;
 
 /*
  * (Optional) Support for Video Game Accessories (coming soon)
@@ -316,7 +313,7 @@ bool b_vg_mode = true;
 millisDelay ms_hat_1;
 millisDelay ms_hat_2;
 const uint8_t i_hat_1_delay = 100;
-const unsigned int i_hat_2_delay = 400;
+const uint16_t i_hat_2_delay = 400;
 
 /*
  * A timer for controlling the wand beep in Afterlife & Frozen Empire mode.
@@ -330,14 +327,13 @@ const uint8_t i_sound_timer = 150;
 millisDelay ms_wand_heatup_fade;
 const uint8_t i_delay_heatup = 5;
 uint8_t i_heatup_counter = 0;
-uint8_t i_heatdown_counter = 50;
+uint8_t i_heatdown_counter = 100;
 
 /*
  * Wand Firing Modes + Settings
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, VENTING, SETTINGS };
+enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
 enum FIRING_MODES FIRING_MODE;
-enum FIRING_MODES PREV_FIRING_MODE;
 
 /*
  * Firing timers.
@@ -346,11 +342,20 @@ millisDelay ms_firing_lights;
 millisDelay ms_firing_lights_end;
 millisDelay ms_firing_effect_end;
 millisDelay ms_firing_stream_effects;
+millisDelay ms_firing_pulse;
 millisDelay ms_impact; // Mix some impact sounds while firing.
 millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
+millisDelay ms_semi_automatic_check; // Timer used for the semi-automatic firing modes.
+const uint16_t i_boson_dart_rate = 2000; // Boson Dart firing rate.
+const uint16_t i_shock_blast_rate = 600; // Shock Blast firing rate.
+const uint16_t i_slime_tether_rate = 750; // Slime Tether firing rate.
+const uint16_t i_meson_collider_rate = 250; // Meson Collider firing rate.
+const uint8_t d_firing_pulse = 18; // Used to drive semi-automatic firing stream effect timers. Default: 18ms.
 const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
-uint8_t i_barrel_light = 0; // using this to keep track which LED in the barrel is currently lighting up.
-int i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
+uint8_t i_barrel_light = 0; // Used to keep track which LED in the barrel is currently lighting up.
+uint8_t i_pulse_step = 0; // Used to keep track of which pulse animation step we are on.
+uint8_t i_slime_tether_count = 0; // Used to keep track of how many slime tethers have been fired.
+uint16_t i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
 
 /*
  * Wand power level. Controlled by the rotary encoder on the top of the wand.
@@ -380,12 +385,13 @@ enum WAND_CONN_STATES WAND_CONN_STATE;
 bool b_pack_on = false; // Denotes the pack has been powered on.
 bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected).
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
+bool b_pack_cyclotron_lid_on = false; // For SYSTEM_FROZEN_EMPIRE. Lets us know if the pack's cyclotron lid is on or not. Default to false to favor FE effects unless told otherwise.
 bool b_sync_light = false; // Toggle for the state of the white LED beside the vent light which gets blinked as a sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
 millisDelay ms_packsync; // Timer for attempting synchronization with a connected pack.
 millisDelay ms_handshake; // Timer for attempting a keepalive handshake with a connected pack.
-const unsigned int i_sync_initial_delay = 750; // Delay to re-try the initial handshake with a proton pack.
-const unsigned int i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake) to a connected proton pack.
+const uint16_t i_sync_initial_delay = 750; // Delay to re-try the initial handshake with a proton pack.
+const uint16_t i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake) to a connected proton pack.
 
 /*
  * Wand Menu
@@ -393,16 +399,17 @@ const unsigned int i_heartbeat_delay = 3250; // Delay to send a heartbeat (hands
 enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3, MENU_LEVEL_4, MENU_LEVEL_5 };
 enum WAND_MENU_LEVELS WAND_MENU_LEVEL;
 uint8_t i_wand_menu = 5;
-const unsigned int i_settings_blinking_delay = 350;
+const uint16_t i_settings_blinking_delay = 350;
 millisDelay ms_settings_blinking;
 
 /*
  * Misc wand settings and flags.
  */
-bool b_firing = false;
-bool b_firing_intensify = false;
-bool b_firing_alt = false;
-bool b_firing_cross_streams = false;
+bool b_firing = false; // Check for general firing state.
+bool b_firing_intensify = false; // Check for Intensify button activity.
+bool b_firing_alt = false; // Check for Barrel Wing Button firing activity for CTS.
+bool b_firing_cross_streams = false; // Check for CTS firing activity.
+bool b_firing_semi_automatic = false; // Check for semi-automatic firing modes.
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_sound_firing_cross_the_streams = false;
@@ -419,8 +426,8 @@ bool b_wand_boot_error_on = false;
  * prolonged firing which would trigger the overheat or venting sequences; only rapid firing bursts.
  */
 millisDelay ms_bmash;                  // Timer for the button mash lock-out period.
-unsigned int i_bmash_delay = 2000;     // Time period in which we consider rapid firing.
-unsigned int i_bmash_cool_down = 3000; // Time period for the lock-out of user input.
+uint16_t i_bmash_delay = 2000;     // Time period in which we consider rapid firing.
+uint16_t i_bmash_cool_down = 3000; // Time period for the lock-out of user input.
 uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts.
 uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out.
 uint8_t i_bmash_spark_index = 0;       // Current spark number for the spark effect (0~2).
@@ -431,15 +438,15 @@ bool b_wand_mash_error = false;        // Indicates if wand is in a lock-out pha
 */
 millisDelay ms_blink_sound_timer_1;
 millisDelay ms_blink_sound_timer_2;
-const unsigned int i_blink_sound_timer = 400;
+const uint16_t i_blink_sound_timer = 400;
 
 /*
  * A timer to turn on some Neutrona Wand lights when the system is shut down after some inactivity, as a reminder you left your power on to the system.
 */
 millisDelay ms_power_indicator;
 millisDelay ms_power_indicator_blink;
-const unsigned long int i_ms_power_indicator = 60000; // 1 Minute -> 60000
-const unsigned int i_ms_power_indicator_blink = 1000;
+const uint32_t i_ms_power_indicator = 60000; // 1 Minute -> 60000
+const uint16_t i_ms_power_indicator_blink = 1000;
 
 /*
  * Function prototypes.

@@ -136,6 +136,7 @@ struct __attribute__((packed)) SmokePrefs {
 struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
+  uint8_t cyclotronLidState;
   uint8_t systemYear;
   uint8_t packOn;
   uint8_t powerLevel;
@@ -782,12 +783,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
             serial1SendData(A_SPECTRAL_CUSTOM_MODE);
           break;
 
-          case VENTING:
-            serial1Send(A_VENTING_MODE);
-          break;
-
           case PROTON:
-          case SETTINGS:
           default:
             serial1Send(A_PROTON_MODE);
           break;
@@ -908,6 +904,22 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
 
       // Tell wand to increase effects volume.
       packSerialSend(P_VOLUME_SOUND_EFFECTS_INCREASE);
+    break;
+
+    case A_VOLUME_MUSIC_DECREASE:
+      // Decrease pack music volume.
+      decreaseVolumeMusic();
+
+      // Tell wand to decrease music volume.
+      packSerialSend(P_VOLUME_MUSIC_DECREASE);
+    break;
+
+    case A_VOLUME_MUSIC_INCREASE:
+      // Increase pack music volume.
+      increaseVolumeMusic();
+
+      // Tell wand to increase music volume.
+      packSerialSend(P_VOLUME_MUSIC_INCREASE);
     break;
 
     case A_MUSIC_START_STOP:
@@ -1127,6 +1139,14 @@ void doWandSync() {
     break;
   }
 
+  // Send the state of the cyclotron lid.
+  if(b_cyclotron_lid_on) {
+    packSync.cyclotronLidState = 2; // Lid is on.
+  }
+  else {
+    packSync.cyclotronLidState = 1; // Lid is off.
+  }
+
   // Make sure to send this after the system (operation) mode is sent.
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
@@ -1186,12 +1206,7 @@ void doWandSync() {
       packSync.firingMode = 7; // 7 = Spectral Custom Mode.
     break;
 
-    case VENTING:
-      packSync.firingMode = 8; // 8 = Quick Vent Mode.
-    break;
-
     case PROTON:
-    case SETTINGS:
     default:
       packSync.firingMode = 1; // 1 = Proton Mode.
 
@@ -1513,6 +1528,26 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       wandExtraSoundsStop();
     break;
 
+    case W_BOSON_DART_SOUND:
+      playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    case W_SHOCK_BLAST_SOUND:
+      playEffect(S_SHOCK_BLAST_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    case W_SLIME_TETHER_SOUND:
+      playEffect(S_SLIME_TETHER_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    case W_MESON_COLLIDER_SOUND:
+      playEffect(S_MESON_COLLIDER_FIRE, false, i_volume_effects, false, 0, false);
+    break;
+
+    case W_MESON_FIRE_PULSE:
+      playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
+    break;
+
     case W_FIRING:
       // Wand is firing.
       wandFiring();
@@ -1562,17 +1597,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_PROTON_MODE:
-      // Proton mode
-      FIRING_MODE = PROTON;
-      playEffect(S_CLICK);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
 
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if(FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron.start(0);
+      }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true) {
+      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != PROTON) {
+        stopEffect(S_PACK_SLIME_TANK_LOOP);
+        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_MESON_IDLE_LOOP);
+
         playEffect(S_FIRE_START_SPARK);
       }
+
+      // Proton mode.
+      FIRING_MODE = PROTON;
+      playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -1589,15 +1636,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SLIME_MODE:
-      // Slime mode
-      FIRING_MODE = SLIME;
-      playEffect(S_CLICK);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
 
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
+      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != SLIME) {
+        stopEffect(S_PACK_SLIME_TANK_LOOP);
+        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_MESON_IDLE_LOOP);
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true) {
         playEffect(S_PACK_SLIME_OPEN);
         playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
 
@@ -1607,13 +1655,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        resetCyclotronState();
-        clearCyclotronFades();
+      // Slime mode.
+      FIRING_MODE = SLIME;
+      playEffect(S_CLICK);
 
-        ms_cyclotron_slime_on.start(1);
-        ms_cyclotron_slime_off.stop();
-      }
+      // Reset the Cyclotron and stop the normal animation timer.
+      resetCyclotronState();
+      clearCyclotronFades();
+      ms_cyclotron.stop();
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -1630,15 +1679,23 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_STASIS_MODE:
-      // Stasis mode
-      FIRING_MODE = STASIS;
-      playEffect(S_CLICK);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
 
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if(FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron.start(0);
+      }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true) {
+      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != STASIS) {
+        stopEffect(S_PACK_SLIME_TANK_LOOP);
+        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_MESON_IDLE_LOOP);
+
         playEffect(S_STASIS_OPEN);
         playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
 
@@ -1648,18 +1705,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
+      // Stasis mode.
+      FIRING_MODE = STASIS;
+      playEffect(S_CLICK);
+
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
-      }
-
-      // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        resetCyclotronState();
-        clearCyclotronFades();
-        ms_cyclotron_slime_on.stop();
-        ms_cyclotron_slime_off.stop();
-        ms_cyclotron.start(1);
       }
 
       if(b_powercell_colour_toggle == true && b_pack_on == true) {
@@ -1672,17 +1724,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_MESON_MODE:
-      // Meson mode
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if(FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron.start(0);
+      }
+
+      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != MESON) {
+        stopEffect(S_PACK_SLIME_TANK_LOOP);
+        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_MESON_IDLE_LOOP);
+
+        playEffect(S_MESON_OPEN);
+        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
+      }
+
+      // Meson mode.
       FIRING_MODE = MESON;
       playEffect(S_CLICK);
 
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
-
-      if(PACK_STATE == MODE_ON && b_wand_on == true) {
-        playEffect(S_MESON_OPEN);
-        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+        // Tell GPStar Audio we need short audio mode.
+        audio.gpstarShortTrackOverload(false);
       }
 
       if(b_cyclotron_colour_toggle == true) {
@@ -1700,17 +1764,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SPECTRAL_MODE:
-      // Proton mode
-      FIRING_MODE = SPECTRAL;
-      playEffect(S_CLICK);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
 
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if(FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron.start(0);
+      }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true) {
+      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != SPECTRAL) {
+        stopEffect(S_PACK_SLIME_TANK_LOOP);
+        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_MESON_IDLE_LOOP);
+
         playEffect(S_FIRE_START_SPARK);
       }
+
+      // Proton mode.
+      FIRING_MODE = SPECTRAL;
+      playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -1727,18 +1803,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_HOLIDAY_MODE:
-      // Proton mode
-      FIRING_MODE = HOLIDAY;
-      playEffect(S_CLICK);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
 
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if(FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron.start(0);
+      }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true) {
+      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != HOLIDAY) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
+        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_MESON_IDLE_LOOP);
+
         playEffect(S_FIRE_START_SPARK);
       }
+
+      // Proton mode.
+      FIRING_MODE = HOLIDAY;
+      playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -1755,18 +1842,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SPECTRAL_CUSTOM_MODE:
-      // Proton mode
-      FIRING_MODE = SPECTRAL_CUSTOM;
-      playEffect(S_CLICK);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
 
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if(FIRING_MODE == SLIME) {
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron.start(0);
+      }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true) {
+      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != SPECTRAL_CUSTOM) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
+        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_MESON_IDLE_LOOP);
+
         playEffect(S_FIRE_START_SPARK);
       }
+
+      // Proton mode.
+      FIRING_MODE = SPECTRAL_CUSTOM;
+      playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -1782,54 +1880,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       serial1SendData(A_SPECTRAL_CUSTOM_MODE);
     break;
 
-    case W_VENTING_MODE:
-      // Settings mode
-      FIRING_MODE = VENTING;
-      playEffect(S_CLICK);
-
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
-
-      if(PACK_STATE == MODE_ON && b_wand_on == true) {
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
-        playEffect(S_VENT_DRY);
-        playEffect(S_MODE_SWITCH);
-      }
-
-      if(b_cyclotron_colour_toggle == true) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
-
-      serial1Send(A_VENTING_MODE);
-    break;
-
     case W_SETTINGS_MODE:
       // Settings mode
-      FIRING_MODE = SETTINGS;
       playEffect(S_CLICK);
-
-      stopEffect(S_PACK_SLIME_TANK_LOOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      stopEffect(S_MESON_IDLE_LOOP);
-
-      if(b_cyclotron_colour_toggle == true) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
 
       serial1Send(A_SETTINGS_MODE);
     break;
@@ -2803,20 +2856,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_VOLUME_MUSIC_DECREASE:
       // Lower music volume.
       if(b_playing_music == true) {
-        if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
-          i_volume_music_percentage = 0;
-
-          // Provide feedback at minimum volume.
-          stopEffect(S_BEEPS_ALT);
-          playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
-        }
-        else {
-          i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
-        }
-
-        i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-        updateMusicVolume();
+        decreaseVolumeMusic();
 
         serial1SendData(A_VOLUME_SYNC);
       }
@@ -2825,20 +2865,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_VOLUME_MUSIC_INCREASE:
       // Increase music volume.
       if(b_playing_music == true) {
-        if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
-          i_volume_music_percentage = 100;
-
-          // Provide feedback at maximum volume.
-          stopEffect(S_BEEPS_ALT);
-          playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
-        }
-        else {
-          i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
-        }
-
-        i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-        updateMusicVolume();
+        increaseVolumeMusic();
 
         serial1SendData(A_VOLUME_SYNC);
       }
@@ -3583,7 +3610,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case FRUTTO_CYCLOTRON_LED_COUNT:
-        default:
           // Switch to 12 LEDs. Default HasLab.
           i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
 
@@ -3594,6 +3620,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case HASLAB_CYCLOTRON_LED_COUNT:
+        default:
           // Switch to 40 LEDs.
           i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
 

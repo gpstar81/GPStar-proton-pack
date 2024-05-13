@@ -47,7 +47,7 @@ void updateProtonPackLEDCounts();
 /*
  * General EEPROM Variables
  */
-unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
+uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
 
 /*
  * Data structure object for LED settings which are saved into the EEPROM memory.
@@ -205,7 +205,7 @@ void readEEPROM() {
 
     // Read our configuration object from the EEPROM.
     objConfigEEPROM obj_config_eeprom;
-    unsigned int i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
+    uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
     EEPROM.get(i_eepromConfigAddress, obj_config_eeprom);
 
@@ -472,7 +472,7 @@ void readEEPROM() {
 
 void clearLEDEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(unsigned int i = 0; i < sizeof(objLEDEEPROM); i++) {
+  for(uint16_t i = 0; i < sizeof(objLEDEEPROM); i++) {
     EEPROM.update(i, 0);
   }
 
@@ -514,9 +514,9 @@ void saveLEDEEPROM() {
 
 void clearConfigEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
-  unsigned int i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
+  uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
-  for(unsigned int i = 0; i < sizeof(objConfigEEPROM); i++) {
+  for(uint16_t i = 0; i < sizeof(objConfigEEPROM); i++) {
     EEPROM.update(i_eepromConfigAddress, 0);
 
     i_eepromConfigAddress++;
@@ -659,7 +659,7 @@ void saveConfigEEPROM() {
     break;
   }
 
-  unsigned int i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
+  uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
   objConfigEEPROM obj_eeprom = {
     i_proton_stream_effects,
@@ -704,7 +704,7 @@ void updateCRCEEPROM() {
 uint32_t eepromCRC(void) {
   CRC32 crc;
 
-  for(unsigned int index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
+  for(uint16_t index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
     crc.update(EEPROM[index]);
   }
 

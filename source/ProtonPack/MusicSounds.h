@@ -405,4 +405,4 @@ enum sound_fx {
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const unsigned int i_last_effects_track = S_POWER_ON;
+const uint16_t i_last_effects_track = S_POWER_ON;

@@ -30,8 +30,9 @@ enum colours {
   C_BLACK,
   C_WHITE,
   C_PINK,
-  C_PASTELPINK,
+  C_PASTEL_PINK,
   C_RED,
+  C_LIGHT_RED,
   C_RED2,
   C_RED3,
   C_RED4,
@@ -41,10 +42,12 @@ enum colours {
   C_YELLOW,
   C_CHARTREUSE,
   C_GREEN,
+  C_DARK_GREEN,
   C_MINT,
   C_AQUA,
   C_LIGHT_BLUE,
   C_MID_BLUE,
+  C_NAVY_BLUE,
   C_BLUE,
   C_PURPLE,
   C_REDGREEN,
@@ -52,15 +55,14 @@ enum colours {
   C_PASTEL,
   C_RAINBOW,
   C_CUSTOM,
-  C_HASLAB
 };
 
-int getBrightness(uint8_t i_percent = 100) {
+uint8_t getBrightness(uint8_t i_percent = 100) {
   // Brightness here is a percentage, to be converted to a range 0-255.
   if(i_percent > 100) {
     i_percent = 100;
   }
-  return (int) ((255 * i_percent) / 100);
+  return (uint8_t) ((255 * i_percent) / 100);
 }
 
 // Special values for colour cycles: current hue (colour) and when to change colour.
@@ -76,7 +78,6 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
   switch(i_colour) {
-    case C_HASLAB:
     case C_WHITE:
     default:
       return CHSV(100, 0, i_brightness); // Just "on", which is white.
@@ -94,12 +95,16 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       return CHSV(244, i_saturation, i_brightness);
     break;
 
-    case C_PASTELPINK:
+    case C_PASTEL_PINK:
       return CHSV(244, 128, i_brightness);
     break;
 
     case C_RED:
       return CHSV(0, i_saturation, i_brightness);
+    break;
+
+    case C_LIGHT_RED:
+      return CHSV(0, 192, i_brightness);
     break;
 
     case C_RED2:
@@ -138,6 +143,10 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       return CHSV(96, i_saturation, i_brightness);
     break;
 
+    case C_DARK_GREEN:
+      return CHSV(96, i_saturation, 128);
+    break;
+
     case C_MINT:
       return CHSV(112, 120, i_brightness);
     break;
@@ -152,6 +161,10 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
     case C_MID_BLUE:
       return CHSV(160, i_saturation, i_brightness);
+    break;
+
+    case C_NAVY_BLUE:
+      return CHSV(170, 200, 112);
     break;
 
     case C_BLUE:

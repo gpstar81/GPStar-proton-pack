@@ -28,19 +28,15 @@
 /*
  * Cyclotron Lid LEDs.
  * For the stock HasLab LEDs, there are 12 LEDs in the cyclotron lid.
- * Use int i_cyclotron_leds = 12; and i_1984_cyclotron_leds 1, 4, 7, 10.
+ * Use uint8_t i_cyclotron_leds = 12.
  *
- * For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use int i_cyclotron_leds = 40 and i_1984_cyclotron_leds 0, 10, 18, 28.
+ * For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use uint8_t i_cyclotron_leds = 40.
  * Adjust as necessary depending on how you align your NeoPixel ring.
  * You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.
- *
- * i_1984_cyclotron_leds is the middle LED aligned in each lens window. (0 is the first LED). Adjust this setting if you use different LED setups and installations.
- * Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as Cyclotron lens #1 and work your way clockwise)
  *
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
 uint8_t i_cyclotron_leds = 12;
-
 
 /*
  * Power Cell LEDs
@@ -76,30 +72,34 @@ bool b_powercell_colour_toggle = true;
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
-
+ *
  * CYCLOTRON_DELAY_2021_12_LED is for the stock Haslab 12 LED setup.
  * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology 20 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
-const unsigned int i_1984_delay = 1050;
-#define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs
-#define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs
+const uint16_t i_1984_delay = 1050;
+#define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs.
+#define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs.
 #define CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
-#define CYCLOTRON_DELAY_2021_40_LED 7 // For 40 LEDs
+#define CYCLOTRON_DELAY_2021_40_LED 7 // For 40 LEDs.
 
 /*
- * This is the middle LED aligned in each lens window. (0 is the first LED). Adjust this setting if you use different LED setups and installations.
+ * This is the middle LED aligned in each lens window. (0 is the first LED). Adjust these setting if you use different LED setups and installations.
  * Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as Cyclotron lens #1 and work your way clockwise)
-
+ *
  * i_1984_cyclotron_12_leds is for the stock Haslab 12 LED setup.
  * i_1984_cyclotron_20_leds is for the Frutto Technology 20 LED setup.
  * i_1984_cyclotron_36_leds is for the Frutto Technology Max 36 LED setup.
  * i_1984_cyclotron_40_leds is for a 40 LED NeoPixel ring.
  */
-const uint8_t i_1984_cyclotron_12_leds[4] = { 1, 4, 7, 10 };
-const uint8_t i_1984_cyclotron_20_leds[4] = { 2, 7, 12, 17 };
-const uint8_t i_1984_cyclotron_36_leds[4] = { 4, 13, 22, 31 };
-const uint8_t i_1984_cyclotron_40_leds[4] = { 0, 10, 18, 28 };
+const uint8_t i_1984_cyclotron_12_leds_cw[4] PROGMEM = { 1, 4, 7, 10 };
+const uint8_t i_1984_cyclotron_12_leds_ccw[4] PROGMEM = { 1, 10, 7, 4 };
+const uint8_t i_1984_cyclotron_20_leds_cw[4] PROGMEM = { 2, 7, 12, 17 };
+const uint8_t i_1984_cyclotron_20_leds_ccw[4] PROGMEM = { 2, 17, 12, 7 };
+const uint8_t i_1984_cyclotron_36_leds_cw[4] PROGMEM = { 4, 13, 22, 31 };
+const uint8_t i_1984_cyclotron_36_leds_ccw[4] PROGMEM = { 4, 31, 22, 13 };
+const uint8_t i_1984_cyclotron_40_leds_cw[4] PROGMEM = { 0, 10, 18, 28 };
+const uint8_t i_1984_cyclotron_40_leds_ccw[4] PROGMEM = { 0, 28, 18, 10 };
 
 /*
  * Afterlife and Frozen Empire only.
@@ -219,7 +219,7 @@ const uint8_t STARTUP_VOLUME_EFFECTS = 100;
  * If your pack is overpowering the wand at lower volumes, you can either increase the minimum value in the wand,
  * or decrease the minimum value for the pack. By default the pack will be nearly silent at 0% volume, but not off.
  */
-const int MINIMUM_VOLUME = -60;
+const int8_t MINIMUM_VOLUME = -60;
 
 /*
  * Percentage increments of main volume change.
@@ -289,8 +289,8 @@ bool b_cyclotron_single_led = true;
 /*
  * When fading is enabled for 1984 mode Cyclotron Lid lights, control the delay of the fading.
  */
-const unsigned int i_1984_fade_out_delay = 1110;
-const unsigned int i_1984_fade_in_delay = 210;
+const uint16_t i_1984_fade_out_delay = 1110;
+const uint16_t i_1984_fade_in_delay = 210;
 
 /*
  * Set to true to enable the onboard amplifier on the WAV Trigger.
@@ -360,11 +360,11 @@ bool b_smoke_continuous_level_5 = true;
  * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power level (not overheating venting).
  * Example: 30,000 milliseconds (30 seconds)
  */
-const unsigned long int i_smoke_timer_level_1 = 30000;
-const unsigned long int i_smoke_timer_level_2 = 15000;
-const unsigned long int i_smoke_timer_level_3 = 10000;
-const unsigned long int i_smoke_timer_level_4 = 7500;
-const unsigned long int i_smoke_timer_level_5 = 6000;
+const uint32_t i_smoke_timer_level_1 = 30000;
+const uint32_t i_smoke_timer_level_2 = 15000;
+const uint32_t i_smoke_timer_level_3 = 10000;
+const uint32_t i_smoke_timer_level_4 = 7500;
+const uint32_t i_smoke_timer_level_5 = 6000;
 
 /*
  * How long you want your smoke pins (+ fan) to stay on while firing for each firing power level. (not overheating venting)
@@ -373,11 +373,11 @@ const unsigned long int i_smoke_timer_level_5 = 6000;
  * This does not affect smoke during overheat.
  * This only affects how long your smoke stays on after it has been triggered in continuous firing.
  */
-const unsigned long int i_smoke_on_time_level_1 = 3000;
-const unsigned long int i_smoke_on_time_level_2 = 3000;
-const unsigned long int i_smoke_on_time_level_3 = 3500;
-const unsigned long int i_smoke_on_time_level_4 = 3500;
-const unsigned long int i_smoke_on_time_level_5 = 4000;
+const uint32_t i_smoke_on_time_level_1 = 3000;
+const uint32_t i_smoke_on_time_level_2 = 3000;
+const uint32_t i_smoke_on_time_level_3 = 3500;
+const uint32_t i_smoke_on_time_level_4 = 3500;
+const uint32_t i_smoke_on_time_level_5 = 4000;
 
 /*
  * Enable or disable smoke during overheat sequences.
@@ -406,11 +406,11 @@ const bool b_smoke_overheat_level_5 = true;
  * Default setting is for overheat to only happen in power level 5. However this can be adjused on the Neutrona Wand to enable overheating in any power level.
  * It is recommended not to go below 2000 milliseconds.
  */
-unsigned int i_ms_overheating_length_1 = 2000; // Time in milliseconds (2 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 1.
-unsigned int i_ms_overheating_length_2 = 3000; // Time in milliseconds (3 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 2.
-unsigned int i_ms_overheating_length_3 = 4000; // Time in milliseconds (4 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 3.
-unsigned int i_ms_overheating_length_4 = 5000; // Time in milliseconds (5 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 4.
-unsigned int i_ms_overheating_length_5 = 6000; // Time in milliseconds (6 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 5.
+uint16_t i_ms_overheating_length_1 = 2000; // Time in milliseconds (2 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 1.
+uint16_t i_ms_overheating_length_2 = 3000; // Time in milliseconds (3 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 2.
+uint16_t i_ms_overheating_length_3 = 4000; // Time in milliseconds (4 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 3.
+uint16_t i_ms_overheating_length_4 = 5000; // Time in milliseconds (5 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 4.
+uint16_t i_ms_overheating_length_5 = 6000; // Time in milliseconds (6 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 5.
 
 /*
  * Set this to true if you want to know if your wand and pack are communicating.
@@ -446,7 +446,7 @@ const bool b_cyclotron_haslab_chsv_colour_change = false;
  * example: //#define GPSTAR_PROTON_PACK_PCB
  * This is a legacy flag, for people who originally put the Cyclotron Lid detection on pin 51 and not pin 43. If your Cyclotron Lid detection is on pin 51, then comment/disable this define.
  * If your home built gpstar Proton Pack was built with pin 43 for the Cyclotron Lid detection, then you can leave this enabled.
-
+ *
  * If you are compiling the code to upload to the gpstar Proton Pack microcontroller, or latest gpstar home built instructions, then enable and uncomment it (default).
  * example: #define GPSTAR_PROTON_PACK_PCB
  * In general, leave this enabled by default as very few people did the pin 51 setup.

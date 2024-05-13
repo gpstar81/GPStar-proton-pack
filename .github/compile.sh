@@ -39,6 +39,29 @@ mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/NeutronaWand.hex
 echo "Done."
 echo ""
 
+# Neutrona Wand (Bench Test)
+echo "Building Neutrona Wand (Bench Test) Binary..."
+
+# Change flag(s) for compilation
+sed -i -e 's/b_gpstar_benchtest = false/b_gpstar_benchtest = true/' ${SRCDIR}/NeutronaWand/Configuration.h
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/NeutronaWand/NeutronaWand.ino
+
+rm -f ${BINDIR}/*.bin
+rm -f ${BINDIR}/*.eep
+rm -f ${BINDIR}/*.elf
+rm -f ${BINDIR}/*bootloader.hex
+
+mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/extras/NeutronaWand-BenchTest.hex
+
+# Restore flag(s) from compilation
+sed -i -e 's/b_gpstar_benchtest = true/b_gpstar_benchtest = false/' ${SRCDIR}/NeutronaWand/Configuration.h
+
+rm -f ${SRCDIR}/NeutronaWand/*.h-e
+
+echo "Done."
+echo ""
+
 # Attenuator (Arduino)
 echo "Building Attenuator Binary (Arduino)..."
 # --warnings none
@@ -94,29 +117,6 @@ sed -i -e 's/\#define DEBUG_SEND_TO_CONSOLE/\/\/\#define DEBUG_SEND_TO_CONSOLE/'
 sed -i -e 's/\#define RESET_AP_SETTINGS/\/\/\#define RESET_AP_SETTINGS/' ${SRCDIR}/Attenuator/Configuration.h
 
 rm -f ${SRCDIR}/Attenuator/*.h-e
-
-echo "Done."
-echo ""
-
-# Neutrona Wand (Bench Test)
-echo "Building Neutrona Wand (Bench Test) Binary..."
-
-# Change flag(s) for compilation
-sed -i -e 's/b_gpstar_benchtest = false/b_gpstar_benchtest = true/' ${SRCDIR}/NeutronaWand/Configuration.h
-# --warnings none
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/NeutronaWand/NeutronaWand.ino
-
-rm -f ${BINDIR}/*.bin
-rm -f ${BINDIR}/*.eep
-rm -f ${BINDIR}/*.elf
-rm -f ${BINDIR}/*bootloader.hex
-
-mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/extras/NeutronaWand-BenchTest.hex
-
-# Restore flag(s) from compilation
-sed -i -e 's/b_gpstar_benchtest = true/b_gpstar_benchtest = false/' ${SRCDIR}/NeutronaWand/Configuration.h
-
-rm -f ${SRCDIR}/NeutronaWand/*.h-e
 
 echo "Done."
 echo ""

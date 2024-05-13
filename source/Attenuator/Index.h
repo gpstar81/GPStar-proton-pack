@@ -66,9 +66,11 @@ const char INDEX_page[] PROGMEM = R"=====(
     <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
     <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
     <br/>
-    <h3>Music Controls</h3>
-    <div style="color:#444;"><b>Music Volume:</b> <span id="musicVolume"></span></div>
+    <h3>Music Volume: <span id="musicVolume"></span></h3>
+    <button type="button" class="blue" onclick="volumeMusicDown()">- Down</button>
+    <button type="button" class="blue" onclick="volumeMusicUp()">Up +</button>
     <br/>
+    <h3>Music Controls</h3>
     <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
     <br/>
     <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
@@ -412,6 +414,14 @@ const char INDEX_page[] PROGMEM = R"=====(
 
     function volumeEffectsDown() {
       sendCommand("/volume/effects/down");
+    }
+
+    function volumeMusicUp() {
+      sendCommand("/volume/music/up");
+    }
+
+    function volumeMusicDown() {
+      sendCommand("/volume/music/down");
     }
 
     function startstopMusic() {
