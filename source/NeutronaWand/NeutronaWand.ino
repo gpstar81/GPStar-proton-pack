@@ -8719,20 +8719,7 @@ void checkRotaryEncoder() {
           }
           else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == false && switch_mode.on() == true && b_playing_music == true) {
             // Decrease the music volume.
-            if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
-              i_volume_music_percentage = 0;
-
-              // Provide feedback at minimum volume.
-              stopEffect(S_BEEPS_ALT);
-              playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
-            }
-            else {
-              i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
-            }
-
-            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-            updateMusicVolume();
+            decreaseVolumeMusic();
 
             // Tell pack to lower the music volume.
             wandSerialSend(W_VOLUME_MUSIC_DECREASE);
@@ -8795,20 +8782,7 @@ void checkRotaryEncoder() {
           }
           else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == false && switch_mode.on() == true && b_playing_music == true) {
             // Increase music volume.
-            if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
-              i_volume_music_percentage = 100;
-
-              // Provide feedback at maximum volume.
-              stopEffect(S_BEEPS_ALT);
-              playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
-            }
-            else {
-              i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
-            }
-
-            i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-            updateMusicVolume();
+            increaseVolumeMusic();
 
             // Tell pack to increase music volume.
             wandSerialSend(W_VOLUME_MUSIC_INCREASE);
@@ -8985,16 +8959,7 @@ void checkRotaryEncoder() {
 
             // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
             if(WAND_STATUS == MODE_OFF && b_playing_music == true && switch_intensify.on() != true) {
-              if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
-                i_volume_music_percentage = 0;
-              }
-              else {
-                i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
-              }
-
-              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-              updateMusicVolume();
+              decreaseVolumeMusic();
 
               // Tell pack to lower music volume.
               wandSerialSend(W_VOLUME_MUSIC_DECREASE);
@@ -9107,16 +9072,7 @@ void checkRotaryEncoder() {
 
             // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
             if(WAND_STATUS == MODE_OFF && b_playing_music == true && switch_intensify.on() != true) {
-              if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
-                i_volume_music_percentage = 100;
-              }
-              else {
-                i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
-              }
-
-              i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-              updateMusicVolume();
+              increaseVolumeMusic();
 
               // Tell pack to increase music volume.
               wandSerialSend(W_VOLUME_MUSIC_INCREASE);

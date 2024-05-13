@@ -21,8 +21,8 @@
 
 /**
  ***** IMPORTANT *****
- * Please make sure your WAV Trigger devices are running firmware version 1.40 or higher.
- * You can download the latest directly from the GPStar github repository or from the Robertsonics website.
+ * If using a WAV Trigger, please make sure they are running the custom gpstar version firmware version 1.40 or higher.
+ * You can download the latest directly from the GPStar github repository.
  * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
  *
  * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
@@ -433,13 +433,47 @@ void updateMusicVolume() {
   }
 }
 
+void increaseVolumeMusic() {
+  if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
+    i_volume_music_percentage = 100;
+
+    // Provide feedback at maximum volume.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
+  }
+  else {
+    i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
+  }
+
+  i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+  updateMusicVolume();
+}
+
+void decreaseVolumeMusic() {
+  if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
+    i_volume_music_percentage = 0;
+
+    // Provide feedback at minimum volume.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
+  }
+  else {
+    i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
+  }
+
+  i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+  updateMusicVolume();
+}
+
 void increaseVolumeEEPROM() {
   if(i_volume_master_eeprom == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master_eeprom) {
     i_volume_master_eeprom = MINIMUM_VOLUME;
   }
 
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = i_volume_master_percentage_max;;
+    i_volume_master_percentage = i_volume_master_percentage_max;
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -718,7 +752,7 @@ void toggleMusicLoop() {
 
 /*
  * Audio Setup Routines
- * Used to detect, update, and reset the available audio device
+ * Used to detect, update, and reset the available audio devices.
  */
 bool setupAudioDevice() {
   // Short delay to allow the audio boards to boot up.

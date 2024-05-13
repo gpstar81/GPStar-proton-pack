@@ -1169,6 +1169,16 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       decreaseVolumeEffects();
     break;
 
+    case P_VOLUME_MUSIC_INCREASE:
+      // Increase music volume.
+      increaseVolumeMusic();
+    break;
+
+    case P_VOLUME_MUSIC_DECREASE:
+      // Decrease music volume.
+      decreaseVolumeMusic();
+    break;
+
     case P_VOLUME_INCREASE:
       // Increase overall volume.
       increaseVolume();

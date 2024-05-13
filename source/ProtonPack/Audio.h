@@ -529,7 +529,7 @@ void increaseVolumeEEPROM() {
   }
 
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = 100;
+    i_volume_master_percentage = i_volume_master_percentage_max;
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -601,7 +601,7 @@ void increaseVolume() {
     i_volume_master = MINIMUM_VOLUME;
   }
 
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+  if(i_volume_master_percentage + VOLUME_MULTIPLIER > i_volume_master_percentage_max) {
     i_volume_master_percentage = i_volume_master_percentage_max;
   }
   else {
@@ -612,7 +612,7 @@ void increaseVolume() {
   i_volume_revert = i_volume_master;
 
   if(b_pack_on != true && b_pack_shutting_down != true) {
-    // Provide feedback when the pack is not running.
+    // Provide feedback when the Proton Pack is not running.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
@@ -683,7 +683,7 @@ void buildMusicCount(uint16_t i_num_tracks) {
 }
 
 bool musicGetTrackCounter() {
-    switch(AUDIO_DEVICE) {
+  switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
       return audio.trackCounterReset();
