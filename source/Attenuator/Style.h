@@ -52,6 +52,11 @@ p {
   margin: 5px 0px 8px 0px;
 }
 
+.footer {
+  color: #ddd;
+  font-size: 0.8em;
+}
+
 .left {
   text-align: left;
 }

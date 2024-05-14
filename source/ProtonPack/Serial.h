@@ -1609,7 +1609,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_cyclotron.start(0);
       }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != PROTON) {
+      if(PACK_STATE == MODE_ON && FIRING_MODE != PROTON) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1641,7 +1641,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         audio.gpstarShortTrackOverload(true);
       }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != SLIME) {
+      if(PACK_STATE == MODE_ON && FIRING_MODE != SLIME) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1691,7 +1691,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_cyclotron.start(0);
       }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != STASIS) {
+      if(PACK_STATE == MODE_ON && FIRING_MODE != STASIS) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1731,7 +1731,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_cyclotron.start(0);
       }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != MESON) {
+      if(PACK_STATE == MODE_ON && FIRING_MODE != MESON) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1776,7 +1776,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_cyclotron.start(0);
       }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != SPECTRAL) {
+      if(PACK_STATE == MODE_ON && FIRING_MODE != SPECTRAL) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1815,7 +1815,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_cyclotron.start(0);
       }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != HOLIDAY) {
+      if(PACK_STATE == MODE_ON && FIRING_MODE != HOLIDAY) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1854,7 +1854,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_cyclotron.start(0);
       }
 
-      if(PACK_STATE == MODE_ON && b_wand_on == true && FIRING_MODE != SPECTRAL_CUSTOM) {
+      if(PACK_STATE == MODE_ON && FIRING_MODE != SPECTRAL_CUSTOM) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);

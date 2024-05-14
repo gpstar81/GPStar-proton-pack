@@ -56,7 +56,7 @@ const char INDEX_page[] PROGMEM = R"=====(
   </div>
 
   <h1>Audio Controls</h1>
-  <div class="block">
+  <div>
     <div class="volume-container">
       <div class="volume-control">
         <h3>System</h3>
@@ -132,6 +132,9 @@ const char INDEX_page[] PROGMEM = R"=====(
     <a href="javascript:doRestart()">Restart/Resync</a>
     <br/>
     <br/>
+    <div class="footer">
+      <span id="wifiName"></span>
+    </div>
   </div>
 
   <script type="application/javascript">
@@ -333,6 +336,9 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("masterVolume").innerHTML = (jObj.volMaster || 0) + "%";
         document.getElementById("effectsVolume").innerHTML = (jObj.volEffects || 0) + "%";
         document.getElementById("musicVolume").innerHTML = (jObj.volMusic || 0) + "%";
+
+        // Device Info
+        document.getElementById("wifiName").innerHTML = jObj.wifiName || "";
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);

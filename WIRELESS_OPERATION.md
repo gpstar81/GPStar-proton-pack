@@ -37,7 +37,16 @@ The equipment status will reflect the status of your Proton Pack and Neutrona Wa
 
 ### Audio Controls
 
-This section allows full control of the master (overall) volume and to mute/unmute all devices. For playback of music you can advance forward or backwards in the music queue, or select a specific track for playback via the selection field (switching immediately if already playing, otherwise will be the track started via the Start/Stop button). Lastly, you can change the effects volume as needed via the dedicated buttons. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or wand.
+This section allows full control of the system (overall) volume, effects volume, and music volume along with the ability to mute/unmute all devices. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or wand.
+
+For playback of music you can use the improved navigation controls:
+
+- Previous Track
+- Start/Stop Playback
+- Pause/Resume Playback
+- Next Track
+
+You may also jump directly to a specific track for playback via the selection field (switching immediately if already playing, otherwise will be the track started via the Start/Stop button).
 
 **Note:** Only the track numbers are known to the WavTrigger device, and track names are not available for display. Music tracks must begin at value "500" per the naming convention used by the GPStar controllers/software.
 
@@ -149,8 +158,8 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /pack/vent - Perform manual vent (subject to system state)
 
 	PUT /volume/toggle - Toggle mute for all devices
-	PUT /volume/master/up - Increase master volume
-	PUT /volume/master/down - Decrease master volume
+	PUT /volume/master/up - Increase system (master) volume
+	PUT /volume/master/down - Decrease system (master) volume
 	PUT /volume/effects/up - Increase effects volume
 	PUT /volume/effects/down - Decrease effects volume
 	PUT /volume/music/up - Increase music volume

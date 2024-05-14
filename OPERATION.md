@@ -89,13 +89,13 @@
 
 ### Quick Audio Volume Adjustment
 
-- **Main Volume: Super Hero Mode**
- 	- While the Neutrona Wand is **ON** and the top and bottom toggle switches are **DOWN**, hold the `Intensify` button while turning the top dial to quickly adjust the Proton Pack and Neutrona Wand master volume.
- 	- While the Neutrona Wand is **OFF** you can independently adjust the master volume of the Neutrona Wand by holding the `Intensify` button down and turning the dial. 
+- **System Volume: Super Hero Mode**
+ 	- While the Neutrona Wand is **ON** and the top and bottom toggle switches are **DOWN**, hold the `Intensify` button while turning the top dial to quickly adjust the Proton Pack and Neutrona Wand overall system volume.
+ 	- While the Neutrona Wand is **OFF** you can independently adjust the overall system volume via the Neutrona Wand by holding the `Intensify` button down and turning the dial. 
 
-- **Main Volume: Mode Original**
-	- While the Proton Pack cyclotron is **OFF** and the Neutrona Wand top and bottom toggle switches are **DOWN**, hold the `Intensify` button while turning the top dial to quickly adjust the Proton Pack and Neutrona Wand master volume. 
- 	- While the Proton Pack cyclotron is **OFF** and if either the Neutrona Wand top or bottom toggle switch is **UP**, you can independently adjust the master volume of the Neutrona Wand by holding the `Intensify` button down and turning the dial. 
+- ** System Volume: Mode Original**
+	- While the Proton Pack cyclotron is **OFF** and the Neutrona Wand top and bottom toggle switches are **DOWN**, hold the `Intensify` button while turning the top dial to quickly adjust the Proton Pack and Neutrona Wand overall system volume. 
+ 	- While the Proton Pack cyclotron is **OFF** and if either the Neutrona Wand top or bottom toggle switch is **UP**, you can independently adjust the overall system volume of the Neutrona Wand by holding the `Intensify` button down and turning the dial. 
 
 - **Music: Super Hero and Mode Original**
 	- When music is playing while the Proton Pack and Neutrona Wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily adjust the music volume.
@@ -125,6 +125,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 	- **Button Mash Lockout:** If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level.
 
 ### Right-Hand Toggle Switch Behaviour
+
 ![](images/OperationNeutrona3.jpg)
 
 - Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects.
@@ -151,6 +152,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 	- **Button Mash Lockout:** If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level.
 
 ### Right-Hand Toggle Switch Behaviours
+
 ![](images/OperationNeutrona13.jpg)
 
 - The bottom toggle will put the Neutrona Wand into standby mode with an audible beep, and the slo-blo LED will begin to blink.
@@ -166,7 +168,9 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 # System Modes
 
-## Video Game Mode (Default)<br>📝 `Super Hero mode only` 
+## Video Game Mode (Default)
+
+📝 `Super Hero mode only`
 
 ![](images/OperationNeutrona8.jpg)
 

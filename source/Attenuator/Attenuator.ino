@@ -531,7 +531,7 @@ void updateLEDs() {
   switch(FIRING_MODE) {
     case SLIME:
       if(SYSTEM_YEAR == SYSTEM_1989) {
-        i_scheme = C_PASTEL_PINK;
+        i_scheme = C_PINK;
       }
       else {
         i_scheme = C_GREEN;
