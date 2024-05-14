@@ -45,7 +45,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><span class="infoLabel">Wand State:</span> <span class="infoState" id="wandPower">&mdash;</span></p>
     <p><span class="infoLabel">Wand Armed:</span> <span class="infoState" id="safety">&mdash;</span></p>
     <p><span class="infoLabel">System Mode:</span> <span class="infoState" id="wandMode">&mdash;</span></p>
-    <p><span class="infoLabel">Power Level:</span> <span class="infoState" id="power">&mdash;</span></p>
+    <p><span class="infoLabel">Power Level:</span> <span class="infoState" id="power">&mdash;</span> <div id="powerBar"></div></p>
     <p><span class="infoLabel">Firing State:</span> <span class="infoState" id="firing">&mdash;</span></p>
     <br/>
     <p>
@@ -133,6 +133,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <br/>
     <div class="footer">
+      <span id="buildDate"></span>
+      &mdash;
       <span id="wifiName"></span>
     </div>
   </div>
@@ -292,6 +294,23 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
+    function updateBars(iPower) {
+      var powerBars = document.getElementById("powerBars");
+      powerBars.innerHTML = ""; // Clear previous bars if any
+
+      var colors = ["blue", "green", "yellow", "orange", "red"];
+
+      if (iPower > 0) {
+        for (var i = 1; i <= iPower; i++) {
+          var bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.width = (i * 20) + "%"; // Each value corresponds to 20% width
+          bar.style.backgroundColor = colors[i - 1]; // Assign color based on value
+          powerBars.appendChild(bar);
+        }
+      }
+    }
+
     function updateStatus(jObj) {
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
@@ -313,6 +332,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           document.getElementById("safety").innerHTML = jObj.safety || "...";
           document.getElementById("power").innerHTML = jObj.power || "...";
           document.getElementById("firing").innerHTML = jObj.firing || "...";
+          updateBars(jObj.power || 0);
         } else {
           // Default to empty values when wand is not present.
           document.getElementById("wandPower").innerHTML = "...";
@@ -320,6 +340,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           document.getElementById("safety").innerHTML = "...";
           document.getElementById("power").innerHTML = "...";
           document.getElementById("firing").innerHTML = "...";
+          updateBars(0);
         }
 
         if (jObj.battVoltage) {
@@ -338,6 +359,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("musicVolume").innerHTML = (jObj.volMusic || 0) + "%";
 
         // Device Info
+        document.getElementById("buildDate").innerHTML = jObj.buildDate || "";
         document.getElementById("wifiName").innerHTML = jObj.wifiName || "";
 
         // Update special UI elements based on the latest data values.

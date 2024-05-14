@@ -53,7 +53,7 @@ p {
 }
 
 .footer {
-  color: #ddd;
+  color: #ccc;
   font-size: 0.8em;
 }
 
@@ -90,6 +90,13 @@ p {
 .infoState {
   font-family: courier new, courier, sans-serif;
   font-size: 1em;
+}
+
+.bar {
+  height: 20px;
+  margin: 5px 0;
+  background-color: lightgray;
+  border: 1px solid black;
 }
 
 button {
@@ -307,20 +314,17 @@ input:checked + .slider:before {
 }
 
 .volume-control button {
+  align-items: center;
   background-color: #008CBA;
   border: 1px solid #006C9A;
-  border-radius: 10px !important;
-  color: #fff;
-  font-size: 20px;
   cursor: pointer;
-  width: 50px;
-  height: 50px;
-  border-radius: 0;
-  margin: 5px 0;
   display: flex;
+  font-size: 20px;
+  height: 50px;
   justify-content: center;
-  align-items: center;
+  margin: 5px 0;
   transition: background-color 0.3s ease;
+  width: 50px;
 }
 
 .volume-control button:hover {
@@ -345,19 +349,18 @@ input:checked + .slider:before {
 }
 
 .music-navigation button {
+  align-items: center;
   background-color: #008CBA;
   border: 1px solid #006C9A;
-  color: #fff;
-  font-size: 20px;
-  cursor: pointer;
-  width: 85px;
-  height: 40px;
   border-radius: 0;
-  margin: 0;
+  cursor: pointer;
   display: flex;
+  font-size: 20px;
+  height: 40px;
   justify-content: center;
-  align-items: center;
+  margin: 0;
   transition: background-color 0.3s ease;
+  width: 85px;
 }
 
 .music-navigation button:first-child {

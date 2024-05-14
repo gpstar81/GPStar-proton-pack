@@ -293,6 +293,7 @@ String getEquipmentStatus() {
     jsonBody["volEffects"] = i_volume_effects_percentage;
     jsonBody["volMusic"] = i_volume_music_percentage;
     jsonBody["battVoltage"] = f_batt_volts;
+    jsonBody["buildDate"] = build_date;
     jsonBody["wifiName"] = ap_ssid;
   }
 
