@@ -487,6 +487,8 @@ void updateMusicVolume() {
       break;
     }
   }
+
+  serial1SendData(A_VOLUME_SYNC); // Tell the connected device about this change.
 }
 
 void increaseVolumeMusic() {

@@ -47,7 +47,10 @@ h3 { color: #333; margin: 10px; }
 
 a { text-decoration: none; }
 
-p { font-size: 18px; margin-bottom: 5px; }
+p {
+  font-size: 18px;
+  margin: 5px 0px 8px 0px;
+}
 
 .left {
   text-align: left;
@@ -277,5 +280,96 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+.volume-container {
+  display: inline-flex;
+  margin: 0px auto;
+  max-width: 360px;
+  width: 360px;
+}
+
+.volume-control {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  margin: 20px auto;
+  padding: 10px;
+}
+
+.volume-control button {
+  background-color: #008CBA;
+  border: 1px solid #006C9A;
+  border-radius: 10px !important;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  border-radius: 0;
+  margin: 5px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.volume-control button:hover {
+  background-color: #009DCB;
+}
+
+.volume-control button:active {
+  transform: scale(0.95);
+}
+
+.volume-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.music-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px auto;
+  max-width: 340px;
+  width: 340px;
+}
+
+.music-navigation button {
+  background-color: #008CBA;
+  border: 1px solid #006C9A;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  width: 85px;
+  height: 40px;
+  border-radius: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.music-navigation button:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.music-navigation button:last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.music-navigation button:hover {
+  background-color: #009DCB;
+}
+
+.music-navigation button:active {
+  transform: scale(0.95);
 }
 )=====";

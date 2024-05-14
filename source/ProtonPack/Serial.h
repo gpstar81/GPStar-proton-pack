@@ -2857,8 +2857,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Lower music volume.
       if(b_playing_music == true) {
         decreaseVolumeMusic();
-
-        serial1SendData(A_VOLUME_SYNC);
       }
     break;
 
@@ -2866,8 +2864,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Increase music volume.
       if(b_playing_music == true) {
         increaseVolumeMusic();
-
-        serial1SendData(A_VOLUME_SYNC);
       }
     break;
 
