@@ -325,7 +325,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           break;
         default:
           // Proton Stream(s) as Red
-          color[0] = 140;
+          color[0] = 180;
       }
 
       return color;
