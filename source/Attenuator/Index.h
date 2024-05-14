@@ -49,38 +49,47 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><span class="infoLabel">Firing State:</span> <span class="infoState" id="firing">&mdash;</span></p>
     <br/>
     <p>
-      <span class="infoLabel">Battery Health:</b> <span id="battHealth"></span>
+      <span class="infoLabel">Powercell:</b> <span id="battHealth"></span>
       <span class="infoState" id="battVoltage">&mdash;</span>
-      <span style="font-size: 0.6em">VDC</span>
+      <span style="font-size: 0.8em">GeV</span>
     </p>
   </div>
 
   <h1>Audio Controls</h1>
   <div class="block">
-    <h3>Master Volume: <span id="masterVolume"></span></h3>
-    <button type="button" class="blue" onclick="volumeMasterDown()">- Down</button>
+    <div class="volume-container">
+      <div class="volume-control">
+        <h3>System</h3>
+        <button type="button" onclick="volumeMasterUp()">+</button>
+        <span id="masterVolume"></span>
+        <button type="button" onclick="volumeMasterDown()">&minus;</button>
+      </div>
+      <div class="volume-control">
+        <h3>Effects</h3>
+        <button type="button" onclick="volumeEffectsUp()">+</button>
+        <span id="effectsVolume"></span>
+        <button type="button" onclick="volumeEffectsDown()">&minus;</button>
+      </div>
+      <div class="volume-control">
+        <h3>Music</h3>
+        <button type="button" onclick="volumeMusicUp()">+</button>
+        <span id="musicVolume"></span>
+        <button type="button" onclick="volumeMusicDown()">&minus;</button>
+      </div>
+    </div>
+    <br/>
     <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
-    <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
     <br/>
-    <h3>Effects Volume: <span id="effectsVolume"></span></h3>
-    <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
-    <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
-    <br/>
-    <h3>Music Volume: <span id="musicVolume"></span></h3>
-    <button type="button" class="blue" onclick="volumeMusicDown()">- Down</button>
-    <button type="button" class="blue" onclick="volumeMusicUp()">Up +</button>
-    <br/>
-    <h3>Music Controls</h3>
-    <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
-    <br/>
+    <h3>Music Navigation</h3>
+    <div class="music-navigation">
+      <button type="music-button" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
+      <button type="music-button" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
+      <button type="music-button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&nbsp;&#9654;</button>
+      <button type="music-button" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
+    </div>
     <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
     <br/>
-    <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
-    &nbsp;
-    <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
     <br/>
-    <button type="button" class="green" onclick="pauseresumeMusic()"
-     style="width:120px;margin-top:10px">Pause/Resume</button>
   </div>
 
   <h1>Pack Controls</h1>
@@ -424,11 +433,11 @@ const char INDEX_page[] PROGMEM = R"=====(
       sendCommand("/volume/music/down");
     }
 
-    function startstopMusic() {
+    function musicStartStop() {
       sendCommand("/music/startstop");
     }
 
-    function pauseresumeMusic() {
+    function musicPauseResume() {
       sendCommand("/music/pauseresume");
     }
 
