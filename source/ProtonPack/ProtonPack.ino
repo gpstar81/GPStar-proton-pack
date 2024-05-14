@@ -1008,16 +1008,15 @@ void checkSwitches() {
 
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
+    stopEffect(S_BEEPS);
+    stopEffect(S_BEEPS_ALT);
+    stopEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
+    stopEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
+
     if(b_clockwise == true) {
       b_clockwise = false;
 
-      stopEffect(S_BEEPS_ALT);
-
       playEffect(S_BEEPS_ALT);
-
-      stopEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
-      stopEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
-
       playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
       // Tell wand to play Cyclotron counter clockwise voice.
@@ -1026,13 +1025,7 @@ void checkSwitches() {
     else {
       b_clockwise = true;
 
-      stopEffect(S_BEEPS);
-
       playEffect(S_BEEPS);
-
-      stopEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
-      stopEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
-
       playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
 
       // Tell wand to play Cyclotron clockwise voice.
@@ -1042,12 +1035,13 @@ void checkSwitches() {
 
   // Smoke
   if(switch_smoke.isPressed() || switch_smoke.isReleased()) {
+    stopEffect(S_VOICE_SMOKE_DISABLED);
+    stopEffect(S_VOICE_SMOKE_ENABLED);
+
     if(b_smoke_enabled == true) {
       b_smoke_enabled = false;
 
       stopEffect(S_VENT_DRY);
-      stopEffect(S_VOICE_SMOKE_DISABLED);
-      stopEffect(S_VOICE_SMOKE_ENABLED);
 
       playEffect(S_VENT_DRY);
       playEffect(S_VOICE_SMOKE_DISABLED);
@@ -1059,8 +1053,6 @@ void checkSwitches() {
       b_smoke_enabled = true;
 
       stopEffect(S_VENT_SMOKE);
-      stopEffect(S_VOICE_SMOKE_ENABLED);
-      stopEffect(S_VOICE_SMOKE_DISABLED);
 
       playEffect(S_VENT_SMOKE);
       playEffect(S_VOICE_SMOKE_ENABLED);
@@ -1072,15 +1064,15 @@ void checkSwitches() {
 
   // Vibration toggle switch.
   if(switch_vibration.isPressed() || switch_vibration.isReleased()) {
+    stopEffect(S_VOICE_VIBRATION_ENABLED);
+    stopEffect(S_VOICE_VIBRATION_DISABLED);
+
     if(switch_vibration.getState() == LOW) {
       if(b_vibration_enabled == false) {
         // Tell the wand to enable vibration.
         packSerialSend(P_VIBRATION_ENABLED);
 
         b_vibration_enabled = true;
-
-        stopEffect(S_VOICE_VIBRATION_ENABLED);
-        stopEffect(S_VOICE_VIBRATION_DISABLED);
 
         playEffect(S_VOICE_VIBRATION_ENABLED);
       }
@@ -1091,9 +1083,6 @@ void checkSwitches() {
         packSerialSend(P_VIBRATION_DISABLED);
 
         b_vibration_enabled = false;
-
-        stopEffect(S_VOICE_VIBRATION_DISABLED);
-        stopEffect(S_VOICE_VIBRATION_ENABLED);
 
         playEffect(S_VOICE_VIBRATION_DISABLED);
       }
@@ -1107,6 +1096,21 @@ void checkSwitches() {
 
     // Turn off the year mode override flag controlled by the Proton Pack.
     b_switch_mode_override = false;
+  }
+
+  if(b_use_ribbon_cable && (switch_alarm.isPressed() || switch_alarm.isReleased())) {
+    // Play a sound when the ribbon cable is attached or detached.
+    if(ribbonCableAttached()) {
+      // Only play this sound if the pack is off to match Frozen Empire.
+      if(PACK_STATE == MODE_OFF) {
+        stopEffect(S_CLICK);
+        playEffect(S_CLICK);
+      }
+    }
+    else {
+      stopEffect(S_RIBBON_CABLE_DETACH);
+      playEffect(S_RIBBON_CABLE_DETACH);
+    }
   }
 
   switch(PACK_STATE) {
@@ -1778,6 +1782,7 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
   }
 }
 
+// This function handles returning ring-simulated Cyclotron lookup table values.
 uint8_t cyclotronLookupTable(uint8_t index) {
   switch(i_cyclotron_leds) {
     case HASLAB_CYCLOTRON_LED_COUNT:
