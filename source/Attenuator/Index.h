@@ -45,11 +45,16 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><span class="infoLabel">Wand State:</span> <span class="infoState" id="wandPower">&mdash;</span></p>
     <p><span class="infoLabel">Wand Armed:</span> <span class="infoState" id="safety">&mdash;</span></p>
     <p><span class="infoLabel">System Mode:</span> <span class="infoState" id="wandMode">&mdash;</span></p>
-    <p><span class="infoLabel">Power Level:</span> <span class="infoState" id="power">&mdash;</span> <div id="powerBar"></div></p>
+    <p style="display: inline-flex;">
+      <span class="infoLabel">Power Level:</span>&nbsp;
+      <span class="infoState" id="power">&mdash;</span>
+      <div class="bar-container" id="powerBars"></div>
+    </p>
     <p><span class="infoLabel">Firing State:</span> <span class="infoState" id="firing">&mdash;</span></p>
     <br/>
     <p>
-      <span class="infoLabel">Powercell:</b> <span id="battHealth"></span>
+      <span class="infoLabel">Powercell:</span>
+      <span id="battHealth"></span>
       <span class="infoState" id="battVoltage">&mdash;</span>
       <span style="font-size: 0.8em">GeV</span>
     </p>
@@ -294,19 +299,51 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
-    function updateBars(iPower) {
+    function getColor(cMode) {
+      var color = [0, 0, 0];
+
+      switch(cMode){
+        case "Plasm System":
+          // Dark Green
+          color[1] = 80;
+          break;
+        case "Dark Matter Gen.":
+          // Light Blue
+          color[1] = 60;
+          color[2] = 255;
+          break;
+        case "Particle System":
+          // Orange
+          color[0] = 255;
+          color[1] = 140;
+          break;
+        case "Settings":
+          // Gray
+          color[0] = 40;
+          color[1] = 40;
+          color[2] = 40;
+          break;
+        default:
+          // Proton Stream(s) as Red
+          color[0] = 140;
+      }
+
+      return color;
+    }
+
+    function updateBars(iPower, cMode) {
       var powerBars = document.getElementById("powerBars");
-      powerBars.innerHTML = ""; // Clear previous bars if any
+      if (powerBars) {
+        powerBars.innerHTML = ""; // Clear previous bars if any
 
-      var colors = ["blue", "green", "yellow", "orange", "red"];
-
-      if (iPower > 0) {
-        for (var i = 1; i <= iPower; i++) {
-          var bar = document.createElement("div");
-          bar.className = "bar";
-          bar.style.width = (i * 20) + "%"; // Each value corresponds to 20% width
-          bar.style.backgroundColor = colors[i - 1]; // Assign color based on value
-          powerBars.appendChild(bar);
+        if (iPower > 0) {
+          var color = getColor(cMode);
+          for (var i = 1; i <= iPower; i++) {
+            var bar = document.createElement("div");
+            bar.className = "bar";
+            bar.style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(i * 1.8, 10) + ")";
+            powerBars.appendChild(bar);
+          }
         }
       }
     }
@@ -332,7 +369,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           document.getElementById("safety").innerHTML = jObj.safety || "...";
           document.getElementById("power").innerHTML = jObj.power || "...";
           document.getElementById("firing").innerHTML = jObj.firing || "...";
-          updateBars(jObj.power || 0);
+          updateBars(jObj.power || 0, jObj.wandMode || "");
         } else {
           // Default to empty values when wand is not present.
           document.getElementById("wandPower").innerHTML = "...";
@@ -340,7 +377,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           document.getElementById("safety").innerHTML = "...";
           document.getElementById("power").innerHTML = "...";
           document.getElementById("firing").innerHTML = "...";
-          updateBars(0);
+          updateBars(0, jObj.wandMode || "");
         }
 
         if (jObj.battVoltage) {

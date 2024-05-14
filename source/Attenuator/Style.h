@@ -92,13 +92,6 @@ p {
   font-size: 1em;
 }
 
-.bar {
-  height: 20px;
-  margin: 5px 0;
-  background-color: lightgray;
-  border: 1px solid black;
-}
-
 button {
   background-color: #555;
   border: 2px solid #333;
@@ -292,6 +285,23 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+.bar-container {
+  display: inline-flex;
+  margin-left: 20px;
+  max-width: 120px;
+  min-width: 120px;
+  position: relative;
+  top: 2px;
+  width: 120px;
+}
+
+.bar {
+  background-color: lightgray;
+  border: 1px solid #222;
+  height: 15px;
+  width: 20px;
 }
 
 .volume-container {

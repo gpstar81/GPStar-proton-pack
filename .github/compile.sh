@@ -84,7 +84,7 @@ echo ""
 echo "Building Attenuator Binary (ESP32)..."
 
 # Update date of compilation
-echo "Updating Timestamp:" $TIMESTAMP
+echo "Updating Build Timestamp:" $TIMESTAMP
 sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"$TIMESTAMP"'\2/' ${SRCDIR}/Attenuator/Configuration.h
 
 # --warnings none
