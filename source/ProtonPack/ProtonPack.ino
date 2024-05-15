@@ -1953,7 +1953,7 @@ void cyclotronControl() {
   }
 
   // If we are in slime mode, call the slime effect functions instead.
-  if(FIRING_MODE == SLIME) {
+  if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
     if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
       // Make sure we've started the slime effect timer if it hasn't been started already.
       ms_cyclotron_slime_effect.start(0);

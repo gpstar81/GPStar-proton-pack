@@ -1587,7 +1587,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(FIRING_MODE == SLIME) {
+      if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
@@ -1643,12 +1643,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       FIRING_MODE = SLIME;
       playEffect(S_CLICK);
 
-      // Reset the Cyclotron and stop the normal animation timer.
-      resetCyclotronState();
-      clearCyclotronFades();
-      ms_cyclotron.stop();
-
       if(b_cyclotron_colour_toggle == true) {
+        // Reset the Cyclotron and stop the normal animation timer.
+        resetCyclotronState();
+        clearCyclotronFades();
+        ms_cyclotron.stop();
+
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
       }
@@ -1669,7 +1669,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(FIRING_MODE == SLIME) {
+      if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
@@ -1709,7 +1709,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_MESON_MODE:
       // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(FIRING_MODE == SLIME) {
+      if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
@@ -1754,7 +1754,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(FIRING_MODE == SLIME) {
+      if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
@@ -1793,7 +1793,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(FIRING_MODE == SLIME) {
+      if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
@@ -1832,7 +1832,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(FIRING_MODE == SLIME) {
+      if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
