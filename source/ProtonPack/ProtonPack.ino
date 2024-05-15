@@ -399,7 +399,7 @@ void loop() {
 
       if(ribbonCableAttached() == true && b_overheating == false) {
         if(b_alarm == true) {
-          if(FIRING_MODE != SLIME) {
+          if(!usingSlimeCyclotron()) {
             if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
               // Reset the LEDs before resetting the alarm flag.
               resetCyclotronState();
@@ -600,7 +600,7 @@ void loop() {
 bool fadeOutLights() {
   bool b_return = false;
 
-  if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && FIRING_MODE != SLIME) {
+  if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !usingSlimeCyclotron()) {
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
     // We override the colour changes when using stock HasLab Cyclotron LEDs.
@@ -676,7 +676,7 @@ void packStartup() {
   PACK_ACTION_STATE = ACTION_IDLE;
 
   if(ribbonCableAttached() != true) {
-    if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE != SLIME) {
+    if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
       ms_cyclotron.start(0);
       ms_alarm.start(0);
     }
@@ -927,7 +927,7 @@ void packOffReset() {
   ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
 
   // Need to reset the Cyclotron timers.
-  if(FIRING_MODE != SLIME) {
+  if(!usingSlimeCyclotron()) {
     ms_cyclotron.start(i_2021_delay);
   }
 
@@ -1859,7 +1859,7 @@ void cyclotronControl() {
       b_inner_ramp_up = false;
       b_alarm = true;
 
-      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE != SLIME) {
+      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
         resetCyclotronState();
         ms_cyclotron.start(0);
         ms_alarm.start(0);
@@ -1885,7 +1885,7 @@ void cyclotronControl() {
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
 
-      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE != SLIME) {
+      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
 
@@ -1942,18 +1942,20 @@ void cyclotronControl() {
       }
     }
 
-    if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-      cyclotron1984(i_current_ramp_speed);
-      innerCyclotronRingUpdate(i_inner_current_ramp_speed);
-    }
-    else {
-      cyclotron2021(i_current_ramp_speed);
-      innerCyclotronRingUpdate(i_inner_current_ramp_speed);
+    if(!usingSlimeCyclotron()) {
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+        cyclotron1984(i_current_ramp_speed);
+        innerCyclotronRingUpdate(i_inner_current_ramp_speed);
+      }
+      else {
+        cyclotron2021(i_current_ramp_speed);
+        innerCyclotronRingUpdate(i_inner_current_ramp_speed);
+      }
     }
   }
 
   // If we are in slime mode, call the slime effect functions instead.
-  if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
+  if(usingSlimeCyclotron()) {
     if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
       // Make sure we've started the slime effect timer if it hasn't been started already.
       ms_cyclotron_slime_effect.start(0);
@@ -2825,6 +2827,16 @@ void cyclotron84LightOff(uint8_t cLed) {
   }
 }
 
+// Returns whether we should be using the slime cyclotron effect or not.
+bool usingSlimeCyclotron() {
+  if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
 // Controls the slime cyclotron effect.
 void slimeCyclotronEffect() {
   if(ms_cyclotron_slime_effect.justFinished()) {
@@ -3281,7 +3293,7 @@ void packOverheatingFinished() {
   fanBooster(false);
 
   // Reset the LEDs before resetting the alarm flag.
-  if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE != SLIME) {
+  if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
     resetCyclotronState();
   }
 
@@ -3304,7 +3316,7 @@ void packOverheatingFinished() {
   ms_vent_light_off.stop();
   ms_vent_light_on.stop();
 
-  if(FIRING_MODE != SLIME) {
+  if(!usingSlimeCyclotron()) {
     ms_cyclotron.start(i_2021_delay);
   }
 }
@@ -3349,7 +3361,7 @@ void cyclotronNoCable() {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
-      if(FIRING_MODE != SLIME) {
+      if(!usingSlimeCyclotron()) {
         cyclotron2021(i_2021_delay * 10);
       }
 
@@ -3372,7 +3384,7 @@ void cyclotronNoCable() {
 
     case SYSTEM_1984:
     case SYSTEM_1989:
-      if(FIRING_MODE != SLIME) {
+      if(!usingSlimeCyclotron()) {
         cyclotron1984(i_1984_delay * 3);
       }
 
