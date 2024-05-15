@@ -2325,11 +2325,11 @@ void cyclotron2021(uint16_t cDelay) {
             if(i_cyclotron_matrix_led > 0) {
               ms_cyclotron.start(t_cDelay);
             }
-            else if(i_current_ramp_speed > i_2021_delay) {
+            else if(i_current_ramp_speed > i_2021_delay && t_cDelay - i_2021_delay < t_cDelay) {
               ms_cyclotron.start((t_cDelay - i_2021_delay) * 9); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
             }
             else {
-              ms_cyclotron.start(t_cDelay - t_cDelay);
+              ms_cyclotron.start(0);
             }
           break;
 
@@ -2337,11 +2337,11 @@ void cyclotron2021(uint16_t cDelay) {
             if(i_cyclotron_matrix_led > 0) {
               ms_cyclotron.start(t_cDelay);
             }
-            else if(i_current_ramp_speed > i_2021_delay) {
+            else if(i_current_ramp_speed > i_2021_delay && t_cDelay - i_2021_delay < t_cDelay) {
               ms_cyclotron.start(t_cDelay - i_2021_delay); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
             }
             else {
-              ms_cyclotron.start(t_cDelay - t_cDelay);
+              ms_cyclotron.start(0);
             }
           break;
 
@@ -2350,11 +2350,11 @@ void cyclotron2021(uint16_t cDelay) {
             if(i_cyclotron_matrix_led > 0) {
               ms_cyclotron.start(t_cDelay);
             }
-            else if(i_current_ramp_speed > i_2021_delay) {
+            else if(i_current_ramp_speed > i_2021_delay && t_cDelay - i_2021_delay < t_cDelay) {
               ms_cyclotron.start(t_cDelay - i_2021_delay); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
             }
             else {
-              ms_cyclotron.start(t_cDelay - t_cDelay);
+              ms_cyclotron.start(0);
             }
           break;
         }
