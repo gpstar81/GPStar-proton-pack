@@ -1591,6 +1591,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
+
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
+        }
       }
 
       if(PACK_STATE == MODE_ON && FIRING_MODE != PROTON) {
@@ -1673,6 +1678,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
+
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
+        }
       }
 
       if(PACK_STATE == MODE_ON && FIRING_MODE != STASIS) {
@@ -1682,11 +1692,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         playEffect(S_STASIS_OPEN);
         playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
-
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
-          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
-        }
       }
 
       // Stasis mode.
@@ -1713,6 +1718,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
+
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
+        }
       }
 
       if(PACK_STATE == MODE_ON && FIRING_MODE != MESON) {
@@ -1758,6 +1768,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
+
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
+        }
       }
 
       if(PACK_STATE == MODE_ON && FIRING_MODE != SPECTRAL) {
@@ -1797,6 +1812,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
+
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
+        }
       }
 
       if(PACK_STATE == MODE_ON && FIRING_MODE != HOLIDAY) {
@@ -1836,6 +1856,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         resetCyclotronState();
         clearCyclotronFades();
         ms_cyclotron.start(0);
+
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
+        }
       }
 
       if(PACK_STATE == MODE_ON && FIRING_MODE != SPECTRAL_CUSTOM) {
