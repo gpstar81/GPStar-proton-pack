@@ -21,9 +21,9 @@ In order to view the state of the pack and control it remotely, the two devices 
 
 ## Web Interface
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main.jpg"/>
-
 When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network which begins with the prefix **"ProtonPack_"** and secured with a default password of **"555-2368"**.
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main1.jpg"/>
 
 Once connected, your computer/phone/table should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each device.
 
@@ -36,6 +36,8 @@ The equipment status will reflect the status of your Proton Pack and Neutrona Wa
 **Note:** If you see a "&mdash;" (dash) beside these values it can indicate a potential communication issue. Simply refresh the page and/or check your WiFi connection to the device.
 
 ### Audio Controls
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main2.jpg"/>
 
 This section allows full control of the system (overall) volume, effects volume, and music volume along with the ability to mute/unmute all devices. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or the wand.
 
@@ -54,7 +56,11 @@ You may also jump directly to a specific track for playback via the selection fi
 
 ### Pack Controls
 
-Controls will be made available on a per-action or per-state basis. Shown here, the pack and wand are both in an Idle state while in the "Super Hero" operation mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.
+Controls will be made available on a per-action or per-state basis.
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main3.jpg"/>
+
+Shown here, the pack and wand are both in an Idle state while in the "Super Hero" operation mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.
 
 **Vent:** This can only be triggered remotely when in the "Super Hero" mode and while the Pack State is "Powered".
 
@@ -62,11 +68,15 @@ Controls will be made available on a per-action or per-state basis. Shown here, 
 
 ### Preferences
 
-These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 3 sections: Pack, Wand, and Smoke.
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main4.jpg"/>
+
+These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 3 sections: Pack, Wand, and Smoke. The features available via these sections will be covered in-depth later in this document.
 
 ### Administration
 
 These links allow you to change or control aspects of the device.
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main5.jpg"/>
 
 - **Update ESP32 Firmware** - Allows you to update the ESP32 firmware using Over-the-Air updates. See the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details
 - **Secure Device WiFi**- Allows changing of the default password for the private WiFi network
