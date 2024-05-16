@@ -1945,13 +1945,13 @@ void cyclotronControl() {
     if(!usingSlimeCyclotron()) {
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
         cyclotron1984(i_current_ramp_speed);
-        innerCyclotronRingUpdate(i_inner_current_ramp_speed);
       }
       else {
         cyclotron2021(i_current_ramp_speed);
-        innerCyclotronRingUpdate(i_inner_current_ramp_speed);
       }
     }
+
+    innerCyclotronRingUpdate(i_inner_current_ramp_speed);
   }
 
   // If we are in slime mode, call the slime effect functions instead.
