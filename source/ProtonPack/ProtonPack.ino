@@ -2278,7 +2278,12 @@ void cyclotron2021(uint16_t cDelay) {
         case OUTER_CYCLOTRON_LED_MAX:
         case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
           if(i_cyclotron_multiplier > 1) {
-            t_cDelay = t_cDelay - i_cyclotron_multiplier;
+            if(t_cDelay - i_cyclotron_multiplier < t_cDelay) {
+              t_cDelay = t_cDelay - i_cyclotron_multiplier;
+            }
+            else {
+              t_cDelay = 0;
+            }
 
             if(b_cyclotron_lid_on == true) {
               i_fast_led_delay = FAST_LED_UPDATE_MS + i_cyclotron_multiplier;
@@ -2302,12 +2307,17 @@ void cyclotron2021(uint16_t cDelay) {
           i_fast_led_delay = FAST_LED_UPDATE_MS;
 
           if(i_cyclotron_multiplier > 1) {
-            t_cDelay = t_cDelay - i_cyclotron_multiplier;
+            if(t_cDelay - i_cyclotron_multiplier < t_cDelay) {
+              t_cDelay = t_cDelay - i_cyclotron_multiplier;
+            }
+            else {
+              t_cDelay = 0;
+            }
           }
         break;
       }
 
-      if(t_cDelay < 1 || t_cDelay > cDelay) {
+      if(t_cDelay < 1) {
         t_cDelay = 1;
       }
 
