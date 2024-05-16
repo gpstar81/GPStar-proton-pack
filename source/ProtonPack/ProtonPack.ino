@@ -2388,7 +2388,12 @@ void cyclotron2021(uint16_t cDelay) {
       case OUTER_CYCLOTRON_LED_MAX:
       case FRUTTO_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
-          cDelay = cDelay - i_cyclotron_multiplier;
+          if(cDelay - i_cyclotron_multiplier < cDelay) {
+            cDelay = cDelay - i_cyclotron_multiplier;
+          }
+          else {
+            cDelay = 0;
+          }
         }
         else {
           cDelay = cDelay / i_cyclotron_multiplier;
@@ -2400,7 +2405,12 @@ void cyclotron2021(uint16_t cDelay) {
       case HASLAB_CYCLOTRON_LED_COUNT:
       default:
         if(i_cyclotron_multiplier > 1) {
-          cDelay = cDelay - i_cyclotron_multiplier;
+          if(cDelay - i_cyclotron_multiplier < cDelay) {
+            cDelay = cDelay - i_cyclotron_multiplier;
+          }
+          else {
+            cDelay = 0;
+          }
         }
         else {
           cDelay = cDelay / i_cyclotron_multiplier;
