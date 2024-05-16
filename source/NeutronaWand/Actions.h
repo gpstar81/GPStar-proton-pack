@@ -604,8 +604,6 @@ void checkWandAction() {
 
                 wandSerialSend(W_BARGRAPH_INVERTED);
               }
-
-              setBargraphOrientation();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Overheat smoke duration level 4.

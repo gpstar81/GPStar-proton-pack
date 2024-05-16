@@ -29,6 +29,7 @@
 enum colours {
   C_BLACK,
   C_WHITE,
+  C_WARM_WHITE,
   C_PINK,
   C_RED,
   C_RED2,
@@ -265,6 +266,10 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
     case C_BLACK:
       return CHSV(0, 0, 0); // Overrides brightness.
+    break;
+
+    case C_WARM_WHITE:
+      return CHSV(22, 155, i_brightness);
     break;
 
     case C_PINK:
