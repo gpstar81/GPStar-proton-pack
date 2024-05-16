@@ -293,6 +293,8 @@ String getEquipmentStatus() {
     jsonBody["volEffects"] = i_volume_effects_percentage;
     jsonBody["volMusic"] = i_volume_music_percentage;
     jsonBody["battVoltage"] = f_batt_volts;
+    jsonBody["buildDate"] = build_date;
+    jsonBody["wifiName"] = ap_ssid;
   }
 
   // Serialize JSON object to string.
@@ -426,6 +428,18 @@ void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
 void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
   debug("Effects Volume Down");
   attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
+  request->send(200, "application/json", status);
+}
+
+void handleMusicVolumeUp(AsyncWebServerRequest *request) {
+  debug("Music Volume Up");
+  attenuatorSerialSend(A_VOLUME_MUSIC_INCREASE);
+  request->send(200, "application/json", status);
+}
+
+void handleMusicVolumeDown(AsyncWebServerRequest *request) {
+  debug("Music Volume Down");
+  attenuatorSerialSend(A_VOLUME_MUSIC_DECREASE);
   request->send(200, "application/json", status);
 }
 

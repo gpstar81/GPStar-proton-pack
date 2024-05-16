@@ -42,6 +42,11 @@
 //#define RESET_AP_SETTINGS
 
 /*
+ * Used to reflect the last build date for the binary.
+ */
+String build_date = "20240516153451";
+
+/*
  * Preferred WiFi Network Defaults
  * When a network name/password is not specified via the web UI, these
  * values may be used to provide defaults for joining a known network.

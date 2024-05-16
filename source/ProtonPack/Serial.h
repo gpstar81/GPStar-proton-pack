@@ -906,6 +906,22 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
       packSerialSend(P_VOLUME_SOUND_EFFECTS_INCREASE);
     break;
 
+    case A_VOLUME_MUSIC_DECREASE:
+      // Decrease pack music volume.
+      decreaseVolumeMusic();
+
+      // Tell wand to decrease music volume.
+      packSerialSend(P_VOLUME_MUSIC_DECREASE);
+    break;
+
+    case A_VOLUME_MUSIC_INCREASE:
+      // Increase pack music volume.
+      increaseVolumeMusic();
+
+      // Tell wand to increase music volume.
+      packSerialSend(P_VOLUME_MUSIC_INCREASE);
+    break;
+
     case A_MUSIC_START_STOP:
       if(b_playing_music == true) {
         stopMusic();
@@ -2865,44 +2881,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_VOLUME_MUSIC_DECREASE:
       // Lower music volume.
       if(b_playing_music == true) {
-        if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
-          i_volume_music_percentage = 0;
-
-          // Provide feedback at minimum volume.
-          stopEffect(S_BEEPS_ALT);
-          playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
-        }
-        else {
-          i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
-        }
-
-        i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-        updateMusicVolume();
-
-        serial1SendData(A_VOLUME_SYNC);
+        decreaseVolumeMusic();
       }
     break;
 
     case W_VOLUME_MUSIC_INCREASE:
       // Increase music volume.
       if(b_playing_music == true) {
-        if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
-          i_volume_music_percentage = 100;
-
-          // Provide feedback at maximum volume.
-          stopEffect(S_BEEPS_ALT);
-          playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
-        }
-        else {
-          i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
-        }
-
-        i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-        updateMusicVolume();
-
-        serial1SendData(A_VOLUME_SYNC);
+        increaseVolumeMusic();
       }
     break;
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Note: All warnings are set to none to ensure builds run.
-
 BINDIR="../binaries"
 SRCDIR="../source"
 
@@ -9,10 +7,13 @@ mkdir -p ${BINDIR}/attenuator/extras
 mkdir -p ${BINDIR}/pack
 mkdir -p ${BINDIR}/wand/extras
 
+TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+
 echo ""
 
 # Proton Pack
 echo "Building Proton Pack Binary..."
+
 # --warnings none
 arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/ProtonPack/ProtonPack.ino
 
@@ -27,6 +28,7 @@ echo ""
 
 # Neutrona Wand
 echo "Building Neutrona Wand Binary..."
+
 # --warnings none
 arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/NeutronaWand/NeutronaWand.ino
 
@@ -44,6 +46,7 @@ echo "Building Neutrona Wand (Bench Test) Binary..."
 
 # Change flag(s) for compilation
 sed -i -e 's/b_gpstar_benchtest = false/b_gpstar_benchtest = true/' ${SRCDIR}/NeutronaWand/Configuration.h
+
 # --warnings none
 arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/NeutronaWand/NeutronaWand.ino
 
@@ -64,6 +67,7 @@ echo ""
 
 # Attenuator (Arduino)
 echo "Building Attenuator Binary (Arduino)..."
+
 # --warnings none
 arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:nano --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
 
@@ -78,6 +82,11 @@ echo ""
 
 # Attenuator (ESP32)
 echo "Building Attenuator Binary (ESP32)..."
+
+# Update date of compilation
+echo "Updating Build Timestamp:" $TIMESTAMP
+sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"$TIMESTAMP"'\2/' ${SRCDIR}/Attenuator/Configuration.h
+
 # --warnings none
 arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
 
@@ -99,6 +108,7 @@ echo "Building Attenuator Binary (ESP32 - WiFi Reset)..."
 sed -i -e 's/\/\/\#define DEBUG_WIRELESS_SETUP/\#define DEBUG_WIRELESS_SETUP/' ${SRCDIR}/Attenuator/Configuration.h
 sed -i -e 's/\/\/\#define DEBUG_SEND_TO_CONSOLE/\#define DEBUG_SEND_TO_CONSOLE/' ${SRCDIR}/Attenuator/Configuration.h
 sed -i -e 's/\/\/\#define RESET_AP_SETTINGS/\#define RESET_AP_SETTINGS/' ${SRCDIR}/Attenuator/Configuration.h
+
 # --warnings none
 arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
 
