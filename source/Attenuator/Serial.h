@@ -144,6 +144,7 @@ struct __attribute__((packed)) SmokePrefs {
 struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
+  uint8_t cyclotronLidState;
   uint8_t systemYear;
   uint8_t packOn;
   uint8_t powerLevel;
