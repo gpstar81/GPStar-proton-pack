@@ -2371,7 +2371,12 @@ void cyclotron2021(uint16_t cDelay) {
     switch(i_cyclotron_leds) {
       case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
-          cDelay = cDelay - i_cyclotron_multiplier;
+          if(cDelay - i_cyclotron_multiplier < cDelay) {
+            cDelay = cDelay - i_cyclotron_multiplier;
+          }
+          else {
+            cDelay = 0;
+          }
         }
         else {
           cDelay = cDelay / i_cyclotron_multiplier;
