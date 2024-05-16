@@ -2286,10 +2286,6 @@ void cyclotron2021(uint16_t cDelay) {
             else {
               i_fast_led_delay = FAST_LED_UPDATE_MS;
             }
-
-            if(t_cDelay < 1 || t_cDelay > cDelay) {
-              t_cDelay = 1;
-            }
           }
           else {
             i_fast_led_delay = FAST_LED_UPDATE_MS;
@@ -2307,12 +2303,12 @@ void cyclotron2021(uint16_t cDelay) {
 
           if(i_cyclotron_multiplier > 1) {
             t_cDelay = t_cDelay - i_cyclotron_multiplier;
-
-            if(t_cDelay < 1 || t_cDelay > cDelay) {
-              t_cDelay = 1;
-            }
           }
         break;
+      }
+
+      if(t_cDelay < 1 || t_cDelay > cDelay) {
+        t_cDelay = 1;
       }
 
       if(b_cyclotron_simulate_ring == true) {
