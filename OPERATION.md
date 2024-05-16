@@ -91,11 +91,11 @@
 
 - **System Volume: Super Hero Mode**
  	- While the Neutrona Wand is **ON** and the top and bottom toggle switches are **DOWN**, hold the `Intensify` button while turning the top dial to quickly adjust the Proton Pack and Neutrona Wand overall system volume.
- 	- While the Neutrona Wand is **OFF** you can independently adjust the overall system volume via the Neutrona Wand by holding the `Intensify` button down and turning the dial. 
+ 	- While the Neutrona Wand is **OFF** you can independently adjust the overall system volume via the Neutrona Wand by holding the `Intensify` button down and turning the dial.
 
-- ** System Volume: Mode Original**
-	- While the Proton Pack cyclotron is **OFF** and the Neutrona Wand top and bottom toggle switches are **DOWN**, hold the `Intensify` button while turning the top dial to quickly adjust the Proton Pack and Neutrona Wand overall system volume. 
- 	- While the Proton Pack cyclotron is **OFF** and if either the Neutrona Wand top or bottom toggle switch is **UP**, you can independently adjust the overall system volume of the Neutrona Wand by holding the `Intensify` button down and turning the dial. 
+- **System Volume: Mode Original**
+	- While the Proton Pack cyclotron is **OFF** and the Neutrona Wand top and bottom toggle switches are **DOWN**, hold the `Intensify` button while turning the top dial to quickly adjust the Proton Pack and Neutrona Wand overall system volume.
+ 	- While the Proton Pack cyclotron is **OFF** and if either the Neutrona Wand top or bottom toggle switch is **UP**, you can independently adjust the overall system volume of the Neutrona Wand by holding the `Intensify` button down and turning the dial.
 
 - **Music: Super Hero and Mode Original**
 	- When music is playing while the Proton Pack and Neutrona Wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily adjust the music volume.

@@ -89,7 +89,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <div class="music-navigation">
       <button type="music-button" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
       <button type="music-button" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
-      <button type="music-button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&nbsp;&#9654;</button>
+      <button type="music-button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
       <button type="music-button" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
     </div>
     <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
@@ -141,6 +141,8 @@ const char INDEX_page[] PROGMEM = R"=====(
       <span id="buildDate"></span>
       &mdash;
       <span id="wifiName"></span>
+      <br/>
+      <span id="extWifi"></span>
     </div>
   </div>
 
@@ -398,6 +400,9 @@ const char INDEX_page[] PROGMEM = R"=====(
         // Device Info
         document.getElementById("buildDate").innerHTML = jObj.buildDate || "";
         document.getElementById("wifiName").innerHTML = jObj.wifiName || "";
+        if ((jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
+          document.getElementById("extWifi").innerHTML = jObj.extAddr + " / " + jObj.extMask;
+        }
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);

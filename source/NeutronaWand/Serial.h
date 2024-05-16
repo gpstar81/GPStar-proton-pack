@@ -540,7 +540,6 @@ void checkPack() {
           }
 
           // Update and reset wand components.
-          setBargraphOrientation();
           bargraphYearModeUpdate();
           resetOverheatLevels();
           resetWhiteLEDBlinkRate();

@@ -225,7 +225,6 @@ const uint8_t led_bargraph_4 = A4;
 const uint8_t led_bargraph_5 = A5;
 
 const uint8_t i_bargraph_segments_5_led = 5;
-uint8_t i_bargraph_5_led[i_bargraph_segments_5_led] = {};
 const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] PROGMEM = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
 const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] PROGMEM = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
 bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
@@ -296,7 +295,6 @@ uint16_t i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
  * 1: none: 0 - 4	   (5 segments)
  */
 const uint8_t i_bargraph_segments = 28;
-uint8_t i_bargraph[i_bargraph_segments] = {};
 const uint8_t i_bargraph_invert[i_bargraph_segments] PROGMEM = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
 const uint8_t i_bargraph_normal[i_bargraph_segments] PROGMEM = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 bool b_bargraph_status[i_bargraph_segments] = {};

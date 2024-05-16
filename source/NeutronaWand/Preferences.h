@@ -43,7 +43,6 @@ uint32_t eepromCRC(void);
 void bargraphYearModeUpdate();
 void resetOverheatLevels();
 void resetWhiteLEDBlinkRate();
-void setBargraphOrientation();
 
 /*
  * General EEPROM Variables
@@ -214,8 +213,6 @@ void readEEPROM() {
       else {
         b_bargraph_invert = false;
       }
-
-      setBargraphOrientation();
     }
 
     if(obj_config_eeprom.bargraph_mode > 0 && obj_config_eeprom.bargraph_mode != 255) {
