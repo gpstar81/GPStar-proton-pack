@@ -43,12 +43,11 @@ uint32_t eepromCRC(void);
 void bargraphYearModeUpdate();
 void resetOverheatLevels();
 void resetWhiteLEDBlinkRate();
-void setBargraphOrientation();
 
 /*
  * General EEPROM Variables
  */
-unsigned int i_eepromAddress = 0; // The address in the EEPROM to start reading from.
+uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
 
 /*
  * Data structure object for LED settings which are saved into the EEPROM memory.
@@ -214,8 +213,6 @@ void readEEPROM() {
       else {
         b_bargraph_invert = false;
       }
-
-      setBargraphOrientation();
     }
 
     if(obj_config_eeprom.bargraph_mode > 0 && obj_config_eeprom.bargraph_mode != 255) {
@@ -457,7 +454,7 @@ void readEEPROM() {
 
     // Read our LED object from the EEPROM.
     objLEDEEPROM obj_led_eeprom;
-    unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
+    uint16_t i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
     EEPROM.get(i_eepromLEDAddress, obj_led_eeprom);
 
@@ -495,9 +492,9 @@ void readEEPROM() {
 
 void clearLEDEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
-  unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
+  uint16_t i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
-  for(unsigned int i = 0; i < sizeof(objLEDEEPROM); i++) {
+  for(uint16_t i = 0; i < sizeof(objLEDEEPROM); i++) {
     EEPROM.update(i_eepromLEDAddress, 0);
 
     i_eepromLEDAddress++;
@@ -507,7 +504,7 @@ void clearLEDEEPROM() {
 }
 
 void saveLEDEEPROM() {
-  unsigned int i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
+  uint16_t i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
   uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 48 = Frutto.
 
@@ -530,7 +527,7 @@ void saveLEDEEPROM() {
 
 void clearConfigEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(unsigned int i = 0; i < sizeof(objConfigEEPROM); i++) {
+  for(uint16_t i = 0; i < sizeof(objConfigEEPROM); i++) {
     EEPROM.update(i, 0);
   }
 
@@ -546,7 +543,7 @@ void saveConfigEEPROM() {
   uint8_t i_neutrona_wand_sounds = 2;
   uint8_t i_spectral = 1;
   uint8_t i_holiday = 1;
-  uint8_t i_quick_vent = 1;
+  uint8_t i_quick_vent = 2;
   uint8_t i_wand_boot_errors = 2;
   uint8_t i_vent_light_auto_intensity = 2;
   uint8_t i_invert_bargraph = 1;
@@ -595,8 +592,8 @@ void saveConfigEEPROM() {
     i_holiday = 2;
   }
 
-  if(b_quick_vent == true) {
-    i_quick_vent = 2;
+  if(b_quick_vent != true) {
+    i_quick_vent = 1;
   }
 
   if(b_wand_boot_errors != true) {
@@ -804,7 +801,7 @@ void updateCRCEEPROM() {
 uint32_t eepromCRC(void) {
   CRC32 crc;
 
-  for(unsigned int index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
+  for(uint16_t index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
     crc.update(EEPROM[index]);
   }
 

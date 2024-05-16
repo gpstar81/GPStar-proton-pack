@@ -83,7 +83,7 @@ Please note whatever settings you have temporarily changed in the regular menus 
 | 2 | Cyclotron&nbsp;LED&nbsp;Control | Cyclotron rotation direction. Clockwise or counter clockwise. | Enable/Disable the Cyclotron Lid Ring Simulation in Afterlife and Frozen Empire mode.<br/>ONLY applies to use of the 12, 20 or 36 LED hardware options. |
 | 1 | Sound&nbsp;Effects | Enable/Disable extra Neutrona Wand sound effects to be played by the Proton Pack. | Enable/Disable the proton stream impact sound effects. |
 
-<sup>1</sup> Choose between Video Game and Cross the Streams (CTS) operation modes. The Cross The Streams modes are closer to what is seen in the films, while Video Game mode imitates behavior seen in the 2009 Ghostbusters: The Video Game.
+<sup>1</sup> Choose between Video Game and Cross the Streams (CTS) operation modes. The Cross The Streams modes are closer to what is seen in the films, while Video Game mode imitates behavior seen in the 2009 Ghostbusters: The Video Game. Note that Video Game mode is only available in Super Hero mode.
 
 <div class="page-break"></div>
 

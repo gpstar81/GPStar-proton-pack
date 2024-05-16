@@ -103,6 +103,7 @@ struct __attribute__((packed)) SmokePrefs {
 struct __attribute__((packed)) SyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
+  uint8_t cyclotronLidState;
   uint8_t systemYear;
   uint8_t packOn;
   uint8_t powerLevel;
@@ -415,23 +416,19 @@ void checkPack() {
               // CTS Mix
               b_cross_the_streams_mix = true;
               b_cross_the_streams = true;
-              b_vg_mode = false;
 
               // Force into Proton mode.
-              wandSerialSend(W_PROTON_MODE);
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = PROTON;
+              wandSerialSend(W_PROTON_MODE);
             break;
             case 2:
               // Cross the Streams
               b_cross_the_streams_mix = false;
               b_cross_the_streams = true;
-              b_vg_mode = false;
 
               // Force into Proton mode.
-              wandSerialSend(W_PROTON_MODE);
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = PROTON;
+              wandSerialSend(W_PROTON_MODE);
             break;
             default:
               // Default: Video Game
@@ -543,7 +540,6 @@ void checkPack() {
           }
 
           // Update and reset wand components.
-          setBargraphOrientation();
           bargraphYearModeUpdate();
           resetOverheatLevels();
           resetWhiteLEDBlinkRate();
@@ -583,6 +579,7 @@ void checkPack() {
             break;
             case 2:
               SYSTEM_MODE = MODE_ORIGINAL;
+              vgModeCheck(); // Assert CTS mode.
             break;
           }
 
@@ -595,6 +592,17 @@ void checkPack() {
             break;
             case 2:
               b_pack_ion_arm_switch_on = true;
+            break;
+          }
+
+          switch(packSync.cyclotronLidState) {
+            case 1:
+            default:
+              b_pack_cyclotron_lid_on = false;
+            break;
+
+            case 2:
+              b_pack_cyclotron_lid_on = true;
             break;
           }
 
@@ -657,41 +665,35 @@ void checkPack() {
             case 1:
             default:
               FIRING_MODE = PROTON;
-              PREV_FIRING_MODE = PROTON;
             break;
             case 2:
               FIRING_MODE = SLIME;
-              PREV_FIRING_MODE = PROTON;
               setVGMode();
             break;
             case 3:
               FIRING_MODE = STASIS;
-              PREV_FIRING_MODE = SLIME;
               setVGMode();
             break;
             case 4:
               FIRING_MODE = MESON;
-              PREV_FIRING_MODE = STASIS;
+
+              if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+                // Tell GPStar Audio we need short audio mode.
+                audio.gpstarShortTrackOverload(false);
+              }
+
               setVGMode();
             break;
             case 5:
               FIRING_MODE = SPECTRAL;
-              PREV_FIRING_MODE = MESON;
               setVGMode();
             break;
             case 6:
               FIRING_MODE = HOLIDAY;
-              PREV_FIRING_MODE = SPECTRAL;
               setVGMode();
             break;
             case 7:
               FIRING_MODE = SPECTRAL_CUSTOM;
-              PREV_FIRING_MODE = HOLIDAY;
-              setVGMode();
-            break;
-            case 8:
-              FIRING_MODE = VENTING;
-              PREV_FIRING_MODE = SPECTRAL_CUSTOM;
               setVGMode();
             break;
           }
@@ -853,6 +855,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_MODE_ORIGINAL:
       SYSTEM_MODE = MODE_ORIGINAL;
+      vgModeCheck(); // Assert CTS mode.
     break;
 
     case P_OVERHEATING_FINISHED:
@@ -937,6 +940,14 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
+    case P_CYCLOTRON_LID_ON:
+      b_pack_cyclotron_lid_on = true;
+    break;
+
+    case P_CYCLOTRON_LID_OFF:
+      b_pack_cyclotron_lid_on = false;
+    break;
+
     case P_MANUAL_OVERHEAT:
       if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         if(b_pack_on == true && b_pack_alarm != true && b_overheat_enabled == true) {
@@ -1007,10 +1018,46 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
           digitalWriteFast(led_hat_2, HIGH); // Turn on hat light 2.
           prepBargraphRampDown();
 
-          if(FIRING_MODE == SETTINGS) {
+          if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
             // If the wand is in settings mode while the alarm is activated, exit the settings mode.
-            wandSerialSend(W_PROTON_MODE);
-            FIRING_MODE = PROTON;
+            switch(FIRING_MODE) {
+              case MESON:
+                // Tell the pack we are in meson mode.
+                wandSerialSend(W_MESON_MODE);
+              break;
+
+              case STASIS:
+                // Tell the pack we are in stasis mode.
+                wandSerialSend(W_STASIS_MODE);
+              break;
+
+              case SLIME:
+                // Tell the pack we are in slime mode.
+                wandSerialSend(W_SLIME_MODE);
+              break;
+
+              case SPECTRAL:
+                // Tell the pack we are in spectral mode.
+                wandSerialSend(W_SPECTRAL_MODE);
+              break;
+
+              case HOLIDAY:
+                // Tell the pack we are in holiday mode.
+                wandSerialSend(W_HOLIDAY_MODE);
+              break;
+
+              case SPECTRAL_CUSTOM:
+                // Tell the pack we are in spectral custom mode.
+                wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
+              break;
+
+              case PROTON:
+              default:
+                // Tell the pack we are in proton mode.
+                wandSerialSend(W_PROTON_MODE);
+              break;
+            }
+
             WAND_ACTION_STATUS = ACTION_IDLE;
           }
         }
@@ -1555,68 +1602,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
 
       playEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
-    break;
-
-    case P_PROTON_MODE:
-      FIRING_MODE = PROTON;
-      PREV_FIRING_MODE = SETTINGS;
-    break;
-
-    case P_SLIME_MODE:
-      FIRING_MODE = SLIME;
-      PREV_FIRING_MODE = PROTON;
-
-      setVGMode();
-    break;
-
-    case P_STASIS_MODE:
-      FIRING_MODE = STASIS;
-      PREV_FIRING_MODE = SLIME;
-
-      setVGMode();
-    break;
-
-    case P_MESON_MODE:
-      FIRING_MODE = MESON;
-      PREV_FIRING_MODE = STASIS;
-
-      setVGMode();
-    break;
-
-    case P_SPECTRAL_MODE:
-      FIRING_MODE = SPECTRAL;
-      PREV_FIRING_MODE = PROTON;
-
-      setVGMode();
-    break;
-
-    case P_HOLIDAY_MODE:
-      FIRING_MODE = HOLIDAY;
-      PREV_FIRING_MODE = PROTON;
-
-      setVGMode();
-    break;
-
-    case P_SPECTRAL_CUSTOM_MODE:
-      FIRING_MODE = SPECTRAL_CUSTOM;
-      PREV_FIRING_MODE = PROTON;
-
-      setVGMode();
-    break;
-
-    case P_VENTING_MODE:
-      FIRING_MODE = VENTING;
-      PREV_FIRING_MODE = MESON;
-
-      setVGMode();
-    break;
-
-    case P_SETTINGS_MODE:
-      FIRING_MODE = SETTINGS;
-      PREV_FIRING_MODE = VENTING;
-
-      barrelLightsOff();
-      setVGMode();
     break;
 
     case P_POWER_LEVEL_1:

@@ -106,7 +106,7 @@ bool b_cross_the_streams_mix = false;
  * When set to true, you can manually quick vent your Proton Pack and Neutrona Wand by
  * pressing the intensify button if the top right toggle switch is switched off.
  */
-bool b_quick_vent = false;
+bool b_quick_vent = true;
 
 /*
  * When set to true, the LED at the front of the Neutrona Wand body next to the Clippard valve will start blinking after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered off to indicate battery power is still feeding the system.
@@ -199,11 +199,11 @@ bool b_overheat_level_5 = true;
  * Overheat only happens if enabled for that power level (see above).
  * Example: 60000 = (60 seconds)
  */
-unsigned long int i_ms_overheat_initiate_level_1 = 60000;
-unsigned long int i_ms_overheat_initiate_level_2 = 50000;
-unsigned long int i_ms_overheat_initiate_level_3 = 40000;
-unsigned long int i_ms_overheat_initiate_level_4 = 35000;
-unsigned long int i_ms_overheat_initiate_level_5 = 30000;
+uint32_t i_ms_overheat_initiate_level_1 = 60000;
+uint32_t i_ms_overheat_initiate_level_2 = 50000;
+uint32_t i_ms_overheat_initiate_level_3 = 40000;
+uint32_t i_ms_overheat_initiate_level_4 = 35000;
+uint32_t i_ms_overheat_initiate_level_5 = 30000;
 
 /*
  * Set to false to disable the onboard amplifier on the WAV Trigger.
@@ -227,7 +227,8 @@ bool b_stream_effects = true;
 bool b_extra_pack_sounds = true;
 
 /*
- * When set to true, the Neutrona Wand plays sound effects with the toggle switches only in MODE_ORIGINAL and not MODE_SUPER_HERO mode.
+ * When set to true, the Neutrona Wand plays sound effects with the right-hand toggle switches in MODE_ORIGINAL.
+ * Setting to false will mute the toggle switch sounds in MODE_ORIGINAL.
  */
 bool b_mode_original_toggle_sounds_enabled = true;
 

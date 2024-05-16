@@ -166,7 +166,7 @@ void setup() {
   delay(100);
 
   // Initialize critical timers.
-  ms_fast_led.start(1);
+  ms_fast_led.start(0);
 }
 
 void loop() {
@@ -525,7 +525,12 @@ void updateLEDs() {
   uint8_t i_scheme;
   switch(FIRING_MODE) {
     case SLIME:
-      i_scheme = C_GREEN;
+      if(SYSTEM_YEAR == SYSTEM_1989) {
+        i_scheme = C_PINK;
+      }
+      else {
+        i_scheme = C_GREEN;
+      }
     break;
 
     case STASIS:
@@ -553,7 +558,6 @@ void updateLEDs() {
     break;
 
     case PROTON:
-    case VENTING:
     default:
       i_scheme = C_RED;
     break;

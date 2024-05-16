@@ -53,14 +53,17 @@ void checkWandAction() {
     break;
 
     case ACTION_FIRING:
-      if(FIRING_MODE == VENTING) {
-        // If we are in venting mode, let's trigger a vent sequence.
-        startVentSequence();
-      }
-      else if(b_pack_on == true && b_pack_alarm == false) {
+      if(b_pack_on == true && b_pack_alarm == false) {
         if(FIRING_MODE == MESON) {
           if(ms_meson_blast.justFinished()) {
-            playEffect(S_MESON_FIRE_PULSE);
+            playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
+            wandSerialSend(W_MESON_FIRE_PULSE);
+
+            if(WAND_BARREL_LED_COUNT == LEDS_48) {
+              // Reset the barrel before starting a new pulse.
+              barrelLightsOff();
+            }
+
             ms_firing_stream_effects.start(0); // Start new barrel animation.
 
             switch(i_power_level) {
@@ -601,8 +604,6 @@ void checkWandAction() {
 
                 wandSerialSend(W_BARGRAPH_INVERTED);
               }
-
-              setBargraphOrientation();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Overheat smoke duration level 4.
@@ -1087,6 +1088,7 @@ void checkWandAction() {
               if(b_gpstar_benchtest == true) {
                 if(SYSTEM_MODE == MODE_SUPER_HERO) {
                   SYSTEM_MODE = MODE_ORIGINAL;
+                  vgModeCheck(); // Assert CTS mode.
 
                   stopEffect(S_VOICE_MODE_ORIGINAL);
                   stopEffect(S_VOICE_MODE_SUPER_HERO);
@@ -1237,7 +1239,7 @@ void checkWandAction() {
 
       switch(i_wand_menu) {
         // Menu Level 1: (Intensify) -> Music track loop setting.
-        // Menu Level 1: (Barrel Wing Button) -> Exit menu. <--handled by altWingButtonCheck() if wand is on, or wandExitMenu() is wand is off
+        // Menu Level 1: (Barrel Wing Button) -> Exit menu. <--handled by altWingButtonCheck() if wand is on, or mainLoop() if wand is off
         // Menu Level 2: (Intensify) -> Enable or disable crossing the streams / video game modes.
         // Menu Level 2: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
         case 5:
@@ -1404,7 +1406,7 @@ void checkWandAction() {
 
         // Menu Level 1: (Intensify) -> Play music or stop music.
         // Menu Level 1: (Barrel Wing Button) -> Mute the Proton Pack and Neutrona Wand.
-        // Menu Level 2: (Intensify) -> Switch between 1984/1989/Afterlife mode.
+        // Menu Level 2: (Intensify) -> Switch between 1984/1989/Afterlife/Frozen Empire mode.
         // Menu Level 2: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
         case 1:
           // Play or stop the current music track.

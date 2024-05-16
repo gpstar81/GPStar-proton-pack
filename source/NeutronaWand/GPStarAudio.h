@@ -120,27 +120,27 @@ public:
   void setReporting(bool enable);
   void setAmpPwr(bool enable);
   bool getVersion(char *pDst);
-  int getNumTracks(void);
-  bool isTrackPlaying(int trk);
-  void masterGain(int gain);
+  uint16_t getNumTracks(void);
+  bool isTrackPlaying(uint16_t trk);
+  void masterGain(int16_t gain);
   void stopAllTracks(void);
   void resumeAllInSync(void);
-  void trackPlaySolo(int trk);
-  void trackPlaySolo(int trk, bool lock);
-  void trackPlayPoly(int trk);
-  void trackPlayPoly(int trk, bool lock);
-  void trackLoad(int trk);
-  void trackLoad(int trk, bool lock);
-  void trackStop(int trk);
-  void trackPause(int trk);
-  void trackResume(int trk);
-  void trackLoop(int trk, bool enable);
-  void trackGain(int trk, int gain);
-  void trackFade(int trk, int gain, int time, bool stopFlag);
-  void samplerateOffset(int offset);
-  void setTriggerBank(int bank);
-  void trackPlayingStatus(int trk);
-  bool currentMusicTrackStatus(int trk);
+  void trackPlaySolo(uint16_t trk);
+  void trackPlaySolo(uint16_t trk, bool lock);
+  void trackPlayPoly(uint16_t trk);
+  void trackPlayPoly(uint16_t trk, bool lock);
+  void trackLoad(uint16_t trk);
+  void trackLoad(uint16_t trk, bool lock);
+  void trackStop(uint16_t trk);
+  void trackPause(uint16_t trk);
+  void trackResume(uint16_t trk);
+  void trackLoop(uint16_t trk, bool enable);
+  void trackGain(uint16_t trk, int16_t gain);
+  void trackFade(uint16_t trk, int16_t gain, uint16_t time, bool stopFlag);
+  void samplerateOffset(uint16_t offset);
+  void setTriggerBank(uint8_t bank);
+  void trackPlayingStatus(uint16_t trk);
+  bool currentMusicTrackStatus(uint16_t trk);
   bool trackCounterReset(void);
   void resetTrackCounter(bool bReset);
   void serialFlush(void);
@@ -152,8 +152,8 @@ public:
   bool gpstarAudioHello(void);
 
 private:
-  void trackControl(int trk, int code);
-  void trackControl(int trk, int code, bool lock);
+  void trackControl(uint16_t trk, uint8_t code);
+  void trackControl(uint16_t trk, uint8_t code, bool lock);
 
   #ifdef __GPSTAR_AUDIO_USE_ALTSOFTSERIAL__
     AltSoftSerial GPStarSerial;
@@ -170,7 +170,7 @@ private:
   bool versionRcvd;
   bool sysInfoRcvd;
   bool gpsInfoRcvd;
-  int currentMusicTrack;
+  uint16_t currentMusicTrack;
   bool currentMusicStatus;
   bool trackCounter;
 };
