@@ -3070,6 +3070,7 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams == true) {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
+      case CTS_FROZEN_EMPIRE:
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
@@ -3089,7 +3090,6 @@ void modeFireStopSounds() {
       break;
 
       case CTS_DEFAULT:
-      case CTS_FROZEN_EMPIRE:
       default:
         switch(getSystemYearMode()) {
           case SYSTEM_AFTERLIFE:
@@ -3300,6 +3300,7 @@ void modeFiring() {
 
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
+      case CTS_FROZEN_EMPIRE:
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
@@ -3335,7 +3336,6 @@ void modeFiring() {
       break;
 
       case CTS_DEFAULT:
-      case CTS_FROZEN_EMPIRE:
       default:
         switch(getSystemYearMode()) {
           case SYSTEM_AFTERLIFE:
@@ -3418,6 +3418,7 @@ void modeFiring() {
 
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
+      case CTS_FROZEN_EMPIRE:
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
@@ -3437,7 +3438,6 @@ void modeFiring() {
       break;
 
       case CTS_DEFAULT:
-      case CTS_FROZEN_EMPIRE:
       default:
         switch(getSystemYearMode()) {
           case SYSTEM_AFTERLIFE:

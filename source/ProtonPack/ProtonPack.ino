@@ -399,7 +399,7 @@ void loop() {
 
       if(ribbonCableAttached() == true && b_overheating == false) {
         if(b_alarm == true) {
-          if(FIRING_MODE != SLIME) {
+          if(!usingSlimeCyclotron()) {
             if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
               // Reset the LEDs before resetting the alarm flag.
               resetCyclotronState();
@@ -600,7 +600,7 @@ void loop() {
 bool fadeOutLights() {
   bool b_return = false;
 
-  if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && FIRING_MODE != SLIME) {
+  if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !usingSlimeCyclotron()) {
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
 
     // We override the colour changes when using stock HasLab Cyclotron LEDs.
@@ -676,7 +676,7 @@ void packStartup() {
   PACK_ACTION_STATE = ACTION_IDLE;
 
   if(ribbonCableAttached() != true) {
-    if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE != SLIME) {
+    if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
       ms_cyclotron.start(0);
       ms_alarm.start(0);
     }
@@ -927,7 +927,7 @@ void packOffReset() {
   ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
 
   // Need to reset the Cyclotron timers.
-  if(FIRING_MODE != SLIME) {
+  if(!usingSlimeCyclotron()) {
     ms_cyclotron.start(i_2021_delay);
   }
 
@@ -1859,7 +1859,7 @@ void cyclotronControl() {
       b_inner_ramp_up = false;
       b_alarm = true;
 
-      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE != SLIME) {
+      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
         resetCyclotronState();
         ms_cyclotron.start(0);
         ms_alarm.start(0);
@@ -1885,7 +1885,7 @@ void cyclotronControl() {
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
 
-      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE != SLIME) {
+      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
 
@@ -1942,18 +1942,20 @@ void cyclotronControl() {
       }
     }
 
-    if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-      cyclotron1984(i_current_ramp_speed);
-      innerCyclotronRingUpdate(i_inner_current_ramp_speed);
-    }
-    else {
-      cyclotron2021(i_current_ramp_speed);
-      innerCyclotronRingUpdate(i_inner_current_ramp_speed);
+    if(!usingSlimeCyclotron()) {
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+        cyclotron1984(i_current_ramp_speed);
+        innerCyclotronRingUpdate(i_inner_current_ramp_speed);
+      }
+      else {
+        cyclotron2021(i_current_ramp_speed);
+        innerCyclotronRingUpdate(i_inner_current_ramp_speed);
+      }
     }
   }
 
   // If we are in slime mode, call the slime effect functions instead.
-  if(FIRING_MODE == SLIME) {
+  if(usingSlimeCyclotron()) {
     if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
       // Make sure we've started the slime effect timer if it hasn't been started already.
       ms_cyclotron_slime_effect.start(0);
@@ -2284,10 +2286,6 @@ void cyclotron2021(uint16_t cDelay) {
             else {
               i_fast_led_delay = FAST_LED_UPDATE_MS;
             }
-
-            if(t_cDelay < 1 || t_cDelay > cDelay) {
-              t_cDelay = 1;
-            }
           }
           else {
             i_fast_led_delay = FAST_LED_UPDATE_MS;
@@ -2305,12 +2303,12 @@ void cyclotron2021(uint16_t cDelay) {
 
           if(i_cyclotron_multiplier > 1) {
             t_cDelay = t_cDelay - i_cyclotron_multiplier;
-
-            if(t_cDelay < 1 || t_cDelay > cDelay) {
-              t_cDelay = 1;
-            }
           }
         break;
+      }
+
+      if(t_cDelay < 1 || t_cDelay > cDelay) {
+        t_cDelay = 1;
       }
 
       if(b_cyclotron_simulate_ring == true) {
@@ -2323,11 +2321,11 @@ void cyclotron2021(uint16_t cDelay) {
             if(i_cyclotron_matrix_led > 0) {
               ms_cyclotron.start(t_cDelay);
             }
-            else if(i_current_ramp_speed > i_2021_delay) {
+            else if(i_current_ramp_speed > i_2021_delay && t_cDelay - i_2021_delay < t_cDelay) {
               ms_cyclotron.start((t_cDelay - i_2021_delay) * 9); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
             }
             else {
-              ms_cyclotron.start(t_cDelay - t_cDelay);
+              ms_cyclotron.start(0);
             }
           break;
 
@@ -2335,11 +2333,11 @@ void cyclotron2021(uint16_t cDelay) {
             if(i_cyclotron_matrix_led > 0) {
               ms_cyclotron.start(t_cDelay);
             }
-            else if(i_current_ramp_speed > i_2021_delay) {
+            else if(i_current_ramp_speed > i_2021_delay && t_cDelay - i_2021_delay < t_cDelay) {
               ms_cyclotron.start(t_cDelay - i_2021_delay); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
             }
             else {
-              ms_cyclotron.start(t_cDelay - t_cDelay);
+              ms_cyclotron.start(0);
             }
           break;
 
@@ -2348,11 +2346,11 @@ void cyclotron2021(uint16_t cDelay) {
             if(i_cyclotron_matrix_led > 0) {
               ms_cyclotron.start(t_cDelay);
             }
-            else if(i_current_ramp_speed > i_2021_delay) {
+            else if(i_current_ramp_speed > i_2021_delay && t_cDelay - i_2021_delay < t_cDelay) {
               ms_cyclotron.start(t_cDelay - i_2021_delay); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
             }
             else {
-              ms_cyclotron.start(t_cDelay - t_cDelay);
+              ms_cyclotron.start(0);
             }
           break;
         }
@@ -2369,7 +2367,12 @@ void cyclotron2021(uint16_t cDelay) {
     switch(i_cyclotron_leds) {
       case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
-          cDelay = cDelay - i_cyclotron_multiplier;
+          if(cDelay - i_cyclotron_multiplier < cDelay) {
+            cDelay = cDelay - i_cyclotron_multiplier;
+          }
+          else {
+            cDelay = 0;
+          }
         }
         else {
           cDelay = cDelay / i_cyclotron_multiplier;
@@ -2386,7 +2389,12 @@ void cyclotron2021(uint16_t cDelay) {
       case OUTER_CYCLOTRON_LED_MAX:
       case FRUTTO_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
-          cDelay = cDelay - i_cyclotron_multiplier;
+          if(cDelay - i_cyclotron_multiplier < cDelay) {
+            cDelay = cDelay - i_cyclotron_multiplier;
+          }
+          else {
+            cDelay = 0;
+          }
         }
         else {
           cDelay = cDelay / i_cyclotron_multiplier;
@@ -2398,7 +2406,12 @@ void cyclotron2021(uint16_t cDelay) {
       case HASLAB_CYCLOTRON_LED_COUNT:
       default:
         if(i_cyclotron_multiplier > 1) {
-          cDelay = cDelay - i_cyclotron_multiplier;
+          if(cDelay - i_cyclotron_multiplier < cDelay) {
+            cDelay = cDelay - i_cyclotron_multiplier;
+          }
+          else {
+            cDelay = 0;
+          }
         }
         else {
           cDelay = cDelay / i_cyclotron_multiplier;
@@ -2822,6 +2835,16 @@ void cyclotron84LightOff(uint8_t cLed) {
         ms_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness_tmp, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
       }
     }
+  }
+}
+
+// Returns whether we should be using the slime cyclotron effect or not.
+bool usingSlimeCyclotron() {
+  if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
+    return true;
+  }
+  else {
+    return false;
   }
 }
 
@@ -3281,7 +3304,7 @@ void packOverheatingFinished() {
   fanBooster(false);
 
   // Reset the LEDs before resetting the alarm flag.
-  if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && FIRING_MODE != SLIME) {
+  if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
     resetCyclotronState();
   }
 
@@ -3304,7 +3327,7 @@ void packOverheatingFinished() {
   ms_vent_light_off.stop();
   ms_vent_light_on.stop();
 
-  if(FIRING_MODE != SLIME) {
+  if(!usingSlimeCyclotron()) {
     ms_cyclotron.start(i_2021_delay);
   }
 }
@@ -3349,7 +3372,7 @@ void cyclotronNoCable() {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
-      if(FIRING_MODE != SLIME) {
+      if(!usingSlimeCyclotron()) {
         cyclotron2021(i_2021_delay * 10);
       }
 
@@ -3372,7 +3395,7 @@ void cyclotronNoCable() {
 
     case SYSTEM_1984:
     case SYSTEM_1989:
-      if(FIRING_MODE != SLIME) {
+      if(!usingSlimeCyclotron()) {
         cyclotron1984(i_1984_delay * 3);
       }
 
