@@ -295,6 +295,8 @@ String getEquipmentStatus() {
     jsonBody["battVoltage"] = f_batt_volts;
     jsonBody["buildDate"] = build_date;
     jsonBody["wifiName"] = ap_ssid;
+    jsonBody["extAddr"] = wifi_address;
+    jsonBody["extMask"] = wifi_subnet;
   }
 
   // Serialize JSON object to string.

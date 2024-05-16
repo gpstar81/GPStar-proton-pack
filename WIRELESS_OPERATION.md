@@ -37,18 +37,20 @@ The equipment status will reflect the status of your Proton Pack and Neutrona Wa
 
 ### Audio Controls
 
-This section allows full control of the system (overall) volume, effects volume, and music volume along with the ability to mute/unmute all devices. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or wand.
+This section allows full control of the system (overall) volume, effects volume, and music volume along with the ability to mute/unmute all devices. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or the wand.
 
 For playback of music you can use the improved navigation controls:
 
-- Previous Track
-- Start/Stop Playback
-- Pause/Resume Playback
-- Next Track
+| Indicator | Track Action |
+|-----------|--------------|
+| &#9664;&#9664; | Previous |
+| &#9634;&nbsp;&#9654; | Start/Stop |
+| &#9646;&#9646;&nbsp;&#9654; | Pause/Resume |
+| &#9654;&#9654; | Next/Skip |
 
-You may also jump directly to a specific track for playback via the selection field (switching immediately if already playing, otherwise will be the track started via the Start/Stop button).
+You may also jump directly to a specific track for playback via the selection field (switching immediately if already playing, otherwise that track will be started via the Start/Stop button).
 
-**Note:** Only the track numbers are known to the WavTrigger device, and track names are not available for display. Music tracks must begin at value "500" per the naming convention used by the GPStar controllers/software.
+**Note:** Only the track numbers are known to the audo device, and track names are not currently available for display. Music tracks must begin at value "500" per the naming convention used by the GPStar controllers/software.
 
 ### Pack Controls
 
@@ -68,8 +70,10 @@ These links allow you to change or control aspects of the device.
 
 - **Update ESP32 Firmware** - Allows you to update the ESP32 firmware using Over-the-Air updates. See the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details
 - **Secure Device WiFi**- Allows changing of the default password for the private WiFi network
-- **Change WiFi Settings** - Provides an optional means of joining an existing WiFi network for access of your device
-- **Restart/Resync** - Allows a remote restart of the software by performing a reboot of the ESP32 device
+- **Change WiFi Settings** - Provides an optional means of joining an existing, external WiFi network for access of your device
+- **Restart/Resync** - Allows a remote restart of the software by performing a reboot ONLY of the ESP32 device
+
+At the bottom of the screen is a timestamp representing the date of the software build for the ESP32 firmware, along with the private WiFi network offered by the current device. If connected to an external network the current IP address and subnet mask will be displayed.
 
 <div style="clear:both"></div>
 
