@@ -21,9 +21,9 @@ In order to view the state of the pack and control it remotely, the two devices 
 
 ## Web Interface
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main.jpg"/>
-
 When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network which begins with the prefix **"ProtonPack_"** and secured with a default password of **"555-2368"**.
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main1.jpg"/>
 
 Once connected, your computer/phone/table should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each device.
 
@@ -37,13 +37,30 @@ The equipment status will reflect the status of your Proton Pack and Neutrona Wa
 
 ### Audio Controls
 
-This section allows full control of the master (overall) volume and to mute/unmute all devices. For playback of music you can advance forward or backwards in the music queue, or select a specific track for playback via the selection field (switching immediately if already playing, otherwise will be the track started via the Start/Stop button). Lastly, you can change the effects volume as needed via the dedicated buttons. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or wand.
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main2.jpg"/>
 
-**Note:** Only the track numbers are known to the WavTrigger device, and track names are not available for display. Music tracks must begin at value "500" per the naming convention used by the GPStar controllers/software.
+This section allows full control of the system (overall) volume, effects volume, and music volume along with the ability to mute/unmute all devices. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or the wand.
+
+For playback of music you can use the improved navigation controls:
+
+| Indicator | Track Action |
+|-----------|--------------|
+| &#9664;&#9664; | Previous |
+| &#9634;&nbsp;&#9654; | Start/Stop |
+| &#9646;&#9646;&nbsp;&#9654; | Pause/Resume |
+| &#9654;&#9654; | Next/Skip |
+
+You may also jump directly to a specific track for playback via the selection field (switching immediately if already playing, otherwise that track will be started via the Start/Stop button).
+
+**Note:** Only the track numbers are known to the audo device, and track names are not currently available for display. Music tracks must begin at value "500" per the naming convention used by the GPStar controllers/software.
 
 ### Pack Controls
 
-Controls will be made available on a per-action or per-state basis. Shown here, the pack and wand are both in an Idle state while in the "Super Hero" operation mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.
+Controls will be made available on a per-action or per-state basis.
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main3.jpg"/>
+
+Shown here, the pack and wand are both in an Idle state while in the "Super Hero" operation mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.
 
 **Vent:** This can only be triggered remotely when in the "Super Hero" mode and while the Pack State is "Powered".
 
@@ -51,16 +68,22 @@ Controls will be made available on a per-action or per-state basis. Shown here, 
 
 ### Preferences
 
-These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 3 sections: Pack, Wand, and Smoke.
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main4.jpg"/>
+
+These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 3 sections: Pack, Wand, and Smoke. The features available via these sections will be covered in-depth later in this document.
 
 ### Administration
 
 These links allow you to change or control aspects of the device.
 
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main5.jpg"/>
+
 - **Update ESP32 Firmware** - Allows you to update the ESP32 firmware using Over-the-Air updates. See the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details
 - **Secure Device WiFi**- Allows changing of the default password for the private WiFi network
-- **Change WiFi Settings** - Provides an optional means of joining an existing WiFi network for access of your device
-- **Restart/Resync** - Allows a remote restart of the software by performing a reboot of the ESP32 device
+- **Change WiFi Settings** - Provides an optional means of joining an existing, external WiFi network for access of your device
+- **Restart/Resync** - Allows a remote restart of the software by performing a reboot ONLY of the ESP32 device
+
+At the bottom of the screen is a timestamp representing the date of the software build for the ESP32 firmware, along with the private WiFi network offered by the current device. If connected to an external network the current IP address and subnet mask will be displayed.
 
 <div style="clear:both"></div>
 
@@ -149,10 +172,12 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /pack/vent - Perform manual vent (subject to system state)
 
 	PUT /volume/toggle - Toggle mute for all devices
-	PUT /volume/master/up - Increase master volume
-	PUT /volume/master/down - Decrease master volume
+	PUT /volume/master/up - Increase system (master) volume
+	PUT /volume/master/down - Decrease system (master) volume
 	PUT /volume/effects/up - Increase effects volume
 	PUT /volume/effects/down - Decrease effects volume
+	PUT /volume/music/up - Increase music volume
+	PUT /volume/music/down - Decrease music volume
 
 	PUT /music/startstop - Toggle music playback via start/stop
 	PUT /music/pauseresume - Toggle music playback via resume/pause

@@ -447,13 +447,16 @@ String getWandMode() {
       return "Proton Stream";
     break;
     case SLIME:
-      return "Plasm Distribution System";
+      // Plasm Distribution System
+      return "Plasm System";
     break;
     case STASIS:
-      return "Dark Matter Generator";
+      // Dark Matter Generator
+      return "Dark Matter Gen.";
     break;
     case MESON:
-      return "Composite Particle System";
+      // Composite Particle System
+      return "Particle System";
     break;
     case SPECTRAL:
       return "Spectral Stream";
@@ -549,6 +552,8 @@ void setupRouting() {
   httpServer.on("/volume/master/down", HTTP_PUT, handleMasterVolumeDown);
   httpServer.on("/volume/effects/up", HTTP_PUT, handleEffectsVolumeUp);
   httpServer.on("/volume/effects/down", HTTP_PUT, handleEffectsVolumeDown);
+  httpServer.on("/volume/music/up", HTTP_PUT, handleMusicVolumeUp);
+  httpServer.on("/volume/music/down", HTTP_PUT, handleMusicVolumeDown);
   httpServer.on("/music/startstop", HTTP_PUT, handleMusicStartStop);
   httpServer.on("/music/pauseresume", HTTP_PUT, handleMusicPauseResume);
   httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);

@@ -45,40 +45,56 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><span class="infoLabel">Wand State:</span> <span class="infoState" id="wandPower">&mdash;</span></p>
     <p><span class="infoLabel">Wand Armed:</span> <span class="infoState" id="safety">&mdash;</span></p>
     <p><span class="infoLabel">System Mode:</span> <span class="infoState" id="wandMode">&mdash;</span></p>
-    <p><span class="infoLabel">Power Level:</span> <span class="infoState" id="power">&mdash;</span></p>
+    <p style="display: inline-flex;">
+      <span class="infoLabel">Power Level:</span>&nbsp;
+      <span class="infoState" id="power">&mdash;</span>
+      <div class="bar-container" id="powerBars"></div>
+    </p>
     <p><span class="infoLabel">Firing State:</span> <span class="infoState" id="firing">&mdash;</span></p>
     <br/>
     <p>
-      <span class="infoLabel">Battery Health:</b> <span id="battHealth"></span>
+      <span class="infoLabel">Powercell:</span>
+      <span id="battHealth"></span>
       <span class="infoState" id="battVoltage">&mdash;</span>
-      <span style="font-size: 0.6em">VDC</span>
+      <span style="font-size: 0.8em">GeV</span>
     </p>
   </div>
 
   <h1>Audio Controls</h1>
-  <div class="block">
-    <h3>Master Volume: <span id="masterVolume"></span></h3>
-    <button type="button" class="blue" onclick="volumeMasterDown()">- Down</button>
+  <div>
+    <div class="volume-container">
+      <div class="volume-control">
+        <h3>System</h3>
+        <button type="button" onclick="volumeMasterUp()">+</button>
+        <span id="masterVolume"></span>
+        <button type="button" onclick="volumeMasterDown()">&minus;</button>
+      </div>
+      <div class="volume-control">
+        <h3>Effects</h3>
+        <button type="button" onclick="volumeEffectsUp()">+</button>
+        <span id="effectsVolume"></span>
+        <button type="button" onclick="volumeEffectsDown()">&minus;</button>
+      </div>
+      <div class="volume-control">
+        <h3>Music</h3>
+        <button type="button" onclick="volumeMusicUp()">+</button>
+        <span id="musicVolume"></span>
+        <button type="button" onclick="volumeMusicDown()">&minus;</button>
+      </div>
+    </div>
+    <br/>
     <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
-    <button type="button" class="blue" onclick="volumeMasterUp()">Up +</button>
     <br/>
-    <h3>Effects Volume: <span id="effectsVolume"></span></h3>
-    <button type="button" class="blue" onclick="volumeEffectsDown()">- Down</button>
-    <button type="button" class="blue" onclick="volumeEffectsUp()">Up +</button>
-    <br/>
-    <h3>Music Controls</h3>
-    <div style="color:#444;"><b>Music Volume:</b> <span id="musicVolume"></span></div>
-    <br/>
-    <button type="button" class="green" onclick="startstopMusic()">Start/Stop</button>
-    <br/>
+    <h3>Music Navigation</h3>
+    <div class="music-navigation">
+      <button type="music-button" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
+      <button type="music-button" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
+      <button type="music-button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
+      <button type="music-button" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
+    </div>
     <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
     <br/>
-    <button type="button" class="blue" onclick="musicPrev()">&laquo; Prev</button>
-    &nbsp;
-    <button type="button" class="blue" onclick="musicNext()">Next &raquo;</button>
     <br/>
-    <button type="button" class="green" onclick="pauseresumeMusic()"
-     style="width:120px;margin-top:10px">Pause/Resume</button>
   </div>
 
   <h1>Pack Controls</h1>
@@ -121,6 +137,13 @@ const char INDEX_page[] PROGMEM = R"=====(
     <a href="javascript:doRestart()">Restart/Resync</a>
     <br/>
     <br/>
+    <div class="footer">
+      <span id="buildDate"></span>
+      &mdash;
+      <span id="wifiName"></span>
+      <br/>
+      <span id="extWifi"></span>
+    </div>
   </div>
 
   <script type="application/javascript">
@@ -278,6 +301,55 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
+    function getColor(cMode) {
+      var color = [0, 0, 0];
+
+      switch(cMode){
+        case "Plasm System":
+          // Dark Green
+          color[1] = 80;
+          break;
+        case "Dark Matter Gen.":
+          // Light Blue
+          color[1] = 60;
+          color[2] = 255;
+          break;
+        case "Particle System":
+          // Orange
+          color[0] = 255;
+          color[1] = 140;
+          break;
+        case "Settings":
+          // Gray
+          color[0] = 40;
+          color[1] = 40;
+          color[2] = 40;
+          break;
+        default:
+          // Proton Stream(s) as Red
+          color[0] = 180;
+      }
+
+      return color;
+    }
+
+    function updateBars(iPower, cMode) {
+      var powerBars = document.getElementById("powerBars");
+      if (powerBars) {
+        powerBars.innerHTML = ""; // Clear previous bars if any
+
+        if (iPower > 0) {
+          var color = getColor(cMode);
+          for (var i = 1; i <= iPower; i++) {
+            var bar = document.createElement("div");
+            bar.className = "bar";
+            bar.style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(i * 1.8, 10) + ")";
+            powerBars.appendChild(bar);
+          }
+        }
+      }
+    }
+
     function updateStatus(jObj) {
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
@@ -299,6 +371,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           document.getElementById("safety").innerHTML = jObj.safety || "...";
           document.getElementById("power").innerHTML = jObj.power || "...";
           document.getElementById("firing").innerHTML = jObj.firing || "...";
+          updateBars(jObj.power || 0, jObj.wandMode || "");
         } else {
           // Default to empty values when wand is not present.
           document.getElementById("wandPower").innerHTML = "...";
@@ -306,6 +379,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           document.getElementById("safety").innerHTML = "...";
           document.getElementById("power").innerHTML = "...";
           document.getElementById("firing").innerHTML = "...";
+          updateBars(0, jObj.wandMode || "");
         }
 
         if (jObj.battVoltage) {
@@ -322,6 +396,13 @@ const char INDEX_page[] PROGMEM = R"=====(
         document.getElementById("masterVolume").innerHTML = (jObj.volMaster || 0) + "%";
         document.getElementById("effectsVolume").innerHTML = (jObj.volEffects || 0) + "%";
         document.getElementById("musicVolume").innerHTML = (jObj.volMusic || 0) + "%";
+
+        // Device Info
+        document.getElementById("buildDate").innerHTML = jObj.buildDate || "";
+        document.getElementById("wifiName").innerHTML = jObj.wifiName || "";
+        if ((jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
+          document.getElementById("extWifi").innerHTML = jObj.extAddr + " / " + jObj.extMask;
+        }
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);
@@ -414,11 +495,19 @@ const char INDEX_page[] PROGMEM = R"=====(
       sendCommand("/volume/effects/down");
     }
 
-    function startstopMusic() {
+    function volumeMusicUp() {
+      sendCommand("/volume/music/up");
+    }
+
+    function volumeMusicDown() {
+      sendCommand("/volume/music/down");
+    }
+
+    function musicStartStop() {
       sendCommand("/music/startstop");
     }
 
-    function pauseresumeMusic() {
+    function musicPauseResume() {
       sendCommand("/music/pauseresume");
     }
 

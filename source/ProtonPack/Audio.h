@@ -21,7 +21,7 @@
 
 /**
  ***** IMPORTANT *****
- * If using a WAV Trigger, please make sure they are running the custom gpstar version firmware version 1.40 or higher.
+ * If using a WAV Trigger, please make sure they are running the custom GPStar version firmware version 1.40 or higher.
  * You can download the latest directly from the GPStar github repository.
  * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
  *
@@ -487,6 +487,42 @@ void updateMusicVolume() {
       break;
     }
   }
+
+  serial1SendData(A_VOLUME_SYNC); // Tell the connected device about this change.
+}
+
+void increaseVolumeMusic() {
+  if(i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER > 100) {
+    i_volume_music_percentage = 100;
+
+    // Provide feedback at maximum volume.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
+  }
+  else {
+    i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
+  }
+
+  i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+  updateMusicVolume();
+}
+
+void decreaseVolumeMusic() {
+  if(i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER < 0) {
+    i_volume_music_percentage = 0;
+
+    // Provide feedback at minimum volume.
+    stopEffect(S_BEEPS_ALT);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
+  }
+  else {
+    i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
+  }
+
+  i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+
+  updateMusicVolume();
 }
 
 void increaseVolumeEEPROM() {
@@ -495,7 +531,7 @@ void increaseVolumeEEPROM() {
   }
 
   if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = 100;
+    i_volume_master_percentage = i_volume_master_percentage_max;
   }
   else {
     i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
@@ -567,7 +603,7 @@ void increaseVolume() {
     i_volume_master = MINIMUM_VOLUME;
   }
 
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+  if(i_volume_master_percentage + VOLUME_MULTIPLIER > i_volume_master_percentage_max) {
     i_volume_master_percentage = i_volume_master_percentage_max;
   }
   else {
@@ -578,7 +614,7 @@ void increaseVolume() {
   i_volume_revert = i_volume_master;
 
   if(b_pack_on != true && b_pack_shutting_down != true) {
-    // Provide feedback when the pack is not running.
+    // Provide feedback when the Proton Pack is not running.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
@@ -649,7 +685,7 @@ void buildMusicCount(uint16_t i_num_tracks) {
 }
 
 bool musicGetTrackCounter() {
-    switch(AUDIO_DEVICE) {
+  switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
       return audio.trackCounterReset();
