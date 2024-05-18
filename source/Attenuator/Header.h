@@ -251,6 +251,7 @@ uint8_t i_volume_effects_percentage = 100; // Sound effects
 uint8_t i_volume_music_percentage = 100; // Music volume
 bool b_playing_music = false;
 bool b_music_paused = false;
+String s_track_listing = "";
 
 /*
  * Some pack flags which get transmitted to the attenuator depending on the pack status.

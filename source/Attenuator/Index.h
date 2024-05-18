@@ -92,7 +92,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <button type="music-button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
       <button type="music-button" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
     </div>
-    <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
+    <select id="tracks" class="custom-select" onchange="musicSelect(this)" style="width:300px"></select>
     <br/>
     <br/>
   </div>
@@ -222,7 +222,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
-    function updateTrackListing(musicStart, musicEnd, musicCurrent) {
+    function updateTrackListing(musicStart, musicEnd, musicCurrent, songList) {
       // Continue if start/end values are sane and something actually changed.
       if (musicStart > 0 && musicEnd < 1000 && musicEnd >= musicStart &&
          (musicTrackMax != musicEnd || musicTrackCurrent != musicCurrent)) {
@@ -230,6 +230,15 @@ const char INDEX_page[] PROGMEM = R"=====(
         musicTrackMax = musicEnd;
         musicTrackCurrent = musicCurrent;
 
+        // Prepare for track names, if available.
+        var tracks = [];
+        var trackNum = 0;
+        var trackName = "";
+        if (songList != "") {
+          tracks = songList.split('\n');
+        }
+
+        // Update the list of options for track selection.
         var trackList = document.getElementById("tracks");
         if (trackList) {
           removeOptions(trackList); // Clear previous options.
@@ -241,9 +250,16 @@ const char INDEX_page[] PROGMEM = R"=====(
             if (i == musicCurrent) {
               opt.setAttribute("selected", true);
             }
-            var txt = document.createTextNode("Track #" + i);
-            opt.appendChild(txt);
-            trackList.appendChild(opt);
+
+            trackName = tracks[trackNum] || "";
+            if (trackName != "") {
+              opt.appendChild(document.createTextNode("#" + i + " " + trackName));
+            } else {
+              opt.appendChild(document.createTextNode("Track #" + i));
+            }
+
+            trackList.appendChild(opt); // Add the option.
+            trackNum++; // Advance for the track name array.
           }
         }
       }
@@ -406,7 +422,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);
-        updateTrackListing(jObj.musicStart, jObj.musicEnd, jObj.musicCurrent);
+        updateTrackListing(jObj.musicStart, jObj.musicEnd, jObj.musicCurrent, jObj.songList || 0);
       }
     }
 

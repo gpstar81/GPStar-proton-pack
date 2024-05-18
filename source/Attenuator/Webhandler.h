@@ -111,6 +111,7 @@ String getAttenuatorConfig() {
   jsonBody["overheat"] = b_overheat_feedback;
   jsonBody["firing"] = b_firing_feedback;
   jsonBody["radLensIdle"] = RAD_LENS_IDLE;
+  jsonBody["songList"] = s_track_listing;
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -297,6 +298,7 @@ String getEquipmentStatus() {
     jsonBody["wifiName"] = ap_ssid;
     jsonBody["extAddr"] = wifi_address;
     jsonBody["extMask"] = wifi_subnet;
+    jsonBody["songList"] = s_track_listing;
   }
 
   // Serialize JSON object to string.
@@ -559,6 +561,10 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
       }
     }
 
+    // Get the track listing from the text field.
+    String songList = jsonBody["songList"];
+    bool b_list_err = false;
+
     preferences.begin("device", false); // Access namespace in read/write mode.
     preferences.putBool("invert_led", b_invert_leds);
     preferences.putBool("buzzer_enabled", b_enable_buzzer);
@@ -566,12 +572,34 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     preferences.putBool("overheat_feedback", b_overheat_feedback);
     preferences.putBool("firing_feedback", b_firing_feedback);
     preferences.putShort("radiation_idle", RAD_LENS_IDLE);
+    if(songList.length() <= 2000) {
+      // Update song lists if contents are under 2000 bytes.
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        Serial.print(F("Song List Bytes: "));
+        Serial.println(songList.length());
+      #endif
+      preferences.putString("track_list", songList);
+      s_track_listing = songList;
+    }
+    else {
+      // Max size for preferences is 4KB so we need to make reserve space for other items.
+      // Also, there is a 2KB limit for a single item which is what we're storing here.
+      b_list_err = true;
+    }
     preferences.end();
 
-    jsonBody.clear();
-    jsonBody["status"] = "Settings updated on Attenuator";
-    serializeJson(jsonBody, result); // Serialize to string.
-    request->send(200, "application/json", result);
+    if(b_list_err){
+      jsonBody.clear();
+      jsonBody["status"] = "Settings updated on Attenuator, but song list exceeds 2000 bytes maximum and was not saved";
+      serializeJson(jsonBody, result); // Serialize to string.
+      request->send(200, "application/json", result);
+    }
+    else {
+      jsonBody.clear();
+      jsonBody["status"] = "Settings updated on Attenuator";
+      serializeJson(jsonBody, result); // Serialize to string.
+      request->send(200, "application/json", result);
+    }
   }
   catch (...) {
     jsonBody.clear();
