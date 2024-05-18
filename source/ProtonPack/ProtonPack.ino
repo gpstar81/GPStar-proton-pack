@@ -4229,8 +4229,10 @@ void wandStopFiringSounds() {
     case CTS_FIRING_1984:
       STATUS_CTS = CTS_NOT_FIRING;
 
-      stopEffect(S_CROSS_STREAMS_START);
-      stopEffect(S_CROSS_STREAMS_END);
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+      }
 
       if(b_wand_mash_lockout != true) {
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -4240,8 +4242,10 @@ void wandStopFiringSounds() {
     case CTS_FIRING_2021:
       STATUS_CTS = CTS_NOT_FIRING;
 
-      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      }
 
       if(b_wand_mash_lockout != true) {
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
