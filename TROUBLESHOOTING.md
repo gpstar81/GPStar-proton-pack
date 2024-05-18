@@ -72,7 +72,9 @@ Depending on which audio board you are using in your system, following the troub
 ---
 
 ### <img src='images/gpstar_logo.png' width=35 align="left"/>GPStar Audio Troubleshooting ###
+
 ![](images/GPStarAudio-Debug.jpg)
+
 **Troubleshooting**
 
 1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals.
@@ -90,11 +92,12 @@ Depending on which audio board you are using in your system, following the troub
 ---
 
 ### Wav Trigger Troubleshooting ###
+
 ![](images/WavTrigger_Debug.jpg)
 
 **Startup Blinking Patterns:**
 
-- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far. 
+- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
 - 3x (quick) - 3 quick blinks in succession is the normal pattern at initial power-up to indicate the device has initialized without issues.
 
 **Post Startup Blinking Patterns**
@@ -115,4 +118,4 @@ Depending on which audio board you are using in your system, following the troub
 
 1. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
 
-[Manual for the WAV Trigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/WT_UserGuide_20230602.pdf)
+[Manual for the WAV Trigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/sound/WavTrigger/WT_UserGuide_20230602.pdf)

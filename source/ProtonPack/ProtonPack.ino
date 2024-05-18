@@ -5005,5 +5005,12 @@ void doVoltageCheck() {
   }
 }
 
+void checkModeDefaults() {
+  // When changing to MODE_ORIGINAL the only firing mode is PROTON.
+  if(SYSTEM_MODE == MODE_ORIGINAL) {
+    FIRING_MODE = PROTON;
+  }
+}
+
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.
 #include "Serial.h"

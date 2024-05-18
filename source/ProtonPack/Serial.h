@@ -496,6 +496,9 @@ void checkSerial1() {
 
             case 1:
               SYSTEM_MODE = MODE_ORIGINAL;
+
+              checkModeDefaults();
+
               packSerialSend(P_MODE_ORIGINAL);
               serial1Send(A_MODE_ORIGINAL);
 
@@ -3173,6 +3176,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case MODE_SUPER_HERO:
         default:
           SYSTEM_MODE = MODE_ORIGINAL;
+
+          checkModeDefaults();
 
           stopEffect(S_VOICE_MODE_ORIGINAL);
           stopEffect(S_VOICE_MODE_SUPER_HERO);

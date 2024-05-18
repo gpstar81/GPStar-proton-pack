@@ -618,6 +618,11 @@ bool vgModeCheck() {
       b_cross_the_streams = true;
     }
 
+    // MODE_ORIGINAL only supports the PROTON stream as a firing mode.
+    if(SYSTEM_MODE == MODE_ORIGINAL) {
+      FIRING_MODE = PROTON;
+    }
+
     return false;
   }
   else {

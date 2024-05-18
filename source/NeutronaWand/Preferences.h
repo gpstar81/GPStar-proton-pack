@@ -43,6 +43,7 @@ uint32_t eepromCRC(void);
 void bargraphYearModeUpdate();
 void resetOverheatLevels();
 void resetWhiteLEDBlinkRate();
+bool vgModeCheck();
 
 /*
  * General EEPROM Variables
@@ -315,6 +316,7 @@ void readEEPROM() {
     if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode != 255 && b_gpstar_benchtest == true) {
       if(obj_config_eeprom.system_mode > 1) {
         SYSTEM_MODE = MODE_ORIGINAL;
+        vgModeCheck();
       }
       else {
         SYSTEM_MODE = MODE_SUPER_HERO;

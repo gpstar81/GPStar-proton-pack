@@ -1,17 +1,31 @@
-# Audio Output Options
+# Sound Output Options
 
 "Listen! You smell something?" - Ray Stantz
 
 Sound is a huge component of this build and the options are relatively open for how best you wish to proceed. For the wand you will be limited by space, but for the pack you can go as big and as bold as you wish. The following options should give you an idea of what is possible with hardware given certain space constraints.
 
+For instructions on loading audio files to a microSD card, please see the [AUDIO Guide](AUDIO.md).
+
 ## Audio Controllers
 
-Sounds are output via one of the supported polyphonic WAV audio controllers: Robertsonics WavTrigger or GPStar Audio. The former is a 3rd-party component originally included with all GPStar kits up until early 2024, while the latter is a fully custom solution which is part of the GPStar family of controllers for your cosplay needs. The compatibility matrix below notes whether a device is compatible with major versions of the GPStar software for the Proton Pack and Neutrona Wand controllers. The version number inside each cell is the minimum firmware version required for the respective device. All firmware files for the audio controllers can be found in the [extras folder](/extras/).
+Sounds are output via one of the supported polyphonic WAV audio controllers: Robertsonics WavTrigger or GPStar Audio. The former is a 3rd-party component originally included with all GPStar kits up until early 2024, while the latter is a fully custom solution which is part of the GPStar family of controllers for your cosplay needs.
 
-| Controller Device | v1.x | v2.x | v3.x | v4.x | v5.x |
-|-------------------|------|------|------|------|------|
-| Robertsonics WavTrigger | v134 | v134 | v140 | v140 | v140 |
-| <img src='images/gpstar_logo.png' width=20 align="left"/>GPStar Audio   | &mdash; | &mdash; | &mdash; | &mdash; | v100 |
+**Firmware Compatability**
+
+The compatibility matrix below notes whether a device is compatible with major versions of the GPStar software for the Proton Pack and Neutrona Wand controllers. The version number inside each cell is the minimum firmware version required or strongly recommended for the respective device.
+
+| Controller Device | v1.x | v2.x | v3.x | v4.x | v5.0.x | v5.1.x |
+|-------------------|------|------|------|------|------|------|
+| Robertsonics WavTrigger  | v134 | v134 | v140 | v140 | v140 | v140 |
+| <img src='images/gpstar_logo.png' width=20 align="left"/>GPStar Audio | &mdash; | &mdash; | &mdash; | &mdash; | v100<sup>1</sup> | v102<sup>2</sup> |
+
+<sup>1</sup> All initial orders for GPStar Audio controllers shipped with v100 firmware which delivers all of the basic functionality needed for a Pack+Wand operation.
+
+<sup>2</sup> The GPStar Audio v101 firmware added the Pause/Resume ability which is only accessible via the WiFi Web UI, while v102 focused on stability improvements.
+
+**Firmware Updates**
+
+All firmware files for the audio controllers can be found in the [/extras/sound/ folder](/extras/sound/). Files are grouped by their device name, and a firmware update tool for the GPStar Audio firmware is available for ease of flashing that device.
 
 ## Wand Audio
 
