@@ -10,7 +10,7 @@ For instructions on loading audio files to a microSD card, please see the [AUDIO
 
 Sounds are output via one of the supported polyphonic WAV audio controllers: Robertsonics WavTrigger or GPStar Audio. The former is a 3rd-party component originally included with all GPStar kits up until early 2024, while the latter is a fully custom solution which is part of the GPStar family of controllers for your cosplay needs.
 
-**Firmware Compatability**
+**Firmware Compatibility**
 
 The compatibility matrix below notes whether a device is compatible with major versions of the GPStar software for the Proton Pack and Neutrona Wand controllers. The version number inside each cell is the minimum firmware version required or strongly recommended for the respective device.
 
