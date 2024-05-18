@@ -145,6 +145,10 @@ select {
   width: 160px;
 }
 
+textarea {
+  font-size: 1em;
+}
+
 .custom-select {
   position: relative;
 }

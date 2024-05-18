@@ -84,9 +84,9 @@ const char DEVICE_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Song List:</b> <span id="byteCount"></span><br/>
-      <textarea id="songList" name="songList" rows="40" cols="40"
+      <textarea id="songList" name="songList" rows="40" cols="38"
        style="text-align:left;" oninput="updateByteCount()"
-       placeholder="Add a list of track names, 1 per line, up to 2000 bytes"></textarea>
+       placeholder="Add a list of track names, 1 per line, up to 2000 Bytes in total"></textarea>
     </div>
   </div>
 
@@ -111,7 +111,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
         var songList = document.getElementById("songList");
         var byteCount = document.getElementById("byteCount");
         var byteLength = new TextEncoder().encode(songList.value).length;
-        byteCount.innerHTML = byteLength + " bytes";
+        byteCount.innerHTML = byteLength + "/2000 Bytes";
     }
 
     function isJsonString(str) {
@@ -148,6 +148,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
             document.getElementById("firing").checked = settings.firing ? true : false;
             document.getElementById("radLensIdle").value = settings.radLensIdle || 0; // Default: 0 [Amber Pulse]
             document.getElementById("songList").value = settings.songList || "";
+            updateByteCount();
           }
         }
       };
@@ -156,6 +157,12 @@ const char DEVICE_page[] PROGMEM = R"=====(
     }
 
     function saveSettings() {
+      // Do not allow saving if track list is too large for allowed storage space.
+      if (document.getElementById("songList").value.length > 2000) {
+        alert("Unable to save track listing; exceeds allowed bytes.");
+        return;
+      }
+
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
         invertLEDs: document.getElementById("invertLEDs").checked ? 1 : 0,
