@@ -80,8 +80,8 @@ struct objConfigEEPROM {
 
   uint8_t year_mode; // 1984, 1989, Afterlife, Frozen Empire or the Proton Pack toggle switch default.
   uint8_t system_mode; // Super Hero or Mode Original.
-  uint8_t vga_powercell; // For disabling or enabling video game colours for the Power Cell.
-  uint8_t vga_cyclotron; // For disabling or enabling video game colours for the Cyclotron.
+  uint8_t vg_powercell; // For disabling or enabling video game colours for the Power Cell.
+  uint8_t vg_cyclotron; // For disabling or enabling video game colours for the Cyclotron.
   uint8_t demo_light_mode; // Enables pack startup automatically at bootup (battery power-on).
   uint8_t cyclotron_three_led_toggle; // Toggles between the 1-LED or 3-LED for 84/89 modes.
   uint8_t default_system_volume; // Default master volume at bootup (battery power-on)
@@ -311,8 +311,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.vga_powercell > 0 && obj_config_eeprom.vga_powercell != 255) {
-      if(obj_config_eeprom.vga_powercell > 1) {
+    if(obj_config_eeprom.vg_powercell > 0 && obj_config_eeprom.vg_powercell != 255) {
+      if(obj_config_eeprom.vg_powercell > 1) {
         b_powercell_colour_toggle = true;
       }
       else {
@@ -320,8 +320,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.vga_cyclotron > 0 && obj_config_eeprom.vga_cyclotron != 255) {
-      if(obj_config_eeprom.vga_cyclotron > 1) {
+    if(obj_config_eeprom.vg_cyclotron > 0 && obj_config_eeprom.vg_cyclotron != 255) {
+      if(obj_config_eeprom.vg_cyclotron > 1) {
         b_cyclotron_colour_toggle = true;
       }
       else {
@@ -538,8 +538,8 @@ void saveConfigEEPROM() {
   uint8_t i_year_mode_eeprom = SYSTEM_EEPROM_YEAR;
   uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
 
-  uint8_t i_vga_powercell = 1;
-  uint8_t i_vga_cyclotron = 1;
+  uint8_t i_vg_powercell = 1;
+  uint8_t i_vg_cyclotron = 1;
   uint8_t i_demo_light_mode = 1;
   uint8_t i_use_ribbon_cable = 1;
   uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led, 2 = three leds.
@@ -591,11 +591,11 @@ void saveConfigEEPROM() {
   }
 
   if(b_powercell_colour_toggle == true) {
-    i_vga_powercell = 2;
+    i_vg_powercell = 2;
   }
 
   if(b_cyclotron_colour_toggle == true) {
-    i_vga_cyclotron = 2;
+    i_vg_cyclotron = 2;
   }
 
   if(b_demo_light_mode == true) {
@@ -671,8 +671,8 @@ void saveConfigEEPROM() {
     i_overheat_sync_to_fan,
     i_year_mode_eeprom,
     i_system_mode,
-    i_vga_powercell,
-    i_vga_cyclotron,
+    i_vg_powercell,
+    i_vg_cyclotron,
     i_demo_light_mode,
     i_cyclotron_three_led_toggle,
     i_default_system_volume,

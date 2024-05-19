@@ -316,7 +316,7 @@ void readEEPROM() {
     if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode != 255 && b_gpstar_benchtest == true) {
       if(obj_config_eeprom.system_mode > 1) {
         SYSTEM_MODE = MODE_ORIGINAL;
-        vgModeCheck();
+        vgModeCheck(); // Assert CTS mode.
       }
       else {
         SYSTEM_MODE = MODE_SUPER_HERO;

@@ -613,13 +613,9 @@ void setVGMode() {
 // Checks if video game mode should be set.
 bool vgModeCheck() {
   if(b_cross_the_streams == true || b_cross_the_streams_mix == true || SYSTEM_MODE == MODE_ORIGINAL) {
-    // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled.
-    if(SYSTEM_MODE == MODE_ORIGINAL && b_cross_the_streams != true) {
+    // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled and firing mode is PROTON.
+    if(SYSTEM_MODE == MODE_ORIGINAL && (b_cross_the_streams != true || FIRING_MODE != PROTON)) {
       b_cross_the_streams = true;
-    }
-
-    // MODE_ORIGINAL only supports the PROTON stream as a firing mode.
-    if(SYSTEM_MODE == MODE_ORIGINAL) {
       FIRING_MODE = PROTON;
     }
 
