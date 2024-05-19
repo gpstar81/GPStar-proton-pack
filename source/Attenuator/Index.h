@@ -82,7 +82,6 @@ const char INDEX_page[] PROGMEM = R"=====(
         <button type="button" onclick="volumeMusicDown()">&minus;</button>
       </div>
     </div>
-    <br/>
     <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
     <br/>
     <h3>Music Navigation</h3>
