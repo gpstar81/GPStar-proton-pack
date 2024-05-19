@@ -54,7 +54,10 @@ When the wand is trying to establish communication to the GPStar Proton Pack con
 * Re-check the Tx/Rx connections to the pack. If these are reversed it will prevent proper communication. Attempt to switch the wires at the pack-side connector which use screw terminals, and retry the Activate switch.
 * Re-check the power connection to the wand. If you have a digital multimeter available, set the device to the DC power measurement and check that the 5V-OUT connection is supplying the expected voltage. Be careful to not short out the pins and mind the polarity.
 
-If there is still no sound from your Neutrona, please refer to the Audio Troubleshooting section at the bottom of this page.
+### Wand has audio briefly before it cuts out###
+* Re-check the connection to the speaker terminal blocks on the Audio board. Make sure the wires seat well, if needed, add a dab of solder onto the ends.
+
+If there is still no sound from your Neutrona Wand, please refer to the Audio Troubleshooting section at the bottom of this page.
 
 ### The music I added is not playing back ##
 
