@@ -489,6 +489,8 @@ void checkSerial1() {
               packSerialSend(P_MODE_SUPER_HERO);
               serial1Send(A_MODE_SUPER_HERO);
 
+              checkModeDefaults();
+
               // This is only applicable to the Mode Original, so default to off.
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
@@ -496,11 +498,10 @@ void checkSerial1() {
 
             case 1:
               SYSTEM_MODE = MODE_ORIGINAL;
-
-              checkModeDefaults();
-
               packSerialSend(P_MODE_ORIGINAL);
               serial1Send(A_MODE_ORIGINAL);
+
+              checkModeDefaults();
 
               if(switch_power.getState() == LOW) {
                 // Tell the Neutrona Wand that power to the Proton Pack is on.
@@ -3163,6 +3164,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
           SYSTEM_MODE = MODE_SUPER_HERO;
+          checkModeDefaults();
 
           stopEffect(S_VOICE_MODE_SUPER_HERO);
           stopEffect(S_VOICE_MODE_ORIGINAL);
@@ -3176,7 +3178,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case MODE_SUPER_HERO:
         default:
           SYSTEM_MODE = MODE_ORIGINAL;
-
           checkModeDefaults();
 
           stopEffect(S_VOICE_MODE_ORIGINAL);

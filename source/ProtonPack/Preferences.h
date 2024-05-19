@@ -43,6 +43,7 @@ uint32_t eepromCRC(void);
 void resetCyclotronLEDs();
 void resetContinuousSmoke();
 void updateProtonPackLEDCounts();
+void checkModeDefaults();
 
 /*
  * General EEPROM Variables
@@ -468,6 +469,7 @@ void readEEPROM() {
   }
 
   resetContinuousSmoke();
+  checkModeDefaults();
 }
 
 void clearLEDEEPROM() {

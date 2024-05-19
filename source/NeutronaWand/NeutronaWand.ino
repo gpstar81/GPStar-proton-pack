@@ -616,7 +616,9 @@ bool vgModeCheck() {
     // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled and firing mode is PROTON.
     if(SYSTEM_MODE == MODE_ORIGINAL && (b_cross_the_streams != true || FIRING_MODE != PROTON)) {
       b_cross_the_streams = true;
-      FIRING_MODE = PROTON;
+      if(FIRING_MODE != PROTON) {
+        FIRING_MODE = PROTON;
+      }
     }
 
     return false;

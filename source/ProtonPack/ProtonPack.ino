@@ -5006,9 +5006,12 @@ void doVoltageCheck() {
 }
 
 void checkModeDefaults() {
-  // When changing to MODE_ORIGINAL the only firing mode is PROTON.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
-    FIRING_MODE = PROTON;
+    // When changing to MODE_ORIGINAL the only firing mode is PROTON.
+    if(FIRING_MODE != PROTON) {
+      FIRING_MODE = PROTON;
+      serial1Send(A_PROTON_MODE);
+    }
   }
 }
 
