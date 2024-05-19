@@ -50,9 +50,15 @@ For playback of music you can use the improved navigation controls:
 | &#9646;&#9646;&nbsp;&#9654; | Pause/Resume |
 | &#9654;&#9654; | Next/Skip |
 
+<div style="clear:both"></div>
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-SongSelect.jpg"/>
+
 You may also jump directly to a specific track for playback via the selection field (switching immediately if already playing, otherwise that track will be started via the Start/Stop button).
 
-**Note:** Only the track numbers are known to the audo device, and track names are not currently available for display. Music tracks must begin at value "500" per the naming convention used by the GPStar controllers/software.
+By default, only the track numbers are known to the audio device as all music tracks must begin at value "500" per the naming convention used by the GPStar controller software. However, as of the 5.x release it is possible to add a track listing to the ESP32 device's memory so that user-friendly song names can be displayed. See the Attenuator Settings described below for more information.
+
+<div style="clear:both"></div>
 
 ### Pack Controls
 
@@ -87,17 +93,23 @@ At the bottom of the screen is a timestamp representing the date of the software
 
 <div style="clear:both"></div>
 
-## Attenuator Preferences
+## Attenuator Settings
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Attenuator.jpg"/>
 
-Set options related specifically to the Attenuator.
+Set options related specifically to the Attenuator, such as when the vibration motor or buzzer may be used to provide physical feedback during operation.
 
 **Note:** If you installed the Frutto Technology electronics into your DIY or GPStar Attenuator shell and found that the top and lower LEDs are displaying the wrong colors, you can use the "Invert" option to put the 3 lights into the correct order.
 
 <div style="clear:both"></div>
 
-## Pack Preferences
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-SongList.jpg"/>
+
+**NEW in 5.x** - The ability to add a user-friendly track listing has been integrated into the UI. Song titles may be entered as 1 entry per line, in the order by which they are numbered on your microSD card. The text is limited by bytes (max 2,000) not the number of lines, so to fit more entries into this text box you may need to use shorter song titles. This list of songs will be matched to each track number (starting from "500_" per the required numbering scheme).
+
+<div style="clear:both"></div>
+
+## Pack Settings
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Pack.jpg"/>
 
@@ -107,7 +119,7 @@ Set options related specifically to the Proton Pack. Options such as the color/s
 
 <div style="clear:both"></div>
 
-## Wand Preferences
+## Wand Settings
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand.jpg"/>
 
@@ -117,7 +129,7 @@ Set options related specifically to the Neutrona Wand.
 
 <div style="clear:both"></div>
 
-## Smoke Preferences
+## Overheat/Smoke Settings
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Smoke.jpg"/>
 
