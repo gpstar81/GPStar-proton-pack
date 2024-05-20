@@ -277,8 +277,11 @@ input:checked + .slider:before {
 }
 
 .bar-container {
+  display: inline-flex;
   margin-left: 20px;
-  top: 2px;
+  position: relative;
+  top: 3px;
+  width: 120px;
 }
 
 .bar {

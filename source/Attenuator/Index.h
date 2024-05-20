@@ -45,11 +45,12 @@ const char INDEX_page[] PROGMEM = R"=====(
     <p><span class="infoLabel">Wand State:</span> <span class="infoState" id="wandPower">&mdash;</span></p>
     <p><span class="infoLabel">Wand Armed:</span> <span class="infoState" id="safety">&mdash;</span></p>
     <p><span class="infoLabel">System Mode:</span> <span class="infoState" id="wandMode">&mdash;</span></p>
-    <p style="display: inline-flex;">
-      <span class="infoLabel">Power Level:</span>&nbsp;
-      <span class="infoState" id="power">&mdash;</span>
+    <div style="display:inline-flex;margin:0;">
+      <p style="margin:0;">
+        <span class="infoLabel">Power Level:</span>&nbsp;<span class="infoState" id="power">&mdash;</span>
+      </p>
       <div class="bar-container" id="powerBars"></div>
-    </p>
+    </div>
     <p><span class="infoLabel">Firing State:</span> <span class="infoState" id="firing">&mdash;</span></p>
     <br/>
     <p>
