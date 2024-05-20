@@ -141,7 +141,8 @@ void setup() {
     b_vibration_enabled = false;
   }
 
-  // Configure the year mode.
+  // Configure the year mode, though this will be modified
+  // as based on the user's stored preferences in EEPROM.
   if(switch_mode.getState() == LOW) {
     SYSTEM_YEAR = SYSTEM_1984;
     SYSTEM_YEAR_TEMP = SYSTEM_1984;
@@ -956,18 +957,32 @@ void packOffReset() {
 
 void setYearModeByToggle() {
   // We have 4 year modes but only 2 toggle states, so these get grouped by their Haslab defaults.
+  // Toggling the switch up/down will cycle through 1984 -> Afterlife -> 1989 -> Frozen Empire.
   if(switch_mode.getState() == LOW) {
     if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-      // When currently in Afterlife/Frozen Empire we switch to 1984.
-      SYSTEM_YEAR = SYSTEM_1984;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      // When currently in Afterlife/Frozen Empire we switch to 1984 or 1989.
+      if(SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
+        SYSTEM_YEAR = SYSTEM_1989;
+        SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
-      // Tell the wand/serial1 to switch to 1984 mode.
-      packSerialSend(P_YEAR_1984);
-      serial1Send(A_YEAR_1984);
+        // Tell the wand/serial1 to switch to 1989 mode.
+        packSerialSend(P_YEAR_1989);
+        serial1Send(A_YEAR_1989);
 
-      // Play audio cue confirming the change.
-      playEffect(S_VOICE_1984);
+        // Play audio cue confirming the change.
+        playEffect(S_VOICE_1989);
+      }
+      else {
+        SYSTEM_YEAR = SYSTEM_1984;
+        SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+        // Tell the wand/serial1 to switch to 1984 mode.
+        packSerialSend(P_YEAR_1984);
+        serial1Send(A_YEAR_1984);
+
+        // Play audio cue confirming the change.
+        playEffect(S_VOICE_1984);
+      }
 
       // Reset the pack variables to match the new year mode.
       resetRampSpeeds();
@@ -976,16 +991,29 @@ void setYearModeByToggle() {
   }
   else {
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-      // When currently in 1984/1989 we switch to Afterlife.
-      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      // When currently in 1984/1989 we switch to Afterlife or Frozen Empire.
+      if(SYSTEM_YEAR == 1984) {
+        SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+        SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
-      // Tell the wand/serial1 to switch to Afterlife mode.
-      packSerialSend(P_YEAR_AFTERLIFE);
-      serial1Send(A_YEAR_AFTERLIFE);
+        // Tell the wand/serial1 to switch to Afterlife mode.
+        packSerialSend(P_YEAR_AFTERLIFE);
+        serial1Send(A_YEAR_AFTERLIFE);
 
-      // Play audio cue confirming the change.
-      playEffect(S_VOICE_AFTERLIFE);
+        // Play audio cue confirming the change.
+        playEffect(S_VOICE_AFTERLIFE);
+      }
+      else {
+        SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+        SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+        // Tell the wand/serial1 to switch to Afterlife mode.
+        packSerialSend(P_YEAR_FROZEN_EMPIRE);
+        serial1Send(A_YEAR_FROZEN_EMPIRE);
+
+        // Play audio cue confirming the change.
+        playEffect(S_VOICE_FROZEN_EMPIRE);
+      }
 
       // Reset the pack variables to match the new year mode.
       resetRampSpeeds();
