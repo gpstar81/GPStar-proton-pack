@@ -5005,13 +5005,19 @@ void doVoltageCheck() {
   }
 }
 
-void checkModeDefaults() {
+// Checks if video game mode should be set.
+bool vgModeCheck() {
   if(SYSTEM_MODE == MODE_ORIGINAL) {
-    // When changing to MODE_ORIGINAL the only firing mode is PROTON.
+    // MODE_ORIGINAL does not support VG modes, so make sure firing mode is PROTON.
     if(FIRING_MODE != PROTON) {
       FIRING_MODE = PROTON;
       serial1Send(A_PROTON_MODE);
     }
+
+    return false;
+  }
+  else {
+    return true;
   }
 }
 

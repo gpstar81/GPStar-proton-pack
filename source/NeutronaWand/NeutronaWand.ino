@@ -612,13 +612,11 @@ void setVGMode() {
 
 // Checks if video game mode should be set.
 bool vgModeCheck() {
-  if(b_cross_the_streams == true || b_cross_the_streams_mix == true || SYSTEM_MODE == MODE_ORIGINAL) {
+  if(SYSTEM_MODE == MODE_ORIGINAL || b_cross_the_streams == true || b_cross_the_streams_mix == true) {
     // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled and firing mode is PROTON.
     if(SYSTEM_MODE == MODE_ORIGINAL && (b_cross_the_streams != true || FIRING_MODE != PROTON)) {
       b_cross_the_streams = true;
-      if(FIRING_MODE != PROTON) {
-        FIRING_MODE = PROTON;
-      }
+      FIRING_MODE = PROTON;
     }
 
     return false;
@@ -3084,7 +3082,7 @@ void modeFireStopSounds() {
 
       case CTS_1984:
       case CTS_1989:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {      
+        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_CROSS_STREAMS_START);
           stopEffect(S_CROSS_STREAMS_END);
         }
@@ -3100,7 +3098,7 @@ void modeFireStopSounds() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {          
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
             }
@@ -3315,7 +3313,7 @@ void modeFiring() {
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
         if(b_cross_the_streams_mix == true) {
-          if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {          
+          if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
             stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
           }
 
@@ -3335,7 +3333,7 @@ void modeFiring() {
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
         if(b_cross_the_streams_mix == true) {
-          if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {          
+          if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
             stopEffect(S_CROSS_STREAMS_END);
           }
 
@@ -3359,7 +3357,7 @@ void modeFiring() {
             playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
             if(b_cross_the_streams_mix == true) {
-              if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {              
+              if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
                 stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
               }
 
@@ -3379,7 +3377,7 @@ void modeFiring() {
             playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
             if(b_cross_the_streams_mix == true) {
-              if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {              
+              if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
                 stopEffect(S_CROSS_STREAMS_END);
               }
 
@@ -3436,7 +3434,7 @@ void modeFiring() {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
       case CTS_FROZEN_EMPIRE:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {      
+        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         }
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
@@ -3448,7 +3446,7 @@ void modeFiring() {
 
       case CTS_1984:
       case CTS_1989:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {      
+        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_CROSS_STREAMS_START);
         }
         //stopEffect(S_CROSS_STREAMS_END);
@@ -3464,7 +3462,7 @@ void modeFiring() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {          
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
             }
             //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
@@ -3476,7 +3474,7 @@ void modeFiring() {
 
           case SYSTEM_1984:
           case SYSTEM_1989:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {          
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
               stopEffect(S_CROSS_STREAMS_START);
             }
             //stopEffect(S_CROSS_STREAMS_END);
