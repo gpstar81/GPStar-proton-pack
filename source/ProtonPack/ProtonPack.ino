@@ -145,12 +145,11 @@ void setup() {
   // as based on the user's stored preferences in EEPROM.
   if(switch_mode.getState() == LOW) {
     SYSTEM_YEAR = SYSTEM_1984;
-    SYSTEM_YEAR_TEMP = SYSTEM_1984;
   }
   else {
     SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-    SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
   }
+  SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {

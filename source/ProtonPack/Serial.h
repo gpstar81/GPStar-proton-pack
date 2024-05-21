@@ -4202,13 +4202,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
             SYSTEM_EEPROM_YEAR = SYSTEM_1989;
           break;
 
-          case SYSTEM_FROZEN_EMPIRE:
-            SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
-          break;
-
           case SYSTEM_AFTERLIFE:
           default:
             SYSTEM_EEPROM_YEAR = SYSTEM_AFTERLIFE;
+          break;
+
+          case SYSTEM_FROZEN_EMPIRE:
+            SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
           break;
         }
       }

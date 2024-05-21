@@ -338,7 +338,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             // Update fields with the current values, or supply an expected default as necessary.
             document.getElementById("defaultSystemModePack").value = settings.defaultSystemModePack || 0;
             document.getElementById("defaultYearThemePack").value = settings.defaultYearThemePack || 1; // Value cannot be 0.
-            document.getElementById("currentYearThemePack").value = settings.currentYearThemePack || 2; // Value cannot be 0.
+            document.getElementById("currentYearThemePack").value = settings.currentYearThemePack || 4; // Value cannot be 0.
             document.getElementById("defaultSystemVolume").value = settings.defaultSystemVolume || 100; // Default to full volume.
             document.getElementById("packVibration").value = settings.packVibration || 4;
             document.getElementById("masterVolOut").innerHTML = document.getElementById("defaultSystemVolume").value;
