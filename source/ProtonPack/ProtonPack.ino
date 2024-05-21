@@ -1962,23 +1962,29 @@ void cyclotronControl() {
     if(b_2021_ramp_up_start == true) {
       b_2021_ramp_up_start = false;
 
-      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
-        r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
+      switch(SYSTEM_YEAR) {
+        case SYSTEM_1984:
+        case SYSTEM_1989:
+          r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+          r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
 
-        r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
-        r_inner_ramp.go(i_1984_inner_delay, i_1984_ramp_length, CIRCULAR_OUT);
-      }
-      else {
-        // Afterlife or Frozen Empire
-        uint16_t i_ramp_length = i_2021_ramp_length;
-        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-          i_ramp_length = i_2021_ramp_length / 4;
-        }
-        r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
-        r_2021_ramp.go(i_2021_delay, i_ramp_length, QUARTIC_OUT);
-        r_inner_ramp.go(i_inner_current_ramp_speed);
-        r_inner_ramp.go(i_2021_inner_delay, i_ramp_length, QUARTIC_OUT);
+          r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
+          r_inner_ramp.go(i_1984_inner_delay, i_1984_ramp_length, CIRCULAR_OUT);
+        break;
+
+        case SYSTEM_AFTERLIFE:
+          r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+          r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
+          r_inner_ramp.go(i_inner_current_ramp_speed);
+          r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
+        break;
+
+        case SYSTEM_FROZEN_EMPIRE:
+          r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+          r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
+          r_inner_ramp.go(i_inner_current_ramp_speed);
+          r_inner_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
+        break;
       }
     }
     else if(b_2021_ramp_down_start == true) {
