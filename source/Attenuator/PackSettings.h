@@ -386,6 +386,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       var settings = {
         defaultSystemModePack: parseInt(document.getElementById("defaultSystemModePack").value || 0, 10),
         defaultYearThemePack: parseInt(document.getElementById("defaultYearThemePack").value || 1, 10),
+        currentYearThemePack: parseInt(document.getElementById("currentYearThemePack").value || 4, 10),
         defaultSystemVolume: parseInt(document.getElementById("defaultSystemVolume").value || 0, 10),
         packVibration: parseInt(document.getElementById("packVibration").value || 4, 10),
         protonStreamEffects: document.getElementById("protonStreamEffects").checked ? 1 : 0,
