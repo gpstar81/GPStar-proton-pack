@@ -67,6 +67,7 @@ struct MessagePacket recvData;
 struct __attribute__((packed)) PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
+  uint8_t currentYearThemePack;
   uint8_t defaultSystemVolume;
   uint8_t packVibration;
   uint8_t ribbonCableAlarm;

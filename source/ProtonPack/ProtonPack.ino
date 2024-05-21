@@ -712,7 +712,6 @@ void packStartup() {
       break;
 
       case SYSTEM_AFTERLIFE:
-      case SYSTEM_FROZEN_EMPIRE:
       default:
         if(FIRING_MODE == SLIME) {
           playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 30);
@@ -723,12 +722,25 @@ void packStartup() {
           playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
         }
 
+        ms_idle_fire_fade.start(18000);
+      break;
+
+      case SYSTEM_FROZEN_EMPIRE:
+        if(FIRING_MODE == SLIME) {
+          playEffect(S_BOOTUP, false, i_volume_effects - 30);
+          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
+        }
+        else {
+          playEffect(S_BOOTUP, false, i_volume_effects);
+          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
+        }
+
         // Cyclotron lid is off, play the Frozen Empire sound effect.
         if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on != true) {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
         }
 
-        ms_idle_fire_fade.start(18000);
+        ms_idle_fire_fade.start(200);
       break;
     }
 
@@ -992,7 +1004,7 @@ void setYearModeByToggle() {
   else {
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       // When currently in 1984/1989 we switch to Afterlife or Frozen Empire.
-      if(SYSTEM_YEAR == 1984) {
+      if(SYSTEM_YEAR == SYSTEM_1984) {
         SYSTEM_YEAR = SYSTEM_AFTERLIFE;
         SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
@@ -1308,10 +1320,14 @@ void resetRampSpeeds() {
     break;
 
     case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
     default:
       i_current_ramp_speed = i_2021_ramp_delay;
       i_inner_current_ramp_speed = i_inner_ramp_delay;
+    break;
+
+    case SYSTEM_FROZEN_EMPIRE:
+      i_current_ramp_speed = (uint16_t)(i_2021_ramp_delay / 2);
+      i_inner_current_ramp_speed = i_inner_ramp_delay / 2;
     break;
   }
 }
@@ -1476,10 +1492,18 @@ void cyclotronSwitchLEDLoop() {
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
-      case SYSTEM_FROZEN_EMPIRE:
       default:
         if(b_2021_ramp_up == true) {
           i_cyc_led_delay = i_cyclotron_switch_led_delay + (i_2021_ramp_delay - r_2021_ramp.update());
+        }
+        else if(b_2021_ramp_down == true) {
+          i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
+        }
+      break;
+
+      case SYSTEM_FROZEN_EMPIRE:
+        if(b_2021_ramp_up == true) {
+          i_cyc_led_delay = i_cyclotron_switch_led_delay + ((i_2021_ramp_delay / 2) - r_2021_ramp.update());
         }
         else if(b_2021_ramp_down == true) {
           i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
@@ -1947,10 +1971,15 @@ void cyclotronControl() {
         r_inner_ramp.go(i_1984_inner_delay, i_1984_ramp_length, CIRCULAR_OUT);
       }
       else {
+        // Afterlife or Frozen Empire
+        uint16_t i_ramp_length = i_2021_ramp_length;
+        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          i_ramp_length = i_2021_ramp_length / 4;
+        }
         r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
-        r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
+        r_2021_ramp.go(i_2021_delay, i_ramp_length, QUARTIC_OUT);
         r_inner_ramp.go(i_inner_current_ramp_speed);
-        r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
+        r_inner_ramp.go(i_2021_inner_delay, i_ramp_length, QUARTIC_OUT);
       }
     }
     else if(b_2021_ramp_down_start == true) {
@@ -1961,7 +1990,6 @@ void cyclotronControl() {
 
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
         r_2021_ramp.go((uint16_t)(i_1984_delay * 1.3), i_1984_ramp_down_length, CIRCULAR_IN);
-
         r_inner_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN);
       }
       else {

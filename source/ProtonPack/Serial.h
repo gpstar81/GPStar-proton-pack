@@ -59,6 +59,7 @@ struct MessagePacket recvDataS;
 struct __attribute__((packed)) PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
+  uint8_t currentYearThemePack;
   uint8_t defaultSystemVolume;
   uint8_t packVibration;
   uint8_t ribbonCableAlarm;
@@ -291,7 +292,8 @@ void serial1SendData(uint8_t i_message) {
     case A_SEND_PREFERENCES_PACK:
       // Any ENUM or boolean types will simply translate as numeric values.
       packConfig.defaultSystemModePack = SYSTEM_MODE;
-      packConfig.defaultYearThemePack = SYSTEM_YEAR;
+      packConfig.defaultYearThemePack = SYSTEM_EEPROM_YEAR;
+      packConfig.currentYearThemePack = SYSTEM_YEAR;
       packConfig.defaultSystemVolume = i_volume_master_percentage;
       packConfig.protonStreamEffects = b_stream_effects;
       packConfig.overheatStrobeNF = b_overheat_strobe;
@@ -519,14 +521,27 @@ void checkSerial1() {
           switch(packConfig.defaultYearThemePack) {
             case 1:
             default:
-              // Just set this enum, as others will be set according to the toggle.
+              // Will allow the pack to boot up to whatever state the mode switch is in.
               SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
-              b_switch_mode_override = false; // Mode to be determined by toggle switch.
             break;
+            case 2:
+              SYSTEM_EEPROM_YEAR = SYSTEM_1984;
+            break;
+            case 3:
+              SYSTEM_EEPROM_YEAR = SYSTEM_1989;
+            break;
+            case 4:
+              SYSTEM_EEPROM_YEAR = SYSTEM_AFTERLIFE;
+            break;
+            case 5:
+              SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
+            break;
+          }
+
+          switch(packConfig.currentYearThemePack) {
             case 2:
               SYSTEM_YEAR = SYSTEM_1984;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_1984);
               serial1Send(A_YEAR_1984);
@@ -534,7 +549,6 @@ void checkSerial1() {
             case 3:
               SYSTEM_YEAR = SYSTEM_1989;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_1989);
               serial1Send(A_YEAR_1989);
@@ -542,7 +556,6 @@ void checkSerial1() {
             case 4:
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_AFTERLIFE);
               serial1Send(A_YEAR_AFTERLIFE);
@@ -550,7 +563,6 @@ void checkSerial1() {
             case 5:
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_FROZEN_EMPIRE);
               serial1Send(A_YEAR_FROZEN_EMPIRE);

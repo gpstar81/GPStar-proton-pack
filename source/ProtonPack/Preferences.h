@@ -285,16 +285,17 @@ void readEEPROM() {
             SYSTEM_YEAR = SYSTEM_1989;
           break;
 
-          case 5:
-            SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-          break;
-
           case 4:
           default:
             SYSTEM_YEAR = SYSTEM_AFTERLIFE;
           break;
+
+          case 5:
+            SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+          break;
         }
 
+        // Update additional variables once the system year is set from the stored EEPROM preferences.
         SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
         SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
 

@@ -134,6 +134,7 @@ String getPackConfig() {
     // Proton Pack Runtime Options
     jsonBody["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
     jsonBody["defaultYearThemePack"] = packConfig.defaultYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
+    jsonBody["currentYearThemePack"] = packConfig.currentYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
     jsonBody["defaultSystemVolume"] = packConfig.defaultSystemVolume; // 0-100
     jsonBody["packVibration"] = packConfig.packVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE]
     jsonBody["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
@@ -625,6 +626,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       // General Options
       packConfig.defaultSystemModePack = jsonBody["defaultSystemModePack"].as<uint8_t>();
       packConfig.defaultYearThemePack = jsonBody["defaultYearThemePack"].as<uint8_t>();
+      packConfig.currentYearThemePack = jsonBody["currentYearThemePack"].as<uint8_t>();
       packConfig.defaultSystemVolume = jsonBody["defaultSystemVolume"].as<uint8_t>();
       packConfig.packVibration = jsonBody["packVibration"].as<uint8_t>();
       packConfig.ribbonCableAlarm = jsonBody["ribbonCableAlarm"].as<uint8_t>();
