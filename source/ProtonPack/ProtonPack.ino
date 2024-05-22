@@ -2995,6 +2995,10 @@ void slimeCyclotronEffect() {
       }
     }
   }
+
+  if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
+    vibrationPack(i_vibration_level);
+  }
 }
 
 // Controls the slime cyclotron fadeout effect.
