@@ -946,7 +946,7 @@ void packOffReset() {
   ms_cyclotron_ring.start(i_inner_ramp_delay);
 
   // Vibration motor off.
-  vibrationPack(0);
+  vibrationOff();
   i_vibration_level = 0;
 
   if(b_pack_shutting_down == true) {
@@ -3251,7 +3251,7 @@ void cyclotronOverheating() {
           vibrationPack(i_vibration_lowest_level);
         }
         else {
-          vibrationPack(0);
+          vibrationOff();
         }
       }
 
@@ -3285,7 +3285,7 @@ void cyclotronOverheating() {
             cyclotron1984Alarm();
           }
           else {
-            vibrationPack(0);
+            vibrationOff();
           }
         }
       }
@@ -4546,7 +4546,7 @@ void cyclotronSwitchPlateLEDs() {
 }
 
 void vibrationPack(uint8_t i_level) {
-  if(b_vibration_on == true && b_vibration_enabled == true) {
+  if(b_vibration_on == true && b_vibration_enabled == true && i_level > 0) {
     if(b_vibration_firing == true) {
       if(b_wand_firing == true) {
         if(i_level != i_vibration_level_prev) {
