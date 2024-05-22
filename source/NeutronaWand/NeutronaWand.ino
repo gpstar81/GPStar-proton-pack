@@ -4529,7 +4529,7 @@ void fireStreamEffect(CRGB c_colour) {
       i_firing_stream = d_firing_stream / 10;
 
       if(ms_firing_stream_effects.justFinished()) {
-        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
+        if(i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
             case PROTON:
             default:
@@ -4830,7 +4830,7 @@ void fireStreamEffect(CRGB c_colour) {
       i_firing_stream = d_firing_stream;
 
       if(ms_firing_stream_effects.justFinished()) {
-        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
+        if(i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
             case PROTON:
             default:
@@ -4992,7 +4992,8 @@ void fireStreamStart(CRGB c_colour) {
         // to enhance the stream effects. In this case we can darken the lead LED then follow with the
         // primary colour for the stream chosen. Any other colour effects will follow this arrangement.
         barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light])] = c_colour;
-        if(i_barrel_light + 2 >= 0 && i_barrel_light + 2 < i_num_barrel_leds) {
+
+        if(i_barrel_light + 2 < i_num_barrel_leds) {
           barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light + 2])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
         }
       break;
