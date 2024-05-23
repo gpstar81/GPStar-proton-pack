@@ -757,6 +757,9 @@ void toggleWandModes() {
     // Tell the Proton Pack to reset back to the proton stream.
     wandSerialSend(W_RESET_PROTON_STREAM);
   }
+
+  // Reset to proton stream.
+  FIRING_MODE = PROTON;
 }
 
 // Controlled from the the Wand Sub Menu and Wand EEPROM Menu system.
