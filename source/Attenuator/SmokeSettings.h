@@ -24,6 +24,8 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-control" content="public">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Smoke Settings</title>
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
