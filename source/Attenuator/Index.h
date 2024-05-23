@@ -60,7 +60,6 @@ const char INDEX_page[] PROGMEM = R"=====(
       <span style="font-size: 0.8em">GeV</span>
     </p>
   </div>
-
   <div class="equipment">
     <div id="pcOverlay" class="overlay power-box" style="background:rgba(0, 0, 255, 0.5);"></div>
     <div id="cycOverlay" class="overlay cyc-circle" style="background:rgba(255, 0, 0, 0.5);"></div>
