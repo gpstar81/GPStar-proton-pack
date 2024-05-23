@@ -99,6 +99,13 @@ void handleStylesheet(AsyncWebServerRequest *request) {
   request->send(200, "text/css", s); // Serve page content.
 }
 
+void handleStylesheet2(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  //debug("Main StyleSheet Requested");
+  String s = STYLE2_page; // Read CSS page into String.
+  request->send(200, "text/css", s); // Serve page content.
+}
+
 String getAttenuatorConfig() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipSettings;

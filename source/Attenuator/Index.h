@@ -28,6 +28,7 @@ const char INDEX_page[] PROGMEM = R"=====(
   <title>Proton Pack</title>
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/style2.css">
 </head>
 <body>
   <h1>Equipment Status</h1>

@@ -56,6 +56,7 @@
 #include "WandSettings.h" // WAND_SETTINGS_page
 #include "SmokeSettings.h" // SMOKE_SETTINGS_page
 #include "Style.h" // STYLE_page
+#include "Style2.h" // STYLE2_page
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
@@ -531,6 +532,7 @@ void setupRouting() {
   httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
   httpServer.on("/style.css", HTTP_GET, handleStylesheet);
+  httpServer.on("/style2.css", HTTP_GET, handleStylesheet2);
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers
