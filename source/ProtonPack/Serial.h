@@ -2412,12 +2412,19 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       toggleYearModes();
     break;
 
-    case W_RESET_PROTON_STREAM:
-      // Revert back to proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
-      FIRING_MODE = PROTON;
-
+    case W_VIDEO_GAME_MODE:
       stopEffect(S_CLICK);
+      playEffect(S_CLICK);
 
+      stopEffect(S_VOICE_CROSS_THE_STREAMS);
+      stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
+      stopEffect(S_VOICE_VIDEO_GAME_MODES);
+
+      playEffect(S_VOICE_VIDEO_GAME_MODES);
+    break;
+
+    case W_CROSS_THE_STREAMS:
+      stopEffect(S_CLICK);
       playEffect(S_CLICK);
 
       stopEffect(S_VOICE_VIDEO_GAME_MODES);
@@ -2427,10 +2434,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_CROSS_THE_STREAMS);
     break;
 
-    case W_RESET_PROTON_STREAM_MIX:
-      // Revert back to proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
-      FIRING_MODE = PROTON;
-
+    case W_CROSS_THE_STREAMS_MIX:
       stopEffect(S_CLICK);
       playEffect(S_CLICK);
 
@@ -2700,21 +2704,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         // Tell the wand to play the smoke enabled voice.
         packSerialSend(P_SMOKE_ENABLED);
       }
-    break;
-
-    case W_PROTON_MODE_REVERT:
-      // Revert back to proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
-      FIRING_MODE = PROTON;
-
-      stopEffect(S_CLICK);
-
-      playEffect(S_CLICK);
-
-      stopEffect(S_VOICE_CROSS_THE_STREAMS);
-      stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
-      stopEffect(S_VOICE_VIDEO_GAME_MODES);
-
-      playEffect(S_VOICE_VIDEO_GAME_MODES);
     break;
 
     case W_CYCLOTRON_DIRECTION_TOGGLE:
