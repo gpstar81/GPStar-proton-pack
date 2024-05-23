@@ -61,6 +61,13 @@ const char INDEX_page[] PROGMEM = R"=====(
     </p>
   </div>
 
+  <div class="equipment">
+    <div id="pcOverlay" class="overlay power-box" style="background:rgba(0, 0, 255, 0.5);"></div>
+    <div id="cycOverlay" class="overlay cyc-circle" style="background:rgba(255, 0, 0, 0.5);"></div>
+    <div id="barrelOverlay" class="overlay barrel-box" style="background:rgba(0, 255, 0, 0.5);"></div>
+    <div id="warnOverlay" class="overlay ribbon-warning"><div class="exclamation">!</div></div>
+  </div>
+
   <h1>Audio Controls</h1>
   <div>
     <div class="volume-container">
