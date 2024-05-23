@@ -141,15 +141,15 @@ void setup() {
     b_vibration_enabled = false;
   }
 
-  // Configure the year mode.
+  // Configure the year mode, though this will be modified
+  // as based on the user's stored preferences in EEPROM.
   if(switch_mode.getState() == LOW) {
     SYSTEM_YEAR = SYSTEM_1984;
-    SYSTEM_YEAR_TEMP = SYSTEM_1984;
   }
   else {
     SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-    SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
   }
+  SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom == true) {
@@ -711,7 +711,6 @@ void packStartup() {
       break;
 
       case SYSTEM_AFTERLIFE:
-      case SYSTEM_FROZEN_EMPIRE:
       default:
         if(FIRING_MODE == SLIME) {
           playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 30);
@@ -722,12 +721,25 @@ void packStartup() {
           playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
         }
 
+        ms_idle_fire_fade.start(18000);
+      break;
+
+      case SYSTEM_FROZEN_EMPIRE:
+        if(FIRING_MODE == SLIME) {
+          playEffect(S_BOOTUP, false, i_volume_effects - 30);
+          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
+        }
+        else {
+          playEffect(S_BOOTUP, false, i_volume_effects);
+          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
+        }
+
         // Cyclotron lid is off, play the Frozen Empire sound effect.
         if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on != true) {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
         }
 
-        ms_idle_fire_fade.start(18000);
+        ms_idle_fire_fade.start(200);
       break;
     }
 
@@ -934,7 +946,7 @@ void packOffReset() {
   ms_cyclotron_ring.start(i_inner_ramp_delay);
 
   // Vibration motor off.
-  vibrationPack(0);
+  vibrationOff();
   i_vibration_level = 0;
 
   if(b_pack_shutting_down == true) {
@@ -956,18 +968,32 @@ void packOffReset() {
 
 void setYearModeByToggle() {
   // We have 4 year modes but only 2 toggle states, so these get grouped by their Haslab defaults.
+  // Toggling the switch up/down will cycle through 1984 -> Afterlife -> 1989 -> Frozen Empire.
   if(switch_mode.getState() == LOW) {
     if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-      // When currently in Afterlife/Frozen Empire we switch to 1984.
-      SYSTEM_YEAR = SYSTEM_1984;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      // When currently in Afterlife/Frozen Empire we switch to 1984 or 1989.
+      if(SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
+        SYSTEM_YEAR = SYSTEM_1989;
+        SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
-      // Tell the wand/serial1 to switch to 1984 mode.
-      packSerialSend(P_YEAR_1984);
-      serial1Send(A_YEAR_1984);
+        // Tell the wand/serial1 to switch to 1989 mode.
+        packSerialSend(P_YEAR_1989);
+        serial1Send(A_YEAR_1989);
 
-      // Play audio cue confirming the change.
-      playEffect(S_VOICE_1984);
+        // Play audio cue confirming the change.
+        playEffect(S_VOICE_1989);
+      }
+      else {
+        SYSTEM_YEAR = SYSTEM_1984;
+        SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+        // Tell the wand/serial1 to switch to 1984 mode.
+        packSerialSend(P_YEAR_1984);
+        serial1Send(A_YEAR_1984);
+
+        // Play audio cue confirming the change.
+        playEffect(S_VOICE_1984);
+      }
 
       // Reset the pack variables to match the new year mode.
       resetRampSpeeds();
@@ -976,16 +1002,29 @@ void setYearModeByToggle() {
   }
   else {
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-      // When currently in 1984/1989 we switch to Afterlife.
-      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      // When currently in 1984/1989 we switch to Afterlife or Frozen Empire.
+      if(SYSTEM_YEAR == SYSTEM_1984) {
+        SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+        SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
-      // Tell the wand/serial1 to switch to Afterlife mode.
-      packSerialSend(P_YEAR_AFTERLIFE);
-      serial1Send(A_YEAR_AFTERLIFE);
+        // Tell the wand/serial1 to switch to Afterlife mode.
+        packSerialSend(P_YEAR_AFTERLIFE);
+        serial1Send(A_YEAR_AFTERLIFE);
 
-      // Play audio cue confirming the change.
-      playEffect(S_VOICE_AFTERLIFE);
+        // Play audio cue confirming the change.
+        playEffect(S_VOICE_AFTERLIFE);
+      }
+      else {
+        SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+        SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+        // Tell the wand/serial1 to switch to Afterlife mode.
+        packSerialSend(P_YEAR_FROZEN_EMPIRE);
+        serial1Send(A_YEAR_FROZEN_EMPIRE);
+
+        // Play audio cue confirming the change.
+        playEffect(S_VOICE_FROZEN_EMPIRE);
+      }
 
       // Reset the pack variables to match the new year mode.
       resetRampSpeeds();
@@ -1280,10 +1319,14 @@ void resetRampSpeeds() {
     break;
 
     case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
     default:
       i_current_ramp_speed = i_2021_ramp_delay;
       i_inner_current_ramp_speed = i_inner_ramp_delay;
+    break;
+
+    case SYSTEM_FROZEN_EMPIRE:
+      i_current_ramp_speed = (uint16_t)(i_2021_ramp_delay / 2);
+      i_inner_current_ramp_speed = i_inner_ramp_delay / 2;
     break;
   }
 }
@@ -1448,10 +1491,18 @@ void cyclotronSwitchLEDLoop() {
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
-      case SYSTEM_FROZEN_EMPIRE:
       default:
         if(b_2021_ramp_up == true) {
           i_cyc_led_delay = i_cyclotron_switch_led_delay + (i_2021_ramp_delay - r_2021_ramp.update());
+        }
+        else if(b_2021_ramp_down == true) {
+          i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
+        }
+      break;
+
+      case SYSTEM_FROZEN_EMPIRE:
+        if(b_2021_ramp_up == true) {
+          i_cyc_led_delay = i_cyclotron_switch_led_delay + ((i_2021_ramp_delay / 2) - r_2021_ramp.update());
         }
         else if(b_2021_ramp_down == true) {
           i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
@@ -1911,18 +1962,29 @@ void cyclotronControl() {
     if(b_2021_ramp_up_start == true) {
       b_2021_ramp_up_start = false;
 
-      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
-        r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
+      switch(SYSTEM_YEAR) {
+        case SYSTEM_1984:
+        case SYSTEM_1989:
+          r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+          r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
 
-        r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
-        r_inner_ramp.go(i_1984_inner_delay, i_1984_ramp_length, CIRCULAR_OUT);
-      }
-      else {
-        r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
-        r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
-        r_inner_ramp.go(i_inner_current_ramp_speed);
-        r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
+          r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
+          r_inner_ramp.go(i_1984_inner_delay, i_1984_ramp_length, CIRCULAR_OUT);
+        break;
+
+        case SYSTEM_AFTERLIFE:
+          r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+          r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
+          r_inner_ramp.go(i_inner_current_ramp_speed);
+          r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
+        break;
+
+        case SYSTEM_FROZEN_EMPIRE:
+          r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+          r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
+          r_inner_ramp.go(i_inner_current_ramp_speed);
+          r_inner_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
+        break;
       }
     }
     else if(b_2021_ramp_down_start == true) {
@@ -1933,7 +1995,6 @@ void cyclotronControl() {
 
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
         r_2021_ramp.go((uint16_t)(i_1984_delay * 1.3), i_1984_ramp_down_length, CIRCULAR_IN);
-
         r_inner_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN);
       }
       else {
@@ -2934,6 +2995,10 @@ void slimeCyclotronEffect() {
       }
     }
   }
+
+  if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
+    vibrationPack(i_vibration_level);
+  }
 }
 
 // Controls the slime cyclotron fadeout effect.
@@ -3186,7 +3251,7 @@ void cyclotronOverheating() {
           vibrationPack(i_vibration_lowest_level);
         }
         else {
-          vibrationPack(0);
+          vibrationOff();
         }
       }
 
@@ -3220,7 +3285,7 @@ void cyclotronOverheating() {
             cyclotron1984Alarm();
           }
           else {
-            vibrationPack(0);
+            vibrationOff();
           }
         }
       }
@@ -4229,8 +4294,10 @@ void wandStopFiringSounds() {
     case CTS_FIRING_1984:
       STATUS_CTS = CTS_NOT_FIRING;
 
-      stopEffect(S_CROSS_STREAMS_START);
-      stopEffect(S_CROSS_STREAMS_END);
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+        stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
+      }
 
       if(b_wand_mash_lockout != true) {
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -4240,8 +4307,10 @@ void wandStopFiringSounds() {
     case CTS_FIRING_2021:
       STATUS_CTS = CTS_NOT_FIRING;
 
-      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      }
 
       if(b_wand_mash_lockout != true) {
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -4477,7 +4546,7 @@ void cyclotronSwitchPlateLEDs() {
 }
 
 void vibrationPack(uint8_t i_level) {
-  if(b_vibration_on == true && b_vibration_enabled == true) {
+  if(b_vibration_on == true && b_vibration_enabled == true && i_level > 0) {
     if(b_vibration_firing == true) {
       if(b_wand_firing == true) {
         if(i_level != i_vibration_level_prev) {
@@ -4998,6 +5067,22 @@ void doVoltageCheck() {
   // Send current voltage value to the serial1 device, if connected.
   if(b_serial1_connected) {
     serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
+  }
+}
+
+// Checks if video game mode should be set.
+bool vgModeCheck() {
+  if(SYSTEM_MODE == MODE_ORIGINAL) {
+    // MODE_ORIGINAL does not support VG modes, so make sure firing mode is PROTON.
+    if(FIRING_MODE != PROTON) {
+      FIRING_MODE = PROTON;
+      serial1Send(A_PROTON_MODE);
+    }
+
+    return false;
+  }
+  else {
+    return true;
   }
 }
 

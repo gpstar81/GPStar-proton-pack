@@ -612,10 +612,11 @@ void setVGMode() {
 
 // Checks if video game mode should be set.
 bool vgModeCheck() {
-  if(b_cross_the_streams == true || b_cross_the_streams_mix == true || SYSTEM_MODE == MODE_ORIGINAL) {
-    // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled.
-    if(SYSTEM_MODE == MODE_ORIGINAL && b_cross_the_streams != true) {
+  if(SYSTEM_MODE == MODE_ORIGINAL || b_cross_the_streams == true || b_cross_the_streams_mix == true) {
+    // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled and firing mode is PROTON.
+    if(SYSTEM_MODE == MODE_ORIGINAL && (b_cross_the_streams != true || FIRING_MODE != PROTON)) {
       b_cross_the_streams = true;
+      FIRING_MODE = PROTON;
     }
 
     return false;
@@ -3069,8 +3070,10 @@ void modeFireStopSounds() {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
       case CTS_FROZEN_EMPIRE:
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+        }
 
         if(b_wand_mash_error != true) {
           playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -3079,8 +3082,10 @@ void modeFireStopSounds() {
 
       case CTS_1984:
       case CTS_1989:
-        stopEffect(S_CROSS_STREAMS_START);
-        stopEffect(S_CROSS_STREAMS_END);
+        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+          stopEffect(S_CROSS_STREAMS_START);
+          stopEffect(S_CROSS_STREAMS_END);
+        }
 
         if(b_wand_mash_error != true) {
           playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -3093,8 +3098,10 @@ void modeFireStopSounds() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+            }
 
             if(b_wand_mash_error != true) {
               playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -3103,8 +3110,10 @@ void modeFireStopSounds() {
 
           case SYSTEM_1984:
           case SYSTEM_1989:
-            stopEffect(S_CROSS_STREAMS_START);
-            stopEffect(S_CROSS_STREAMS_END);
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+              stopEffect(S_CROSS_STREAMS_START);
+              stopEffect(S_CROSS_STREAMS_END);
+            }
 
             if(b_wand_mash_error != true) {
               playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -3304,7 +3313,9 @@ void modeFiring() {
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
         if(b_cross_the_streams_mix == true) {
-          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+          if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+          }
 
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
           wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_2021);
@@ -3322,7 +3333,9 @@ void modeFiring() {
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
         if(b_cross_the_streams_mix == true) {
-          stopEffect(S_CROSS_STREAMS_END);
+          if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+            stopEffect(S_CROSS_STREAMS_END);
+          }
 
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
           wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_1984);
@@ -3344,7 +3357,9 @@ void modeFiring() {
             playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
             if(b_cross_the_streams_mix == true) {
-              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+              if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+                stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+              }
 
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
               wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_2021);
@@ -3362,7 +3377,9 @@ void modeFiring() {
             playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
             if(b_cross_the_streams_mix == true) {
-              stopEffect(S_CROSS_STREAMS_END);
+              if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+                stopEffect(S_CROSS_STREAMS_END);
+              }
 
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
               wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_1984);
@@ -3417,7 +3434,9 @@ void modeFiring() {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
       case CTS_FROZEN_EMPIRE:
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        }
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -3427,7 +3446,9 @@ void modeFiring() {
 
       case CTS_1984:
       case CTS_1989:
-        stopEffect(S_CROSS_STREAMS_START);
+        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+          stopEffect(S_CROSS_STREAMS_START);
+        }
         //stopEffect(S_CROSS_STREAMS_END);
 
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -3441,7 +3462,9 @@ void modeFiring() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+            }
             //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
             playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -3451,7 +3474,9 @@ void modeFiring() {
 
           case SYSTEM_1984:
           case SYSTEM_1989:
-            stopEffect(S_CROSS_STREAMS_START);
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+              stopEffect(S_CROSS_STREAMS_START);
+            }
             //stopEffect(S_CROSS_STREAMS_END);
 
             playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
@@ -4504,7 +4529,7 @@ void fireStreamEffect(CRGB c_colour) {
       i_firing_stream = d_firing_stream / 10;
 
       if(ms_firing_stream_effects.justFinished()) {
-        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
+        if(i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
             case PROTON:
             default:
@@ -4805,7 +4830,7 @@ void fireStreamEffect(CRGB c_colour) {
       i_firing_stream = d_firing_stream;
 
       if(ms_firing_stream_effects.justFinished()) {
-        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
+        if(i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
             case PROTON:
             default:
@@ -4967,7 +4992,8 @@ void fireStreamStart(CRGB c_colour) {
         // to enhance the stream effects. In this case we can darken the lead LED then follow with the
         // primary colour for the stream chosen. Any other colour effects will follow this arrangement.
         barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light])] = c_colour;
-        if(i_barrel_light + 2 >= 0 && i_barrel_light + 2 < i_num_barrel_leds) {
+
+        if(i_barrel_light + 2 < i_num_barrel_leds) {
           barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light + 2])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
         }
       break;

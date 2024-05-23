@@ -54,7 +54,10 @@ When the wand is trying to establish communication to the GPStar Proton Pack con
 * Re-check the Tx/Rx connections to the pack. If these are reversed it will prevent proper communication. Attempt to switch the wires at the pack-side connector which use screw terminals, and retry the Activate switch.
 * Re-check the power connection to the wand. If you have a digital multimeter available, set the device to the DC power measurement and check that the 5V-OUT connection is supplying the expected voltage. Be careful to not short out the pins and mind the polarity.
 
-If there is still no sound from your Neutrona, please refer to the Audio Troubleshooting section at the bottom of this page.
+### Wand has audio briefly before it cuts out###
+* Re-check the connection to the speaker terminal blocks on the Audio board. Make sure the wires seat well, if needed, add a dab of solder onto the ends.
+
+If there is still no sound from your Neutrona Wand, please refer to the Audio Troubleshooting section at the bottom of this page.
 
 ### The music I added is not playing back ##
 
@@ -72,7 +75,9 @@ Depending on which audio board you are using in your system, following the troub
 ---
 
 ### <img src='images/gpstar_logo.png' width=35 align="left"/>GPStar Audio Troubleshooting ###
+
 ![](images/GPStarAudio-Debug.jpg)
+
 **Troubleshooting**
 
 1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals.
@@ -90,11 +95,12 @@ Depending on which audio board you are using in your system, following the troub
 ---
 
 ### Wav Trigger Troubleshooting ###
+
 ![](images/WavTrigger_Debug.jpg)
 
 **Startup Blinking Patterns:**
 
-- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far. 
+- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
 - 3x (quick) - 3 quick blinks in succession is the normal pattern at initial power-up to indicate the device has initialized without issues.
 
 **Post Startup Blinking Patterns**
@@ -115,4 +121,4 @@ Depending on which audio board you are using in your system, following the troub
 
 1. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
 
-[Manual for the WAV Trigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/WT_UserGuide_20230602.pdf)
+[Manual for the WAV Trigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/sound/WavTrigger/WT_UserGuide_20230602.pdf)

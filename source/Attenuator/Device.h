@@ -82,6 +82,12 @@ const char DEVICE_page[] PROGMEM = R"=====(
         <option value="1">Orange Fade</option>
       </select>
     </div>
+    <div class="setting">
+      <b>Song List:</b> <span id="byteCount"></span><br/>
+      <textarea id="songList" name="songList" rows="40" cols="38"
+       style="text-align:left;" oninput="updateByteCount()"
+       placeholder="Add a list of track names, 1 per line, up to 2000 Bytes in total"></textarea>
+    </div>
   </div>
 
   <div class="block">
@@ -99,6 +105,13 @@ const char DEVICE_page[] PROGMEM = R"=====(
     function onLoad(event) {
       // Wait 0.1s for page to fully load.
       setTimeout(getSettings, 100);
+    }
+
+    function updateByteCount() {
+        var songList = document.getElementById("songList");
+        var byteCount = document.getElementById("byteCount");
+        var byteLength = new TextEncoder().encode(songList.value).length;
+        byteCount.innerHTML = byteLength + "/2000 Bytes";
     }
 
     function isJsonString(str) {
@@ -134,6 +147,8 @@ const char DEVICE_page[] PROGMEM = R"=====(
             document.getElementById("overheat").checked = settings.overheat ? true : false;
             document.getElementById("firing").checked = settings.firing ? true : false;
             document.getElementById("radLensIdle").value = settings.radLensIdle || 0; // Default: 0 [Amber Pulse]
+            document.getElementById("songList").value = settings.songList || "";
+            updateByteCount();
           }
         }
       };
@@ -142,6 +157,12 @@ const char DEVICE_page[] PROGMEM = R"=====(
     }
 
     function saveSettings() {
+      // Do not allow saving if track list is too large for allowed storage space.
+      if (document.getElementById("songList").value.length > 2000) {
+        alert("Unable to save track listing; exceeds allowed bytes.");
+        return;
+      }
+
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
         invertLEDs: document.getElementById("invertLEDs").checked ? 1 : 0,
@@ -149,7 +170,8 @@ const char DEVICE_page[] PROGMEM = R"=====(
         vibration: document.getElementById("vibration").checked ? 1 : 0,
         overheat: document.getElementById("overheat").checked ? 1 : 0,
         firing: document.getElementById("firing").checked ? 1 : 0,
-        radLensIdle: parseInt(document.getElementById("radLensIdle").value || 0, 10)
+        radLensIdle: parseInt(document.getElementById("radLensIdle").value || 0, 10),
+        songList: document.getElementById("songList").value || ""
       };
       var body = JSON.stringify(settings);
 
