@@ -2081,84 +2081,51 @@ void altWingButtonCheck() {
 void modeCheck() {
   switch(FIRING_MODE) {
     case HOLIDAY:
-      if(WAND_STATUS == MODE_ON) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
       // Tell the pack we are in holiday mode.
       wandSerialSend(W_HOLIDAY_MODE);
     break;
 
     case SPECTRAL:
-      if(WAND_STATUS == MODE_ON) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
       // Tell the pack we are in spectral mode.
       wandSerialSend(W_SPECTRAL_MODE);
     break;
 
     case SPECTRAL_CUSTOM:
-      if(WAND_STATUS == MODE_ON) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
       // Tell the pack we are in spectral custom mode.
       wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
     break;
 
     case MESON:
-      if(WAND_STATUS == MODE_ON) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
       // Tell the pack we are in meson mode.
       wandSerialSend(W_MESON_MODE);
     break;
 
     case STASIS:
-      if(WAND_STATUS == MODE_ON) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
       // Tell the pack we are in stasis mode.
       wandSerialSend(W_STASIS_MODE);
     break;
 
     case SLIME:
-      if(WAND_STATUS == MODE_ON) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
       // Tell the pack we are in slime mode.
       wandSerialSend(W_SLIME_MODE);
     break;
 
     case PROTON:
     default:
-      if(WAND_STATUS == MODE_ON) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
       // Tell the pack we are in proton mode.
       wandSerialSend(W_PROTON_MODE);
     break;
   }
 
+  if(WAND_STATUS == MODE_ON) {
+    wandHeatUp();
+  }
+
+  // Do not exit any menu systems if we are in them.
+  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+    WAND_ACTION_STATUS = ACTION_IDLE;
+  }
+  
   if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
     if(FIRING_MODE == MESON) {
       // Tell GPStar Audio we need short audio mode.
