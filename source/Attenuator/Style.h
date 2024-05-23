@@ -97,6 +97,74 @@ p {
   font-size: 1em;
 }
 
+.equipment {
+  background-image:url('/equipment.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 98%;
+  border-radius: 12px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 18px -4px rgba(0, 0, 0, 0.75);
+  height: 500px;
+  margin: 20px auto;
+  max-width: 360px;
+  min-height: 200px;
+  position: relative;
+  text-align: left;
+  width: 360px;
+  z-index: 0;
+}
+
+.overlay {
+  position: absolute;
+}
+
+.barrel-box {
+  left: 275px;
+  height: 80px;
+  top: 322px;
+  width: 50px;
+  z-index: 1;
+}
+
+.cyc-circle {
+  border-radius: 50%; /* Makes the div a circle */
+  left: 55px;
+  height: 130px;
+  top: 300px;
+  width: 130px;
+  z-index: 1;
+}
+
+.power-box {
+  left: 8px;
+  height: 80px;
+  top: 140px;
+  width: 40px;
+  z-index: 1;
+}
+
+.ribbon-warning {
+  align-items: center;
+  border-left: 40px solid transparent;
+  border-right: 40px solid transparent;
+  border-bottom: 70px solid rgba(255, 255, 0, 0.7);
+  display: flex;
+  height: 0;
+  justify-content: center;
+  left: 10px;
+  top: 238px;
+  width: 0;
+  z-index: 1;
+}
+
+.exclamation {
+  color: #333;
+  display: none;
+  font-size: 3em;
+  margin-top: 90px;
+}
+
 button {
   background-color: #555;
   border: 2px solid #333;

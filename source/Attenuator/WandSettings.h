@@ -225,6 +225,10 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       setTimeout(getSettings, 400);
     }
 
+    function getEl(id){
+      return document.getElementById(id);
+    }
+
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
     function convertRange(value, r1, r2) {
       return Math.round((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);
@@ -232,10 +236,10 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
 
     function updateColor(colorPreviewID, hueLabelID, satLabelID, hueValue, satValue) {
       // Updates the slider values and preview the selected color using HSL.
-      document.getElementById(hueLabelID).innerHTML = hueValue;
-      document.getElementById(satLabelID).innerHTML = satValue;
+      getEl(hueLabelID).innerHTML = hueValue;
+      getEl(satLabelID).innerHTML = satValue;
       var lightness = convertRange(100 - parseInt(satValue, 10), [0,100], [50,100]);
-      document.getElementById(colorPreviewID).style.backgroundColor = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
+      getEl(colorPreviewID).style.backgroundColor = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
     }
 
     function isJsonString(str) {
@@ -286,28 +290,28 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
              *  254 = Red
              */
 
-            document.getElementById("ledWandCount").value = settings.ledWandCount || 0; // Haslab: 0 (5 LED)
-            document.getElementById("ledWandHue").value = convertRange(settings.ledWandHue || 254, [1,254], [0,360]); // Default: Red
-            document.getElementById("ledWandSat").value = convertRange(settings.ledWandSat || 254, [1,254], [0,100]); // Full Saturation
-            document.getElementById("spectralModeEnabled").checked = settings.spectralModeEnabled ? true: false;
-            document.getElementById("spectralHolidayMode").checked = settings.spectralHolidayMode ? true: false;
-            document.getElementById("overheatEnabled").checked = settings.overheatEnabled ? true: false;
-            document.getElementById("defaultFiringMode").value = settings.defaultFiringMode || 1;
-            document.getElementById("wandVibration").value = settings.wandVibration || 4;
-            document.getElementById("wandSoundsToPack").checked = settings.wandSoundsToPack ? true: false;
-            document.getElementById("quickVenting").checked = settings.quickVenting ? true: false;
-            document.getElementById("autoVentLight").checked = settings.autoVentLight ? true: false;
-            document.getElementById("wandBeepLoop").checked = settings.wandBeepLoop ? true: false;
-            document.getElementById("wandBootError").checked = settings.wandBootError ? true: false;
-            document.getElementById("defaultYearModeWand").value = settings.defaultYearModeWand || 1;
-            document.getElementById("defaultYearModeCTS").value = settings.defaultYearModeCTS || 1;
-            document.getElementById("invertWandBargraph").checked = settings.invertWandBargraph ? true: false;
-            document.getElementById("bargraphOverheatBlink").checked = settings.bargraphOverheatBlink ? true: false;
-            document.getElementById("bargraphIdleAnimation").value = settings.bargraphIdleAnimation || 1;
-            document.getElementById("bargraphFireAnimation").value = settings.bargraphFireAnimation || 1;
+            getEl("ledWandCount").value = settings.ledWandCount || 0; // Haslab: 0 (5 LED)
+            getEl("ledWandHue").value = convertRange(settings.ledWandHue || 254, [1,254], [0,360]); // Default: Red
+            getEl("ledWandSat").value = convertRange(settings.ledWandSat || 254, [1,254], [0,100]); // Full Saturation
+            getEl("spectralModeEnabled").checked = settings.spectralModeEnabled ? true: false;
+            getEl("spectralHolidayMode").checked = settings.spectralHolidayMode ? true: false;
+            getEl("overheatEnabled").checked = settings.overheatEnabled ? true: false;
+            getEl("defaultFiringMode").value = settings.defaultFiringMode || 1;
+            getEl("wandVibration").value = settings.wandVibration || 4;
+            getEl("wandSoundsToPack").checked = settings.wandSoundsToPack ? true: false;
+            getEl("quickVenting").checked = settings.quickVenting ? true: false;
+            getEl("autoVentLight").checked = settings.autoVentLight ? true: false;
+            getEl("wandBeepLoop").checked = settings.wandBeepLoop ? true: false;
+            getEl("wandBootError").checked = settings.wandBootError ? true: false;
+            getEl("defaultYearModeWand").value = settings.defaultYearModeWand || 1;
+            getEl("defaultYearModeCTS").value = settings.defaultYearModeCTS || 1;
+            getEl("invertWandBargraph").checked = settings.invertWandBargraph ? true: false;
+            getEl("bargraphOverheatBlink").checked = settings.bargraphOverheatBlink ? true: false;
+            getEl("bargraphIdleAnimation").value = settings.bargraphIdleAnimation || 1;
+            getEl("bargraphFireAnimation").value = settings.bargraphFireAnimation || 1;
 
             // Update color preview and value display for hue/saturation sliders.
-            updateColor("wandColorPreview", "wandHueOut", "wandSatOut", document.getElementById("ledWandHue").value, document.getElementById("ledWandSat").value);
+            updateColor("wandColorPreview", "wandHueOut", "wandSatOut", getEl("ledWandHue").value, getEl("ledWandSat").value);
           }
         }
       };
@@ -319,25 +323,25 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to wand, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
-        ledWandCount: parseInt(document.getElementById("ledWandCount").value || 0, 10),
-        ledWandHue: convertRange(parseInt(document.getElementById("ledWandHue").value || 360, 10), [0,360], [1,254]),
-        ledWandSat: convertRange(parseInt(document.getElementById("ledWandSat").value || 100, 10), [0,100], [1,254]),
-        spectralModeEnabled: document.getElementById("spectralModeEnabled").checked ? 1 : 0,
-        spectralHolidayMode: document.getElementById("spectralHolidayMode").checked ? 1 : 0,
-        overheatEnabled: document.getElementById("overheatEnabled").checked ? 1 : 0,
-        defaultFiringMode: parseInt(document.getElementById("defaultFiringMode").value || 1, 10),
-        wandVibration: parseInt(document.getElementById("wandVibration").value || 4, 10),
-        wandSoundsToPack: document.getElementById("wandSoundsToPack").checked ? 1 : 0,
-        quickVenting: document.getElementById("quickVenting").checked ? 1 : 0,
-        autoVentLight: document.getElementById("autoVentLight").checked ? 1 : 0,
-        wandBeepLoop: document.getElementById("wandBeepLoop").checked ? 1 : 0,
-        wandBootError: document.getElementById("wandBootError").checked ? 1 : 0,
-        defaultYearModeWand: parseInt(document.getElementById("defaultYearModeWand").value || 1, 10),
-        defaultYearModeCTS: parseInt(document.getElementById("defaultYearModeCTS").value || 1, 10),
-        invertWandBargraph: document.getElementById("invertWandBargraph").checked ? 1 : 0,
-        bargraphOverheatBlink: document.getElementById("bargraphOverheatBlink").checked ? 1 : 0,
-        bargraphIdleAnimation: parseInt(document.getElementById("bargraphIdleAnimation").value || 1, 10),
-        bargraphFireAnimation: parseInt(document.getElementById("bargraphFireAnimation").value || 1, 10)
+        ledWandCount: parseInt(getEl("ledWandCount").value || 0, 10),
+        ledWandHue: convertRange(parseInt(getEl("ledWandHue").value || 360, 10), [0,360], [1,254]),
+        ledWandSat: convertRange(parseInt(getEl("ledWandSat").value || 100, 10), [0,100], [1,254]),
+        spectralModeEnabled: getEl("spectralModeEnabled").checked ? 1 : 0,
+        spectralHolidayMode: getEl("spectralHolidayMode").checked ? 1 : 0,
+        overheatEnabled: getEl("overheatEnabled").checked ? 1 : 0,
+        defaultFiringMode: parseInt(getEl("defaultFiringMode").value || 1, 10),
+        wandVibration: parseInt(getEl("wandVibration").value || 4, 10),
+        wandSoundsToPack: getEl("wandSoundsToPack").checked ? 1 : 0,
+        quickVenting: getEl("quickVenting").checked ? 1 : 0,
+        autoVentLight: getEl("autoVentLight").checked ? 1 : 0,
+        wandBeepLoop: getEl("wandBeepLoop").checked ? 1 : 0,
+        wandBootError: getEl("wandBootError").checked ? 1 : 0,
+        defaultYearModeWand: parseInt(getEl("defaultYearModeWand").value || 1, 10),
+        defaultYearModeCTS: parseInt(getEl("defaultYearModeCTS").value || 1, 10),
+        invertWandBargraph: getEl("invertWandBargraph").checked ? 1 : 0,
+        bargraphOverheatBlink: getEl("bargraphOverheatBlink").checked ? 1 : 0,
+        bargraphIdleAnimation: parseInt(getEl("bargraphIdleAnimation").value || 1, 10),
+        bargraphFireAnimation: parseInt(getEl("bargraphFireAnimation").value || 1, 10)
       };
       var body = JSON.stringify(settings);
 

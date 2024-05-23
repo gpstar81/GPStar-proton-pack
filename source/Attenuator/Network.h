@@ -24,6 +24,8 @@ const char NETWORK_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-control" content="public">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WiFi Settings</title>
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
@@ -88,18 +90,22 @@ const char NETWORK_page[] PROGMEM = R"=====(
       setTimeout(getSettings, 50);
     }
 
+    function getEl(id){
+      return document.getElementById(id);
+    }
+
     function getSettings() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           var settings = JSON.parse(this.responseText);
           if (settings) {
-            document.getElementById("enabled").checked = settings.enabled ? true : false;
-            document.getElementById("network").value = settings.network || "";
-            document.getElementById("password").value = settings.password || "";
-            document.getElementById("address").value = settings.address || "";
-            document.getElementById("subnet").value = settings.subnet || "";
-            document.getElementById("gateway").value = settings.gateway || "";
+            getEl("enabled").checked = settings.enabled ? true : false;
+            getEl("network").value = settings.network || "";
+            getEl("password").value = settings.password || "";
+            getEl("address").value = settings.address || "";
+            getEl("subnet").value = settings.subnet || "";
+            getEl("gateway").value = settings.gateway || "";
           }
         }
       };
@@ -115,27 +121,27 @@ const char NETWORK_page[] PROGMEM = R"=====(
     }
 
     // Set up some variables to fields which will be controlled via certain actions.
-    var addressInput = document.getElementById("address");
-    var subnetInput = document.getElementById("subnet");
-    var gatewayInput = document.getElementById("gateway");
+    var addressInput = getEl("address");
+    var subnetInput = getEl("subnet");
+    var gatewayInput = getEl("gateway");
 
-    document.getElementById("network").addEventListener("input", function() {
+    getEl("network").addEventListener("input", function() {
       // Clear fields based on input changes.
       addressInput.value = "";
       subnetInput.value = "";
       gatewayInput.value = "";
     });
 
-    document.getElementById("password").addEventListener("input", function() {
+    getEl("password").addEventListener("input", function() {
       // Clear fields based on input changes.
       addressInput.value = "";
       subnetInput.value = "";
       gatewayInput.value = "";
     });
 
-    document.getElementById("editIP").addEventListener("change", function() {
+    getEl("editIP").addEventListener("change", function() {
       // Get the checkbox state to enable the IP fields.
-      var editEnabled = document.getElementById("editIP").checked;
+      var editEnabled = getEl("editIP").checked;
 
       // Enable or disable based on checkbox state.
       addressInput.disabled = !editEnabled;
@@ -144,33 +150,33 @@ const char NETWORK_page[] PROGMEM = R"=====(
     });
 
     function saveSettings() {
-      var wEnabled = document.getElementById("enabled").checked ? true : false;
+      var wEnabled = getEl("enabled").checked ? true : false;
 
-      var wNetwork = (document.getElementById("network").value || "").trim();
+      var wNetwork = (getEl("network").value || "").trim();
       if (wEnabled && wNetwork.length < 2) {
         alert("The WiFi network must be a minimum of 2 characters.");
         return;
       }
 
-      var wPassword = (document.getElementById("password").value || "").trim();
+      var wPassword = (getEl("password").value || "").trim();
       if (wEnabled && wPassword.length < 8) {
         alert("The WiFi password must be a minimum of 8 characters to meet WPA2 requirements.");
         return;
       }
 
-      var wAddress = (document.getElementById("address").value || "").trim();
+      var wAddress = (getEl("address").value || "").trim();
       if (wAddress != "" && !isValidIP(wAddress)) {
         alert("IP Address is invalid, please correct and try again.");
         return;
       }
 
-      var wSubnet = (document.getElementById("subnet").value || "").trim();
+      var wSubnet = (getEl("subnet").value || "").trim();
       if (wSubnet != "" && !isValidIP(wSubnet)) {
         alert("Subnet Mask is invalid, please correct and try again.");
         return;
       }
 
-      var wGateway = (document.getElementById("gateway").value || "").trim();
+      var wGateway = (getEl("gateway").value || "").trim();
       if (wGateway != "" && !isValidIP(wGateway)) {
         alert("Gateway IP is invalid, please correct and try again.");
         return;
