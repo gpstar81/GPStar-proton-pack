@@ -84,6 +84,7 @@ const char STYLE2_page[] PROGMEM = R"=====(
 
 .exclamation {
   color: #333;
+  display: none;
   font-size: 3em;
   margin-top: 90px;
 }
