@@ -364,8 +364,8 @@ const char INDEX_page[] PROGMEM = R"=====(
     function updateBars(iPower, cMode) {
       var color = getColor(cMode);
 
+      // Set the color of the barrel according to the stream and power.
       if (iPower > 0) {
-        // Set the color of the barrel according to the stream and power.
         getEl("barrelOverlay").style.display = "block";
         getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(iPower * 1.6, 10) + ")";
       } else {
