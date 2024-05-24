@@ -65,7 +65,9 @@ const char INDEX_page[] PROGMEM = R"=====(
   <div class="equipment">
     <div id="pcOverlay" class="overlay power-box"></div>
     <div id="cycOverlay" class="overlay cyc-circle"></div>
+    <div id="filterOverlay" class="overlay filter-circle"></div>
     <div id="barrelOverlay" class="overlay barrel-box"></div>
+    <div id="safetyOverlay" class="overlay safety-box"  ></div>
     <div id="warnOverlay" class="overlay ribbon-warning"><div class="exclamation">!</div></div>
   </div>
 
@@ -329,7 +331,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
-    function getColor(cMode) {
+    function getStreamColor(cMode) {
       var color = [0, 0, 0];
 
       switch(cMode){
@@ -362,18 +364,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function updateBars(iPower, cMode) {
-      var color = getColor(cMode);
-
-      // Set the color of the barrel according to the stream and power.
-      if (iPower > 0) {
-        getEl("barrelOverlay").style.display = "block";
-        getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(iPower * 1.6, 10) + ")";
-      } else {
-        getEl("barrelOverlay").style.display = "none";
-        getEl("barrelOverlay").style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-      }
-
-      // Show a graphical indication of power level using up to 5 bars.
+      var color = getStreamColor(cMode);
       var powerBars = getEl("powerBars");
       if (powerBars) {
         powerBars.innerHTML = ""; // Clear previous bars if any
@@ -417,15 +408,19 @@ const char INDEX_page[] PROGMEM = R"=====(
         switch(jObj.cyclotron){
           case "Active":
             getEl("cycOverlay").style.backgroundColor = "rgba(255, 255, 0, 0.5)";
+            getEl("cycOverlay")classList.remove("blinking");
             break;
           case "Warning":
             getEl("cycOverlay").style.backgroundColor = "rgba(255, 100, 0, 0.5)";
+            getEl("cycOverlay")classList.remove("blinking");
             break;
           case "Critical":
             getEl("cycOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+            getEl("cycOverlay")classList.add("blinking");
             break;
           case "Recovery":
             getEl("cycOverlay").style.backgroundColor = "rgba(0, 0, 255, 0.5)";
+            getEl("cycOverlay")classList.remove("blinking");
             break;
           default:
             if (jObj.pack == "Powered") {
@@ -434,6 +429,20 @@ const char INDEX_page[] PROGMEM = R"=====(
             } else {
               getEl("cycOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
             }
+            getEl("cycOverlay")classList.remove("blinking");
+        }
+
+        if (jObj.pack == "Powered") {
+          if (jObj.temperature == "Venting") {
+            getEl("filterOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+            getEl("filterOverlay")classList.add("blinking");
+          } else {
+            getEl("filterOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+            getEl("filterOverlay")classList.remove("blinking");
+          }
+        } else {
+          getEl("filterOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
+          getEl("filterOverlay")classList.remove("blinking");
         }
 
         // Current Wand Status
@@ -444,7 +453,27 @@ const char INDEX_page[] PROGMEM = R"=====(
           getEl("safety").innerHTML = jObj.safety || "...";
           getEl("power").innerHTML = jObj.power || "...";
           getEl("firing").innerHTML = jObj.firing || "...";
+
           updateBars(jObj.power || 0, jObj.wandMode || "");
+
+          var color = getStreamColor(jObj.wandMode);
+          getEl("barrelOverlay").style.display = "block";
+          getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
+          if (jObj.firing == "Firing") {
+            getEl("barrelOverlay")classList.add("blinking");
+          } else {
+            getEl("barrelOverlay")classList.remove("blinking");
+          }
+
+          if (jObj.wandPower == "Powered") {
+            if (jObj.safety == "Safety On") {
+              getEl("safetyOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+            } else {
+              getEl("safetyOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+            }
+          } else {
+            getEl("safetyOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
+          }
         } else {
           // Default to empty values when wand is not present.
           getEl("wandPower").innerHTML = "...";
@@ -453,6 +482,8 @@ const char INDEX_page[] PROGMEM = R"=====(
           getEl("power").innerHTML = "...";
           getEl("firing").innerHTML = "...";
           updateBars(0, "");
+          getEl("barrelOverlay").style.display = "none";
+          getEl("safetyOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
         }
 
         if (jObj.battVoltage) {

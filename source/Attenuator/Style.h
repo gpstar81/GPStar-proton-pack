@@ -57,6 +57,15 @@ p {
   margin: 5px 0 8px;
 }
 
+.blinking {
+  animation: blink-animation 1s steps(5, start) infinite;
+}
+
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
 .footer {
   color: #ccc;
   font-size: 0.8em;
@@ -121,28 +130,49 @@ p {
 
 .barrel-box {
   border-radius: 5px;
-  left: 250px;
-  height: 80px;
-  top: 322px;
-  width: 50px;
+  left: 270px;
+  height: 60px;
+  top: 340px;
+  width: 20px;
   z-index: 1;
 }
 
 .cyc-circle {
   border-radius: 50%; /* Makes the div a circle */
-  left: 82px;
-  height: 130px;
-  top: 285px;
-  width: 130px;
+  left: 80px;
+  height: 135px;
+  top: 283px;
+  width: 135px;
   z-index: 1;
+}
+
+.cyc-circle::before {
+  background-color: white;
+  border-radius: 50%;
+  bottom: -4%;
+  content: "";
+  height: 29%;
+  left: 69%;
+  position: absolute;
+  width: 29%;
+  transform: translateX(-50%);
+}
+
+.filter-circle {
+  border-radius: 50%; /* Makes the div a circle */
+  left: 154px;
+  height: 40px;
+  top: 384px;
+  width: 40px;
+  z-index: 2;
 }
 
 .power-box {
   border-radius: 5px;
   left: 38px;
-  height: 80px;
-  top: 132px;
-  width: 40px;
+  height: 72px;
+  top: 135px;
+  width: 36px;
   z-index: 1;
 }
 
@@ -150,14 +180,23 @@ p {
   align-items: center;
   border-left: 40px solid transparent;
   border-right: 40px solid transparent;
-  border-bottom: 70px solid rgba(255, 255, 0, 0.7); /* Green color with 50% opacity */
+  border-bottom: 70px solid rgba(255, 255, 0, 0.7);
   display: flex;
   height: 0;
   justify-content: center;
   left: 35px;
   top: 220px;
-  visibility: hidden;
   width: 0;
+  visibility: hidden;
+  z-index: 1;
+}
+
+.safety-box {
+  border-radius: 5px;
+  left: 305px;
+  height: 32px;
+  top: 158px;
+  width: 18px;
   z-index: 1;
 }
 

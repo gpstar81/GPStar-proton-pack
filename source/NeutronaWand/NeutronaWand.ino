@@ -303,9 +303,39 @@ void mainLoop() {
           // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
           if(b_pack_ion_arm_switch_on == true) {
             b_pack_ion_arm_switch_on = false;
+
+            if(switch_vent.on() == true && switch_wand.on() == true && b_mode_original_toggle_sounds_enabled == true) {
+              stopEffect(S_WAND_HEATDOWN);
+              stopEffect(S_WAND_HEATUP_ALT);
+              playEffect(S_WAND_HEATDOWN);
+            }
+
+            // Turn off any vibration and all lights.
+            vibrationOff();
+            wandLightsOff();
           }
           else {
             b_pack_ion_arm_switch_on = true;
+
+            if(switch_vent.on() == true && switch_wand.on() == true) {
+              if(b_mode_original_toggle_sounds_enabled == true) {
+                stopEffect(S_WAND_HEATDOWN);
+                stopEffect(S_WAND_HEATUP_ALT);
+                playEffect(S_WAND_HEATUP_ALT);
+              }
+
+              if(b_28segment_bargraph == true) {
+                bargraphPowerCheck2021Alt(false);
+              }
+
+              prepBargraphRampUp();
+            }
+
+            // If the ion arm switch is on, we do not need a power indicator.
+            if(b_power_on_indicator) {
+              ms_power_indicator.stop();
+              ms_power_indicator_blink.stop();
+            }
           }
         }
 
@@ -445,7 +475,10 @@ void mainLoop() {
           }
         }
         else {
-          digitalWriteFast(led_front_left, LOW);
+          if(SYSTEM_MODE == MODE_SUPER_HERO) {
+            // MODE_ORIGINAL has unique control over the Clippard LED, so only turn off if in MODE_SUPER_HERO.
+            digitalWriteFast(led_front_left, LOW);
+          }
         }
       }
     break;
@@ -617,6 +650,7 @@ bool vgModeCheck() {
     if(SYSTEM_MODE == MODE_ORIGINAL && (b_cross_the_streams != true || FIRING_MODE != PROTON)) {
       b_cross_the_streams = true;
       FIRING_MODE = PROTON;
+      modeCheck();
     }
 
     return false;
@@ -1350,12 +1384,6 @@ void checkSwitches() {
               }
             }
           }
-          else {
-            if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_SETTINGS) {
-              vibrationOff(); // Turn off vibration, if any.
-              wandLightsOff();
-            }
-          }
         break;
 
         case MODE_SUPER_HERO:
@@ -1726,7 +1754,7 @@ void wandOff() {
       }
 
       // Start the timer for the power on indicator option.
-      if(b_power_on_indicator == true) {
+      if(b_power_on_indicator == true && SYSTEM_MODE == MODE_SUPER_HERO) {
         ms_power_indicator.start(i_ms_power_indicator);
       }
 
@@ -2050,6 +2078,7 @@ void altWingButtonCheck() {
         }
         else {
           modeCheck();
+          WAND_ACTION_STATUS = ACTION_IDLE;
           ms_settings_blinking.stop();
           bargraphClearAlt();
 
@@ -2066,6 +2095,7 @@ void altWingButtonCheck() {
     else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_vent.on() == true && switch_wand.on() == true) {
       // Exit the settings menu if the user turns the wand switch back on.
       modeCheck();
+      WAND_ACTION_STATUS = ACTION_IDLE;
       ms_settings_blinking.stop();
       bargraphClearAlt();
 
@@ -2079,51 +2109,48 @@ void altWingButtonCheck() {
 }
 
 void modeCheck() {
-  switch(FIRING_MODE) {
-    case HOLIDAY:
-      // Tell the pack we are in holiday mode.
-      wandSerialSend(W_HOLIDAY_MODE);
-    break;
+  if(WAND_CONN_STATE == PACK_CONNECTED) {
+    switch(FIRING_MODE) {
+      case HOLIDAY:
+        // Tell the pack we are in holiday mode.
+        wandSerialSend(W_HOLIDAY_MODE);
+      break;
 
-    case SPECTRAL:
-      // Tell the pack we are in spectral mode.
-      wandSerialSend(W_SPECTRAL_MODE);
-    break;
+      case SPECTRAL:
+        // Tell the pack we are in spectral mode.
+        wandSerialSend(W_SPECTRAL_MODE);
+      break;
 
-    case SPECTRAL_CUSTOM:
-      // Tell the pack we are in spectral custom mode.
-      wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-    break;
+      case SPECTRAL_CUSTOM:
+        // Tell the pack we are in spectral custom mode.
+        wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
+      break;
 
-    case MESON:
-      // Tell the pack we are in meson mode.
-      wandSerialSend(W_MESON_MODE);
-    break;
+      case MESON:
+        // Tell the pack we are in meson mode.
+        wandSerialSend(W_MESON_MODE);
+      break;
 
-    case STASIS:
-      // Tell the pack we are in stasis mode.
-      wandSerialSend(W_STASIS_MODE);
-    break;
+      case STASIS:
+        // Tell the pack we are in stasis mode.
+        wandSerialSend(W_STASIS_MODE);
+      break;
 
-    case SLIME:
-      // Tell the pack we are in slime mode.
-      wandSerialSend(W_SLIME_MODE);
-    break;
+      case SLIME:
+        // Tell the pack we are in slime mode.
+        wandSerialSend(W_SLIME_MODE);
+      break;
 
-    case PROTON:
-    default:
-      // Tell the pack we are in proton mode.
-      wandSerialSend(W_PROTON_MODE);
-    break;
+      case PROTON:
+      default:
+        // Tell the pack we are in proton mode.
+        wandSerialSend(W_PROTON_MODE);
+      break;
+    }
   }
 
-  if(WAND_STATUS == MODE_ON) {
+  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU) {
     wandHeatUp();
-  }
-
-  // Do not exit any menu systems if we are in them.
-  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
-    WAND_ACTION_STATUS = ACTION_IDLE;
   }
 
   if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
@@ -4497,7 +4524,7 @@ void fireStreamEffect(CRGB c_colour) {
       i_firing_stream = d_firing_stream / 10;
 
       if(ms_firing_stream_effects.justFinished()) {
-        if(i_barrel_light - 1 < i_num_barrel_leds) {
+        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
             case PROTON:
             default:
@@ -4798,7 +4825,7 @@ void fireStreamEffect(CRGB c_colour) {
       i_firing_stream = d_firing_stream;
 
       if(ms_firing_stream_effects.justFinished()) {
-        if(i_barrel_light - 1 < i_num_barrel_leds) {
+        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
             case PROTON:
             default:
@@ -8018,10 +8045,8 @@ void wandLightsOff() {
   i_bargraph_status = 0;
   i_bargraph_status_alt = 0;
 
-  if(b_power_on_indicator == true) {
-    if(ms_power_indicator.isRunning() != true) {
-      ms_power_indicator.start(i_ms_power_indicator);
-    }
+  if(b_power_on_indicator && !ms_power_indicator.isRunning()) {
+    ms_power_indicator.start(i_ms_power_indicator);
   }
 }
 

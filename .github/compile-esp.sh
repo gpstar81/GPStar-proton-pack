@@ -11,21 +11,6 @@ TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 echo ""
 
-# Attenuator (Arduino)
-echo "Building Attenuator Binary (Arduino)..."
-
-# --warnings none
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:nano --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
-
-rm -f ${BINDIR}/*.bin
-rm -f ${BINDIR}/*.eep
-rm -f ${BINDIR}/*.elf
-rm -f ${BINDIR}/*bootloader.hex
-
-mv ${BINDIR}/Attenuator.ino.hex ${BINDIR}/attenuator/Attenuator-Nano.hex
-echo "Done."
-echo ""
-
 # Attenuator (ESP32)
 echo "Building Attenuator Binary (ESP32)..."
 
