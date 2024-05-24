@@ -24,6 +24,8 @@ const char INDEX_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-control" content="public">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Proton Pack</title>
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
@@ -161,6 +163,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       getStatus(); // Get status immediately while WebSocket opens.
     }
 
+    function getEl(id){
+      return document.getElementById(id);
+    }
+
     function initWebSocket() {
       console.log("Attempting to open a WebSocket connection...");
       websocket = new WebSocket(gateway);
@@ -239,7 +245,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         }
 
         // Update the list of options for track selection.
-        var trackList = document.getElementById("tracks");
+        var trackList = getEl("tracks");
         if (trackList) {
           removeOptions(trackList); // Clear previous options.
 
@@ -267,57 +273,57 @@ const char INDEX_page[] PROGMEM = R"=====(
 
     function setButtonStates(mode, pack, wand, cyclotron) {
       // Assume remote on/off is not possible, override as necessary.
-      document.getElementById("btnPackOff").disabled = false;
-      document.getElementById("btnPackOn").disabled = false;
+      getEl("btnPackOff").disabled = false;
+      getEl("btnPackOn").disabled = false;
 
       // Assume remote venting is not possible, override as necessary.
-      document.getElementById("btnVent").disabled = true;
+      getEl("btnVent").disabled = true;
 
       if (mode == "Original") {
         // Rules for Mode Original
 
         if (pack == "Powered" && wand == "Powered") {
           // Cannot turn on/off pack remotely if in mode Original and pack+wand are Powered.
-          document.getElementById("btnPackOff").disabled = true;
-          document.getElementById("btnPackOn").disabled = true;
+          getEl("btnPackOff").disabled = true;
+          getEl("btnPackOn").disabled = true;
         }
       } else {
         // Rules for Super Hero
 
         if (pack == "Powered" && wand == "Powered") {
           // Cannot turn on/off pack remotely if in mode Original and pack+wand are Powered.
-          document.getElementById("btnPackOff").disabled = true;
-          document.getElementById("btnPackOn").disabled = true;
+          getEl("btnPackOff").disabled = true;
+          getEl("btnPackOn").disabled = true;
         } else {
           // Otherwise, buttons can be enabled based on pack/wand status.
           if (pack == "Powered" && wand != "Powered") {
             // Can only turn off the pack, so long as the wand is not powered.
-            document.getElementById("btnPackOff").disabled = false;
+            getEl("btnPackOff").disabled = false;
           }
           if (pack != "Powered") {
             // Can turn on the pack if not already powered (implies wand is not powered).
-            document.getElementById("btnPackOn").disabled = false;
+            getEl("btnPackOn").disabled = false;
           }
         }
 
         if (wand == "Powered" && (cyclotron == "Normal" || cyclotron == "Active")) {
           // Can only use manual vent if wand is Powered and pack is not already venting.
           // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
-          document.getElementById("btnVent").disabled = false;
+          getEl("btnVent").disabled = false;
         }
       }
 
       // Attenuate action works for either Operation Mode available.
       if (cyclotron == "Warning" || cyclotron == "Critical") {
         // Can only attenuate if cyclotron is in the pre-overheat states.
-        document.getElementById("btnAttenuate").disabled = false;
+        getEl("btnAttenuate").disabled = false;
       } else {
         // Otherwise, this should NOT be allowed for any other state.
-        document.getElementById("btnAttenuate").disabled = true;
+        getEl("btnAttenuate").disabled = true;
       }
     }
 
-    function getColor(cMode) {
+    function getStreamColor(cMode) {
       var color = [0, 0, 0];
 
       switch(cMode){
@@ -350,12 +356,12 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function updateBars(iPower, cMode) {
-      var powerBars = document.getElementById("powerBars");
+      var color = getStreamColor(cMode);
+      var powerBars = getEl("powerBars");
       if (powerBars) {
         powerBars.innerHTML = ""; // Clear previous bars if any
 
         if (iPower > 0) {
-          var color = getColor(cMode);
           for (var i = 1; i <= iPower; i++) {
             var bar = document.createElement("div");
             bar.className = "bar";
@@ -370,54 +376,54 @@ const char INDEX_page[] PROGMEM = R"=====(
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
         // Current Pack Status
-        document.getElementById("mode").innerHTML = jObj.mode || "...";
-        document.getElementById("theme").innerHTML = jObj.theme || "...";
-        document.getElementById("switch").innerHTML = jObj.switch || "...";
-        document.getElementById("pack").innerHTML = jObj.pack || "...";
-        document.getElementById("cable").innerHTML = jObj.cable || "...";
-        document.getElementById("cyclotron").innerHTML = jObj.cyclotron || "...";
-        document.getElementById("temperature").innerHTML = jObj.temperature || "...";
-        document.getElementById("wand").innerHTML = jObj.wand || "...";
+        getEl("mode").innerHTML = jObj.mode || "...";
+        getEl("theme").innerHTML = jObj.theme || "...";
+        getEl("pack").innerHTML = jObj.pack || "...";
+        getEl("switch").innerHTML = jObj.switch || "...";
+        getEl("cable").innerHTML = jObj.cable || "...";
+        getEl("cyclotron").innerHTML = jObj.cyclotron || "...";
+        getEl("temperature").innerHTML = jObj.temperature || "...";
+        getEl("wand").innerHTML = jObj.wand || "...";
 
         // Current Wand Status
         if (jObj.wand == "Connected") {
           // Only update if the wand is physically connected to the pack.
-          document.getElementById("wandPower").innerHTML = jObj.wandPower || "...";
-          document.getElementById("wandMode").innerHTML = jObj.wandMode || "...";
-          document.getElementById("safety").innerHTML = jObj.safety || "...";
-          document.getElementById("power").innerHTML = jObj.power || "...";
-          document.getElementById("firing").innerHTML = jObj.firing || "...";
+          getEl("wandPower").innerHTML = jObj.wandPower || "...";
+          getEl("wandMode").innerHTML = jObj.wandMode || "...";
+          getEl("safety").innerHTML = jObj.safety || "...";
+          getEl("power").innerHTML = jObj.power || "...";
+          getEl("firing").innerHTML = jObj.firing || "...";
           updateBars(jObj.power || 0, jObj.wandMode || "");
         } else {
           // Default to empty values when wand is not present.
-          document.getElementById("wandPower").innerHTML = "...";
-          document.getElementById("wandMode").innerHTML = "...";
-          document.getElementById("safety").innerHTML = "...";
-          document.getElementById("power").innerHTML = "...";
-          document.getElementById("firing").innerHTML = "...";
-          updateBars(0, jObj.wandMode || "");
+          getEl("wandPower").innerHTML = "...";
+          getEl("wandMode").innerHTML = "...";
+          getEl("safety").innerHTML = "...";
+          getEl("power").innerHTML = "...";
+          getEl("firing").innerHTML = "...";
+          updateBars(0, "");
         }
 
         if (jObj.battVoltage) {
           // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
-          document.getElementById("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2));
+          getEl("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2));
           if (jObj.battVoltage < 4.2) {
-            document.getElementById("battHealth").innerHTML = "&#129707;"; // Low Battery
+            getEl("battHealth").innerHTML = "&#129707;"; // Low Battery
           } else {
-            document.getElementById("battHealth").innerHTML = "&#128267;"; // Good Battery
+            getEl("battHealth").innerHTML = "&#128267;"; // Good Battery
           }
         }
 
         // Volume Information
-        document.getElementById("masterVolume").innerHTML = (jObj.volMaster || 0) + "%";
-        document.getElementById("effectsVolume").innerHTML = (jObj.volEffects || 0) + "%";
-        document.getElementById("musicVolume").innerHTML = (jObj.volMusic || 0) + "%";
+        getEl("masterVolume").innerHTML = (jObj.volMaster || 0) + "%";
+        getEl("effectsVolume").innerHTML = (jObj.volEffects || 0) + "%";
+        getEl("musicVolume").innerHTML = (jObj.volMusic || 0) + "%";
 
         // Device Info
-        document.getElementById("buildDate").innerHTML = jObj.buildDate || "";
-        document.getElementById("wifiName").innerHTML = jObj.wifiName || "";
+        getEl("buildDate").innerHTML = jObj.buildDate || "";
+        getEl("wifiName").innerHTML = jObj.wifiName || "";
         if ((jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
-          document.getElementById("extWifi").innerHTML = jObj.extAddr + " / " + jObj.extMask;
+          getEl("extWifi").innerHTML = jObj.extAddr + " / " + jObj.extMask;
         }
 
         // Update special UI elements based on the latest data values.

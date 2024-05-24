@@ -2152,7 +2152,7 @@ void modeCheck() {
   if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU) {
     wandHeatUp();
   }
-  
+
   if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
     if(FIRING_MODE == MESON) {
       // Tell GPStar Audio we need short audio mode.

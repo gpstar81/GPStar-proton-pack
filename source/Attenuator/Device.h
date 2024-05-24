@@ -24,6 +24,8 @@ const char DEVICE_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-control" content="public">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Device Preferences</title>
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
@@ -107,9 +109,13 @@ const char DEVICE_page[] PROGMEM = R"=====(
       setTimeout(getSettings, 100);
     }
 
+    function getEl(id){
+      return document.getElementById(id);
+    }
+
     function updateByteCount() {
-        var songList = document.getElementById("songList");
-        var byteCount = document.getElementById("byteCount");
+        var songList = getEl("songList");
+        var byteCount = getEl("byteCount");
         var byteLength = new TextEncoder().encode(songList.value).length;
         byteCount.innerHTML = byteLength + "/2000 Bytes";
     }
@@ -141,13 +147,13 @@ const char DEVICE_page[] PROGMEM = R"=====(
           var settings = JSON.parse(this.responseText);
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
-            document.getElementById("invertLEDs").checked = settings.invertLEDs ? true : false;
-            document.getElementById("buzzer").checked = settings.buzzer ? true : false;
-            document.getElementById("vibration").checked = settings.vibration ? true : false;
-            document.getElementById("overheat").checked = settings.overheat ? true : false;
-            document.getElementById("firing").checked = settings.firing ? true : false;
-            document.getElementById("radLensIdle").value = settings.radLensIdle || 0; // Default: 0 [Amber Pulse]
-            document.getElementById("songList").value = settings.songList || "";
+            getEl("invertLEDs").checked = settings.invertLEDs ? true : false;
+            getEl("buzzer").checked = settings.buzzer ? true : false;
+            getEl("vibration").checked = settings.vibration ? true : false;
+            getEl("overheat").checked = settings.overheat ? true : false;
+            getEl("firing").checked = settings.firing ? true : false;
+            getEl("radLensIdle").value = settings.radLensIdle || 0; // Default: 0 [Amber Pulse]
+            getEl("songList").value = settings.songList || "";
             updateByteCount();
           }
         }
@@ -158,20 +164,20 @@ const char DEVICE_page[] PROGMEM = R"=====(
 
     function saveSettings() {
       // Do not allow saving if track list is too large for allowed storage space.
-      if (document.getElementById("songList").value.length > 2000) {
+      if (getEl("songList").value.length > 2000) {
         alert("Unable to save track listing; exceeds allowed bytes.");
         return;
       }
 
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
-        invertLEDs: document.getElementById("invertLEDs").checked ? 1 : 0,
-        buzzer: document.getElementById("buzzer").checked ? 1 : 0,
-        vibration: document.getElementById("vibration").checked ? 1 : 0,
-        overheat: document.getElementById("overheat").checked ? 1 : 0,
-        firing: document.getElementById("firing").checked ? 1 : 0,
-        radLensIdle: parseInt(document.getElementById("radLensIdle").value || 0, 10),
-        songList: document.getElementById("songList").value || ""
+        invertLEDs: getEl("invertLEDs").checked ? 1 : 0,
+        buzzer: getEl("buzzer").checked ? 1 : 0,
+        vibration: getEl("vibration").checked ? 1 : 0,
+        overheat: getEl("overheat").checked ? 1 : 0,
+        firing: getEl("firing").checked ? 1 : 0,
+        radLensIdle: parseInt(getEl("radLensIdle").value || 0, 10),
+        songList: getEl("songList").value || ""
       };
       var body = JSON.stringify(settings);
 

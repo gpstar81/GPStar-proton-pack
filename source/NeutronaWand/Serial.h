@@ -304,11 +304,11 @@ void wandSerialSendData(uint8_t i_message) {
       smokeConfig.overheatLevel1 = b_overheat_level_1;
 
       // Time (seconds) before an overheat event takes place by level.
-      smokeConfig.overheatDelay5 = i_ms_overheat_initiate_level_5 / 1000;
-      smokeConfig.overheatDelay4 = i_ms_overheat_initiate_level_4 / 1000;
-      smokeConfig.overheatDelay3 = i_ms_overheat_initiate_level_3 / 1000;
-      smokeConfig.overheatDelay2 = i_ms_overheat_initiate_level_2 / 1000;
-      smokeConfig.overheatDelay1 = i_ms_overheat_initiate_level_1 / 1000;
+      smokeConfig.overheatDelay5 = (uint8_t)(i_ms_overheat_initiate_level_5 / 1000);
+      smokeConfig.overheatDelay4 = (uint8_t)(i_ms_overheat_initiate_level_4 / 1000);
+      smokeConfig.overheatDelay3 = (uint8_t)(i_ms_overheat_initiate_level_3 / 1000);
+      smokeConfig.overheatDelay2 = (uint8_t)(i_ms_overheat_initiate_level_2 / 1000);
+      smokeConfig.overheatDelay1 = (uint8_t)(i_ms_overheat_initiate_level_1 / 1000);
 
       i_send_size = wandComs.txObj(smokeConfig);
       wandComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
@@ -556,11 +556,13 @@ void checkPack() {
           b_overheat_level_3 = smokeConfig.overheatLevel3;
           b_overheat_level_2 = smokeConfig.overheatLevel2;
           b_overheat_level_1 = smokeConfig.overheatLevel1;
-          i_ms_overheat_initiate_level_5 = smokeConfig.overheatDelay5;
-          i_ms_overheat_initiate_level_4 = smokeConfig.overheatDelay4;
-          i_ms_overheat_initiate_level_3 = smokeConfig.overheatDelay3;
-          i_ms_overheat_initiate_level_2 = smokeConfig.overheatDelay2;
-          i_ms_overheat_initiate_level_1 = smokeConfig.overheatDelay1;
+
+          // Values are sent as seconds, must convert to milliseconds.
+          i_ms_overheat_initiate_level_5 = smokeConfig.overheatDelay5 * 1000;
+          i_ms_overheat_initiate_level_4 = smokeConfig.overheatDelay4 * 1000;
+          i_ms_overheat_initiate_level_3 = smokeConfig.overheatDelay3 * 1000;
+          i_ms_overheat_initiate_level_2 = smokeConfig.overheatDelay2 * 1000;
+          i_ms_overheat_initiate_level_1 = smokeConfig.overheatDelay1 * 1000;
 
           // Update and reset wand components.
           resetOverheatLevels();
