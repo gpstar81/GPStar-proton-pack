@@ -588,10 +588,20 @@ void checkPack() {
             case 1:
             default:
               b_pack_ion_arm_switch_on = false;
-              ms_power_indicator.start(i_ms_power_indicator);
+
+              // If the ion arm switch is turned off in MODE_ORIGINAL, start the power indicator timer.
+              if(SYSTEM_MODE == MODE_ORIGINAL && b_power_on_indicator) {
+                ms_power_indicator.start(i_ms_power_indicator);
+              }
             break;
             case 2:
               b_pack_ion_arm_switch_on = true;
+
+              // If the ion arm switch is on in MODE_ORIGINAL, we do not need a power indicator.
+              if(SYSTEM_MODE == MODE_ORIGINAL && b_power_on_indicator) {
+                ms_power_indicator.stop();
+                ms_power_indicator_blink.stop();
+              }
             break;
           }
 
@@ -897,6 +907,12 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
                   prepBargraphRampUp();
                 }
+
+                // Stop the power on indicator timer if enabled.
+                if(b_power_on_indicator) {
+                  ms_power_indicator.stop();
+                  ms_power_indicator_blink.stop();
+                }
               break;
 
               default:
@@ -928,10 +944,9 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
             playEffect(S_WAND_HEATDOWN);
           }
 
-          // Start the power on indicator timer if enabled.
-          if(b_power_on_indicator == true) {
-            ms_power_indicator.start(i_ms_power_indicator);
-          }
+          // Turn off any vibration and all lights.
+          vibrationOff();
+          wandLightsOff();
         break;
 
         default:

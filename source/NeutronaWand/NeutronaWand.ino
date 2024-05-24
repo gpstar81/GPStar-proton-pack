@@ -303,9 +303,39 @@ void mainLoop() {
           // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
           if(b_pack_ion_arm_switch_on == true) {
             b_pack_ion_arm_switch_on = false;
+
+            if(switch_vent.on() == true && switch_wand.on() == true && b_mode_original_toggle_sounds_enabled == true) {
+              stopEffect(S_WAND_HEATDOWN);
+              stopEffect(S_WAND_HEATUP_ALT);
+              playEffect(S_WAND_HEATDOWN);
+            }
+
+            // Turn off any vibration and all lights.
+            vibrationOff();
+            wandLightsOff();
           }
           else {
             b_pack_ion_arm_switch_on = true;
+
+            if(switch_vent.on() == true && switch_wand.on() == true) {
+              if(b_mode_original_toggle_sounds_enabled == true) {
+                stopEffect(S_WAND_HEATDOWN);
+                stopEffect(S_WAND_HEATUP_ALT);
+                playEffect(S_WAND_HEATUP_ALT);
+              }
+
+              if(b_28segment_bargraph == true) {
+                bargraphPowerCheck2021Alt(false);
+              }
+
+              prepBargraphRampUp();
+            }
+
+            // If the ion arm switch is on, we do not need a power indicator.
+            if(b_power_on_indicator) {
+              ms_power_indicator.stop();
+              ms_power_indicator_blink.stop();
+            }
           }
         }
 
@@ -445,7 +475,10 @@ void mainLoop() {
           }
         }
         else {
-          digitalWriteFast(led_front_left, LOW);
+          if(SYSTEM_MODE == MODE_SUPER_HERO) {
+            // MODE_ORIGINAL has unique control over the Clippard LED, so only turn off if in MODE_SUPER_HERO.
+            digitalWriteFast(led_front_left, LOW);
+          }
         }
       }
     break;
@@ -1351,12 +1384,6 @@ void checkSwitches() {
               }
             }
           }
-          else {
-            if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_SETTINGS) {
-              vibrationOff(); // Turn off vibration, if any.
-              wandLightsOff();
-            }
-          }
         break;
 
         case MODE_SUPER_HERO:
@@ -1727,7 +1754,7 @@ void wandOff() {
       }
 
       // Start the timer for the power on indicator option.
-      if(b_power_on_indicator == true) {
+      if(b_power_on_indicator == true && SYSTEM_MODE == MODE_SUPER_HERO) {
         ms_power_indicator.start(i_ms_power_indicator);
       }
 
@@ -8018,10 +8045,8 @@ void wandLightsOff() {
   i_bargraph_status = 0;
   i_bargraph_status_alt = 0;
 
-  if(b_power_on_indicator == true) {
-    if(ms_power_indicator.isRunning() != true) {
-      ms_power_indicator.start(i_ms_power_indicator);
-    }
+  if(b_power_on_indicator && !ms_power_indicator.isRunning()) {
+    ms_power_indicator.start(i_ms_power_indicator);
   }
 }
 
