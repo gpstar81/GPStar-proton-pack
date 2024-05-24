@@ -101,7 +101,7 @@ p {
   background-image:url('/equipment.svg');
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 98%;
+  background-size: 80%;
   border-radius: 12px;
   box-sizing: border-box;
   box-shadow: 0 2px 18px -4px rgba(0, 0, 0, 0.75);
@@ -120,7 +120,8 @@ p {
 }
 
 .barrel-box {
-  left: 275px;
+  border-radius: 5px;
+  left: 250px;
   height: 80px;
   top: 322px;
   width: 50px;
@@ -129,17 +130,18 @@ p {
 
 .cyc-circle {
   border-radius: 50%; /* Makes the div a circle */
-  left: 55px;
+  left: 82px;
   height: 130px;
-  top: 300px;
+  top: 285px;
   width: 130px;
   z-index: 1;
 }
 
 .power-box {
-  left: 8px;
+  border-radius: 5px;
+  left: 38px;
   height: 80px;
-  top: 140px;
+  top: 132px;
   width: 40px;
   z-index: 1;
 }
@@ -148,12 +150,12 @@ p {
   align-items: center;
   border-left: 40px solid transparent;
   border-right: 40px solid transparent;
-  border-bottom: 70px solid rgba(255, 255, 0, 0.7);
+  border-bottom: 70px solid rgba(255, 255, 0, 0.7); /* Green color with 50% opacity */
   display: flex;
   height: 0;
   justify-content: center;
-  left: 10px;
-  top: 238px;
+  left: 35px;
+  top: 220px;
   width: 0;
   z-index: 1;
 }
