@@ -320,8 +320,6 @@ void readEEPROM() {
       else {
         SYSTEM_MODE = MODE_SUPER_HERO;
       }
-
-      vgModeCheck(); // Assert CTS mode and/or Proton stream as based on system mode.
     }
 
     if(obj_config_eeprom.beep_loop > 0 && obj_config_eeprom.beep_loop != 255) {

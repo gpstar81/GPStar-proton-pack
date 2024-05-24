@@ -617,6 +617,7 @@ bool vgModeCheck() {
     if(SYSTEM_MODE == MODE_ORIGINAL && (b_cross_the_streams != true || FIRING_MODE != PROTON)) {
       b_cross_the_streams = true;
       FIRING_MODE = PROTON;
+      modeCheck();
     }
 
     return false;
@@ -2079,42 +2080,44 @@ void altWingButtonCheck() {
 }
 
 void modeCheck() {
-  switch(FIRING_MODE) {
-    case HOLIDAY:
-      // Tell the pack we are in holiday mode.
-      wandSerialSend(W_HOLIDAY_MODE);
-    break;
+  if(WAND_CONN_STATE == PACK_CONNECTED) {
+    switch(FIRING_MODE) {
+      case HOLIDAY:
+        // Tell the pack we are in holiday mode.
+        wandSerialSend(W_HOLIDAY_MODE);
+      break;
 
-    case SPECTRAL:
-      // Tell the pack we are in spectral mode.
-      wandSerialSend(W_SPECTRAL_MODE);
-    break;
+      case SPECTRAL:
+        // Tell the pack we are in spectral mode.
+        wandSerialSend(W_SPECTRAL_MODE);
+      break;
 
-    case SPECTRAL_CUSTOM:
-      // Tell the pack we are in spectral custom mode.
-      wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-    break;
+      case SPECTRAL_CUSTOM:
+        // Tell the pack we are in spectral custom mode.
+        wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
+      break;
 
-    case MESON:
-      // Tell the pack we are in meson mode.
-      wandSerialSend(W_MESON_MODE);
-    break;
+      case MESON:
+        // Tell the pack we are in meson mode.
+        wandSerialSend(W_MESON_MODE);
+      break;
 
-    case STASIS:
-      // Tell the pack we are in stasis mode.
-      wandSerialSend(W_STASIS_MODE);
-    break;
+      case STASIS:
+        // Tell the pack we are in stasis mode.
+        wandSerialSend(W_STASIS_MODE);
+      break;
 
-    case SLIME:
-      // Tell the pack we are in slime mode.
-      wandSerialSend(W_SLIME_MODE);
-    break;
+      case SLIME:
+        // Tell the pack we are in slime mode.
+        wandSerialSend(W_SLIME_MODE);
+      break;
 
-    case PROTON:
-    default:
-      // Tell the pack we are in proton mode.
-      wandSerialSend(W_PROTON_MODE);
-    break;
+      case PROTON:
+      default:
+        // Tell the pack we are in proton mode.
+        wandSerialSend(W_PROTON_MODE);
+      break;
+    }
   }
 
   if(WAND_STATUS == MODE_ON) {
