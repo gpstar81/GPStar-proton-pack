@@ -408,19 +408,19 @@ const char INDEX_page[] PROGMEM = R"=====(
         switch(jObj.cyclotron){
           case "Active":
             getEl("cycOverlay").style.backgroundColor = "rgba(255, 255, 0, 0.5)";
-            getEl("cycOverlay")classList.remove("blinking");
+            getEl("cycOverlay").classList.remove("blinking");
             break;
           case "Warning":
             getEl("cycOverlay").style.backgroundColor = "rgba(255, 100, 0, 0.5)";
-            getEl("cycOverlay")classList.remove("blinking");
+            getEl("cycOverlay").classList.remove("blinking");
             break;
           case "Critical":
             getEl("cycOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
-            getEl("cycOverlay")classList.add("blinking");
+            getEl("cycOverlay").classList.add("blinking");
             break;
           case "Recovery":
             getEl("cycOverlay").style.backgroundColor = "rgba(0, 0, 255, 0.5)";
-            getEl("cycOverlay")classList.remove("blinking");
+            getEl("cycOverlay").classList.remove("blinking");
             break;
           default:
             if (jObj.pack == "Powered") {
@@ -429,20 +429,20 @@ const char INDEX_page[] PROGMEM = R"=====(
             } else {
               getEl("cycOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
             }
-            getEl("cycOverlay")classList.remove("blinking");
+            getEl("cycOverlay").classList.remove("blinking");
         }
 
         if (jObj.pack == "Powered") {
           if (jObj.temperature == "Venting") {
             getEl("filterOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
-            getEl("filterOverlay")classList.add("blinking");
+            getEl("filterOverlay").classList.add("blinking");
           } else {
             getEl("filterOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
-            getEl("filterOverlay")classList.remove("blinking");
+            getEl("filterOverlay").classList.remove("blinking");
           }
         } else {
           getEl("filterOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
-          getEl("filterOverlay")classList.remove("blinking");
+          getEl("filterOverlay").classList.remove("blinking");
         }
 
         // Current Wand Status
@@ -460,13 +460,13 @@ const char INDEX_page[] PROGMEM = R"=====(
           getEl("barrelOverlay").style.display = "block";
           getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
           if (jObj.firing == "Firing") {
-            getEl("barrelOverlay")classList.add("blinking");
+            getEl("barrelOverlay").classList.add("blinking");
           } else {
-            getEl("barrelOverlay")classList.remove("blinking");
+            getEl("barrelOverlay").classList.remove("blinking");
           }
 
           if (jObj.wandPower == "Powered") {
-            if (jObj.safety == "Safety On") {
+            if (jObj.safety == "Safety Off") {
               getEl("safetyOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
             } else {
               getEl("safetyOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";

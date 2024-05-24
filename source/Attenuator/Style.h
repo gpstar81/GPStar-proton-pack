@@ -58,7 +58,7 @@ p {
 }
 
 .blinking {
-  animation: blink-animation 1s steps(5, start) infinite;
+  animation: blink-animation 0.5s steps(5, start) infinite;
 }
 
 @keyframes blink-animation {

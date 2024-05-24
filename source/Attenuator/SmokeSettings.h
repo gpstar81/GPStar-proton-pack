@@ -310,11 +310,11 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
         smokeEnabled: getEl("smokeEnabled").checked ? 1 : 0,
-        overheatDuration5: getEl("overheatDuration5").value || 2,
-        overheatDuration4: getEl("overheatDuration4").value || 2,
-        overheatDuration3: getEl("overheatDuration3").value || 2,
-        overheatDuration2: getEl("overheatDuration2").value || 2,
-        overheatDuration1: getEl("overheatDuration1").value || 2,
+        overheatDuration5: parseInt(getEl("overheatDuration5").value || 2, 0),
+        overheatDuration4: parseInt(getEl("overheatDuration4").value || 2, 0),
+        overheatDuration3: parseInt(getEl("overheatDuration3").value || 2, 0),
+        overheatDuration2: parseInt(getEl("overheatDuration2").value || 2, 0),
+        overheatDuration1: parseInt(getEl("overheatDuration1").value || 2, 0),
         overheatContinuous5: getEl("overheatContinuous5").checked ? 1 : 0,
         overheatContinuous4: getEl("overheatContinuous4").checked ? 1 : 0,
         overheatContinuous3: getEl("overheatContinuous3").checked ? 1 : 0,
@@ -325,11 +325,11 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
         overheatLevel3: getEl("overheatLevel3").checked ? 1 : 0,
         overheatLevel2: getEl("overheatLevel2").checked ? 1 : 0,
         overheatLevel1: getEl("overheatLevel1").checked ? 1 : 0,
-        overheatDelay5: getEl("overheatDelay5").value || 2,
-        overheatDelay4: getEl("overheatDelay4").value || 2,
-        overheatDelay3: getEl("overheatDelay3").value || 2,
-        overheatDelay2: getEl("overheatDelay2").value || 2,
-        overheatDelay1: getEl("overheatDelay1").value || 2
+        overheatDelay5: parseInt(getEl("overheatDelay5").value || 2, 0),
+        overheatDelay4: parseInt(getEl("overheatDelay4").value || 2, 0),
+        overheatDelay3: parseInt(getEl("overheatDelay3").value || 2, 0),
+        overheatDelay2: parseInt(getEl("overheatDelay2").value || 2, 0),
+        overheatDelay1: parseInt(getEl("overheatDelay1").value || 2, 0)
       };
       var body = JSON.stringify(settings);
 
