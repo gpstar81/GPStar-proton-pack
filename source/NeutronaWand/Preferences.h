@@ -43,7 +43,6 @@ uint32_t eepromCRC(void);
 void bargraphYearModeUpdate();
 void resetOverheatLevels();
 void resetWhiteLEDBlinkRate();
-bool vgModeCheck();
 
 /*
  * General EEPROM Variables
