@@ -68,7 +68,7 @@ void setup() {
   RED_SWITCH_MODE = SWITCH_OFF;
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
-  // Bootup into proton mode (default for pack and wand).
+  // Boot into proton mode (default for pack and wand).
   FIRING_MODE = PROTON;
 
   // Set a default animation for the radiation indicator.

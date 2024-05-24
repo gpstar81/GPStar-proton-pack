@@ -156,13 +156,13 @@ p {
   justify-content: center;
   left: 35px;
   top: 220px;
+  visibility: hidden;
   width: 0;
   z-index: 1;
 }
 
 .exclamation {
   color: #333;
-  display: none;
   font-size: 3em;
   margin-top: 90px;
 }

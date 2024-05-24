@@ -1,6 +1,6 @@
 # Advanced Configuration
 
-The following guide explores the variables and constants which are user-changeable within the code. The purpose of these changes is to set preferred defaults for the operation of your Proton Pack and Neutrona Wand at bootup, meaning just after the devices have battery power applied. These defaults will avoid the need to switch operation modes and other settings through the menu system.
+The following guide explores the variables and constants which are user-changeable within the code. The purpose of these changes is to set preferred defaults for the operation of your Proton Pack and Neutrona Wand at boot-up, meaning just after the devices have battery power applied. These defaults will avoid the need to switch operation modes and other settings through the menu system.
 
 Please consider all items as changeable at your own risk. Deviating from any recommended values may impact the operation of your pack and wand and cause unwanted or odd behavior. Bug reports or issues which arise from modification of these values will be considered moot unless accompanied by copies of changed files to aid in reproducing the behavior.
 

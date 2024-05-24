@@ -63,9 +63,9 @@ const char INDEX_page[] PROGMEM = R"=====(
     </p>
   </div>
   <div class="equipment">
-    <div id="pcOverlay" class="overlay power-box" style="background:rgba(0, 0, 255, 0.5);"></div>
-    <div id="cycOverlay" class="overlay cyc-circle" style="background:rgba(255, 0, 0, 0.5);"></div>
-    <div id="barrelOverlay" class="overlay barrel-box" style="background:rgba(0, 255, 0, 0.5);"></div>
+    <div id="pcOverlay" class="overlay power-box"></div>
+    <div id="cycOverlay" class="overlay cyc-circle"></div>
+    <div id="barrelOverlay" class="overlay barrel-box"></div>
     <div id="warnOverlay" class="overlay ribbon-warning"><div class="exclamation">!</div></div>
   </div>
 
@@ -362,12 +362,23 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function updateBars(iPower, cMode) {
+      var color = getColor(cMode);
+
+      if (iPower > 0) {
+        // Set the color of the barrel according to the stream and power.
+        getEl("barrelOverlay").style.display = "block";
+        getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(iPower * 1.6, 10) + ")";
+      } else {
+        getEl("barrelOverlay").style.display = "none";
+        getEl("barrelOverlay").style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+      }
+
+      // Show a graphical indication of power level using up to 5 bars.
       var powerBars = getEl("powerBars");
       if (powerBars) {
         powerBars.innerHTML = ""; // Clear previous bars if any
 
         if (iPower > 0) {
-          var color = getColor(cMode);
           for (var i = 1; i <= iPower; i++) {
             var bar = document.createElement("div");
             bar.className = "bar";
@@ -384,12 +395,46 @@ const char INDEX_page[] PROGMEM = R"=====(
         // Current Pack Status
         getEl("mode").innerHTML = jObj.mode || "...";
         getEl("theme").innerHTML = jObj.theme || "...";
-        getEl("switch").innerHTML = jObj.switch || "...";
         getEl("pack").innerHTML = jObj.pack || "...";
+        getEl("switch").innerHTML = jObj.switch || "...";
         getEl("cable").innerHTML = jObj.cable || "...";
         getEl("cyclotron").innerHTML = jObj.cyclotron || "...";
         getEl("temperature").innerHTML = jObj.temperature || "...";
         getEl("wand").innerHTML = jObj.wand || "...";
+
+        if (jObj.switch == "Ready") {
+          getEl("pcOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+        } else {
+          getEl("pcOverlay").style.backgroundColor = "rgba(0, 0, 255, 0.5)";
+        }
+
+        if (jObj.cable == "Disconnected") {
+          getEl("warnOverlay").style.visibility = "visible";
+        } else {
+          getEl("warnOverlay").style.visibility = "hidden";
+        }
+
+        switch(jObj.cyclotron){
+          case "Active":
+            getEl("cycOverlay").style.backgroundColor = "rgba(255, 255, 0, 0.5)";
+            break;
+          case "Warning":
+            getEl("cycOverlay").style.backgroundColor = "rgba(255, 100, 0, 0.5)";
+            break;
+          case "Critical":
+            getEl("cycOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+            break;
+          case "Recovery":
+            getEl("cycOverlay").style.backgroundColor = "rgba(0, 0, 255, 0.5)";
+            break;
+          default:
+            if (jObj.pack == "Powered") {
+              // Also covers cyclotron state of "Normal"
+              getEl("cycOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+            } else {
+              getEl("cycOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
+            }
+        }
 
         // Current Wand Status
         if (jObj.wand == "Connected") {
@@ -407,7 +452,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           getEl("safety").innerHTML = "...";
           getEl("power").innerHTML = "...";
           getEl("firing").innerHTML = "...";
-          updateBars(0, jObj.wandMode || "");
+          updateBars(0, "");
         }
 
         if (jObj.battVoltage) {
