@@ -157,9 +157,9 @@ bool startAccesPoint() {
   #endif
 
   // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
-  // Additionally, sets radio to channel 11, don't hide SSID, and max 4 connections.
+  // Additionally, sets radio to channel 6, don't hide SSID, and max 4 connections.
   // Note that the WiFi protocols available for use are 802.11b/g/n
-  bool b_success = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 11, false, 4);
+  bool b_success = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 6, false, 4);
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println(b_success ? "AP Ready" : "AP Failed");
   #endif

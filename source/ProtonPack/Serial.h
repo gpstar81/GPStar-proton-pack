@@ -59,6 +59,7 @@ struct MessagePacket recvDataS;
 struct __attribute__((packed)) PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
+  uint8_t currentYearThemePack;
   uint8_t defaultSystemVolume;
   uint8_t packVibration;
   uint8_t ribbonCableAlarm;
@@ -291,7 +292,8 @@ void serial1SendData(uint8_t i_message) {
     case A_SEND_PREFERENCES_PACK:
       // Any ENUM or boolean types will simply translate as numeric values.
       packConfig.defaultSystemModePack = SYSTEM_MODE;
-      packConfig.defaultYearThemePack = SYSTEM_YEAR;
+      packConfig.defaultYearThemePack = SYSTEM_EEPROM_YEAR;
+      packConfig.currentYearThemePack = SYSTEM_YEAR;
       packConfig.defaultSystemVolume = i_volume_master_percentage;
       packConfig.protonStreamEffects = b_stream_effects;
       packConfig.overheatStrobeNF = b_overheat_strobe;
@@ -489,6 +491,8 @@ void checkSerial1() {
               packSerialSend(P_MODE_SUPER_HERO);
               serial1Send(A_MODE_SUPER_HERO);
 
+              vgModeCheck();
+
               // This is only applicable to the Mode Original, so default to off.
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
@@ -498,6 +502,8 @@ void checkSerial1() {
               SYSTEM_MODE = MODE_ORIGINAL;
               packSerialSend(P_MODE_ORIGINAL);
               serial1Send(A_MODE_ORIGINAL);
+
+              vgModeCheck();
 
               if(switch_power.getState() == LOW) {
                 // Tell the Neutrona Wand that power to the Proton Pack is on.
@@ -515,14 +521,27 @@ void checkSerial1() {
           switch(packConfig.defaultYearThemePack) {
             case 1:
             default:
-              // Just set this enum, as others will be set according to the toggle.
+              // Will allow the pack to boot up to whatever state the mode switch is in.
               SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
-              b_switch_mode_override = false; // Mode to be determined by toggle switch.
             break;
+            case 2:
+              SYSTEM_EEPROM_YEAR = SYSTEM_1984;
+            break;
+            case 3:
+              SYSTEM_EEPROM_YEAR = SYSTEM_1989;
+            break;
+            case 4:
+              SYSTEM_EEPROM_YEAR = SYSTEM_AFTERLIFE;
+            break;
+            case 5:
+              SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
+            break;
+          }
+
+          switch(packConfig.currentYearThemePack) {
             case 2:
               SYSTEM_YEAR = SYSTEM_1984;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_1984);
               serial1Send(A_YEAR_1984);
@@ -530,7 +549,6 @@ void checkSerial1() {
             case 3:
               SYSTEM_YEAR = SYSTEM_1989;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_1989);
               serial1Send(A_YEAR_1989);
@@ -538,7 +556,6 @@ void checkSerial1() {
             case 4:
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_AFTERLIFE);
               serial1Send(A_YEAR_AFTERLIFE);
@@ -546,7 +563,6 @@ void checkSerial1() {
             case 5:
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_FROZEN_EMPIRE);
               serial1Send(A_YEAR_FROZEN_EMPIRE);
@@ -2396,12 +2412,19 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       toggleYearModes();
     break;
 
-    case W_RESET_PROTON_STREAM:
-      // Revert back to proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
-      FIRING_MODE = PROTON;
-
+    case W_VIDEO_GAME_MODE:
       stopEffect(S_CLICK);
+      playEffect(S_CLICK);
 
+      stopEffect(S_VOICE_CROSS_THE_STREAMS);
+      stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
+      stopEffect(S_VOICE_VIDEO_GAME_MODES);
+
+      playEffect(S_VOICE_VIDEO_GAME_MODES);
+    break;
+
+    case W_CROSS_THE_STREAMS:
+      stopEffect(S_CLICK);
       playEffect(S_CLICK);
 
       stopEffect(S_VOICE_VIDEO_GAME_MODES);
@@ -2411,10 +2434,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_CROSS_THE_STREAMS);
     break;
 
-    case W_RESET_PROTON_STREAM_MIX:
-      // Revert back to proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
-      FIRING_MODE = PROTON;
-
+    case W_CROSS_THE_STREAMS_MIX:
       stopEffect(S_CLICK);
       playEffect(S_CLICK);
 
@@ -2684,21 +2704,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         // Tell the wand to play the smoke enabled voice.
         packSerialSend(P_SMOKE_ENABLED);
       }
-    break;
-
-    case W_PROTON_MODE_REVERT:
-      // Revert back to proton mode. Usually because we are switching from crossing the streams to video game mode or vice versa.
-      FIRING_MODE = PROTON;
-
-      stopEffect(S_CLICK);
-
-      playEffect(S_CLICK);
-
-      stopEffect(S_VOICE_CROSS_THE_STREAMS);
-      stopEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
-      stopEffect(S_VOICE_VIDEO_GAME_MODES);
-
-      playEffect(S_VOICE_VIDEO_GAME_MODES);
     break;
 
     case W_CYCLOTRON_DIRECTION_TOGGLE:
@@ -3183,6 +3188,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           serial1Send(A_MODE_ORIGINAL);
         break;
       }
+
+      vgModeCheck();
     break;
 
     case W_SPECTRAL_LIGHTS_ON:
@@ -4184,13 +4191,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
             SYSTEM_EEPROM_YEAR = SYSTEM_1989;
           break;
 
-          case SYSTEM_FROZEN_EMPIRE:
-            SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
-          break;
-
           case SYSTEM_AFTERLIFE:
           default:
             SYSTEM_EEPROM_YEAR = SYSTEM_AFTERLIFE;
+          break;
+
+          case SYSTEM_FROZEN_EMPIRE:
+            SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
           break;
         }
       }

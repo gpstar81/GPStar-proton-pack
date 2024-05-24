@@ -303,9 +303,39 @@ void mainLoop() {
           // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
           if(b_pack_ion_arm_switch_on == true) {
             b_pack_ion_arm_switch_on = false;
+
+            if(switch_vent.on() == true && switch_wand.on() == true && b_mode_original_toggle_sounds_enabled == true) {
+              stopEffect(S_WAND_HEATDOWN);
+              stopEffect(S_WAND_HEATUP_ALT);
+              playEffect(S_WAND_HEATDOWN);
+            }
+
+            // Turn off any vibration and all lights.
+            vibrationOff();
+            wandLightsOff();
           }
           else {
             b_pack_ion_arm_switch_on = true;
+
+            if(switch_vent.on() == true && switch_wand.on() == true) {
+              if(b_mode_original_toggle_sounds_enabled == true) {
+                stopEffect(S_WAND_HEATDOWN);
+                stopEffect(S_WAND_HEATUP_ALT);
+                playEffect(S_WAND_HEATUP_ALT);
+              }
+
+              if(b_28segment_bargraph == true) {
+                bargraphPowerCheck2021Alt(false);
+              }
+
+              prepBargraphRampUp();
+            }
+
+            // If the ion arm switch is on, we do not need a power indicator.
+            if(b_power_on_indicator) {
+              ms_power_indicator.stop();
+              ms_power_indicator_blink.stop();
+            }
           }
         }
 
@@ -445,7 +475,10 @@ void mainLoop() {
           }
         }
         else {
-          digitalWriteFast(led_front_left, LOW);
+          if(SYSTEM_MODE == MODE_SUPER_HERO) {
+            // MODE_ORIGINAL has unique control over the Clippard LED, so only turn off if in MODE_SUPER_HERO.
+            digitalWriteFast(led_front_left, LOW);
+          }
         }
       }
     break;
@@ -612,10 +645,12 @@ void setVGMode() {
 
 // Checks if video game mode should be set.
 bool vgModeCheck() {
-  if(b_cross_the_streams == true || b_cross_the_streams_mix == true || SYSTEM_MODE == MODE_ORIGINAL) {
-    // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled.
-    if(SYSTEM_MODE == MODE_ORIGINAL && b_cross_the_streams != true) {
+  if(SYSTEM_MODE == MODE_ORIGINAL || b_cross_the_streams == true || b_cross_the_streams_mix == true) {
+    // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled and firing mode is PROTON.
+    if(SYSTEM_MODE == MODE_ORIGINAL && (b_cross_the_streams != true || FIRING_MODE != PROTON)) {
       b_cross_the_streams = true;
+      FIRING_MODE = PROTON;
+      modeCheck();
     }
 
     return false;
@@ -731,8 +766,7 @@ void toggleWandModes() {
 
     playEffect(S_VOICE_VIDEO_GAME_MODES);
 
-    // Tell the Proton Pack to reset back to the proton stream.
-    wandSerialSend(W_PROTON_MODE_REVERT);
+    wandSerialSend(W_VIDEO_GAME_MODE);
   }
   else if(b_cross_the_streams == true && b_cross_the_streams_mix != true) {
     // Keep cross the streams on.
@@ -743,8 +777,7 @@ void toggleWandModes() {
 
     playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
 
-    // Tell the Proton Pack to reset back to the proton stream.
-    wandSerialSend(W_RESET_PROTON_STREAM_MIX);
+    wandSerialSend(W_CROSS_THE_STREAMS_MIX);
   }
   else {
     // Turn on crossing the streams mode and turn off video game mode.
@@ -753,9 +786,12 @@ void toggleWandModes() {
 
     playEffect(S_VOICE_CROSS_THE_STREAMS);
 
-    // Tell the Proton Pack to reset back to the proton stream.
-    wandSerialSend(W_RESET_PROTON_STREAM);
+    wandSerialSend(W_CROSS_THE_STREAMS);
   }
+
+  // Reset to proton stream.
+  FIRING_MODE = PROTON;
+  modeCheck();
 }
 
 // Controlled from the the Wand Sub Menu and Wand EEPROM Menu system.
@@ -1348,12 +1384,6 @@ void checkSwitches() {
               }
             }
           }
-          else {
-            if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_SETTINGS) {
-              vibrationOff(); // Turn off vibration, if any.
-              wandLightsOff();
-            }
-          }
         break;
 
         case MODE_SUPER_HERO:
@@ -1724,7 +1754,7 @@ void wandOff() {
       }
 
       // Start the timer for the power on indicator option.
-      if(b_power_on_indicator == true) {
+      if(b_power_on_indicator == true && SYSTEM_MODE == MODE_SUPER_HERO) {
         ms_power_indicator.start(i_ms_power_indicator);
       }
 
@@ -2048,6 +2078,7 @@ void altWingButtonCheck() {
         }
         else {
           modeCheck();
+          WAND_ACTION_STATUS = ACTION_IDLE;
           ms_settings_blinking.stop();
           bargraphClearAlt();
 
@@ -2064,6 +2095,7 @@ void altWingButtonCheck() {
     else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_vent.on() == true && switch_wand.on() == true) {
       // Exit the settings menu if the user turns the wand switch back on.
       modeCheck();
+      WAND_ACTION_STATUS = ACTION_IDLE;
       ms_settings_blinking.stop();
       bargraphClearAlt();
 
@@ -2077,86 +2109,50 @@ void altWingButtonCheck() {
 }
 
 void modeCheck() {
-  switch(FIRING_MODE) {
-    case HOLIDAY:
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
-        wandHeatUp();
-      }
+  if(WAND_CONN_STATE == PACK_CONNECTED) {
+    switch(FIRING_MODE) {
+      case HOLIDAY:
+        // Tell the pack we are in holiday mode.
+        wandSerialSend(W_HOLIDAY_MODE);
+      break;
 
-      WAND_ACTION_STATUS = ACTION_IDLE;
+      case SPECTRAL:
+        // Tell the pack we are in spectral mode.
+        wandSerialSend(W_SPECTRAL_MODE);
+      break;
 
-      // Tell the pack we are in holiday mode.
-      wandSerialSend(W_HOLIDAY_MODE);
-    break;
+      case SPECTRAL_CUSTOM:
+        // Tell the pack we are in spectral custom mode.
+        wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
+      break;
 
-    case SPECTRAL:
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
-        wandHeatUp();
-      }
+      case MESON:
+        // Tell the pack we are in meson mode.
+        wandSerialSend(W_MESON_MODE);
+      break;
 
-      WAND_ACTION_STATUS = ACTION_IDLE;
+      case STASIS:
+        // Tell the pack we are in stasis mode.
+        wandSerialSend(W_STASIS_MODE);
+      break;
 
-      // Tell the pack we are in spectral mode.
-      wandSerialSend(W_SPECTRAL_MODE);
-    break;
+      case SLIME:
+        // Tell the pack we are in slime mode.
+        wandSerialSend(W_SLIME_MODE);
+      break;
 
-    case SPECTRAL_CUSTOM:
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
-      // Tell the pack we are in spectral custom mode.
-      wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-    break;
-
-    case MESON:
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
-      // Tell the pack we are in meson mode.
-      wandSerialSend(W_MESON_MODE);
-    break;
-
-    case STASIS:
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
-      // Tell the pack we are in stasis mode.
-      wandSerialSend(W_STASIS_MODE);
-    break;
-
-    case SLIME:
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
-      // Tell the pack we are in slime mode.
-      wandSerialSend(W_SLIME_MODE);
-    break;
-
-    case PROTON:
-    default:
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
-        wandHeatUp();
-      }
-
-      WAND_ACTION_STATUS = ACTION_IDLE;
-
-      // Tell the pack we are in proton mode.
-      wandSerialSend(W_PROTON_MODE);
-    break;
+      case PROTON:
+      default:
+        // Tell the pack we are in proton mode.
+        wandSerialSend(W_PROTON_MODE);
+      break;
+    }
   }
 
+  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU) {
+    wandHeatUp();
+  }
+  
   if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
     if(FIRING_MODE == MESON) {
       // Tell GPStar Audio we need short audio mode.
@@ -3081,7 +3077,7 @@ void modeFireStopSounds() {
 
       case CTS_1984:
       case CTS_1989:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {      
+        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_CROSS_STREAMS_START);
           stopEffect(S_CROSS_STREAMS_END);
         }
@@ -3097,7 +3093,7 @@ void modeFireStopSounds() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {          
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
             }
@@ -3312,7 +3308,7 @@ void modeFiring() {
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
         if(b_cross_the_streams_mix == true) {
-          if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {          
+          if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
             stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
           }
 
@@ -3332,7 +3328,7 @@ void modeFiring() {
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
         if(b_cross_the_streams_mix == true) {
-          if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {          
+          if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
             stopEffect(S_CROSS_STREAMS_END);
           }
 
@@ -3356,7 +3352,7 @@ void modeFiring() {
             playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
             if(b_cross_the_streams_mix == true) {
-              if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {              
+              if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
                 stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
               }
 
@@ -3376,7 +3372,7 @@ void modeFiring() {
             playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
             if(b_cross_the_streams_mix == true) {
-              if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {              
+              if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
                 stopEffect(S_CROSS_STREAMS_END);
               }
 
@@ -3433,7 +3429,7 @@ void modeFiring() {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
       case CTS_FROZEN_EMPIRE:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {      
+        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         }
         //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
@@ -3445,7 +3441,7 @@ void modeFiring() {
 
       case CTS_1984:
       case CTS_1989:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {      
+        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_CROSS_STREAMS_START);
         }
         //stopEffect(S_CROSS_STREAMS_END);
@@ -3461,7 +3457,7 @@ void modeFiring() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {          
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
             }
             //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
@@ -3473,7 +3469,7 @@ void modeFiring() {
 
           case SYSTEM_1984:
           case SYSTEM_1989:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {          
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
               stopEffect(S_CROSS_STREAMS_START);
             }
             //stopEffect(S_CROSS_STREAMS_END);
@@ -4991,7 +4987,8 @@ void fireStreamStart(CRGB c_colour) {
         // to enhance the stream effects. In this case we can darken the lead LED then follow with the
         // primary colour for the stream chosen. Any other colour effects will follow this arrangement.
         barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light])] = c_colour;
-        if(i_barrel_light + 2 >= 0 && i_barrel_light + 2 < i_num_barrel_leds) {
+
+        if(i_barrel_light + 2 < i_num_barrel_leds) {
           barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light + 2])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
         }
       break;
@@ -8048,10 +8045,8 @@ void wandLightsOff() {
   i_bargraph_status = 0;
   i_bargraph_status_alt = 0;
 
-  if(b_power_on_indicator == true) {
-    if(ms_power_indicator.isRunning() != true) {
-      ms_power_indicator.start(i_ms_power_indicator);
-    }
+  if(b_power_on_indicator && !ms_power_indicator.isRunning()) {
+    ms_power_indicator.start(i_ms_power_indicator);
   }
 }
 
@@ -8921,7 +8916,7 @@ void checkRotaryEncoder() {
                 updatePackPowerLevel();
               }
             }
-            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && ms_firing_mode_switch.remaining() < 1 && WAND_STATUS == MODE_ON) {
+            else if(vgModeCheck() && switch_wand.on() != true && switch_vent.on() == true && ms_firing_mode_switch.remaining() < 1 && WAND_STATUS == MODE_ON) {
               // Counter clockwise firing mode selection.
               if(FIRING_MODE == PROTON) {
                 FIRING_MODE = STASIS;
@@ -9035,7 +9030,7 @@ void checkRotaryEncoder() {
                 }
               }
             }
-            else if(SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() != true && switch_vent.on() == true && ms_firing_mode_switch.remaining() < 1 && WAND_STATUS == MODE_ON) {
+            else if(vgModeCheck() && switch_wand.on() != true && switch_vent.on() == true && ms_firing_mode_switch.remaining() < 1 && WAND_STATUS == MODE_ON) {
               if(FIRING_MODE == PROTON) {
                 // Conditional mode advancement.
                 if(b_spectral_custom_mode_enabled == true) {

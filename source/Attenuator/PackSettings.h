@@ -51,9 +51,18 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;Effects Theme:</b>
+      <b>&nbsp;&nbsp;&nbsp;Default Theme:</b>
       <select id="defaultYearThemePack" name="defaultYearThemePack">
         <option value="1">System Toggle</option>
+        <option value="2">1984</option>
+        <option value="3">1989</option>
+        <option value="4">Afterlife</option>
+        <option value="5">Frozen Empire</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b>&nbsp;&nbsp;&nbsp;Current Theme:</b>
+      <select id="currentYearThemePack" name="currentYearThemePack">
         <option value="2">1984</option>
         <option value="3">1989</option>
         <option value="4">Afterlife</option>
@@ -329,6 +338,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             // Update fields with the current values, or supply an expected default as necessary.
             document.getElementById("defaultSystemModePack").value = settings.defaultSystemModePack || 0;
             document.getElementById("defaultYearThemePack").value = settings.defaultYearThemePack || 1; // Value cannot be 0.
+            document.getElementById("currentYearThemePack").value = settings.currentYearThemePack || 4; // Value cannot be 0.
             document.getElementById("defaultSystemVolume").value = settings.defaultSystemVolume || 100; // Default to full volume.
             document.getElementById("packVibration").value = settings.packVibration || 4;
             document.getElementById("masterVolOut").innerHTML = document.getElementById("defaultSystemVolume").value;
@@ -376,6 +386,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       var settings = {
         defaultSystemModePack: parseInt(document.getElementById("defaultSystemModePack").value || 0, 10),
         defaultYearThemePack: parseInt(document.getElementById("defaultYearThemePack").value || 1, 10),
+        currentYearThemePack: parseInt(document.getElementById("currentYearThemePack").value || 4, 10),
         defaultSystemVolume: parseInt(document.getElementById("defaultSystemVolume").value || 0, 10),
         packVibration: parseInt(document.getElementById("packVibration").value || 4, 10),
         protonStreamEffects: document.getElementById("protonStreamEffects").checked ? 1 : 0,

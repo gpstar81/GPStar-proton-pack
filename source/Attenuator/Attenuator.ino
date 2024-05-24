@@ -95,6 +95,7 @@ void setup() {
         RAD_LENS_IDLE = RED_FADE;
       break;
     }
+    s_track_listing = preferences.getString("track_list", "");
     preferences.end();
 
     // CPU Frequency MHz: 80, 160, 240 [Default]

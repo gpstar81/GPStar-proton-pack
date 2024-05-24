@@ -18,7 +18,7 @@ Note that the lid can be pressed fit back together and stay in place, no glue re
 
 ## N-Filter Disassembly (Optional)
 
-You can run the wires from this Jewel around the lid and into the N-Filter. I used velcro to hold the jewel inside the filter. The N-Filter cap can be removed, there is 1 screw on the backside holding the cap together plus lots of glue around the outside seam of the cap on the N-Filter. I used a shaving Razor Blade and worked it around the seam of the N-Filter cap, scraping all the glue off. Take your time, this is a lengthly process.
+You can run the wires from this jewel around the lid and into the N-Filter. I used velcro to hold the jewel inside the N-Filter. The N-Filter cap can be removed, there is 1 screw on the backside holding the cap together plus lots of glue around the outside seam of the cap on the N-Filter. I used a shaving razor blade and worked it around the seam of the N-Filter cap, scraping all the glue off. Take your time, this is a lengthy process.
 
 Finally there is glue in the inner post where the screw for the N-Filter screws into. You have to twist and pull gently on the N-Filter cap to break this bond. Take your time. I found taking the lid apart to remove the N-Filter unit made it easier to to remove the glue on the N-Filter cap.
 
