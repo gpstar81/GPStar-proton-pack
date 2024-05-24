@@ -4497,7 +4497,7 @@ void fireStreamEffect(CRGB c_colour) {
       i_firing_stream = d_firing_stream / 10;
 
       if(ms_firing_stream_effects.justFinished()) {
-        if(i_barrel_light - 1 < i_num_barrel_leds) {
+        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
             case PROTON:
             default:
@@ -4798,7 +4798,7 @@ void fireStreamEffect(CRGB c_colour) {
       i_firing_stream = d_firing_stream;
 
       if(ms_firing_stream_effects.justFinished()) {
-        if(i_barrel_light - 1 < i_num_barrel_leds) {
+        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
           switch(FIRING_MODE) {
             case PROTON:
             default:
