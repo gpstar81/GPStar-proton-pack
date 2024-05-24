@@ -245,7 +245,7 @@ millisDelay ms_overheat_initiate;
 millisDelay ms_overheating; // This timer is only used when using the Neutrona Wand without a Proton Pack.
 const uint16_t i_ms_overheating = 3000; // Overheating for 3 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
 bool b_overheat_level[5] = { b_overheat_level_1, b_overheat_level_2, b_overheat_level_3, b_overheat_level_4, b_overheat_level_5 };
-uint32_t i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_level_1, i_ms_overheat_initiate_level_2, i_ms_overheat_initiate_level_3, i_ms_overheat_initiate_level_4, i_ms_overheat_initiate_level_5 };
+uint16_t i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_level_1, i_ms_overheat_initiate_level_2, i_ms_overheat_initiate_level_3, i_ms_overheat_initiate_level_4, i_ms_overheat_initiate_level_5 };
 const uint16_t i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
 const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time before an overheat sequence starts while firing. 60 seconds because of uint16_t and voice limitations.
 

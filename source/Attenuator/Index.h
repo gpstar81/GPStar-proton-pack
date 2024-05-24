@@ -63,6 +63,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     </p>
   </div>
   <div class="equipment">
+    <span class="infoState" id="themeMode">&mdash;</span>
     <div id="pcOverlay" class="overlay power-box"></div>
     <div id="cycOverlay" class="overlay cyc-circle"></div>
     <div id="filterOverlay" class="overlay filter-circle"></div>
@@ -392,6 +393,8 @@ const char INDEX_page[] PROGMEM = R"=====(
         getEl("cyclotron").innerHTML = jObj.cyclotron || "...";
         getEl("temperature").innerHTML = jObj.temperature || "...";
         getEl("wand").innerHTML = jObj.wand || "...";
+
+        getEl("themeMode").innerHTML = (jObj.mode || "...") + " / " + (jObj.theme || "...");
 
         if (jObj.switch == "Ready") {
           getEl("pcOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
