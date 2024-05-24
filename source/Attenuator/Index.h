@@ -63,7 +63,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     </p>
   </div>
   <div class="equipment">
-    <span class="infoState" id="themeMode">&mdash;</span>
+    <span class="equip-title infoState" id="themeMode">&mdash;</span>
     <div id="pcOverlay" class="overlay power-box"></div>
     <div id="cycOverlay" class="overlay cyc-circle"></div>
     <div id="filterOverlay" class="overlay filter-circle"></div>
@@ -381,19 +381,9 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
-    function updateStatus(jObj) {
+    function updateEquipment(jObj){
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
-        // Current Pack Status
-        getEl("mode").innerHTML = jObj.mode || "...";
-        getEl("theme").innerHTML = jObj.theme || "...";
-        getEl("pack").innerHTML = jObj.pack || "...";
-        getEl("switch").innerHTML = jObj.switch || "...";
-        getEl("cable").innerHTML = jObj.cable || "...";
-        getEl("cyclotron").innerHTML = jObj.cyclotron || "...";
-        getEl("temperature").innerHTML = jObj.temperature || "...";
-        getEl("wand").innerHTML = jObj.wand || "...";
-
         getEl("themeMode").innerHTML = (jObj.mode || "...") + " / " + (jObj.theme || "...");
 
         if (jObj.switch == "Ready") {
@@ -451,14 +441,6 @@ const char INDEX_page[] PROGMEM = R"=====(
         // Current Wand Status
         if (jObj.wand == "Connected") {
           // Only update if the wand is physically connected to the pack.
-          getEl("wandPower").innerHTML = jObj.wandPower || "...";
-          getEl("wandMode").innerHTML = jObj.wandMode || "...";
-          getEl("safety").innerHTML = jObj.safety || "...";
-          getEl("power").innerHTML = jObj.power || "...";
-          getEl("firing").innerHTML = jObj.firing || "...";
-
-          updateBars(jObj.power || 0, jObj.wandMode || "");
-
           var color = getStreamColor(jObj.wandMode);
           getEl("barrelOverlay").style.display = "block";
           getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
@@ -478,6 +460,35 @@ const char INDEX_page[] PROGMEM = R"=====(
             getEl("safetyOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
           }
         } else {
+          getEl("barrelOverlay").style.display = "none";
+          getEl("safetyOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
+        }
+      }
+    }
+
+    function updateStatus(jObj) {
+      // Update display if we have the expected data (containing mode and theme).
+      if (jObj && jObj.mode && jObj.theme) {
+        // Current Pack Status
+        getEl("mode").innerHTML = jObj.mode || "...";
+        getEl("theme").innerHTML = jObj.theme || "...";
+        getEl("pack").innerHTML = jObj.pack || "...";
+        getEl("switch").innerHTML = jObj.switch || "...";
+        getEl("cable").innerHTML = jObj.cable || "...";
+        getEl("cyclotron").innerHTML = jObj.cyclotron || "...";
+        getEl("temperature").innerHTML = jObj.temperature || "...";
+        getEl("wand").innerHTML = jObj.wand || "...";
+
+        // Current Wand Status
+        if (jObj.wand == "Connected") {
+          // Only update if the wand is physically connected to the pack.
+          getEl("wandPower").innerHTML = jObj.wandPower || "...";
+          getEl("wandMode").innerHTML = jObj.wandMode || "...";
+          getEl("safety").innerHTML = jObj.safety || "...";
+          getEl("power").innerHTML = jObj.power || "...";
+          getEl("firing").innerHTML = jObj.firing || "...";
+          updateBars(jObj.power || 0, jObj.wandMode || "");
+        } else {
           // Default to empty values when wand is not present.
           getEl("wandPower").innerHTML = "...";
           getEl("wandMode").innerHTML = "...";
@@ -485,8 +496,6 @@ const char INDEX_page[] PROGMEM = R"=====(
           getEl("power").innerHTML = "...";
           getEl("firing").innerHTML = "...";
           updateBars(0, "");
-          getEl("barrelOverlay").style.display = "none";
-          getEl("safetyOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
         }
 
         if (jObj.battVoltage) {
@@ -515,6 +524,8 @@ const char INDEX_page[] PROGMEM = R"=====(
         setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);
         updateTrackListing(jObj.musicStart, jObj.musicEnd, jObj.musicCurrent, jObj.songList || 0);
       }
+
+      updateEquipment(jObj);
     }
 
     function handleStatus(response) {

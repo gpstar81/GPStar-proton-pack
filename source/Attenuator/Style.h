@@ -124,6 +124,13 @@ p {
   z-index: 0;
 }
 
+.equip-title {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  top: 10px;
+}
+
 .overlay {
   position: absolute;
 }
