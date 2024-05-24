@@ -394,8 +394,10 @@ const char INDEX_page[] PROGMEM = R"=====(
 
         if (jObj.cable == "Disconnected") {
           getEl("warnOverlay").style.visibility = "visible";
+          getEl("warnOverlay").classList.add("blinking");
         } else {
           getEl("warnOverlay").style.visibility = "hidden";
+          getEl("warnOverlay").classList.remove("blinking");
         }
 
         switch(jObj.cyclotron){

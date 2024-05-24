@@ -128,7 +128,9 @@ p {
   align-items: center;
   display: flex;
   justify-content: center;
+  position: relative;
   top: 10px;
+  z-index: 2;
 }
 
 .overlay {
@@ -146,20 +148,20 @@ p {
 
 .cyc-circle {
   border-radius: 50%; /* Makes the div a circle */
-  left: 80px;
-  height: 135px;
-  top: 283px;
-  width: 135px;
+  left: 77.5px;
+  height: 140px;
+  top: 281px;
+  width: 140px;
   z-index: 1;
 }
 
 .cyc-circle::before {
   background-color: white;
   border-radius: 50%;
-  bottom: -4%;
+  bottom: -2.8%;
   content: "";
   height: 29%;
-  left: 69%;
+  left: 68.3%;
   position: absolute;
   width: 29%;
   transform: translateX(-50%);
@@ -167,9 +169,9 @@ p {
 
 .filter-circle {
   border-radius: 50%; /* Makes the div a circle */
-  left: 154px;
+  left: 152.8px;
   height: 40px;
-  top: 384px;
+  top: 384.5px;
   width: 40px;
   z-index: 2;
 }
@@ -187,7 +189,7 @@ p {
   align-items: center;
   border-left: 40px solid transparent;
   border-right: 40px solid transparent;
-  border-bottom: 70px solid rgba(255, 255, 0, 0.7);
+  border-bottom: 70px solid rgba(220, 220, 0, 0.7);
   display: flex;
   height: 0;
   justify-content: center;
