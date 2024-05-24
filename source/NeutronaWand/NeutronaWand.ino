@@ -2051,6 +2051,7 @@ void altWingButtonCheck() {
         }
         else {
           modeCheck();
+          WAND_ACTION_STATUS = ACTION_IDLE;
           ms_settings_blinking.stop();
           bargraphClearAlt();
 
@@ -2067,6 +2068,7 @@ void altWingButtonCheck() {
     else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_vent.on() == true && switch_wand.on() == true) {
       // Exit the settings menu if the user turns the wand switch back on.
       modeCheck();
+      WAND_ACTION_STATUS = ACTION_IDLE;
       ms_settings_blinking.stop();
       bargraphClearAlt();
 
@@ -2122,11 +2124,6 @@ void modeCheck() {
 
   if(WAND_STATUS == MODE_ON) {
     wandHeatUp();
-  }
-
-  // Do not exit any menu systems if we are in them.
-  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
-    WAND_ACTION_STATUS = ACTION_IDLE;
   }
   
   if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
