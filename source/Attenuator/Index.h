@@ -31,11 +31,12 @@ const char INDEX_page[] PROGMEM = R"=====(
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <link rel="stylesheet" href="/style.css">
 </head>
-<body>
+<body class="blackbg">
   <h1>Equipment Status</h1>
   <div class="equipment">
     <div id="themeMode" class="equip-title centered infoState"></div>
     <div id="streamMode" class="stream-title infoState"></div>
+    <div id="powerLevel" class="power-title infoState"></div>
     <div id="pcHealth" class="pc-health overlay infoState"></div>
     <div id="pcStatus" class="pc-status overlay infoState"></div>
     <div id="ionOverlay" class="overlay ion-switch"></div>
@@ -392,6 +393,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
         getEl("themeMode").innerHTML = (jObj.mode || "") + " / " + (jObj.theme || "");
         getEl("streamMode").innerHTML = (jObj.wandMode || "");
+        getEl("powerLevel").innerHTML = "P" + (jObj.power || "0");
 
         if (jObj.switch == "Ready") {
           getEl("ionOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
@@ -415,7 +417,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
         switch(jObj.cyclotron){
           case "Active":
-            getEl("cycOverlay").style.backgroundColor = "rgba(255, 255, 0, 0.5)";
+            getEl("cycOverlay").style.backgroundColor = "rgba(255, 230, 0, 0.5)";
             getEl("cycOverlay").classList.remove("blinking");
             break;
           case "Warning":
@@ -433,11 +435,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           default:
             if (jObj.pack == "Powered") {
               // Also covers cyclotron state of "Normal"
-              if (jObj.wand == "Connected" && jObj.firing == "Firing") {
-                getEl("cycOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
-              } else {
-                getEl("cycOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
-              }
+              getEl("cycOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
             } else {
               getEl("cycOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
             }

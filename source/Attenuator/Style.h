@@ -134,7 +134,7 @@ p {
   min-height: 200px;
   position: relative;
   text-align: left;
-  text-shadow: #ada 1px 0 5px;
+  text-shadow: #060 1px 0 5px;
   width: 360px;
   z-index: 0;
 }
@@ -161,12 +161,22 @@ p {
   z-index: 3;
 }
 
+.power-title {
+  display: flex;
+  font-weight: bold;
+  left: 200px;
+  margin-right: 8px;
+  position: relative;
+  top: 364px;
+  z-index: 3;
+}
+
 .stream-title {
   align-items: right;
   display: flex;
   font-weight: bold;
   justify-content: right;
-  margin-right: 5px;
+  margin-right: 8px;
   position: relative;
   top: 394px;
   z-index: 3;
@@ -265,7 +275,7 @@ p {
   height: 0;
   justify-content: center;
   left: 35px;
-  top: 220px;
+  top: 210px;
   width: 0;
   visibility: hidden;
   z-index: 2;
