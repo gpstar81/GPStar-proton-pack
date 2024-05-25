@@ -31,9 +31,9 @@ const char INDEX_page[] PROGMEM = R"=====(
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <link rel="stylesheet" href="/style.css">
 </head>
-<body class="blackbg">
+<body class="dark">
   <h1>Equipment Status</h1>
-  <div class="equipment">
+  <div id="equipCRT" class="equipment">
     <div id="themeMode" class="equip-title centered infoState"></div>
     <div id="streamMode" class="stream-title infoState"></div>
     <div id="powerLevel" class="power-title infoState"></div>
@@ -48,7 +48,11 @@ const char INDEX_page[] PROGMEM = R"=====(
     <div id="warnOverlay" class="overlay ribbon-warning"><div class="exclamation">!</div></div>
   </div>
 
-  <div class="card">
+  <div id="crtSpacer" style="display:none;">
+    <br/><br/><br/>
+  </div>
+
+  <div id="equipTXT" class="card">
     <p><span class="infoLabel">Operation Mode:</span> <span class="infoState" id="mode">&mdash;</span></p>
     <p><span class="infoLabel">Effects Theme:</span> <span class="infoState" id="theme">&mdash;</span></p>
     <br/>
@@ -126,7 +130,8 @@ const char INDEX_page[] PROGMEM = R"=====(
   </div>
 
   <h1>Preferences</h1>
-  <div class="block">
+  <div class="card" style="text-align:center;">
+    <br/>
     <a href="/settings/attenuator">Attenuator Settings</a>
     <br/>
     <br/>
@@ -140,7 +145,8 @@ const char INDEX_page[] PROGMEM = R"=====(
   </div>
 
   <h1>Administration</h1>
-  <div class="block">
+  <div class="card" style="text-align:center;">
+    <br/>
     <a href="/update">Update ESP32 Firmware</a>
     <br/>
     <br/>
@@ -151,15 +157,14 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <br/>
     <a href="javascript:doRestart()">Restart/Resync</a>
+  </div>
+
+  <div class="footer">
+    <span id="buildDate"></span>
+    &mdash;
+    <span id="wifiName"></span>
     <br/>
-    <br/>
-    <div class="footer">
-      <span id="buildDate"></span>
-      &mdash;
-      <span id="wifiName"></span>
-      <br/>
-      <span id="extWifi"></span>
-    </div>
+    <span id="extWifi"></span>
   </div>
 
   <script type="application/javascript">
@@ -497,6 +502,26 @@ const char INDEX_page[] PROGMEM = R"=====(
     function updateStatus(jObj) {
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
+        switch(jObj.display) {
+          case "crt":
+            getEl("equipCRT").style.display = "block";
+            getEl("crtSpacer").style.display = "block";
+            getEl("equipTXT").style.display = "none";
+            break;
+          case "text":
+            getEl("equipCRT").style.display = "none";
+            getEl("crtSpacer").style.display = "none";
+            getEl("equipTXT").style.display = "block";
+            break;
+          case "both":
+          default:
+            // Either "both" or not set
+            getEl("equipCRT").style.display = "block";
+            getEl("crtSpacer").style.display = "none";
+            getEl("equipTXT").style.display = "block";
+            break;
+        }
+
         // Current Pack Status
         getEl("mode").innerHTML = jObj.mode || "...";
         getEl("theme").innerHTML = jObj.theme || "...";

@@ -57,8 +57,8 @@ p {
   margin: 5px 0 8px;
 }
 
-.blackbg {
-  background-color: black;
+.dark {
+  background-color: #444;
 }
 
 .blinking {
@@ -119,6 +119,7 @@ p {
 }
 
 .equipment {
+  background-color: black;
   background-image:url('/equipment.svg');
   background-position: center;
   background-repeat: no-repeat;
@@ -164,10 +165,10 @@ p {
 .power-title {
   display: flex;
   font-weight: bold;
-  left: 200px;
+  left: 310px;
   margin-right: 8px;
   position: relative;
-  top: 364px;
+  top: 310px;
   z-index: 3;
 }
 
@@ -285,6 +286,7 @@ p {
   color: #333;
   font-size: 3em;
   margin-top: 90px;
+  text-shadow: none;
 }
 
 button {

@@ -307,6 +307,7 @@ String getEquipmentStatus() {
     jsonBody["extAddr"] = wifi_address;
     jsonBody["extMask"] = wifi_subnet;
     jsonBody["songList"] = s_track_listing;
+    jsonBody["display"] = "crt"; // Hardcoded for now, but can be "crt", "text", or "both"
   }
 
   // Serialize JSON object to string.
