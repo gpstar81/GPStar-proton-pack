@@ -104,12 +104,12 @@ const char INDEX_page[] PROGMEM = R"=====(
   <div class="card">
     <h3 class="centered">Music Navigation</h3>
     <div class="music-navigation">
-      <button type="music-button" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
-      <button type="music-button" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
-      <button type="music-button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
-      <button type="music-button" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
+      <button type="button" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
+      <button type="button" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
+      <button type="button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
+      <button type="button" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
     </div>
-    <select id="tracks" class="custom-select" onchange="musicSelect(this)" style="width:320px"></select>
+    <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
   </div>
 
   <h1>Pack Controls</h1>

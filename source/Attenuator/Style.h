@@ -513,7 +513,7 @@ input:checked + .slider:before {
 .music-navigation {
   justify-content: space-between;
   margin: 10px auto;
-  width: 340px;
+  width: 320px;
 }
 
 .music-navigation button {
@@ -545,5 +545,10 @@ input:checked + .slider:before {
 
 .music-navigation button:active {
   transform: scale(0.95);
+}
+
+#tracks {
+  margin-top: 15px;
+  width: 320px;
 }
 )=====";
