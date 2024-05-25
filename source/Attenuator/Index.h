@@ -65,6 +65,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <div class="equipment">
     <div id="themeMode" class="equip-title infoState"></div>
+    <div id="streamMode" class="equip-title infoState"></div>
     <div id="pcHealth" class="pc-health overlay infoState"></div>
     <div id="pcStatus" class="pc-status overlay infoState"></div>
     <div id="pcOverlay" class="overlay power-box"></div>
@@ -388,6 +389,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
         getEl("themeMode").innerHTML = (jObj.mode || "") + " / " + (jObj.theme || "");
+        getEl("streamMode").innerHTML = (jObj.wandMode || "");
 
         if (jObj.switch == "Ready") {
           getEl("pcOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";

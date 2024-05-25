@@ -129,8 +129,9 @@ p {
   align-items: center;
   display: flex;
   justify-content: center;
+  margin: 10px;
   position: relative;
-  top: 10px;
+  top: 15px;
   z-index: 2;
 }
 
