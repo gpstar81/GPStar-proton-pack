@@ -33,6 +33,20 @@ const char INDEX_page[] PROGMEM = R"=====(
 </head>
 <body>
   <h1>Equipment Status</h1>
+  <div class="equipment">
+    <div id="themeMode" class="equip-title centered infoState"></div>
+    <div id="streamMode" class="stream-title infoState"></div>
+    <div id="pcHealth" class="pc-health overlay infoState"></div>
+    <div id="pcStatus" class="pc-status overlay infoState"></div>
+    <div id="ionOverlay" class="overlay ion-switch"></div>
+    <div id="pcOverlay" class="overlay power-box"></div>
+    <div id="cycOverlay" class="overlay cyc-circle"></div>
+    <div id="filterOverlay" class="overlay filter-circle"></div>
+    <div id="barrelOverlay" class="overlay barrel-box"></div>
+    <div id="safetyOverlay" class="overlay safety-box"  ></div>
+    <div id="warnOverlay" class="overlay ribbon-warning"><div class="exclamation">!</div></div>
+  </div>
+
   <div class="card">
     <p><span class="infoLabel">Operation Mode:</span> <span class="infoState" id="mode">&mdash;</span></p>
     <p><span class="infoLabel">Effects Theme:</span> <span class="infoState" id="theme">&mdash;</span></p>
@@ -63,19 +77,6 @@ const char INDEX_page[] PROGMEM = R"=====(
     </p>
   </div>
 
-  <div class="equipment">
-    <div id="themeMode" class="equip-title infoState"></div>
-    <div id="streamMode" class="equip-title infoState"></div>
-    <div id="pcHealth" class="pc-health overlay infoState"></div>
-    <div id="pcStatus" class="pc-status overlay infoState"></div>
-    <div id="pcOverlay" class="overlay power-box"></div>
-    <div id="cycOverlay" class="overlay cyc-circle"></div>
-    <div id="filterOverlay" class="overlay filter-circle"></div>
-    <div id="barrelOverlay" class="overlay barrel-box"></div>
-    <div id="safetyOverlay" class="overlay safety-box"  ></div>
-    <div id="warnOverlay" class="overlay ribbon-warning"><div class="exclamation">!</div></div>
-  </div>
-
   <h1>Audio Controls</h1>
   <div>
     <div class="volume-container">
@@ -99,17 +100,16 @@ const char INDEX_page[] PROGMEM = R"=====(
       </div>
     </div>
     <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
-    <br/>
-    <h3>Music Navigation</h3>
+  </div>
+  <div class="card">
+    <h3 class="centered">Music Navigation</h3>
     <div class="music-navigation">
       <button type="music-button" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
       <button type="music-button" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
       <button type="music-button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
       <button type="music-button" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
     </div>
-    <select id="tracks" class="custom-select" onchange="musicSelect(this)" style="width:300px"></select>
-    <br/>
-    <br/>
+    <select id="tracks" class="custom-select" onchange="musicSelect(this)" style="width:320px"></select>
   </div>
 
   <h1>Pack Controls</h1>
@@ -388,13 +388,21 @@ const char INDEX_page[] PROGMEM = R"=====(
     function updateEquipment(jObj){
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
+        var color = getStreamColor(jObj.wandMode || "");
+
         getEl("themeMode").innerHTML = (jObj.mode || "") + " / " + (jObj.theme || "");
         getEl("streamMode").innerHTML = (jObj.wandMode || "");
 
         if (jObj.switch == "Ready") {
+          getEl("ionOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+        } else {
+          getEl("ionOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+        }
+
+        if (jObj.pack == "Powered") {
           getEl("pcOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
         } else {
-          getEl("pcOverlay").style.backgroundColor = "rgba(0, 0, 255, 0.5)";
+          getEl("pcOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
         }
 
         if (jObj.cable == "Disconnected") {
@@ -425,7 +433,11 @@ const char INDEX_page[] PROGMEM = R"=====(
           default:
             if (jObj.pack == "Powered") {
               // Also covers cyclotron state of "Normal"
-              getEl("cycOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+              if (jObj.wand == "Connected" && jObj.firing == "Firing") {
+                getEl("cycOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
+              } else {
+                getEl("cycOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+              }
             } else {
               getEl("cycOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
             }
@@ -448,7 +460,6 @@ const char INDEX_page[] PROGMEM = R"=====(
         // Current Wand Status
         if (jObj.wand == "Connected") {
           // Only update if the wand is physically connected to the pack.
-          var color = getStreamColor(jObj.wandMode);
           getEl("barrelOverlay").style.display = "block";
           getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
           if (jObj.firing == "Firing") {

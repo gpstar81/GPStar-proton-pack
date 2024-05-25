@@ -57,6 +57,10 @@ p {
   margin: 5px 0 8px;
 }
 
+.blackbg {
+  background-color: black;
+}
+
 .blinking {
   animation: blink-animation 0.5s steps(5, start) infinite;
 }
@@ -96,6 +100,13 @@ p {
   width: 360px;
 }
 
+.centered {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
 .infoLabel {
   font-family: Tahoma, Verdana, Arial;
   font-size: 0.9em;
@@ -112,41 +123,67 @@ p {
   background-position: center;
   background-repeat: no-repeat;
   background-size: 80%;
+  border: 1px solid green;
   border-radius: 12px;
   box-sizing: border-box;
   box-shadow: 0 2px 18px -4px rgba(0, 0, 0, 0.75);
+  color: rgba(0, 160, 0, 1);
   height: 500px;
   margin: 20px auto;
   max-width: 360px;
   min-height: 200px;
   position: relative;
   text-align: left;
+  text-shadow: #ada 1px 0 5px;
   width: 360px;
   z-index: 0;
 }
 
+.equipment::before {
+  background: linear-gradient(rgba(18, 16, 16, 0) 40%, rgba(200, 200, 200, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 2px, 3px 100%;
+  border-radius: 12px;
+  bottom: 0;
+  content: "";
+  display: block;
+  left: 0;
+  position: absolute;
+  pointer-events: none;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+
 .equip-title {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  margin: 10px;
-  position: relative;
+  font-weight: bold;
+  padding-top: 10px;
   top: 15px;
-  z-index: 2;
+  z-index: 3;
+}
+
+.stream-title {
+  align-items: right;
+  display: flex;
+  font-weight: bold;
+  justify-content: right;
+  margin-right: 5px;
+  position: relative;
+  top: 394px;
+  z-index: 3;
 }
 
 .pc-health {
   font-size: 1.8em;
   left: 88px;
   top: 82px;
-  z-index: 2;
+  z-index: 3;
 }
 
 .pc-status {
   font-size: 0.9em;
   left: 8px;
   top: 110px;
-  z-index: 2;
+  z-index: 3;
 }
 
 .overlay {
@@ -155,50 +192,68 @@ p {
 
 .barrel-box {
   border-radius: 5px;
-  left: 270px;
+  left: 268px;
   height: 60px;
-  top: 340px;
+  top: 338px;
   width: 20px;
-  z-index: 1;
+  z-index: 2;
 }
 
 .cyc-circle {
-  border-radius: 50%; /* Makes the div a circle */
+  border-radius: 50%;
   left: 77.5px;
   height: 140px;
-  top: 281px;
+  top: 280px;
   width: 140px;
-  z-index: 1;
+  z-index: 2;
 }
 
 .cyc-circle::before {
   background-color: white;
   border-radius: 50%;
-  bottom: -2.8%;
+  bottom: -1.7%;
   content: "";
   height: 29%;
-  left: 68.3%;
+  left: 67.3%;
   position: absolute;
   width: 29%;
   transform: translateX(-50%);
 }
 
 .filter-circle {
-  border-radius: 50%; /* Makes the div a circle */
-  left: 152.8px;
-  height: 40px;
-  top: 384.5px;
-  width: 40px;
+  border-radius: 50%;
+  left: 150.7px;
+  height: 42px;
+  top: 381.2px;
+  width: 42px;
+  z-index: 3;
+}
+
+.ion-switch {
+  border-radius: 2px;
+  left: 52px;
+  height: 38px;
+  top: 80px;
+  width: 30px;
   z-index: 2;
 }
 
 .power-box {
+  border-radius: 2px;
+  left: 37px;
+  height: 74px;
+  top: 133px;
+  width: 35px;
+  z-index: 2;
+}
+
+.safety-box {
   border-radius: 5px;
-  left: 38px;
-  height: 72px;
-  top: 135px;
-  width: 36px;
-  z-index: 1;
+  left: 305px;
+  height: 32px;
+  top: 156px;
+  width: 16px;
+  z-index: 2;
 }
 
 .ribbon-warning {
@@ -213,16 +268,7 @@ p {
   top: 220px;
   width: 0;
   visibility: hidden;
-  z-index: 1;
-}
-
-.safety-box {
-  border-radius: 5px;
-  left: 305px;
-  height: 32px;
-  top: 158px;
-  width: 18px;
-  z-index: 1;
+  z-index: 2;
 }
 
 .exclamation {
@@ -275,7 +321,7 @@ select {
   font-size: 1.15rem;
   height: 40px;
   margin: 5px;
-  max-width: 300px;
+  max-width: 320px;
   min-width: 160px;
   text-align: center;
   width: 160px;
