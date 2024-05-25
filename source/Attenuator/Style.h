@@ -66,6 +66,7 @@ p {
     visibility: hidden;
   }
 }
+
 .footer {
   color: #ccc;
   font-size: 0.8em;
@@ -130,6 +131,20 @@ p {
   justify-content: center;
   position: relative;
   top: 10px;
+  z-index: 2;
+}
+
+.pc-health {
+  font-size: 1.8em;
+  left: 88px;
+  top: 82px;
+  z-index: 2;
+}
+
+.pc-status {
+  font-size: 0.9em;
+  left: 8px;
+  top: 110px;
   z-index: 2;
 }
 

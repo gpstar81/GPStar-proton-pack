@@ -62,8 +62,11 @@ const char INDEX_page[] PROGMEM = R"=====(
       <span style="font-size: 0.8em">GeV</span>
     </p>
   </div>
+
   <div class="equipment">
-    <span class="equip-title infoState" id="themeMode">&mdash;</span>
+    <div id="themeMode" class="equip-title infoState"></div>
+    <div id="pcHealth" class="pc-health overlay infoState"></div>
+    <div id="pcStatus" class="pc-status overlay infoState"></div>
     <div id="pcOverlay" class="overlay power-box"></div>
     <div id="cycOverlay" class="overlay cyc-circle"></div>
     <div id="filterOverlay" class="overlay filter-circle"></div>
@@ -384,7 +387,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     function updateEquipment(jObj){
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
-        getEl("themeMode").innerHTML = (jObj.mode || "...") + " / " + (jObj.theme || "...");
+        getEl("themeMode").innerHTML = (jObj.mode || "") + " / " + (jObj.theme || "");
 
         if (jObj.switch == "Ready") {
           getEl("pcOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
@@ -465,6 +468,18 @@ const char INDEX_page[] PROGMEM = R"=====(
           getEl("barrelOverlay").style.display = "none";
           getEl("safetyOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
         }
+
+        if (jObj.battVoltage) {
+          // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
+          getEl("pcStatus").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2)) + "<br/>GeV";
+          if (jObj.battVoltage < 4.2) {
+            getEl("pcHealth").innerHTML = "&#129707;"; // Low Battery
+          } else {
+            getEl("pcHealth").innerHTML = "&#128267;"; // Good Battery
+          }
+        } else {
+          getEl("pcHealth").innerHTML = "";
+        }
       }
     }
 
@@ -501,13 +516,16 @@ const char INDEX_page[] PROGMEM = R"=====(
         }
 
         if (jObj.battVoltage) {
-          // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
+          // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates high drain.
           getEl("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2));
           if (jObj.battVoltage < 4.2) {
-            getEl("battHealth").innerHTML = "&#129707;"; // Low Battery
+            getEl("battHealth").innerHTML = "&#129707;"; // Draining Battery
           } else {
-            getEl("battHealth").innerHTML = "&#128267;"; // Good Battery
+            getEl("battHealth").innerHTML = "&#128267;"; // Healthy Battery
           }
+        } else {
+          getEl("battVoltage").innerHTML = "...";
+          getEl("battHealth").innerHTML = "";
         }
 
         // Volume Information
