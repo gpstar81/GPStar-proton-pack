@@ -46,7 +46,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <div id="filterOverlay" class="overlay filter-circle"></div>
     <div id="barrelOverlay" class="overlay barrel-box"></div>
     <div id="safetyOverlay" class="overlay safety-box"  ></div>
-    <div id="warnOverlay" class="overlay ribbon-warning"><div class="exclamation">!</div></div>
+    <div id="warnOverlay" class="overlay ribbon-warning"></div>
     <div id="cyclotronLid" class="equip-title centered infoState rad-warning">
       <span style="font-size:1.2em">&#9762;</span> Cyclotron Exposure Warning
     </div>
@@ -186,7 +186,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     function onLoad(event) {
       initWebSocket(); // Open the WebSocket for server-push data.
       getStatus(); // Get status immediately while WebSocket opens.
-      getMusicTracks(); // Get the music tracks only when loads.
+      getDevicePrefs(); // Get the devite preferences on load.
     }
 
     function getEl(id){
@@ -494,11 +494,11 @@ const char INDEX_page[] PROGMEM = R"=====(
 
         if (jObj.battVoltage) {
           // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
-          getEl("pcStatus").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2)) + "<br/>GeV";
+          getEl("pcStatus").innerHTML = "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV";
           if (jObj.battVoltage < 4.2) {
-            getEl("boostOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)"; // Low Battery
+            getEl("boostOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)"; // Draining Battery
           } else {
-            getEl("boostOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)"; // Good Battery
+            getEl("boostOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)"; // Healthy Battery
           }
         } else {
           getEl("pcHealth").innerHTML = "";
@@ -509,26 +509,6 @@ const char INDEX_page[] PROGMEM = R"=====(
     function updateStatus(jObj) {
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
-        switch(jObj.display) {
-          case "crt":
-            getEl("equipCRT").style.display = "block";
-            getEl("crtSpacer").style.display = "block";
-            getEl("equipTXT").style.display = "none";
-            break;
-          case "text":
-            getEl("equipCRT").style.display = "none";
-            getEl("crtSpacer").style.display = "none";
-            getEl("equipTXT").style.display = "block";
-            break;
-          case "both":
-          default:
-            // Either "both" or not set
-            getEl("equipCRT").style.display = "block";
-            getEl("crtSpacer").style.display = "none";
-            getEl("equipTXT").style.display = "block";
-            break;
-        }
-
         // Current Pack Status
         getEl("mode").innerHTML = jObj.mode || "...";
         getEl("theme").innerHTML = jObj.theme || "...";
@@ -617,25 +597,48 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          updateStatus(JSON.parse(this.responseText));  
+          updateStatus(JSON.parse(this.responseText));
         }
       };
       xhttp.open("GET", "/status", true);
       xhttp.send();
     }
 
-    function getMusicTracks() {
+    function getDevicePrefs() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           var jObj = JSON.parse(this.responseText);
-          if (jObj && jObj.songList && jObj.songList != "") {
-            musicTrackList = jObj.songList.split("\n");
-            updateTrackListing();
+          if (jObj) {
+            if (jObj.songList && jObj.songList != "") {
+              musicTrackList = jObj.songList.split("\n");
+              updateTrackListing();
+            }
+
+            switch(jObj.displayType || 0) {
+              case 0:
+                // Text-Only Display
+                getEl("equipCRT").style.display = "none";
+                getEl("crtSpacer").style.display = "none";
+                getEl("equipTXT").style.display = "block";
+                break;
+              case 1:
+                // Graphical Display
+                getEl("equipCRT").style.display = "block";
+                getEl("crtSpacer").style.display = "block";
+                getEl("equipTXT").style.display = "none";
+                break;
+              case 2:
+                // Both graphical and text
+                getEl("equipCRT").style.display = "block";
+                getEl("crtSpacer").style.display = "none";
+                getEl("equipTXT").style.display = "block";
+                break;
+            }
           }
         }
       };
-      xhttp.open("GET", "/music/tracks", true);
+      xhttp.open("GET", "/config/attenuator", true);
       xhttp.send();
     }
 

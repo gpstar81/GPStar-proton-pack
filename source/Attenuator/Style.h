@@ -193,7 +193,7 @@ p {
 .pc-status {
   font-size: 0.9em;
   left: 8px;
-  top: 110px;
+  top: 406px;
   z-index: 3;
 }
 
@@ -277,25 +277,13 @@ p {
 }
 
 .ribbon-warning {
-  align-items: center;
-  border-left: 40px solid transparent;
-  border-right: 40px solid transparent;
-  border-bottom: 70px solid rgba(220, 220, 0, 0.7);
-  display: flex;
-  height: 0;
-  justify-content: center;
-  left: 35px;
+  color: yellow;
+  font-size: 4em;
+  left: 50px;
+  text-shadow: #880 1px 0 5px;
   top: 210px;
-  width: 0;
   visibility: hidden;
   z-index: 2;
-}
-
-.exclamation {
-  color: #333;
-  font-size: 3em;
-  margin-top: 90px;
-  text-shadow: none;
 }
 
 .rad-warning {
