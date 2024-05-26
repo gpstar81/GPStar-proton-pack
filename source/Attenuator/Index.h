@@ -176,8 +176,9 @@ const char INDEX_page[] PROGMEM = R"=====(
     var gateway = "ws://" + hostname + "/ws";
     var websocket;
     var statusInterval;
-    var musicTrackCurrent = 0;
+    var musicTrackStart = 0;
     var musicTrackMax = 0;
+    var musicTrackCurrent = 0;
     var musicTrackList = [];
 
     window.addEventListener("load", onLoad);
@@ -253,28 +254,23 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
-    function updateTrackListing(musicStart, musicEnd, musicCurrent) {
+    function updateTrackListing() {
       // Continue if start/end values are sane and something actually changed.
-      if (musicStart > 0 && musicEnd < 1000 && musicEnd >= musicStart &&
-         (musicTrackMax != musicEnd || musicTrackCurrent != musicCurrent)) {
-        // Proceed if we have a starting track and valid end track, and if current track changed.
-        musicTrackMax = musicEnd;
-        musicTrackCurrent = musicCurrent;
-
+      if (musicTrackStart > 0 && musicTrackMax < 1000 && musicTrackMax >= musicTrackStart) {
         // Prepare for track names, if available.
         var trackNum = 0;
         var trackName = "";
-console.log(musicStart, musicEnd, musicCurrent, musicTrackList);
+
         // Update the list of options for track selection.
         var trackList = getEl("tracks");
         if (trackList) {
           removeOptions(trackList); // Clear previous options.
 
           // Generate an option for each track in the selection field.
-          for (var i = musicStart; i <= musicEnd; i++) {
+          for (var i = musicTrackStart; i <= musicTrackMax; i++) {
             var opt = document.createElement("option");
             opt.setAttribute("value", i);
-            if (i == musicCurrent) {
+            if (i == musicTrackCurrent) {
               opt.setAttribute("selected", true);
             }
 
@@ -593,7 +589,14 @@ console.log(musicStart, musicEnd, musicCurrent, musicTrackList);
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);
-        updateTrackListing(jObj.musicStart, jObj.musicEnd, jObj.musicCurrent);
+
+        // Update the current track info.
+        musicTrackStart = jObj.musicStart || 0;
+        musicTrackMax = jObj.musicEnd || 0;
+        if (musicTrackCurrent != (jObj.musicCurrent || 0)) {
+          musicTrackCurrent = jObj.musicCurrent || 0;
+          updateTrackListing();
+        }
       }
 
       updateEquipment(jObj);
@@ -626,9 +629,9 @@ console.log(musicStart, musicEnd, musicCurrent, musicTrackList);
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           var jObj = JSON.parse(this.responseText);
-console.log(jObj);
           if (jObj && jObj.songList && jObj.songList != "") {
             musicTrackList = jObj.songList.split("\n");
+            updateTrackListing();
           }
         }
       };

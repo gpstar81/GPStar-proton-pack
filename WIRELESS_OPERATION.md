@@ -31,9 +31,11 @@ A web-based user interface is available at [http://192.168.1.2](http://192.168.1
 
 ### Equipment Status
 
-The equipment status will reflect the status of your Proton Pack and Neutrona Wand and will update in real-time as you interact with the device.
+The equipment status will reflect the status of your Proton Pack and Neutrona Wand and will update in real-time as you interact with the device. This information is available as either a text-based or graphical display, or both if you prefer (set via Attenuator Preferences).
 
 **Note:** If you see a "&mdash;" (dash) beside these values it can indicate a potential communication issue. Simply refresh the page and/or check your WiFi connection to the device.
+
+Credit to fellow cosplayer [Alexander Hibbs](https://www.etsy.com/shop/BeaulieuDesigns87) from the [South Carolina Ghostbusters](https://www.facebook.com/SCGhostbusters/), who created [this amazing Proton Pack and Neutrona Wand technical poster](https://www.etsy.com/listing/1406461576/proton-pack-blueprint-matte-poster) (also available as a [digital image](https://www.etsy.com/listing/1411559802/proton-pack-blueprint-digital-download)). He has graciously provided a version of his design to make the new graphical interface.
 
 ### Audio Controls
 
