@@ -191,6 +191,7 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /volume/music/up - Increase music volume
 	PUT /volume/music/down - Decrease music volume
 
+	GET /music/tracks - Return the current music tracks stored on the device
 	PUT /music/startstop - Toggle music playback via start/stop
 	PUT /music/pauseresume - Toggle music playback via resume/pause
 	PUT /music/next - Move to next track

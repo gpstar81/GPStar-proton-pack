@@ -556,6 +556,7 @@ void setupRouting() {
   httpServer.on("/volume/effects/down", HTTP_PUT, handleEffectsVolumeDown);
   httpServer.on("/volume/music/up", HTTP_PUT, handleMusicVolumeUp);
   httpServer.on("/volume/music/down", HTTP_PUT, handleMusicVolumeDown);
+  httpServer.on("/music/tracks", HTTP_GET, handleGetMusicTracks);
   httpServer.on("/music/startstop", HTTP_PUT, handleMusicStartStop);
   httpServer.on("/music/pauseresume", HTTP_PUT, handleMusicPauseResume);
   httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);

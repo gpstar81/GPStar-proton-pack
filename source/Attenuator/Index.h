@@ -178,12 +178,14 @@ const char INDEX_page[] PROGMEM = R"=====(
     var statusInterval;
     var musicTrackCurrent = 0;
     var musicTrackMax = 0;
+    var musicTrackList = [];
 
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
       initWebSocket(); // Open the WebSocket for server-push data.
       getStatus(); // Get status immediately while WebSocket opens.
+      getMusicTracks(); // Get the music tracks only when loads.
     }
 
     function getEl(id){
@@ -251,7 +253,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
-    function updateTrackListing(musicStart, musicEnd, musicCurrent, songList) {
+    function updateTrackListing(musicStart, musicEnd, musicCurrent) {
       // Continue if start/end values are sane and something actually changed.
       if (musicStart > 0 && musicEnd < 1000 && musicEnd >= musicStart &&
          (musicTrackMax != musicEnd || musicTrackCurrent != musicCurrent)) {
@@ -260,13 +262,9 @@ const char INDEX_page[] PROGMEM = R"=====(
         musicTrackCurrent = musicCurrent;
 
         // Prepare for track names, if available.
-        var tracks = [];
         var trackNum = 0;
         var trackName = "";
-        if (songList != "") {
-          tracks = songList.split('\n');
-        }
-
+console.log(musicStart, musicEnd, musicCurrent, musicTrackList);
         // Update the list of options for track selection.
         var trackList = getEl("tracks");
         if (trackList) {
@@ -280,7 +278,7 @@ const char INDEX_page[] PROGMEM = R"=====(
               opt.setAttribute("selected", true);
             }
 
-            trackName = tracks[trackNum] || "";
+            trackName = musicTrackList[trackNum] || "";
             if (trackName != "") {
               opt.appendChild(document.createTextNode("#" + i + " " + trackName));
             } else {
@@ -401,8 +399,6 @@ const char INDEX_page[] PROGMEM = R"=====(
         var color = getStreamColor(jObj.wandMode || "");
 
         getEl("themeMode").innerHTML = (jObj.mode || "") + " / " + (jObj.theme || "");
-        getEl("streamMode").innerHTML = (jObj.wandMode || "");
-        getEl("powerLevel").innerHTML = "L-" + (jObj.power || "0");
 
         if (jObj.switch == "Ready") {
           getEl("ionOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
@@ -473,6 +469,9 @@ const char INDEX_page[] PROGMEM = R"=====(
         // Current Wand Status
         if (jObj.wand == "Connected") {
           // Only update if the wand is physically connected to the pack.
+          getEl("streamMode").innerHTML = (jObj.wandMode || "");
+          getEl("powerLevel").innerHTML = "L-" + (jObj.power || "0");
+
           getEl("barrelOverlay").style.display = "block";
           getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
           if (jObj.firing == "Firing") {
@@ -491,6 +490,8 @@ const char INDEX_page[] PROGMEM = R"=====(
             getEl("safetyOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
           }
         } else {
+          getEl("streamMode").innerHTML = "- Disconnected -";
+          getEl("powerLevel").innerHTML = "N/A";
           getEl("barrelOverlay").style.display = "none";
           getEl("safetyOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
         }
@@ -543,7 +544,6 @@ const char INDEX_page[] PROGMEM = R"=====(
         } else {
           getEl("cyclotron").innerHTML = jObj.cyclotron || "...";
         }
-        getEl("cyclotron").innerHTML = jObj.cyclotron || "...";
         getEl("temperature").innerHTML = jObj.temperature || "...";
         getEl("wand").innerHTML = jObj.wand || "...";
 
@@ -593,7 +593,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);
-        updateTrackListing(jObj.musicStart, jObj.musicEnd, jObj.musicCurrent, jObj.songList || 0);
+        updateTrackListing(jObj.musicStart, jObj.musicEnd, jObj.musicCurrent);
       }
 
       updateEquipment(jObj);
@@ -614,10 +614,25 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          updateStatus(JSON.parse(this.responseText));
+          updateStatus(JSON.parse(this.responseText));  
         }
       };
       xhttp.open("GET", "/status", true);
+      xhttp.send();
+    }
+
+    function getMusicTracks() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          var jObj = JSON.parse(this.responseText);
+console.log(jObj);
+          if (jObj && jObj.songList && jObj.songList != "") {
+            musicTrackList = jObj.songList.split("\n");
+          }
+        }
+      };
+      xhttp.open("GET", "/music/tracks", true);
       xhttp.send();
     }
 

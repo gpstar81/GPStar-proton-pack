@@ -1973,6 +1973,7 @@ void cyclotronControl() {
         break;
 
         case SYSTEM_AFTERLIFE:
+        default:
           r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
           r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
           r_inner_ramp.go(i_inner_current_ramp_speed);

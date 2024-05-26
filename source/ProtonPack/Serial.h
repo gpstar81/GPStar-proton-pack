@@ -816,6 +816,14 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
           serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
         }
 
+        // Cyclotron lid status.
+        if(b_cyclotron_lid_on) {
+          serial1Send(A_CYCLOTRON_LID_ON);
+        }
+        else {
+          serial1Send(A_CYCLOTRON_LID_OFF);
+        }
+
         // This sends over the music status and the current music track.
         if(b_playing_music == true) {
           serial1Send(A_MUSIC_IS_PLAYING, i_current_music_track);

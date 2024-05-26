@@ -126,6 +126,19 @@ String getAttenuatorConfig() {
   return equipSettings;
 }
 
+String getMusicTracks() {
+  // Prepare a JSON object with information we have gleamed from the system.
+  String musicTracks;
+  jsonBody.clear();
+
+  // Provide current values for the Attenuator device.
+  jsonBody["songList"] = s_track_listing;
+
+  // Serialize JSON object to string.
+  serializeJson(jsonBody, musicTracks);
+  return musicTracks;
+}
+
 String getPackConfig() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipSettings;
@@ -308,7 +321,6 @@ String getEquipmentStatus() {
     jsonBody["wifiName"] = ap_ssid;
     jsonBody["extAddr"] = wifi_address;
     jsonBody["extMask"] = wifi_subnet;
-    jsonBody["songList"] = s_track_listing;
     jsonBody["display"] = DISPLAY_TYPE;
     switch(DISPLAY_TYPE){
       case 0:
@@ -468,6 +480,11 @@ void handleMusicVolumeDown(AsyncWebServerRequest *request) {
   debug("Music Volume Down");
   attenuatorSerialSend(A_VOLUME_MUSIC_DECREASE);
   request->send(200, "application/json", status);
+}
+
+void handleGetMusicTracks(AsyncWebServerRequest *request) {
+  // Return the current music tracks as a stringified JSON object.
+  request->send(200, "application/json", getMusicTracks());
 }
 
 void handleMusicStartStop(AsyncWebServerRequest *request) {
