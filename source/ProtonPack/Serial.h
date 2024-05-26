@@ -708,6 +708,11 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
           serial1Send(A_WAND_DISCONNECTED);
         }
 
+        if(b_neutrona_wand_barrel_extended){
+          // Tell the serial1 device that the Neutrona Wand barrel is extended.
+          serial1Send(A_BARREL_EXTENDED);
+        }
+
         // Make sure this is called before the A_YEAR is sent over to the Attenuator/Wireless.
         switch(SYSTEM_MODE) {
           case MODE_ORIGINAL:
@@ -1355,18 +1360,18 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_BARREL_EXTENDED:
-      // Unused at the moment.
-      //b_neutrona_wand_barrel_extended = true;
+      // Remember the last state sent from the wand (for re-sync with the Serial1 device).
+      b_neutrona_wand_barrel_extended = true;
 
-      // Tell the attenuator or any other device on Serial 1 that the Neutrona Wand barrel is extended.
+      // Tell the serial1 device that the Neutrona Wand barrel is extended.
       serial1Send(A_BARREL_EXTENDED);
     break;
 
     case W_BARREL_RETRACTED:
-      // Unused at the moment.
-      //b_neutrona_wand_barrel_extended = false;
+      // Remember the last state sent from the wand (for re-sync with the Serial1 device).
+      b_neutrona_wand_barrel_extended = false;
 
-      // Tell the attenuator or any other device on Serial 1 that the Neutrona Wand barrel is retracted.
+      // Tell the serial1 device that the Neutrona Wand barrel is retracted.
       serial1Send(A_BARREL_RETRACTED);
     break;
 

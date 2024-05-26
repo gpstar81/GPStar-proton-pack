@@ -308,19 +308,6 @@ String getEquipmentStatus() {
     jsonBody["wifiName"] = ap_ssid;
     jsonBody["extAddr"] = wifi_address;
     jsonBody["extMask"] = wifi_subnet;
-    jsonBody["display"] = DISPLAY_TYPE;
-    switch(DISPLAY_TYPE){
-      case 0:
-        jsonBody["display"] = "text";
-      break;
-      case 1:
-        jsonBody["display"] = "crt";
-      break;
-      case 2:
-      default:
-        jsonBody["display"] = "both";
-      break;
-    }
   }
 
   // Serialize JSON object to string.

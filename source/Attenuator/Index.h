@@ -393,7 +393,6 @@ const char INDEX_page[] PROGMEM = R"=====(
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
         var color = getStreamColor(jObj.wandMode || "");
-
         getEl("themeMode").innerHTML = (jObj.mode || "") + " / " + (jObj.theme || "");
 
         if (jObj.switch == "Ready") {
@@ -503,6 +502,8 @@ const char INDEX_page[] PROGMEM = R"=====(
         } else {
           getEl("pcHealth").innerHTML = "";
         }
+      } else {
+        getEl("themeMode").innerHTML = "- Desynchronized -";
       }
     }
 
