@@ -210,6 +210,15 @@ p {
   z-index: 2;
 }
 
+.booster-box {
+  border-radius: 2px;
+  left: 92.5px;
+  height: 96px;
+  top: 79.5px;
+  width: 20px;
+  z-index: 2;
+}
+
 .cyc-circle {
   border-radius: 50%;
   left: 77.5px;
@@ -287,6 +296,13 @@ p {
   font-size: 3em;
   margin-top: 90px;
   text-shadow: none;
+}
+
+.rad-warning {
+  display: none;
+  left: 40px;
+  top: 380px;
+  z-index: 2;
 }
 
 button {

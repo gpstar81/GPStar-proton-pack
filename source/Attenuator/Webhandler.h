@@ -118,6 +118,7 @@ String getAttenuatorConfig() {
   jsonBody["overheat"] = b_overheat_feedback;
   jsonBody["firing"] = b_firing_feedback;
   jsonBody["radLensIdle"] = RAD_LENS_IDLE;
+  jsonBody["displayType"] = DISPLAY_TYPE;
   jsonBody["songList"] = s_track_listing;
 
   // Serialize JSON object to string.
@@ -292,6 +293,7 @@ String getEquipmentStatus() {
     jsonBody["firing"] = (b_firing ? "Firing" : "Idle");
     jsonBody["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
     jsonBody["cyclotron"] = getCyclotronState();
+    jsonBody["cyclotronLid"] = b_cyclotron_lid_on;
     jsonBody["temperature"] = (b_overheating ? "Venting" : "Normal");
     jsonBody["musicPlaying"] = b_playing_music;
     jsonBody["musicPaused"] = b_music_paused;
@@ -307,7 +309,19 @@ String getEquipmentStatus() {
     jsonBody["extAddr"] = wifi_address;
     jsonBody["extMask"] = wifi_subnet;
     jsonBody["songList"] = s_track_listing;
-    jsonBody["display"] = "crt"; // Hardcoded for now, but can be "crt", "text", or "both"
+    jsonBody["display"] = DISPLAY_TYPE;
+    switch(DISPLAY_TYPE){
+      case 0:
+        jsonBody["display"] = "text";
+      break;
+      case 1:
+        jsonBody["display"] = "crt";
+      break;
+      case 2:
+      default:
+        jsonBody["display"] = "both";
+      break;
+    }
   }
 
   // Serialize JSON object to string.
@@ -569,6 +583,19 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
         break;
       }
     }
+    if(jsonBody["displayType"].is<unsigned short>()) {
+      switch(jsonBody["displayType"].as<unsigned short>()) {
+        case 0:
+          DISPLAY_TYPE = STATUS_TEXT;
+        break;
+        case 1:
+          DISPLAY_TYPE = STATUS_GRAPHIC;
+        break;
+        case 2:
+          DISPLAY_TYPE = STATUS_BOTH;
+        break;
+      }
+    }
 
     // Get the track listing from the text field.
     String songList = jsonBody["songList"];
@@ -581,6 +608,7 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     preferences.putBool("overheat_feedback", b_overheat_feedback);
     preferences.putBool("firing_feedback", b_firing_feedback);
     preferences.putShort("radiation_idle", RAD_LENS_IDLE);
+    preferences.putShort("display_type", DISPLAY_TYPE);
     if(songList.length() <= 2000) {
       // Update song lists if contents are under 2000 bytes.
       #if defined(DEBUG_SEND_TO_CONSOLE)

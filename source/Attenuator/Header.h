@@ -64,6 +64,16 @@ enum LED_ANIMATION : uint16_t {
 enum LED_ANIMATION RAD_LENS_IDLE;
 
 /*
+ * UI Status Display Type
+ */
+enum DISPLAY_TYPES : uint16_t {
+  STATUS_TEXT = 0,
+  STATUS_GRAPHIC = 1,
+  STATUS_BOTH = 2
+};
+enum DISPLAY_TYPES DISPLAY_TYPE;
+
+/*
  * Manage the color and blink pattern for the top LED.
  */
 millisDelay ms_top_blink; // Allows the top LED to blink for a menu state.
@@ -138,6 +148,9 @@ millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
 // Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
 uint8_t i_speed_multiplier = 1;
+
+// Denotes whether the cyclotron lid is currently on (covered) or off (exposed).
+bool b_cyclotron_lid_on = true;
 
 /*
  * Barmeter 28 segment bargraph mapping: allows accessing elements sequentially (0-27)

@@ -4486,8 +4486,9 @@ void cyclotronSwitchPlateLEDs() {
       // The Cyclotron Lid is now on.
       b_cyclotron_lid_on = true;
 
-      // Tell the Neutrona Wand.
+      // Tell the connected devices.
       packSerialSend(P_CYCLOTRON_LID_ON);
+      serial1Send(A_CYCLOTRON_LID_ON);
 
       // Turn off Inner Cyclotron LEDs.
       innerCyclotronCakeOff();
@@ -4499,8 +4500,9 @@ void cyclotronSwitchPlateLEDs() {
       // The Cyclotron Lid is now off.
       b_cyclotron_lid_on = false;
 
-      // Tell the Neutrona Wand.
+      // Tell the connected devices.
       packSerialSend(P_CYCLOTRON_LID_OFF);
+      serial1Send(A_CYCLOTRON_LID_OFF);
 
       // Make sure the Inner Cyclotron turns on if we are in the EEPROM LED menu.
       if(b_spectral_lights_on == true) {

@@ -40,12 +40,16 @@ const char INDEX_page[] PROGMEM = R"=====(
     <div id="pcHealth" class="pc-health overlay infoState"></div>
     <div id="pcStatus" class="pc-status overlay infoState"></div>
     <div id="ionOverlay" class="overlay ion-switch"></div>
+    <div id="boostOverlay" class="overlay booster-box"></div>
     <div id="pcOverlay" class="overlay power-box"></div>
     <div id="cycOverlay" class="overlay cyc-circle"></div>
     <div id="filterOverlay" class="overlay filter-circle"></div>
     <div id="barrelOverlay" class="overlay barrel-box"></div>
     <div id="safetyOverlay" class="overlay safety-box"  ></div>
     <div id="warnOverlay" class="overlay ribbon-warning"><div class="exclamation">!</div></div>
+    <div id="cyclotronLid" class="equip-title centered infoState rad-warning">
+      <span style="font-size:1.2em">&#9762;</span> Cyclotron Exposure Warning
+    </div>
   </div>
 
   <div id="crtSpacer" style="display:none;">
@@ -398,7 +402,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
         getEl("themeMode").innerHTML = (jObj.mode || "") + " / " + (jObj.theme || "");
         getEl("streamMode").innerHTML = (jObj.wandMode || "");
-        getEl("powerLevel").innerHTML = "P" + (jObj.power || "0");
+        getEl("powerLevel").innerHTML = "L-" + (jObj.power || "0");
 
         if (jObj.switch == "Ready") {
           getEl("ionOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
@@ -447,6 +451,12 @@ const char INDEX_page[] PROGMEM = R"=====(
             getEl("cycOverlay").classList.remove("blinking");
         }
 
+        if(jObj.cyclotron && !jObj.cyclotronLid) {
+          getEl("cyclotronLid").style.display = "block";
+        } else {
+          getEl("cyclotronLid").style.display = "none";
+        }
+
         if (jObj.pack == "Powered") {
           if (jObj.temperature == "Venting") {
             getEl("filterOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
@@ -489,9 +499,9 @@ const char INDEX_page[] PROGMEM = R"=====(
           // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
           getEl("pcStatus").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2)) + "<br/>GeV";
           if (jObj.battVoltage < 4.2) {
-            getEl("pcHealth").innerHTML = "&#129707;"; // Low Battery
+            getEl("boostOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)"; // Low Battery
           } else {
-            getEl("pcHealth").innerHTML = "&#128267;"; // Good Battery
+            getEl("boostOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)"; // Good Battery
           }
         } else {
           getEl("pcHealth").innerHTML = "";
@@ -528,6 +538,11 @@ const char INDEX_page[] PROGMEM = R"=====(
         getEl("pack").innerHTML = jObj.pack || "...";
         getEl("switch").innerHTML = jObj.switch || "...";
         getEl("cable").innerHTML = jObj.cable || "...";
+        if(jObj.cyclotron && !jObj.cyclotronLid) {
+          getEl("cyclotron").innerHTML = (jObj.cyclotron || "") + " &#9762;";
+        } else {
+          getEl("cyclotron").innerHTML = jObj.cyclotron || "...";
+        }
         getEl("cyclotron").innerHTML = jObj.cyclotron || "...";
         getEl("temperature").innerHTML = jObj.temperature || "...";
         getEl("wand").innerHTML = jObj.wand || "...";
