@@ -169,8 +169,7 @@ p {
   font-weight: bold;
   left: 310px;
   margin-right: 8px;
-  position: relative;
-  top: 320px;
+  top: 350px;
   z-index: 3;
 }
 
@@ -273,6 +272,7 @@ p {
 .cable-warn {
   color: yellow;
   display: none;
+  font-family: monospace;
   font-size: 4em;
   left: 45px;
   text-shadow: #880 1px 0 5px;
@@ -581,18 +581,18 @@ input:checked + .slider:before {
 
 .tabs button {
   align-items: center;
-  background: #555;
   border: 1px solid #333;
   border-radius: 0;
   cursor: pointer;
   flex: 1;
-  font-size: 1.6em;
+  font-family: monospace;
+  font-size: 2.2em;
   height: 60px;
-  justify-content: center;
   position: relative;
   margin: 0;
   transition: background-color 0.3s ease;
   width: 85px;
+  -webkit-filter: grayscale(100%);
 }
 
 .tabs button:hover {

@@ -27,6 +27,7 @@ const char INDEX_page[] PROGMEM = R"=====(
   <meta charset="UTF-8">
   <meta http-equiv="Cache-control" content="public">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
   <title>Proton Pack</title>
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <link rel="stylesheet" href="/style.css">
@@ -189,9 +190,30 @@ const char INDEX_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
+      document.getElementsByClassName("tablinks")[0].click();
+      getDevicePrefs(); // Get the device preferences on load.
       initWebSocket(); // Open the WebSocket for server-push data.
       getStatus(); // Get status immediately while WebSocket opens.
-      getDevicePrefs(); // Get the devite preferences on load.
+    }
+
+    function openTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+
+      // Hide all tab contents
+      tabcontent = document.getElementsByClassName("tab");
+      for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+      }
+
+      // Remove the active class from all tab links
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+
+      // Show the current tab and add an "active" class to the button that opened the tab
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
     }
 
     function getEl(id){
@@ -396,35 +418,35 @@ const char INDEX_page[] PROGMEM = R"=====(
 
     function updateGraphics(jObj){
       // Update display if we have the expected data (containing mode and theme).
-      if (jObj && jObj.modeID && jObj.themeID) {
+      if (jObj && jObj.mode && jObj.theme) {
         var color = getStreamColor(jObj.wandMode || "");
 
         var header = ""; // Used for the title on the display.
         switch(jObj.modeID){
           case 0:
-            header = "Proton-Locked";
+            header = "Standard";
           break;
           case 1:
-            header = "Variable-Stream";
+            header = "Upgraded";
           break;
           default:
             header = "- Disabled -";
         }
         switch(jObj.themeID) {
           case 2:
-            header += " / V1.984";
+            header += " / V1.9.84";
           break;
           case 3:
-            header += " / V1.989";
+            header += " / V1.9.89";
           break;
           case 4:
-            header += " / V2.021";
+            header += " / V2.0.21";
           break;
           case 5:
-            header += " / V2.024";
+            header += " / V2.0.24";
           break;
           default:
-            header += " / V0.000";
+            header += " / V0.0.00";
         }
         getEl("equipTitle").innerHTML = header;
 
