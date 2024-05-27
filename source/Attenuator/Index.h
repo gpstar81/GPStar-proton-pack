@@ -34,20 +34,19 @@ const char INDEX_page[] PROGMEM = R"=====(
 <body class="dark">
   <h1>Equipment Status</h1>
   <div id="equipCRT" class="equipment">
-    <div id="themeMode" class="equip-title centered infoState"></div>
-    <div id="streamMode" class="stream-title infoState"></div>
-    <div id="powerLevel" class="power-title infoState"></div>
-    <div id="pcHealth" class="pc-health overlay infoState"></div>
-    <div id="pcStatus" class="pc-status overlay infoState"></div>
+    <div id="themeMode" class="infoState equip-title centered"></div>
     <div id="ionOverlay" class="overlay ion-switch"></div>
     <div id="boostOverlay" class="overlay booster-box"></div>
-    <div id="pcOverlay" class="overlay power-box"></div>
+    <div id="pcellOverlay" class="overlay power-box"></div>
+    <div id="cableOverlay" class="overlay cable-warn">&#9888;</div>
     <div id="cycOverlay" class="overlay cyc-circle"></div>
     <div id="filterOverlay" class="overlay filter-circle"></div>
     <div id="barrelOverlay" class="overlay barrel-box"></div>
-    <div id="safetyOverlay" class="overlay safety-box"  ></div>
-    <div id="warnOverlay" class="overlay ribbon-warning"></div>
-    <div id="cyclotronLid" class="equip-title centered infoState rad-warning">
+    <div id="powerLevel" class="infoState power-title"></div>
+    <div id="streamMode" class="infoState stream-title"></div>
+    <div id="safetyOverlay" class="overlay safety-box"></div>
+    <div id="battOutput" class="overlay infoState batt-title"></div>
+    <div id="cyclotronLid" class="infoState rad-warn">
       <span style="font-size:1.2em">&#9762;</span> Cyclotron Exposure Warning
     </div>
   </div>
@@ -240,7 +239,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     function onMessage(event) {
       if (isJsonString(event.data)) {
         // If JSON, use as status update.
-        updateStatus(JSON.parse(event.data));
+        updateEquipment(JSON.parse(event.data));
       } else {
         // Anything else gets sent to console.
         console.log(event.data);
@@ -389,7 +388,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
-    function updateEquipment(jObj){
+    function updateGraphics(jObj){
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
         var color = getStreamColor(jObj.wandMode || "");
@@ -402,17 +401,17 @@ const char INDEX_page[] PROGMEM = R"=====(
         }
 
         if (jObj.pack == "Powered") {
-          getEl("pcOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+          getEl("pcellOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
         } else {
-          getEl("pcOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
+          getEl("pcellOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         }
 
         if (jObj.cable == "Disconnected") {
-          getEl("warnOverlay").style.visibility = "visible";
-          getEl("warnOverlay").classList.add("blinking");
+          getEl("cableOverlay").style.display = "block";
+          getEl("cableOverlay").classList.add("blinking");
         } else {
-          getEl("warnOverlay").style.visibility = "hidden";
-          getEl("warnOverlay").classList.remove("blinking");
+          getEl("cableOverlay").style.display = "none";
+          getEl("cableOverlay").classList.remove("blinking");
         }
 
         switch(jObj.cyclotron){
@@ -437,15 +436,9 @@ const char INDEX_page[] PROGMEM = R"=====(
               // Also covers cyclotron state of "Normal"
               getEl("cycOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
             } else {
-              getEl("cycOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
+              getEl("cycOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
             }
             getEl("cycOverlay").classList.remove("blinking");
-        }
-
-        if(jObj.cyclotron && !jObj.cyclotronLid) {
-          getEl("cyclotronLid").style.display = "block";
-        } else {
-          getEl("cyclotronLid").style.display = "none";
         }
 
         if (jObj.pack == "Powered") {
@@ -457,7 +450,7 @@ const char INDEX_page[] PROGMEM = R"=====(
             getEl("filterOverlay").classList.remove("blinking");
           }
         } else {
-          getEl("filterOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
+          getEl("filterOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
           getEl("filterOverlay").classList.remove("blinking");
         }
 
@@ -482,32 +475,56 @@ const char INDEX_page[] PROGMEM = R"=====(
               getEl("safetyOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
             }
           } else {
-            getEl("safetyOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
+            getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
           }
         } else {
+          getEl("powerLevel").innerHTML = "&mdash;";
           getEl("streamMode").innerHTML = "- Disconnected -";
-          getEl("powerLevel").innerHTML = "N/A";
           getEl("barrelOverlay").style.display = "none";
-          getEl("safetyOverlay").style.backgroundColor = "rgba(200, 200, 200, 0.5)";
+          getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         }
 
         if (jObj.battVoltage) {
           // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
-          getEl("pcStatus").innerHTML = "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV";
+          getEl("battOutput").innerHTML = "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV";
           if (jObj.battVoltage < 4.2) {
             getEl("boostOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)"; // Draining Battery
           } else {
             getEl("boostOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)"; // Healthy Battery
           }
         } else {
-          getEl("pcHealth").innerHTML = "";
+          getEl("battOutput").innerHTML = "";
+        }
+
+        if(jObj.cyclotron && !jObj.cyclotronLid) {
+          getEl("cyclotronLid").style.display = "block";
+        } else {
+          getEl("cyclotronLid").style.display = "none";
         }
       } else {
+        // Reset all screen elements to their defaults to indicate no data available.
         getEl("themeMode").innerHTML = "- Desynchronized -";
+        getEl("ionOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+        getEl("boostOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+        getEl("pcellOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+        getEl("cableOverlay").style.display = "none";
+        getEl("cableOverlay").classList.remove("blinking");
+        getEl("cycOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+        getEl("cycOverlay").classList.remove("blinking");
+        getEl("cyclotronLid").style.display = "none";
+        getEl("filterOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+        getEl("filterOverlay").classList.remove("blinking");
+        getEl("barrelOverlay").style.display = "none";
+        getEl("barrelOverlay").classList.remove("blinking");
+        getEl("powerLevel").innerHTML = "&mdash;";
+        getEl("streamMode").innerHTML = "- Disconnected -";
+        getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+        getEl("battOutput").innerHTML = "";
+        getEl("cyclotronLid").style.display = "none";
       }
     }
 
-    function updateStatus(jObj) {
+    function updateEquipment(jObj) {
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
         // Current Pack Status
@@ -580,7 +597,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         }
       }
 
-      updateEquipment(jObj);
+      updateGraphics(jObj);
     }
 
     function handleStatus(response) {
@@ -598,7 +615,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          updateStatus(JSON.parse(this.responseText));
+          updateEquipment(JSON.parse(this.responseText));
         }
       };
       xhttp.open("GET", "/status", true);

@@ -156,8 +156,10 @@ p {
 }
 
 .equip-title {
+  font-size: 1.2em;
   font-weight: bold;
   padding-top: 10px;
+  position: relative;
   top: 15px;
   z-index: 3;
 }
@@ -168,7 +170,7 @@ p {
   left: 310px;
   margin-right: 8px;
   position: relative;
-  top: 310px;
+  top: 320px;
   z-index: 3;
 }
 
@@ -176,21 +178,14 @@ p {
   align-items: right;
   display: flex;
   font-weight: bold;
-  justify-content: right;
+  left: 194px;
   margin-right: 8px;
-  position: relative;
-  top: 394px;
+  position: absolute;
+  top: 421px;
   z-index: 3;
 }
 
-.pc-health {
-  font-size: 1.8em;
-  left: 88px;
-  top: 82px;
-  z-index: 3;
-}
-
-.pc-status {
+.batt-title {
   font-size: 0.9em;
   left: 8px;
   top: 406px;
@@ -276,18 +271,18 @@ p {
   z-index: 2;
 }
 
-.ribbon-warning {
+.cable-warn {
   color: yellow;
+  display: none;
   font-size: 4em;
   left: 50px;
   text-shadow: #880 1px 0 5px;
   top: 210px;
-  visibility: hidden;
   z-index: 2;
 }
 
-.rad-warning {
-  display: none;
+.rad-warn {
+  font-weight: bold;
   left: 40px;
   top: 380px;
   z-index: 2;
