@@ -273,10 +273,10 @@ p {
   color: yellow;
   display: none;
   font-family: monospace;
-  font-size: 4em;
-  left: 45px;
+  font-size: 6em;
+  left: 55px;
   text-shadow: #880 1px 0 5px;
-  top: 210px;
+  top: 206px;
   z-index: 2;
 }
 

@@ -29,7 +29,7 @@ Once connected, your computer/phone/table should be assigned an IP address start
 
 A web-based user interface is available at [http://192.168.1.2](http://192.168.1.2) to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
 
-### Equipment Status
+### Tab 1: Equipment Status
 
 The equipment status will reflect the current state of your Proton Pack and Neutrona Wand and will update in real-time as you interact with those devices. This information is available as either a text-based or graphical display, or both if you prefer (set via Attenuator Preferences).
 
@@ -39,7 +39,7 @@ Special thanks and credit to fellow cosplayer [Alexander Hibbs (@BeaulieuDesigns
 
 <div style="clear:both"></div>
 
-### Audio Controls
+### Tab 2: Audio Controls
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main2.jpg"/>
 
@@ -64,7 +64,7 @@ By default, only the track numbers are known to the audio device as all music tr
 
 <div style="clear:both"></div>
 
-### Pack Controls
+### Tab 3: Pack Controls
 
 Controls will be made available on a per-action or per-state basis.
 
@@ -78,17 +78,11 @@ Shown here, the pack and wand are both in an Idle state while in the "Super Hero
 
 <div style="clear:both"></div>
 
-### Preferences
+### Tab 4: Preferences / Administration
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main4.jpg"/>
 
 These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 3 sections: Pack, Wand, and Smoke. The features available via these sections will be covered in-depth later in this document.
-
-<div style="clear:both"></div>
-
-### Administration
-
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main5.jpg"/>
 
 These links allow you to change or control aspects of the available devices in lieu of the EEPROM menu.
 
