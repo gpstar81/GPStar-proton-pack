@@ -120,6 +120,10 @@ String getAttenuatorConfig() {
   jsonBody["radLensIdle"] = RAD_LENS_IDLE;
   jsonBody["displayType"] = DISPLAY_TYPE;
   jsonBody["songList"] = s_track_listing;
+  jsonBody["buildDate"] = build_date;
+  jsonBody["wifiName"] = ap_ssid;
+  jsonBody["extAddr"] = wifi_address;
+  jsonBody["extMask"] = wifi_subnet;
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -306,10 +310,6 @@ String getEquipmentStatus() {
     jsonBody["volEffects"] = i_volume_effects_percentage;
     jsonBody["volMusic"] = i_volume_music_percentage;
     jsonBody["battVoltage"] = f_batt_volts;
-    jsonBody["buildDate"] = build_date;
-    jsonBody["wifiName"] = ap_ssid;
-    jsonBody["extAddr"] = wifi_address;
-    jsonBody["extMask"] = wifi_subnet;
   }
 
   // Serialize JSON object to string.
