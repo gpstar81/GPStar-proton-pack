@@ -286,7 +286,7 @@ String getEquipmentStatus() {
   if(!b_wait_for_pack) {
     // Only prepare status when not waiting on the pack
     jsonBody["mode"] = getMode();
-    jsonBody["modeID"] = SYSTEM_MODE;
+    jsonBody["modeID"] = (SYSTEM_MODE == MODE_SUPER_HERO) ? 1 : 0;
     jsonBody["theme"] = getTheme();
     jsonBody["themeID"] = SYSTEM_YEAR;
     jsonBody["switch"] = getRedSwitch();
