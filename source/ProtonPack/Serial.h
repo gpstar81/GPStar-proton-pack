@@ -4155,7 +4155,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_YEAR_MODES_CYCLE_EEPROM:
       if(b_switch_mode_override == true) {
-        if(SYSTEM_YEAR_TEMP == SYSTEM_AFTERLIFE) {
+        if(SYSTEM_YEAR_TEMP == SYSTEM_FROZEN_EMPIRE) {
           b_switch_mode_override = false;
 
           stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
