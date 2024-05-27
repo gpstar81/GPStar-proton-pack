@@ -980,8 +980,10 @@ void setYearModeByToggle() {
         packSerialSend(P_YEAR_1989);
         serial1Send(A_YEAR_1989);
 
-        // Play audio cue confirming the change.
-        playEffect(S_VOICE_1989);
+        // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
+        if(switch_mode.isPressed() || switch_mode.isReleased()) {
+          playEffect(S_VOICE_1989);
+        }
       }
       else {
         SYSTEM_YEAR = SYSTEM_1984;
@@ -991,8 +993,10 @@ void setYearModeByToggle() {
         packSerialSend(P_YEAR_1984);
         serial1Send(A_YEAR_1984);
 
-        // Play audio cue confirming the change.
-        playEffect(S_VOICE_1984);
+        // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
+        if(switch_mode.isPressed() || switch_mode.isReleased()) {
+          playEffect(S_VOICE_1984);
+        }
       }
 
       // Reset the pack variables to match the new year mode.
@@ -1011,8 +1015,10 @@ void setYearModeByToggle() {
         packSerialSend(P_YEAR_AFTERLIFE);
         serial1Send(A_YEAR_AFTERLIFE);
 
-        // Play audio cue confirming the change.
-        playEffect(S_VOICE_AFTERLIFE);
+        // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
+        if(switch_mode.isPressed() || switch_mode.isReleased()) {
+          playEffect(S_VOICE_AFTERLIFE);
+        }
       }
       else {
         SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
@@ -1022,8 +1028,10 @@ void setYearModeByToggle() {
         packSerialSend(P_YEAR_FROZEN_EMPIRE);
         serial1Send(A_YEAR_FROZEN_EMPIRE);
 
-        // Play audio cue confirming the change.
-        playEffect(S_VOICE_FROZEN_EMPIRE);
+        // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
+        if(switch_mode.isPressed() || switch_mode.isReleased()) {
+          playEffect(S_VOICE_FROZEN_EMPIRE);
+        }
       }
 
       // Reset the pack variables to match the new year mode.

@@ -282,7 +282,9 @@ String getEquipmentStatus() {
   if(!b_wait_for_pack) {
     // Only prepare status when not waiting on the pack
     jsonBody["mode"] = getMode();
+    jsonBody["modeID"] = SYSTEM_MODE;
     jsonBody["theme"] = getTheme();
+    jsonBody["themeID"] = SYSTEM_YEAR;
     jsonBody["switch"] = getRedSwitch();
     jsonBody["pack"] = (b_pack_on ? "Powered" : "Idle");
     jsonBody["power"] = getPower();

@@ -423,7 +423,7 @@ String getRedSwitch() {
     }
   }
   else {
-    // Otherwise, just "ready".
+    // Otherwise, just "Ready".
     return "Ready";
   }
 }
@@ -503,10 +503,11 @@ String getPower() {
 String getCyclotronState() {
   switch(i_speed_multiplier) {
     case 1:
-      return (b_overheating ? "Recovery" : "Normal"); // An "idle" state.
+       // Indicates an "idle" state, subject to the overheat status.
+      return (b_overheating ? "Recovery" : "Normal");
     break;
     case 2:
-      return "Active"; // Typical for throwing a stream for an extended period.
+      return "Active"; // After throwing a stream for an extended period.
     break;
     case 3:
       return "Warning"; // Considered to be in a "pre-overheat" state.

@@ -32,142 +32,148 @@ const char INDEX_page[] PROGMEM = R"=====(
   <link rel="stylesheet" href="/style.css">
 </head>
 <body class="dark">
-  <h1>Equipment Status</h1>
-  <div id="equipCRT" class="equipment">
-    <div id="themeMode" class="infoState equip-title centered"></div>
-    <div id="ionOverlay" class="overlay ion-switch"></div>
-    <div id="boostOverlay" class="overlay booster-box"></div>
-    <div id="pcellOverlay" class="overlay power-box"></div>
-    <div id="cableOverlay" class="overlay cable-warn">&#9888;</div>
-    <div id="cycOverlay" class="overlay cyc-circle"></div>
-    <div id="filterOverlay" class="overlay filter-circle"></div>
-    <div id="barrelOverlay" class="overlay barrel-box"></div>
-    <div id="powerLevel" class="infoState power-title"></div>
-    <div id="streamMode" class="infoState stream-title"></div>
-    <div id="safetyOverlay" class="overlay safety-box"></div>
-    <div id="battOutput" class="overlay infoState batt-title"></div>
-    <div id="cyclotronLid" class="infoState rad-warn">
-      <span style="font-size:1.2em">&#9762;</span> Cyclotron Exposure Warning
+  <div class="tabs dark">
+    <button class="tablinks" onclick="openTab(event, 'tab1')">&#9883;</button>
+    <button class="tablinks" onclick="openTab(event, 'tab2')">&#9836;</button>
+    <button class="tablinks" onclick="openTab(event, 'tab3')">&#9211;</button>
+    <button class="tablinks" onclick="openTab(event, 'tab4')">&#9881;</button>
+  </div>
+
+  <div id="tab1" class="tab">
+    <div id="equipCRT" class="equipment">
+      <div id="equipTitle" class="infoState equip-title centered"></div>
+      <div id="ionOverlay" class="overlay ion-switch"></div>
+      <div id="boostOverlay" class="overlay booster-box"></div>
+      <div id="pcellOverlay" class="overlay power-box"></div>
+      <div id="cableOverlay" class="overlay cable-warn">&#9888;</div>
+      <div id="cycOverlay" class="overlay cyc-circle"></div>
+      <div id="filterOverlay" class="overlay filter-circle"></div>
+      <div id="barrelOverlay" class="overlay barrel-box"></div>
+      <div id="powerLevel" class="overlay infoState power-title"></div>
+      <div id="streamMode" class="overlay infoState stream-title"></div>
+      <div id="safetyOverlay" class="overlay safety-box"></div>
+      <div id="battOutput" class="overlay infoState batt-title"></div>
+      <div id="cyclotronLid" class="infoState rad-warn">
+        <span style="font-size:1.2em">&#9762;</span> Cyclotron Exposure Warning
+      </div>
     </div>
-  </div>
 
-  <div id="crtSpacer" style="display:none;">
-    <br/><br/><br/>
-  </div>
-
-  <div id="equipTXT" class="card">
-    <p><span class="infoLabel">Operation Mode:</span> <span class="infoState" id="mode">&mdash;</span></p>
-    <p><span class="infoLabel">Effects Theme:</span> <span class="infoState" id="theme">&mdash;</span></p>
-    <br/>
-    <p><span class="infoLabel">Pack State:</span> <span class="infoState" id="pack">&mdash;</span></p>
-    <p><span class="infoLabel">Pack Armed:</span> <span class="infoState" id="switch">&mdash;</span></p>
-    <p><span class="infoLabel">Ribbon Cable:</span> <span class="infoState" id="cable">&mdash;</span></p>
-    <p><span class="infoLabel">Cyclotron State:</span> <span class="infoState" id="cyclotron">&mdash;</span></p>
-    <p><span class="infoLabel">Overheat State:</span> <span class="infoState" id="temperature">&mdash;</span></p>
-    <br/>
-    <p><span class="infoLabel">Wand Presence:</span> <span class="infoState" id="wand">&mdash;</span></p>
-    <p><span class="infoLabel">Wand State:</span> <span class="infoState" id="wandPower">&mdash;</span></p>
-    <p><span class="infoLabel">Wand Armed:</span> <span class="infoState" id="safety">&mdash;</span></p>
-    <p><span class="infoLabel">System Mode:</span> <span class="infoState" id="wandMode">&mdash;</span></p>
-    <div style="display:inline-flex;margin:0;">
-      <p style="margin:0;">
-        <span class="infoLabel">Power Level:</span>&nbsp;<span class="infoState" id="power">&mdash;</span>
+    <div id="equipTXT" class="card">
+      <p><span class="infoLabel">Operation Mode:</span> <span class="infoState" id="mode">&mdash;</span></p>
+      <p><span class="infoLabel">Effects Theme:</span> <span class="infoState" id="theme">&mdash;</span></p>
+      <br/>
+      <p><span class="infoLabel">Pack State:</span> <span class="infoState" id="pack">&mdash;</span></p>
+      <p><span class="infoLabel">Pack Armed:</span> <span class="infoState" id="switch">&mdash;</span></p>
+      <p><span class="infoLabel">Ribbon Cable:</span> <span class="infoState" id="cable">&mdash;</span></p>
+      <p><span class="infoLabel">Cyclotron State:</span> <span class="infoState" id="cyclotron">&mdash;</span></p>
+      <p><span class="infoLabel">Overheat State:</span> <span class="infoState" id="temperature">&mdash;</span></p>
+      <br/>
+      <p><span class="infoLabel">Wand Presence:</span> <span class="infoState" id="wand">&mdash;</span></p>
+      <p><span class="infoLabel">Wand State:</span> <span class="infoState" id="wandPower">&mdash;</span></p>
+      <p><span class="infoLabel">Wand Armed:</span> <span class="infoState" id="safety">&mdash;</span></p>
+      <p><span class="infoLabel">System Mode:</span> <span class="infoState" id="wandMode">&mdash;</span></p>
+      <div style="display:inline-flex;margin:0;">
+        <p style="margin:0;">
+          <span class="infoLabel">Power Level:</span>&nbsp;<span class="infoState" id="power">&mdash;</span>
+        </p>
+        <div class="bar-container" id="powerBars"></div>
+      </div>
+      <p><span class="infoLabel">Firing State:</span> <span class="infoState" id="firing">&mdash;</span></p>
+      <br/>
+      <p>
+        <span class="infoLabel">Powercell:</span>
+        <span id="battHealth"></span>
+        <span class="infoState" id="battVoltage">&mdash;</span>
+        <span style="font-size: 0.8em">GeV</span>
       </p>
-      <div class="bar-container" id="powerBars"></div>
     </div>
-    <p><span class="infoLabel">Firing State:</span> <span class="infoState" id="firing">&mdash;</span></p>
-    <br/>
-    <p>
-      <span class="infoLabel">Powercell:</span>
-      <span id="battHealth"></span>
-      <span class="infoState" id="battVoltage">&mdash;</span>
-      <span style="font-size: 0.8em">GeV</span>
-    </p>
   </div>
 
-  <h1>Audio Controls</h1>
-  <div>
-    <div class="volume-container">
-      <div class="volume-control">
-        <h3>System</h3>
-        <button type="button" onclick="volumeMasterUp()">+</button>
-        <span id="masterVolume"></span>
-        <button type="button" onclick="volumeMasterDown()">&minus;</button>
+  <div id="tab2" class="tab">
+    <div>
+      <div class="volume-container">
+        <div class="volume-control">
+          <h3>System</h3>
+          <button type="button" onclick="volumeMasterUp()">+</button>
+          <span id="masterVolume"></span>
+          <button type="button" onclick="volumeMasterDown()">&minus;</button>
+        </div>
+        <div class="volume-control">
+          <h3>Effects</h3>
+          <button type="button" onclick="volumeEffectsUp()">+</button>
+          <span id="effectsVolume"></span>
+          <button type="button" onclick="volumeEffectsDown()">&minus;</button>
+        </div>
+        <div class="volume-control">
+          <h3>Music</h3>
+          <button type="button" onclick="volumeMusicUp()">+</button>
+          <span id="musicVolume"></span>
+          <button type="button" onclick="volumeMusicDown()">&minus;</button>
+        </div>
       </div>
-      <div class="volume-control">
-        <h3>Effects</h3>
-        <button type="button" onclick="volumeEffectsUp()">+</button>
-        <span id="effectsVolume"></span>
-        <button type="button" onclick="volumeEffectsDown()">&minus;</button>
-      </div>
-      <div class="volume-control">
-        <h3>Music</h3>
-        <button type="button" onclick="volumeMusicUp()">+</button>
-        <span id="musicVolume"></span>
-        <button type="button" onclick="volumeMusicDown()">&minus;</button>
-      </div>
+      <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
     </div>
-    <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
-  </div>
-  <div class="card">
-    <h3 class="centered">Music Navigation</h3>
-    <div class="music-navigation">
-      <button type="button" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
-      <button type="button" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
-      <button type="button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
-      <button type="button" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
+    <div class="card">
+      <h3 class="centered">Music Navigation</h3>
+      <div class="music-navigation">
+        <button type="button" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
+        <button type="button" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
+        <button type="button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
+        <button type="button" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
+      </div>
+      <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
     </div>
-    <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
   </div>
 
-  <h1>Pack Controls</h1>
-  <div class="block">
-    <button type="button" class="red" onclick="packOff()" id="btnPackOff">Pack Off</button>
-    &nbsp;&nbsp;
-    <button type="button" class="green" onclick="packOn()" id="btnPackOn">Pack On</button>
-    <br/>
-    <br/>
-    <button type="button" class="orange" onclick="beginVenting()" id="btnVent">Vent</button>
-    &nbsp;&nbsp;
-    <button type="button" class="blue" onclick="attenuatePack()" id="btnAttenuate">Attenuate</button>
+  <div id="tab3" class="tab">
+    <div class="card" style="text-align:center;">
+      <br/>
+      <button type="button" class="red" onclick="packOff()" id="btnPackOff">Pack Off</button>
+      &nbsp;&nbsp;
+      <button type="button" class="green" onclick="packOn()" id="btnPackOn">Pack On</button>
+      <br/>
+      <br/>
+      <br/>
+      <button type="button" class="orange" onclick="beginVenting()" id="btnVent">Vent</button>
+      &nbsp;&nbsp;
+      <button type="button" class="blue" onclick="attenuatePack()" id="btnAttenuate">Attenuate</button>
+    </div>
   </div>
 
-  <h1>Preferences</h1>
-  <div class="card" style="text-align:center;">
-    <br/>
-    <a href="/settings/attenuator">Attenuator Settings</a>
-    <br/>
-    <br/>
-    <a href="/settings/pack">Proton Pack Settings</a>
-    <br/>
-    <br/>
-    <a href="/settings/wand">Neutrona Wand Settings</a>
-    <br/>
-    <br/>
-    <a href="/settings/smoke">Overheat/Smoke Settings</a>
-  </div>
-
-  <h1>Administration</h1>
-  <div class="card" style="text-align:center;">
-    <br/>
-    <a href="/update">Update ESP32 Firmware</a>
-    <br/>
-    <br/>
-    <a href="/password">Secure Device WiFi</a>
-    <br/>
-    <br/>
-    <a href="/network">Change WiFi Settings</a>
-    <br/>
-    <br/>
-    <a href="javascript:doRestart()">Restart/Resync</a>
-  </div>
-
-  <div class="footer">
-    <span id="buildDate"></span>
-    &mdash;
-    <span id="wifiName"></span>
-    <br/>
-    <span id="extWifi"></span>
+  <div id="tab4" class="tab">
+    <div class="card" style="text-align:center;">
+  	<a href="/settings/attenuator">Attenuator Settings</a>
+      <br/>
+      <br/>
+      <a href="/settings/pack">Proton Pack Settings</a>
+      <br/>
+      <br/>
+      <a href="/settings/wand">Neutrona Wand Settings</a>
+      <br/>
+      <br/>
+      <a href="/settings/smoke">Overheat/Smoke Settings</a>
+      <br/>
+      <br/>
+      <hr/>
+      <br/>
+      <a href="/update">Update ESP32 Firmware</a>
+      <br/>
+      <br/>
+      <a href="/password">Secure Device WiFi</a>
+      <br/>
+      <br/>
+      <a href="/network">Change WiFi Settings</a>
+      <br/>
+      <br/>
+      <a href="javascript:doRestart()">Restart/Resync</a>
+    </div>
+    <div class="footer">
+      <span id="buildDate"></span>
+      &mdash;
+      <span id="wifiName"></span>
+      <br/>
+      <span id="extWifi"></span>
+    </div>
   </div>
 
   <script type="application/javascript">
@@ -390,9 +396,37 @@ const char INDEX_page[] PROGMEM = R"=====(
 
     function updateGraphics(jObj){
       // Update display if we have the expected data (containing mode and theme).
-      if (jObj && jObj.mode && jObj.theme) {
+      if (jObj && jObj.modeID && jObj.themeID) {
         var color = getStreamColor(jObj.wandMode || "");
-        getEl("themeMode").innerHTML = (jObj.mode || "") + " / " + (jObj.theme || "");
+
+        var header = ""; // Used for the title on the display.
+        switch(jObj.modeID){
+          case 0:
+            header = "Proton-Locked";
+          break;
+          case 1:
+            header = "Variable-Stream";
+          break;
+          default:
+            header = "- Disabled -";
+        }
+        switch(jObj.themeID) {
+          case 2:
+            header += " / V1.984";
+          break;
+          case 3:
+            header += " / V1.989";
+          break;
+          case 4:
+            header += " / V2.021";
+          break;
+          case 5:
+            header += " / V2.024";
+          break;
+          default:
+            header += " / V0.000";
+        }
+        getEl("equipTitle").innerHTML = header;
 
         if (jObj.switch == "Ready") {
           getEl("ionOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
@@ -503,7 +537,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         }
       } else {
         // Reset all screen elements to their defaults to indicate no data available.
-        getEl("themeMode").innerHTML = "- Desynchronized -";
+        getEl("equipTitle").innerHTML = "- Desynchronized -";
         getEl("ionOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
         getEl("boostOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         getEl("pcellOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
@@ -637,19 +671,16 @@ const char INDEX_page[] PROGMEM = R"=====(
               case 0:
                 // Text-Only Display
                 getEl("equipCRT").style.display = "none";
-                getEl("crtSpacer").style.display = "none";
                 getEl("equipTXT").style.display = "block";
                 break;
               case 1:
                 // Graphical Display
                 getEl("equipCRT").style.display = "block";
-                getEl("crtSpacer").style.display = "block";
                 getEl("equipTXT").style.display = "none";
                 break;
               case 2:
                 // Both graphical and text
                 getEl("equipCRT").style.display = "block";
-                getEl("crtSpacer").style.display = "none";
                 getEl("equipTXT").style.display = "block";
                 break;
             }

@@ -175,18 +175,17 @@ p {
 }
 
 .stream-title {
-  align-items: right;
   display: flex;
   font-weight: bold;
   left: 194px;
   margin-right: 8px;
-  position: absolute;
   top: 421px;
   z-index: 3;
 }
 
 .batt-title {
   font-size: 0.9em;
+  font-weight: bold;
   left: 8px;
   top: 406px;
   z-index: 3;
@@ -275,7 +274,7 @@ p {
   color: yellow;
   display: none;
   font-size: 4em;
-  left: 50px;
+  left: 45px;
   text-shadow: #880 1px 0 5px;
   top: 210px;
   z-index: 2;
@@ -284,7 +283,8 @@ p {
 .rad-warn {
   font-weight: bold;
   left: 40px;
-  top: 380px;
+  position: relative;
+  top: 425px;
   z-index: 2;
 }
 
@@ -492,6 +492,11 @@ input:checked + .slider:before {
   justify-content: center;
   margin: 20px auto;
   padding: 10px;
+  width: 80px;
+}
+
+.volume-control h3 {
+  margin: 2px auto;
 }
 
 .volume-control button {
@@ -561,5 +566,40 @@ input:checked + .slider:before {
 #tracks {
   margin-top: 15px;
   width: 320px;
+}
+
+.tab {
+  display: none;
+}
+
+.tabs {
+  border-bottom: 1px solid #000;
+  display: flex;
+  margin: 0 auto;
+  max-width: 400px;
+}
+
+.tabs button {
+  align-items: center;
+  background: #555;
+  border: 1px solid #333;
+  border-radius: 0;
+  cursor: pointer;
+  flex: 1;
+  font-size: 1.6em;
+  height: 60px;
+  justify-content: center;
+  position: relative;
+  margin: 0;
+  transition: background-color 0.3s ease;
+  width: 85px;
+}
+
+.tabs button:hover {
+  background: #aaa;
+}
+
+.tabs button.active {
+  background: #999;
 }
 )=====";
