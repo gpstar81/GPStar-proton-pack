@@ -994,7 +994,7 @@ void setYearModeByToggle() {
         serial1Send(A_YEAR_1984);
 
         // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
-        if(switch_mode.isPressed() || switch_mode.isReleased()) {        
+        if(switch_mode.isPressed() || switch_mode.isReleased()) {
           playEffect(S_VOICE_1984);
         }
       }
@@ -1029,7 +1029,7 @@ void setYearModeByToggle() {
         serial1Send(A_YEAR_FROZEN_EMPIRE);
 
         // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
-        if(switch_mode.isPressed() || switch_mode.isReleased()) {        
+        if(switch_mode.isPressed() || switch_mode.isReleased()) {
           playEffect(S_VOICE_FROZEN_EMPIRE);
         }
       }
@@ -1981,6 +1981,7 @@ void cyclotronControl() {
         break;
 
         case SYSTEM_AFTERLIFE:
+        default:
           r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
           r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
           r_inner_ramp.go(i_inner_current_ramp_speed);
@@ -4494,8 +4495,9 @@ void cyclotronSwitchPlateLEDs() {
       // The Cyclotron Lid is now on.
       b_cyclotron_lid_on = true;
 
-      // Tell the Neutrona Wand.
+      // Tell the connected devices.
       packSerialSend(P_CYCLOTRON_LID_ON);
+      serial1Send(A_CYCLOTRON_LID_ON);
 
       // Turn off Inner Cyclotron LEDs.
       innerCyclotronCakeOff();
@@ -4507,8 +4509,9 @@ void cyclotronSwitchPlateLEDs() {
       // The Cyclotron Lid is now off.
       b_cyclotron_lid_on = false;
 
-      // Tell the Neutrona Wand.
+      // Tell the connected devices.
       packSerialSend(P_CYCLOTRON_LID_OFF);
+      serial1Send(A_CYCLOTRON_LID_OFF);
 
       // Make sure the Inner Cyclotron turns on if we are in the EEPROM LED menu.
       if(b_spectral_lights_on == true) {

@@ -57,6 +57,20 @@ p {
   margin: 5px 0 8px;
 }
 
+.dark {
+  background-color: #444;
+}
+
+.blinking {
+  animation: blink-animation 0.5s steps(5, start) infinite;
+}
+
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+
 .footer {
   color: #ccc;
   font-size: 0.8em;
@@ -86,6 +100,13 @@ p {
   width: 360px;
 }
 
+.centered {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
 .infoLabel {
   font-family: Tahoma, Verdana, Arial;
   font-size: 0.9em;
@@ -95,6 +116,176 @@ p {
 .infoState {
   font-family: Courier New, Courier, sans-serif;
   font-size: 1em;
+}
+
+.equipment {
+  background-color: black;
+  background-image:url('/equipment.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 80%;
+  border: 1px solid green;
+  border-radius: 12px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 18px -4px rgba(0, 0, 0, 0.75);
+  color: rgba(0, 160, 0, 1);
+  height: 500px;
+  margin: 20px auto;
+  max-width: 360px;
+  min-height: 200px;
+  position: relative;
+  text-align: left;
+  text-shadow: #060 1px 0 5px;
+  width: 360px;
+  z-index: 0;
+}
+
+.equipment::before {
+  background: linear-gradient(rgba(18, 16, 16, 0) 40%, rgba(200, 200, 200, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 2px, 3px 100%;
+  border-radius: 12px;
+  bottom: 0;
+  content: "";
+  display: block;
+  left: 0;
+  position: absolute;
+  pointer-events: none;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.equip-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  padding-top: 10px;
+  position: relative;
+  top: 15px;
+  z-index: 3;
+}
+
+.power-title {
+  display: flex;
+  font-weight: bold;
+  left: 310px;
+  margin-right: 8px;
+  position: relative;
+  top: 320px;
+  z-index: 3;
+}
+
+.stream-title {
+  display: flex;
+  font-weight: bold;
+  left: 194px;
+  margin-right: 8px;
+  top: 421px;
+  z-index: 3;
+}
+
+.batt-title {
+  font-size: 0.9em;
+  font-weight: bold;
+  left: 8px;
+  top: 406px;
+  z-index: 3;
+}
+
+.overlay {
+  position: absolute;
+}
+
+.barrel-box {
+  border-radius: 5px;
+  left: 268px;
+  height: 60px;
+  top: 338px;
+  width: 20px;
+  z-index: 2;
+}
+
+.booster-box {
+  border-radius: 2px;
+  left: 92.5px;
+  height: 96px;
+  top: 79.5px;
+  width: 20px;
+  z-index: 2;
+}
+
+.cyc-circle {
+  border-radius: 50%;
+  left: 77.5px;
+  height: 140px;
+  top: 280px;
+  width: 140px;
+  z-index: 2;
+}
+
+.cyc-circle::before {
+  background-color: white;
+  border-radius: 50%;
+  bottom: -1.7%;
+  content: "";
+  height: 29%;
+  left: 67.3%;
+  position: absolute;
+  width: 29%;
+  transform: translateX(-50%);
+}
+
+.filter-circle {
+  border-radius: 50%;
+  left: 150.7px;
+  height: 42px;
+  top: 381.2px;
+  width: 42px;
+  z-index: 3;
+}
+
+.ion-switch {
+  border-radius: 2px;
+  left: 52px;
+  height: 38px;
+  top: 80px;
+  width: 30px;
+  z-index: 2;
+}
+
+.power-box {
+  border-radius: 2px;
+  left: 37px;
+  height: 74px;
+  top: 133px;
+  width: 35px;
+  z-index: 2;
+}
+
+.safety-box {
+  border-radius: 5px;
+  left: 305px;
+  height: 32px;
+  top: 156px;
+  width: 16px;
+  z-index: 2;
+}
+
+.cable-warn {
+  color: yellow;
+  display: none;
+  font-size: 4em;
+  left: 45px;
+  text-shadow: #880 1px 0 5px;
+  top: 210px;
+  z-index: 2;
+}
+
+.rad-warn {
+  font-weight: bold;
+  left: 40px;
+  position: relative;
+  top: 425px;
+  z-index: 2;
 }
 
 button {
@@ -141,7 +332,7 @@ select {
   font-size: 1.15rem;
   height: 40px;
   margin: 5px;
-  max-width: 300px;
+  max-width: 320px;
   min-width: 160px;
   text-align: center;
   width: 160px;
@@ -301,6 +492,11 @@ input:checked + .slider:before {
   justify-content: center;
   margin: 20px auto;
   padding: 10px;
+  width: 80px;
+}
+
+.volume-control h3 {
+  margin: 2px auto;
 }
 
 .volume-control button {
@@ -333,7 +529,7 @@ input:checked + .slider:before {
 .music-navigation {
   justify-content: space-between;
   margin: 10px auto;
-  width: 340px;
+  width: 320px;
 }
 
 .music-navigation button {
@@ -365,5 +561,45 @@ input:checked + .slider:before {
 
 .music-navigation button:active {
   transform: scale(0.95);
+}
+
+#tracks {
+  margin-top: 15px;
+  width: 320px;
+}
+
+.tab {
+  display: none;
+}
+
+.tabs {
+  border-bottom: 1px solid #000;
+  display: flex;
+  margin: 0 auto;
+  max-width: 400px;
+}
+
+.tabs button {
+  align-items: center;
+  background: #555;
+  border: 1px solid #333;
+  border-radius: 0;
+  cursor: pointer;
+  flex: 1;
+  font-size: 1.6em;
+  height: 60px;
+  justify-content: center;
+  position: relative;
+  margin: 0;
+  transition: background-color 0.3s ease;
+  width: 85px;
+}
+
+.tabs button:hover {
+  background: #aaa;
+}
+
+.tabs button.active {
+  background: #999;
 }
 )=====";

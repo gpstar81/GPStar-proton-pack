@@ -56,6 +56,7 @@
 #include "WandSettings.h" // WAND_SETTINGS_page
 #include "SmokeSettings.h" // SMOKE_SETTINGS_page
 #include "Style.h" // STYLE_page
+#include "Equip.h" // EQUIP_svg
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
@@ -422,7 +423,7 @@ String getRedSwitch() {
     }
   }
   else {
-    // Otherwise, just "ready".
+    // Otherwise, just "Ready".
     return "Ready";
   }
 }
@@ -502,10 +503,11 @@ String getPower() {
 String getCyclotronState() {
   switch(i_speed_multiplier) {
     case 1:
-      return (b_overheating ? "Recovery" : "Normal"); // An "idle" state.
+       // Indicates an "idle" state, subject to the overheat status.
+      return (b_overheating ? "Recovery" : "Normal");
     break;
     case 2:
-      return "Active"; // Typical for throwing a stream for an extended period.
+      return "Active"; // After throwing a stream for an extended period.
     break;
     case 3:
       return "Warning"; // Considered to be in a "pre-overheat" state.
@@ -531,6 +533,7 @@ void setupRouting() {
   httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
   httpServer.on("/style.css", HTTP_GET, handleStylesheet);
+  httpServer.on("/equipment.svg", HTTP_GET, handleSvgImage);
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers

@@ -865,6 +865,22 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
+    case A_CYCLOTRON_LID_ON:
+      #if defined(__XTENSA__)
+        debug("Cyclotron Lid On...");
+      #endif
+
+      b_cyclotron_lid_on = true;
+    break;
+
+    case A_CYCLOTRON_LID_OFF:
+      #if defined(__XTENSA__)
+        debug("Cyclotron Lid Off...");
+      #endif
+
+      b_cyclotron_lid_on = false;
+    break;
+
     case A_CYCLOTRON_INCREASE_SPEED:
       #if defined(__XTENSA__)
         debug("Cyclotron Speed Increasing...");
@@ -876,6 +892,26 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug(String(i_speed_multiplier));
       #endif
+    break;
+
+    case A_CYCLOTRON_NORMAL_SPEED:
+      #if defined(__XTENSA__)
+        debug("Cyclotron Speed Reset");
+      #endif
+
+      i_speed_multiplier = 1;
+      b_state_changed = true;
+
+      if(b_firing) {
+        // Use the "normal" pattern if still firing.
+        bargraphClear();
+        BARGRAPH_PATTERN = BG_OUTER_INNER;
+      }
+      else {
+        // Otherwise go to the standard power ramp.
+        bargraphClear();
+        BARGRAPH_PATTERN = BG_POWER_RAMP;
+      }
     break;
 
     case A_BARREL_EXTENDED:
@@ -897,26 +933,6 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
         BARREL_STATE = BARREL_RETRACTED;
         b_state_changed = true;
-      }
-    break;
-
-    case A_CYCLOTRON_NORMAL_SPEED:
-      #if defined(__XTENSA__)
-        debug("Cyclotron Speed Reset");
-      #endif
-
-      i_speed_multiplier = 1;
-      b_state_changed = true;
-
-      if(b_firing) {
-        // Use the "normal" pattern if still firing.
-        bargraphClear();
-        BARGRAPH_PATTERN = BG_OUTER_INNER;
-      }
-      else {
-        // Otherwise go to the standard power ramp.
-        bargraphClear();
-        BARGRAPH_PATTERN = BG_POWER_RAMP;
       }
     break;
 

@@ -95,6 +95,18 @@ void setup() {
         RAD_LENS_IDLE = RED_FADE;
       break;
     }
+    switch(preferences.getShort("display_type", 0)) {
+      case 0:
+        DISPLAY_TYPE = STATUS_TEXT;
+      break;
+      case 1:
+        DISPLAY_TYPE = STATUS_GRAPHIC;
+      break;
+      case 2:
+      default:
+        DISPLAY_TYPE = STATUS_BOTH;
+      break;
+    }
     s_track_listing = preferences.getString("track_list", "");
     preferences.end();
 

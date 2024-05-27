@@ -99,6 +99,13 @@ void handleStylesheet(AsyncWebServerRequest *request) {
   request->send(200, "text/css", s); // Serve page content.
 }
 
+void handleSvgImage(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  //debug("Equipment SVG Requested");
+  String s = EQUIP_svg; // Read SVG image into String.
+  request->send(200, "image/svg+xml", s); // Serve page content.
+}
+
 String getAttenuatorConfig() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipSettings;
@@ -111,6 +118,7 @@ String getAttenuatorConfig() {
   jsonBody["overheat"] = b_overheat_feedback;
   jsonBody["firing"] = b_firing_feedback;
   jsonBody["radLensIdle"] = RAD_LENS_IDLE;
+  jsonBody["displayType"] = DISPLAY_TYPE;
   jsonBody["songList"] = s_track_listing;
 
   // Serialize JSON object to string.
@@ -274,7 +282,9 @@ String getEquipmentStatus() {
   if(!b_wait_for_pack) {
     // Only prepare status when not waiting on the pack
     jsonBody["mode"] = getMode();
+    jsonBody["modeID"] = SYSTEM_MODE;
     jsonBody["theme"] = getTheme();
+    jsonBody["themeID"] = SYSTEM_YEAR;
     jsonBody["switch"] = getRedSwitch();
     jsonBody["pack"] = (b_pack_on ? "Powered" : "Idle");
     jsonBody["power"] = getPower();
@@ -285,6 +295,7 @@ String getEquipmentStatus() {
     jsonBody["firing"] = (b_firing ? "Firing" : "Idle");
     jsonBody["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
     jsonBody["cyclotron"] = getCyclotronState();
+    jsonBody["cyclotronLid"] = b_cyclotron_lid_on;
     jsonBody["temperature"] = (b_overheating ? "Venting" : "Normal");
     jsonBody["musicPlaying"] = b_playing_music;
     jsonBody["musicPaused"] = b_music_paused;
@@ -299,7 +310,6 @@ String getEquipmentStatus() {
     jsonBody["wifiName"] = ap_ssid;
     jsonBody["extAddr"] = wifi_address;
     jsonBody["extMask"] = wifi_subnet;
-    jsonBody["songList"] = s_track_listing;
   }
 
   // Serialize JSON object to string.
@@ -561,6 +571,19 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
         break;
       }
     }
+    if(jsonBody["displayType"].is<unsigned short>()) {
+      switch(jsonBody["displayType"].as<unsigned short>()) {
+        case 0:
+          DISPLAY_TYPE = STATUS_TEXT;
+        break;
+        case 1:
+          DISPLAY_TYPE = STATUS_GRAPHIC;
+        break;
+        case 2:
+          DISPLAY_TYPE = STATUS_BOTH;
+        break;
+      }
+    }
 
     // Get the track listing from the text field.
     String songList = jsonBody["songList"];
@@ -573,6 +596,7 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     preferences.putBool("overheat_feedback", b_overheat_feedback);
     preferences.putBool("firing_feedback", b_firing_feedback);
     preferences.putShort("radiation_idle", RAD_LENS_IDLE);
+    preferences.putShort("display_type", DISPLAY_TYPE);
     if(songList.length() <= 2000) {
       // Update song lists if contents are under 2000 bytes.
       #if defined(DEBUG_SEND_TO_CONSOLE)

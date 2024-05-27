@@ -21,9 +21,9 @@ In order to view the state of the pack and control it remotely, the two devices 
 
 ## Web Interface
 
-When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network which begins with the prefix **"ProtonPack_"** and secured with a default password of **"555-2368"**.
-
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main1.jpg"/>
+
+When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network which begins with the prefix **"ProtonPack_"** and secured with a default password of **"555-2368"**.
 
 Once connected, your computer/phone/table should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each device.
 
@@ -31,9 +31,13 @@ A web-based user interface is available at [http://192.168.1.2](http://192.168.1
 
 ### Equipment Status
 
-The equipment status will reflect the status of your Proton Pack and Neutrona Wand and will update in real-time as you interact with the device.
+The equipment status will reflect the current state of your Proton Pack and Neutrona Wand and will update in real-time as you interact with those devices. This information is available as either a text-based or graphical display, or both if you prefer (set via Attenuator Preferences).
 
 **Note:** If you see a "&mdash;" (dash) beside these values it can indicate a potential communication issue. Simply refresh the page and/or check your WiFi connection to the device.
+
+Special thanks and credit to fellow cosplayer [Alexander Hibbs (@BeaulieuDesigns87)](https://www.etsy.com/shop/BeaulieuDesigns87) from the [South Carolina Ghostbusters](https://www.facebook.com/SCGhostbusters/), who created the amazingly detailed Proton Pack and Neutrona Wand technical illustration, available as a [printed poster](https://www.etsy.com/listing/1406461576/proton-pack-blueprint-matte-poster) or [digital image](https://www.etsy.com/listing/1411559802/proton-pack-blueprint-digital-download). He has graciously provided a version of his design to make the new graphical interface.
+
+<div style="clear:both"></div>
 
 ### Audio Controls
 
@@ -72,24 +76,28 @@ Shown here, the pack and wand are both in an Idle state while in the "Super Hero
 
 **Attenuate:** When firing, the Cyclotron State must be either "Warning" or "Critical" to enable this button.
 
+<div style="clear:both"></div>
+
 ### Preferences
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main4.jpg"/>
 
 These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 3 sections: Pack, Wand, and Smoke. The features available via these sections will be covered in-depth later in this document.
 
+<div style="clear:both"></div>
+
 ### Administration
 
-These links allow you to change or control aspects of the device.
-
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main5.jpg"/>
+
+These links allow you to change or control aspects of the available devices in lieu of the EEPROM menu.
 
 - **Update ESP32 Firmware** - Allows you to update the ESP32 firmware using Over-the-Air updates. See the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details
 - **Secure Device WiFi**- Allows changing of the default password for the private WiFi network
 - **Change WiFi Settings** - Provides an optional means of joining an existing, external WiFi network for access of your device
 - **Restart/Resync** - Allows a remote restart of the software by performing a reboot ONLY of the ESP32 device
 
-At the bottom of the screen is a timestamp representing the date of the software build for the ESP32 firmware, along with the private WiFi network offered by the current device. If connected to an external network the current IP address and subnet mask will be displayed.
+At the bottom of the screen is a timestamp representing the date of the software build for the ESP32 firmware, along with the name of the private WiFi network offered by the current device. If connected to an external WiFi network the current IP address and subnet mask will be displayed.
 
 <div style="clear:both"></div>
 
