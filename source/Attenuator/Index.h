@@ -420,17 +420,17 @@ const char INDEX_page[] PROGMEM = R"=====(
         var color = getStreamColor(jObj.wandMode || "");
 
         var header = ""; // Used for the title on the display.
-        switch(jObj.modeID){
+        switch(jObj.modeID || 0){
           case 0:
-            header = "Standard";
+            header = "Standard"; // aka. Mode Original
           break;
           case 1:
-            header = "Upgraded";
+            header = "Upgraded"; // aka. Super Hero
           break;
           default:
             header = "- Disabled -";
         }
-        switch(jObj.themeID) {
+        switch(jObj.themeID || 0) {
           case 2:
             header += " / V1.9.84";
           break;

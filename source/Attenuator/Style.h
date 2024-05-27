@@ -539,7 +539,8 @@ input:checked + .slider:before {
   border-radius: 0;
   cursor: pointer;
   display: flex;
-  font-size: 20px;
+  font-family: monospace;
+  font-size: 1.8em;
   height: 40px;
   justify-content: center;
   margin: 0;
