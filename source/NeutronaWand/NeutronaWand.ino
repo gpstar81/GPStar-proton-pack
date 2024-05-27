@@ -1825,6 +1825,11 @@ void fireControlCheck() {
       if(i_slime_tether_count > 0 && ms_semi_automatic_check.remaining() < 1) {
         // Reset the Slime Tether count.
         i_slime_tether_count = 0;
+
+        // Turn off hat light 1 in 1984/1989 mode if it is on.
+        if((getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) && WAND_ACTION_STATUS != ACTION_FIRING) {
+          digitalWriteFast(led_hat_1, LOW);
+        }
       }
 
       if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
@@ -3196,11 +3201,10 @@ void modeFireStop() {
 
   if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
     digitalWriteFast(led_hat_1, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
-    digitalWriteFast(led_hat_2, LOW); // Make sure we turn off hat light 2 in case it's on as well.
   }
-  else {
-    digitalWriteFast(led_hat_2, HIGH); // Make sure we turn on hat light 2 in case it's off as well.
-  }
+
+  // Make sure we turn off hat light 2 in case it's on as well.
+  digitalWriteFast(led_hat_2, LOW);
 
   wandTipOff();
 
@@ -4121,6 +4125,9 @@ void firePulseEffect() {
         bargraphRampUp();
       break;
     }
+
+    // Turn on hat light 1.
+    digitalWriteFast(led_hat_1, HIGH);
   }
 
   if(FIRING_MODE == SLIME) {
@@ -4510,6 +4517,12 @@ void firePulseEffect() {
     wandTipOff();
     ms_firing_pulse.stop();
     i_pulse_step = 0;
+
+    if((getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) && WAND_ACTION_STATUS != ACTION_FIRING) {
+      if(FIRING_MODE != SLIME) {
+        digitalWriteFast(led_hat_1, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
+      }
+    }
   }
 }
 
