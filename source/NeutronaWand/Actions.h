@@ -353,7 +353,7 @@ void checkWandAction() {
         // Menu Level 2: Intensify: Quick Vent.
         // Menu Level 2: Barrel Wing Button: Wand Boot Errors.
         // Menu Level 3: Intensify + top dial: Default main system volume.
-        // Menu Level 3: Barrel Wing Button: Set Neutrona Wand to 1984/1989 Mode | Set Neutrona Wand to 2021 Mode | Default (Matches the Proton Pack)
+        // Menu Level 3: Barrel Wing Button: Set Neutrona Wand year mode (84/89/AL/FE/Match Proton Pack).
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 5
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 5
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #5
@@ -1050,10 +1050,10 @@ void checkWandAction() {
 
         // Menu Level 1: Intensify: Enable or disable extra Neutrona Wand Sounds.
         // Menu Level 1: Barrel Wing Button: Enable or disable Proton Stream Impact Effects.
-        // Menu Level 2: Intensify: 1984 / 1989 / Afterlife / Default (Proton Pack toggle switch) year mode selection.
+        // Menu Level 2: Intensify: 1984 / 1989 / Afterlife / Frozen Empire / Default (Proton Pack toggle switch) year mode selection.
         // Menu Level 2: Barrel Wing Button: Overheat sync to fan.
         // Menu Level 3: Intensify: Toggle between Super Hero and Original Mode.
-        // Menu Level 3: Barrel Wing Button: Toggle CTS between: 1984/1989 CTS | 2021 CTS | Default CTS (Based on the year you are in)
+        // Menu Level 3: Barrel Wing Button: Toggle CTS between: 1984 / 1989 / Afterlife / Frozen Empire CTS | Default CTS (Based on the year you are in)
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 1
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 1
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #1
