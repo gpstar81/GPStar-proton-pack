@@ -427,6 +427,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           handleStatus(this.responseText);
+          getSettings(); // Get latest settings.
         }
       };
       xhttp.open("PUT", "/config/pack/save", true);
