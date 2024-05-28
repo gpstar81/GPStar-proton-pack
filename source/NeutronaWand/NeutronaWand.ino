@@ -670,28 +670,36 @@ bool vgModeCheck() {
     return false;
   }
   else {
-    if(SYSTEM_MODE == MODE_SUPER_HERO) {
-      if(FIRING_MODE != LAST_FIRING_MODE && (FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE)) {
-        // Restore the last firing modethe user was actively using.
-        // This could have been any of the available firing modes.
-        FIRING_MODE = LAST_FIRING_MODE;
-        switch(FIRING_MODE) {
-          case VG_MODE:
-            wandSerialSend(W_VIDEO_GAME_MODE);
-          break;
-          case CTS_MODE:
-            wandSerialSend(W_CROSS_THE_STREAMS);
-          break;
-          case CTS_MIX_MODE:
-            wandSerialSend(W_CROSS_THE_STREAMS_MIX);
-          break;
-        }
-        LAST_FIRING_MODE = FIRING_MODE;
+    if(FIRING_MODE != LAST_FIRING_MODE) {
+      // Restore the last firing modethe user was actively using.
+      // This could have been any of the available firing modes.
+      switch(LAST_FIRING_MODE) {
+        case VG_MODE:
+        default:
+          FIRING_MODE = VG_MODE;
+          wandSerialSend(W_VIDEO_GAME_MODE);
+        break;
+
+        case CTS_MODE:
+          FIRING_MODE = CTS_MODE;
+          wandSerialSend(W_CROSS_THE_STREAMS);
+        break;
+
+        case CTS_MIX_MODE:
+          FIRING_MODE = CTS_MIX_MODE;
+          wandSerialSend(W_CROSS_THE_STREAMS_MIX);
+        break;
       }
+
+      LAST_FIRING_MODE = FIRING_MODE;
     }
 
-    // MODE_SUPER_HERO supports VG modes so indicate this is allowed.
-    return true;
+    if(FIRING_MODE == VG_MODE) {
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 }
 
