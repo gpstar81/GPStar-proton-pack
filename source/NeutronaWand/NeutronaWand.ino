@@ -641,6 +641,7 @@ void mainLoop() {
 void setVGMode() {
   SYSTEM_MODE = MODE_SUPER_HERO;
   FIRING_MODE = VG_MODE;
+  LAST_FIRING_MODE = FIRING_MODE;
 }
 
 // Checks if video game mode should be set.
@@ -805,6 +806,7 @@ void toggleWandModes() {
   }
   else if(FIRING_MODE == CTS_MODE) {
     FIRING_MODE = CTS_MIX_MODE;
+    LAST_FIRING_MODE = FIRING_MODE;
 
     playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
 
@@ -813,6 +815,7 @@ void toggleWandModes() {
   else {
     // Turn on crossing the streams mode to turn off video game mode.
     FIRING_MODE = CTS_MODE;
+    LAST_FIRING_MODE = FIRING_MODE;
 
     playEffect(S_VOICE_CROSS_THE_STREAMS);
 
