@@ -175,7 +175,7 @@ void setup() {
 
   // Sanity check to make sure that a firing mode was set as default.
   if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
-    FIRING_MODE == VG_MODE;
+    FIRING_MODE = VG_MODE;
     LAST_FIRING_MODE = FIRING_MODE;
   }
 
@@ -653,11 +653,12 @@ bool vgModeCheck() {
     // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled and firing mode is PROTON.
     if(FIRING_MODE == VG_MODE) {
       LAST_FIRING_MODE = VG_MODE; // Remember that the last firing mode was explicitly VG_MODE.
-      FIRING_MODE = CTS_MODE; // At least set the firing mode to CTS for Mode Original.
+      FIRING_MODE = CTS_MODE; // At a minimum, set the firing mode to CTS for Mode Original.
       wandSerialSend(W_CROSS_THE_STREAMS);
     }
     else {
-      LAST_FIRING_MODE = FIRING_MODE; // Remember the last firing mode in use (read: CTS or CTS Mix).
+      // Already in CTS or CTS Mix, just remember that for later.
+      LAST_FIRING_MODE = FIRING_MODE;
     }
 
     if(STREAM_MODE != PROTON) {
@@ -669,10 +670,22 @@ bool vgModeCheck() {
   }
   else {
     if(SYSTEM_MODE == MODE_SUPER_HERO) {
-      if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
-        // Restore the last firing mode, as the user was actively using.
+      if(FIRING_MODE != LAST_FIRING_MODE && (FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE)) {
+        // Restore the last firing modethe user was actively using.
         // This could have been any of the available firing modes.
         FIRING_MODE = LAST_FIRING_MODE;
+        switch(FIRING_MODE) {
+          case VG_MODE:
+            wandSerialSend(W_VIDEO_GAME_MODE);
+          break;
+          case CTS_MODE:
+            wandSerialSend(W_CROSS_THE_STREAMS);
+          break;
+          case CTS_MIX_MODE:
+            wandSerialSend(W_CROSS_THE_STREAMS_MIX);
+          break;
+        }
+        LAST_FIRING_MODE = FIRING_MODE;
       }
     }
 

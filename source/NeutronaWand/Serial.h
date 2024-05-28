@@ -190,17 +190,17 @@ void wandSerialSendData(uint8_t i_message) {
       wandConfig.spectralHolidayMode = b_holiday_mode_enabled;
       wandConfig.overheatEnabled = b_overheat_enabled;
 
-      if(FIRING_MODE == CTS_MIX_MODE) {
-        // More significant, implies CTS Mix.
-        wandConfig.defaultFiringMode = 3;
-      }
-      else if(FIRING_MODE == CTS_MODE) {
-        // Implies using just CTS mode.
-        wandConfig.defaultFiringMode = 2;
-      }
-      else {
-        // Use VG modes as default.
-        wandConfig.defaultFiringMode = 1;
+      switch(FIRING_MODE) {
+        case VG_MODE:
+        default:
+          wandConfig.defaultFiringMode = 1;
+        break;
+        case CTS_MODE:
+          wandConfig.defaultFiringMode = 2;
+        break;
+        case CTS_MIX_MODE:
+          wandConfig.defaultFiringMode = 3;
+        break;
       }
 
       wandConfig.wandSoundsToPack = b_extra_pack_sounds;
@@ -413,15 +413,14 @@ void checkPack() {
           b_spectral_custom_mode_enabled = wandConfig.spectralModeEnabled;
 
           switch(wandConfig.defaultFiringMode) {
-            case 3:
-              // CTS Mix
-              FIRING_MODE = CTS_MIX_MODE;
-
-              // Force into Proton mode.
-              STREAM_MODE = PROTON;
-              wandSerialSend(W_PROTON_MODE);
+            case 1:
+            default:
+              // Default: Video Game
+              FIRING_MODE = VG_MODE;
+              setVGMode();
+            wandSerialSend(W_VIDEO_GAME_MODE);
             break;
-
+            
             case 2:
               // Cross the Streams (CTS)
               FIRING_MODE = CTS_MODE;
@@ -429,13 +428,17 @@ void checkPack() {
               // Force into Proton mode.
               STREAM_MODE = PROTON;
               wandSerialSend(W_PROTON_MODE);
+              wandSerialSend(W_CROSS_THE_STREAMS);
             break;
 
-            case 1:
-            default:
-              // Default: Video Game
-              FIRING_MODE = VG_MODE;
-              setVGMode();
+            case 3:
+              // CTS Mix
+              FIRING_MODE = CTS_MIX_MODE;
+
+              // Force into Proton mode.
+              STREAM_MODE = PROTON;
+              wandSerialSend(W_PROTON_MODE);
+              wandSerialSend(W_CROSS_THE_STREAMS_MIX);
             break;
           }
           LAST_FIRING_MODE = FIRING_MODE;
