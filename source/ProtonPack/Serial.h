@@ -141,7 +141,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t systemYear;
   uint8_t packOn;
   uint8_t powerLevel;
-  uint8_t firingMode;
+  uint8_t streamMode;
   uint8_t vibrationEnabled;
   uint8_t masterVolume;
   uint8_t effectsVolume;
@@ -779,7 +779,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         }
 
         // Synchronise the firing modes.
-        switch(FIRING_MODE) {
+        switch(STREAM_MODE) {
           case SLIME:
             serial1Send(A_SLIME_MODE);
           break;
@@ -1210,36 +1210,36 @@ void doWandSync() {
   packSync.powerLevel = i_wand_power_level;
 
   // Synchronise the firing mode.
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case SLIME:
-      packSync.firingMode = 2; // 2 = Slime Mode.
+      packSync.streamMode = 2; // 2 = Slime Mode.
     break;
 
     case STASIS:
-      packSync.firingMode = 3; // 3 = Stasis Mode.
+      packSync.streamMode = 3; // 3 = Stasis Mode.
     break;
 
     case MESON:
-      packSync.firingMode = 4; // 4 = Meson Mode.
+      packSync.streamMode = 4; // 4 = Meson Mode.
     break;
 
     case SPECTRAL:
-      packSync.firingMode = 5; // 5 = Spectral Mode
+      packSync.streamMode = 5; // 5 = Spectral Mode
     break;
 
     case HOLIDAY:
-      packSync.firingMode = 6; // 6 = Holiday Mode
+      packSync.streamMode = 6; // 6 = Holiday Mode
     break;
 
     case SPECTRAL_CUSTOM:
-      packSync.firingMode = 7; // 7 = Spectral Custom Mode.
+      packSync.streamMode = 7; // 7 = Spectral Custom Mode.
     break;
 
     case PROTON:
     default:
-      packSync.firingMode = 1; // 1 = Proton Mode.
+      packSync.streamMode = 1; // 1 = Proton Mode.
 
-      FIRING_MODE = PROTON;
+      STREAM_MODE = PROTON;
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -1593,7 +1593,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_BUTTON_MASHING:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
         default:
           stopEffect(S_FIRING_END_GUN);
@@ -1626,7 +1626,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_PROTON_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1643,7 +1643,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      if(PACK_STATE == MODE_ON && FIRING_MODE != PROTON) {
+      if(PACK_STATE == MODE_ON && STREAM_MODE != PROTON) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1652,7 +1652,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Proton mode.
-      FIRING_MODE = PROTON;
+      STREAM_MODE = PROTON;
       playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
@@ -1670,12 +1670,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SLIME_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
 
-      if(PACK_STATE == MODE_ON && FIRING_MODE != SLIME) {
+      if(PACK_STATE == MODE_ON && STREAM_MODE != SLIME) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1690,7 +1690,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Slime mode.
-      FIRING_MODE = SLIME;
+      STREAM_MODE = SLIME;
       playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
@@ -1713,7 +1713,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_STASIS_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1730,7 +1730,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      if(PACK_STATE == MODE_ON && FIRING_MODE != STASIS) {
+      if(PACK_STATE == MODE_ON && STREAM_MODE != STASIS) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1740,7 +1740,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Stasis mode.
-      FIRING_MODE = STASIS;
+      STREAM_MODE = STASIS;
       playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
@@ -1770,7 +1770,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      if(PACK_STATE == MODE_ON && FIRING_MODE != MESON) {
+      if(PACK_STATE == MODE_ON && STREAM_MODE != MESON) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1780,7 +1780,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Meson mode.
-      FIRING_MODE = MESON;
+      STREAM_MODE = MESON;
       playEffect(S_CLICK);
 
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
@@ -1803,7 +1803,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SPECTRAL_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1820,7 +1820,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      if(PACK_STATE == MODE_ON && FIRING_MODE != SPECTRAL) {
+      if(PACK_STATE == MODE_ON && STREAM_MODE != SPECTRAL) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1829,7 +1829,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Proton mode.
-      FIRING_MODE = SPECTRAL;
+      STREAM_MODE = SPECTRAL;
       playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
@@ -1847,7 +1847,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_HOLIDAY_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1864,7 +1864,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      if(PACK_STATE == MODE_ON && FIRING_MODE != HOLIDAY) {
+      if(PACK_STATE == MODE_ON && STREAM_MODE != HOLIDAY) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1873,7 +1873,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Proton mode.
-      FIRING_MODE = HOLIDAY;
+      STREAM_MODE = HOLIDAY;
       playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
@@ -1891,7 +1891,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SPECTRAL_CUSTOM_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && FIRING_MODE == MESON) {
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1908,7 +1908,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      if(PACK_STATE == MODE_ON && FIRING_MODE != SPECTRAL_CUSTOM) {
+      if(PACK_STATE == MODE_ON && STREAM_MODE != SPECTRAL_CUSTOM) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -1917,7 +1917,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Proton mode.
-      FIRING_MODE = SPECTRAL_CUSTOM;
+      STREAM_MODE = SPECTRAL_CUSTOM;
       playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
@@ -1943,7 +1943,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_OVERHEATING:
       // Overheating
-      if(FIRING_MODE == SLIME) {
+      if(STREAM_MODE == SLIME) {
         playEffect(S_SLIME_EMPTY);
       }
       else {
@@ -1959,7 +1959,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_overheating = true;
 
       // Start timer for a second smoke sound.
-      if(FIRING_MODE == SLIME) {
+      if(STREAM_MODE == SLIME) {
         ms_overheating.start(i_overheating_delay - 1000);
       }
       else {
@@ -1989,7 +1989,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       playEffect(S_QUICK_VENT_OPEN);
 
-      if(FIRING_MODE == SLIME) {
+      if(STREAM_MODE == SLIME) {
         playEffect(S_SLIME_EMPTY);
       }
       else {

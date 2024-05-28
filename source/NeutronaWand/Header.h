@@ -328,10 +328,20 @@ uint8_t i_heatup_counter = 0;
 uint8_t i_heatdown_counter = 100;
 
 /*
- * Wand Firing Modes + Settings
+ * Wand Stream/Firing Modes + Settings
+ * Firing = Affects the supported stream types by the wand. CTS modes only support a PROTON stream.
+ *  VG = Supports all possible streams, including "Spectral" if VG Modes and Spectral Modes are enabled.
+ *  CTS = Pressing the Barrel Wing Button together at the same time as the Intensify button does a cross the streams firing.
+ *        You can release one of the two firing buttons and the Neutrona Wand will still continue to cross the streams.
+ *  CTS Mix = Pressing the Barrel Wing Button together at the same time as the Intensify button does a cross the streams firing.
+ *            Releasing the Barrel Wing Switch returns to Proton Stream, and releasing Intensify stops firing completely.
+ * Stream = Type of particle stream to be thrown by the wand
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
+enum FIRING_MODES { VG_MODE, CTS_MODE, CTS_MIX_MODE };
 enum FIRING_MODES FIRING_MODE;
+enum FIRING_MODES LAST_FIRING_MODE;
+enum STREAM_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
+enum STREAM_MODES STREAM_MODE;
 
 /*
  * Firing timers.

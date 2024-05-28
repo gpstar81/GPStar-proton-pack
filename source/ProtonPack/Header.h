@@ -325,10 +325,10 @@ bool b_vent_sounds; // A flag for playing smoke and vent sounds.
 bool b_vent_light_on = false; // To know if the light is on or off.
 
 /*
- * Wand Firing Modes + Settings
+ * Wand Stream Modes + Settings
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
-enum FIRING_MODES FIRING_MODE;
+enum STREAM_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
+enum STREAM_MODES STREAM_MODE;
 
 /*
  * System modes.
