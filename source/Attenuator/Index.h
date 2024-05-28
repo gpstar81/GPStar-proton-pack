@@ -143,7 +143,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <div id="tab4" class="tab">
     <div class="card" style="text-align:center;">
-  	<a href="/settings/attenuator">Attenuator Settings</a>
+  	  <a href="/settings/attenuator">Attenuator Settings</a>
       <br/>
       <br/>
       <a href="/settings/pack">Proton Pack Settings</a>
