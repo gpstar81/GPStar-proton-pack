@@ -141,7 +141,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t systemYear;
   uint8_t packOn;
   uint8_t powerLevel;
-  uint8_t firingMode;
+  uint8_t streamMode;
   uint8_t vibrationEnabled;
   uint8_t masterVolume;
   uint8_t effectsVolume;
@@ -1212,32 +1212,32 @@ void doWandSync() {
   // Synchronise the firing mode.
   switch(STREAM_MODE) {
     case SLIME:
-      packSync.firingMode = 2; // 2 = Slime Mode.
+      packSync.streamMode = 2; // 2 = Slime Mode.
     break;
 
     case STASIS:
-      packSync.firingMode = 3; // 3 = Stasis Mode.
+      packSync.streamMode = 3; // 3 = Stasis Mode.
     break;
 
     case MESON:
-      packSync.firingMode = 4; // 4 = Meson Mode.
+      packSync.streamMode = 4; // 4 = Meson Mode.
     break;
 
     case SPECTRAL:
-      packSync.firingMode = 5; // 5 = Spectral Mode
+      packSync.streamMode = 5; // 5 = Spectral Mode
     break;
 
     case HOLIDAY:
-      packSync.firingMode = 6; // 6 = Holiday Mode
+      packSync.streamMode = 6; // 6 = Holiday Mode
     break;
 
     case SPECTRAL_CUSTOM:
-      packSync.firingMode = 7; // 7 = Spectral Custom Mode.
+      packSync.streamMode = 7; // 7 = Spectral Custom Mode.
     break;
 
     case PROTON:
     default:
-      packSync.firingMode = 1; // 1 = Proton Mode.
+      packSync.streamMode = 1; // 1 = Proton Mode.
 
       STREAM_MODE = PROTON;
 

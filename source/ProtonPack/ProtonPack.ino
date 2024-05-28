@@ -5083,7 +5083,7 @@ void doVoltageCheck() {
 
 // Checks if video game mode should be set.
 bool vgModeCheck() {
-  // For the most part this should be driven by the Neutrona Wand, but we should still perform the check.
+  // The firing mode (CTS/CTS Mix) will be driven by the Neutrona Wand but we need to make sure the proper Stream is set.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
     // MODE_ORIGINAL does not support VG modes, so make sure firing mode is PROTON.
     if(STREAM_MODE != PROTON) {

@@ -130,6 +130,9 @@ void readEEPROM() {
       }
     }
 
+    // Remember this as the last firing mode as well.
+    LAST_FIRING_MODE = FIRING_MODE;
+
     if(obj_config_eeprom.overheating > 0 && obj_config_eeprom.overheating != 255) {
       if(obj_config_eeprom.overheating > 1) {
         b_overheat_enabled = true;

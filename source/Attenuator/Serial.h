@@ -149,7 +149,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t systemYear;
   uint8_t packOn;
   uint8_t powerLevel;
-  uint8_t firingMode;
+  uint8_t streamMode;
   uint8_t vibrationEnabled;
   uint8_t masterVolume;
   uint8_t effectsVolume;

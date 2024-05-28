@@ -108,7 +108,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t systemYear;
   uint8_t packOn;
   uint8_t powerLevel;
-  uint8_t firingMode;
+  uint8_t streamMode;
   uint8_t vibrationEnabled;
   uint8_t masterVolume;
   uint8_t effectsVolume;
@@ -421,6 +421,7 @@ void checkPack() {
               STREAM_MODE = PROTON;
               wandSerialSend(W_PROTON_MODE);
             break;
+
             case 2:
               // Cross the Streams (CTS)
               FIRING_MODE = CTS_MODE;
@@ -429,6 +430,7 @@ void checkPack() {
               STREAM_MODE = PROTON;
               wandSerialSend(W_PROTON_MODE);
             break;
+
             case 1:
             default:
               // Default: Video Game
@@ -436,6 +438,7 @@ void checkPack() {
               setVGMode();
             break;
           }
+          LAST_FIRING_MODE = FIRING_MODE;
 
           switch(wandConfig.wandVibration) {
             case 1:
@@ -675,7 +678,7 @@ void checkPack() {
           i_power_level_prev = i_power_level;
 
           // Set our firing mode.
-          switch(packSync.firingMode) {
+          switch(packSync.streamMode) {
             case 1:
             default:
               STREAM_MODE = PROTON;
