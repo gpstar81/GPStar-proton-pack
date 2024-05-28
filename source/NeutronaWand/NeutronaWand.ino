@@ -160,7 +160,7 @@ void setup() {
   ms_reset_sound_beep.start(i_sound_timer);
 
   // We bootup the wand in the classic proton mode.
-  FIRING_MODE = PROTON;
+  STREAM_MODE = PROTON;
 
   // Select a random GB1/GB2 white LED blink rate for this session.
   i_classic_blink_index = random(0,5);
@@ -173,9 +173,9 @@ void setup() {
   // Start the button mash check timer.
   ms_bmash.start(0);
 
-  // Sanity check just in case a user forgot to enable CTS while enabling CTS Mix.
-  if(b_cross_the_streams_mix == true && b_cross_the_streams != true) {
-    b_cross_the_streams = true;
+  // Sanity check to make sure that a firing mode was set as default.
+  if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
+    FIRING_MODE == VG_MODE;
   }
 
   // Check if we should be in video game mode or not.
@@ -639,23 +639,39 @@ void mainLoop() {
 // Sets the Neutrona Wand to video game mode.
 void setVGMode() {
   SYSTEM_MODE = MODE_SUPER_HERO;
-  b_cross_the_streams = false;
-  b_cross_the_streams_mix = false;
+  FIRING_MODE = VG_MODE;
 }
 
 // Checks if video game mode should be set.
 bool vgModeCheck() {
-  if(SYSTEM_MODE == MODE_ORIGINAL || b_cross_the_streams == true || b_cross_the_streams_mix == true) {
+  /*
+   * Note: This gets called during setup() after reading the EEPROM so it should always set the proper values
+   * as based on the user's preferences. Any runtime changes should also get picked up during crucial points.
+   */
+  if(SYSTEM_MODE == MODE_ORIGINAL) {
     // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled and firing mode is PROTON.
-    if(SYSTEM_MODE == MODE_ORIGINAL && (b_cross_the_streams != true || FIRING_MODE != PROTON)) {
-      b_cross_the_streams = true;
-      FIRING_MODE = PROTON;
-      modeCheck();
+    if(FIRING_MODE == VG_MODE) {
+      LAST_FIRING_MODE = FIRING_MODE; // Remember the last firing mode in use (read: VG_MODE).
+      FIRING_MODE = CTS_MODE;
+      wandSerialSend(W_CROSS_THE_STREAMS);
+    }
+
+    if(STREAM_MODE != PROTON) {
+      STREAM_MODE = PROTON;
+      streamModeCheck(); // This will send a serial command to the pack to set the correct stream.
     }
 
     return false;
   }
   else {
+    if(SYSTEM_MODE == MODE_SUPER_HERO) {
+      if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
+        // Restore the last CTS mode, as the user was actively using it.
+        FIRING_MODE = LAST_FIRING_MODE;
+      }
+    }
+
+    // MODE_SUPER_HERO supports VG modes so indicate this is allowed.
     return true;
   }
 }
@@ -669,7 +685,7 @@ void wandTipOn() {
 
       if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
         if(b_wand_mash_error == true || b_pack_alarm == true) {
-          if(FIRING_MODE == PROTON && !b_pack_cyclotron_lid_on) {
+          if(STREAM_MODE == PROTON && !b_pack_cyclotron_lid_on) {
             // Green goop effect if in Proton Stream mode and pack's cyclotron lid is off.
             c_temp = C_CHARTREUSE;
           }
@@ -682,7 +698,7 @@ void wandTipOn() {
           // Set the tip of the Frutto LED array to greenish if in Frozen Empire and using CTS mode.
           c_temp = C_CHARTREUSE;
         }
-        else if(FIRING_MODE == SLIME) {
+        else if(STREAM_MODE == SLIME) {
           if(getSystemYearMode() == SYSTEM_1989) {
             c_temp = C_PASTEL_PINK;
           }
@@ -696,7 +712,7 @@ void wandTipOn() {
           // Set the tip of the Frutto LED array to beige if playing the lockout/cable spark animation.
           c_temp = C_BEIGE;
         }
-        else if(FIRING_MODE == SLIME) {
+        else if(STREAM_MODE == SLIME) {
           if(getSystemYearMode() == SYSTEM_1989) {
             c_temp = C_PASTEL_PINK;
           }
@@ -709,7 +725,7 @@ void wandTipOn() {
       barrel_leds[12] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
 
       // Illuminate the wand barrel tip LED.
-      if(FIRING_MODE != SLIME) {
+      if(STREAM_MODE != SLIME) {
         digitalWriteFast(led_barrel_tip, HIGH);
       }
     }
@@ -718,7 +734,7 @@ void wandTipOn() {
     case LEDS_5:
     default:
       // Illuminate the wand barrel tip LED.
-      if(FIRING_MODE != SLIME) {
+      if(STREAM_MODE != SLIME) {
         digitalWriteFast(led_barrel_tip, HIGH);
       }
     break;
@@ -760,29 +776,25 @@ void toggleWandModes() {
   stopEffect(S_VOICE_VIDEO_GAME_MODES);
 
   // Enable or disable crossing the streams / crossing the streams mix / video game modes.
-  if(b_cross_the_streams == true && b_cross_the_streams_mix == true && SYSTEM_MODE != MODE_ORIGINAL) {
+  if(SYSTEM_MODE != MODE_ORIGINAL && FIRING_MODE == CTS_MIX_MODE) {
     // Turn off crossing the streams mix and switch back to video game mode.
+    // Only supported when the System Mode is not Mode Original.
     setVGMode();
 
     playEffect(S_VOICE_VIDEO_GAME_MODES);
 
     wandSerialSend(W_VIDEO_GAME_MODE);
   }
-  else if(b_cross_the_streams == true && b_cross_the_streams_mix != true) {
-    // Keep cross the streams on.
-    b_cross_the_streams = true;
-
-    // Turn on cross the streams mix.
-    b_cross_the_streams_mix = true;
+  else if(FIRING_MODE == CTS_MODE) {
+    FIRING_MODE = CTS_MIX_MODE;
 
     playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
 
     wandSerialSend(W_CROSS_THE_STREAMS_MIX);
   }
   else {
-    // Turn on crossing the streams mode and turn off video game mode.
-    b_cross_the_streams = true;
-    b_cross_the_streams_mix = false;
+    // Turn on crossing the streams mode to turn off video game mode.
+    FIRING_MODE = CTS_MODE;
 
     playEffect(S_VOICE_CROSS_THE_STREAMS);
 
@@ -790,8 +802,8 @@ void toggleWandModes() {
   }
 
   // Reset to proton stream.
-  FIRING_MODE = PROTON;
-  modeCheck();
+  STREAM_MODE = PROTON;
+  streamModeCheck();
 }
 
 // Controlled from the the Wand Sub Menu and Wand EEPROM Menu system.
@@ -876,7 +888,7 @@ void quickVentFinished() {
     stopEffect(S_QUICK_VENT_OPEN);
     playEffect(S_QUICK_VENT_CLOSE);
 
-    if(FIRING_MODE == SLIME && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
+    if(STREAM_MODE == SLIME && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
       playEffect(S_PACK_SLIME_TANK_LOOP, true);
     }
   }
@@ -896,7 +908,7 @@ void startQuickVent() {
     stopEffect(S_QUICK_VENT_CLOSE);
     playEffect(S_QUICK_VENT_OPEN);
 
-    if(FIRING_MODE == SLIME) {
+    if(STREAM_MODE == SLIME) {
       playEffect(S_SLIME_EMPTY);
     }
   }
@@ -985,7 +997,7 @@ void settingsBlinkingLights() {
     }
 
     // Indicator for crossing the streams setting.
-    if((b_cross_the_streams == true || b_cross_the_streams_mix == true) && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && WAND_MENU_LEVEL == MENU_LEVEL_2 && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+    if((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && WAND_MENU_LEVEL == MENU_LEVEL_2 && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
       b_solid_five = true;
     }
 
@@ -1508,7 +1520,7 @@ void wandLightControlCheck() {
 void wandOff() {
   if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
     // If the wand is shut down while we are in settings mode (can happen if the pack is manually turned off), switch the wand and pack to proton mode.
-    switch(FIRING_MODE) {
+    switch(STREAM_MODE) {
       case MESON:
         // Tell the pack we are in meson mode.
         wandSerialSend(W_MESON_MODE);
@@ -1674,7 +1686,7 @@ void wandOff() {
   // Turn off any lingering mode switch sounds.
   stopEffect(S_MODE_SWITCH);
 
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case PROTON:
     default:
       stopEffect(S_FIRE_START_SPARK);
@@ -1779,7 +1791,7 @@ void fireControlCheck() {
 
     if(i_bmash_count >= i_bmash_max) {
       // User has exceeded "normal" firing rate.
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
         default:
           stopEffect(S_FIRING_END_GUN);
@@ -1833,7 +1845,7 @@ void fireControlCheck() {
       }
 
       if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
-        switch(FIRING_MODE) {
+        switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
           case SPECTRAL:
@@ -1885,7 +1897,7 @@ void fireControlCheck() {
       }
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
-      if(b_cross_the_streams == true) {
+      if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
         if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
           if(WAND_ACTION_STATUS != ACTION_FIRING) {
             WAND_ACTION_STATUS = ACTION_FIRING;
@@ -1913,13 +1925,13 @@ void fireControlCheck() {
         }
       }
       else {
-        if(FIRING_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
+        if(STREAM_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
           if(switch_mode.on() == true) {
             b_firing_alt = true;
           }
         }
         else if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
-          switch(FIRING_MODE) {
+          switch(STREAM_MODE) {
             case PROTON:
               // Handle Boson Dart fire start here.
               if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1) {
@@ -1983,7 +1995,7 @@ void fireControlCheck() {
       }
 
       if(switch_intensify.on() != true) {
-        switch(FIRING_MODE) {
+        switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
           case SPECTRAL:
@@ -2007,8 +2019,8 @@ void fireControlCheck() {
         }
       }
 
-      if(switch_mode.on() != true && b_cross_the_streams != true) {
-        switch(FIRING_MODE) {
+      if(switch_mode.on() != true && FIRING_MODE == VG_MODE) {
+        switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
             // Handle resetting semi-auto bool here.
@@ -2050,7 +2062,7 @@ void fireControlCheck() {
 
     if(WAND_ACTION_STATUS == ACTION_IDLE) {
       // Play a little spark effect if the user tries to fire while the ribbon cable is removed.
-      if((switch_intensify.pushed() || (b_cross_the_streams == true && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning() && switch_vent.on() == true && switch_wand.on() == true) {
+      if((switch_intensify.pushed() || ((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning() && switch_vent.on() == true && switch_wand.on() == true) {
         if(b_extra_pack_sounds == true) {
           wandSerialSend(W_WAND_MASH_ERROR_SOUND);
         }
@@ -2082,7 +2094,7 @@ void altWingButtonCheck() {
           wandSerialSend(W_SETTINGS_MODE);
         }
         else {
-          modeCheck();
+          streamModeCheck();
           WAND_ACTION_STATUS = ACTION_IDLE;
           ms_settings_blinking.stop();
           bargraphClearAlt();
@@ -2099,7 +2111,7 @@ void altWingButtonCheck() {
     }
     else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_vent.on() == true && switch_wand.on() == true) {
       // Exit the settings menu if the user turns the wand switch back on.
-      modeCheck();
+      streamModeCheck();
       WAND_ACTION_STATUS = ACTION_IDLE;
       ms_settings_blinking.stop();
       bargraphClearAlt();
@@ -2113,9 +2125,9 @@ void altWingButtonCheck() {
   }
 }
 
-void modeCheck() {
+void streamModeCheck() {
   if(WAND_CONN_STATE == PACK_CONNECTED) {
-    switch(FIRING_MODE) {
+    switch(STREAM_MODE) {
       case HOLIDAY:
         // Tell the pack we are in holiday mode.
         wandSerialSend(W_HOLIDAY_MODE);
@@ -2159,7 +2171,7 @@ void modeCheck() {
   }
 
   if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
-    if(FIRING_MODE == MESON) {
+    if(STREAM_MODE == MESON) {
       // Tell GPStar Audio we need short audio mode.
       audio.gpstarShortTrackOverload(false);
     }
@@ -2352,7 +2364,7 @@ void soundIdleLoop(bool fadeIn) {
   }
 
   if(b_gpstar_benchtest == true && fadeIn == true) {
-    switch(FIRING_MODE) {
+    switch(STREAM_MODE) {
       case SLIME:
         playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
       break;
@@ -2398,7 +2410,7 @@ void soundIdleLoopStop(bool stopAlts) {
   }
 
   if(stopAlts == true && b_gpstar_benchtest == true) {
-    switch(FIRING_MODE) {
+    switch(STREAM_MODE) {
       case SLIME:
         stopEffect(S_PACK_SLIME_TANK_LOOP);
       break;
@@ -2694,7 +2706,7 @@ void modePulseStart() {
   i_fast_led_delay = FAST_LED_UPDATE_MS;
   barrelLightsOff();
 
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case PROTON:
       // Boson Dart.
       wandSerialSend(W_BOSON_DART_SOUND);
@@ -2730,7 +2742,7 @@ void modePulseStart() {
 }
 
 void modeFireStartSounds() {
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case PROTON:
     default:
       // Some sparks for firing start.
@@ -2930,7 +2942,7 @@ void modeFireStart() {
   // This will only overheat when enabled by using the alt firing when in crossing the streams mode.
   bool b_overheat_flag = true;
 
-  if(b_cross_the_streams == true && b_firing_alt != true) {
+  if((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && b_firing_alt != true) {
     b_overheat_flag = false;
   }
 
@@ -2939,7 +2951,7 @@ void modeFireStart() {
     if(b_overheat_level[i_power_level - 1] == true && b_overheat_enabled == true) {
       ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
     }
-    else if(b_cross_the_streams == true) {
+    else if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
       if(b_firing_alt == true) {
         ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
       }
@@ -2948,7 +2960,7 @@ void modeFireStart() {
 
   barrelLightsOff();
 
-  if(FIRING_MODE == MESON) {
+  if(STREAM_MODE == MESON) {
     ms_firing_stream_effects.start(0);
   }
   else {
@@ -2967,7 +2979,7 @@ void modeFireStart() {
 
   bargraphRampFiring();
 
-  if(FIRING_MODE == PROTON && b_stream_effects == true) {
+  if(STREAM_MODE == PROTON && b_stream_effects == true) {
     ms_impact.start(random(10,16) * 1000);
 
     // Standalone wand plays additional SFX from Proton Pack.
@@ -2991,7 +3003,7 @@ void modeFireStopSounds() {
   }
 
   // Stop all other firing sounds.
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case PROTON:
     default:
       switch(i_power_level) {
@@ -3046,7 +3058,7 @@ void modeFireStopSounds() {
   }
 
   if(b_wand_mash_error != true) {
-    switch(FIRING_MODE) {
+    switch(STREAM_MODE) {
       case PROTON:
       default:
         playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
@@ -3221,7 +3233,7 @@ void modeFiring() {
   if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
     b_sound_firing_intensify_trigger = true;
 
-    if(b_cross_the_streams_mix == true && FIRING_MODE == PROTON) {
+    if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_MIX);
     }
@@ -3234,7 +3246,7 @@ void modeFiring() {
   if(b_firing_intensify != true && b_sound_firing_intensify_trigger == true) {
     b_sound_firing_intensify_trigger = false;
 
-    if(b_cross_the_streams_mix == true && FIRING_MODE == PROTON) {
+    if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_STOPPED_MIX);
 
@@ -3255,7 +3267,7 @@ void modeFiring() {
   if(b_firing_alt == true && b_sound_firing_alt_trigger != true) {
     b_sound_firing_alt_trigger = true;
 
-    if(b_cross_the_streams_mix == true) {
+    if(FIRING_MODE == CTS_MIX_MODE) {
       playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
 
       // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode mix.
@@ -3270,7 +3282,7 @@ void modeFiring() {
   if(b_firing_alt != true && b_sound_firing_alt_trigger == true) {
     b_sound_firing_alt_trigger = false;
 
-    if(b_cross_the_streams_mix == true) {
+    if(FIRING_MODE == CTS_MIX_MODE) {
       stopEffect(S_FIRING_LOOP_GB1);
       stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
 
@@ -3311,7 +3323,7 @@ void modeFiring() {
 
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-        if(b_cross_the_streams_mix == true) {
+        if(FIRING_MODE == CTS_MIX_MODE) {
           if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
             stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
           }
@@ -3331,7 +3343,7 @@ void modeFiring() {
 
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-        if(b_cross_the_streams_mix == true) {
+        if(FIRING_MODE == CTS_MIX_MODE) {
           if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
             stopEffect(S_CROSS_STREAMS_END);
           }
@@ -3355,7 +3367,7 @@ void modeFiring() {
 
             playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-            if(b_cross_the_streams_mix == true) {
+            if(FIRING_MODE == CTS_MIX_MODE) {
               if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
                 stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
               }
@@ -3375,7 +3387,7 @@ void modeFiring() {
 
             playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-            if(b_cross_the_streams_mix == true) {
+            if(FIRING_MODE == CTS_MIX_MODE) {
               if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
                 stopEffect(S_CROSS_STREAMS_END);
               }
@@ -3396,7 +3408,7 @@ void modeFiring() {
       ms_impact.start(random(10,16) * 1000);
     }
 
-    if(b_cross_the_streams_mix == true) {
+    if(FIRING_MODE == CTS_MIX_MODE) {
       // Mix in some new proton stream sounds for CTS Mix.
       if(i_power_level != i_power_level_max && b_sound_firing_cross_the_streams_mix != true) {
         playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
@@ -3425,7 +3437,7 @@ void modeFiring() {
     }
   }
 
-  if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && b_cross_the_streams_mix == true) {
+  if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && FIRING_MODE == CTS_MIX_MODE) {
     // In CTS Mix mode, you can release either Intensify or the Barrel Wing Button and firing will revert to the mode for the still-held button.
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
@@ -3495,7 +3507,7 @@ void modeFiring() {
   // Overheat timers.
   bool b_overheat_flag = true;
 
-  if(b_cross_the_streams == true && b_firing_alt != true) {
+  if((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && b_firing_alt != true) {
     b_overheat_flag = false;
   }
 
@@ -3531,7 +3543,7 @@ void modeFiring() {
   colours c_temp_start = C_WHITE;
   colours c_temp_effect = C_WHITE;
 
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case PROTON:
     default:
       /*// Shift the stream from red to orange on higher power levels.
@@ -3646,7 +3658,7 @@ void modeFiring() {
     break;
   }
 
-  if(FIRING_MODE != MESON) {
+  if(STREAM_MODE != MESON) {
     // Meson does not use "stream start" to make its pulse effect.
     fireStreamStart(getHueColour(c_temp_start, WAND_BARREL_LED_COUNT));
   }
@@ -3659,13 +3671,13 @@ void modeFiring() {
   }
 
   // Mix some impact sound every 10-15 seconds while firing.
-  if(ms_impact.justFinished() && FIRING_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true) {
+  if(ms_impact.justFinished() && STREAM_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true) {
     playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
     ms_impact.start(random(10,16) * 1000);
   }
 
   // Standalone Neutrona Wand gets additional impact sounds which would normally be played by Proton Pack.
-  if(ms_firing_sound_mix.justFinished() && FIRING_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true && b_gpstar_benchtest == true) {
+  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true && b_gpstar_benchtest == true) {
     uint8_t i_random = 0;
 
     switch(i_last_firing_effect_mix) {
@@ -3749,7 +3761,7 @@ void wandHeatUp() {
     stopEffect(S_MESON_IDLE_LOOP);
   }
 
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case PROTON:
     default:
       playEffect(S_FIRE_START_SPARK);
@@ -3813,7 +3825,7 @@ void wandBarrelHeatUp() {
       wandBarrelHeatDown();
     }
     else if(ms_wand_heatup_fade.justFinished() && ((i_bmash_spark_index < 1 && i_heatup_counter <= 100) || (i_bmash_spark_index > 0 && i_heatup_counter <= 75))) {
-      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && FIRING_MODE == PROTON && !b_pack_cyclotron_lid_on) {
+      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON && !b_pack_cyclotron_lid_on) {
         // Green goop effect in FE mode if the cyclotron lid is off.
         c_temp = C_CHARTREUSE;
       }
@@ -3851,7 +3863,7 @@ void wandBarrelHeatUp() {
     wandBarrelHeatDown();
   }
   else if(ms_wand_heatup_fade.justFinished() && i_heatup_counter <= 100) {
-    switch(FIRING_MODE) {
+    switch(STREAM_MODE) {
       case PROTON:
       default:
         // Do nothing since c_temp is already C_WHITE.
@@ -3928,7 +3940,7 @@ void wandBarrelHeatDown() {
     // Special spark effect handling for button mash lockout and ribbon cable removal.
 
     if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
-      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && FIRING_MODE == PROTON && !b_pack_cyclotron_lid_on) {
+      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON && !b_pack_cyclotron_lid_on) {
         // Green goop effect in FE mode if the cyclotron lid is off.
         c_temp = C_CHARTREUSE;
       }
@@ -3975,7 +3987,7 @@ void wandBarrelHeatDown() {
   }
 
   if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
-    switch(FIRING_MODE) {
+    switch(STREAM_MODE) {
       case PROTON:
       default:
         // Do nothing since c_temp is already C_WHITE.
@@ -4130,7 +4142,7 @@ void firePulseEffect() {
     digitalWriteFast(led_hat_1, HIGH);
   }
 
-  if(FIRING_MODE == SLIME) {
+  if(STREAM_MODE == SLIME) {
     ms_firing_stream_effects.start(0); // Start new barrel animation.
 
     // Draw first pixel.
@@ -4149,7 +4161,7 @@ void firePulseEffect() {
 
   switch(i_pulse_step) {
     case 0:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_RED);
@@ -4172,7 +4184,7 @@ void firePulseEffect() {
     break;
 
     case 1:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_RED2);
@@ -4196,7 +4208,7 @@ void firePulseEffect() {
     break;
 
     case 2:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_WHITE);
@@ -4223,7 +4235,7 @@ void firePulseEffect() {
     break;
 
     case 3:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_RED2);
@@ -4251,7 +4263,7 @@ void firePulseEffect() {
     break;
 
     case 4:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_RED);
@@ -4285,7 +4297,7 @@ void firePulseEffect() {
     break;
 
     case 5:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_BLACK);
@@ -4316,7 +4328,7 @@ void firePulseEffect() {
     break;
 
     case 6:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(1, C_BLACK);
@@ -4346,7 +4358,7 @@ void firePulseEffect() {
     break;
 
     case 7:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(2, C_BLACK);
@@ -4375,7 +4387,7 @@ void firePulseEffect() {
     break;
 
     case 8:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(3, C_BLACK);
@@ -4409,7 +4421,7 @@ void firePulseEffect() {
     break;
 
     case 9:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(4, C_BLACK);
@@ -4437,7 +4449,7 @@ void firePulseEffect() {
     break;
 
     case 10:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case STASIS:
           // Shock Blast.
           barrelLEDTranslation(3, C_WHITE);
@@ -4457,7 +4469,7 @@ void firePulseEffect() {
     break;
 
     case 11:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case STASIS:
           // Shock Blast.
           barrelLEDTranslation(3, C_BLACK);
@@ -4477,7 +4489,7 @@ void firePulseEffect() {
     break;
 
     case 12:
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case STASIS:
           // Shock Blast.
           barrelLEDTranslation(4, C_WHITE);
@@ -4506,7 +4518,7 @@ void firePulseEffect() {
   i_pulse_step++;
 
   if(i_pulse_step < 14) {
-    if(FIRING_MODE == PROTON) {
+    if(STREAM_MODE == PROTON) {
       // Boson Dart is much slower than the others.
       i_firing_pulse *= 2;
     }
@@ -4519,7 +4531,7 @@ void firePulseEffect() {
     i_pulse_step = 0;
 
     if((getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) && WAND_ACTION_STATUS != ACTION_FIRING) {
-      if(FIRING_MODE != SLIME) {
+      if(STREAM_MODE != SLIME) {
         digitalWriteFast(led_hat_1, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
       }
     }
@@ -4538,7 +4550,7 @@ void fireStreamEffect(CRGB c_colour) {
 
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
-          switch(FIRING_MODE) {
+          switch(STREAM_MODE) {
             case PROTON:
             default:
               if(b_firing_cross_streams == true) {
@@ -4608,7 +4620,7 @@ void fireStreamEffect(CRGB c_colour) {
 
           uint8_t i_s_speed = 0;
 
-          switch(FIRING_MODE) {
+          switch(STREAM_MODE) {
             case MESON:
               // Do nothing; animation is restarted by checkWandAction();
             break;
@@ -4639,14 +4651,14 @@ void fireStreamEffect(CRGB c_colour) {
             break;
           }
 
-          if(FIRING_MODE != MESON) {
+          if(STREAM_MODE != MESON) {
             ms_firing_stream_effects.start(i_firing_stream - i_s_speed);
           }
         }
         else if(i_barrel_light < i_num_barrel_leds) {
           barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light])] = c_colour;
 
-          switch(FIRING_MODE) {
+          switch(STREAM_MODE) {
             case MESON:
               if(i_barrel_light + 1 < i_num_barrel_leds) {
                 barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light + 1])] = c_colour;
@@ -4710,7 +4722,7 @@ void fireStreamEffect(CRGB c_colour) {
             break;
           }
 
-          switch(FIRING_MODE) {
+          switch(STREAM_MODE) {
             case MESON:
               switch(i_power_level) {
                 case 1:
@@ -4839,7 +4851,7 @@ void fireStreamEffect(CRGB c_colour) {
 
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
-          switch(FIRING_MODE) {
+          switch(STREAM_MODE) {
             case PROTON:
             default:
               if(b_firing_cross_streams == true) {
@@ -4905,7 +4917,7 @@ void fireStreamEffect(CRGB c_colour) {
         if(i_barrel_light == i_num_barrel_leds) {
           i_barrel_light = 0;
 
-          switch(FIRING_MODE) {
+          switch(STREAM_MODE) {
             case MESON:
               // Do nothing; animation is restarted by checkWandAction();
             break;
@@ -4939,7 +4951,7 @@ void fireStreamEffect(CRGB c_colour) {
         else if(i_barrel_light < i_num_barrel_leds) {
           barrel_leds[i_barrel_light] = c_colour;
 
-          switch(FIRING_MODE) {
+          switch(STREAM_MODE) {
             default:
               switch(i_power_level) {
                 case 1:
@@ -5054,7 +5066,7 @@ void fireEffectEnd() {
   colours c_temp = C_WHITE;
 
   if(i_barrel_light < i_num_barrel_leds && ms_firing_stream_effects.isRunning()) {
-    switch(FIRING_MODE) {
+    switch(STREAM_MODE) {
       case PROTON:
       default:
         if(b_firing_cross_streams == true) {
@@ -5160,7 +5172,7 @@ void fireEffectEnd() {
 
       uint8_t i_s_speed = 0; // Stores an additional value used for the 48-LED barrel.
 
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case MESON:
           switch(i_power_level) {
             case 1:
@@ -5254,7 +5266,7 @@ void fireEffectEnd() {
     }
   }
   else {
-    switch(FIRING_MODE) {
+    switch(STREAM_MODE) {
       case PROTON:
       default:
         if(b_firing_cross_streams == true) {
@@ -8931,56 +8943,56 @@ void checkRotaryEncoder() {
             }
             else if(vgModeCheck() && switch_wand.on() != true && switch_vent.on() == true && ms_firing_mode_switch.remaining() < 1 && WAND_STATUS == MODE_ON) {
               // Counter clockwise firing mode selection.
-              if(FIRING_MODE == PROTON) {
-                FIRING_MODE = STASIS;
+              if(STREAM_MODE == PROTON) {
+                STREAM_MODE = STASIS;
               }
-              else if(FIRING_MODE == STASIS) {
-                FIRING_MODE = SLIME;
+              else if(STREAM_MODE == STASIS) {
+                STREAM_MODE = SLIME;
               }
-              else if(FIRING_MODE == SLIME) {
-                FIRING_MODE = MESON;
+              else if(STREAM_MODE == SLIME) {
+                STREAM_MODE = MESON;
               }
-              else if(FIRING_MODE == MESON) {
+              else if(STREAM_MODE == MESON) {
                 // Conditional mode advancement.
                 if(b_spectral_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL;
+                  STREAM_MODE = SPECTRAL;
                 }
                 else if(b_holiday_mode_enabled == true) {
-                  FIRING_MODE = HOLIDAY;
+                  STREAM_MODE = HOLIDAY;
                 }
                 else if(b_spectral_custom_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL_CUSTOM;
+                  STREAM_MODE = SPECTRAL_CUSTOM;
                 }
                 else {
-                  FIRING_MODE = PROTON;
+                  STREAM_MODE = PROTON;
                 }
               }
-              else if(FIRING_MODE == SPECTRAL) {
+              else if(STREAM_MODE == SPECTRAL) {
                 // Conditional mode advancement.
                 if(b_holiday_mode_enabled == true) {
-                  FIRING_MODE = HOLIDAY;
+                  STREAM_MODE = HOLIDAY;
                 }
                 else if(b_spectral_custom_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL_CUSTOM;
+                  STREAM_MODE = SPECTRAL_CUSTOM;
                 }
                 else {
-                  FIRING_MODE = PROTON;
+                  STREAM_MODE = PROTON;
                 }
               }
-              else if(FIRING_MODE == HOLIDAY) {
+              else if(STREAM_MODE == HOLIDAY) {
                 // Conditional mode advancement.
                 if(b_spectral_custom_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL_CUSTOM;
+                  STREAM_MODE = SPECTRAL_CUSTOM;
                 }
                 else {
-                  FIRING_MODE = PROTON;
+                  STREAM_MODE = PROTON;
                 }
               }
               else {
-                FIRING_MODE = PROTON;
+                STREAM_MODE = PROTON;
               }
 
-              modeCheck();
+              streamModeCheck();
               ms_firing_mode_switch.start(i_firing_mode_switch_delay);
             }
 
@@ -9044,56 +9056,56 @@ void checkRotaryEncoder() {
               }
             }
             else if(vgModeCheck() && switch_wand.on() != true && switch_vent.on() == true && ms_firing_mode_switch.remaining() < 1 && WAND_STATUS == MODE_ON) {
-              if(FIRING_MODE == PROTON) {
+              if(STREAM_MODE == PROTON) {
                 // Conditional mode advancement.
                 if(b_spectral_custom_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL_CUSTOM;
+                  STREAM_MODE = SPECTRAL_CUSTOM;
                 }
                 else if(b_holiday_mode_enabled == true) {
-                  FIRING_MODE = HOLIDAY;
+                  STREAM_MODE = HOLIDAY;
                 }
                 else if(b_spectral_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL;
+                  STREAM_MODE = SPECTRAL;
                 }
                 else {
-                  FIRING_MODE = MESON;
+                  STREAM_MODE = MESON;
                 }
               }
-              else if(FIRING_MODE == SPECTRAL_CUSTOM) {
+              else if(STREAM_MODE == SPECTRAL_CUSTOM) {
                 // Conditional mode advancement.
                 if(b_holiday_mode_enabled == true) {
-                  FIRING_MODE = HOLIDAY;
+                  STREAM_MODE = HOLIDAY;
                 }
                 else if(b_spectral_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL;
+                  STREAM_MODE = SPECTRAL;
                 }
                 else {
-                  FIRING_MODE = MESON;
+                  STREAM_MODE = MESON;
                 }
               }
-              else if(FIRING_MODE == HOLIDAY) {
+              else if(STREAM_MODE == HOLIDAY) {
                 // Conditional mode advancement.
                 if(b_spectral_mode_enabled == true) {
-                  FIRING_MODE = SPECTRAL;
+                  STREAM_MODE = SPECTRAL;
                 }
                 else {
-                  FIRING_MODE = MESON;
+                  STREAM_MODE = MESON;
                 }
               }
-              else if(FIRING_MODE == SPECTRAL) {
-                FIRING_MODE = MESON;
+              else if(STREAM_MODE == SPECTRAL) {
+                STREAM_MODE = MESON;
               }
-              else if(FIRING_MODE == MESON) {
-                FIRING_MODE = SLIME;
+              else if(STREAM_MODE == MESON) {
+                STREAM_MODE = SLIME;
               }
-              else if(FIRING_MODE == SLIME) {
-                FIRING_MODE = STASIS;
+              else if(STREAM_MODE == SLIME) {
+                STREAM_MODE = STASIS;
               }
               else {
-                FIRING_MODE = PROTON;
+                STREAM_MODE = PROTON;
               }
 
-              modeCheck();
+              streamModeCheck();
               ms_firing_mode_switch.start(i_firing_mode_switch_delay);
             }
 
@@ -9222,7 +9234,7 @@ void wandExitMenu() {
     playEffect(S_CLICK);
   }
 
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case MESON:
       // Tell the pack we are in meson mode.
       wandSerialSend(W_MESON_MODE);

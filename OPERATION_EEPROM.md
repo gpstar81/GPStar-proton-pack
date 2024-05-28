@@ -77,7 +77,7 @@ Please note whatever settings you have temporarily changed in the regular menus 
 
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
-| 5 | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROMs.<br><br>**The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you turn the battery power off.** | Save the current settings to the Proton Pack and Neutrona Wand EEPROMs. |
+| 5 | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you turn the battery power off.** | Save the current settings to the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**It is advised to power-cycle your equipment after saving settings to ensure the proper defaults/values are loaded, such as the case of changing the System Mode.** |
 | 4 | Firing&nbsp;Mode&nbsp;Selection / Spectral Modes | Cycle through VG/CTS operation modes to set as your default.<sup>1</sup> | Enable/Disable the Spectral Modes. |
 | 3 | Overheating / Smoke | Enable/Disable Overheating Ability | Enable/Disable Smoke Effects |
 | 2 | Cyclotron&nbsp;LED&nbsp;Control | Cyclotron rotation direction. Clockwise or counter clockwise. | Enable/Disable the Cyclotron Lid Ring Simulation in Afterlife and Frozen Empire mode.<br/>ONLY applies to use of the 12, 20 or 36 LED hardware options. |

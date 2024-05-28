@@ -229,15 +229,15 @@ void updateEffectsVolume() {
         audio.trackGain(S_FROZEN_EMPIRE_BOOT_EFFECT, i_volume_effects + i_gpstar_audio_volume_factor);
       }
 
-      if(FIRING_MODE == SLIME) {
+      if(STREAM_MODE == SLIME) {
         audio.trackGain(S_PACK_SLIME_TANK_LOOP, i_volume_effects);
       }
 
-      if(FIRING_MODE == STASIS) {
+      if(STREAM_MODE == STASIS) {
         audio.trackGain(S_STASIS_IDLE_LOOP, i_volume_effects);
       }
 
-      if(FIRING_MODE == MESON) {
+      if(STREAM_MODE == MESON) {
         audio.trackGain(S_MESON_IDLE_LOOP, i_volume_effects);
       }
     break;

@@ -54,7 +54,7 @@ void checkWandAction() {
 
     case ACTION_FIRING:
       if(b_pack_on == true && b_pack_alarm == false) {
-        if(FIRING_MODE == MESON) {
+        if(STREAM_MODE == MESON) {
           if(ms_meson_blast.justFinished()) {
             playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
             wandSerialSend(W_MESON_FIRE_PULSE);
@@ -1259,7 +1259,7 @@ void checkWandAction() {
 
           // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
           if(switch_mode.pushed()) {
-            if(b_cross_the_streams != true && b_cross_the_streams_mix != true) {
+            if(FIRING_MODE == VG_MODE) {
               // Tell the Proton Pack to cycle through the Video Game Colour toggles.
               wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
             }

@@ -1,3 +1,4 @@
+#include "Header.h"
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
@@ -114,21 +115,18 @@ void readEEPROM() {
     objConfigEEPROM obj_config_eeprom;
     EEPROM.get(i_eepromAddress, obj_config_eeprom);
 
+    // Assume that the VG_MODE as default, overriding as necessary based on stored flags.
+    FIRING_MODE = VG_MODE;
+
     if(obj_config_eeprom.cross_the_streams > 0 && obj_config_eeprom.cross_the_streams != 255) {
       if(obj_config_eeprom.cross_the_streams > 1) {
-        b_cross_the_streams = true;
-      }
-      else {
-        b_cross_the_streams = false;
-      }
-    }
+        FIRING_MODE = CTS_MODE; // At least the CTS mode is enabled.
 
-    if(obj_config_eeprom.cross_the_streams_mix > 0 && obj_config_eeprom.cross_the_streams_mix != 255) {
-      if(obj_config_eeprom.cross_the_streams_mix > 1) {
-        b_cross_the_streams_mix = true;
-      }
-      else {
-        b_cross_the_streams_mix = false;
+        if(obj_config_eeprom.cross_the_streams_mix > 0 && obj_config_eeprom.cross_the_streams_mix != 255) {
+          if(obj_config_eeprom.cross_the_streams_mix > 1) {
+            FIRING_MODE = CTS_MIX_MODE; // Upgrade to the CTS Mix mode.
+          }
+        }
       }
     }
 
@@ -567,11 +565,11 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_level_1 = 1;
   uint8_t i_wand_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
 
-  if(b_cross_the_streams == true) {
+  if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
     i_cross_the_streams = 2;
   }
 
-  if(b_cross_the_streams_mix == true) {
+  if(FIRING_MODE == CTS_MIX_MODE) {
     i_cross_the_streams_mix = 2;
   }
 

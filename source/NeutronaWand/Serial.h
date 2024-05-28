@@ -1,3 +1,4 @@
+#include "Header.h"
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
@@ -189,12 +190,12 @@ void wandSerialSendData(uint8_t i_message) {
       wandConfig.spectralHolidayMode = b_holiday_mode_enabled;
       wandConfig.overheatEnabled = b_overheat_enabled;
 
-      if(b_cross_the_streams_mix) {
-        // More significant, implies b_cross_the_streams.
+      if(FIRING_MODE == CTS_MIX_MODE) {
+        // More significant, implies CTS Mix.
         wandConfig.defaultFiringMode = 3;
       }
-      else if(b_cross_the_streams) {
-        // Implies that b_cross_the_streams_mix was false.
+      else if(FIRING_MODE == CTS_MODE) {
+        // Implies using just CTS mode.
         wandConfig.defaultFiringMode = 2;
       }
       else {
@@ -414,24 +415,24 @@ void checkPack() {
           switch(wandConfig.defaultFiringMode) {
             case 3:
               // CTS Mix
-              b_cross_the_streams_mix = true;
-              b_cross_the_streams = true;
+              FIRING_MODE = CTS_MIX_MODE;
 
               // Force into Proton mode.
-              FIRING_MODE = PROTON;
+              STREAM_MODE = PROTON;
               wandSerialSend(W_PROTON_MODE);
             break;
             case 2:
-              // Cross the Streams
-              b_cross_the_streams_mix = false;
-              b_cross_the_streams = true;
+              // Cross the Streams (CTS)
+              FIRING_MODE = CTS_MODE;
 
               // Force into Proton mode.
-              FIRING_MODE = PROTON;
+              STREAM_MODE = PROTON;
               wandSerialSend(W_PROTON_MODE);
             break;
+            case 1:
             default:
               // Default: Video Game
+              FIRING_MODE = VG_MODE;
               setVGMode();
             break;
           }
@@ -578,6 +579,7 @@ void checkPack() {
             case 1:
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
+              vgModeCheck(); // Re-check VG/CTS mode.
             break;
             case 2:
               SYSTEM_MODE = MODE_ORIGINAL;
@@ -676,18 +678,18 @@ void checkPack() {
           switch(packSync.firingMode) {
             case 1:
             default:
-              FIRING_MODE = PROTON;
+              STREAM_MODE = PROTON;
             break;
             case 2:
-              FIRING_MODE = SLIME;
+              STREAM_MODE = SLIME;
               setVGMode();
             break;
             case 3:
-              FIRING_MODE = STASIS;
+              STREAM_MODE = STASIS;
               setVGMode();
             break;
             case 4:
-              FIRING_MODE = MESON;
+              STREAM_MODE = MESON;
 
               if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
                 // Tell GPStar Audio we need short audio mode.
@@ -697,15 +699,15 @@ void checkPack() {
               setVGMode();
             break;
             case 5:
-              FIRING_MODE = SPECTRAL;
+              STREAM_MODE = SPECTRAL;
               setVGMode();
             break;
             case 6:
-              FIRING_MODE = HOLIDAY;
+              STREAM_MODE = HOLIDAY;
               setVGMode();
             break;
             case 7:
-              FIRING_MODE = SPECTRAL_CUSTOM;
+              STREAM_MODE = SPECTRAL_CUSTOM;
               setVGMode();
             break;
           }
@@ -863,6 +865,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_MODE_SUPER_HERO:
       SYSTEM_MODE = MODE_SUPER_HERO;
+      vgModeCheck(); // Re-check VG/CTS mode.
     break;
 
     case P_MODE_ORIGINAL:
@@ -1037,7 +1040,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
           if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
             // If the wand is in settings mode while the alarm is activated, exit the settings mode.
-            switch(FIRING_MODE) {
+            switch(STREAM_MODE) {
               case MESON:
                 // Tell the pack we are in meson mode.
                 wandSerialSend(W_MESON_MODE);
