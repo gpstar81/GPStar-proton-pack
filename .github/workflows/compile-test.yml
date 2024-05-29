@@ -66,6 +66,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: arduino/compile-sketches@v1
+      - name: Install specific version of ESP32 core
+        run: |
+            arduino-cli core install esp32:esp32@2.0.17
         with:
             github-token: ${{ secrets.GITHUB_TOKEN }}
             enable-deltas-report: true
