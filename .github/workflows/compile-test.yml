@@ -70,7 +70,9 @@ jobs:
             github-token: ${{ secrets.GITHUB_TOKEN }}
             enable-deltas-report: true
             platforms: |
-              esp32:esp32@2.0.17
+              - source-url: "https://github.com/espressif/arduino-esp32.git"
+              - name: "esp32:esp32"
+              - version: "2.0.17"
             fqbn: esp32:esp32:esp32
             sketch-paths: |
               - source/Attenuator
