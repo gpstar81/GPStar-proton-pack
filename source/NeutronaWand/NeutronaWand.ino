@@ -667,11 +667,11 @@ bool vgModeCheck() {
       streamModeCheck(); // This will send a serial command to the pack to set the correct stream.
     }
 
-    return false;
+    return false; // Not using VG mode.
   }
   else {
     if(FIRING_MODE != LAST_FIRING_MODE) {
-      // Restore the last firing modethe user was actively using.
+      // Restore the last firing mode the user was actively using.
       // This could have been any of the available firing modes.
       switch(LAST_FIRING_MODE) {
         case VG_MODE:
@@ -694,6 +694,7 @@ bool vgModeCheck() {
       LAST_FIRING_MODE = FIRING_MODE;
     }
 
+    // Return whether VG mode is in use.
     if(FIRING_MODE == VG_MODE) {
       return true;
     }
