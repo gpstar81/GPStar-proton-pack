@@ -1,3 +1,4 @@
+#include "Header.h"
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
@@ -107,7 +108,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t systemYear;
   uint8_t packOn;
   uint8_t powerLevel;
-  uint8_t firingMode;
+  uint8_t streamMode;
   uint8_t vibrationEnabled;
   uint8_t masterVolume;
   uint8_t effectsVolume;
@@ -189,17 +190,17 @@ void wandSerialSendData(uint8_t i_message) {
       wandConfig.spectralHolidayMode = b_holiday_mode_enabled;
       wandConfig.overheatEnabled = b_overheat_enabled;
 
-      if(b_cross_the_streams_mix) {
-        // More significant, implies b_cross_the_streams.
-        wandConfig.defaultFiringMode = 3;
-      }
-      else if(b_cross_the_streams) {
-        // Implies that b_cross_the_streams_mix was false.
-        wandConfig.defaultFiringMode = 2;
-      }
-      else {
-        // Use VG modes as default.
-        wandConfig.defaultFiringMode = 1;
+      switch(FIRING_MODE) {
+        case VG_MODE:
+        default:
+          wandConfig.defaultFiringMode = 1;
+        break;
+        case CTS_MODE:
+          wandConfig.defaultFiringMode = 2;
+        break;
+        case CTS_MIX_MODE:
+          wandConfig.defaultFiringMode = 3;
+        break;
       }
 
       wandConfig.wandSoundsToPack = b_extra_pack_sounds;
@@ -304,11 +305,11 @@ void wandSerialSendData(uint8_t i_message) {
       smokeConfig.overheatLevel1 = b_overheat_level_1;
 
       // Time (seconds) before an overheat event takes place by level.
-      smokeConfig.overheatDelay5 = i_ms_overheat_initiate_level_5 / 1000;
-      smokeConfig.overheatDelay4 = i_ms_overheat_initiate_level_4 / 1000;
-      smokeConfig.overheatDelay3 = i_ms_overheat_initiate_level_3 / 1000;
-      smokeConfig.overheatDelay2 = i_ms_overheat_initiate_level_2 / 1000;
-      smokeConfig.overheatDelay1 = i_ms_overheat_initiate_level_1 / 1000;
+      smokeConfig.overheatDelay5 = (uint8_t)(i_ms_overheat_initiate_level_5 / 1000);
+      smokeConfig.overheatDelay4 = (uint8_t)(i_ms_overheat_initiate_level_4 / 1000);
+      smokeConfig.overheatDelay3 = (uint8_t)(i_ms_overheat_initiate_level_3 / 1000);
+      smokeConfig.overheatDelay2 = (uint8_t)(i_ms_overheat_initiate_level_2 / 1000);
+      smokeConfig.overheatDelay1 = (uint8_t)(i_ms_overheat_initiate_level_1 / 1000);
 
       i_send_size = wandComs.txObj(smokeConfig);
       wandComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
@@ -412,29 +413,35 @@ void checkPack() {
           b_spectral_custom_mode_enabled = wandConfig.spectralModeEnabled;
 
           switch(wandConfig.defaultFiringMode) {
-            case 3:
-              // CTS Mix
-              b_cross_the_streams_mix = true;
-              b_cross_the_streams = true;
-
-              // Force into Proton mode.
-              FIRING_MODE = PROTON;
-              wandSerialSend(W_PROTON_MODE);
-            break;
-            case 2:
-              // Cross the Streams
-              b_cross_the_streams_mix = false;
-              b_cross_the_streams = true;
-
-              // Force into Proton mode.
-              FIRING_MODE = PROTON;
-              wandSerialSend(W_PROTON_MODE);
-            break;
+            case 1:
             default:
               // Default: Video Game
+              FIRING_MODE = VG_MODE;
               setVGMode();
+            wandSerialSend(W_VIDEO_GAME_MODE);
+            break;
+            
+            case 2:
+              // Cross the Streams (CTS)
+              FIRING_MODE = CTS_MODE;
+
+              // Force into Proton mode.
+              STREAM_MODE = PROTON;
+              wandSerialSend(W_PROTON_MODE);
+              wandSerialSend(W_CROSS_THE_STREAMS);
+            break;
+
+            case 3:
+              // CTS Mix
+              FIRING_MODE = CTS_MIX_MODE;
+
+              // Force into Proton mode.
+              STREAM_MODE = PROTON;
+              wandSerialSend(W_PROTON_MODE);
+              wandSerialSend(W_CROSS_THE_STREAMS_MIX);
             break;
           }
+          LAST_FIRING_MODE = FIRING_MODE;
 
           switch(wandConfig.wandVibration) {
             case 1:
@@ -556,11 +563,13 @@ void checkPack() {
           b_overheat_level_3 = smokeConfig.overheatLevel3;
           b_overheat_level_2 = smokeConfig.overheatLevel2;
           b_overheat_level_1 = smokeConfig.overheatLevel1;
-          i_ms_overheat_initiate_level_5 = smokeConfig.overheatDelay5;
-          i_ms_overheat_initiate_level_4 = smokeConfig.overheatDelay4;
-          i_ms_overheat_initiate_level_3 = smokeConfig.overheatDelay3;
-          i_ms_overheat_initiate_level_2 = smokeConfig.overheatDelay2;
-          i_ms_overheat_initiate_level_1 = smokeConfig.overheatDelay1;
+
+          // Values are sent as seconds, must convert to milliseconds.
+          i_ms_overheat_initiate_level_5 = smokeConfig.overheatDelay5 * 1000;
+          i_ms_overheat_initiate_level_4 = smokeConfig.overheatDelay4 * 1000;
+          i_ms_overheat_initiate_level_3 = smokeConfig.overheatDelay3 * 1000;
+          i_ms_overheat_initiate_level_2 = smokeConfig.overheatDelay2 * 1000;
+          i_ms_overheat_initiate_level_1 = smokeConfig.overheatDelay1 * 1000;
 
           // Update and reset wand components.
           resetOverheatLevels();
@@ -576,6 +585,7 @@ void checkPack() {
             case 1:
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
+              vgModeCheck(); // Re-check VG/CTS mode.
             break;
             case 2:
               SYSTEM_MODE = MODE_ORIGINAL;
@@ -671,21 +681,21 @@ void checkPack() {
           i_power_level_prev = i_power_level;
 
           // Set our firing mode.
-          switch(packSync.firingMode) {
+          switch(packSync.streamMode) {
             case 1:
             default:
-              FIRING_MODE = PROTON;
+              STREAM_MODE = PROTON;
             break;
             case 2:
-              FIRING_MODE = SLIME;
+              STREAM_MODE = SLIME;
               setVGMode();
             break;
             case 3:
-              FIRING_MODE = STASIS;
+              STREAM_MODE = STASIS;
               setVGMode();
             break;
             case 4:
-              FIRING_MODE = MESON;
+              STREAM_MODE = MESON;
 
               if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
                 // Tell GPStar Audio we need short audio mode.
@@ -695,15 +705,15 @@ void checkPack() {
               setVGMode();
             break;
             case 5:
-              FIRING_MODE = SPECTRAL;
+              STREAM_MODE = SPECTRAL;
               setVGMode();
             break;
             case 6:
-              FIRING_MODE = HOLIDAY;
+              STREAM_MODE = HOLIDAY;
               setVGMode();
             break;
             case 7:
-              FIRING_MODE = SPECTRAL_CUSTOM;
+              STREAM_MODE = SPECTRAL_CUSTOM;
               setVGMode();
             break;
           }
@@ -861,6 +871,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_MODE_SUPER_HERO:
       SYSTEM_MODE = MODE_SUPER_HERO;
+      vgModeCheck(); // Re-check VG/CTS mode.
     break;
 
     case P_MODE_ORIGINAL:
@@ -1035,7 +1046,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
           if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
             // If the wand is in settings mode while the alarm is activated, exit the settings mode.
-            switch(FIRING_MODE) {
+            switch(STREAM_MODE) {
               case MESON:
                 // Tell the pack we are in meson mode.
                 wandSerialSend(W_MESON_MODE);

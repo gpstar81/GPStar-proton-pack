@@ -122,7 +122,7 @@ void setup() {
   SYSTEM_MODE = MODE_SUPER_HERO;
 
   // Bootup the pack into Proton mode, the same as the wand.
-  FIRING_MODE = PROTON;
+  STREAM_MODE = PROTON;
 
   // Set the CTS to not firing.
   STATUS_CTS = CTS_NOT_FIRING;
@@ -431,7 +431,7 @@ void loop() {
       // Play a little bit of smoke and N-Filter vent lights while firing and other misc sound effects.
       if(b_wand_firing == true) {
         // Mix some impact sound effects.
-        if(ms_firing_sound_mix.justFinished() && FIRING_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects == true) {
+        if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects == true) {
           uint8_t i_random = 0;
 
           switch(i_last_firing_effect_mix) {
@@ -601,7 +601,7 @@ bool fadeOutLights() {
   bool b_return = false;
 
   if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !usingSlimeCyclotron()) {
-    uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
+    uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
 
     // We override the colour changes when using stock HasLab Cyclotron LEDs.
     // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
@@ -712,7 +712,7 @@ void packStartup() {
 
       case SYSTEM_AFTERLIFE:
       default:
-        if(FIRING_MODE == SLIME) {
+        if(STREAM_MODE == SLIME) {
           playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 30);
           playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 18000);
         }
@@ -725,7 +725,7 @@ void packStartup() {
       break;
 
       case SYSTEM_FROZEN_EMPIRE:
-        if(FIRING_MODE == SLIME) {
+        if(STREAM_MODE == SLIME) {
           playEffect(S_BOOTUP, false, i_volume_effects - 30);
           playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
         }
@@ -743,7 +743,7 @@ void packStartup() {
       break;
     }
 
-    switch(FIRING_MODE) {
+    switch(STREAM_MODE) {
       case SLIME:
         playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
       break;
@@ -815,15 +815,15 @@ void packShutdown() {
   stopEffect(S_STEAM_LOOP);
   stopEffect(S_SLIME_REFILL);
 
-  if(FIRING_MODE == SLIME) {
+  if(STREAM_MODE == SLIME) {
     stopEffect(S_PACK_SLIME_TANK_LOOP);
   }
 
-  if(FIRING_MODE == STASIS) {
+  if(STREAM_MODE == STASIS) {
     stopEffect(S_STASIS_IDLE_LOOP);
   }
 
-  if(FIRING_MODE == MESON) {
+  if(STREAM_MODE == MESON) {
     stopEffect(S_MESON_IDLE_LOOP);
   }
 
@@ -858,7 +858,7 @@ void packShutdown() {
 
     stopEffect(S_VENT_OPEN);
 
-    if(FIRING_MODE != SLIME) {
+    if(STREAM_MODE != SLIME) {
       stopEffect(S_PACK_PRE_VENT);
 
       if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
@@ -980,8 +980,10 @@ void setYearModeByToggle() {
         packSerialSend(P_YEAR_1989);
         serial1Send(A_YEAR_1989);
 
-        // Play audio cue confirming the change.
-        playEffect(S_VOICE_1989);
+        // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
+        if(switch_mode.isPressed() || switch_mode.isReleased()) {
+          playEffect(S_VOICE_1989);
+        }
       }
       else {
         SYSTEM_YEAR = SYSTEM_1984;
@@ -991,8 +993,10 @@ void setYearModeByToggle() {
         packSerialSend(P_YEAR_1984);
         serial1Send(A_YEAR_1984);
 
-        // Play audio cue confirming the change.
-        playEffect(S_VOICE_1984);
+        // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
+        if(switch_mode.isPressed() || switch_mode.isReleased()) {
+          playEffect(S_VOICE_1984);
+        }
       }
 
       // Reset the pack variables to match the new year mode.
@@ -1011,8 +1015,10 @@ void setYearModeByToggle() {
         packSerialSend(P_YEAR_AFTERLIFE);
         serial1Send(A_YEAR_AFTERLIFE);
 
-        // Play audio cue confirming the change.
-        playEffect(S_VOICE_AFTERLIFE);
+        // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
+        if(switch_mode.isPressed() || switch_mode.isReleased()) {
+          playEffect(S_VOICE_AFTERLIFE);
+        }
       }
       else {
         SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
@@ -1022,8 +1028,10 @@ void setYearModeByToggle() {
         packSerialSend(P_YEAR_FROZEN_EMPIRE);
         serial1Send(A_YEAR_FROZEN_EMPIRE);
 
-        // Play audio cue confirming the change.
-        playEffect(S_VOICE_FROZEN_EMPIRE);
+        // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
+        if(switch_mode.isPressed() || switch_mode.isReleased()) {
+          playEffect(S_VOICE_FROZEN_EMPIRE);
+        }
       }
 
       // Reset the pack variables to match the new year mode.
@@ -1765,7 +1773,7 @@ void spectralLightsOn() {
 
 void powercellDraw(uint8_t i_start) {
   uint8_t i_brightness = getBrightness(i_powercell_brightness); // Calculate desired brightness.
-  uint8_t i_colour_scheme = getDeviceColour(POWERCELL, FIRING_MODE, b_powercell_colour_toggle);
+  uint8_t i_colour_scheme = getDeviceColour(POWERCELL, STREAM_MODE, b_powercell_colour_toggle);
 
   // Sets the colour for each Power Cell LED, subject to colour toggle setting.
   for(uint8_t i = i_start; i <= i_powercell_led; i++) {
@@ -1861,7 +1869,7 @@ uint8_t cyclotronLookupTable(uint8_t index) {
 
 // Reset the Cyclotron LED colours.
 void cyclotronColourReset() {
-  uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
+  uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
 
   // We override the colour changes when using stock HasLab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
@@ -1973,6 +1981,7 @@ void cyclotronControl() {
         break;
 
         case SYSTEM_AFTERLIFE:
+        default:
           r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
           r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
           r_inner_ramp.go(i_inner_current_ramp_speed);
@@ -2032,7 +2041,7 @@ void cyclotronControl() {
 }
 
 void cyclotronFade() {
-  uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
+  uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
 
   // We override the colour changes when using stock HasLab Cyclotron LEDs.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
@@ -2650,7 +2659,7 @@ void cyclotron1984(uint16_t cDelay) {
 
 void cyclotron1984Alarm() {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness);
-  uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
+  uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
   uint8_t led1 = i_cyclotron_led_start + cyclotron84LookupTable(0);
   uint8_t led2 = i_cyclotron_led_start + cyclotron84LookupTable(1);
   uint8_t led3 = i_cyclotron_led_start + cyclotron84LookupTable(2);
@@ -2804,7 +2813,7 @@ void cyclotron1984Alarm() {
 
 void cyclotron84LightOn(uint8_t cLed) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness);
-  uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
+  uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
 
   // We override the colour changes when using stock HasLab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
@@ -2911,7 +2920,7 @@ void cyclotron84LightOff(uint8_t cLed) {
 
 // Returns whether we should be using the slime cyclotron effect or not.
 bool usingSlimeCyclotron() {
-  if(FIRING_MODE == SLIME && b_cyclotron_colour_toggle) {
+  if(STREAM_MODE == SLIME && b_cyclotron_colour_toggle) {
     return true;
   }
   else {
@@ -2928,7 +2937,7 @@ void slimeCyclotronEffect() {
     }
 
     uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
-    uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, FIRING_MODE, b_cyclotron_colour_toggle);
+    uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
     uint8_t i_random_lower = 50;
     uint8_t i_random_upper = 121;
 
@@ -3028,12 +3037,12 @@ void slimeCyclotronFadeout() {
 }
 
 void packVenting() {
-  if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+  if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
     smokeNFilter(true);
   }
 
   if(ms_overheating.justFinished()) {
-    if(FIRING_MODE == SLIME) {
+    if(STREAM_MODE == SLIME) {
       // Play the sound of slime refilling the tank.
       playEffect(S_SLIME_REFILL, true);
     }
@@ -3072,7 +3081,7 @@ void packVenting() {
       default:
         ms_overheating_length.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
 
-        if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+        if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
           ms_smoke_on.start(i_ms_overheating_length_1 / 2 > 4000 ? 4000 : i_ms_overheating_length_1 / 2);
         }
@@ -3081,7 +3090,7 @@ void packVenting() {
       case 2:
         ms_overheating_length.start(i_ms_overheating_length_2 >= 4000 ? i_ms_overheating_length_2 / 2 : 2000);
 
-        if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+        if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
           ms_smoke_on.start(i_ms_overheating_length_2 / 2 > 4000 ? 4000 : i_ms_overheating_length_2 / 2);
         }
@@ -3090,7 +3099,7 @@ void packVenting() {
       case 3:
         ms_overheating_length.start(i_ms_overheating_length_3 >= 4000 ? i_ms_overheating_length_3 / 2 : 2000);
 
-        if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+        if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
           ms_smoke_on.start(i_ms_overheating_length_3 / 2 > 4000 ? 4000 : i_ms_overheating_length_3 / 2);
         }
@@ -3099,7 +3108,7 @@ void packVenting() {
       case 4:
         ms_overheating_length.start(i_ms_overheating_length_4 >= 4000 ? i_ms_overheating_length_4 / 2 : 2000);
 
-        if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+        if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
           ms_smoke_on.start(i_ms_overheating_length_4 / 2 > 4000 ? 4000 : i_ms_overheating_length_4 / 2);
         }
@@ -3108,7 +3117,7 @@ void packVenting() {
       case 5:
         ms_overheating_length.start(i_ms_overheating_length_5 >= 4000 ? i_ms_overheating_length_5 / 2 : 2000);
 
-        if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+        if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
           ms_smoke_on.start(i_ms_overheating_length_5 / 2 > 4000 ? 4000 : i_ms_overheating_length_5 / 2);
         }
@@ -3120,7 +3129,7 @@ void packVenting() {
     smokeNFilter(false);
   }
 
-  if(ms_overheating_length.isRunning() && FIRING_MODE != SLIME) {
+  if(ms_overheating_length.isRunning() && STREAM_MODE != SLIME) {
     if(b_overheat_sync_to_fan == true) {
       smokeNFilter(true);
     }
@@ -3165,12 +3174,12 @@ void packVenting() {
 }
 
 void cyclotronOverheating() {
-  if(b_overheat_sync_to_fan != true && FIRING_MODE != SLIME) {
+  if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
     smokeNFilter(true);
   }
 
   if(ms_overheating.justFinished()) {
-    if(FIRING_MODE == SLIME) {
+    if(STREAM_MODE == SLIME) {
       // Play the sound of slime refilling the tank.
       playEffect(S_SLIME_REFILL, true);
     }
@@ -3264,7 +3273,7 @@ void cyclotronOverheating() {
 
       if(ms_alarm.justFinished()) {
         ms_alarm.start(i_1984_delay / 2);
-        if(b_fade_cyclotron_led != true && FIRING_MODE != SLIME) {
+        if(b_fade_cyclotron_led != true && STREAM_MODE != SLIME) {
           resetCyclotronState();
         }
         else {
@@ -3292,7 +3301,7 @@ void cyclotronOverheating() {
     break;
   }
 
-  if(ms_overheating_length.isRunning() && FIRING_MODE != SLIME) {
+  if(ms_overheating_length.isRunning() && STREAM_MODE != SLIME) {
     if(b_overheat_sync_to_fan == true) {
       smokeNFilter(true);
     }
@@ -3348,7 +3357,7 @@ void packOverheatingFinished() {
   stopEffect(S_STEAM_LOOP);
   stopEffect(S_SLIME_REFILL);
 
-  if(FIRING_MODE != SLIME) {
+  if(STREAM_MODE != SLIME) {
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
@@ -3419,7 +3428,7 @@ void packVentingFinished() {
   stopEffect(S_QUICK_VENT_OPEN);
   playEffect(S_QUICK_VENT_CLOSE);
 
-  if(FIRING_MODE == SLIME) {
+  if(STREAM_MODE == SLIME) {
     playEffect(S_PACK_SLIME_TANK_LOOP, true, i_volume_effects, true, 1500);
   }
   else {
@@ -3596,7 +3605,7 @@ void innerCyclotronCavityUpdate(uint16_t cDelay) {
     i_led_cyclotron_cavity = i_start;
   }
 
-  if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE || FIRING_MODE != PROTON) {
+  if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE || STREAM_MODE != PROTON) {
     // This produces the "sparking" effect as seen in GB:FE only for the Proton stream,
     // so the effect is essentially disabled for all other themes and firing modes.
     i_colour_scheme = C_BLACK;
@@ -3607,7 +3616,7 @@ void innerCyclotronCavityUpdate(uint16_t cDelay) {
     }
     else {
       // Light spiraling higher than the lower half will have variable colors.
-      i_colour_scheme = getDeviceColour(CYCLOTRON_CAVITY, FIRING_MODE, false);
+      i_colour_scheme = getDeviceColour(CYCLOTRON_CAVITY, STREAM_MODE, false);
     }
   }
 
@@ -3773,9 +3782,9 @@ void innerCyclotronRingUpdate(uint16_t cDelay) {
     // Colour control for the Inner Cyclotron LEDs.
     uint8_t i_start = 0; // Starting point for this LED device.
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
-    uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, FIRING_MODE, b_cyclotron_colour_toggle);
+    uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, STREAM_MODE, b_cyclotron_colour_toggle);
 
-    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && FIRING_MODE == PROTON) {
+    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON) {
       // As a "sparking" effect is predominant in GB:FE during the Proton stream,
       // the inner LED color/brightness is altered for this mode.
       i_brightness = getBrightness(i_cyclotron_inner_brightness / 2);
@@ -3862,13 +3871,13 @@ void ventLightLEDW(bool b_on) {
 }
 
 void ventLight(bool b_on) {
-  uint8_t i_colour_scheme = getDeviceColour(VENT_LIGHT, FIRING_MODE, true);
+  uint8_t i_colour_scheme = getDeviceColour(VENT_LIGHT, STREAM_MODE, true);
   b_vent_light_on = b_on;
 
   if(b_on == true) {
     // If doing firing smoke effects, let's change the light colours.
     if(b_wand_firing == true || b_overheating == true) {
-      if(FIRING_MODE == PROTON) {
+      if(STREAM_MODE == PROTON) {
         // Override the N-Filter light colours for a proton stream.
         switch(i_wand_power_level) {
           case 1:
@@ -3931,7 +3940,7 @@ void checkCyclotronAutoSpeed() {
 }
 
 void modeFireStartSounds() {
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case PROTON:
     default:
       // Some sparks for firing start.
@@ -4058,7 +4067,7 @@ void modeFireStartSounds() {
   // Adjust the gain with the Afterlife idling sound effect while firing.
   if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
     if(ms_idle_fire_fade.remaining() < 3000) {
-      if(FIRING_MODE == SLIME) {
+      if(STREAM_MODE == SLIME) {
         adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40, true, 100);
       }
       else {
@@ -4066,7 +4075,7 @@ void modeFireStartSounds() {
       }
     }
     else {
-      if(FIRING_MODE == SLIME) {
+      if(STREAM_MODE == SLIME) {
         adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40, true, ms_idle_fire_fade.remaining());
       }
       else {
@@ -4103,7 +4112,7 @@ void wandFiring() {
   smokeNFilter(false);
 
   // Start a smoke timer to play a little bit of smoke while firing.
-  if(FIRING_MODE != SLIME) {
+  if(STREAM_MODE != SLIME) {
     ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
     ms_smoke_on.stop();
   }
@@ -4126,7 +4135,7 @@ void modeFireStopSounds() {
 
   if(b_wand_firing == true) {
     if(b_wand_mash_lockout != true) {
-      switch(FIRING_MODE) {
+      switch(STREAM_MODE) {
         case PROTON:
         default:
           // Play different firing end stream sound depending on how long we have been firing for.
@@ -4161,7 +4170,7 @@ void modeFireStopSounds() {
     // Adjust the gain with the Afterlife idling track.
     if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && i_wand_power_level < 5) {
       if(ms_idle_fire_fade.remaining() < 1000) {
-        if(FIRING_MODE == SLIME) {
+        if(STREAM_MODE == SLIME) {
           adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40, true, 30);
         }
         else {
@@ -4169,7 +4178,7 @@ void modeFireStopSounds() {
         }
       }
       else {
-        if(FIRING_MODE == SLIME) {
+        if(STREAM_MODE == SLIME) {
           adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40, true, ms_idle_fire_fade.remaining());
         }
         else {
@@ -4238,7 +4247,7 @@ void wandStopFiringSounds() {
   }
 
   // Stop all other firing sounds.
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case PROTON:
     default:
       switch(i_wand_power_level) {
@@ -4360,7 +4369,7 @@ void packAlarm() {
     playEffect(S_PACK_SHUTDOWN);
   }
 
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case SLIME:
       stopEffect(S_PACK_SLIME_TANK_LOOP);
     break;
@@ -4486,8 +4495,9 @@ void cyclotronSwitchPlateLEDs() {
       // The Cyclotron Lid is now on.
       b_cyclotron_lid_on = true;
 
-      // Tell the Neutrona Wand.
+      // Tell the connected devices.
       packSerialSend(P_CYCLOTRON_LID_ON);
+      serial1Send(A_CYCLOTRON_LID_ON);
 
       // Turn off Inner Cyclotron LEDs.
       innerCyclotronCakeOff();
@@ -4499,8 +4509,9 @@ void cyclotronSwitchPlateLEDs() {
       // The Cyclotron Lid is now off.
       b_cyclotron_lid_on = false;
 
-      // Tell the Neutrona Wand.
+      // Tell the connected devices.
       packSerialSend(P_CYCLOTRON_LID_OFF);
+      serial1Send(A_CYCLOTRON_LID_OFF);
 
       // Make sure the Inner Cyclotron turns on if we are in the EEPROM LED menu.
       if(b_spectral_lights_on == true) {
@@ -5072,16 +5083,18 @@ void doVoltageCheck() {
 
 // Checks if video game mode should be set.
 bool vgModeCheck() {
+  // The firing mode (CTS/CTS Mix) will be driven by the Neutrona Wand but we need to make sure the proper Stream is set.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
     // MODE_ORIGINAL does not support VG modes, so make sure firing mode is PROTON.
-    if(FIRING_MODE != PROTON) {
-      FIRING_MODE = PROTON;
+    if(STREAM_MODE != PROTON) {
+      STREAM_MODE = PROTON;
       serial1Send(A_PROTON_MODE);
     }
 
     return false;
   }
   else {
+    // MODE_SUPER_HERO supports VG modes so indicate this is allowed.
     return true;
   }
 }

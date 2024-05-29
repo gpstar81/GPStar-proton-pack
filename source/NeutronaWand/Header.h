@@ -245,7 +245,7 @@ millisDelay ms_overheat_initiate;
 millisDelay ms_overheating; // This timer is only used when using the Neutrona Wand without a Proton Pack.
 const uint16_t i_ms_overheating = 3000; // Overheating for 3 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
 bool b_overheat_level[5] = { b_overheat_level_1, b_overheat_level_2, b_overheat_level_3, b_overheat_level_4, b_overheat_level_5 };
-uint32_t i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_level_1, i_ms_overheat_initiate_level_2, i_ms_overheat_initiate_level_3, i_ms_overheat_initiate_level_4, i_ms_overheat_initiate_level_5 };
+uint16_t i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_level_1, i_ms_overheat_initiate_level_2, i_ms_overheat_initiate_level_3, i_ms_overheat_initiate_level_4, i_ms_overheat_initiate_level_5 };
 const uint16_t i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
 const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time before an overheat sequence starts while firing. 60 seconds because of uint16_t and voice limitations.
 
@@ -328,10 +328,20 @@ uint8_t i_heatup_counter = 0;
 uint8_t i_heatdown_counter = 100;
 
 /*
- * Wand Firing Modes + Settings
+ * Wand Stream/Firing Modes + Settings
+ * Firing = Affects the supported stream types by the wand. CTS modes only support a PROTON stream.
+ *  VG = Supports all possible streams, including "Spectral" if VG Modes and Spectral Modes are enabled.
+ *  CTS = Pressing the Barrel Wing Button together at the same time as the Intensify button does a cross the streams firing.
+ *        You can release one of the two firing buttons and the Neutrona Wand will still continue to cross the streams.
+ *  CTS Mix = Pressing the Barrel Wing Button together at the same time as the Intensify button does a cross the streams firing.
+ *            Releasing the Barrel Wing Switch returns to Proton Stream, and releasing Intensify stops firing completely.
+ * Stream = Type of particle stream to be thrown by the wand
  */
-enum FIRING_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
+enum FIRING_MODES { VG_MODE, CTS_MODE, CTS_MIX_MODE };
 enum FIRING_MODES FIRING_MODE;
+enum FIRING_MODES LAST_FIRING_MODE;
+enum STREAM_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
+enum STREAM_MODES STREAM_MODE;
 
 /*
  * Firing timers.

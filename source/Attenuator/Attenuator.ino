@@ -68,8 +68,8 @@ void setup() {
   RED_SWITCH_MODE = SWITCH_OFF;
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
-  // Bootup into proton mode (default for pack and wand).
-  FIRING_MODE = PROTON;
+  // Boot into proton mode (default for pack and wand).
+  STREAM_MODE = PROTON;
 
   // Set a default animation for the radiation indicator.
   RAD_LENS_IDLE = AMBER_PULSE;
@@ -93,6 +93,18 @@ void setup() {
       break;
       case 2:
         RAD_LENS_IDLE = RED_FADE;
+      break;
+    }
+    switch(preferences.getShort("display_type", 0)) {
+      case 0:
+        DISPLAY_TYPE = STATUS_TEXT;
+      break;
+      case 1:
+        DISPLAY_TYPE = STATUS_GRAPHIC;
+      break;
+      case 2:
+      default:
+        DISPLAY_TYPE = STATUS_BOTH;
       break;
     }
     s_track_listing = preferences.getString("track_list", "");
@@ -529,7 +541,7 @@ void updateLEDs() {
 
   // Set lower LED based on the current firing mode.
   uint8_t i_scheme;
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case SLIME:
       if(SYSTEM_YEAR == SYSTEM_1989) {
         i_scheme = C_PINK;
