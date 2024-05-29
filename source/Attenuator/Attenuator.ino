@@ -69,7 +69,7 @@ void setup() {
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
   // Boot into proton mode (default for pack and wand).
-  FIRING_MODE = PROTON;
+  STREAM_MODE = PROTON;
 
   // Set a default animation for the radiation indicator.
   RAD_LENS_IDLE = AMBER_PULSE;
@@ -541,7 +541,7 @@ void updateLEDs() {
 
   // Set lower LED based on the current firing mode.
   uint8_t i_scheme;
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case SLIME:
       if(SYSTEM_YEAR == SYSTEM_1989) {
         i_scheme = C_PINK;
