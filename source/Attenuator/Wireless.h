@@ -443,7 +443,7 @@ String getSafety() {
 }
 
 String getWandMode() {
-  switch(FIRING_MODE) {
+  switch(STREAM_MODE) {
     case PROTON:
       return "Proton Stream";
     break;

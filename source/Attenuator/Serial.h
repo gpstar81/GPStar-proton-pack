@@ -291,7 +291,7 @@ bool checkPack() {
               break;
 
               case A_SPECTRAL_CUSTOM_MODE:
-                FIRING_MODE = SPECTRAL_CUSTOM;
+                STREAM_MODE = SPECTRAL_CUSTOM;
 
                 // Applies to both Arduino Nano and ESP32.
                 if(recvData.d[0] > 0) {
@@ -638,7 +638,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Proton");
       #endif
-      FIRING_MODE = PROTON;
+      STREAM_MODE = PROTON;
       b_state_changed = true;
     break;
 
@@ -646,7 +646,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Slime");
       #endif
-      FIRING_MODE = SLIME;
+      STREAM_MODE = SLIME;
       b_state_changed = true;
     break;
 
@@ -654,7 +654,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Stasis");
       #endif
-      FIRING_MODE = STASIS;
+      STREAM_MODE = STASIS;
       b_state_changed = true;
     break;
 
@@ -662,7 +662,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Meson");
       #endif
-      FIRING_MODE = MESON;
+      STREAM_MODE = MESON;
       b_state_changed = true;
     break;
 
@@ -670,7 +670,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Spectral");
       #endif
-      FIRING_MODE = SPECTRAL;
+      STREAM_MODE = SPECTRAL;
       b_state_changed = true;
     break;
 
@@ -678,7 +678,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Spectral Holiday");
       #endif
-      FIRING_MODE = HOLIDAY;
+      STREAM_MODE = HOLIDAY;
       b_state_changed = true;
     break;
 
@@ -686,7 +686,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Settings");
       #endif
-      FIRING_MODE = SETTINGS;
+      STREAM_MODE = SETTINGS;
       b_state_changed = true;
     break;
 
