@@ -3243,10 +3243,11 @@ void modeFireStop() {
 
   if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
     digitalWriteFast(led_hat_1, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
+    digitalWriteFast(led_hat_2, LOW); // Make sure we turn off hat light 2 in case it's on as well.
   }
-
-  // Make sure we turn off hat light 2 in case it's on as well.
-  digitalWriteFast(led_hat_2, LOW);
+  else {
+    digitalWriteFast(led_hat_2, HIGH); // Make sure we turn on hat light 2 in case it's off as well.
+  }
 
   wandTipOff();
 
