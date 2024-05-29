@@ -10,8 +10,8 @@ jobs:
   compile-mega:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: arduino/compile-sketches@v1
+      - uses: actions/checkout@main
+      - uses: arduino/compile-sketches@main
         with:
             github-token: ${{ secrets.GITHUB_TOKEN }}
             enable-deltas-report: true
@@ -39,8 +39,8 @@ jobs:
   compile-nano:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: arduino/compile-sketches@v1
+      - uses: actions/checkout@main
+      - uses: arduino/compile-sketches@main
         with:
             github-token: ${{ secrets.GITHUB_TOKEN }}
             enable-deltas-report: true
@@ -64,14 +64,16 @@ jobs:
   compile-esp32:
     runs-on: ubuntu-latest
     steps:
-      - name: Install specific version of ESP32 core
-        run: |
-          arduino-cli core install esp32:esp32@2.0.17
-      - uses: actions/checkout@v4
-      - uses: arduino/compile-sketches@v1
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Compile
+        uses: arduino/compile-sketches@main
         with:
             github-token: ${{ secrets.GITHUB_TOKEN }}
             enable-deltas-report: true
+            platforms: |
+              - name: "esp32:esp32"
+              - version: "2.0.17"
             fqbn: esp32:esp32:esp32
             sketch-paths: |
               - source/Attenuator
