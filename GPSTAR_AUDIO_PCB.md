@@ -1,6 +1,6 @@
 ## <img src='images/gpstar_logo.png' width=50 align="left"/>GPStar Audio - Connection Details
 
-GPStar Audio is a polyphonic audio player capable of playing and mixing together multiple audio tracks at the same time to create a smooth, rich and fluid audio experience. Support for GPStar Audio was introduced in GPStar Proton Pack and Neutrona Wand firmware versions V5.0.0
+GPStar Audio is a polyphonic audio player capable of playing and mixing together multiple audio tracks at the same time to create a smooth, rich and fluid audio experience. Support for GPStar Audio was introduced in GPStar Proton Pack and Neutrona Wand firmware versions V5.0.0 and later. Additional information regarding firmware, speakers, amplifiers, and installation may be found on the [SOUND guide](SOUND.md).
  
 ![](images/GPStarAudioPCB.png)
 
@@ -15,7 +15,7 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 - The ground pin will typically be a black wire, while VCC will typically be red.
 - The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.
 - Any wire labelled CTS will be connected to the 2nd pin labelled GND on the PCB.
-- Be careful to not reverse the connector!
+- **Be careful to not reverse the connector!**
 
 ---
 
