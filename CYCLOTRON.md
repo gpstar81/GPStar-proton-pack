@@ -73,3 +73,5 @@ Included is also a set of STL files if you wish to print a new Inner Cyclotron. 
 For the effect seen in the Frozen Empire movie, it is possible to extend the LEDs beyond the end of the NeoPixel ring used within the inner cyclotron and run them inside the cavity between the "cake" and the copper blocks. These [addressable "fairy lights"](https://a.co/d/eFa8CNg) have been used successfully for the effect. They use an enamel-coated copper wire which makes them unobtrusive and they don't stand out like LED strips.
 
 **Note:** This feature is currently only enabled via the web UI of the Attenuator/wireless device as part of the Pack Settings.
+
+![](images/CyclotronSparks.gif)
