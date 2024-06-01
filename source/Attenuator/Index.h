@@ -173,6 +173,8 @@ const char INDEX_page[] PROGMEM = R"=====(
       &mdash;
       <span id="wifiName"></span>
       <br/>
+      <span id="clientInfo"></span>
+      <br/>
       <span id="extWifi"></span>
     </div>
   </div>
@@ -644,6 +646,9 @@ const char INDEX_page[] PROGMEM = R"=====(
         }
       }
 
+      // Connected Wifi Clients - Private AP vs. WebSocket
+      getEl("clientInfo").innerHTML = "AP: " + jObj.apClients + " / WS: " + jObj.wsClients;
+
       updateGraphics(jObj);
     }
 
@@ -670,6 +675,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function getDevicePrefs() {
+      // This is updated once per page load as it is not subject to frequent changes.
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
