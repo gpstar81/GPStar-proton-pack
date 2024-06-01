@@ -420,7 +420,7 @@ void checkPack() {
               setVGMode();
             wandSerialSend(W_VIDEO_GAME_MODE);
             break;
-            
+
             case 2:
               // Cross the Streams (CTS)
               FIRING_MODE = CTS_MODE;
@@ -441,30 +441,34 @@ void checkPack() {
               wandSerialSend(W_CROSS_THE_STREAMS_MIX);
             break;
           }
+
           LAST_FIRING_MODE = FIRING_MODE;
 
           switch(wandConfig.wandVibration) {
             case 1:
-              b_vibration_enabled = true;
-              b_vibration_on = true;
-              b_vibration_firing = false;
+              b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+              b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+              b_vibration_on = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
             break;
+
             case 2:
-              b_vibration_enabled = true;
-              b_vibration_on = true;
-              b_vibration_firing = true;
+              b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+              b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+              b_vibration_on = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
             break;
+
             case 3:
-              b_vibration_enabled = false;
-              b_vibration_firing = false;
-              b_vibration_on = false;
+              b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+              b_vibration_on = false; // Disable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_NONE;
             break;
+
             case 4:
             default:
-              // Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
+              b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+              b_vibration_on = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
             break;
           }
@@ -617,11 +621,11 @@ void checkPack() {
 
           switch(packSync.cyclotronLidState) {
             case 1:
-            default:
               b_pack_cyclotron_lid_on = false;
             break;
 
             case 2:
+            default:
               b_pack_cyclotron_lid_on = true;
             break;
           }
@@ -718,16 +722,17 @@ void checkPack() {
             break;
           }
 
-          // Set up master vibration switch.
-          switch(packSync.vibrationEnabled) {
-            case 1:
-              b_vibration_enabled = false;
-              vibrationOff();
-            break;
-            case 2:
-            default:
-              b_vibration_enabled = true;
-            break;
+          // Set up master vibration switch if not configured to override it.
+          if(VIBRATION_MODE_EEPROM == VIBRATION_DEFAULT) {
+            switch(packSync.vibrationEnabled) {
+              case 1:
+                b_vibration_enabled = false;
+              break;
+              case 2:
+              default:
+                b_vibration_enabled = true;
+              break;
+            }
           }
 
           // Set the percentage volume.

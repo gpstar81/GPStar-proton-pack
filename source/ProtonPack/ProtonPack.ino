@@ -149,6 +149,7 @@ void setup() {
   else {
     SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   }
+
   SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
@@ -4533,7 +4534,7 @@ void cyclotronSwitchPlateLEDs() {
       digitalWriteFast(cyclotron_switch_led_green, HIGH);
     }
 
-    if(b_vibration_on == true) {
+    if(b_vibration_enabled == true) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
         digitalWriteFast(cyclotron_switch_led_yellow, HIGH);
       }

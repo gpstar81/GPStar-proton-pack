@@ -197,7 +197,8 @@ millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing 
 /*
  * Enable or disable vibration control for the Neutrona Wand.
  * When set to false, there will be no vibration enabled for the Neutrona Wand.
- * This is toggled by the Proton Pack vibration toggle switch.
+ * This is set by the Proton Pack vibration toggle switch position by default.
+ * If VIBRATION_MODE_EEPROM is not set to VIBRATION_DEFAULT, only this setting will be used.
  */
 bool b_vibration_enabled = true;
 

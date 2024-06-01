@@ -422,23 +422,22 @@ void readEEPROM() {
         break;
 
         case 3:
-          b_vibration_enabled = false;
-          b_vibration_firing = false;
-          b_vibration_on = false;
+          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+          b_vibration_on = false; // Disable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
         break;
 
         case 2:
-          b_vibration_enabled = true;
-          b_vibration_on = true;
-          b_vibration_firing = true;
+          b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+          b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+          b_vibration_on = true; // Enable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
         break;
 
         case 1:
-          b_vibration_enabled = true;
-          b_vibration_on = true;
-          b_vibration_firing = false;
+          b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+          b_vibration_on = true; // Enable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
         break;
       }
