@@ -37,11 +37,9 @@ That's alright, this will help you study. Below you will find the various guides
 
 ---
 
-### Serial Expansion Controller
+### Serial1 Expansion Controller
 
-These are devices which utilize the available expansion port on the GPStar Proton Pack controller. Both devices are based on the same software which drives the Attenuator device, but can also be used without inputs or other devices to provide a WiFi capability to your Proton Pack. Please read the guides for more specific details.
-
-Note: As of November 2023 these are DIY devices! Parts for the Wireless Adapter can be ordered 100% from Amazon and can be assembled without soldering. However, the Attenuator will require some minor soldering to make use of all features available.
+This is a device which utilize the available expansion port on the GPStar Proton Pack controller. At present the only supported devices are an Attenuator (using an ESP32 or Arduino Nano) or a wireless adapter (using an ESP32). Both devices use the same software which normally drives the Attenuator device, though in the case of the wireless adapter can also be used without switches or other peripherals to only provide a WiFi capability to your Proton Pack. Please read the following guides for more specific details.
 
 1. [Wireless Adapter](WIRELESS.md) - Scaled-Down Attenuator
 
@@ -79,7 +77,8 @@ These apply to the normal operation and usage of the equipment, as well as add-o
 
 ### DIY Arduino Build Guides
 
-Considered the "legacy" guide to building your own solution using the Arduino platform.
+Considered the "legacy" guide to building your own solution using the Arduino platform. *Please note that the original wand guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and has been deprecated.*
+
 This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
 
 1. [Bill of Materials](BOM.md)

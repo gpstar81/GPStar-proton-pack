@@ -122,6 +122,7 @@ String getAttenuatorConfig() {
   jsonBody["songList"] = s_track_listing;
   jsonBody["buildDate"] = build_date;
   jsonBody["wifiName"] = ap_ssid;
+  jsonBody["wifiNameExt"] = wifi_ssid;
   jsonBody["extAddr"] = wifi_address;
   jsonBody["extMask"] = wifi_subnet;
 
@@ -310,6 +311,8 @@ String getEquipmentStatus() {
     jsonBody["volEffects"] = i_volume_effects_percentage;
     jsonBody["volMusic"] = i_volume_music_percentage;
     jsonBody["battVoltage"] = f_batt_volts;
+    jsonBody["apClients"] = i_ap_client_count;
+    jsonBody["wsClients"] = i_ws_client_count;
   }
 
   // Serialize JSON object to string.

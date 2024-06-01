@@ -4,28 +4,37 @@ These are *OPTIONAL* add-on additions for use within the Proton Pack.
 
 ## Cyclotron Lid Lights (Optional)
 
-The stock lights in the HasLab pack only supplies 12 addressable LEDs which are red-only. If you wish to be able to change the colors of these lights you will need to replace them with an addressable LED ring or custom LEDs such as those made by [Frutto Technology](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit).
+The stock lights in the HasLab pack only supplies 12 addressable LEDs which are red-only. If you wish to be able to change the colors of these lights you will need to replace them with an addressable LED ring or custom LEDs such as those made by Frutto Technology as a [20-LED (4x 5-LED)](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit) or [36-LED (4x 9-LED)](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit-cyc-5-lds-kit1) option.
 
 Regardless of solution you will need to split apart the Cyclotron Lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.
 
 ## Frutto Technology 5-LED Replacements
+
 ### Installation Guide Video
+
 [GPStar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://www.youtube.com/watch?v=LgOT8UspSCI) (YouTube)
 [![GPStar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://img.youtube.com/vi/LgOT8UspSCI/maxresdefault.jpg)](https://www.youtube.com/watch?v=LgOT8UspSCI)
 
 The stock LEDs can be removed by prying out the diffuser lenses, then snipping the 3 black plastic welds used to hold the PCBs in place. Whether pre-soldered or not, the new LEDs should be oriented similar to the arcing pattern used by the stock LEDs. Hot glue can be used to keep these in place until the diffusers are put back in place.
+
+**Note:** Installation is the same for the 5-LED or 9-LED replacement kits from Frutto Technology.
+
 ![](images/Frutto_Cyc1.jpg)
 
 When replacing the diffuser lenses, keep wires tucked into the available slots to avoid pinching.
+
 ![](images/Frutto_Cyc2.jpg)
 
 Secure all wires to avoid them from moving after installation.
+
 ![](images/Frutto_Cyc3.jpg)
 
 The new LEDs will need to be selected via the EEPROM setup menu #4. Select the 20-LED option for the correct count and speed defaults.
+
 ![](images/Frutto_Cyc4.jpg)
 
 Reassemble the Cyclotron Lid using low-profile machine screws. The new LEDs should not need additional diffusion unless that is your preference.
+
 ![](images/Frutto_Cyc5.jpg)
 
 [Installation Video](https://www.youtube.com/watch?v=S4SVeivRyuc) (YouTube)
@@ -52,9 +61,17 @@ There is a included STL file that you can 3D Print to replace the Cyclotron swit
 
 ## Inner Cyclotron Lights (Optional)
 
-You can run a NeoPixel ring (35 pixel ring recommended) inside a modified Inner Cyclotron or any 3D printable one. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. NeoPixel ring size can be toggled in the user editable variables at the top of the Proton Pack code. 35 Pixel NeoPixel ring is the default setting.
+You can run a NeoPixel ring (24, 25, or 35-Pixel ring recommended) inside a modified Inner Cyclotron or any 3D printable one. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. NeoPixel ring size can be toggled in the user editable variables at the top of the Proton Pack code. A 35-Pixel NeoPixel ring is the default setting and maximum supported for this device.
 ![35 Pixel NeoPixel Ring](images/35NeoPixelRing.jpg)
 
 Included is also a set of STL files if you wish to print a new Inner Cyclotron. The lid is held down onto the bottom part of this printable Cyclotron with M3x10 hex screws on the outer ring. The inner ring you can use smaller m3x8 hex screws for decoration. Enlarge or drill any holes for wire decoration or feeding wires into the Cyclotron as necessary.
 ![3D Cyclotron](images/3DCyclotron.jpg)
 ![3D Cyclotron Draft Print](images/3DCyclotronDraftPrint.jpg)
+
+## Sparking Cyclotron Lights (Optional)
+
+For the effect seen in the Frozen Empire movie, it is possible to extend the LEDs beyond the end of the NeoPixel ring used within the inner cyclotron and run them inside the cavity between the "cake" and the copper blocks. These [addressable "fairy lights"](https://a.co/d/eFa8CNg) have been used successfully for the effect. They use an enamel-coated copper wire which makes them unobtrusive and they don't stand out like LED strips.
+
+**Note:** This feature is currently only enabled via the web UI of the Attenuator/wireless device as part of the Pack Settings.
+
+![](images/CyclotronSparks.gif)

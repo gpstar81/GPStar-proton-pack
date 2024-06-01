@@ -20,10 +20,12 @@ Connections for the wand should be made according to the tables below.
 
 | Label | Pins | Notes |
 |-------|------|-------|
-| 5V-IN | +/\- | Power from Proton Pack. **This MUST be a regulated 5V source!** |
-| Q2 | VCC/D10/GND | Stock connection for addressable barrel LEDs |
-| SW45/SW4 | GND/D2/GND/D3 | Stock connection for the Intensify button and Activate toggle |
-| SW6 | GND/A6 | Stock connection for the orange wand-end mode/alt switch |
+| 5V-IN | +/\- | 2-pin JST-PH for power from Proton Pack.<br/>**This MUST be a regulated 5V source!** |
+| Q2 | VCC/D10/GND | 3-pin JST-PH connection for addressable barrel LEDs |
+| SW45/SW4 | GND/D2/GND/D3 | 4-pin JST-PH connection for the Intensify button and Activate toggle |
+| SW6 | GND/A6 | 2-pin JST-PH connection for the orange wand-end mode/alt switch |
+
+**Note:** The 3-pin connector for the Barrel LEDs is compatible with the [Frutto Technology 49-LED wand barrel replacement](https://fruttotechnology.com/ols/products/wand-barrel-replacement-49-leds-pcb) as a drop-in replacement.
 
 ### Stock Connectors (Terminal Blocks)
 
