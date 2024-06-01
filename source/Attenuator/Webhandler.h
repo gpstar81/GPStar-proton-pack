@@ -310,6 +310,8 @@ String getEquipmentStatus() {
     jsonBody["volEffects"] = i_volume_effects_percentage;
     jsonBody["volMusic"] = i_volume_music_percentage;
     jsonBody["battVoltage"] = f_batt_volts;
+    jsonBody["apClients"] = i_ap_client_count;
+    jsonBody["wsClients"] = i_ws_client_count;
   }
 
   // Serialize JSON object to string.

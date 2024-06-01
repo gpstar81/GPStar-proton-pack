@@ -160,13 +160,24 @@ bool startAccesPoint() {
   // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
   // Additionally, sets radio to channel 1, don't hide SSID, and max 4 connections.
   // Note that the WiFi protocols available for use are 802.11 b/g/n over 2.4GHz.
-  bool b_success = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 1, false, 4);
+  bool b_success = false;
+  if(encoder_center.isPressed()) {
+    // If encoder post is being pressed during boot-up then bypass setting a password.
+    WiFi.softAP(ap_ssid.c_str(), NULL, 1, false, 4);
+
+    // Always output a serial message in case anything is listening, as this is important.
+    Serial.println(F("WARNING: User bypassed WPA2 security, SoftAP running without password!"));
+  }
+  else {
+    // Otherwise, set the password as desired by the user (or the default).
+    WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 1, false, 4);
+  }
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println(b_success ? "AP Ready" : "AP Failed");
   #endif
 
   if(b_success) {
-    delay(250); // Wait briefly before configuring network.
+    delay(300); // Wait briefly before configuring network.
 
     // Simple networking IP info exclusively for the AP.
     IPAddress localIP(192, 168, 1, 2);
@@ -220,7 +231,7 @@ bool startExternalWifi() {
 
     // When external WiFi is desired, enable simultaneous SoftAP + Station mode.
     WiFi.mode(WIFI_MODE_APSTA);
-    delay(250);
+    delay(300);
 
     #if defined(DEBUG_WIRELESS_SETUP)
       Serial.println();
@@ -359,7 +370,7 @@ bool startWiFi() {
 
     // When external WiFi is unavailable, switch to only SoftAP mode.
     WiFi.mode(WIFI_MODE_AP);
-    delay(250);
+    delay(300);
   }
 
   // Start the built-in access point (softAP) with the preferred credentials.
