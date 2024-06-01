@@ -122,6 +122,7 @@ String getAttenuatorConfig() {
   jsonBody["songList"] = s_track_listing;
   jsonBody["buildDate"] = build_date;
   jsonBody["wifiName"] = ap_ssid;
+  jsonBody["wifiNameExt"] = wifi_ssid;
   jsonBody["extAddr"] = wifi_address;
   jsonBody["extMask"] = wifi_subnet;
 

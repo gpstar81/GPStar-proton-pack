@@ -161,16 +161,16 @@ bool startAccesPoint() {
   // Additionally, sets radio to channel 1, don't hide SSID, and max 4 connections.
   // Note that the WiFi protocols available for use are 802.11 b/g/n over 2.4GHz.
   bool b_success = false;
-  if(encoder_center.isPressed()) {
+  if(encoder_center.getStateRaw() == LOW) {
     // If encoder post is being pressed during boot-up then bypass setting a password.
-    WiFi.softAP(ap_ssid.c_str(), NULL, 1, false, 4);
+    b_success = WiFi.softAP(ap_ssid.c_str(), NULL, 1, false, 4);
 
     // Always output a serial message in case anything is listening, as this is important.
     Serial.println(F("WARNING: User bypassed WPA2 security, SoftAP running without password!"));
   }
   else {
     // Otherwise, set the password as desired by the user (or the default).
-    WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 1, false, 4);
+    b_success = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 1, false, 4);
   }
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println(b_success ? "AP Ready" : "AP Failed");
