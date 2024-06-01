@@ -11,6 +11,10 @@ Connectivity options include either a private WiFi network from the device, and 
 - For **Android** devices offering a cellular hotspot, these devices may utilize a feature called "Client Isolation Mode" which will prevent hotspot clients from seeing each other. Unless you can disable this option (via a rooted device) you will not be able to reach the web UI via the hotspot network.
 - For **iOS** devices offering a cellular hotspot, please make sure that the "Maximize Compatibility" option is enabled. This will ensure your device offers the 2.4GHz radio and will be seen by the ESP32 device.
 
+## WiFi Debug Mode
+
+As of the 5.2.2 firmware release a special debug option is available when using the hardware as an Attenuator, or if a momentary switch is installed between pin D4 and GND on the ESP32 controller. While powering on the device, push down on the main dial on the Attenuator (or press the momentary switch), and the device will bypass any stored password for local WiFi. This will bypass setting of a password for the built-in WiFi network, allowing the "ProtonPack_" network to run without WPA2 security. This should **only be done as a last resort** to regain access to the device if the password is forgotten or another technical issue may be preventing access!
+
 ## Firmware Flashing
 
 Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details on compiling and/or uploading software to your Wireless Adapter controller.

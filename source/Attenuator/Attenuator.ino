@@ -166,6 +166,9 @@ void setup() {
   noTone(BUZZER_PIN);
   vibrateOff();
 
+  // Get initial switch/button states.
+  switchLoops();
+
   #if defined(__XTENSA__)
     // Delay before configuring WiFi and web access.
     delay(100);
@@ -639,6 +642,11 @@ void checkRotaryPress() {
       if(b_right_toggle_center_start != b_right_toggle_on) {
         // A state change occurred for the right toggle, which we interpret as a lock-out toggle.
         b_center_lockout = !b_center_lockout;
+        CENTER_STATE = NO_ACTION; // Don't count this as a long press.
+        b_center_pressed = false;
+        i_press_count = 0;
+        useVibration(i_vibrate_max_time); // Give a long nudge.
+        return; // We're done here as we've performed the state change.
       }
       else {
         // Consider a long-press event if the timer is run out before released.
@@ -647,11 +655,6 @@ void checkRotaryPress() {
         i_press_count = 0;
       }
     }
-  }
-
-  // If in a lockout state, don't proceed with any changes.
-  if(b_center_lockout) {
-    return;
   }
 
   switch(CENTER_STATE) {

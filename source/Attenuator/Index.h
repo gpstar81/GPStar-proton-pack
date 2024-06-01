@@ -647,7 +647,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
 
       // Connected Wifi Clients - Private AP vs. WebSocket
-      getEl("clientInfo").innerHTML = "AP: " + jObj.apClients + " / WS: " + jObj.wsClients;
+      getEl("clientInfo").innerHTML = "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0);
 
       updateGraphics(jObj);
     }
@@ -687,10 +687,10 @@ const char INDEX_page[] PROGMEM = R"=====(
             }
 
             // Device Info
-            getEl("buildDate").innerHTML = jObj.buildDate || "";
+            getEl("buildDate").innerHTML = "Build: " + (jObj.buildDate || "");
             getEl("wifiName").innerHTML = jObj.wifiName || "";
-            if ((jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
-              getEl("extWifi").innerHTML = jObj.extAddr + " / " + jObj.extMask;
+            if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
+              getEl("extWifi").innerHTML = (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask;
             }
 
             // Display Preference

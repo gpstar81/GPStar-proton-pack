@@ -44,8 +44,11 @@ Ideally, the device is intended be connected to the GPStar Proton Pack Controlle
 
 ![](images/Attenuator_Render.png	)
 
+### Standard Controls
+
 * Left Toggle: Turns the pack on or off, similar to use of the switch under the Ion Arm
-* Right Toggle: Turns the LEDs on the device on or off
+* Right Toggle: Turns the Attenuator device itself on or off.
+	* When off, this turns off the device LEDs and silences any feedback from the buzzer and vibration motor.
 * Main Dial - Long Press: Alternates between two modes of operation
 	* Mode 1 (Default) - Indicated by a high buzzer tone
 		* Main Dial - Short Press: Starts or stops the current music track
@@ -58,6 +61,13 @@ Ideally, the device is intended be connected to the GPStar Proton Pack Controlle
 
 Note that during an overheat warning, the device will emit sounds and vibrations in addition to lighting effects as the pack reaches a critical state. At this time the pack operator can turn the primary dial either direction to "attenuate" the pack and cancel the current warning. If the warning time is allowed to expire the the pack will enter the venting sequence.
 
-### Web Operation
+### Lockout Mode (Main Dial)
+
+Lockout mode is a special option for only the main dial to prevent accidental changing of volume:
+
+1) Press down on the main dial and **immediately** change the Right Toggle to the opposite position. If on, switch off, or vice-versa.
+1) Continue to hold down the main dial for another second. If vibration feedback is enabled you will feel a long buzz to indicate when the lockout mode is either enabled or disabled (there will be no buzzer sound like there is during a menu level change).
+
+## Web Operation
 
 For instructions on using the web interface to control your equipment, please see the [Wireless Operations](WIRELESS_OPERATION.md) guide.
