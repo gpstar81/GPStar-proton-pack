@@ -535,10 +535,6 @@ void mainLoop() {
     break;
 
     case MODE_ON:
-      if(b_vibration_on == true && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        vibrationSetting();
-      }
-
       // Hat light 2 blinking when the Proton Pack ribbon cable has been removed.
       if(b_pack_alarm == true) {
         if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
@@ -605,6 +601,7 @@ void mainLoop() {
       }
 
       wandBarrelHeatUp();
+      vibrationSetting();
     break;
   }
 
@@ -5415,33 +5412,6 @@ void fireStreamEnd(CRGB c_colour) {
   }
 }
 
-void vibrationWand(uint8_t i_level) {
-  if(b_vibration_on == true && b_vibration_enabled == true && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
-    // Vibrate the wand during firing only when enabled. (When enabled by the pack)
-    if(b_vibration_firing == true) {
-      if(WAND_ACTION_STATUS == ACTION_FIRING) {
-        if(i_level != i_vibration_level_prev) {
-          i_vibration_level_prev = i_level;
-          analogWrite(vibration, i_level);
-        }
-      }
-      else {
-        vibrationOff();
-      }
-    }
-    else {
-      // Wand vibrates even when idling, etc. (When enabled by the pack)
-      if(i_level != i_vibration_level_prev) {
-        i_vibration_level_prev = i_level;
-        analogWrite(vibration, i_level);
-      }
-    }
-  }
-  else {
-    vibrationOff();
-  }
-}
-
 // This is the Super Hero bargraph firing animation. Ramping up and down from the middle to the top/bottom and back to the middle again.
 void bargraphSuperHeroRampFiringAnimation() {
   if(b_28segment_bargraph == true) {
@@ -8119,13 +8089,6 @@ void wandLightsOffMenuSystem() {
   }
 }
 
-void vibrationOff() {
-  ms_menu_vibration.stop();
-  i_vibration_level_prev = 0;
-  b_menu_vibration_active = false;
-  analogWrite(vibration, 0);
-}
-
 int8_t readRotary() {
   static int8_t rot_enc_table[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
 
@@ -9189,36 +9152,75 @@ void updatePackPowerLevel() {
   }
 }
 
-void vibrationSetting() {
-  if(b_vibration_on == true) {
-    if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING) {
-      switch(i_power_level) {
-        case 1:
-        default:
-          vibrationWand(i_vibration_level);
-        break;
-
-        case 2:
-          vibrationWand(i_vibration_level + 5);
-        break;
-
-        case 3:
-          vibrationWand(i_vibration_level + 10);
-        break;
-
-        case 4:
-          vibrationWand(i_vibration_level + 12);
-        break;
-
-        case 5:
-          vibrationWand(i_vibration_level + 25);
-        break;
+void vibrationWand(uint8_t i_level) {
+  if(b_vibration_enabled == true && b_vibration_switch_on == true && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true && i_level > 0) {
+    // Vibrate the wand during firing only when enabled. (When enabled by the pack)
+    if(b_vibration_firing == true) {
+      if(WAND_ACTION_STATUS == ACTION_FIRING) {
+        if(i_level != i_vibration_level_prev) {
+          i_vibration_level_prev = i_level;
+          analogWrite(vibration, i_level);
+        }
+      }
+      else {
+        vibrationOff();
+      }
+    }
+    else {
+      // Wand vibrates even when idling, etc. (When enabled by the pack)
+      if(i_level != i_vibration_level_prev) {
+        i_vibration_level_prev = i_level;
+        analogWrite(vibration, i_level);
       }
     }
   }
   else {
     vibrationOff();
   }
+}
+
+void vibrationSetting() {
+  if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING) {
+    switch(i_power_level) {
+      case 1:
+      default:
+        vibrationWand(i_vibration_level);
+      break;
+
+      case 2:
+        vibrationWand(i_vibration_level + 5);
+      break;
+
+      case 3:
+        vibrationWand(i_vibration_level + 10);
+      break;
+
+      case 4:
+        vibrationWand(i_vibration_level + 12);
+      break;
+
+      case 5:
+        vibrationWand(i_vibration_level + 25);
+      break;
+    }
+  }
+}
+
+void checkMenuVibration() {
+  if(b_menu_vibration_active == false && ms_menu_vibration.isRunning()) {
+    analogWrite(vibration, 150);
+    b_menu_vibration_active = true;
+  }
+  else if(ms_menu_vibration.justFinished() && b_menu_vibration_active == true) {
+    vibrationOff();
+  }
+}
+
+void vibrationOff() {
+  ms_menu_vibration.stop();
+  i_vibration_level_prev = 0;
+  b_menu_vibration_active = false;
+  analogWrite(vibration, 0);
 }
 
 void switchLoops() {
@@ -9442,16 +9444,6 @@ void resetOverheatLevels() {
   b_overheat_level[2] = b_overheat_level_3;
   b_overheat_level[3] = b_overheat_level_4;
   b_overheat_level[4] = b_overheat_level_5;
-}
-
-void checkMenuVibration() {
-  if(b_menu_vibration_active == false && ms_menu_vibration.isRunning()) {
-    analogWrite(vibration, 150);
-    b_menu_vibration_active = true;
-  }
-  else if(ms_menu_vibration.justFinished() && b_menu_vibration_active == true) {
-    vibrationOff();
-  }
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.

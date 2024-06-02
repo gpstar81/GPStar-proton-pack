@@ -268,7 +268,7 @@ const uint8_t i_vibration_lowest_level = 15;
  * Enable or disable vibration control for the Proton Pack.
  * Vibration is toggled on and off the toggle switch in the Proton Pack.
  */
-bool b_vibration_enabled = true;
+bool b_vibration_switch_on = true;
 
 /*
  * Smoke
