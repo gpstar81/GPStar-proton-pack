@@ -132,10 +132,10 @@ uint8_t i_spectral_wand_custom_saturation = 254;
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
  * Default = true.
  */
-bool b_vibration_on = true;
+bool b_vibration_enabled = true;
 
 /*
- * When set to true, when b_vibration_on is set to true, the Neutrona Wand will only vibrate during firing.
+ * When set to true and b_vibration_enabled is also set to true, the Neutrona Wand will only vibrate during firing.
  * Note that vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
  * Default = true.

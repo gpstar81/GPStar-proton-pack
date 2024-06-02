@@ -264,10 +264,10 @@ bool b_clockwise = true;
  * Note that turning off the vibration toggle switch will disable all individual vibration settings.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
  */
-bool b_vibration_on = true;
+bool b_vibration_enabled = true;
 
 /*
- * When set to true, when b_vibration_on is also set to true, the Proton Pack will only vibrate while the Neutrona Wand is firing.
+ * When set to true, when b_vibration_enabled is also set to true, the Proton Pack will only vibrate while the Neutrona Wand is firing.
  * Note that turning off the vibration toggle switch will disable all individual vibration settings.
  * This can be enabled or disabled from the Neutrona Wand sub menu system.
  */

@@ -571,26 +571,29 @@ void checkSerial1() {
 
           switch(packConfig.packVibration) {
             case 1:
-              b_vibration_enabled = true;
-              b_vibration_on = true;
-              b_vibration_firing = false;
+              b_vibration_switch_on = true; // Override the vibration toggle switch.
+              b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+              b_vibration_enabled = true; // Enable pack vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
             break;
+
             case 2:
-              b_vibration_enabled = true;
-              b_vibration_on = true;
-              b_vibration_firing = true;
+              b_vibration_switch_on = true; // Override the vibration toggle switch.
+              b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+              b_vibration_enabled = true; // Enable pack vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
             break;
+
             case 3:
-              b_vibration_enabled = false;
-              b_vibration_firing = false;
-              b_vibration_on = false;
+              b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+              b_vibration_enabled = false; // Disable pack vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_NONE;
             break;
+
             case 4:
             default:
-              // Readings are taken from the vibration toggle switch.
+              b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+              b_vibration_enabled = true; // Enable pack vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
             break;
           }
@@ -1201,7 +1204,7 @@ void doWandSync() {
   b_repeat_track ? (packSync.repeatMusicTrack = 2) : (packSync.repeatMusicTrack = 1); // 1 = No repeat, 2 = Repeat.
 
   // Vibration enabled or disabled from the Proton Pack toggle switch.
-  b_vibration_enabled ? (packSync.vibrationEnabled = 2) : (packSync.vibrationEnabled = 1); // 1 = Vibration off, 2 = Vibration on.
+  b_vibration_switch_on ? (packSync.vibrationEnabled = 2) : (packSync.vibrationEnabled = 1); // 1 = Vibration off, 2 = Vibration on.
 
   // Pack power status.
   (PACK_STATE != MODE_OFF) ? (packSync.packOn = 2) : (packSync.packOn = 1); // 1 = Pack off, 2 = Pack on.
@@ -2551,9 +2554,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       playEffect(S_BEEPS_ALT);
 
-      if(b_vibration_on == false) {
-        b_vibration_on = true;
-        b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+      if(b_vibration_enabled == false) {
+        b_vibration_enabled = true; // Enable pack vibration.
+        b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
         // Proton Pack vibration enabled.
         stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
@@ -2568,11 +2571,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         delay(250);
         vibrationOff();;
       }
-      else if(b_vibration_on == true && b_vibration_firing != true) {
-        b_vibration_firing = true;
-        b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+      else if(b_vibration_enabled == true && b_vibration_firing != true) {
+        b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+        b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
-        // Proton Pack vibration firing enabled.
+        // Proton Pack vibration while firing enabled.
         stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
         stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
         stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
@@ -2586,8 +2589,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         vibrationOff();;
       }
       else {
-        b_vibration_firing = false;
-        b_vibration_on = false;
+        b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+        b_vibration_enabled = false; // Disable pack vibration.
 
         // Proton Pack vibration disabled.
         stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
@@ -2609,8 +2612,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case VIBRATION_DEFAULT:
         default:
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-          b_vibration_firing = false;
-          b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+          b_vibration_enabled = true; // Enable pack vibration.
+          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+          b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
           // Proton Pack vibration enabled.
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
@@ -2628,8 +2632,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
         case VIBRATION_ALWAYS:
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-          b_vibration_firing = true;
-          b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+          b_vibration_enabled = true; // Enable pack vibration.
+          b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+          b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
           // Proton Pack vibration firing enabled.
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
@@ -2647,8 +2652,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
         case VIBRATION_FIRING_ONLY:
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-          b_vibration_on = false;
-          b_vibration_firing = false;
+          b_vibration_enabled = false; // Disable pack vibration.
+          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
 
           // Proton Pack vibration disabled.
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
@@ -2662,15 +2667,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
         case VIBRATION_NONE:
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-          b_vibration_on = true;
-          b_vibration_firing = true;
+          b_vibration_enabled = true; // Enable pack vibration.
+          b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
 
           // Reset the vibration state.
           if(switch_vibration.getState() == LOW) {
-            b_vibration_enabled = true;
+            b_vibration_switch_on = true;
           }
           else {
-            b_vibration_enabled = false;
+            b_vibration_switch_on = false;
           }
 
           // Proton Pack vibration firing enabled.
