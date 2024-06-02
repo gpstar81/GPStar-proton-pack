@@ -200,7 +200,7 @@ millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing 
  * This is set by the Proton Pack vibration toggle switch position by default.
  * If VIBRATION_MODE_EEPROM is not set to VIBRATION_DEFAULT, only this setting will be used.
  */
-bool b_vibration_enabled = true;
+bool b_vibration_switch_on = true;
 
 /*
  * Various Switches on the wand.

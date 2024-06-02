@@ -135,10 +135,10 @@ void setup() {
 
   // Configure the vibration state.
   if(switch_vibration.getState() == LOW) {
-    b_vibration_enabled = true;
+    b_vibration_switch_on = true;
   }
   else {
-    b_vibration_enabled = false;
+    b_vibration_switch_on = false;
   }
 
   // Configure the year mode, though this will be modified
@@ -1116,21 +1116,21 @@ void checkSwitches() {
     stopEffect(S_VOICE_VIBRATION_DISABLED);
 
     if(switch_vibration.getState() == LOW) {
-      if(b_vibration_enabled == false) {
+      if(b_vibration_switch_on == false) {
         // Tell the wand to enable vibration.
         packSerialSend(P_VIBRATION_ENABLED);
 
-        b_vibration_enabled = true;
+        b_vibration_switch_on = true;
 
         playEffect(S_VOICE_VIBRATION_ENABLED);
       }
     }
     else {
-      if(b_vibration_enabled == true) {
+      if(b_vibration_switch_on == true) {
         // Tell the wand to disable vibration.
         packSerialSend(P_VIBRATION_DISABLED);
 
-        b_vibration_enabled = false;
+        b_vibration_switch_on = false;
 
         playEffect(S_VOICE_VIBRATION_DISABLED);
       }
@@ -4534,7 +4534,7 @@ void cyclotronSwitchPlateLEDs() {
       digitalWriteFast(cyclotron_switch_led_green, HIGH);
     }
 
-    if(b_vibration_enabled == true) {
+    if(b_vibration_switch_on == true) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
         digitalWriteFast(cyclotron_switch_led_yellow, HIGH);
       }
@@ -4558,7 +4558,7 @@ void cyclotronSwitchPlateLEDs() {
 }
 
 void vibrationPack(uint8_t i_level) {
-  if(b_vibration_on == true && b_vibration_enabled == true && i_level > 0) {
+  if(b_vibration_enabled == true && b_vibration_switch_on == true && i_level > 0) {
     if(b_vibration_firing == true) {
       if(b_wand_firing == true) {
         if(i_level != i_vibration_level_prev) {

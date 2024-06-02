@@ -78,7 +78,6 @@ struct objConfigEEPROM {
   uint8_t overheat_strobe;
   uint8_t overheat_lights_off;
   uint8_t overheat_sync_to_fan;
-
   uint8_t year_mode; // 1984, 1989, Afterlife, Frozen Empire or the Proton Pack toggle switch default.
   uint8_t system_mode; // Super Hero or Mode Original.
   uint8_t vg_powercell; // For disabling or enabling video game colours for the Power Cell.
@@ -86,19 +85,16 @@ struct objConfigEEPROM {
   uint8_t demo_light_mode; // Enables pack startup automatically at bootup (battery power-on).
   uint8_t cyclotron_three_led_toggle; // Toggles between the 1-LED or 3-LED for 84/89 modes.
   uint8_t default_system_volume; // Default master volume at bootup (battery power-on)
-
   uint8_t overheat_smoke_duration_level_5;
   uint8_t overheat_smoke_duration_level_4;
   uint8_t overheat_smoke_duration_level_3;
   uint8_t overheat_smoke_duration_level_2;
   uint8_t overheat_smoke_duration_level_1;
-
   uint8_t smoke_continuous_level_5;
   uint8_t smoke_continuous_level_4;
   uint8_t smoke_continuous_level_3;
   uint8_t smoke_continuous_level_2;
   uint8_t smoke_continuous_level_1;
-
   uint8_t pack_vibration; // Sets the vibration mode for the pack (multi-option).
   uint8_t use_ribbon_cable; // Enable/disable the ribbon cable alarm (useful for DIY packs).
 };
@@ -442,21 +438,21 @@ void readEEPROM() {
 
         case 3:
           b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_on = false; // Disable pack vibration.
+          b_vibration_enabled = false; // Disable pack vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
         break;
 
         case 2:
-          b_vibration_enabled = true; // Override the vibration toggle switch.
+          b_vibration_switch_on = true; // Override the vibration toggle switch.
           b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-          b_vibration_on = true; // Enable pack vibration.
+          b_vibration_enabled = true; // Enable pack vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
         break;
 
         case 1:
-          b_vibration_enabled = true; // Override the vibration toggle switch.
+          b_vibration_switch_on = true; // Override the vibration toggle switch.
           b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_on = true; // Enable pack vibration.
+          b_vibration_enabled = true; // Enable pack vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
         break;
       }

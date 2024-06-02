@@ -446,29 +446,29 @@ void checkPack() {
 
           switch(wandConfig.wandVibration) {
             case 1:
-              b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+              b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
               b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-              b_vibration_on = true; // Enable wand vibration.
+              b_vibration_enabled = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
             break;
 
             case 2:
-              b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+              b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
               b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-              b_vibration_on = true; // Enable wand vibration.
+              b_vibration_enabled = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
             break;
 
             case 3:
               b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-              b_vibration_on = false; // Disable wand vibration.
+              b_vibration_enabled = false; // Disable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_NONE;
             break;
 
             case 4:
             default:
               b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-              b_vibration_on = true; // Enable wand vibration.
+              b_vibration_enabled = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
             break;
           }
@@ -726,11 +726,11 @@ void checkPack() {
           if(VIBRATION_MODE_EEPROM == VIBRATION_DEFAULT) {
             switch(packSync.vibrationEnabled) {
               case 1:
-                b_vibration_enabled = false;
+                b_vibration_switch_on = false;
               break;
               case 2:
               default:
-                b_vibration_enabled = true;
+                b_vibration_switch_on = true;
               break;
             }
           }
@@ -1231,7 +1231,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_VIBRATION_ENABLED:
       // Vibration enabled (from Proton Pack vibration toggle switch).
-      b_vibration_enabled = true;
+      b_vibration_switch_on = true;
 
       stopEffect(S_BEEPS_ALT);
       playEffect(S_BEEPS_ALT);
@@ -1243,7 +1243,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_VIBRATION_DISABLED:
       // Vibration disabled (from Proton Pack vibration toggle switch).
-      b_vibration_enabled = false;
+      b_vibration_switch_on = false;
 
       stopEffect(S_BEEPS_ALT);
       playEffect(S_BEEPS_ALT);

@@ -70,34 +70,28 @@ struct objConfigEEPROM {
   uint8_t neutrona_wand_sounds;
   uint8_t spectral_mode;
   uint8_t holiday_mode;
-
   uint8_t quick_vent;
   uint8_t wand_boot_errors;
   uint8_t vent_light_auto_intensity;
-
   uint8_t invert_bargraph;
   uint8_t bargraph_mode;
   uint8_t bargraph_firing_animation;
   uint8_t bargraph_overheat_blinking;
-
   uint8_t neutrona_wand_year_mode;
   uint8_t CTS_mode;
   uint8_t system_mode;
   uint8_t beep_loop;
   uint8_t default_system_volume;
-
   uint8_t overheat_start_timer_level_5;
   uint8_t overheat_start_timer_level_4;
   uint8_t overheat_start_timer_level_3;
   uint8_t overheat_start_timer_level_2;
   uint8_t overheat_start_timer_level_1;
-
   uint8_t overheat_level_5;
   uint8_t overheat_level_4;
   uint8_t overheat_level_3;
   uint8_t overheat_level_2;
   uint8_t overheat_level_1;
-
   uint8_t wand_vibration;
 };
 
@@ -423,21 +417,21 @@ void readEEPROM() {
 
         case 3:
           b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_on = false; // Disable wand vibration.
+          b_vibration_enabled = false; // Disable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
         break;
 
         case 2:
-          b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+          b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
           b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-          b_vibration_on = true; // Enable wand vibration.
+          b_vibration_enabled = true; // Enable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
         break;
 
         case 1:
-          b_vibration_enabled = true; // Override the Proton Pack vibration toggle switch.
+          b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
           b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_on = true; // Enable wand vibration.
+          b_vibration_enabled = true; // Enable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
         break;
       }
