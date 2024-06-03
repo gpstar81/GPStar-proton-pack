@@ -1257,6 +1257,9 @@ void doWandSync() {
     break;
   }
 
+  // Update the Inner Cyclotron LEDs if required.
+  cyclotronSwitchLEDUpdate();
+
   // Make sure the pack is fully reset if it is off while a new wand is connected.
   if(b_pack_on != true) {
     b_reset_start_led = false;
@@ -1669,6 +1672,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_PROTON_MODE);
     break;
 
@@ -1711,6 +1717,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_powercell_updating = true;
         powercellDraw();
       }
+
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
 
       serial1Send(A_SLIME_MODE);
     break;
@@ -1756,6 +1765,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_powercell_updating = true;
         powercellDraw();
       }
+      
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
 
       serial1Send(A_STASIS_MODE);
     break;
@@ -1802,6 +1814,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_MESON_MODE);
     break;
 
@@ -1845,6 +1860,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_powercell_updating = true;
         powercellDraw();
       }
+
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
 
       serial1Send(A_SPECTRAL_MODE);
     break;
@@ -1890,6 +1908,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_HOLIDAY_MODE);
     break;
 
@@ -1934,6 +1955,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+      
       serial1SendData(A_SPECTRAL_CUSTOM_MODE);
     break;
 

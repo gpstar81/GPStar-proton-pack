@@ -45,6 +45,12 @@
 #define FRUTTO_MAX_CYCLOTRON_LED_COUNT 36
 
 /*
+ * Set the number of LEDs for the optional Inner Cyclotron panel board.
+ * This is not the single traditional LEDs, but the optional board with 8 pixels instead.
+ */
+#define INNER_CYCLOTRON_LED_PANEL_MAX 8
+
+/*
  * Set the number of steps for the Inner Cyclotron (cake).
  */
 #define INNER_CYCLOTRON_CAKE_LED_MAX 35
@@ -93,7 +99,7 @@ const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
 
 /*
- * Total number of LEDs in the optional inner cycltron configuration.
+ * Total number of LEDs in the optional inner cyclotron configuration.
  * Up to 35 LEDs for the ring (due to diameter of the ring).
  * Optionally, up to 30 LEDs for the "sparking" effect in the cavity.
  * Max 65 LEDs is possible before degradation of serial communications.
@@ -211,6 +217,7 @@ int8_t i_led_cyclotron_cavity = 0;
 bool b_inner_ramp_up = true;
 bool b_inner_ramp_down = false;
 uint16_t i_inner_current_ramp_speed = i_inner_ramp_delay;
+uint8_t i_inner_cyclotron_panel_num_leds = 8; // The number of LEDs on the optional inner cyclotron LED switch plate panel board. This is not the standard LED system but the optional addressable LED board option.
 
 /*
  * Cyclotron Switch Plate LEDs
@@ -230,7 +237,6 @@ const uint16_t i_cyclotron_switch_plate_leds_delay = 1000;
 uint16_t i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
 millisDelay ms_cyclotron_switch_led; // Timer to control the 6 decorative LED patterns.
 millisDelay ms_cyclotron_switch_plate_leds; // Timer to control the 2 switch status indicator LEDs.
-
 
 /*
  * Alarm
@@ -414,6 +420,7 @@ enum device {
   CYCLOTRON_OUTER,
   CYCLOTRON_INNER,
   CYCLOTRON_CAVITY,
+  CYCLOTRON_PANEL,
   VENT_LIGHT
 };
 

@@ -88,6 +88,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
 
             case CYCLOTRON_OUTER:
             case CYCLOTRON_INNER:
+            case CYCLOTRON_PANEL:
               return C_RED;
             break;
 
@@ -104,6 +105,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case POWERCELL:
             case CYCLOTRON_OUTER:
             case CYCLOTRON_INNER:
+            case CYCLOTRON_PANEL:
             case VENT_LIGHT:
             default:
               if(SYSTEM_YEAR == SYSTEM_1989) {
@@ -121,6 +123,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case POWERCELL:
             case CYCLOTRON_OUTER:
             case CYCLOTRON_INNER:
+            case CYCLOTRON_PANEL:
             case VENT_LIGHT:
             default:
               return C_LIGHT_BLUE;
@@ -133,6 +136,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case POWERCELL:
             case CYCLOTRON_OUTER:
             case CYCLOTRON_INNER:
+            case CYCLOTRON_PANEL:
             case VENT_LIGHT:
             default:
               return C_ORANGE;
@@ -145,6 +149,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case POWERCELL:
             case CYCLOTRON_OUTER:
             case CYCLOTRON_INNER:
+            case CYCLOTRON_PANEL:
             case VENT_LIGHT:
             default:
               return C_RAINBOW;
@@ -157,6 +162,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             case POWERCELL:
             case CYCLOTRON_OUTER:
             case CYCLOTRON_INNER:
+            case CYCLOTRON_PANEL:
             case VENT_LIGHT:
             default:
               return C_REDGREEN;
@@ -175,6 +181,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
             break;
 
             case CYCLOTRON_INNER:
+            case CYCLOTRON_PANEL:
               return C_CUSTOM_INNER_CYCLOTRON;
             break;
 
@@ -198,6 +205,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
 
       case CYCLOTRON_OUTER:
       case CYCLOTRON_INNER:
+      case CYCLOTRON_PANEL:
         return C_RED;
       break;
 
@@ -246,6 +254,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       i_cycle = 10;
     break;
     case CYCLOTRON_INNER:
+    case CYCLOTRON_PANEL:
       i_cycle = 5;
     break;
   }
