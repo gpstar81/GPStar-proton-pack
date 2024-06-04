@@ -298,7 +298,7 @@ const uint16_t i_1984_fade_in_delay = 210;
  * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */
-const bool b_onboard_amp_enabled = true;
+const bool b_onboard_amp_enabled = false;
 
 /*
  * If you want the optional N-Filter NeoPixel jewel to strobe during overheat venting.
