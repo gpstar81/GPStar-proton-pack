@@ -896,6 +896,18 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
+    case P_TOGGLE_INNER_CYCLOTRON_PANEL_ENABLED:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+    break;
+
+    case P_TOGGLE_INNER_CYCLOTRON_PANEL_DISABLED:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+    break;
+
     case P_MODE_ORIGINAL_RED_SWITCH_ON:
       b_pack_ion_arm_switch_on = true;
 

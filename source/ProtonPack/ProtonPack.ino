@@ -119,14 +119,7 @@ void setup() {
   pinModeFast(cyclotron_switch_led_yellow, OUTPUT);
 
   // Setup and configure the Inner Cyclotron LED Panel if enabled.
-  if(b_inner_cyclotron_led_panel == true) {
-    i_max_inner_cyclotron_leds = INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
-    i_inner_cyclotron_panel_num_leds = 8;
-  }
-  else {
-    i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
-    i_inner_cyclotron_panel_num_leds = 0; // Set to 0 if not enabled.
-  }
+  resetInnerCyclotronLEDs();
 
   // Default mode is Super Hero (for simpler controls).
   SYSTEM_MODE = MODE_SUPER_HERO;
@@ -5154,6 +5147,18 @@ void updateProtonPackLEDCounts() {
   i_cyclotron_led_start = i_powercell_leds;
 
   i_max_inner_cyclotron_leds = i_inner_cyclotron_panel_num_leds + i_inner_cyclotron_cake_num_leds + i_inner_cyclotron_cavity_num_leds;
+}
+
+// Update the LED counts for the inner cyclotron, if we are using the addon LED panel or not.
+void resetInnerCyclotronLEDs() {
+  if(b_inner_cyclotron_led_panel == true) {
+    i_max_inner_cyclotron_leds = INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
+    i_inner_cyclotron_panel_num_leds = 8;
+  }
+  else {
+    i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
+    i_inner_cyclotron_panel_num_leds = 0; // Set to 0 if not enabled.
+  }  
 }
 
 void resetCyclotronLEDs() {

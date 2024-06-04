@@ -1968,6 +1968,31 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       serial1Send(A_SETTINGS_MODE);
     break;
 
+    case W_TOGGLE_INNER_CYCLOTRON_PANEL:
+      // Toggle the optional inner cyclotron LED panel board.
+      if(b_inner_cyclotron_led_panel == true) {
+        b_inner_cyclotron_led_panel = false;
+
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+        playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+
+        packSerialSend(P_TOGGLE_INNER_CYCLOTRON_PANEL_DISABLED);
+      }
+      else {
+        b_inner_cyclotron_led_panel = true;
+
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+        playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+        
+        packSerialSend(P_TOGGLE_INNER_CYCLOTRON_PANEL_ENABLED);
+      }
+
+      // Reset the LED count.
+      resetInnerCyclotronLEDs();
+    break;
+
     case W_OVERHEATING:
       // Overheating
       if(STREAM_MODE == SLIME) {

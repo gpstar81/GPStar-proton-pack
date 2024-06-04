@@ -308,6 +308,7 @@ void checkWandAction() {
 
         // Level 1 Intensify: Cycle through the different Cyclotron LED counts.
         // Level 1 Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
+        // Level 2 Intensify: Enable or disable the Inner Cyclotron LED Panel.
         case 2:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
@@ -319,6 +320,9 @@ void checkWandAction() {
                 wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
               break;
             }
+          }
+          else if(switch_mode.pushed()) {
+            wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_PANEL);
           }
         break;
 
