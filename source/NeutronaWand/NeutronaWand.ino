@@ -2345,6 +2345,15 @@ void postActivation() {
         case SYSTEM_1989:
           stopEffect(S_WAND_BOOTUP_SHORT);
           playEffect(S_WAND_BOOTUP_SHORT);
+
+          if(b_extra_pack_sounds == true && b_pack_on == true) {
+            if(switch_vent.on() && getNeutronaWandYearMode() == SYSTEM_1989) {
+              wandSerialSend(W_WAND_BOOTUP_1989);
+            }
+            else {
+              wandSerialSend(W_WAND_BOOTUP_SHORT_SOUND);
+            }
+          }
         break;
 
         case SYSTEM_AFTERLIFE:
@@ -2460,24 +2469,44 @@ void soundIdleStart() {
       case SYSTEM_1984:
       case SYSTEM_1989:
         if(b_extra_pack_sounds == true && switch_vent.on() && switch_vent.switched()) {
-          wandSerialSend(W_WAND_BOOTUP_SOUND);
+          if(getNeutronaWandYearMode() == SYSTEM_1989) { 
+            wandSerialSend(W_WAND_BOOTUP_1989);
+          }
+          else {
+            wandSerialSend(W_WAND_BOOTUP_SOUND);
+          }
         }
 
         if(getNeutronaWandYearMode() == SYSTEM_1989 && b_gpstar_benchtest == true) {
           stopEffect(S_WAND_BOOTUP);
           stopEffect(S_WAND_BOOTUP_SHORT);
           stopEffect(S_GB2_WAND_START);
+          
           playEffect(S_GB2_WAND_START);
         }
         else if(b_all_switch_activation == true) {
           stopEffect(S_WAND_BOOTUP);
           stopEffect(S_WAND_BOOTUP_SHORT);
-          playEffect(S_WAND_BOOTUP_SHORT);
+
+          if(getNeutronaWandYearMode() == SYSTEM_1989) {
+            stopEffect(S_GB2_WAND_START);
+            playEffect(S_GB2_WAND_START);
+          }
+          else {
+            playEffect(S_WAND_BOOTUP_SHORT);
+          }
         }
         else {
           stopEffect(S_WAND_BOOTUP);
           stopEffect(S_WAND_BOOTUP_SHORT);
-          playEffect(S_WAND_BOOTUP);
+
+          if(getNeutronaWandYearMode() == SYSTEM_1989) {          
+            stopEffect(S_GB2_WAND_START);
+            playEffect(S_GB2_WAND_START);
+          }
+          else {
+            playEffect(S_WAND_BOOTUP);
+          }
         }
 
         soundIdleLoop(true);
