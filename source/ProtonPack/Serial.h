@@ -1770,7 +1770,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_powercell_updating = true;
         powercellDraw();
       }
-      
+
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
@@ -1962,7 +1962,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
-      
+
       serial1SendData(A_SPECTRAL_CUSTOM_MODE);
     break;
 
@@ -1990,7 +1990,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
         stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
         playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
-        
+
         packSerialSend(P_TOGGLE_INNER_CYCLOTRON_PANEL_ENABLED);
       }
 

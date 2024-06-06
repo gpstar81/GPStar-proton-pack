@@ -82,7 +82,7 @@ Depending on which audio board you are using in your system, following the troub
 
 1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals.
 
-2. If there’s no activity on the "Green" status LED whatsoever when you power up GPStar Audio, check the “BOOT/LOAD” switch next to the 6 pin jst-xh connector is in the “BOOT” position.
+2. If there’s no activity on the "Green" status LED whatsoever when you power up GPStar Audio, check the “BOOT/LOAD” switch next to the 6 pin JST-XH connector is in the “BOOT” position.
 
 3. Once you see the "Green" status LED blinking slowly, pressing the on-board "Test" button will play the lowest numbered track on the microSD card. Confirm this by observing the "Gree" status LED turning blinking very rapidly to indicate a track is playing. You should hear the track through the stereo jack or any speaker connected to the board.
 

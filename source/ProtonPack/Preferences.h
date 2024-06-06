@@ -172,7 +172,7 @@ void readEEPROM() {
       }
       else {
         b_inner_cyclotron_led_panel = false;
-      }      
+      }
 
       resetInnerCyclotronLEDs();
     }
