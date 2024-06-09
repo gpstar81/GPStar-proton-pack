@@ -74,6 +74,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycLidSat;
   uint8_t ledCycLidCenter;
   uint8_t ledCycLidSimRing;
+  uint8_t ledCycInnerPanel;
   uint8_t ledCycCakeCount;
   uint8_t ledCycCakeHue;
   uint8_t ledCycCakeSat;
@@ -328,6 +329,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring;
 
       // Inner Cyclotron
+      packConfig.ledCycInnerPanel = b_inner_cyclotron_led_panel;
       packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
@@ -616,6 +618,7 @@ void checkSerial1() {
           b_cyclotron_simulate_ring = packConfig.ledCycLidSimRing;
 
           // Inner Cyclotron
+          b_inner_cyclotron_led_panel = packConfig.ledCycInnerPanel;
           i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
