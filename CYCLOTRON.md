@@ -55,7 +55,13 @@ To improve the fit of the new ring, it is recommended to use a Dremel with a san
 
 ## Light Switch Panel (Optional)
 
-There is a included STL file that you can 3D Print to replace the Cyclotron switch plate. You can add 5mm LEDs into the holes. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. You can use cliplites to hold the LEDs in place. Refer to the parts list on where to source them.
+There is a included STL file that you can 3D Print to replace the Cyclotron switch plate. You can add 5mm LEDs into the holes. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. You can use cliplites to hold the LEDs in place. Refer to the [parts list](BOM.md) on where to source them.
+
+If using the Frutto 8-LED PCB for RGB lighting, you will want to substitute [8 clear cliplites](https://www.digikey.com/en/products/detail/visual-communications-company-vcc/CLF-280-CTP/4515438). This panel will sit between the pack controller and the inner cyclotron "cake" lights.
+
+For reference, if using all of the optional parts which use addressable LEDs this is the correct order for installation:
+
+`Pack Controller -> Inner LED Panel PCB -> Inner Cake Ring -> Cavity Lights`
 
 ![Panel with Cliplites](images/SwitchPanel.jpg)
 
