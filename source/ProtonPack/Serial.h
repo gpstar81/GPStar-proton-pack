@@ -635,6 +635,7 @@ void checkSerial1() {
           updateProtonPackLEDCounts();
           resetContinuousSmoke();
           resetCyclotronLEDs();
+          resetInnerCyclotronLEDs();
           resetRampSpeeds();
 
           // Offer some feedback to the user

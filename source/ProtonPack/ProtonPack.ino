@@ -5152,10 +5152,13 @@ void updateProtonPackLEDCounts() {
 // Update the LED counts for the inner cyclotron, if we are using the addon LED panel or not.
 void resetInnerCyclotronLEDs() {
   if(b_inner_cyclotron_led_panel == true) {
+    // For clarity, these are added in the order by which the devices would be connected in the chain.
     i_max_inner_cyclotron_leds = INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
-    i_inner_cyclotron_panel_num_leds = 8;
+    i_inner_cyclotron_panel_num_leds = 8; // Maximum is 8 (2 above switches, 6 on the side)
   }
   else {
+    // Without the inner panel we just use the dedicated LED ports on the controller for single-color LEDs.
+    // The inner chain just reduces down to the inner cake plus extra cavity lights for the "sparking" FX.
     i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
     i_inner_cyclotron_panel_num_leds = 0; // Set to 0 if not enabled.
   }
