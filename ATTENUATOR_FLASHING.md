@@ -115,9 +115,9 @@ Once flashed, this will allow you to get back into the web UI at `http://192.168
 
 ## Software Development Requirements
 
-To build or edit the code for this device you must have an ArduinoIDE environment set up similar to what is needed for the pack/wand software. Download and install the Arduino IDE 2.x or higher. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
+To build or edit the code for this device you must have an ArduinoIDE environment set up similar to what is needed for the pack/wand software. Download and install the Arduino IDE. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
 
-[Arduino IDE 2.x](https://www.arduino.cc/en/software)
+[Arduino IDE](https://www.arduino.cc/en/software)
 
 The following libraries are required to be installed. All but the MillisDelay library can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
 

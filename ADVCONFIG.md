@@ -6,6 +6,8 @@ Please consider all items as changeable at your own risk. Deviating from any rec
 
 All user-configurable values reside within their respective `Configuration.h` file. Note that when loading the .ino file to the Arduino IDE this should load the related .h files automatically.
 
+For more information on how to compile and flash a custom binary after modifying `Configuration.h`, please see [COMPILING_FLASHING.md](COMPILING_FLASHING.md) for GPStar hardware or [DIY_FLASHING.md](DIY_FLASHING.md) for DIY Arduino builds.
+
 ## EEPROM Data
 
 For those who customise their settings and flash their boards manually, any saved settings in the Proton Pack or Neutrona Wand EEPROM can override some settings that you manually flash to your Proton Pack or Neutrona Wand's main system memory. Examples include the Cyclotron and Power Cell Delays, the number of LEDs defined for the Power Cell or Cyclotron, overheating options, etc. You can either override the EEPROM settings by setting `b_eeprom = false` in the Proton Pack and or Neutrona Wand Configuration.h file before flashing or clearing all the saved settings in your EEPROM from the EEPROM LED Menu System and EEPROM Configuration Menu System.
