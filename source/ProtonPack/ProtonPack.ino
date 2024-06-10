@@ -199,80 +199,9 @@ void setup() {
   // Then the EEPROM reads any settings if required, then we reset the volume.
   resetMasterVolume();
 
+  // Perform power-on sequence if demo light mode is not enabled per user preferences.
   if(b_demo_light_mode != true) {
-    playEffect(S_POWER_ON);
-
-    uint8_t i_tmp_led1 = i_cyclotron_led_start + cyclotron84LookupTable(0);
-    uint8_t i_tmp_led2 = i_cyclotron_led_start + cyclotron84LookupTable(1);
-    uint8_t i_tmp_led3 = i_cyclotron_led_start + cyclotron84LookupTable(2);
-    uint8_t i_tmp_led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
-
-    for(uint8_t i = 0; i < i_powercell_leds; i++) {
-      pack_leds[i] = getHueAsRGB(POWERCELL, C_MID_BLUE);
-
-      if((i % 5) == 0) {
-        pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-        pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-        pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-        pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      }
-      else {
-        pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-        pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-        pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-        pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-      }
-
-      FastLED.show();
-
-      delay(30);
-    }
-
-    for(uint8_t i = 0; i < i_powercell_leds; i++) {
-      pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
-
-      if((i % 5) == 0) {
-        pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-        pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-        pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-        pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      }
-      else {
-        pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-        pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-        pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-        pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-      }
-
-      FastLED.show();
-
-      delay(30);
-    }
-
-    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-
-    FastLED.show();
-
-    for(uint8_t i = 255; i > 0; i--) {
-      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
-      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
-      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
-      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
-
-      FastLED.show();
-
-      delay(5);
-    }
-
-    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-
-    FastLED.show();
+    systemPOST();
   }
 }
 
@@ -599,6 +528,91 @@ void loop() {
       b_powercell_updating = false;
     }
   }
+}
+
+void systemPOST() {
+  // Sytem Power On Self Test
+  playEffect(S_POWER_ON);
+
+  uint8_t i_tmp_led1 = i_cyclotron_led_start + cyclotron84LookupTable(0);
+  uint8_t i_tmp_led2 = i_cyclotron_led_start + cyclotron84LookupTable(1);
+  uint8_t i_tmp_led3 = i_cyclotron_led_start + cyclotron84LookupTable(2);
+  uint8_t i_tmp_led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
+  uint8_t i_tmp_led5 = i_pack_num_leds - round(i_nfilter_jewel_leds / 2);
+
+  for(uint8_t i = 0; i < i_powercell_leds; i++) {
+    pack_leds[i] = getHueAsRGB(POWERCELL, C_MID_BLUE);
+
+    if((i % 5) == 0) {
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
+    }
+    else {
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+    }
+
+    FastLED.show();
+
+    delay(30);
+  }
+
+  for(uint8_t i = 0; i < i_powercell_leds; i++) {
+    pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
+
+    if((i % 5) == 0) {
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
+    }
+    else {
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+    }
+
+    FastLED.show();
+
+    delay(30);
+  }
+
+  pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+  pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+  pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+  pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+  pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
+
+  FastLED.show();
+
+  for(uint8_t i = 255; i > 0; i--) {
+    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
+    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
+    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
+    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
+    pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE, i);
+
+    FastLED.show();
+
+    delay(5);
+  }
+
+  pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+  pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+  pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+  pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+  pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+
+  FastLED.show();
 }
 
 bool fadeOutLights() {
