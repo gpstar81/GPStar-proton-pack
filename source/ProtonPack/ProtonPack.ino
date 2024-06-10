@@ -531,7 +531,7 @@ void loop() {
 }
 
 void systemPOST() {
-  // Sytem Power On Self Test
+  // System Power On Self Test
   playEffect(S_POWER_ON);
 
   uint8_t i_tmp_led1 = i_cyclotron_led_start + cyclotron84LookupTable(0);
@@ -1226,7 +1226,7 @@ void checkSwitches() {
         case MODE_SUPER_HERO:
         default:
           if(switch_power.isPressed() || switch_power.isReleased()) {
-            // When the ion arm switch is used to turn the Proton Pack on, play a extra sound effect in Afterlife or Frozen Empire.
+            // When the ion arm switch is used, play an extra sound effect in Afterlife or Frozen Empire.
             switch(SYSTEM_YEAR) {
               case SYSTEM_AFTERLIFE:
               case SYSTEM_FROZEN_EMPIRE:
@@ -1241,8 +1241,10 @@ void checkSwitches() {
               break;
             }
 
-            // Turn the pack on.
-            PACK_ACTION_STATE = ACTION_ACTIVATE;
+            // Turn the pack on if switch is moved to on position.
+            if(switch_power.getState() == LOW) {
+              PACK_ACTION_STATE = ACTION_ACTIVATE;
+            }
           }
         break;
       }
@@ -1314,10 +1316,12 @@ void checkSwitches() {
 
     case MODE_ON:
       if(switch_power.isReleased() || switch_power.isPressed()) {
-        // Turn the pack off.
-        PACK_ACTION_STATE = ACTION_OFF;
+        // Turn the pack off if switch is moved to off position.
+        if(switch_power.getState() == HIGH) {
+          PACK_ACTION_STATE = ACTION_OFF;
+        }
 
-        // When the ion arm switch is used to turn the Proton Pack off, play a extra sound effect in Afterlife or Frozen Empire.
+        // When the ion arm switch is used, play an extra sound effect in Afterlife or Frozen Empire.
         switch(SYSTEM_YEAR) {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
