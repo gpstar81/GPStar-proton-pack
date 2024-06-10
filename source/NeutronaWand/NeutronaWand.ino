@@ -281,17 +281,6 @@ void mainLoop() {
           wandSerialSend(W_SMASH_ERROR_RESTART);
         }
 
-        /*
-        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          if(b_extra_pack_sounds == true) {
-            wandSerialSend(W_WAND_BOOTUP_SOUND);
-          }
-
-          stopEffect(S_WAND_BOOTUP);
-          playEffect(S_WAND_BOOTUP);
-        }
-        */
-
         bargraphClearAlt();
       }
     }
@@ -1642,12 +1631,6 @@ void wandOff() {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          // Proton Pack plays shutdown sound, but standalone Wand needs to play its own
-          if(b_gpstar_benchtest == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_vent.on() == false) {
-            stopEffect(S_WAND_HEATDOWN);
-            playEffect(S_WAND_HEATDOWN);
-          }
-
           if(SYSTEM_MODE == MODE_SUPER_HERO) {
             if(switch_vent.on() == true) {
               if(b_extra_pack_sounds == true) {
@@ -1656,6 +1639,11 @@ void wandOff() {
 
               stopEffect(S_WAND_SHUTDOWN);
               playEffect(S_WAND_SHUTDOWN);
+            }
+            else if(b_gpstar_benchtest) {
+              // Proton Pack plays shutdown sound, but standalone Wand needs to play its own.
+              stopEffect(S_WAND_HEATDOWN);
+              playEffect(S_WAND_HEATDOWN);
             }
           }
           else {
@@ -2338,16 +2326,37 @@ void postActivation() {
     if(b_pack_alarm != true) {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
+          stopEffect(S_WAND_BOOTUP_SHORT);
+          stopEffect(S_WAND_BOOTUP);
+
+          if(b_pack_on) {
+            playEffect(S_WAND_BOOTUP_SHORT);
+
+            if(b_extra_pack_sounds) {
+              wandSerialSend(W_WAND_BOOTUP_SHORT_SOUND);
+            }
+          }
+          else {
+            playEffect(S_WAND_BOOTUP);
+          }
+        break;
+
         case SYSTEM_1989:
           stopEffect(S_WAND_BOOTUP_SHORT);
-          playEffect(S_WAND_BOOTUP_SHORT);
+          stopEffect(S_GB2_WAND_START);
 
-          if(b_extra_pack_sounds == true && b_pack_on == true) {
-            if(switch_vent.on() && getNeutronaWandYearMode() == SYSTEM_1989) {
-              wandSerialSend(W_WAND_BOOTUP_1989);
-            }
-            else {
+          if(b_pack_on && !switch_vent.on()) {
+            playEffect(S_WAND_BOOTUP_SHORT);
+
+            if(b_extra_pack_sounds) {
               wandSerialSend(W_WAND_BOOTUP_SHORT_SOUND);
+            }
+          }
+          else {
+            playEffect(S_GB2_WAND_START);
+
+            if(b_extra_pack_sounds && b_pack_on) {
+              wandSerialSend(W_WAND_BOOTUP_1989);
             }
           }
         break;
@@ -2355,7 +2364,7 @@ void postActivation() {
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
         default:
-          if(b_gpstar_benchtest == true) {
+          if(b_gpstar_benchtest) {
             stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
           }
@@ -2464,33 +2473,8 @@ void soundIdleStart() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        if(b_extra_pack_sounds == true && switch_vent.on() && switch_vent.switched()) {
-          if(getNeutronaWandYearMode() == SYSTEM_1989) {
-            wandSerialSend(W_WAND_BOOTUP_1989);
-          }
-          else {
-            wandSerialSend(W_WAND_BOOTUP_SOUND);
-          }
-        }
-
-        if(getNeutronaWandYearMode() == SYSTEM_1989 && b_gpstar_benchtest == true) {
-          stopEffect(S_WAND_BOOTUP);
-          stopEffect(S_WAND_BOOTUP_SHORT);
-          stopEffect(S_GB2_WAND_START);
-
-          playEffect(S_GB2_WAND_START);
-        }
-        else if(b_all_switch_activation == true) {
-          stopEffect(S_WAND_BOOTUP);
-          stopEffect(S_WAND_BOOTUP_SHORT);
-
-          if(getNeutronaWandYearMode() == SYSTEM_1989) {
-            stopEffect(S_GB2_WAND_START);
-            playEffect(S_GB2_WAND_START);
-          }
-          else {
-            playEffect(S_WAND_BOOTUP_SHORT);
-          }
+        if(b_all_switch_activation) {
+          // Do nothing since sounds were already handled in postActivation();
         }
         else {
           stopEffect(S_WAND_BOOTUP);
@@ -2499,9 +2483,17 @@ void soundIdleStart() {
           if(getNeutronaWandYearMode() == SYSTEM_1989) {
             stopEffect(S_GB2_WAND_START);
             playEffect(S_GB2_WAND_START);
+
+            if(b_extra_pack_sounds) {
+              wandSerialSend(W_WAND_BOOTUP_1989);
+            }
           }
           else {
             playEffect(S_WAND_BOOTUP);
+
+            if(b_extra_pack_sounds) {
+              wandSerialSend(W_WAND_BOOTUP_SOUND);
+            }
           }
         }
 

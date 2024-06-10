@@ -1503,6 +1503,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_WAND_BOOTUP_SOUND:
+      stopEffect(S_WAND_BOOTUP_SHORT);
       stopEffect(S_WAND_BOOTUP);
       playEffect(S_WAND_BOOTUP);
     break;
@@ -1513,6 +1514,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_WAND_BOOTUP_1989:
+      stopEffect(S_WAND_BOOTUP_SHORT);
       stopEffect(S_GB2_WAND_START);
       playEffect(S_GB2_WAND_START);
     break;
