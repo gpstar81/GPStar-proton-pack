@@ -1089,7 +1089,6 @@ void checkWandAction() {
               if(b_gpstar_benchtest == true) {
                 if(SYSTEM_MODE == MODE_SUPER_HERO) {
                   SYSTEM_MODE = MODE_ORIGINAL;
-                  vgModeCheck(); // Assert CTS mode.
 
                   stopEffect(S_VOICE_MODE_ORIGINAL);
                   stopEffect(S_VOICE_MODE_SUPER_HERO);
@@ -1102,6 +1101,8 @@ void checkWandAction() {
                   stopEffect(S_VOICE_MODE_ORIGINAL);
                   playEffect(S_VOICE_MODE_SUPER_HERO);
                 }
+
+                vgModeCheck();
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {

@@ -3145,7 +3145,7 @@ void packVenting() {
       playEffect(S_SLIME_REFILL, true);
     }
     else {
-      uint8_t i_smoke_random = random(4);
+      uint8_t i_smoke_random = random(5);
 
       switch(i_smoke_random) {
         case 4:
@@ -3181,7 +3181,7 @@ void packVenting() {
 
         if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
-          ms_smoke_on.start(i_ms_overheating_length_1 / 2 > 4000 ? 4000 : i_ms_overheating_length_1 / 2);
+          ms_smoke_on.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
         }
       break;
 
@@ -3190,7 +3190,7 @@ void packVenting() {
 
         if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
-          ms_smoke_on.start(i_ms_overheating_length_2 / 2 > 4000 ? 4000 : i_ms_overheating_length_2 / 2);
+          ms_smoke_on.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
         }
       break;
 
@@ -3199,7 +3199,7 @@ void packVenting() {
 
         if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
-          ms_smoke_on.start(i_ms_overheating_length_3 / 2 > 4000 ? 4000 : i_ms_overheating_length_3 / 2);
+          ms_smoke_on.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
         }
       break;
 
@@ -3208,7 +3208,7 @@ void packVenting() {
 
         if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
-          ms_smoke_on.start(i_ms_overheating_length_4 / 2 > 4000 ? 4000 : i_ms_overheating_length_4 / 2);
+          ms_smoke_on.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
         }
       break;
 
@@ -3217,7 +3217,7 @@ void packVenting() {
 
         if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
-          ms_smoke_on.start(i_ms_overheating_length_5 / 2 > 4000 ? 4000 : i_ms_overheating_length_5 / 2);
+          ms_smoke_on.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
         }
       break;
     }
@@ -3284,7 +3284,7 @@ void cyclotronOverheating() {
     else {
       playEffect(S_AIR_RELEASE);
 
-      uint8_t i_smoke_random = random(4);
+      uint8_t i_smoke_random = random(5);
 
       switch(i_smoke_random) {
         case 4:
@@ -4537,7 +4537,7 @@ void cyclotronSwitchPlateLEDs() {
 
     playEffect(S_MODE_SWITCH);
 
-    uint8_t i_smoke_random = random(4);
+    uint8_t i_smoke_random = random(5);
 
     switch(i_smoke_random) {
       case 4:
@@ -5236,24 +5236,6 @@ void doVoltageCheck() {
   // Send current voltage value to the serial1 device, if connected.
   if(b_serial1_connected) {
     serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
-  }
-}
-
-// Checks if video game mode should be set.
-bool vgModeCheck() {
-  // The firing mode (CTS/CTS Mix) will be driven by the Neutrona Wand but we need to make sure the proper Stream is set.
-  if(SYSTEM_MODE == MODE_ORIGINAL) {
-    // MODE_ORIGINAL does not support VG modes, so make sure firing mode is PROTON.
-    if(STREAM_MODE != PROTON) {
-      STREAM_MODE = PROTON;
-      serial1Send(A_PROTON_MODE);
-    }
-
-    return false;
-  }
-  else {
-    // MODE_SUPER_HERO supports VG modes so indicate this is allowed.
-    return true;
   }
 }
 

@@ -493,8 +493,6 @@ void checkSerial1() {
               packSerialSend(P_MODE_SUPER_HERO);
               serial1Send(A_MODE_SUPER_HERO);
 
-              vgModeCheck();
-
               // This is only applicable to the Mode Original, so default to off.
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
@@ -505,7 +503,11 @@ void checkSerial1() {
               packSerialSend(P_MODE_ORIGINAL);
               serial1Send(A_MODE_ORIGINAL);
 
-              vgModeCheck();
+              if(!b_wand_connected && STREAM_MODE != PROTON) {
+                // If no wand is connected we need to make sure we're in Proton Stream.
+                STREAM_MODE = PROTON;
+                serial1Send(A_PROTON_MODE);
+              }
 
               if(switch_power.getState() == LOW) {
                 // Tell the Neutrona Wand that power to the Proton Pack is on.
@@ -3264,8 +3266,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           serial1Send(A_MODE_ORIGINAL);
         break;
       }
-
-      vgModeCheck();
     break;
 
     case W_SPECTRAL_LIGHTS_ON:

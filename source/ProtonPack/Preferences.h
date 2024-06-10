@@ -44,7 +44,6 @@ void resetCyclotronLEDs();
 void resetInnerCyclotronLEDs();
 void resetContinuousSmoke();
 void updateProtonPackLEDCounts();
-bool vgModeCheck();
 
 /*
  * General EEPROM Variables
@@ -320,8 +319,6 @@ void readEEPROM() {
       else {
         SYSTEM_MODE = MODE_SUPER_HERO;
       }
-
-      vgModeCheck();
     }
 
     if(obj_config_eeprom.vg_powercell > 0 && obj_config_eeprom.vg_powercell != 255) {

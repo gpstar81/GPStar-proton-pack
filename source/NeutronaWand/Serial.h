@@ -589,13 +589,13 @@ void checkPack() {
             case 1:
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
-              vgModeCheck(); // Re-check VG/CTS mode.
             break;
             case 2:
               SYSTEM_MODE = MODE_ORIGINAL;
-              vgModeCheck(); // Assert CTS mode.
             break;
           }
+
+          vgModeCheck(); // Re-check VG/CTS mode.
 
           // Set whether the switch under the ion arm is on or off.
           switch(packSync.ionArmSwitch) {

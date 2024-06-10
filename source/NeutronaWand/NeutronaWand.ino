@@ -652,7 +652,6 @@ bool vgModeCheck() {
     if(FIRING_MODE == VG_MODE) {
       LAST_FIRING_MODE = VG_MODE; // Remember that the last firing mode was explicitly VG_MODE.
       FIRING_MODE = CTS_MODE; // At a minimum, set the firing mode to CTS for Mode Original.
-      wandSerialSend(W_CROSS_THE_STREAMS);
     }
     else {
       // Already in CTS or CTS Mix, just remember that for later.
@@ -674,17 +673,14 @@ bool vgModeCheck() {
         case VG_MODE:
         default:
           FIRING_MODE = VG_MODE;
-          wandSerialSend(W_VIDEO_GAME_MODE);
         break;
 
         case CTS_MODE:
           FIRING_MODE = CTS_MODE;
-          wandSerialSend(W_CROSS_THE_STREAMS);
         break;
 
         case CTS_MIX_MODE:
           FIRING_MODE = CTS_MIX_MODE;
-          wandSerialSend(W_CROSS_THE_STREAMS_MIX);
         break;
       }
 
