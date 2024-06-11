@@ -278,7 +278,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
     break;
     case CYCLOTRON_INNER:
     case CYCLOTRON_PANEL:
-      i_cycle = 5;
+      i_cycle = 6;
     break;
   }
 

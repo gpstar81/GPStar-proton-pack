@@ -2002,8 +2002,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_TOGGLE_INNER_CYCLOTRON_PANEL_ENABLED);
       }
 
-      // Reset the LED count.
+      // Reset the LED count for the panel and update the LED counts.
       resetInnerCyclotronLEDs();
+      updateProtonPackLEDCounts();
     break;
 
     case W_OVERHEATING:

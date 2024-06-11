@@ -135,7 +135,6 @@ void readEEPROM() {
 
     if(obj_eeprom.cyclotron_count > 0 && obj_eeprom.cyclotron_count != 255) {
       i_cyclotron_leds = obj_eeprom.cyclotron_count;
-      resetCyclotronLEDs();
     }
 
     if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {
@@ -172,8 +171,6 @@ void readEEPROM() {
       else {
         b_inner_cyclotron_led_panel = false;
       }
-
-      resetInnerCyclotronLEDs();
     }
 
     if(obj_eeprom.grb_inner_cyclotron > 0 && obj_eeprom.grb_inner_cyclotron != 255) {
@@ -210,6 +207,8 @@ void readEEPROM() {
     }
 
     // Update the LED counts for the Proton Pack.
+    resetCyclotronLEDs();
+    resetInnerCyclotronLEDs();
     updateProtonPackLEDCounts();
 
     // Read our configuration object from the EEPROM.
