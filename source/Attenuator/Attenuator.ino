@@ -155,9 +155,9 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   #if defined(__XTENSA__)
     // ESP32
-    ledcSetup(PWM_CHANNEL, 5000, 8);
-    ledcAttachPin(VIBRATION_PIN, PWM_CHANNEL);
-    //ledcAttach(VIBRATION_PIN, 5000, 8); // Combined method for arduino-esp32 v3.x board library
+    //ledcSetup(PWM_CHANNEL, 5000, 8);
+    //ledcAttachPin(VIBRATION_PIN, PWM_CHANNEL);
+    ledcAttach(VIBRATION_PIN, 5000, 8); // Combined method for arduino-esp32 v3.x board library
   #else
     // Nano
     pinMode(VIBRATION_PIN, OUTPUT);

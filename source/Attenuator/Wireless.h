@@ -50,7 +50,7 @@
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
 #include "Device.h" // DEVICE_page
-#include "Network.h" // NETWORK_page
+#include "ExtWiFi.h" // NETWORK_page
 #include "Password.h" // PASSWORD_page
 #include "PackSettings.h" // PACK_SETTINGS_page
 #include "WandSettings.h" // WAND_SETTINGS_page
