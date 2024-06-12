@@ -6,6 +6,8 @@ Please consider all items as changeable at your own risk. Deviating from any rec
 
 All user-configurable values reside within their respective `Configuration.h` file. Note that when loading the .ino file to the Arduino IDE this should load the related .h files automatically.
 
+For more information on how to compile and flash a custom binary after modifying `Configuration.h`, please see [COMPILING_FLASHING.md](COMPILING_FLASHING.md) for GPStar hardware or [DIY_FLASHING.md](DIY_FLASHING.md) for DIY Arduino builds.
+
 ## EEPROM Data
 
 For those who customise their settings and flash their boards manually, any saved settings in the Proton Pack or Neutrona Wand EEPROM can override some settings that you manually flash to your Proton Pack or Neutrona Wand's main system memory. Examples include the Cyclotron and Power Cell Delays, the number of LEDs defined for the Power Cell or Cyclotron, overheating options, etc. You can either override the EEPROM settings by setting `b_eeprom = false` in the Proton Pack and or Neutrona Wand Configuration.h file before flashing or clearing all the saved settings in your EEPROM from the EEPROM LED Menu System and EEPROM Configuration Menu System.
@@ -67,6 +69,7 @@ Refer to the [Operation Manual](OPERATION.md) for more information on how to ent
 | uint8&#95;t i&#95;cyclotron&#95;brightness | The default brightness of your Cyclotron LEDs in percentages. 0 = off, 100 = maximum brightness.<br><br>`This can be toggled from the Neutrona Wand sub menu system.` | 100 |
 | uint8&#95;t i&#95;cyclotron&#95;inner&#95;brightness | The default brightness of your Inner Cyclotron LEDs in percentages. 0 = off, 100 = maximum brightness.<br><br>`This can be toggled from the Neutrona Wand sub menu system.` | 100 |
 | bool b&#95;overheat&#95;sync&#95;to&#95;fan | When set to true, smoke from the N-Filter will only operate at the same time the fan is operating. When set to false (default), smoke in the N-Filter will pump earlier than the fan to fill up the N-Filter with some smoke. <br><br>If you have a smoke/fan kit for the N-Filter that operates the smoke and fan at the same time, and you are connected to the smoke N-Filter pin on the pack board, then you would want to set this to true.<br><br>If you have a smoke kit where the smoke and fan are independently connected to the pack board, setting to false is preferred.| false |
+| bool b&#95;inner&#95;cyclotron&#95;led&#95;panel | Enable the optional inner cyclotron led panel. <br><br>`This becomes the first in the chain on the inner cyclotron JST-XH connection on the Proton Pack. This is not the regular standard LEDs but a optional RGB pixel board.` | false |
 | bool b&#95;smoke&#95;enabled | Enable or disable smoke settings. This can be toggled with a switch on PIN 37. <br><br>`This can be toggled from the Neutrona Wand sub menu system.` | true |
 | const bool b&#95;smoke&#95;1&#95;continuous&#95;firing | Set to true to enable smoke 1 during continuous firing events. <br><br>`This can be overridden if b_smoke_enabled is set to false` | true |
 | const bool b&#95;smoke&#95;2&#95;continuous&#95;firing | Set to true to enable smoke 2 during continuous firing events. <br><br>`This can be overridden if b_smoke_enabled is set to false` | true |

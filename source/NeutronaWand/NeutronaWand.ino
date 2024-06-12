@@ -281,17 +281,6 @@ void mainLoop() {
           wandSerialSend(W_SMASH_ERROR_RESTART);
         }
 
-        /*
-        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          if(b_extra_pack_sounds == true) {
-            wandSerialSend(W_WAND_BOOTUP_SOUND);
-          }
-
-          stopEffect(S_WAND_BOOTUP);
-          playEffect(S_WAND_BOOTUP);
-        }
-        */
-
         bargraphClearAlt();
       }
     }
@@ -652,7 +641,6 @@ bool vgModeCheck() {
     if(FIRING_MODE == VG_MODE) {
       LAST_FIRING_MODE = VG_MODE; // Remember that the last firing mode was explicitly VG_MODE.
       FIRING_MODE = CTS_MODE; // At a minimum, set the firing mode to CTS for Mode Original.
-      wandSerialSend(W_CROSS_THE_STREAMS);
     }
     else {
       // Already in CTS or CTS Mix, just remember that for later.
@@ -674,17 +662,14 @@ bool vgModeCheck() {
         case VG_MODE:
         default:
           FIRING_MODE = VG_MODE;
-          wandSerialSend(W_VIDEO_GAME_MODE);
         break;
 
         case CTS_MODE:
           FIRING_MODE = CTS_MODE;
-          wandSerialSend(W_CROSS_THE_STREAMS);
         break;
 
         case CTS_MIX_MODE:
           FIRING_MODE = CTS_MIX_MODE;
-          wandSerialSend(W_CROSS_THE_STREAMS_MIX);
         break;
       }
 
@@ -1646,12 +1631,6 @@ void wandOff() {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          // Proton Pack plays shutdown sound, but standalone Wand needs to play its own
-          if(b_gpstar_benchtest == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_vent.on() == false) {
-            stopEffect(S_WAND_HEATDOWN);
-            playEffect(S_WAND_HEATDOWN);
-          }
-
           if(SYSTEM_MODE == MODE_SUPER_HERO) {
             if(switch_vent.on() == true) {
               if(b_extra_pack_sounds == true) {
@@ -1660,6 +1639,11 @@ void wandOff() {
 
               stopEffect(S_WAND_SHUTDOWN);
               playEffect(S_WAND_SHUTDOWN);
+            }
+            else if(b_gpstar_benchtest) {
+              // Proton Pack plays shutdown sound, but standalone Wand needs to play its own.
+              stopEffect(S_WAND_HEATDOWN);
+              playEffect(S_WAND_HEATDOWN);
             }
           }
           else {
@@ -2342,15 +2326,45 @@ void postActivation() {
     if(b_pack_alarm != true) {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
+          stopEffect(S_WAND_BOOTUP_SHORT);
+          stopEffect(S_WAND_BOOTUP);
+
+          if(b_pack_on) {
+            playEffect(S_WAND_BOOTUP_SHORT);
+
+            if(b_extra_pack_sounds) {
+              wandSerialSend(W_WAND_BOOTUP_SHORT_SOUND);
+            }
+          }
+          else {
+            playEffect(S_WAND_BOOTUP);
+          }
+        break;
+
         case SYSTEM_1989:
           stopEffect(S_WAND_BOOTUP_SHORT);
-          playEffect(S_WAND_BOOTUP_SHORT);
+          stopEffect(S_GB2_WAND_START);
+
+          if(b_pack_on && !switch_vent.on()) {
+            playEffect(S_WAND_BOOTUP_SHORT);
+
+            if(b_extra_pack_sounds) {
+              wandSerialSend(W_WAND_BOOTUP_SHORT_SOUND);
+            }
+          }
+          else {
+            playEffect(S_GB2_WAND_START);
+
+            if(b_extra_pack_sounds && b_pack_on) {
+              wandSerialSend(W_WAND_BOOTUP_1989);
+            }
+          }
         break;
 
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
         default:
-          if(b_gpstar_benchtest == true) {
+          if(b_gpstar_benchtest) {
             stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
           }
@@ -2459,25 +2473,28 @@ void soundIdleStart() {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        if(b_extra_pack_sounds == true && switch_vent.on() && switch_vent.switched()) {
-          wandSerialSend(W_WAND_BOOTUP_SOUND);
-        }
-
-        if(getNeutronaWandYearMode() == SYSTEM_1989 && b_gpstar_benchtest == true) {
-          stopEffect(S_WAND_BOOTUP);
-          stopEffect(S_WAND_BOOTUP_SHORT);
-          stopEffect(S_GB2_WAND_START);
-          playEffect(S_GB2_WAND_START);
-        }
-        else if(b_all_switch_activation == true) {
-          stopEffect(S_WAND_BOOTUP);
-          stopEffect(S_WAND_BOOTUP_SHORT);
-          playEffect(S_WAND_BOOTUP_SHORT);
+        if(b_all_switch_activation) {
+          // Do nothing since sounds were already handled in postActivation();
         }
         else {
           stopEffect(S_WAND_BOOTUP);
           stopEffect(S_WAND_BOOTUP_SHORT);
-          playEffect(S_WAND_BOOTUP);
+
+          if(getNeutronaWandYearMode() == SYSTEM_1989) {
+            stopEffect(S_GB2_WAND_START);
+            playEffect(S_GB2_WAND_START);
+
+            if(b_extra_pack_sounds) {
+              wandSerialSend(W_WAND_BOOTUP_1989);
+            }
+          }
+          else {
+            playEffect(S_WAND_BOOTUP);
+
+            if(b_extra_pack_sounds) {
+              wandSerialSend(W_WAND_BOOTUP_SOUND);
+            }
+          }
         }
 
         soundIdleLoop(true);
@@ -2828,7 +2845,7 @@ void modeFireStartSounds() {
         case 5:
           switch(getSystemYearMode()) {
             case SYSTEM_1989:
-              playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
+              playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects, false, 0, false);
             break;
 
             case SYSTEM_1984:
@@ -2857,12 +2874,7 @@ void modeFireStartSounds() {
           if(b_firing_intensify == true) {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
-            if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
-            }
-            else {
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
-            }
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
           }
           else {
             b_sound_firing_intensify_trigger = false;
@@ -3574,34 +3586,6 @@ void modeFiring() {
   switch(STREAM_MODE) {
     case PROTON:
     default:
-      /*// Shift the stream from red to orange on higher power levels.
-      switch(i_power_level) {
-        case 1:
-        default:
-          c_temp_start = C_RED;
-          c_temp_effect = C_BLUE;
-        break;
-
-        case 2:
-          c_temp_start = C_RED2;
-          c_temp_effect = C_BLUE;
-        break;
-
-        case 3:
-          c_temp_start = C_RED3;
-          c_temp_effect = C_MID_BLUE;
-        break;
-
-        case 4:
-          c_temp_start = C_RED4;
-          c_temp_effect = C_MID_BLUE;
-        break;
-
-        case 5:
-          c_temp_start = C_RED5;
-          c_temp_effect = C_LIGHT_BLUE;
-        break;
-      }*/
       if(b_firing_cross_streams == true) {
         if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
           c_temp_start = C_CHARTREUSE;
@@ -3610,6 +3594,36 @@ void modeFiring() {
         else {
           c_temp_start = C_WHITE;
           c_temp_effect = C_YELLOW;
+        }
+      }
+      else if(getSystemYearMode() == SYSTEM_1989) {
+        // Shift the stream from orange to red on higher power levels.
+        switch(i_power_level) {
+          case 1:
+          default:
+            c_temp_start = C_RED5;
+            c_temp_effect = C_LIGHT_BLUE;
+          break;
+
+          case 2:
+            c_temp_start = C_RED4;
+            c_temp_effect = C_MID_BLUE;
+          break;
+
+          case 3:
+            c_temp_start = C_RED3;
+            c_temp_effect = C_MID_BLUE;
+          break;
+
+          case 4:
+            c_temp_start = C_RED2;
+            c_temp_effect = C_BLUE;
+          break;
+
+          case 5:
+            c_temp_start = C_RED;
+            c_temp_effect = C_BLUE;
+          break;
         }
       }
       else {
@@ -4591,6 +4605,31 @@ void fireStreamEffect(CRGB c_colour) {
                   //barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 2])] = c_colour;
                 }
               }
+              else if(getSystemYearMode() == SYSTEM_1989) {
+                // Shift the stream from orange to red on higher power levels.
+                switch(i_power_level) {
+                  case 1:
+                  default:
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 2:
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 3:
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 4:
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 5:
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+                  break;
+                }
+              }
               else {
                 // Shift the stream from red to orange on higher power levels.
                 switch(i_power_level) {
@@ -4890,6 +4929,31 @@ void fireStreamEffect(CRGB c_colour) {
                   barrel_leds[i_barrel_light - 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
                 }
               }
+              else if(getSystemYearMode() == SYSTEM_1989) {
+                // Shift the stream from orange to red on higher power levels.
+                switch(i_power_level) {
+                  case 1:
+                  default:
+                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 2:
+                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 3:
+                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 4:
+                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 5:
+                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+                  break;
+                }
+              }
               else {
                 // Shift the stream from red to orange on higher power levels.
                 switch(i_power_level) {
@@ -5105,6 +5169,31 @@ void fireEffectEnd() {
             c_temp = C_YELLOW;
           }
         }
+        else if(getSystemYearMode() == SYSTEM_1989) {
+          // Shift the stream from orange to red on higher power levels.
+          switch(i_power_level) {
+            case 1:
+            default:
+              c_temp = C_LIGHT_BLUE;
+            break;
+
+            case 2:
+              c_temp = C_MID_BLUE;
+            break;
+
+            case 3:
+              c_temp = C_MID_BLUE;
+            break;
+
+            case 4:
+              c_temp = C_BLUE;
+            break;
+
+            case 5:
+              c_temp = C_BLUE;
+            break;
+          }
+        }
         else {
           // Shift the stream from red to orange on higher power levels.
           switch(i_power_level) {
@@ -5130,28 +5219,6 @@ void fireEffectEnd() {
             break;
           }
         }
-        /*switch(i_power_level) {
-          case 1:
-          default:
-            c_temp = C_BLUE;
-          break;
-
-          case 2:
-            c_temp = C_BLUE;
-          break;
-
-          case 3:
-            c_temp = C_MID_BLUE;
-          break;
-
-          case 4:
-            c_temp = C_MID_BLUE;
-          break;
-
-          case 5:
-            c_temp = C_LIGHT_BLUE;
-          break;
-        }*/
       break;
 
       case SLIME:
@@ -5305,7 +5372,33 @@ void fireEffectEnd() {
             c_temp = C_WHITE;
           }
         }
+        else if(getSystemYearMode() == SYSTEM_1989) {
+          // Shift the stream from orange to red on higher power levels.
+          switch(i_power_level) {
+            case 1:
+            default:
+              c_temp = C_RED5;
+            break;
+
+            case 2:
+              c_temp = C_RED4;
+            break;
+
+            case 3:
+              c_temp = C_RED3;
+            break;
+
+            case 4:
+              c_temp = C_RED2;
+            break;
+
+            case 5:
+              c_temp = C_RED;
+            break;
+          }
+        }
         else {
+          // Shift the stream from red to orange on higher power levels.
           switch(i_power_level) {
             case 1:
             default:

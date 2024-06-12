@@ -1,6 +1,6 @@
 # Proton Pack Setup
 
-This guide begins with some explanations for common items you will encounter during the upgrade process. Note that if the wand electronics will be replaced it will be necessary to upgrade the hose and conductors between the pack and wand. This exercise is left to individual preferences on connectors and style of replacement, though you will need 4 conductors at a minimum (+5V, Ground, and TX/RX for communications.
+This guide begins with some explanations for common items you will encounter during the upgrade process. Note that if the wand electronics will be replaced it will be necessary to upgrade the hose and conductors between the pack and wand. This exercise is left to individual preferences on connectors and style of replacement, though you will need 4 conductors at a minimum (+5V, Ground, and TX/RX for communications).
 
 ## Component Reference
 
@@ -42,7 +42,7 @@ This chart lists only the components in the stock pack which will be reused, whi
 |  |  | Black | GND |  |
 | SW3 | <font color="blue">Blue</font> | <font color="green">Green</font> | SPDT Toggle | Left toggle switch inside the Cyclotron: Turns rumble motor on (up) or off (down)  |
 |  |  | <font color="blue">Blue</font> |  |  |
-| SW4 |  | <font color="green">Green</font> | SPDT Toggle | Right toggle switch inside the cyclotron: Change Cyclotron spin and sound theme between Afterlife/2021 (up) or OG/1984 (down) |
+| SW4 |  | <font color="green">Green</font> | SPDT Toggle | Right toggle switch inside the Cyclotron: Change Cyclotron spin and sound theme between Afterlife/Frozen Empire (up) or 1984/1989 (down) |
 |  |  | <font color="red">Red</font> |  |  |
 | SW6 | <font color="red">Red</font> | <font color="red">Red</font> | VCC | Sensor on the Cyclotron cable, triggers alarm beeps when disconnected |
 |  |  | Black | GND |  |
@@ -54,11 +54,11 @@ This chart lists only the components in the stock pack which will be reused, whi
 You may choose one of two routes for implementing the new Proton Pack controller:
 
 1. A minimal approach which only focuses on reusing the stock connections and hardware (switches, LEDs, motor).
-	- For this approach, reference the tables below and see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance.
+	- For this approach, reference the tables below and see the PDF document for the [Minimal Pack Schematic](extras/PackSchematic-Minimal.pdf) for additional visual guidance.
 	- It is possible to forego replacing the microcontroller in the Hasbro wand and instead use a stock wand. This approach will provide power to the wand but no interactivity between the wand and the pack.
 1. Using all stock hardware as above, but with room for additional features, each of which is considered optional.
 	- This will provide full interaction with the new controller for the Neutrona Wand.
-	- Reference the tables below but also see the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance.
+	- Reference the tables below but also see the PDF document for the [Minimal Pack Schematic](extras/PackSchematic-Minimal.pdf) for additional visual guidance.
 
 **Prototyping and Connections**
 
@@ -81,11 +81,11 @@ Connections from stock JST-XH connectors may be split to maximize use of the sma
 | LED-G# | 2x Green LED for Cyclotron switch plate (OPTIONAL) |
 | LED-MSW | 1x Green LED for mode year switch (OPTIONAL) |
 | LED-VSW | 1x Yellow LED for vibration switch (OPTIONAL) |
-| NEO-CYC | 8 NeoPixel jewels chained together (OPTIONAL) (56 LEDs total) [See Cyclotron Lights](CYCLOTRON.md) |
+| NEO-CYC | 8 NeoPixel jewels chained together (OPTIONAL) (56 LEDs total) See [Cyclotron Lights](CYCLOTRON.md) |
 | SMOKE1 | This is a standard 5V Air/Vacuum pump motor I use. (see below for more info) |
 | SMOKE2 | This is a standard 5V Air/Vacuum pump motor I use. (see below for more info) |
 
-Regarding the smoke effects, I am using [eroll mac joytech vape pen](https://www.joytech.fr/accueil/168-eroll-mac-joytech.html). I hook up with tubing the mini pump which is [linked in the parts lists](BOM.md). One end of the pump creates suction and sucks the smoke in, and the other end of the pump pushes the smoke out. The vape pen itself is activating when suction is applied by the motor. The vape pens are battery powered but come with a usb cable for charging, so I can feed it 5V with a usb cable directly to the pen and not have to rely on the battery it has in it. View [this guide for more information](SMOKE.md) on optional smoke effects.
+Regarding the smoke effects, I am using [eroll mac joytech vape pen](https://www.joytech.fr/accueil/168-eroll-mac-joytech.html). I hook up with tubing the mini pump which is linked in the [parts list](BOM.md). One end of the pump creates suction and sucks the smoke in, and the other end of the pump pushes the smoke out. The vape pen itself is activating when suction is applied by the motor. The vape pens are battery powered but come with a USB cable for charging, so I can feed it 5V with a USB cable directly to the pen and not have to rely on the battery it has in it. View the [Smoke Kit Guide](SMOKE.md) for more information on optional smoke effects.
 
 When the pump is controlled with the transistor/diode setup as in the diagrams, it is the only device which draws power from the 5V rail. **CAUTION: If you implement your own smoke solution using a different design, test your setup independent of the described circuit and with adequate measurement tools to ensure you will not draw power through the Arduino!** Most designs which use a vape pen (cartomizer) and mini air pump require ~3.6V to run correctly, and while less than the 5V supplied to the circuit below some solutions can require nearly 1 Amp of current to run these devices together. This can also overwhelm the 2N2222 transistor used in this schematic.
 
@@ -95,8 +95,8 @@ By comparison, the current required for a small fan or the vibration motor are p
 |---|---|
 | BAT (+) | Positive 5V from your power source. |
 | BAT (-) | Ground from your 5V power source. |
-| WAND (+) | Runs to your wand (5V) + power rail [on the ¼ board](https://www.adafruit.com/product/1608) (see [wand section](WAND.md)) |
-| WAND (-) | Runs to your wand ground rail on the ¼ board (see [Wand Setup](WAND.md)) |
+| WAND (+) | Runs to your wand (5V) + power rail on the ¼ board (see [DIY Wand Guide](WAND.md)) |
+| WAND (-) | Runs to your wand ground rail on the ¼ board (see [DIY Wand Guide](WAND.md)) |
 
 ### Protoboard Layout
 
@@ -163,17 +163,17 @@ When you see a letter or code in a cells above, it references where component ne
 
 	- Components will span rows or across the mid-gap in the board to allow one or more connections at each end. Note the arrows which will indicate the orientation (vertical or horizontal) for these items and which spaces they will span. Connections to the board will only be noted in designated spots.
 
-		- Example #1: In E8 you have one end of 470ohm resistor. You need to put the other end of this resistor onto F8 on the board. Resistors do not have polarity and so either end can be placed into either of the marked spaces.
+		- Example #1: In E8 is one end of a 470ohm resistor. You need to put the other end of this resistor onto F8 on the board. Resistors do not have polarity and so either end can be placed into either of the marked spaces.
 
-		- Example #2: In H16 you have one end of a 1n4001 diode. You need to then put the STRIPED end of the diode to H13 on the board as indicated with the (s). Diodes have a polarity which affects the flow of current, so pay close attention to these markings.
+		- Example #2: In H16 is one end of a 1N4001 diode. You need to then put the STRIPED end of the diode to H13 on the board as indicated with the (s). Diodes have a polarity which affects the flow of current, so pay close attention to these markings.
 
-		- Example #3: In C29 is one end of a 330 resistor, and the other end runs to vertically C26. This is indicated by the ↕ which shows the direction of the component. The symbol ↔ here is used to show an item is oriented horizontally.
+		- Example #3: In C29 is one end of a 330ohm resistor, and the other end runs vertically to C26. This is indicated by the ↕ which shows the direction of the component. The symbol ↔ here is used to show an item is oriented horizontally.
 
 - **Spaces leading with "PIN" indicates an Arduino connection.**
 
 	- A length of wire (to be determined by the placement of the final switch, LED, or other component) must be soldered to the board at the designated spot and connected to the Arduino Mega at the noted pin.
 
-		- Example #1: G10 says PIN 53. You need to run a wire from this point to PIN 53 to the Arduino Mega. (See chart below protoboard photo.)
+		- Example #1: G8 says PIN 53. You need to run a wire from this point to PIN 53 to the Arduino Mega. (See chart below protoboard photo.)
 
 ## Additional Connections to the Arduino MEGA
 

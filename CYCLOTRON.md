@@ -8,7 +8,7 @@ The stock lights in the HasLab pack only supplies 12 addressable LEDs which are 
 
 Regardless of solution you will need to split apart the Cyclotron Lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.
 
-## Frutto Technology 5-LED Replacements
+## Frutto Technology Cyclotron Lid Lights
 
 ### Installation Guide Video
 
@@ -40,7 +40,7 @@ Reassemble the Cyclotron Lid using low-profile machine screws. The new LEDs shou
 [Installation Video](https://www.youtube.com/watch?v=S4SVeivRyuc) (YouTube)
 [![Installation Video](https://img.youtube.com/vi/S4SVeivRyuc/maxresdefault.jpg)](https://www.youtube.com/watch?v=S4SVeivRyuc)
 
-### 40-LED Neopixel Ring
+### 40-LED Neopixel Ring (Deprecated)
 
 This approach simply adds the lights atop the old circuit board and LEDs between the outer and inner layers of the Cyclotron Lid. Print the [Cyclotron Ring Diffuser](stl/pack/Cyclotron_Ring_Diffuser.stl) to help orient the ring and keep it positioned behind each lens. The pixel opposite the soldered connections should be number 1 and should be made the dead center of the top-right lens. See below for an illustration of this orientation and use of the diffuser ring.
 
@@ -53,9 +53,19 @@ To improve the fit of the new ring, it is recommended to use a Dremel with a san
 [Demonstration Video by JustinDustin](https://www.youtube.com/watch?v=kXAhU2Zis18) (YouTube)
 [![Haslab Proton Pack 40 LED Neopixel Ring](https://img.youtube.com/vi/kXAhU2Zis18/maxresdefault.jpg)](https://www.youtube.com/watch?v=kXAhU2Zis18)
 
+Note: This approach is considered deprecated for the cyclotron lid as the 5-LED lid lights provide the same density, while the new 9-LED lid lights provide a much smoother transition. But for users who have implemented this the solution is still supported in software.
+
 ## Light Switch Panel (Optional)
 
-There is a included STL file that you can 3D Print to replace the Cyclotron switch plate. You can add 5mm LEDs into the holes. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. You can use cliplites to hold the LEDs in place. Refer to the parts list on where to source them.
+There is a included STL file that you can 3D Print to replace the Cyclotron switch plate. You can add 5mm LEDs into the holes. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. You can use cliplites to hold the LEDs in place. Refer to the [parts list](BOM.md) on where to source them.
+
+If using the Frutto 8-LED PCB for RGB lighting, you will want to substitute [8 clear CLF-280-CTP cliplites](https://www.digikey.com/en/products/detail/visual-communications-company-vcc/CLF-280-CTP/4515438). This panel will sit between the pack controller and the inner cyclotron "cake" lights.
+
+For reference, if using all of the optional parts which use addressable LEDs this is the correct order for installation:
+
+`Pack Controller -> Inner LED Panel PCB -> Inner Cake Ring -> Cavity Lights`
+
+Connections should be made to the side opposite the LEDs using JST-PH connectors. Plug J1 will be connected to the pack controller's "NEO-C" (aka. "Inner Cyclotron") port. This will be a straight-through cable for Data/VCC/GND. The inner cake lights should be attached to Plug J2 also using the pattern of Data/VCC/GND. Note that the order of wiring on the connection may need to be adjusted to match the LED ring light in use.
 
 ![Panel with Cliplites](images/SwitchPanel.jpg)
 

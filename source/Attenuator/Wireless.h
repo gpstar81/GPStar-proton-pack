@@ -319,30 +319,6 @@ bool startExternalWifi() {
   return false; // If we reach this point the connection has failed.
 }
 
-void OnWiFiEvent(WiFiEvent_t event) {
-  // Useful notifications for WiFi events.
-  switch (event) {
-    case SYSTEM_EVENT_STA_CONNECTED:
-      debug(F("Connected to External WiFi Network"));
-    break;
-    case SYSTEM_EVENT_STA_DISCONNECTED:
-      debug(F("External WiFi Network: Disconnected/Unavailable"));
-    break;
-    case SYSTEM_EVENT_AP_START:
-      debug(F("Soft AP started"));
-    break;
-    case SYSTEM_EVENT_AP_STACONNECTED:
-      debug(F("Station connected to softAP"));
-    break;
-    case SYSTEM_EVENT_AP_STADISCONNECTED:
-      debug(F("Station disconnected from softAP"));
-    break;
-    default:
-      // No-op for any other status.
-    break;
-  }
-}
-
 bool startWiFi() {
   bool b_ext_wifi_started = false;
 
@@ -356,9 +332,6 @@ bool startWiFi() {
 
   // Disable WiFi power save mode (via the esp_wifi_set_ps function).
   WiFi.setSleep(false);
-
-  // Assign an event handler to deal with changes in WiFi status.
-  WiFi.onEvent(OnWiFiEvent);
 
   // Attempt connection to an external (preferred) WiFi as a client.
   b_ext_wifi_started = startExternalWifi();

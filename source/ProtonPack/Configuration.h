@@ -331,6 +331,12 @@ bool b_overheat_sync_to_fan = false;
 bool b_smoke_enabled = true;
 
 /*
+ * Enable or disable the inner cyclotron LED panel board.
+ * When enabled, this becomes the first in the chain from the Inner Cyclotron JST-XH connector from the Proton Pack.
+ */
+bool b_inner_cyclotron_led_panel = false;
+
+/*
  * ****************** ADVANCED USER CONFIGURABLE SMOKE SETTINGS BELOW ************************
  * The default settings work very well. Changing these can produce strange timing effects.
  */

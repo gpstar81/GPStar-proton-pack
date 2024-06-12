@@ -21,19 +21,21 @@ Please refer to the table below for a list of devices and their supported softwa
 
 ## Prerequisites
 
-Download and install the Arduino IDE 2.x or higher. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
+Download and install the Arduino IDE. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
 
-[Arduino IDE 2.x](https://www.arduino.cc/en/software)
+[Arduino IDE](https://www.arduino.cc/en/software)
 
-The following libraries are required to be installed. All but the MillisDelay library can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
+The following libraries are required to be installed. All can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
 
+- **CRC32** by Christopher Baker
+- **digitalWriteFast** by Watterott and Armin Joachimsmeyer
 - **ezButton** by ArduinoGetStarted.com
 - **FastLED** by Daniel Garcia
 - **Ramp** by Sylvain Garnavault
 - **SafeString** by Matthew Ford
 - **SerialTransfer** by PowerBroker2
-
-For reference, the FQBN for builds is "arduino:avr:mega" for the GPStar PCB's while "arduino:avr:nano" would be used for a Nano controller as part of the DIY builds.
+- **Simple ht16k33 Library** by Ipaseen
+- **Switch** by Albert van Dalen
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 
@@ -41,14 +43,14 @@ If you are flashing updates to your existing setup, make sure that both your Pro
 
 ### Important information for older DIY GPStar Proton Pack builds
 
-If you are compiling the code to upload to an Arduino Mega with the original GPStar home built instructions. You want to use disabled GPSTAR&#95;PROTON&#95;PACK&#95;PCB which can be found at the very bottom of the `Configuration.h` of the Proton Pack.
+If you are compiling the code to upload to an Arduino Mega with the original GPStar home built instructions, you need to disable GPSTAR&#95;PROTON&#95;PACK&#95;PCB which can be found at the very bottom of the `Configuration.h` of the Proton Pack.
 
 Example: `//#define GPSTAR_PROTON_PACK_PCB`
 
 This is a legacy flag, for people who originally put the Cyclotron Lid detection on pin 51 and not pin 43.
 
 - If your Cyclotron Lid detection is on pin 51, then comment/disable this define.
-- If your home built GPStar Proton Pack was built with pin 43 for the Cyclotron Lid detection, then you can leave this enabled.
+- If your home built GPStar Proton Pack was built with pin 43 for the Cyclotron Lid detection, leave this enabled/uncommented.
 
 ## For compiling code on the Arduino Nano:
 

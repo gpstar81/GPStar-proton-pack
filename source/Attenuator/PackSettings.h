@@ -197,6 +197,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
+      <b class="labelSwitch">Use Frutto RGB LED Panel:</b>
+      <label class="switch">
+        <input id="ledCycInnerPanel" name="ledCycInnerPanel" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
       <b class="labelSwitch">Swap Red/Green LEDs (GRB):</b>
       <label class="switch">
         <input id="ledCycCakeGRB" name="ledCycCakeGRB" type="checkbox">
@@ -366,6 +373,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             getEl("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 12
             getEl("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360]); // Default: Red
             getEl("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
+            getEl("ledCycInnerPanel").checked = settings.ledCycInnerPanel ? true: false;
             getEl("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true: false;
             getEl("ledCycCavCount").value = settings.ledCycCavCount || 0; // Default: 0
             getEl("ledCycCavCountOut").innerHTML = getEl("ledCycCavCount").value;
@@ -413,6 +421,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycCakeCount: parseInt(getEl("ledCycCakeCount").value || 35, 10),
         ledCycCakeHue: convertRange(parseInt(getEl("ledCycCakeHue").value || 360, 10), [0,360], [1,254]),
         ledCycCakeSat: convertRange(parseInt(getEl("ledCycCakeSat").value || 100, 10), [0,100], [1,254]),
+        ledCycInnerPanel: getEl("ledCycInnerPanel").checked ? 1 : 0,
         ledCycCakeGRB: getEl("ledCycCakeGRB").checked ? 1 : 0,
         ledCycCavCount: parseInt(getEl("ledCycCavCount").value || 0, 10),
 

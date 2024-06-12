@@ -589,13 +589,13 @@ void checkPack() {
             case 1:
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
-              vgModeCheck(); // Re-check VG/CTS mode.
             break;
             case 2:
               SYSTEM_MODE = MODE_ORIGINAL;
-              vgModeCheck(); // Assert CTS mode.
             break;
           }
+
+          vgModeCheck(); // Re-check VG/CTS mode.
 
           // Set whether the switch under the ion arm is on or off.
           switch(packSync.ionArmSwitch) {
@@ -894,6 +894,18 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       if(WAND_STATUS != MODE_OFF) {
         quickVentFinished();
       }
+    break;
+
+    case P_TOGGLE_INNER_CYCLOTRON_PANEL_ENABLED:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+    break;
+
+    case P_TOGGLE_INNER_CYCLOTRON_PANEL_DISABLED:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
     break;
 
     case P_MODE_ORIGINAL_RED_SWITCH_ON:

@@ -41,9 +41,9 @@ void saveLEDEEPROM();
 void updateCRCEEPROM();
 uint32_t eepromCRC(void);
 void resetCyclotronLEDs();
+void resetInnerCyclotronLEDs();
 void resetContinuousSmoke();
 void updateProtonPackLEDCounts();
-bool vgModeCheck();
 
 /*
  * General EEPROM Variables
@@ -65,6 +65,7 @@ struct objLEDEEPROM {
   uint8_t cyclotron_spectral_saturation_custom;
   uint8_t cyclotron_inner_spectral_saturation_custom;
   uint8_t cyclotron_cavity_count;
+  uint8_t inner_cyclotron_led_panel;
 };
 
 /*
@@ -134,7 +135,6 @@ void readEEPROM() {
 
     if(obj_eeprom.cyclotron_count > 0 && obj_eeprom.cyclotron_count != 255) {
       i_cyclotron_leds = obj_eeprom.cyclotron_count;
-      resetCyclotronLEDs();
     }
 
     if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {
@@ -162,6 +162,15 @@ void readEEPROM() {
 
     if(obj_eeprom.cyclotron_cavity_count > 0 && obj_eeprom.cyclotron_cavity_count != 255) {
       i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+    }
+
+    if(obj_eeprom.inner_cyclotron_led_panel > 0 && obj_eeprom.inner_cyclotron_led_panel != 255) {
+      if(obj_eeprom.inner_cyclotron_led_panel > 1) {
+        b_inner_cyclotron_led_panel = true;
+      }
+      else {
+        b_inner_cyclotron_led_panel = false;
+      }
     }
 
     if(obj_eeprom.grb_inner_cyclotron > 0 && obj_eeprom.grb_inner_cyclotron != 255) {
@@ -198,6 +207,8 @@ void readEEPROM() {
     }
 
     // Update the LED counts for the Proton Pack.
+    resetCyclotronLEDs();
+    resetInnerCyclotronLEDs();
     updateProtonPackLEDCounts();
 
     // Read our configuration object from the EEPROM.
@@ -307,8 +318,6 @@ void readEEPROM() {
       else {
         SYSTEM_MODE = MODE_SUPER_HERO;
       }
-
-      vgModeCheck();
     }
 
     if(obj_config_eeprom.vg_powercell > 0 && obj_config_eeprom.vg_powercell != 255) {
@@ -483,11 +492,18 @@ void saveLEDEEPROM() {
   // Cyclotron LEDs
   // Inner Cyclotron LEDs
   // GRB / RGB Inner Cyclotron toggle flag
+  // Inner Cyclotron LED Panel toggle flag
 
   uint8_t i_grb_cyclotron_cake = 1;
 
   if(b_grb_cyclotron_cake == true) {
     i_grb_cyclotron_cake = 2;
+  }
+
+  uint8_t i_inner_cyclotron_led_panel = 1;
+
+  if(b_inner_cyclotron_led_panel == true) {
+    i_inner_cyclotron_led_panel = 2;
   }
 
   // Write the data to the EEPROM if any of the values have changed.
@@ -502,7 +518,8 @@ void saveLEDEEPROM() {
     i_spectral_powercell_custom_saturation,
     i_spectral_cyclotron_custom_saturation,
     i_spectral_cyclotron_inner_custom_saturation,
-    i_inner_cyclotron_cavity_num_leds
+    i_inner_cyclotron_cavity_num_leds,
+    i_inner_cyclotron_led_panel
   };
 
   // Save and update our object in the EEPROM.

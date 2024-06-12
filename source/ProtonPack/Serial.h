@@ -74,6 +74,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycLidSat;
   uint8_t ledCycLidCenter;
   uint8_t ledCycLidSimRing;
+  uint8_t ledCycInnerPanel;
   uint8_t ledCycCakeCount;
   uint8_t ledCycCakeHue;
   uint8_t ledCycCakeSat;
@@ -328,6 +329,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring;
 
       // Inner Cyclotron
+      packConfig.ledCycInnerPanel = b_inner_cyclotron_led_panel;
       packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
@@ -491,8 +493,6 @@ void checkSerial1() {
               packSerialSend(P_MODE_SUPER_HERO);
               serial1Send(A_MODE_SUPER_HERO);
 
-              vgModeCheck();
-
               // This is only applicable to the Mode Original, so default to off.
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
@@ -503,7 +503,11 @@ void checkSerial1() {
               packSerialSend(P_MODE_ORIGINAL);
               serial1Send(A_MODE_ORIGINAL);
 
-              vgModeCheck();
+              if(!b_wand_connected && STREAM_MODE != PROTON) {
+                // If no wand is connected we need to make sure we're in Proton Stream.
+                STREAM_MODE = PROTON;
+                serial1Send(A_PROTON_MODE);
+              }
 
               if(switch_power.getState() == LOW) {
                 // Tell the Neutrona Wand that power to the Proton Pack is on.
@@ -616,6 +620,7 @@ void checkSerial1() {
           b_cyclotron_simulate_ring = packConfig.ledCycLidSimRing;
 
           // Inner Cyclotron
+          b_inner_cyclotron_led_panel = packConfig.ledCycInnerPanel;
           i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
@@ -632,6 +637,7 @@ void checkSerial1() {
           updateProtonPackLEDCounts();
           resetContinuousSmoke();
           resetCyclotronLEDs();
+          resetInnerCyclotronLEDs();
           resetRampSpeeds();
 
           // Offer some feedback to the user
@@ -1257,6 +1263,9 @@ void doWandSync() {
     break;
   }
 
+  // Update the Inner Cyclotron LEDs if required.
+  cyclotronSwitchLEDUpdate();
+
   // Make sure the pack is fully reset if it is off while a new wand is connected.
   if(b_pack_on != true) {
     b_reset_start_led = false;
@@ -1494,6 +1503,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_WAND_BOOTUP_SOUND:
+      stopEffect(S_WAND_BOOTUP_SHORT);
       stopEffect(S_WAND_BOOTUP);
       playEffect(S_WAND_BOOTUP);
     break;
@@ -1501,6 +1511,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_WAND_BOOTUP_SHORT_SOUND:
       stopEffect(S_WAND_BOOTUP_SHORT);
       playEffect(S_WAND_BOOTUP_SHORT);
+    break;
+
+    case W_WAND_BOOTUP_1989:
+      stopEffect(S_WAND_BOOTUP_SHORT);
+      stopEffect(S_GB2_WAND_START);
+      playEffect(S_GB2_WAND_START);
     break;
 
     case W_AFTERLIFE_WAND_BARREL_EXTEND:
@@ -1669,6 +1685,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_PROTON_MODE);
     break;
 
@@ -1711,6 +1730,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_powercell_updating = true;
         powercellDraw();
       }
+
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
 
       serial1Send(A_SLIME_MODE);
     break;
@@ -1757,6 +1779,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_STASIS_MODE);
     break;
 
@@ -1802,6 +1827,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_MESON_MODE);
     break;
 
@@ -1845,6 +1873,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_powercell_updating = true;
         powercellDraw();
       }
+
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
 
       serial1Send(A_SPECTRAL_MODE);
     break;
@@ -1890,6 +1921,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_HOLIDAY_MODE);
     break;
 
@@ -1934,6 +1968,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1SendData(A_SPECTRAL_CUSTOM_MODE);
     break;
 
@@ -1942,6 +1979,32 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_CLICK);
 
       serial1Send(A_SETTINGS_MODE);
+    break;
+
+    case W_TOGGLE_INNER_CYCLOTRON_PANEL:
+      // Toggle the optional inner cyclotron LED panel board.
+      if(b_inner_cyclotron_led_panel == true) {
+        b_inner_cyclotron_led_panel = false;
+
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+        playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+
+        packSerialSend(P_TOGGLE_INNER_CYCLOTRON_PANEL_DISABLED);
+      }
+      else {
+        b_inner_cyclotron_led_panel = true;
+
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+        playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+
+        packSerialSend(P_TOGGLE_INNER_CYCLOTRON_PANEL_ENABLED);
+      }
+
+      // Reset the LED count for the panel and update the LED counts.
+      resetInnerCyclotronLEDs();
+      updateProtonPackLEDCounts();
     break;
 
     case W_OVERHEATING:
@@ -3206,8 +3269,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           serial1Send(A_MODE_ORIGINAL);
         break;
       }
-
-      vgModeCheck();
     break;
 
     case W_SPECTRAL_LIGHTS_ON:
