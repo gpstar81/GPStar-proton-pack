@@ -340,7 +340,7 @@ void loop() {
               ms_cyclotron.start(0);
             }
             else {
-              ms_cyclotron.start(i_current_ramp_speed);
+              ms_cyclotron.start(i_outer_current_ramp_speed);
             }
           }
 
@@ -583,12 +583,16 @@ void systemPOST() {
     }
 
     if(b_inner_cyclotron_led_panel == true) {
-      if(i >= i_ic_panel_start && i <= i_ic_panel_end) {
+      if(i <= i_ic_panel_end) {
         cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
 
         if(i > i_ic_panel_start) {
           cyclotron_leds[i - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         }
+      }
+
+      if(i > i_ic_panel_end) {
+        cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
       }
     }
 
@@ -1357,19 +1361,19 @@ void resetRampSpeeds() {
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
     case SYSTEM_1989:
-      i_current_ramp_speed = (uint16_t)(i_1984_delay * 1.3);
+      i_outer_current_ramp_speed = (uint16_t)(i_1984_delay * 1.3);
       i_inner_current_ramp_speed = i_inner_ramp_delay;
     break;
 
     case SYSTEM_AFTERLIFE:
     default:
-      i_current_ramp_speed = i_2021_ramp_delay;
+      i_outer_current_ramp_speed = i_2021_ramp_delay;
       i_inner_current_ramp_speed = i_inner_ramp_delay;
     break;
 
     case SYSTEM_FROZEN_EMPIRE:
-      i_current_ramp_speed = (uint16_t)(i_2021_ramp_delay / 2);
-      i_inner_current_ramp_speed = i_inner_ramp_delay / 2;
+      i_outer_current_ramp_speed = (uint16_t)(i_2021_ramp_delay / 1.5);
+      i_inner_current_ramp_speed = i_inner_ramp_delay;
     break;
   }
 }
@@ -2073,7 +2077,7 @@ void cyclotronControl() {
       switch(SYSTEM_YEAR) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+          r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
           r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
 
           r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
@@ -2082,24 +2086,24 @@ void cyclotronControl() {
 
         case SYSTEM_AFTERLIFE:
         default:
-          r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+          r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
           r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
-          r_inner_ramp.go(i_inner_current_ramp_speed);
+          r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
           r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
         break;
 
         case SYSTEM_FROZEN_EMPIRE:
-          r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
-          r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
-          r_inner_ramp.go(i_inner_current_ramp_speed);
-          r_inner_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
+          r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
+          r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 1.5), QUADRATIC_OUT);
+          r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
+          r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUADRATIC_OUT);
         break;
       }
     }
     else if(b_2021_ramp_down_start == true) {
       b_2021_ramp_down_start = false;
 
-      r_2021_ramp.go(i_current_ramp_speed); // Reset the ramp.
+      r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
       r_inner_ramp.go(i_inner_current_ramp_speed); // Reset the Inner Cyclotron ramp.
 
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
@@ -2114,10 +2118,10 @@ void cyclotronControl() {
 
     if(!usingSlimeCyclotron()) {
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        cyclotron1984(i_current_ramp_speed);
+        cyclotron1984(i_outer_current_ramp_speed);
       }
       else {
-        cyclotron2021(i_current_ramp_speed);
+        cyclotron2021(i_outer_current_ramp_speed);
       }
     }
 
@@ -2185,12 +2189,12 @@ void cyclotronFade() {
             case OUTER_CYCLOTRON_LED_MAX:
             case FRUTTO_CYCLOTRON_LED_COUNT:
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-              ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed * 3, CIRCULAR_OUT);
+              ms_cyclotron_led_fade_out[i].go(0, i_outer_current_ramp_speed * 3, CIRCULAR_OUT);
             break;
 
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
-              ms_cyclotron_led_fade_out[i].go(0, i_current_ramp_speed * 2, CIRCULAR_OUT);
+              ms_cyclotron_led_fade_out[i].go(0, i_outer_current_ramp_speed * 2, CIRCULAR_OUT);
             break;
           }
 
@@ -2275,7 +2279,7 @@ void cyclotronFade() {
   }
 }
 
-void cyclotron2021(uint16_t cDelay) {
+void cyclotron2021(uint16_t iRampDelay) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness); // Calculate desired brightness.
 
   if(ms_cyclotron.justFinished()) {
@@ -2286,20 +2290,20 @@ void cyclotron2021(uint16_t cDelay) {
 
       if(r_2021_ramp.isFinished()) {
         b_2021_ramp_up = false;
-        i_current_ramp_speed = cDelay;
+        i_outer_current_ramp_speed = iRampDelay;
 
         if(b_cyclotron_simulate_ring == true) {
           switch(i_cyclotron_leds) {
             case OUTER_CYCLOTRON_LED_MAX:
-              ms_cyclotron.start(i_current_ramp_speed);
+              ms_cyclotron.start(i_outer_current_ramp_speed);
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
               if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_current_ramp_speed);
+                ms_cyclotron.start(i_outer_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed * 9);
+                ms_cyclotron.start(i_outer_current_ramp_speed * 9);
               }
             break;
 
@@ -2307,65 +2311,65 @@ void cyclotron2021(uint16_t cDelay) {
             case FRUTTO_CYCLOTRON_LED_COUNT:
             default:
               if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_current_ramp_speed);
+                ms_cyclotron.start(i_outer_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed - i_2021_delay);
+                ms_cyclotron.start(i_outer_current_ramp_speed - i_2021_delay);
               }
             break;
           }
         }
         else {
-          ms_cyclotron.start(i_current_ramp_speed);
+          ms_cyclotron.start(i_outer_current_ramp_speed);
         }
 
         i_vibration_level = i_vibration_idle_level_2021;
       }
       else {
-        i_current_ramp_speed = r_2021_ramp.update();
+        i_outer_current_ramp_speed = r_2021_ramp.update();
 
         if(b_cyclotron_simulate_ring == true) {
           switch(i_cyclotron_leds) {
             case OUTER_CYCLOTRON_LED_MAX:
-              ms_cyclotron.start(i_current_ramp_speed);
+              ms_cyclotron.start(i_outer_current_ramp_speed);
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
               if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_current_ramp_speed);
+                ms_cyclotron.start(i_outer_current_ramp_speed);
               }
               else {
-                if(i_current_ramp_speed * 9 > 1200) {
-                  ms_cyclotron.start(i_current_ramp_speed * 6);
+                if(i_outer_current_ramp_speed * 9 > 1200) {
+                  ms_cyclotron.start(i_outer_current_ramp_speed * 6);
                 }
                 else {
-                  ms_cyclotron.start(i_current_ramp_speed * 9);
+                  ms_cyclotron.start(i_outer_current_ramp_speed * 9);
                 }
               }
             break;
 
             case FRUTTO_CYCLOTRON_LED_COUNT:
               if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_current_ramp_speed);
+                ms_cyclotron.start(i_outer_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed - i_2021_delay);
+                ms_cyclotron.start(i_outer_current_ramp_speed - i_2021_delay);
               }
             break;
 
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
               if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_current_ramp_speed);
+                ms_cyclotron.start(i_outer_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed - i_2021_delay);
+                ms_cyclotron.start(i_outer_current_ramp_speed - i_2021_delay);
               }
             break;
           }
         }
         else {
-          ms_cyclotron.start(i_current_ramp_speed);
+          ms_cyclotron.start(i_outer_current_ramp_speed);
         }
 
         i_vibration_level = i_vibration_level + 1;
@@ -2386,51 +2390,51 @@ void cyclotron2021(uint16_t cDelay) {
         b_2021_ramp_down = false;
       }
       else {
-        i_current_ramp_speed = r_2021_ramp.update();
+        i_outer_current_ramp_speed = r_2021_ramp.update();
 
         if(b_cyclotron_simulate_ring == true) {
           switch(i_cyclotron_leds) {
             case OUTER_CYCLOTRON_LED_MAX:
-              ms_cyclotron.start(i_current_ramp_speed);
+              ms_cyclotron.start(i_outer_current_ramp_speed);
             break;
 
             case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
               if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_current_ramp_speed);
+                ms_cyclotron.start(i_outer_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed * 9);
+                ms_cyclotron.start(i_outer_current_ramp_speed * 9);
               }
             break;
 
             case FRUTTO_CYCLOTRON_LED_COUNT:
               if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_current_ramp_speed);
+                ms_cyclotron.start(i_outer_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed - i_2021_delay);
+                ms_cyclotron.start(i_outer_current_ramp_speed - i_2021_delay);
               }
             break;
 
             case HASLAB_CYCLOTRON_LED_COUNT:
             default:
               if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_current_ramp_speed);
+                ms_cyclotron.start(i_outer_current_ramp_speed);
               }
               else {
-                ms_cyclotron.start(i_current_ramp_speed - i_2021_delay);
+                ms_cyclotron.start(i_outer_current_ramp_speed - i_2021_delay);
               }
             break;
           }
         }
         else {
-          ms_cyclotron.start(i_current_ramp_speed);
+          ms_cyclotron.start(i_outer_current_ramp_speed);
         }
 
-        if(i_current_ramp_speed > 40 && i_vibration_level > i_vibration_lowest_level + 20) {
+        if(i_outer_current_ramp_speed > 40 && i_vibration_level > i_vibration_lowest_level + 20) {
           i_vibration_level = i_vibration_level - 1;
         }
-        else if(i_current_ramp_speed > 100 && i_vibration_level > i_vibration_lowest_level) {
+        else if(i_outer_current_ramp_speed > 100 && i_vibration_level > i_vibration_lowest_level) {
           i_vibration_level = i_vibration_level - 1;
         }
 
@@ -2440,19 +2444,19 @@ void cyclotron2021(uint16_t cDelay) {
       }
     }
     else {
-      i_current_ramp_speed = cDelay;
+      i_outer_current_ramp_speed = iRampDelay;
 
-      uint16_t t_cDelay = cDelay;
+      uint16_t t_iRampDelay = iRampDelay;
 
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
         case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
           if(i_cyclotron_multiplier > 1) {
-            if(t_cDelay - i_cyclotron_multiplier < t_cDelay) {
-              t_cDelay = t_cDelay - i_cyclotron_multiplier;
+            if(t_iRampDelay - i_cyclotron_multiplier < t_iRampDelay) {
+              t_iRampDelay = t_iRampDelay - i_cyclotron_multiplier;
             }
             else {
-              t_cDelay = 0;
+              t_iRampDelay = 0;
             }
 
             if(b_cyclotron_lid_on == true) {
@@ -2477,32 +2481,32 @@ void cyclotron2021(uint16_t cDelay) {
           i_fast_led_delay = FAST_LED_UPDATE_MS;
 
           if(i_cyclotron_multiplier > 1) {
-            if(t_cDelay - i_cyclotron_multiplier < t_cDelay) {
-              t_cDelay = t_cDelay - i_cyclotron_multiplier;
+            if(t_iRampDelay - i_cyclotron_multiplier < t_iRampDelay) {
+              t_iRampDelay = t_iRampDelay - i_cyclotron_multiplier;
             }
             else {
-              t_cDelay = 0;
+              t_iRampDelay = 0;
             }
           }
         break;
       }
 
-      if(t_cDelay < 1) {
-        t_cDelay = 1;
+      if(t_iRampDelay < 1) {
+        t_iRampDelay = 1;
       }
 
       if(b_cyclotron_simulate_ring == true) {
         switch(i_cyclotron_leds) {
           case OUTER_CYCLOTRON_LED_MAX:
-            ms_cyclotron.start(t_cDelay);
+            ms_cyclotron.start(t_iRampDelay);
           break;
 
           case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
             if(i_cyclotron_matrix_led > 0) {
-              ms_cyclotron.start(t_cDelay);
+              ms_cyclotron.start(t_iRampDelay);
             }
-            else if(i_current_ramp_speed > i_2021_delay && t_cDelay - i_2021_delay < t_cDelay) {
-              ms_cyclotron.start((t_cDelay - i_2021_delay) * 9); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
+            else if(i_outer_current_ramp_speed > i_2021_delay && t_iRampDelay - i_2021_delay < t_iRampDelay) {
+              ms_cyclotron.start((t_iRampDelay - i_2021_delay) * 9); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
             }
             else {
               ms_cyclotron.start(0);
@@ -2511,10 +2515,10 @@ void cyclotron2021(uint16_t cDelay) {
 
           case FRUTTO_CYCLOTRON_LED_COUNT:
             if(i_cyclotron_matrix_led > 0) {
-              ms_cyclotron.start(t_cDelay);
+              ms_cyclotron.start(t_iRampDelay);
             }
-            else if(i_current_ramp_speed > i_2021_delay && t_cDelay - i_2021_delay < t_cDelay) {
-              ms_cyclotron.start(t_cDelay - i_2021_delay); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
+            else if(i_outer_current_ramp_speed > i_2021_delay && t_iRampDelay - i_2021_delay < t_iRampDelay) {
+              ms_cyclotron.start(t_iRampDelay - i_2021_delay); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
             }
             else {
               ms_cyclotron.start(0);
@@ -2524,10 +2528,10 @@ void cyclotron2021(uint16_t cDelay) {
           case HASLAB_CYCLOTRON_LED_COUNT:
           default:
             if(i_cyclotron_matrix_led > 0) {
-              ms_cyclotron.start(t_cDelay);
+              ms_cyclotron.start(t_iRampDelay);
             }
-            else if(i_current_ramp_speed > i_2021_delay && t_cDelay - i_2021_delay < t_cDelay) {
-              ms_cyclotron.start(t_cDelay - i_2021_delay); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
+            else if(i_outer_current_ramp_speed > i_2021_delay && t_iRampDelay - i_2021_delay < t_iRampDelay) {
+              ms_cyclotron.start(t_iRampDelay - i_2021_delay); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
             }
             else {
               ms_cyclotron.start(0);
@@ -2536,7 +2540,7 @@ void cyclotron2021(uint16_t cDelay) {
         }
       }
       else {
-        ms_cyclotron.start(t_cDelay);
+        ms_cyclotron.start(t_iRampDelay);
       }
     }
 
@@ -2547,21 +2551,21 @@ void cyclotron2021(uint16_t cDelay) {
     switch(i_cyclotron_leds) {
       case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
-          if(cDelay - i_cyclotron_multiplier < cDelay) {
-            cDelay = cDelay - i_cyclotron_multiplier;
+          if(iRampDelay - i_cyclotron_multiplier < iRampDelay) {
+            iRampDelay = iRampDelay - i_cyclotron_multiplier;
           }
           else {
-            cDelay = 0;
+            iRampDelay = 0;
           }
         }
         else {
-          cDelay = cDelay / i_cyclotron_multiplier;
+          iRampDelay = iRampDelay / i_cyclotron_multiplier;
 
           if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
-            cDelay = cDelay * 1;
+            iRampDelay = iRampDelay * 1;
           }
           else {
-            cDelay = cDelay * 3;
+            iRampDelay = iRampDelay * 3;
           }
         }
       break;
@@ -2569,46 +2573,46 @@ void cyclotron2021(uint16_t cDelay) {
       case OUTER_CYCLOTRON_LED_MAX:
       case FRUTTO_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
-          if(cDelay - i_cyclotron_multiplier < cDelay) {
-            cDelay = cDelay - i_cyclotron_multiplier;
+          if(iRampDelay - i_cyclotron_multiplier < iRampDelay) {
+            iRampDelay = iRampDelay - i_cyclotron_multiplier;
           }
           else {
-            cDelay = 0;
+            iRampDelay = 0;
           }
         }
         else {
-          cDelay = cDelay / i_cyclotron_multiplier;
+          iRampDelay = iRampDelay / i_cyclotron_multiplier;
 
-          cDelay = cDelay * 3;
+          iRampDelay = iRampDelay * 3;
         }
       break;
 
       case HASLAB_CYCLOTRON_LED_COUNT:
       default:
         if(i_cyclotron_multiplier > 1) {
-          if(cDelay - i_cyclotron_multiplier < cDelay) {
-            cDelay = cDelay - i_cyclotron_multiplier;
+          if(iRampDelay - i_cyclotron_multiplier < iRampDelay) {
+            iRampDelay = iRampDelay - i_cyclotron_multiplier;
           }
           else {
-            cDelay = 0;
+            iRampDelay = 0;
           }
         }
         else {
-          cDelay = cDelay / i_cyclotron_multiplier;
+          iRampDelay = iRampDelay / i_cyclotron_multiplier;
 
-          cDelay = cDelay * 2;
+          iRampDelay = iRampDelay * 2;
         }
       break;
     }
 
-    if(cDelay < 1) {
-      cDelay = 1;
+    if(iRampDelay < 1) {
+      iRampDelay = 1;
     }
 
     if(b_clockwise == true) {
       if((i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
         ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, cDelay, CIRCULAR_IN);
+        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, iRampDelay, CIRCULAR_IN);
       }
 
       i_led_cyclotron++;
@@ -2617,7 +2621,7 @@ void cyclotron2021(uint16_t cDelay) {
         if(i_led_cyclotron > (i_powercell_leds + OUTER_CYCLOTRON_LED_MAX + i_nfilter_jewel_leds) - i_nfilter_jewel_leds - 1) {
           i_led_cyclotron = i_cyclotron_led_start;
         }
-        else if(i_current_ramp_speed <= i_2021_delay) {
+        else if(i_outer_current_ramp_speed <= i_2021_delay) {
           switch(i_cyclotron_leds) {
             case OUTER_CYCLOTRON_LED_MAX:
               // Do nothing.
@@ -2650,7 +2654,7 @@ void cyclotron2021(uint16_t cDelay) {
     else {
       if((i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
         ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, cDelay, CIRCULAR_IN);
+        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, iRampDelay, CIRCULAR_IN);
       }
 
       i_led_cyclotron--;
@@ -2659,7 +2663,7 @@ void cyclotron2021(uint16_t cDelay) {
         if(i_led_cyclotron < i_cyclotron_led_start) {
           i_led_cyclotron = (i_powercell_leds + OUTER_CYCLOTRON_LED_MAX + i_nfilter_jewel_leds) - i_nfilter_jewel_leds - 1;
         }
-        else if(i_current_ramp_speed <= i_2021_delay) {
+        else if(i_outer_current_ramp_speed <= i_2021_delay) {
           switch(i_cyclotron_leds) {
             case OUTER_CYCLOTRON_LED_MAX:
               // Do nothing.
@@ -2692,11 +2696,11 @@ void cyclotron2021(uint16_t cDelay) {
   }
 }
 
-void cyclotron1984(uint16_t cDelay) {
+void cyclotron1984(uint16_t iRampDelay) {
   i_fast_led_delay = FAST_LED_UPDATE_MS;
 
   if(ms_cyclotron.justFinished()) {
-    cDelay = cDelay / i_cyclotron_multiplier;
+    iRampDelay = iRampDelay / i_cyclotron_multiplier;
 
     if(b_1984_led_start != true) {
       cyclotron84LightOff(i_led_cyclotron);
@@ -2719,15 +2723,15 @@ void cyclotron1984(uint16_t cDelay) {
       if(r_2021_ramp.isFinished()) {
         b_2021_ramp_up = false;
 
-        ms_cyclotron.start(cDelay);
-        i_current_ramp_speed = cDelay;
+        ms_cyclotron.start(iRampDelay);
+        i_outer_current_ramp_speed = iRampDelay;
 
 
         i_vibration_level = i_vibration_idle_level_1984;
       }
       else {
         ms_cyclotron.start(r_2021_ramp.update());
-        i_current_ramp_speed = r_2021_ramp.update();
+        i_outer_current_ramp_speed = r_2021_ramp.update();
 
         i_vibration_level = i_vibration_idle_level_1984;
       }
@@ -2738,7 +2742,7 @@ void cyclotron1984(uint16_t cDelay) {
       }
       else {
         ms_cyclotron.start(r_2021_ramp.update());
-        i_current_ramp_speed = r_2021_ramp.update();
+        i_outer_current_ramp_speed = r_2021_ramp.update();
 
         i_vibration_level = i_vibration_level - 1;
 
@@ -2748,7 +2752,7 @@ void cyclotron1984(uint16_t cDelay) {
       }
     }
     else {
-      ms_cyclotron.start(cDelay);
+      ms_cyclotron.start(iRampDelay);
     }
 
     if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
@@ -3364,12 +3368,12 @@ void cyclotronOverheating() {
         }
       }
 
-      innerCyclotronRingUpdate(i_2021_inner_delay * 14);
+      innerCyclotronRingUpdate(i_2021_inner_delay * 16);
     break;
 
     case SYSTEM_1984:
     case SYSTEM_1989:
-      innerCyclotronRingUpdate(i_2021_inner_delay * 14);
+      innerCyclotronRingUpdate(i_2021_inner_delay * 16);
 
       if(ms_alarm.justFinished()) {
         ms_alarm.start(i_1984_delay / 2);
@@ -3560,7 +3564,7 @@ void cyclotronNoCable() {
         cyclotron2021(i_2021_delay * 10);
       }
 
-      innerCyclotronRingUpdate(i_2021_inner_delay * 14);
+      innerCyclotronRingUpdate(i_2021_inner_delay * 16);
 
       if(ms_alarm.justFinished()) {
         ventLight(false);
@@ -3583,7 +3587,7 @@ void cyclotronNoCable() {
         cyclotron1984(i_1984_delay * 3);
       }
 
-      innerCyclotronRingUpdate(i_2021_inner_delay * 14);
+      innerCyclotronRingUpdate(i_2021_inner_delay * 16);
 
       if(ms_alarm.justFinished()) {
         ms_alarm.start(i_1984_delay / 2);
@@ -3709,10 +3713,10 @@ void innerCyclotronCavityOff() {
   }
 }
 
-void innerCyclotronCavityUpdate(uint16_t cDelay) {
+void innerCyclotronCavityUpdate(uint16_t iRampDelay) {
   // Map the value from the inner cake to the cavity lights to get current position.
-  uint8_t i_midpoint = i_ic_cavity_start + (i_inner_cyclotron_cavity_num_leds / 2);
-  uint8_t i_colour_scheme; // Color scheme for lighting, to be set later.
+  uint8_t i_midpoint = i_ic_cavity_start + (i_inner_cyclotron_cavity_num_leds / 2) - 1;
+  uint8_t i_colour_scheme = C_BLACK; // Color scheme for lighting, to be set later.
   uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
 
   // Cannot go lower than the starting point for this segment of LEDs.
@@ -3736,7 +3740,7 @@ void innerCyclotronCavityUpdate(uint16_t cDelay) {
   }
 
   if(b_clockwise == true) {
-    if(cDelay < 40 && b_cyclotron_lid_on != true) {
+    if(iRampDelay < 40 && b_cyclotron_lid_on != true) {
       if(b_gbr_cyclotron_cavity == true) {
         cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGBR(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
       }
@@ -3759,7 +3763,7 @@ void innerCyclotronCavityUpdate(uint16_t cDelay) {
     }
   }
   else {
-    if(cDelay < 30 && b_cyclotron_lid_on != true) {
+    if(iRampDelay < 40 && b_cyclotron_lid_on != true) {
       if(b_gbr_cyclotron_cavity == true) {
         cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGBR(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
       }
@@ -3784,14 +3788,14 @@ void innerCyclotronCavityUpdate(uint16_t cDelay) {
 }
 
 // For NeoPixel rings, ramp up and ramp down the LEDs in the ring and set the speed. (optional)
-void innerCyclotronRingUpdate(uint16_t cDelay) {
+void innerCyclotronRingUpdate(uint16_t iRampDelay) {
   if(ms_cyclotron_ring.justFinished()) {
     if(b_inner_ramp_up == true) {
       if(r_inner_ramp.isFinished()) {
         b_inner_ramp_up = false;
-        ms_cyclotron_ring.start(cDelay);
+        ms_cyclotron_ring.start(iRampDelay);
 
-        i_inner_current_ramp_speed = cDelay;
+        i_inner_current_ramp_speed = iRampDelay;
       }
       else {
         ms_cyclotron_ring.start(r_inner_ramp.update());
@@ -3811,87 +3815,87 @@ void innerCyclotronRingUpdate(uint16_t cDelay) {
       }
     }
     else {
-      i_inner_current_ramp_speed = cDelay;
+      i_inner_current_ramp_speed = iRampDelay;
 
       if(i_cyclotron_multiplier > 1) {
         if(i_cyclotron_multiplier > 4) {
-          cDelay = cDelay - 4;
+          iRampDelay = iRampDelay - 4;
         }
         else {
-          cDelay = cDelay - i_cyclotron_multiplier;
+          iRampDelay = iRampDelay - i_cyclotron_multiplier;
         }
       }
 
-      if(cDelay < 1 || cDelay > i_inner_current_ramp_speed) {
-        cDelay = 1;
+      if(iRampDelay < 1 || iRampDelay > i_inner_current_ramp_speed) {
+        iRampDelay = 1;
       }
 
-      ms_cyclotron_ring.start(cDelay);
+      ms_cyclotron_ring.start(iRampDelay);
     }
 
     if(i_cyclotron_multiplier > 1) {
       switch(i_cyclotron_multiplier) {
         case 6:
-          if(cDelay - 4 < cDelay) {
-            cDelay = cDelay - 4;
+          if(iRampDelay - 4 < iRampDelay) {
+            iRampDelay = iRampDelay - 4;
           }
           else {
-            cDelay = 2;
+            iRampDelay = 2;
           }
         break;
 
         case 5:
-          if(cDelay - 3 < cDelay) {
-            cDelay = cDelay - 3;
+          if(iRampDelay - 3 < iRampDelay) {
+            iRampDelay = iRampDelay - 3;
           }
           else {
-            cDelay = 2;
+            iRampDelay = 2;
           }
         break;
 
         case 4:
-          if(cDelay - 3 < cDelay) {
-            cDelay = cDelay - 3;
+          if(iRampDelay - 3 < iRampDelay) {
+            iRampDelay = iRampDelay - 3;
           }
           else {
-            cDelay = 2;
+            iRampDelay = 2;
           }
         break;
 
         case 3:
-          if(cDelay - 2 < cDelay) {
-            cDelay = cDelay - 2;
+          if(iRampDelay - 2 < iRampDelay) {
+            iRampDelay = iRampDelay - 2;
           }
           else {
-            cDelay = 2;
+            iRampDelay = 2;
           }
         break;
 
         case 2:
-          if(cDelay - 2 < cDelay) {
-            cDelay = cDelay - 2;
+          if(iRampDelay - 2 < iRampDelay) {
+            iRampDelay = iRampDelay - 2;
           }
           else {
-            cDelay = 2;
+            iRampDelay = 2;
           }
         break;
 
         default:
-          if(cDelay - 1 < cDelay) {
-            cDelay = cDelay - 1;
+          if(iRampDelay - 1 < iRampDelay) {
+            iRampDelay = iRampDelay - 1;
           }
           else {
-            cDelay = 2;
+            iRampDelay = 2;
           }
         break;
       }
     }
     else {
-      cDelay = cDelay / i_cyclotron_multiplier;
+      iRampDelay = iRampDelay / i_cyclotron_multiplier;
     }
 
-    if(cDelay < 2) {
-      cDelay = 2;
+    if(iRampDelay < 2) {
+      iRampDelay = 2;
     }
 
     // Colour control for the Inner Cyclotron LEDs.
@@ -3952,9 +3956,11 @@ void innerCyclotronRingUpdate(uint16_t cDelay) {
       }
     }
 
-    if(i_inner_cyclotron_cavity_num_leds > 0) {
-      // Update the inner cyclotron cavity LEDs.
-      innerCyclotronCavityUpdate(cDelay);
+    // Update the sparking effect only half as often as the cake is updated.
+    if(i_inner_cyclotron_cavity_num_leds > 0 && (i_led_cyclotron_ring % 2) == 0) {
+      // Update the inner cyclotron cavity LEDs for Frozen Empire w/ a Proton stream.
+      // The delay value is just used to determine when to begin the sparking effect.
+      innerCyclotronCavityUpdate(iRampDelay);
     }
   }
 }
