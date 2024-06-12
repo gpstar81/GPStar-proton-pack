@@ -2845,7 +2845,7 @@ void modeFireStartSounds() {
         case 5:
           switch(getSystemYearMode()) {
             case SYSTEM_1989:
-              playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
+              playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects, false, 0, false);
             break;
 
             case SYSTEM_1984:
@@ -2874,12 +2874,7 @@ void modeFireStartSounds() {
           if(b_firing_intensify == true) {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
-            if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
-            }
-            else {
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
-            }
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
           }
           else {
             b_sound_firing_intensify_trigger = false;
@@ -3591,34 +3586,6 @@ void modeFiring() {
   switch(STREAM_MODE) {
     case PROTON:
     default:
-      /*// Shift the stream from red to orange on higher power levels.
-      switch(i_power_level) {
-        case 1:
-        default:
-          c_temp_start = C_RED;
-          c_temp_effect = C_BLUE;
-        break;
-
-        case 2:
-          c_temp_start = C_RED2;
-          c_temp_effect = C_BLUE;
-        break;
-
-        case 3:
-          c_temp_start = C_RED3;
-          c_temp_effect = C_MID_BLUE;
-        break;
-
-        case 4:
-          c_temp_start = C_RED4;
-          c_temp_effect = C_MID_BLUE;
-        break;
-
-        case 5:
-          c_temp_start = C_RED5;
-          c_temp_effect = C_LIGHT_BLUE;
-        break;
-      }*/
       if(b_firing_cross_streams == true) {
         if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
           c_temp_start = C_CHARTREUSE;
@@ -3627,6 +3594,36 @@ void modeFiring() {
         else {
           c_temp_start = C_WHITE;
           c_temp_effect = C_YELLOW;
+        }
+      }
+      else if(getSystemYearMode() == SYSTEM_1989) {
+        // Shift the stream from orange to red on higher power levels.
+        switch(i_power_level) {
+          case 1:
+          default:
+            c_temp_start = C_RED5;
+            c_temp_effect = C_LIGHT_BLUE;
+          break;
+
+          case 2:
+            c_temp_start = C_RED4;
+            c_temp_effect = C_MID_BLUE;
+          break;
+
+          case 3:
+            c_temp_start = C_RED3;
+            c_temp_effect = C_MID_BLUE;
+          break;
+
+          case 4:
+            c_temp_start = C_RED2;
+            c_temp_effect = C_BLUE;
+          break;
+
+          case 5:
+            c_temp_start = C_RED;
+            c_temp_effect = C_BLUE;
+          break;
         }
       }
       else {
@@ -4608,6 +4605,31 @@ void fireStreamEffect(CRGB c_colour) {
                   //barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 2])] = c_colour;
                 }
               }
+              else if(getSystemYearMode() == SYSTEM_1989) {
+                // Shift the stream from orange to red on higher power levels.
+                switch(i_power_level) {
+                  case 1:
+                  default:
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 2:
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 3:
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 4:
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 5:
+                    barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+                  break;
+                }
+              }
               else {
                 // Shift the stream from red to orange on higher power levels.
                 switch(i_power_level) {
@@ -4907,6 +4929,31 @@ void fireStreamEffect(CRGB c_colour) {
                   barrel_leds[i_barrel_light - 1] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
                 }
               }
+              else if(getSystemYearMode() == SYSTEM_1989) {
+                // Shift the stream from orange to red on higher power levels.
+                switch(i_power_level) {
+                  case 1:
+                  default:
+                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 2:
+                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 3:
+                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 4:
+                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 5:
+                    barrel_leds[i_barrel_light - 1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+                  break;
+                }
+              }
               else {
                 // Shift the stream from red to orange on higher power levels.
                 switch(i_power_level) {
@@ -5122,6 +5169,31 @@ void fireEffectEnd() {
             c_temp = C_YELLOW;
           }
         }
+        else if(getSystemYearMode() == SYSTEM_1989) {
+          // Shift the stream from orange to red on higher power levels.
+          switch(i_power_level) {
+            case 1:
+            default:
+              c_temp = C_LIGHT_BLUE;
+            break;
+
+            case 2:
+              c_temp = C_MID_BLUE;
+            break;
+
+            case 3:
+              c_temp = C_MID_BLUE;
+            break;
+
+            case 4:
+              c_temp = C_BLUE;
+            break;
+
+            case 5:
+              c_temp = C_BLUE;
+            break;
+          }
+        }
         else {
           // Shift the stream from red to orange on higher power levels.
           switch(i_power_level) {
@@ -5147,28 +5219,6 @@ void fireEffectEnd() {
             break;
           }
         }
-        /*switch(i_power_level) {
-          case 1:
-          default:
-            c_temp = C_BLUE;
-          break;
-
-          case 2:
-            c_temp = C_BLUE;
-          break;
-
-          case 3:
-            c_temp = C_MID_BLUE;
-          break;
-
-          case 4:
-            c_temp = C_MID_BLUE;
-          break;
-
-          case 5:
-            c_temp = C_LIGHT_BLUE;
-          break;
-        }*/
       break;
 
       case SLIME:
@@ -5322,7 +5372,33 @@ void fireEffectEnd() {
             c_temp = C_WHITE;
           }
         }
+        else if(getSystemYearMode() == SYSTEM_1989) {
+          // Shift the stream from orange to red on higher power levels.
+          switch(i_power_level) {
+            case 1:
+            default:
+              c_temp = C_RED5;
+            break;
+
+            case 2:
+              c_temp = C_RED4;
+            break;
+
+            case 3:
+              c_temp = C_RED3;
+            break;
+
+            case 4:
+              c_temp = C_RED2;
+            break;
+
+            case 5:
+              c_temp = C_RED;
+            break;
+          }
+        }
         else {
+          // Shift the stream from red to orange on higher power levels.
           switch(i_power_level) {
             case 1:
             default:
