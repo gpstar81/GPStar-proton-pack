@@ -41,27 +41,33 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, INNER_RING_PIN>(ledsInner, MAX_INNER_LEDS);
   FastLED.addLeds<NEOPIXEL, OUTER_RING_PIN>(ledsOuter, MAX_OUTER_LEDS);
 
+  CHSV hsv = CHSV(0, 255, 255); // Get red using the hue table, saturation, and brightness
+  CRGB rgb;
+  hsv2rgb_rainbow(hsv, rgb);
+
   // Define parameters for the inner ring
   innerRing.ledsDevice = ledsInner;
   innerRing.numLEDs = MAX_INNER_LEDS;
-  innerRing.revolutionTime = 1000;
-  innerRing.color = CRGB::Red;
-  innerRing.maxBrightness = 255;
+  innerRing.revolutionTime = 500;
+  innerRing.ledColor = rgb;
   innerRing.rampTime = 6000;
   innerRing.rampStep = 5;
-  innerRing.currentLED = 0;
+  outerRing.rampPercent = 0;
+  innerRing.rampState = NO_RAMP;
 
   // Define parameters for the outer ring
   outerRing.ledsDevice = ledsOuter;
   outerRing.numLEDs = MAX_OUTER_LEDS;
-  outerRing.revolutionTime = 1500;
-  outerRing.color = CRGB::Blue;
-  outerRing.maxBrightness = 200;
+  outerRing.revolutionTime = 500;
+  outerRing.ledColor = rgb;
   outerRing.rampTime = 6000;
   outerRing.rampStep = 5;
-  outerRing.currentLED = 0;
+  outerRing.rampPercent = 0;
+  outerRing.rampState = NO_RAMP;
 
   debugln("Setup Complete");
+
+  delay(500);
 }
 
 void loop() {
