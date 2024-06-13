@@ -42,12 +42,14 @@ void setup() {
   outerRing.deviceName = CYCLOTRON_OUTER;
   outerRing.ledsArray = cyclotron_leds;
   outerRing.numLEDs = OUTER_CYCLOTRON_LED_MAX;
+  outerRing.revolutionTime = 500;
   outerRing.ledColor = rgb;
 
   // Define parameters for the inner ring
   innerRing.deviceName = CYCLOTRON_INNER;
   innerRing.ledsArray = pack_leds;
   innerRing.numLEDs = INNER_CYCLOTRON_CAKE_LED_MAX;
+  innerRing.revolutionTime = 500;
   innerRing.ledColor = rgb;
 
   debugln("Setup Complete");
@@ -69,6 +71,7 @@ void loop() {
       CRGB rgb; // Variable for the HSV to RGB conversion.
       hsv2rgb_rainbow(hsv, rgb); // Convert to RGB
       outerRing.revolutionTime = 2000;
+      outerRing.spinClockwise = false;
       outerRing.ledColor = rgb;
     }
     else {
@@ -76,6 +79,7 @@ void loop() {
       CRGB rgb; // Variable for the HSV to RGB conversion.
       hsv2rgb_rainbow(hsv, rgb); // Convert to RGB
       outerRing.revolutionTime = 500;
+      outerRing.spinClockwise = true;
       outerRing.ledColor = rgb;
     }
 

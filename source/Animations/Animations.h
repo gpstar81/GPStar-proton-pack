@@ -2,27 +2,82 @@
 
 enum RAMP_STATES { NO_RAMP, RAMP_UP, RAMP_DOWN };
 
-// Structure to hold the parameters for each ring
+// Structure to hold the parameters for each ring of LEDs
 struct RingParams {
   LED_DEVICES deviceName = NO_DEVICE; // Which system LED device 
   CRGB* ledsArray;                    // Pointer to the LED array
-  uint8_t numLEDs;                    // Number of LEDs in the ring (up to 255)
-  uint16_t revolutionTime = 500;      // Time for one complete rotation, in milliseconds
-  CRGB ledColor;                      // Color of the LEDs
+  uint8_t numSteps = 0;               // Number of "steps" to take for a revolution (0 = Use numLEDs)
+  uint8_t numLEDs = 0;                // True number of LEDs in the ring (up to 255)
+  uint16_t revolutionTime = 0;        // Time for one complete revolution, in milliseconds
+  bool spinClockwise = true;          // Spin clockwise (true) or anti-clockwise (false)
+  CRGB ledColor = CRGB::Red;          // Color of the LEDs (default: Red)
   millisDelay ledTimer;               // Timer object for next change
-  uint16_t rampTime = 6000;           // Time for ramp up/down, in milliseconds
-  uint16_t rampStep = 5;              // Increase speed by some factor per LED
-  uint8_t rampPercent = 0;            // Percent of ramp time completed so far
-  RAMP_STATES rampState = NO_RAMP;    // Current ramping state
   uint8_t currentLED = 0;             // Current LED index
   uint8_t previousLED = 0;            // Previous LED index
   uint8_t nextLED = 0;                // Next LED index
+  RAMP_STATES rampState = NO_RAMP;    // Current ramping state
+  uint16_t rampTime = 0;              // Time for ramp up/down, in milliseconds
+  uint16_t rampStep = 0;              // Current step in the ramp
 };
 
-// Function to animate the LED ring
+// Resets a ring for the next animation sequence
+void resetRing(RingParams &ring) {
+  ring.ledTimer.stop();
+  ring.currentLED = 0;
+  ring.previousLED = 0;
+  ring.nextLED = 0;
+  ring.rampState = NO_RAMP;
+  ring.rampStep = 0;
+}
+
+/**
+ * Function to animate the LED ring using steps per revolution and a time to complete
+ * a single revolution. This does the math for us so that each LED will be lit for a
+ * consistent time while animating around a ring. This should support movement in a
+ * clockwise or anti-clockwise direction, color changes, speed, and ramping with many
+ * options being changeable at runtime or mid-animation. This will also use a "tail"
+ * effect by having a dimmer LED chase behind the current LED lit to the brightness
+ * set by the ledColor option.
+ */
 bool animateRing(RingParams &ring) {
-  // Calculate the delay time for each LED
-  uint16_t delayTime = ring.revolutionTime / ring.numLEDs;
+  // If the revolution time is 0 then consider the animation as complete
+  // Also leave if other crucial values are missing or set to zero
+  if(ring.revolutionTime == 0 || ring.numLEDs == 0 || ring.revolutionTime == 0) {
+    resetRing(ring);
+    return false;
+  }
+
+  if(ring.numSteps == 0) {
+    ring.numSteps = ring.numLEDs; // When unset, use actual LEDs as steps
+  }
+
+  // Calculate the delay time for each LED based on steps per revolution
+  // Takes into account the ramping state to calculate the delay time
+  uint16_t delayTime;
+  switch(ring.rampState) {
+    case NO_RAMP:
+    default:
+      delayTime = ring.revolutionTime / ring.numSteps; // Get a constant time between LEDs
+      break;
+
+    case RAMP_UP:
+      // Perform a logarithmic ramp-up 
+      delayTime = ring.revolutionTime / ring.numSteps * pow(10, (float)ring.rampStep / ring.numSteps - 1);
+      ring.rampStep++;
+      if (ring.rampStep >= ring.numSteps) {
+        ring.rampState = NO_RAMP;
+      }
+      break;
+
+    case RAMP_DOWN:
+      delayTime = ring.revolutionTime / ring.numSteps * pow(10, 1 - (float)ring.rampStep / ring.numSteps);
+      ring.rampStep++;
+      if (ring.rampStep >= ring.numSteps) {
+        resetRing(ring);
+        return false;
+      }
+      break;
+  }
 
   // Start the delay if it hasn't been started
   if (!ring.ledTimer.isRunning()) {
@@ -38,22 +93,29 @@ bool animateRing(RingParams &ring) {
       }
 
       // Set the current LED to a portion of its current brightness for a tail effect
-      //uint8_t currentBrightness = ring.ledsArray[ring.currentLED].getAverageLight();
+      // This MUST be done before the "next", to account for the 0 index at startup
       ring.ledsArray[ring.currentLED] = blend(ring.ledColor, CRGB::Black, 128);
 
       // Turn on the next LED using the color (with saturation and brightness) as specified
+      // On the first revolution all 3 values will be the same, so this will be the first LED
       ring.ledsArray[ring.nextLED] = ring.ledColor;
 
       // Show changes to the LEDs
       FastLED.show();
 
-      // Move to the next LED in the ring (starting over as necessary)
-      ring.previousLED = ring.currentLED; // Remember current as the previous LED
-      ring.currentLED = ring.nextLED; // Remember current as the previous LED
-      ring.nextLED = (ring.currentLED + 1) % ring.numLEDs; // Set the next LED
+      // Shift the current LED to be the previous LED, and the next LED as the current
+      ring.previousLED = ring.currentLED;
+      ring.currentLED = ring.nextLED;
+
+      // Set the next LED as based on the direction of spin
+      if (ring.spinClockwise) {
+        ring.nextLED = (ring.currentLED + 1) % ring.numLEDs; // Clockwise
+      } else {
+        ring.nextLED = (ring.currentLED - 1 + ring.numLEDs) % ring.numLEDs; // Anti-clockwise
+      }
     }
 
-    // Restart the delay in case the value changed
+    // Restart the delay in case the calculated value changed due to the revolution time
     ring.ledTimer.start(delayTime);
 
     if(ring.currentLED == 0 && ring.currentLED != ring.previousLED) {
