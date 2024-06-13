@@ -24,28 +24,31 @@
 RingParams innerRing;
 RingParams outerRing;
 
+unsigned int iCounter = 0;
+bool bChange = false;
+
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
 
   // Initialize the FastLED library for each ring
-  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, MAX_OUTER_LEDS);
-  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, MAX_INNER_LEDS);
+  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, OUTER_CYCLOTRON_LED_MAX);
+  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_CAKE_LED_MAX);
 
-  CHSV hsv = CHSV(0, 255, 255); // Get red using the hue table, saturation, and brightness
-  CRGB rgb;
-  hsv2rgb_rainbow(hsv, rgb);
-
-  // Define parameters for the inner ring
-  innerRing.deviceName = CYCLOTRON_INNER;
-  innerRing.ledsArray = pack_leds;
-  innerRing.numLEDs = MAX_INNER_LEDS;
-  innerRing.ledColor = rgb;
+  CHSV hsv = CHSV(0, 255, 255); // Create RED using the hue table, saturation, and brightness
+  CRGB rgb; // Variable for the HSV to RGB conversion.
+  hsv2rgb_rainbow(hsv, rgb); // Convert to RGB
 
   // Define parameters for the outer ring
   outerRing.deviceName = CYCLOTRON_OUTER;
   outerRing.ledsArray = cyclotron_leds;
-  outerRing.numLEDs = MAX_OUTER_LEDS;
+  outerRing.numLEDs = OUTER_CYCLOTRON_LED_MAX;
   outerRing.ledColor = rgb;
+
+  // Define parameters for the inner ring
+  innerRing.deviceName = CYCLOTRON_INNER;
+  innerRing.ledsArray = pack_leds;
+  innerRing.numLEDs = INNER_CYCLOTRON_CAKE_LED_MAX;
+  innerRing.ledColor = rgb;
 
   debugln("Setup Complete");
 
@@ -53,12 +56,30 @@ void setup() {
 }
 
 void loop() {
-  // Perform the ramp up, normal animation, and ramp down for each ring
-  //ringRampUp(innerRing);
-  animateRing(innerRing);
-  //ringRampDown(innerRing);
+  // Perform an update to animate the ring
+  if(animateRing(outerRing)) {
+    iCounter += 1; // Increment when a full revolution is completed
+  }
 
-  // ringRampUp(outerRing);
-  // animateRing(outerRing);
-  // ringRampDown(outerRing);
+  if(iCounter > 0 && iCounter % 10 == 0) {
+    debugln("Change Color");
+
+    if(bChange) {
+      CHSV hsv = CHSV(180, 255, 255); // Create BLUE using the hue table, saturation, and brightness
+      CRGB rgb; // Variable for the HSV to RGB conversion.
+      hsv2rgb_rainbow(hsv, rgb); // Convert to RGB
+      outerRing.revolutionTime = 2000;
+      outerRing.ledColor = rgb;
+    }
+    else {
+      CHSV hsv = CHSV(0, 255, 255); // Create RED using the hue table, saturation, and brightness
+      CRGB rgb; // Variable for the HSV to RGB conversion.
+      hsv2rgb_rainbow(hsv, rgb); // Convert to RGB
+      outerRing.revolutionTime = 500;
+      outerRing.ledColor = rgb;
+    }
+
+    iCounter = 0;
+    bChange = !bChange;
+  }
 }
