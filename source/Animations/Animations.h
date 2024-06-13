@@ -4,20 +4,22 @@ enum RAMP_STATES { NO_RAMP, RAMP_UP, RAMP_DOWN };
 
 // Structure to hold the parameters for each ring of LEDs
 struct RingParams {
+  // Values which will not get changed once set:
   LED_DEVICES deviceName = NO_DEVICE; // Which system LED device 
   CRGB* ledsArray;                    // Pointer to the LED array
   uint8_t numSteps = 0;               // Number of "steps" to take for a revolution (0 = Use numLEDs)
   uint8_t numLEDs = 0;                // True number of LEDs in the ring (up to 255)
+  millisDelay ledTimer;               // Timer object for next change
+  rampInt rampSpeed;                  // Interpolation object for ramping speed
+  // Values which may be changed at runtime:
   uint16_t revolutionTime = 0;        // Time for one complete revolution, in milliseconds
   bool spinClockwise = true;          // Spin clockwise (true) or anti-clockwise (false)
   CRGB ledColor = CRGB::Red;          // Color of the LEDs (default: Red)
-  millisDelay ledTimer;               // Timer object for next change
-  uint8_t currentLED = 0;             // Current LED index
-  uint8_t previousLED = 0;            // Previous LED index
-  uint8_t nextLED = 0;                // Next LED index
-  RAMP_STATES rampState = NO_RAMP;    // Current ramping state
+  uint8_t currentLED = 0;             // Current LED index (based on numSteps)
+  uint8_t previousLED = 0;            // Previous LED index (based on numSteps)
+  uint8_t nextLED = 0;                // Next LED index (based on numSteps)
+  RAMP_STATES rampState = NO_RAMP;    // Current ramping state for animation
   uint16_t rampTime = 0;              // Time for ramp up/down, in milliseconds
-  uint16_t rampStep = 0;              // Current step in the ramp
 };
 
 // Resets a ring for the next animation sequence
@@ -27,7 +29,6 @@ void resetRing(RingParams &ring) {
   ring.previousLED = 0;
   ring.nextLED = 0;
   ring.rampState = NO_RAMP;
-  ring.rampStep = 0;
 }
 
 /**
@@ -42,7 +43,7 @@ void resetRing(RingParams &ring) {
 bool animateRing(RingParams &ring) {
   // If the revolution time is 0 then consider the animation as complete
   // Also leave if other crucial values are missing or set to zero
-  if(ring.revolutionTime == 0 || ring.numLEDs == 0 || ring.revolutionTime == 0) {
+  if(ring.revolutionTime == 0 || ring.numLEDs == 0) {
     resetRing(ring);
     return false;
   }
@@ -51,33 +52,8 @@ bool animateRing(RingParams &ring) {
     ring.numSteps = ring.numLEDs; // When unset, use actual LEDs as steps
   }
 
-  // Calculate the delay time for each LED based on steps per revolution
-  // Takes into account the ramping state to calculate the delay time
-  uint16_t delayTime;
-  switch(ring.rampState) {
-    case NO_RAMP:
-    default:
-      delayTime = ring.revolutionTime / ring.numSteps; // Get a constant time between LEDs
-      break;
-
-    case RAMP_UP:
-      // Perform a logarithmic ramp-up 
-      delayTime = ring.revolutionTime / ring.numSteps * pow(10, (float)ring.rampStep / ring.numSteps - 1);
-      ring.rampStep++;
-      if (ring.rampStep >= ring.numSteps) {
-        ring.rampState = NO_RAMP;
-      }
-      break;
-
-    case RAMP_DOWN:
-      delayTime = ring.revolutionTime / ring.numSteps * pow(10, 1 - (float)ring.rampStep / ring.numSteps);
-      ring.rampStep++;
-      if (ring.rampStep >= ring.numSteps) {
-        resetRing(ring);
-        return false;
-      }
-      break;
-  }
+  // Start with the standard calculation for delay using steps per revolution
+  uint16_t delayTime = ring.revolutionTime / ring.numSteps;
 
   // Start the delay if it hasn't been started
   if (!ring.ledTimer.isRunning()) {
@@ -86,6 +62,38 @@ bool animateRing(RingParams &ring) {
 
   // Check if the delay has timed out
   if (ring.ledTimer.justFinished()) {
+    // Calculate the delay time for each LED based on steps per revolution
+    // Takes into account the ramping state to calculate the delay time
+debug("Standard Delay: ");
+debugln(delayTime);
+    switch(ring.rampState) {
+      case NO_RAMP:
+      default:
+        // No change from the standard calculation
+        break;
+
+      case RAMP_UP:
+        if (ring.rampSpeed.isFinished()) {
+          // Completion of ramp-up implies the animation continues normally
+          ring.rampState = NO_RAMP;
+        } else {
+          delayTime = ring.rampSpeed.getValue();
+        }
+        break;
+
+      case RAMP_DOWN:
+        if (ring.rampSpeed.isFinished()) {
+          // Completion of ramp-down implies the animation is over, period
+          ring.revolutionTime = 0;
+          resetRing(ring);
+          return false;
+        } else {
+          delayTime = ring.rampSpeed.getValue();
+        }
+        break;
+    }
+debug("Current Delay: ");
+debugln(delayTime);
     if(ring.deviceName != NO_DEVICE) {
       // Turn off the previous pixel but only if not on the first iteration around the ring
       if(ring.previousLED != ring.currentLED) {
@@ -118,7 +126,12 @@ bool animateRing(RingParams &ring) {
     // Restart the delay in case the calculated value changed due to the revolution time
     ring.ledTimer.start(delayTime);
 
-    if(ring.currentLED == 0 && ring.currentLED != ring.previousLED) {
+    // Update the ramp speed if ramping
+    if(ring.rampState != NO_RAMP) {
+      ring.rampSpeed.update();
+    }
+
+    if(ring.nextLED == 0 && ring.currentLED != ring.previousLED) {
       return true; // Returned to position 0, meaning a full revolution completed
     }
   }
@@ -128,15 +141,14 @@ bool animateRing(RingParams &ring) {
 
 // Function to ramp up the animation speed
 void ringRampUp(RingParams &ring) {
-  for (uint16_t time = ring.rampTime / ring.rampStep; time <= ring.rampTime; time += (ring.rampTime / ring.rampStep)) {
-    debugln(time);
-    animateRing(ring);
-  }
+  ring.rampState = RAMP_UP;
+  ring.rampSpeed.setGrain(1);
+  ring.rampSpeed.go(ring.revolutionTime, ring.rampTime, QUADRATIC_IN);
 }
 
 // Function to ramp down the animation speed
 void ringRampDown(RingParams &ring) {
-  for (uint16_t time = ring.rampTime; time >= ring.rampTime / ring.rampStep; time -= (ring.rampTime / ring.rampStep)) {
-    animateRing(ring);
-  }
+  ring.rampState = RAMP_DOWN;
+  ring.rampSpeed.setGrain(1);
+  ring.rampSpeed.go(ring.revolutionTime, ring.rampTime, QUADRATIC_OUT);
 }

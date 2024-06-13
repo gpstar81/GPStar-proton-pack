@@ -15,6 +15,7 @@
 // 3rd-Party Libraries
 #include <millisDelay.h>
 #include <FastLED.h>
+#include <Ramp.h>
 
 // Local Files
 #include "Header.h"
@@ -44,6 +45,7 @@ void setup() {
   outerRing.numLEDs = OUTER_CYCLOTRON_LED_MAX;
   outerRing.revolutionTime = 500;
   outerRing.ledColor = rgb;
+  outerRing.rampTime = 6000;
 
   // Define parameters for the inner ring
   innerRing.deviceName = CYCLOTRON_INNER;
@@ -51,10 +53,13 @@ void setup() {
   innerRing.numLEDs = INNER_CYCLOTRON_CAKE_LED_MAX;
   innerRing.revolutionTime = 500;
   innerRing.ledColor = rgb;
+  innerRing.rampTime = 6000;
 
   debugln("Setup Complete");
 
   delay(500);
+
+  ringRampUp(outerRing); // Tell the outer ring to start with a ramp-up.
 }
 
 void loop() {
