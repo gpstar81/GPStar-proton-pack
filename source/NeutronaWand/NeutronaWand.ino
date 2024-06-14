@@ -4089,9 +4089,9 @@ void wandBarrelHeatDown() {
   }
 }
 
-void barrelLEDTranslation(uint8_t id, colours color) {
+void barrelLEDTranslation(uint8_t id, colours colour) {
   if(WAND_BARREL_LED_COUNT != LEDS_48) {
-    barrel_leds[id] = getHueColour(color, WAND_BARREL_LED_COUNT);
+    barrel_leds[id] = getHueColour(colour, WAND_BARREL_LED_COUNT);
     return;
   }
   else {
@@ -4099,35 +4099,35 @@ void barrelLEDTranslation(uint8_t id, colours color) {
       case 0:
         // Translate to first three rows of LEDs.
         for(uint8_t i = 0; i < 12; i++) {
-          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
         }
       break;
 
       case 1:
         // Translate to rows 4 and 5 of the LED array.
         for(uint8_t i = 12; i < 20; i++) {
-          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
         }
       break;
 
       case 2:
         // Translate to rows 6 and 7 of the LED array.
         for(uint8_t i = 20; i < 28; i++) {
-          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
         }
       break;
 
       case 3:
         // Translate to rows 8 and 9 of the LED array.
         for(uint8_t i = 28; i < 36; i++) {
-          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
         }
       break;
 
       case 4:
         // Translate to the last three rows of LEDs.
         for(uint8_t i = 36; i < 48; i++) {
-          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(color, WAND_BARREL_LED_COUNT);
+          barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
         }
       break;
 
@@ -5450,13 +5450,13 @@ void fireEffectEnd() {
 
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
-        // Set the final LED back to whatever color it is without the effect.
+        // Set the final LED back to whatever colour it is without the effect.
         barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
       break;
 
       case LEDS_5:
       default:
-        // Set the final LED back to whatever color it is without the effect.
+        // Set the final LED back to whatever colour it is without the effect.
         barrel_leds[i_barrel_light - 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
       break;
     }

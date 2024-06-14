@@ -3716,7 +3716,7 @@ void innerCyclotronCavityOff() {
 void innerCyclotronCavityUpdate(uint16_t iRampDelay) {
   // Map the value from the inner cake to the cavity lights to get current position.
   uint8_t i_midpoint = i_ic_cavity_start + (i_inner_cyclotron_cavity_num_leds / 2) - 1;
-  uint8_t i_colour_scheme = C_BLACK; // Color scheme for lighting, to be set later.
+  uint8_t i_colour_scheme = C_BLACK; // Colour scheme for lighting, to be set later.
   uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
 
   // Cannot go lower than the starting point for this segment of LEDs.
@@ -3734,7 +3734,7 @@ void innerCyclotronCavityUpdate(uint16_t iRampDelay) {
       i_colour_scheme = C_YELLOW; // Always keep the lower half of LEDs yellow.
     }
     else {
-      // Light spiraling higher than the lower half will have variable colors.
+      // Light spiraling higher than the lower half will have variable colours.
       i_colour_scheme = getDeviceColour(CYCLOTRON_CAVITY, STREAM_MODE, false);
     }
   }
@@ -3904,7 +3904,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 
     if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON) {
       // As a "sparking" effect is predominant in GB:FE during the Proton stream,
-      // the inner LED color/brightness is altered for this mode.
+      // the inner LED colour/brightness is altered for this mode.
       i_brightness = getBrightness(i_cyclotron_inner_brightness / 2);
       i_colour_scheme = C_ORANGE;
     }
@@ -5191,7 +5191,7 @@ void resetInnerCyclotronLEDs() {
     i_inner_cyclotron_panel_num_leds = 8; // Maximum is 8 (2 above switches, 6 on the side)
   }
   else {
-    // Without the inner panel we just use the dedicated LED ports on the controller for single-color LEDs.
+    // Without the inner panel we just use the dedicated LED ports on the controller for single-colour LEDs.
     // The inner chain just reduces down to the inner cake plus extra cavity lights for the "sparking" FX.
     i_inner_cyclotron_panel_num_leds = 0; // Set to 0 if not enabled.
   }

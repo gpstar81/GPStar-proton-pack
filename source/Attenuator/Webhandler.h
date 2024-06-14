@@ -159,7 +159,7 @@ String getPackConfig() {
 
     // Proton Pack LED Options
     jsonBody["ledCycLidCount"] = packConfig.ledCycLidCount; // [12,20,36,40]
-    jsonBody["ledCycLidHue"] = packConfig.ledCycLidHue; // Spectral custom color/hue 1-254
+    jsonBody["ledCycLidHue"] = packConfig.ledCycLidHue; // Spectral custom colour/hue 1-254
     jsonBody["ledCycLidSat"] = packConfig.ledCycLidSat; // Spectral custom saturation 1-254
     jsonBody["cyclotronDirection"] = packConfig.cyclotronDirection; // [0=CCW,1=CW]
     jsonBody["ledCycLidCenter"] = packConfig.ledCycLidCenter; // [0=3,1=1]
@@ -167,12 +167,12 @@ String getPackConfig() {
     jsonBody["ledCycLidSimRing"] = packConfig.ledCycLidSimRing; // true|false
     jsonBody["ledCycInnerPanel"] = packConfig.ledCycInnerPanel; // true|false
     jsonBody["ledCycCakeCount"] = packConfig.ledCycCakeCount; // [12,23,24,35]
-    jsonBody["ledCycCakeHue"] = packConfig.ledCycCakeHue; // Spectral custom color/hue 1-254
+    jsonBody["ledCycCakeHue"] = packConfig.ledCycCakeHue; // Spectral custom colour/hue 1-254
     jsonBody["ledCycCakeSat"] = packConfig.ledCycCakeSat; // Spectral custom saturation 1-254
     jsonBody["ledCycCakeGRB"] = packConfig.ledCycCakeGRB; // Use GRB for cake LEDs true|false
     jsonBody["ledCycCavCount"] = packConfig.ledCycCavCount; // Cyclotron cavity LEDs (0-30)
     jsonBody["ledPowercellCount"] = packConfig.ledPowercellCount; //[13,15]
-    jsonBody["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom color/hue 1-254
+    jsonBody["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom colour/hue 1-254
     jsonBody["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 1-254
     jsonBody["ledVGPowercell"] = packConfig.ledVGPowercell; // true|false
   }
@@ -197,7 +197,7 @@ String getWandConfig() {
 
     // Neutrona Wand LED Options
     jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5,1=29,2=48]
-    jsonBody["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom color/hue 1-254
+    jsonBody["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom colour/hue 1-254
     jsonBody["ledWandSat"] = wandConfig.ledWandSat; // Spectral custom saturation 1-254
     jsonBody["spectralModeEnabled"] = wandConfig.spectralModeEnabled; // true|false
     jsonBody["spectralHolidayMode"] = wandConfig.spectralHolidayMode; // true|false

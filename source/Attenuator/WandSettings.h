@@ -191,17 +191,17 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Custom Color (Hue):</b><br/>
+      <b>Custom Colour (Hue):</b><br/>
       <input type="range" id="ledWandHue" name="ledWandHue" min="0" max="360" value="360" step="2"
-       oninput="updateColor('wandColorPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
+       oninput="updateColour('wandColourPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
       <output class="labelSlider" id="wandHueOut" for="ledWandHue"></output>
       <br/>
-      <div id="wandColorPreview" class="swatch"></div>
+      <div id="wandColourPreview" class="swatch"></div>
     </div>
     <div class="setting">
       <b>Custom Saturation %:</b><br/>
       <input type="range" id="ledWandSat" name="ledWandSat" min="0" max="100" value="100" step="2"
-       oninput="updateColor('wandColorPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
+       oninput="updateColour('wandColourPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
       <output class="labelSlider" id="wandSatOut" for="ledWandSat"></output>
     </div>
   </div>
@@ -234,12 +234,12 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       return Math.round((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);
     }
 
-    function updateColor(colorPreviewID, hueLabelID, satLabelID, hueValue, satValue) {
-      // Updates the slider values and preview the selected color using HSL.
+    function updateColour(colourPreviewID, hueLabelID, satLabelID, hueValue, satValue) {
+      // Updates the slider values and preview the selected colour using HSL.
       getEl(hueLabelID).innerHTML = hueValue;
       getEl(satLabelID).innerHTML = satValue;
       var lightness = convertRange(100 - parseInt(satValue, 10), [0,100], [50,100]);
-      getEl(colorPreviewID).style.backgroundColor = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
+      getEl(colourPreviewID).style.backgroundColour = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
     }
 
     function isJsonString(str) {
@@ -278,7 +278,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             }
 
             /**
-             * Note: Color (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL color.
+             * Note: Colour (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL colour.
              *  0 = Red
              *  32 = Orange
              *  64 = Yellow
@@ -310,8 +310,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             getEl("bargraphIdleAnimation").value = settings.bargraphIdleAnimation || 1;
             getEl("bargraphFireAnimation").value = settings.bargraphFireAnimation || 1;
 
-            // Update color preview and value display for hue/saturation sliders.
-            updateColor("wandColorPreview", "wandHueOut", "wandSatOut", getEl("ledWandHue").value, getEl("ledWandSat").value);
+            // Update colour preview and value display for hue/saturation sliders.
+            updateColour("wandColourPreview", "wandHueOut", "wandSatOut", getEl("ledWandHue").value, getEl("ledWandSat").value);
           }
         }
       };
