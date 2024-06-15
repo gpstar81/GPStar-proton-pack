@@ -3833,65 +3833,55 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
       ms_cyclotron_ring.start(iRampDelay);
     }
 
-    if(i_cyclotron_multiplier > 1) {
-      switch(i_cyclotron_multiplier) {
-        case 6:
-          if(iRampDelay - 4 < iRampDelay) {
-            iRampDelay = iRampDelay - 4;
-          }
-          else {
-            iRampDelay = 2;
-          }
-        break;
+    switch(i_cyclotron_multiplier) {
+      case 9:
+      case 8:
+      case 7:
+      case 6:
+        // A value of 6 should be the max, but just in case this value goes higher let's catch those possible cases.
+        if(iRampDelay - 4 < iRampDelay) {
+          iRampDelay = iRampDelay - 4;
+        }
+        else {
+          iRampDelay = 2;
+        }
+      break;
 
-        case 5:
-          if(iRampDelay - 3 < iRampDelay) {
-            iRampDelay = iRampDelay - 3;
-          }
-          else {
-            iRampDelay = 2;
-          }
-        break;
+      case 5:
+      case 4:
+        if(iRampDelay - 3 < iRampDelay) {
+          iRampDelay = iRampDelay - 3;
+        }
+        else {
+          iRampDelay = 2;
+        }
+      break;
 
-        case 4:
-          if(iRampDelay - 3 < iRampDelay) {
-            iRampDelay = iRampDelay - 3;
-          }
-          else {
-            iRampDelay = 2;
-          }
-        break;
+      case 3:
+      case 2:
+        if(iRampDelay - 2 < iRampDelay) {
+          iRampDelay = iRampDelay - 2;
+        }
+        else {
+          iRampDelay = 2;
+        }
+      break;
 
-        case 3:
-          if(iRampDelay - 2 < iRampDelay) {
-            iRampDelay = iRampDelay - 2;
-          }
-          else {
-            iRampDelay = 2;
-          }
-        break;
+      case 1:
+      default:
+        // A value of 1 is considered the "normal" speed so treat it as the default.
+        if(iRampDelay - 1 < iRampDelay) {
+          iRampDelay = iRampDelay - 1;
+        }
+        else {
+          iRampDelay = 2;
+        }
+      break;
 
-        case 2:
-          if(iRampDelay - 2 < iRampDelay) {
-            iRampDelay = iRampDelay - 2;
-          }
-          else {
-            iRampDelay = 2;
-          }
+      case 0:
+        // We should never have this value, but just in case make sure there's a known delay calculated.
+        iRampDelay = iRampDelay / i_cyclotron_multiplier;
         break;
-
-        default:
-          if(iRampDelay - 1 < iRampDelay) {
-            iRampDelay = iRampDelay - 1;
-          }
-          else {
-            iRampDelay = 2;
-          }
-        break;
-      }
-    }
-    else {
-      iRampDelay = iRampDelay / i_cyclotron_multiplier;
     }
 
     if(iRampDelay < 2) {
