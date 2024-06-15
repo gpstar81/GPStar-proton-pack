@@ -1651,16 +1651,18 @@ void powercellRampDown() {
       i_powercell_led--;
     }
 
+    if((b_overheating == true || b_2021_ramp_down == true || b_alarm == true) && b_powercell_sound_loop == true) {
+      audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
+      b_powercell_sound_loop = false;
+    }
+
     // Setup the delays again.
     uint16_t i_pc_delay = i_powercell_delay;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        if(b_2021_ramp_up == true) {
-          i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
-        }
-        else if(b_2021_ramp_down == true) {
+        if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
           i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
         }
       break;
@@ -1668,10 +1670,7 @@ void powercellRampDown() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        if(b_2021_ramp_up == true) {
-          i_pc_delay = i_powercell_delay + r_2021_ramp.update();
-        }
-        else if(b_2021_ramp_down == true) {
+        if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
           i_pc_delay = i_powercell_delay + r_2021_ramp.update();
         }
       break;
@@ -1716,7 +1715,7 @@ void powercellLoop() {
       }
     }
 
-    if(b_overheating == true && b_powercell_sound_loop == true) {
+    if((b_overheating == true || b_2021_ramp_down == true || b_alarm == true) && b_powercell_sound_loop == true) {
       audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
       b_powercell_sound_loop = false;
     }
@@ -1727,10 +1726,7 @@ void powercellLoop() {
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        if(b_2021_ramp_up == true) {
-          i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
-        }
-        else if(b_2021_ramp_down == true) {
+        if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
           i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
         }
       break;
@@ -1738,27 +1734,14 @@ void powercellLoop() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        if(b_2021_ramp_up == true) {
+        if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
           i_pc_delay = i_powercell_delay + r_2021_ramp.update();
-        }
-        else if(b_2021_ramp_down == true) {
-          i_pc_delay = i_powercell_delay + r_2021_ramp.update();
-
-          if(b_powercell_sound_loop == true) {
-            b_powercell_sound_loop = false;
-            audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
-          }
         }
       break;
     }
 
     if(b_alarm == true) {
       i_pc_delay = i_powercell_delay * 5;
-
-      if(b_powercell_sound_loop == true) {
-        audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
-        b_powercell_sound_loop = false;
-      }
     }
 
     // Speed up the Power Cell when the cyclotron speeds up before a overheat.
