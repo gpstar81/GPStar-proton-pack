@@ -22,6 +22,7 @@ jobs:
             libraries: |
               - name: Switch
               - name: ezButton
+              - name: ADS1115_WE
               - name: CRC32
               - name: digitalWriteFast
               - name: FastLED
