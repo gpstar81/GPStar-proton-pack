@@ -459,6 +459,13 @@ const uint16_t i_ms_battcheck_delay = 5000; // Time between battery voltage chec
 millisDelay ms_battcheck; // Timer for checking battery voltage on a regular interval.
 
 /*
+ * Neutrona Wand Sensor Board (optional)
+ * Used for detecting a stock or unmodified Hasbro Neutrona Wand.
+*/
+bool b_wand_sensor = false;
+float f_wand_sensor_data = 0.0;
+
+/*
  * Function prototypes.
  */
 void packSerialSend(uint8_t i_command, uint16_t i_value);

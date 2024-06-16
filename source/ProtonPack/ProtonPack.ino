@@ -43,6 +43,7 @@
 #include <ezButton.h>
 #include <Ramp.h>
 #include <SerialTransfer.h>
+#include <Wire.h>
 
 // Local Files
 #include "Configuration.h"
@@ -52,11 +53,18 @@
 #include "Colours.h"
 #include "Audio.h"
 #include "Preferences.h"
+#include "WandSensor.h"
 
 void setup() {
+  // Setup i2c.
+  Wire.begin();
+
   Serial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600); // Add-on Serial1 communication.
   Serial2.begin(9600); // Communication to the Neutrona Wand.
+
+  // Search for and setup the optional Neutrona Wand sensor.
+  wandSensorSetup();
 
   // Connect the serial ports.
   serial1Coms.begin(Serial1, false); // Attenuator/Wireless
@@ -208,6 +216,7 @@ void setup() {
 
 void loop() {
   updateAudio();
+  updateWandSensor();
 
   // Voltage Check
   if(ms_battcheck.justFinished()) {
