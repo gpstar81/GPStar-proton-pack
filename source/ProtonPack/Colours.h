@@ -76,8 +76,8 @@ uint8_t i_curr_colour[6] = { 0, 0, 0, 0, 0, 0 };
 uint8_t i_count[6] = { 0, 0, 0, 0, 0, 0 };
 
 uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) {
-  // Toggle indicates use of Video Game colors, which is based on the firing mode.
-  // Otherwise a default color will be used based on the device itself.
+  // Toggle indicates use of Video Game colours, which is based on the firing mode.
+  // Otherwise a default colour will be used based on the device itself.
   if(b_toggle == true) {
     switch(i_firing_mode) {
       case PROTON:
@@ -93,7 +93,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
           break;
 
           case CYCLOTRON_CAVITY:
-            // Cycles through 3 colors, changing on each call.
+            // Cycles through 3 colours, changing on each call.
             // If starting at 0, value will increment to 1.
             // If value is above/divisible by 4, reset to 1.
             i_count[i_device]++;
@@ -233,7 +233,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
       break;
 
       case CYCLOTRON_CAVITY:
-        // Cycles through 3 colors, changing on each call.
+        // Cycles through 3 colours, changing on each call.
         // If starting at 0, value will increment to 1.
         // If value is above/divisible by 4, reset to 1.
         i_count[i_device]++;
@@ -493,7 +493,7 @@ CRGB getHueAsRGB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255,
 }
 
 CRGB getHueAsGRB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255) {
-  // Forward to getHueAsRGB() with the flag set for GRB color swap.
+  // Forward to getHueAsRGB() with the flag set for GRB colour swap.
   return getHueAsRGB(i_device, i_colour, i_brightness, true);
 }
 
@@ -507,6 +507,6 @@ CRGB getHueAsGBR(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255)
   CRGB rgb; // RGB Array as { r, g, b }
   hsv2rgb_rainbow(hsv, rgb);
 
-  // Swap color values before returning.
+  // Swap colour values before returning.
   return CRGB(rgb[1], rgb[2], rgb[0]);
 }

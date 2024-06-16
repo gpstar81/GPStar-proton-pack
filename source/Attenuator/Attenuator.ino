@@ -324,7 +324,7 @@ void mainLoop() {
    * The right toggle activates the LEDs on the device manually.
    *
    * When paired with the gpstar Proton pack controller, the LEDs
-   * will change colors based on user interactions.
+   * will change colours based on user interactions.
    *
    * Note that audio and physical feedback will also be disabled
    * when this switch is in the off position.
@@ -387,7 +387,7 @@ void mainLoop() {
     }
   }
 
-  // Update LEDs using appropriate color scheme and environment vars.
+  // Update LEDs using appropriate colour scheme and environment vars.
   updateLEDs();
 
   // Turn off buzzer if timer finished.
@@ -481,14 +481,14 @@ void vibrateOff() {
  */
 void updateLEDs() {
   #if defined(__XTENSA__)
-    // ESP - Change top LED color based on wireless connections.
+    // ESP - Change top LED colour based on wireless connections.
     if(i_ap_client_count > 0 || i_ws_client_count > 0) {
       // Change to green when clients are connected remotely.
-      i_top_led_color = C_GREEN;
+      i_top_led_colour = C_GREEN;
     }
     else {
       // Return to red if no wireless clients are connected.
-      i_top_led_color = C_RED;
+      i_top_led_colour = C_RED;
     }
   #endif
 
@@ -498,7 +498,7 @@ void updateLEDs() {
       // Keep indicator solid.
       ms_top_blink.stop(); // Stop the blink timer which won't be used at this menu level.
       b_top_led_off = false; // Denotes LED is not in an off (blinking) state, but solid.
-      device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_color, i_top_led_brightness);
+      device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness);
     break;
 
     case MENU_2:
@@ -510,18 +510,18 @@ void updateLEDs() {
 
       if(b_top_led_off) {
         // Not completely dark but very dim (1/10th of the normal brightness).
-        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_color, int(i_top_led_brightness / 10));
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, int(i_top_led_brightness / 10));
       }
       else {
-        // Return to normal brightness for the current top LED color.
-        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_color, i_top_led_brightness);
+        // Return to normal brightness for the current top LED colour.
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness);
       }
     break;
   }
 
   if(b_right_toggle_on) {
     // Set upper LED based on alarm or overheating state, when connected.
-    // Otherwise, use the standard pattern/color for illumination.
+    // Otherwise, use the standard pattern/colour for illumination.
     if(b_pack_alarm || b_overheating) {
       device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_RED_FADE);
     }

@@ -1651,16 +1651,18 @@ void powercellRampDown() {
       i_powercell_led--;
     }
 
+    if((b_overheating == true || b_2021_ramp_down == true || b_alarm == true) && b_powercell_sound_loop == true) {
+      audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
+      b_powercell_sound_loop = false;
+    }
+
     // Setup the delays again.
     uint16_t i_pc_delay = i_powercell_delay;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        if(b_2021_ramp_up == true) {
-          i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
-        }
-        else if(b_2021_ramp_down == true) {
+        if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
           i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
         }
       break;
@@ -1668,10 +1670,7 @@ void powercellRampDown() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        if(b_2021_ramp_up == true) {
-          i_pc_delay = i_powercell_delay + r_2021_ramp.update();
-        }
-        else if(b_2021_ramp_down == true) {
+        if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
           i_pc_delay = i_powercell_delay + r_2021_ramp.update();
         }
       break;
@@ -1697,7 +1696,7 @@ void powercellLoop() {
     }
     else {
       if(b_powercell_updating != true) {
-        if((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && b_2021_ramp_up != true && b_2021_ramp_down != true && b_alarm != true && b_wand_firing != true && b_overheating != true) {
+        if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_2021_ramp_up && !b_2021_ramp_down && !b_wand_firing && !b_alarm && !b_overheating) {
           if(b_powercell_sound_loop != true) {
             b_powercell_sound_loop = true;
             stopEffect(S_POWERCELL);
@@ -1708,7 +1707,7 @@ void powercellLoop() {
         powercellDraw(i_powercell_led); // Update starting at a specific LED.
 
         // Add a small delay to pause the Power Cell when all Power Cell LEDs are lit up, to match Afterlife and Frozen Empire.
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && b_alarm != true && i_powercell_led == i_powercell_leds - 1) {
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !b_alarm && i_powercell_led == i_powercell_leds - 1) {
           i_extra_delay = 350;
         }
 
@@ -1716,7 +1715,7 @@ void powercellLoop() {
       }
     }
 
-    if(b_overheating == true && b_powercell_sound_loop == true) {
+    if((b_overheating || b_2021_ramp_down || b_alarm || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && !b_cyclotron_lid_on)) && b_powercell_sound_loop) {
       audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
       b_powercell_sound_loop = false;
     }
@@ -1727,10 +1726,7 @@ void powercellLoop() {
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
       case SYSTEM_1989:
-        if(b_2021_ramp_up == true) {
-          i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
-        }
-        else if(b_2021_ramp_down == true) {
+        if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
           i_pc_delay = i_powercell_delay + (r_2021_ramp.update() - i_1984_delay);
         }
       break;
@@ -1738,27 +1734,14 @@ void powercellLoop() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        if(b_2021_ramp_up == true) {
+        if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
           i_pc_delay = i_powercell_delay + r_2021_ramp.update();
-        }
-        else if(b_2021_ramp_down == true) {
-          i_pc_delay = i_powercell_delay + r_2021_ramp.update();
-
-          if(b_powercell_sound_loop == true) {
-            b_powercell_sound_loop = false;
-            audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
-          }
         }
       break;
     }
 
     if(b_alarm == true) {
       i_pc_delay = i_powercell_delay * 5;
-
-      if(b_powercell_sound_loop == true) {
-        audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
-        b_powercell_sound_loop = false;
-      }
     }
 
     // Speed up the Power Cell when the cyclotron speeds up before a overheat.
@@ -3716,7 +3699,7 @@ void innerCyclotronCavityOff() {
 void innerCyclotronCavityUpdate(uint16_t iRampDelay) {
   // Map the value from the inner cake to the cavity lights to get current position.
   uint8_t i_midpoint = i_ic_cavity_start + (i_inner_cyclotron_cavity_num_leds / 2) - 1;
-  uint8_t i_colour_scheme = C_BLACK; // Color scheme for lighting, to be set later.
+  uint8_t i_colour_scheme = C_BLACK; // Colour scheme for lighting, to be set later.
   uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
 
   // Cannot go lower than the starting point for this segment of LEDs.
@@ -3734,7 +3717,7 @@ void innerCyclotronCavityUpdate(uint16_t iRampDelay) {
       i_colour_scheme = C_YELLOW; // Always keep the lower half of LEDs yellow.
     }
     else {
-      // Light spiraling higher than the lower half will have variable colors.
+      // Light spiraling higher than the lower half will have variable colours.
       i_colour_scheme = getDeviceColour(CYCLOTRON_CAVITY, STREAM_MODE, false);
     }
   }
@@ -3833,65 +3816,55 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
       ms_cyclotron_ring.start(iRampDelay);
     }
 
-    if(i_cyclotron_multiplier > 1) {
-      switch(i_cyclotron_multiplier) {
-        case 6:
-          if(iRampDelay - 4 < iRampDelay) {
-            iRampDelay = iRampDelay - 4;
-          }
-          else {
-            iRampDelay = 2;
-          }
-        break;
+    switch(i_cyclotron_multiplier) {
+      case 9:
+      case 8:
+      case 7:
+      case 6:
+        // A value of 6 should be the max, but just in case this value goes higher let's catch those possible cases.
+        if(iRampDelay - 4 < iRampDelay) {
+          iRampDelay = iRampDelay - 4;
+        }
+        else {
+          iRampDelay = 2;
+        }
+      break;
 
-        case 5:
-          if(iRampDelay - 3 < iRampDelay) {
-            iRampDelay = iRampDelay - 3;
-          }
-          else {
-            iRampDelay = 2;
-          }
-        break;
+      case 5:
+      case 4:
+        if(iRampDelay - 3 < iRampDelay) {
+          iRampDelay = iRampDelay - 3;
+        }
+        else {
+          iRampDelay = 2;
+        }
+      break;
 
-        case 4:
-          if(iRampDelay - 3 < iRampDelay) {
-            iRampDelay = iRampDelay - 3;
-          }
-          else {
-            iRampDelay = 2;
-          }
-        break;
+      case 3:
+      case 2:
+        if(iRampDelay - 2 < iRampDelay) {
+          iRampDelay = iRampDelay - 2;
+        }
+        else {
+          iRampDelay = 2;
+        }
+      break;
 
-        case 3:
-          if(iRampDelay - 2 < iRampDelay) {
-            iRampDelay = iRampDelay - 2;
-          }
-          else {
-            iRampDelay = 2;
-          }
-        break;
+      case 1:
+      default:
+        // A value of 1 is considered the "normal" speed so treat it as the default.
+        if(iRampDelay - 1 < iRampDelay) {
+          iRampDelay = iRampDelay - 1;
+        }
+        else {
+          iRampDelay = 2;
+        }
+      break;
 
-        case 2:
-          if(iRampDelay - 2 < iRampDelay) {
-            iRampDelay = iRampDelay - 2;
-          }
-          else {
-            iRampDelay = 2;
-          }
+      case 0:
+        // We should never have this value, but just in case make sure there's a known delay calculated.
+        iRampDelay = iRampDelay / i_cyclotron_multiplier;
         break;
-
-        default:
-          if(iRampDelay - 1 < iRampDelay) {
-            iRampDelay = iRampDelay - 1;
-          }
-          else {
-            iRampDelay = 2;
-          }
-        break;
-      }
-    }
-    else {
-      iRampDelay = iRampDelay / i_cyclotron_multiplier;
     }
 
     if(iRampDelay < 2) {
@@ -3904,7 +3877,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 
     if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON) {
       // As a "sparking" effect is predominant in GB:FE during the Proton stream,
-      // the inner LED color/brightness is altered for this mode.
+      // the inner LED colour/brightness is altered for this mode.
       i_brightness = getBrightness(i_cyclotron_inner_brightness / 2);
       i_colour_scheme = C_ORANGE;
     }
@@ -5191,7 +5164,7 @@ void resetInnerCyclotronLEDs() {
     i_inner_cyclotron_panel_num_leds = 8; // Maximum is 8 (2 above switches, 6 on the side)
   }
   else {
-    // Without the inner panel we just use the dedicated LED ports on the controller for single-color LEDs.
+    // Without the inner panel we just use the dedicated LED ports on the controller for single-colour LEDs.
     // The inner chain just reduces down to the inner cake plus extra cavity lights for the "sparking" FX.
     i_inner_cyclotron_panel_num_leds = 0; // Set to 0 if not enabled.
   }
