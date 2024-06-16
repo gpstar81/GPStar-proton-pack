@@ -771,7 +771,7 @@ void packStartup() {
 
         // Cyclotron lid is off, play the Frozen Empire sound effect.
         if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on != true) {
-          playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
+          playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
         }
 
         ms_idle_fire_fade.start(200);
@@ -4542,7 +4542,7 @@ void cyclotronSwitchPlateLEDs() {
 
       // Cyclotron lid is off, play the Frozen Empire sound effect.
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-        playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
+        playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
       }
     }
     else {
