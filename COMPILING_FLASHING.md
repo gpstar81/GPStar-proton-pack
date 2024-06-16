@@ -27,6 +27,7 @@ Download and install the Arduino IDE. This will be used to compile and upload th
 
 The following libraries are required to be installed. All can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
 
+- **ADS1115_WE** by Wolfgang Ewald
 - **CRC32** by Christopher Baker
 - **digitalWriteFast** by Watterott and Armin Joachimsmeyer
 - **ezButton** by ArduinoGetStarted.com
@@ -36,7 +37,6 @@ The following libraries are required to be installed. All can be found within th
 - **SerialTransfer** by PowerBroker2
 - **Simple ht16k33 Library** by Ipaseen
 - **Switch** by Albert van Dalen
-- **ADS1115_WE** by Wolfgang Ewald
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 
