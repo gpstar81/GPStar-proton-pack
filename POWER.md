@@ -13,11 +13,13 @@ There is also the matter of how long you may wish to run your pack. For those wh
 - Pack: 0.14-0.25 A - Measured using the line-out from the WAV Trigger to a standalone amplifier
 - Wand: 0.08-0.27 A - Measured using the built-in amplifier on the WAV Trigger
 
+**June 2024 Update** - Since the advent of this kit several components have been added as optional equipment, and some as alternatives to original parts. When using the pack and wand controllers with GPStar Audio boards, an ESP32 and Attenuator kit, all possible wand lighting upgrades, and the GPStar Amplifier the total power draw is around 0.35A at idle and around 0.93A while firing all effects. If adding a single smoke kit for the N-Filter during overheat/venting the maximum power draw is closer to 2.92A which is approaching the maximum rating for the Talentcell batteries.
+
 ## Warning
 
 *"I'm fuzzy on the whole good/bad thing. What do you mean, 'bad'?" -Dr. Venkman*
 
-In no case should you use the Arduino Mega's barrel jack to convert 12VDC into 5VDC for that board, nor use the 5V pin on the controller for running any other devices. The power converter on the microcontroller can become hot and may burn out over time, or you could easily draw more power than the Arduino can sustain, causing the need to replace the entire controller. Your best option is to utilize the 5V pin (and GND) to power any Arduino controllers which should come from a stable regulated 5V power source. The D-cell batteries supplied with the stock equipment may not be sufficient for the long runtimes expected by the solutions offered by these guides.
+For purposes of a DIY approach, in no case should you use the Arduino Mega's barrel jack to convert 12VDC into 5VDC for that board, nor use the 5V pin on the controller for running any other devices. The power converter on the microcontroller can become hot and may burn out over time, or you could easily draw more power than the Arduino can sustain, causing the need to replace the entire controller. Your best option is to utilize the 5V pin (and GND) to power any Arduino controllers which should come from a stable regulated 5V power source. The D-cell batteries supplied with the stock equipment may not be sufficient for the long runtimes expected by the solutions offered by these guides--furthermore, Alkaline batteries will exhibit a voltage drop as they drain which can fall below the minimum necessary to run the Arduino controllers.
 
 Also note that any battery pack which uses PD (power delivery) is not recommended, nor is use of USB-C connections as these could potentially supply up to 100W of power and could destroy your equipment. Using standard USB-A connections is recommended as there are dedicated power wires which are easy to access from a modified cable and is typically limited to 2-3 Amps for output.
 
