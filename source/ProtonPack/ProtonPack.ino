@@ -1696,7 +1696,7 @@ void powercellLoop() {
     }
     else {
       if(b_powercell_updating != true) {
-        if((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && b_2021_ramp_up != true && b_2021_ramp_down != true && b_alarm != true && b_wand_firing != true && b_overheating != true) {
+        if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_2021_ramp_up && !b_2021_ramp_down && !b_wand_firing && !b_alarm && !b_overheating) {
           if(b_powercell_sound_loop != true) {
             b_powercell_sound_loop = true;
             stopEffect(S_POWERCELL);
@@ -1707,7 +1707,7 @@ void powercellLoop() {
         powercellDraw(i_powercell_led); // Update starting at a specific LED.
 
         // Add a small delay to pause the Power Cell when all Power Cell LEDs are lit up, to match Afterlife and Frozen Empire.
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && b_alarm != true && i_powercell_led == i_powercell_leds - 1) {
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !b_alarm && i_powercell_led == i_powercell_leds - 1) {
           i_extra_delay = 350;
         }
 
@@ -1715,7 +1715,7 @@ void powercellLoop() {
       }
     }
 
-    if((b_overheating == true || b_2021_ramp_down == true || b_alarm == true) && b_powercell_sound_loop == true) {
+    if((b_overheating || b_2021_ramp_down || b_alarm || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && !b_cyclotron_lid_on)) && b_powercell_sound_loop) {
       audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
       b_powercell_sound_loop = false;
     }
