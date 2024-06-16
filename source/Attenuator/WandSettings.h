@@ -239,7 +239,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       getEl(hueLabelID).innerHTML = hueValue;
       getEl(satLabelID).innerHTML = satValue;
       var lightness = convertRange(100 - parseInt(satValue, 10), [0,100], [50,100]);
-      getEl(colourPreviewID).style.backgroundColour = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
+      getEl(colourPreviewID).style.backgroundColor = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
     }
 
     function isJsonString(str) {

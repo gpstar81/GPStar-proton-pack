@@ -367,40 +367,40 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
     }
 
-    function getStreamColour(cMode) {
-      var colour = [0, 0, 0];
+    function getStreamColor(cMode) {
+      var color = [0, 0, 0];
 
       switch(cMode){
         case "Plasm System":
           // Dark Green
-          colour[1] = 80;
+          color[1] = 80;
           break;
         case "Dark Matter Gen.":
           // Light Blue
-          colour[1] = 60;
-          colour[2] = 255;
+          color[1] = 60;
+          color[2] = 255;
           break;
         case "Particle System":
           // Orange
-          colour[0] = 255;
-          colour[1] = 140;
+          color[0] = 255;
+          color[1] = 140;
           break;
         case "Settings":
           // Gray
-          colour[0] = 40;
-          colour[1] = 40;
-          colour[2] = 40;
+          color[0] = 40;
+          color[1] = 40;
+          color[2] = 40;
           break;
         default:
           // Proton Stream(s) as Red
-          colour[0] = 180;
+          color[0] = 180;
       }
 
-      return colour;
+      return color;
     }
 
     function updateBars(iPower, cMode) {
-      var colour = getStreamColour(cMode);
+      var color = getStreamColor(cMode);
       var powerBars = getEl("powerBars");
       if (powerBars) {
         powerBars.innerHTML = ""; // Clear previous bars if any
@@ -409,7 +409,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           for (var i = 1; i <= iPower; i++) {
             var bar = document.createElement("div");
             bar.className = "bar";
-            bar.style.backgroundColour = "rgba(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ", 0." + Math.round(i * 1.8, 10) + ")";
+            bar.style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(i * 1.8, 10) + ")";
             powerBars.appendChild(bar);
           }
         }
@@ -419,7 +419,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     function updateGraphics(jObj){
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
-        var colour = getStreamColour(jObj.wandMode || "");
+        var color = getStreamColor(jObj.wandMode || "");
 
         var header = ""; // Used for the title on the display.
         switch(jObj.modeID || 0){
@@ -451,15 +451,15 @@ const char INDEX_page[] PROGMEM = R"=====(
         getEl("equipTitle").innerHTML = header;
 
         if (jObj.switch == "Ready") {
-          getEl("ionOverlay").style.backgroundColour = "rgba(0, 150, 0, 0.5)";
+          getEl("ionOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
         } else {
-          getEl("ionOverlay").style.backgroundColour = "rgba(255, 0, 0, 0.5)";
+          getEl("ionOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
         }
 
         if (jObj.pack == "Powered") {
-          getEl("pcellOverlay").style.backgroundColour = "rgba(0, 150, 0, 0.5)";
+          getEl("pcellOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
         } else {
-          getEl("pcellOverlay").style.backgroundColour = "rgba(100, 100, 100, 0.5)";
+          getEl("pcellOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         }
 
         if (jObj.cable == "Disconnected") {
@@ -472,41 +472,41 @@ const char INDEX_page[] PROGMEM = R"=====(
 
         switch(jObj.cyclotron){
           case "Active":
-            getEl("cycOverlay").style.backgroundColour = "rgba(255, 230, 0, 0.5)";
+            getEl("cycOverlay").style.backgroundColor = "rgba(255, 230, 0, 0.5)";
             getEl("cycOverlay").classList.remove("blinking");
             break;
           case "Warning":
-            getEl("cycOverlay").style.backgroundColour = "rgba(255, 100, 0, 0.5)";
+            getEl("cycOverlay").style.backgroundColor = "rgba(255, 100, 0, 0.5)";
             getEl("cycOverlay").classList.remove("blinking");
             break;
           case "Critical":
-            getEl("cycOverlay").style.backgroundColour = "rgba(255, 0, 0, 0.5)";
+            getEl("cycOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
             getEl("cycOverlay").classList.add("blinking");
             break;
           case "Recovery":
-            getEl("cycOverlay").style.backgroundColour = "rgba(0, 0, 255, 0.5)";
+            getEl("cycOverlay").style.backgroundColor = "rgba(0, 0, 255, 0.5)";
             getEl("cycOverlay").classList.remove("blinking");
             break;
           default:
             if (jObj.pack == "Powered") {
               // Also covers cyclotron state of "Normal"
-              getEl("cycOverlay").style.backgroundColour = "rgba(0, 150, 0, 0.5)";
+              getEl("cycOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
             } else {
-              getEl("cycOverlay").style.backgroundColour = "rgba(100, 100, 100, 0.5)";
+              getEl("cycOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
             }
             getEl("cycOverlay").classList.remove("blinking");
         }
 
         if (jObj.pack == "Powered") {
           if (jObj.temperature == "Venting") {
-            getEl("filterOverlay").style.backgroundColour = "rgba(255, 0, 0, 0.5)";
+            getEl("filterOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
             getEl("filterOverlay").classList.add("blinking");
           } else {
-            getEl("filterOverlay").style.backgroundColour = "rgba(0, 150, 0, 0.5)";
+            getEl("filterOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
             getEl("filterOverlay").classList.remove("blinking");
           }
         } else {
-          getEl("filterOverlay").style.backgroundColour = "rgba(100, 100, 100, 0.5)";
+          getEl("filterOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
           getEl("filterOverlay").classList.remove("blinking");
         }
 
@@ -517,7 +517,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           getEl("powerLevel").innerHTML = "L-" + (jObj.power || "0");
 
           getEl("barrelOverlay").style.display = "block";
-          getEl("barrelOverlay").style.backgroundColour = "rgba(" + colour[0] + ", " + colour[1] + ", " + colour[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
+          getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
           if (jObj.firing == "Firing") {
             getEl("barrelOverlay").classList.add("blinking");
           } else {
@@ -526,27 +526,27 @@ const char INDEX_page[] PROGMEM = R"=====(
 
           if (jObj.wandPower == "Powered") {
             if (jObj.safety == "Safety Off") {
-              getEl("safetyOverlay").style.backgroundColour = "rgba(0, 150, 0, 0.5)";
+              getEl("safetyOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
             } else {
-              getEl("safetyOverlay").style.backgroundColour = "rgba(255, 0, 0, 0.5)";
+              getEl("safetyOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
             }
           } else {
-            getEl("safetyOverlay").style.backgroundColour = "rgba(100, 100, 100, 0.5)";
+            getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
           }
         } else {
           getEl("powerLevel").innerHTML = "&mdash;";
           getEl("streamMode").innerHTML = "- Disconnected -";
           getEl("barrelOverlay").style.display = "none";
-          getEl("safetyOverlay").style.backgroundColour = "rgba(100, 100, 100, 0.5)";
+          getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         }
 
         if (jObj.battVoltage) {
           // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
           getEl("battOutput").innerHTML = "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV";
           if (jObj.battVoltage < 4.2) {
-            getEl("boostOverlay").style.backgroundColour = "rgba(255, 0, 0, 0.5)"; // Draining Battery
+            getEl("boostOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)"; // Draining Battery
           } else {
-            getEl("boostOverlay").style.backgroundColour = "rgba(0, 150, 0, 0.5)"; // Healthy Battery
+            getEl("boostOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)"; // Healthy Battery
           }
         } else {
           getEl("battOutput").innerHTML = "";
@@ -560,21 +560,21 @@ const char INDEX_page[] PROGMEM = R"=====(
       } else {
         // Reset all screen elements to their defaults to indicate no data available.
         getEl("equipTitle").innerHTML = "- Desynchronized -";
-        getEl("ionOverlay").style.backgroundColour = "rgba(255, 0, 0, 0.5)";
-        getEl("boostOverlay").style.backgroundColour = "rgba(100, 100, 100, 0.5)";
-        getEl("pcellOverlay").style.backgroundColour = "rgba(100, 100, 100, 0.5)";
+        getEl("ionOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+        getEl("boostOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+        getEl("pcellOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         getEl("cableOverlay").style.display = "none";
         getEl("cableOverlay").classList.remove("blinking");
-        getEl("cycOverlay").style.backgroundColour = "rgba(100, 100, 100, 0.5)";
+        getEl("cycOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         getEl("cycOverlay").classList.remove("blinking");
         getEl("cyclotronLid").style.display = "none";
-        getEl("filterOverlay").style.backgroundColour = "rgba(100, 100, 100, 0.5)";
+        getEl("filterOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         getEl("filterOverlay").classList.remove("blinking");
         getEl("barrelOverlay").style.display = "none";
         getEl("barrelOverlay").classList.remove("blinking");
         getEl("powerLevel").innerHTML = "&mdash;";
         getEl("streamMode").innerHTML = "- Disconnected -";
-        getEl("safetyOverlay").style.backgroundColour = "rgba(100, 100, 100, 0.5)";
+        getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         getEl("battOutput").innerHTML = "";
         getEl("cyclotronLid").style.display = "none";
       }

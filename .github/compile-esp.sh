@@ -25,6 +25,7 @@ arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-bin
 rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*.map
+rm -f ${BINDIR}/*.merged.bin
 
 mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32.bin
 mv ${BINDIR}/Attenuator.ino.bootloader.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Bootloader.bin
