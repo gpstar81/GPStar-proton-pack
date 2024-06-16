@@ -37,14 +37,14 @@ body {
 
 h1 {
   background: #222;
-  colour: #eee;
+  color: #eee;
   margin: 0;
   padding: 8px;
   width: 100%;
 }
 
 h3 {
-  colour: #333;
+  color: #333;
   margin: 10px;
 }
 
@@ -58,7 +58,7 @@ p {
 }
 
 .dark {
-  background-colour: #444;
+  background-color: #444;
 }
 
 .blinking {
@@ -72,7 +72,7 @@ p {
 }
 
 .footer {
-  colour: #ccc;
+  color: #ccc;
   font-size: 0.8em;
 }
 
@@ -91,7 +91,7 @@ p {
   border-radius: 12px;
   box-sizing: border-box;
   box-shadow: 0 2px 18px -4px rgba(0, 0, 0, 0.75);
-  colour: #444;
+  color: #444;
   margin: 20px auto;
   max-width: 360px;
   min-height: 200px;
@@ -119,7 +119,7 @@ p {
 }
 
 .equipment {
-  background-colour: black;
+  background-color: black;
   background-image:url('/equipment.svg');
   background-position: center;
   background-repeat: no-repeat;
@@ -128,7 +128,7 @@ p {
   border-radius: 12px;
   box-sizing: border-box;
   box-shadow: 0 2px 18px -4px rgba(0, 0, 0, 0.75);
-  colour: rgba(0, 160, 0, 1);
+  color: rgba(0, 160, 0, 1);
   height: 500px;
   margin: 20px auto;
   max-width: 360px;
@@ -222,7 +222,7 @@ p {
 }
 
 .cyc-circle::before {
-  background-colour: white;
+  background-color: white;
   border-radius: 50%;
   bottom: -1.7%;
   content: "";
@@ -270,7 +270,7 @@ p {
 }
 
 .cable-warn {
-  colour: yellow;
+  color: yellow;
   display: none;
   font-family: monospace;
   font-size: 6em;
@@ -289,24 +289,24 @@ p {
 }
 
 button {
-  background-colour: #555;
+  background-color: #555;
   border: 2px solid #333;
   border-radius: 8px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
-  colour: white;
+  color: white;
   margin: 5px;
   padding: 12px 8px;
   text-align: center;
   touch-action: manipulation;
   width: 100px;
-  transition: background-colour 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 button:disabled,
 button[disabled] {
   border: 1px solid #999 !important;
-  background-colour: #ccc !important;
-  colour: #555 !important;
+  background-color: #ccc !important;
+  color: #555 !important;
 }
 
 button:active {
@@ -324,10 +324,10 @@ input, select, textarea {
 }
 
 select {
-  background-colour: #555;
+  background-color: #555;
   border-radius: 8px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
-  colour: white;
+  color: white;
   cursor: pointer;
   font-size: 1.15rem;
   height: 40px;
@@ -369,10 +369,10 @@ select {
   border: 2px solid;
 }
 
-.red { background-colour: #f44336; border-colour: #d42316; }
-.orange { background-colour: #ffac1c; border-colour: #dd9a0a; }
-.green { background-colour: #4CAF50; border-colour: #2C8F30; }
-.blue { background-colour: #008CBA; border-colour: #006C9A; }
+.red { background-color: #f44336; border-color: #d42316; }
+.orange { background-color: #ffac1c; border-color: #dd9a0a; }
+.green { background-color: #4CAF50; border-color: #2C8F30; }
+.blue { background-color: #008CBA; border-color: #006C9A; }
 
 .setting {
   margin: 10px 0;
@@ -419,7 +419,7 @@ input[type=text] {
 }
 
 .slider {
-  background-colour: #ccc;
+  background-color: #ccc;
   bottom: 0;
   cursor: pointer;
   left: 0;
@@ -430,7 +430,7 @@ input[type=text] {
 }
 
 .slider:before {
-  background-colour: white;
+  background-color: white;
   bottom: 4px;
   content: "";
   height: 26px;
@@ -441,7 +441,7 @@ input[type=text] {
 }
 
 input:checked + .slider {
-  background-colour: #2196F3;
+  background-color: #2196F3;
 }
 
 input:focus + .slider {
@@ -476,7 +476,7 @@ input:checked + .slider:before {
 }
 
 .bar {
-  background-colour: lightgray;
+  background-color: lightgray;
   border: 1px solid #222;
   height: 15px;
   width: 20px;
@@ -484,7 +484,7 @@ input:checked + .slider:before {
 
 .volume-control {
   align-items: center;
-  background-colour: #fff;
+  background-color: #fff;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -501,7 +501,7 @@ input:checked + .slider:before {
 
 .volume-control button {
   align-items: center;
-  background-colour: #008CBA;
+  background-color: #008CBA;
   border: 1px solid #006C9A;
   cursor: pointer;
   display: flex;
@@ -509,12 +509,12 @@ input:checked + .slider:before {
   height: 50px;
   justify-content: center;
   margin: 5px 0;
-  transition: background-colour 0.3s ease;
+  transition: background-color 0.3s ease;
   width: 50px;
 }
 
 .volume-control button:hover {
-  background-colour: #009DCB;
+  background-color: #009DCB;
 }
 
 .volume-control button:active {
@@ -534,7 +534,7 @@ input:checked + .slider:before {
 
 .music-navigation button {
   align-items: center;
-  background-colour: #008CBA;
+  background-color: #008CBA;
   border: 1px solid #006C9A;
   border-radius: 0;
   cursor: pointer;
@@ -544,7 +544,7 @@ input:checked + .slider:before {
   height: 40px;
   justify-content: center;
   margin: 0;
-  transition: background-colour 0.3s ease;
+  transition: background-color 0.3s ease;
   width: 85px;
 }
 
@@ -557,7 +557,7 @@ input:checked + .slider:before {
 }
 
 .music-navigation button:hover {
-  background-colour: #009DCB;
+  background-color: #009DCB;
 }
 
 .music-navigation button:active {
@@ -591,7 +591,7 @@ input:checked + .slider:before {
   height: 60px;
   position: relative;
   margin: 0;
-  transition: background-colour 0.3s ease;
+  transition: background-color 0.3s ease;
   width: 85px;
   -webkit-filter: grayscale(100%);
 }
