@@ -195,6 +195,7 @@ rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
 millisDelay ms_cyclotron_slime_effect;
 bool b_cyclotron_lid_on = true;
+bool b_brass_pack_sound_loop = false;
 bool b_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 rampInt ms_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
