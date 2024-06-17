@@ -169,7 +169,7 @@ uint8_t i_spectral_cyclotron_custom_saturation = 254;
 uint8_t i_spectral_cyclotron_inner_custom_saturation = 254;
 
 /*
- * You can set the default brightness of your Power Cell, Cyclotron or Inner Cyclotron LEDs.
+ * You can set the default brightness of your Power Cell, Cyclotron, Inner Cyclotron, or Inner Cyclotron Switch Panel LEDs.
  * Values are in percentages %.
  * 0 = off.
  * 100 = Maximum brightness.
@@ -178,6 +178,7 @@ uint8_t i_spectral_cyclotron_inner_custom_saturation = 254;
 uint8_t i_powercell_brightness = 100;
 uint8_t i_cyclotron_brightness = 100;
 uint8_t i_cyclotron_inner_brightness = 100;
+uint8_t i_cyclotron_panel_brightness = 100;
 
 /*
  * When set to true, the Proton Pack will turn on automatically when it receives power.

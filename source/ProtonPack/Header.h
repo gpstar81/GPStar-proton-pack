@@ -195,6 +195,7 @@ rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
 millisDelay ms_cyclotron_slime_effect;
 bool b_cyclotron_lid_on = true;
+bool b_brass_pack_sound_loop = false;
 bool b_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 rampInt ms_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
@@ -415,7 +416,8 @@ static uint16_t store = 0;
 enum pack_led_dim_control {
   DIM_POWERCELL,
   DIM_CYCLOTRON,
-  DIM_INNER_CYCLOTRON
+  DIM_INNER_CYCLOTRON,
+  DIM_CYCLOTRON_PANEL
 };
 
 uint8_t pack_dim_toggle = DIM_POWERCELL;
@@ -457,6 +459,13 @@ millisDelay ms_fadeout;
 uint16_t i_batt_volts; // Current voltage value (Vcc) using internal bandgap reference.
 const uint16_t i_ms_battcheck_delay = 5000; // Time between battery voltage checks.
 millisDelay ms_battcheck; // Timer for checking battery voltage on a regular interval.
+
+/*
+ * Neutrona Wand Sensor Board (optional)
+ * Used for detecting a stock or unmodified Hasbro Neutrona Wand.
+*/
+bool b_wand_sensor = false;
+float f_wand_sensor_data = 0.0;
 
 /*
  * Function prototypes.

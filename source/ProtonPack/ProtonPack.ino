@@ -43,6 +43,7 @@
 #include <ezButton.h>
 #include <Ramp.h>
 #include <SerialTransfer.h>
+#include <Wire.h>
 
 // Local Files
 #include "Configuration.h"
@@ -52,11 +53,18 @@
 #include "Colours.h"
 #include "Audio.h"
 #include "Preferences.h"
+#include "WandSensor.h"
 
 void setup() {
+  // Setup i2c.
+  Wire.begin();
+
   Serial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600); // Add-on Serial1 communication.
   Serial2.begin(9600); // Communication to the Neutrona Wand.
+
+  // Search for and setup the optional Neutrona Wand sensor.
+  wandSensorSetup();
 
   // Connect the serial ports.
   serial1Coms.begin(Serial1, false); // Attenuator/Wireless
@@ -208,6 +216,7 @@ void setup() {
 
 void loop() {
   updateAudio();
+  updateWandSensor();
 
   // Voltage Check
   if(ms_battcheck.justFinished()) {
@@ -770,8 +779,9 @@ void packStartup() {
         }
 
         // Cyclotron lid is off, play the Frozen Empire sound effect.
-        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on != true) {
-          playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
+        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON && !b_cyclotron_lid_on) {
+          playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
+          b_brass_pack_sound_loop = true;
         }
 
         ms_idle_fire_fade.start(200);
@@ -1398,6 +1408,7 @@ void cyclotronSwitchLEDUpdate() {
   // or via the addressable LEDs if the user has installed the custom PCB between the Pack Controller and Cake.
   if(b_cyclotron_lid_on != true) {
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_PANEL, STREAM_MODE, b_cyclotron_colour_toggle);
+    uint8_t i_brightness = getBrightness(i_cyclotron_panel_brightness);
 
     if(b_alarm == true) {
       if(i_cyclotron_sw_led > 0) {
@@ -1412,7 +1423,7 @@ void cyclotronSwitchLEDUpdate() {
 
         if(b_inner_cyclotron_led_panel == true) {
           for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
-            cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+            cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
           }
         }
       }
@@ -1464,8 +1475,8 @@ void cyclotronSwitchLEDUpdate() {
           digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
           if(b_inner_cyclotron_led_panel == true) {
-            cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
-            cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
+            cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
+            cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
           }
         break;
 
@@ -1480,8 +1491,8 @@ void cyclotronSwitchLEDUpdate() {
           digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
           if(b_inner_cyclotron_led_panel == true) {
-            cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
-            cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
+            cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
+            cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
           }
         break;
 
@@ -1496,8 +1507,8 @@ void cyclotronSwitchLEDUpdate() {
           digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
           if(b_inner_cyclotron_led_panel == true) {
-            cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
-            cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
+            cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
+            cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
           }
         break;
 
@@ -1513,7 +1524,7 @@ void cyclotronSwitchLEDUpdate() {
 
           if(b_inner_cyclotron_led_panel == true) {
             for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
-              cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
+              cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
             }
           }
         break;
@@ -1590,12 +1601,30 @@ void cyclotronSwitchLEDLoop() {
         }
       }
 
+      // Frozen Empire brass pack sound is handled here.
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON && !b_alarm && !b_overheating && !b_2021_ramp_down) {
+        if(!b_brass_pack_sound_loop) {
+          playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
+          b_brass_pack_sound_loop = true;
+        }
+      }
+      else if(b_brass_pack_sound_loop) {
+        stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+        b_brass_pack_sound_loop = false;
+      }
+
       // Update the LEDs.
       cyclotronSwitchLEDUpdate();
     }
     else {
       // No need to have the Inner Cyclotron switch plate LEDs on when the lid is on.
       cyclotronSwitchLEDOff();
+
+      // Stop the brass pack sound if it is playing.
+      if(b_brass_pack_sound_loop) {
+        stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+        b_brass_pack_sound_loop = false;
+      }
     }
 
     // Setup the delays again.
@@ -3668,13 +3697,13 @@ void clearCyclotronFades() {
 void innerCyclotronLEDPanelOff() {
   if(b_inner_cyclotron_led_panel == true) {
     if(b_cyclotron_lid_on == true) {
-      // Lights out while the cyclotron lid is on.
+      // All lights turn off while the cyclotron lid is on.
       for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end; i++) {
         cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
       }
     }
     else {
-      // Otherwise, lights are on when lid is removed.
+      // Otherwise the 2 switch panel lights remain on when lid is removed.
       for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
         cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
       }
@@ -4443,8 +4472,9 @@ void packAlarm() {
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
     stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
 
-    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+    if(b_brass_pack_sound_loop) {
       stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+      b_brass_pack_sound_loop = false;
     }
   }
 
@@ -4489,7 +4519,7 @@ void packAlarm() {
     }
   }
 
-  // Turn of LEDs within the cyclotron cavity, if lid is not attached.
+  // Turn off LEDs within the Cyclotron cavity if lid is not attached.
   if(b_cyclotron_lid_on != true) {
     innerCyclotronCavityOff();
   }
@@ -4539,11 +4569,6 @@ void cyclotronSwitchPlateLEDs() {
     // Play some spark sounds if the pack is running and the lid is removed.
     if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
-
-      // Cyclotron lid is off, play the Frozen Empire sound effect.
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-        playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects + i_gpstar_audio_volume_factor, true, 2000);
-      }
     }
     else {
       // Make sure we reset the cyclotron LED status if not in the EEPROM LED menu.
@@ -4565,10 +4590,6 @@ void cyclotronSwitchPlateLEDs() {
     // Play some spark sounds if the pack is running and the lid is put back on.
     if(PACK_STATE == MODE_ON) {
       playEffect(S_SPARKS_LOOP);
-
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-        stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
-      }
     }
     else {
       // Make sure we reset the cyclotron LED status if not in the EEPROM LED menu.
@@ -4609,12 +4630,14 @@ void cyclotronSwitchPlateLEDs() {
   }
 
   if(b_cyclotron_lid_on != true) {
+    uint8_t i_brightness = getBrightness(i_cyclotron_panel_brightness);
+
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
         digitalWriteFast(cyclotron_switch_led_green, HIGH);
 
         if(b_inner_cyclotron_led_panel == true) {
-          cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+          cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
         }
       }
       else {
@@ -4629,7 +4652,7 @@ void cyclotronSwitchPlateLEDs() {
       digitalWriteFast(cyclotron_switch_led_green, HIGH);
 
       if(b_inner_cyclotron_led_panel == true) {
-        cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+        cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
       }
     }
 
@@ -4638,7 +4661,7 @@ void cyclotronSwitchPlateLEDs() {
         digitalWriteFast(cyclotron_switch_led_yellow, HIGH);
 
         if(b_inner_cyclotron_led_panel == true) {
-          cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_YELLOW);
+          cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_YELLOW, i_brightness);
         }
       }
       else {
@@ -4653,7 +4676,7 @@ void cyclotronSwitchPlateLEDs() {
       digitalWriteFast(cyclotron_switch_led_yellow, HIGH);
 
       if(b_inner_cyclotron_led_panel == true) {
-        cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_YELLOW);
+        cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_YELLOW, i_brightness);
       }
     }
   }

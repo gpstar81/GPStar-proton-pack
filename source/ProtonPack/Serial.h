@@ -3409,6 +3409,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
           playEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
 
@@ -3416,11 +3417,25 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case DIM_INNER_CYCLOTRON:
+          pack_dim_toggle = DIM_CYCLOTRON_PANEL;
+
+          stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
+          stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
+          stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
+
+          playEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
+
+          packSerialSend(P_CYCLOTRON_PANEL_DIMMING);
+        break;
+
+        case DIM_CYCLOTRON_PANEL:
           pack_dim_toggle = DIM_POWERCELL;
 
           stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
           playEffect(S_VOICE_POWERCELL_BRIGHTNESS);
 
@@ -3434,6 +3449,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
           playEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
 
@@ -3476,6 +3492,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
               i_cyclotron_inner_brightness = i_cyclotron_inner_brightness + 10;
             }
 
+            packSerialSend(P_DIMMING);
+
+            stopEffect(S_BEEPS);
+            playEffect(S_BEEPS);
+          }
+          else {
+            // Already at 100%, indicate as such.
+            stopEffect(S_BEEPS_ALT);
+            playEffect(S_BEEPS_ALT);
+          }
+        break;
+
+        case DIM_CYCLOTRON_PANEL:
+          if(i_cyclotron_panel_brightness < 100) {
+            if(i_cyclotron_panel_brightness + 10 > 100) {
+              i_cyclotron_panel_brightness = 100;
+            }
+            else {
+              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness + 10;
+            }
+
+            packSerialSend(P_DIMMING);
+
             stopEffect(S_BEEPS);
             playEffect(S_BEEPS);
           }
@@ -3498,6 +3537,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
             // Reset the Power Cell.
             powercellDraw();
+
+            packSerialSend(P_DIMMING);
 
             stopEffect(S_BEEPS);
             playEffect(S_BEEPS);
@@ -3545,6 +3586,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
               i_cyclotron_inner_brightness = i_cyclotron_inner_brightness - 10;
             }
 
+            packSerialSend(P_DIMMING);
+
+            stopEffect(S_BEEPS);
+            playEffect(S_BEEPS);
+          }
+          else {
+            // Already at 0%, indicate as such.
+            stopEffect(S_BEEPS_ALT);
+            playEffect(S_BEEPS_ALT);
+          }
+        break;
+
+        case DIM_CYCLOTRON_PANEL:
+          if(i_cyclotron_panel_brightness > 0) {
+            if(i_cyclotron_panel_brightness - 10 < 0) {
+              i_cyclotron_panel_brightness = 0;
+            }
+            else {
+              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness - 10;
+            }
+
+            packSerialSend(P_DIMMING);
+
             stopEffect(S_BEEPS);
             playEffect(S_BEEPS);
           }
@@ -3567,6 +3631,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
             // Reset the Power Cell.
             powercellDraw();
+
+            packSerialSend(P_DIMMING);
 
             stopEffect(S_BEEPS);
             playEffect(S_BEEPS);
