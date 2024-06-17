@@ -416,7 +416,8 @@ static uint16_t store = 0;
 enum pack_led_dim_control {
   DIM_POWERCELL,
   DIM_CYCLOTRON,
-  DIM_INNER_CYCLOTRON
+  DIM_INNER_CYCLOTRON,
+  DIM_CYCLOTRON_PANEL
 };
 
 uint8_t pack_dim_toggle = DIM_POWERCELL;

@@ -1408,6 +1408,7 @@ void cyclotronSwitchLEDUpdate() {
   // or via the addressable LEDs if the user has installed the custom PCB between the Pack Controller and Cake.
   if(b_cyclotron_lid_on != true) {
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_PANEL, STREAM_MODE, b_cyclotron_colour_toggle);
+    uint8_t i_brightness = getBrightness(i_cyclotron_panel_brightness);
 
     if(b_alarm == true) {
       if(i_cyclotron_sw_led > 0) {
@@ -1422,7 +1423,7 @@ void cyclotronSwitchLEDUpdate() {
 
         if(b_inner_cyclotron_led_panel == true) {
           for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
-            cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+            cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
           }
         }
       }
@@ -1474,8 +1475,8 @@ void cyclotronSwitchLEDUpdate() {
           digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
           if(b_inner_cyclotron_led_panel == true) {
-            cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
-            cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
+            cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
+            cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
           }
         break;
 
@@ -1490,8 +1491,8 @@ void cyclotronSwitchLEDUpdate() {
           digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
           if(b_inner_cyclotron_led_panel == true) {
-            cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
-            cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
+            cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
+            cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
           }
         break;
 
@@ -1506,8 +1507,8 @@ void cyclotronSwitchLEDUpdate() {
           digitalWriteFast(cyclotron_sw_plate_led_g2, HIGH);
 
           if(b_inner_cyclotron_led_panel == true) {
-            cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
-            cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
+            cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
+            cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
           }
         break;
 
@@ -1523,7 +1524,7 @@ void cyclotronSwitchLEDUpdate() {
 
           if(b_inner_cyclotron_led_panel == true) {
             for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
-              cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme);
+              cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, i_colour_scheme, i_brightness);
             }
           }
         break;
@@ -4629,12 +4630,14 @@ void cyclotronSwitchPlateLEDs() {
   }
 
   if(b_cyclotron_lid_on != true) {
+    uint8_t i_brightness = getBrightness(i_cyclotron_panel_brightness);
+
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
         digitalWriteFast(cyclotron_switch_led_green, HIGH);
 
         if(b_inner_cyclotron_led_panel == true) {
-          cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+          cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
         }
       }
       else {
@@ -4649,7 +4652,7 @@ void cyclotronSwitchPlateLEDs() {
       digitalWriteFast(cyclotron_switch_led_green, HIGH);
 
       if(b_inner_cyclotron_led_panel == true) {
-        cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+        cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
       }
     }
 
@@ -4658,7 +4661,7 @@ void cyclotronSwitchPlateLEDs() {
         digitalWriteFast(cyclotron_switch_led_yellow, HIGH);
 
         if(b_inner_cyclotron_led_panel == true) {
-          cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_YELLOW);
+          cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_YELLOW, i_brightness);
         }
       }
       else {
@@ -4673,7 +4676,7 @@ void cyclotronSwitchPlateLEDs() {
       digitalWriteFast(cyclotron_switch_led_yellow, HIGH);
 
       if(b_inner_cyclotron_led_panel == true) {
-        cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_YELLOW);
+        cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_YELLOW, i_brightness);
       }
     }
   }

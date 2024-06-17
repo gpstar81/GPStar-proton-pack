@@ -1589,6 +1589,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
       playEffect(S_VOICE_POWERCELL_BRIGHTNESS);
     break;
@@ -1597,6 +1598,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
       playEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
     break;
@@ -1605,8 +1607,18 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
       playEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+    break;
+
+    case P_CYCLOTRON_PANEL_DIMMING:
+      stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
+      stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
+      stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
+
+      playEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
     break;
 
     case P_PROTON_STREAM_IMPACT_ENABLED:
