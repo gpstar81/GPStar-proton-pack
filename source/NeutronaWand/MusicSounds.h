@@ -403,10 +403,14 @@ enum sound_fx {
   S_RIBBON_CABLE_DETACH,
   S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED,
   S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED,
-  S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS
+  S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS,
+  S_GB1_1984_FIRE_START_1,
+  S_GB1_1984_FIRE_LOOP_1,
+  S_GB1_1984_FIRE_START_2,
+  S_GB1_1984_FIRE_LOOP_2
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS;
+const uint16_t i_last_effects_track = S_GB1_1984_FIRE_LOOP_2;
