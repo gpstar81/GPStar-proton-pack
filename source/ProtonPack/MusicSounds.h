@@ -407,10 +407,14 @@ enum sound_fx {
   S_GB1_1984_FIRE_START_1,
   S_GB1_1984_FIRE_LOOP_1,
   S_GB1_1984_FIRE_START_2,
-  S_GB1_1984_FIRE_LOOP_2
+  S_GB1_1984_FIRE_LOOP_2,
+  S_GB1_1984_BOOT_UP,
+  S_GB1_1984_PACK_LOOP,
+  S_GB1_1984_PACK_SHUTDOWN,
+  S_GB1_1984_CTS_ENERGY_BURST
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_GB1_1984_FIRE_LOOP_2;
+const uint16_t i_last_effects_track = S_GB1_1984_CTS_ENERGY_BURST;
