@@ -747,8 +747,8 @@ void packStartup(bool firstStart) {
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
-        playEffect(S_BOOTUP);
-        playEffect(S_IDLE_LOOP, true, i_volume_effects, true, 2000);
+        playEffect(S_GB1_1984_BOOT_UP);
+        playEffect(S_GB1_1984_PACK_LOOP, true, i_volume_effects, true, 3800);
       break;
 
       case SYSTEM_1989:
@@ -901,8 +901,10 @@ void packShutdown() {
   }
 
   if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-    b_powercell_sound_loop = false;
-    stopEffect(S_POWERCELL); // Just in case a shutdown happens and not a ramp down.
+    if(b_powercell_sound_loop) {
+      stopEffect(S_POWERCELL); // Just in case a shutdown happens and not a ramp down.
+      b_powercell_sound_loop = false;
+    }
 
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
@@ -939,12 +941,10 @@ void packShutdown() {
   if(b_alarm != true) {
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
-        playEffect(S_SHUTDOWN);
-        playEffect(S_PACK_SHUTDOWN);
+        playEffect(S_GB1_1984_PACK_SHUTDOWN);
       break;
 
       case SYSTEM_1989:
-        playEffect(S_SHUTDOWN);
         playEffect(S_GB2_PACK_OFF);
       break;
 
@@ -1375,7 +1375,10 @@ void checkSwitches() {
           case SYSTEM_1984:
           case SYSTEM_1989:
           default:
-            // Do nothing.
+            if(switch_power.getState() == HIGH) {
+              // If shutting down from the ion arm switch in 84/89, play the extra shutdown sound.
+              playEffect(S_SHUTDOWN);
+            }
           break;
         }
       }
