@@ -365,7 +365,7 @@ void loop() {
           stopEffect(S_PACK_RECOVERY);
           playEffect(S_PACK_RECOVERY);
 
-          packStartup();
+          packStartup(false);
         }
       }
 
@@ -524,7 +524,7 @@ void loop() {
     break;
 
     case ACTION_ACTIVATE:
-      packStartup();
+      packStartup(true);
     break;
   }
 
@@ -715,7 +715,7 @@ void playVentSounds() {
   playEffect(S_SPARKS_LOOP);
 }
 
-void packStartup() {
+void packStartup(bool firstStart) {
   PACK_STATE = MODE_ON;
   PACK_ACTION_STATE = ACTION_IDLE;
 
@@ -732,11 +732,13 @@ void packStartup() {
     serial1Send(A_ALARM_ON);
   }
   else {
-    // Tell the wand the pack alarm is off.
-    packSerialSend(P_ALARM_OFF);
+    if(!firstStart) {
+      // Tell the wand the pack alarm is off.
+      packSerialSend(P_ALARM_OFF);
 
-    // Tell any add-on devices that the alarm is off.
-    serial1Send(A_ALARM_OFF);
+      // Tell any add-on devices that the alarm is off.
+      serial1Send(A_ALARM_OFF);
+    }
 
     stopEffect(S_PACK_RIBBON_ALARM_1);
     stopEffect(S_ALARM_LOOP);
@@ -756,16 +758,30 @@ void packStartup() {
 
       case SYSTEM_AFTERLIFE:
       default:
-        if(STREAM_MODE == SLIME) {
-          playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 30);
-          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 18000);
+        if(firstStart) {
+          if(STREAM_MODE == SLIME) {
+            playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 30);
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 18000);
+          }
+          else {
+            playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects);
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
+          }
+
+          ms_idle_fire_fade.start(18000);
         }
         else {
-          playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects);
-          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
-        }
+          if(STREAM_MODE == SLIME) {
+            playEffect(S_BOOTUP, false, i_volume_effects - 30);
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
+          }
+          else {
+            playEffect(S_BOOTUP, false, i_volume_effects);
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
+          }
 
-        ms_idle_fire_fade.start(18000);
+          ms_idle_fire_fade.start(0);
+        }
       break;
 
       case SYSTEM_FROZEN_EMPIRE:
@@ -784,7 +800,7 @@ void packStartup() {
           b_brass_pack_sound_loop = true;
         }
 
-        ms_idle_fire_fade.start(200);
+        ms_idle_fire_fade.start(0);
       break;
     }
 
@@ -1632,21 +1648,23 @@ void cyclotronSwitchLEDLoop() {
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
-      default:
-        if(b_2021_ramp_up == true) {
-          i_cyc_led_delay = i_cyclotron_switch_led_delay + (i_2021_ramp_delay - r_2021_ramp.update());
-        }
-        else if(b_2021_ramp_down == true) {
-          i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
-        }
-      break;
-
       case SYSTEM_FROZEN_EMPIRE:
-        if(b_2021_ramp_up == true) {
-          i_cyc_led_delay = i_cyclotron_switch_led_delay + ((i_2021_ramp_delay / 2) - r_2021_ramp.update());
+      default:
+        if(ms_idle_fire_fade.remaining() > 0) {
+          if(b_2021_ramp_up == true) {
+            i_cyc_led_delay = i_cyclotron_switch_led_delay + (i_2021_ramp_delay - r_2021_ramp.update());
+          }
+          else if(b_2021_ramp_down == true) {
+            i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
+          }
         }
-        else if(b_2021_ramp_down == true) {
-          i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
+        else {
+          if(b_2021_ramp_up == true) {
+            i_cyc_led_delay = i_cyclotron_switch_led_delay + ((i_2021_ramp_delay / 2) - r_2021_ramp.update());
+          }
+          else if(b_2021_ramp_down == true) {
+            i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
+          }
         }
       break;
 
@@ -2091,24 +2109,25 @@ void cyclotronControl() {
         case SYSTEM_1989:
           r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
           r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
-
           r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
           r_inner_ramp.go(i_1984_inner_delay, i_1984_ramp_length, CIRCULAR_OUT);
         break;
 
         case SYSTEM_AFTERLIFE:
-        default:
-          r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
-          r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
-          r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
-          r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
-        break;
-
         case SYSTEM_FROZEN_EMPIRE:
-          r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
-          r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 1.5), QUADRATIC_OUT);
-          r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
-          r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUADRATIC_OUT);
+        default:
+          if(ms_idle_fire_fade.remaining() > 0) {
+            r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
+            r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
+            r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
+            r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
+          }
+          else {
+            r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
+            r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 1.5), QUADRATIC_OUT);
+            r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
+            r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUADRATIC_OUT);
+          }
         break;
       }
     }
@@ -3519,7 +3538,7 @@ void packOverheatingFinished() {
 
   reset2021RampUp();
 
-  packStartup();
+  packStartup(false);
 
   // Turn off the vent lights
   ventLight(false);

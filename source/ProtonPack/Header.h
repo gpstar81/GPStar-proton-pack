@@ -400,7 +400,7 @@ millisDelay ms_firing_length_timer;
 const uint16_t i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
 millisDelay ms_firing_sound_mix; // Used to play misc sound effects during firing.
 uint16_t i_last_firing_effect_mix = 0;
-millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound with firing
+millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound with firing, and determining whether to use "full" or "quick" bootup sequences.
 
 /*
  * Rotary encoder for volume control
