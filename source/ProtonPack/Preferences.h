@@ -161,7 +161,12 @@ void readEEPROM() {
     }
 
     if(obj_eeprom.cyclotron_cavity_count > 0 && obj_eeprom.cyclotron_cavity_count != 255) {
-      i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+      if(obj_eeprom.cyclotron_cavity_count > 20) {
+        i_inner_cyclotron_cavity_num_leds = 20;
+      }
+      else {
+        i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+      }
     }
 
     if(obj_eeprom.inner_cyclotron_led_panel > 0 && obj_eeprom.inner_cyclotron_led_panel != 255) {

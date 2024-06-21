@@ -135,7 +135,7 @@ uint8_t i_inner_cyclotron_cake_num_leds = 35;
 /*
  * (OPTIONAL) Inner Cyclotron (cavity) effects
  * If you are not using any, then this can be left alone (Default: 0).
- * You can use up to 30 LEDs (eg. addressable fairy lights as recommended device)
+ * You can use up to 20 LEDs (eg. addressable fairy lights as recommended device)
  */
 uint8_t i_inner_cyclotron_cavity_num_leds = 0;
 
