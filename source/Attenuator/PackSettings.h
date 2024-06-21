@@ -226,7 +226,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Cyclotron Cavity Lights:</b><br/>
-      <input type="range" id="ledCycCavCount" name="ledCycCavCount" min="0" max="30" value="0" step="2"
+      <input type="range" id="ledCycCavCount" name="ledCycCavCount" min="0" max="20" value="0" step="2"
        oninput="ledCycCavCountOut.value=ledCycCavCount.value"/>
       <output class="labelSlider" id="ledCycCavCountOut" for="ledCycCavCount"></output>
     </div>
