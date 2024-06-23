@@ -190,7 +190,9 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>LED Count:</b>
       <select id="ledCycCakeCount" name="ledCycCakeCount">
-        <option value="35">35 - GPStar</option>
+        <option value="36">36 - GPStar</option>
+        <option value="35">35</option>
+        <option value="26">26</option>
         <option value="24">24</option>
         <option value="23">23</option>
         <option value="12">12</option>
@@ -370,7 +372,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             getEl("ledVGCyclotron").checked = settings.ledVGCyclotron ? true: false;
             getEl("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true: false;
 
-            getEl("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 12
+            getEl("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 35
             getEl("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360]); // Default: Red
             getEl("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
             getEl("ledCycInnerPanel").checked = settings.ledCycInnerPanel ? true: false;

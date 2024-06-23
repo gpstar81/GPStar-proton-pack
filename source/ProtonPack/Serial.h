@@ -3655,7 +3655,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       switch(i_inner_cyclotron_cake_num_leds) {
         case 12:
-          // Switch to 23 LEDs.
+          // Switching: 12 -> 23 LEDs.
           i_inner_cyclotron_cake_num_leds = 23;
           i_2021_inner_delay = 8;
           i_1984_inner_delay = 12;
@@ -3665,7 +3665,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case 23:
-          // Switch to 24 LEDs.
+          // Switching: 23 -> 24 LEDs.
           i_inner_cyclotron_cake_num_leds = 24;
           i_2021_inner_delay = 8;
           i_1984_inner_delay = 12;
@@ -3675,8 +3675,18 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case 24:
+          // Switching: 24 -> 26 LEDs.
+          i_inner_cyclotron_cake_num_leds = 26;
+          i_2021_inner_delay = 5;
+          i_1984_inner_delay = 9;
+
+          // playEffect(S_VOICE_INNER_CYCLOTRON_26);
+          // packSerialSend(P_INNER_CYCLOTRON_LEDS_26);
+        break;
+
+        case 26:
         default:
-          // Switch to 35 LEDs.
+          // Switching: 26 -> 35 LEDs.
           i_inner_cyclotron_cake_num_leds = 35;
           i_2021_inner_delay = 5;
           i_1984_inner_delay = 9;
@@ -3686,7 +3696,17 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case 35:
-          // Switch to 12 LEDs.
+          // Switching: 35 -> 36 LEDs.
+          i_inner_cyclotron_cake_num_leds = 36;
+          i_2021_inner_delay = 12;
+          i_1984_inner_delay = 15;
+
+          // playEffect(S_VOICE_INNER_CYCLOTRON_36);
+          // packSerialSend(P_INNER_CYCLOTRON_LEDS_36);
+        break;
+
+        case 36:
+          // Switching: 36 -> 12 LEDs.
           i_inner_cyclotron_cake_num_leds = 12;
           i_2021_inner_delay = 12;
           i_1984_inner_delay = 15;

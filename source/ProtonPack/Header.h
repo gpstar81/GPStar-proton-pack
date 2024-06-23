@@ -53,7 +53,7 @@
 /*
  * Set the number of steps for the Inner Cyclotron (cake).
  */
-#define INNER_CYCLOTRON_CAKE_LED_MAX 35
+#define INNER_CYCLOTRON_CAKE_LED_MAX 36
 
 /*
  * Set the number of steps for the Inner Cyclotron (cavity).
@@ -100,10 +100,10 @@ const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
 
 /*
  * Total number of LEDs in the optional inner cyclotron configuration.
- * Up to 8 LEDs for the inner panel by Frutto Technology.
- * Up to 35 LEDs for the ring (due to diameter of the ring).
- * Optionally, up to 30 LEDs for the "sparking" effect in the cavity.
- * Max 73 LEDs is possible before degradation of serial communications.
+ * Max 64 LEDs is possible before degradation of serial communications!
+ * - Up to 8 LEDs for the inner panel by Frutto Technology.
+ * - Up to 36 LEDs for the largest ring provided by GPStar kits.
+ * - Optionally, up to 20 LEDs for the "sparking" effect in the cavity.
  */
 const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
 
