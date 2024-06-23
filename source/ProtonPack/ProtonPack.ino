@@ -4120,8 +4120,7 @@ void modeFireStartSounds() {
           if(b_firing_alt == true) {
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
-              audio.trackFade(S_GB2_FIRE_START, 0, 3000, true);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 3000, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 6500, false);
             }
             else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
               playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
@@ -4129,7 +4128,7 @@ void modeFireStartSounds() {
             }
             else {
               playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 600, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, false);
             }
 
             b_sound_firing_alt_trigger = true;
@@ -4174,7 +4173,7 @@ void modeFireStartSounds() {
             b_sound_firing_alt_trigger = true;
             if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
               playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 120, false);
-            }
+            }    
             else {
               playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
             }
@@ -4301,10 +4300,19 @@ void modeFireStopSounds() {
             break;
 
             case SYSTEM_1989:
-            if(i_wand_power_level == i_wand_power_level_max) {
-              // GB2 only plays a tail sound when in PL5.
-              playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-            }
+              // Play different firing end stream sound depending on how long we have been firing for.
+              if(ms_firing_length_timer.remaining() < 5000) {
+                // Long tail end.
+                playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
+              }
+              else if(ms_firing_length_timer.remaining() < 10000) {
+                // Mid tail end.
+                playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
+              }
+              else {
+                // Short tail end.
+                playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+              }
             break;
 
             case SYSTEM_AFTERLIFE:
