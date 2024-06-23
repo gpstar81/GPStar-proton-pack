@@ -2796,7 +2796,7 @@ void modeFireStartSounds() {
             switch(getSystemYearMode()) {
               case SYSTEM_1984:
                 playEffect(S_GB1_1984_FIRE_START_SHORT, false, i_volume_effects, false, 0, false);
-                playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, true, 250, false);
+                playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, true, 850, false);
               break;
               case SYSTEM_1989:
                 playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
@@ -2823,7 +2823,7 @@ void modeFireStartSounds() {
             if(getSystemYearMode() == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
               audio.trackFade(S_GB2_FIRE_START, 0, 3000, true);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 3000, false);
             }
             else if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
               playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
@@ -2831,7 +2831,7 @@ void modeFireStartSounds() {
             }
             else {
               playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 600, false);
             }
 
             b_sound_firing_alt_trigger = true;
@@ -2865,7 +2865,7 @@ void modeFireStartSounds() {
           if(b_firing_intensify == true) {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1500, false);
           }
           else {
             b_sound_firing_intensify_trigger = false;
@@ -3388,7 +3388,7 @@ void modeFiring() {
           playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
         }
         else {
-          playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, false, 0, false);
+          playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, false, 0, false);
         }
       }
     }
