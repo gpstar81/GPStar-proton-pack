@@ -194,19 +194,70 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 📝 **Note:** Spectral modes are disabled by default but can be enabled from the EEPROM Menu or flashed directly to the Neutrona Wand board. They take advantage of RGB coloured LED add-ons if installed.
 
 ### Proton Stream
+
 - Holding down `Intensify` will throw your normal Proton Stream.
 	- Pressing the `Barrel Wing Button` while you are already throwing a Proton Stream will initiate "Cross the Streams".
 - Pressing the `Barrel Wing Button` will fire a Boson Dart.
+
 ### Dark Matter Generator
+
 - Pressing `Intensify` will fire a Shock Blast.
 - Holding down the `Barrel Wing Button` will throw a Stasis Stream.
+
 ### Plasm Distribution System
+
 - Holding down `Intensify` will activate the Slime Blower.
 - Pressing the `Barrel Wing Button` will fire a Slime Tether.
+
 ### Composite Particle System
+
 - Pressing `Intensify` will fire the Meson Collider.
 - Pressing the `Barrel Wing Button` will fire an Overload Pulse. Holding down the `Barrel Wing Button` allows for rapid-fire.
 	- The firing rate is dependent on the Neutrona Wand's current power level.
+
+## Proton Stream Effects
+
+As a nod to accuracy where possible, the proton streams are based on those observed from the movies. Most streams carry the same theme-based effects for power levels 1-4 (2-4 for Mode Original) while the maximum power setting will typically change slightly based on the final battle scenes from the respective movies.
+
+**1984**
+
+| Power Level | Notable Effects |
+|---|---|
+| 1 | Firing startup based on first encounter with Slimer |
+| 2 | - Same - |
+| 3 | - Same - |
+| 4 | - Same - |
+| 5 | Additional sparking sounds at "full stream" |
+
+**1989**
+
+| Power Level | Notable Effects |
+|---|---|
+| 1 | Metallic "clang" as notable during the courtroom scene |
+| 2 | - Same - |
+| 3 | - Same - |
+| 4 | - Same - |
+| 5 | Uses the 1984 high power sound at "full neutronas" |
+
+**Afterlife**
+
+| Power Level | Notable Effects |
+|---|---|
+| 1 | Uses the same effects as 1984 |
+| 2 | - Same - |
+| 3 | - Same - |
+| 4 | - Same - |
+| 5 | New custom sounds specific for Afterlife |
+
+**Frozen Empire**
+
+| Power Level | Notable Effects |
+|---|---|
+| 1 | Uses new startup sound as heard in Frozen Empire |
+| 2 | - Same - |
+| 3 | - Same - |
+| 4 | - Same - |
+| 5 | - Same - |
 
 ## Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)
 
