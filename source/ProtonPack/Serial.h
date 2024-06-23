@@ -3648,7 +3648,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_TOGGLE_INNER_CYCLOTRON_LEDS:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_36);
       stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_26);
       stopEffect(S_VOICE_INNER_CYCLOTRON_24);
       stopEffect(S_VOICE_INNER_CYCLOTRON_23);
       stopEffect(S_VOICE_INNER_CYCLOTRON_12);
