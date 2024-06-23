@@ -2242,6 +2242,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_firing_intensify = true;
 
       if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
+        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
         b_sound_firing_intensify_trigger = true;
       }
 
@@ -2254,14 +2255,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_FIRING_INTENSIFY_STOPPED_MIX:
-      // Wand no longer firing in intensify mode.
+      // Wand no longer firing in intensify mode; drop back to alt fire mix.
       if(b_firing_intensify == true) {
-        if(i_wand_power_level == 5) {
-          // Need to stop and restart this loop to prevent overlaps since the barrel wing button is still held.
-          stopEffect(S_FIRING_LOOP_GB1);
-          playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-        }
-
         stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
       }
 
@@ -2285,6 +2280,17 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
         b_sound_firing_alt_trigger = true;
 
+        if(i_wand_power_level != i_wand_power_level_max) {
+          if(SYSTEM_YEAR == SYSTEM_1989) {
+            stopEffect(S_GB2_FIRE_LOOP);
+          }
+          else {
+            stopEffect(S_GB1_1984_FIRE_LOOP_GUN);
+          }
+
+          playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        }
+
         playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
       }
     break;
@@ -2296,24 +2302,26 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_FIRING_ALT_STOPPED_MIX:
-      // Wand no longer firing in alt mode mix.
+      // Wand no longer firing in alt mode; drop back to intensify fire mix.
       if(b_firing_alt == true) {
         stopEffect(S_FIRING_LOOP_GB1);
-        stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
 
         // Since Intensify is still held, turn back on its firing loop sounds.
         switch(i_wand_power_level) {
           case 1 ... 4:
+          default:
+            stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
             }
             else {
-              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, false, 0, false);
+              playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, false, 0, false);
             }
           break;
 
           case 5:
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+            // Do nothing.
           break;
         }
       }
@@ -2333,14 +2341,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_CROSS_STREAMS_START);
       }
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
-
-      // Mix in some new proton stream sounds for normal CTS.
-      if(i_wand_power_level != i_wand_power_level_max) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-      }
-      else {
-        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-      }
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_2021:
@@ -2355,15 +2355,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
-
-
-      // Mix in some new proton stream sounds for normal CTS.
-      if(i_wand_power_level != i_wand_power_level_max) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-      }
-      else {
-        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-      }
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_MIX_1984:
@@ -2379,21 +2370,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
-
-      // Mix in some new proton stream sounds for CTS Mix.
-      if(i_wand_power_level != i_wand_power_level_max) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-      }
-      else if(i_wand_power_level == i_wand_power_level_max) {
-        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-      }
-
-      if(SYSTEM_YEAR == SYSTEM_1989) {
-        stopEffect(S_GB2_FIRE_LOOP);
-      }
-      else {
-        stopEffect(S_GB1_FIRE_LOOP);
-      }
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_MIX_2021:
@@ -2409,21 +2385,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
-
-      // Mix in some new proton stream sounds for CTS Mix.
-      if(i_wand_power_level != i_wand_power_level_max) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-      }
-      else if(i_wand_power_level == i_wand_power_level_max) {
-        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-      }
-
-      if(SYSTEM_YEAR == SYSTEM_1989) {
-        stopEffect(S_GB2_FIRE_LOOP);
-      }
-      else {
-        stopEffect(S_GB1_FIRE_LOOP);
-      }
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984:
@@ -2432,8 +2393,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
         stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
       }
-      //stopEffect(S_CROSS_STREAMS_END);
 
       playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
@@ -2444,8 +2405,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       }
-      //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
@@ -2461,8 +2422,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
         stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
       }
-      //stopEffect(S_CROSS_STREAMS_END);
 
       playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
@@ -2478,8 +2439,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       }
-      //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;

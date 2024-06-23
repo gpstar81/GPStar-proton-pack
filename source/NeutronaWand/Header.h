@@ -353,12 +353,14 @@ millisDelay ms_firing_effect_end;
 millisDelay ms_firing_stream_effects;
 millisDelay ms_firing_pulse;
 millisDelay ms_impact; // Mix some impact sounds while firing.
+millisDelay ms_firing_length_timer;
 millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
 millisDelay ms_semi_automatic_check; // Timer used for the semi-automatic firing modes.
 const uint16_t i_boson_dart_rate = 2000; // Boson Dart firing rate.
 const uint16_t i_shock_blast_rate = 600; // Shock Blast firing rate.
 const uint16_t i_slime_tether_rate = 750; // Slime Tether firing rate.
 const uint16_t i_meson_collider_rate = 250; // Meson Collider firing rate.
+const uint16_t i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
 const uint8_t d_firing_pulse = 18; // Used to drive semi-automatic firing stream effect timers. Default: 18ms.
 const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // Used to keep track which LED in the barrel is currently lighting up.
@@ -422,7 +424,6 @@ bool b_firing_semi_automatic = false; // Check for semi-automatic firing modes.
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_sound_firing_cross_the_streams = false;
-bool b_sound_firing_cross_the_streams_mix = false;
 bool b_sound_idle = false;
 bool b_beeping = false;
 bool b_sound_afterlife_idle_2_fade = true;

@@ -120,15 +120,15 @@ void readEEPROM() {
       switch(i_powercell_leds) {
         case FRUTTO_POWERCELL_LED_COUNT:
           // 15 Power Cell LEDs.
-          i_powercell_delay_1984 = 60;
-          i_powercell_delay_2021 = 34;
+          i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
+          i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
         break;
 
         case HASLAB_POWERCELL_LED_COUNT:
         default:
           // 13 Power Cell LEDs.
-          i_powercell_delay_1984 = 75;
-          i_powercell_delay_2021 = 40;
+          i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
+          i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
         break;
       }
     }
