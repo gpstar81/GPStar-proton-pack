@@ -3680,8 +3680,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           i_2021_inner_delay = 5;
           i_1984_inner_delay = 9;
 
-          // playEffect(S_VOICE_INNER_CYCLOTRON_26);
-          // packSerialSend(P_INNER_CYCLOTRON_LEDS_26);
+          playEffect(S_VOICE_INNER_CYCLOTRON_26);
+          packSerialSend(P_INNER_CYCLOTRON_LEDS_26);
         break;
 
         case 26:
@@ -3701,8 +3701,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           i_2021_inner_delay = 12;
           i_1984_inner_delay = 15;
 
-          // playEffect(S_VOICE_INNER_CYCLOTRON_36);
-          // packSerialSend(P_INNER_CYCLOTRON_LEDS_36);
+          playEffect(S_VOICE_INNER_CYCLOTRON_36);
+          packSerialSend(P_INNER_CYCLOTRON_LEDS_36);
         break;
 
         case 36:

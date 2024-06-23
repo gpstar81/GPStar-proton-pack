@@ -413,10 +413,12 @@ enum sound_fx {
   S_AFTERLIFE_FIRE_END_SHORT,
   S_AFTERLIFE_FIRE_END_MID,
   S_AFTERLIFE_FIRE_END_LONG,
-  S_FROZEN_EMPIRE_FIRE_END
+  S_FROZEN_EMPIRE_FIRE_END,
+  S_VOICE_INNER_CYCLOTRON_26,  
+  S_VOICE_INNER_CYCLOTRON_36
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_FROZEN_EMPIRE_FIRE_END;
+const uint16_t i_last_effects_track = S_VOICE_INNER_CYCLOTRON_36;
