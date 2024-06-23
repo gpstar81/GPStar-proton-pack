@@ -26,7 +26,9 @@ Next is the matter of how long you may wish to run your pack. For those who "tro
 
 - Any battery pack which uses PD (power delivery) is not recommended, nor is use of USB-C connections as these could potentially supply up to 100W of power and could destroy your equipment. Using standard USB-A connections is recommended as there are dedicated power wires which are easy to access from a modified cable and is typically limited to 2-3 Amps for output.
 
-- Putting too high a load on a rechargeable battery is not good long-term for the battery or the components. The battery will be limited to a maximum output in terms of both voltage and camperage. In some cases this can present as degraded behavior for the componet (eg. smoke air pumps run slower) or it could affect the controllers causing stuttering or other unexpected behavior. You are encouraged to put high-draw devices on their own separate battery or otherwise limit smoke effects to 1 device per battery if sharing with the pack/wand electronics.
+- Putting too high a load on a rechargeable battery is not good long-term for the battery or the components. The battery will be limited to a maximum output in terms of both voltage and camperage. In some cases this can present as degraded behavior for the component (eg. smoke air pumps run slower) or it could affect the controllers causing stuttering or other unexpected behavior. You are encouraged to put high-draw devices on their own separate battery or otherwise limit smoke effects to 1 device per battery if sharing with the pack/wand electronics.
+
+- When using the new GPStar Amplifier in your Proton Pack, do not run more than 1 smoke device (vape coil + air pump) from any of the provided 5V JST-XH connections. The built-in voltage regulator can only provide a maximum of 3A, and when running all of the pack/wand components plus a single 5V smoke device can easily approach that maximum. Similarly, if using the GPStar Power Hub this also uses the same voltage regulator and should not be used to drive more than 2 smoke device.
 
 ## Options
 
