@@ -4440,12 +4440,8 @@ void wandStopFiringSounds() {
               stopEffect(S_GB1_1984_FIRE_LOOP_PACK);
             break;
             case SYSTEM_1989:
-              //stopEffect(S_GB2_FIRE_START);
-              //stopEffect(S_GB2_FIRE_LOOP);
-
-              // In GB2 the lower power modes just fade out.
-              audio.trackFade(S_GB2_FIRE_START, 0, 100, true);
-              audio.trackFade(S_GB2_FIRE_LOOP, 0, 100, true);
+              stopEffect(S_GB2_FIRE_START);
+              stopEffect(S_GB2_FIRE_LOOP);
             break;
             case SYSTEM_AFTERLIFE:
             default:

@@ -3042,12 +3042,8 @@ void modeFireStopSounds() {
               stopEffect(S_GB1_1984_FIRE_LOOP_GUN);
             break;
             case SYSTEM_1989:
-              //stopEffect(S_GB2_FIRE_START);
-              //stopEffect(S_GB2_FIRE_LOOP);
-
-              // In GB2 the lower power modes just fade out.
-              audio.trackFade(S_GB2_FIRE_START, 0, 100, true);
-              audio.trackFade(S_GB2_FIRE_LOOP, 0, 100, true);
+              stopEffect(S_GB2_FIRE_START);
+              stopEffect(S_GB2_FIRE_LOOP);
             break;
             case SYSTEM_AFTERLIFE:
             default:
@@ -3131,10 +3127,19 @@ void modeFireStopSounds() {
           break;
 
           case SYSTEM_1989:
-          if(i_power_level == i_power_level_max) {
-            // GB2 only plays a tail sound when in PL5.
-            playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-          }
+            // Play different firing end stream sound depending on how long we have been firing for.
+            if(ms_firing_length_timer.remaining() < 5000) {
+              // Long tail end.
+              playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
+            }
+            else if(ms_firing_length_timer.remaining() < 10000) {
+              // Mid tail end.
+              playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
+            }
+            else {
+              // Short tail end.
+              playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+            }
           break;
 
           case SYSTEM_AFTERLIFE:
