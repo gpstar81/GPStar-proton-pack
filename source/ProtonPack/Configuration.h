@@ -75,6 +75,7 @@ bool b_powercell_colour_toggle = true;
  *
  * CYCLOTRON_DELAY_2021_12_LED is for the stock Haslab 12 LED setup.
  * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology 20 LED setup.
+ * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology Max 36 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
 const uint16_t i_1984_delay = 275;
@@ -247,11 +248,22 @@ bool b_stream_effects = true;
 /*
  * Inner Cyclotron NeoPixel ring speed.
  * The lower the number, the faster it will spin.
- * Default settings for a 35 NeoPixel ring are 5 for 2021 mode and 9 for 1984/1989 mode.
  * If you are using a ring with less than 35 NeoPixels, you may need to slightly raise these numbers.
  */
-uint8_t i_2021_inner_delay = 5;
-uint8_t i_1984_inner_delay = 9;
+#define INNER_CYCLOTRON_DELAY_1984_12_LED 15 // For 12 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_12_LED 12 // For 12 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_23_LED 12 // For 23 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_23_LED 8 // For 23 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_24_LED 12 // For 24 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_24_LED 8 // For 24 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_26_LED 12 // For 26 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_26_LED 8 // For 26 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_35_LED 9 // For 35 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_35_LED 5 // For 35 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_36_LED 9 // For 36 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
+uint8_t i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
+uint8_t i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
 
 /*
  * Cyclotron direction

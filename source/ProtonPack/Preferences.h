@@ -148,6 +148,7 @@ void readEEPROM() {
 
         case 23:
         case 24:
+        case 26:
           i_2021_inner_delay = 8;
           i_1984_inner_delay = 12;
         break;

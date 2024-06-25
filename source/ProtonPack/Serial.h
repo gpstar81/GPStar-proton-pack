@@ -1615,9 +1615,32 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       switch(STREAM_MODE) {
         case PROTON:
         default:
-          stopEffect(S_FIRING_END_GUN);
-          stopEffect(S_FIRING_END_MID);
-          stopEffect(S_FIRING_END);
+          switch(SYSTEM_YEAR) {
+            case SYSTEM_1984:
+              if(i_wand_power_level != i_wand_power_level_max) {
+                stopEffect(S_FIRING_END);
+                stopEffect(S_FIRING_END_MID);
+                stopEffect(S_GB1_1984_FIRE_END_SHORT);
+              }
+              else {
+                stopEffect(S_GB1_1984_FIRE_END_HIGH_POWER);
+              }
+            break;
+            case SYSTEM_1989:
+              stopEffect(S_FIRING_END_GUN);
+              stopEffect(S_FIRING_END_MID);
+              stopEffect(S_FIRING_END);
+            break;
+            case SYSTEM_AFTERLIFE:
+            default:
+              stopEffect(S_AFTERLIFE_FIRE_END_SHORT);
+              stopEffect(S_AFTERLIFE_FIRE_END_MID);
+              stopEffect(S_AFTERLIFE_FIRE_END_LONG);
+            break;
+            case SYSTEM_FROZEN_EMPIRE:
+              stopEffect(S_FROZEN_EMPIRE_FIRE_END);
+            break;
+          }
         break;
         case SLIME:
           stopEffect(S_SLIME_END);
@@ -2238,11 +2261,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_FIRING_INTENSIFY_MIX:
-      // Wand firing in intensify mode.
+      // Wand firing in intensify mode mix.
       b_firing_intensify = true;
 
       if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        if(SYSTEM_YEAR == SYSTEM_1984) {
+          playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        }
+        else {
+          playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        }
         b_sound_firing_intensify_trigger = true;
       }
 
@@ -2257,7 +2285,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_FIRING_INTENSIFY_STOPPED_MIX:
       // Wand no longer firing in intensify mode; drop back to alt fire mix.
       if(b_firing_intensify == true) {
-        stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+        if(SYSTEM_YEAR == SYSTEM_1984) {
+          stopEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP);
+        }
+        else {
+          stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+        }
       }
 
       b_firing_intensify = false;
@@ -2274,7 +2307,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_FIRING_ALT_MIX:
-      // Wand firing in alt mode.
+      // Wand firing in alt mode mix.
       b_firing_alt = true;
 
       if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
@@ -2288,7 +2321,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
             stopEffect(S_GB1_1984_FIRE_LOOP_GUN);
           }
 
-          playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+          if(SYSTEM_YEAR == SYSTEM_1984) {
+            playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+          }
+          else {
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+          }
         }
 
         playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
@@ -2310,7 +2348,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         switch(i_wand_power_level) {
           case 1 ... 4:
           default:
-            stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+            if(SYSTEM_YEAR == SYSTEM_1984) {
+              stopEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP);
+            }
+            else {
+              stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+            }
 
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
@@ -3659,8 +3702,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case 12:
           // Switching: 12 -> 23 LEDs.
           i_inner_cyclotron_cake_num_leds = 23;
-          i_2021_inner_delay = 8;
-          i_1984_inner_delay = 12;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_23_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_23_LED;
 
           playEffect(S_VOICE_INNER_CYCLOTRON_23);
           packSerialSend(P_INNER_CYCLOTRON_LEDS_23);
@@ -3669,8 +3712,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case 23:
           // Switching: 23 -> 24 LEDs.
           i_inner_cyclotron_cake_num_leds = 24;
-          i_2021_inner_delay = 8;
-          i_1984_inner_delay = 12;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_24_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_24_LED;
 
           playEffect(S_VOICE_INNER_CYCLOTRON_24);
           packSerialSend(P_INNER_CYCLOTRON_LEDS_24);
@@ -3679,8 +3722,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case 24:
           // Switching: 24 -> 26 LEDs.
           i_inner_cyclotron_cake_num_leds = 26;
-          i_2021_inner_delay = 5;
-          i_1984_inner_delay = 9;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_26_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_26_LED;
 
           playEffect(S_VOICE_INNER_CYCLOTRON_26);
           packSerialSend(P_INNER_CYCLOTRON_LEDS_26);
@@ -3690,8 +3733,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         default:
           // Switching: 26 -> 35 LEDs.
           i_inner_cyclotron_cake_num_leds = 35;
-          i_2021_inner_delay = 5;
-          i_1984_inner_delay = 9;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
 
           playEffect(S_VOICE_INNER_CYCLOTRON_35);
           packSerialSend(P_INNER_CYCLOTRON_LEDS_35);
@@ -3700,8 +3743,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case 35:
           // Switching: 35 -> 36 LEDs.
           i_inner_cyclotron_cake_num_leds = 36;
-          i_2021_inner_delay = 12;
-          i_1984_inner_delay = 15;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_36_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_36_LED;
 
           playEffect(S_VOICE_INNER_CYCLOTRON_36);
           packSerialSend(P_INNER_CYCLOTRON_LEDS_36);
@@ -3710,8 +3753,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case 36:
           // Switching: 36 -> 12 LEDs.
           i_inner_cyclotron_cake_num_leds = 12;
-          i_2021_inner_delay = 12;
-          i_1984_inner_delay = 15;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_12_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_12_LED;
 
           playEffect(S_VOICE_INNER_CYCLOTRON_12);
           packSerialSend(P_INNER_CYCLOTRON_LEDS_12);
@@ -3733,8 +3776,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         default:
           // Switch to 15 Power Cell LEDs.
           i_powercell_leds = FRUTTO_POWERCELL_LED_COUNT;
-          i_powercell_delay_1984 = 60;
-          i_powercell_delay_2021 = 34;
+          i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
+          i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
 
           playEffect(S_VOICE_POWERCELL_15);
           packSerialSend(P_POWERCELL_LEDS_15);
@@ -3743,8 +3786,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case FRUTTO_POWERCELL_LED_COUNT:
           // Switch to 13 Power Cell LEDs.
           i_powercell_leds = HASLAB_POWERCELL_LED_COUNT;
-          i_powercell_delay_1984 = 75;
-          i_powercell_delay_2021 = 40;
+          i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
+          i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
 
           playEffect(S_VOICE_POWERCELL_13);
           packSerialSend(P_POWERCELL_LEDS_13);

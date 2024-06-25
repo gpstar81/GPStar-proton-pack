@@ -40,7 +40,7 @@ void wandSensorSetup() {
 void updateWandSensor() {
   if(b_wand_sensor == true) {
     adc.setCompareChannels(ADS1115_COMP_0_GND);
-  
+
     f_wand_sensor_data = adc.getResult_V(); // Or you can also use getResult_mV for Millivolt's.
   }
 }

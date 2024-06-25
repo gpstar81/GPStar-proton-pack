@@ -173,7 +173,7 @@ enum PACK_ACTION_STATES PACK_ACTION_STATE;
  * Cyclotron lid LEDs control and lid detection.
  */
 uint8_t i_1984_counter = 0; // Counter to keep track of which of the four LEDs we are working with in 1984/1989 mode.
-uint8_t i_2021_delay = 15; // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
+uint8_t i_2021_delay = CYCLOTRON_DELAY_2021_12_LED; // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
 uint8_t i_cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
 uint8_t i_led_cyclotron = i_cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
 const uint16_t i_2021_ramp_delay = 300;
@@ -209,11 +209,9 @@ const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2
 
 /*
  * Inner Cyclotron NeoPixel ring ramp control.
- * This is based on the 35 LED NeoPixel ring option.
  */
 millisDelay ms_cyclotron_ring;
 rampInt r_inner_ramp;
-const uint16_t i_inner_delay = i_2021_inner_delay;
 const uint16_t i_inner_ramp_delay = 300;
 int8_t i_led_cyclotron_ring = 0; // Current LED for the inner cyclotron ring.
 int8_t i_led_cyclotron_cavity = 0; // Current LED for the cyclotron cavity.
