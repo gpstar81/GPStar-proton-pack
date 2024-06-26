@@ -4096,15 +4096,18 @@ void modeFireStartSounds() {
                 playEffect(S_GB1_1984_FIRE_START_SHORT, false, i_volume_effects, false, 0, false);
                 playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, true, 1350, false);
               break;
+
               case SYSTEM_1989:
                 playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
                 playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500, false);
               break;
+
               case SYSTEM_AFTERLIFE:
               default:
                 playEffect(S_GB1_FIRE_START, false, i_volume_effects, false, 0, false);
                 playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, true, 1000, false);
               break;
+              
               case SYSTEM_FROZEN_EMPIRE:
                 playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
                 playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, true, 500, false);
