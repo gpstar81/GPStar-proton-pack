@@ -78,7 +78,7 @@ bool b_powercell_colour_toggle = true;
  * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology Max 36 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
-const uint16_t i_1984_delay = 275;
+const uint16_t i_1984_delay = 1050;
 #define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs.
 #define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs.
 #define CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
