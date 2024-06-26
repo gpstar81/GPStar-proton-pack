@@ -418,10 +418,12 @@ enum sound_fx {
   S_VOICE_INNER_CYCLOTRON_36,
   S_GB1_1984_FIRE_START_HIGH_POWER,
   S_GB1_1984_FIRE_END_HIGH_POWER,
-  S_GB1_1984_FIRE_HIGH_POWER_LOOP
+  S_GB1_1984_FIRE_HIGH_POWER_LOOP,
+  S_GB1_1984_FIRE_END_SHORT_HIGH_POWER,
+  S_GB1_1984_FIRE_END_MID_HIGH_POWER
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_GB1_1984_FIRE_HIGH_POWER_LOOP;
+const uint16_t i_last_effects_track = S_GB1_1984_FIRE_END_MID_HIGH_POWER;

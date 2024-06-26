@@ -1801,37 +1801,82 @@ void powercellLoop() {
       switch(i_powercell_multiplier) {
         case 2:
           if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-            i_multiplier = 5;
+            if(i_pc_delay + i_extra_delay > 5) {
+              i_multiplier = 5;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
           else {
-            i_multiplier = 10;
+            if(i_pc_delay + i_extra_delay > 10) {
+              i_multiplier = 10;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
         break;
 
         case 3:
           if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-            i_multiplier = 10;
+            if(i_pc_delay + i_extra_delay > 10) {
+              i_multiplier = 10;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
           else {
-            i_multiplier = 20;
+            if(i_pc_delay + i_extra_delay > 20) {
+              i_multiplier = 20;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
         break;
 
         case 4:
           if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-            i_multiplier = 15;
+            if(i_pc_delay + i_extra_delay > 15) {
+              i_multiplier = 15;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
           else {
-            i_multiplier = 30;
+            if(i_pc_delay + i_extra_delay > 30) {
+              i_multiplier = 30;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }   
           }
         break;
 
         case 5:
           if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-            i_multiplier = 25;
+            if(i_pc_delay + i_extra_delay > 25) {
+              i_multiplier = 25;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
           else {
-            i_multiplier = 40;
+            if(i_pc_delay + i_extra_delay > 40) {
+              if(i_pc_delay + i_extra_delay > 40) {
+                i_multiplier = 40;
+              }
+              else {
+                i_multiplier = i_pc_delay + i_extra_delay;
+              }  
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }
           }
         break;
 
@@ -1840,7 +1885,12 @@ void powercellLoop() {
             i_multiplier = 30;
           }
           else {
-            i_multiplier = 50;
+            if(i_pc_delay + i_extra_delay > 50) {
+              i_multiplier = 50;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }            
           }
         break;
       }
@@ -4185,7 +4235,7 @@ void modeFireStartSounds() {
               playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 120, false);
             }
             else if(SYSTEM_YEAR == SYSTEM_1984) {
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1700, false);
+              playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, false);
             }
             else {
               playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
@@ -4307,8 +4357,19 @@ void modeFireStopSounds() {
                 }
               }
               else {
-                // Play high power stream end.
-                playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                // Play different firing end stream sound depending on how long we have been firing for.
+                if(ms_firing_length_timer.remaining() < 5000) {
+                  // Long tail end.
+                  playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                }
+                else if(ms_firing_length_timer.remaining() < 10000) {
+                  // Mid tail end.
+                  playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                }
+                else {
+                  // Short tail end.
+                  playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                }                
               }
             break;
 

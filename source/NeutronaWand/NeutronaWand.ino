@@ -2909,7 +2909,7 @@ void modeFireStartSounds() {
               playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 120, false);
             }
             else if(getSystemYearMode() == SYSTEM_1984) {
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1700, false);
+              playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, false);
             }
             else {
               playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
@@ -3155,8 +3155,19 @@ void modeFireStopSounds() {
               }
             }
             else {
-              // Play high power stream end.
-              playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                // Play different firing end stream sound depending on how long we have been firing for.
+                if(ms_firing_length_timer.remaining() < 5000) {
+                  // Long tail end.
+                  playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                }
+                else if(ms_firing_length_timer.remaining() < 10000) {
+                  // Mid tail end.
+                  playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                }
+                else {
+                  // Short tail end.
+                  playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                }
             }
           break;
 
