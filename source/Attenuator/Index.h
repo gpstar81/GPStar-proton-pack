@@ -221,7 +221,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     }
 
     function setEl(id, value){
-      getEl(id).innerHtml = value;
+      getEl(id).innerHTML = value || "";
     }
 
     function initWebSocket() {
@@ -518,7 +518,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         if (jObj.wand == "Connected") {
           // Only update if the wand is physically connected to the pack.
           setEl("streamMode", jObj.wandMode || "");
-          getEl("powerLevel", "L-" + (jObj.power || "0");
+          setEl("powerLevel", "L-" + (jObj.power || "0"));
 
           getEl("barrelOverlay").style.display = "block";
           getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
