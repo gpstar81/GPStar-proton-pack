@@ -1,6 +1,8 @@
 # Troubleshooting #
 
-If you are experiencing issues during the installation process there are a few ways to get back on track. Use the guides below to help narrow down where you are having an issue and try the suggested remedies. Should you need additional assistance, reach out to the [GPStar Technologies Facebook group](https://www.facebook.com/groups/gpstartechnologies) and either post a question or message one of the group administrators.
+If you are experiencing issues during the installation process there are a few ways to get back on track. Use the guides below to help narrow down where you are having an issue and try the suggested remedies. Should you need additional assistance, reach out to the [GPStar Technologies Facebook group](https://www.facebook.com/groups/gpstartechnologies) and either use the group search (see below) or post a question to the community.
+
+![FB Group Search Option](images/GroupSearch.jpg)
 
 ### General Guidance ###
 

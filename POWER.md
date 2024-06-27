@@ -1,6 +1,6 @@
 # Power Requirements
 
-You will need a suitable power supply to run the pack controller, 2 sound boards, the wand controller, and optionally any audio amplifiers and smoke effects.
+You will need a suitable power supply to run the pack controller, 2 sound boards, the wand controller, and optionally any audio amplifiers and smoke effects. If looking for configuration options for the latter, please view [the SMOKE guide](SMOKE.md) for diagrams and references.
 
 ## Voltage
 
