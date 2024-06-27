@@ -51,11 +51,11 @@ Power should be provided as recommended by your kit manufacturer. Most kits run 
 
 As of mid-2024 there are now 2 standard options available for obtaining power easily from a Talentcell battery: the GPStar Amplifier and the GPStar Power Hub. Both devices accept 12VDC from the 5525 barrel jack on the common Talentcell batteries, and both use an on-board 5V regulator which is capable of delivering up to 3A of power.
 
-**WARNING** Do not operate more than 1 smoke kit from the amplifier. This device must consume power to run the speakers, and is also meant to provide power easily to the Proton Pack controller. This is typically enough to push the voltage converter to its limit and can result in poor performance from trying to run 2 smoke kits simultanously.
+**WARNING** Do not operate more than 1 smoke kit from the amplifier. This device must consume power to run the speakers, and is also meant to provide power easily to the Proton Pack controller. This is typically enough to push the voltage converter to its limit and can result in poor performance from trying to run 2 smoke kits simultaneously.
 
 ![GPStar Amplifier](images/GPStarAmplifier.jpg)
 
-This device is meant to provide dedicated power to high-current devices. It has been tested by operating 2 smoke kits (5V each) simultanously without issue. The primary use-case is when used with a second Talentcell battery reserved exclusively for powering smoke effects.
+This device is meant to provide dedicated power to high-current devices. It has been tested by operating 2 smoke kits (5V each) simultaneously without issue. The primary use-case is when used with a second Talentcell battery reserved exclusively for powering smoke effects.
 
 ![GPStar Power Hub](images/GPStarPowerHub.jpg)
 
